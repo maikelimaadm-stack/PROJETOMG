@@ -236,7 +236,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           overflow-y: scroll;
           scrollbar-width: thin;
           scrollbar-color: #64748b #e2e8f0;
-          scrollbar-gutter: stable;
+        }
+        .emp-table-track {
+          display: block;
+          width: max-content;
+          min-width: 100%;
         }
         .emp-table-scroll::-webkit-scrollbar {
           width: 12px;
@@ -267,10 +271,14 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               onKeyDown={handleTableKeyDown}
               className="emp-table-scroll relative flex-1 min-h-0 w-full outline-none"
             >
+              <div
+                className="emp-table-track"
+                style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+              >
               <Table
                 ref={tableRef}
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="!w-auto border-separate border-spacing-0 table-fixed select-none"
+                className="w-full border-separate border-spacing-0 table-fixed select-none"
               >
                 <TableHeader className="bg-white shadow-[0_1px_0_0_#d1d5db]">
                   <TableRow className="bg-white hover:bg-white">
@@ -329,6 +337,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                   )}
                 </TableBody>
               </Table>
+              </div>
             </div>
           </div>
         </CardContent>
