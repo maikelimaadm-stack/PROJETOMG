@@ -9,17 +9,21 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
-import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check } from "lucide-react";
+import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+const CHECK_COL_WIDTH = 36;
+const ACTIONS_COL_WIDTH = 36;
 
 const COLUNAS_BASE = [
-  { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "right", width: 90 },
+  { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "center", width: 90 },
   { id: "razao_social", label: "Razão Social", default: true, sortable: true, align: "left", width: 260 },
   { id: "nome_fantasia", label: "Nome Fantasia", default: true, sortable: true, align: "left", width: 220 },
-  { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "left", width: 80 },
-  { id: "cpf_cnpj", label: "CPF/CNPJ", default: true, sortable: true, align: "left", width: 160 },
-  { id: "inscricao_estadual", label: "Inscrição Estadual", default: false, sortable: true, align: "left", width: 170 },
-  { id: "telefone", label: "Telefone", default: true, sortable: true, align: "left", width: 130 },
-  { id: "whatsapp", label: "WhatsApp", default: false, sortable: true, align: "left", width: 140 },
+  { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "center", width: 80 },
+  { id: "cpf_cnpj", label: "CPF/CNPJ", default: true, sortable: true, align: "center", width: 160 },
+  { id: "inscricao_estadual", label: "Inscrição Estadual", default: false, sortable: true, align: "center", width: 170 },
+  { id: "telefone", label: "Telefone", default: true, sortable: true, align: "center", width: 130 },
+  { id: "whatsapp", label: "WhatsApp", default: false, sortable: true, align: "center", width: 140 },
   { id: "email", label: "E-mail", default: true, sortable: true, align: "left", width: 200 },
   { id: "logo_url", label: "Logo", default: false, sortable: false, align: "left", width: 180 },
   { id: "cep", label: "CEP", default: false, sortable: true, align: "left", width: 110 },
@@ -99,7 +103,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
   const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => [c.id, Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c))])), [colunasOrdenadas, columnWidths]);
-  const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
+  const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, CHECK_COL_WIDTH + ACTIONS_COL_WIDTH + colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
 
   const getFieldValue = (emp, colId) => {
@@ -126,7 +130,15 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   };
 
   const getColumnFilterType = (col) => { if (col?.id === "codigo_empresa") return "number"; if (col?.tipo === "date" || col?.id === "data") return "date"; if (col?.tipo === "number" && col?.usar_mascara) return "list"; if (["number", "calculado"].includes(col?.tipo) || col?.id === "codigo_empresa") return "number"; return "list"; };
-  const getColumnAlignClass = (col) => { const t = getColumnFilterType(col); if (t === "date") return "text-center"; if (t === "number") return "text-right"; return "text-left"; };
+  const getColumnAlignClass = (col) => {
+    if (col?.align === "right") return "text-right";
+    if (col?.align === "center") return "text-center";
+    if (col?.align === "left") return "text-left";
+    const t = getColumnFilterType(col);
+    if (t === "date") return "text-center";
+    if (t === "number") return "text-right";
+    return "text-left";
+  };
   const getComparableValue = (emp, col) => { if (col.id === "codigo_empresa") return Number(emp.codigo_empresa || 0); return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id); };
 
   const columnOptions = useMemo(() => { const opts = {}; colunasDisponiveis.filter((c) => !c.fixo).forEach((col) => { opts[col.id] = [...new Set(empresas.map((e) => getFieldValue(e, col.id)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" })); }); return opts; }, [empresas, colunasDisponiveis]);
@@ -178,10 +190,32 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const handleRowTouch = (emp, event) => { const now = Date.now(); if (lastTapRef.current.id === emp.id && now - lastTapRef.current.time < 300) { event.preventDefault(); if (selectedItems.length <= 1) onEdit(emp); } else { handleRowSelect(emp, event); } lastTapRef.current = { id: emp.id, time: now }; };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
 
+  const allRowsSelected = empresasOrdenadas.length > 0 && empresasOrdenadas.every((e) => selectedItems.includes(e.id));
+  const toggleSelectAll = () => setSelectedItems(allRowsSelected ? [] : empresasOrdenadas.map((e) => e.id));
+
+  const renderSortIndicator = (colId) => {
+    if (sortConfig.key !== colId) {
+      return (
+        <span className="inline-flex flex-col ml-1 opacity-35 leading-none">
+          <ChevronUp className="w-2.5 h-2.5 -mb-1" />
+          <ChevronDown className="w-2.5 h-2.5" />
+        </span>
+      );
+    }
+    return sortConfig.direction === "asc"
+      ? <ChevronUp className="w-3 h-3 ml-1 inline-block" />
+      : <ChevronDown className="w-3 h-3 ml-1 inline-block" />;
+  };
+
+  const getRowBgClass = (index, selected) => {
+    if (selected) return "emp-row-selected";
+    return index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
+  };
+
   const agregacoes = useMemo(() => campoEngine.calcularAgregacoes ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {}) : {}, [empresasOrdenadas, colunasOrdenadas]);
 
   const renderFilterControl = (colunaId) => {
-    const btnCls = `h-4 w-4 min-w-4 p-0 ${hasActiveFilter(colunaId) ? "text-emerald-700" : "text-slate-500 hover:text-slate-700"}`;
+    const btnCls = `h-4 w-4 min-w-4 p-0 ${hasActiveFilter(colunaId) ? "text-emerald-700" : "text-[#082e54] hover:text-[#082e54]/80"}`;
     const col = colunasDisponiveis.find((c) => c.id === colunaId);
     const opts = columnOptions[colunaId] || [];
     const ft = getColumnFilterType(col);
@@ -252,10 +286,21 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <Table
                 ref={tableRef}
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="w-full border-separate border-spacing-0 table-fixed select-none"
+                className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none"
               >
-                <TableHeader className="bg-white shadow-[0_1px_0_0_#d1d5db]">
-                  <TableRow className="bg-white hover:bg-white">
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead
+                      style={{ width: CHECK_COL_WIDTH, minWidth: CHECK_COL_WIDTH, maxWidth: CHECK_COL_WIDTH }}
+                      className="emp-th sticky top-0 z-50 text-center px-1"
+                    >
+                      <Checkbox
+                        checked={allRowsSelected}
+                        onCheckedChange={toggleSelectAll}
+                        className="h-3.5 w-3.5"
+                        aria-label="Selecionar todos"
+                      />
+                    </TableHead>
                     {colunasOrdenadas.map((col, colIndex) => {
                       const width = columnPixelWidths[col.id] || 160;
                       const isFrozen = colIndex < frozenColumnCount;
@@ -264,49 +309,86 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       return (
                         <TableHead
                           key={col.id}
-                          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                          className={`group sticky top-0 align-middle text-slate-600 px-2 text-xs font-medium border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }}
+                          className={`emp-th group sticky top-0 align-middle px-2 whitespace-nowrap h-8 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
-                          <div className="block w-full h-full leading-7 whitespace-nowrap overflow-hidden text-ellipsis">{col.label}</div>
-                          {filterControl && <div className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-white/95 pl-1 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} onClick={(e) => e.stopPropagation()}>
+                          <div className={`flex items-center w-full h-full leading-8 whitespace-nowrap overflow-hidden ${col.align === "right" ? "justify-end" : col.align === "center" ? "justify-center" : "justify-start"}`}>
+                            <span className="truncate uppercase tracking-wide">{col.label}</span>
+                            {renderSortIndicator(col.id)}
+                          </div>
+                          {filterControl && <div className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-slate-50/95 pl-1 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} onClick={(e) => e.stopPropagation()}>
                             {filterControl}
-                            <button type="button" className={`h-5 w-4 flex items-center justify-center rounded cursor-col-resize ${isResizing ? "text-emerald-700 bg-emerald-100" : "text-slate-600 hover:text-slate-800 hover:bg-slate-100"}`} onMouseDown={(e) => startDragResize(e, col)} onTouchStart={(e) => startDragResize(e, col)} onClick={(e) => e.stopPropagation()} title="Redimensionar"><GripVertical className="w-3.5 h-3.5" /></button>
+                            <button type="button" className={`h-5 w-4 flex items-center justify-center rounded cursor-col-resize ${isResizing ? "text-emerald-700 bg-emerald-100" : "text-[#082e54] hover:bg-slate-200"}`} onMouseDown={(e) => startDragResize(e, col)} onTouchStart={(e) => startDragResize(e, col)} onClick={(e) => e.stopPropagation()} title="Redimensionar"><GripVertical className="w-3.5 h-3.5" /></button>
                           </div>}
-                          {isResizing && <div className="absolute top-0 right-0 h-full w-5 z-50 flex items-center justify-center cursor-col-resize bg-lime-800" onMouseDown={(e) => startDragResize(e, col)} onTouchStart={(e) => startDragResize(e, col)} onClick={(e) => { e.stopPropagation(); setResizeColumnId(null); }} onDoubleClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}><GripVertical className="w-3.5 h-3.5 text-white" /></div>}
+                          {isResizing && <div className="absolute top-0 right-0 h-full w-5 z-50 flex items-center justify-center cursor-col-resize bg-[#082e54]" onMouseDown={(e) => startDragResize(e, col)} onTouchStart={(e) => startDragResize(e, col)} onClick={(e) => { e.stopPropagation(); setResizeColumnId(null); }} onDoubleClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}><GripVertical className="w-3.5 h-3.5 text-white" /></div>}
                         </TableHead>
                       );
                     })}
+                    <TableHead
+                      style={{ width: ACTIONS_COL_WIDTH, minWidth: ACTIONS_COL_WIDTH, maxWidth: ACTIONS_COL_WIDTH }}
+                      className="emp-th sticky top-0 z-40 text-center px-0"
+                    />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {empresasOrdenadas.length === 0
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Nenhuma empresa encontrada</TableCell></TableRow>
-                    : empresasOrdenadas.map((emp, index) => (
-                      <TableRow key={emp.id} className={`${index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`} onClick={(e) => handleRowSelect(emp, e)} onDoubleClick={() => selectedItems.length <= 1 && onEdit(emp)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
+                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length + 2} className="text-center py-8 text-xs text-slate-400 border-b border-slate-200">Nenhuma empresa encontrada</TableCell></TableRow>
+                    : empresasOrdenadas.map((emp, index) => {
+                      const isSelected = selectedItems.includes(emp.id);
+                      const rowClass = getRowBgClass(index, isSelected);
+                      return (
+                      <TableRow key={emp.id} className={`${rowClass} transition-colors border-0 cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowSelect(emp, e)} onDoubleClick={() => selectedItems.length <= 1 && onEdit(emp)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
+                        <TableCell className={`emp-td emp-td-check text-center px-1 ${rowClass}`}>
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={(checked) => {
+                              setSelectedItems((p) => (checked ? [...new Set([...p, emp.id])] : p.filter((id) => id !== emp.id)));
+                              lastSelectedIdRef.current = emp.id;
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            className="h-3.5 w-3.5"
+                            aria-label={`Selecionar ${emp.razao_social || emp.codigo_empresa}`}
+                          />
+                        </TableCell>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden select-none px-2 ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${selectedItems.includes(emp.id) ? "font-bold" : ""} ${index % 2 === 0 ? "bg-gray-100 text-slate-500 border-gray-300" : "bg-white text-slate-500 border-gray-300"}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td py-1.5 text-xs align-middle border-0 whitespace-nowrap overflow-hidden select-none px-2 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
                         })}
+                        <TableCell className={`emp-td emp-td-actions text-center px-0 ${rowClass}`} onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <button type="button" className="h-6 w-6 inline-flex items-center justify-center text-[#082e54] hover:bg-slate-200/80 rounded-sm" title="Ações">
+                                <MoreVertical className="w-3.5 h-3.5" />
+                              </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-36 rounded-none p-1">
+                              <DropdownMenuItem className="h-8 cursor-pointer text-xs" onClick={() => onEdit(emp)}>Editar</DropdownMenuItem>
+                              <DropdownMenuItem className="h-8 cursor-pointer text-xs" onClick={() => { setSelectedItems([emp.id]); onEdit(emp); }}>Visualizar</DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
                       </TableRow>
-                    ))
+                    ); })
                   }
                   {Object.keys(agregacoes).length > 0 && (
-                    <TableRow className="sticky bottom-0 z-30 bg-slate-200 font-medium shadow-[0_-1px_0_0_#d1d5db]">
+                    <TableRow className="emp-total-row sticky bottom-0 z-30">
+                      <TableCell className="emp-td emp-td-check px-1" />
                       {colunasOrdenadas.map((col, ci) => {
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`h-5 px-2 py-0 text-[11px] leading-5 align-middle border-r border-b border-gray-300 whitespace-nowrap overflow-hidden text-ellipsis select-none bg-slate-200 text-slate-600 ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
-                            {agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td h-6 px-2 py-0 text-[11px] leading-6 align-middle border-0 whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                            {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                           </TableCell>
                         );
                       })}
+                      <TableCell className="emp-td emp-td-actions px-0" />
                     </TableRow>
                   )}
                 </TableBody>

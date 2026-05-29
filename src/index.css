@@ -285,6 +285,51 @@ input[type="number"] {
   color: var(--emp-text-strong) !important;
 }
 
+/* Tabela profissional — mockup Cadastro de Empresas */
+.cadastro-emp-scope .emp-table-pro .emp-th {
+  background: #f1f5f9 !important;
+  color: #082e54 !important;
+  font-weight: 700;
+  font-size: 11px;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-td {
+  color: #1e293b !important;
+  font-size: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  background: transparent;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
+  background: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
+  background: #f8fafc !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
+  background: #eff6ff !important;
+  color: #0f172a !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-td {
+  background: #e2e8f0 !important;
+  color: #082e54 !important;
+  font-weight: 600;
+  border-top: 1px solid #cbd5e1;
+}
+
+.cadastro-emp-scope .emp-toolbar svg {
+  color: #082e54 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar input::placeholder {
+  color: #94a3b8;
+}
+
 @media screen and (max-width: 768px) {
   input,
   textarea,
