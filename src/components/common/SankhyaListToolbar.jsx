@@ -24,7 +24,7 @@ import {
 "@/components/ui/dropdown-menu";
 
 const toolbarLineClass = "border-slate-300";
-const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-none";
+const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
 const fileButtonClass = iconButtonClass;
 
 export default function SankhyaListToolbar({
@@ -78,7 +78,7 @@ export default function SankhyaListToolbar({
           {viewMode === "table" ? <List className="w-3.5 h-3.5" /> : <Table className="w-3.5 h-3.5" />}
         </Button>
         <Button type="button" variant="outline" size="icon" onClick={onNew} className={addButtonClass}><Plus className="w-4 h-4" /></Button>
-        {onToggleFilter && <Button type="button" variant="outline" size="icon" onClick={onToggleFilter} className={filterOpen || filterActive ? "relative h-7 w-9 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-red-400 bg-red-500 hover:bg-red-600 text-white shadow-none" : iconButtonClass} title="Filtros">
+        {onToggleFilter && <Button type="button" variant="outline" size="icon" onClick={onToggleFilter} className={filterOpen || filterActive ? "relative h-7 w-9 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none" : iconButtonClass} title="Filtros">
           <Filter className="w-3.5 h-3.5" />
           {filterActive &&
           <span
@@ -133,7 +133,7 @@ export default function SankhyaListToolbar({
                   
                   Exportar Excel
                 </DropdownMenuItem>
-                <button type="button" onClick={onConfigExportExcel} disabled={!onConfigExportExcel} className="h-8 w-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-50" title="Configurar Excel">
+                <button type="button" onClick={onConfigExportExcel} disabled={!onConfigExportExcel} className="h-8 w-8 flex items-center justify-center text-black hover:bg-slate-100 disabled:opacity-50" title="Configurar Excel">
                   <MoreHorizontal className="w-3.5 h-3.5" />
                 </button>
               </div>
@@ -142,13 +142,13 @@ export default function SankhyaListToolbar({
                   
                   Exportar PDF
                 </DropdownMenuItem>
-                <button type="button" onClick={onConfigExportPdf} disabled={!onConfigExportPdf} className="h-8 w-8 flex items-center justify-center text-slate-600 hover:bg-slate-100 disabled:opacity-50" title="Configurar PDF">
+                <button type="button" onClick={onConfigExportPdf} disabled={!onConfigExportPdf} className="h-8 w-8 flex items-center justify-center text-black hover:bg-slate-100 disabled:opacity-50" title="Configurar PDF">
                   <MoreHorizontal className="w-3.5 h-3.5" />
                 </button>
               </div>
             </DropdownMenuContent>
           </DropdownMenu>}
-          <div className="h-7 min-w-16 px-3 border-y-0 border-r-[0.5px] border-l-0 bg-white flex items-center justify-center text-xs text-slate-600 border-slate-300">
+          <div className="h-7 min-w-16 px-3 border-y-0 border-r-[0.5px] border-l-0 bg-white flex items-center justify-center text-xs text-black border-slate-300">
             {viewMode === "record" && total > 0 ? `${currentIndex + 1}/${total}` : selectedCount > 0 ? `${selectedCount}/${total}` : total}
           </div>
         </div>
@@ -156,8 +156,8 @@ export default function SankhyaListToolbar({
       {viewMode === "record" &&
       <div className={`h-8 flex items-center gap-2 bg-white border-b-[0.5px] ${toolbarLineClass} px-2`}>
           {recordLabel && <span className="px-1.5 py-0.5 rounded-sm bg-slate-500 text-white text-[11px] font-bold">{recordLabel}</span>}
-          <span className="text-xs font-semibold text-slate-700 truncate min-w-0 flex-1">{title}</span>
-          <span className="ml-auto text-[11px] font-bold text-emerald-700 uppercase whitespace-nowrap">
+          <span className="text-xs font-semibold text-black truncate min-w-0 flex-1">{title}</span>
+          <span className="ml-auto text-[11px] font-bold text-black uppercase whitespace-nowrap">
             {operationLabel || "VISUALIZAÇÃO DE REGISTRO"}
           </span>
         </div>

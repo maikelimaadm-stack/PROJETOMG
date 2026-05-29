@@ -9,7 +9,7 @@ import {
 "@/components/ui/dropdown-menu";
 
 const toolbarLineClass = "border-slate-300";
-const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-none";
+const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
 const fileButtonClass = iconButtonClass;
 
 export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel = "LOTE", showSaveActions = false, showEditAction = false, showDeleteDuplicateActions = true, showUtilityActions = true, onCancel, onSave, onEditRecord, onSettingsClick, onLayoutConfigClick, onAttachClick, attachDisabled = false, onToggleView, onBack, total = 0, currentIndex = 0, onNew, onFirst, onPrevious, onNext, onLast, onDelete, onDuplicate, onRefresh, filterOpen = false, filterActive = false, onToggleFilter, onClearFilter, searchValue = "", onSearchChange, showSearch = false, addButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-green-400 bg-green-500 hover:bg-green-600 text-white shadow-none" }) {
@@ -26,7 +26,7 @@ export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel 
           <List className="w-3.5 h-3.5" />
         </Button>
         <Button type="button" variant="outline" size="icon" onClick={onNew} className={addButtonClass}><Plus className="w-4 h-4" /></Button>
-        {onToggleFilter && <Button type="button" variant="outline" size="icon" onClick={onToggleFilter} className={filterOpen || filterActive ? "relative h-7 w-9 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-red-400 bg-red-500 hover:bg-red-600 text-white shadow-none" : iconButtonClass} title="Filtros">
+        {onToggleFilter && <Button type="button" variant="outline" size="icon" onClick={onToggleFilter} className={filterOpen || filterActive ? "relative h-7 w-9 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none" : iconButtonClass} title="Filtros">
           <Filter className="w-3.5 h-3.5" />
           {filterActive &&
           <span
@@ -89,16 +89,16 @@ export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel 
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>}
-          <div className="h-7 min-w-16 px-3 border-y-0 border-r-[0.5px] border-l-0 border-slate-300 bg-white flex items-center justify-center text-xs text-slate-600">
+          <div className="h-7 min-w-16 px-3 border-y-0 border-r-[0.5px] border-l-0 border-slate-300 bg-white flex items-center justify-center text-xs text-black">
             {total > 0 ? `${currentIndex + 1}/${total}` : total}
           </div>
         </div>
       </div>
       <div className={`h-8 flex items-center gap-2 bg-white border-b-[0.5px] ${toolbarLineClass} px-2`}>
-        <span className="w-[150px] h-5 px-1.5 rounded-none border border-slate-300 text-slate-700 text-[11px] font-bold uppercase text-center truncate inline-flex items-center justify-center">{badgeLabel}</span>
-        <span className="text-xs font-semibold text-slate-700 uppercase truncate min-w-0 flex-1">{title}</span>
+        <span className="w-[150px] h-5 px-1.5 rounded-none border border-slate-300 text-black text-[11px] font-bold uppercase text-center truncate inline-flex items-center justify-center">{badgeLabel}</span>
+        <span className="text-xs font-semibold text-black uppercase truncate min-w-0 flex-1">{title}</span>
         {operationLabel &&
-        <span className="ml-auto text-[11px] font-bold text-emerald-700 uppercase whitespace-nowrap">
+        <span className="ml-auto text-[11px] font-bold text-black uppercase whitespace-nowrap">
             {operationLabel}
           </span>
         }

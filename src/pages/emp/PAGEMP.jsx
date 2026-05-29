@@ -196,8 +196,8 @@ export default function PAGEMP() {
     <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-[calc(100dvh-var(--app-content-offset,91px))] overflow-hidden">
       <style>{`
         .cadastro-emp-scope :where(.border, input, textarea, button, [role="button"], [data-radix-select-trigger]) { border-radius: 1.5px !important; }
-        .cadastro-emp-scope [data-brand-add="true"] { background: #082e53 !important; border-color: #082e53 !important; color: #fff !important; }
-        .cadastro-emp-scope [data-brand-check="true"][aria-pressed="true"] { background: #fbc108 !important; }
+        .cadastro-emp-scope button svg { color: #000 !important; }
+        .cadastro-emp-scope button { color: #000; }
       `}</style>
 
       {showConfigCampos && (
@@ -263,7 +263,7 @@ export default function PAGEMP() {
             selectedCount={selectedTableItems.length}
             title="Cadastro de Empresas"
             recordLabel=""
-            addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#082e53] bg-[#082e53] hover:bg-[#082e53]/90 text-white shadow-none"
+            addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none"
           />
           <TBLEMP
             key="tbl-emp"
