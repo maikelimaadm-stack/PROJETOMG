@@ -71,7 +71,9 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const aggByCol = { ...layoutAggregationConfig };
     return [...COLUNAS_BASE, ...dinamicas.sort((a, b) => (a.ordem_tabela || 999) - (b.ordem_tabela || 999))].map((col) => {
       const cfg = aggByCol[col.id];
-      return cfg?.enabled ? { ...col, agregacao_tipo: cfg.type, agregacao: cfg.type, usar_decimal: true } : { ...col, agregacao_tipo: "", agregacao: "" };
+      if (cfg?.enabled) return { ...col, agregacao_tipo: cfg.type, agregacao: cfg.type, usar_decimal: col.usar_decimal ?? true, decimal_places: col.decimal_places ?? 2 };
+      if (col.agregacao_tipo || col.agregacao) return col;
+      return { ...col, agregacao_tipo: "", agregacao: "" };
     });
   }, [camposPersonalizados, layoutAggregationConfig]);
 
@@ -216,7 +218,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     );
   };
 
-  const formatTotalValue = (valor, col) => { const isInt = col.id === "codigo_empresa"; return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: col.decimal_places ?? 2, maximumFractionDigits: col.decimal_places ?? 2 } : { maximumFractionDigits: 0 }); };
+  const formatTotalValue = (valor, col) => {
+    const isInt = col.id === "codigo_empresa";
+    const places = col.decimal_places ?? 2;
+    return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
+  };
 
   useEffect(() => {
     const buildCols = (cols) => cols.map((c) => ({ id: c.id, label: c.label, width: Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c)) }));

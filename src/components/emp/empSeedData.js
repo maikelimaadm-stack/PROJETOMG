@@ -153,6 +153,14 @@ const CIDADES = [
 
 const pad = (n, size = 2) => String(n).padStart(size, "0");
 
+/** Valores variados para o campo personalizado VALOR */
+export const buildValorForIndex = (index) => {
+  const n = index + 1;
+  const base = n * 1250.75;
+  const variation = (n % 13) * 333.33 + (n % 7) * 89.9;
+  return Math.round((base + variation) * 100) / 100;
+};
+
 const buildGeneratedRecord = (index) => {
   const n = index + 1;
   const loc = CIDADES[index % CIDADES.length];

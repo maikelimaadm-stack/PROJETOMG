@@ -1,6 +1,7 @@
 import { base44 } from '@/api/base44Client';
 import empLocalStore from './empLocalStore';
-import { buildAllTestRecords, EMP_SEED_TARGET_COUNT } from './empSeedData';
+import empCamposLocalStore from './empCamposLocalStore';
+import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from './empSeedData';
 
 const hasAppId = () => Boolean(import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID);
 const REMOTE_SEED_FLAG = 'emp_remote_seeded_v2';
@@ -41,9 +42,14 @@ const seedRemoteIfEmpty = async () => {
   for (const record of toCreate) {
     const latest = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
     const maxCodigo = latest.length > 0 ? (latest[0].codigo_empresa || 0) : 0;
+    const codigo = Number(maxCodigo) + 1;
     await base44.entities.EmpresaCadastro.create({
       ...record,
-      codigo_empresa: Number(maxCodigo) + 1
+      codigo_empresa: codigo,
+      campos_personalizados: {
+        ...(record.campos_personalizados || {}),
+        valor: buildValorForIndex(codigo - 1)
+      }
     });
   }
 
@@ -115,22 +121,43 @@ const empRepository = {
       try {
         return base44.entities.CampoPersonalizadoEmpresa.list('ordem_tabela');
       } catch {
-        return [];
+        return empCamposLocalStore.seedIfEmpty();
       }
     }
-    return [];
+    return empCamposLocalStore.seedIfEmpty();
   },
 
   async createCampoPersonalizado(data) {
-    return base44.entities.CampoPersonalizadoEmpresa.create(data);
+    if (await isRemoteAvailable()) {
+      try {
+        return base44.entities.CampoPersonalizadoEmpresa.create(data);
+      } catch {
+        return empCamposLocalStore.create(data);
+      }
+    }
+    return empCamposLocalStore.create(data);
   },
 
   async updateCampoPersonalizado(id, data) {
-    return base44.entities.CampoPersonalizadoEmpresa.update(id, data);
+    if (await isRemoteAvailable()) {
+      try {
+        return base44.entities.CampoPersonalizadoEmpresa.update(id, data);
+      } catch {
+        return empCamposLocalStore.update(id, data);
+      }
+    }
+    return empCamposLocalStore.update(id, data);
   },
 
   async deleteCampoPersonalizado(campo) {
-    return base44.entities.CampoPersonalizadoEmpresa.delete(campo.id || campo.field_id);
+    if (await isRemoteAvailable()) {
+      try {
+        return base44.entities.CampoPersonalizadoEmpresa.delete(campo.id || campo.field_id);
+      } catch {
+        return empCamposLocalStore.delete(campo.id || campo.field_id);
+      }
+    }
+    return empCamposLocalStore.delete(campo.id || campo.field_id);
   },
 
   async listOptionsSources(sources) {

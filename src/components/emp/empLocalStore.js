@@ -1,7 +1,8 @@
-import { buildAllTestRecords, EMP_SEED_TARGET_COUNT } from "./empSeedData";
+import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from "./empSeedData";
+import empCamposLocalStore from "./empCamposLocalStore";
 
 const STORAGE_KEY = "emp_cadastro_local_v1";
-const SEED_FLAG_KEY = "emp_cadastro_seeded_v2";
+const SEED_FLAG_KEY = "emp_cadastro_seeded_v3";
 
 const readAll = () => {
   try {
@@ -25,10 +26,28 @@ const toStoredRecord = (record, index) => ({
   ...record,
   id: `seed-${index + 1}`,
   codigo_empresa: index + 1,
-  campos_personalizados: {},
+  campos_personalizados: { valor: buildValorForIndex(index) },
   created_date: new Date().toISOString(),
   updated_date: new Date().toISOString()
 });
+
+const ensureValorOnRecords = (records) => {
+  let changed = false;
+  const next = records.map((record, index) => {
+    const valor = record?.campos_personalizados?.valor;
+    if (valor !== undefined && valor !== null && valor !== "") return record;
+    changed = true;
+    const idx = Math.max(0, Number(record.codigo_empresa || index + 1) - 1);
+    return {
+      ...record,
+      campos_personalizados: {
+        ...(record.campos_personalizados || {}),
+        valor: buildValorForIndex(idx)
+      }
+    };
+  });
+  return changed ? next : records;
+};
 
 const empLocalStore = {
   list() {
@@ -68,11 +87,17 @@ const empLocalStore = {
   },
 
   seedIfEmpty() {
+    empCamposLocalStore.seedIfEmpty();
     const templates = buildAllTestRecords();
     let records = readAll();
     const seedVersion = localStorage.getItem(SEED_FLAG_KEY);
 
-    if (seedVersion === "v2" && records.length >= EMP_SEED_TARGET_COUNT) {
+    if (seedVersion === "v3" && records.length >= EMP_SEED_TARGET_COUNT) {
+      const withValor = ensureValorOnRecords(records);
+      if (withValor !== records) {
+        writeAll(withValor);
+        records = withValor;
+      }
       return records;
     }
 
@@ -81,9 +106,11 @@ const empLocalStore = {
     if (onlySeedData) {
       records = templates.map(toStoredRecord);
       writeAll(records);
-      localStorage.setItem(SEED_FLAG_KEY, "v2");
+      localStorage.setItem(SEED_FLAG_KEY, "v3");
       return records;
     }
+
+    records = ensureValorOnRecords(records);
 
     if (records.length < EMP_SEED_TARGET_COUNT) {
       const startAt = records.length;
@@ -91,10 +118,10 @@ const empLocalStore = {
         toStoredRecord(record, startAt + offset)
       );
       records = [...records, ...extras];
-      writeAll(records);
     }
 
-    localStorage.setItem(SEED_FLAG_KEY, "v2");
+    writeAll(records);
+    localStorage.setItem(SEED_FLAG_KEY, "v3");
     return records;
   }
 };

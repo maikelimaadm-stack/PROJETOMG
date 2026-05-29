@@ -179,7 +179,8 @@ export default function PAGEMP() {
     const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
     const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
     const filterRows = (rows = []) => rows.map((row) => selIdx.map((i) => row[i]));
-    printEmpTable({ columns: selCols, rows: filterRows(selectedTableItems.length > 0 ? selRows || [] : srcRows || []), totalRows: [], title: `Cadastro de Empresas - ${new Date().toLocaleDateString("pt-BR")}` });
+    const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
+    printEmpTable({ columns: selCols, rows: filterRows(selectedTableItems.length > 0 ? selRows || [] : srcRows || []), totalRows, title: `Cadastro de Empresas - ${new Date().toLocaleDateString("pt-BR")}` });
   };
 
   const handleExportExcel = () => {
@@ -189,11 +190,12 @@ export default function PAGEMP() {
     const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
     const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
     const filterRows = (rows = []) => rows.map((row) => selIdx.map((i) => row[i]));
-    exportEmpTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows: [], title: `Cadastro de Empresas - ${new Date().toLocaleDateString("pt-BR")}` });
+    const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
+    exportEmpTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows, title: `Cadastro de Empresas - ${new Date().toLocaleDateString("pt-BR")}` });
   };
 
   return (
-    <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-[calc(100dvh-var(--app-content-offset,91px))] overflow-hidden">
+    <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-full min-h-0 overflow-hidden flex flex-col">
       <style>{`
         .cadastro-emp-scope {
           --emp-text: #64748b;
@@ -255,8 +257,9 @@ export default function PAGEMP() {
         </div>
       )}
 
-      <div className={showForm || showConfigCampos ? "hidden" : "flex min-h-0 h-full w-full overflow-hidden"}>
-        <div className="min-w-0 flex-1 h-full overflow-hidden flex flex-col">
+      <div className={showForm || showConfigCampos ? "hidden" : "flex min-h-0 flex-1 w-full overflow-hidden"}>
+        <div className="min-w-0 flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div className="flex-none shrink-0">
           <SankhyaListToolbar
             viewMode={viewMode}
             total={empresasFiltradasPainel.length}
@@ -281,6 +284,7 @@ export default function PAGEMP() {
             recordLabel=""
             addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none"
           />
+          </div>
           <TBLEMP
             key="tbl-emp"
             empresas={empresasFiltradasPainel}
