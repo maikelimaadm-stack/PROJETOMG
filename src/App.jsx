@@ -15,13 +15,13 @@ function MinimalLayout({ children }) {
       <header className="flex-none border-b border-slate-200 bg-white">
         <div className="px-4 py-2 flex items-center justify-between">
           <div>
-            <h1 className="text-sm font-semibold text-slate-600 leading-tight">Cadastro de Empresas</h1>
-            <p className="text-xs text-slate-500">Sistema de gestão</p>
+            <h1 className="text-sm font-semibold text-slate-700 leading-tight">Cadastro de Empresas</h1>
+            <p className="text-xs text-slate-600">Sistema de gestão</p>
           </div>
           <button
             type="button"
             onClick={() => base44.auth.logout()}
-            className="h-7 px-3 rounded-none border border-slate-300 bg-white text-xs text-slate-500 hover:text-slate-600 hover:bg-slate-50"
+            className="h-7 px-3 rounded-none border border-slate-300 bg-white text-xs text-slate-600 hover:text-slate-700 hover:bg-slate-50"
           >
             Sair
           </button>
@@ -29,7 +29,7 @@ function MinimalLayout({ children }) {
         <nav className="h-8 px-4 flex items-center border-t border-slate-200">
           <Link
             to="/CadastroEmpresas"
-            className={`h-7 px-3 inline-flex items-center text-xs border-x border-slate-200 ${location.pathname === "/CadastroEmpresas" || location.pathname === "/" ? "font-semibold text-slate-600 bg-slate-50" : "text-slate-500 bg-white"}`}
+            className={`h-7 px-3 inline-flex items-center text-xs border-x border-slate-200 ${location.pathname === "/CadastroEmpresas" || location.pathname === "/" ? "font-semibold text-slate-700 bg-slate-50" : "text-slate-600 bg-white"}`}
           >
             Cadastro de Empresas
           </Link>

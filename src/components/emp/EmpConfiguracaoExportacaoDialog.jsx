@@ -23,7 +23,7 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
     <Dialog open={open} onOpenChange={(o) => o && onOpenChange(o)}>
       <DialogContent onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="bg-transparent fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1rem)] max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-hidden border-0 shadow-lg sm:w-full rounded-none sm:rounded-none sm:p-0 max-w-[760px]">
         <DialogTitle className="sr-only">{titulo}</DialogTitle>
-        <div className="bg-white border border-slate-200">
+        <div className="bg-white border border-slate-200 cadastro-emp-scope">
           <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
             <span className="w-[70px] h-5 px-1.5 rounded-none border border-slate-300 bg-white text-slate-500 text-[11px] font-bold text-center truncate inline-flex items-center justify-center">{tipo === "excel" ? "EXCEL" : "PDF"}</span>
             <span className="text-xs font-semibold text-slate-500 truncate flex-1">{titulo}</span>
