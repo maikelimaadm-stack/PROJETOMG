@@ -82,7 +82,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
           <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
           <div className="border border-slate-200 bg-white">
             <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
-              <span className="px-1.5 py-0.5 rounded-sm bg-slate-500 text-white text-[11px] font-bold">ANEXOS</span>
+              <span className="px-1.5 py-0.5 rounded-sm text-white text-[11px] font-bold bg-[#082e54]">ANEXOS</span>
               <span className="text-xs font-semibold text-slate-700 truncate flex-1">{title || "Lote"}</span>
               <Button type="button" onClick={() => onOpenChange(false)} title="Fechar" className="rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none h-7 w-7">
                 <X className="w-4 h-4" />
