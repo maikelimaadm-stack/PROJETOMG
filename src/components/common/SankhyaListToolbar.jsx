@@ -156,7 +156,7 @@ export default function SankhyaListToolbar({
       </div>
       {viewMode === "record" &&
       <div className={`h-8 flex items-center gap-2 bg-white border-b-[0.5px] ${toolbarLineClass} px-2`}>
-          {recordLabel && <span className="px-1.5 py-0.5 rounded-none border-[0.5px] border-slate-300 bg-white text-black text-[11px] font-bold">{titleCase(recordLabel)}</span>}
+          {recordLabel && <span className="px-1.5 py-0.5 rounded-none border-[0.5px] border-slate-300 bg-white text-black text-xs font-semibold">{titleCase(recordLabel)}</span>}
           <span className="text-xs font-semibold text-black truncate min-w-0 flex-1">{title}</span>
           <span className="ml-auto text-[11px] font-bold text-black whitespace-nowrap">
             {operationLabel || "Visualização de Registro"}
