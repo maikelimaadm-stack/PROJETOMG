@@ -360,9 +360,9 @@ export default function FORMEMP({
         <style>{`
           .form-scroll-container {
             scrollbar-width: thin;
-            scrollbar-color: #cbd5e1 transparent;
-            overflow-y: auto;
-            overflow-x: auto;
+            scrollbar-color: #94a3b8 #f1f5f9;
+            overflow: scroll;
+            scrollbar-gutter: stable both-edges;
           }
           .form-scroll-container::-webkit-scrollbar {
             height: 8px;
@@ -418,7 +418,7 @@ export default function FORMEMP({
 
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
-            <div className="px-4 md:px-8 py-1 max-w-[780px]">
+            <div className="px-4 md:px-8 py-1 w-max min-w-[920px] max-w-none">
               <EmpDynamicFormRenderer
                 panels={activeLayoutConfig.panels}
                 fields={dynamicFields}
@@ -441,7 +441,7 @@ export default function FORMEMP({
 
           <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
             <div className="min-h-[360px] px-4 md:px-8 py-1">
-              <div className="max-w-[780px] space-y-1">
+              <div className="w-max min-w-[920px] max-w-none space-y-1">
                 <EmpDynamicFormRenderer
                   panels={tabs}
                   fields={dynamicFields}

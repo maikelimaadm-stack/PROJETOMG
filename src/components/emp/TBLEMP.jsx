@@ -262,7 +262,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                 </TableHeader>
               </Table>
             </div>
-            <div ref={scrollContainerRef} tabIndex={0} onKeyDown={handleTableKeyDown} onScroll={handleBodyScroll} className="relative flex-1 min-h-0 w-full overflow-auto outline-none" style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch" }}>
+            <div ref={scrollContainerRef} tabIndex={0} onKeyDown={handleTableKeyDown} onScroll={handleBodyScroll} className="relative flex-1 min-h-0 w-full overflow-scroll outline-none" style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch", scrollbarGutter: "stable both-edges", scrollbarWidth: "thin", scrollbarColor: "#94a3b8 #f1f5f9" }}>
               <Table ref={tableRef} style={{ width: totalTableWidth, minWidth: totalTableWidth }} className="border-separate border-spacing-0 table-fixed">
                 <TableBody>
                   {empresasOrdenadas.length === 0
