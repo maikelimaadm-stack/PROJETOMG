@@ -1,0 +1,41 @@
+{
+  "name": "RegistroAnexo",
+  "type": "object",
+  "properties": {
+    "entity_name": {
+      "type": "string",
+      "description": "Nome da entidade vinculada ao anexo"
+    },
+    "record_id": {
+      "type": "string",
+      "description": "ID do registro vinculado ao anexo"
+    },
+    "attachment_name": {
+      "type": "string",
+      "description": "Nome informado para identificar o anexo"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "Nome original do arquivo"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL do arquivo enviado"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "Tipo MIME do arquivo"
+    },
+    "file_size": {
+      "type": "number",
+      "description": "Tamanho do arquivo em bytes"
+    }
+  },
+  "required": [
+    "entity_name",
+    "record_id",
+    "attachment_name",
+    "file_name",
+    "file_url"
+  ]
+}
