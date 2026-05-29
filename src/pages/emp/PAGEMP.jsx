@@ -196,8 +196,10 @@ export default function PAGEMP() {
     <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-[calc(100dvh-var(--app-content-offset,91px))] overflow-hidden">
       <style>{`
         .cadastro-emp-scope :where(.border, input, textarea, button, [role="button"], [data-radix-select-trigger]) { border-radius: 1.5px !important; }
-        .cadastro-emp-scope button svg { color: #000 !important; }
-        .cadastro-emp-scope button { color: #000; }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) svg { color: #64748b !important; }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) { color: #64748b; }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):hover { color: #475569; }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):hover svg { color: #475569 !important; }
       `}</style>
 
       {showConfigCampos && (
@@ -263,7 +265,7 @@ export default function PAGEMP() {
             selectedCount={selectedTableItems.length}
             title="Cadastro de Empresas"
             recordLabel=""
-            addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none"
+            addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none"
           />
           <TBLEMP
             key="tbl-emp"

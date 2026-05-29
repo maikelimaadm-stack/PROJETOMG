@@ -233,7 +233,7 @@ export default function FORMEMP({
     { id: "telefone", name: "telefone", label: "Telefone", type: "text", compact: true, placeholder: "(00) 0000-0000" },
     { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "text", compact: true, placeholder: "(00) 00000-0000" },
     { id: "email", name: "email", label: "E-mail", type: "text", placeholder: "EMAIL@EMPRESA.COM.BR" },
-    { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "file", wide: true, render: () => <div className="min-h-[36px] flex items-center gap-2 px-2 py-1 bg-white"><div className="flex items-center gap-2">{formData.logo_url && <img src={formData.logo_url} alt="Logo" className="h-8 w-8 object-contain border border-slate-200 rounded-sm bg-white" />}{!isReadOnly && <label className="cursor-pointer text-[11px] text-black hover:text-black underline">{uploadingLogo ? "Enviando..." : formData.logo_url ? "Trocar logo" : "Selecionar logo"}<input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} /></label>}{!isReadOnly && formData.logo_url && <button type="button" onClick={() => handleChange("logo_url", "")} className="text-[11px] text-red-500 hover:text-red-700 underline ml-1">Remover</button>}{!formData.logo_url && isReadOnly && <span className="text-[11px] text-slate-400">Sem logo</span>}</div></div> },
+    { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "file", wide: true, render: () => <div className="min-h-[36px] flex items-center gap-2 px-2 py-1 bg-white"><div className="flex items-center gap-2">{formData.logo_url && <img src={formData.logo_url} alt="Logo" className="h-8 w-8 object-contain border border-slate-200 rounded-sm bg-white" />}{!isReadOnly && <label className="cursor-pointer text-[11px] text-slate-500 hover:text-slate-600 underline">{uploadingLogo ? "Enviando..." : formData.logo_url ? "Trocar logo" : "Selecionar logo"}<input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} /></label>}{!isReadOnly && formData.logo_url && <button type="button" onClick={() => handleChange("logo_url", "")} className="text-[11px] text-red-500 hover:text-red-700 underline ml-1">Remover</button>}{!formData.logo_url && isReadOnly && <span className="text-[11px] text-slate-400">Sem logo</span>}</div></div> },
     { id: "cep", name: "cep", label: "CEP", type: "text", compact: true, placeholder: "00000-000" },
     { id: "endereco", name: "endereco", label: "Endereço", type: "text", wide: true, uppercase: true, placeholder: "RUA, AVENIDA..." },
     { id: "numero", name: "numero", label: "Número", type: "text", compact: true, placeholder: "Nº" },
@@ -410,7 +410,7 @@ export default function FORMEMP({
           onClearFilter={onClearFilter}
           onAttachClick={onAttachClick}
           attachDisabled={attachDisabled}
-          addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none"
+          addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none"
           searchValue={searchValue}
           onSearchChange={onSearchChange}
           showSearch

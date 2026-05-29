@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ChevronsLeft, ChevronsRight, Columns3, RotateCcw, Search, X } from "lucide-react";
 
-const iconButtonClass = "rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none h-7 w-7";
-const moveButtonClass = "h-7 w-7 rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none disabled:opacity-40";
+const iconButtonClass = "rounded-none border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none h-7 w-7";
+const moveButtonClass = "h-7 w-7 rounded-none border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none disabled:opacity-40";
 
 export default function EmpConfiguracaoColunasDialog({
   open,

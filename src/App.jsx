@@ -21,7 +21,7 @@ function MinimalLayout({ children }) {
           <button
             type="button"
             onClick={() => base44.auth.logout()}
-            className="h-7 px-3 rounded-none border border-slate-300 bg-white text-xs text-black hover:bg-slate-50"
+            className="h-7 px-3 rounded-none border border-slate-300 bg-white text-xs text-slate-500 hover:text-slate-600 hover:bg-slate-50"
           >
             Sair
           </button>

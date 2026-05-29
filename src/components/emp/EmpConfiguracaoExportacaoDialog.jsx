@@ -27,7 +27,7 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
           <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
             <span className="w-[70px] h-5 px-1.5 rounded-none border border-slate-300 bg-white text-black text-[11px] font-bold text-center truncate inline-flex items-center justify-center">{tipo === "excel" ? "EXCEL" : "PDF"}</span>
             <span className="text-xs font-semibold text-black truncate flex-1">{titulo}</span>
-            <Button type="button" onClick={() => onOpenChange(false)} className="rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none h-7 w-7"><X className="w-4 h-4" /></Button>
+            <Button type="button" onClick={() => onOpenChange(false)} className="rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none h-7 w-7"><X className="w-4 h-4" /></Button>
           </div>
           <div className="mx-3 my-1">
             <label className="text-xs text-black items-center flex gap-2">
