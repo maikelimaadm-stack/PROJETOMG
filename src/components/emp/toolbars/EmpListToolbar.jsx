@@ -56,7 +56,7 @@ export default function EmpListToolbar({
         <div className="flex items-center gap-1.5 shrink-0">
           {onBack && (
             <ToolbarBtn onClick={onBack} title="Voltar">
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </ToolbarBtn>
           )}
           <ToolbarBtn
@@ -64,14 +64,14 @@ export default function EmpListToolbar({
             disabled={toggleViewDisabled}
             title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
           >
-            {viewMode === "table" ? <List className="w-4 h-4" /> : <Table className="w-4 h-4" />}
+            {viewMode === "table" ? <List className="w-3.5 h-3.5" /> : <Table className="w-3.5 h-3.5" />}
           </ToolbarBtn>
           <ToolbarBtn onClick={onNew} title="Novo registro">
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3.5 h-3.5" />
           </ToolbarBtn>
           {onToggleFilter && (
             <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
-              <Filter className="w-4 h-4" />
+              <Filter className="w-3.5 h-3.5" />
               {filterActive && (
                 <span
                   onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }}
@@ -84,17 +84,17 @@ export default function EmpListToolbar({
           )}
           {showRecordNavigation && (
             <>
-              <ToolbarBtn onClick={onFirst} disabled={!canNavigate} title="Primeiro"><ChevronsLeft className="w-4 h-4" /></ToolbarBtn>
-              <ToolbarBtn onClick={onPrevious} disabled={!canNavigate} title="Anterior"><ChevronLeft className="w-4 h-4" /></ToolbarBtn>
-              <ToolbarBtn onClick={onNext} disabled={!canNavigate} title="Próximo"><ChevronRight className="w-4 h-4" /></ToolbarBtn>
-              <ToolbarBtn onClick={onLast} disabled={!canNavigate} title="Último"><ChevronsRight className="w-4 h-4" /></ToolbarBtn>
+              <ToolbarBtn onClick={onFirst} disabled={!canNavigate} title="Primeiro"><ChevronsLeft className="w-3.5 h-3.5" /></ToolbarBtn>
+              <ToolbarBtn onClick={onPrevious} disabled={!canNavigate} title="Anterior"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
+              <ToolbarBtn onClick={onNext} disabled={!canNavigate} title="Próximo"><ChevronRight className="w-3.5 h-3.5" /></ToolbarBtn>
+              <ToolbarBtn onClick={onLast} disabled={!canNavigate} title="Último"><ChevronsRight className="w-3.5 h-3.5" /></ToolbarBtn>
             </>
           )}
           {showDeleteSelectionAction && (
-            <ToolbarBtn onClick={onDelete} title="Excluir selecionados"><Trash2 className="w-4 h-4" /></ToolbarBtn>
+            <ToolbarBtn onClick={onDelete} title="Excluir selecionados"><Trash2 className="w-3.5 h-3.5" /></ToolbarBtn>
           )}
           {showDuplicateSelectionAction && (
-            <ToolbarBtn onClick={onDuplicate} title="Duplicar"><Copy className="w-4 h-4" /></ToolbarBtn>
+            <ToolbarBtn onClick={onDuplicate} title="Duplicar"><Copy className="w-3.5 h-3.5" /></ToolbarBtn>
           )}
         </div>
 
@@ -112,14 +112,14 @@ export default function EmpListToolbar({
           )}
           {showUtilityActions && (
             <ToolbarBtn onClick={onAttachClick} disabled={attachDisabled} title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}>
-              <Paperclip className="w-4 h-4" />
+              <Paperclip className="w-3.5 h-3.5" />
             </ToolbarBtn>
           )}
           {showUtilityActions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções">
-                  <MoreHorizontal className="w-4 h-4" />
+                  <MoreHorizontal className="w-3.5 h-3.5" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 rounded-md p-1">

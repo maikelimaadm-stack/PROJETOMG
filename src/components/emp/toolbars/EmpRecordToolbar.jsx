@@ -53,29 +53,29 @@ export default function EmpRecordToolbar({
     <div className="bg-white emp-toolbar shadow-none overflow-hidden">
       <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5 border-b border-sky-100">
         {onBack && (
-          <ToolbarBtn onClick={onBack} title="Voltar"><ChevronLeft className="w-4 h-4" /></ToolbarBtn>
+          <ToolbarBtn onClick={onBack} title="Voltar"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
         )}
-        <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><List className="w-4 h-4" /></ToolbarBtn>
-        <ToolbarBtn onClick={onNew} title="Novo registro"><Plus className="w-4 h-4" /></ToolbarBtn>
+        <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><List className="w-3.5 h-3.5" /></ToolbarBtn>
+        <ToolbarBtn onClick={onNew} title="Novo registro"><Plus className="w-3.5 h-3.5" /></ToolbarBtn>
         {onToggleFilter && (
           <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
-            <Filter className="w-4 h-4" />
+            <Filter className="w-3.5 h-3.5" />
             {filterActive && (
               <span onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }} className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-white text-red-600 border border-red-500 text-[10px] leading-[12px] font-bold">×</span>
             )}
           </ToolbarBtn>
         )}
-        <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} title="Primeiro"><ChevronsLeft className="w-4 h-4" /></ToolbarBtn>
-        <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} title="Anterior"><ChevronLeft className="w-4 h-4" /></ToolbarBtn>
-        <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} title="Próximo"><ChevronRight className="w-4 h-4" /></ToolbarBtn>
-        <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} title="Último"><ChevronsRight className="w-4 h-4" /></ToolbarBtn>
-        {showEditAction && <ToolbarBtn onClick={onEditRecord} title="Editar"><Pencil className="w-4 h-4" /></ToolbarBtn>}
-        {showDeleteDuplicateActions && <ToolbarBtn onClick={onDelete} disabled={!canNavigate} title="Excluir"><Trash2 className="w-4 h-4" /></ToolbarBtn>}
-        {showDeleteDuplicateActions && <ToolbarBtn onClick={onDuplicate} disabled={!canNavigate} title="Duplicar"><Copy className="w-4 h-4" /></ToolbarBtn>}
+        <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} title="Primeiro"><ChevronsLeft className="w-3.5 h-3.5" /></ToolbarBtn>
+        <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} title="Anterior"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
+        <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} title="Próximo"><ChevronRight className="w-3.5 h-3.5" /></ToolbarBtn>
+        <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} title="Último"><ChevronsRight className="w-3.5 h-3.5" /></ToolbarBtn>
+        {showEditAction && <ToolbarBtn onClick={onEditRecord} title="Editar"><Pencil className="w-3.5 h-3.5" /></ToolbarBtn>}
+        {showDeleteDuplicateActions && <ToolbarBtn onClick={onDelete} disabled={!canNavigate} title="Excluir"><Trash2 className="w-3.5 h-3.5" /></ToolbarBtn>}
+        {showDeleteDuplicateActions && <ToolbarBtn onClick={onDuplicate} disabled={!canNavigate} title="Duplicar"><Copy className="w-3.5 h-3.5" /></ToolbarBtn>}
         {showSaveActions && (
           <>
-            <ToolbarBtn onClick={onSave} title="Salvar"><Check className="w-4 h-4" /></ToolbarBtn>
-            <ToolbarBtn onClick={onCancel} title="Descartar"><X className="w-4 h-4" /></ToolbarBtn>
+            <ToolbarBtn onClick={onSave} title="Salvar"><Check className="w-3.5 h-3.5" /></ToolbarBtn>
+            <ToolbarBtn onClick={onCancel} title="Descartar"><X className="w-3.5 h-3.5" /></ToolbarBtn>
           </>
         )}
 
@@ -88,13 +88,13 @@ export default function EmpRecordToolbar({
           )}
           {showUtilityActions && (
             <ToolbarBtn onClick={onAttachClick} disabled={attachDisabled} title={attachDisabled ? "Salve o registro antes de anexar" : "Anexos"}>
-              <Paperclip className="w-4 h-4" />
+              <Paperclip className="w-3.5 h-3.5" />
             </ToolbarBtn>
           )}
           {showUtilityActions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções"><MoreHorizontal className="w-4 h-4" /></button>
+                <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções"><MoreHorizontal className="w-3.5 h-3.5" /></button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 rounded-md p-1">
                 <DropdownMenuItem onClick={onLayoutConfigClick} disabled={!onLayoutConfigClick} className="h-8 cursor-pointer gap-2 text-xs px-2">Layout do formulário</DropdownMenuItem>

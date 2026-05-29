@@ -12,18 +12,18 @@ import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColuna
 import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-const CHECK_COL_WIDTH = 36;
-const ACTIONS_COL_WIDTH = 36;
+const CHECK_COL_WIDTH = 28;
+const ACTIONS_COL_WIDTH = 28;
 
 const COLUNAS_BASE = [
-  { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "center", width: 90 },
+  { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "right", width: 90 },
   { id: "razao_social", label: "Razão Social", default: true, sortable: true, align: "left", width: 260 },
   { id: "nome_fantasia", label: "Nome Fantasia", default: true, sortable: true, align: "left", width: 220 },
-  { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "center", width: 80 },
-  { id: "cpf_cnpj", label: "CPF/CNPJ", default: true, sortable: true, align: "center", width: 160 },
-  { id: "inscricao_estadual", label: "Inscrição Estadual", default: false, sortable: true, align: "center", width: 170 },
-  { id: "telefone", label: "Telefone", default: true, sortable: true, align: "center", width: 130 },
-  { id: "whatsapp", label: "WhatsApp", default: false, sortable: true, align: "center", width: 140 },
+  { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "left", width: 80 },
+  { id: "cpf_cnpj", label: "CPF/CNPJ", default: true, sortable: true, align: "left", width: 160 },
+  { id: "inscricao_estadual", label: "Inscrição Estadual", default: false, sortable: true, align: "left", width: 170 },
+  { id: "telefone", label: "Telefone", default: true, sortable: true, align: "left", width: 130 },
+  { id: "whatsapp", label: "WhatsApp", default: false, sortable: true, align: "left", width: 140 },
   { id: "email", label: "E-mail", default: true, sortable: true, align: "left", width: 200 },
   { id: "logo_url", label: "Logo", default: false, sortable: false, align: "left", width: 180 },
   { id: "cep", label: "CEP", default: false, sortable: true, align: "left", width: 110 },
@@ -77,7 +77,19 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const { data: camposPersonalizados = [] } = useQuery({ queryKey: ["emp-campos-personalizados"], queryFn: () => empRepository.listCamposPersonalizados(), initialData: [] });
 
   const colunasDisponiveis = useMemo(() => {
-    const dinamicas = camposPersonalizados.map(campoEngine.normalize).filter((c) => c.ativo !== false && c.visivel_tabela === true).map((c) => ({ ...c, id: `custom:${c.field_name}`, label: c.label, default: true, sortable: c.ordenavel !== false, filtravel: c.filtravel !== false, align: c.alinhamento || "left", width: c.largura_coluna || 160, ordem_tabela: c.ordem_tabela ?? c.ordem ?? 999, agregacao_tipo: c.agregacao_tipo || c.agregacao || "", customField: c.field_name }));
+    const dinamicas = camposPersonalizados.map(campoEngine.normalize).filter((c) => c.ativo !== false && c.visivel_tabela === true).map((c) => ({
+      ...c,
+      id: `custom:${c.field_name}`,
+      label: c.label,
+      default: true,
+      sortable: c.ordenavel !== false,
+      filtravel: c.filtravel !== false,
+      align: c.tipo === "date" ? "center" : (c.tipo === "number" || c.tipo === "calculado") ? "right" : "left",
+      width: c.largura_coluna || 160,
+      ordem_tabela: c.ordem_tabela ?? c.ordem ?? 999,
+      agregacao_tipo: c.agregacao_tipo || c.agregacao || "",
+      customField: c.field_name
+    }));
     const aggByCol = { ...layoutAggregationConfig };
     return [...COLUNAS_BASE, ...dinamicas.sort((a, b) => (a.ordem_tabela || 999) - (b.ordem_tabela || 999))].map((col) => {
       const cfg = aggByCol[col.id];
@@ -136,14 +148,24 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   };
 
   const getColumnFilterType = (col) => { if (col?.id === "codigo_empresa") return "number"; if (col?.tipo === "date" || col?.id === "data") return "date"; if (col?.tipo === "number" && col?.usar_mascara) return "list"; if (["number", "calculado"].includes(col?.tipo) || col?.id === "codigo_empresa") return "number"; return "list"; };
+  const resolveColumnAlign = (col) => {
+    if (col?.tipo === "date") return "center";
+    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codigo_empresa" || col?.id === "custom:valor") return "right";
+    return "left";
+  };
+
   const getColumnAlignClass = (col) => {
-    if (col?.align === "right") return "text-right";
-    if (col?.align === "center") return "text-center";
-    if (col?.align === "left") return "text-left";
-    const t = getColumnFilterType(col);
-    if (t === "date") return "text-center";
-    if (t === "number") return "text-right";
+    const align = resolveColumnAlign(col);
+    if (align === "right") return "text-right";
+    if (align === "center") return "text-center";
     return "text-left";
+  };
+
+  const getHeaderFlexClass = (col) => {
+    const align = resolveColumnAlign(col);
+    if (align === "right") return "justify-end";
+    if (align === "center") return "justify-center";
+    return "justify-start";
   };
   const getComparableValue = (emp, col) => { if (col.id === "codigo_empresa") return Number(emp.codigo_empresa || 0); return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id); };
 
@@ -303,7 +325,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       <Checkbox
                         checked={allRowsSelected}
                         onCheckedChange={toggleSelectAll}
-                        className="h-3.5 w-3.5"
+                        className="h-3 w-3"
                         aria-label="Selecionar todos"
                       />
                     </TableHead>
@@ -316,10 +338,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         <TableHead
                           key={col.id}
                           style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }}
-                          className={`emp-th group sticky top-0 align-middle px-2 whitespace-nowrap h-8 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                          className={`emp-th group sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
-                          <div className={`flex items-center w-full h-full leading-8 whitespace-nowrap overflow-hidden ${col.align === "right" ? "justify-end" : col.align === "center" ? "justify-center" : "justify-start"}`}>
+                          <div className={`flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
                             <span className="truncate font-semibold">{formatHeaderLabel(col)}</span>
                             {renderSortIndicator(col.id)}
                           </div>
@@ -353,7 +375,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                               lastSelectedIdRef.current = emp.id;
                             }}
                             onClick={(e) => e.stopPropagation()}
-                            className="h-3.5 w-3.5"
+                            className="h-3 w-3"
                             aria-label={`Selecionar ${emp.razao_social || emp.codigo_empresa}`}
                           />
                         </TableCell>
@@ -361,7 +383,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td py-1.5 text-xs align-middle border-0 whitespace-nowrap overflow-hidden select-none px-2 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-6 leading-6 text-[11px] align-middle border-0 whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
@@ -369,8 +391,8 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         <TableCell className={`emp-td emp-td-actions text-center px-0 ${rowClass}`} onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <button type="button" className="h-6 w-6 inline-flex items-center justify-center text-[#082e54] hover:bg-slate-200/80 rounded-sm" title="Ações">
-                                <MoreVertical className="w-3.5 h-3.5" />
+                              <button type="button" className="h-5 w-5 inline-flex items-center justify-center text-[#082e54] hover:bg-slate-200/80 rounded-sm" title="Ações">
+                                <MoreVertical className="w-3 h-3" />
                               </button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-36 rounded-none p-1">
@@ -389,7 +411,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td h-6 px-2 py-0 text-[11px] leading-6 align-middle border-0 whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td h-6 px-1.5 py-0 text-[11px] leading-6 align-middle border-0 whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
                             {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                           </TableCell>
                         );

@@ -290,14 +290,20 @@ input[type="number"] {
   background: #f0f7ff !important;
   color: #082e54 !important;
   font-weight: 600;
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 24px;
+  height: 24px;
+  padding: 0 6px;
   text-transform: none;
   border-right: 1px solid #e2e8f0;
   border-bottom: 1px solid #cbd5e1;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-td {
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 24px;
+  height: 24px;
+  padding: 0 6px;
   border-bottom: 1px solid #e2e8f0;
   background: transparent;
 }
@@ -325,9 +331,15 @@ input[type="number"] {
   border-top: 1px solid #cbd5e1;
 }
 
+.cadastro-emp-scope .emp-toolbar-btn,
+.cadastro-emp-scope .emp-toolbar-search,
+.cadastro-emp-scope .emp-toolbar-counter {
+  border: 1px solid #bae6fd !important;
+  border-radius: 5px !important;
+}
+
 .cadastro-emp-scope .emp-toolbar-btn {
   color: #082e54 !important;
-  border-radius: 6px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn svg {
