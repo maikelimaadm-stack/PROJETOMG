@@ -11,7 +11,7 @@ export default function LegacyTabs({ tabs = [], activeTab, onChange }) {
   const scrollTabs = (direction) => tabsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   return (
-    <div className="relative flex h-9 items-end gap-0 bg-white before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-[#082e54]">
+    <div className="relative flex h-9 items-end gap-0 bg-white before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-slate-300">
       <button type="button" onClick={() => scrollTabs(-1)} className={`${navButtonClass} border-r border-slate-300`} title="Painéis anteriores">
         <ChevronLeft className="w-4 h-4" />
       </button>
@@ -26,7 +26,7 @@ export default function LegacyTabs({ tabs = [], activeTab, onChange }) {
               key={tab.id}
               type="button"
               onClick={() => onChange(tab.id)}
-              className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap overflow-hidden transition-colors rounded-[2px_2px_0px_0px] ${active ? "bg-white text-black font-semibold border-t-2 border-t-[#082e54] border-b-white" : "bg-white text-black border-b-[#082e54] hover:bg-slate-50"}`}>
+              className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap overflow-hidden transition-colors rounded-[2px_2px_0px_0px] ${active ? "bg-white text-black font-semibold border-t-2 border-t-[#082e54] border-b-white" : "bg-white text-black border-b-slate-300 hover:bg-slate-50"}`}>
               {isCustomPanel(tab) && <CustomMarker />}
               {tab.label}
             </button>);

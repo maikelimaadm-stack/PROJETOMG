@@ -17,10 +17,10 @@ const AGGREGATION_OPTIONS = [
 { value: "min", label: "Menor" }];
 
 
-const iconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
-const confirmIconButtonClass = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-none";
-const cancelIconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-none";
-const tabNavButtonClass = "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
+const iconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
+const confirmIconButtonClass = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
+const cancelIconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
+const tabNavButtonClass = "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
 const greenButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-green-400 bg-green-500 hover:bg-green-600 text-white hover:text-white shadow-none";
 const brandBlueButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#082e53] bg-[#082e53] hover:bg-[#082e53]/90 text-white hover:text-white shadow-none";
 
@@ -370,7 +370,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         setSelectedAvailableIds((prev) => prev.includes(field.id) ? prev : [field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`relative w-full rounded-none border px-2 py-1.5 text-left overflow-hidden transition-all focus-visible:outline-none flex items-center justify-between gap-2 ${selected ? (brandTheme ? "bg-[#082e53]/10 border-[#082e53] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-white border-slate-200 text-slate-900 hover:bg-slate-50"}`}>
+      className={`relative w-full rounded-none border px-2 py-1.5 text-left overflow-hidden transition-all focus-visible:outline-none flex items-center justify-between gap-2 ${selected ? (brandTheme ? "bg-[#082e54]/10 border-[#082e54] text-black" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-white border-slate-200 text-black hover:bg-slate-50"}`}>
       {isCustomField(field) && <CustomMarker />}
       <div className="min-w-0">
         <div className="text-xs font-semibold truncate">{field.label}</div>
@@ -409,9 +409,9 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         onDragOver={(event) => {event.preventDefault();reorderField(field.id);}}
         onDrop={() => setDraggedFieldId(null)}
         onDragEnd={() => setDraggedFieldId(null)}
-        className={`relative h-8 min-w-[210px] px-2 rounded-none text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${draggedFieldId === field.id ? "opacity-50 scale-95" : ""} ${selected ? (brandTheme ? "bg-[#082e53]/10 border-[#082e53] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-white border-slate-200 text-slate-900 hover:bg-slate-50"} ${hidden ? "bg-slate-50 text-slate-400 border-slate-300" : ""}`}>
+        className={`relative h-8 min-w-[210px] px-2 rounded-none text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${draggedFieldId === field.id ? "opacity-50 scale-95" : ""} ${selected ? (brandTheme ? "bg-[#082e54]/10 border-[#082e54] text-black" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-white border-slate-200 text-black hover:bg-slate-50"} ${hidden ? "bg-slate-50 text-slate-400 border-slate-300" : ""}`}>
         
-        {isCustomField(field) && <CustomMarker className={brandTheme ? "border-b-[#082e53]" : "border-b-[#082e54]"} />}
+        {isCustomField(field) && <CustomMarker className={brandTheme ? "border-b-[#082e54]" : "border-b-[#082e54]"} />}
         <span className="flex items-center gap-1 min-w-0">
           <span className="text-xs font-semibold truncate">{field.label}</span>
         </span>
@@ -446,10 +446,10 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
           className="border-r border-slate-300 bg-white p-2 overflow-hidden flex flex-col">
 
           
-            <div className="text-sm font-semibold text-slate-800 mb-2">Campos disponíveis</div>
+            <div className="text-sm font-semibold text-black mb-2">Campos disponíveis</div>
             <div className="relative mb-3">
               <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Procurar campo" className="rounded-none text-xs pr-3 pl-3 h-7" />
-              <Search className="w-3.5 h-3.5 text-slate-600 absolute right-2 top-1.5" />
+              <Search className="w-3.5 h-3.5 text-black absolute right-2 top-1.5" />
             </div>
             <div className="flex-1 overflow-auto space-y-1 pr-1" onDragOver={(event) => event.preventDefault()} onDrop={dropFieldToAvailable}>
               {availableFields.length === 0 ? <div className="text-xs text-slate-400 py-4 text-center">Solte aqui para remover do painel.</div> : availableFields.map(renderAvailableField)}
@@ -464,7 +464,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
           </section>
 
           <main className="min-w-0 overflow-hidden flex flex-col bg-white">
-            <div className="relative h-9 bg-white flex items-end gap-0 before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-[#082e54]">
+            <div className="relative h-9 bg-white flex items-end gap-0 before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-slate-300">
               <button type="button" onClick={() => scrollPanels(-1)} className={`${tabNavButtonClass} border-r border-slate-300`} title="Painéis anteriores"><ChevronLeft className="w-3.5 h-3.5" /></button>
               <button type="button" onClick={() => scrollPanels(1)} className={tabNavButtonClass} title="Próximos painéis"><ChevronRight className="w-3.5 h-3.5" /></button>
               <div ref={panelsScrollRef} className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -488,7 +488,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
                       setSelectedPanelField(null);
                       setSelectedPanelFieldIds([]);
                     }}
-                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? (brandTheme ? "bg-white font-semibold text-slate-800 border-t-2 border-t-[#fbc108] border-b-white" : "bg-white font-semibold text-slate-800 border-t-2 border-t-[#082e54] border-b-white") : "bg-slate-50 text-slate-700 border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
+                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? (brandTheme ? "bg-white font-semibold text-black border-t-2 border-t-[#082e54] border-b-white" : "bg-white font-semibold text-black border-t-2 border-t-[#082e54] border-b-white") : "bg-slate-50 text-black border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
                     
                       {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
                       {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ?
@@ -515,15 +515,15 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
             </div>
 
             <div className="border-t flex items-center h-10 border-slate-300 bg-slate-50 gap-3 py-2 px-2">
-              <label className="flex items-center gap-2 text-[12px] text-slate-600">
+              <label className="flex items-center gap-2 text-[12px] text-black">
                 <span>Oculto:</span>
                 <GreenCheck checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id) || fixedVisibleFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} />
               </label>
-              <label className="flex items-center gap-2 text-[12px] text-slate-600">
+              <label className="flex items-center gap-2 text-[12px] text-black">
                 <span>Bloqueado:</span>
                 <GreenCheck checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)} />
               </label>
-              <label className="flex items-center gap-2 text-[12px] text-slate-600">
+              <label className="flex items-center gap-2 text-[12px] text-black">
                 <span>Obrigatório:</span>
                 <GreenCheck checked={!!selectedField && (selectedField.required || draftRequiredFieldIds.includes(selectedField.id))} disabled={!selectedField || selectedField?.required || !isEditing} onChange={(checked) => {
                 if (checked) {
@@ -533,7 +533,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
                 toggleListValue(setDraftRequiredFieldIds, selectedField?.id, checked);
               }} />
               </label>
-              <label className="flex items-center gap-2 text-[12px] text-slate-600">
+              <label className="flex items-center gap-2 text-[12px] text-black">
                 <span>Totalizar:</span>
                 <GreenCheck checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled} disabled={!selectedField || !selectedField?.totalizable || !isEditing} onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)} />
               </label>
