@@ -84,6 +84,7 @@ export const DEFAULT_MENU = [
     icon: "FolderOpen",
     submenu: [
       { id: "cad-empresa", title: "Empresa", url: "Empresa" },
+      { id: "cad-cadastro-empresas", title: "Cadastro de Empresas", url: "CadastroEmpresas" },
       { id: "cad-mapa", title: "Mapa - Areas/Pontos/Linhas", url: "MapaCadastro" },
       { id: "cad-safras", title: "Safras", url: "GerenciarSafras" },
       { id: "cad-fornecedores", title: "Fornecedores/Clientes", url: "Fornecedores" },
