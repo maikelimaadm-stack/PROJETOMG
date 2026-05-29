@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import SankhyaListToolbar from "@/components/common/SankhyaListToolbar";
+import SankhyaListToolbar from "@/components/emp/toolbars/EmpListToolbar";
 import { toast } from "sonner";
 import FORMEMP from "@/components/emp/FORMEMP";
 import TBLEMP from "@/components/emp/TBLEMP";

@@ -4,14 +4,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/services/campoEngine";
-import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
+import EmpAutocomplete from "@/components/emp/shared/EmpAutocomplete";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import LegacyRecordToolbar from "@/components/lotes/LegacyRecordToolbar";
 import LegacyTabs from "@/components/lotes/LegacyTabs";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
-import DynamicFormRenderer from "@/components/dynamic/DynamicFormRenderer";
-import LayoutConfiguratorDialog from "@/components/dynamic/LayoutConfiguratorDialog";
-import CustomOptionListControl from "@/components/lotes/CustomOptionListControl";
+import EmpDynamicFormRenderer from "@/components/emp/layout/EmpDynamicFormRenderer";
+import EmpLayoutConfiguratorDialog from "@/components/emp/layout/EmpLayoutConfiguratorDialog";
+import EmpOptionListControl from "@/components/emp/shared/EmpOptionListControl";
 import { base44 } from "@/api/base44Client";
 
 const ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
@@ -198,12 +198,12 @@ export default function FORMEMP({
 
     if (campo.tipo === "option_list") {
       const options = campoOptions.map((option) => ({ value: String(option.value || option.label || "").toUpperCase(), label: String(option.label || option.value || "").toUpperCase() }));
-      return <CustomOptionListControl options={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue)} disabled={fieldReadOnly} placeholder={(campo.placeholder || "SELECIONE UMA OU MAIS OPÇÕES").toUpperCase()} />;
+      return <EmpOptionListControl options={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue)} disabled={fieldReadOnly} placeholder={(campo.placeholder || "SELECIONE UMA OU MAIS OPÇÕES").toUpperCase()} />;
     }
 
     if (campo.tipo === "select" || campo.tipo === "relation") {
       const options = campoOptions.map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
-      return <AutocompleteGenerico items={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue || "")} placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()} displayField="nome" searchFields={["nome"]} disabled={fieldReadOnly} readOnly={fieldReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1" />;
+      return <EmpAutocomplete items={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue || "")} placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()} displayField="nome" searchFields={["nome"]} disabled={fieldReadOnly} readOnly={fieldReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1" />;
     }
 
     if (campo.tipo === "time") {
@@ -330,7 +330,7 @@ export default function FORMEMP({
   if (layoutConfigOpen) {
     return (
       <section className="w-full h-full max-w-full bg-white overflow-hidden">
-        <LayoutConfiguratorDialog
+        <EmpLayoutConfiguratorDialog
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}
           inline
@@ -395,7 +395,7 @@ export default function FORMEMP({
         <div className="flex-1 min-h-0 overflow-y-auto pb-6 pr-2" style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}>
           <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
             <div className="px-4 md:px-8 py-1 max-w-[780px]">
-              <DynamicFormRenderer
+              <EmpDynamicFormRenderer
                 panels={activeLayoutConfig.panels}
                 fields={dynamicFields}
                 layout={activeLayoutConfig.layout}
@@ -418,7 +418,7 @@ export default function FORMEMP({
           <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
             <div className="min-h-[360px] px-4 md:px-8 py-1">
               <div className="max-w-[780px] space-y-1">
-                <DynamicFormRenderer
+                <EmpDynamicFormRenderer
                   panels={tabs}
                   fields={dynamicFields}
                   layout={activeLayoutConfig.layout}

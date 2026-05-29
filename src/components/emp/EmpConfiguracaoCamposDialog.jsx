@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
+import EmpAutocomplete from "@/components/emp/shared/EmpAutocomplete";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import { Badge } from "@/components/ui/badge";
@@ -10,15 +10,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import empRepository from "@/components/emp/empRepository";
-import LegacyRecordToolbar from "@/components/lotes/LegacyRecordToolbar";
-import SankhyaListToolbar from "@/components/common/SankhyaListToolbar";
+import LegacyRecordToolbar from "@/components/emp/toolbars/EmpRecordToolbar";
+import SankhyaListToolbar from "@/components/emp/toolbars/EmpListToolbar";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
-import GuidedRelationConfig from "@/components/lotes/GuidedRelationConfig";
-import ManualSelectOptionsConfig from "@/components/lotes/ManualSelectOptionsConfig";
-import VisualCalculationBuilder from "@/components/lotes/VisualCalculationBuilder";
-import DecimalConfig from "@/components/lotes/DecimalConfig";
-import MaskConfig from "@/components/lotes/MaskConfig";
-import { montarCamposDisponiveis, montarFormulaVisual } from "@/components/lotes/camposConfigOptions";
+import EmpRelationConfig from "@/components/emp/fields/EmpRelationConfig";
+import EmpManualOptionsConfig from "@/components/emp/fields/EmpManualOptionsConfig";
+import EmpCalculationBuilder from "@/components/emp/fields/EmpCalculationBuilder";
+import EmpDecimalConfig from "@/components/emp/fields/EmpDecimalConfig";
+import EmpMaskConfig from "@/components/emp/fields/EmpMaskConfig";
+import { montarCamposDisponiveis, montarFormulaVisual } from "@/components/emp/fields/empFieldConfigOptions";
 
 const TIPOS_CAMPO = [
   { value: "text", label: "Texto" },
@@ -180,14 +180,14 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
           <fieldset className={`flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
             <div className="px-4 md:px-8 py-2 space-y-1 max-w-[780px]">
               <Field label="Nome do campo" required><Input value={form.label} onChange={(e) => updateForm("label", e.target.value)} readOnly={isNativeSelect} placeholder="EX: CONTATO RESPONSÁVEL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
-              <Field label="Tipo"><AutocompleteGenerico items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="BUSCAR TIPO..." displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 uppercase" /></Field>
+              <Field label="Tipo"><EmpAutocomplete items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="BUSCAR TIPO..." displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 uppercase" /></Field>
               <Field label="Texto de ajuda"><Input value={form.placeholder} onChange={(e) => updateForm("placeholder", e.target.value)} placeholder="TEXTO MOSTRADO NO CAMPO" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
               <Field label="Descrição"><Input value={form.descricao} onChange={(e) => updateForm("descricao", e.target.value)} placeholder="EXPLICAÇÃO OPCIONAL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
-              {["select", "option_list"].includes(form.tipo) && <ManualSelectOptionsConfig form={form} updateForm={updateForm} />}
-              {form.tipo === "relation" && <GuidedRelationConfig form={form} updateForm={updateForm} mode="relation" />}
-              {form.tipo === "calculado" && <VisualCalculationBuilder value={form.calculation_builder?.items || []} fields={camposCalculo} onChange={(items) => updateForm("calculation_builder", { items })} />}
-              <DecimalConfig form={form} updateForm={updateForm} />
-              <MaskConfig form={form} updateForm={updateForm} />
+              {["select", "option_list"].includes(form.tipo) && <EmpManualOptionsConfig form={form} updateForm={updateForm} />}
+              {form.tipo === "relation" && <EmpRelationConfig form={form} updateForm={updateForm} mode="relation" />}
+              {form.tipo === "calculado" && <EmpCalculationBuilder value={form.calculation_builder?.items || []} fields={camposCalculo} onChange={(items) => updateForm("calculation_builder", { items })} />}
+              <EmpDecimalConfig form={form} updateForm={updateForm} />
+              <EmpMaskConfig form={form} updateForm={updateForm} />
               <Field label="Prévia" wide><div className="px-2 py-1 text-xs text-slate-700 uppercase bg-slate-50 min-h-[48px]">{form.label || "Nome do campo"}: {form.tipo === "calculado" ? montarFormulaVisual(form.calculation_builder?.items || []) || "Calculado automaticamente" : form.placeholder || "Valor do campo"}</div></Field>
               <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 pt-1">
                 <span className="text-[12px] text-black text-right leading-none">Exibir em:</span>
