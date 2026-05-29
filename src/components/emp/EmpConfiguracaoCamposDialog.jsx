@@ -222,10 +222,10 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                     const id = campo.id || campo.field_id;
                     const sel = selectedCampoIds.includes(id);
                     return (
-                      <TableRow key={id} className={`${sel ? "bg-[#fbc108] hover:bg-[#e5ad00] text-slate-900" : index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`} onClick={(e) => handleRowSelect(campo, e)} onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis font-medium ${sel ? "text-slate-900 border-[#e5ad00]" : "text-gray-700 border-gray-300"}`}>{campo.label}</TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "text-slate-900 border-[#e5ad00]" : "text-gray-700 border-gray-300"}`}>{TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}</TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "text-slate-900 border-[#e5ad00]" : "text-gray-700 border-gray-300"}`}>
+                      <TableRow key={id} className={`${index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} ${sel ? "font-bold" : ""} transition-colors border-b cursor-pointer select-none`} onClick={(e) => handleRowSelect(campo, e)} onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}>
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis font-medium ${sel ? "text-gray-900 border-gray-300" : "text-gray-700 border-gray-300"}`}>{campo.label}</TableCell>
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "text-gray-900 border-gray-300" : "text-gray-700 border-gray-300"}`}>{TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}</TableCell>
+                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "text-gray-900 border-gray-300" : "text-gray-700 border-gray-300"}`}>
                           <div className="h-full flex items-center gap-1 overflow-hidden">
                             {campo.visivel_form && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Form</Badge>}
                             {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Tabela</Badge>}
