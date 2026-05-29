@@ -95,7 +95,7 @@ export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel 
         </div>
       </div>
       <div className={`h-8 flex items-center gap-2 bg-white border-b-[0.5px] ${toolbarLineClass} px-2`}>
-        <span className="px-1.5 py-0.5 rounded-sm text-white text-[11px] font-bold uppercase bg-[#082e53]">{badgeLabel}</span>
+        <span className="w-[150px] px-1.5 py-0.5 rounded-sm text-white text-[11px] font-bold uppercase bg-[#082e53] text-center truncate">{badgeLabel}</span>
         <span className="text-xs font-semibold text-slate-700 uppercase truncate min-w-0 flex-1">{title}</span>
         {operationLabel &&
         <span className="ml-auto text-[11px] font-bold text-emerald-700 uppercase whitespace-nowrap">
