@@ -88,7 +88,7 @@ export default function FORMEMP({
   const handleChange = (field, value) => {
     if (isReadOnly) return;
     const normalized = UPPER_FIELDS.includes(field) && typeof value === "string" ? value.toUpperCase() : value;
-    setErrors((p) => ({ ...p, [field]: false }));
+    setErrors((p) => ({ ...p, [field]: undefined }));
     setFormData((p) => ({ ...p, [field]: normalized }));
   };
 
@@ -198,70 +198,76 @@ export default function FORMEMP({
             {/* Conteúdo das tabs */}
             <div className="min-h-[360px] px-4 md:px-8 py-2 max-w-[780px] space-y-1">
 
-              {activeTab === "geral" && <>
-                <FL label="Nome Fantasia" wide>
-                  <Input value={formData.nome_fantasia} onChange={(e) => handleChange("nome_fantasia", e.target.value)} placeholder="NOME FANTASIA" className={`${inputClass} uppercase`} />
-                </FL>
-                <FL label="Tipo de Pessoa" required error={errors.tipo_pessoa} compact>
-                  <AutocompleteGenerico items={opcoesTipoPessoa} value={formData.tipo_pessoa || ""} onChange={(v) => handleChange("tipo_pessoa", v || "PJ")} placeholder="PF / PJ" displayField="nome" searchFields={["nome"]} disabled={isReadOnly} readOnly={isReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1" />
-                </FL>
-                <FL label={formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ"} compact>
-                  <Input value={formData.cpf_cnpj} onChange={(e) => handleChange("cpf_cnpj", e.target.value)} placeholder={formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00"} className={inputClass} />
-                </FL>
-                <FL label="Inscrição Estadual" compact>
-                  <Input value={formData.inscricao_estadual} onChange={(e) => handleChange("inscricao_estadual", e.target.value)} placeholder="INSCRIÇÃO ESTADUAL" className={inputClass} />
-                </FL>
-                <FL label="Telefone" compact>
-                  <Input value={formData.telefone} onChange={(e) => handleChange("telefone", e.target.value)} placeholder="(00) 0000-0000" className={inputClass} />
-                </FL>
-                <FL label="WhatsApp" compact>
-                  <Input value={formData.whatsapp} onChange={(e) => handleChange("whatsapp", e.target.value)} placeholder="(00) 00000-0000" className={inputClass} />
-                </FL>
-                <FL label="E-mail">
-                  <Input value={formData.email} onChange={(e) => handleChange("email", e.target.value)} placeholder="EMAIL@EMPRESA.COM.BR" className={inputClass} />
-                </FL>
-                <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1">
-                  <label className="text-[12px] text-slate-600 text-right leading-none">Logo da Empresa:</label>
-                  <div className="min-h-[36px] border border-slate-300 bg-white rounded-[1.5px] flex items-center gap-2 px-2 py-1">
-                    {formData.logo_url && <img src={formData.logo_url} alt="Logo" className="h-8 w-8 object-contain border border-slate-200 rounded-sm bg-white" />}
-                    {!isReadOnly && (
-                      <label className="cursor-pointer text-[11px] text-slate-600 hover:text-green-700 underline">
-                        {uploadingLogo ? "Enviando..." : formData.logo_url ? "Trocar logo" : "Selecionar logo"}
-                        <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} />
-                      </label>
-                    )}
-                    {!isReadOnly && formData.logo_url && <button type="button" onClick={() => handleChange("logo_url", "")} className="text-[11px] text-red-500 hover:text-red-700 underline ml-1">Remover</button>}
-                    {!formData.logo_url && isReadOnly && <span className="text-[11px] text-slate-400">Sem logo</span>}
+              {activeTab === "geral" && (
+                <div className="space-y-1">
+                  <FL label="Nome Fantasia" wide>
+                    <Input value={formData.nome_fantasia} onChange={(e) => handleChange("nome_fantasia", e.target.value)} placeholder="NOME FANTASIA" className={`${inputClass} uppercase [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Tipo de Pessoa" required error={errors.tipo_pessoa} compact>
+                    <AutocompleteGenerico items={opcoesTipoPessoa} value={formData.tipo_pessoa || ""} onChange={(v) => handleChange("tipo_pessoa", v || "PJ")} placeholder="PF / PJ" displayField="nome" searchFields={["nome"]} disabled={isReadOnly} readOnly={isReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 [resize:none]" />
+                  </FL>
+                  <FL label={formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ"} compact>
+                    <Input value={formData.cpf_cnpj} onChange={(e) => handleChange("cpf_cnpj", e.target.value)} placeholder={formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00"} className={`${inputClass} [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Inscrição Estadual" compact>
+                    <Input value={formData.inscricao_estadual} onChange={(e) => handleChange("inscricao_estadual", e.target.value)} placeholder="INSCRIÇÃO ESTADUAL" className={`${inputClass} [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Telefone" compact>
+                    <Input value={formData.telefone} onChange={(e) => handleChange("telefone", e.target.value)} placeholder="(00) 0000-0000" className={`${inputClass} [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="WhatsApp" compact>
+                    <Input value={formData.whatsapp} onChange={(e) => handleChange("whatsapp", e.target.value)} placeholder="(00) 00000-0000" className={`${inputClass} [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="E-mail">
+                    <Input value={formData.email} onChange={(e) => handleChange("email", e.target.value)} placeholder="EMAIL@EMPRESA.COM.BR" className={`${inputClass} [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1">
+                    <label className="text-[12px] text-slate-600 text-right leading-none">Logo da Empresa:</label>
+                    <div className="min-h-[36px] border border-slate-300 bg-white rounded-[1.5px] flex items-center gap-2 px-2 py-1">
+                      {formData.logo_url && <img src={formData.logo_url} alt="Logo" className="h-8 w-8 object-contain border border-slate-200 rounded-sm bg-white" />}
+                      {!isReadOnly && (
+                        <label className="cursor-pointer text-[11px] text-slate-600 hover:text-green-700 underline">
+                          {uploadingLogo ? "Enviando..." : formData.logo_url ? "Trocar logo" : "Selecionar logo"}
+                          <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} />
+                        </label>
+                      )}
+                      {!isReadOnly && formData.logo_url && <button type="button" onClick={() => handleChange("logo_url", "")} className="text-[11px] text-red-500 hover:text-red-700 underline ml-1">Remover</button>}
+                      {!formData.logo_url && isReadOnly && <span className="text-[11px] text-slate-400">Sem logo</span>}
+                    </div>
                   </div>
                 </div>
-              </>}
+              )}
 
-              {activeTab === "endereco" && <>
-                <FL label="CEP" compact>
-                  <Input value={formData.cep} onChange={(e) => handleChange("cep", e.target.value)} placeholder="00000-000" className={inputClass} />
-                </FL>
-                <FL label="Endereço" wide>
-                  <Input value={formData.endereco} onChange={(e) => handleChange("endereco", e.target.value)} placeholder="RUA, AVENIDA..." className={`${inputClass} uppercase`} />
-                </FL>
-                <FL label="Número" compact>
-                  <Input value={formData.numero} onChange={(e) => handleChange("numero", e.target.value)} placeholder="Nº" className={inputClass} />
-                </FL>
-                <FL label="Bairro">
-                  <Input value={formData.bairro} onChange={(e) => handleChange("bairro", e.target.value)} placeholder="BAIRRO" className={`${inputClass} uppercase`} />
-                </FL>
-                <FL label="Cidade">
-                  <Input value={formData.cidade} onChange={(e) => handleChange("cidade", e.target.value)} placeholder="CIDADE" className={`${inputClass} uppercase`} />
-                </FL>
-                <FL label="Estado (UF)" compact>
-                  <AutocompleteGenerico items={opcoesEstado} value={formData.estado || ""} onChange={(v) => handleChange("estado", v || "")} placeholder="UF" displayField="nome" searchFields={["nome"]} disabled={isReadOnly} readOnly={isReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1" />
-                </FL>
-              </>}
+              {activeTab === "endereco" && (
+                <div className="space-y-1">
+                  <FL label="CEP" compact>
+                    <Input value={formData.cep} onChange={(e) => handleChange("cep", e.target.value)} placeholder="00000-000" className={`${inputClass} [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Endereço" wide>
+                    <Input value={formData.endereco} onChange={(e) => handleChange("endereco", e.target.value)} placeholder="RUA, AVENIDA..." className={`${inputClass} uppercase [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Número" compact>
+                    <Input value={formData.numero} onChange={(e) => handleChange("numero", e.target.value)} placeholder="Nº" className={`${inputClass} [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Bairro">
+                    <Input value={formData.bairro} onChange={(e) => handleChange("bairro", e.target.value)} placeholder="BAIRRO" className={`${inputClass} uppercase [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Cidade">
+                    <Input value={formData.cidade} onChange={(e) => handleChange("cidade", e.target.value)} placeholder="CIDADE" className={`${inputClass} uppercase [resize:none]`} readOnly={isReadOnly} />
+                  </FL>
+                  <FL label="Estado (UF)" compact>
+                    <AutocompleteGenerico items={opcoesEstado} value={formData.estado || ""} onChange={(v) => handleChange("estado", v || "")} placeholder="UF" displayField="nome" searchFields={["nome"]} disabled={isReadOnly} readOnly={isReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 [resize:none]" />
+                  </FL>
+                </div>
+              )}
 
-              {activeTab === "observacoes" && <>
-                <FL label="Observações" wide>
-                  <Textarea value={formData.observacoes} onChange={(e) => handleChange("observacoes", e.target.value)} placeholder="OBSERVAÇÕES GERAIS..." className="text-xs uppercase bg-transparent px-1 min-h-[80px] border-0 rounded-none shadow-none focus-visible:ring-0" />
-                </FL>
-              </>}
+              {activeTab === "observacoes" && (
+                <div className="space-y-1">
+                  <FL label="Observações" wide>
+                    <Textarea value={formData.observacoes} onChange={(e) => handleChange("observacoes", e.target.value)} placeholder="OBSERVAÇÕES GERAIS..." className="text-xs uppercase bg-transparent px-1 min-h-[80px] border-0 rounded-none shadow-none focus-visible:ring-0 [resize:none]" readOnly={isReadOnly} />
+                  </FL>
+                </div>
+              )}
 
               {activeTab === "campos_personalizados" && camposPersonalizadosForm.length > 0 && <>
                 {camposPersonalizadosForm.map((campo) => (
