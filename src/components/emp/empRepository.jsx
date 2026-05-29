@@ -12,7 +12,7 @@ const empRepository = {
   async create(data) {
     const all = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
     const maxCodigo = all.length > 0 ? (all[0].codigo_empresa || 0) : 0;
-    const codigo = maxCodigo + 1;
+    const codigo = Number(maxCodigo) + 1;
     return base44.entities.EmpresaCadastro.create({ ...data, codigo_empresa: codigo });
   },
 
@@ -42,11 +42,16 @@ const empRepository = {
 
   async listOptionsSources(sources) {
     const result = {};
-    await Promise.all(sources.map(async ({ entity, labelField, valueField }) => {
+    await Promise.all((sources || []).map(async ({ entity, labelField, valueField }) => {
       try {
         const items = await base44.entities[entity]?.list?.() || [];
-        result[entity] = items.map(item => ({ id: item[valueField] || item.id, nome: item[labelField] || item.nome || item.name || '' }));
-      } catch { result[entity] = []; }
+        result[entity] = items.map(item => ({
+          id: item[valueField] || item.id,
+          nome: item[labelField] || item.nome || item.name || ''
+        }));
+      } catch {
+        result[entity] = [];
+      }
     }));
     return result;
   }
