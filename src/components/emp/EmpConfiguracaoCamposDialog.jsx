@@ -195,7 +195,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                   {[["obrigatorio", "Obrigatório"], ["visivel_tabela", "Tabela"], ["visivel_relatorio", "Relatório"]].map(([field, label]) =>
                     <button key={field} type="button" onClick={() => updateForm(field, !form[field])} className="h-[22px] flex items-center gap-1.5 bg-transparent">
                       <span className="text-[12px] text-slate-600">{label}:</span>
-                      <ToggleSwitch checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} checkedClassName="bg-[#fbc108] hover:bg-[#e5ad00]" />
+                      <ToggleSwitch checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} />
                     </button>
                   )}
                 </div>

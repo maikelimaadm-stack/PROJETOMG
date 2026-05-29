@@ -82,7 +82,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
           <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
           <div className="border border-slate-200 bg-white">
             <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
-              <span className="px-1.5 py-0.5 rounded-sm text-white text-[11px] font-bold bg-[#082e54]">ANEXOS</span>
+              <span className="w-[90px] h-5 px-1.5 rounded-none border border-slate-300 bg-white text-slate-700 text-[11px] font-bold text-center truncate inline-flex items-center justify-center">ANEXOS</span>
               <span className="text-xs font-semibold text-slate-700 truncate flex-1">{title || "Lote"}</span>
               <Button type="button" onClick={() => onOpenChange(false)} title="Fechar" className="rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none h-7 w-7">
                 <X className="w-4 h-4" />
@@ -101,7 +101,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
                     className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1"
                     style={{ textTransform: "uppercase" }} />
                   
-                  <Button type="button" variant="outline" size="icon" onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className="h-[22px] w-8 rounded-none border-y-0 border-r-0 border-l border-slate-300 hover:bg-green-600 text-white shadow-none bg-[#082e54]" title="Anexar arquivo">
+                  <Button type="button" variant="outline" size="icon" onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className="h-[22px] w-8 rounded-none border-y-0 border-r-0 border-l border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-none" title="Anexar arquivo">
                     {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-4 h-4" />}
                   </Button>
                 </div>

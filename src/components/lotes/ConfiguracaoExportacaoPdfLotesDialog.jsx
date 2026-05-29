@@ -43,7 +43,7 @@ export default function ConfiguracaoExportacaoPdfLotesDialog({ open, onOpenChang
         <DialogTitle className="sr-only">{titulo}</DialogTitle>
         <div className="bg-white border border-slate-200">
           <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
-            <span className="px-1.5 py-0.5 rounded-sm bg-slate-500 text-white text-[11px] font-bold">{tipo === "excel" ? "EXCEL" : "PDF"}</span>
+            <span className="w-[70px] h-5 px-1.5 rounded-none border border-slate-300 bg-white text-slate-700 text-[11px] font-bold text-center truncate inline-flex items-center justify-center">{tipo === "excel" ? "EXCEL" : "PDF"}</span>
             <span className="text-xs font-semibold text-slate-700 truncate flex-1">{titulo}</span>
             <Button type="button" onClick={() => onOpenChange(false)} title="Fechar" className="rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none h-7 w-7">
               <X className="w-4 h-4" />
