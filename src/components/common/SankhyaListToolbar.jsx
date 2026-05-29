@@ -26,6 +26,7 @@ import {
 const toolbarLineClass = "border-slate-300";
 const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
 const fileButtonClass = iconButtonClass;
+const titleCase = (value) => String(value || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
 export default function SankhyaListToolbar({
   viewMode = "table",
@@ -155,10 +156,10 @@ export default function SankhyaListToolbar({
       </div>
       {viewMode === "record" &&
       <div className={`h-8 flex items-center gap-2 bg-white border-b-[0.5px] ${toolbarLineClass} px-2`}>
-          {recordLabel && <span className="px-1.5 py-0.5 rounded-none border border-slate-300 bg-white text-black text-[11px] font-bold">{recordLabel}</span>}
+          {recordLabel && <span className="px-1.5 py-0.5 rounded-none border-[0.5px] border-slate-300 bg-white text-black text-[11px] font-bold">{titleCase(recordLabel)}</span>}
           <span className="text-xs font-semibold text-black truncate min-w-0 flex-1">{title}</span>
           <span className="ml-auto text-[11px] font-bold text-black whitespace-nowrap">
-            {operationLabel || "VISUALIZAÇÃO DE REGISTRO"}
+            {operationLabel || "Visualização de Registro"}
           </span>
         </div>
       }

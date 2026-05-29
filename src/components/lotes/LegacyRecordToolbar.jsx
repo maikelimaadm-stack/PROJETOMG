@@ -11,6 +11,7 @@ import {
 const toolbarLineClass = "border-slate-300";
 const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
 const fileButtonClass = iconButtonClass;
+const titleCase = (value) => String(value || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
 export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel = "LOTE", showSaveActions = false, showEditAction = false, showDeleteDuplicateActions = true, showUtilityActions = true, onCancel, onSave, onEditRecord, onSettingsClick, onLayoutConfigClick, onAttachClick, attachDisabled = false, onToggleView, onBack, total = 0, currentIndex = 0, onNew, onFirst, onPrevious, onNext, onLast, onDelete, onDuplicate, onRefresh, filterOpen = false, filterActive = false, onToggleFilter, onClearFilter, searchValue = "", onSearchChange, showSearch = false, addButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-green-400 bg-green-500 hover:bg-green-600 text-white shadow-none" }) {
   const canNavigate = total > 0;
@@ -95,7 +96,7 @@ export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel 
         </div>
       </div>
       <div className={`h-8 flex items-center gap-2 bg-white border-b-[0.5px] ${toolbarLineClass} px-2`}>
-        <span className="w-[150px] h-5 px-1.5 rounded-none border border-slate-300 text-black text-[11px] font-bold text-center truncate inline-flex items-center justify-center">{badgeLabel}</span>
+        <span className="w-[150px] h-5 px-1.5 rounded-none border-[0.5px] border-slate-300 text-black text-[11px] font-bold text-center truncate inline-flex items-center justify-center">{titleCase(badgeLabel)}</span>
         <span className="text-xs font-semibold text-black truncate min-w-0 flex-1">{title}</span>
         {operationLabel &&
         <span className="ml-auto text-[11px] font-bold text-black whitespace-nowrap">
