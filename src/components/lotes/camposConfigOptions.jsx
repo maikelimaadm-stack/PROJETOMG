@@ -1,12 +1,4 @@
-export const ENTIDADES_RELACIONAIS = [
-  { value: "Fornecedor", label: "Fornecedor / Cliente", fields: ["nome", "razao_social", "email", "telefone", "cidade"] },
-  { value: "Produto", label: "Produto", fields: ["nome_produto", "codigo_interno", "categoria", "marca"] },
-  { value: "CategoriaManejo", label: "Categoria de Manejo", fields: ["nome", "categoria_oficial", "sexo", "raca"] },
-  { value: "Setor", label: "Setor", fields: ["nome", "numero_setor"] },
-  { value: "AreaPastagem", label: "Área / Piquete", fields: ["nome", "numero_area", "setor_nome"] },
-  { value: "CentroCusto", label: "Centro de Custo", fields: ["nome", "tipo", "centro_custo_pai_nome"] },
-  { value: "LocalEstoque", label: "Local de Estoque", fields: ["nome", "numero_local", "descricao"] }
-];
+export const ENTIDADES_RELACIONAIS = [];
 
 export const CAMPOS_FIXOS_LOTE = [
   { value: "quantidade_cabecas", label: "Quantidade de Cabeças", tipo: "number", mock: 50 },

@@ -83,7 +83,6 @@ const parseSistemasProdutivos = (valor) => {
 export default function FormularioLote({ onSubmit, onCancel, onSettingsClick, onAttachClick, attachDisabled = false, onToggleView, total = 0, currentIndex = 0, onNew, onFirst, onPrevious, onNext, onLast, onDelete, onDuplicate, onRefresh, filterOpen = false, filterActive = false, onToggleFilter, onClearFilter, initialData, isEditing }) {
   const isDuplicating = !!initialData?._isDuplicate;
   const shouldPersistEntrySnapshot = !isEditing || isDuplicating;
-  const empresaSelecionadaId = localStorage.getItem("empresa_selecionada_id");
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
@@ -151,19 +150,10 @@ export default function FormularioLote({ onSubmit, onCancel, onSettingsClick, on
     setEditMode(!isEditing || !!initialData?._isDuplicate);
   }, [initialData?.id, initialData?.numero_lote, initialData?._isDuplicate, isEditing]);
 
-  const { setores, areas, getAreasBySetor } = useSetorAreas(empresaSelecionadaId);
+  const { setores, areas, getAreasBySetor } = useSetorAreas();
 
-  const { data: categoriasManejo = [] } = useQuery({
-    queryKey: ["categorias-manejo", empresaSelecionadaId],
-    queryFn: () => loteRepository.listCategoriasManejo(empresaSelecionadaId),
-    initialData: []
-  });
-
-  const { data: fornecedores = [] } = useQuery({
-    queryKey: ["fornecedores", empresaSelecionadaId],
-    queryFn: () => loteRepository.listFornecedores(empresaSelecionadaId),
-    initialData: []
-  });
+  const categoriasManejo = [];
+  const fornecedores = [];
 
   const { data: camposPersonalizados = [] } = useQuery({
     queryKey: ["lote-campos-personalizados"],

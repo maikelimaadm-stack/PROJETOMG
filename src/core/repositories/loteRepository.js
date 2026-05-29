@@ -30,11 +30,10 @@ export const loteRepository = {
     return all.find((lote) => lote.id === id) || null;
   },
 
-  async create(data, { empresaId } = {}) {
+  async create(data) {
     const allLotes = await base44.entities.Lote.list();
     return base44.entities.Lote.create({
       ...data,
-      empresa_id: empresaId || data.empresa_id,
       numero_lote: data.numero_lote || getNextNumeroLote(allLotes),
       status: data.status || "Ativo",
       campos_personalizados: data.campos_personalizados || {}

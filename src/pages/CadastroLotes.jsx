@@ -37,25 +37,14 @@ export default function CadastroLotes() {
   const [appliedFilters, setAppliedFilters] = useState({ status: "todos" });
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const queryClient = useQueryClient();
-  const empresaSelecionadaId = localStorage.getItem('empresa_selecionada_id');
-
   const { data: lotes = [] } = useQuery({
-    queryKey: ['lotes-cadastro', empresaSelecionadaId],
-    queryFn: () => loteRepository.list({ empresaId: empresaSelecionadaId, incluirSistema: false }),
+    queryKey: ['lotes-cadastro'],
+    queryFn: () => loteRepository.list({ incluirSistema: false }),
     initialData: []
   });
 
-  const { data: areas = [] } = useQuery({
-    queryKey: ['areas', empresaSelecionadaId],
-    queryFn: () => loteRepository.listAreasAtivas(empresaSelecionadaId),
-    initialData: []
-  });
-
-  const { data: lotesComMovimentacoes = [] } = useQuery({
-    queryKey: ['lotes-com-movimentacoes', empresaSelecionadaId],
-    queryFn: () => loteRepository.listLotesComMovimentacoes(empresaSelecionadaId),
-    initialData: []
-  });
+  const areas = [];
+  const lotesComMovimentacoes = [];
 
   const { data: camposPersonalizadosFiltro = [] } = useQuery({
     queryKey: ["lote-campos-personalizados"],
@@ -175,7 +164,7 @@ export default function CadastroLotes() {
   }, [lotes, appliedFilters, camposFiltroPersonalizados]);
 
   const createLoteMutation = useMutation({
-    mutationFn: (data) => loteRepository.create(data, { empresaId: empresaSelecionadaId }),
+    mutationFn: (data) => loteRepository.create(data),
     onSuccess: async (created) => {
       if (pendingAttachments.length) {
         await Promise.all(pendingAttachments.map(({ id, ...anexo }) => base44.entities.RegistroAnexo.create({
@@ -185,9 +174,9 @@ export default function CadastroLotes() {
         })));
         setPendingAttachments([]);
       }
-      queryClient.setQueryData(['lotes-cadastro', empresaSelecionadaId], (current = []) => [created, ...current]);
-      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
-      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId], exact: true });
+      queryClient.setQueryData(['lotes-cadastro'], (current = []) => [created, ...current]);
+      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
+      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro'], exact: true });
       setShowForm(false);
       setEditingLote(null);
       toast.success('Lote cadastrado!');
@@ -197,11 +186,11 @@ export default function CadastroLotes() {
   const updateLoteMutation = useMutation({
     mutationFn: ({ id, data, oldData }) => loteRepository.update(id, data, { oldData }),
     onSuccess: async (updated) => {
-      queryClient.setQueryData(['lotes-cadastro', empresaSelecionadaId], (current = []) =>
+      queryClient.setQueryData(['lotes-cadastro'], (current = []) =>
       current.map((item) => item.id === updated.id ? updated : item)
       );
-      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
-      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId], exact: true });
+      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
+      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro'], exact: true });
       setShowForm(false);
       setEditingLote(null);
       toast.success('Lote atualizado!');
@@ -334,7 +323,7 @@ export default function CadastroLotes() {
   };
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
+    queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
   };
 
   const handleConfirmDelete = async () => {
@@ -353,8 +342,8 @@ export default function CadastroLotes() {
     }
 
     if (deletedCount > 0) {
-      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
-      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId], exact: true });
+      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
+      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro'], exact: true });
       toast.success(deletedCount === 1 ? 'Lote excluído!' : `${deletedCount} lotes excluídos!`);
     }
   };
