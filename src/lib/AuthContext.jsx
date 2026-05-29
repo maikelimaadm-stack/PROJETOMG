@@ -1,6 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { appParams } from '@/lib/app-params';
+
+// Extract app config from SDK internals or environment
+const appParams = {
+  appId: window.__APP_ID__ || import.meta.env.VITE_APP_ID || '',
+  serverUrl: window.__SERVER_URL__ || 'https://api.base44.com',
+  token: window.__TOKEN__ || '',
+};
 
 const AuthContext = createContext();
 
