@@ -187,6 +187,8 @@ export default function PAGEMP() {
               onDelete={() => editingEmp?.id && handleRequestDelete(editingEmp.id)}
               onDuplicate={() => editingEmp && handleDuplicate(editingEmp)}
               filterOpen={false} filterActive={false}
+              searchValue={searchTerm}
+              onSearchChange={setSearchTerm}
               onAttachClick={() => editingEmp?.id && setAttachmentsRecord(editingEmp)}
               attachDisabled={false}
             />

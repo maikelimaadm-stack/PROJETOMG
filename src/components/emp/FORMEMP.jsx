@@ -57,6 +57,7 @@ export default function FORMEMP({
   onNew, onFirst, onPrevious, onNext, onLast,
   onDelete, onDuplicate, onRefresh,
   filterOpen = false, filterActive = false, onToggleFilter, onClearFilter,
+  searchValue = "", onSearchChange,
   initialData, isEditing
 }) {
   const isDuplicating = !!initialData?._isDuplicate;
@@ -383,6 +384,9 @@ export default function FORMEMP({
           onClearFilter={onClearFilter}
           onAttachClick={onAttachClick}
           attachDisabled={attachDisabled}
+          searchValue={searchValue}
+          onSearchChange={onSearchChange}
+          showSearch
         />
 
         <div className="flex-1 min-h-0 overflow-y-auto pb-6 pr-2" style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}>
