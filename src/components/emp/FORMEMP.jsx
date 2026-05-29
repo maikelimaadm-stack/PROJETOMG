@@ -410,7 +410,6 @@ export default function FORMEMP({
           onClearFilter={onClearFilter}
           onAttachClick={onAttachClick}
           attachDisabled={attachDisabled}
-          addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none"
           searchValue={searchValue}
           onSearchChange={onSearchChange}
           showSearch

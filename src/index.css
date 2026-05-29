@@ -287,16 +287,16 @@ input[type="number"] {
 
 /* Tabela profissional — mockup Cadastro de Empresas */
 .cadastro-emp-scope .emp-table-pro .emp-th {
-  background: #f1f5f9 !important;
+  background: #f0f7ff !important;
   color: #082e54 !important;
-  font-weight: 700;
-  font-size: 11px;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: none;
   border-right: 1px solid #e2e8f0;
   border-bottom: 1px solid #cbd5e1;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-td {
-  color: #1e293b !important;
   font-size: 12px;
   border-bottom: 1px solid #e2e8f0;
   background: transparent;
@@ -304,15 +304,18 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
   background: #ffffff !important;
+  color: #475569 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
-  background: #f8fafc !important;
+  background: #ffffff !important;
+  color: #475569 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
   background: #eff6ff !important;
-  color: #0f172a !important;
+  color: #082e54 !important;
+  font-weight: 600;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-td {
@@ -322,8 +325,17 @@ input[type="number"] {
   border-top: 1px solid #cbd5e1;
 }
 
-.cadastro-emp-scope .emp-toolbar svg {
+.cadastro-emp-scope .emp-toolbar-btn {
   color: #082e54 !important;
+  border-radius: 6px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn svg {
+  color: #082e54 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn:hover:not(:disabled) {
+  background: #f0f9ff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar input::placeholder {

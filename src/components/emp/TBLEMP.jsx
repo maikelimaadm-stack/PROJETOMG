@@ -46,6 +46,12 @@ const getMinWidth = (col) => Math.max(MIN_COL_WIDTH, String(col?.label || "").le
 
 const fmtData = (d) => { if (!d) return "-"; const [a, m, dia] = String(d).split("T")[0].split("-"); return !a || !m || !dia ? "-" : `${dia}/${m}/${a}`; };
 
+const formatHeaderLabel = (col) => {
+  const label = String(col?.label || "");
+  if (col?.id === "custom:valor" || label.toUpperCase() === "VALOR") return "VALOR";
+  return label;
+};
+
 export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setShowConfigColunas, searchTerm = "", selectedRecordId, onSelectionChange, onVisibleDataChange }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codigo_empresa", direction: "asc" });
@@ -314,7 +320,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           onDoubleClick={() => handleSort(col.id)}
                         >
                           <div className={`flex items-center w-full h-full leading-8 whitespace-nowrap overflow-hidden ${col.align === "right" ? "justify-end" : col.align === "center" ? "justify-center" : "justify-start"}`}>
-                            <span className="truncate uppercase tracking-wide">{col.label}</span>
+                            <span className="truncate font-semibold">{formatHeaderLabel(col)}</span>
                             {renderSortIndicator(col.id)}
                           </div>
                           {filterControl && <div className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-slate-50/95 pl-1 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} onClick={(e) => e.stopPropagation()}>
