@@ -1,150 +1,82 @@
-import { Toaster } from "@/components/ui/toaster"
-import GlobalRequiredFieldsGuard from '@/components/common/GlobalRequiredFieldsGuard';
-import GlobalDeleteBlockDialog from '@/components/common/GlobalDeleteBlockDialog';
-import { QueryClientProvider } from '@tanstack/react-query'
-import { queryClientInstance } from '@/lib/query-client'
-import { pagesConfig } from './pages.config'
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import PageNotFound from './lib/PageNotFound';
-import { AuthProvider, useAuth } from '@/lib/AuthContext';
-import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-import ManejosTecnicosRebanho from './pages/ManejosTecnicosRebanho';
-import MovimentacoesLote from './pages/MovimentacoesLote';
-import ContasFinanceiras from './pages/ContasFinanceiras';
-import TiposDocumento from './pages/TiposDocumento';
-import MotivosCompra from './pages/MotivosCompra';
-import Marcas from './pages/Marcas';
-import LancamentosAbastecimento from './pages/LancamentosAbastecimento';
-import ConfiguracaoPesagens from './pages/ConfiguracaoPesagens';
-import Bebedouros from './pages/Bebedouros';
-import RelatorioGadoMapaGeral from './pages/RelatorioGadoMapaGeral';
-import PAGEMP from './pages/emp/PAGEMP';
+import { Toaster } from "@/components/ui/toaster";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClientInstance } from "@/lib/query-client";
+import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/lib/AuthContext";
+import UserNotRegisteredError from "@/components/UserNotRegisteredError";
+import PAGEMP from "./pages/emp/PAGEMP";
+import { base44 } from "@/api/base44Client";
 
-const { Pages, Layout, mainPage } = pagesConfig;
-const mainPageKey = mainPage ?? Object.keys(Pages)[0];
-const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
+function MinimalLayout({ children }) {
+  const location = useLocation();
 
-const LayoutWrapper = ({ children, currentPageName }) => Layout ?
-  <Layout currentPageName={currentPageName}>{children}</Layout>
-  : <>{children}</>;
+  return (
+    <div className="h-[100dvh] overflow-hidden bg-white flex flex-col" style={{ "--app-content-offset": "73px" }}>
+      <header className="flex-none border-b border-slate-200 bg-white">
+        <div className="px-4 py-2 flex items-center justify-between">
+          <div>
+            <h1 className="text-sm font-bold text-black leading-tight">Cadastro de Empresas</h1>
+            <p className="text-xs text-slate-500">Sistema de gestão</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => base44.auth.logout()}
+            className="h-7 px-3 rounded-none border border-slate-300 bg-white text-xs text-black hover:bg-slate-50"
+          >
+            Sair
+          </button>
+        </div>
+        <nav className="h-8 px-4 flex items-center border-t border-slate-200">
+          <Link
+            to="/CadastroEmpresas"
+            className={`h-7 px-3 inline-flex items-center text-xs border-x border-slate-200 ${location.pathname === "/CadastroEmpresas" || location.pathname === "/" ? "font-semibold text-black bg-slate-50" : "text-slate-600 bg-white"}`}
+          >
+            Cadastro de Empresas
+          </Link>
+        </nav>
+      </header>
+      <main className="flex-1 min-h-0 overflow-hidden">{children}</main>
+    </div>
+  );
+}
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
+      <div className="fixed inset-0 flex items-center justify-center bg-white">
+        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
       </div>
     );
   }
 
-  // Handle authentication errors
   if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      // Redirect to login automatically
+    if (authError.type === "user_not_registered") return <UserNotRegisteredError />;
+    if (authError.type === "auth_required") {
       navigateToLogin();
       return null;
     }
   }
 
-  // Render the main app
   return (
     <Routes>
-      <Route path="/" element={
-        <LayoutWrapper currentPageName={mainPageKey}>
-          <MainPage />
-        </LayoutWrapper>
-      } />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            <LayoutWrapper currentPageName={path}>
-              <Page />
-            </LayoutWrapper>
-          }
-        />
-      ))}
-      <Route path="/ManejosTecnicosRebanho" element={
-        <LayoutWrapper currentPageName="ManejosTecnicosRebanho">
-          <ManejosTecnicosRebanho />
-        </LayoutWrapper>
-      } />
-      <Route path="/MovimentacoesLote" element={
-        <LayoutWrapper currentPageName="MovimentacoesLote">
-          <MovimentacoesLote />
-        </LayoutWrapper>
-      } />
-      <Route path="/ContasFinanceiras" element={
-        <LayoutWrapper currentPageName="ContasFinanceiras">
-          <ContasFinanceiras />
-        </LayoutWrapper>
-      } />
-      <Route path="/TiposDocumento" element={
-        <LayoutWrapper currentPageName="TiposDocumento">
-          <TiposDocumento />
-        </LayoutWrapper>
-      } />
-      <Route path="/MotivosCompra" element={
-        <LayoutWrapper currentPageName="MotivosCompra">
-          <MotivosCompra />
-        </LayoutWrapper>
-      } />
-      <Route path="/Marcas" element={
-        <LayoutWrapper currentPageName="Marcas">
-          <Marcas />
-        </LayoutWrapper>
-      } />
-      <Route path="/LancamentosAbastecimento" element={
-        <LayoutWrapper currentPageName="LancamentosAbastecimento">
-          <LancamentosAbastecimento />
-        </LayoutWrapper>
-      } />
-      <Route path="/ConfiguracaoPesagens" element={
-        <LayoutWrapper currentPageName="ConfiguracaoPesagens">
-          <ConfiguracaoPesagens />
-        </LayoutWrapper>
-      } />
-      <Route path="/Bebedouros" element={
-        <LayoutWrapper currentPageName="Bebedouros">
-          <Bebedouros />
-        </LayoutWrapper>
-      } />
-      <Route path="/RelatorioGadoMapaGeral" element={
-        <LayoutWrapper currentPageName="RelatorioGadoMapaGeral">
-          <RelatorioGadoMapaGeral />
-        </LayoutWrapper>
-      } />
-      <Route path="/CadastroEmpresas" element={
-        <LayoutWrapper currentPageName="CadastroEmpresas">
-          <PAGEMP />
-        </LayoutWrapper>
-      } />
-      <Route path="*" element={<PageNotFound />} />
+      <Route path="/" element={<MinimalLayout><PAGEMP /></MinimalLayout>} />
+      <Route path="/CadastroEmpresas" element={<MinimalLayout><PAGEMP /></MinimalLayout>} />
+      <Route path="*" element={<MinimalLayout><PAGEMP /></MinimalLayout>} />
     </Routes>
   );
 };
 
-
-function App() {
-
+export default function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <GlobalRequiredFieldsGuard />
-        <GlobalDeleteBlockDialog />
         <Router>
           <AuthenticatedApp />
         </Router>
         <Toaster />
       </QueryClientProvider>
     </AuthProvider>
-  )
+  );
 }
-
-export default App
