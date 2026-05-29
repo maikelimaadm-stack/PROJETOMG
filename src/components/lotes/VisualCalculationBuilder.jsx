@@ -53,7 +53,7 @@ export default function VisualCalculationBuilder({ value = [], fields = [], onCh
                 </SelectContent>
               </Select>
             </div>
-            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-[hsl(var(--foreground))]" disabled={items.length <= 2} onClick={() => removeItem(index)}>
+            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 shrink-0 rounded-none border-0 bg-white text-black hover:bg-slate-50 shadow-none" disabled={items.length <= 2} onClick={() => removeItem(index)}>
               <X className="w-3.5 h-3.5" />
             </Button>
           </div>
@@ -62,7 +62,7 @@ export default function VisualCalculationBuilder({ value = [], fields = [], onCh
 
       <div className={fieldRow}>
         <div />
-        <Button type="button" size="icon" className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border hover:text-accent-foreground h-7 w-8 rounded-none shadow-none border-slate-300 bg-white hover:bg-slate-50 text-black [0.5px]" onClick={() => onChange([...items, { ...EMPTY_ITEM, operator: "+" }])} title="Adicionar campo">
+        <Button type="button" size="icon" className="h-7 w-8 rounded-none border-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none" onClick={() => onChange([...items, { ...EMPTY_ITEM, operator: "+" }])} title="Adicionar campo">
           <Plus className="w-4 h-4" />
         </Button>
       </div>

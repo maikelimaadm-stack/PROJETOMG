@@ -6,7 +6,7 @@ import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ChevronsLeft, ChevronsRight, Columns3, RotateCcw, Search, X } from "lucide-react";
 
 const iconButtonClass = "rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none h-7 w-7";
-const moveButtonClass = "h-7 w-7 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none disabled:opacity-40";
+const moveButtonClass = "h-7 w-7 rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none disabled:opacity-40";
 
 export default function EmpConfiguracaoColunasDialog({
   open,
@@ -86,7 +86,7 @@ export default function EmpConfiguracaoColunasDialog({
         <DialogTitle className="sr-only">Configuração das colunas - Empresas</DialogTitle>
         <div className="bg-white overflow-hidden">
           <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
-            <span className="px-1.5 py-0.5 rounded-none bg-white text-black border border-slate-300 text-[11px] font-bold">Colunas</span>
+            <span className="w-[90px] h-5 px-1.5 rounded-none border-[0.5px] border-slate-300 bg-white text-black text-[11px] font-bold text-center truncate inline-flex items-center justify-center">Colunas</span>
             <span className="text-xs font-semibold text-black truncate flex-1">Configuração das colunas - Cadastro de Empresas</span>
             <Button type="button" onClick={onResetDefault} title="Restaurar padrão" className={iconButtonClass}><RotateCcw className="w-4 h-4" /></Button>
             <Button type="button" onClick={requestClose} title="Fechar" className={iconButtonClass}><X className="w-4 h-4" /></Button>
