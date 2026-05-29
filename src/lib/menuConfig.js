@@ -1,5 +1,6 @@
 export const DEFAULT_MENU = [
   { id: "dashboard", title: "Dashboard", url: "Home", icon: "Home" },
+  { id: "cadastro-empresas", title: "Cadastro de Empresas", url: "CadastroEmpresas", icon: "Building2" },
   { id: "pesagens", title: "Pesagens", url: "Pesagens", icon: "Scale" },
   { id: "custos", title: "Custos de Safra", url: "CustosSafra", icon: "TrendingUp" },
   { id: "movimentacoes", title: "Movimentacoes Estoque", url: "MovimentacoesEstoque", icon: "ArrowRightLeft" },
@@ -84,7 +85,7 @@ export const DEFAULT_MENU = [
     icon: "FolderOpen",
     submenu: [
       { id: "cad-empresa", title: "Empresa", url: "Empresa" },
-      { id: "cad-cadastro-empresas", title: "Cadastro de Empresas", url: "CadastroEmpresas" },
+
       { id: "cad-mapa", title: "Mapa - Areas/Pontos/Linhas", url: "MapaCadastro" },
       { id: "cad-safras", title: "Safras", url: "GerenciarSafras" },
       { id: "cad-fornecedores", title: "Fornecedores/Clientes", url: "Fornecedores" },

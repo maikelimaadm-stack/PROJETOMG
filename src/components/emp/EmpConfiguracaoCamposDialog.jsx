@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import empRepository from "./empRepository.js";
+import empRepository from "./empRepository";
 import LegacyRecordToolbar from "@/components/lotes/LegacyRecordToolbar";
 import SankhyaListToolbar from "@/components/common/SankhyaListToolbar";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";

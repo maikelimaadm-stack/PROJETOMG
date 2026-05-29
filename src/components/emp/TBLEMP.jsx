@@ -6,9 +6,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import empRepository from "./empRepository.js";
+import empRepository from "./empRepository";
 import campoEngine from "@/services/campoEngine";
-import EmpConfiguracaoColunasDialog from "./EmpConfiguracaoColunasDialog.jsx";
+import EmpConfiguracaoColunasDialog from "./EmpConfiguracaoColunasDialog";
 import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check } from "lucide-react";
 
 const COLUNAS_BASE = [
