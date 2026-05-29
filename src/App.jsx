@@ -18,7 +18,7 @@ import LancamentosAbastecimento from './pages/LancamentosAbastecimento';
 import ConfiguracaoPesagens from './pages/ConfiguracaoPesagens';
 import Bebedouros from './pages/Bebedouros';
 import RelatorioGadoMapaGeral from './pages/RelatorioGadoMapaGeral';
-import PAGEMP from './pages/empresa-cadastro/PAGEMP';
+import PAGEMP from './pages/emp/PAGEMP';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
