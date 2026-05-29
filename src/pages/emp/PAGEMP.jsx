@@ -8,9 +8,9 @@ import EmpConfiguracaoCamposDialog from "@/components/emp/EmpConfiguracaoCamposD
 import EmpConfiguracaoExportacaoDialog from "@/components/emp/EmpConfiguracaoExportacaoDialog";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import RegistroAnexosDialog from "@/components/common/RegistroAnexosDialog";
-import empRepository from "@/components/emp/empRepository";
-import { printEmpTable, exportEmpTableToExcel } from "@/components/emp/empTableExportUtils";
-import { getEmpPdfExportConfig, getEmpExcelExportConfig } from "@/components/emp/empPdfExportConfig";
+import empRepository from "../../components/emp/empRepository.js";
+import { printEmpTable, exportEmpTableToExcel } from "../../components/emp/empTableExportUtils.js";
+import { getEmpPdfExportConfig, getEmpExcelExportConfig } from "../../components/emp/empPdfExportConfig.js";
 
 export default function PAGEMP() {
   const [showForm, setShowForm] = useState(false);

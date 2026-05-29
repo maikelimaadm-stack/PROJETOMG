@@ -1,5 +1,15 @@
 import { base44 } from '@/api/base44Client';
 
+async function gerarCodigo() {
+  try {
+    const lista = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
+    const ultimo = lista?.[0]?.codigo_empresa;
+    return ultimo ? Number(ultimo) + 1 : 1;
+  } catch {
+    return Date.now();
+  }
+}
+
 const empRepository = {
   async list() {
     return base44.entities.EmpresaCadastro.list('-codigo_empresa');
@@ -10,8 +20,7 @@ const empRepository = {
   },
 
   async create(data) {
-    const res = await base44.functions.invoke('gerarCodigoEmpresa', {});
-    const codigo = res?.data?.codigo || 1;
+    const codigo = await gerarCodigo();
     return base44.entities.EmpresaCadastro.create({ ...data, codigo_empresa: codigo });
   },
 
@@ -38,17 +47,6 @@ const empRepository = {
   async deleteCampoPersonalizado(campo) {
     return base44.entities.CampoPersonalizadoEmpresa.delete(campo.id || campo.field_id);
   },
-
-  async listOptionsSources(sources) {
-    const result = {};
-    await Promise.all(sources.map(async ({ entity, labelField, valueField }) => {
-      try {
-        const items = await base44.entities[entity]?.list?.() || [];
-        result[entity] = items.map(item => ({ id: item[valueField] || item.id, nome: item[labelField] || item.nome || item.name || '' }));
-      } catch { result[entity] = []; }
-    }));
-    return result;
-  }
 };
 
 export default empRepository;

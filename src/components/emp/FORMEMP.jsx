@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
-import empRepository from "./empRepository";
+import empRepository from "../../components/emp/empRepository.js";
 import campoEngine from "@/services/campoEngine";
 import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
