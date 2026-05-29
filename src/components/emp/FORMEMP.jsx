@@ -37,6 +37,14 @@ const buildEmpty = () => ({
   estado: "", observacoes: "", status: "Ativa", campos_personalizados: {}
 });
 
+// Native fields that should never appear in the custom fields tab
+const NATIVE_FIELDS = new Set([
+  "codigo_empresa","razao_social","nome_fantasia","tipo_pessoa","cpf_cnpj",
+  "inscricao_estadual","telefone","whatsapp","email","logo_url","cep",
+  "endereco","numero","bairro","cidade","estado","observacoes","status",
+  "campos_personalizados"
+]);
+
 export default function FORMEMP({
   onSubmit, onCancel, onSettingsClick, onAttachClick, attachDisabled = false,
   onToggleView, total = 0, currentIndex = 0,
@@ -69,7 +77,9 @@ export default function FORMEMP({
   });
 
   const camposPersonalizadosForm = useMemo(() =>
-    camposPersonalizados.map(campoEngine.normalize).filter((c) => c.ativo !== false && c.visivel_form !== false),
+    camposPersonalizados
+      .map(campoEngine.normalize)
+      .filter((c) => c.ativo !== false && c.visivel_form !== false && !NATIVE_FIELDS.has(c.field_name)),
     [camposPersonalizados]
   );
 
@@ -109,7 +119,7 @@ export default function FORMEMP({
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     if (isReadOnly) return;
     if (!validateForm()) return;
     const { _isDuplicate, ...clean } = formData;
@@ -149,6 +159,7 @@ export default function FORMEMP({
           badgeLabel="EMPRESA"
           operationLabel={operationLabel}
           showSaveActions={editMode}
+          onSave={handleSubmit}
           showEditAction={isReadOnly}
           showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
           onCancel={onCancel}
