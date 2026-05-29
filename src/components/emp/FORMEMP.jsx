@@ -224,7 +224,7 @@ export default function FORMEMP({
 
   const dynamicFields = useMemo(() => [
     { id: "razao_social", name: "razao_social", label: "Razão Social", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "RAZÃO SOCIAL OU NOME COMPLETO" },
-    { id: "status", name: "status", label: "Ativa", type: "switch", compact: true, render: () => <div className="h-[22px] flex items-center px-1"><ToggleSwitch checked={formData.status !== "Inativa"} onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")} disabled={isReadOnly} /></div> },
+    { id: "status", name: "status", label: "Ativa", type: "switch", compact: true, render: () => <div className="h-[22px] flex items-center px-1"><ToggleSwitch checked={formData.status !== "Inativa"} onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")} disabled={isReadOnly} checkedClassName="bg-[#fbc108] hover:bg-[#e5ad00]" /></div> },
     { id: "codigo_empresa", name: "codigo_empresa", label: "Código", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codigo_empresa || ""} readOnly className={`${inputClass} text-right bg-slate-50`} placeholder="AUTO" /> },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome Fantasia", type: "text", wide: true, uppercase: true, placeholder: "NOME FANTASIA" },
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "autocomplete", required: true, compact: true, errorKey: "tipo_pessoa", options: opcoesTipoPessoa, placeholder: "PF / PJ", displayField: "nome", searchFields: ["nome"] },
@@ -346,6 +346,7 @@ export default function FORMEMP({
           fixedPanelIds={["principal"]}
           fixedVisibleFieldIds={["status", "codigo_empresa"]}
           onSave={saveLayoutConfig}
+          brandTheme
         />
       </section>
     );
@@ -384,6 +385,7 @@ export default function FORMEMP({
           onClearFilter={onClearFilter}
           onAttachClick={onAttachClick}
           attachDisabled={attachDisabled}
+          addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#082e53] bg-[#082e53] hover:bg-[#082e53]/90 text-white shadow-none"
           searchValue={searchValue}
           onSearchChange={onSearchChange}
           showSearch

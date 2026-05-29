@@ -22,11 +22,12 @@ const confirmIconButtonClass = "inline-flex items-center justify-center gap-2 wh
 const cancelIconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 shadow-none";
 const tabNavButtonClass = "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
 const greenButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-green-400 bg-green-500 hover:bg-green-600 text-white hover:text-white shadow-none";
+const brandBlueButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#082e53] bg-[#082e53] hover:bg-[#082e53]/90 text-white hover:text-white shadow-none";
 
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
-const CustomMarker = () => <span className="pointer-events-none absolute bottom-0 right-0 z-10 w-0 h-0 border-l-[7px] border-l-transparent border-b-[7px] border-b-green-500" />;
+const CustomMarker = ({ className = "border-b-green-500" }) => <span className={`pointer-events-none absolute bottom-0 right-0 z-10 w-0 h-0 border-l-[7px] border-l-transparent border-b-[7px] ${className}`} />;
 
 const formatPanelLabel = (value) => {
   const lowerWords = new Set(["da", "de", "do", "das", "dos", "e"]);
@@ -41,20 +42,20 @@ const formatPanelLabel = (value) => {
   join("");
 };
 
-function GreenCheck({ checked, disabled = false, onChange }) {
+function GreenCheck({ checked, disabled = false, onChange, checkedClassName = "bg-green-500 hover:bg-green-600" }) {
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={() => !disabled && onChange?.(!checked)}
-      className={`!h-4 !w-8 rounded-full relative inline-flex items-center transition-colors border-0 shadow-none ${checked ? "bg-green-500 hover:bg-green-600" : "bg-slate-300 hover:bg-slate-400"} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
+      className={`!h-4 !w-8 rounded-full relative inline-flex items-center transition-colors border-0 shadow-none ${checked ? checkedClassName : "bg-slate-300 hover:bg-slate-400"} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
       
       <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${checked ? "right-0.5" : "left-0.5"}`} />
     </button>);
 
 }
 
-export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = [], fields = [], layout = {}, hiddenFieldIds = [], lockedFieldIds = [], requiredFieldIds = [], aggregationConfig = {}, visibilityRules = {}, defaultConfig = null, onSave, inline = false, systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS, fixedPanelIds = DEFAULT_FIXED_PANEL_IDS, fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS }) {
+export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = [], fields = [], layout = {}, hiddenFieldIds = [], lockedFieldIds = [], requiredFieldIds = [], aggregationConfig = {}, visibilityRules = {}, defaultConfig = null, onSave, inline = false, systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS, fixedPanelIds = DEFAULT_FIXED_PANEL_IDS, fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS, brandTheme = false }) {
   const [draftPanels, setDraftPanels] = useState(panels);
   const [draftLayout, setDraftLayout] = useState(layout);
   const [draftHiddenFieldIds, setDraftHiddenFieldIds] = useState(hiddenFieldIds);
@@ -369,7 +370,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         setSelectedAvailableIds((prev) => prev.includes(field.id) ? prev : [field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`relative w-full rounded-sm border px-2 py-1.5 text-left overflow-hidden transition-all focus-visible:outline-none flex items-center justify-between gap-2 ${selected ? "bg-gray-100 border-slate-400 text-slate-900" : "bg-gray-50 border-slate-200 text-slate-900 hover:bg-gray-100"}`}>
+      className={`relative w-full rounded-sm border px-2 py-1.5 text-left overflow-hidden transition-all focus-visible:outline-none flex items-center justify-between gap-2 ${selected ? (brandTheme ? "bg-[#fbc108]/20 border-[#fbc108] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-gray-50 border-slate-200 text-slate-900 hover:bg-gray-100"}`}>
       {isCustomField(field) && <CustomMarker />}
       <div className="min-w-0">
         <div className="text-xs font-semibold truncate">{field.label}</div>
@@ -408,9 +409,9 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         onDragOver={(event) => {event.preventDefault();reorderField(field.id);}}
         onDrop={() => setDraggedFieldId(null)}
         onDragEnd={() => setDraggedFieldId(null)}
-        className={`relative h-8 min-w-[210px] px-2 rounded-sm text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${draggedFieldId === field.id ? "opacity-50 scale-95" : ""} ${selected ? "bg-gray-100 border-slate-400 text-slate-900" : "bg-gray-50 border-slate-200 text-slate-900 hover:bg-gray-100"} ${hidden ? "bg-slate-100 text-slate-400 border-slate-300" : ""}`}>
+        className={`relative h-8 min-w-[210px] px-2 rounded-sm text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${draggedFieldId === field.id ? "opacity-50 scale-95" : ""} ${selected ? (brandTheme ? "bg-[#fbc108]/20 border-[#fbc108] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-gray-50 border-slate-200 text-slate-900 hover:bg-gray-100"} ${hidden ? "bg-slate-100 text-slate-400 border-slate-300" : ""}`}>
         
-        {isCustomField(field) && <CustomMarker />}
+        {isCustomField(field) && <CustomMarker className={brandTheme ? "border-b-[#fbc108]" : "border-b-green-500"} />}
         <span className="flex items-center gap-1 min-w-0">
           <span className="text-xs font-semibold truncate">{field.label}</span>
         </span>
@@ -431,7 +432,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         <div className="h-7 flex items-center gap-0 whitespace-nowrap bg-white border-y border-slate-300 overflow-hidden">
           <Button type="button" variant="outline" size="icon" onClick={() => onOpenChange(false)} className={iconButtonClass} title="Voltar"><ChevronLeft className="w-3.5 h-3.5" /></Button>
           {!isEditing && <Button type="button" variant="outline" size="icon" onClick={() => setIsEditing(true)} className={iconButtonClass} title="Editar layout"><Pencil className="w-3.5 h-3.5" /></Button>}
-          {isEditing && <Button type="button" variant="outline" size="icon" onClick={createPanel} className={greenButtonClass} title="Novo painel"><Plus className="w-4 h-4" /></Button>}
+          {isEditing && <Button type="button" variant="outline" size="icon" onClick={createPanel} className={brandTheme ? brandBlueButtonClass : greenButtonClass} title="Novo painel"><Plus className="w-4 h-4" /></Button>}
           {isEditing && <Button type="button" variant="outline" size="icon" disabled={!activePanel || activePanelIsSystem || activePanelIsFixed} onClick={deletePanel} className={iconButtonClass} title="Excluir painel"><Trash2 className="w-3.5 h-3.5" /></Button>}
           {isEditing && <Button type="button" variant="outline" size="icon" onClick={handleSave} className={confirmIconButtonClass} title="Salvar alterações"><Check className="w-4 h-4" /></Button>}
           {isEditing && <Button type="button" variant="outline" size="icon" onClick={discardChanges} className={cancelIconButtonClass} title="Descartar"><X className="w-3.5 h-3.5" /></Button>}
@@ -487,7 +488,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
                       setSelectedPanelField(null);
                       setSelectedPanelFieldIds([]);
                     }}
-                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? "bg-white font-semibold text-slate-800 border-t-2 border-t-green-500 border-b-white" : "bg-slate-50 text-slate-700 border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
+                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? (brandTheme ? "bg-white font-semibold text-slate-800 border-t-2 border-t-[#fbc108] border-b-white" : "bg-white font-semibold text-slate-800 border-t-2 border-t-green-500 border-b-white") : "bg-slate-50 text-slate-700 border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
                     
                       {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
                       {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ?
@@ -516,15 +517,15 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
             <div className="border-t flex items-center h-10 border-slate-300 bg-slate-50 gap-3 py-2 px-2">
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Oculto:</span>
-                <GreenCheck checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id) || fixedVisibleFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} />
+                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id) || fixedVisibleFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} />
               </label>
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Bloqueado:</span>
-                <GreenCheck checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)} />
+                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)} />
               </label>
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Obrigatório:</span>
-                <GreenCheck checked={!!selectedField && (selectedField.required || draftRequiredFieldIds.includes(selectedField.id))} disabled={!selectedField || selectedField?.required || !isEditing} onChange={(checked) => {
+                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && (selectedField.required || draftRequiredFieldIds.includes(selectedField.id))} disabled={!selectedField || selectedField?.required || !isEditing} onChange={(checked) => {
                 if (checked) {
                   setDraftHiddenFieldIds((prev) => prev.filter((id) => id !== selectedField?.id));
                   setDraftLockedFieldIds((prev) => prev.filter((id) => id !== selectedField?.id));
@@ -534,7 +535,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
               </label>
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Totalizar:</span>
-                <GreenCheck checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled} disabled={!selectedField || !selectedField?.totalizable || !isEditing} onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)} />
+                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled} disabled={!selectedField || !selectedField?.totalizable || !isEditing} onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)} />
               </label>
               <ConditionalVisibilityEditor selectedField={selectedField} fields={fields} visibilityRules={draftVisibilityRules} onChange={setVisibilityRule} disabled={!isEditing} />
               <Select value={selectedField ? draftAggregationConfig[selectedField.id]?.type || "sum" : "sum"} onValueChange={(value) => selectedField && setAggregationType(selectedField.id, value)} disabled={!selectedField || !draftAggregationConfig[selectedField.id]?.enabled || !isEditing}>
