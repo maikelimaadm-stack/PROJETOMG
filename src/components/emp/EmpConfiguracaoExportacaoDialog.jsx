@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
-import { saveEmpExcelExportConfig, saveEmpPdfExportConfig } from "@/components/emp/empPdfExportConfig.js";
+import { saveEmpExcelExportConfig, saveEmpPdfExportConfig } from "@/components/emp/empPdfExportConfig";
 
 export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, columns = [], initialConfig, tipo = "pdf" }) {
   const [useConfiguredColumns, setUseConfiguredColumns] = useState(false);
