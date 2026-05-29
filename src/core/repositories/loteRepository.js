@@ -65,7 +65,20 @@ export const loteRepository = {
   },
 
   async listCamposPersonalizados() {
-    return [];
+    return base44.entities.CampoPersonalizado.list();
+  },
+
+  async createCampoPersonalizado(data) {
+    return base44.entities.CampoPersonalizado.create(data);
+  },
+
+  async updateCampoPersonalizado(id, data) {
+    return base44.entities.CampoPersonalizado.update(id, data);
+  },
+
+  async deleteCampoPersonalizado(campo) {
+    const id = campo?.id || campo;
+    return base44.entities.CampoPersonalizado.delete(id);
   },
 
   async listCategoriasManejo(empresaId) {
@@ -77,7 +90,20 @@ export const loteRepository = {
   },
 
   async listOptionsSources(sources) {
-    return {};
+    if (!sources || sources.length === 0) return {};
+    const result = {};
+    for (const source of sources) {
+      if (!source?.entity) continue;
+      const entityName = source.entity;
+      if (base44.entities[entityName]) {
+        const items = await base44.entities[entityName].list();
+        result[entityName] = items.map((item) => ({
+          value: item[source.valueField || "id"] || item.id,
+          label: item[source.labelField || "nome"] || item.nome || item.id
+        }));
+      }
+    }
+    return result;
   },
 };
 
