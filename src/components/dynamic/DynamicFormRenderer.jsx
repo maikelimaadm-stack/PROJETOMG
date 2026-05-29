@@ -1,7 +1,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
+import AutocompleteGenerico from "@/components/common/AutocompleteGenerico";
 
 const FL = ({ label, required, error, children, dataField, wide = false, compact = false, medium = false }) => (
   <div data-field={dataField} className={`grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 ${wide ? "md:col-span-2" : ""}`}>

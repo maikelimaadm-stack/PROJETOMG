@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import useSetorAreas from "@/hooks/useSetorAreas";
 import loteRepository from "@/core/repositories/loteRepository";
 import campoEngine from "@/services/campoEngine";
-import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
+import AutocompleteGenerico from "@/components/common/AutocompleteGenerico";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import LegacyRecordToolbar from "./LegacyRecordToolbar.jsx";
 import LegacyTabs from "./LegacyTabs.jsx";

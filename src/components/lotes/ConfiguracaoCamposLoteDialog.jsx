@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
+import AutocompleteGenerico from "@/components/common/AutocompleteGenerico";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import { Badge } from "@/components/ui/badge";

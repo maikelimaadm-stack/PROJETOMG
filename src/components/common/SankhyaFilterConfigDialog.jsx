@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
+import AutocompleteGenerico from "@/components/common/AutocompleteGenerico";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
