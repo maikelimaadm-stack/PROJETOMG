@@ -227,10 +227,10 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                         <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "font-bold text-gray-900" : "font-normal text-gray-700"} border-gray-300`}>{TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}</TableCell>
                         <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "font-bold text-gray-900" : "font-normal text-gray-700"} border-gray-300`}>
                           <div className="h-full flex items-center gap-1 overflow-hidden">
-                            {campo.visivel_form && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700 rounded-none border-slate-300">Form</Badge>}
-                            {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700 rounded-none border-slate-300">Tabela</Badge>}
-                            {campo.usar_decimal && <Badge variant="secondary" className="text-[10px] rounded-none">{campo.decimal_places ?? 2} dec.</Badge>}
-                            {campo.usar_mascara && <Badge variant="secondary" className="text-[10px] rounded-none">Máscara</Badge>}
+                            {campo.visivel_form && <Badge variant="outline" className="text-[10px] rounded-none">Form</Badge>}
+                            {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] rounded-none">Tabela</Badge>}
+                            {campo.usar_decimal && <Badge variant="outline" className="text-[10px] rounded-none">{campo.decimal_places ?? 2} dec.</Badge>}
+                            {campo.usar_mascara && <Badge variant="outline" className="text-[10px] rounded-none">Máscara</Badge>}
                           </div>
                         </TableCell>
                       </TableRow>
