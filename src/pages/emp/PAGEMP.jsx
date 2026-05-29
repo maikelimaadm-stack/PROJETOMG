@@ -195,11 +195,25 @@ export default function PAGEMP() {
   return (
     <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-[calc(100dvh-var(--app-content-offset,91px))] overflow-hidden">
       <style>{`
+        .cadastro-emp-scope {
+          --emp-text: #64748b;
+          --emp-text-strong: #475569;
+          color: var(--emp-text);
+        }
         .cadastro-emp-scope :where(.border, input, textarea, button, [role="button"], [data-radix-select-trigger]) { border-radius: 1.5px !important; }
-        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) svg { color: #64748b !important; }
-        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) { color: #64748b; }
-        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):hover { color: #475569; }
-        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):hover svg { color: #475569 !important; }
+        .cadastro-emp-scope :where(.text-black):not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-amber"]) { color: var(--emp-text) !important; }
+        .cadastro-emp-scope :where(.text-gray-900, .text-slate-900) { color: var(--emp-text-strong) !important; }
+        .cadastro-emp-scope :where(.text-gray-700, .text-gray-800, .text-slate-700, .text-slate-800) { color: var(--emp-text) !important; }
+        .cadastro-emp-scope :where(.font-semibold.text-slate-500, .font-bold.text-slate-500) { color: var(--emp-text-strong) !important; }
+        .cadastro-emp-scope input:not([type="checkbox"]):not([type="radio"]),
+        .cadastro-emp-scope textarea,
+        .cadastro-emp-scope select,
+        .cadastro-emp-scope [data-radix-select-trigger] { color: var(--emp-text); }
+        .cadastro-emp-scope label:not([class*="text-red"]) { color: var(--emp-text); }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) svg { color: var(--emp-text) !important; }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) { color: var(--emp-text); }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):hover { color: var(--emp-text-strong); }
+        .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):hover svg { color: var(--emp-text-strong) !important; }
       `}</style>
 
       {showConfigCampos && (

@@ -248,7 +248,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const isResizing = resizeColumnId === col.id;
                       const filterControl = renderFilterControl(col.id);
                       return (
-                        <TableHead key={col.id} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`group ${isFrozen ? "sticky z-40" : "relative"} align-middle text-gray-900 px-2 text-xs font-medium border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 py-0 select-none cursor-pointer ${getColumnAlignClass(col)}`} onDoubleClick={() => handleSort(col.id)}>
+                        <TableHead key={col.id} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`group ${isFrozen ? "sticky z-40" : "relative"} align-middle text-slate-600 px-2 text-xs font-medium border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 py-0 select-none cursor-pointer ${getColumnAlignClass(col)}`} onDoubleClick={() => handleSort(col.id)}>
                           <div className="block w-full h-full leading-7 whitespace-nowrap overflow-hidden text-ellipsis">{col.label}</div>
                           {filterControl && <div className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-white/95 pl-1 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} onClick={(e) => e.stopPropagation()}>
                             {filterControl}
@@ -273,7 +273,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           const width = Math.max(columnWidths[col.id] || col.width || 160, getMinWidth(col));
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden select-none px-2 ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${selectedItems.includes(emp.id) ? "font-bold" : ""} ${index % 2 === 0 ? "bg-gray-100 text-gray-700 border-gray-300" : "bg-white text-gray-700 border-gray-300"}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden select-none px-2 ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${selectedItems.includes(emp.id) ? "font-bold" : ""} ${index % 2 === 0 ? "bg-gray-100 text-slate-500 border-gray-300" : "bg-white text-slate-500 border-gray-300"}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
@@ -283,7 +283,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                   }
                   {Object.keys(agregacoes).length > 0 && (
                     <TableRow className="sticky bottom-0 z-30 bg-slate-200 font-medium shadow-[0_-1px_0_0_#d1d5db]">
-                      {colunasOrdenadas.map((col, ci) => { const w = Math.max(columnWidths[col.id] || col.width || 160, getMinWidth(col)); const isFrozen = ci < frozenColumnCount; return <TableCell key={`total-${col.id}`} style={{ width: w, minWidth: w, maxWidth: w, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`h-5 px-2 py-0 text-[11px] leading-5 align-middle border-r border-b border-gray-300 whitespace-nowrap overflow-hidden text-ellipsis select-none bg-slate-200 text-slate-900 ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>{agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}</TableCell>; })}
+                      {colunasOrdenadas.map((col, ci) => { const w = Math.max(columnWidths[col.id] || col.width || 160, getMinWidth(col)); const isFrozen = ci < frozenColumnCount; return <TableCell key={`total-${col.id}`} style={{ width: w, minWidth: w, maxWidth: w, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`h-5 px-2 py-0 text-[11px] leading-5 align-middle border-r border-b border-gray-300 whitespace-nowrap overflow-hidden text-ellipsis select-none bg-slate-200 text-slate-600 ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>{agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}</TableCell>; })}
                     </TableRow>
                   )}
                 </TableBody>

@@ -13,7 +13,7 @@ export default function EmpTabs({ tabs = [], activeTab, onChange }) {
             type="button"
             onClick={() => onChange?.(tab.id)}
             className={`h-7 px-4 -mb-px border border-slate-300 text-xs whitespace-nowrap rounded-none ${
-              active ? "bg-white border-b-white font-semibold text-black" : "bg-slate-50 text-slate-600 hover:bg-white"
+              active ? "bg-white border-b-white font-semibold text-slate-600" : "bg-slate-50 text-slate-500 hover:bg-white"
             }`}
           >
             {tab.label}

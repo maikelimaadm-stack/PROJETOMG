@@ -50,7 +50,7 @@ const initialForm = {
 function Field({ label, children, required = false, wide = false, compact = false, medium = false }) {
   return (
     <div className={`grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 ${wide ? "md:col-span-2" : ""}`}>
-      <label className="text-[12px] text-black text-right leading-none">{label}:{required && <span className="text-red-500 ml-0.5">*</span>}</label>
+      <label className="text-[12px] text-slate-500 text-right leading-none">{label}:{required && <span className="text-red-500 ml-0.5">*</span>}</label>
       <div className={`${wide ? "min-h-6" : "h-6"} ${medium ? "w-64 max-w-full" : compact ? "w-44 max-w-full" : "w-full"} border border-slate-300 bg-white focus-within:border-[#082e54] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0`}>{children}</div>
     </div>
   );
@@ -190,11 +190,11 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
               <EmpMaskConfig form={form} updateForm={updateForm} />
               <Field label="Prévia" wide><div className="px-2 py-1 text-xs text-slate-700 uppercase bg-slate-50 min-h-[48px]">{form.label || "Nome do campo"}: {form.tipo === "calculado" ? montarFormulaVisual(form.calculation_builder?.items || []) || "Calculado automaticamente" : form.placeholder || "Valor do campo"}</div></Field>
               <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 pt-1">
-                <span className="text-[12px] text-black text-right leading-none">Exibir em:</span>
+                <span className="text-[12px] text-slate-500 text-right leading-none">Exibir em:</span>
                 <div className="flex items-center gap-4">
                   {[["obrigatorio", "Obrigatório"], ["visivel_tabela", "Tabela"], ["visivel_relatorio", "Relatório"]].map(([field, label]) =>
                     <div key={field} className="h-[22px] flex items-center gap-1.5 bg-transparent">
-                      <span className="text-[12px] text-black">{label}:</span>
+                      <span className="text-[12px] text-slate-500">{label}:</span>
                       <ToggleSwitch checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} />
                     </div>
                   )}
@@ -210,9 +210,9 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
             <Table className="w-full min-w-[760px] border-separate border-spacing-0 table-fixed">
               <TableHeader className="bg-white">
                 <TableRow className="sticky top-0 z-40 bg-white">
-                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[260px]">Campo</TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[150px]">Tipo</TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7">Uso</TableHead>
+                  <TableHead className="sticky top-0 z-40 align-middle text-slate-600 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[260px]">Campo</TableHead>
+                  <TableHead className="sticky top-0 z-40 align-middle text-slate-600 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[150px]">Tipo</TableHead>
+                  <TableHead className="sticky top-0 z-40 align-middle text-slate-600 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7">Uso</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -223,14 +223,14 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                     const sel = selectedCampoIds.includes(id);
                     return (
                       <TableRow key={id} className={`${index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`} onClick={(e) => handleRowSelect(campo, e)} onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "font-bold text-gray-900" : "font-normal text-gray-700"} border-gray-300`}>{campo.label}</TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "font-bold text-gray-900" : "font-normal text-gray-700"} border-gray-300`}>{TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}</TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "font-bold text-gray-900" : "font-normal text-gray-700"} border-gray-300`}>
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "font-bold text-slate-600" : "font-normal text-slate-500"} border-gray-300`}>{campo.label}</TableCell>
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "font-bold text-slate-600" : "font-normal text-slate-500"} border-gray-300`}>{TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}</TableCell>
+                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "font-bold text-slate-600" : "font-normal text-slate-500"} border-gray-300`}>
                           <div className="h-full flex items-center gap-1 overflow-hidden">
-                            {campo.visivel_form && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-black font-normal">Form</Badge>}
-                            {campo.visivel_tabela && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-black font-normal">Tabela</Badge>}
-                            {campo.usar_decimal && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-black font-normal">{campo.decimal_places ?? 2} dec.</Badge>}
-                            {campo.usar_mascara && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-black font-normal">Máscara</Badge>}
+                            {campo.visivel_form && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">Form</Badge>}
+                            {campo.visivel_tabela && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">Tabela</Badge>}
+                            {campo.usar_decimal && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">{campo.decimal_places ?? 2} dec.</Badge>}
+                            {campo.usar_mascara && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">Máscara</Badge>}
                           </div>
                         </TableCell>
                       </TableRow>

@@ -123,7 +123,7 @@ export default function EmpAutocomplete({
       <div ref={dropdownRef} style={style} onPointerDownCapture={() => { interactingWithDropdownRef.current = true; }} onPointerUpCapture={() => setTimeout(() => { interactingWithDropdownRef.current = false; }, 300)} onWheel={(e) => e.stopPropagation()} className="bg-white border border-slate-200 rounded-none shadow-lg max-h-60 overflow-auto overscroll-contain">
         {filteredItems.map((item, index) => (
           <div key={item.id} onPointerDown={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleSelect(item); }} onWheel={(e) => e.stopPropagation()} onMouseEnter={() => setActiveIndex(index)} className={`px-3 py-2 cursor-pointer hover:bg-slate-100 border-b border-slate-100 last:border-b-0 ${activeIndex === index ? "bg-slate-100" : value === item.id ? "bg-emerald-50" : ""}`}>
-            {renderItem ? renderItem(item) : <><div className="text-xs font-medium text-slate-900">{item[displayField]}</div>{renderSubtext && <div className="text-[10px] text-slate-500">{renderSubtext(item)}</div>}</>}
+            {renderItem ? renderItem(item) : <><div className="text-xs font-medium text-slate-600">{item[displayField]}</div>{renderSubtext && <div className="text-[10px] text-slate-500">{renderSubtext(item)}</div>}</>}
           </div>
         ))}
       </div>
