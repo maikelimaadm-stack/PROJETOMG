@@ -7,9 +7,9 @@ import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, EyeOff, 
 import ConditionalVisibilityEditor from "./ConditionalVisibilityEditor.jsx";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 
-const SYSTEM_PANEL_IDS = ["principal", "geral", "compra", "identificacao", "observacoes", "campos_personalizados"];
-const FIXED_PANEL_IDS = ["principal"];
-const FIXED_VISIBLE_FIELD_IDS = ["status", "numero_lote"];
+const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "compra", "identificacao", "observacoes", "campos_personalizados"];
+const DEFAULT_FIXED_PANEL_IDS = ["principal"];
+const DEFAULT_FIXED_VISIBLE_FIELD_IDS = ["status", "numero_lote"];
 const AGGREGATION_OPTIONS = [
 { value: "sum", label: "Soma" },
 { value: "avg", label: "Média" },
@@ -23,7 +23,7 @@ const cancelIconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-w
 const tabNavButtonClass = "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
 const greenButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-green-400 bg-green-500 hover:bg-green-600 text-white hover:text-white shadow-none";
 
-const isCustomPanel = (panel) => panel && !SYSTEM_PANEL_IDS.includes(panel.id);
+const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
 const CustomMarker = () => <span className="pointer-events-none absolute bottom-0 right-0 z-10 w-0 h-0 border-l-[7px] border-l-transparent border-b-[7px] border-b-green-500" />;
@@ -54,7 +54,7 @@ function GreenCheck({ checked, disabled = false, onChange }) {
 
 }
 
-export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = [], fields = [], layout = {}, hiddenFieldIds = [], lockedFieldIds = [], requiredFieldIds = [], aggregationConfig = {}, visibilityRules = {}, defaultConfig = null, onSave, inline = false }) {
+export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = [], fields = [], layout = {}, hiddenFieldIds = [], lockedFieldIds = [], requiredFieldIds = [], aggregationConfig = {}, visibilityRules = {}, defaultConfig = null, onSave, inline = false, systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS, fixedPanelIds = DEFAULT_FIXED_PANEL_IDS, fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS }) {
   const [draftPanels, setDraftPanels] = useState(panels);
   const [draftLayout, setDraftLayout] = useState(layout);
   const [draftHiddenFieldIds, setDraftHiddenFieldIds] = useState(hiddenFieldIds);
@@ -103,8 +103,8 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
   const panelFieldIds = draftLayout[activePanel?.id] || [];
   const panelFields = panelFieldIds.map((id) => fields.find((field) => field.id === id)).filter(Boolean);
   const selectedField = fields.find((field) => field.id === selectedPanelField) || null;
-  const activePanelIsSystem = SYSTEM_PANEL_IDS.includes(activePanel?.id);
-  const activePanelIsFixed = FIXED_PANEL_IDS.includes(activePanel?.id);
+  const activePanelIsSystem = systemPanelIds.includes(activePanel?.id);
+  const activePanelIsFixed = fixedPanelIds.includes(activePanel?.id);
 
   const availableFields = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -137,7 +137,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
   const removeField = () => {
     const ids = selectedPanelFieldIds.length ? selectedPanelFieldIds : selectedPanelField ? [selectedPanelField] : [];
     if (!ids.length || !activePanel) return;
-    if (ids.some((id) => FIXED_VISIBLE_FIELD_IDS.includes(id))) {
+    if (ids.some((id) => fixedVisibleFieldIds.includes(id))) {
       showRequiredPopup("Código e Ativo não podem ser removidos do layout.");
       return;
     }
@@ -152,11 +152,11 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
 
   const removeAllFields = () => {
     if (!activePanel || panelFieldIds.length === 0) return;
-    const ids = [...panelFieldIds].filter((id) => !FIXED_VISIBLE_FIELD_IDS.includes(id));
+    const ids = [...panelFieldIds].filter((id) => !fixedVisibleFieldIds.includes(id));
     if (ids.length !== panelFieldIds.length) showRequiredPopup("Código e Ativo permaneceram no layout porque são fixos.");
     const requiredMoved = fields.some((field) => ids.includes(field.id) && (field.required || draftRequiredFieldIds.includes(field.id)));
     if (requiredMoved) showRequiredPopup("Campos obrigatórios movidos para disponíveis. Eles precisam voltar para o layout antes de salvar.");
-    setDraftLayout((prev) => ({ ...prev, [activePanel.id]: (prev[activePanel.id] || []).filter((id) => FIXED_VISIBLE_FIELD_IDS.includes(id)) }));
+    setDraftLayout((prev) => ({ ...prev, [activePanel.id]: (prev[activePanel.id] || []).filter((id) => fixedVisibleFieldIds.includes(id)) }));
     setDraftHiddenFieldIds((prev) => prev.filter((id) => !ids.includes(id)));
     setDraftLockedFieldIds((prev) => prev.filter((id) => !ids.includes(id)));
     setSelectedPanelField(null);
@@ -165,7 +165,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
 
   const createPanel = () => {
     const id = `painel_${Date.now()}`;
-    const nextNumber = draftPanels.filter((panel) => !SYSTEM_PANEL_IDS.includes(panel.id)).length + 1;
+    const nextNumber = draftPanels.filter((panel) => !systemPanelIds.includes(panel.id)).length + 1;
     const nextPanel = { id, label: `Painel Personalizado ${nextNumber}` };
     setDraftPanels((prev) => [...prev, nextPanel]);
     setDraftLayout((prev) => ({ ...prev, [id]: [] }));
@@ -227,7 +227,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
   const dropFieldToAvailable = () => {
     if (!draggedFieldId || !activePanel) return;
     const ids = selectedPanelFieldIds.includes(draggedFieldId) ? selectedPanelFieldIds : [draggedFieldId];
-    if (ids.some((id) => FIXED_VISIBLE_FIELD_IDS.includes(id))) {
+    if (ids.some((id) => fixedVisibleFieldIds.includes(id))) {
       showRequiredPopup("Código e Ativo não podem ser removidos do layout.");
       setDraggedFieldId(null);
       return;
@@ -255,7 +255,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
 
   const reorderPanel = (targetPanelId) => {
     if (!draggedPanelId || !targetPanelId || draggedPanelId === targetPanelId) return;
-    if (FIXED_PANEL_IDS.includes(draggedPanelId) || FIXED_PANEL_IDS.includes(targetPanelId)) return;
+    if (fixedPanelIds.includes(draggedPanelId) || fixedPanelIds.includes(targetPanelId)) return;
     const next = [...draftPanels];
     const from = next.findIndex((panel) => panel.id === draggedPanelId);
     const to = next.findIndex((panel) => panel.id === targetPanelId);
@@ -385,7 +385,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
     const hidden = draftHiddenFieldIds.includes(field.id);
     const locked = draftLockedFieldIds.includes(field.id);
     const required = field.required || draftRequiredFieldIds.includes(field.id);
-    const fixedVisible = FIXED_VISIBLE_FIELD_IDS.includes(field.id);
+    const fixedVisible = fixedVisibleFieldIds.includes(field.id);
     return (
       <button
         key={field.id}
@@ -475,22 +475,22 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
                   <button
                     key={panel.id}
                     type="button"
-                    draggable={isEditing && !FIXED_PANEL_IDS.includes(panel.id)}
-                    onDragStart={() => {if (FIXED_PANEL_IDS.includes(panel.id)) return; setDraggedPanelId(panel.id);setActivePanelId(panel.id);}}
+                    draggable={isEditing && !fixedPanelIds.includes(panel.id)}
+                    onDragStart={() => {if (fixedPanelIds.includes(panel.id)) return; setDraggedPanelId(panel.id);setActivePanelId(panel.id);}}
                     onDragOver={(event) => {event.preventDefault();reorderPanel(panel.id);}}
                     onDrop={() => setDraggedPanelId(null)}
                     onDragEnd={() => setDraggedPanelId(null)}
                     onClick={() => {
-                      if (isActive && isEditing && !SYSTEM_PANEL_IDS.includes(panel.id)) setEditingPanelId(panel.id);else
+                      if (isActive && isEditing && !systemPanelIds.includes(panel.id)) setEditingPanelId(panel.id);else
                       setEditingPanelId(null);
                       setActivePanelId(panel.id);
                       setSelectedPanelField(null);
                       setSelectedPanelFieldIds([]);
                     }}
-                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? "bg-white font-semibold text-slate-800 border-t-2 border-t-green-500 border-b-white" : "bg-slate-50 text-slate-700 border-b-slate-300 hover:bg-white"} ${isEmpty && SYSTEM_PANEL_IDS.includes(panel.id) ? "opacity-60" : ""}`}>
+                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? "bg-white font-semibold text-slate-800 border-t-2 border-t-green-500 border-b-white" : "bg-slate-50 text-slate-700 border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
                     
-                      {isCustomPanel(panel) && <CustomMarker />}
-                      {isEditing && editingPanelId === panel.id && !SYSTEM_PANEL_IDS.includes(panel.id) ?
+                      {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
+                      {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ?
                     <Input
                       value={panel.label || ""}
                       autoFocus
@@ -516,7 +516,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
             <div className="border-t flex items-center h-10 border-slate-300 bg-slate-50 gap-3 py-2 px-2">
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Oculto:</span>
-                <GreenCheck checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id) || FIXED_VISIBLE_FIELD_IDS.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} />
+                <GreenCheck checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id) || fixedVisibleFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} />
               </label>
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Bloqueado:</span>
