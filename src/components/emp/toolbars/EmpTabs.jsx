@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 
 export const EMP_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 
@@ -56,8 +57,9 @@ export default function EmpTabs({
                 active
                   ? "bg-white font-semibold text-slate-600 border-t-2 border-t-[#082e54] border-b-white"
                   : "bg-slate-50 text-slate-500 border-b-slate-300 hover:bg-white"
-              } ${custom ? "after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-[#082e54]" : ""}`}
+              }`}
             >
+              {custom && <EmpCustomMarker />}
               {formatPanelLabel(tab.label)}
             </button>
           );

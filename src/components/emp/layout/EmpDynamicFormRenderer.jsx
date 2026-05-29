@@ -3,6 +3,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import EmpAutocomplete from "@/components/emp/shared/EmpAutocomplete";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
+import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
+
+const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
 function DefaultControl({ field, value, onChange, readOnly }) {
   const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1";
@@ -22,8 +25,6 @@ function DefaultControl({ field, value, onChange, readOnly }) {
   return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`${inputClass} ${field.uppercase ? "uppercase" : ""}`} />;
 }
 
-const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
-const CustomMarker = () => <span className="pointer-events-none absolute bottom-0 right-0 z-10 w-0 h-0 border-l-[7px] border-l-transparent border-b-[7px] border-b-[#082e54]" />;
 const normalizeConditionText = (value) => String(value ?? "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
 const getOptionValue = (option) => String(option?.id ?? option?.value ?? option?.label ?? option?.nome ?? "");
 const getOptionLabel = (option) => String(option?.nome ?? option?.label ?? option?.value ?? option?.id ?? "");
@@ -46,7 +47,7 @@ function FieldFrame({ field, error, children, className = "" }) {
     <div data-field={field.dataField || field.name} className={`grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 ${field.wide ? "md:col-span-2" : ""}`}>
       <label className="text-[12px] text-slate-500 text-right leading-none">{field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}</label>
       <div className={`relative ${field.wide ? "min-h-6" : "h-6"} ${field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full"} border ${error ? "border-red-500 bg-red-50" : "border-slate-300 bg-white"} focus-within:border-[#082e54] transition-colors overflow-hidden ${className} [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0`}>
-        {isCustomField(field) && <CustomMarker />}
+        {isCustomField(field) && <EmpCustomMarker />}
         {children}
       </div>
     </div>
