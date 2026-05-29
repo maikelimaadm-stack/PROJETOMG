@@ -95,10 +95,10 @@ export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel 
         </div>
       </div>
       <div className={`h-8 flex items-center gap-2 bg-white border-b-[0.5px] ${toolbarLineClass} px-2`}>
-        <span className="w-[150px] h-5 px-1.5 rounded-none border border-slate-300 text-black text-[11px] font-bold uppercase text-center truncate inline-flex items-center justify-center">{badgeLabel}</span>
-        <span className="text-xs font-semibold text-black uppercase truncate min-w-0 flex-1">{title}</span>
+        <span className="w-[150px] h-5 px-1.5 rounded-none border border-slate-300 text-black text-[11px] font-bold text-center truncate inline-flex items-center justify-center">{badgeLabel}</span>
+        <span className="text-xs font-semibold text-black truncate min-w-0 flex-1">{title}</span>
         {operationLabel &&
-        <span className="ml-auto text-[11px] font-bold text-black uppercase whitespace-nowrap">
+        <span className="ml-auto text-[11px] font-bold text-black whitespace-nowrap">
             {operationLabel}
           </span>
         }

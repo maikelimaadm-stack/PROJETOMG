@@ -17,12 +17,12 @@ const AGGREGATION_OPTIONS = [
 { value: "min", label: "Menor" }];
 
 
-const iconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
-const confirmIconButtonClass = "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
-const cancelIconButtonClass = "h-7 w-8 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none";
+const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
+const confirmIconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
+const cancelIconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
 const tabNavButtonClass = "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
-const greenButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-green-400 bg-green-500 hover:bg-green-600 text-white hover:text-white shadow-none";
-const brandBlueButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#082e53] bg-[#082e53] hover:bg-[#082e53]/90 text-white hover:text-white shadow-none";
+const greenButtonClass = iconButtonClass;
+const brandBlueButtonClass = iconButtonClass;
 
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
@@ -488,9 +488,9 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
                       setSelectedPanelField(null);
                       setSelectedPanelFieldIds([]);
                     }}
-                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? (brandTheme ? "bg-white font-semibold text-black border-t-2 border-t-[#082e54] border-b-white" : "bg-white font-semibold text-black border-t-2 border-t-[#082e54] border-b-white") : "bg-slate-50 text-black border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
+                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? "bg-white font-semibold text-black border-t-2 border-t-[#082e54] border-b-white" : "bg-slate-50 text-black border-b-slate-300 hover:bg-white"} ${isCustomPanelByIds(panel, systemPanelIds) ? "after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-[#082e54]" : ""} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
                     
-                      {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
+                      
                       {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ?
                     <Input
                       value={panel.label || ""}

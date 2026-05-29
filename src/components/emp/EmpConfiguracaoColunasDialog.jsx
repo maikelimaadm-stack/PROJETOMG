@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ChevronsLeft, ChevronsRight, Columns3, RotateCcw, Search, X } from "lucide-react";
 
-const iconButtonClass = "rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none h-7 w-7";
-const moveButtonClass = "h-7 w-7 rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none disabled:opacity-40";
+const iconButtonClass = "rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none h-7 w-7";
+const moveButtonClass = "h-7 w-7 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none disabled:opacity-40";
 
 export default function EmpConfiguracaoColunasDialog({
   open,
@@ -86,7 +86,7 @@ export default function EmpConfiguracaoColunasDialog({
         <DialogTitle className="sr-only">Configuração das colunas - Empresas</DialogTitle>
         <div className="bg-white overflow-hidden">
           <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
-            <span className="px-1.5 py-0.5 rounded-sm bg-white text-black border border-slate-300 text-[11px] font-bold">COLUNAS</span>
+            <span className="px-1.5 py-0.5 rounded-none bg-white text-black border border-slate-300 text-[11px] font-bold">Colunas</span>
             <span className="text-xs font-semibold text-black truncate flex-1">Configuração das colunas - Cadastro de Empresas</span>
             <Button type="button" onClick={onResetDefault} title="Restaurar padrão" className={iconButtonClass}><RotateCcw className="w-4 h-4" /></Button>
             <Button type="button" onClick={requestClose} title="Fechar" className={iconButtonClass}><X className="w-4 h-4" /></Button>
@@ -102,7 +102,7 @@ export default function EmpConfiguracaoColunasDialog({
                 {filteredAvailable.length === 0 ? <div className="text-xs text-slate-400 py-6 text-center">Nenhuma coluna disponível.</div> : filteredAvailable.map((col) => renderColumnButton({ col, selected: selectedAvailableIds.includes(col.id), onClick: (e) => selectAvailable(col.id, e), subtitle: "Disponível", origem: "available" }))}
               </div>
             </aside>
-            <section className="bg-slate-50 flex flex-col items-center justify-center gap-0 divide-y divide-slate-200">
+            <section className="bg-slate-50 flex flex-col items-center justify-center gap-0">
               <Button type="button" variant="outline" size="icon" disabled={usedColumns.length === 0} onClick={removeAll} className={moveButtonClass} title="Remover todas"><ChevronsLeft className="w-3.5 h-3.5" /></Button>
               <Button type="button" variant="outline" size="icon" disabled={selectedUsedIds.length === 0} onClick={removeSelected} className={moveButtonClass} title="Remover selecionadas"><ChevronLeft className="w-3.5 h-3.5" /></Button>
               <Button type="button" variant="outline" size="icon" disabled={selectedAvailableIds.length === 0} onClick={addSelected} className={moveButtonClass} title="Adicionar selecionadas"><ChevronRight className="w-3.5 h-3.5" /></Button>
@@ -121,7 +121,7 @@ export default function EmpConfiguracaoColunasDialog({
                 {filteredUsed.length === 0 ? <div className="text-xs text-slate-400 py-6 text-center">Nenhuma coluna em uso encontrada.</div> : filteredUsed.map((col) => { const originalIndex = usedColumns.findIndex((c) => c.id === col.id); return renderColumnButton({ col, selected: selectedUsedIds.includes(col.id), onClick: (e) => selectUsed(col.id, e), subtitle: "Em uso", index: originalIndex, origem: "used" }); })}
               </div>
             </main>
-            <section className="bg-slate-50 flex flex-col items-center justify-center gap-0 divide-y divide-slate-200">
+            <section className="bg-slate-50 flex flex-col items-center justify-center gap-0">
               <Button type="button" variant="outline" size="icon" disabled={selectedUsedIds.length !== 1} onClick={() => moveSelected(-1)} className={moveButtonClass} title="Subir coluna"><ChevronUp className="w-3.5 h-3.5" /></Button>
               <Button type="button" variant="outline" size="icon" disabled={selectedUsedIds.length !== 1} onClick={() => moveSelected(1)} className={moveButtonClass} title="Descer coluna"><ChevronDown className="w-3.5 h-3.5" /></Button>
             </section>
