@@ -27,7 +27,7 @@ const brandBlueButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
-const CustomMarker = ({ className = "border-b-green-500" }) => <span className={`pointer-events-none absolute bottom-0 right-0 z-10 w-0 h-0 border-l-[7px] border-l-transparent border-b-[7px] ${className}`} />;
+const CustomMarker = ({ className = "border-b-[#082e54]" }) => <span className={`pointer-events-none absolute bottom-0 right-0 z-10 w-0 h-0 border-l-[7px] border-l-transparent border-b-[7px] ${className}`} />;
 
 const formatPanelLabel = (value) => {
   const lowerWords = new Set(["da", "de", "do", "das", "dos", "e"]);
@@ -411,7 +411,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         onDragEnd={() => setDraggedFieldId(null)}
         className={`relative h-8 min-w-[210px] px-2 rounded-none text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${draggedFieldId === field.id ? "opacity-50 scale-95" : ""} ${selected ? (brandTheme ? "bg-[#082e53]/10 border-[#082e53] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-white border-slate-200 text-slate-900 hover:bg-slate-50"} ${hidden ? "bg-slate-50 text-slate-400 border-slate-300" : ""}`}>
         
-        {isCustomField(field) && <CustomMarker className={brandTheme ? "border-b-[#082e53]" : "border-b-green-500"} />}
+        {isCustomField(field) && <CustomMarker className={brandTheme ? "border-b-[#082e53]" : "border-b-[#082e54]"} />}
         <span className="flex items-center gap-1 min-w-0">
           <span className="text-xs font-semibold truncate">{field.label}</span>
         </span>
@@ -464,7 +464,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
           </section>
 
           <main className="min-w-0 overflow-hidden flex flex-col bg-white">
-            <div className="relative h-9 bg-white flex items-end gap-0 before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-slate-300">
+            <div className="relative h-9 bg-white flex items-end gap-0 before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-[#082e54]">
               <button type="button" onClick={() => scrollPanels(-1)} className={`${tabNavButtonClass} border-r border-slate-300`} title="Painéis anteriores"><ChevronLeft className="w-3.5 h-3.5" /></button>
               <button type="button" onClick={() => scrollPanels(1)} className={tabNavButtonClass} title="Próximos painéis"><ChevronRight className="w-3.5 h-3.5" /></button>
               <div ref={panelsScrollRef} className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -488,7 +488,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
                       setSelectedPanelField(null);
                       setSelectedPanelFieldIds([]);
                     }}
-                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? (brandTheme ? "bg-white font-semibold text-slate-800 border-t-2 border-t-[#fbc108] border-b-white" : "bg-white font-semibold text-slate-800 border-t-2 border-t-green-500 border-b-white") : "bg-slate-50 text-slate-700 border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
+                    className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${draggedPanelId === panel.id ? "opacity-50" : ""} ${isActive ? (brandTheme ? "bg-white font-semibold text-slate-800 border-t-2 border-t-[#fbc108] border-b-white" : "bg-white font-semibold text-slate-800 border-t-2 border-t-[#082e54] border-b-white") : "bg-slate-50 text-slate-700 border-b-slate-300 hover:bg-white"} ${isEmpty && systemPanelIds.includes(panel.id) ? "opacity-60" : ""}`}>
                     
                       {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
                       {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ?
