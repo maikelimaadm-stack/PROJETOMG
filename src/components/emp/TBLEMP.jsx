@@ -60,10 +60,8 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const lastTapRef = useRef({ id: null, time: 0 });
   const lastSelectedIdRef = useRef(null);
   const scrollContainerRef = useRef(null);
-  const headerScrollRef = useRef(null);
   const tableRef = useRef(null);
   const dragRef = useRef(null);
-  const [scrollbarWidth, setScrollbarWidth] = useState(0);
   const [resizeColumnId, setResizeColumnId] = useState(null);
 
   const { data: camposPersonalizados = [] } = useQuery({ queryKey: ["emp-campos-personalizados"], queryFn: () => empRepository.listCamposPersonalizados(), initialData: [] });
@@ -82,8 +80,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
   useEffect(() => { const s = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s ? JSON.parse(s) : {}); } catch { setLayoutAggregationConfig({}); } const h = () => { const s2 = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s2 ? JSON.parse(s2) : {}); } catch { setLayoutAggregationConfig({}); } }; window.addEventListener("storage", h); window.addEventListener("emp-layout-updated", h); return () => { window.removeEventListener("storage", h); window.removeEventListener("emp-layout-updated", h); }; }, []);
-
-  useEffect(() => { const el = scrollContainerRef.current; if (!el) return; const update = () => setScrollbarWidth(Math.max(0, el.offsetWidth - el.clientWidth)); update(); window.addEventListener("resize", update); return () => window.removeEventListener("resize", update); }, [empresas.length]);
 
   useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX)) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
 
@@ -179,7 +175,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const handleRowTouch = (emp, event) => { const now = Date.now(); if (lastTapRef.current.id === emp.id && now - lastTapRef.current.time < 300) { event.preventDefault(); if (selectedItems.length <= 1) onEdit(emp); } else { handleRowSelect(emp, event); } lastTapRef.current = { id: emp.id, time: now }; };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
-  const handleBodyScroll = (e) => { if (headerScrollRef.current) headerScrollRef.current.scrollLeft = e.currentTarget.scrollLeft; };
 
   const agregacoes = useMemo(() => campoEngine.calcularAgregacoes ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {}) : {}, [empresasOrdenadas, colunasOrdenadas]);
 
@@ -235,20 +230,58 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none">
+      <style>{`
+        .emp-table-scroll {
+          overflow: auto;
+          scrollbar-width: thin;
+          scrollbar-color: #94a3b8 #f1f5f9;
+        }
+        .emp-table-scroll::-webkit-scrollbar {
+          width: 10px;
+          height: 10px;
+        }
+        .emp-table-scroll::-webkit-scrollbar-track {
+          background: #f1f5f9;
+        }
+        .emp-table-scroll::-webkit-scrollbar-thumb {
+          background: #94a3b8;
+          border-radius: 4px;
+        }
+        .emp-table-scroll::-webkit-scrollbar-thumb:hover {
+          background: #64748b;
+        }
+        .emp-table-scroll::-webkit-scrollbar-corner {
+          background: #f1f5f9;
+        }
+      `}</style>
       <Card className="h-full overflow-hidden rounded-none border-0 shadow-none">
         <CardContent className="h-full p-0 overflow-hidden rounded-none">
           <div className="relative h-full overflow-hidden flex flex-col">
-            <div ref={headerScrollRef} className="flex-none w-full overflow-hidden bg-white" style={{ paddingRight: scrollbarWidth }}>
-              <Table style={{ width: totalTableWidth, minWidth: totalTableWidth }} className="border-separate border-spacing-0 table-fixed select-none">
+            <div
+              ref={scrollContainerRef}
+              tabIndex={0}
+              onKeyDown={handleTableKeyDown}
+              className="emp-table-scroll relative flex-1 min-h-0 w-full outline-none"
+            >
+              <Table
+                ref={tableRef}
+                style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                className="!w-auto border-separate border-spacing-0 table-fixed select-none"
+              >
                 <TableHeader className="bg-white shadow-[0_1px_0_0_#d1d5db]">
-                  <TableRow className="bg-white">
+                  <TableRow className="bg-white hover:bg-white">
                     {colunasOrdenadas.map((col, colIndex) => {
                       const width = columnPixelWidths[col.id] || 160;
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
                       const filterControl = renderFilterControl(col.id);
                       return (
-                        <TableHead key={col.id} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`group ${isFrozen ? "sticky z-40" : "relative"} align-middle text-slate-600 px-2 text-xs font-medium border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 py-0 select-none cursor-pointer ${getColumnAlignClass(col)}`} onDoubleClick={() => handleSort(col.id)}>
+                        <TableHead
+                          key={col.id}
+                          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
+                          className={`group sticky top-0 align-middle text-slate-600 px-2 text-xs font-medium border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                          onDoubleClick={() => handleSort(col.id)}
+                        >
                           <div className="block w-full h-full leading-7 whitespace-nowrap overflow-hidden text-ellipsis">{col.label}</div>
                           {filterControl && <div className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-white/95 pl-1 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} onClick={(e) => e.stopPropagation()}>
                             {filterControl}
@@ -260,17 +293,13 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                     })}
                   </TableRow>
                 </TableHeader>
-              </Table>
-            </div>
-            <div ref={scrollContainerRef} tabIndex={0} onKeyDown={handleTableKeyDown} onScroll={handleBodyScroll} className="relative flex-1 min-h-0 w-full overflow-scroll outline-none" style={{ overscrollBehavior: "none", WebkitOverflowScrolling: "touch", scrollbarGutter: "stable both-edges", scrollbarWidth: "thin", scrollbarColor: "#94a3b8 #f1f5f9" }}>
-              <Table ref={tableRef} style={{ width: totalTableWidth, minWidth: totalTableWidth }} className="border-separate border-spacing-0 table-fixed">
                 <TableBody>
                   {empresasOrdenadas.length === 0
                     ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasOrdenadas.map((emp, index) => (
                       <TableRow key={emp.id} className={`${index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`} onClick={(e) => handleRowSelect(emp, e)} onDoubleClick={() => selectedItems.length <= 1 && onEdit(emp)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
                         {colunasOrdenadas.map((col, colIndex) => {
-                          const width = Math.max(columnWidths[col.id] || col.width || 160, getMinWidth(col));
+                          const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
                             <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden select-none px-2 ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${selectedItems.includes(emp.id) ? "font-bold" : ""} ${index % 2 === 0 ? "bg-gray-100 text-slate-500 border-gray-300" : "bg-white text-slate-500 border-gray-300"}`} title={String(getFieldValue(emp, col.id) ?? "")}>
@@ -283,7 +312,15 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                   }
                   {Object.keys(agregacoes).length > 0 && (
                     <TableRow className="sticky bottom-0 z-30 bg-slate-200 font-medium shadow-[0_-1px_0_0_#d1d5db]">
-                      {colunasOrdenadas.map((col, ci) => { const w = Math.max(columnWidths[col.id] || col.width || 160, getMinWidth(col)); const isFrozen = ci < frozenColumnCount; return <TableCell key={`total-${col.id}`} style={{ width: w, minWidth: w, maxWidth: w, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`h-5 px-2 py-0 text-[11px] leading-5 align-middle border-r border-b border-gray-300 whitespace-nowrap overflow-hidden text-ellipsis select-none bg-slate-200 text-slate-600 ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>{agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}</TableCell>; })}
+                      {colunasOrdenadas.map((col, ci) => {
+                        const width = columnPixelWidths[col.id] || 160;
+                        const isFrozen = ci < frozenColumnCount;
+                        return (
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`h-5 px-2 py-0 text-[11px] leading-5 align-middle border-r border-b border-gray-300 whitespace-nowrap overflow-hidden text-ellipsis select-none bg-slate-200 text-slate-600 ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                            {agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
+                          </TableCell>
+                        );
+                      })}
                     </TableRow>
                   )}
                 </TableBody>
