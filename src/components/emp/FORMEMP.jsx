@@ -357,6 +357,30 @@ export default function FORMEMP({
     <div className="h-full min-h-0 overflow-hidden bg-white">
       <TopNoticeDialog open={noticeDialog.open} onOpenChange={(open) => setNoticeDialog((prev) => ({ ...prev, open }))} badge="AVISO" title={noticeDialog.title} description={noticeDialog.description} type="warning" confirmText="Entendi" />
       <form onSubmit={handleSubmit} className="bg-white h-full min-h-0 overflow-hidden flex flex-col">
+        <style>{`
+          .form-scroll-container {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+            overflow-y: auto;
+            overflow-x: auto;
+          }
+          .form-scroll-container::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+          }
+          .form-scroll-container::-webkit-scrollbar-track {
+            background: transparent;
+          }
+          .form-scroll-container::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+            border: 2px solid transparent;
+            background-clip: content-box;
+          }
+          .form-scroll-container::-webkit-scrollbar-thumb:hover {
+            background-color: #94a3b8;
+          }
+        `}</style>
         <LegacyRecordToolbar
           title={`${formData.codigo_empresa ? `${formData.codigo_empresa} - ` : ""}${formData.razao_social || (isDuplicating ? "Duplicar empresa" : isEditing ? "Editar empresa" : "Nova empresa")}`}
           badgeLabel="EMPRESA"
@@ -392,7 +416,7 @@ export default function FORMEMP({
           showSearch
         />
 
-        <div className="flex-1 min-h-0 overflow-y-auto pb-6 pr-2" style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}>
+        <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
             <div className="px-4 md:px-8 py-1 max-w-[780px]">
               <EmpDynamicFormRenderer
