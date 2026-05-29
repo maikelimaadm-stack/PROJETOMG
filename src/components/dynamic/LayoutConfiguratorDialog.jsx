@@ -42,15 +42,15 @@ const formatPanelLabel = (value) => {
   join("");
 };
 
-function GreenCheck({ checked, disabled = false, onChange, checkedClassName = "bg-green-500 hover:bg-green-600" }) {
+function GreenCheck({ checked, disabled = false, onChange }) {
   return (
     <button
       type="button"
       disabled={disabled}
       onClick={() => !disabled && onChange?.(!checked)}
-      className={`!h-4 !w-8 rounded-full relative inline-flex items-center transition-colors border-0 shadow-none ${checked ? checkedClassName : "bg-slate-300 hover:bg-slate-400"} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
+      className={`!h-4 !w-8 relative inline-flex items-center transition-colors border border-slate-300 shadow-none rounded-[1px] bg-white hover:bg-slate-50 ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}>
       
-      <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${checked ? "right-0.5" : "left-0.5"}`} />
+      <span className={`absolute top-0.5 w-3 h-3 rounded-full transition-all ${checked ? "right-0.5 bg-slate-700" : "left-0.5 bg-slate-300"}`} />
     </button>);
 
 }
@@ -370,7 +370,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         setSelectedAvailableIds((prev) => prev.includes(field.id) ? prev : [field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`relative w-full rounded-sm border px-2 py-1.5 text-left overflow-hidden transition-all focus-visible:outline-none flex items-center justify-between gap-2 ${selected ? (brandTheme ? "bg-[#fbc108]/20 border-[#fbc108] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-gray-50 border-slate-200 text-slate-900 hover:bg-gray-100"}`}>
+      className={`relative w-full rounded-none border px-2 py-1.5 text-left overflow-hidden transition-all focus-visible:outline-none flex items-center justify-between gap-2 ${selected ? (brandTheme ? "bg-[#082e53]/10 border-[#082e53] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-white border-slate-200 text-slate-900 hover:bg-slate-50"}`}>
       {isCustomField(field) && <CustomMarker />}
       <div className="min-w-0">
         <div className="text-xs font-semibold truncate">{field.label}</div>
@@ -409,9 +409,9 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
         onDragOver={(event) => {event.preventDefault();reorderField(field.id);}}
         onDrop={() => setDraggedFieldId(null)}
         onDragEnd={() => setDraggedFieldId(null)}
-        className={`relative h-8 min-w-[210px] px-2 rounded-sm text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${draggedFieldId === field.id ? "opacity-50 scale-95" : ""} ${selected ? (brandTheme ? "bg-[#fbc108]/20 border-[#fbc108] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-gray-50 border-slate-200 text-slate-900 hover:bg-gray-100"} ${hidden ? "bg-slate-100 text-slate-400 border-slate-300" : ""}`}>
+        className={`relative h-8 min-w-[210px] px-2 rounded-none text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${draggedFieldId === field.id ? "opacity-50 scale-95" : ""} ${selected ? (brandTheme ? "bg-[#082e53]/10 border-[#082e53] text-slate-900" : "bg-gray-100 border-slate-400 text-slate-900") : "bg-white border-slate-200 text-slate-900 hover:bg-slate-50"} ${hidden ? "bg-slate-50 text-slate-400 border-slate-300" : ""}`}>
         
-        {isCustomField(field) && <CustomMarker className={brandTheme ? "border-b-[#fbc108]" : "border-b-green-500"} />}
+        {isCustomField(field) && <CustomMarker className={brandTheme ? "border-b-[#082e53]" : "border-b-green-500"} />}
         <span className="flex items-center gap-1 min-w-0">
           <span className="text-xs font-semibold truncate">{field.label}</span>
         </span>
@@ -517,15 +517,15 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
             <div className="border-t flex items-center h-10 border-slate-300 bg-slate-50 gap-3 py-2 px-2">
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Oculto:</span>
-                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id) || fixedVisibleFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} />
+                <GreenCheck checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id) || fixedVisibleFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} />
               </label>
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Bloqueado:</span>
-                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)} />
+                <GreenCheck checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || draftRequiredFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)} />
               </label>
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Obrigatório:</span>
-                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && (selectedField.required || draftRequiredFieldIds.includes(selectedField.id))} disabled={!selectedField || selectedField?.required || !isEditing} onChange={(checked) => {
+                <GreenCheck checked={!!selectedField && (selectedField.required || draftRequiredFieldIds.includes(selectedField.id))} disabled={!selectedField || selectedField?.required || !isEditing} onChange={(checked) => {
                 if (checked) {
                   setDraftHiddenFieldIds((prev) => prev.filter((id) => id !== selectedField?.id));
                   setDraftLockedFieldIds((prev) => prev.filter((id) => id !== selectedField?.id));
@@ -535,7 +535,7 @@ export default function LayoutConfiguratorDialog({ open, onOpenChange, panels = 
               </label>
               <label className="flex items-center gap-2 text-[12px] text-slate-600">
                 <span>Totalizar:</span>
-                <GreenCheck checkedClassName={brandTheme ? "bg-[#fbc108] hover:bg-[#e5ad00]" : undefined} checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled} disabled={!selectedField || !selectedField?.totalizable || !isEditing} onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)} />
+                <GreenCheck checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled} disabled={!selectedField || !selectedField?.totalizable || !isEditing} onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)} />
               </label>
               <ConditionalVisibilityEditor selectedField={selectedField} fields={fields} visibilityRules={draftVisibilityRules} onChange={setVisibilityRule} disabled={!isEditing} />
               <Select value={selectedField ? draftAggregationConfig[selectedField.id]?.type || "sum" : "sum"} onValueChange={(value) => selectedField && setAggregationType(selectedField.id, value)} disabled={!selectedField || !draftAggregationConfig[selectedField.id]?.enabled || !isEditing}>
