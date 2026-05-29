@@ -207,9 +207,12 @@ export const campoEngine = {
     return { ...registro, campos_personalizados: personalizados };
   },
 
-  buildValidationSchema(_campos) {
-    // Retorna um schema vazio - validação customizada desabilitada
-    return { safeParse: () => ({ success: true }) };
+  buildValidationSchema(campos) {
+    const shape = {};
+    campos.filter((campo) => campo.obrigatorio && campo.tipo !== "calculado").forEach((campo) => {
+      shape[campo.field_name] = campo.tipo === "option_list" ? z.array(z.string()).min(1) : z.union([z.string().min(1), z.number(), z.boolean()]);
+    });
+    return z.object(shape);
   },
 
   calcularAgregacoes(registros, colunas) {

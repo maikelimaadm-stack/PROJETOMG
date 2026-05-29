@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Filter, Plus, ChevronDown, ChevronRight } from "lucide-react";
 import SankhyaFilterConfigDialog from "./SankhyaFilterConfigDialog";
+import SankhyaCodeNameLookup from "./SankhyaCodeNameLookup";
 import loteRepository from "@/core/repositories/loteRepository";
 import campoEngine from "@/services/campoEngine";
 import { buildFiltersFromPreset } from "@/components/filters/filterPresetUtils";
@@ -228,10 +229,12 @@ export default function SankhyaFilterPanel({ open, filters, onChange, onApply, o
   };
 
   const renderCodeName = (prefix, source, label) =>
-  <div className="grid grid-cols-2 gap-1">
-    <Input value={filters[`${prefix}_codigo`] || ""} onChange={(e) => update(`${prefix}_codigo`, e.target.value)} placeholder="Código" className={inputClass} />
-    <Input value={filters[`${prefix}_nome`] || ""} onChange={(e) => update(`${prefix}_nome`, e.target.value)} placeholder="Nome" className={inputClass} />
-  </div>;
+  <SankhyaCodeNameLookup
+    label={label}
+    prefix={prefix}
+    source={options[source] || []}
+    filters={filters}
+    onChange={onChange} />;
 
 
 

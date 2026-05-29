@@ -7,11 +7,14 @@ import { toast } from "sonner";
 import FormularioLote from "@/components/lotes/FormularioLote";
 import TabelaLotes from "@/components/lotes/TabelaLotes";
 import ConfiguracaoCamposLoteDialog from "@/components/lotes/ConfiguracaoCamposLoteDialog";
+import ConfiguracaoExportacaoPdfLotesDialog from "@/components/lotes/ConfiguracaoExportacaoPdfLotesDialog";
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import RegistroAnexosDialog from "@/components/common/RegistroAnexosDialog";
+import { refreshMapaCacheEntry } from "@/components/offline/mapaOfflineCache";
 import loteRepository from "@/core/repositories/loteRepository";
 import campoEngine from "@/services/campoEngine";
 import { exportVisibleLotesTableToExcel, printVisibleLotesTable } from "@/components/lotes/loteTableExportUtils";
+import { getLotesExcelExportConfig, getLotesPdfExportConfig } from "@/components/lotes/pdfExportConfig";
 
 export default function CadastroLotes() {
   const [showForm, setShowForm] = useState(false);
@@ -19,6 +22,8 @@ export default function CadastroLotes() {
   const [deleteState, setDeleteState] = useState({ open: false, ids: [] });
   const [showConfigColunas, setShowConfigColunas] = useState(false);
   const [showConfigCampos, setShowConfigCampos] = useState(false);
+  const [showConfigPdf, setShowConfigPdf] = useState(false);
+  const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -33,15 +38,28 @@ export default function CadastroLotes() {
   const [appliedFilters, setAppliedFilters] = useState({ status: "todos" });
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const queryClient = useQueryClient();
+  const empresaSelecionadaId = localStorage.getItem('empresa_selecionada_id');
 
   const { data: lotes = [] } = useQuery({
-    queryKey: ['lotes-cadastro'],
-    queryFn: () => loteRepository.list({ incluirSistema: false }),
+    queryKey: ['lotes-cadastro', empresaSelecionadaId],
+    queryFn: () => loteRepository.list({ empresaId: empresaSelecionadaId, incluirSistema: false }),
+    enabled: !!empresaSelecionadaId,
     initialData: []
   });
 
-  const areas = [];
-  const lotesComMovimentacoes = [];
+  const { data: areas = [] } = useQuery({
+    queryKey: ['areas', empresaSelecionadaId],
+    queryFn: () => loteRepository.listAreasAtivas(empresaSelecionadaId),
+    enabled: !!empresaSelecionadaId,
+    initialData: []
+  });
+
+  const { data: lotesComMovimentacoes = [] } = useQuery({
+    queryKey: ['lotes-com-movimentacoes', empresaSelecionadaId],
+    queryFn: () => loteRepository.listLotesComMovimentacoes(empresaSelecionadaId),
+    enabled: !!empresaSelecionadaId,
+    initialData: []
+  });
 
   const { data: camposPersonalizadosFiltro = [] } = useQuery({
     queryKey: ["lote-campos-personalizados"],
@@ -77,6 +95,8 @@ export default function CadastroLotes() {
         if (operator === "notEmpty") return !!text;
         if (!filterValue || filterValue === "todos") return true;
         const term = String(filterValue).toLowerCase().trim();
+        if (operator === "empty") return !text;
+        if (operator === "notEmpty") return !!text;
         if (operator === "exact") return text === term;
         if (operator === "different") return text !== term;
         if (operator === "startsWith") return text.startsWith(term);
@@ -122,18 +142,36 @@ export default function CadastroLotes() {
       const peso = Number(lote.peso_entrada_kg ?? lote.peso_medio_kg ?? 0);
       if (!checkNumeric("peso", peso)) return false;
       if (!checkNumeric("valor", Number(lote.valor_total_compra ?? 0))) return false;
+      if (!checkNumeric("valor_por_cabeca", Number(lote.valor_por_cabeca ?? 0))) return false;
+      if (!checkNumeric("valor_frete", Number(lote.valor_frete ?? 0))) return false;
       const dataEntrada = String(lote.data_entrada || "").split("T")[0];
       const dataOperator = operators.data || "between";
       if (dataOperator === "empty" && dataEntrada) return false;
       if (dataOperator === "notEmpty" && !dataEntrada) return false;
-      if ((dataOperator === "between" || dataOperator === "gte" || dataOperator === "gt") && appliedFilters.data_min && dataEntrada < appliedFilters.data_min) return false;
-      if ((dataOperator === "between" || dataOperator === "lte" || dataOperator === "lt") && appliedFilters.data_max && dataEntrada > appliedFilters.data_max) return false;
+      if ((dataOperator === "custom" || dataOperator === "in") && appliedFilters.data_exact && !customList(appliedFilters.data_exact).includes(dataEntrada.toLowerCase())) return false;
+      if (dataOperator === "notIn" && appliedFilters.data_exact && customList(appliedFilters.data_exact).includes(dataEntrada.toLowerCase())) return false;
+      if (dataOperator === "exact" && appliedFilters.data_exact && dataEntrada !== appliedFilters.data_exact) return false;
+      if (dataOperator === "different" && appliedFilters.data_exact && dataEntrada === appliedFilters.data_exact) return false;
+      if ((dataOperator === "between" || dataOperator === "gte" || dataOperator === "gt") && appliedFilters.data_min && (dataOperator === "gt" ? dataEntrada <= appliedFilters.data_min : dataEntrada < appliedFilters.data_min)) return false;
+      if ((dataOperator === "between" || dataOperator === "lte" || dataOperator === "lt") && appliedFilters.data_max && (dataOperator === "lt" ? dataEntrada >= appliedFilters.data_max : dataEntrada > appliedFilters.data_max)) return false;
 
       for (const campo of camposFiltroPersonalizados) {
         const fieldId = `custom:${campo.field_name}`;
         const rawValue = lote.campos_personalizados?.[campo.field_name];
         const displayValue = campoEngine.getValorCampo(lote, { ...campo, id: fieldId, customField: campo.field_name });
         if (["number", "calculado"].includes(campo.tipo) && !checkNumeric(fieldId, Number(rawValue || 0))) return false;
+        if (campo.tipo === "date") {
+          const dateValue = String(rawValue || "").split("T")[0];
+          const dateOperator = operators[fieldId] || "between";
+          if (dateOperator === "empty" && dateValue) return false;
+          if (dateOperator === "notEmpty" && !dateValue) return false;
+          if ((dateOperator === "custom" || dateOperator === "in") && appliedFilters[`${fieldId}_exact`] && !customList(appliedFilters[`${fieldId}_exact`]).includes(dateValue.toLowerCase())) return false;
+          if (dateOperator === "notIn" && appliedFilters[`${fieldId}_exact`] && customList(appliedFilters[`${fieldId}_exact`]).includes(dateValue.toLowerCase())) return false;
+          if (dateOperator === "exact" && appliedFilters[`${fieldId}_exact`] && dateValue !== appliedFilters[`${fieldId}_exact`]) return false;
+          if (dateOperator === "different" && appliedFilters[`${fieldId}_exact`] && dateValue === appliedFilters[`${fieldId}_exact`]) return false;
+          if ((dateOperator === "between" || dateOperator === "gte" || dateOperator === "gt") && appliedFilters[`${fieldId}_min`] && (dateOperator === "gt" ? dateValue <= appliedFilters[`${fieldId}_min`] : dateValue < appliedFilters[`${fieldId}_min`])) return false;
+          if ((dateOperator === "between" || dateOperator === "lte" || dateOperator === "lt") && appliedFilters[`${fieldId}_max`] && (dateOperator === "lt" ? dateValue >= appliedFilters[`${fieldId}_max`] : dateValue > appliedFilters[`${fieldId}_max`])) return false;
+        }
         if (!["number", "calculado", "date"].includes(campo.tipo) && !checkText(fieldId, displayValue)) return false;
       }
       return true;
@@ -141,7 +179,7 @@ export default function CadastroLotes() {
   }, [lotes, appliedFilters, camposFiltroPersonalizados]);
 
   const createLoteMutation = useMutation({
-    mutationFn: (data) => loteRepository.create(data),
+    mutationFn: (data) => loteRepository.create(data, { empresaId: empresaSelecionadaId }),
     onSuccess: async (created) => {
       if (pendingAttachments.length) {
         await Promise.all(pendingAttachments.map(({ id, ...anexo }) => base44.entities.RegistroAnexo.create({
@@ -151,9 +189,11 @@ export default function CadastroLotes() {
         })));
         setPendingAttachments([]);
       }
-      queryClient.setQueryData(['lotes-cadastro'], (current = []) => [created, ...current]);
-      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
-      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro'], exact: true });
+      queryClient.setQueryData(['lotes-cadastro', empresaSelecionadaId], (current = []) => [created, ...current]);
+      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
+      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId], exact: true });
+      await refreshMapaCacheEntry('lotes', empresaSelecionadaId, { force: true });
+      window.dispatchEvent(new CustomEvent('atualizar-mapa'));
       setShowForm(false);
       setEditingLote(null);
       toast.success('Lote cadastrado!');
@@ -163,11 +203,13 @@ export default function CadastroLotes() {
   const updateLoteMutation = useMutation({
     mutationFn: ({ id, data, oldData }) => loteRepository.update(id, data, { oldData }),
     onSuccess: async (updated) => {
-      queryClient.setQueryData(['lotes-cadastro'], (current = []) =>
-        current.map((item) => item.id === updated.id ? updated : item)
+      queryClient.setQueryData(['lotes-cadastro', empresaSelecionadaId], (current = []) =>
+      current.map((item) => item.id === updated.id ? updated : item)
       );
-      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
-      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro'], exact: true });
+      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
+      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId], exact: true });
+      await refreshMapaCacheEntry('lotes', empresaSelecionadaId, { force: true });
+      window.dispatchEvent(new CustomEvent('atualizar-mapa'));
       setShowForm(false);
       setEditingLote(null);
       toast.success('Lote atualizado!');
@@ -246,12 +288,17 @@ export default function CadastroLotes() {
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingLote || editingLote?._isDuplicate) return;
-    if (lotesFiltradosPainel.length === 0) { setSelectedIndex(0); return; }
+    if (lotesFiltradosPainel.length === 0) {
+      setSelectedIndex(0);
+      return;
+    }
+
     const currentFilteredIndex = editingLote?.id ? lotesFiltradosPainel.findIndex((item) => item.id === editingLote.id) : -1;
     if (currentFilteredIndex >= 0) {
       if (selectedIndex !== currentFilteredIndex) setSelectedIndex(currentFilteredIndex);
       return;
     }
+
     const nextIndex = Math.min(selectedIndex, lotesFiltradosPainel.length - 1);
     setSelectedIndex(nextIndex);
     setEditingLote(lotesFiltradosPainel[nextIndex]);
@@ -295,44 +342,33 @@ export default function CadastroLotes() {
   };
 
   const handleRefresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
+    queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
   };
 
   const handleConfirmDelete = async () => {
     const ids = deleteState.ids;
     setDeleteState({ open: false, ids: [] });
+
     let deletedCount = 0;
+
     for (const id of ids) {
       try {
         await loteRepository.ensureDeleteAllowed(id);
         await deleteLoteMutation.mutateAsync(id);
         deletedCount += 1;
-      } catch {}
+      } catch {
+      }
     }
+
     if (deletedCount > 0) {
-      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro'] });
-      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro'], exact: true });
+      await queryClient.invalidateQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId] });
+      await queryClient.refetchQueries({ queryKey: ['lotes-cadastro', empresaSelecionadaId], exact: true });
+      await refreshMapaCacheEntry('lotes', empresaSelecionadaId, { force: true });
+      window.dispatchEvent(new CustomEvent('atualizar-mapa'));
       toast.success(deletedCount === 1 ? 'Lote excluído!' : `${deletedCount} lotes excluídos!`);
     }
   };
 
-  const handleExportPdf = () => {
-    printVisibleLotesTable({
-      columns: visibleTableData.columns || [],
-      rows: selectedTableItems.length > 0 ? (visibleTableData.selectedRows || []) : (visibleTableData.rows || []),
-      totalRows: visibleTableData.totalRows || [],
-      title: `Cadastro de Lotes - ${new Date().toLocaleDateString('pt-BR')}`
-    });
-  };
-
-  const handleExportExcel = () => {
-    exportVisibleLotesTableToExcel({
-      columns: visibleTableData.columns || [],
-      rows: selectedTableItems.length > 0 ? (visibleTableData.selectedRows || []) : (visibleTableData.rows || []),
-      totalRows: visibleTableData.totalRows || [],
-      title: `Cadastro de Lotes - ${new Date().toLocaleDateString('pt-BR')}`
-    });
-  };
 
   return (
     <div className="cadastro-lotes-rounded-scope -mt-px p-0 md:p-0 bg-white h-[calc(100dvh-var(--app-content-offset,91px))] overflow-hidden">
@@ -341,7 +377,6 @@ export default function CadastroLotes() {
           border-radius: 1.5px !important;
         }
       `}</style>
-
       {showConfigCampos && (
         <section className="w-full h-full bg-white overflow-hidden">
           <ConfiguracaoCamposLoteDialog
@@ -353,51 +388,72 @@ export default function CadastroLotes() {
       )}
 
       {!showConfigCampos && showForm &&
-        <div className="flex min-h-0 h-full w-full overflow-hidden">
-          <SankhyaFilterPanel
-            open={filterPanelOpen}
-            filters={filters}
-            onChange={setFilters}
-            onApply={(nextFilters) => {
-              const applied = nextFilters || filters;
-              setAppliedFilters(applied);
-              if (applied.esconderAoAtualizar) setFilterPanelOpen(false);
+      <div className="flex min-h-0 h-full w-full overflow-hidden">
+        <SankhyaFilterPanel
+          open={filterPanelOpen}
+          filters={filters}
+          onChange={setFilters}
+          onApply={(nextFilters) => {
+            const applied = nextFilters || filters;
+            setAppliedFilters(applied);
+            if (applied.esconderAoAtualizar) setFilterPanelOpen(false);
+          }}
+          onClear={() => { setFilters({ status: "todos" }); setAppliedFilters({ status: "todos" }); }}
+          lotes={lotes}
+          areas={areas} />
+        <div className="min-w-0 flex-1 h-full overflow-hidden">
+          <FormularioLote
+            key={`form-${formVersion}-${editingLote?._isDuplicate ? 'duplicate' : editingLote ? 'record' : 'new'}`}
+            initialData={editingLote}
+            isEditing={!!editingLote}
+            onSubmit={handleSubmit}
+            onCancel={() => {
+              if (editingLote && !editingLote._isDuplicate) {
+                setFormVersion((prev) => prev + 1);
+                setViewMode("record");
+                return;
+              }
+              if (editingLote?._isDuplicate && returnRecordAfterNew) {
+                setEditingLote(returnRecordAfterNew);
+                setShowForm(true);
+                setViewMode("record");
+                setReturnRecordAfterNew(null);
+                return;
+              }
+              if (!editingLote && returnRecordAfterNew) {
+                setEditingLote(returnRecordAfterNew);
+                setShowForm(true);
+                setViewMode("record");
+                setReturnRecordAfterNew(null);
+                return;
+              }
+              setShowForm(false);
+              setEditingLote(null);
+              setViewMode("table");
+              setReturnRecordAfterNew(null);
+              setPendingAttachments([]);
+              setNewRecordAttachmentsOpen(false);
             }}
-            onClear={() => { setFilters({ status: "todos" }); setAppliedFilters({ status: "todos" }); }}
-            lotes={lotes}
-            areas={areas} />
-          <div className="min-w-0 flex-1 h-full overflow-hidden">
-            <FormularioLote
-              key={`form-${formVersion}-${editingLote?._isDuplicate ? 'duplicate' : editingLote ? 'record' : 'new'}`}
-              initialData={editingLote}
-              isEditing={!!editingLote}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                if (editingLote && !editingLote._isDuplicate) { setFormVersion((prev) => prev + 1); setViewMode("record"); return; }
-                if (editingLote?._isDuplicate && returnRecordAfterNew) { setEditingLote(returnRecordAfterNew); setShowForm(true); setViewMode("record"); setReturnRecordAfterNew(null); return; }
-                if (!editingLote && returnRecordAfterNew) { setEditingLote(returnRecordAfterNew); setShowForm(true); setViewMode("record"); setReturnRecordAfterNew(null); return; }
-                setShowForm(false); setEditingLote(null); setViewMode("table"); setReturnRecordAfterNew(null); setPendingAttachments([]); setNewRecordAttachmentsOpen(false);
-              }}
-              onSettingsClick={handleOpenConfigCampos}
-              onToggleView={handleToggleView}
-              total={lotesFiltradosPainel.length}
-              currentIndex={selectedIndex}
-              onNew={handleNew}
-              onFirst={() => navigateRecord(0)}
-              onPrevious={() => navigateRecord(selectedIndex - 1)}
-              onNext={() => navigateRecord(selectedIndex + 1)}
-              onLast={() => navigateRecord(lotesFiltradosPainel.length - 1)}
-              onDelete={() => editingLote?.id && handleRequestDelete(editingLote.id)}
-              onDuplicate={() => editingLote && handleDuplicate(editingLote)}
-              filterOpen={filterPanelOpen}
-              filterActive={hasActiveFilters}
-              onToggleFilter={() => setFilterPanelOpen((open) => !open)}
-              onClearFilter={() => { setFilters({ status: "todos" }); setAppliedFilters({ status: "todos" }); }}
-              onAttachClick={() => editingLote?.id ? setAttachmentsRecord(editingLote) : setNewRecordAttachmentsOpen(true)}
-              attachDisabled={false}
-              onRefresh={handleRefresh} />
-          </div>
+            onSettingsClick={handleOpenConfigCampos}
+            onToggleView={handleToggleView}
+            total={lotesFiltradosPainel.length}
+            currentIndex={selectedIndex}
+            onNew={handleNew}
+            onFirst={() => navigateRecord(0)}
+            onPrevious={() => navigateRecord(selectedIndex - 1)}
+            onNext={() => navigateRecord(selectedIndex + 1)}
+            onLast={() => navigateRecord(lotesFiltradosPainel.length - 1)}
+            onDelete={() => editingLote?.id && handleRequestDelete(editingLote.id)}
+            onDuplicate={() => editingLote && handleDuplicate(editingLote)}
+            filterOpen={filterPanelOpen}
+            filterActive={hasActiveFilters}
+            onToggleFilter={() => setFilterPanelOpen((open) => !open)}
+            onClearFilter={() => { setFilters({ status: "todos" }); setAppliedFilters({ status: "todos" }); }}
+            onAttachClick={() => editingLote?.id ? setAttachmentsRecord(editingLote) : setNewRecordAttachmentsOpen(true)}
+            attachDisabled={false}
+            onRefresh={handleRefresh} />
         </div>
+      </div>
       }
 
       <div className={showForm || showConfigCampos ? "hidden" : "flex min-h-0 h-full w-full overflow-hidden"}>
@@ -436,8 +492,43 @@ export default function CadastroLotes() {
             onRefresh={handleRefresh}
             onAttachClick={() => selectedTableLote && setAttachmentsRecord(selectedTableLote)}
             attachDisabled={selectedTableItems.length !== 1}
-            onExportPdf={handleExportPdf}
-            onExportExcel={handleExportExcel}
+
+            onExportPdf={() => {
+               const config = getLotesPdfExportConfig();
+               const sourceColumns = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
+               const sourceRows = config.useConfiguredColumns ? visibleTableData.allRows || visibleTableData.rows : visibleTableData.rows;
+               const sourceSelectedRows = config.useConfiguredColumns ? visibleTableData.allSelectedRows || visibleTableData.selectedRows : visibleTableData.selectedRows;
+               const sourceTotalRows = config.useConfiguredColumns ? visibleTableData.allTotalRows || visibleTableData.totalRows : visibleTableData.totalRows;
+               const selectedColumns = config.useConfiguredColumns && config.columnIds.length ? sourceColumns.filter((column) => config.columnIds.includes(column.id)) : sourceColumns;
+               const selectedIndexes = selectedColumns.map((column) => sourceColumns.findIndex((item) => item.id === column.id));
+               const filterRows = (rows = []) => rows.map((row) => selectedIndexes.map((index) => row[index]));
+
+               printVisibleLotesTable({
+                 columns: selectedColumns,
+                 rows: filterRows(selectedTableItems.length > 0 ? sourceSelectedRows || [] : sourceRows || []),
+                 totalRows: filterRows(sourceTotalRows || []),
+                 title: `Exportar PDF - ${new Date().toLocaleDateString('pt-BR')}`
+               });
+             }}
+             onConfigExportPdf={() => setShowConfigPdf(true)}
+             onExportExcel={() => {
+               const config = getLotesExcelExportConfig();
+               const sourceColumns = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
+               const sourceRows = config.useConfiguredColumns ? visibleTableData.allRows || visibleTableData.rows : visibleTableData.rows;
+               const sourceSelectedRows = config.useConfiguredColumns ? visibleTableData.allSelectedRows || visibleTableData.selectedRows : visibleTableData.selectedRows;
+               const sourceTotalRows = config.useConfiguredColumns ? visibleTableData.allTotalRows || visibleTableData.totalRows : visibleTableData.totalRows;
+               const selectedColumns = config.useConfiguredColumns && config.columnIds.length ? sourceColumns.filter((column) => config.columnIds.includes(column.id)) : sourceColumns;
+               const selectedIndexes = selectedColumns.map((column) => sourceColumns.findIndex((item) => item.id === column.id));
+               const filterRows = (rows = []) => rows.map((row) => selectedIndexes.map((index) => row[index]));
+
+               exportVisibleLotesTableToExcel({
+                 columns: selectedColumns,
+                 rows: filterRows(selectedTableItems.length > 0 ? sourceSelectedRows || [] : sourceRows || []),
+                 totalRows: filterRows(sourceTotalRows || []),
+                 title: `Exportar Excel - ${new Date().toLocaleDateString('pt-BR')}`
+               });
+             }}
+            onConfigExportExcel={() => setShowConfigExcel(true)}
             onConfigColumns={() => setShowConfigColunas(true)}
             selectedCount={selectedTableItems.length}
             title="Cadastro de Lotes"
@@ -459,10 +550,27 @@ export default function CadastroLotes() {
         </div>
       </div>
 
+      <ConfiguracaoExportacaoPdfLotesDialog
+        open={showConfigPdf}
+        onOpenChange={setShowConfigPdf}
+        columns={visibleTableData.allColumns || visibleTableData.columns || []}
+        initialConfig={getLotesPdfExportConfig()}
+        tipo="pdf" />
+
+      <ConfiguracaoExportacaoPdfLotesDialog
+        open={showConfigExcel}
+        onOpenChange={setShowConfigExcel}
+        columns={visibleTableData.allColumns || visibleTableData.columns || []}
+        initialConfig={getLotesExcelExportConfig()}
+        tipo="excel" />
+
       <RegistroAnexosDialog
         open={!!attachmentsRecord?.id || newRecordAttachmentsOpen}
         onOpenChange={(open) => {
-          if (!open) { setAttachmentsRecord(null); setNewRecordAttachmentsOpen(false); }
+          if (!open) {
+            setAttachmentsRecord(null);
+            setNewRecordAttachmentsOpen(false);
+          }
         }}
         entityName="Lote"
         recordId={attachmentsRecord?.id}
@@ -479,6 +587,7 @@ export default function CadastroLotes() {
         cancelText="Cancelar"
         variant="destructive"
         onConfirm={handleConfirmDelete} />
-    </div>
-  );
+      
+    </div>);
+
 }

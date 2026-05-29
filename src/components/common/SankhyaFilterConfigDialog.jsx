@@ -3,13 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import AutocompleteGenerico from "@/components/common/AutocompleteGenerico";
+import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Plus, X } from "lucide-react";
 import LegacyRecordToolbar from "@/components/lotes/LegacyRecordToolbar.jsx";
 import SankhyaListToolbar from "@/components/common/SankhyaListToolbar";
-
+import FilterFieldValueEditor from "@/components/filters/FilterFieldValueEditor";
 
 const OPERATOR_LABELS = {
   contains: "Contém",
@@ -385,12 +385,13 @@ export default function SankhyaFilterConfigDialog({
                   
                       </div>
                       <div className="px-1 py-1 border-r border-gray-300">
-                        <input
-                          className="h-6 w-full border-0 text-xs bg-transparent px-1 focus:outline-none"
-                          placeholder="Valor padrão"
-                          value={fieldValues[field.id]?.value || ""}
-                          onChange={(e) => updateFieldValue(field.id, { value: e.target.value })}
-                        />
+                        <FilterFieldValueEditor
+                    field={field}
+                    operator={operators[field.id] || operatorOptions[0]}
+                    value={fieldValues[field.id] || {}}
+                    onValueChange={(value) => updateFieldValue(field.id, value)}
+                    relationOptions={relationOptions[field.source || "lotes"] || []} />
+                      
                       </div>
                       <div className="flex items-center justify-center gap-0 px-1 py-1 [&>*:first-child]:border-l-[0.5px]">
                         <button type="button" title="Mover para cima" onClick={() => moveField(field.id, -1)} disabled={position <= 0} className="h-6 w-6 border-y border-r border-l-0 border-slate-300 text-slate-600 disabled:opacity-30"><ChevronUp className="w-3 h-3 mx-auto" /></button>

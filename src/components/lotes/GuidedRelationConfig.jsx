@@ -1,5 +1,5 @@
 import React from "react";
-import AutocompleteGenerico from "@/components/common/AutocompleteGenerico";
+import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
 import { ENTIDADES_RELACIONAIS } from "./camposConfigOptions";
 
 function Field({ label, children }) {

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { useQuery } from "@tanstack/react-query";
 import useSetorAreas from "@/hooks/useSetorAreas";
 import loteRepository from "@/core/repositories/loteRepository";
 import campoEngine from "@/services/campoEngine";
-import AutocompleteGenerico from "@/components/common/AutocompleteGenerico";
+import AutocompleteGenerico from "@/components/financeiro/AutocompleteGenerico";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import LegacyRecordToolbar from "./LegacyRecordToolbar.jsx";
 import LegacyTabs from "./LegacyTabs.jsx";
@@ -83,6 +83,7 @@ const parseSistemasProdutivos = (valor) => {
 export default function FormularioLote({ onSubmit, onCancel, onSettingsClick, onAttachClick, attachDisabled = false, onToggleView, total = 0, currentIndex = 0, onNew, onFirst, onPrevious, onNext, onLast, onDelete, onDuplicate, onRefresh, filterOpen = false, filterActive = false, onToggleFilter, onClearFilter, initialData, isEditing }) {
   const isDuplicating = !!initialData?._isDuplicate;
   const shouldPersistEntrySnapshot = !isEditing || isDuplicating;
+  const empresaSelecionadaId = localStorage.getItem("empresa_selecionada_id");
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
@@ -150,10 +151,19 @@ export default function FormularioLote({ onSubmit, onCancel, onSettingsClick, on
     setEditMode(!isEditing || !!initialData?._isDuplicate);
   }, [initialData?.id, initialData?.numero_lote, initialData?._isDuplicate, isEditing]);
 
-  const { setores, areas, getAreasBySetor } = useSetorAreas();
+  const { setores, areas, getAreasBySetor } = useSetorAreas(empresaSelecionadaId);
 
-  const categoriasManejo = [];
-  const fornecedores = [];
+  const { data: categoriasManejo = [] } = useQuery({
+    queryKey: ["categorias-manejo", empresaSelecionadaId],
+    queryFn: () => loteRepository.listCategoriasManejo(empresaSelecionadaId),
+    enabled: !!empresaSelecionadaId
+  });
+
+  const { data: fornecedores = [] } = useQuery({
+    queryKey: ["fornecedores", empresaSelecionadaId],
+    queryFn: () => loteRepository.listFornecedores(empresaSelecionadaId),
+    enabled: !!empresaSelecionadaId
+  });
 
   const { data: camposPersonalizados = [] } = useQuery({
     queryKey: ["lote-campos-personalizados"],
