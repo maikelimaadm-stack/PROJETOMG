@@ -1,9 +1,7 @@
-import Empresa from './pages/Empresa';
 import CadastroLotes from './pages/CadastroLotes';
 import __Layout from './Layout.jsx';
 
 export const PAGES = {
-    "Empresa": Empresa,
     "CadastroLotes": CadastroLotes,
 }
 

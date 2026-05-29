@@ -67,6 +67,18 @@ export const loteRepository = {
   async listCamposPersonalizados() {
     return [];
   },
+
+  async listCategoriasManejo(empresaId) {
+    return [];
+  },
+
+  async listFornecedores(empresaId) {
+    return [];
+  },
+
+  async listOptionsSources(sources) {
+    return {};
+  },
 };
 
 export default loteRepository;
