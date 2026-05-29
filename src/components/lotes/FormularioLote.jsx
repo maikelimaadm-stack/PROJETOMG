@@ -156,13 +156,13 @@ export default function FormularioLote({ onSubmit, onCancel, onSettingsClick, on
   const { data: categoriasManejo = [] } = useQuery({
     queryKey: ["categorias-manejo", empresaSelecionadaId],
     queryFn: () => loteRepository.listCategoriasManejo(empresaSelecionadaId),
-    enabled: !!empresaSelecionadaId
+    initialData: []
   });
 
   const { data: fornecedores = [] } = useQuery({
     queryKey: ["fornecedores", empresaSelecionadaId],
     queryFn: () => loteRepository.listFornecedores(empresaSelecionadaId),
-    enabled: !!empresaSelecionadaId
+    initialData: []
   });
 
   const { data: camposPersonalizados = [] } = useQuery({

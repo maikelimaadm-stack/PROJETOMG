@@ -42,21 +42,18 @@ export default function CadastroLotes() {
   const { data: lotes = [] } = useQuery({
     queryKey: ['lotes-cadastro', empresaSelecionadaId],
     queryFn: () => loteRepository.list({ empresaId: empresaSelecionadaId, incluirSistema: false }),
-    enabled: !!empresaSelecionadaId,
     initialData: []
   });
 
   const { data: areas = [] } = useQuery({
     queryKey: ['areas', empresaSelecionadaId],
     queryFn: () => loteRepository.listAreasAtivas(empresaSelecionadaId),
-    enabled: !!empresaSelecionadaId,
     initialData: []
   });
 
   const { data: lotesComMovimentacoes = [] } = useQuery({
     queryKey: ['lotes-com-movimentacoes', empresaSelecionadaId],
     queryFn: () => loteRepository.listLotesComMovimentacoes(empresaSelecionadaId),
-    enabled: !!empresaSelecionadaId,
     initialData: []
   });
 
