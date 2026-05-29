@@ -53,7 +53,7 @@ export default function VisualCalculationBuilder({ value = [], fields = [], onCh
                 </SelectContent>
               </Select>
             </div>
-            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 text-red-600 shrink-0" disabled={items.length <= 2} onClick={() => removeItem(index)}>
+            <Button type="button" variant="ghost" size="icon" className="h-6 w-6 shrink-0 text-[hsl(var(--foreground))]" disabled={items.length <= 2} onClick={() => removeItem(index)}>
               <X className="w-3.5 h-3.5" />
             </Button>
           </div>
