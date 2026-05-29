@@ -1,9 +1,9 @@
 import { base44 } from '@/api/base44Client';
 import empLocalStore from './empLocalStore';
-import { EMP_TEST_RECORDS } from './empSeedData';
+import { buildAllTestRecords, EMP_SEED_TARGET_COUNT } from './empSeedData';
 
 const hasAppId = () => Boolean(import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID);
-const REMOTE_SEED_FLAG = 'emp_remote_seeded_v1';
+const REMOTE_SEED_FLAG = 'emp_remote_seeded_v2';
 
 const useRemoteApi = async () => {
   if (!hasAppId()) return false;
@@ -22,20 +22,32 @@ const isRemoteAvailable = () => {
 };
 
 const seedRemoteIfEmpty = async () => {
-  const records = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
-  if (records.length > 0) return records;
-  if (localStorage.getItem(REMOTE_SEED_FLAG) === '1') return records;
+  let records = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+  const templates = buildAllTestRecords();
+  const seedVersion = localStorage.getItem(REMOTE_SEED_FLAG);
 
-  for (const record of EMP_TEST_RECORDS) {
-    const all = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
-    const maxCodigo = all.length > 0 ? (all[0].codigo_empresa || 0) : 0;
+  if (seedVersion === 'v2' && records.length >= EMP_SEED_TARGET_COUNT) {
+    return records;
+  }
+
+  if (records.length >= EMP_SEED_TARGET_COUNT) {
+    localStorage.setItem(REMOTE_SEED_FLAG, 'v2');
+    return records;
+  }
+
+  const startAt = records.length;
+  const toCreate = templates.slice(startAt, EMP_SEED_TARGET_COUNT);
+
+  for (const record of toCreate) {
+    const latest = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
+    const maxCodigo = latest.length > 0 ? (latest[0].codigo_empresa || 0) : 0;
     await base44.entities.EmpresaCadastro.create({
       ...record,
       codigo_empresa: Number(maxCodigo) + 1
     });
   }
 
-  localStorage.setItem(REMOTE_SEED_FLAG, '1');
+  localStorage.setItem(REMOTE_SEED_FLAG, 'v2');
   return base44.entities.EmpresaCadastro.list('-codigo_empresa');
 };
 
