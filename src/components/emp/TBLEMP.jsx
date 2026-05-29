@@ -253,6 +253,27 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
         .emp-table-scroll::-webkit-scrollbar-corner {
           background: #f1f5f9;
         }
+        .emp-table-grid {
+          border-collapse: collapse;
+          border-spacing: 0;
+        }
+        .emp-table-grid th,
+        .emp-table-grid td {
+          border: 1px solid #94a3b8 !important;
+          box-sizing: border-box;
+        }
+        .emp-table-grid thead th {
+          background-color: #ffffff;
+        }
+        .emp-table-grid tbody tr:nth-child(even) td {
+          background-color: #f3f4f6;
+        }
+        .emp-table-grid tbody tr:nth-child(odd) td {
+          background-color: #ffffff;
+        }
+        .emp-table-grid tbody tr:hover td {
+          background-color: #e5e7eb;
+        }
       `}</style>
       <Card className="h-full overflow-hidden rounded-none border-0 shadow-none">
         <CardContent className="h-full p-0 overflow-hidden rounded-none">
@@ -266,10 +287,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <Table
                 ref={tableRef}
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="!w-auto border-separate border-spacing-0 table-fixed select-none"
+                className="emp-table-grid !w-auto border-collapse table-fixed select-none"
               >
-                <TableHeader className="bg-white shadow-[0_1px_0_0_#d1d5db]">
-                  <TableRow className="bg-white hover:bg-white">
+                <TableHeader className="bg-white [&_tr]:border-0">
+                  <TableRow className="bg-white hover:bg-white border-0">
                     {colunasOrdenadas.map((col, colIndex) => {
                       const width = columnPixelWidths[col.id] || 160;
                       const isFrozen = colIndex < frozenColumnCount;
@@ -279,7 +300,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         <TableHead
                           key={col.id}
                           style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                          className={`group sticky top-0 align-middle text-slate-600 px-2 text-xs font-medium border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                          className={`group sticky top-0 align-middle text-slate-600 px-2 text-xs font-medium bg-white whitespace-nowrap h-7 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
                           <div className="block w-full h-full leading-7 whitespace-nowrap overflow-hidden text-ellipsis">{col.label}</div>
@@ -295,14 +316,14 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                 </TableHeader>
                 <TableBody>
                   {empresasOrdenadas.length === 0
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Nenhuma empresa encontrada</TableCell></TableRow>
+                    ? <TableRow className="border-0"><TableCell colSpan={colunasOrdenadas.length} className="text-center py-8 text-xs text-slate-400">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasOrdenadas.map((emp, index) => (
-                      <TableRow key={emp.id} className={`${index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`} onClick={(e) => handleRowSelect(emp, e)} onDoubleClick={() => selectedItems.length <= 1 && onEdit(emp)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
+                      <TableRow key={emp.id} className={`border-0 hover:bg-transparent cursor-pointer select-none ${selectedItems.includes(emp.id) ? "emp-row-selected" : ""}`} onClick={(e) => handleRowSelect(emp, e)} onDoubleClick={() => selectedItems.length <= 1 && onEdit(emp)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden select-none px-2 ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${selectedItems.includes(emp.id) ? "font-bold" : ""} ${index % 2 === 0 ? "bg-gray-100 text-slate-500 border-gray-300" : "bg-white text-slate-500 border-gray-300"}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`py-1 text-xs align-middle whitespace-nowrap overflow-hidden select-none px-2 ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${selectedItems.includes(emp.id) ? "font-bold" : ""} text-slate-500`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
@@ -311,12 +332,12 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                     ))
                   }
                   {Object.keys(agregacoes).length > 0 && (
-                    <TableRow className="sticky bottom-0 z-30 bg-slate-200 font-medium shadow-[0_-1px_0_0_#d1d5db]">
+                    <TableRow className="sticky bottom-0 z-30 border-0 bg-slate-200 font-medium">
                       {colunasOrdenadas.map((col, ci) => {
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`h-5 px-2 py-0 text-[11px] leading-5 align-middle border-r border-b border-gray-300 whitespace-nowrap overflow-hidden text-ellipsis select-none bg-slate-200 text-slate-600 ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`h-5 px-2 py-0 text-[11px] leading-5 align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none bg-slate-200 text-slate-600 ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
                             {agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                           </TableCell>
                         );
