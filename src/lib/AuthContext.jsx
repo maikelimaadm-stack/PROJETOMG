@@ -1,6 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { appParams } from '@/lib/app-params';
 
 const AuthContext = createContext();
 
@@ -23,16 +22,19 @@ export const AuthProvider = ({ children }) => {
       
       // First, check app public settings (with token if available)
       // This will tell us if auth is required, user not registered, etc.
+      const appId = import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID || "";
+      const serverUrl = import.meta.env.VITE_BASE44_SERVER_URL || "https://app.base44.com";
+      const token = import.meta.env.VITE_BASE44_TOKEN || "";
       const headers = {
-        'X-App-Id': appParams.appId
+        'X-App-Id': appId
       };
 
-      if (appParams.token) {
-        headers.Authorization = `Bearer ${appParams.token}`;
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
       }
       
       try {
-        const response = await fetch(`${appParams.serverUrl}/api/apps/public/prod/public-settings/by-id/${appParams.appId}`, {
+        const response = await fetch(`${serverUrl}/api/apps/public/prod/public-settings/by-id/${appId}`, {
           headers
         });
 
@@ -48,7 +50,7 @@ export const AuthProvider = ({ children }) => {
         setAppPublicSettings(publicSettings);
         
         // If we got the app public settings successfully, check if user is authenticated
-        if (appParams.token) {
+        if (token) {
           await checkUserAuth();
         } else {
           setIsLoadingAuth(false);

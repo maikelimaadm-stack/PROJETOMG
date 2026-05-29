@@ -1,10 +1,9 @@
 import { createClient } from '@base44/sdk';
-import { appParams } from '@/lib/app-params';
-import { applyDeleteGuards } from '@/lib/entityDeleteGuards';
-import { installTextNormalization } from '@/lib/textNormalization';
-import { installOfflineEntitySync } from '@/lib/offlineEntitySync';
 
-const { appId, serverUrl, token, functionsVersion } = appParams;
+const appId = import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID || "";
+const serverUrl = import.meta.env.VITE_BASE44_SERVER_URL || "https://app.base44.com";
+const token = import.meta.env.VITE_BASE44_TOKEN || "";
+const functionsVersion = "v3";
 
 const base44Client = createClient({
   appId,
@@ -13,9 +12,5 @@ const base44Client = createClient({
   functionsVersion,
   requiresAuth: false
 });
-
-installTextNormalization(base44Client);
-applyDeleteGuards(base44Client);
-installOfflineEntitySync(base44Client);
 
 export const base44 = base44Client;
