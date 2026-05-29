@@ -142,12 +142,13 @@ export default function FORMEMP({
 
   const renderCampoPersonalizado = (campo) => {
     const value = formData.campos_personalizados?.[campo.field_name] || "";
-    if (campo.tipo === "textarea") return <Textarea value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={campo.read_only || isReadOnly} className="text-xs uppercase bg-transparent px-1 min-h-[48px] border-0 rounded-none shadow-none focus-visible:ring-0" />;
+    const isDisabled = campo.read_only || isReadOnly;
+    if (campo.tipo === "textarea") return <Textarea value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} disabled={isDisabled} className="text-xs uppercase bg-transparent px-1 min-h-[48px] border-0 rounded-none shadow-none focus-visible:ring-0 [resize:none]" />;
     if (campo.tipo === "select" || campo.tipo === "option_list") {
       const opts = (campoEngine.getOptionsCampo ? campoEngine.getOptionsCampo(campo, {}) : []).map((o) => ({ id: String(o.value || o.label || ""), nome: String(o.label || o.value || "").toUpperCase() }));
-      return <AutocompleteGenerico items={opts} value={value} onChange={(v) => handleCustomChange(campo.field_name, v || "")} placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()} displayField="nome" searchFields={["nome"]} disabled={campo.read_only || isReadOnly} readOnly={campo.read_only || isReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1" />;
+      return <AutocompleteGenerico items={opts} value={value} onChange={(v) => handleCustomChange(campo.field_name, v || "")} placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()} displayField="nome" searchFields={["nome"]} disabled={isDisabled} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 [resize:none]" />;
     }
-    return <Input type={campo.tipo === "number" ? "number" : campo.tipo === "date" ? "date" : "text"} value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={campo.read_only || isReadOnly} className={inputClass} />;
+    return <Input type={campo.tipo === "number" ? "number" : campo.tipo === "date" ? "date" : "text"} value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} disabled={isDisabled} className={`${inputClass} [resize:none]`} />;
   };
 
   return (
@@ -175,11 +176,11 @@ export default function FORMEMP({
         />
 
         <div className="flex-1 min-h-0 overflow-y-auto pb-6 pr-2" style={{ scrollbarWidth: "thin", scrollbarColor: "#cbd5e1 transparent" }}>
-          <fieldset disabled={isReadOnly} className="border-0 p-0 m-0 min-w-0">
+          <div className="border-0 p-0 m-0 min-w-0">
             {/* Painel Principal - sempre visível */}
             <div className="px-4 md:px-8 py-2 max-w-[780px] space-y-1">
               <FL label="Razão Social" required error={errors.razao_social}>
-                <Input value={formData.razao_social} onChange={(e) => handleChange("razao_social", e.target.value)} placeholder="RAZÃO SOCIAL OU NOME COMPLETO" className={`${inputClass} uppercase`} />
+                <Input value={formData.razao_social} onChange={(e) => handleChange("razao_social", e.target.value)} placeholder="RAZÃO SOCIAL OU NOME COMPLETO" className={`${inputClass} uppercase`} disabled={isReadOnly} />
               </FL>
               <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1">
                 <label className="text-[12px] text-slate-600 text-right leading-none">Ativa:</label>
@@ -278,7 +279,7 @@ export default function FORMEMP({
               </>}
 
             </div>
-          </fieldset>
+          </div>
         </div>
       </form>
     </div>
