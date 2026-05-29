@@ -101,7 +101,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
                     className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1"
                     style={{ textTransform: "uppercase" }} />
                   
-                  <Button type="button" variant="outline" size="icon" onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className="h-[22px] w-8 rounded-none border-y-0 border-r-0 border-l border-slate-300 bg-green-500 hover:bg-green-600 text-white shadow-none" title="Anexar arquivo">
+                  <Button type="button" variant="outline" size="icon" onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className="h-[22px] w-8 rounded-none border-y-0 border-r-0 border-l border-slate-300 hover:bg-green-600 text-white shadow-none bg-[#082e54]" title="Anexar arquivo">
                     {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-4 h-4" />}
                   </Button>
                 </div>
