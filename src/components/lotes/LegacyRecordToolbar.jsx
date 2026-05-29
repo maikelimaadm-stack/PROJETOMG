@@ -100,7 +100,7 @@ export default function LegacyRecordToolbar({ title, operationLabel, badgeLabel 
         <span className="text-xs font-semibold text-black truncate min-w-0 flex-1">{title}</span>
         {operationLabel &&
         <span className="ml-auto text-[11px] font-bold text-black whitespace-nowrap">
-            {operationLabel}
+            {titleCase(operationLabel)}
           </span>
         }
       </div>
