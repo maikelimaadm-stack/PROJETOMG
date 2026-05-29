@@ -236,38 +236,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none">
-      <style>{`
-        .emp-table-scroll {
-          overflow-x: scroll;
-          overflow-y: scroll;
-          scrollbar-width: thin;
-          scrollbar-color: #64748b #e2e8f0;
-        }
-        .emp-table-track {
-          display: block;
-          width: max-content;
-          min-width: 100%;
-        }
-        .emp-table-scroll::-webkit-scrollbar {
-          width: 12px;
-          height: 12px;
-          display: block;
-        }
-        .emp-table-scroll::-webkit-scrollbar-track {
-          background: #e2e8f0;
-        }
-        .emp-table-scroll::-webkit-scrollbar-thumb {
-          background: #64748b;
-          border-radius: 6px;
-          border: 2px solid #e2e8f0;
-        }
-        .emp-table-scroll::-webkit-scrollbar-thumb:hover {
-          background: #475569;
-        }
-        .emp-table-scroll::-webkit-scrollbar-corner {
-          background: #e2e8f0;
-        }
-      `}</style>
       <Card className="h-full overflow-hidden rounded-none border-0 shadow-none">
         <CardContent className="h-full p-0 overflow-hidden rounded-none">
           <div className="relative h-full overflow-hidden flex flex-col">
@@ -275,10 +243,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               ref={scrollContainerRef}
               tabIndex={0}
               onKeyDown={handleTableKeyDown}
-              className="emp-table-scroll relative flex-1 min-h-0 w-full outline-none"
+              className="relative flex-1 min-h-0 w-full outline-none overflow-auto"
             >
               <div
-                className="emp-table-track"
+                className="block w-max min-w-full"
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
               >
               <Table
