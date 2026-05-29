@@ -46,6 +46,7 @@ export default function PAGEMP() {
       await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
       setShowForm(false);
       setEditingEmp(null);
+      setViewMode("table");
       toast.success("Empresa cadastrada!");
     }
   });
@@ -56,6 +57,7 @@ export default function PAGEMP() {
       await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
       setShowForm(false);
       setEditingEmp(null);
+      setViewMode("table");
       toast.success("Empresa atualizada!");
     }
   });

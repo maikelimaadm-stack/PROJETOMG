@@ -156,7 +156,7 @@ const DEFAULT_MENU = [
   title: "Cadastros",
   icon: "FolderOpen",
   submenu: [
-  { id: "cad-empresa", title: "Empresa", url: "Empresa" },
+  { id: "cad-empresa", title: "Cadastro de Empresas", url: "CadastroEmpresas" },
   { id: "cad-mapa", title: "Mapa - Areas/Pontos/Linhas", url: "MapaCadastro" },
   { id: "cad-safras", title: "Safras", url: "GerenciarSafras" },
   { id: "cad-fornecedores", title: "Fornecedores/Clientes", url: "Fornecedores" },
@@ -255,7 +255,7 @@ export default function Layout({ children, currentPageName }) {
   const [menuItems, setMenuItems] = useState(() => {
     const saved = localStorage.getItem('custom_menu');
     const menuVersion = localStorage.getItem('menu_version');
-    const CURRENT_VERSION = '2026-05-28-relatorio-gado-v1'; // Atualizar esta versão quando adicionar novos menus
+    const CURRENT_VERSION = '2026-05-29-cadastro-empresas-v1'; // Atualizar esta versão quando adicionar novos menus
 
     // Se não tem menu salvo ou a versão mudou, usa o DEFAULT_MENU
     if (!saved || menuVersion !== CURRENT_VERSION) {
