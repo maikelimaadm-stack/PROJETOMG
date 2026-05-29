@@ -36,8 +36,33 @@ export default function PAGEMP() {
     initialData: []
   });
 
-  const currentEmp = empresas[selectedIndex] || empresas[0] || null;
-  const selectedTableEmp = selectedTableItems.length === 1 ? empresas.find((e) => e.id === selectedTableItems[0]) : null;
+  const empresasFiltradasPainel = useMemo(() => {
+    const termo = String(searchTerm || "").toLowerCase().trim();
+    if (!termo) return empresas;
+    return empresas.filter((emp) => [
+      emp.codigo_empresa,
+      emp.razao_social,
+      emp.nome_fantasia,
+      emp.tipo_pessoa,
+      emp.cpf_cnpj,
+      emp.inscricao_estadual,
+      emp.telefone,
+      emp.whatsapp,
+      emp.email,
+      emp.cep,
+      emp.endereco,
+      emp.numero,
+      emp.bairro,
+      emp.cidade,
+      emp.estado,
+      emp.observacoes,
+      emp.status,
+      ...Object.values(emp.campos_personalizados || {})
+    ].some((value) => String(value || "").toLowerCase().includes(termo)));
+  }, [empresas, searchTerm]);
+
+  const currentEmp = empresasFiltradasPainel[selectedIndex] || empresasFiltradasPainel[0] || null;
+  const selectedTableEmp = selectedTableItems.length === 1 ? empresasFiltradasPainel.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = false;
 
   const createMutation = useMutation({
@@ -102,10 +127,24 @@ export default function PAGEMP() {
   const handleRequestDelete = (ids) => setDeleteState({ open: true, ids: Array.isArray(ids) ? ids : [ids] });
   const handleOpenConfigCampos = () => { setShowConfigCampos(true); };
 
+  useEffect(() => {
+    if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
+    if (empresasFiltradasPainel.length === 0) { setSelectedIndex(0); return; }
+    const currentFilteredIndex = editingEmp?.id ? empresasFiltradasPainel.findIndex((item) => item.id === editingEmp.id) : -1;
+    if (currentFilteredIndex >= 0) {
+      if (selectedIndex !== currentFilteredIndex) setSelectedIndex(currentFilteredIndex);
+      return;
+    }
+    const nextIndex = Math.min(selectedIndex, empresasFiltradasPainel.length - 1);
+    setSelectedIndex(nextIndex);
+    setEditingEmp(empresasFiltradasPainel[nextIndex]);
+    setSelectedTableItems([empresasFiltradasPainel[nextIndex].id]);
+  }, [showForm, viewMode, empresasFiltradasPainel, editingEmp?.id, editingEmp?._isDuplicate, selectedIndex]);
+
   const handleTableSelectionChange = useCallback((ids) => {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
-    if (ids.length === 1) { const i = empresas.findIndex((e) => e.id === ids[0]); if (i >= 0) setSelectedIndex(i); }
-  }, [empresas]);
+    if (ids.length === 1) { const i = empresasFiltradasPainel.findIndex((e) => e.id === ids[0]); if (i >= 0) setSelectedIndex(i); }
+  }, [empresasFiltradasPainel]);
 
   const handleToggleView = () => {
     if (showForm) { setShowForm(false); setEditingEmp(null); setViewMode("table"); return; }
@@ -119,9 +158,9 @@ export default function PAGEMP() {
 
   const navigateRecord = (index) => {
     if (!showForm) return;
-    const ni = Math.min(Math.max(index, 0), Math.max(empresas.length - 1, 0));
+    const ni = Math.min(Math.max(index, 0), Math.max(empresasFiltradasPainel.length - 1, 0));
     setSelectedIndex(ni);
-    if (empresas[ni]) { setEditingEmp(empresas[ni]); setSelectedTableItems([empresas[ni].id]); }
+    if (empresasFiltradasPainel[ni]) { setEditingEmp(empresasFiltradasPainel[ni]); setSelectedTableItems([empresasFiltradasPainel[ni].id]); }
   };
 
   const handleConfirmDelete = async () => {
@@ -178,7 +217,7 @@ export default function PAGEMP() {
               }}
               onSettingsClick={handleOpenConfigCampos}
               onToggleView={handleToggleView}
-              total={empresas.length} currentIndex={selectedIndex}
+              total={empresasFiltradasPainel.length} currentIndex={selectedIndex}
               onNew={handleNew}
               onFirst={() => navigateRecord(0)}
               onPrevious={() => navigateRecord(selectedIndex - 1)}
@@ -200,7 +239,7 @@ export default function PAGEMP() {
         <div className="min-w-0 flex-1 h-full overflow-hidden flex flex-col">
           <SankhyaListToolbar
             viewMode={viewMode}
-            total={empresas.length}
+            total={empresasFiltradasPainel.length}
             currentIndex={selectedIndex}
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
@@ -223,7 +262,7 @@ export default function PAGEMP() {
           />
           <TBLEMP
             key="tbl-emp"
-            empresas={empresas}
+            empresas={empresasFiltradasPainel}
             onEdit={handleEdit}
             showConfigColunas={showConfigColunas}
             setShowConfigColunas={setShowConfigColunas}
