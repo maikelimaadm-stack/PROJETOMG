@@ -17,10 +17,18 @@ const COLUNAS_BASE = [
   { id: "nome_fantasia", label: "Nome Fantasia", default: true, sortable: true, align: "left", width: 220 },
   { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "left", width: 80 },
   { id: "cpf_cnpj", label: "CPF/CNPJ", default: true, sortable: true, align: "left", width: 160 },
+  { id: "inscricao_estadual", label: "Inscrição Estadual", default: false, sortable: true, align: "left", width: 170 },
   { id: "telefone", label: "Telefone", default: true, sortable: true, align: "left", width: 130 },
+  { id: "whatsapp", label: "WhatsApp", default: false, sortable: true, align: "left", width: 140 },
   { id: "email", label: "E-mail", default: true, sortable: true, align: "left", width: 200 },
+  { id: "logo_url", label: "Logo", default: false, sortable: false, align: "left", width: 180 },
+  { id: "cep", label: "CEP", default: false, sortable: true, align: "left", width: 110 },
+  { id: "endereco", label: "Endereço", default: false, sortable: true, align: "left", width: 240 },
+  { id: "numero", label: "Número", default: false, sortable: true, align: "left", width: 100 },
+  { id: "bairro", label: "Bairro", default: false, sortable: true, align: "left", width: 150 },
   { id: "cidade", label: "Cidade", default: true, sortable: true, align: "left", width: 150 },
   { id: "estado", label: "UF", default: true, sortable: true, align: "left", width: 70 },
+  { id: "observacoes", label: "Observações", default: false, sortable: true, align: "left", width: 260 },
   { id: "status", label: "Status", default: true, sortable: true, align: "left", width: 90 },
 ];
 
@@ -69,7 +77,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     });
   }, [camposPersonalizados, layoutAggregationConfig]);
 
-  useEffect(() => { const customVisible = colunasDisponiveis.filter((c) => c.id.startsWith("custom:") && c.default).map((c) => c.id); setColunasVisiveis((p) => Array.from(new Set([...p, ...customVisible]))); setColunasOrdem((p) => { const merged = Array.from(new Set([...p, ...customVisible])); return merged.sort((a, b) => { const cA = colunasDisponiveis.find((c) => c.id === a); const cB = colunasDisponiveis.find((c) => c.id === b); return (cA?.ordem_tabela || 999) - (cB?.ordem_tabela || 999); }); }); }, [colunasDisponiveis]);
+  useEffect(() => { const defaultVisible = colunasDisponiveis.filter((c) => c.default).map((c) => c.id); const allColumnIds = colunasDisponiveis.map((c) => c.id); setColunasVisiveis((p) => Array.from(new Set([...p, ...defaultVisible]))); setColunasOrdem((p) => { const merged = Array.from(new Set([...p, ...allColumnIds])); return merged.sort((a, b) => { const cA = colunasDisponiveis.find((c) => c.id === a); const cB = colunasDisponiveis.find((c) => c.id === b); return (cA?.ordem_tabela || 999) - (cB?.ordem_tabela || 999); }); }); }, [colunasDisponiveis]);
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
@@ -102,10 +110,18 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     if (colId === "nome_fantasia") return emp.nome_fantasia || "-";
     if (colId === "tipo_pessoa") return emp.tipo_pessoa || "-";
     if (colId === "cpf_cnpj") return emp.cpf_cnpj || "-";
+    if (colId === "inscricao_estadual") return emp.inscricao_estadual || "-";
     if (colId === "telefone") return emp.telefone || "-";
+    if (colId === "whatsapp") return emp.whatsapp || "-";
     if (colId === "email") return emp.email || "-";
+    if (colId === "logo_url") return emp.logo_url || "-";
+    if (colId === "cep") return emp.cep || "-";
+    if (colId === "endereco") return emp.endereco || "-";
+    if (colId === "numero") return emp.numero || "-";
+    if (colId === "bairro") return emp.bairro || "-";
     if (colId === "cidade") return emp.cidade || "-";
     if (colId === "estado") return emp.estado || "-";
+    if (colId === "observacoes") return emp.observacoes || "-";
     if (colId === "status") return emp.status || "-";
     const col = colunasDisponiveis.find((c) => c.id === colId);
     return campoEngine.getValorCampo(emp, col || { id: colId }, {});

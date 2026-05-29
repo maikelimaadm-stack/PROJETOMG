@@ -7,7 +7,7 @@ import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, EyeOff, 
 import ConditionalVisibilityEditor from "./ConditionalVisibilityEditor.jsx";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 
-const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "compra", "identificacao", "observacoes", "campos_personalizados"];
+const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "compra", "identificacao", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = ["principal"];
 const DEFAULT_FIXED_VISIBLE_FIELD_IDS = ["status", "numero_lote"];
 const AGGREGATION_OPTIONS = [
