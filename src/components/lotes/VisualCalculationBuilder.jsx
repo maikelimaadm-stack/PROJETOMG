@@ -29,27 +29,27 @@ export default function VisualCalculationBuilder({ value = [], fields = [], onCh
 
   return (
     <>
-      {items.map((item, index) => (
-        <div key={index} className={fieldRow}>
+      {items.map((item, index) =>
+      <div key={index} className={fieldRow}>
           <label className={fieldLabel}>{index === 0 ? "Campo do cálculo" : `Operação ${index}`}:</label>
           <div className="flex items-center gap-1">
-            {index > 0 && (
-              <div className={`${fieldBox} w-[90px]`}>
+            {index > 0 &&
+          <div className={`${fieldBox} w-[90px]`}>
                 <Select value={item.operator || "+"} onValueChange={(operator) => updateItem(index, { operator })}>
                   <SelectTrigger className={triggerCls}><SelectValue /></SelectTrigger>
                   <SelectContent>{OPERACOES_CALCULO.map((op) => <SelectItem key={op.value} value={op.value} className="text-xs">{op.label}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-            )}
+          }
             <div className={`${fieldBox} flex-1 min-w-0`}>
               <Select value={item.field || "none"} onValueChange={(field) => updateItem(index, { field: field === "none" ? "" : field })}>
                 <SelectTrigger className={triggerCls}><SelectValue placeholder="SELECIONE O CAMPO" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none" className="text-xs">SELECIONE</SelectItem>
                   {fields.map((field) => {
-                    const duplicated = selectedFields.includes(field.value) && item.field !== field.value;
-                    return <SelectItem key={field.value} value={field.value} disabled={duplicated} className="text-xs uppercase">{field.label}</SelectItem>;
-                  })}
+                  const duplicated = selectedFields.includes(field.value) && item.field !== field.value;
+                  return <SelectItem key={field.value} value={field.value} disabled={duplicated} className="text-xs uppercase">{field.label}</SelectItem>;
+                })}
                 </SelectContent>
               </Select>
             </div>
@@ -58,11 +58,11 @@ export default function VisualCalculationBuilder({ value = [], fields = [], onCh
             </Button>
           </div>
         </div>
-      ))}
+      )}
 
       <div className={fieldRow}>
         <div />
-        <Button type="button" size="icon" className="px-4 py-2 inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border hover:text-accent-foreground h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-green-400 bg-green-500 hover:bg-green-600 text-white shadow-none" onClick={() => onChange([...items, { ...EMPTY_ITEM, operator: "+" }])} title="Adicionar campo">
+        <Button type="button" size="icon" className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border hover:text-accent-foreground h-7 w-8 rounded-none shadow-none border-slate-300 bg-white hover:bg-slate-50 text-black [0.5px]" onClick={() => onChange([...items, { ...EMPTY_ITEM, operator: "+" }])} title="Adicionar campo">
           <Plus className="w-4 h-4" />
         </Button>
       </div>
@@ -75,6 +75,6 @@ export default function VisualCalculationBuilder({ value = [], fields = [], onCh
           {hasDuplicateFields && <div className="text-[11px] text-red-600">Use cada campo apenas uma vez.</div>}
         </div>
       </div>
-    </>
-  );
+    </>);
+
 }
