@@ -295,8 +295,21 @@ input[type="number"] {
   height: 24px;
   padding: 0 6px;
   text-transform: none;
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #cbd5e1;
+  border-right: 1px solid #cbd5e1 !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-filtered {
+  color: #dc2626 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-filtered .emp-th-label,
+.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-filtered .emp-th-sort {
+  color: #dc2626 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-has-filter .emp-th-label-wrap {
+  padding-right: 26px;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-td {
@@ -348,25 +361,24 @@ input[type="number"] {
   line-height: 0;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-th-controls.emp-th-controls-pinned {
-  width: 47px;
-  flex-shrink: 0;
-}
-
 .cadastro-emp-scope .emp-table-pro .emp-th-controls .emp-header-ctrl {
   flex-shrink: 0;
   vertical-align: middle;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-filter-active,
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-filter-active:hover {
-  background: #ecfdf5 !important;
-  border-color: #6ee7b7 !important;
-  color: #047857 !important;
+.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn,
+.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn:hover {
+  background: #ffffff !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-filter-active svg {
-  color: #047857 !important;
+.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn:hover {
+  background: #fef2f2 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn svg {
+  color: #dc2626 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-resize-btn {

@@ -345,18 +345,19 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const handleRowTouch = (emp, event) => { const now = Date.now(); if (lastTapRef.current.id === emp.id && now - lastTapRef.current.time < 300) { event.preventDefault(); if (selectedItems.length <= 1) onEdit(emp); } else { handleRowSelect(emp, event); } lastTapRef.current = { id: emp.id, time: now }; };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
 
-  const renderSortIndicator = (colId) => {
+  const renderSortIndicator = (colId, filtered = false) => {
+    const tone = filtered ? "text-red-600 opacity-80" : "opacity-35";
     if (sortConfig.key !== colId) {
       return (
-        <span className="inline-flex flex-col ml-1 opacity-35 leading-none">
+        <span className={`emp-th-sort inline-flex flex-col ml-1 leading-none ${tone}`}>
           <ChevronUp className="w-2.5 h-2.5 -mb-1" />
           <ChevronDown className="w-2.5 h-2.5" />
         </span>
       );
     }
     return sortConfig.direction === "asc"
-      ? <ChevronUp className="w-3 h-3 ml-1 inline-block" />
-      : <ChevronDown className="w-3 h-3 ml-1 inline-block" />;
+      ? <ChevronUp className={`emp-th-sort w-3 h-3 ml-1 inline-block ${filtered ? "text-red-600" : ""}`} />
+      : <ChevronDown className={`emp-th-sort w-3 h-3 ml-1 inline-block ${filtered ? "text-red-600" : ""}`} />;
   };
 
   const getRowBgClass = (index, selected) => {
@@ -382,25 +383,14 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const colLabel = formatHeaderLabel(col);
     const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
 
-    const filterVisible = hasActiveFilter(colunaId) || menuFiltroAberto === colunaId;
-
     return (
       <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: normalizeRangeValoresForEdit(colunaId, [...getValoresFiltro(colunaId)]) } : { colunaId: null, valores: [] }); }}>
         <PopoverTrigger asChild>
           <button
             type="button"
-            className={`${EMP_HEADER_CTRL_BTN} emp-header-filter-btn ${hasActiveFilter(colunaId) ? "emp-header-filter-active" : ""} ${filterVisible ? "inline-flex" : "hidden group-hover:inline-flex"}`}
-            title={hasActiveFilter(colunaId) ? "Filtrar coluna (duplo clique limpa)" : "Filtrar coluna"}
+            className={`${EMP_HEADER_CTRL_BTN} emp-header-filter-btn hidden group-hover:inline-flex`}
+            title="Filtrar coluna"
             onClick={(e) => e.stopPropagation()}
-            onDoubleClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              if (!hasActiveFilter(colunaId)) return;
-              clearColumnFilter(colunaId);
-              setMenuFiltroAberto(null);
-              setBuscaFiltroMenu("");
-              setFiltroTemp({ colunaId: null, valores: [] });
-            }}
           >
             <Filter className="w-3 h-3" />
           </button>
@@ -572,35 +562,45 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const width = columnPixelWidths[col.id] || 160;
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
+                      const isColFiltered = hasActiveFilter(col.id);
                       const filterControl = renderFilterControl(col.id);
-                      const colFilterPinned = hasActiveFilter(col.id) || menuFiltroAberto === col.id;
                       return (
                         <TableHead
                           key={col.id}
                           style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                          className={`emp-th group sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                          className={`emp-th group sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)} ${isColFiltered ? "emp-th-filtered emp-th-has-filter" : ""}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
-                          <div className={`flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-                            <span className="truncate font-semibold">{formatHeaderLabel(col)}</span>
-                            {renderSortIndicator(col.id)}
+                          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+                            <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
+                            {renderSortIndicator(col.id, isColFiltered)}
                           </div>
                           {filterControl && (
                             <div
-                              className={`emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 ${colFilterPinned ? "emp-th-controls-pinned" : ""}`}
+                              className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
                             >
+                              {isColFiltered && (
+                                <button
+                                  type="button"
+                                  className={`${EMP_HEADER_CTRL_BTN} emp-header-clear-filter-btn inline-flex`}
+                                  title={`Limpar filtro de '${formatHeaderLabel(col)}'`}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    clearColumnFilter(col.id);
+                                    setMenuFiltroAberto(null);
+                                    setBuscaFiltroMenu("");
+                                    setFiltroTemp({ colunaId: null, valores: [] });
+                                  }}
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              )}
                               {filterControl}
                               <button
                                 type="button"
-                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${
-                                  isResizing
-                                    ? "inline-flex emp-header-resize-active"
-                                    : colFilterPinned
-                                      ? "inline-flex invisible pointer-events-none group-hover:visible group-hover:pointer-events-auto"
-                                      : "hidden group-hover:inline-flex"
-                                }`}
+                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${isResizing ? "inline-flex emp-header-resize-active" : "hidden group-hover:inline-flex"}`}
                                 onMouseDown={(e) => startDragResize(e, col)}
                                 onTouchStart={(e) => startDragResize(e, col)}
                                 onClick={(e) => e.stopPropagation()}
