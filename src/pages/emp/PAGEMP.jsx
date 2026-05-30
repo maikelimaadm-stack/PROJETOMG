@@ -28,6 +28,7 @@ export default function PAGEMP() {
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
   const [attachmentsRecord, setAttachmentsRecord] = useState(null);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
+  const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: empresas = [] } = useQuery({
@@ -61,8 +62,10 @@ export default function PAGEMP() {
     ].some((value) => String(value || "").toLowerCase().includes(termo)));
   }, [empresas, searchTerm]);
 
-  const currentEmp = empresasFiltradasPainel[selectedIndex] || empresasFiltradasPainel[0] || null;
-  const selectedTableEmp = selectedTableItems.length === 1 ? empresasFiltradasPainel.find((e) => e.id === selectedTableItems[0]) : null;
+  const empresasNavegacao = tableFilteredEmpresas ?? empresasFiltradasPainel;
+
+  const currentEmp = empresasNavegacao[selectedIndex] || empresasNavegacao[0] || null;
+  const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = false;
 
   const createMutation = useMutation({
@@ -99,7 +102,7 @@ export default function PAGEMP() {
   };
 
   const handleEdit = (emp) => {
-    const index = empresas.findIndex((e) => e.id === emp.id);
+    const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([emp.id]);
     setEditingEmp(emp);
@@ -129,28 +132,30 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
-    if (empresasFiltradasPainel.length === 0) { setSelectedIndex(0); return; }
-    const currentFilteredIndex = editingEmp?.id ? empresasFiltradasPainel.findIndex((item) => item.id === editingEmp.id) : -1;
+    if (empresasNavegacao.length === 0) { setSelectedIndex(0); return; }
+    const currentFilteredIndex = editingEmp?.id ? empresasNavegacao.findIndex((item) => item.id === editingEmp.id) : -1;
     if (currentFilteredIndex >= 0) {
       if (selectedIndex !== currentFilteredIndex) setSelectedIndex(currentFilteredIndex);
       return;
     }
-    const nextIndex = Math.min(selectedIndex, empresasFiltradasPainel.length - 1);
+    const nextIndex = Math.min(selectedIndex, empresasNavegacao.length - 1);
     setSelectedIndex(nextIndex);
-    setEditingEmp(empresasFiltradasPainel[nextIndex]);
-    setSelectedTableItems([empresasFiltradasPainel[nextIndex].id]);
-  }, [showForm, viewMode, empresasFiltradasPainel, editingEmp?.id, editingEmp?._isDuplicate, selectedIndex]);
+    setEditingEmp(empresasNavegacao[nextIndex]);
+    setSelectedTableItems([empresasNavegacao[nextIndex].id]);
+  }, [showForm, viewMode, empresasNavegacao, editingEmp?.id, editingEmp?._isDuplicate, selectedIndex]);
 
   const handleTableSelectionChange = useCallback((ids) => {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
-    if (ids.length === 1) { const i = empresasFiltradasPainel.findIndex((e) => e.id === ids[0]); if (i >= 0) setSelectedIndex(i); }
-  }, [empresasFiltradasPainel]);
+    if (ids.length === 1) { const i = empresasNavegacao.findIndex((e) => e.id === ids[0]); if (i >= 0) setSelectedIndex(i); }
+  }, [empresasNavegacao]);
 
   const handleToggleView = () => {
     if (showForm) { setShowForm(false); setEditingEmp(null); setViewMode("table"); return; }
     if (selectedTableItems.length > 1) return;
-    const emp = selectedTableEmp || currentEmp;
+    const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
     if (!emp) return;
+    const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
+    if (index >= 0) setSelectedIndex(index);
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
@@ -158,9 +163,9 @@ export default function PAGEMP() {
 
   const navigateRecord = (index) => {
     if (!showForm) return;
-    const ni = Math.min(Math.max(index, 0), Math.max(empresasFiltradasPainel.length - 1, 0));
+    const ni = Math.min(Math.max(index, 0), Math.max(empresasNavegacao.length - 1, 0));
     setSelectedIndex(ni);
-    if (empresasFiltradasPainel[ni]) { setEditingEmp(empresasFiltradasPainel[ni]); setSelectedTableItems([empresasFiltradasPainel[ni].id]); }
+    if (empresasNavegacao[ni]) { setEditingEmp(empresasNavegacao[ni]); setSelectedTableItems([empresasNavegacao[ni].id]); }
   };
 
   const handleConfirmDelete = async () => {
@@ -218,12 +223,12 @@ export default function PAGEMP() {
               }}
               onSettingsClick={handleOpenConfigCampos}
               onToggleView={handleToggleView}
-              total={empresasFiltradasPainel.length} currentIndex={selectedIndex}
+              total={empresasNavegacao.length} currentIndex={selectedIndex}
               onNew={handleNew}
               onFirst={() => navigateRecord(0)}
               onPrevious={() => navigateRecord(selectedIndex - 1)}
               onNext={() => navigateRecord(selectedIndex + 1)}
-              onLast={() => navigateRecord(empresas.length - 1)}
+              onLast={() => navigateRecord(empresasNavegacao.length - 1)}
               onDelete={() => editingEmp?.id && handleRequestDelete(editingEmp.id)}
               onDuplicate={() => editingEmp && handleDuplicate(editingEmp)}
               filterOpen={false} filterActive={false}
@@ -241,7 +246,7 @@ export default function PAGEMP() {
           <div className="flex-none shrink-0">
           <SankhyaListToolbar
             viewMode={viewMode}
-            total={empresasFiltradasPainel.length}
+            total={empresasNavegacao.length}
             currentIndex={selectedIndex}
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
@@ -273,6 +278,7 @@ export default function PAGEMP() {
             selectedRecordId={showForm ? editingEmp?.id : undefined}
             onSelectionChange={handleTableSelectionChange}
             onVisibleDataChange={setVisibleTableData}
+            onFilteredEmpresasChange={setTableFilteredEmpresas}
           />
         </div>
       </div>

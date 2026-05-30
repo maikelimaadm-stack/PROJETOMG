@@ -49,7 +49,7 @@ const formatHeaderLabel = (col) => {
   return label;
 };
 
-export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setShowConfigColunas, searchTerm = "", selectedRecordId, onSelectionChange, onVisibleDataChange }) {
+export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setShowConfigColunas, searchTerm = "", selectedRecordId, onSelectionChange, onVisibleDataChange, onFilteredEmpresasChange }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codigo_empresa", direction: "asc" });
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
@@ -333,6 +333,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     });
     return sorted;
   }, [empresasFiltradas, sortConfig]);
+
+  useEffect(() => {
+    onFilteredEmpresasChange?.(empresasOrdenadas);
+  }, [empresasOrdenadas, onFilteredEmpresasChange]);
 
   const handleSort = (key) => setSortConfig((p) => ({ key, direction: p.key === key && p.direction === "asc" ? "desc" : "asc" }));
 
