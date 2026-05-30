@@ -1,7 +1,8 @@
 import React from "react";
 import { Filter, List, Check, X, Paperclip, MoreHorizontal, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Pencil, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_COUNTER, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP, EMP_TOOLBAR_ICON_CLASS } from "@/components/emp/toolbars/empToolbarStyles";
+import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_COUNTER, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/components/emp/toolbars/empToolbarStyles";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
 
 const titleCase = (value) => String(value || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
@@ -11,7 +12,8 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
-const LABELED_BTN_CLASS = "w-auto px-2 gap-1 text-[11px] font-medium";
+const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[11px] font-medium";
+const NAV_BTN_CLASS = "emp-toolbar-nav-btn";
 
 export default function EmpRecordToolbar({
   title,
@@ -56,16 +58,16 @@ export default function EmpRecordToolbar({
     <div className="bg-white emp-toolbar shadow-none overflow-hidden">
       <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5 border-b border-sky-100">
         {onBack && (
-          <ToolbarBtn onClick={onBack} title="Voltar"><ChevronLeft className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
+          <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}
-        <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><List className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
+        <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
         <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
-          <Plus className={EMP_TOOLBAR_ICON_CLASS} />
+          <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
           <span>Novo</span>
         </ToolbarBtn>
         {onToggleFilter && (
           <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
-            <Filter className={EMP_TOOLBAR_ICON_CLASS} />
+            <EmpToolbarIcon icon={Filter} />
             {filterActive && (
               <span onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }} className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-white text-red-600 border border-red-500 text-[10px] leading-[12px] font-bold">×</span>
             )}
@@ -73,38 +75,38 @@ export default function EmpRecordToolbar({
         )}
         {showEditAction && (
           <ToolbarBtn onClick={onEditRecord} className={LABELED_BTN_CLASS} title="Editar">
-            <Pencil className={EMP_TOOLBAR_ICON_CLASS} />
+            <EmpToolbarIcon icon={Pencil} />
             <span>Editar</span>
           </ToolbarBtn>
         )}
         {showDeleteDuplicateActions && (
           <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} disabled={!canNavigate} title="Excluir">
-            <Trash2 className={EMP_TOOLBAR_ICON_CLASS} />
+            <EmpToolbarIcon icon={Trash2} />
             <span>Excluir</span>
           </ToolbarBtn>
         )}
         {showDeleteDuplicateActions && (
           <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} disabled={!canNavigate} title="Duplicar">
-            <Copy className={EMP_TOOLBAR_ICON_CLASS} />
+            <EmpToolbarIcon icon={Copy} />
             <span>Duplicar</span>
           </ToolbarBtn>
         )}
         {showRecordNavigation && (
           <div className="flex items-center gap-1 shrink-0">
-            <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} title="Primeiro"><ChevronsLeft className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
-            <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} title="Anterior"><ChevronLeft className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
-            <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} title="Próximo"><ChevronRight className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
-            <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} title="Último"><ChevronsRight className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
+            <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Primeiro"><EmpToolbarIcon icon={ChevronsLeft} nav /></ToolbarBtn>
+            <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Anterior"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
+            <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Próximo"><EmpToolbarIcon icon={ChevronRight} nav /></ToolbarBtn>
+            <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Último"><EmpToolbarIcon icon={ChevronsRight} nav /></ToolbarBtn>
           </div>
         )}
         {showSaveActions && (
           <>
             <ToolbarBtn onClick={onSave} className={LABELED_BTN_CLASS} title="Salvar">
-              <Check className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
               <span>Salvar</span>
             </ToolbarBtn>
             <ToolbarBtn onClick={onCancel} className={LABELED_BTN_CLASS} title="Descartar">
-              <X className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={X} />
               <span>Cancelar</span>
             </ToolbarBtn>
           </>
@@ -119,13 +121,13 @@ export default function EmpRecordToolbar({
           )}
           {showUtilityActions && (
             <ToolbarBtn onClick={onAttachClick} disabled={attachDisabled} title={attachDisabled ? "Salve o registro antes de anexar" : "Anexos"}>
-              <Paperclip className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={Paperclip} />
             </ToolbarBtn>
           )}
           {showUtilityActions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções"><MoreHorizontal className={EMP_TOOLBAR_ICON_CLASS} /></button>
+                <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções"><EmpToolbarIcon icon={MoreHorizontal} /></button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 rounded-md p-1">
                 <DropdownMenuItem onClick={onLayoutConfigClick} disabled={!onLayoutConfigClick} className="h-8 cursor-pointer gap-2 text-xs px-2">Layout do formulário</DropdownMenuItem>

@@ -588,20 +588,42 @@ input[type="number"] {
   width: 22px !important;
 }
 
-.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto {
-  padding-left: 5px !important;
-  padding-right: 5px !important;
-  gap: 2px !important;
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-labeled {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  gap: 4px !important;
 }
 
-.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn svg {
-  width: 13px !important;
-  height: 13px !important;
+.cadastro-emp-scope .emp-toolbar-action-icon {
+  width: 14px !important;
+  height: 14px !important;
 }
 
-.cadastro-emp-scope .emp-toolbar-btn svg {
+.cadastro-emp-scope .emp-toolbar-nav-icon {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn svg.emp-toolbar-action-icon {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-nav-btn svg,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn svg.emp-toolbar-nav-icon {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn svg.emp-toolbar-action-icon {
   color: #5b6b80 !important;
   stroke: #5b6b80 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn:hover:not(:disabled) svg.emp-toolbar-action-icon {
+  color: #475569 !important;
+  stroke: #475569 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-counter {

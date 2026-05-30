@@ -13,7 +13,9 @@ export const EMP_TOOLBAR_SEARCH_INPUT =
 export const EMP_TOOLBAR_COUNTER =
   `emp-toolbar-counter inline-flex h-[22px] w-auto min-w-[2rem] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-medium tabular-nums text-[#5b6b80]`;
 
-export const EMP_TOOLBAR_ICON_CLASS = "w-3 h-3 shrink-0";
+export const EMP_TOOLBAR_ICON_CLASS = "emp-toolbar-action-icon shrink-0";
+
+export const EMP_TOOLBAR_NAV_ICON_CLASS = "emp-toolbar-nav-icon shrink-0";
 
 /** Botões compactos do cabeçalho — mesmo visual da toolbar, tamanho 22px */
 export const EMP_HEADER_CTRL_BTN =

@@ -1,7 +1,8 @@
 import React from "react";
 import { Filter, List, Table, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Search, Paperclip, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_COUNTER, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP, EMP_TOOLBAR_ICON_CLASS } from "@/components/emp/toolbars/empToolbarStyles";
+import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_COUNTER, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/components/emp/toolbars/empToolbarStyles";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
 
 const titleCase = (value) => String(value || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
@@ -11,7 +12,8 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
-const LABELED_BTN_CLASS = "w-auto px-2 gap-1 text-[11px] font-medium";
+const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[11px] font-medium";
+const NAV_BTN_CLASS = "emp-toolbar-nav-btn";
 
 export default function EmpListToolbar({
   viewMode = "table",
@@ -58,7 +60,7 @@ export default function EmpListToolbar({
         <div className="flex items-center gap-1.5 shrink-0">
           {onBack && (
             <ToolbarBtn onClick={onBack} title="Voltar">
-              <ChevronLeft className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={ChevronLeft} nav />
             </ToolbarBtn>
           )}
           <ToolbarBtn
@@ -66,15 +68,15 @@ export default function EmpListToolbar({
             disabled={toggleViewDisabled}
             title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
           >
-            {viewMode === "table" ? <List className={EMP_TOOLBAR_ICON_CLASS} /> : <Table className={EMP_TOOLBAR_ICON_CLASS} />}
+            {viewMode === "table" ? <EmpToolbarIcon icon={List} /> : <EmpToolbarIcon icon={Table} />}
           </ToolbarBtn>
           <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
-            <Plus className={EMP_TOOLBAR_ICON_CLASS} />
+            <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
             <span>Novo</span>
           </ToolbarBtn>
           {onToggleFilter && (
             <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
-              <Filter className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={Filter} />
               {filterActive && (
                 <span
                   onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }}
@@ -87,21 +89,21 @@ export default function EmpListToolbar({
           )}
           {showRecordNavigation && (
             <div className="flex items-center gap-1 shrink-0">
-              <ToolbarBtn onClick={onFirst} disabled={!canNavigate} title="Primeiro"><ChevronsLeft className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
-              <ToolbarBtn onClick={onPrevious} disabled={!canNavigate} title="Anterior"><ChevronLeft className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
-              <ToolbarBtn onClick={onNext} disabled={!canNavigate} title="Próximo"><ChevronRight className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
-              <ToolbarBtn onClick={onLast} disabled={!canNavigate} title="Último"><ChevronsRight className={EMP_TOOLBAR_ICON_CLASS} /></ToolbarBtn>
+              <ToolbarBtn onClick={onFirst} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Primeiro"><EmpToolbarIcon icon={ChevronsLeft} nav /></ToolbarBtn>
+              <ToolbarBtn onClick={onPrevious} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Anterior"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
+              <ToolbarBtn onClick={onNext} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Próximo"><EmpToolbarIcon icon={ChevronRight} nav /></ToolbarBtn>
+              <ToolbarBtn onClick={onLast} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Último"><EmpToolbarIcon icon={ChevronsRight} nav /></ToolbarBtn>
             </div>
           )}
           {showDeleteSelectionAction && (
             <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} title="Excluir selecionados">
-              <Trash2 className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={Trash2} />
               <span>Excluir</span>
             </ToolbarBtn>
           )}
           {showDuplicateSelectionAction && (
             <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} title="Duplicar">
-              <Copy className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={Copy} />
               <span>Duplicar</span>
             </ToolbarBtn>
           )}
@@ -121,25 +123,25 @@ export default function EmpListToolbar({
           )}
           {showUtilityActions && (
             <ToolbarBtn onClick={onAttachClick} disabled={attachDisabled} title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}>
-              <Paperclip className={EMP_TOOLBAR_ICON_CLASS} />
+              <EmpToolbarIcon icon={Paperclip} />
             </ToolbarBtn>
           )}
           {showUtilityActions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções">
-                  <MoreHorizontal className={EMP_TOOLBAR_ICON_CLASS} />
+                  <EmpToolbarIcon icon={MoreHorizontal} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 rounded-md p-1">
                 <DropdownMenuItem onClick={onConfigColumns} disabled={!onConfigColumns} className="h-8 cursor-pointer gap-2 text-xs px-2">Configurar colunas</DropdownMenuItem>
                 <div className="flex items-center">
                   <DropdownMenuItem onClick={onExportExcel} disabled={!onExportExcel} className="h-8 flex-1 cursor-pointer gap-2 text-xs px-2">Exportar Excel</DropdownMenuItem>
-                  <button type="button" onClick={onConfigExportExcel} disabled={!onConfigExportExcel} className="h-8 w-8 flex items-center justify-center text-[#082e54] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar Excel"><MoreHorizontal className={EMP_TOOLBAR_ICON_CLASS} /></button>
+                  <button type="button" onClick={onConfigExportExcel} disabled={!onConfigExportExcel} className="h-8 w-8 flex items-center justify-center text-[#082e54] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar Excel"><EmpToolbarIcon icon={MoreHorizontal} /></button>
                 </div>
                 <div className="flex items-center">
                   <DropdownMenuItem onClick={onExportPdf} disabled={!onExportPdf} className="h-8 flex-1 cursor-pointer gap-2 text-xs px-2">Exportar PDF</DropdownMenuItem>
-                  <button type="button" onClick={onConfigExportPdf} disabled={!onConfigExportPdf} className="h-8 w-8 flex items-center justify-center text-[#082e54] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar PDF"><MoreHorizontal className={EMP_TOOLBAR_ICON_CLASS} /></button>
+                  <button type="button" onClick={onConfigExportPdf} disabled={!onConfigExportPdf} className="h-8 w-8 flex items-center justify-center text-[#082e54] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar PDF"><EmpToolbarIcon icon={MoreHorizontal} /></button>
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
