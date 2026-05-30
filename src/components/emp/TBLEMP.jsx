@@ -40,7 +40,8 @@ const VISIBLE_KEY = "emp_col_visiveis";
 const ORDER_KEY = "emp_col_ordem";
 const AGGR_KEY = "emp_table_aggregation_config";
 const PAGE_SIZE_KEY = "emp_table_page_size";
-const ROW_DBLCLICK_MS = 480;
+const ROW_DBLCLICK_OPEN_MS = 260;
+const ROW_DBLCLICK_PAIR_MS = 500;
 const MIN_COL_WIDTH = 80;
 const MAX_AUTO_FIT_WIDTH = 520;
 const AUTO_FIT_MEASURE_LIMIT = 300;
@@ -69,7 +70,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const [colunasVisiveis, setColunasVisiveis] = useState(() => { const s = localStorage.getItem(VISIBLE_KEY); if (s) { try { return Array.from(new Set([...JSON.parse(s), ...COLUNAS_BASE.filter((c) => c.default).map((c) => c.id)])); } catch {} } return COLUNAS_BASE.filter((c) => c.default).map((c) => c.id); });
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
 
-  const lastRowClickRef = useRef({ id: null, time: 0 });
+  const lastRowClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const rowClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedItemsRef = useRef(selectedItems);
   const lastSelectedIdRef = useRef(null);
@@ -394,7 +395,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     if (selectedItems.includes(emp.id)) {
       setSelectedItems([]);
       lastSelectedIdRef.current = null;
-      rowClickSuppressRef.current = { id: emp.id, until: Date.now() + ROW_DBLCLICK_MS };
+      rowClickSuppressRef.current = { id: emp.id, until: Date.now() + ROW_DBLCLICK_PAIR_MS };
       return;
     }
     setSelectedItems([emp.id]);
@@ -413,14 +414,23 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     if (suppress.id === emp.id && now < suppress.until) return;
 
     const last = lastRowClickRef.current;
-    if (last.id === emp.id && last.time > 0 && now - last.time <= ROW_DBLCLICK_MS) {
-      lastRowClickRef.current = { id: null, time: 0 };
+    const interval = last.id === emp.id && last.time > 0 ? now - last.time : null;
+
+    if (interval !== null && interval <= ROW_DBLCLICK_PAIR_MS) {
+      lastRowClickRef.current = { id: null, time: 0, wasSelectedBefore: false };
       rowClickSuppressRef.current = { id: null, until: 0 };
-      if (selectedItemsRef.current.length <= 1) onEdit?.(emp);
+
+      if (!last.wasSelectedBefore && interval <= ROW_DBLCLICK_OPEN_MS) {
+        if (selectedItemsRef.current.length <= 1) onEdit?.(emp);
+        return;
+      }
+
+      handleRowSelect(emp, event);
       return;
     }
 
-    lastRowClickRef.current = { id: emp.id, time: now };
+    const wasSelectedBefore = selectedItemsRef.current.includes(emp.id);
+    lastRowClickRef.current = { id: emp.id, time: now, wasSelectedBefore };
 
     if (event?.shiftKey || event?.ctrlKey || event?.metaKey) {
       rowClickSuppressRef.current = { id: null, until: 0 };
