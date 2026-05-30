@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
@@ -239,7 +237,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const agregacoes = useMemo(() => campoEngine.calcularAgregacoes ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {}) : {}, [empresasOrdenadas, colunasOrdenadas]);
 
   const renderFilterControl = (colunaId) => {
-    const btnCls = `h-4 w-4 min-w-4 p-0 ${hasActiveFilter(colunaId) ? "text-emerald-700" : "text-[#082e54] hover:text-[#082e54]/80"}`;
+    const btnCls = `emp-header-ctrl-btn ${hasActiveFilter(colunaId) ? "is-active" : ""}`;
     const col = colunasDisponiveis.find((c) => c.id === colunaId);
     const opts = columnOptions[colunaId] || [];
     const ft = getColumnFilterType(col);
@@ -249,26 +247,47 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => valSel.includes(o));
     return (
       <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: [...getValoresFiltro(colunaId)] } : { colunaId: null, valores: [] }); }}>
-        <PopoverTrigger asChild><Button variant="ghost" size="icon" className={btnCls}><Filter className="w-3.5 h-3.5" /></Button></PopoverTrigger>
-        <PopoverContent align="end" side="bottom" sideOffset={4} className="w-[310px] p-0 z-[9999] rounded-none">
-          <div className="space-y-0.5 border-b px-1 py-1">
-            <button type="button" className="flex items-center w-full h-8 text-xs hover:bg-slate-100 rounded pr-2 pl-2" onClick={() => { handleSort(colunaId); setMenuFiltroAberto(null); }}><ArrowDownAZ className="w-4 h-4 mr-2" /> Menor para Maior</button>
-            <button type="button" className="flex items-center w-full px-2 h-8 text-xs hover:bg-slate-100 rounded" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); setMenuFiltroAberto(null); }}><ArrowUpZA className="w-4 h-4 mr-2" /> Maior para Menor</button>
-            <button type="button" className={`flex items-center w-full px-2 h-8 text-xs rounded ${hasActiveFilter(colunaId) ? "hover:bg-slate-100 text-slate-700" : "text-slate-300 cursor-not-allowed"}`} disabled={!hasActiveFilter(colunaId)} onClick={() => { clearColumnFilter(colunaId); setMenuFiltroAberto(null); }}><X className="w-4 h-4 mr-2" /> Limpar Filtro</button>
+        <PopoverTrigger asChild>
+          <button type="button" className={btnCls} title="Filtrar coluna" onClick={(e) => e.stopPropagation()}>
+            <Filter className="w-3 h-3" />
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover w-[310px] p-0 z-[9999] bg-white">
+          <div className="space-y-0.5 border-b border-sky-100 px-1 py-1">
+            <button type="button" className="emp-filter-menu-btn" onClick={() => { handleSort(colunaId); setMenuFiltroAberto(null); }}><ArrowDownAZ className="w-3.5 h-3.5 mr-2 shrink-0" /> Menor para Maior</button>
+            <button type="button" className="emp-filter-menu-btn" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); setMenuFiltroAberto(null); }}><ArrowUpZA className="w-3.5 h-3.5 mr-2 shrink-0" /> Maior para Menor</button>
+            <button type="button" className="emp-filter-menu-btn" disabled={!hasActiveFilter(colunaId)} onClick={() => { clearColumnFilter(colunaId); setMenuFiltroAberto(null); }}><X className="w-3.5 h-3.5 mr-2 shrink-0" /> Limpar Filtro</button>
           </div>
-          <div className="p-1 space-y-1">
-            {isRange ? <div className="space-y-1"><div className="text-[11px] font-semibold text-slate-500">Entre</div><div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1"><Input type={ft === "date" ? "date" : "number"} value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")} onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))} placeholder="De" className="h-[22px] text-xs rounded-none shadow-none focus-visible:ring-0 px-1" /><span className="text-xs text-slate-500">a</span><Input type={ft === "date" ? "date" : "number"} value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")} onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))} placeholder="Até" className="h-[22px] text-xs rounded-none shadow-none focus-visible:ring-0 px-1" /></div></div>
-              : <Input value={buscaFiltroMenu} onChange={(e) => setBuscaFiltroMenu(e.target.value)} placeholder="PESQUISAR" className="h-[22px] text-xs uppercase rounded-none shadow-none focus-visible:ring-0 px-1" />}
-            {ft === "list" && <div className="border border-slate-300 rounded-none max-h-64 overflow-y-auto p-1 bg-white">
-              <label className="flex h-8 items-center gap-2 px-2 py-0 text-xs text-slate-700 border-b border-slate-200 whitespace-nowrap overflow-hidden">
-                <Checkbox checked={allVisSel} onCheckedChange={(c) => setFiltroTemp((p) => { const rest = p.valores.filter((v) => !filteredOpts.includes(v)); return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest }; })} className="h-3.5 w-3.5 shrink-0" />
-                <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
-              </label>
-              {filteredOpts.map((opt) => <label key={opt} className="flex h-6 items-center gap-2 px-2 py-0 text-xs text-slate-700 hover:bg-slate-50 whitespace-nowrap overflow-hidden"><Checkbox checked={valSel.includes(opt)} onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))} className="h-3.5 w-3.5 shrink-0" /><span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{opt}</span></label>)}
-            </div>}
-            <div className="flex items-center justify-end gap-0 pt-2">
-              <Button variant="outline" size="icon" title="Aplicar filtro" className="h-8 w-10 rounded-none border-slate-200 text-slate-800 hover:bg-slate-50" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}><Check className="w-4 h-4" /></Button>
-              <Button variant="outline" size="icon" title="Cancelar" className="h-8 w-10 rounded-none -ml-px border-slate-200 text-slate-800 hover:bg-slate-50" onClick={() => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}><X className="w-4 h-4" /></Button>
+          <div className="p-2 space-y-1.5">
+            {isRange ? (
+              <div className="space-y-1">
+                <div className="text-[10px] font-semibold text-[#082e54]/70 uppercase tracking-wide">Entre</div>
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
+                  <input type={ft === "date" ? "date" : "number"} value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")} onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))} placeholder="De" className="emp-filter-input w-full" />
+                  <span className="text-[10px] text-slate-500">a</span>
+                  <input type={ft === "date" ? "date" : "number"} value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")} onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))} placeholder="Até" className="emp-filter-input w-full" />
+                </div>
+              </div>
+            ) : (
+              <input value={buscaFiltroMenu} onChange={(e) => setBuscaFiltroMenu(e.target.value)} placeholder="Pesquisar" className="emp-filter-input w-full uppercase" />
+            )}
+            {ft === "list" && (
+              <div className="emp-filter-list p-1">
+                <label className="emp-filter-list-header flex h-7 items-center gap-2 px-2 py-0 text-[11px] whitespace-nowrap overflow-hidden">
+                  <Checkbox checked={allVisSel} onCheckedChange={(c) => setFiltroTemp((p) => { const rest = p.valores.filter((v) => !filteredOpts.includes(v)); return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest }; })} className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]" />
+                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
+                </label>
+                {filteredOpts.map((opt) => (
+                  <label key={opt} className="emp-filter-list-item flex h-6 items-center gap-2 px-2 py-0 text-[11px] text-slate-700 whitespace-nowrap overflow-hidden cursor-pointer">
+                    <Checkbox checked={valSel.includes(opt)} onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))} className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]" />
+                    <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{opt}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <div className="flex items-center justify-end gap-1 pt-1">
+              <button type="button" title="Aplicar filtro" className="emp-filter-action-btn" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}><Check className="w-3.5 h-3.5" /></button>
+              <button type="button" title="Cancelar" className="emp-filter-action-btn" onClick={() => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}><X className="w-3.5 h-3.5" /></button>
             </div>
           </div>
         </PopoverContent>
@@ -330,11 +349,36 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                             <span className="truncate font-semibold">{formatHeaderLabel(col)}</span>
                             {renderSortIndicator(col.id)}
                           </div>
-                          {filterControl && <div className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-slate-50/95 pl-1 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`} onClick={(e) => e.stopPropagation()}>
-                            {filterControl}
-                            <button type="button" className={`h-5 w-4 flex items-center justify-center rounded cursor-col-resize ${isResizing ? "text-emerald-700 bg-emerald-100" : "text-[#082e54] hover:bg-slate-200"}`} onMouseDown={(e) => startDragResize(e, col)} onTouchStart={(e) => startDragResize(e, col)} onClick={(e) => e.stopPropagation()} title="Redimensionar"><GripVertical className="w-3.5 h-3.5" /></button>
-                          </div>}
-                          {isResizing && <div className="absolute top-0 right-0 h-full w-5 z-50 flex items-center justify-center cursor-col-resize bg-[#082e54]" onMouseDown={(e) => startDragResize(e, col)} onTouchStart={(e) => startDragResize(e, col)} onClick={(e) => { e.stopPropagation(); setResizeColumnId(null); }} onDoubleClick={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()}><GripVertical className="w-3.5 h-3.5 text-white" /></div>}
+                          {filterControl && (
+                            <div
+                              className={`emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {filterControl}
+                              <button
+                                type="button"
+                                className={`emp-header-ctrl-btn emp-header-resize-btn ${isResizing ? "is-resizing" : ""}`}
+                                onMouseDown={(e) => startDragResize(e, col)}
+                                onTouchStart={(e) => startDragResize(e, col)}
+                                onClick={(e) => e.stopPropagation()}
+                                title="Redimensionar"
+                              >
+                                <GripVertical className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                          {isResizing && (
+                            <div
+                              className="emp-header-resize-overlay absolute top-0 right-0 h-full w-[22px] z-50 flex items-center justify-center cursor-col-resize"
+                              onMouseDown={(e) => startDragResize(e, col)}
+                              onTouchStart={(e) => startDragResize(e, col)}
+                              onClick={(e) => { e.stopPropagation(); setResizeColumnId(null); }}
+                              onDoubleClick={(e) => e.stopPropagation()}
+                              onTouchEnd={(e) => e.stopPropagation()}
+                            >
+                              <GripVertical className="w-3 h-3" />
+                            </div>
+                          )}
                         </TableHead>
                       );
                     })}
@@ -383,7 +427,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th h-6 px-1.5 py-0 text-[11px] leading-6 align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th h-[18px] px-1.5 py-0 text-[10px] leading-[18px] align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
                             {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                           </TableCell>
                         );
