@@ -11,6 +11,8 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
+const LABELED_BTN_CLASS = "w-auto px-2 gap-1 text-[11px] font-medium";
+
 export default function EmpListToolbar({
   viewMode = "table",
   total = 0,
@@ -66,8 +68,9 @@ export default function EmpListToolbar({
           >
             {viewMode === "table" ? <List className="w-3.5 h-3.5" /> : <Table className="w-3.5 h-3.5" />}
           </ToolbarBtn>
-          <ToolbarBtn onClick={onNew} title="Novo registro">
+          <ToolbarBtn onClick={onNew} className={LABELED_BTN_CLASS} title="Novo registro">
             <Plus className="w-3.5 h-3.5" />
+            <span>Novo</span>
           </ToolbarBtn>
           {onToggleFilter && (
             <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
@@ -91,10 +94,16 @@ export default function EmpListToolbar({
             </>
           )}
           {showDeleteSelectionAction && (
-            <ToolbarBtn onClick={onDelete} title="Excluir selecionados"><Trash2 className="w-3.5 h-3.5" /></ToolbarBtn>
+            <ToolbarBtn onClick={onDelete} className={LABELED_BTN_CLASS} title="Excluir selecionados">
+              <Trash2 className="w-3.5 h-3.5" />
+              <span>Excluir</span>
+            </ToolbarBtn>
           )}
           {showDuplicateSelectionAction && (
-            <ToolbarBtn onClick={onDuplicate} title="Duplicar"><Copy className="w-3.5 h-3.5" /></ToolbarBtn>
+            <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} title="Duplicar">
+              <Copy className="w-3.5 h-3.5" />
+              <span>Duplicar</span>
+            </ToolbarBtn>
           )}
         </div>
 

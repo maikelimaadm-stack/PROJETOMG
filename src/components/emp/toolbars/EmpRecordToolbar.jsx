@@ -11,6 +11,8 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
+const LABELED_BTN_CLASS = "w-auto px-2 gap-1 text-[11px] font-medium";
+
 export default function EmpRecordToolbar({
   title,
   operationLabel,
@@ -56,7 +58,10 @@ export default function EmpRecordToolbar({
           <ToolbarBtn onClick={onBack} title="Voltar"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
         )}
         <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><List className="w-3.5 h-3.5" /></ToolbarBtn>
-        <ToolbarBtn onClick={onNew} title="Novo registro"><Plus className="w-3.5 h-3.5" /></ToolbarBtn>
+        <ToolbarBtn onClick={onNew} className={LABELED_BTN_CLASS} title="Novo registro">
+          <Plus className="w-3.5 h-3.5" />
+          <span>Novo</span>
+        </ToolbarBtn>
         {onToggleFilter && (
           <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
             <Filter className="w-3.5 h-3.5" />
@@ -69,13 +74,34 @@ export default function EmpRecordToolbar({
         <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} title="Anterior"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
         <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} title="Próximo"><ChevronRight className="w-3.5 h-3.5" /></ToolbarBtn>
         <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} title="Último"><ChevronsRight className="w-3.5 h-3.5" /></ToolbarBtn>
-        {showEditAction && <ToolbarBtn onClick={onEditRecord} title="Editar"><Pencil className="w-3.5 h-3.5" /></ToolbarBtn>}
-        {showDeleteDuplicateActions && <ToolbarBtn onClick={onDelete} disabled={!canNavigate} title="Excluir"><Trash2 className="w-3.5 h-3.5" /></ToolbarBtn>}
-        {showDeleteDuplicateActions && <ToolbarBtn onClick={onDuplicate} disabled={!canNavigate} title="Duplicar"><Copy className="w-3.5 h-3.5" /></ToolbarBtn>}
+        {showEditAction && (
+          <ToolbarBtn onClick={onEditRecord} className={LABELED_BTN_CLASS} title="Editar">
+            <Pencil className="w-3.5 h-3.5" />
+            <span>Editar</span>
+          </ToolbarBtn>
+        )}
+        {showDeleteDuplicateActions && (
+          <ToolbarBtn onClick={onDelete} className={LABELED_BTN_CLASS} disabled={!canNavigate} title="Excluir">
+            <Trash2 className="w-3.5 h-3.5" />
+            <span>Excluir</span>
+          </ToolbarBtn>
+        )}
+        {showDeleteDuplicateActions && (
+          <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} disabled={!canNavigate} title="Duplicar">
+            <Copy className="w-3.5 h-3.5" />
+            <span>Duplicar</span>
+          </ToolbarBtn>
+        )}
         {showSaveActions && (
           <>
-            <ToolbarBtn onClick={onSave} title="Salvar"><Check className="w-3.5 h-3.5" /></ToolbarBtn>
-            <ToolbarBtn onClick={onCancel} title="Descartar"><X className="w-3.5 h-3.5" /></ToolbarBtn>
+            <ToolbarBtn onClick={onSave} className={LABELED_BTN_CLASS} title="Salvar">
+              <Check className="w-3.5 h-3.5" />
+              <span>Salvar</span>
+            </ToolbarBtn>
+            <ToolbarBtn onClick={onCancel} className={LABELED_BTN_CLASS} title="Descartar">
+              <X className="w-3.5 h-3.5" />
+              <span>Cancelar</span>
+            </ToolbarBtn>
           </>
         )}
 
