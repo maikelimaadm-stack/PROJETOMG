@@ -639,28 +639,6 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
-.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
-  background: #b42318 !important;
-  border-color: #b42318 !important;
-  color: #ffffff !important;
-}
-
-.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete,
-.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete span,
-.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete svg,
-.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
-  background: #9f1f16 !important;
-  border-color: #9f1f16 !important;
-  color: #ffffff !important;
-  box-shadow: none !important;
-}
-
-
 .cadastro-emp-scope .emp-toolbar input::placeholder {
   color: #94a3b8;
 }
