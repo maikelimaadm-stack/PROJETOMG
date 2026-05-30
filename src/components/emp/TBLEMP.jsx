@@ -40,7 +40,7 @@ const VISIBLE_KEY = "emp_col_visiveis";
 const ORDER_KEY = "emp_col_ordem";
 const AGGR_KEY = "emp_table_aggregation_config";
 const PAGE_SIZE_KEY = "emp_table_page_size";
-const ROW_DBLCLICK_MS = 220;
+const ROW_DBLCLICK_MS = 480;
 const MIN_COL_WIDTH = 80;
 const MAX_AUTO_FIT_WIDTH = 520;
 const AUTO_FIT_MEASURE_LIMIT = 300;
@@ -69,6 +69,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const [colunasVisiveis, setColunasVisiveis] = useState(() => { const s = localStorage.getItem(VISIBLE_KEY); if (s) { try { return Array.from(new Set([...JSON.parse(s), ...COLUNAS_BASE.filter((c) => c.default).map((c) => c.id)])); } catch {} } return COLUNAS_BASE.filter((c) => c.default).map((c) => c.id); });
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
 
+  const lastRowClickRef = useRef({ id: null, time: 0 });
   const rowClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedItemsRef = useRef(selectedItems);
   const lastSelectedIdRef = useRef(null);
@@ -406,11 +407,20 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const handleRowClick = (emp, event) => {
     if (isRowInteractionTarget(event)) return;
-    if (event.detail > 1) return;
 
     const now = Date.now();
     const suppress = rowClickSuppressRef.current;
     if (suppress.id === emp.id && now < suppress.until) return;
+
+    const last = lastRowClickRef.current;
+    if (last.id === emp.id && last.time > 0 && now - last.time <= ROW_DBLCLICK_MS) {
+      lastRowClickRef.current = { id: null, time: 0 };
+      rowClickSuppressRef.current = { id: null, until: 0 };
+      if (selectedItemsRef.current.length <= 1) onEdit?.(emp);
+      return;
+    }
+
+    lastRowClickRef.current = { id: emp.id, time: now };
 
     if (event?.shiftKey || event?.ctrlKey || event?.metaKey) {
       rowClickSuppressRef.current = { id: null, until: 0 };
@@ -419,13 +429,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     }
 
     handleRowSelect(emp, event);
-  };
-
-  const handleRowDoubleClick = (emp, event) => {
-    if (isRowInteractionTarget(event)) return;
-    event.preventDefault();
-    rowClickSuppressRef.current = { id: null, until: 0 };
-    if (selectedItemsRef.current.length <= 1) onEdit?.(emp);
   };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
 
@@ -814,7 +817,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
                       return (
-                      <TableRow key={emp.id} className={`${rowClass} transition-colors border-0 cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)} onDoubleClick={(e) => handleRowDoubleClick(emp, e)}>
+                      <TableRow key={emp.id} className={`${rowClass} transition-colors border-0 cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;

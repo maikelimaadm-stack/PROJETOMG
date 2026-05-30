@@ -323,8 +323,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
-  background: #eaf2ff !important;
-  color: #1e3a5f !important;
+  background: #f0f2f5 !important;
+  color: #5b6b80 !important;
   font-weight: 600;
 }
 
@@ -685,48 +685,48 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination {
-  gap: 8px !important;
+  gap: 4px !important;
 }
 
-.cadastro-emp-scope .emp-table-pagination-nav:disabled .emp-table-pagination-nav-icon {
+.cadastro-emp-scope .emp-table-pagination-btn {
+  height: 20px !important;
+  min-height: 20px !important;
+  border: 1px solid #bae6fd !important;
+  border-radius: 5px !important;
+  color: #5b6b80 !important;
+}
+
+.cadastro-emp-scope .emp-table-pagination-btn svg {
+  width: 12px !important;
+  height: 12px !important;
+  color: #5b6b80 !important;
+  stroke: #5b6b80 !important;
+}
+
+.cadastro-emp-scope .emp-table-pagination-btn:disabled svg {
   color: #c5ced6 !important;
   stroke: #c5ced6 !important;
 }
 
-.cadastro-emp-scope .emp-table-pagination-nav:not(:disabled) .emp-table-pagination-nav-icon {
-  color: #4a5a68 !important;
-  stroke: #4a5a68 !important;
-}
-
-.cadastro-emp-scope .emp-table-pagination-nav:not(:disabled):hover .emp-table-pagination-nav-icon {
-  color: #334155 !important;
-  stroke: #334155 !important;
-}
-
-.cadastro-emp-scope .emp-table-pagination-page {
-  color: #4a5a68 !important;
-}
-
-.cadastro-emp-scope .emp-table-pagination-page-active {
-  border: 1px solid #6b9494 !important;
+.cadastro-emp-scope .emp-table-pagination-btn.emp-table-pagination-page-active {
+  border-color: #6b9494 !important;
   color: #6b9494 !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  background: #ffffff !important;
 }
 
-.cadastro-emp-scope .emp-table-pagination-page-active:hover {
+.cadastro-emp-scope .emp-table-pagination-btn.emp-table-pagination-page-active:hover {
   border-color: #5d8585 !important;
   color: #5d8585 !important;
-  background: transparent !important;
+  background: #f8fcfc !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-ellipsis {
-  color: #4a5a68 !important;
+  color: #5b6b80 !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-size {
-  height: 22px !important;
-  min-height: 22px !important;
+  height: 20px !important;
+  min-height: 20px !important;
   box-shadow: none !important;
 }
 
