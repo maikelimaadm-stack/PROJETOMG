@@ -292,6 +292,7 @@ input[type="number"] {
   background: #ffffff !important;
   padding: 8px;
   box-sizing: border-box;
+  overflow: visible !important;
 }
 
 .cadastro-emp-scope .emp-table-stage:-webkit-full-screen {

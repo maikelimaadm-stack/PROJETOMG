@@ -447,8 +447,12 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   }, []);
 
   useEffect(() => {
-    document.addEventListener("fullscreenchange", syncTableFullscreen);
-    return () => document.removeEventListener("fullscreenchange", syncTableFullscreen);
+    const onFullscreenChange = () => {
+      syncTableFullscreen();
+      requestAnimationFrame(() => updateFilterAnchorRect());
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, [syncTableFullscreen]);
 
   const handleToggleTableFullscreen = async () => {
@@ -492,11 +496,14 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const getFilterPanelRect = (colunaId) => {
     const el = filterAnchorRefs.current[colunaId];
-    if (!el) return null;
+    const stage = tableStageRef.current;
+    if (!el || !stage) return null;
     const rect = el.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
     const padding = 8;
-    const left = Math.min(Math.max(rect.right - FILTER_POPOVER_WIDTH, padding), window.innerWidth - FILTER_POPOVER_WIDTH - padding);
-    const top = rect.bottom + 6;
+    const maxLeft = stageRect.width - FILTER_POPOVER_WIDTH - padding;
+    const left = Math.min(Math.max(rect.right - FILTER_POPOVER_WIDTH - stageRect.left, padding), maxLeft);
+    const top = rect.bottom + 6 - stageRect.top;
     return { columnId: colunaId, left, top, width: rect.width, height: rect.height };
   };
 
@@ -549,7 +556,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
       closeFilterMenu();
     };
     const onKeyDown = (event) => {
-      if (event.key === "Escape") closeFilterMenu();
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        closeFilterMenu();
+      }
     };
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("touchstart", onPointerDown, { passive: true });
@@ -580,7 +590,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover fixed p-0 z-[9999]"
+        className="emp-filter-popover absolute p-0 z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
       >
           <div className="emp-filter-sort-section">
@@ -752,7 +762,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
-      <div ref={tableStageRef} className="emp-table-stage flex h-full min-h-0 flex-col overflow-hidden">
+      <div
+        ref={tableStageRef}
+        className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
+      >
       <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#eef1f4] bg-white shadow-none">
         <CardContent className="h-full min-h-0 p-0 overflow-hidden flex flex-col">
           <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -908,8 +921,8 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           </div>
         </CardContent>
       </Card>
+        {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>
-      {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       <EmpConfiguracaoColunasDialog open={showConfigColunas} onOpenChange={setShowConfigColunas} colunasDisponiveis={colunasDisponiveis} colunasVisiveis={colunasVisiveis} colunasOrdem={colunasOrdem} frozenColumnCount={frozenColumnCount} onChange={handleColumnLayoutChange} onResetDefault={handleResetColumnLayout} />
     </div>
   );
