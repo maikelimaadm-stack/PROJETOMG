@@ -2,13 +2,14 @@ import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "re
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
 import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+
+const FILTER_POPOVER_WIDTH = 272;
 
 const COLUNAS_BASE = [
   { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "right", width: 90 },
@@ -68,6 +69,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const tableRef = useRef(null);
   const dragRef = useRef(null);
   const filterAnchorRefs = useRef({});
+  const filterPanelRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
 
@@ -373,14 +375,18 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     setFiltroTemp({ colunaId: null, valores: [] });
   };
 
-  const openFilterMenu = (colunaId) => {
+  const getFilterPanelRect = (colunaId) => {
     const el = filterAnchorRefs.current[colunaId];
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      setFilterAnchorRect({ columnId: colunaId, left: rect.left, top: rect.top, width: rect.width, height: rect.height });
-    } else {
-      setFilterAnchorRect(null);
-    }
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    const padding = 8;
+    const left = Math.min(Math.max(rect.right - FILTER_POPOVER_WIDTH, padding), window.innerWidth - FILTER_POPOVER_WIDTH - padding);
+    const top = rect.bottom + 6;
+    return { columnId: colunaId, left, top, width: rect.width, height: rect.height };
+  };
+
+  const openFilterMenu = (colunaId) => {
+    setFilterAnchorRect(getFilterPanelRect(colunaId));
     setMenuFiltroAberto(colunaId);
     setBuscaFiltroMenu("");
     setFiltroTemp({ colunaId, valores: normalizeRangeValoresForEdit(colunaId, [...getValoresFiltro(colunaId)]) });
@@ -399,13 +405,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
       setFilterAnchorRect(null);
       return;
     }
-    const el = filterAnchorRefs.current[menuFiltroAberto];
-    if (!el) {
-      setFilterAnchorRect(null);
-      return;
-    }
-    const rect = el.getBoundingClientRect();
-    setFilterAnchorRect({ columnId: menuFiltroAberto, left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+    setFilterAnchorRect(getFilterPanelRect(menuFiltroAberto));
   };
 
   useLayoutEffect(() => {
@@ -425,6 +425,27 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     };
   }, [menuFiltroAberto, colunasOrdenadas, columnWidths, frozenColumnCount]);
 
+  useEffect(() => {
+    if (!menuFiltroAberto) return undefined;
+    const onPointerDown = (event) => {
+      const panel = filterPanelRef.current;
+      const anchor = filterAnchorRefs.current[menuFiltroAberto];
+      if (panel?.contains(event.target) || anchor?.contains(event.target)) return;
+      closeFilterMenu();
+    };
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") closeFilterMenu();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown, { passive: true });
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuFiltroAberto]);
+
   const renderFilterPopoverContent = (colunaId) => {
     const col = colunasDisponiveis.find((c) => c.id === colunaId);
     const opts = columnOptions[colunaId] || [];
@@ -442,15 +463,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const closeFilter = closeFilterMenu;
 
     return (
-      <PopoverContent
-        align="end"
-        side="bottom"
-        sideOffset={6}
-        collisionPadding={16}
-        avoidCollisions
-        onOpenAutoFocus={(e) => e.preventDefault()}
-        onCloseAutoFocus={(e) => e.preventDefault()}
-        className="emp-filter-popover p-0 z-[9999]"
+      <div
+        ref={filterPanelRef}
+        className="emp-filter-popover fixed p-0 z-[9999]"
+        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
       >
           <div className="emp-filter-sort-section">
             <button
@@ -571,7 +587,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               </button>
             </div>
           </div>
-      </PopoverContent>
+      </div>
     );
   };
 
@@ -743,23 +759,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           </div>
         </CardContent>
       </Card>
-      <Popover open={menuFiltroAberto !== null && filterAnchorRect?.columnId === menuFiltroAberto} onOpenChange={(open) => { if (!open) closeFilterMenu(); }}>
-        {filterAnchorRect && (
-          <PopoverAnchor asChild>
-            <div
-              aria-hidden
-              className="pointer-events-none fixed"
-              style={{
-                left: filterAnchorRect.left,
-                top: filterAnchorRect.top,
-                width: Math.max(filterAnchorRect.width, 1),
-                height: filterAnchorRect.height,
-              }}
-            />
-          </PopoverAnchor>
-        )}
-        {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
-      </Popover>
+      {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       <EmpConfiguracaoColunasDialog open={showConfigColunas} onOpenChange={setShowConfigColunas} colunasDisponiveis={colunasDisponiveis} colunasVisiveis={colunasVisiveis} colunasOrdem={colunasOrdem} frozenColumnCount={frozenColumnCount} onChange={handleColumnLayoutChange} onResetDefault={handleResetColumnLayout} />
     </div>
   );

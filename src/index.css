@@ -582,9 +582,12 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn {
   color: #082e54 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
   height: 28px !important;
   min-height: 28px !important;
-  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn svg {
