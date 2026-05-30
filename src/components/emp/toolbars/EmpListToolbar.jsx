@@ -67,8 +67,8 @@ export default function EmpListToolbar({
 
   return (
     <div className="bg-white erp-toolbar border-b border-[#E4E7EC]">
-      <div className="flex items-center gap-2 overflow-x-auto whitespace-nowrap px-3 py-2">
-        <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5">
+        <div className="flex items-center gap-1.5 shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <EmpToolbarButton variant="icon" icon={Menu} title="Menu" aria-label="Menu" />
@@ -178,7 +178,7 @@ export default function EmpListToolbar({
           )}
         </div>
 
-        <div className="ml-auto flex items-center gap-2 shrink-0">
+        <div className="ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
             <div className={ERP_TOOLBAR_SEARCH_WRAP}>
               <input
@@ -187,7 +187,7 @@ export default function EmpListToolbar({
                 placeholder="Pesquisar registros..."
                 className={ERP_TOOLBAR_SEARCH_INPUT}
               />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#667085] pointer-events-none" strokeWidth={1.75} />
+              <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#667085] pointer-events-none" strokeWidth={1.75} />
             </div>
           )}
           <div className={ERP_TOOLBAR_COUNTER}>
@@ -197,7 +197,7 @@ export default function EmpListToolbar({
       </div>
 
       {viewMode === "record" && (
-        <div className="h-9 flex items-center gap-2 bg-white border-t border-[#E4E7EC] px-3">
+        <div className="h-8 flex items-center gap-2 bg-white border-t border-[#E4E7EC] px-2">
           {recordLabel && (
             <span className="px-2 py-0.5 rounded border border-[#D0D5DD] bg-white text-[#344054] text-xs font-medium">{titleCase(recordLabel)}</span>
           )}
