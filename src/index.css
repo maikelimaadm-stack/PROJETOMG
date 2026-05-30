@@ -343,32 +343,39 @@ input[type="number"] {
   align-items: center;
   gap: 3px;
   padding-left: 4px;
-  background: linear-gradient(to left, #f0f7ff 85%, transparent);
+  background: transparent;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-ctrl-active {
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-btn.emp-header-filter-active,
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-btn.emp-header-filter-active:hover {
   background: #ecfdf5 !important;
   border-color: #6ee7b7 !important;
   color: #047857 !important;
 }
 
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-btn.emp-header-filter-active svg {
+  color: #047857 !important;
+}
+
 .cadastro-emp-scope .emp-table-pro .emp-header-resize-btn {
   cursor: col-resize;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #082e54 !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl-active-resize {
+.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn svg {
+  color: #082e54 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn:hover:not(.emp-header-resize-active) {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn.emp-header-resize-active {
   background: #e0f2fe !important;
   border-color: #38bdf8 !important;
-  color: #082e54 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-th-controls .emp-header-resize-btn:not(.emp-header-ctrl-active-resize) {
-  background: #ffffff !important;
-  border-color: #bae6fd !important;
-  color: #082e54 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-th-controls .emp-header-resize-btn:not(.emp-header-ctrl-active-resize) svg {
   color: #082e54 !important;
 }
 
@@ -543,8 +550,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn,
 .cadastro-emp-scope .emp-toolbar-search,
-.cadastro-emp-scope .emp-toolbar-counter,
-.cadastro-emp-scope .emp-header-ctrl {
+.cadastro-emp-scope .emp-toolbar-counter {
   border: 1px solid #bae6fd !important;
   border-radius: 5px !important;
 }

@@ -9,7 +9,7 @@ import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
 import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+import { EMP_HEADER_FILTER_BTN, EMP_HEADER_RESIZE_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const ACTIONS_COL_WIDTH = 28;
 
@@ -253,7 +253,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
         <PopoverTrigger asChild>
           <button
             type="button"
-            className={`${EMP_HEADER_CTRL_BTN} ${hasActiveFilter(colunaId) ? "emp-header-ctrl-active" : ""}`}
+            className={`${EMP_HEADER_FILTER_BTN} ${hasActiveFilter(colunaId) ? "emp-header-filter-active" : ""}`}
             title={hasActiveFilter(colunaId) ? "Filtrar coluna (duplo clique limpa)" : "Filtrar coluna"}
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={(e) => {
@@ -442,7 +442,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                               {filterControl}
                               <button
                                 type="button"
-                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${isResizing ? "emp-header-ctrl-active-resize" : ""}`}
+                                className={`${EMP_HEADER_RESIZE_BTN} ${isResizing ? "emp-header-resize-active" : ""}`}
                                 onMouseDown={(e) => startDragResize(e, col)}
                                 onTouchStart={(e) => startDragResize(e, col)}
                                 onClick={(e) => e.stopPropagation()}
