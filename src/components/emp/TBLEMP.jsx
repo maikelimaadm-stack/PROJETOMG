@@ -1,4 +1,4 @@
-import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -74,8 +74,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const rowClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedItemsRef = useRef(selectedItems);
   const lastSelectedIdRef = useRef(null);
+  const tableStageRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const tableRef = useRef(null);
+  const [isTableFullscreen, setIsTableFullscreen] = useState(false);
   const dragRef = useRef(null);
   const filterAnchorRefs = useRef({});
   const filterPanelRef = useRef(null);
@@ -440,7 +442,33 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
     handleRowSelect(emp, event);
   };
-  const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
+  const syncTableFullscreen = useCallback(() => {
+    setIsTableFullscreen(document.fullscreenElement === tableStageRef.current);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener("fullscreenchange", syncTableFullscreen);
+    return () => document.removeEventListener("fullscreenchange", syncTableFullscreen);
+  }, [syncTableFullscreen]);
+
+  const handleToggleTableFullscreen = async () => {
+    const el = tableStageRef.current;
+    if (!el) return;
+    try {
+      if (document.fullscreenElement === el) await document.exitFullscreen();
+      else await el.requestFullscreen();
+    } catch {
+      /* navegador sem suporte */
+    }
+  };
+
+  const handleTableKeyDown = (e) => {
+    if (e.key === "Escape" && document.fullscreenElement === tableStageRef.current) return;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
+      e.preventDefault();
+      setSelectedItems(empresasOrdenadas.map((e) => e.id));
+    }
+  };
 
   const renderFilterIcon = (active) => (
     active
@@ -724,9 +752,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
-      <Card className="emp-table-shell h-full overflow-hidden border border-[#eef1f4] bg-white shadow-none">
-        <CardContent className="h-full p-0 overflow-hidden flex flex-col">
-          <div className="relative h-full overflow-hidden flex flex-col">
+      <div ref={tableStageRef} className="emp-table-stage flex h-full min-h-0 flex-col overflow-hidden">
+      <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#eef1f4] bg-white shadow-none">
+        <CardContent className="h-full min-h-0 p-0 overflow-hidden flex flex-col">
+          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
               ref={scrollContainerRef}
               tabIndex={0}
@@ -873,10 +902,13 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               pageSize={pageSize}
               onPageChange={setCurrentPage}
               onPageSizeChange={setPageSize}
+              isFullscreen={isTableFullscreen}
+              onToggleFullscreen={handleToggleTableFullscreen}
             />
           </div>
         </CardContent>
       </Card>
+      </div>
       {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       <EmpConfiguracaoColunasDialog open={showConfigColunas} onOpenChange={setShowConfigColunas} colunasDisponiveis={colunasDisponiveis} colunasVisiveis={colunasVisiveis} colunasOrdem={colunasOrdem} frozenColumnCount={frozenColumnCount} onChange={handleColumnLayoutChange} onResetDefault={handleResetColumnLayout} />
     </div>

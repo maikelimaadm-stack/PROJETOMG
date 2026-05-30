@@ -1,7 +1,8 @@
 import React, { useMemo } from "react";
-import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
+import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { EMP_TOOLBAR_BORDER } from "@/components/emp/toolbars/empToolbarStyles";
+import { EmpFullscreenEnterIcon } from "@/components/emp/EmpTableFullscreenIcon";
 
 export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 
@@ -42,6 +43,8 @@ export default function EmpTablePagination({
   pageSize = 50,
   onPageChange,
   onPageSizeChange,
+  isFullscreen = false,
+  onToggleFullscreen,
 }) {
   const safePage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
   const pageItems = useMemo(() => getVisiblePages(safePage, totalPages), [safePage, totalPages]);
@@ -97,6 +100,19 @@ export default function EmpTablePagination({
           ))}
         </SelectContent>
       </Select>
+
+      {onToggleFullscreen && (
+        <PaginationBtn
+          type="button"
+          onClick={onToggleFullscreen}
+          className="emp-table-fullscreen-btn w-5 min-w-5 p-0"
+          title={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
+          aria-label={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
+          aria-pressed={isFullscreen}
+        >
+          {isFullscreen ? <X className="h-3 w-3 shrink-0" strokeWidth={2} /> : <EmpFullscreenEnterIcon />}
+        </PaginationBtn>
+      )}
     </div>
   );
 }
