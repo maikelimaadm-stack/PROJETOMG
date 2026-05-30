@@ -5,6 +5,7 @@ import {
   Pencil,
   Trash2,
   Copy,
+  RefreshCw,
   Paperclip,
   Search,
   List,
@@ -14,6 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsRight,
+  MoreHorizontal,
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import EmpToolbarButton from "@/components/emp/toolbars/EmpToolbarButton";
@@ -32,6 +34,7 @@ export default function EmpListToolbar({
   onToggleView,
   onBack,
   toggleViewDisabled = false,
+  filterOpen = false,
   filterActive = false,
   onToggleFilter,
   onClearFilter,
@@ -41,6 +44,7 @@ export default function EmpListToolbar({
   onLast,
   onDelete,
   onDuplicate,
+  onRefresh,
   onAttachClick,
   attachDisabled = false,
   onExportPdf,
@@ -73,6 +77,16 @@ export default function EmpListToolbar({
               {onBack && (
                 <DropdownMenuItem onClick={onBack} className="h-9 cursor-pointer gap-2 text-sm px-3">
                   <ChevronLeft className="w-4 h-4" /> Voltar
+                </DropdownMenuItem>
+              )}
+              {onToggleView && (
+                <DropdownMenuItem
+                  onClick={onToggleView}
+                  disabled={toggleViewDisabled}
+                  className="h-9 cursor-pointer gap-2 text-sm px-3"
+                >
+                  {viewMode === "table" ? <List className="w-4 h-4" /> : <Table className="w-4 h-4" />}
+                  {viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
                 </DropdownMenuItem>
               )}
               {onToggleFilter && (
@@ -134,16 +148,6 @@ export default function EmpListToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {onToggleView && (
-            <EmpToolbarButton
-              variant="icon"
-              icon={viewMode === "table" ? List : Table}
-              onClick={onToggleView}
-              disabled={toggleViewDisabled}
-              title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
-            />
-          )}
-
           <EmpToolbarButton variant="primary" icon={Plus} onClick={onNew} title="Novo registro">
             Novo
           </EmpToolbarButton>
@@ -156,6 +160,22 @@ export default function EmpListToolbar({
           <EmpToolbarButton variant="default" icon={Copy} onClick={onDuplicate} disabled={!canDuplicate} title="Duplicar">
             Duplicar
           </EmpToolbarButton>
+          {onRefresh && (
+            <EmpToolbarButton variant="default" icon={RefreshCw} onClick={onRefresh} title="Atualizar">
+              Atualizar
+            </EmpToolbarButton>
+          )}
+          {showUtilityActions && (
+            <EmpToolbarButton
+              variant="default"
+              icon={Paperclip}
+              onClick={onAttachClick}
+              disabled={attachDisabled}
+              title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}
+            >
+              Anexos
+            </EmpToolbarButton>
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-1.5 shrink-0">
@@ -169,15 +189,6 @@ export default function EmpListToolbar({
               />
               <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#667085] pointer-events-none" strokeWidth={1.75} />
             </div>
-          )}
-          {showUtilityActions && (
-            <EmpToolbarButton
-              variant="icon"
-              icon={Paperclip}
-              onClick={onAttachClick}
-              disabled={attachDisabled}
-              title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}
-            />
           )}
           <div className={ERP_TOOLBAR_COUNTER}>
             {viewMode === "record" && total > 0 ? `${currentIndex + 1}/${total}` : selectedCount > 0 ? `${selectedCount}/${total}` : total}
