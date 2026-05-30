@@ -724,7 +724,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
-      <Card className="emp-table-shell h-full overflow-hidden border border-[#e5e9ef] bg-white shadow-none">
+      <Card className="emp-table-shell h-full overflow-hidden border border-[#e8ecf0] bg-white shadow-none">
         <CardContent className="h-full p-0 overflow-hidden flex flex-col">
           <div className="relative h-full overflow-hidden flex flex-col">
             <div
@@ -740,7 +740,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <Table
                 ref={tableRef}
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none"
+                className="emp-table-pro w-full border-collapse border-spacing-0 table-fixed select-none"
               >
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
@@ -822,17 +822,17 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                 </TableHeader>
                 <TableBody>
                   {empresasOrdenadas.length === 0
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="text-center py-8 text-xs text-slate-400 border-b border-slate-200">Nenhuma empresa encontrada</TableCell></TableRow>
+                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasPaginadas.map((emp, index) => {
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
                       return (
-                      <TableRow key={emp.id} className={`${rowClass} transition-colors border-0 cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
+                      <TableRow key={emp.id} className={`${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-6 leading-6 text-[11px] align-middle border-0 whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-6 leading-6 text-[11px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
