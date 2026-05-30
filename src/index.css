@@ -288,7 +288,7 @@ input[type="number"] {
 /* Tabela profissional — mockup Cadastro de Empresas */
 .cadastro-emp-scope .emp-table-shell {
   border-radius: 6px !important;
-  border: 1px solid #e8ecf0 !important;
+  border: 0.5px solid #eef1f4 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro {
@@ -299,7 +299,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pro .emp-th,
 .cadastro-emp-scope .emp-table-pro .emp-td,
 .cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th {
-  border: 1px solid #e8ecf0 !important;
+  border: 0.5px solid #eef1f4 !important;
   box-shadow: none !important;
 }
 
@@ -342,9 +342,9 @@ input[type="number"] {
   background: #eaf2ff !important;
   color: #1a1f26 !important;
   font-weight: 600;
-  font-size: 10px;
-  line-height: 18px;
-  height: 18px;
+  font-size: 11px;
+  line-height: 20px;
+  height: 20px;
   padding: 0 6px;
 }
 
@@ -693,7 +693,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
-  border-top: 1px solid #e8ecf0 !important;
+  border-top: 0.5px solid #eef1f4 !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn {

@@ -724,7 +724,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
-      <Card className="emp-table-shell h-full overflow-hidden border border-[#e8ecf0] bg-white shadow-none">
+      <Card className="emp-table-shell h-full overflow-hidden border border-[#eef1f4] bg-white shadow-none">
         <CardContent className="h-full p-0 overflow-hidden flex flex-col">
           <div className="relative h-full overflow-hidden flex flex-col">
             <div
@@ -846,7 +846,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th h-[18px] px-1.5 py-0 text-[10px] leading-[18px] align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th h-5 px-1.5 py-0 text-[11px] leading-5 align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
                             {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                           </TableCell>
                         );
