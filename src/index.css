@@ -590,6 +590,12 @@ input[type="number"] {
   min-height: 24px !important;
 }
 
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-search,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-counter {
+  height: 24px !important;
+  min-height: 24px !important;
+}
+
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto) {
   width: 24px !important;
 }
