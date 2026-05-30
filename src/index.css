@@ -410,6 +410,14 @@ input[type="number"] {
   background: #ffffff !important;
   box-shadow: 0 4px 12px rgba(8, 46, 84, 0.1) !important;
   overflow: hidden;
+  animation: none !important;
+  transform: none !important;
+}
+
+.emp-filter-popover[data-state="open"],
+.emp-filter-popover[data-state="closed"] {
+  animation: none !important;
+  transform: none !important;
 }
 
 .emp-filter-sort-section {

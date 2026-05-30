@@ -1,8 +1,8 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
@@ -70,6 +70,8 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const scrollContainerRef = useRef(null);
   const tableRef = useRef(null);
   const dragRef = useRef(null);
+  const filterAnchorRefs = useRef({});
+  const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
 
   const { data: camposPersonalizados = [] } = useQuery({ queryKey: ["emp-campos-personalizados"], queryFn: () => empRepository.listCamposPersonalizados(), initialData: [] });
@@ -367,7 +369,58 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const agregacoes = useMemo(() => campoEngine.calcularAgregacoes ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {}) : {}, [empresasOrdenadas, colunasOrdenadas]);
 
-  const renderFilterControl = (colunaId) => {
+  const closeFilterMenu = () => {
+    setMenuFiltroAberto(null);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({ colunaId: null, valores: [] });
+  };
+
+  const openFilterMenu = (colunaId) => {
+    setMenuFiltroAberto(colunaId);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({ colunaId, valores: normalizeRangeValoresForEdit(colunaId, [...getValoresFiltro(colunaId)]) });
+  };
+
+  const toggleFilterMenu = (colunaId) => {
+    if (menuFiltroAberto === colunaId) {
+      closeFilterMenu();
+      return;
+    }
+    openFilterMenu(colunaId);
+  };
+
+  const updateFilterAnchorRect = () => {
+    if (!menuFiltroAberto) {
+      setFilterAnchorRect(null);
+      return;
+    }
+    const el = filterAnchorRefs.current[menuFiltroAberto];
+    if (!el) {
+      setFilterAnchorRect(null);
+      return;
+    }
+    const rect = el.getBoundingClientRect();
+    setFilterAnchorRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+  };
+
+  useLayoutEffect(() => {
+    updateFilterAnchorRect();
+    if (!menuFiltroAberto) return undefined;
+    const onReflow = () => updateFilterAnchorRect();
+    const raf = requestAnimationFrame(updateFilterAnchorRect);
+    const root = scrollContainerRef.current;
+    root?.addEventListener("scroll", onReflow, { passive: true });
+    window.addEventListener("resize", onReflow);
+    window.addEventListener("scroll", onReflow, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      root?.removeEventListener("scroll", onReflow);
+      window.removeEventListener("resize", onReflow);
+      window.removeEventListener("scroll", onReflow, true);
+    };
+  }, [menuFiltroAberto, colunasOrdenadas, columnWidths, frozenColumnCount]);
+
+  const renderFilterPopoverContent = (colunaId) => {
     const col = colunasDisponiveis.find((c) => c.id === colunaId);
     const opts = columnOptions[colunaId] || [];
     const ft = getColumnFilterType(col);
@@ -381,21 +434,19 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const filteredOpts = rangeFilteredOpts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
     const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => listSel.includes(o));
     const colLabel = formatHeaderLabel(col);
-    const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
+    const closeFilter = closeFilterMenu;
 
     return (
-      <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: normalizeRangeValoresForEdit(colunaId, [...getValoresFiltro(colunaId)]) } : { colunaId: null, valores: [] }); }}>
-        <PopoverTrigger asChild>
-          <button
-            type="button"
-            className={`${EMP_HEADER_CTRL_BTN} emp-header-filter-btn hidden group-hover:inline-flex`}
-            title="Filtrar coluna"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <Filter className="w-3 h-3" />
-          </button>
-        </PopoverTrigger>
-        <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover p-0 z-[9999]">
+      <PopoverContent
+        align="end"
+        side="bottom"
+        sideOffset={6}
+        collisionPadding={16}
+        avoidCollisions
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onCloseAutoFocus={(e) => e.preventDefault()}
+        className="emp-filter-popover p-0 z-[9999]"
+      >
           <div className="emp-filter-sort-section">
             <button
               type="button"
@@ -515,8 +566,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               </button>
             </div>
           </div>
-        </PopoverContent>
-      </Popover>
+      </PopoverContent>
     );
   };
 
@@ -563,7 +613,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
                       const isColFiltered = hasActiveFilter(col.id);
-                      const filterControl = renderFilterControl(col.id);
+                      const isFilterOpen = menuFiltroAberto === col.id;
                       return (
                         <TableHead
                           key={col.id}
@@ -575,8 +625,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
                             {renderSortIndicator(col.id, isColFiltered)}
                           </div>
-                          {filterControl && (
-                            <div
+                          <div
+                              ref={(el) => {
+                                if (el) filterAnchorRefs.current[col.id] = el;
+                                else delete filterAnchorRefs.current[col.id];
+                              }}
                               className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
@@ -584,23 +637,41 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                               {isColFiltered && (
                                 <button
                                   type="button"
-                                  className={`${EMP_HEADER_CTRL_BTN} emp-header-clear-filter-btn inline-flex`}
+                                  className={`${EMP_HEADER_CTRL_BTN} emp-header-clear-filter-btn inline-flex shrink-0`}
                                   title={`Limpar filtro de '${formatHeaderLabel(col)}'`}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     clearColumnFilter(col.id);
-                                    setMenuFiltroAberto(null);
-                                    setBuscaFiltroMenu("");
-                                    setFiltroTemp({ colunaId: null, valores: [] });
+                                    closeFilterMenu();
                                   }}
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
                               )}
-                              {filterControl}
                               <button
                                 type="button"
-                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${isResizing ? "inline-flex emp-header-resize-active" : "hidden group-hover:inline-flex"}`}
+                                className={`${EMP_HEADER_CTRL_BTN} emp-header-filter-btn inline-flex shrink-0 ${
+                                  isFilterOpen
+                                    ? "opacity-100 pointer-events-auto"
+                                    : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+                                }`}
+                                title="Filtrar coluna"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleFilterMenu(col.id);
+                                }}
+                              >
+                                <Filter className="w-3 h-3" />
+                              </button>
+                              <button
+                                type="button"
+                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn shrink-0 ${
+                                  isResizing
+                                    ? "inline-flex emp-header-resize-active opacity-100"
+                                    : isFilterOpen
+                                      ? "inline-flex opacity-100 pointer-events-auto"
+                                      : "hidden group-hover:inline-flex"
+                                }`}
                                 onMouseDown={(e) => startDragResize(e, col)}
                                 onTouchStart={(e) => startDragResize(e, col)}
                                 onClick={(e) => e.stopPropagation()}
@@ -610,7 +681,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                 <GripVertical className="w-3 h-3" />
                               </button>
                             </div>
-                          )}
                           {isResizing && (
                             <div
                               className="emp-header-resize-overlay absolute top-0 right-0 h-full w-[22px] z-50 flex items-center justify-center cursor-col-resize"
@@ -686,6 +756,23 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           </div>
         </CardContent>
       </Card>
+      <Popover open={menuFiltroAberto !== null} onOpenChange={(open) => { if (!open) closeFilterMenu(); }}>
+        {filterAnchorRect && (
+          <PopoverAnchor asChild>
+            <div
+              aria-hidden
+              className="pointer-events-none fixed"
+              style={{
+                left: filterAnchorRect.left,
+                top: filterAnchorRect.top,
+                width: Math.max(filterAnchorRect.width, 1),
+                height: filterAnchorRect.height,
+              }}
+            />
+          </PopoverAnchor>
+        )}
+        {menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
+      </Popover>
       <EmpConfiguracaoColunasDialog open={showConfigColunas} onOpenChange={setShowConfigColunas} colunasDisponiveis={colunasDisponiveis} colunasVisiveis={colunasVisiveis} colunasOrdem={colunasOrdem} frozenColumnCount={frozenColumnCount} onChange={handleColumnLayoutChange} onResetDefault={handleResetColumnLayout} />
     </div>
   );
