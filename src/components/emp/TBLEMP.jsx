@@ -587,9 +587,9 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   }, [colunasOrdenadas, colunasTodasOrdenadas, empresasOrdenadas, selectedItems, onVisibleDataChange, agregacoes, columnWidths]);
 
   return (
-    <div className="flex-1 min-h-0 overflow-hidden bg-white select-none">
-      <Card className="h-full overflow-hidden rounded-none border-0 shadow-none">
-        <CardContent className="h-full p-0 overflow-hidden rounded-none">
+    <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
+      <Card className="emp-table-shell h-full overflow-hidden border border-slate-200 bg-white shadow-none">
+        <CardContent className="h-full p-0 overflow-hidden">
           <div className="relative h-full overflow-hidden flex flex-col">
             <div
               ref={scrollContainerRef}

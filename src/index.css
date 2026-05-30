@@ -286,6 +286,10 @@ input[type="number"] {
 }
 
 /* Tabela profissional — mockup Cadastro de Empresas */
+.cadastro-emp-scope .emp-table-shell {
+  border-radius: 6px !important;
+}
+
 .cadastro-emp-scope .emp-table-pro .emp-th {
   background: #f0f7ff !important;
   color: #082e54 !important;
