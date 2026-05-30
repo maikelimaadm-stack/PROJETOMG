@@ -288,7 +288,7 @@ input[type="number"] {
 /* Tabela profissional — mockup Cadastro de Empresas */
 .cadastro-emp-scope .emp-table-shell {
   border-radius: 6px !important;
-  border-color: #eef1f4 !important;
+  border: 1px solid #e5e9ef !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th {
@@ -300,8 +300,14 @@ input[type="number"] {
   height: 24px;
   padding: 0 6px;
   text-transform: none;
-  border-right: 1px solid #eef1f4 !important;
-  border-bottom: 1px solid #e8ecf0 !important;
+  border: none !important;
+  box-shadow:
+    inset -1px 0 0 0 #f0f2f5,
+    inset 0 -1px 0 0 #e3e7ed !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th:last-child {
+  box-shadow: inset 0 -1px 0 0 #e3e7ed !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-td {
@@ -309,8 +315,8 @@ input[type="number"] {
   line-height: 24px;
   height: 24px;
   padding: 0 6px;
-  border-bottom: 1px solid #f0f2f5 !important;
-  border-right: 1px solid #f5f7fa !important;
+  border: none !important;
+  box-shadow: inset 0 -1px 0 0 #ebeff3 !important;
   background: transparent;
 }
 
@@ -328,7 +334,7 @@ input[type="number"] {
   background: #f0f2f5 !important;
   color: #1a1f26 !important;
   font-weight: 600;
-  border-bottom-color: #e8ecf0 !important;
+  box-shadow: inset 0 -1px 0 0 #e3e7ed !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th {
@@ -339,10 +345,14 @@ input[type="number"] {
   line-height: 18px;
   height: 18px;
   padding: 0 6px;
-  border-right: 1px solid #eef1f4;
-  border-bottom: 1px solid #e8ecf0;
-  border-top: 1px solid #e8ecf0;
-  box-shadow: none;
+  border: none !important;
+  box-shadow:
+    inset -1px 0 0 0 #f0f2f5,
+    inset 0 1px 0 0 #e3e7ed !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th:last-child {
+  box-shadow: inset 0 1px 0 0 #e3e7ed !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th-controls {
@@ -690,7 +700,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
-  border-top-color: #eef1f4 !important;
+  border-top: 1px solid #e5e9ef !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn {

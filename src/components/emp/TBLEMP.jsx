@@ -724,7 +724,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
-      <Card className="emp-table-shell h-full overflow-hidden border border-[#eef1f4] bg-white shadow-none">
+      <Card className="emp-table-shell h-full overflow-hidden border border-[#e5e9ef] bg-white shadow-none">
         <CardContent className="h-full p-0 overflow-hidden flex flex-col">
           <div className="relative h-full overflow-hidden flex flex-col">
             <div
