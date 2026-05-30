@@ -248,12 +248,14 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const colLabel = formatHeaderLabel(col);
     const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
 
+    const filterVisible = hasActiveFilter(colunaId) || menuFiltroAberto === colunaId;
+
     return (
       <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: [...getValoresFiltro(colunaId)] } : { colunaId: null, valores: [] }); }}>
         <PopoverTrigger asChild>
           <button
             type="button"
-            className={`${EMP_HEADER_CTRL_BTN} ${hasActiveFilter(colunaId) ? "emp-header-filter-active" : ""}`}
+            className={`${EMP_HEADER_CTRL_BTN} emp-header-filter-btn ${hasActiveFilter(colunaId) ? "emp-header-filter-active" : ""} ${filterVisible ? "inline-flex" : "hidden group-hover:inline-flex"}`}
             title={hasActiveFilter(colunaId) ? "Filtrar coluna (duplo clique limpa)" : "Filtrar coluna"}
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={(e) => {
@@ -422,7 +424,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
                       const filterControl = renderFilterControl(col.id);
-                      const filterVisible = hasActiveFilter(col.id) || menuFiltroAberto === col.id;
                       return (
                         <TableHead
                           key={col.id}
@@ -440,9 +441,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
                             >
-                              <div className={filterVisible ? "block" : "hidden group-hover:block"}>
-                                {filterControl}
-                              </div>
+                              {filterControl}
                               <button
                                 type="button"
                                 className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${isResizing ? "inline-flex emp-header-resize-active" : "hidden group-hover:inline-flex"}`}

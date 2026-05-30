@@ -344,6 +344,13 @@ input[type="number"] {
   gap: 3px;
   padding-left: 4px;
   background: transparent;
+  height: 22px;
+  line-height: 0;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th-controls .emp-header-ctrl {
+  flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-filter-active,
