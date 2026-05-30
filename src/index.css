@@ -370,6 +370,180 @@ input[type="number"] {
   color: #082e54;
 }
 
+/* Painel de filtro — visual alinhado ao sistema (portal fora do scope) */
+.emp-filter-popover {
+  width: 310px !important;
+  max-width: 310px !important;
+  padding: 0 !important;
+  border: 1px solid #bae6fd !important;
+  border-radius: 5px !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(8, 46, 84, 0.1) !important;
+  overflow: hidden;
+}
+
+.emp-filter-sort-section {
+  padding: 4px;
+  border-bottom: 1px solid #e0f2fe;
+}
+
+.emp-filter-sort-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #475569;
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.emp-filter-sort-btn svg {
+  color: #082e54;
+}
+
+.emp-filter-sort-btn:hover:not(:disabled) {
+  background: #f0f9ff;
+  color: #082e54;
+}
+
+.emp-filter-sort-btn:disabled {
+  color: #cbd5e1;
+  cursor: default;
+}
+
+.emp-filter-sort-btn:disabled svg {
+  color: #cbd5e1;
+}
+
+.emp-filter-body {
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.emp-filter-field {
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 5px;
+  outline: none;
+  box-shadow: none;
+}
+
+.emp-filter-field:focus {
+  border-color: #7dd3fc;
+}
+
+.emp-filter-search {
+  text-transform: uppercase;
+}
+
+.emp-filter-search::placeholder {
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.emp-filter-range-label {
+  padding: 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.emp-filter-range-sep {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.emp-filter-value-list {
+  max-height: 256px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 4px;
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 5px;
+}
+
+.emp-filter-value-list-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #475569;
+  border-bottom: 1px solid #e0f2fe;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.emp-filter-value-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.emp-filter-value-list-item:hover {
+  background: #f0f9ff;
+}
+
+.emp-filter-checkbox {
+  height: 14px;
+  width: 14px;
+  flex-shrink: 0;
+  border-color: #bae6fd;
+}
+
+.emp-filter-checkbox[data-state="checked"] {
+  background-color: #082e54;
+  border-color: #082e54;
+}
+
+.emp-filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding-top: 8px;
+}
+
+.emp-filter-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 32px;
+  color: #082e54;
+  background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.emp-filter-action-btn:hover {
+  background: #f0f9ff;
+}
+
 .cadastro-emp-scope .emp-toolbar-btn,
 .cadastro-emp-scope .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar-counter,

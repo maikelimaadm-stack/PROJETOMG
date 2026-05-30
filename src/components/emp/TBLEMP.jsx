@@ -260,27 +260,27 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             <Filter className="w-3 h-3" />
           </button>
         </PopoverTrigger>
-        <PopoverContent align="end" side="bottom" sideOffset={4} className="w-[310px] p-0 z-[9999] rounded-none border border-slate-300 bg-white shadow-md">
-          <div className="space-y-0.5 border-b border-slate-200 px-1 py-1">
+        <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover w-[310px] p-0 z-[9999]">
+          <div className="emp-filter-sort-section">
             <button
               type="button"
-              className="flex items-center w-full h-8 px-2 text-xs text-slate-700 hover:bg-slate-100 rounded"
+              className="emp-filter-sort-btn"
               onClick={() => { handleSort(colunaId); closeFilter(); }}
             >
-              <ArrowDownAZ className="w-4 h-4 mr-2 shrink-0 text-slate-600" />
+              <ArrowDownAZ className="w-4 h-4 mr-2 shrink-0" />
               <span>Classificar do Menor para o Maior</span>
             </button>
             <button
               type="button"
-              className="flex items-center w-full h-8 px-2 text-xs text-slate-700 hover:bg-slate-100 rounded"
+              className="emp-filter-sort-btn"
               onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}
             >
-              <ArrowUpZA className="w-4 h-4 mr-2 shrink-0 text-slate-600" />
+              <ArrowUpZA className="w-4 h-4 mr-2 shrink-0" />
               <span>Classificar do Maior para o Menor</span>
             </button>
             <button
               type="button"
-              className={`flex items-center w-full h-8 px-2 text-xs rounded ${hasActiveFilter(colunaId) ? "text-slate-700 hover:bg-slate-100" : "text-slate-300 cursor-not-allowed"}`}
+              className="emp-filter-sort-btn"
               disabled={!hasActiveFilter(colunaId)}
               onClick={() => { clearColumnFilter(colunaId); closeFilter(); }}
             >
@@ -289,25 +289,25 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             </button>
           </div>
 
-          <div className="p-1 space-y-1">
+          <div className="emp-filter-body">
             {isRange ? (
               <div className="space-y-1">
-                <div className="text-[11px] font-semibold text-slate-500 px-1">Entre</div>
-                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1 px-1">
+                <div className="emp-filter-range-label">Entre</div>
+                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
                   <input
                     type={ft === "date" ? "date" : "number"}
                     value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")}
                     onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))}
                     placeholder="De"
-                    className="h-[22px] w-full text-xs border border-slate-300 rounded-none px-1 outline-none focus:border-slate-400"
+                    className="emp-filter-field"
                   />
-                  <span className="text-xs text-slate-500">a</span>
+                  <span className="emp-filter-range-sep">a</span>
                   <input
                     type={ft === "date" ? "date" : "number"}
                     value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")}
                     onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))}
                     placeholder="Até"
-                    className="h-[22px] w-full text-xs border border-slate-300 rounded-none px-1 outline-none focus:border-slate-400"
+                    className="emp-filter-field"
                   />
                 </div>
               </div>
@@ -316,32 +316,29 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                 value={buscaFiltroMenu}
                 onChange={(e) => setBuscaFiltroMenu(e.target.value)}
                 placeholder="PESQUISAR"
-                className="h-[22px] w-full text-xs uppercase border border-slate-300 rounded-none shadow-none px-1 outline-none focus:border-slate-400 placeholder:text-slate-400"
+                className="emp-filter-field emp-filter-search"
               />
             )}
 
             {ft === "list" && (
-              <div className="border border-slate-300 rounded-none max-h-64 overflow-y-auto p-1 bg-white">
-                <label className="flex h-8 items-center gap-2 px-2 py-0 text-xs text-slate-700 border-b border-slate-200 whitespace-nowrap overflow-hidden cursor-pointer">
+              <div className="emp-filter-value-list">
+                <label className="emp-filter-value-list-header">
                   <Checkbox
                     checked={allVisSel}
                     onCheckedChange={(c) => setFiltroTemp((p) => {
                       const rest = p.valores.filter((v) => !filteredOpts.includes(v));
                       return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest };
                     })}
-                    className="h-3.5 w-3.5 shrink-0 rounded-sm border-slate-400"
+                    className="emp-filter-checkbox"
                   />
                   <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
                 </label>
                 {filteredOpts.map((opt) => (
-                  <label
-                    key={opt}
-                    className="flex h-6 items-center gap-2 px-2 py-0 text-xs text-slate-700 hover:bg-slate-50 whitespace-nowrap overflow-hidden cursor-pointer"
-                  >
+                  <label key={opt} className="emp-filter-value-list-item">
                     <Checkbox
                       checked={valSel.includes(opt)}
                       onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
-                      className="h-3.5 w-3.5 shrink-0 rounded-sm border-slate-400"
+                      className="emp-filter-checkbox"
                     />
                     <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
                   </label>
@@ -349,22 +346,22 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-0 pt-2">
+            <div className="emp-filter-actions">
               <button
                 type="button"
                 title="Aplicar filtro"
-                className="inline-flex h-8 w-10 items-center justify-center rounded-none border border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                className="emp-filter-action-btn"
                 onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); }}
               >
-                <Check className="w-4 h-4" />
+                <Check className="w-3.5 h-3.5" />
               </button>
               <button
                 type="button"
                 title="Cancelar"
-                className="inline-flex h-8 w-10 -ml-px items-center justify-center rounded-none border border-slate-200 bg-white text-slate-800 hover:bg-slate-50"
+                className="emp-filter-action-btn"
                 onClick={closeFilter}
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
