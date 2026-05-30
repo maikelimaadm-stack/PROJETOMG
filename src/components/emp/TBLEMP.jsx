@@ -208,6 +208,39 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
       return v;
     });
   };
+  const optionPassaRangeTemp = (opt, ft, tempValores) => {
+    if (!tempValores?.length) return true;
+    const minTok = tempValores.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:"));
+    const maxTok = tempValores.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:"));
+    if (!minTok && !maxTok) return true;
+    if (ft === "number") {
+      const nv = parseNumberFilterValue(String(opt));
+      if (!Number.isFinite(nv)) return true;
+      if (minTok) {
+        const minN = parseNumberFilterValue(String(minTok).replace("min:", ""));
+        if (Number.isFinite(minN) && nv < minN) return false;
+      }
+      if (maxTok) {
+        const maxN = parseNumberFilterValue(String(maxTok).replace("max:", ""));
+        if (Number.isFinite(maxN) && nv > maxN) return false;
+      }
+      return true;
+    }
+    if (ft === "date") {
+      const ts = parseDateFilterValue(opt);
+      if (ts === null) return true;
+      if (minTok) {
+        const startTs = parseDateFilterValue(String(minTok).replace("start:", ""));
+        if (startTs !== null && ts < startTs) return false;
+      }
+      if (maxTok) {
+        const endTs = parseDateFilterValue(String(maxTok).replace("end:", ""));
+        if (endTs !== null && ts > endTs) return false;
+      }
+      return true;
+    }
+    return true;
+  };
   const resolveColumnAlign = (col) => {
     if (col?.tipo === "date") return "center";
     if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codigo_empresa" || col?.id === "custom:valor") return "right";
@@ -340,7 +373,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const isRange = ft === "number" || ft === "date";
     const valSel = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
     const listSel = getListFilterValues(valSel, ft);
-    const filteredOpts = opts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
+    const tempRangeValores = filtroTemp.colunaId === colunaId ? filtroTemp.valores : [];
+    const rangeFilteredOpts = isRange && menuFiltroAberto === colunaId
+      ? opts.filter((o) => optionPassaRangeTemp(o, ft, tempRangeValores))
+      : opts;
+    const filteredOpts = rangeFilteredOpts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
     const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => listSel.includes(o));
     const colLabel = formatHeaderLabel(col);
     const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
