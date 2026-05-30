@@ -114,7 +114,16 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX)) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
 
-  const startDragResize = (e, col) => { e.preventDefault(); e.stopPropagation(); const cx = e.touches?.[0]?.clientX ?? e.clientX; dragRef.current = { columnId: col.id, startX: cx, startWidth: columnWidths[col.id] || col.width || 160, minWidth: getMinWidth(col) }; setResizeColumnId(col.id); document.body.style.cursor = "col-resize"; document.body.style.userSelect = "none"; };
+  const startDragResize = (e, col) => {
+    if (e.detail >= 2) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const cx = e.touches?.[0]?.clientX ?? e.clientX;
+    dragRef.current = { columnId: col.id, startX: cx, startWidth: columnWidths[col.id] || col.width || 160, minWidth: getMinWidth(col) };
+    setResizeColumnId(col.id);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  };
 
   useEffect(() => { setSelectedItems((p) => { const valid = p.filter((id) => empresas.some((e) => e.id === id)); return p.length === valid.length && p.every((id, i) => id === valid[i]) ? p : valid; }); }, [empresas]);
   useEffect(() => { onSelectionChange?.(selectedItems); }, [selectedItems, onSelectionChange]);
