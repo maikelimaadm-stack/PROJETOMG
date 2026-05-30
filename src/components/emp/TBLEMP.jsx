@@ -10,6 +10,7 @@ import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDo
 import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const FILTER_POPOVER_WIDTH = 272;
+const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 const COLUNAS_BASE = [
   { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "right", width: 90 },
@@ -360,17 +361,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
       : <ChevronDown className="emp-th-sort w-3 h-3 ml-1 inline-block" />;
   };
 
-  const renderFilterIcon = (active) => {
-    if (active) {
-      return (
-        <span className="emp-header-filter-active-icon relative inline-flex h-3.5 w-3.5 items-center justify-center">
-          <Filter className="h-3.5 w-3.5" strokeWidth={2} />
-          <Filter className="absolute -bottom-[1px] -left-[1px] h-[8px] w-[8px]" strokeWidth={2.5} />
-        </span>
-      );
-    }
-    return <Filter className="w-3 h-3" />;
-  };
+  const renderFilterIcon = (active) => (
+    active
+      ? <FilterX className={FILTER_ICON_CLASS} strokeWidth={2} />
+      : <Filter className={FILTER_ICON_CLASS} strokeWidth={2} />
+  );
 
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";
@@ -669,15 +664,21 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                 }}
                                 role="button"
                                 tabIndex={0}
-                                className={`emp-header-filter-icon inline-flex shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${
+                                className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${
                                   isColFiltered || isFilterOpen
                                     ? "opacity-100 pointer-events-auto"
                                     : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
                                 }`}
-                                title={isColFiltered ? "Coluna filtrada" : "Filtrar coluna"}
+                                title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleFilterMenu(col.id);
+                                }}
+                                onDoubleClick={(e) => {
+                                  e.stopPropagation();
+                                  if (!isColFiltered) return;
+                                  clearColumnFilter(col.id);
+                                  closeFilterMenu();
                                 }}
                                 onKeyDown={(e) => {
                                   if (e.key === "Enter" || e.key === " ") {

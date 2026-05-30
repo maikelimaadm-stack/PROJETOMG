@@ -362,6 +362,15 @@ input[type="number"] {
   background: transparent !important;
   box-shadow: none !important;
   padding: 0;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon svg {
+  width: 12px !important;
+  height: 12px !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-filter-icon:hover {
