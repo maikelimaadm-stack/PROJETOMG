@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
+import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/components/emp/EmpTablePagination";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
@@ -38,6 +39,7 @@ const FROZEN_KEY = "emp_col_frozen";
 const VISIBLE_KEY = "emp_col_visiveis";
 const ORDER_KEY = "emp_col_ordem";
 const AGGR_KEY = "emp_table_aggregation_config";
+const PAGE_SIZE_KEY = "emp_table_page_size";
 const MIN_COL_WIDTH = 80;
 const getMinWidth = (col) => Math.max(MIN_COL_WIDTH, String(col?.label || "").length * 7 + 18);
 
@@ -73,6 +75,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const filterPanelRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(() => {
+    const saved = Number(localStorage.getItem(PAGE_SIZE_KEY));
+    return EMP_PAGE_SIZE_OPTIONS.includes(saved) ? saved : 50;
+  });
 
   const { data: camposPersonalizados = [] } = useQuery({ queryKey: ["emp-campos-personalizados"], queryFn: () => empRepository.listCamposPersonalizados(), initialData: [] });
 
@@ -337,6 +344,30 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   useEffect(() => {
     onFilteredEmpresasChange?.(empresasOrdenadas);
   }, [empresasOrdenadas, onFilteredEmpresasChange]);
+
+  const totalPages = useMemo(() => {
+    if (empresasOrdenadas.length === 0) return 1;
+    return Math.ceil(empresasOrdenadas.length / pageSize);
+  }, [empresasOrdenadas.length, pageSize]);
+
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const empresasPaginadas = useMemo(() => {
+    const start = (safeCurrentPage - 1) * pageSize;
+    return empresasOrdenadas.slice(start, start + pageSize);
+  }, [empresasOrdenadas, safeCurrentPage, pageSize]);
+
+  useEffect(() => {
+    localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
+  }, [pageSize]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filtrosColunas, searchTerm, pageSize]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) setCurrentPage(totalPages);
+  }, [currentPage, totalPages]);
 
   const handleSort = (key) => setSortConfig((p) => ({ key, direction: p.key === key && p.direction === "asc" ? "desc" : "asc" }));
 
@@ -620,7 +651,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
       <Card className="emp-table-shell h-full overflow-hidden border border-slate-200 bg-white shadow-none">
-        <CardContent className="h-full p-0 overflow-hidden">
+        <CardContent className="h-full p-0 overflow-hidden flex flex-col">
           <div className="relative h-full overflow-hidden flex flex-col">
             <div
               ref={scrollContainerRef}
@@ -715,7 +746,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                 <TableBody>
                   {empresasOrdenadas.length === 0
                     ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="text-center py-8 text-xs text-slate-400 border-b border-slate-200">Nenhuma empresa encontrada</TableCell></TableRow>
-                    : empresasOrdenadas.map((emp, index) => {
+                    : empresasPaginadas.map((emp, index) => {
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
                       return (
@@ -749,6 +780,13 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               </Table>
               </div>
             </div>
+            <EmpTablePagination
+              currentPage={safeCurrentPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageChange={setCurrentPage}
+              onPageSizeChange={setPageSize}
+            />
           </div>
         </CardContent>
       </Card>
