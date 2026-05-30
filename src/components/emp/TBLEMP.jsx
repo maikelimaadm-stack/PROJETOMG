@@ -740,7 +740,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <Table
                 ref={tableRef}
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="emp-table-pro w-full border-collapse border-spacing-0 table-fixed select-none"
+                className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none"
               >
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
@@ -842,7 +842,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                   }
                 </TableBody>
                 {Object.keys(agregacoes).length > 0 && (
-                  <TableFooter className="emp-table-footer sticky bottom-0 z-30 border-0 bg-[#eaf2ff] font-semibold [&>tr]:border-0">
+                  <TableFooter className="emp-table-footer border-0 bg-[#eaf2ff] font-semibold [&>tr]:border-0">
                     <TableRow className="emp-total-row border-0 hover:bg-transparent">
                       {colunasOrdenadas.map((col, ci) => {
                         const width = columnPixelWidths[col.id] || 160;
