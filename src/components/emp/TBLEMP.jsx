@@ -360,6 +360,18 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
       : <ChevronDown className="emp-th-sort w-3 h-3 ml-1 inline-block" />;
   };
 
+  const renderFilterIcon = (active) => {
+    if (active) {
+      return (
+        <span className="emp-header-filter-active-icon relative inline-flex h-3.5 w-3.5 items-center justify-center">
+          <Filter className="h-3.5 w-3.5" strokeWidth={2} />
+          <Filter className="absolute -bottom-[1px] -left-[1px] h-[8px] w-[8px]" strokeWidth={2.5} />
+        </span>
+      );
+    }
+    return <Filter className="w-3 h-3" />;
+  };
+
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";
     return index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
@@ -632,6 +644,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const width = columnPixelWidths[col.id] || 160;
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
+                      const isColFiltered = hasActiveFilter(col.id);
                       const isFilterOpen = menuFiltroAberto === col.id;
                       return (
                         <TableHead
@@ -657,11 +670,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                 role="button"
                                 tabIndex={0}
                                 className={`emp-header-filter-icon inline-flex shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${
-                                  isFilterOpen
+                                  isColFiltered || isFilterOpen
                                     ? "opacity-100 pointer-events-auto"
                                     : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
                                 }`}
-                                title="Filtrar coluna"
+                                title={isColFiltered ? "Coluna filtrada" : "Filtrar coluna"}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   toggleFilterMenu(col.id);
@@ -674,7 +687,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                   }
                                 }}
                               >
-                                <Filter className="w-3 h-3" />
+                                {renderFilterIcon(isColFiltered)}
                               </span>
                             </div>
                           <div
