@@ -7,8 +7,9 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
-import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
+import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/components/emp/toolbars/empToolbarStyles";
 
 const ACTIONS_COL_WIDTH = 28;
 
@@ -237,7 +238,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const agregacoes = useMemo(() => campoEngine.calcularAgregacoes ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {}) : {}, [empresasOrdenadas, colunasOrdenadas]);
 
   const renderFilterControl = (colunaId) => {
-    const btnCls = `emp-header-ctrl-btn ${hasActiveFilter(colunaId) ? "is-active" : ""}`;
     const col = colunasDisponiveis.find((c) => c.id === colunaId);
     const opts = columnOptions[colunaId] || [];
     const ft = getColumnFilterType(col);
@@ -245,50 +245,121 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const valSel = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
     const filteredOpts = opts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
     const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => valSel.includes(o));
+    const selectedListCount = valSel.filter((v) => opts.includes(v)).length;
+    const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
+    const applyFilter = () => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); };
+
     return (
       <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: [...getValoresFiltro(colunaId)] } : { colunaId: null, valores: [] }); }}>
         <PopoverTrigger asChild>
-          <button type="button" className={btnCls} title="Filtrar coluna" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className={`${EMP_HEADER_CTRL_BTN} ${hasActiveFilter(colunaId) ? "emp-header-ctrl-active" : ""}`}
+            title="Filtrar coluna"
+            onClick={(e) => e.stopPropagation()}
+          >
             <Filter className="w-3 h-3" />
           </button>
         </PopoverTrigger>
-        <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover w-[310px] p-0 z-[9999] bg-white">
-          <div className="space-y-0.5 border-b border-sky-100 px-1 py-1">
-            <button type="button" className="emp-filter-menu-btn" onClick={() => { handleSort(colunaId); setMenuFiltroAberto(null); }}><ArrowDownAZ className="w-3.5 h-3.5 mr-2 shrink-0" /> Menor para Maior</button>
-            <button type="button" className="emp-filter-menu-btn" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); setMenuFiltroAberto(null); }}><ArrowUpZA className="w-3.5 h-3.5 mr-2 shrink-0" /> Maior para Menor</button>
-            <button type="button" className="emp-filter-menu-btn" disabled={!hasActiveFilter(colunaId)} onClick={() => { clearColumnFilter(colunaId); setMenuFiltroAberto(null); }}><X className="w-3.5 h-3.5 mr-2 shrink-0" /> Limpar Filtro</button>
+        <PopoverContent align="end" side="bottom" sideOffset={6} className="emp-filter-popover w-[272px] p-0 z-[9999] bg-white overflow-hidden">
+          <div className="emp-filter-popover-head">
+            <span className="emp-filter-popover-title">{formatHeaderLabel(col)}</span>
           </div>
-          <div className="p-2 space-y-1.5">
+
+          <div className="emp-filter-section">
+            <span className="emp-filter-section-label">Ordenar</span>
+            <div className="emp-filter-sort-row">
+              <button type="button" className={EMP_TOOLBAR_BTN} title="Menor para maior" onClick={() => { handleSort(colunaId); closeFilter(); }}>
+                <ArrowDownAZ className="w-3.5 h-3.5" />
+              </button>
+              <button type="button" className={EMP_TOOLBAR_BTN} title="Maior para menor" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}>
+                <ArrowUpZA className="w-3.5 h-3.5" />
+              </button>
+              <button type="button" className={`${EMP_TOOLBAR_BTN} ${!hasActiveFilter(colunaId) ? "opacity-40 pointer-events-none" : ""}`} title="Limpar filtro" disabled={!hasActiveFilter(colunaId)} onClick={() => { clearColumnFilter(colunaId); closeFilter(); }}>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          <div className="emp-filter-section emp-filter-section-body">
+            <span className="emp-filter-section-label">{isRange ? "Intervalo" : "Filtrar valores"}</span>
+
             {isRange ? (
-              <div className="space-y-1">
-                <div className="text-[10px] font-semibold text-[#082e54]/70 uppercase tracking-wide">Entre</div>
-                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
-                  <input type={ft === "date" ? "date" : "number"} value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")} onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))} placeholder="De" className="emp-filter-input w-full" />
-                  <span className="text-[10px] text-slate-500">a</span>
-                  <input type={ft === "date" ? "date" : "number"} value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")} onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))} placeholder="Até" className="emp-filter-input w-full" />
-                </div>
+              <div className="emp-filter-range-grid">
+                <input
+                  type={ft === "date" ? "date" : "number"}
+                  value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")}
+                  onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))}
+                  placeholder="De"
+                  className="emp-filter-input"
+                />
+                <span className="emp-filter-range-sep">até</span>
+                <input
+                  type={ft === "date" ? "date" : "number"}
+                  value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")}
+                  onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))}
+                  placeholder="Até"
+                  className="emp-filter-input"
+                />
               </div>
             ) : (
-              <input value={buscaFiltroMenu} onChange={(e) => setBuscaFiltroMenu(e.target.value)} placeholder="Pesquisar" className="emp-filter-input w-full uppercase" />
+              <>
+                <div className={`${EMP_TOOLBAR_SEARCH_WRAP} w-full`}>
+                  <input
+                    value={buscaFiltroMenu}
+                    onChange={(e) => setBuscaFiltroMenu(e.target.value)}
+                    placeholder="Pesquisar opções..."
+                    className={EMP_TOOLBAR_SEARCH_INPUT}
+                  />
+                  <Search className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-[#082e54] pointer-events-none" />
+                </div>
+
+                {ft === "list" && (
+                  <div className="emp-filter-list-panel">
+                    <label className="emp-filter-select-all">
+                      <Checkbox
+                        checked={allVisSel}
+                        onCheckedChange={(c) => setFiltroTemp((p) => {
+                          const rest = p.valores.filter((v) => !filteredOpts.includes(v));
+                          return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest };
+                        })}
+                        className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
+                      />
+                      <span>Selecionar tudo</span>
+                    </label>
+                    <div className="emp-filter-list-scroll">
+                      {filteredOpts.length === 0 ? (
+                        <div className="emp-filter-empty">Nenhuma opção encontrada</div>
+                      ) : (
+                        filteredOpts.map((opt) => (
+                          <label key={opt} className="emp-filter-list-item">
+                            <Checkbox
+                              checked={valSel.includes(opt)}
+                              onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
+                              className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
+                            />
+                            <span title={opt}>{opt}</span>
+                          </label>
+                        ))
+                      )}
+                    </div>
+                    <div className="emp-filter-meta">
+                      {filteredOpts.length} {filteredOpts.length === 1 ? "opção" : "opções"}
+                      {selectedListCount > 0 ? ` · ${selectedListCount} selecionada${selectedListCount === 1 ? "" : "s"}` : ""}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-            {ft === "list" && (
-              <div className="emp-filter-list p-1">
-                <label className="emp-filter-list-header flex h-7 items-center gap-2 px-2 py-0 text-[11px] whitespace-nowrap overflow-hidden">
-                  <Checkbox checked={allVisSel} onCheckedChange={(c) => setFiltroTemp((p) => { const rest = p.valores.filter((v) => !filteredOpts.includes(v)); return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest }; })} className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]" />
-                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
-                </label>
-                {filteredOpts.map((opt) => (
-                  <label key={opt} className="emp-filter-list-item flex h-6 items-center gap-2 px-2 py-0 text-[11px] text-slate-700 whitespace-nowrap overflow-hidden cursor-pointer">
-                    <Checkbox checked={valSel.includes(opt)} onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))} className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]" />
-                    <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{opt}</span>
-                  </label>
-                ))}
-              </div>
-            )}
-            <div className="flex items-center justify-end gap-1 pt-1">
-              <button type="button" title="Aplicar filtro" className="emp-filter-action-btn" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}><Check className="w-3.5 h-3.5" /></button>
-              <button type="button" title="Cancelar" className="emp-filter-action-btn" onClick={() => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}><X className="w-3.5 h-3.5" /></button>
-            </div>
+          </div>
+
+          <div className="emp-filter-footer">
+            <button type="button" className={EMP_TOOLBAR_BTN} title="Cancelar" onClick={closeFilter}>
+              <X className="w-3.5 h-3.5" />
+            </button>
+            <button type="button" className={`${EMP_TOOLBAR_BTN} emp-filter-apply-btn`} title="Aplicar filtro" onClick={applyFilter}>
+              <Check className="w-3.5 h-3.5" />
+            </button>
           </div>
         </PopoverContent>
       </Popover>
@@ -357,7 +428,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                               {filterControl}
                               <button
                                 type="button"
-                                className={`emp-header-ctrl-btn emp-header-resize-btn ${isResizing ? "is-resizing" : ""}`}
+                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${isResizing ? "emp-header-ctrl-active-resize" : ""}`}
                                 onMouseDown={(e) => startDragResize(e, col)}
                                 onTouchStart={(e) => startDragResize(e, col)}
                                 onClick={(e) => e.stopPropagation()}

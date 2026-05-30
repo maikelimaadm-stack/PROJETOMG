@@ -339,48 +339,32 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th-controls {
-  background: linear-gradient(to left, #f0f7ff 70%, transparent);
-  padding-left: 4px;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl-btn {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
-  padding: 0;
-  border: 1px solid #bae6fd;
-  border-radius: 3px;
-  background: #ffffff;
-  color: #082e54;
-  cursor: pointer;
-  transition: background-color 0.15s, border-color 0.15s;
+  gap: 3px;
+  padding-left: 4px;
+  background: linear-gradient(to left, #f0f7ff 85%, transparent);
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl-btn:hover {
-  background: #f0f9ff;
-  border-color: #7dd3fc;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-ctrl-btn.is-active {
-  background: #ecfdf5;
-  border-color: #6ee7b7;
-  color: #047857;
+.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-ctrl-active {
+  background: #ecfdf5 !important;
+  border-color: #6ee7b7 !important;
+  color: #047857 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-resize-btn {
   cursor: col-resize;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn.is-resizing {
-  background: #e0f2fe;
-  border-color: #38bdf8;
-  color: #082e54;
+.cadastro-emp-scope .emp-table-pro .emp-header-ctrl-active-resize {
+  background: #e0f2fe !important;
+  border-color: #38bdf8 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-resize-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #f0f7ff;
   border-left: 1px solid #bae6fd;
   color: #082e54;
@@ -389,38 +373,75 @@ input[type="number"] {
 .cadastro-emp-scope .emp-filter-popover {
   border: 1px solid #bae6fd !important;
   border-radius: 5px !important;
-  box-shadow: 0 4px 12px rgba(8, 46, 84, 0.08) !important;
+  box-shadow: 0 8px 24px rgba(8, 46, 84, 0.12) !important;
 }
 
-.cadastro-emp-scope .emp-filter-popover .emp-filter-menu-btn {
+.cadastro-emp-scope .emp-filter-popover-head {
   display: flex;
   align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  background: #f0f7ff;
+  border-bottom: 1px solid #bae6fd;
+}
+
+.cadastro-emp-scope .emp-filter-popover-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #082e54;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cadastro-emp-scope .emp-filter-section {
+  padding: 8px 10px;
+  border-bottom: 1px solid #e8eef4;
+}
+
+.cadastro-emp-scope .emp-filter-section-body {
+  padding-bottom: 10px;
+}
+
+.cadastro-emp-scope .emp-filter-section-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.cadastro-emp-scope .emp-filter-sort-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cadastro-emp-scope .emp-filter-range-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 6px;
+}
+
+.cadastro-emp-scope .emp-filter-range-sep {
+  font-size: 10px;
+  color: #64748b;
+  white-space: nowrap;
+}
+
+.cadastro-emp-scope .emp-filter-popover .emp-filter-input {
   width: 100%;
   height: 28px;
   padding: 0 8px;
   font-size: 11px;
-  color: #082e54;
-  border-radius: 3px;
-  transition: background-color 0.15s;
-}
-
-.cadastro-emp-scope .emp-filter-popover .emp-filter-menu-btn:hover:not(:disabled) {
-  background: #f0f9ff;
-}
-
-.cadastro-emp-scope .emp-filter-popover .emp-filter-menu-btn:disabled {
-  color: #cbd5e1;
-  cursor: not-allowed;
-}
-
-.cadastro-emp-scope .emp-filter-popover .emp-filter-input {
-  height: 22px;
-  font-size: 11px;
-  border: 1px solid #bae6fd;
-  border-radius: 3px;
-  padding: 0 6px;
   color: #334155;
   background: #ffffff;
+  border: 1px solid #bae6fd;
+  border-radius: 5px;
   outline: none;
 }
 
@@ -429,43 +450,95 @@ input[type="number"] {
   box-shadow: 0 0 0 1px #bae6fd;
 }
 
-.cadastro-emp-scope .emp-filter-popover .emp-filter-list {
+.cadastro-emp-scope .emp-filter-list-panel {
+  margin-top: 8px;
   border: 1px solid #bae6fd;
-  border-radius: 3px;
-  max-height: 16rem;
-  overflow-y: auto;
+  border-radius: 5px;
+  overflow: hidden;
   background: #ffffff;
 }
 
-.cadastro-emp-scope .emp-filter-popover .emp-filter-list-header {
-  border-bottom: 1px solid #e2e8f0;
-  color: #082e54;
-}
-
-.cadastro-emp-scope .emp-filter-popover .emp-filter-list-item:hover {
-  background: #f0f9ff;
-}
-
-.cadastro-emp-scope .emp-filter-popover .emp-filter-action-btn {
-  display: inline-flex;
+.cadastro-emp-scope .emp-filter-select-all {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid #bae6fd;
-  border-radius: 3px;
-  background: #ffffff;
+  gap: 8px;
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 600;
   color: #082e54;
-  transition: background-color 0.15s;
+  background: #f8fbff;
+  border-bottom: 1px solid #e2e8f0;
+  cursor: pointer;
 }
 
-.cadastro-emp-scope .emp-filter-popover .emp-filter-action-btn:hover {
+.cadastro-emp-scope .emp-filter-list-scroll {
+  max-height: 168px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.cadastro-emp-scope .emp-filter-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 26px;
+  padding: 0 8px;
+  font-size: 11px;
+  color: #475569;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cadastro-emp-scope .emp-filter-list-item:last-child {
+  border-bottom: none;
+}
+
+.cadastro-emp-scope .emp-filter-list-item:hover {
   background: #f0f9ff;
+}
+
+.cadastro-emp-scope .emp-filter-list-item span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cadastro-emp-scope .emp-filter-empty {
+  padding: 12px 8px;
+  font-size: 11px;
+  color: #94a3b8;
+  text-align: center;
+}
+
+.cadastro-emp-scope .emp-filter-meta {
+  padding: 5px 8px;
+  font-size: 10px;
+  color: #64748b;
+  background: #f8fbff;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cadastro-emp-scope .emp-filter-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 8px 10px;
+  background: #ffffff;
+  border-top: 1px solid #e8eef4;
+}
+
+.cadastro-emp-scope .emp-filter-apply-btn {
+  background: #f0f7ff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn,
 .cadastro-emp-scope .emp-toolbar-search,
-.cadastro-emp-scope .emp-toolbar-counter {
+.cadastro-emp-scope .emp-toolbar-counter,
+.cadastro-emp-scope .emp-header-ctrl {
   border: 1px solid #bae6fd !important;
   border-radius: 5px !important;
 }

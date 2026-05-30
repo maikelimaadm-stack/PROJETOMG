@@ -12,3 +12,7 @@ export const EMP_TOOLBAR_SEARCH_INPUT =
 
 export const EMP_TOOLBAR_COUNTER =
   `emp-toolbar-counter inline-flex h-7 min-w-[6.5rem] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white px-2.5 text-[11px] font-medium tabular-nums text-[#082e54]`;
+
+/** Botões compactos do cabeçalho da tabela — mesma borda dos botões da toolbar */
+export const EMP_HEADER_CTRL_BTN =
+  `emp-toolbar-btn emp-header-ctrl inline-flex h-[22px] w-[22px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white text-[#082e54] shadow-none hover:bg-sky-50 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
