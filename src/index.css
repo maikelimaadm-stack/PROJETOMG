@@ -385,23 +385,17 @@ input[type="number"] {
   color: #dc2626 !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn {
-  cursor: col-resize;
+.cadastro-emp-scope .emp-table-pro .emp-col-resize-handle {
+  background: transparent;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn.emp-header-resize-active {
-  background: #e0f2fe !important;
-  border-color: #38bdf8 !important;
-  color: #082e54 !important;
+.cadastro-emp-scope .emp-table-pro .emp-col-resize-handle:hover,
+.cadastro-emp-scope .emp-table-pro .emp-col-resize-handle.emp-col-resize-active {
+  background: rgba(56, 189, 248, 0.22);
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-resize-overlay {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f0f7ff;
-  border-left: 1px solid #bae6fd;
-  color: #082e54;
+.cadastro-emp-scope .emp-table-pro .emp-col-resize-handle.emp-col-resize-active {
+  background: rgba(56, 189, 248, 0.35);
 }
 
 /* Painel de filtro — visual alinhado ao sistema (portal fora do scope) */

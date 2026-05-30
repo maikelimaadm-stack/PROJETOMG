@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
-import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, ChevronUp, ChevronDown } from "lucide-react";
+import { Filter, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const FILTER_POPOVER_WIDTH = 272;
@@ -639,7 +639,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         <TableHead
                           key={col.id}
                           style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                          className={`emp-th group sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)} ${isColFiltered ? "emp-th-filtered emp-th-has-filter" : ""}`}
+                          className={`emp-th group relative sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)} ${isColFiltered ? "emp-th-filtered emp-th-has-filter" : ""}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
                           <div className={`emp-th-label-wrap flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
@@ -684,36 +684,19 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                               >
                                 <Filter className="w-3 h-3" />
                               </button>
-                              <button
-                                type="button"
-                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn shrink-0 ${
-                                  isResizing
-                                    ? "inline-flex emp-header-resize-active opacity-100"
-                                    : isFilterOpen
-                                      ? "inline-flex opacity-100 pointer-events-auto"
-                                      : "hidden group-hover:inline-flex"
-                                }`}
-                                onMouseDown={(e) => startDragResize(e, col)}
-                                onTouchStart={(e) => startDragResize(e, col)}
-                                onClick={(e) => e.stopPropagation()}
-                                onDoubleClick={(e) => e.stopPropagation()}
-                                title="Redimensionar"
-                              >
-                                <GripVertical className="w-3 h-3" />
-                              </button>
                             </div>
-                          {isResizing && (
-                            <div
-                              className="emp-header-resize-overlay absolute top-0 right-0 h-full w-[22px] z-50 flex items-center justify-center cursor-col-resize"
-                              onMouseDown={(e) => startDragResize(e, col)}
-                              onTouchStart={(e) => startDragResize(e, col)}
-                              onClick={(e) => { e.stopPropagation(); setResizeColumnId(null); }}
-                              onDoubleClick={(e) => e.stopPropagation()}
-                              onTouchEnd={(e) => e.stopPropagation()}
-                            >
-                              <GripVertical className="w-3 h-3" />
-                            </div>
-                          )}
+                          <div
+                            role="separator"
+                            aria-orientation="vertical"
+                            aria-label={`Redimensionar coluna ${formatHeaderLabel(col)}`}
+                            className={`emp-col-resize-handle absolute top-0 right-0 h-full w-[7px] translate-x-1/2 z-[60] cursor-col-resize touch-none ${
+                              isResizing ? "emp-col-resize-active" : ""
+                            }`}
+                            onMouseDown={(e) => startDragResize(e, col)}
+                            onTouchStart={(e) => startDragResize(e, col)}
+                            onClick={(e) => e.stopPropagation()}
+                            onDoubleClick={(e) => e.stopPropagation()}
+                          />
                         </TableHead>
                       );
                     })}
