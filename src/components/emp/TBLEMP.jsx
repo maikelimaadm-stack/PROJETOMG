@@ -245,7 +245,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const valSel = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
     const filteredOpts = opts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
     const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => valSel.includes(o));
-    const selectedListCount = valSel.filter((v) => opts.includes(v)).length;
     const colLabel = formatHeaderLabel(col);
     const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
     const applyFilter = () => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); };
@@ -259,11 +258,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             title="Filtrar coluna"
             onClick={(e) => e.stopPropagation()}
           >
-            <Filter className="w-3 h-3" />
+            <Filter className="w-2.5 h-2.5" />
           </button>
         </PopoverTrigger>
-        <PopoverContent align="start" side="bottom" sideOffset={4} className="emp-filter-popover w-[280px] p-0 z-[9999] bg-white overflow-hidden">
-          {/* Ordenação — lista vertical (lógica Excel) */}
+        <PopoverContent align="start" side="bottom" sideOffset={2} className="emp-filter-popover z-[9999]">
           <div className="emp-filter-menu-list">
             <button type="button" className="emp-filter-menu-item" onClick={() => { handleSort(colunaId); closeFilter(); }}>
               <ArrowDownAZ className="emp-filter-menu-icon" />
@@ -277,7 +275,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
           <div className="emp-filter-menu-sep" />
 
-          {/* Ações de filtro — lista vertical */}
           <div className="emp-filter-menu-list">
             <button
               type="button"
@@ -293,7 +290,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <>
                 <div className="emp-filter-menu-item emp-filter-menu-item-static">
                   <span>Filtros de {ft === "date" ? "Data" : "Número"}</span>
-                  <ChevronRight className="w-3 h-3 shrink-0 text-slate-400" />
+                  <ChevronRight className="w-2.5 h-2.5 shrink-0 text-slate-400" />
                 </div>
                 <div className="emp-filter-range-block">
                   <div className="emp-filter-range-grid">
@@ -318,52 +315,43 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             )}
           </div>
 
-          {/* Pesquisa + checklist — colunas tipo lista */}
           {!isRange && ft === "list" && (
             <>
               <div className="emp-filter-menu-sep" />
-              <div className="emp-filter-values-block">
+              <div className="emp-filter-checklist-box">
                 <input
                   value={buscaFiltroMenu}
                   onChange={(e) => setBuscaFiltroMenu(e.target.value)}
                   placeholder="Pesquisar"
                   className="emp-filter-search"
                 />
-                <div className="emp-filter-list-panel">
-                  <label className="emp-filter-select-all">
-                    <Checkbox
-                      checked={allVisSel}
-                      onCheckedChange={(c) => setFiltroTemp((p) => {
-                        const rest = p.valores.filter((v) => !filteredOpts.includes(v));
-                        return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest };
-                      })}
-                      className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
-                    />
-                    <span>(Selecionar Tudo)</span>
-                  </label>
-                  <div className="emp-filter-list-scroll">
-                    {filteredOpts.length === 0 ? (
-                      <div className="emp-filter-empty">Nenhum valor encontrado</div>
-                    ) : (
-                      filteredOpts.map((opt) => (
-                        <label key={opt} className="emp-filter-list-item">
-                          <Checkbox
-                            checked={valSel.includes(opt)}
-                            onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
-                            className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
-                          />
-                          <span title={opt}>{opt}</span>
-                        </label>
-                      ))
-                    )}
-                  </div>
+                <label className="emp-filter-select-all">
+                  <Checkbox
+                    checked={allVisSel}
+                    onCheckedChange={(c) => setFiltroTemp((p) => {
+                      const rest = p.valores.filter((v) => !filteredOpts.includes(v));
+                      return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest };
+                    })}
+                    className="h-3 w-3 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
+                  />
+                  <span>(Selecionar Tudo)</span>
+                </label>
+                <div className="emp-filter-list-scroll">
+                  {filteredOpts.length === 0 ? (
+                    <div className="emp-filter-empty">Nenhum valor</div>
+                  ) : (
+                    filteredOpts.map((opt) => (
+                      <label key={opt} className="emp-filter-list-item">
+                        <Checkbox
+                          checked={valSel.includes(opt)}
+                          onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
+                          className="h-3 w-3 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
+                        />
+                        <span title={opt}>{opt}</span>
+                      </label>
+                    ))
+                  )}
                 </div>
-                {filteredOpts.length > 0 && (
-                  <div className="emp-filter-meta">
-                    {filteredOpts.length} {filteredOpts.length === 1 ? "valor" : "valores"}
-                    {selectedListCount > 0 ? ` · ${selectedListCount} selecionado${selectedListCount === 1 ? "" : "s"}` : ""}
-                  </div>
-                )}
               </div>
             </>
           )}
@@ -446,13 +434,13 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                 onClick={(e) => e.stopPropagation()}
                                 title="Redimensionar"
                               >
-                                <GripVertical className="w-3 h-3" />
+                                <GripVertical className="w-2.5 h-2.5" />
                               </button>
                             </div>
                           )}
                           {isResizing && (
                             <div
-                              className="emp-header-resize-overlay absolute top-0 right-0 h-full w-[22px] z-50 flex items-center justify-center cursor-col-resize"
+                              className="emp-header-resize-overlay absolute top-0 right-0 h-full w-[18px] z-50 flex items-center justify-center cursor-col-resize"
                               onMouseDown={(e) => startDragResize(e, col)}
                               onTouchStart={(e) => startDragResize(e, col)}
                               onClick={(e) => { e.stopPropagation(); setResizeColumnId(null); }}
