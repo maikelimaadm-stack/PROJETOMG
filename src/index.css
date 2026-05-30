@@ -315,6 +315,16 @@ input[type="number"] {
   overflow: visible !important;
 }
 
+.cadastro-emp-scope .emp-table-pro thead .emp-th:not(:last-child),
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child) {
+  box-shadow: inset -0.5px 0 0 0 var(--emp-band-divider) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro thead tr,
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer tr {
+  border: none !important;
+}
+
 .cadastro-emp-scope .emp-table-pro thead .emp-th {
   top: 0;
   z-index: 45;
@@ -331,24 +341,6 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th[class*="z-50"] {
   z-index: 54;
-}
-
-.cadastro-emp-scope .emp-table-pro thead .emp-th:not(:last-child)::after,
-.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--emp-band-divider);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.cadastro-emp-scope .emp-table-pro thead .emp-th:last-child,
-.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th:last-child {
-  box-shadow: inset -1px 0 0 0 var(--emp-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer {
