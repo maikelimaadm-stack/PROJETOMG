@@ -5,10 +5,9 @@ import {
   Pencil,
   Trash2,
   Copy,
-  RefreshCw,
   Paperclip,
   Search,
-  List,
+  Table,
   Filter,
   Check,
   X,
@@ -49,8 +48,6 @@ export default function EmpRecordToolbar({
   onLast,
   onDelete,
   onDuplicate,
-  onRefresh,
-  filterOpen = false,
   filterActive = false,
   onToggleFilter,
   onClearFilter,
@@ -74,11 +71,6 @@ export default function EmpRecordToolbar({
               {onBack && (
                 <DropdownMenuItem onClick={onBack} className="h-9 cursor-pointer gap-2 text-sm px-3">
                   <ChevronLeft className="w-4 h-4" /> Voltar
-                </DropdownMenuItem>
-              )}
-              {onToggleView && (
-                <DropdownMenuItem onClick={onToggleView} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  <List className="w-4 h-4" /> Visualizar tabela
                 </DropdownMenuItem>
               )}
               {onToggleFilter && (
@@ -113,6 +105,15 @@ export default function EmpRecordToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          {onToggleView && (
+            <EmpToolbarButton
+              variant="icon"
+              icon={Table}
+              onClick={onToggleView}
+              title="Visualizar tabela"
+            />
+          )}
+
           <EmpToolbarButton variant="primary" icon={Plus} onClick={onNew} title="Novo registro">
             Novo
           </EmpToolbarButton>
@@ -130,22 +131,6 @@ export default function EmpRecordToolbar({
                 Duplicar
               </EmpToolbarButton>
             </>
-          )}
-          {onRefresh && (
-            <EmpToolbarButton variant="default" icon={RefreshCw} onClick={onRefresh} title="Atualizar">
-              Atualizar
-            </EmpToolbarButton>
-          )}
-          {showUtilityActions && (
-            <EmpToolbarButton
-              variant="default"
-              icon={Paperclip}
-              onClick={onAttachClick}
-              disabled={attachDisabled}
-              title={attachDisabled ? "Salve o registro antes de anexar" : "Anexos"}
-            >
-              Anexos
-            </EmpToolbarButton>
           )}
           {showSaveActions && (
             <>
@@ -170,6 +155,15 @@ export default function EmpRecordToolbar({
               />
               <Search className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#667085] pointer-events-none" strokeWidth={1.75} />
             </div>
+          )}
+          {showUtilityActions && (
+            <EmpToolbarButton
+              variant="icon"
+              icon={Paperclip}
+              onClick={onAttachClick}
+              disabled={attachDisabled}
+              title={attachDisabled ? "Salve o registro antes de anexar" : "Anexos"}
+            />
           )}
           <div className={ERP_TOOLBAR_COUNTER}>{total > 0 ? `${currentIndex + 1}/${total}` : total}</div>
         </div>

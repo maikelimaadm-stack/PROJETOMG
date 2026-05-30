@@ -147,10 +147,18 @@ export default function PAGEMP() {
   }, [empresasFiltradasPainel]);
 
   const handleToggleView = () => {
-    if (showForm) { setShowForm(false); setEditingEmp(null); setViewMode("table"); return; }
+    if (showForm) {
+      setShowForm(false);
+      setEditingEmp(null);
+      setViewMode("table");
+      return;
+    }
     if (selectedTableItems.length > 1) return;
-    const emp = selectedTableEmp || currentEmp;
+    const emp = selectedTableEmp || empresasFiltradasPainel[selectedIndex] || empresasFiltradasPainel[0];
     if (!emp) return;
+    const idx = empresasFiltradasPainel.findIndex((e) => e.id === emp.id);
+    setSelectedIndex(idx >= 0 ? idx : 0);
+    setSelectedTableItems([emp.id]);
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
@@ -226,7 +234,6 @@ export default function PAGEMP() {
               onLast={() => navigateRecord(empresas.length - 1)}
               onDelete={() => editingEmp?.id && handleRequestDelete(editingEmp.id)}
               onDuplicate={() => editingEmp && handleDuplicate(editingEmp)}
-              onRefresh={() => queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] })}
               filterOpen={false} filterActive={false}
               searchValue={searchTerm}
               onSearchChange={setSearchTerm}
@@ -251,7 +258,6 @@ export default function PAGEMP() {
             onToggleView={handleToggleView}
             toggleViewDisabled={selectedTableItems.length > 1}
             filterActive={false}
-            onRefresh={() => queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] })}
             onDelete={() => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)}
             onDuplicate={() => selectedTableEmp && handleDuplicate(selectedTableEmp)}
             onAttachClick={() => selectedTableEmp && setAttachmentsRecord(selectedTableEmp)}
