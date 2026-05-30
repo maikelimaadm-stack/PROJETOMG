@@ -303,19 +303,6 @@ input[type="number"] {
   border-bottom: 1px solid #cfd8e6 !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-filtered {
-  color: #dc2626 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-filtered .emp-th-label,
-.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-filtered .emp-th-sort {
-  color: #dc2626 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-th.emp-th-has-filter .emp-th-label-wrap {
-  padding-right: 26px;
-}
-
 .cadastro-emp-scope .emp-table-pro .emp-td {
   font-size: 11px;
   line-height: 24px;
@@ -370,22 +357,7 @@ input[type="number"] {
   vertical-align: middle;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn,
-.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn:hover {
-  background: #ffffff !important;
-  border-color: #fca5a5 !important;
-  color: #dc2626 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn:hover {
-  background: #fef2f2 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-clear-filter-btn svg {
-  color: #dc2626 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-col-resize-handle {
+.cadastro-emp-scope .emp-table-pro .emp-th-controls .emp-header-ctrl {
   background: transparent;
 }
 

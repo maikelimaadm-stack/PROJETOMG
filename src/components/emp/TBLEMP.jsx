@@ -346,19 +346,18 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const handleRowTouch = (emp, event) => { const now = Date.now(); if (lastTapRef.current.id === emp.id && now - lastTapRef.current.time < 300) { event.preventDefault(); if (selectedItems.length <= 1) onEdit(emp); } else { handleRowSelect(emp, event); } lastTapRef.current = { id: emp.id, time: now }; };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
 
-  const renderSortIndicator = (colId, filtered = false) => {
-    const tone = filtered ? "text-red-600 opacity-80" : "opacity-35";
+  const renderSortIndicator = (colId) => {
     if (sortConfig.key !== colId) {
       return (
-        <span className={`emp-th-sort inline-flex flex-col ml-1 leading-none ${tone}`}>
+        <span className="emp-th-sort inline-flex flex-col ml-1 leading-none opacity-35">
           <ChevronUp className="w-2.5 h-2.5 -mb-1" />
           <ChevronDown className="w-2.5 h-2.5" />
         </span>
       );
     }
     return sortConfig.direction === "asc"
-      ? <ChevronUp className={`emp-th-sort w-3 h-3 ml-1 inline-block ${filtered ? "text-red-600" : ""}`} />
-      : <ChevronDown className={`emp-th-sort w-3 h-3 ml-1 inline-block ${filtered ? "text-red-600" : ""}`} />;
+      ? <ChevronUp className="emp-th-sort w-3 h-3 ml-1 inline-block" />
+      : <ChevronDown className="emp-th-sort w-3 h-3 ml-1 inline-block" />;
   };
 
   const getRowBgClass = (index, selected) => {
@@ -633,38 +632,23 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const width = columnPixelWidths[col.id] || 160;
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
-                      const isColFiltered = hasActiveFilter(col.id);
                       const isFilterOpen = menuFiltroAberto === col.id;
                       return (
                         <TableHead
                           key={col.id}
                           style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                          className={`emp-th group relative sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)} ${isColFiltered ? "emp-th-filtered emp-th-has-filter" : ""}`}
+                          className={`emp-th group relative sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
                           <div className={`emp-th-label-wrap flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
                             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
-                            {renderSortIndicator(col.id, isColFiltered)}
+                            {renderSortIndicator(col.id)}
                           </div>
                           <div
                               className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
                             >
-                              {isColFiltered && (
-                                <button
-                                  type="button"
-                                  className={`${EMP_HEADER_CTRL_BTN} emp-header-clear-filter-btn inline-flex shrink-0`}
-                                  title={`Limpar filtro de '${formatHeaderLabel(col)}'`}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    clearColumnFilter(col.id);
-                                    closeFilterMenu();
-                                  }}
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                              )}
                               <button
                                 ref={(el) => {
                                   if (el) filterAnchorRefs.current[col.id] = el;
