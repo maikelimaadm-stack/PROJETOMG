@@ -291,7 +291,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th {
-  background: #f6f9fd !important;
+  background: #eaf2ff !important;
   color: #1e3a5f !important;
   font-weight: 600;
   font-size: 11px;
@@ -342,7 +342,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th {
-  background: #f6f9fd !important;
+  background: #eaf2ff !important;
   color: #1e3a5f !important;
   font-weight: 600;
   font-size: 10px;
