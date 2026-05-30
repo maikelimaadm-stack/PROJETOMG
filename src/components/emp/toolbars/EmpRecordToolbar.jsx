@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  Menu,
   Plus,
   Pencil,
   Trash2,
@@ -14,7 +15,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsRight,
-  MoreHorizontal,
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import EmpToolbarButton from "@/components/emp/toolbars/EmpToolbarButton";
@@ -63,6 +63,48 @@ export default function EmpRecordToolbar({
     <div className="bg-white erp-toolbar shadow-none overflow-hidden">
       <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5 border-b border-[#E4E7EC]">
         <div className="flex items-center gap-1.5 shrink-0">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <EmpToolbarButton variant="icon" icon={Menu} title="Menu" aria-label="Menu" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-52 rounded-md p-1">
+              {onBack && (
+                <DropdownMenuItem onClick={onBack} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                  <ChevronLeft className="w-4 h-4" /> Voltar
+                </DropdownMenuItem>
+              )}
+              {onToggleFilter && (
+                <DropdownMenuItem onClick={onToggleFilter} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                  <Filter className="w-4 h-4" /> Filtros
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onFirst} disabled={!canNavigate || isFirst} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                <ChevronsLeft className="w-4 h-4" /> Primeiro
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onPrevious} disabled={!canNavigate || isFirst} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                <ChevronLeft className="w-4 h-4" /> Anterior
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onNext} disabled={!canNavigate || isLast} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                <ChevronRight className="w-4 h-4" /> Próximo
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onLast} disabled={!canNavigate || isLast} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                <ChevronsRight className="w-4 h-4" /> Último
+              </DropdownMenuItem>
+              {showUtilityActions && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={onLayoutConfigClick} disabled={!onLayoutConfigClick} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                    Layout do formulário
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={onSettingsClick} disabled={!onSettingsClick} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                    Campos personalizados
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           {onToggleView && (
             <EmpToolbarButton
               variant="icon"
@@ -122,54 +164,6 @@ export default function EmpRecordToolbar({
               disabled={attachDisabled}
               title={attachDisabled ? "Salve o registro antes de anexar" : "Anexos"}
             />
-          )}
-          {showUtilityActions && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <EmpToolbarButton variant="icon" icon={MoreHorizontal} title="Mais opções" aria-label="Mais opções" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52 rounded-md p-1">
-                {onBack && (
-                  <DropdownMenuItem onClick={onBack} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    <ChevronLeft className="w-4 h-4" /> Voltar
-                  </DropdownMenuItem>
-                )}
-                {onToggleFilter && (
-                  <DropdownMenuItem onClick={onToggleFilter} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    <Filter className="w-4 h-4" /> Filtros
-                    {filterActive && (
-                      <button
-                        type="button"
-                        onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }}
-                        className="ml-auto text-xs text-[#B42318]"
-                      >
-                        Limpar
-                      </button>
-                    )}
-                  </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onFirst} disabled={!canNavigate || isFirst} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  <ChevronsLeft className="w-4 h-4" /> Primeiro
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onPrevious} disabled={!canNavigate || isFirst} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  <ChevronLeft className="w-4 h-4" /> Anterior
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onNext} disabled={!canNavigate || isLast} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  <ChevronRight className="w-4 h-4" /> Próximo
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onLast} disabled={!canNavigate || isLast} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  <ChevronsRight className="w-4 h-4" /> Último
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={onLayoutConfigClick} disabled={!onLayoutConfigClick} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  Layout do formulário
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={onSettingsClick} disabled={!onSettingsClick} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  Campos personalizados
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           )}
           <div className={ERP_TOOLBAR_COUNTER}>{total > 0 ? `${currentIndex + 1}/${total}` : total}</div>
         </div>
