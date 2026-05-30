@@ -45,7 +45,8 @@ export default function EmpRecordToolbar({
   onClearFilter,
   searchValue = "",
   onSearchChange,
-  showSearch = false
+  showSearch = false,
+  showRecordNavigation = true
 }) {
   const canNavigate = total > 0;
   const isFirst = currentIndex <= 0;
@@ -88,12 +89,14 @@ export default function EmpRecordToolbar({
             <span>Duplicar</span>
           </ToolbarBtn>
         )}
-        <div className="flex items-center gap-0 shrink-0">
-          <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className="rounded-r-none border-r-0" title="Primeiro"><ChevronsLeft className="w-3.5 h-3.5" /></ToolbarBtn>
-          <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className="rounded-none border-r-0" title="Anterior"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
-          <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} className="rounded-none border-r-0" title="Próximo"><ChevronRight className="w-3.5 h-3.5" /></ToolbarBtn>
-          <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} className="rounded-l-none" title="Último"><ChevronsRight className="w-3.5 h-3.5" /></ToolbarBtn>
-        </div>
+        {showRecordNavigation && (
+          <div className="flex items-center gap-0 shrink-0">
+            <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className="rounded-r-none border-r-0" title="Primeiro"><ChevronsLeft className="w-3.5 h-3.5" /></ToolbarBtn>
+            <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className="rounded-none border-r-0" title="Anterior"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
+            <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} className="rounded-none border-r-0" title="Próximo"><ChevronRight className="w-3.5 h-3.5" /></ToolbarBtn>
+            <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} className="rounded-l-none" title="Último"><ChevronsRight className="w-3.5 h-3.5" /></ToolbarBtn>
+          </div>
+        )}
         {showSaveActions && (
           <>
             <ToolbarBtn onClick={onSave} className={LABELED_BTN_CLASS} title="Salvar">

@@ -388,6 +388,7 @@ export default function FORMEMP({
           showSaveActions={editMode}
           showEditAction={isReadOnly}
           showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
+          showRecordNavigation={isEditing && !editMode && !isDuplicating}
           onSave={handleSubmit}
           onCancel={onCancel}
           onEditRecord={() => setEditMode(true)}
