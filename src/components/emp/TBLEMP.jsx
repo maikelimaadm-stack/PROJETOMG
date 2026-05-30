@@ -168,6 +168,46 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     if (!ano || !mes || !dia) return null;
     return new Date(Number(ano), Number(mes) - 1, Number(dia)).getTime();
   };
+  const parseNumberFilterValue = (val) => {
+    const s = String(val ?? "").trim();
+    if (!s) return NaN;
+    return Number(s.replace(/\./g, "").replace(",", "."));
+  };
+  const formatRangeTokenForInput = (token, ft, col) => {
+    if (!token) return "";
+    const raw = String(token).replace(/^(min:|max:|start:|end:)/, "");
+    if (!raw) return "";
+    if (ft === "date") {
+      if (/^\d{4}-\d{2}-\d{2}/.test(raw)) {
+        const [ano, mes, dia] = raw.split("T")[0].split("-");
+        return `${dia}/${mes}/${ano}`;
+      }
+      return raw;
+    }
+    const n = parseNumberFilterValue(raw);
+    if (!Number.isFinite(n)) return raw;
+    if (col?.id === "codigo_empresa") return String(n);
+    const places = col?.decimal_places ?? 2;
+    return n.toLocaleString("pt-BR", col?.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
+  };
+  const getRangeTokenInputValue = (token) => {
+    if (!token) return "";
+    return String(token).replace(/^(min:|max:|start:|end:)/, "");
+  };
+  const normalizeRangeValoresForEdit = (colunaId, valores) => {
+    const col = colunasDisponiveis.find((c) => c.id === colunaId);
+    const ft = getColumnFilterType(col);
+    if (ft !== "number" && ft !== "date") return valores;
+    return valores.map((v) => {
+      const s = String(v);
+      if (s.startsWith("min:") || s.startsWith("max:") || s.startsWith("start:") || s.startsWith("end:")) {
+        const prefix = s.match(/^(min:|max:|start:|end:)/)?.[0] || "";
+        const formatted = formatRangeTokenForInput(s, ft, col);
+        return formatted ? `${prefix}${formatted}` : v;
+      }
+      return v;
+    });
+  };
   const resolveColumnAlign = (col) => {
     if (col?.tipo === "date") return "center";
     if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codigo_empresa" || col?.id === "custom:valor") return "right";
@@ -206,8 +246,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
         const min = filtro.find((i) => String(i).startsWith("min:"));
         const max = filtro.find((i) => String(i).startsWith("max:"));
         const list = getListFilterValues(filtro, ft);
-        if (min && nv < Number(String(min).replace("min:", ""))) return false;
-        if (max && nv > Number(String(max).replace("max:", ""))) return false;
+        const minN = min ? parseNumberFilterValue(String(min).replace("min:", "")) : NaN;
+        const maxN = max ? parseNumberFilterValue(String(max).replace("max:", "")) : NaN;
+        if (Number.isFinite(minN) && nv < minN) return false;
+        if (Number.isFinite(maxN) && nv > maxN) return false;
         if (list.length > 0) return list.includes(getFieldValue(emp, col.id));
         return true;
       }
@@ -306,7 +348,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const filterVisible = hasActiveFilter(colunaId) || menuFiltroAberto === colunaId;
 
     return (
-      <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: [...getValoresFiltro(colunaId)] } : { colunaId: null, valores: [] }); }}>
+      <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: normalizeRangeValoresForEdit(colunaId, [...getValoresFiltro(colunaId)]) } : { colunaId: null, valores: [] }); }}>
         <PopoverTrigger asChild>
           <button
             type="button"
@@ -326,7 +368,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             <Filter className="w-3 h-3" />
           </button>
         </PopoverTrigger>
-        <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover w-[310px] p-0 z-[9999]">
+        <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover p-0 z-[9999]">
           <div className="emp-filter-sort-section">
             <button
               type="button"
@@ -361,29 +403,29 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                 <div className="emp-filter-range-label">Filtrar entre</div>
                 <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
                   <input
-                    type={ft === "date" ? "date" : "number"}
-                    value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")}
+                    type="text"
+                    value={getRangeTokenInputValue(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")))}
                     onChange={(e) => setFiltroTemp((p) => {
                       const rangeVals = getRangeFilterValues(p.valores, ft).filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"));
                       const listVals = getListFilterValues(p.valores, ft);
-                      const minVal = e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : null;
+                      const minVal = e.target.value.trim() ? `${ft === "date" ? "start" : "min"}:${e.target.value.trim()}` : null;
                       return { ...p, valores: [...(minVal ? [minVal] : []), ...rangeVals, ...listVals] };
                     })}
-                    placeholder="De"
-                    className="emp-filter-field"
+                    placeholder="DE"
+                    className="emp-filter-field emp-filter-search"
                   />
                   <span className="emp-filter-range-sep">a</span>
                   <input
-                    type={ft === "date" ? "date" : "number"}
-                    value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")}
+                    type="text"
+                    value={getRangeTokenInputValue(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")))}
                     onChange={(e) => setFiltroTemp((p) => {
                       const rangeVals = getRangeFilterValues(p.valores, ft).filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"));
                       const listVals = getListFilterValues(p.valores, ft);
-                      const maxVal = e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : null;
+                      const maxVal = e.target.value.trim() ? `${ft === "date" ? "end" : "max"}:${e.target.value.trim()}` : null;
                       return { ...p, valores: [...rangeVals, ...(maxVal ? [maxVal] : []), ...listVals] };
                     })}
-                    placeholder="Até"
-                    className="emp-filter-field"
+                    placeholder="ATÉ"
+                    className="emp-filter-field emp-filter-search"
                   />
                 </div>
               </div>
