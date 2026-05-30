@@ -11,7 +11,7 @@ export const EMP_TOOLBAR_SEARCH_INPUT =
   "h-full w-full px-2 pr-7 text-[11px] text-slate-800 bg-white outline-none placeholder:text-slate-400";
 
 export const EMP_TOOLBAR_COUNTER =
-  `emp-toolbar-counter inline-flex h-7 min-w-[6.5rem] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white px-2.5 text-[11px] font-medium tabular-nums text-[#082e54]`;
+  `emp-toolbar-counter inline-flex h-7 w-auto min-w-[2rem] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-medium tabular-nums text-[#082e54]`;
 
 /** Botões compactos do cabeçalho — mesmo visual da toolbar, tamanho 22px */
 export const EMP_HEADER_CTRL_BTN =
