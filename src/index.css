@@ -586,8 +586,23 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
-  height: 26px !important;
-  min-height: 26px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto) {
+  width: 24px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
+  gap: 3px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn svg {
+  width: 13px !important;
+  height: 13px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn svg {
