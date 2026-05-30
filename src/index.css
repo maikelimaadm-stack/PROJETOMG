@@ -636,36 +636,36 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn {
-  height: 28px !important;
-  min-height: 28px !important;
-  width: 28px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  width: 24px !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-page {
   width: auto !important;
-  min-width: 28px !important;
+  min-width: 24px !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn svg {
-  width: 14px !important;
-  height: 14px !important;
+  width: 13px !important;
+  height: 13px !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn-active {
-  background: #1e3a5f !important;
-  border-color: #1e3a5f !important;
+  background: #21c45d !important;
+  border-color: #21c45d !important;
   color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn-active:hover {
-  background: #1a3354 !important;
-  border-color: #1a3354 !important;
+  background: #1fb455 !important;
+  border-color: #1fb455 !important;
   color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-size {
-  height: 28px !important;
-  min-height: 28px !important;
+  height: 24px !important;
+  min-height: 24px !important;
 }
 
 @media screen and (max-width: 768px) {

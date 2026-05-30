@@ -76,7 +76,7 @@ export default function EmpTablePagination({
         <ChevronRight className="w-3.5 h-3.5" />
       </PaginationBtn>
       <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} title="Última página" aria-label="Última página">
-        <ChevronsRight className="w-3.5 h-3.5" />
+        <ChevronsRight className="w-3 h-3" />
       </PaginationBtn>
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
