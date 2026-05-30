@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
-import { Filter, ArrowDownAZ, ArrowUpZA, GripVertical, MoreVertical, ChevronUp, ChevronDown, FilterX, ChevronRight } from "lucide-react";
+import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EMP_HEADER_CTRL_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
@@ -245,9 +245,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const valSel = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
     const filteredOpts = opts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
     const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => valSel.includes(o));
-    const colLabel = formatHeaderLabel(col);
     const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
-    const applyFilter = () => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); };
 
     return (
       <Popover open={menuFiltroAberto === colunaId} onOpenChange={(open) => { setMenuFiltroAberto(open ? colunaId : null); setBuscaFiltroMenu(""); setFiltroTemp(open ? { colunaId, valores: [...getValoresFiltro(colunaId)] } : { colunaId: null, valores: [] }); }}>
@@ -258,108 +256,95 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             title="Filtrar coluna"
             onClick={(e) => e.stopPropagation()}
           >
-            <Filter className="w-2.5 h-2.5" />
+            <Filter className="w-3 h-3" />
           </button>
         </PopoverTrigger>
-        <PopoverContent align="start" side="bottom" sideOffset={2} className="emp-filter-popover z-[9999]">
+        <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover z-[9999]">
           <div className="emp-filter-menu-list">
             <button type="button" className="emp-filter-menu-item" onClick={() => { handleSort(colunaId); closeFilter(); }}>
               <ArrowDownAZ className="emp-filter-menu-icon" />
-              <span>Classificar do Menor para o Maior</span>
+              <span>Menor para Maior</span>
             </button>
             <button type="button" className="emp-filter-menu-item" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}>
               <ArrowUpZA className="emp-filter-menu-icon" />
-              <span>Classificar do Maior para o Menor</span>
+              <span>Maior para Menor</span>
             </button>
-          </div>
-
-          <div className="emp-filter-menu-sep" />
-
-          <div className="emp-filter-menu-list">
             <button
               type="button"
               className="emp-filter-menu-item"
               disabled={!hasActiveFilter(colunaId)}
               onClick={() => { clearColumnFilter(colunaId); closeFilter(); }}
             >
-              <FilterX className="emp-filter-menu-icon" />
-              <span className="truncate">Limpar Filtro de &quot;{colLabel}&quot;</span>
+              <X className="emp-filter-menu-icon" />
+              <span>Limpar Filtro</span>
             </button>
-
-            {isRange && (
-              <>
-                <div className="emp-filter-menu-item emp-filter-menu-item-static">
-                  <span>Filtros de {ft === "date" ? "Data" : "Número"}</span>
-                  <ChevronRight className="w-2.5 h-2.5 shrink-0 text-slate-400" />
-                </div>
-                <div className="emp-filter-range-block">
-                  <div className="emp-filter-range-grid">
-                    <input
-                      type={ft === "date" ? "date" : "number"}
-                      value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")}
-                      onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))}
-                      placeholder="De"
-                      className="emp-filter-input"
-                    />
-                    <span className="emp-filter-range-sep">a</span>
-                    <input
-                      type={ft === "date" ? "date" : "number"}
-                      value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")}
-                      onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))}
-                      placeholder="Até"
-                      className="emp-filter-input"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
           </div>
 
-          {!isRange && ft === "list" && (
-            <>
-              <div className="emp-filter-menu-sep" />
-              <div className="emp-filter-checklist-box">
-                <input
-                  value={buscaFiltroMenu}
-                  onChange={(e) => setBuscaFiltroMenu(e.target.value)}
-                  placeholder="Pesquisar"
-                  className="emp-filter-search"
-                />
-                <label className="emp-filter-select-all">
+          <div className="emp-filter-body">
+            {isRange ? (
+              <div className="emp-filter-range-wrap">
+                <div className="emp-filter-range-label">Entre</div>
+                <div className="emp-filter-range-grid">
+                  <input
+                    type={ft === "date" ? "date" : "number"}
+                    value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")}
+                    onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))}
+                    placeholder="De"
+                    className="emp-filter-input"
+                  />
+                  <span className="emp-filter-range-sep">a</span>
+                  <input
+                    type={ft === "date" ? "date" : "number"}
+                    value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")}
+                    onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))}
+                    placeholder="Até"
+                    className="emp-filter-input"
+                  />
+                </div>
+              </div>
+            ) : (
+              <input
+                value={buscaFiltroMenu}
+                onChange={(e) => setBuscaFiltroMenu(e.target.value)}
+                placeholder="Pesquisar"
+                className="emp-filter-search"
+              />
+            )}
+
+            {ft === "list" && (
+              <div className="emp-filter-value-list">
+                <label className="emp-filter-value-list-header">
                   <Checkbox
                     checked={allVisSel}
                     onCheckedChange={(c) => setFiltroTemp((p) => {
                       const rest = p.valores.filter((v) => !filteredOpts.includes(v));
                       return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest };
                     })}
-                    className="h-3 w-3 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
+                    className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
                   />
                   <span>(Selecionar Tudo)</span>
                 </label>
-                <div className="emp-filter-list-scroll">
-                  {filteredOpts.length === 0 ? (
-                    <div className="emp-filter-empty">Nenhum valor</div>
-                  ) : (
-                    filteredOpts.map((opt) => (
-                      <label key={opt} className="emp-filter-list-item">
-                        <Checkbox
-                          checked={valSel.includes(opt)}
-                          onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
-                          className="h-3 w-3 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
-                        />
-                        <span title={opt}>{opt}</span>
-                      </label>
-                    ))
-                  )}
-                </div>
+                {filteredOpts.map((opt) => (
+                  <label key={opt} className="emp-filter-value-list-item">
+                    <Checkbox
+                      checked={valSel.includes(opt)}
+                      onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
+                      className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
+                    />
+                    <span title={opt}>{opt}</span>
+                  </label>
+                ))}
               </div>
-            </>
-          )}
+            )}
 
-          <div className="emp-filter-menu-sep" />
-          <div className="emp-filter-footer">
-            <button type="button" className="emp-filter-footer-btn" onClick={closeFilter}>Cancelar</button>
-            <button type="button" className="emp-filter-footer-btn emp-filter-footer-ok" onClick={applyFilter}>OK</button>
+            <div className="emp-filter-apply-row">
+              <button type="button" className="emp-filter-apply-btn" title="Aplicar filtro" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); }}>
+                <Check className="w-3.5 h-3.5" />
+              </button>
+              <button type="button" className="emp-filter-apply-btn" title="Cancelar" onClick={closeFilter}>
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         </PopoverContent>
       </Popover>
@@ -434,13 +419,13 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                 onClick={(e) => e.stopPropagation()}
                                 title="Redimensionar"
                               >
-                                <GripVertical className="w-2.5 h-2.5" />
+                                <GripVertical className="w-3 h-3" />
                               </button>
                             </div>
                           )}
                           {isResizing && (
                             <div
-                              className="emp-header-resize-overlay absolute top-0 right-0 h-full w-[18px] z-50 flex items-center justify-center cursor-col-resize"
+                              className="emp-header-resize-overlay absolute top-0 right-0 h-full w-[22px] z-50 flex items-center justify-center cursor-col-resize"
                               onMouseDown={(e) => startDragResize(e, col)}
                               onTouchStart={(e) => startDragResize(e, col)}
                               onClick={(e) => { e.stopPropagation(); setResizeColumnId(null); }}
