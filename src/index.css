@@ -346,31 +346,19 @@ input[type="number"] {
   background: transparent;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-btn.emp-header-filter-active,
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-btn.emp-header-filter-active:hover {
+.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-filter-active,
+.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-filter-active:hover {
   background: #ecfdf5 !important;
   border-color: #6ee7b7 !important;
   color: #047857 !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-btn.emp-header-filter-active svg {
+.cadastro-emp-scope .emp-table-pro .emp-header-ctrl.emp-header-filter-active svg {
   color: #047857 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-resize-btn {
   cursor: col-resize;
-  background: #ffffff !important;
-  border-color: #e2e8f0 !important;
-  color: #082e54 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn svg {
-  color: #082e54 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-resize-btn:hover:not(.emp-header-resize-active) {
-  background: #f8fafc !important;
-  border-color: #e2e8f0 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-resize-btn.emp-header-resize-active {
@@ -550,7 +538,8 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn,
 .cadastro-emp-scope .emp-toolbar-search,
-.cadastro-emp-scope .emp-toolbar-counter {
+.cadastro-emp-scope .emp-toolbar-counter,
+.cadastro-emp-scope .emp-header-ctrl {
   border: 1px solid #bae6fd !important;
   border-radius: 5px !important;
 }

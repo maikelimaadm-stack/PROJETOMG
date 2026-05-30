@@ -9,7 +9,7 @@ import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
 import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { EMP_HEADER_FILTER_BTN, EMP_HEADER_RESIZE_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const ACTIONS_COL_WIDTH = 28;
 
@@ -253,7 +253,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
         <PopoverTrigger asChild>
           <button
             type="button"
-            className={`${EMP_HEADER_FILTER_BTN} ${hasActiveFilter(colunaId) ? "emp-header-filter-active" : ""}`}
+            className={`${EMP_HEADER_CTRL_BTN} ${hasActiveFilter(colunaId) ? "emp-header-filter-active" : ""}`}
             title={hasActiveFilter(colunaId) ? "Filtrar coluna (duplo clique limpa)" : "Filtrar coluna"}
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={(e) => {
@@ -422,6 +422,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
                       const filterControl = renderFilterControl(col.id);
+                      const filterVisible = hasActiveFilter(col.id) || menuFiltroAberto === col.id;
                       return (
                         <TableHead
                           key={col.id}
@@ -435,14 +436,16 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           </div>
                           {filterControl && (
                             <div
-                              className={`emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                              className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
                             >
-                              {filterControl}
+                              <div className={filterVisible ? "block" : "hidden group-hover:block"}>
+                                {filterControl}
+                              </div>
                               <button
                                 type="button"
-                                className={`${EMP_HEADER_RESIZE_BTN} ${isResizing ? "emp-header-resize-active" : ""}`}
+                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${isResizing ? "inline-flex emp-header-resize-active" : "hidden group-hover:inline-flex"}`}
                                 onMouseDown={(e) => startDragResize(e, col)}
                                 onTouchStart={(e) => startDragResize(e, col)}
                                 onClick={(e) => e.stopPropagation()}
