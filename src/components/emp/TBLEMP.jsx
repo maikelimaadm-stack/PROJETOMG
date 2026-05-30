@@ -245,6 +245,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const valSel = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
     const filteredOpts = opts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
     const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => valSel.includes(o));
+    const colLabel = formatHeaderLabel(col);
     const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
 
     return (
@@ -260,27 +261,27 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           </button>
         </PopoverTrigger>
         <PopoverContent align="end" side="bottom" sideOffset={4} className="emp-filter-popover z-[9999]">
-          <div className="emp-filter-menu-list">
-            <button type="button" className="emp-filter-menu-item" onClick={() => { handleSort(colunaId); closeFilter(); }}>
-              <ArrowDownAZ className="emp-filter-menu-icon" />
-              <span>Menor para Maior</span>
+          <div className="emp-filter-sort-list">
+            <button type="button" className="emp-filter-sort-item" onClick={() => { handleSort(colunaId); closeFilter(); }}>
+              <ArrowDownAZ className="w-4 h-4 shrink-0" />
+              <span>Classificar do Menor para o Maior</span>
             </button>
-            <button type="button" className="emp-filter-menu-item" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}>
-              <ArrowUpZA className="emp-filter-menu-icon" />
-              <span>Maior para Menor</span>
+            <button type="button" className="emp-filter-sort-item" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}>
+              <ArrowUpZA className="w-4 h-4 shrink-0" />
+              <span>Classificar do Maior para o Menor</span>
             </button>
             <button
               type="button"
-              className="emp-filter-menu-item"
+              className="emp-filter-sort-item"
               disabled={!hasActiveFilter(colunaId)}
               onClick={() => { clearColumnFilter(colunaId); closeFilter(); }}
             >
-              <X className="emp-filter-menu-icon" />
-              <span>Limpar Filtro</span>
+              <X className="w-4 h-4 shrink-0" />
+              <span className="truncate">Limpar Filtro de &quot;{colLabel}&quot;</span>
             </button>
           </div>
 
-          <div className="emp-filter-body">
+          <div className="emp-filter-content">
             {isRange ? (
               <div className="emp-filter-range-wrap">
                 <div className="emp-filter-range-label">Entre</div>
@@ -290,7 +291,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                     value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")}
                     onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))}
                     placeholder="De"
-                    className="emp-filter-input"
+                    className="emp-filter-field"
                   />
                   <span className="emp-filter-range-sep">a</span>
                   <input
@@ -298,7 +299,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                     value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")}
                     onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))}
                     placeholder="Até"
-                    className="emp-filter-input"
+                    className="emp-filter-field"
                   />
                 </div>
               </div>
@@ -306,8 +307,8 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <input
                 value={buscaFiltroMenu}
                 onChange={(e) => setBuscaFiltroMenu(e.target.value)}
-                placeholder="Pesquisar"
-                className="emp-filter-search"
+                placeholder="PESQUISAR"
+                className="emp-filter-field emp-filter-search-field"
               />
             )}
 
@@ -322,7 +323,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                     })}
                     className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
                   />
-                  <span>(Selecionar Tudo)</span>
+                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
                 </label>
                 {filteredOpts.map((opt) => (
                   <label key={opt} className="emp-filter-value-list-item">
@@ -331,18 +332,18 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
                       className="h-3.5 w-3.5 shrink-0 border-sky-300 data-[state=checked]:bg-[#082e54] data-[state=checked]:border-[#082e54]"
                     />
-                    <span title={opt}>{opt}</span>
+                    <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
                   </label>
                 ))}
               </div>
             )}
 
-            <div className="emp-filter-apply-row">
-              <button type="button" className="emp-filter-apply-btn" title="Aplicar filtro" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); }}>
-                <Check className="w-3.5 h-3.5" />
+            <div className="emp-filter-actions">
+              <button type="button" className="emp-filter-action-btn" title="Aplicar filtro" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); }}>
+                <Check className="w-4 h-4" />
               </button>
-              <button type="button" className="emp-filter-apply-btn" title="Cancelar" onClick={closeFilter}>
-                <X className="w-3.5 h-3.5" />
+              <button type="button" className="emp-filter-action-btn" title="Cancelar" onClick={closeFilter}>
+                <X className="w-4 h-4" />
               </button>
             </div>
           </div>
