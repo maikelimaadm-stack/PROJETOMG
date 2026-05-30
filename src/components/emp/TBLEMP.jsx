@@ -368,6 +368,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const closeFilterMenu = () => {
     setMenuFiltroAberto(null);
+    setFilterAnchorRect(null);
     setBuscaFiltroMenu("");
     setFiltroTemp({ colunaId: null, valores: [] });
   };
@@ -376,7 +377,9 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const el = filterAnchorRefs.current[colunaId];
     if (el) {
       const rect = el.getBoundingClientRect();
-      setFilterAnchorRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+      setFilterAnchorRect({ columnId: colunaId, left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+    } else {
+      setFilterAnchorRect(null);
     }
     setMenuFiltroAberto(colunaId);
     setBuscaFiltroMenu("");
@@ -402,7 +405,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
       return;
     }
     const rect = el.getBoundingClientRect();
-    setFilterAnchorRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+    setFilterAnchorRect({ columnId: menuFiltroAberto, left: rect.left, top: rect.top, width: rect.width, height: rect.height });
   };
 
   useLayoutEffect(() => {
@@ -628,10 +631,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                             {renderSortIndicator(col.id, isColFiltered)}
                           </div>
                           <div
-                              ref={(el) => {
-                                if (el) filterAnchorRefs.current[col.id] = el;
-                                else delete filterAnchorRefs.current[col.id];
-                              }}
                               className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
@@ -651,6 +650,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                 </button>
                               )}
                               <button
+                                ref={(el) => {
+                                  if (el) filterAnchorRefs.current[col.id] = el;
+                                  else delete filterAnchorRefs.current[col.id];
+                                }}
                                 type="button"
                                 className={`${EMP_HEADER_CTRL_BTN} emp-header-filter-btn inline-flex shrink-0 ${
                                   isFilterOpen
@@ -740,7 +743,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           </div>
         </CardContent>
       </Card>
-      <Popover open={menuFiltroAberto !== null} onOpenChange={(open) => { if (!open) closeFilterMenu(); }}>
+      <Popover open={menuFiltroAberto !== null && filterAnchorRect?.columnId === menuFiltroAberto} onOpenChange={(open) => { if (!open) closeFilterMenu(); }}>
         {filterAnchorRect && (
           <PopoverAnchor asChild>
             <div
@@ -755,7 +758,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             />
           </PopoverAnchor>
         )}
-        {menuFiltroAberto && filterAnchorRect && renderFilterPopoverContent(menuFiltroAberto)}
+        {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </Popover>
       <EmpConfiguracaoColunasDialog open={showConfigColunas} onOpenChange={setShowConfigColunas} colunasDisponiveis={colunasDisponiveis} colunasVisiveis={colunasVisiveis} colunasOrdem={colunasOrdem} frozenColumnCount={frozenColumnCount} onChange={handleColumnLayoutChange} onResetDefault={handleResetColumnLayout} />
     </div>
