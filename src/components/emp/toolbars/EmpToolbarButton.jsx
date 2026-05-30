@@ -29,7 +29,7 @@ export default function EmpToolbarButton({
       className={`${ERP_TOOLBAR_BTN_BASE} ${VARIANTS[variant] || VARIANTS.default} ${active ? ERP_TOOLBAR_BTN_ACTIVE : ""} ${className}`}
       {...props}
     >
-      {Icon && <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={1.75} />}
+      {Icon && <Icon className="w-4 h-4 shrink-0" strokeWidth={1.75} />}
       {children ? <span className="leading-none">{children}</span> : null}
     </button>
   );

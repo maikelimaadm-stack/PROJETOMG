@@ -591,11 +591,10 @@ input[type="number"] {
 
 .cadastro-emp-scope .erp-toolbar-btn {
   font-family: Inter, system-ui, sans-serif;
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1;
-  height: 28px;
-  min-height: 28px;
+  height: 36px;
   border-radius: 4px;
   box-shadow: none !important;
 }
@@ -639,9 +638,6 @@ input[type="number"] {
   border: 1px solid #D0D5DD !important;
   border-radius: 4px !important;
   box-shadow: none !important;
-  height: 28px !important;
-  min-height: 28px !important;
-  font-size: 11px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar input::placeholder,
