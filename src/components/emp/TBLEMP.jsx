@@ -70,6 +70,8 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
 
   const lastTapRef = useRef({ id: null, time: 0 });
+  const lastRowClickRef = useRef({ id: null, time: 0 });
+  const pendingRowClickRef = useRef(null);
   const lastSelectedIdRef = useRef(null);
   const scrollContainerRef = useRef(null);
   const tableRef = useRef(null);
@@ -392,7 +394,79 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     setSelectedItems([emp.id]); lastSelectedIdRef.current = emp.id;
   };
 
-  const handleRowTouch = (emp, event) => { const now = Date.now(); if (lastTapRef.current.id === emp.id && now - lastTapRef.current.time < 300) { event.preventDefault(); if (selectedItems.length <= 1) onEdit(emp); } else { handleRowSelect(emp, event); } lastTapRef.current = { id: emp.id, time: now }; };
+  const clearPendingRowClick = () => {
+    if (pendingRowClickRef.current) {
+      clearTimeout(pendingRowClickRef.current);
+      pendingRowClickRef.current = null;
+    }
+  };
+
+  useEffect(() => () => clearPendingRowClick(), []);
+
+  const handleRowClick = (emp, event) => {
+    if (event?.target?.closest?.("button, input, [role='checkbox'], [data-radix-popper-content-wrapper]")) return;
+    if (event?.shiftKey || event?.ctrlKey || event?.metaKey) {
+      clearPendingRowClick();
+      lastRowClickRef.current = { id: null, time: 0 };
+      handleRowSelect(emp, event);
+      return;
+    }
+
+    const now = Date.now();
+    const last = lastRowClickRef.current;
+    const isSelected = selectedItems.includes(emp.id);
+
+    if (last.id === emp.id && last.time > 0 && now - last.time <= ROW_DBLCLICK_MS) {
+      clearPendingRowClick();
+      lastRowClickRef.current = { id: null, time: 0 };
+      if (selectedItems.length <= 1) onEdit(emp);
+      return;
+    }
+
+    lastRowClickRef.current = { id: emp.id, time: now };
+
+    if (isSelected) {
+      clearPendingRowClick();
+      handleRowSelect(emp, event);
+      lastRowClickRef.current = { id: null, time: 0 };
+      return;
+    }
+
+    clearPendingRowClick();
+    pendingRowClickRef.current = setTimeout(() => {
+      pendingRowClickRef.current = null;
+      handleRowSelect(emp, event);
+      lastRowClickRef.current = { id: null, time: 0 };
+    }, ROW_DBLCLICK_MS);
+  };
+
+  const handleRowTouch = (emp, event) => {
+    const now = Date.now();
+    const last = lastTapRef.current;
+    const isSelected = selectedItems.includes(emp.id);
+
+    if (last.id === emp.id && last.time > 0 && now - last.time <= ROW_DBLCLICK_MS) {
+      event.preventDefault();
+      clearPendingRowClick();
+      lastTapRef.current = { id: null, time: 0 };
+      if (selectedItems.length <= 1) onEdit(emp);
+      return;
+    }
+
+    lastTapRef.current = { id: emp.id, time: now };
+
+    if (isSelected) {
+      clearPendingRowClick();
+      handleRowSelect(emp, event);
+      return;
+    }
+
+    clearPendingRowClick();
+    pendingRowClickRef.current = setTimeout(() => {
+      pendingRowClickRef.current = null;
+      handleRowSelect(emp, event);
+    }, ROW_DBLCLICK_MS);
+  };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
 
   const renderFilterIcon = (active) => (
@@ -780,7 +854,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
                       return (
-                      <TableRow key={emp.id} className={`${rowClass} transition-colors border-0 cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowSelect(emp, e)} onDoubleClick={() => selectedItems.length <= 1 && onEdit(emp)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
+                      <TableRow key={emp.id} className={`${rowClass} transition-colors border-0 cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
