@@ -40,7 +40,10 @@ const VISIBLE_KEY = "emp_col_visiveis";
 const ORDER_KEY = "emp_col_ordem";
 const AGGR_KEY = "emp_table_aggregation_config";
 const PAGE_SIZE_KEY = "emp_table_page_size";
+const ROW_DBLCLICK_MS = 220;
 const MIN_COL_WIDTH = 80;
+const MAX_AUTO_FIT_WIDTH = 520;
+const AUTO_FIT_MEASURE_LIMIT = 300;
 const getMinWidth = (col) => Math.max(MIN_COL_WIDTH, String(col?.label || "").length * 7 + 18);
 
 const fmtData = (d) => { if (!d) return "-"; const [a, m, dia] = String(d).split("T")[0].split("-"); return !a || !m || !dia ? "-" : `${dia}/${m}/${a}`; };
@@ -73,6 +76,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const dragRef = useRef(null);
   const filterAnchorRefs = useRef({});
   const filterPanelRef = useRef(null);
+  const measureCanvasRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -633,6 +637,34 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
   };
 
+  const measureTextWidth = (text, font = '11px Inter, system-ui, sans-serif') => {
+    if (typeof document === "undefined") return String(text || "").length * 7;
+    if (!measureCanvasRef.current) measureCanvasRef.current = document.createElement("canvas");
+    const ctx = measureCanvasRef.current.getContext("2d");
+    if (!ctx) return String(text || "").length * 7;
+    ctx.font = font;
+    return ctx.measureText(String(text ?? "")).width;
+  };
+
+  const autoFitColumnWidth = (col) => {
+    const minW = getMinWidth(col);
+    let maxW = measureTextWidth(formatHeaderLabel(col), '600 11px Inter, system-ui, sans-serif') + 38;
+    empresasOrdenadas.slice(0, AUTO_FIT_MEASURE_LIMIT).forEach((emp) => {
+      const cellW = measureTextWidth(getFieldValue(emp, col.id)) + 14;
+      maxW = Math.max(maxW, cellW);
+    });
+    if (agregacoes[col.id] !== undefined) {
+      const totalW = measureTextWidth(
+        colunasOrdenadas.findIndex((c) => c.id === col.id) === 0 ? "Totais" : formatTotalValue(agregacoes[col.id], col),
+        '600 10px Inter, system-ui, sans-serif'
+      ) + 14;
+      maxW = Math.max(maxW, totalW);
+    }
+    const nextWidth = Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW)));
+    setColumnWidths((p) => ({ ...p, [col.id]: nextWidth }));
+    setResizeColumnId(null);
+  };
+
   useEffect(() => {
     const buildCols = (cols) => cols.map((c) => ({ id: c.id, label: c.label, width: Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c)) }));
     const buildRows = (items, cols) => items.map((e) => cols.map((c) => getFieldValue(e, c.id)));
@@ -723,14 +755,18 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           <div
                             role="separator"
                             aria-orientation="vertical"
-                            aria-label={`Redimensionar coluna ${formatHeaderLabel(col)}`}
+                            aria-label={`Redimensionar coluna ${formatHeaderLabel(col)}. Duplo clique para ajustar automaticamente.`}
                             className={`emp-col-resize-handle absolute top-0 right-0 h-full w-[7px] translate-x-1/2 z-[60] cursor-col-resize touch-none ${
                               isResizing ? "emp-col-resize-active" : ""
                             }`}
                             onMouseDown={(e) => startDragResize(e, col)}
                             onTouchStart={(e) => startDragResize(e, col)}
                             onClick={(e) => e.stopPropagation()}
-                            onDoubleClick={(e) => e.stopPropagation()}
+                            onDoubleClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              autoFitColumnWidth(col);
+                            }}
                           />
                         </TableHead>
                       );
