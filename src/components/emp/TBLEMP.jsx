@@ -12,7 +12,6 @@ import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColuna
 import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-const CHECK_COL_WIDTH = 28;
 const ACTIONS_COL_WIDTH = 28;
 
 const COLUNAS_BASE = [
@@ -121,7 +120,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
   const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => [c.id, Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c))])), [colunasOrdenadas, columnWidths]);
-  const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, CHECK_COL_WIDTH + ACTIONS_COL_WIDTH + colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
+  const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, ACTIONS_COL_WIDTH + colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
 
   const getFieldValue = (emp, colId) => {
@@ -217,9 +216,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const handleRowTouch = (emp, event) => { const now = Date.now(); if (lastTapRef.current.id === emp.id && now - lastTapRef.current.time < 300) { event.preventDefault(); if (selectedItems.length <= 1) onEdit(emp); } else { handleRowSelect(emp, event); } lastTapRef.current = { id: emp.id, time: now }; };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
-
-  const allRowsSelected = empresasOrdenadas.length > 0 && empresasOrdenadas.every((e) => selectedItems.includes(e.id));
-  const toggleSelectAll = () => setSelectedItems(allRowsSelected ? [] : empresasOrdenadas.map((e) => e.id));
 
   const renderSortIndicator = (colId) => {
     if (sortConfig.key !== colId) {
@@ -318,17 +314,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               >
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">
-                    <TableHead
-                      style={{ width: CHECK_COL_WIDTH, minWidth: CHECK_COL_WIDTH, maxWidth: CHECK_COL_WIDTH }}
-                      className="emp-th sticky top-0 z-50 text-center px-1"
-                    >
-                      <Checkbox
-                        checked={allRowsSelected}
-                        onCheckedChange={toggleSelectAll}
-                        className="h-3 w-3"
-                        aria-label="Selecionar todos"
-                      />
-                    </TableHead>
                     {colunasOrdenadas.map((col, colIndex) => {
                       const width = columnPixelWidths[col.id] || 160;
                       const isFrozen = colIndex < frozenColumnCount;
@@ -337,7 +322,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       return (
                         <TableHead
                           key={col.id}
-                          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }}
+                          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
                           className={`emp-th group sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
@@ -361,29 +346,17 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                 </TableHeader>
                 <TableBody>
                   {empresasOrdenadas.length === 0
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length + 2} className="text-center py-8 text-xs text-slate-400 border-b border-slate-200">Nenhuma empresa encontrada</TableCell></TableRow>
+                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length + 1} className="text-center py-8 text-xs text-slate-400 border-b border-slate-200">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasOrdenadas.map((emp, index) => {
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
                       return (
                       <TableRow key={emp.id} className={`${rowClass} transition-colors border-0 cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowSelect(emp, e)} onDoubleClick={() => selectedItems.length <= 1 && onEdit(emp)} onTouchEnd={(e) => handleRowTouch(emp, e)}>
-                        <TableCell className={`emp-td emp-td-check text-center px-1 ${rowClass}`}>
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={(checked) => {
-                              setSelectedItems((p) => (checked ? [...new Set([...p, emp.id])] : p.filter((id) => id !== emp.id)));
-                              lastSelectedIdRef.current = emp.id;
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="h-3 w-3"
-                            aria-label={`Selecionar ${emp.razao_social || emp.codigo_empresa}`}
-                          />
-                        </TableCell>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-6 leading-6 text-[11px] align-middle border-0 whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-6 leading-6 text-[11px] align-middle border-0 whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
@@ -406,17 +379,16 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                   }
                   {Object.keys(agregacoes).length > 0 && (
                     <TableRow className="emp-total-row sticky bottom-0 z-30">
-                      <TableCell className="emp-td emp-td-check px-1" />
                       {colunasOrdenadas.map((col, ci) => {
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? CHECK_COL_WIDTH + frozenOffsets[col.id] : undefined }} className={`emp-td h-6 px-1.5 py-0 text-[11px] leading-6 align-middle border-0 whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th h-6 px-1.5 py-0 text-[11px] leading-6 align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
                             {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                           </TableCell>
                         );
                       })}
-                      <TableCell className="emp-td emp-td-actions px-0" />
+                      <TableCell className="emp-total-th emp-td-actions px-0" />
                     </TableRow>
                   )}
                 </TableBody>
