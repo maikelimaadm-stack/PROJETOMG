@@ -167,28 +167,48 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   };
   const getComparableValue = (emp, col) => { if (col.id === "codigo_empresa") return Number(emp.codigo_empresa || 0); return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id); };
 
-  const columnOptions = useMemo(() => { const opts = {}; colunasDisponiveis.filter((c) => !c.fixo).forEach((col) => { opts[col.id] = [...new Set(empresas.map((e) => getFieldValue(e, col.id)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" })); }); return opts; }, [empresas, colunasDisponiveis]);
+  const empresaPassaFiltros = (emp, excludeColId = null) => {
+    const termo = String(searchTerm || "").toLowerCase().trim();
+    if (termo) {
+      const m = colunasDisponiveis.filter((c) => !c.fixo).some((col) => String(getFieldValue(emp, col.id) || "").toLowerCase().includes(termo));
+      if (!m) return false;
+    }
+    return colunasDisponiveis.filter((c) => !c.fixo).every((col) => {
+      if (excludeColId && col.id === excludeColId) return true;
+      const filtro = filtrosColunas[col.id] || [];
+      if (filtro.length === 0) return true;
+      const ft = getColumnFilterType(col);
+      const raw = getComparableValue(emp, col);
+      if (ft === "number") {
+        const nv = Number(raw);
+        const min = filtro.find((i) => String(i).startsWith("min:"));
+        const max = filtro.find((i) => String(i).startsWith("max:"));
+        const list = filtro.filter((i) => !String(i).startsWith("min:") && !String(i).startsWith("max:"));
+        if (min && nv < Number(String(min).replace("min:", ""))) return false;
+        if (max && nv > Number(String(max).replace("max:", ""))) return false;
+        if (list.length > 0) return list.includes(getFieldValue(emp, col.id));
+        return true;
+      }
+      const val = getFieldValue(emp, col.id);
+      return filtro.includes(val);
+    });
+  };
+
+  const columnOptions = useMemo(() => {
+    const opts = {};
+    colunasDisponiveis.filter((c) => !c.fixo).forEach((col) => {
+      const source = empresas.filter((e) => empresaPassaFiltros(e, col.id));
+      opts[col.id] = [...new Set(source.map((e) => getFieldValue(e, col.id)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
+    });
+    return opts;
+  }, [empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
 
   const hasActiveFilter = (id) => (filtrosColunas[id] || []).length > 0;
   const getValoresFiltro = (id) => filtrosColunas[id] || [];
   const setValoresFiltro = (id, v) => setFiltrosColunas((p) => ({ ...p, [id]: v }));
   const clearColumnFilter = (id) => setValoresFiltro(id, []);
 
-  const empresasFiltradas = useMemo(() => {
-    const termo = String(searchTerm || "").toLowerCase().trim();
-    return empresas.filter((emp) => {
-      if (termo) { const m = colunasDisponiveis.filter((c) => !c.fixo).some((col) => String(getFieldValue(emp, col.id) || "").toLowerCase().includes(termo)); if (!m) return false; }
-      return colunasDisponiveis.filter((c) => !c.fixo).every((col) => {
-        const filtro = filtrosColunas[col.id] || [];
-        if (filtro.length === 0) return true;
-        const ft = getColumnFilterType(col);
-        const raw = getComparableValue(emp, col);
-        if (ft === "number") { const nv = Number(raw); const min = filtro.find((i) => String(i).startsWith("min:")); const max = filtro.find((i) => String(i).startsWith("max:")); const list = filtro.filter((i) => !String(i).startsWith("min:") && !String(i).startsWith("max:")); if (min && nv < Number(String(min).replace("min:", ""))) return false; if (max && nv > Number(String(max).replace("max:", ""))) return false; if (list.length > 0) return list.includes(getFieldValue(emp, col.id)); return true; }
-        const val = getFieldValue(emp, col.id);
-        return filtro.includes(val);
-      });
-    });
-  }, [empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
+  const empresasFiltradas = useMemo(() => empresas.filter((emp) => empresaPassaFiltros(emp)), [empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
 
   const empresasOrdenadas = useMemo(() => {
     const sorted = [...empresasFiltradas];
@@ -424,6 +444,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       const isFrozen = colIndex < frozenColumnCount;
                       const isResizing = resizeColumnId === col.id;
                       const filterControl = renderFilterControl(col.id);
+                      const colFilterPinned = hasActiveFilter(col.id) || menuFiltroAberto === col.id;
                       return (
                         <TableHead
                           key={col.id}
@@ -437,14 +458,20 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           </div>
                           {filterControl && (
                             <div
-                              className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
+                              className={`emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 ${colFilterPinned ? "emp-th-controls-pinned" : ""}`}
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
                             >
                               {filterControl}
                               <button
                                 type="button"
-                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${isResizing ? "inline-flex emp-header-resize-active" : "hidden group-hover:inline-flex"}`}
+                                className={`${EMP_HEADER_CTRL_BTN} emp-header-resize-btn ${
+                                  isResizing
+                                    ? "inline-flex emp-header-resize-active"
+                                    : colFilterPinned
+                                      ? "inline-flex invisible pointer-events-none group-hover:visible group-hover:pointer-events-auto"
+                                      : "hidden group-hover:inline-flex"
+                                }`}
                                 onMouseDown={(e) => startDragResize(e, col)}
                                 onTouchStart={(e) => startDragResize(e, col)}
                                 onClick={(e) => e.stopPropagation()}

@@ -348,6 +348,11 @@ input[type="number"] {
   line-height: 0;
 }
 
+.cadastro-emp-scope .emp-table-pro .emp-th-controls.emp-th-controls-pinned {
+  width: 47px;
+  flex-shrink: 0;
+}
+
 .cadastro-emp-scope .emp-table-pro .emp-th-controls .emp-header-ctrl {
   flex-shrink: 0;
   vertical-align: middle;
