@@ -9,7 +9,7 @@ import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
 import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { EMP_HEADER_CTRL_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const ACTIONS_COL_WIDTH = 28;
 
@@ -103,9 +103,9 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
   useEffect(() => { const s = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s ? JSON.parse(s) : {}); } catch { setLayoutAggregationConfig({}); } const h = () => { const s2 = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s2 ? JSON.parse(s2) : {}); } catch { setLayoutAggregationConfig({}); } }; window.addEventListener("storage", h); window.addEventListener("emp-layout-updated", h); return () => { window.removeEventListener("storage", h); window.removeEventListener("emp-layout-updated", h); }; }, []);
 
-  useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX)) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
+  useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX)) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
 
-  const startDragResize = (e, col) => { e.preventDefault(); e.stopPropagation(); const cx = e.touches?.[0]?.clientX ?? e.clientX; dragRef.current = { columnId: col.id, startX: cx, startWidth: columnWidths[col.id] || col.width || 160, minWidth: getMinWidth(col) }; document.body.style.cursor = "col-resize"; document.body.style.userSelect = "none"; };
+  const startDragResize = (e, col) => { e.preventDefault(); e.stopPropagation(); const cx = e.touches?.[0]?.clientX ?? e.clientX; dragRef.current = { columnId: col.id, startX: cx, startWidth: columnWidths[col.id] || col.width || 160, minWidth: getMinWidth(col) }; setResizeColumnId(col.id); document.body.style.cursor = "col-resize"; document.body.style.userSelect = "none"; };
 
   useEffect(() => { setSelectedItems((p) => { const valid = p.filter((id) => empresas.some((e) => e.id === id)); return p.length === valid.length && p.every((id, i) => id === valid[i]) ? p : valid; }); }, [empresas]);
   useEffect(() => { onSelectionChange?.(selectedItems); }, [selectedItems, onSelectionChange]);
@@ -254,8 +254,17 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           <button
             type="button"
             className={`${EMP_HEADER_CTRL_BTN} ${hasActiveFilter(colunaId) ? "emp-header-ctrl-active" : ""}`}
-            title="Filtrar coluna"
+            title={hasActiveFilter(colunaId) ? "Filtrar coluna (duplo clique limpa)" : "Filtrar coluna"}
             onClick={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (!hasActiveFilter(colunaId)) return;
+              clearColumnFilter(colunaId);
+              setMenuFiltroAberto(null);
+              setBuscaFiltroMenu("");
+              setFiltroTemp({ colunaId: null, valores: [] });
+            }}
           >
             <Filter className="w-3 h-3" />
           </button>
@@ -350,7 +359,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <button
                 type="button"
                 title="Aplicar filtro"
-                className="emp-filter-action-btn"
+                className={EMP_TOOLBAR_BTN}
                 onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); }}
               >
                 <Check className="w-3.5 h-3.5" />
@@ -358,7 +367,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               <button
                 type="button"
                 title="Cancelar"
-                className="emp-filter-action-btn"
+                className={EMP_TOOLBAR_BTN}
                 onClick={closeFilter}
               >
                 <X className="w-3.5 h-3.5" />
@@ -428,6 +437,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                             <div
                               className={`emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 transition-opacity ${hasActiveFilter(col.id) || isResizing ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
                               onClick={(e) => e.stopPropagation()}
+                              onDoubleClick={(e) => e.stopPropagation()}
                             >
                               {filterControl}
                               <button
@@ -436,6 +446,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                 onMouseDown={(e) => startDragResize(e, col)}
                                 onTouchStart={(e) => startDragResize(e, col)}
                                 onClick={(e) => e.stopPropagation()}
+                                onDoubleClick={(e) => e.stopPropagation()}
                                 title="Redimensionar"
                               >
                                 <GripVertical className="w-3 h-3" />
