@@ -6,7 +6,7 @@ import { EMP_TOOLBAR_BORDER } from "@/components/emp/toolbars/empToolbarStyles";
 export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 
 const PAGINATION_BTN_BASE =
-  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white text-[11px] font-medium text-[#5b6b80] shadow-none hover:bg-sky-50 disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
+  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white text-[11px] font-normal text-[#1a1f26] shadow-none hover:bg-sky-50 disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
 
 const getVisiblePages = (currentPage, totalPages) => {
   if (totalPages <= 0) return [];
@@ -57,7 +57,7 @@ export default function EmpTablePagination({
 
       {pageItems.map((item, index) =>
         item === "ellipsis" ? (
-          <span key={`ellipsis-${index}`} className="emp-table-pagination-ellipsis px-0.5 text-[11px] font-medium text-[#5b6b80] select-none leading-5">
+          <span key={`ellipsis-${index}`} className="emp-table-pagination-ellipsis px-0.5 text-[11px] font-normal text-[#1a1f26] select-none leading-5">
             ...
           </span>
         ) : (
@@ -84,7 +84,7 @@ export default function EmpTablePagination({
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
         <SelectTrigger
-          className={`emp-table-pagination-size h-5 w-[110px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-medium text-[#5b6b80] shadow-none hover:bg-sky-50 focus:ring-1 focus:ring-sky-300`}
+          className={`emp-table-pagination-size h-5 w-[110px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-normal text-[#1a1f26] shadow-none hover:bg-sky-50 focus:ring-1 focus:ring-sky-300`}
           aria-label="Registros por página"
         >
           <SelectValue />

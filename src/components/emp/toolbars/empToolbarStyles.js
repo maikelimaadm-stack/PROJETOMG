@@ -11,7 +11,7 @@ export const EMP_TOOLBAR_SEARCH_INPUT =
   "emp-toolbar-search-input h-full w-full min-w-0 flex-1 px-2 pr-7 text-[11px] leading-[22px] text-slate-600 bg-white outline-none placeholder:text-slate-400";
 
 export const EMP_TOOLBAR_COUNTER =
-  `emp-toolbar-counter inline-flex h-[22px] w-auto min-w-[2rem] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-medium tabular-nums text-[#5b6b80]`;
+  `emp-toolbar-counter inline-flex h-[22px] w-auto min-w-[2rem] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-normal tabular-nums text-[#1a1f26]`;
 
 export const EMP_TOOLBAR_ICON_CLASS = "emp-toolbar-action-icon shrink-0";
 
