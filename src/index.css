@@ -357,7 +357,18 @@ input[type="number"] {
   vertical-align: middle;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-th-controls .emp-header-ctrl {
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon:hover {
+  color: #1e3a5f;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-col-resize-handle {
   background: transparent;
 }
 

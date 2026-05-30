@@ -7,7 +7,7 @@ import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
 import { Filter, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDown } from "lucide-react";
-import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const FILTER_POPOVER_WIDTH = 272;
 
@@ -649,13 +649,14 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                               onClick={(e) => e.stopPropagation()}
                               onDoubleClick={(e) => e.stopPropagation()}
                             >
-                              <button
+                              <span
                                 ref={(el) => {
                                   if (el) filterAnchorRefs.current[col.id] = el;
                                   else delete filterAnchorRefs.current[col.id];
                                 }}
-                                type="button"
-                                className={`${EMP_HEADER_CTRL_BTN} emp-header-filter-btn inline-flex shrink-0 ${
+                                role="button"
+                                tabIndex={0}
+                                className={`emp-header-filter-icon inline-flex shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${
                                   isFilterOpen
                                     ? "opacity-100 pointer-events-auto"
                                     : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
@@ -665,9 +666,16 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                                   e.stopPropagation();
                                   toggleFilterMenu(col.id);
                                 }}
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter" || e.key === " ") {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    toggleFilterMenu(col.id);
+                                  }
+                                }}
                               >
                                 <Filter className="w-3 h-3" />
-                              </button>
+                              </span>
                             </div>
                           <div
                             role="separator"
