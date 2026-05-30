@@ -846,7 +846,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th h-5 px-1.5 py-0 text-[11px] leading-5 align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
+                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th px-1.5 py-0 h-6 leading-6 align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
                             {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                           </TableCell>
                         );

@@ -307,7 +307,15 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th,
-.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th {
+.cadastro-emp-scope .emp-table-pro .emp-total-th {
+  background: #eaf2ff !important;
+  color: #1a1f26 !important;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 24px;
+  height: 24px;
+  padding: 0 6px;
+  text-transform: none;
   border: none !important;
   border-top: none !important;
   border-bottom: none !important;
@@ -317,19 +325,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th:last-child,
-.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th:last-child {
+.cadastro-emp-scope .emp-table-pro .emp-total-th:last-child {
   border-right: 0.5px solid #eef1f4 !important;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-th {
-  background: #eaf2ff !important;
-  color: #1a1f26 !important;
-  font-weight: 600;
-  font-size: 11px;
-  line-height: 24px;
-  height: 24px;
-  padding: 0 6px;
-  text-transform: none;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
@@ -346,16 +343,6 @@ input[type="number"] {
   background: #f0f2f5 !important;
   color: #1a1f26 !important;
   font-weight: 600;
-}
-
-.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th {
-  background: #eaf2ff !important;
-  color: #1a1f26 !important;
-  font-weight: 600;
-  font-size: 11px;
-  line-height: 20px;
-  height: 20px;
-  padding: 0 6px;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th-controls {
