@@ -299,8 +299,8 @@ input[type="number"] {
   height: 24px;
   padding: 0 6px;
   text-transform: none;
-  border-right: 1px solid #e3e8f0 !important;
-  border-bottom: 1px solid #dbe3ef !important;
+  border-right: 1px solid #c5d0e0 !important;
+  border-bottom: 1px solid #b8c8dc !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th.emp-th-filtered {
@@ -349,9 +349,9 @@ input[type="number"] {
   line-height: 18px;
   height: 18px;
   padding: 0 6px;
-  border-right: 1px solid #e3e8f0;
-  border-bottom: 1px solid #dbe3ef;
-  border-top: 1px solid #dbe3ef;
+  border-right: 1px solid #c5d0e0;
+  border-bottom: 1px solid #b8c8dc;
+  border-top: 1px solid #b8c8dc;
   box-shadow: none;
 }
 
