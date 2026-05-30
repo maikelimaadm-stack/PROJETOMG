@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
@@ -840,20 +840,30 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                       </TableRow>
                     ); })
                   }
-                  {Object.keys(agregacoes).length > 0 && (
-                    <TableRow className="emp-total-row sticky bottom-0 z-30">
+                </TableBody>
+                {Object.keys(agregacoes).length > 0 && (
+                  <TableFooter className="emp-table-footer sticky bottom-0 z-30">
+                    <TableRow className="emp-total-row border-0 hover:bg-transparent">
                       {colunasOrdenadas.map((col, ci) => {
                         const width = columnPixelWidths[col.id] || 160;
                         const isFrozen = ci < frozenColumnCount;
                         return (
-                          <TableCell key={`total-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-total-th px-1.5 py-0 h-6 leading-6 align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none font-semibold ${isFrozen ? "sticky z-40" : ""} ${getColumnAlignClass(col)}`}>
-                            {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
-                          </TableCell>
+                          <TableHead
+                            key={`total-${col.id}`}
+                            style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
+                            className={`emp-th relative sticky bottom-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                          >
+                            <div className={`emp-th-label-wrap flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+                              <span className="emp-th-label truncate font-semibold">
+                                {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
+                              </span>
+                            </div>
+                          </TableHead>
                         );
                       })}
                     </TableRow>
-                  )}
-                </TableBody>
+                  </TableFooter>
+                )}
               </Table>
               </div>
             </div>

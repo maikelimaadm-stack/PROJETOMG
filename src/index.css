@@ -306,8 +306,8 @@ input[type="number"] {
   background: transparent;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-th,
-.cadastro-emp-scope .emp-table-pro .emp-total-th {
+.cadastro-emp-scope .emp-table-pro thead .emp-th,
+.cadastro-emp-scope .emp-table-pro tfoot .emp-th {
   background: #eaf2ff !important;
   color: #1a1f26 !important;
   font-weight: 600;
@@ -324,9 +324,18 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-th:last-child,
-.cadastro-emp-scope .emp-table-pro .emp-total-th:last-child {
+.cadastro-emp-scope .emp-table-pro thead .emp-th:last-child,
+.cadastro-emp-scope .emp-table-pro tfoot .emp-th:last-child {
   border-right: 0.5px solid #eef1f4 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer {
+  border-top: none !important;
+  background: transparent !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer tr {
+  border: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
