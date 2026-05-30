@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  Menu,
   Plus,
   Pencil,
   Trash2,
@@ -9,13 +8,9 @@ import {
   Search,
   List,
   Table,
-  Filter,
-  ChevronsLeft,
-  ChevronLeft,
-  ChevronRight,
-  ChevronsRight,
+  MoreHorizontal,
 } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import EmpToolbarButton from "@/components/emp/toolbars/EmpToolbarButton";
 import { ERP_TOOLBAR_COUNTER, ERP_TOOLBAR_SEARCH_INPUT, ERP_TOOLBAR_SEARCH_WRAP } from "@/components/emp/toolbars/empToolbarStyles";
 
@@ -55,8 +50,6 @@ export default function EmpListToolbar({
   showUtilityActions = true,
   showSearch = true,
 }) {
-  const canNavigate = viewMode === "record" && total > 0;
-  const showRecordNavigation = viewMode === "record";
   const canEdit = selectedCount === 1 && !!onEdit;
   const canDelete = selectedCount > 0 && !!onDelete;
   const canDuplicate = selectedCount === 1 && !!onDuplicate;
@@ -65,75 +58,6 @@ export default function EmpListToolbar({
     <div className="bg-white erp-toolbar border-b border-[#E4E7EC]">
       <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5">
         <div className="flex items-center gap-1.5 shrink-0">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <EmpToolbarButton variant="icon" icon={Menu} title="Menu" aria-label="Menu" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-52 rounded-md p-1">
-              {onBack && (
-                <DropdownMenuItem onClick={onBack} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  <ChevronLeft className="w-4 h-4" /> Voltar
-                </DropdownMenuItem>
-              )}
-              {onToggleFilter && (
-                <DropdownMenuItem onClick={onToggleFilter} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                  <Filter className="w-4 h-4" />
-                  Filtros
-                  {filterActive && (
-                    <button
-                      type="button"
-                      onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }}
-                      className="ml-auto text-xs text-[#B42318]"
-                    >
-                      Limpar
-                    </button>
-                  )}
-                </DropdownMenuItem>
-              )}
-              {showRecordNavigation && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onFirst} disabled={!canNavigate} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    <ChevronsLeft className="w-4 h-4" /> Primeiro
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onPrevious} disabled={!canNavigate} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    <ChevronLeft className="w-4 h-4" /> Anterior
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onNext} disabled={!canNavigate} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    <ChevronRight className="w-4 h-4" /> Próximo
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onLast} disabled={!canNavigate} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    <ChevronsRight className="w-4 h-4" /> Último
-                  </DropdownMenuItem>
-                </>
-              )}
-              {showUtilityActions && (
-                <>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onConfigColumns} disabled={!onConfigColumns} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    Configurar colunas
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={onExportExcel} disabled={!onExportExcel} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    Exportar Excel
-                  </DropdownMenuItem>
-                  {onConfigExportExcel && (
-                    <DropdownMenuItem onClick={onConfigExportExcel} className="h-9 cursor-pointer gap-2 text-sm px-3 pl-9">
-                      Configurar Excel
-                    </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onClick={onExportPdf} disabled={!onExportPdf} className="h-9 cursor-pointer gap-2 text-sm px-3">
-                    Exportar PDF
-                  </DropdownMenuItem>
-                  {onConfigExportPdf && (
-                    <DropdownMenuItem onClick={onConfigExportPdf} className="h-9 cursor-pointer gap-2 text-sm px-3 pl-9">
-                      Configurar PDF
-                    </DropdownMenuItem>
-                  )}
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           {onToggleView && (
             <EmpToolbarButton
               variant="icon"
@@ -178,6 +102,34 @@ export default function EmpListToolbar({
               disabled={attachDisabled}
               title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}
             />
+          )}
+          {showUtilityActions && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <EmpToolbarButton variant="icon" icon={MoreHorizontal} title="Mais opções" aria-label="Mais opções" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52 rounded-md p-1">
+                <DropdownMenuItem onClick={onConfigColumns} disabled={!onConfigColumns} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                  Configurar colunas
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onExportExcel} disabled={!onExportExcel} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                  Exportar Excel
+                </DropdownMenuItem>
+                {onConfigExportExcel && (
+                  <DropdownMenuItem onClick={onConfigExportExcel} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                    Configurar Excel
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={onExportPdf} disabled={!onExportPdf} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                  Exportar PDF
+                </DropdownMenuItem>
+                {onConfigExportPdf && (
+                  <DropdownMenuItem onClick={onConfigExportPdf} className="h-9 cursor-pointer gap-2 text-sm px-3">
+                    Configurar PDF
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           )}
           <div className={ERP_TOOLBAR_COUNTER}>
             {viewMode === "record" && total > 0 ? `${currentIndex + 1}/${total}` : selectedCount > 0 ? `${selectedCount}/${total}` : total}
