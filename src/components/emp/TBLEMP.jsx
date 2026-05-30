@@ -146,6 +146,28 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   };
 
   const getColumnFilterType = (col) => { if (col?.id === "codigo_empresa") return "number"; if (col?.tipo === "date" || col?.id === "data") return "date"; if (col?.tipo === "number" && col?.usar_mascara) return "list"; if (["number", "calculado"].includes(col?.tipo) || col?.id === "codigo_empresa") return "number"; return "list"; };
+  const getRangeFilterValues = (valores, ft) => {
+    if (ft === "number") return valores.filter((i) => String(i).startsWith("min:") || String(i).startsWith("max:"));
+    if (ft === "date") return valores.filter((i) => String(i).startsWith("start:") || String(i).startsWith("end:"));
+    return [];
+  };
+  const getListFilterValues = (valores, ft) => {
+    if (ft === "number") return valores.filter((i) => !String(i).startsWith("min:") && !String(i).startsWith("max:"));
+    if (ft === "date") return valores.filter((i) => !String(i).startsWith("start:") && !String(i).startsWith("end:"));
+    return valores;
+  };
+  const parseDateFilterValue = (val) => {
+    if (!val) return null;
+    const s = String(val).split("T")[0];
+    if (s.includes("/")) {
+      const [dia, mes, ano] = s.split("/");
+      if (!dia || !mes || !ano) return null;
+      return new Date(Number(ano), Number(mes) - 1, Number(dia)).getTime();
+    }
+    const [ano, mes, dia] = s.split("-");
+    if (!ano || !mes || !dia) return null;
+    return new Date(Number(ano), Number(mes) - 1, Number(dia)).getTime();
+  };
   const resolveColumnAlign = (col) => {
     if (col?.tipo === "date") return "center";
     if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codigo_empresa" || col?.id === "custom:valor") return "right";
@@ -183,9 +205,21 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
         const nv = Number(raw);
         const min = filtro.find((i) => String(i).startsWith("min:"));
         const max = filtro.find((i) => String(i).startsWith("max:"));
-        const list = filtro.filter((i) => !String(i).startsWith("min:") && !String(i).startsWith("max:"));
+        const list = getListFilterValues(filtro, ft);
         if (min && nv < Number(String(min).replace("min:", ""))) return false;
         if (max && nv > Number(String(max).replace("max:", ""))) return false;
+        if (list.length > 0) return list.includes(getFieldValue(emp, col.id));
+        return true;
+      }
+      if (ft === "date") {
+        const ts = parseDateFilterValue(raw);
+        const start = filtro.find((i) => String(i).startsWith("start:"));
+        const end = filtro.find((i) => String(i).startsWith("end:"));
+        const list = getListFilterValues(filtro, ft);
+        const startTs = start ? parseDateFilterValue(String(start).replace("start:", "")) : null;
+        const endTs = end ? parseDateFilterValue(String(end).replace("end:", "")) : null;
+        if (startTs !== null && (ts === null || ts < startTs)) return false;
+        if (endTs !== null && (ts === null || ts > endTs)) return false;
         if (list.length > 0) return list.includes(getFieldValue(emp, col.id));
         return true;
       }
@@ -263,8 +297,9 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     const ft = getColumnFilterType(col);
     const isRange = ft === "number" || ft === "date";
     const valSel = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
+    const listSel = getListFilterValues(valSel, ft);
     const filteredOpts = opts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
-    const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => valSel.includes(o));
+    const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => listSel.includes(o));
     const colLabel = formatHeaderLabel(col);
     const closeFilter = () => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); };
 
@@ -321,14 +356,19 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
           </div>
 
           <div className="emp-filter-body">
-            {isRange ? (
+            {isRange && (
               <div className="space-y-1">
-                <div className="emp-filter-range-label">Entre</div>
+                <div className="emp-filter-range-label">Filtrar entre</div>
                 <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
                   <input
                     type={ft === "date" ? "date" : "number"}
                     value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")) || "").replace(ft === "date" ? "start:" : "min:", "")}
-                    onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"))].filter(Boolean) }))}
+                    onChange={(e) => setFiltroTemp((p) => {
+                      const rangeVals = getRangeFilterValues(p.valores, ft).filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"));
+                      const listVals = getListFilterValues(p.valores, ft);
+                      const minVal = e.target.value ? `${ft === "date" ? "start" : "min"}:${e.target.value}` : null;
+                      return { ...p, valores: [...(minVal ? [minVal] : []), ...rangeVals, ...listVals] };
+                    })}
                     placeholder="De"
                     className="emp-filter-field"
                   />
@@ -336,46 +376,56 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                   <input
                     type={ft === "date" ? "date" : "number"}
                     value={String(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")) || "").replace(ft === "date" ? "end:" : "max:", "")}
-                    onChange={(e) => setFiltroTemp((p) => ({ ...p, valores: [e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : "", ...p.valores.filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"))].filter(Boolean) }))}
+                    onChange={(e) => setFiltroTemp((p) => {
+                      const rangeVals = getRangeFilterValues(p.valores, ft).filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"));
+                      const listVals = getListFilterValues(p.valores, ft);
+                      const maxVal = e.target.value ? `${ft === "date" ? "end" : "max"}:${e.target.value}` : null;
+                      return { ...p, valores: [...rangeVals, ...(maxVal ? [maxVal] : []), ...listVals] };
+                    })}
                     placeholder="Até"
                     className="emp-filter-field"
                   />
                 </div>
               </div>
-            ) : (
-              <input
-                value={buscaFiltroMenu}
-                onChange={(e) => setBuscaFiltroMenu(e.target.value)}
-                placeholder="PESQUISAR"
-                className="emp-filter-field emp-filter-search"
-              />
             )}
 
-            {ft === "list" && (
-              <div className="emp-filter-value-list">
-                <label className="emp-filter-value-list-header">
+            <input
+              value={buscaFiltroMenu}
+              onChange={(e) => setBuscaFiltroMenu(e.target.value)}
+              placeholder="PESQUISAR"
+              className="emp-filter-field emp-filter-search"
+            />
+
+            <div className="emp-filter-value-list">
+              <label className="emp-filter-value-list-header">
+                <Checkbox
+                  checked={allVisSel}
+                  onCheckedChange={(c) => setFiltroTemp((p) => {
+                    const rangeVals = getRangeFilterValues(p.valores, ft);
+                    const listVals = getListFilterValues(p.valores, ft);
+                    const rest = listVals.filter((v) => !filteredOpts.includes(v));
+                    return { ...p, valores: c ? [...rangeVals, ...new Set([...rest, ...filteredOpts])] : [...rangeVals, ...rest] };
+                  })}
+                  className="emp-filter-checkbox"
+                />
+                <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
+              </label>
+              {filteredOpts.map((opt) => (
+                <label key={opt} className="emp-filter-value-list-item">
                   <Checkbox
-                    checked={allVisSel}
+                    checked={listSel.includes(opt)}
                     onCheckedChange={(c) => setFiltroTemp((p) => {
-                      const rest = p.valores.filter((v) => !filteredOpts.includes(v));
-                      return { ...p, valores: c ? [...new Set([...rest, ...filteredOpts])] : rest };
+                      const rangeVals = getRangeFilterValues(p.valores, ft);
+                      const listVals = getListFilterValues(p.valores, ft);
+                      const nextList = c ? [...listVals, opt] : listVals.filter((i) => i !== opt);
+                      return { ...p, valores: [...rangeVals, ...nextList] };
                     })}
                     className="emp-filter-checkbox"
                   />
-                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
+                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
                 </label>
-                {filteredOpts.map((opt) => (
-                  <label key={opt} className="emp-filter-value-list-item">
-                    <Checkbox
-                      checked={valSel.includes(opt)}
-                      onCheckedChange={(c) => setFiltroTemp((p) => ({ ...p, valores: c ? [...p.valores, opt] : p.valores.filter((i) => i !== opt) }))}
-                      className="emp-filter-checkbox"
-                    />
-                    <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
-                  </label>
-                ))}
-              </div>
-            )}
+              ))}
+            </div>
 
             <div className="emp-filter-actions">
               <button
