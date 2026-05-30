@@ -7,11 +7,8 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
-import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, MoreVertical, ChevronUp, ChevronDown } from "lucide-react";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Filter, X, ArrowDownAZ, ArrowUpZA, GripVertical, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { EMP_HEADER_CTRL_BTN, EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
-
-const ACTIONS_COL_WIDTH = 28;
 
 const COLUNAS_BASE = [
   { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "right", width: 90 },
@@ -121,7 +118,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
   const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => [c.id, Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c))])), [colunasOrdenadas, columnWidths]);
-  const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, ACTIONS_COL_WIDTH + colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
+  const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
 
   const getFieldValue = (emp, colId) => {
@@ -696,15 +693,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         </TableHead>
                       );
                     })}
-                    <TableHead
-                      style={{ width: ACTIONS_COL_WIDTH, minWidth: ACTIONS_COL_WIDTH, maxWidth: ACTIONS_COL_WIDTH }}
-                      className="emp-th sticky top-0 z-40 text-center px-0"
-                    />
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {empresasOrdenadas.length === 0
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length + 1} className="text-center py-8 text-xs text-slate-400 border-b border-slate-200">Nenhuma empresa encontrada</TableCell></TableRow>
+                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="text-center py-8 text-xs text-slate-400 border-b border-slate-200">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasOrdenadas.map((emp, index) => {
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
@@ -719,19 +712,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                             </TableCell>
                           );
                         })}
-                        <TableCell className={`emp-td emp-td-actions text-center px-0 ${rowClass}`} onClick={(e) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button type="button" className="h-5 w-5 inline-flex items-center justify-center text-[#082e54] hover:bg-slate-200/80 rounded-sm" title="Ações">
-                                <MoreVertical className="w-3 h-3" />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-36 rounded-none p-1">
-                              <DropdownMenuItem className="h-8 cursor-pointer text-xs" onClick={() => onEdit(emp)}>Editar</DropdownMenuItem>
-                              <DropdownMenuItem className="h-8 cursor-pointer text-xs" onClick={() => { setSelectedItems([emp.id]); onEdit(emp); }}>Visualizar</DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
                       </TableRow>
                     ); })
                   }
@@ -746,7 +726,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           </TableCell>
                         );
                       })}
-                      <TableCell className="emp-total-th emp-td-actions px-0" />
                     </TableRow>
                   )}
                 </TableBody>
