@@ -68,7 +68,7 @@ export default function EmpListToolbar({
           >
             {viewMode === "table" ? <List className="w-3.5 h-3.5" /> : <Table className="w-3.5 h-3.5" />}
           </ToolbarBtn>
-          <ToolbarBtn onClick={onNew} className={LABELED_BTN_CLASS} title="Novo registro">
+          <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
             <Plus className="w-3.5 h-3.5" />
             <span>Novo</span>
           </ToolbarBtn>
@@ -94,7 +94,7 @@ export default function EmpListToolbar({
             </>
           )}
           {showDeleteSelectionAction && (
-            <ToolbarBtn onClick={onDelete} className={LABELED_BTN_CLASS} title="Excluir selecionados">
+            <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} title="Excluir selecionados">
               <Trash2 className="w-3.5 h-3.5" />
               <span>Excluir</span>
             </ToolbarBtn>

@@ -373,6 +373,11 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   };
 
   const openFilterMenu = (colunaId) => {
+    const el = filterAnchorRefs.current[colunaId];
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      setFilterAnchorRect({ left: rect.left, top: rect.top, width: rect.width, height: rect.height });
+    }
     setMenuFiltroAberto(colunaId);
     setBuscaFiltroMenu("");
     setFiltroTemp({ colunaId, valores: normalizeRangeValoresForEdit(colunaId, [...getValoresFiltro(colunaId)]) });
@@ -750,7 +755,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
             />
           </PopoverAnchor>
         )}
-        {menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
+        {menuFiltroAberto && filterAnchorRect && renderFilterPopoverContent(menuFiltroAberto)}
       </Popover>
       <EmpConfiguracaoColunasDialog open={showConfigColunas} onOpenChange={setShowConfigColunas} colunasDisponiveis={colunasDisponiveis} colunasVisiveis={colunasVisiveis} colunasOrdem={colunasOrdem} frozenColumnCount={frozenColumnCount} onChange={handleColumnLayoutChange} onResetDefault={handleResetColumnLayout} />
     </div>

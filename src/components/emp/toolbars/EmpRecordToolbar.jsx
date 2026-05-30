@@ -59,7 +59,7 @@ export default function EmpRecordToolbar({
           <ToolbarBtn onClick={onBack} title="Voltar"><ChevronLeft className="w-3.5 h-3.5" /></ToolbarBtn>
         )}
         <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><List className="w-3.5 h-3.5" /></ToolbarBtn>
-        <ToolbarBtn onClick={onNew} className={LABELED_BTN_CLASS} title="Novo registro">
+        <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
           <Plus className="w-3.5 h-3.5" />
           <span>Novo</span>
         </ToolbarBtn>
@@ -78,7 +78,7 @@ export default function EmpRecordToolbar({
           </ToolbarBtn>
         )}
         {showDeleteDuplicateActions && (
-          <ToolbarBtn onClick={onDelete} className={LABELED_BTN_CLASS} disabled={!canNavigate} title="Excluir">
+          <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} disabled={!canNavigate} title="Excluir">
             <Trash2 className="w-3.5 h-3.5" />
             <span>Excluir</span>
           </ToolbarBtn>
