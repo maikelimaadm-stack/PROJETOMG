@@ -6,7 +6,7 @@ import {
   Copy,
   Paperclip,
   Search,
-  Table,
+  List,
   Filter,
   Check,
   X,
@@ -66,7 +66,7 @@ export default function EmpRecordToolbar({
           {onToggleView && (
             <EmpToolbarButton
               variant="icon"
-              icon={Table}
+              icon={List}
               onClick={onToggleView}
               title="Visualizar tabela"
             />

@@ -53,6 +53,7 @@ export default function EmpListToolbar({
   const canEdit = selectedCount === 1 && !!onEdit;
   const canDelete = selectedCount > 0 && !!onDelete;
   const canDuplicate = selectedCount === 1 && !!onDuplicate;
+  const showOptionsMenu = !!(onConfigColumns || onExportExcel || onConfigExportExcel || onExportPdf || onConfigExportPdf);
 
   return (
     <div className="bg-white erp-toolbar border-b border-[#E4E7EC]">
@@ -103,7 +104,7 @@ export default function EmpListToolbar({
               title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}
             />
           )}
-          {showUtilityActions && (
+          {showOptionsMenu && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <EmpToolbarButton variant="icon" icon={MoreHorizontal} title="Mais opções" aria-label="Mais opções" />
