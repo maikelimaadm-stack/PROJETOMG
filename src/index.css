@@ -306,8 +306,13 @@ input[type="number"] {
   background: transparent;
 }
 
+.cadastro-emp-scope .emp-table-pro {
+  --emp-band-divider: #dce3eb;
+  --emp-band-edge: #dce3eb;
+}
+
 .cadastro-emp-scope .emp-table-pro thead .emp-th,
-.cadastro-emp-scope .emp-table-pro tfoot .emp-th {
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
   background: #eaf2ff !important;
   color: #1a1f26 !important;
   font-weight: 600;
@@ -320,22 +325,34 @@ input[type="number"] {
   border-top: none !important;
   border-bottom: none !important;
   border-left: none !important;
-  border-right: 0.5px solid #dce3eb !important;
-  box-shadow: none !important;
+  border-right: 1px solid var(--emp-band-divider) !important;
+  box-shadow: inset -1px 0 0 0 var(--emp-band-divider) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th:last-child,
-.cadastro-emp-scope .emp-table-pro tfoot .emp-th:last-child {
-  border-right: 0.5px solid #eef1f4 !important;
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th:last-child {
+  border-right: 1px solid var(--emp-band-edge) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer {
   border-top: none !important;
-  background: transparent !important;
+  background: #eaf2ff !important;
 }
 
-.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer tr {
-  border: none !important;
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer > tr {
+  border-top: none !important;
+  border-bottom: none !important;
+  background: #eaf2ff !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
+  background: #eaf2ff !important;
+  border-right: 1px solid var(--emp-band-divider) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th:last-child {
+  border-right: 1px solid var(--emp-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
