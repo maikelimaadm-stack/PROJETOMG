@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
-import { Filter, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDown } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const FILTER_POPOVER_WIDTH = 272;
