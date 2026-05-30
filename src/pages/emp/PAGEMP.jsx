@@ -226,6 +226,7 @@ export default function PAGEMP() {
               onLast={() => navigateRecord(empresas.length - 1)}
               onDelete={() => editingEmp?.id && handleRequestDelete(editingEmp.id)}
               onDuplicate={() => editingEmp && handleDuplicate(editingEmp)}
+              onRefresh={() => queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] })}
               filterOpen={false} filterActive={false}
               searchValue={searchTerm}
               onSearchChange={setSearchTerm}
@@ -246,9 +247,11 @@ export default function PAGEMP() {
             searchValue={searchTerm}
             onSearchChange={setSearchTerm}
             onNew={handleNew}
+            onEdit={() => selectedTableEmp && handleEdit(selectedTableEmp)}
             onToggleView={handleToggleView}
             toggleViewDisabled={selectedTableItems.length > 1}
             filterActive={false}
+            onRefresh={() => queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] })}
             onDelete={() => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)}
             onDuplicate={() => selectedTableEmp && handleDuplicate(selectedTableEmp)}
             onAttachClick={() => selectedTableEmp && setAttachmentsRecord(selectedTableEmp)}
