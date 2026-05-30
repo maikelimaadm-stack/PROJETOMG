@@ -296,11 +296,29 @@ input[type="number"] {
   border-spacing: 0 !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-th,
-.cadastro-emp-scope .emp-table-pro .emp-td,
-.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th {
+.cadastro-emp-scope .emp-table-pro .emp-td {
   border: 0.5px solid #eef1f4 !important;
   box-shadow: none !important;
+  font-size: 11px;
+  line-height: 24px;
+  height: 24px;
+  padding: 0 6px;
+  background: transparent;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th,
+.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th {
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: 0.5px solid #dce3eb !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th:last-child,
+.cadastro-emp-scope .emp-table-pro tr.emp-total-row .emp-total-th:last-child {
+  border-right: 0.5px solid #eef1f4 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th {
@@ -312,14 +330,6 @@ input[type="number"] {
   height: 24px;
   padding: 0 6px;
   text-transform: none;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-td {
-  font-size: 11px;
-  line-height: 24px;
-  height: 24px;
-  padding: 0 6px;
-  background: transparent;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
