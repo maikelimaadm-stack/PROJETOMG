@@ -569,7 +569,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn {
-  color: #082e54 !important;
+  color: #5b6b80 !important;
   box-shadow: none !important;
 }
 
@@ -600,7 +600,32 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn svg {
-  color: #082e54 !important;
+  color: #5b6b80 !important;
+  stroke: #5b6b80 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-counter {
+  color: #5b6b80 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search {
+  display: flex !important;
+  align-items: center !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search-input {
+  height: 100% !important;
+  line-height: 22px !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  color: #64748b !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search-icon {
+  width: 12px !important;
+  height: 12px !important;
+  color: #94a3b8 !important;
+  stroke: #94a3b8 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn:hover:not(:disabled) {
@@ -651,6 +676,8 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn svg {
   width: 12px !important;
   height: 12px !important;
+  color: #5b6b80 !important;
+  stroke: #5b6b80 !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn-active {
@@ -678,7 +705,8 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pagination-size svg {
   width: 12px !important;
   height: 12px !important;
-  color: #082e54 !important;
+  color: #94a3b8 !important;
+  stroke: #94a3b8 !important;
 }
 
 @media screen and (max-width: 768px) {

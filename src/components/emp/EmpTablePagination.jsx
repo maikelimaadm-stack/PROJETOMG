@@ -26,7 +26,7 @@ const getVisiblePages = (currentPage, totalPages) => {
 const PaginationBtn = ({ children, className = "", active = false, ...props }) => (
   <button
     type="button"
-    className={`emp-toolbar-btn emp-table-pagination-btn inline-flex h-[22px] min-w-[22px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white text-[11px] font-medium text-[#082e54] shadow-none hover:bg-sky-50 disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300 ${active ? "emp-table-pagination-btn-active" : ""} ${className}`}
+    className={`emp-toolbar-btn emp-table-pagination-btn inline-flex h-[22px] min-w-[22px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white text-[11px] font-medium text-[#5b6b80] shadow-none hover:bg-sky-50 disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300 ${active ? "emp-table-pagination-btn-active" : ""} ${className}`}
     {...props}
   >
     {children}
@@ -54,7 +54,7 @@ export default function EmpTablePagination({
 
       {pageItems.map((item, index) =>
         item === "ellipsis" ? (
-          <span key={`ellipsis-${index}`} className="px-0.5 text-[11px] font-medium text-[#082e54] select-none">
+          <span key={`ellipsis-${index}`} className="px-0.5 text-[11px] font-medium text-[#5b6b80] select-none">
             ...
           </span>
         ) : (
@@ -81,7 +81,7 @@ export default function EmpTablePagination({
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
         <SelectTrigger
-          className={`emp-table-pagination-size emp-toolbar-btn h-[22px] w-[118px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-medium text-[#082e54] shadow-none hover:bg-sky-50 focus:ring-1 focus:ring-sky-300`}
+          className={`emp-table-pagination-size emp-toolbar-btn h-[22px] w-[118px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-medium text-[#5b6b80] shadow-none hover:bg-sky-50 focus:ring-1 focus:ring-sky-300`}
           aria-label="Registros por página"
         >
           <SelectValue />
