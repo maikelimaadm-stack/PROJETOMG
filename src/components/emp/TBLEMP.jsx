@@ -7,7 +7,7 @@ import empRepository from "@/components/emp/empRepository";
 import campoEngine from "@/components/emp/empCampoEngine";
 import EmpConfiguracaoColunasDialog from "@/components/emp/EmpConfiguracaoColunasDialog";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/components/emp/EmpTablePagination";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDown } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 const FILTER_POPOVER_WIDTH = 272;
@@ -382,20 +382,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const handleRowTouch = (emp, event) => { const now = Date.now(); if (lastTapRef.current.id === emp.id && now - lastTapRef.current.time < 300) { event.preventDefault(); if (selectedItems.length <= 1) onEdit(emp); } else { handleRowSelect(emp, event); } lastTapRef.current = { id: emp.id, time: now }; };
   const handleTableKeyDown = (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setSelectedItems(empresasOrdenadas.map((e) => e.id)); } };
 
-  const renderSortIndicator = (colId) => {
-    if (sortConfig.key !== colId) {
-      return (
-        <span className="emp-th-sort inline-flex flex-col ml-1 leading-none opacity-35">
-          <ChevronUp className="w-2.5 h-2.5 -mb-1" />
-          <ChevronDown className="w-2.5 h-2.5" />
-        </span>
-      );
-    }
-    return sortConfig.direction === "asc"
-      ? <ChevronUp className="emp-th-sort w-3 h-3 ml-1 inline-block" />
-      : <ChevronDown className="emp-th-sort w-3 h-3 ml-1 inline-block" />;
-  };
-
   const renderFilterIcon = (active) => (
     active
       ? <FilterX className={FILTER_ICON_CLASS} strokeWidth={2} />
@@ -685,7 +671,6 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         >
                           <div className={`emp-th-label-wrap flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
                             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
-                            {renderSortIndicator(col.id)}
                           </div>
                           <div
                               className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
