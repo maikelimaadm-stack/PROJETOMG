@@ -620,8 +620,12 @@ input[type="number"] {
   color: #ffffff !important;
 }
 
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-new,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-new span,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-new svg,
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new svg {
   color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new span {
@@ -636,19 +640,23 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
-  background: #fff5f5 !important;
-  border-color: #fecaca !important;
-  color: #b42318 !important;
+  background: #b42318 !important;
+  border-color: #b42318 !important;
+  color: #ffffff !important;
 }
 
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete span,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete svg,
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete svg {
-  color: #b42318 !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
-  background: #fee2e2 !important;
-  border-color: #fca5a5 !important;
-  color: #b42318 !important;
+  background: #9f1f16 !important;
+  border-color: #9f1f16 !important;
+  color: #ffffff !important;
   box-shadow: none !important;
 }
 
