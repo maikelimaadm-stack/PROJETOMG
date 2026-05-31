@@ -379,12 +379,10 @@ input[type="number"] {
 }
 
 /* Campos do formulário de registro */
-.cadastro-emp-scope .emp-form-section-principal {
-  padding-bottom: 1rem;
-}
-
+.cadastro-emp-scope .emp-form-section-principal,
 .cadastro-emp-scope .emp-form-section-panel {
-  padding-top: 1rem;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .cadastro-emp-scope .emp-form-fields [data-field] label {

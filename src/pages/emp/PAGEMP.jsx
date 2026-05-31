@@ -68,25 +68,42 @@ export default function PAGEMP() {
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = false;
 
+  const goToTableAfterSave = useCallback(async (savedId) => {
+    await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+    if (savedId) {
+      const list = await queryClient.fetchQuery({
+        queryKey: ["emp-cadastro"],
+        queryFn: () => empRepository.list()
+      });
+      const index = list.findIndex((item) => item.id === savedId);
+      if (index >= 0) setSelectedIndex(index);
+      setSelectedTableItems([savedId]);
+    }
+    setReturnRecordAfterNew(null);
+    setShowForm(false);
+    setEditingEmp(null);
+    setViewMode("table");
+  }, [queryClient]);
+
   const createMutation = useMutation({
     mutationFn: (data) => empRepository.create(data),
     onSuccess: async (created) => {
-      await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
-      setShowForm(false);
-      setEditingEmp(null);
-      setViewMode("table");
+      await goToTableAfterSave(created?.id);
       toast.success("Empresa cadastrada!");
+    },
+    onError: () => {
+      toast.error("Não foi possível cadastrar a empresa.");
     }
   });
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => empRepository.update(id, data),
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
-      setShowForm(false);
-      setEditingEmp(null);
-      setViewMode("table");
+    onSuccess: async (_updated, { id }) => {
+      await goToTableAfterSave(id);
       toast.success("Empresa atualizada!");
+    },
+    onError: () => {
+      toast.error("Não foi possível atualizar a empresa.");
     }
   });
 
