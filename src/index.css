@@ -391,6 +391,45 @@ input[type="number"] {
   color: #1a1f26;
 }
 
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control {
+  border: 0.5px solid #dce3eb;
+  border-radius: 3px;
+  background: #ffffff;
+  box-shadow: none;
+  overflow: hidden;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
+  border-color: #082e54;
+}
+
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control.emp-form-field-error {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control input,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control button {
+  height: 22px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea {
+  min-height: 48px;
+}
+
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control input:focus-visible,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea:focus-visible,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control button:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
 .cadastro-emp-scope .emp-form-fields [data-field] input,
 .cadastro-emp-scope .emp-form-fields [data-field] textarea {
   color: #1a1f26;

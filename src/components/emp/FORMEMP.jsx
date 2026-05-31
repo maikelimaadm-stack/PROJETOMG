@@ -432,7 +432,6 @@ export default function FORMEMP({
                 errors={errors}
                 onChange={handleChange}
                 readOnly={isReadOnly}
-                fieldClassName="rounded-[1.5px]"
               />
             </div>
           </fieldset>
@@ -454,7 +453,6 @@ export default function FORMEMP({
                 errors={errors}
                 onChange={handleChange}
                 readOnly={isReadOnly}
-                fieldClassName="rounded-[1.5px]"
               />
             </div>
           </fieldset>
