@@ -119,15 +119,19 @@ export default function EmpLayoutFieldSettingsPopover({
       onPointerDown={(event) => event.stopPropagation()}
     >
       <div className="overflow-hidden rounded-[var(--emp-control-radius)] bg-white">
-        <div className="flex h-9 items-center justify-between border-b border-[#e2e8f0] bg-[#455a64] px-3 text-white">
-          <span className="truncate text-sm font-semibold">{field.label}</span>
+        <div
+          className={`flex h-7 items-center justify-between border-b border-[#e2e8f0] px-2.5 text-white ${
+            required ? "emp-layout-config-field-required" : "emp-layout-config-field-optional"
+          }`}
+        >
+          <span className="truncate text-xs font-semibold">{field.label}</span>
           <button
             type="button"
-            className="inline-flex h-6 w-6 items-center justify-center rounded-sm text-white hover:bg-white/10"
+            className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-white hover:bg-white/10"
             title="Fechar"
             onClick={onClose}
           >
-            <ChevronUp className="h-4 w-4" />
+            <ChevronUp className="h-3.5 w-3.5" />
           </button>
         </div>
         <div className="space-y-2.5 px-4 py-3">

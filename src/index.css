@@ -1361,6 +1361,14 @@ input[type="number"] {
   border-radius: var(--emp-control-radius) !important;
 }
 
+.cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-config-field-required:hover {
+  background: #ef4444;
+}
+
+.cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-config-field-optional:hover {
+  background: #546e7a;
+}
+
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-toggles {
   scrollbar-width: thin;
 }
