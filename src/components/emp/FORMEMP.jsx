@@ -11,6 +11,10 @@ import LegacyTabs from "@/components/emp/toolbars/EmpTabs";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/components/emp/layout/EmpDynamicFormRenderer";
 import EmpLayoutConfiguratorDialog from "@/components/emp/layout/EmpLayoutConfiguratorDialog";
+import empFormLayoutStore, {
+  DEFAULT_PRESET_ID,
+  normalizeLayoutConfig,
+} from "@/components/emp/layout/empFormLayoutStore";
 import { countRequiredFormFields } from "@/components/emp/layout/empFormLayoutMetrics";
 import EmpBubbleCounter from "@/components/emp/shared/EmpBubbleCounter";
 import EmpOptionListControl from "@/components/emp/shared/EmpOptionListControl";
@@ -83,6 +87,7 @@ export default function FORMEMP({
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
+  const [layoutPresetsState, setLayoutPresetsState] = useState(() => empFormLayoutStore.getState());
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
@@ -310,18 +315,40 @@ export default function FORMEMP({
     campos_personalizados: camposPersonalizadosForm.map((campo) => `custom:${campo.field_name}`)
   };
 
-  const activeLayoutConfig = (() => {
-    const source = formLayoutConfig || { panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], fieldDefaultValues: {}, aggregationConfig: {}, visibilityRules: {} };
-    const panelsSource = source.panels?.some((panel) => panel.id === "principal") ? source.panels : [basePanels[0], ...(source.panels || basePanels)];
-    const panels = [...panelsSource, ...basePanels.filter((basePanel) => !panelsSource.some((panel) => panel.id === basePanel.id))];
-    const principalFields = source.layout?.principal?.length ? source.layout.principal : defaultLayout.principal;
-    return {
-      ...source,
-      panels,
-      layout: { ...defaultLayout, ...source.layout, principal: principalFields, campos_personalizados: defaultLayout.campos_personalizados },
-      hiddenFieldIds: (source.hiddenFieldIds || []).filter((id) => !["status", "codigo_empresa"].includes(id))
-    };
-  })();
+  const defaultConfigFull = useMemo(
+    () => ({
+      panels: basePanels,
+      layout: defaultLayout,
+      hiddenFieldIds: [],
+      lockedFieldIds: [],
+      requiredFieldIds: [],
+      clearOnDuplicateFieldIds: [],
+      fieldDefaultValues: {},
+      aggregationConfig: {},
+      visibilityRules: {},
+    }),
+    [basePanels, defaultLayout]
+  );
+
+  const activeLayoutConfig = useMemo(() => {
+    const presetConfig = empFormLayoutStore.resolvePresetConfig(
+      layoutPresetsState.activePresetId,
+      defaultConfigFull
+    );
+    const source = formLayoutConfig || presetConfig;
+    return normalizeLayoutConfig(source, {
+      basePanels,
+      defaultLayout,
+      camposPersonalizadosCount: camposPersonalizadosForm.length,
+    });
+  }, [
+    formLayoutConfig,
+    layoutPresetsState.activePresetId,
+    basePanels,
+    defaultLayout,
+    defaultConfigFull,
+    camposPersonalizadosForm.length,
+  ]);
 
   const tabs = activeLayoutConfig.panels.filter((panel) => {
     if (panel.id === "principal") return false;
@@ -344,20 +371,74 @@ export default function FORMEMP({
     });
   }, [tabs, activeLayoutConfig, dynamicFields, formData]);
 
-  const saveLayoutConfig = (nextConfig) => {
-    const normalized = {
-      ...nextConfig,
-      visibilityRules: nextConfig.visibilityRules || {},
-      panels: nextConfig.panels.filter((panel) => panel.id !== "campos_personalizados" || camposPersonalizadosForm.length > 0),
-      layout: { ...nextConfig.layout, principal: nextConfig.layout?.principal?.length ? nextConfig.layout.principal : defaultLayout.principal, campos_personalizados: defaultLayout.campos_personalizados },
-      hiddenFieldIds: (nextConfig.hiddenFieldIds || []).filter((id) => !["status", "codigo_empresa"].includes(id))
-    };
+  const applyLayoutConfig = (source, { updateActiveTab = true } = {}) => {
+    const normalized = normalizeLayoutConfig(source, {
+      basePanels,
+      defaultLayout,
+      camposPersonalizadosCount: camposPersonalizadosForm.length,
+    });
     setFormLayoutConfig(normalized);
     localStorage.setItem(FORM_LAYOUT_KEY, JSON.stringify(normalized));
     localStorage.setItem(TABLE_AGGREGATION_KEY, JSON.stringify(normalized.aggregationConfig || {}));
     window.dispatchEvent(new Event("emp-layout-updated"));
-    const visiblePanels = normalized.panels.filter((panel) => !panel.hidden && panel.id !== "principal");
-    if (!visiblePanels.some((panel) => panel.id === activeTab)) setActiveTab(visiblePanels[0]?.id || "geral");
+    empFormLayoutStore.persistActiveConfig(normalized);
+    setLayoutPresetsState(empFormLayoutStore.getState());
+    if (updateActiveTab) {
+      const visiblePanels = normalized.panels.filter((panel) => !panel.hidden && panel.id !== "principal");
+      if (!visiblePanels.some((panel) => panel.id === activeTab)) {
+        setActiveTab(visiblePanels[0]?.id || "geral");
+      }
+    }
+    return normalized;
+  };
+
+  const handleApplyLayoutPreset = (presetId) => {
+    empFormLayoutStore.setActivePreset(presetId);
+    const config = empFormLayoutStore.resolvePresetConfig(presetId, defaultConfigFull);
+    applyLayoutConfig(config);
+  };
+
+  const handleCreateLayoutPreset = ({ name, sourcePresetId }) => {
+    empFormLayoutStore.createPreset({ name, sourcePresetId, defaultConfig: defaultConfigFull });
+    const config = empFormLayoutStore.resolvePresetConfig(
+      empFormLayoutStore.getActivePresetId(),
+      defaultConfigFull
+    );
+    applyLayoutConfig(config);
+  };
+
+  const handleDuplicateLayoutPreset = ({ name, sourcePresetId }) => {
+    empFormLayoutStore.duplicatePreset(sourcePresetId, name, defaultConfigFull);
+    const config = empFormLayoutStore.resolvePresetConfig(
+      empFormLayoutStore.getActivePresetId(),
+      defaultConfigFull
+    );
+    applyLayoutConfig(config);
+  };
+
+  const handleDeleteLayoutPreset = (presetId) => {
+    empFormLayoutStore.deletePreset(presetId);
+    const config = empFormLayoutStore.resolvePresetConfig(
+      empFormLayoutStore.getActivePresetId(),
+      defaultConfigFull
+    );
+    applyLayoutConfig(config);
+  };
+
+  const handleSaveLayoutPreset = (config) => {
+    const activeId = empFormLayoutStore.getActivePresetId();
+    if (activeId === DEFAULT_PRESET_ID) return;
+    const normalized = normalizeLayoutConfig(config, {
+      basePanels,
+      defaultLayout,
+      camposPersonalizadosCount: camposPersonalizadosForm.length,
+    });
+    empFormLayoutStore.updatePresetConfig(activeId, normalized);
+    setLayoutPresetsState(empFormLayoutStore.getState());
+  };
+
+  const saveLayoutConfig = (nextConfig) => {
+    applyLayoutConfig(nextConfig);
   };
 
   const validateForm = () => {
@@ -408,7 +489,14 @@ export default function FORMEMP({
           fieldDefaultValues={activeLayoutConfig.fieldDefaultValues || {}}
           aggregationConfig={activeLayoutConfig.aggregationConfig || {}}
           visibilityRules={activeLayoutConfig.visibilityRules || {}}
-          defaultConfig={{ panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], fieldDefaultValues: {}, aggregationConfig: {}, visibilityRules: {} }}
+          defaultConfig={defaultConfigFull}
+          layoutPresets={layoutPresetsState.presets}
+          activePresetId={layoutPresetsState.activePresetId}
+          onPresetApply={handleApplyLayoutPreset}
+          onCreateLayoutPreset={handleCreateLayoutPreset}
+          onDuplicateLayoutPreset={handleDuplicateLayoutPreset}
+          onDeleteLayoutPreset={handleDeleteLayoutPreset}
+          onSaveLayoutPreset={handleSaveLayoutPreset}
           systemPanelIds={["principal", "geral", "endereco", "observacoes", "campos_personalizados"]}
           fixedPanelIds={["principal"]}
           fixedVisibleFieldIds={["status", "codigo_empresa"]}

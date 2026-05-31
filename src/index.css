@@ -1486,6 +1486,12 @@ input[type="number"] {
   padding-bottom: 8px;
 }
 
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-in-use {
+  min-height: 36px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select {
   border: 0.5px solid #c5ced8 !important;
   border-radius: var(--emp-control-radius) !important;

@@ -17,9 +17,11 @@ import {
   Settings,
   Trash2,
   X,
+  Layers,
 } from "lucide-react";
 import EmpLayoutFieldSettingsPopover from "./EmpLayoutFieldSettingsPopover";
 import EmpLayoutFieldStatusIcons from "./EmpLayoutFieldStatusIcons";
+import EmpLayoutPresetsDialog from "./EmpLayoutPresetsDialog";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
@@ -72,6 +74,13 @@ export default function EmpLayoutConfiguratorDialog({
   defaultConfig = null,
   onSave,
   inline = false,
+  layoutPresets = [],
+  activePresetId = "",
+  onPresetApply,
+  onCreateLayoutPreset,
+  onDuplicateLayoutPreset,
+  onDeleteLayoutPreset,
+  onSaveLayoutPreset,
   systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS,
   fixedPanelIds = DEFAULT_FIXED_PANEL_IDS,
   fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS,
@@ -89,6 +98,8 @@ export default function EmpLayoutConfiguratorDialog({
   const [selectedAvailableIds, setSelectedAvailableIds] = useState([]);
   const [selectedPanelFieldIds, setSelectedPanelFieldIds] = useState([]);
   const [search, setSearch] = useState("");
+  const [sidebarMode, setSidebarMode] = useState("available");
+  const [presetsDialogOpen, setPresetsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [draggedFieldId, setDraggedFieldId] = useState(null);
   const [draggedPanelId, setDraggedPanelId] = useState(null);
@@ -115,6 +126,8 @@ export default function EmpLayoutConfiguratorDialog({
     setSelectedAvailableIds([]);
     setSelectedPanelFieldIds([]);
     setSearch("");
+    setSidebarMode("available");
+    setPresetsDialogOpen(false);
     setIsEditing(false);
     setEditingPanelId(null);
     setFieldLastPanelId({});
@@ -128,6 +141,15 @@ export default function EmpLayoutConfiguratorDialog({
   const panelFields = panelFieldIds.map((id) => fields.find((field) => field.id === id)).filter(Boolean);
   const activePanelIsSystem = systemPanelIds.includes(activePanel?.id);
   const activePanelIsFixed = fixedPanelIds.includes(activePanel?.id);
+
+  const getPanelLabelById = (panelId) => {
+    if (!panelId) return "Sem painel";
+    const panel =
+      draftPanels.find((item) => item.id === panelId) ||
+      defaultConfig?.panels?.find((item) => item.id === panelId);
+    return formatPanelLabel(panel?.label || panelId);
+  };
+
   const availableFields = useMemo(
     () =>
       fields
@@ -139,14 +161,54 @@ export default function EmpLayoutConfiguratorDialog({
     [fields, usedFieldIds, search]
   );
 
-  const isFieldRequired = (field) => !!field?.required || draftRequiredFieldIds.includes(field?.id);
-  const getPanelLabelById = (panelId) => {
-    if (!panelId) return "Sem painel";
-    const panel =
-      draftPanels.find((item) => item.id === panelId) ||
-      defaultConfig?.panels?.find((item) => item.id === panelId);
-    return formatPanelLabel(panel?.label || panelId);
+  const usedFieldsInLayout = useMemo(() => {
+    const items = [];
+    draftPanels.forEach((panel) => {
+      (draftLayout[panel.id] || []).forEach((fieldId) => {
+        const field = fields.find((item) => item.id === fieldId);
+        if (!field) return;
+        items.push({
+          field,
+          panelId: panel.id,
+          panelLabel: formatPanelLabel(panel.label || panel.id),
+        });
+      });
+    });
+    return items;
+  }, [draftPanels, draftLayout, fields]);
+
+  const filteredUsedFields = useMemo(
+    () =>
+      usedFieldsInLayout.filter(({ field, panelLabel }) => {
+        if (!search.trim()) return true;
+        const term = search.trim().toLowerCase();
+        return (
+          String(field.label || "").toLowerCase().includes(term) ||
+          String(panelLabel || "").toLowerCase().includes(term)
+        );
+      }),
+    [usedFieldsInLayout, search]
+  );
+
+  const buildCurrentConfig = () => ({
+    panels: draftPanels,
+    layout: draftLayout,
+    hiddenFieldIds: draftHiddenFieldIds,
+    lockedFieldIds: draftLockedFieldIds,
+    requiredFieldIds: draftRequiredFieldIds,
+    clearOnDuplicateFieldIds: draftClearOnDuplicateFieldIds,
+    fieldDefaultValues: draftFieldDefaultValues,
+    aggregationConfig: draftAggregationConfig,
+    visibilityRules: draftVisibilityRules,
+  });
+
+  const focusUsedField = ({ field, panelId }) => {
+    setActivePanelId(panelId);
+    setSelectedPanelFieldIds([field.id]);
+    setSelectedAvailableIds([]);
   };
+
+  const isFieldRequired = (field) => !!field?.required || draftRequiredFieldIds.includes(field?.id);
   const getAvailableFieldOriginLabel = (fieldId) =>
     getPanelLabelById(fieldLastPanelId[fieldId] || findDefaultPanelForField(fieldId, defaultConfig?.layout));
 
@@ -450,6 +512,33 @@ export default function EmpLayoutConfiguratorDialog({
     </div>
   );
 
+  const renderUsedField = ({ field, panelId, panelLabel }) => (
+    <div
+      key={`${panelId}:${field.id}`}
+      role="button"
+      tabIndex={0}
+      onClick={() => focusUsedField({ field, panelId })}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          focusUsedField({ field, panelId });
+        }
+      }}
+      onDoubleClick={(event) => {
+        focusUsedField({ field, panelId });
+        if (isEditing) openFieldSettings(field, event);
+      }}
+      className={`${fieldItemClass(field, activePanelId === panelId && selectedPanelFieldIds.includes(field.id), true)} emp-layout-config-field-in-use w-full cursor-pointer`}
+    >
+      {isCustomField(field) && <EmpCustomMarker variant="white" />}
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-xs font-semibold text-white">{field.label}</div>
+        <div className="truncate text-[10px] text-white/80">Painel: {panelLabel}</div>
+      </div>
+      {renderFieldStatusIcons(field)}
+    </div>
+  );
+
   const renderPanelField = (field) => (
     <div
       key={field.id}
@@ -522,6 +611,24 @@ export default function EmpLayoutConfiguratorDialog({
               <span>Cancelar</span>
             </ToolbarBtn>
           )}
+          <div className="ml-2 flex min-w-0 items-center gap-1.5">
+            <select
+              value={activePresetId}
+              onChange={(event) => onPresetApply?.(event.target.value)}
+              className="emp-layout-config-select h-7 max-w-[180px] rounded-[5px] border border-[#dce3eb] bg-white px-2 text-xs text-[#1a1f26]"
+              title="Layout ativo"
+            >
+              {layoutPresets.map((preset) => (
+                <option key={preset.id} value={preset.id}>
+                  {preset.name}
+                </option>
+              ))}
+            </select>
+            <ToolbarBtn onClick={() => setPresetsDialogOpen(true)} className={LABELED_BTN_CLASS} title="Gerenciar layouts">
+              <EmpToolbarIcon icon={Layers} />
+              <span>Layouts</span>
+            </ToolbarBtn>
+          </div>
           <div className="ml-auto">
             {isEditing && (
               <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
@@ -533,12 +640,40 @@ export default function EmpLayoutConfiguratorDialog({
 
         <div className="grid min-h-0 flex-1 grid-cols-[320px_56px_1fr] border-t border-[#d6dce8]">
           <aside className="flex flex-col overflow-hidden border-r border-[#d6dce8] bg-white p-2">
-            <div className="mb-2 text-sm font-semibold text-[#1a1f26]">Campos disponíveis</div>
+            <div className="mb-2 flex gap-1">
+              <button
+                type="button"
+                onClick={() => setSidebarMode("available")}
+                className={`flex-1 rounded-[5px] px-2 py-1 text-xs font-medium ${
+                  sidebarMode === "available"
+                    ? "bg-[#eaf2ff] text-[#1a1f26]"
+                    : "bg-white text-[#5b6b80] hover:bg-[#f8fafc]"
+                }`}
+              >
+                Disponíveis
+              </button>
+              <button
+                type="button"
+                onClick={() => setSidebarMode("in_use")}
+                className={`flex-1 rounded-[5px] px-2 py-1 text-xs font-medium ${
+                  sidebarMode === "in_use"
+                    ? "bg-[#eaf2ff] text-[#1a1f26]"
+                    : "bg-white text-[#5b6b80] hover:bg-[#f8fafc]"
+                }`}
+              >
+                Em uso ({usedFieldsInLayout.length})
+              </button>
+            </div>
+            <div className="mb-2 text-sm font-semibold text-[#1a1f26]">
+              {sidebarMode === "available" ? "Campos disponíveis" : "Campos em uso no layout"}
+            </div>
             <div className={`${EMP_TOOLBAR_SEARCH_WRAP} mb-3 w-full`}>
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Procurar campo"
+                placeholder={
+                  sidebarMode === "available" ? "Procurar campo disponível" : "Procurar campo em uso"
+                }
                 className={`${EMP_TOOLBAR_SEARCH_INPUT} pr-7`}
               />
               <Search className="emp-toolbar-search-icon pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#5b6b80]" />
@@ -547,10 +682,18 @@ export default function EmpLayoutConfiguratorDialog({
               className="emp-layout-config-available-list flex flex-1 flex-col gap-1 overflow-auto pr-1"
               onDragOver={(event) => event.preventDefault()}
             >
-              {availableFields.length === 0 ? (
-                <div className="py-4 text-center text-xs text-slate-400">Solte aqui para remover do painel.</div>
+              {sidebarMode === "available" ? (
+                availableFields.length === 0 ? (
+                  <div className="py-4 text-center text-xs text-slate-400">Solte aqui para remover do painel.</div>
+                ) : (
+                  availableFields.map(renderAvailableField)
+                )
+              ) : filteredUsedFields.length === 0 ? (
+                <div className="py-4 text-center text-xs text-slate-400">
+                  {search.trim() ? "Nenhum campo em uso encontrado." : "Nenhum campo em uso no layout."}
+                </div>
               ) : (
-                availableFields.map(renderAvailableField)
+                filteredUsedFields.map(renderUsedField)
               )}
             </div>
           </aside>
@@ -745,6 +888,20 @@ export default function EmpLayoutConfiguratorDialog({
           }))
         }
         onVisibilityRuleChange={setVisibilityRule}
+      />
+
+      <EmpLayoutPresetsDialog
+        open={presetsDialogOpen}
+        onOpenChange={setPresetsDialogOpen}
+        presets={layoutPresets}
+        activePresetId={activePresetId}
+        currentConfig={buildCurrentConfig()}
+        defaultConfig={defaultConfig}
+        onApplyPreset={onPresetApply}
+        onCreatePreset={onCreateLayoutPreset}
+        onDuplicatePreset={onDuplicateLayoutPreset}
+        onDeletePreset={onDeleteLayoutPreset}
+        onSaveCurrentPreset={onSaveLayoutPreset}
       />
 
       <TopNoticeDialog
