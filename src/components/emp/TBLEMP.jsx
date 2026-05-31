@@ -103,14 +103,20 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
       align: c.tipo === "date" ? "center" : (c.tipo === "number" || c.tipo === "calculado") ? "right" : "left",
       width: c.largura_coluna || 160,
       ordem_tabela: c.ordem_tabela ?? c.ordem ?? 999,
-      agregacao_tipo: c.agregacao_tipo || c.agregacao || "",
       customField: c.field_name
     }));
     const aggByCol = { ...layoutAggregationConfig };
     return [...COLUNAS_BASE, ...dinamicas.sort((a, b) => (a.ordem_tabela || 999) - (b.ordem_tabela || 999))].map((col) => {
       const cfg = aggByCol[col.id];
-      if (cfg?.enabled) return { ...col, agregacao_tipo: cfg.type, agregacao: cfg.type, usar_decimal: col.usar_decimal ?? true, decimal_places: col.decimal_places ?? 2 };
-      if (col.agregacao_tipo || col.agregacao) return col;
+      if (cfg?.enabled) {
+        return {
+          ...col,
+          agregacao_tipo: cfg.type,
+          agregacao: cfg.type,
+          usar_decimal: col.usar_decimal ?? true,
+          decimal_places: col.decimal_places ?? 2
+        };
+      }
       return { ...col, agregacao_tipo: "", agregacao: "" };
     });
   }, [camposPersonalizados, layoutAggregationConfig]);

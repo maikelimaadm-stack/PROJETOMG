@@ -361,8 +361,8 @@ export default function EmpLayoutConfiguratorDialog({
             </ToolbarBtn>
           )}
           {isEditing && (
-            <ToolbarBtn onClick={createPanel} className={LABELED_BTN_CLASS} title="Novo painel">
-              <EmpToolbarIcon icon={Plus} />
+            <ToolbarBtn onClick={createPanel} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo painel">
+              <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
               <span>Novo</span>
             </ToolbarBtn>
           )}
