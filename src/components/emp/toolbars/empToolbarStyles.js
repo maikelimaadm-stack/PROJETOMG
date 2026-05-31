@@ -1,10 +1,10 @@
 /** Botões quadrados com borda azul clara — padrão do mockup */
 export const EMP_TOOLBAR_BORDER = "border border-sky-200 rounded-[5px]";
 
-export const EMP_TOOLBAR_BTN_BG = "bg-[#d4e3f4]";
+export const EMP_TOOLBAR_BTN_BG = "bg-[#eaf2ff]";
 
 export const EMP_TOOLBAR_BTN =
-  `emp-toolbar-btn inline-flex h-[24px] w-[24px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} ${EMP_TOOLBAR_BTN_BG} text-[#5b6b80] shadow-none hover:bg-[#c5d8ef] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
+  `emp-toolbar-btn inline-flex h-[24px] w-[24px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} ${EMP_TOOLBAR_BTN_BG} text-[#334155] shadow-none hover:bg-[#dde9fb] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
 
 export const EMP_TOOLBAR_SEARCH_WRAP =
   `emp-toolbar-search relative flex h-[24px] w-40 md:w-52 shrink-0 items-center ${EMP_TOOLBAR_BORDER} bg-white overflow-hidden`;
@@ -21,4 +21,4 @@ export const EMP_TOOLBAR_NAV_ICON_CLASS = "emp-toolbar-nav-icon shrink-0";
 
 /** Botões compactos do cabeçalho — mesmo visual da toolbar, tamanho 24px */
 export const EMP_HEADER_CTRL_BTN =
-  `emp-toolbar-btn emp-header-ctrl inline-flex h-[24px] w-[24px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} ${EMP_TOOLBAR_BTN_BG} text-[#082e54] shadow-none hover:bg-[#c5d8ef] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
+  `emp-toolbar-btn emp-header-ctrl inline-flex h-[24px] w-[24px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} ${EMP_TOOLBAR_BTN_BG} text-[#082e54] shadow-none hover:bg-[#dde9fb] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
