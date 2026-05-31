@@ -507,7 +507,7 @@ export default function EmpLayoutConfiguratorDialog({
             <ToolbarBtn
               disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
               onClick={deletePanel}
-              className={LABELED_BTN_CLASS}
+              className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`}
               title="Excluir painel"
             >
               <EmpToolbarIcon icon={Trash2} />

@@ -1094,6 +1094,34 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
+  color: #ef4444 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete span {
+  color: #ef4444 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete svg,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete svg {
+  color: #ef4444 !important;
+  stroke: #ef4444 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
+  color: #dc2626 !important;
+  background: var(--emp-toolbar-btn-bg-hover) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) span {
+  color: #dc2626 !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) svg {
+  color: #dc2626 !important;
+  stroke: #dc2626 !important;
+}
+
 .cadastro-emp-scope .emp-toolbar input::placeholder {
   color: #94a3b8;
 }
