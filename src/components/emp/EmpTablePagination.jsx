@@ -7,7 +7,7 @@ import { EmpFullscreenEnterIcon } from "@/components/emp/EmpTableFullscreenIcon"
 export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 
 const PAGINATION_BTN_BASE =
-  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-[#eaf2ff] text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-[#dde9fb] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
+  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-[#d4e3f4] text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-[#c5d8ef] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
 
 const getVisiblePages = (currentPage, totalPages) => {
   if (totalPages <= 0) return [];
@@ -103,7 +103,7 @@ export default function EmpTablePagination({
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
         <SelectTrigger
-          className={`emp-table-pagination-size h-6 w-[110px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-[#eaf2ff] px-2 text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-[#dde9fb] focus:ring-1 focus:ring-sky-300`}
+          className={`emp-table-pagination-size h-6 w-[110px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-white focus:ring-1 focus:ring-sky-300`}
           aria-label="Registros por página"
         >
           <SelectValue />

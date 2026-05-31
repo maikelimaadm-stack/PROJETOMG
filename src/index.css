@@ -225,8 +225,8 @@ input[type="number"] {
   --emp-text-strong: #334155;
   --emp-control-radius: 5px;
   --emp-accent-green: #21c45d;
-  --emp-toolbar-btn-bg: #eaf2ff;
-  --emp-toolbar-btn-bg-hover: #dde9fb;
+  --emp-toolbar-btn-bg: #d4e3f4;
+  --emp-toolbar-btn-bg-hover: #c5d8ef;
   color: var(--emp-text);
 }
 
@@ -586,7 +586,22 @@ input[type="number"] {
   --emp-band-edge: #b8c4d4;
 }
 
-.cadastro-emp-scope .emp-table-pro thead .emp-th,
+.cadastro-emp-scope .emp-table-pro thead .emp-th {
+  position: sticky;
+  background: #ffffff !important;
+  background-clip: padding-box !important;
+  color: #1a1f26 !important;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 26px;
+  height: 26px;
+  padding: 0 6px;
+  text-transform: none;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
   position: sticky;
   background: #eaf2ff !important;
@@ -655,9 +670,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pro .emp-td {
   border: none !important;
-  border-right: 0.5px solid #c5ced8 !important;
-  border-bottom: 0.5px solid #c5ced8 !important;
-  box-shadow: none !important;
+  box-shadow: inset -0.5px 0 0 0 #dce3eb, inset 0 -0.5px 0 0 #dce3eb !important;
   font-size: 12px;
   line-height: 26px;
   height: 26px;
@@ -939,13 +952,16 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-search,
-.cadastro-emp-scope .emp-toolbar-counter,
+.cadastro-emp-scope .emp-toolbar-counter {
+  background: #ffffff !important;
+}
+
 .cadastro-emp-scope .emp-header-ctrl {
   background: var(--emp-toolbar-btn-bg) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-search-input {
-  background: transparent !important;
+  background: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
@@ -1033,7 +1049,10 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-search:hover,
-.cadastro-emp-scope .emp-toolbar-counter:hover,
+.cadastro-emp-scope .emp-toolbar-counter:hover {
+  background: #ffffff !important;
+}
+
 .cadastro-emp-scope .emp-header-ctrl:hover:not(:disabled) {
   background: var(--emp-toolbar-btn-bg-hover) !important;
 }
@@ -1123,7 +1142,7 @@ input[type="number"] {
   box-shadow: none !important;
   color: #1a1f26 !important;
   font-weight: 400 !important;
-  background: var(--emp-toolbar-btn-bg) !important;
+  background: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-size span,
@@ -1133,7 +1152,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-size:hover {
-  background: var(--emp-toolbar-btn-bg-hover) !important;
+  background: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-size svg {
