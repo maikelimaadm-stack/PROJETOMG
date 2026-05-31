@@ -20,9 +20,15 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingPublicSettings(true);
       setAuthError(null);
       
-      // First, check app public settings (with token if available)
-      // This will tell us if auth is required, user not registered, etc.
       const appId = import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID || "";
+      if (!appId) {
+        setAppPublicSettings(null);
+        setIsLoadingPublicSettings(false);
+        setIsLoadingAuth(false);
+        setIsAuthenticated(false);
+        return;
+      }
+
       const serverUrl = import.meta.env.VITE_BASE44_SERVER_URL || "https://app.base44.com";
       const token = import.meta.env.VITE_BASE44_TOKEN || "";
       const headers = {
@@ -34,9 +40,10 @@ export const AuthProvider = ({ children }) => {
       }
       
       try {
-        const response = await fetch(`${serverUrl}/api/apps/public/prod/public-settings/by-id/${appId}`, {
-          headers
-        });
+        const response = await Promise.race([
+          fetch(`${serverUrl}/api/apps/public/prod/public-settings/by-id/${appId}`, { headers }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('public-settings-timeout')), 5000)),
+        ]);
 
         if (!response.ok) {
           const errorData = await response.json().catch(() => null);

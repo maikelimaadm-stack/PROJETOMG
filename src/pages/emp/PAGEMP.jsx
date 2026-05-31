@@ -342,22 +342,8 @@ export default function PAGEMP() {
   return (
     <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-full min-h-0 overflow-hidden flex flex-col">
 
-      {showConfigCampos && (
-        <section className="w-full h-full bg-white overflow-hidden">
-          <EmpConfiguracaoCamposDialog
-            open={showConfigCampos}
-            onOpenChange={(nextOpen) => {
-              setShowConfigCampos(nextOpen);
-              if (!nextOpen) setConfigCamposInitialField(null);
-            }}
-            initialFieldName={configCamposInitialField}
-            inline
-          />
-        </section>
-      )}
-
-      {!showConfigCampos && showForm && (
-        <div className="flex min-h-0 h-full w-full overflow-hidden">
+      {showForm && (
+        <div className="relative flex min-h-0 h-full w-full overflow-hidden">
           <div className="min-w-0 flex-1 h-full overflow-hidden">
             <FORMEMP
               key={`form-${formVersion}-${editingEmp?.id ?? "new"}`}
@@ -386,7 +372,34 @@ export default function PAGEMP() {
               attachDisabled={false}
             />
           </div>
+          {showConfigCampos && (
+            <section className="absolute inset-0 z-[80] flex min-h-0 flex-col overflow-hidden bg-white">
+              <EmpConfiguracaoCamposDialog
+                open={showConfigCampos}
+                onOpenChange={(nextOpen) => {
+                  setShowConfigCampos(nextOpen);
+                  if (!nextOpen) setConfigCamposInitialField(null);
+                }}
+                initialFieldName={configCamposInitialField}
+                inline
+              />
+            </section>
+          )}
         </div>
+      )}
+
+      {!showForm && showConfigCampos && (
+        <section className="flex min-h-0 flex-1 h-full w-full overflow-hidden bg-white">
+          <EmpConfiguracaoCamposDialog
+            open={showConfigCampos}
+            onOpenChange={(nextOpen) => {
+              setShowConfigCampos(nextOpen);
+              if (!nextOpen) setConfigCamposInitialField(null);
+            }}
+            initialFieldName={configCamposInitialField}
+            inline
+          />
+        </section>
       )}
 
       <div className={showForm || showConfigCampos ? "hidden" : "flex min-h-0 flex-1 w-full overflow-hidden"}>

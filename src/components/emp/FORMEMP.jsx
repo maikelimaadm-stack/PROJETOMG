@@ -367,7 +367,6 @@ export default function FORMEMP({
           fixedVisibleFieldIds={["status", "codigo_empresa"]}
           onSave={saveLayoutConfig}
           onOpenFieldConfig={(field) => {
-            setLayoutConfigOpen(false);
             const fieldName = field?.name || String(field?.id || "").replace(/^custom:/, "");
             onSettingsClick?.(fieldName);
           }}

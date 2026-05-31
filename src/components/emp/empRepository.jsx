@@ -10,7 +10,10 @@ const REMOTE_SEED_FLAG = 'emp_remote_seeded_v2';
 const useRemoteApi = async () => {
   if (!hasAppId()) return false;
   try {
-    await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
+    await Promise.race([
+      base44.entities.EmpresaCadastro.list('-codigo_empresa', 1),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('remote-timeout')), 4000)),
+    ]);
     return true;
   } catch {
     return false;

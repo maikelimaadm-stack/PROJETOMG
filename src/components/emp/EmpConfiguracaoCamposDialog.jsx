@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -66,11 +66,13 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "", type: "warning", onConfirm: null, confirmText: "Entendi", cancelText: "" });
+  const initialFieldAppliedRef = useRef(false);
 
-  const { data: campos = [], isLoading } = useQuery({
+  const { data: campos = [], isLoading, isFetching, isFetched } = useQuery({
     queryKey: ["emp-campos-personalizados"],
     queryFn: () => empRepository.listCamposPersonalizados(),
     enabled: open,
+    staleTime: 30_000,
     initialData: []
   });
 
@@ -163,13 +165,23 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   };
 
   React.useEffect(() => {
-    if (!open || !initialFieldName || isLoading || !campos.length) return;
+    if (!open) {
+      initialFieldAppliedRef.current = false;
+      return;
+    }
+    if (!initialFieldName || initialFieldAppliedRef.current) return;
+    if (!isFetched || isFetching) return;
+
     const normalizedName = String(initialFieldName).toLowerCase();
     const campo =
       campos.find((item) => String(item.field_name || "").toLowerCase() === normalizedName) ||
       campos.find((item) => String(item.id || item.field_id || "").toLowerCase() === normalizedName);
-    if (campo) loadCampoForm(campo);
-  }, [open, initialFieldName, campos, isLoading]);
+
+    if (campo) {
+      loadCampoForm(campo);
+      initialFieldAppliedRef.current = true;
+    }
+  }, [open, initialFieldName, campos, isFetched, isFetching]);
 
   const handleEdit = (campo) => loadCampoForm(campo);
   const handleDiscard = () => { if (editingId && !isDuplicating) { const orig = campos.find((c) => c.id === editingId); if (orig) { loadCampoForm(orig); return; } } const prev = campos.find((c) => (c.id || c.field_id) === selectedCampoIds[0]); if (prev) { loadCampoForm(prev); return; } if (campos.length > 0) { loadCampoForm(campos[0]); return; } resetForm(); };
@@ -225,7 +237,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isLoading ? <TableRow><TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Carregando...</TableCell></TableRow>
+                {(isLoading || (isFetching && campos.length === 0)) ? <TableRow><TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Carregando...</TableCell></TableRow>
                   : campos.length === 0 ? <TableRow><TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Nenhum campo criado.</TableCell></TableRow>
                   : campos.map((campo, index) => {
                     const id = campo.id || campo.field_id;
