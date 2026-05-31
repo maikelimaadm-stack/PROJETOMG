@@ -507,13 +507,12 @@ export default function FORMEMP({
               tabs={tabs}
               activeTab={activeTab}
               onChange={setActiveTab}
-              footer={
-                <div className="emp-form-tabs-counter-row">
-                  <EmpBubbleCounter
-                    value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
-                    title="Campos obrigatórios preenchidos"
-                  />
-                </div>
+              trailing={
+                <EmpBubbleCounter
+                  value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
+                  title="Campos obrigatórios preenchidos"
+                  className="emp-form-tabs-required-counter"
+                />
               }
             />
 

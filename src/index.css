@@ -290,19 +290,13 @@ input[type="number"] {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs-block {
-  width: 100%;
-}
-
-.cadastro-emp-scope .emp-form-tabs-footer {
-  position: relative;
-  min-height: 0;
-}
-
-.cadastro-emp-scope .emp-form-tabs-counter-row {
+.cadastro-emp-scope .emp-form-tabs-trailing {
   display: flex;
-  justify-content: flex-end;
-  padding: 4px 8px 2px;
+  align-items: center;
+}
+
+.cadastro-emp-scope .emp-form-tabs-required-counter {
+  margin-bottom: 0;
 }
 
 .cadastro-emp-scope .emp-bubble-counter {
