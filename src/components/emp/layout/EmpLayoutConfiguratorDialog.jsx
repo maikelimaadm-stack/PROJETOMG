@@ -303,6 +303,7 @@ export default function EmpLayoutConfiguratorDialog({
   const openFieldSettings = (field, event) => {
     if (!isEditing) return;
     event?.stopPropagation?.();
+    event?.preventDefault?.();
     const chip = event?.currentTarget?.closest?.(".emp-layout-config-field");
     const rect = chip?.getBoundingClientRect?.();
     if (!rect) return;
@@ -352,7 +353,7 @@ export default function EmpLayoutConfiguratorDialog({
               addFieldById(field.id);
             }}
           >
-            <Reply className="h-3.5 w-3.5" />
+            <Reply className="h-3.5 w-3.5 stroke-white text-white" />
           </button>
         ) : (
           <button
@@ -365,7 +366,7 @@ export default function EmpLayoutConfiguratorDialog({
               removeFieldById(field.id);
             }}
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3.5 w-3.5 stroke-white text-white" />
           </button>
         )}
         <button
@@ -374,7 +375,7 @@ export default function EmpLayoutConfiguratorDialog({
           title="Configurações do campo"
           onClick={(event) => openFieldSettings(field, event)}
         >
-          <Settings className="h-3.5 w-3.5" />
+          <Settings className="h-3.5 w-3.5 stroke-white text-white" />
         </button>
       </span>
     );

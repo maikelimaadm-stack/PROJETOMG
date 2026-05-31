@@ -13,15 +13,24 @@ const AGGREGATION_OPTIONS = [
 
 const isInsideFloatingLayer = (target) => {
   if (!target || typeof target.closest !== "function") return false;
-  if (target.closest('[role="listbox"], [role="option"], [data-radix-popper-content-wrapper]')) {
+  if (
+    target.closest(
+      '[role="listbox"], [role="option"], [data-radix-popper-content-wrapper], [data-radix-select-viewport], [data-radix-focus-guard]'
+    )
+  ) {
     return true;
   }
-  const portaledLayers = document.querySelectorAll('[data-radix-select-content], [data-radix-popper-content-wrapper]');
+  const portaledLayers = document.querySelectorAll(
+    '[data-radix-popper-content-wrapper], [data-radix-select-viewport], [role="listbox"]'
+  );
   for (const layer of portaledLayers) {
     if (layer.contains(target)) return true;
   }
   return false;
 };
+
+const isInsideLayoutConfigurator = (target) =>
+  !!target?.closest?.(".emp-layout-configurator");
 
 const ToggleRow = ({ label, checked, disabled, onChange }) => (
   <label className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] text-[#1a1f26]">
@@ -65,17 +74,18 @@ export default function EmpLayoutFieldSettingsPopover({
       const target = event.target;
       if (panelRef.current?.contains(target)) return;
       if (isInsideFloatingLayer(target)) return;
+      if (isInsideLayoutConfigurator(target)) return;
       onClose?.();
     };
     const handleKeyDown = (event) => {
       if (event.key !== "Escape") return;
-      if (document.querySelector('[data-radix-select-content][data-state="open"]')) return;
+      if (document.querySelector('[role="listbox"][data-state="open"], [data-radix-select-viewport]')) return;
       onClose?.();
     };
-    document.addEventListener("pointerdown", handlePointerDown, true);
+    document.addEventListener("mousedown", handlePointerDown);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown, true);
+      document.removeEventListener("mousedown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, onClose]);

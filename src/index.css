@@ -1230,13 +1230,19 @@ input[type="number"] {
   border: 0;
   border-radius: 3px;
   background: transparent;
-  color: #ffffff;
+  color: #ffffff !important;
   cursor: pointer;
   padding: 0;
 }
 
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.18);
+  color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action:disabled {
