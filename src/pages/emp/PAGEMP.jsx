@@ -121,8 +121,6 @@ export default function PAGEMP() {
     if (navIndex >= 0) setSelectedIndex(navIndex);
   }, [queryClient, refreshNavRecord]);
 
-  const deleteMutation = useMutation({ mutationFn: (id) => empRepository.delete(id) });
-
   const handleSubmit = useCallback(async (data) => {
     const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
 
