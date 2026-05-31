@@ -7,7 +7,17 @@ const getFieldValueKey = (field) => field?.id || field?.name || "";
 const getOptionValue = (option) => String(option?.id ?? option?.value ?? option?.label ?? option?.nome ?? "");
 const getOptionLabel = (option) => String(option?.nome ?? option?.label ?? option?.value ?? option?.id ?? "");
 
-export default function EmpConditionalVisibilityEditor({ selectedField, fields = [], visibilityRules = {}, onChange, disabled = false, selectContentClassName = "" }) {
+export default function EmpConditionalVisibilityEditor({
+  selectedField,
+  fields = [],
+  visibilityRules = {},
+  onChange,
+  disabled = false,
+  selectContentClassName = "",
+  selectPortalContainer = null,
+  selectModal = true,
+  onSelectOpenChange,
+}) {
   const selectedId = selectedField?.id;
   const savedRule = selectedId ? visibilityRules[selectedId] : null;
   const defaultRule = selectedField?.defaultVisibilityRule || null;
@@ -34,11 +44,17 @@ export default function EmpConditionalVisibilityEditor({ selectedField, fields =
   return (
     <div className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
       <span>Exibir se:</span>
-      <Select value={sourceValue} onValueChange={setSource} disabled={!selectedId || disabled}>
+      <Select
+        modal={selectModal}
+        value={sourceValue}
+        onValueChange={setSource}
+        disabled={!selectedId || disabled}
+        onOpenChange={onSelectOpenChange}
+      >
         <SelectTrigger className="emp-layout-config-select h-6 w-40 text-xs">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className={selectContentClassName}>
+        <SelectContent className={selectContentClassName} container={selectPortalContainer}>
           <SelectItem value={ALWAYS} className="text-xs">
             Sempre
           </SelectItem>
@@ -50,11 +66,17 @@ export default function EmpConditionalVisibilityEditor({ selectedField, fields =
         </SelectContent>
       </Select>
       {sourceField && (
-        <Select value={rule?.value || EMPTY} onValueChange={setValue} disabled={!selectedId || disabled}>
+        <Select
+          modal={selectModal}
+          value={rule?.value || EMPTY}
+          onValueChange={setValue}
+          disabled={!selectedId || disabled}
+          onOpenChange={onSelectOpenChange}
+        >
           <SelectTrigger className="emp-layout-config-select h-6 w-32 text-xs">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className={selectContentClassName}>
+          <SelectContent className={selectContentClassName} container={selectPortalContainer}>
             {valueOptions.map((option) => (
               <SelectItem key={option.value || EMPTY} value={option.value || EMPTY} className="text-xs">
                 {option.label || option.value}

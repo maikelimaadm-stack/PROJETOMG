@@ -1221,6 +1221,10 @@ input[type="number"] {
   border-radius: var(--emp-control-radius) !important;
 }
 
+.cadastro-emp-scope .emp-layout-field-settings-popover [data-radix-select-viewport] {
+  max-height: 220px;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action {
   display: inline-flex;
   align-items: center;
