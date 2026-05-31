@@ -225,6 +225,8 @@ input[type="number"] {
   --emp-text-strong: #334155;
   --emp-control-radius: 5px;
   --emp-accent-green: #21c45d;
+  --emp-toolbar-btn-bg: #eaf2ff;
+  --emp-toolbar-btn-bg-hover: #dde9fb;
   color: var(--emp-text);
 }
 
@@ -307,7 +309,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn {
-  background: #eaf2ff !important;
+  background: var(--emp-toolbar-btn-bg) !important;
   border-color: #c5ced8 !important;
 }
 
@@ -932,6 +934,20 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new) {
+  background: var(--emp-toolbar-btn-bg) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search,
+.cadastro-emp-scope .emp-toolbar-counter,
+.cadastro-emp-scope .emp-header-ctrl {
+  background: var(--emp-toolbar-btn-bg) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search-input {
+  background: transparent !important;
+}
+
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
   height: 24px !important;
   min-height: 24px !important;
@@ -1011,9 +1027,15 @@ input[type="number"] {
   stroke: #94a3b8 !important;
 }
 
-.cadastro-emp-scope .emp-toolbar-btn:hover:not(:disabled) {
-  background: #f0f9ff !important;
+.cadastro-emp-scope .emp-toolbar-btn:hover:not(:disabled):not(.emp-toolbar-btn-new) {
+  background: var(--emp-toolbar-btn-bg-hover) !important;
   box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search:hover,
+.cadastro-emp-scope .emp-toolbar-counter:hover,
+.cadastro-emp-scope .emp-header-ctrl:hover:not(:disabled) {
+  background: var(--emp-toolbar-btn-bg-hover) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new {
@@ -1058,6 +1080,7 @@ input[type="number"] {
   border-radius: 5px !important;
   color: #1a1f26 !important;
   font-weight: 400 !important;
+  background: var(--emp-toolbar-btn-bg) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn svg {
@@ -1070,6 +1093,10 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pagination-btn:disabled svg {
   color: #c5ced6 !important;
   stroke: #c5ced6 !important;
+}
+
+.cadastro-emp-scope .emp-table-pagination-btn:hover:not(:disabled):not(.emp-table-pagination-page-active) {
+  background: var(--emp-toolbar-btn-bg-hover) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn.emp-table-pagination-page-active {
@@ -1096,6 +1123,7 @@ input[type="number"] {
   box-shadow: none !important;
   color: #1a1f26 !important;
   font-weight: 400 !important;
+  background: var(--emp-toolbar-btn-bg) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-size span,
@@ -1105,7 +1133,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-size:hover {
-  background: #f0f9ff !important;
+  background: var(--emp-toolbar-btn-bg-hover) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-size svg {
