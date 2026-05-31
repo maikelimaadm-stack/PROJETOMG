@@ -69,54 +69,49 @@ export default function PAGEMP() {
   const hasActiveFilters = false;
 
   const goToTableAfterSave = useCallback(async (savedId) => {
-    await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
-    if (savedId) {
-      const list = await queryClient.fetchQuery({
-        queryKey: ["emp-cadastro"],
-        queryFn: () => empRepository.list()
-      });
-      const index = list.findIndex((item) => item.id === savedId);
-      if (index >= 0) setSelectedIndex(index);
-      setSelectedTableItems([savedId]);
-    }
     setReturnRecordAfterNew(null);
     setShowForm(false);
     setEditingEmp(null);
     setViewMode("table");
+
+    await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+
+    if (!savedId) return;
+
+    const list = await queryClient.fetchQuery({
+      queryKey: ["emp-cadastro"],
+      queryFn: () => empRepository.list()
+    });
+    const index = list.findIndex((item) => item.id === savedId);
+    if (index >= 0) setSelectedIndex(index);
+    setSelectedTableItems([savedId]);
   }, [queryClient]);
-
-  const createMutation = useMutation({
-    mutationFn: (data) => empRepository.create(data),
-    onSuccess: async (created) => {
-      await goToTableAfterSave(created?.id);
-      toast.success("Empresa cadastrada!");
-    },
-    onError: () => {
-      toast.error("Não foi possível cadastrar a empresa.");
-    }
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => empRepository.update(id, data),
-    onSuccess: async (_updated, { id }) => {
-      await goToTableAfterSave(id);
-      toast.success("Empresa atualizada!");
-    },
-    onError: () => {
-      toast.error("Não foi possível atualizar a empresa.");
-    }
-  });
 
   const deleteMutation = useMutation({ mutationFn: (id) => empRepository.delete(id) });
 
-  const handleSubmit = (data) => {
-    if (editingEmp && !editingEmp._isDuplicate) {
-      updateMutation.mutate({ id: editingEmp.id, data });
-    } else {
-      const { _isDuplicate, ...clean } = data;
-      createMutation.mutate(clean);
+  const handleSubmit = useCallback(async (data) => {
+    const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
+
+    try {
+      let savedId;
+
+      if (isUpdate) {
+        await empRepository.update(editingEmp.id, data);
+        savedId = editingEmp.id;
+        toast.success("Empresa atualizada!");
+      } else {
+        const { _isDuplicate, ...clean } = data;
+        const created = await empRepository.create(clean);
+        savedId = created?.id;
+        toast.success("Empresa cadastrada!");
+      }
+
+      await goToTableAfterSave(savedId);
+      setFormVersion((version) => version + 1);
+    } catch {
+      toast.error(isUpdate ? "Não foi possível atualizar a empresa." : "Não foi possível cadastrar a empresa.");
     }
-  };
+  }, [editingEmp, goToTableAfterSave]);
 
   const handleEdit = (emp) => {
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
