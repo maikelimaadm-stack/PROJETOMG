@@ -159,6 +159,16 @@ button:focus-visible {
     overflow: hidden;
   }
 
+  html {
+    zoom: 1.1;
+  }
+
+  @supports not (zoom: 1) {
+    html {
+      font-size: 110%;
+    }
+  }
+
   body {
     @apply bg-background text-foreground;
   }
