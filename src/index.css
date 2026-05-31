@@ -330,8 +330,8 @@ input[type="number"] {
   border-top: 2px solid #21c45d;
   border-left: 1px solid #d6dce8;
   border-right: 1px solid #d6dce8;
-  border-bottom: 1px solid #e8faf0;
-  background: #e8faf0;
+  border-bottom: 1px solid #ffffff;
+  background: #ffffff;
   color: #1a1f26;
   font-weight: 600;
   margin-bottom: -1px;
@@ -357,11 +357,11 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active:hover {
   color: #1a1f26 !important;
-  background: #e8faf0 !important;
+  background: #ffffff !important;
   border-top-color: #21c45d !important;
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
-  border-bottom-color: #e8faf0 !important;
+  border-bottom-color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {

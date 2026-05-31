@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
 import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
@@ -9,6 +10,8 @@ const formatPanelLabel = (value) =>
   String(value || "")
     .toLowerCase()
     .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
+
+const isCustomPanel = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 
 export default function EmpTabs({
   tabs = [],
@@ -51,16 +54,18 @@ export default function EmpTabs({
       >
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
+          const custom = isCustomPanel(tab, systemPanelIds);
 
           return (
             <button
               key={tab.id}
               type="button"
               onClick={() => onChange?.(tab.id)}
-              className={`emp-form-tab relative z-10 flex-none min-w-max whitespace-nowrap ${
+              className={`emp-form-tab relative z-10 flex-none min-w-max overflow-hidden whitespace-nowrap ${
                 active ? "emp-form-tab-active" : "emp-form-tab-inactive"
               }`}
             >
+              {custom && <EmpCustomMarker />}
               {formatPanelLabel(tab.label)}
             </button>
           );
