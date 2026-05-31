@@ -111,6 +111,13 @@ export default function EmpLayoutConfiguratorDialog({
   const { canScrollLeft, canScrollRight } = usePanelTabsScroll(panelsScrollRef, [draftPanels, activePanelId, editingPanelId, isEditing]);
 
   React.useEffect(() => {
+    if (!open) {
+      setPresetsDialogOpen(false);
+      return;
+    }
+  }, [open]);
+
+  React.useEffect(() => {
     if (!open) return;
     setDraftPanels(panels);
     setDraftLayout(layout);
@@ -126,7 +133,6 @@ export default function EmpLayoutConfiguratorDialog({
     setSelectedPanelFieldIds([]);
     setSearch("");
     setSidebarMode("available");
-    setPresetsDialogOpen(false);
     setIsEditing(false);
     setEditingPanelId(null);
     setFieldLastPanelId({});

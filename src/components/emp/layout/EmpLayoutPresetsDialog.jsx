@@ -70,11 +70,16 @@ export default function EmpLayoutPresetsDialog({
   useEffect(() => {
     if (!open) return;
     setSelectedPresetId(activePresetId || DEFAULT_PRESET_ID);
-    setInlineMode(null);
-    setDraftName("");
-    setDraftSourcePresetId(EMPTY_SOURCE_ID);
     setNotice("");
   }, [open, activePresetId]);
+
+  useEffect(() => {
+    if (!open) {
+      setInlineMode(null);
+      setDraftName("");
+      setDraftSourcePresetId(EMPTY_SOURCE_ID);
+    }
+  }, [open]);
 
   const presetRows = useMemo(
     () =>
@@ -171,19 +176,30 @@ export default function EmpLayoutPresetsDialog({
     </select>
   );
 
+  const handleClose = () => onOpenChange(false);
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] gap-0 overflow-visible rounded-none border border-[#cfd8e3] p-0 [&>button:last-child]:hidden">
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (nextOpen) onOpenChange(true);
+      }}
+    >
+      <DialogContent
+        className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] gap-0 overflow-visible rounded-none border border-[#cfd8e3] p-0 [&>button:last-child]:hidden"
+        onInteractOutside={(event) => event.preventDefault()}
+        onEscapeKeyDown={(event) => event.preventDefault()}
+      >
         <DialogTitle className="sr-only">Layouts personalizados</DialogTitle>
 
         <button
           type="button"
-          onClick={() => onOpenChange(false)}
+          onClick={handleClose}
           className="emp-layout-presets-close-icon"
           title="Fechar"
           aria-label="Fechar"
         >
-          <X className="h-3 w-3" strokeWidth={2} />
+          <X className="h-3 w-3" strokeWidth={2.25} />
         </button>
 
         <div className="emp-toolbar flex items-center gap-1.5 border-b border-sky-100 bg-white px-2 py-1.5">
@@ -231,26 +247,26 @@ export default function EmpLayoutPresetsDialog({
           operationLabel={isInlineEditing ? (inlineMode === "new" ? "NOVO REGISTRO" : "EDIÇÃO DE REGISTRO") : "CONSULTA"}
         />
 
-        <div className="max-h-[520px] overflow-hidden bg-white p-1">
-          <Card className="emp-table-shell overflow-hidden border border-[#c5ced8] bg-white shadow-none">
+        <div className="max-h-[520px] overflow-hidden bg-white">
+          <Card className="emp-table-shell overflow-hidden rounded-none border-0 border-t border-[#c5ced8] bg-white shadow-none">
             <CardContent className="p-0">
               <div className="max-h-[480px] overflow-auto">
                 <Table className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="emp-th h-[26px] w-[30%] border-r border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[30%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-left text-xs font-semibold text-[#1a1f26]">
                         Nome
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] w-[26%] border-r border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[26%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-left text-xs font-semibold text-[#1a1f26]">
                         Origem
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1 text-center text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-center text-xs font-semibold text-[#1a1f26]">
                         Painéis
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1 text-center text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-center text-xs font-semibold text-[#1a1f26]">
                         Campos
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] border-b border-[#c5ced8] bg-white px-1.5 text-left text-xs font-semibold text-[#1a1f26]">
                         Atualizado
                       </TableHead>
                     </TableRow>
@@ -258,7 +274,7 @@ export default function EmpLayoutPresetsDialog({
                   <TableBody>
                     {inlineMode === "new" ? (
                       <TableRow className="emp-row-selected hover:bg-transparent">
-                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 align-middle">
+                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1.5 py-0 align-middle">
                           <Input
                             value={draftName}
                             onChange={(event) => setDraftName(event.target.value)}
@@ -268,7 +284,7 @@ export default function EmpLayoutPresetsDialog({
                             className="h-6 rounded-[5px] border-[#dce3eb] px-1 text-xs shadow-none focus-visible:ring-0"
                           />
                         </TableCell>
-                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 align-middle">
+                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1.5 py-0 align-middle">
                           {renderOriginSelect(draftSourcePresetId, (event) => setDraftSourcePresetId(event.target.value))}
                         </TableCell>
                         <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 text-center align-middle text-xs text-[#5b6b80]">
@@ -277,7 +293,7 @@ export default function EmpLayoutPresetsDialog({
                         <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 text-center align-middle text-xs text-[#5b6b80]">
                           0
                         </TableCell>
-                        <TableCell className="emp-td h-[26px] border-b border-[#c5ced8] px-1 py-0 align-middle text-xs text-[#5b6b80]">
+                        <TableCell className="emp-td h-[26px] border-b border-[#c5ced8] px-1.5 py-0 align-middle text-xs text-[#5b6b80]">
                           —
                         </TableCell>
                       </TableRow>
@@ -335,7 +351,7 @@ export default function EmpLayoutPresetsDialog({
             </CardContent>
           </Card>
 
-          {notice ? <div className="mt-1 px-0.5 text-xs text-[#5b6b80]">{notice}</div> : null}
+          {notice ? <div className="px-1.5 py-1 text-xs text-[#5b6b80]">{notice}</div> : null}
         </div>
       </DialogContent>
     </Dialog>

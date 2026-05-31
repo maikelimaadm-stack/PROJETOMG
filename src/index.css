@@ -1515,23 +1515,28 @@ input[type="number"] {
   width: 100%;
 }
 
+.cadastro-emp-scope .emp-layout-presets-dialog {
+  position: relative;
+}
+
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon {
   position: absolute;
-  top: 1px;
-  right: 1px;
-  z-index: 30;
+  top: 0;
+  right: 0;
+  z-index: 50;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: auto;
+  height: auto;
   margin: 0;
   border: none;
   background: transparent;
-  color: #475569;
+  color: #334155;
   cursor: pointer;
   padding: 0;
   line-height: 0;
+  transform: translate(50%, -50%);
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover {
@@ -1541,10 +1546,16 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-table-shell {
   box-shadow: none;
+  border-radius: 0 !important;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-th,
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-td {
   font-size: 12px;
   line-height: 26px;
+}
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-td .h-6,
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-td .emp-layout-config-select {
+  margin: 0;
 }
