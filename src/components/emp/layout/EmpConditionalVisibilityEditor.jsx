@@ -15,6 +15,7 @@ export default function EmpConditionalVisibilityEditor({
   disabled = false,
   selectContentClassName = "",
   selectPortalContainer = null,
+  selectPortalled = true,
   selectModal = true,
   onSelectOpenChange,
 }) {
@@ -54,7 +55,11 @@ export default function EmpConditionalVisibilityEditor({
         <SelectTrigger className="emp-layout-config-select h-6 w-40 text-xs">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent className={selectContentClassName} container={selectPortalContainer}>
+        <SelectContent
+          className={selectContentClassName}
+          container={selectPortalContainer}
+          portalled={selectPortalled}
+        >
           <SelectItem value={ALWAYS} className="text-xs">
             Sempre
           </SelectItem>
@@ -76,7 +81,11 @@ export default function EmpConditionalVisibilityEditor({
           <SelectTrigger className="emp-layout-config-select h-6 w-32 text-xs">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className={selectContentClassName} container={selectPortalContainer}>
+          <SelectContent
+            className={selectContentClassName}
+            container={selectPortalContainer}
+            portalled={selectPortalled}
+          >
             {valueOptions.map((option) => (
               <SelectItem key={option.value || EMPTY} value={option.value || EMPTY} className="text-xs">
                 {option.label || option.value}

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { ChevronUp } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
@@ -11,11 +11,11 @@ const AGGREGATION_OPTIONS = [
   { value: "min", label: "Menor" },
 ];
 
-const isInsideFloatingLayer = (target) => {
+const POPOVER_SELECTOR = ".emp-layout-field-settings-popover";
+
+const isInsidePopover = (target) => {
   if (!target || typeof target.closest !== "function") return false;
-  return !!target.closest(
-    '[role="listbox"], [role="option"], [data-radix-popper-content-wrapper], [data-radix-select-viewport]'
-  );
+  return !!target.closest(POPOVER_SELECTOR);
 };
 
 const ToggleRow = ({ label, checked, disabled, onChange }) => (
@@ -52,46 +52,34 @@ export default function EmpLayoutFieldSettingsPopover({
   onAggregationTypeChange,
   onVisibilityRuleChange,
 }) {
-  const panelRef = useRef(null);
-  const [panelEl, setPanelEl] = useState(null);
-  const ignoreCloseUntilRef = useRef(0);
+  const openSelectCountRef = useRef(0);
 
-  const setPanelNode = useCallback((node) => {
-    panelRef.current = node;
-    setPanelEl(node);
-  }, []);
-
-  const scheduleIgnoreClose = useCallback(() => {
-    ignoreCloseUntilRef.current = Date.now() + 280;
+  const trackSelectOpenChange = useCallback((nextOpen) => {
+    openSelectCountRef.current = Math.max(0, openSelectCountRef.current + (nextOpen ? 1 : -1));
   }, []);
 
   useEffect(() => {
-    if (!open) return;
-
-    const shouldClose = (target) => {
-      if (!target) return false;
-      if (Date.now() < ignoreCloseUntilRef.current) return false;
-      if (panelRef.current?.contains(target)) return false;
-      if (isInsideFloatingLayer(target)) return false;
-      return true;
-    };
+    if (!open) {
+      openSelectCountRef.current = 0;
+      return;
+    }
 
     const handlePointerDown = (event) => {
-      if (!shouldClose(event.target)) return;
+      if (openSelectCountRef.current > 0) return;
+      if (isInsidePopover(event.target)) return;
       onClose?.();
     };
 
     const handleKeyDown = (event) => {
       if (event.key !== "Escape") return;
-      const openListbox = panelRef.current?.querySelector('[role="listbox"][data-state="open"]');
-      if (openListbox) return;
+      if (openSelectCountRef.current > 0) return;
       onClose?.();
     };
 
-    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, onClose]);
@@ -106,12 +94,11 @@ export default function EmpLayoutFieldSettingsPopover({
 
   return (
     <div
-      ref={setPanelNode}
       className="emp-layout-field-settings-popover fixed z-[200] w-[560px] max-w-[calc(100vw-16px)] overflow-visible border border-[#cfd8e3] bg-white shadow-lg"
       style={{ top, left }}
       role="dialog"
       aria-label={`Configurações de ${field.label}`}
-      onPointerDownCapture={scheduleIgnoreClose}
+      onPointerDown={(event) => event.stopPropagation()}
     >
       <div className="overflow-hidden rounded-[var(--emp-control-radius)] bg-white">
         <div className="flex h-9 items-center justify-between border-b border-[#e2e8f0] bg-white px-3">
@@ -155,18 +142,15 @@ export default function EmpLayoutFieldSettingsPopover({
           <div className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
             <span className="shrink-0">Tipo de totalização</span>
             <Select
-              modal={false}
               value={draftAggregationConfig[field.id]?.type || "sum"}
               onValueChange={(value) => onAggregationTypeChange?.(field.id, value)}
               disabled={!isEditing || !draftAggregationConfig[field.id]?.enabled}
-              onOpenChange={(nextOpen) => {
-                if (nextOpen) scheduleIgnoreClose();
-              }}
+              onOpenChange={trackSelectOpenChange}
             >
               <SelectTrigger className="emp-layout-config-select h-7 w-40 text-xs">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent container={panelEl} className="z-[250]">
+              <SelectContent portalled={false} className="z-[250]">
                 {AGGREGATION_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value} className="text-xs">
                     {option.label}
@@ -183,11 +167,8 @@ export default function EmpLayoutFieldSettingsPopover({
               onChange={onVisibilityRuleChange}
               disabled={!isEditing}
               selectContentClassName="z-[250]"
-              selectPortalContainer={panelEl}
-              selectModal={false}
-              onSelectOpenChange={(nextOpen) => {
-                if (nextOpen) scheduleIgnoreClose();
-              }}
+              selectPortalled={false}
+              onSelectOpenChange={trackSelectOpenChange}
             />
           </div>
         </div>
