@@ -378,6 +378,24 @@ input[type="number"] {
   background: #f5f7fa !important;
 }
 
+/* Campos do formulário de registro */
+.cadastro-emp-scope .emp-form-section-principal {
+  padding-bottom: 1rem;
+}
+
+.cadastro-emp-scope .emp-form-section-panel {
+  padding-top: 1rem;
+}
+
+.cadastro-emp-scope .emp-form-fields [data-field] label {
+  color: #1a1f26;
+}
+
+.cadastro-emp-scope .emp-form-fields [data-field] input,
+.cadastro-emp-scope .emp-form-fields [data-field] textarea {
+  color: #1a1f26;
+}
+
 /* Tabela em tela cheia */
 .cadastro-emp-scope .emp-table-stage:fullscreen {
   width: 100%;

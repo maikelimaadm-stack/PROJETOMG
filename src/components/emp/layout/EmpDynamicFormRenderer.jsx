@@ -44,8 +44,8 @@ const conditionMatches = (current, expected, sourceField) => {
 
 function FieldFrame({ field, error, children, className = "" }) {
   return (
-    <div data-field={field.dataField || field.name} className={`grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 ${field.wide ? "md:col-span-2" : ""}`}>
-      <label className="text-[12px] text-slate-500 text-right leading-none">{field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}</label>
+    <div data-field={field.dataField || field.name} className={`grid grid-cols-[170px_minmax(0,1fr)] items-center gap-2 ${field.wide ? "md:col-span-2" : ""}`}>
+      <label className="text-[12px] text-[#1a1f26] text-right leading-none">{field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}</label>
       <div className={`relative ${field.wide ? "min-h-6" : "h-6"} ${field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full"} border ${error ? "border-red-500 bg-red-50" : "border-slate-300 bg-white"} focus-within:border-[#082e54] transition-colors overflow-hidden ${className} [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0`}>
         {isCustomField(field) && <EmpCustomMarker />}
         {children}
@@ -77,8 +77,8 @@ export default function EmpDynamicFormRenderer({ panels = [], fields = [], layou
   if (!activePanel) return null;
 
   return (
-    <div className="space-y-1">
-      {visibleFields.length === 0 ? <div className="ml-[191px] text-xs text-slate-500">Nenhum campo configurado para este painel.</div> : visibleFields.map((field) => {
+    <div className="emp-form-fields space-y-2.5">
+      {visibleFields.length === 0 ? <div className="ml-[172px] text-xs text-slate-500">Nenhum campo configurado para este painel.</div> : visibleFields.map((field) => {
         const value = field.getValue ? field.getValue(values, context) : values[field.name];
         const error = errors[field.errorKey || field.name];
         const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };

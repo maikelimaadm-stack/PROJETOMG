@@ -418,7 +418,7 @@ export default function FORMEMP({
 
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
-            <div className="px-4 md:px-8 py-1 w-max min-w-[920px] max-w-none">
+            <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4 pb-4 pt-1">
               <EmpDynamicFormRenderer
                 panels={activeLayoutConfig.panels}
                 fields={dynamicFields}
@@ -440,24 +440,22 @@ export default function FORMEMP({
           <LegacyTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
           <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
-            <div className="min-h-[360px] px-4 md:px-8 py-1">
-              <div className="w-max min-w-[920px] max-w-none space-y-1">
-                <EmpDynamicFormRenderer
-                  panels={tabs}
-                  fields={dynamicFields}
-                  layout={activeLayoutConfig.layout}
-                  hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                  lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                  requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                  visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                  activePanelId={activeTab}
-                  values={formData}
-                  errors={errors}
-                  onChange={handleChange}
-                  readOnly={isReadOnly}
-                  fieldClassName="rounded-[1.5px]"
-                />
-              </div>
+            <div className="emp-form-section emp-form-section-panel min-h-[360px] w-max min-w-[920px] max-w-none pl-2 pr-4 pt-4 pb-1">
+              <EmpDynamicFormRenderer
+                panels={tabs}
+                fields={dynamicFields}
+                layout={activeLayoutConfig.layout}
+                hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                activePanelId={activeTab}
+                values={formData}
+                errors={errors}
+                onChange={handleChange}
+                readOnly={isReadOnly}
+                fieldClassName="rounded-[1.5px]"
+              />
             </div>
           </fieldset>
         </div>
