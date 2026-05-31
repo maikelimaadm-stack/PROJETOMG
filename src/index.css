@@ -290,24 +290,10 @@ input[type="number"] {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs-block {
-  position: relative;
-  width: 100%;
-  padding-bottom: 11px;
-}
-
-.cadastro-emp-scope .emp-form-tabs-trailing {
-  position: absolute;
-  top: 100%;
-  right: 10%;
-  z-index: 3;
+.cadastro-emp-scope .emp-form-tab-nav-end {
   display: flex;
   align-items: center;
-  transform: translateY(-50%);
-}
-
-.cadastro-emp-scope .emp-form-tabs-required-counter {
-  margin-bottom: 0;
+  gap: 6px;
 }
 
 .cadastro-emp-scope .emp-bubble-counter {

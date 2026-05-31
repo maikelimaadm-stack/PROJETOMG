@@ -511,7 +511,7 @@ export default function FORMEMP({
                 <EmpBubbleCounter
                   value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
                   title="Campos obrigatórios preenchidos"
-                  className="emp-form-tabs-required-counter"
+                  className="emp-toolbar-bubble-counter"
                 />
               }
             />
