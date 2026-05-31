@@ -431,8 +431,13 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-toggle-switch.emp-form-toggle-switch-on,
 .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] {
-  background: #b8eac8 !important;
+  background: #21c45d !important;
   border-color: #21c45d !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"]:hover:not(:disabled) {
+  background: #1fb455 !important;
+  border-color: #1fb455 !important;
 }
 
 .cadastro-emp-scope .emp-form-toggle-switch > span {
@@ -445,13 +450,21 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] > span {
   right: 1px !important;
   left: auto !important;
-  background: #21c45d !important;
+  background: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="false"] > span {
   left: 1px !important;
   right: auto !important;
-  background: #94a3b8 !important;
+  background: #21c45d !important;
+}
+
+.cadastro-emp-scope .emp-form-image-field {
+  min-height: 22px;
+}
+
+.cadastro-emp-scope .emp-form-image-field img {
+  pointer-events: none;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input,

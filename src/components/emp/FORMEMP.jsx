@@ -12,6 +12,7 @@ import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/components/emp/layout/EmpDynamicFormRenderer";
 import EmpLayoutConfiguratorDialog from "@/components/emp/layout/EmpLayoutConfiguratorDialog";
 import EmpOptionListControl from "@/components/emp/shared/EmpOptionListControl";
+import EmpFormImageField from "@/components/emp/shared/EmpFormImageField";
 import { base44 } from "@/api/base44Client";
 
 const ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
@@ -219,6 +220,24 @@ export default function FORMEMP({
       return <Input type="text" inputMode="numeric" value={formatMaskedNumber(value, campo)} onChange={(e) => handleCustomChange(campo.field_name, formatMaskedNumber(e.target.value, campo))} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${inputClass} ${readOnlyClass}`} />;
     }
 
+    if (["imagem", "image", "file"].includes(campo.tipo)) {
+      return (
+        <EmpFormImageField
+          value={value}
+          readOnly={fieldReadOnly}
+          onUpload={(event) => {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            base44.integrations.Core.UploadFile({ file })
+              .then(({ file_url }) => handleCustomChange(campo.field_name, file_url))
+              .catch(() => setNoticeDialog({ open: true, title: "Erro ao enviar", description: "Não foi possível enviar a imagem." }));
+          }}
+          onClear={() => handleCustomChange(campo.field_name, "")}
+          alt={campo.label || "Imagem"}
+        />
+      );
+    }
+
     return <Input type={campo.tipo === "number" ? "number" : campo.tipo === "date" ? "date" : "text"} value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${inputClass} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`} />;
   };
 
@@ -233,7 +252,7 @@ export default function FORMEMP({
     { id: "telefone", name: "telefone", label: "Telefone", type: "text", compact: true, placeholder: "(00) 0000-0000" },
     { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "text", compact: true, placeholder: "(00) 00000-0000" },
     { id: "email", name: "email", label: "E-mail", type: "text", placeholder: "EMAIL@EMPRESA.COM.BR" },
-    { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "file", wide: true, render: () => <div className="min-h-[36px] flex items-center gap-2 px-2 py-1 bg-white"><div className="flex items-center gap-2">{formData.logo_url && <img src={formData.logo_url} alt="Logo" className="h-8 w-8 object-contain border border-slate-200 rounded-sm bg-white" />}{!isReadOnly && <label className="cursor-pointer text-[11px] text-slate-500 hover:text-slate-600 underline">{uploadingLogo ? "Enviando..." : formData.logo_url ? "Trocar logo" : "Selecionar logo"}<input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} disabled={uploadingLogo} /></label>}{!isReadOnly && formData.logo_url && <button type="button" onClick={() => handleChange("logo_url", "")} className="text-[11px] text-red-500 hover:text-red-700 underline ml-1">Remover</button>}{!formData.logo_url && isReadOnly && <span className="text-[11px] text-slate-400">Sem logo</span>}</div></div> },
+    { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "image", compact: true, render: () => <EmpFormImageField value={formData.logo_url} readOnly={isReadOnly} uploading={uploadingLogo} onUpload={handleLogoUpload} onClear={() => handleChange("logo_url", "")} alt="Logo da empresa" /> },
     { id: "cep", name: "cep", label: "CEP", type: "text", compact: true, placeholder: "00000-000" },
     { id: "endereco", name: "endereco", label: "Endereço", type: "text", wide: true, uppercase: true, placeholder: "RUA, AVENIDA..." },
     { id: "numero", name: "numero", label: "Número", type: "text", compact: true, placeholder: "Nº" },
@@ -241,7 +260,7 @@ export default function FORMEMP({
     { id: "cidade", name: "cidade", label: "Cidade", type: "text", uppercase: true, placeholder: "CIDADE" },
     { id: "estado", name: "estado", label: "Estado (UF)", type: "autocomplete", compact: true, options: opcoesEstado, placeholder: "UF", displayField: "nome", searchFields: ["nome"] },
     { id: "observacoes", name: "observacoes", label: "Observações", type: "textarea", wide: true, uppercase: true, placeholder: "OBSERVAÇÕES GERAIS..." },
-    ...camposPersonalizadosForm.map((campo) => ({ id: `custom:${campo.field_name}`, name: campo.field_name, label: campo.label, type: campo.tipo, origem: "customizado", optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "", required: campo.obrigatorio, errorKey: `campos_personalizados.${campo.field_name}`, wide: ["textarea", "option_list"].includes(campo.tipo), medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo), compact: ["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara, totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara, options: ["select", "option_list"].includes(campo.tipo) ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })) : [], displayField: "nome", searchFields: ["nome"], render: () => renderCampoPersonalizado(campo) }))
+    ...camposPersonalizadosForm.map((campo) => ({ id: `custom:${campo.field_name}`, name: campo.field_name, label: campo.label, type: campo.tipo, origem: "customizado", optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "", required: campo.obrigatorio, errorKey: `campos_personalizados.${campo.field_name}`, wide: ["textarea", "option_list"].includes(campo.tipo), medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo), compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo), totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara, options: ["select", "option_list"].includes(campo.tipo) ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })) : [], displayField: "nome", searchFields: ["nome"], render: () => renderCampoPersonalizado(campo) }))
   ], [formData, isReadOnly, opcoesEstado, opcoesTipoPessoa, uploadingLogo, camposPersonalizadosForm, relatedOptions]);
 
   const basePanels = [

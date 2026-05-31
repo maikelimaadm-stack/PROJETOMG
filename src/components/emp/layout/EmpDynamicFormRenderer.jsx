@@ -9,6 +9,8 @@ const isCustomField = (field) => field?.origem === "customizado" || String(field
 
 const isBareControlField = (field) => field?.type === "checkbox" || field?.type === "switch";
 
+const isCompactField = (field) => field?.compact || ["image", "file", "imagem"].includes(field?.type);
+
 function EmpFormToggle({ checked, onChange, disabled }) {
   return (
     <ToggleSwitch
@@ -65,7 +67,7 @@ function FieldFrame({ field, error, children, className = "" }) {
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
-        <div className={`emp-form-field-control relative ${field.wide ? "min-h-6" : "h-6"} ${field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full"} ${error ? "emp-form-field-error" : ""} ${className}`}>
+        <div className={`emp-form-field-control relative ${field.wide ? "min-h-6" : "h-6"} ${field.medium ? "w-64 max-w-full" : isCompactField(field) ? "w-44 max-w-full" : "w-full"} ${error ? "emp-form-field-error" : ""} ${className}`}>
           {isCustomField(field) && <EmpCustomMarker />}
           {children}
         </div>
