@@ -2,7 +2,7 @@ import { base44 } from '@/api/base44Client';
 import empLocalStore from './empLocalStore';
 import empCamposLocalStore from './empCamposLocalStore';
 import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from './empSeedData';
-import { normalizeEmpresaRecord, stripEmpresaPersistPayload } from './empCodigoUtils';
+import { normalizeEmpresaRecord, reserveNextCodigoEmpresa, stripEmpresaPersistPayload, syncLastIssuedCodigo } from './empCodigoUtils';
 
 const hasAppId = () => Boolean(import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID);
 const REMOTE_SEED_FLAG = 'emp_remote_seeded_v2';
@@ -41,9 +41,9 @@ const seedRemoteIfEmpty = async () => {
   const toCreate = templates.slice(startAt, EMP_SEED_TARGET_COUNT);
 
   for (const record of toCreate) {
-    const latest = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
-    const maxCodigo = latest.length > 0 ? (latest[0].codigo_empresa || 0) : 0;
-    const codigo = Number(maxCodigo) + 1;
+    const latest = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+    syncLastIssuedCodigo(latest);
+    const codigo = reserveNextCodigoEmpresa(latest);
     await base44.entities.EmpresaCadastro.create({
       ...record,
       codigo_empresa: codigo,
@@ -55,19 +55,25 @@ const seedRemoteIfEmpty = async () => {
   }
 
   localStorage.setItem(REMOTE_SEED_FLAG, 'v2');
-  return base44.entities.EmpresaCadastro.list('-codigo_empresa');
+  records = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+  syncLastIssuedCodigo(records);
+  return records;
 };
 
 const empRepository = {
   async list() {
+    let records;
     if (await isRemoteAvailable()) {
       try {
-        return await seedRemoteIfEmpty();
+        records = await seedRemoteIfEmpty();
       } catch {
-        return empLocalStore.seedIfEmpty();
+        records = empLocalStore.seedIfEmpty();
       }
+    } else {
+      records = empLocalStore.seedIfEmpty();
     }
-    return empLocalStore.seedIfEmpty();
+    syncLastIssuedCodigo(records);
+    return records;
   },
 
   async get(id) {
@@ -86,9 +92,9 @@ const empRepository = {
 
     if (await isRemoteAvailable()) {
       try {
-        const all = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
-        const maxCodigo = all.length > 0 ? Number(all[0].codigo_empresa) || 0 : 0;
-        const codigo = maxCodigo + 1;
+        const list = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+        syncLastIssuedCodigo(list);
+        const codigo = reserveNextCodigoEmpresa(list);
         const created = await base44.entities.EmpresaCadastro.create({ ...payload, codigo_empresa: codigo });
         return normalizeEmpresaRecord(created, { ...payload, codigo_empresa: codigo });
       } catch {

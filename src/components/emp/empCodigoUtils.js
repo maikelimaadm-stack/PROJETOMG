@@ -1,3 +1,5 @@
+const LAST_CODIGO_KEY = "emp_cadastro_last_codigo_empresa";
+
 const SYSTEM_FIELDS = new Set([
   "id",
   "codigo_empresa",
@@ -7,13 +9,35 @@ const SYSTEM_FIELDS = new Set([
   "_isDuplicate"
 ]);
 
-export const getNextCodigoEmpresa = (records = []) => {
-  const max = records.reduce((acc, item) => {
+export const getMaxCodigoFromRecords = (records = []) =>
+  records.reduce((acc, item) => {
     const value = Number(item?.codigo_empresa);
     return Number.isFinite(value) && value > 0 ? Math.max(acc, value) : acc;
   }, 0);
-  return max + 1;
+
+export const readLastIssuedCodigo = () => {
+  try {
+    const value = Number(localStorage.getItem(LAST_CODIGO_KEY));
+    return Number.isFinite(value) && value > 0 ? value : 0;
+  } catch {
+    return 0;
+  }
 };
+
+export const syncLastIssuedCodigo = (records = []) => {
+  const next = Math.max(readLastIssuedCodigo(), getMaxCodigoFromRecords(records));
+  if (next > 0) localStorage.setItem(LAST_CODIGO_KEY, String(next));
+  return next;
+};
+
+export const reserveNextCodigoEmpresa = (records = []) => {
+  const baseline = Math.max(readLastIssuedCodigo(), getMaxCodigoFromRecords(records));
+  const next = baseline + 1;
+  localStorage.setItem(LAST_CODIGO_KEY, String(next));
+  return next;
+};
+
+export const getNextCodigoEmpresa = reserveNextCodigoEmpresa;
 
 export const stripEmpresaPersistPayload = (data = {}) => {
   const payload = { ...(data || {}) };

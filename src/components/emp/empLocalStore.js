@@ -1,6 +1,6 @@
 import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from "./empSeedData";
 import empCamposLocalStore from "./empCamposLocalStore";
-import { getNextCodigoEmpresa, stripEmpresaPersistPayload } from "./empCodigoUtils";
+import { reserveNextCodigoEmpresa, stripEmpresaPersistPayload, syncLastIssuedCodigo } from "./empCodigoUtils";
 
 const STORAGE_KEY = "emp_cadastro_local_v1";
 const SEED_FLAG_KEY = "emp_cadastro_seeded_v3";
@@ -10,14 +10,13 @@ const writeAll = (records) => {
 };
 
 const repairMissingCodigos = (records) => {
+  syncLastIssuedCodigo(records);
   let changed = false;
-  let max = getNextCodigoEmpresa(records) - 1;
   const next = records.map((record) => {
     const codigo = Number(record.codigo_empresa);
     if (Number.isFinite(codigo) && codigo > 0) return record;
     changed = true;
-    max += 1;
-    return { ...record, codigo_empresa: max };
+    return { ...record, codigo_empresa: reserveNextCodigoEmpresa(records) };
   });
   return changed ? next : records;
 };
@@ -34,7 +33,7 @@ const readAll = () => {
   }
 };
 
-const nextCodigo = (records) => getNextCodigoEmpresa(records);
+const nextCodigo = (records) => reserveNextCodigoEmpresa(records);
 
 const toStoredRecord = (record, index) => ({
   ...record,
@@ -124,6 +123,7 @@ const empLocalStore = {
         writeAll(withValor);
         records = withValor;
       }
+      syncLastIssuedCodigo(records);
       return records;
     }
 
@@ -133,12 +133,14 @@ const empLocalStore = {
       records = templates.map(toStoredRecord);
       writeAll(records);
       localStorage.setItem(SEED_FLAG_KEY, "v3");
+      syncLastIssuedCodigo(records);
       return records;
     }
 
     records = ensureValorOnRecords(records);
     writeAll(records);
     localStorage.setItem(SEED_FLAG_KEY, "v3");
+    syncLastIssuedCodigo(records);
     return records;
   }
 };
