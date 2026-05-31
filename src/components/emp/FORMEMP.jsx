@@ -366,6 +366,11 @@ export default function FORMEMP({
           fixedPanelIds={["principal"]}
           fixedVisibleFieldIds={["status", "codigo_empresa"]}
           onSave={saveLayoutConfig}
+          onOpenFieldConfig={(field) => {
+            setLayoutConfigOpen(false);
+            const fieldName = field?.name || String(field?.id || "").replace(/^custom:/, "");
+            onSettingsClick?.(fieldName);
+          }}
           brandTheme
         />
       </section>

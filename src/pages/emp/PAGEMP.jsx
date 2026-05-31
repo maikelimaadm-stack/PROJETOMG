@@ -48,6 +48,7 @@ export default function PAGEMP() {
   const [deleteState, setDeleteState] = useState({ open: false, ids: [] });
   const [showConfigColunas, setShowConfigColunas] = useState(false);
   const [showConfigCampos, setShowConfigCampos] = useState(false);
+  const [configCamposInitialField, setConfigCamposInitialField] = useState(null);
   const [showConfigPdf, setShowConfigPdf] = useState(false);
   const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
@@ -171,7 +172,10 @@ export default function PAGEMP() {
   };
 
   const handleRequestDelete = (ids) => setDeleteState({ open: true, ids: Array.isArray(ids) ? ids : [ids] });
-  const handleOpenConfigCampos = () => { setShowConfigCampos(true); };
+  const handleOpenConfigCampos = (fieldName = null) => {
+    setConfigCamposInitialField(fieldName || null);
+    setShowConfigCampos(true);
+  };
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
@@ -340,7 +344,15 @@ export default function PAGEMP() {
 
       {showConfigCampos && (
         <section className="w-full h-full bg-white overflow-hidden">
-          <EmpConfiguracaoCamposDialog open={showConfigCampos} onOpenChange={setShowConfigCampos} inline />
+          <EmpConfiguracaoCamposDialog
+            open={showConfigCampos}
+            onOpenChange={(nextOpen) => {
+              setShowConfigCampos(nextOpen);
+              if (!nextOpen) setConfigCamposInitialField(null);
+            }}
+            initialFieldName={configCamposInitialField}
+            inline
+          />
         </section>
       )}
 

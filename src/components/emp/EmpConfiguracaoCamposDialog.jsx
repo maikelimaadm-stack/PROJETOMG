@@ -56,7 +56,7 @@ function Field({ label, children, required = false, wide = false, compact = fals
   );
 }
 
-export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline = false }) {
+export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline = false, initialFieldName = null }) {
   const queryClient = useQueryClient();
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
@@ -161,6 +161,15 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
     setEditingId(campo.id || campo.field_id); setSelectedCampoIds([campo.id || campo.field_id]); setIsDirty(false); setIsDuplicating(false); setEditMode(false); setShowForm(true);
     setForm({ ...initialForm, ...campo, options_text: campo.options_text || (campo.options || []).map((o) => o.label || o.value || o).join("\n"), agregacao_tipo: campo.agregacao_tipo || campo.agregacao || "none", calculation_builder: { items: items.length ? items : initialForm.calculation_builder.items }, usar_decimal: !!campo.usar_decimal, decimal_places: campo.decimal_places ?? 2, usar_mascara: !!campo.usar_mascara, mascaras_text: campo.mascaras_text || "" });
   };
+
+  React.useEffect(() => {
+    if (!open || !initialFieldName || isLoading || !campos.length) return;
+    const normalizedName = String(initialFieldName).toLowerCase();
+    const campo =
+      campos.find((item) => String(item.field_name || "").toLowerCase() === normalizedName) ||
+      campos.find((item) => String(item.id || item.field_id || "").toLowerCase() === normalizedName);
+    if (campo) loadCampoForm(campo);
+  }, [open, initialFieldName, campos, isLoading]);
 
   const handleEdit = (campo) => loadCampoForm(campo);
   const handleDiscard = () => { if (editingId && !isDuplicating) { const orig = campos.find((c) => c.id === editingId); if (orig) { loadCampoForm(orig); return; } } const prev = campos.find((c) => (c.id || c.field_id) === selectedCampoIds[0]); if (prev) { loadCampoForm(prev); return; } if (campos.length > 0) { loadCampoForm(campos[0]); return; } resetForm(); };

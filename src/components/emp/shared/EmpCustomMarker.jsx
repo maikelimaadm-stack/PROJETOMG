@@ -1,5 +1,8 @@
-export default function EmpCustomMarker() {
+export default function EmpCustomMarker({ variant = "green" }) {
+  const colorClass = variant === "white" ? "border-b-white" : "border-b-[#21c45d]";
   return (
-    <span className="emp-custom-marker pointer-events-none absolute bottom-0 right-0 z-10 w-0 h-0 border-l-[7px] border-l-transparent border-b-[7px] border-b-[#21c45d]" />
+    <span
+      className={`emp-custom-marker pointer-events-none absolute bottom-0 right-0 z-10 h-0 w-0 border-b-[7px] border-l-[7px] border-l-transparent ${colorClass}`}
+    />
   );
 }

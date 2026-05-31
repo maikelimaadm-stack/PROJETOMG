@@ -8,11 +8,13 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  CornerUpLeft,
   EyeOff,
   Pencil,
   Plus,
   RotateCcw,
   Search,
+  Settings,
   Trash2,
   X,
 } from "lucide-react";
@@ -47,11 +49,17 @@ const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[11p
 
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
-const CustomMarker = EmpCustomMarker;
 const formatPanelLabel = (value) =>
   String(value || "")
     .toLowerCase()
     .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
+
+const findDefaultPanelForField = (fieldId, layout = {}) => {
+  for (const [panelId, ids] of Object.entries(layout || {})) {
+    if ((ids || []).includes(fieldId)) return panelId;
+  }
+  return "";
+};
 
 export default function EmpLayoutConfiguratorDialog({
   open,
@@ -66,6 +74,7 @@ export default function EmpLayoutConfiguratorDialog({
   visibilityRules = {},
   defaultConfig = null,
   onSave,
+  onOpenFieldConfig,
   inline = false,
   systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS,
   fixedPanelIds = DEFAULT_FIXED_PANEL_IDS,
@@ -87,6 +96,7 @@ export default function EmpLayoutConfiguratorDialog({
   const [draggedPanelId, setDraggedPanelId] = useState(null);
   const [editingPanelId, setEditingPanelId] = useState(null);
   const [requiredPopup, setRequiredPopup] = useState({ open: false, message: "" });
+  const [fieldLastPanelId, setFieldLastPanelId] = useState({});
   const panelsScrollRef = useRef(null);
 
   React.useEffect(() => {
@@ -104,6 +114,7 @@ export default function EmpLayoutConfiguratorDialog({
     setSearch("");
     setIsEditing(false);
     setEditingPanelId(null);
+    setFieldLastPanelId({});
   }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, aggregationConfig, visibilityRules]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
@@ -124,18 +135,27 @@ export default function EmpLayoutConfiguratorDialog({
     [fields, usedFieldIds, search]
   );
 
+  const isFieldRequired = (field) => !!field?.required || draftRequiredFieldIds.includes(field?.id);
+  const getPanelLabelById = (panelId) => {
+    if (!panelId) return "Sem painel";
+    const panel =
+      draftPanels.find((item) => item.id === panelId) ||
+      defaultConfig?.panels?.find((item) => item.id === panelId);
+    return formatPanelLabel(panel?.label || panelId);
+  };
+  const getAvailableFieldOriginLabel = (fieldId) =>
+    getPanelLabelById(fieldLastPanelId[fieldId] || findDefaultPanelForField(fieldId, defaultConfig?.layout));
+
   const showRequiredPopup = (message) => setRequiredPopup({ open: true, message });
-  const addField = () => {
-    if (!selectedAvailableIds.length || !activePanel) return;
-    setDraftLayout((prev) => ({
-      ...prev,
-      [activePanel.id]: [
-        ...(prev[activePanel.id] || []),
-        ...selectedAvailableIds.filter((id) => !(prev[activePanel.id] || []).includes(id)),
-      ],
-    }));
-    setSelectedAvailableIds([]);
-    setSelectedPanelFieldIds([]);
+  const addFieldById = (fieldId) => {
+    if (!fieldId || !activePanel || !isEditing) return;
+    setDraftLayout((prev) => {
+      const current = prev[activePanel.id] || [];
+      if (current.includes(fieldId)) return prev;
+      return { ...prev, [activePanel.id]: [...current, fieldId] };
+    });
+    setSelectedAvailableIds((prev) => prev.filter((id) => id !== fieldId));
+    setSelectedPanelFieldIds([fieldId]);
   };
   const addAllFields = () => {
     if (!activePanel) return;
@@ -149,19 +169,27 @@ export default function EmpLayoutConfiguratorDialog({
     }));
     setSelectedAvailableIds([]);
   };
-  const removeField = () => {
-    if (!selectedPanelFieldIds.length || !activePanel) return;
-    if (selectedPanelFieldIds.some((id) => fixedVisibleFieldIds.includes(id))) {
+  const removeFieldById = (fieldId) => {
+    if (!fieldId || !activePanel || !isEditing) return;
+    if (fixedVisibleFieldIds.includes(fieldId)) {
       return showRequiredPopup("Código e Ativo não podem ser removidos do layout.");
     }
+    setFieldLastPanelId((prev) => ({ ...prev, [fieldId]: activePanel.id }));
     setDraftLayout((prev) => ({
       ...prev,
-      [activePanel.id]: (prev[activePanel.id] || []).filter((id) => !selectedPanelFieldIds.includes(id)),
+      [activePanel.id]: (prev[activePanel.id] || []).filter((id) => id !== fieldId),
     }));
-    setSelectedPanelFieldIds([]);
+    setSelectedPanelFieldIds((prev) => prev.filter((id) => id !== fieldId));
   };
   const removeAllFields = () => {
     if (!activePanel) return;
+    setFieldLastPanelId((prev) => {
+      const next = { ...prev };
+      (panelFieldIds || []).forEach((id) => {
+        if (!fixedVisibleFieldIds.includes(id)) next[id] = activePanel.id;
+      });
+      return next;
+    });
     setDraftLayout((prev) => ({
       ...prev,
       [activePanel.id]: (prev[activePanel.id] || []).filter((id) => fixedVisibleFieldIds.includes(id)),
@@ -272,15 +300,75 @@ export default function EmpLayoutConfiguratorDialog({
   const scrollPanels = (direction) =>
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
-  const fieldItemClass = (selected, readOnly = false) =>
-    `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden px-2 text-left transition-colors focus-visible:outline-none ${
-      selected ? "emp-layout-config-field-selected" : "emp-layout-config-field-default"
-    } ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
+  const handleOpenFieldConfig = (field, event) => {
+    event?.stopPropagation?.();
+    if (!isCustomField(field)) {
+      return showRequiredPopup("Somente campos personalizados possuem configuração de campo.");
+    }
+    onOpenFieldConfig?.(field);
+  };
+
+  const fieldItemClass = (field, selected, readOnly = false) => {
+    const required = isFieldRequired(field);
+    return `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden px-2 text-left transition-colors focus-visible:outline-none ${
+      required ? "emp-layout-config-field-required" : "emp-layout-config-field-optional"
+    } ${selected ? "emp-layout-config-field-selected" : "emp-layout-config-field-default"} ${
+      readOnly ? "emp-layout-config-field-readonly" : ""
+    }`;
+  };
+
+  const renderFieldActions = ({ field, variant }) => {
+    const canEdit = isEditing;
+    const addAction = variant === "available";
+    const removeDisabled = !canEdit || fixedVisibleFieldIds.includes(field.id);
+
+    return (
+      <span className="emp-layout-config-field-actions ml-1 flex shrink-0 items-center gap-0.5">
+        {addAction ? (
+          <button
+            type="button"
+            className="emp-layout-config-field-action"
+            title="Adicionar ao painel"
+            disabled={!canEdit || !activePanel}
+            onClick={(event) => {
+              event.stopPropagation();
+              addFieldById(field.id);
+            }}
+          >
+            <CornerUpLeft className="h-3.5 w-3.5" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="emp-layout-config-field-action"
+            title="Remover do painel"
+            disabled={removeDisabled}
+            onClick={(event) => {
+              event.stopPropagation();
+              removeFieldById(field.id);
+            }}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+        <button
+          type="button"
+          className="emp-layout-config-field-action"
+          title="Configuração de campo"
+          disabled={!isCustomField(field)}
+          onClick={(event) => handleOpenFieldConfig(field, event)}
+        >
+          <Settings className="h-3.5 w-3.5" />
+        </button>
+      </span>
+    );
+  };
 
   const renderAvailableField = (field) => (
-    <button
+    <div
       key={field.id}
-      type="button"
+      role="button"
+      tabIndex={0}
       aria-disabled={!isEditing}
       draggable={isEditing}
       onClick={(event) =>
@@ -292,26 +380,33 @@ export default function EmpLayoutConfiguratorDialog({
             : [field.id]
         )
       }
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setSelectedAvailableIds([field.id]);
+        }
+      }}
       onDragStart={() => {
         setDraggedFieldId(field.id);
         setSelectedAvailableIds([field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(selectedAvailableIds.includes(field.id), !isEditing)} emp-layout-config-field-available w-full`}
+      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing)} emp-layout-config-field-available w-full cursor-pointer`}
     >
-      {isCustomField(field) && <CustomMarker />}
-      <div className="min-w-0">
+      {isCustomField(field) && <EmpCustomMarker variant="white" />}
+      <div className="min-w-0 flex-1">
         <div className="truncate text-xs font-semibold">{field.label}</div>
-        <div className="truncate text-[10px] text-slate-500">Disponível</div>
+        <div className="truncate text-[10px] text-slate-500">{getAvailableFieldOriginLabel(field.id)}</div>
       </div>
-      {field.required && <span className="text-[10px] font-bold leading-none text-red-600">*</span>}
-    </button>
+      {renderFieldActions({ field, variant: "available" })}
+    </div>
   );
 
   const renderPanelField = (field) => (
-    <button
+    <div
       key={field.id}
-      type="button"
+      role="button"
+      tabIndex={0}
       aria-disabled={!isEditing}
       draggable={isEditing && !fixedVisibleFieldIds.includes(field.id)}
       onClick={(event) =>
@@ -323,6 +418,12 @@ export default function EmpLayoutConfiguratorDialog({
             : [field.id]
         )
       }
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setSelectedPanelFieldIds([field.id]);
+        }
+      }}
       onDragStart={() => {
         setDraggedFieldId(field.id);
         setSelectedPanelFieldIds([field.id]);
@@ -333,15 +434,13 @@ export default function EmpLayoutConfiguratorDialog({
       }}
       onDrop={() => setDraggedFieldId(null)}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel min-w-[210px]`}
+      className={`${fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel min-w-[210px] cursor-pointer`}
     >
-      {isCustomField(field) && <CustomMarker />}
-      <span className="truncate text-xs font-semibold">{field.label}</span>
-      <span className="ml-2 flex items-center gap-1 opacity-90">
-        {draftHiddenFieldIds.includes(field.id) && <EyeOff className="h-3 w-3" />}
-        {field.required && <span className="text-[10px]">*</span>}
-      </span>
-    </button>
+      {isCustomField(field) && <EmpCustomMarker variant="white" />}
+      <span className="min-w-0 flex-1 truncate text-xs font-semibold">{field.label}</span>
+      {draftHiddenFieldIds.includes(field.id) && <EyeOff className="h-3 w-3 shrink-0 opacity-90" />}
+      {renderFieldActions({ field, variant: "panel" })}
+    </div>
   );
 
   const content = (
@@ -401,7 +500,7 @@ export default function EmpLayoutConfiguratorDialog({
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-[320px_45px_1fr] border-t border-[#d6dce8]">
+        <div className="grid min-h-0 flex-1 grid-cols-[320px_56px_1fr] border-t border-[#d6dce8]">
           <aside className="flex flex-col overflow-hidden border-r border-[#d6dce8] bg-white p-2">
             <div className="mb-2 text-sm font-semibold text-[#1a1f26]">Campos disponíveis</div>
             <div className={`${EMP_TOOLBAR_SEARCH_WRAP} mb-3 w-full`}>
@@ -425,18 +524,24 @@ export default function EmpLayoutConfiguratorDialog({
             </div>
           </aside>
 
-          <section className="flex flex-col items-center justify-center gap-1.5 border-r border-[#d6dce8] bg-[#f8fafc]">
-            <ToolbarBtn disabled={!isEditing || panelFieldIds.length === 0} onClick={removeAllFields} title="Remover todos">
+          <section className="emp-layout-config-transfer flex flex-col items-center justify-center gap-2 border-r border-[#d6dce8] bg-[#f8fafc] px-1">
+            <ToolbarBtn
+              disabled={!isEditing || panelFieldIds.length === 0}
+              onClick={removeAllFields}
+              className={`${LABELED_BTN_CLASS} emp-layout-config-transfer-btn flex-col !h-auto !min-h-[52px] !w-[42px] !gap-1 !px-1 !py-1.5`}
+              title="Remover todos"
+            >
               <EmpToolbarIcon icon={ChevronsLeft} nav />
+              <span className="max-w-[38px] text-center text-[9px] leading-tight">Remover todos</span>
             </ToolbarBtn>
-            <ToolbarBtn disabled={!isEditing || selectedPanelFieldIds.length === 0} onClick={removeField} title="Remover">
-              <EmpToolbarIcon icon={ChevronLeft} nav />
-            </ToolbarBtn>
-            <ToolbarBtn disabled={!isEditing || selectedAvailableIds.length === 0} onClick={addField} title="Adicionar">
-              <EmpToolbarIcon icon={ChevronRight} nav />
-            </ToolbarBtn>
-            <ToolbarBtn disabled={!isEditing || availableFields.length === 0} onClick={addAllFields} title="Adicionar todos">
+            <ToolbarBtn
+              disabled={!isEditing || availableFields.length === 0}
+              onClick={addAllFields}
+              className={`${LABELED_BTN_CLASS} emp-layout-config-transfer-btn flex-col !h-auto !min-h-[52px] !w-[42px] !gap-1 !px-1 !py-1.5`}
+              title="Adicionar todos"
+            >
               <EmpToolbarIcon icon={ChevronsRight} nav />
+              <span className="max-w-[38px] text-center text-[9px] leading-tight">Adicionar todos</span>
             </ToolbarBtn>
           </section>
 
@@ -497,7 +602,7 @@ export default function EmpLayoutConfiguratorDialog({
                           active ? "emp-form-tab-active" : "emp-form-tab-inactive"
                         }`}
                       >
-                        {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
+                        {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
                         {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
                           <Input
                             value={panel.label || ""}
@@ -546,7 +651,7 @@ export default function EmpLayoutConfiguratorDialog({
                   disabled={
                     !selectedField ||
                     !isEditing ||
-                    selectedField.required ||
+                    isFieldRequired(selectedField) ||
                     fixedVisibleFieldIds.includes(selectedField.id)
                   }
                   onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)}
@@ -558,7 +663,7 @@ export default function EmpLayoutConfiguratorDialog({
                 <span>Bloqueado:</span>
                 <ToggleSwitch
                   checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)}
-                  disabled={!selectedField || !isEditing || selectedField.required}
+                  disabled={!selectedField || !isEditing || isFieldRequired(selectedField)}
                   onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)}
                   className="emp-form-toggle-switch"
                   checkedClassName="emp-form-toggle-switch-on"
