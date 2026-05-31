@@ -25,25 +25,27 @@ export default function EmpTabs({
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   return (
-    <div className="emp-form-tabs relative flex h-9 items-end gap-0 bg-white px-4 md:px-8">
-      <button
-        type="button"
-        onClick={() => scrollPanels(-1)}
-        className="emp-form-tab-nav-btn relative z-20 mb-px mr-1"
-        title="Rolar painéis"
-        aria-label="Rolar painéis para a esquerda"
-      >
-        <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} />
-      </button>
-      <button
-        type="button"
-        onClick={() => scrollPanels(1)}
-        className="emp-form-tab-nav-btn relative z-20 mb-px mr-2"
-        title="Rolar painéis"
-        aria-label="Rolar painéis para a direita"
-      >
-        <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
-      </button>
+    <div className="emp-form-tabs relative flex items-end bg-white px-4 md:px-8">
+      <div className="emp-form-tab-nav-group relative z-20 mb-px mr-2 flex shrink-0 items-center gap-1">
+        <button
+          type="button"
+          onClick={() => scrollPanels(-1)}
+          className="emp-form-tab-nav-btn"
+          title="Rolar painéis"
+          aria-label="Rolar painéis para a esquerda"
+        >
+          <ChevronLeft className="h-3 w-3" strokeWidth={2.25} />
+        </button>
+        <button
+          type="button"
+          onClick={() => scrollPanels(1)}
+          className="emp-form-tab-nav-btn"
+          title="Rolar painéis"
+          aria-label="Rolar painéis para a direita"
+        >
+          <ChevronRight className="h-3 w-3" strokeWidth={2.25} />
+        </button>
+      </div>
       <div
         ref={panelsScrollRef}
         className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -57,7 +59,7 @@ export default function EmpTabs({
               key={tab.id}
               type="button"
               onClick={() => onChange?.(tab.id)}
-              className={`emp-form-tab relative z-10 flex-none h-8 min-w-max px-4 text-xs whitespace-nowrap transition-colors ${
+              className={`emp-form-tab relative z-10 flex-none min-w-max whitespace-nowrap ${
                 active ? "emp-form-tab-active" : "emp-form-tab-inactive"
               }`}
             >
