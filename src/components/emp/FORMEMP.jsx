@@ -244,7 +244,7 @@ export default function FORMEMP({
   const dynamicFields = useMemo(() => [
     { id: "razao_social", name: "razao_social", label: "Razão Social", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "RAZÃO SOCIAL OU NOME COMPLETO" },
     { id: "status", name: "status", label: "Ativa", type: "switch", compact: true, render: () => <ToggleSwitch checked={formData.status !== "Inativa"} onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")} disabled={isReadOnly} className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" /> },
-    { id: "codigo_empresa", name: "codigo_empresa", label: "Código", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codigo_empresa || ""} readOnly className={`${inputClass} text-right bg-slate-50`} placeholder="AUTO" /> },
+    { id: "codigo_empresa", name: "codigo_empresa", label: "Código", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codigo_empresa || ""} readOnly className={`${inputClass} bg-slate-50`} placeholder="AUTO" /> },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome Fantasia", type: "text", wide: true, uppercase: true, placeholder: "NOME FANTASIA" },
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "autocomplete", required: true, compact: true, errorKey: "tipo_pessoa", options: opcoesTipoPessoa, placeholder: "PF / PJ", displayField: "nome", searchFields: ["nome"] },
     { id: "cpf_cnpj", name: "cpf_cnpj", label: formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ", type: "text", compact: true, placeholder: formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00" },
