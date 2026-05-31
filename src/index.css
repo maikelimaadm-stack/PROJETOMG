@@ -296,8 +296,8 @@ input[type="number"] {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 0.5px;
-  background: #c5ced8;
+  height: 1px;
+  background: #d6dce8;
   pointer-events: none;
   z-index: 1;
 }
@@ -319,7 +319,7 @@ input[type="number"] {
   padding: 6px 14px;
   height: 28px;
   box-sizing: border-box;
-  border-radius: 4px 4px 0 0;
+  border-radius: 3px 3px 0 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
