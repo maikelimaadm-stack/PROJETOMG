@@ -1516,16 +1516,18 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog {
-  position: relative;
+  position: relative !important;
   overflow: visible !important;
   padding: 0 !important;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  left: auto;
+.cadastro-emp-scope .emp-layout-presets-dialog > .emp-layout-presets-close-icon {
+  position: absolute !important;
+  top: 2px !important;
+  right: 2px !important;
+  left: auto !important;
+  inset-inline-start: auto !important;
+  inset-inline-end: 2px !important;
   z-index: 60;
   display: inline-flex;
   align-items: center;
@@ -1539,16 +1541,20 @@ input[type="number"] {
   cursor: pointer;
   padding: 0;
   line-height: 0;
-  transform: none;
+  transform: none !important;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover {
+.cadastro-emp-scope .emp-layout-presets-dialog > .emp-layout-presets-close-icon:hover {
   color: #dc2626;
   background: transparent;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-shell {
+  box-sizing: border-box;
   width: 100%;
+  padding-left: 4px;
+  padding-right: 4px;
+  padding-bottom: 4px;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-table-wrap {

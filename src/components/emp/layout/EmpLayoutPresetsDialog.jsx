@@ -186,7 +186,7 @@ export default function EmpLayoutPresetsDialog({
       }}
     >
       <DialogContent
-        className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] !gap-0 !rounded-none border border-[#cfd8e3] !p-0 sm:!p-0 [&>button:last-child]:hidden"
+        className="cadastro-emp-scope emp-layout-presets-dialog relative max-w-[920px] !gap-0 !rounded-none border border-[#cfd8e3] !p-0 sm:!p-0 [&>button:last-child]:hidden"
         onInteractOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
@@ -195,15 +195,15 @@ export default function EmpLayoutPresetsDialog({
         <button
           type="button"
           onClick={handleClose}
-          className="emp-layout-presets-close-icon"
+          className="emp-layout-presets-close-icon absolute left-auto right-0.5 top-0.5 z-[60]"
           title="Fechar"
           aria-label="Fechar"
         >
           <X className="h-3 w-3" strokeWidth={2.25} />
         </button>
 
-        <div className="emp-layout-presets-shell flex min-h-0 flex-col px-1 pb-1">
-          <div className="emp-toolbar flex items-center gap-1.5 border-b border-sky-100 bg-white py-1.5 pr-5">
+        <div className="emp-layout-presets-shell flex min-h-0 flex-col">
+          <div className="emp-toolbar flex items-center gap-1.5 border-b border-sky-100 bg-white py-1.5">
           {!isInlineEditing ? (
             <>
               <ToolbarBtn onClick={handleNovo} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo layout">
