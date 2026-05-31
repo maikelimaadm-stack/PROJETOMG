@@ -1174,6 +1174,11 @@ input[type="number"] {
   background: #dc2626;
 }
 
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-status-icons {
+  position: relative;
+  z-index: 5;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional {
   background: #546e7a;
   color: #ffffff;

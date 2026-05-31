@@ -309,7 +309,7 @@ export default function FORMEMP({
   };
 
   const activeLayoutConfig = (() => {
-    const source = formLayoutConfig || { panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], aggregationConfig: {}, visibilityRules: {} };
+    const source = formLayoutConfig || { panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], fieldDefaultValues: {}, aggregationConfig: {}, visibilityRules: {} };
     const panelsSource = source.panels?.some((panel) => panel.id === "principal") ? source.panels : [basePanels[0], ...(source.panels || basePanels)];
     const panels = [...panelsSource, ...basePanels.filter((basePanel) => !panelsSource.some((panel) => panel.id === basePanel.id))];
     const principalFields = source.layout?.principal?.length ? source.layout.principal : defaultLayout.principal;
@@ -389,9 +389,10 @@ export default function FORMEMP({
           lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
           requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
           clearOnDuplicateFieldIds={activeLayoutConfig.clearOnDuplicateFieldIds || []}
+          fieldDefaultValues={activeLayoutConfig.fieldDefaultValues || {}}
           aggregationConfig={activeLayoutConfig.aggregationConfig || {}}
           visibilityRules={activeLayoutConfig.visibilityRules || {}}
-          defaultConfig={{ panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], aggregationConfig: {}, visibilityRules: {} }}
+          defaultConfig={{ panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], fieldDefaultValues: {}, aggregationConfig: {}, visibilityRules: {} }}
           systemPanelIds={["principal", "geral", "endereco", "observacoes", "campos_personalizados"]}
           fixedPanelIds={["principal"]}
           fixedVisibleFieldIds={["status", "codigo_empresa"]}

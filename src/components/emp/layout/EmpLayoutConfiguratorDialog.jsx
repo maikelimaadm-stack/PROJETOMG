@@ -7,9 +7,7 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  EyeOff,
   Pencil,
-  Plus,
   Reply,
   RotateCcw,
   Search,
@@ -18,6 +16,7 @@ import {
   X,
 } from "lucide-react";
 import EmpLayoutFieldSettingsPopover from "./EmpLayoutFieldSettingsPopover";
+import EmpLayoutFieldStatusIcons from "./EmpLayoutFieldStatusIcons";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
@@ -63,6 +62,7 @@ export default function EmpLayoutConfiguratorDialog({
   lockedFieldIds = [],
   requiredFieldIds = [],
   clearOnDuplicateFieldIds = [],
+  fieldDefaultValues = {},
   aggregationConfig = {},
   visibilityRules = {},
   defaultConfig = null,
@@ -78,6 +78,7 @@ export default function EmpLayoutConfiguratorDialog({
   const [draftLockedFieldIds, setDraftLockedFieldIds] = useState(lockedFieldIds);
   const [draftRequiredFieldIds, setDraftRequiredFieldIds] = useState(requiredFieldIds);
   const [draftClearOnDuplicateFieldIds, setDraftClearOnDuplicateFieldIds] = useState(clearOnDuplicateFieldIds);
+  const [draftFieldDefaultValues, setDraftFieldDefaultValues] = useState(fieldDefaultValues);
   const [draftAggregationConfig, setDraftAggregationConfig] = useState(aggregationConfig);
   const [draftVisibilityRules, setDraftVisibilityRules] = useState(visibilityRules);
   const [activePanelId, setActivePanelId] = useState(panels[0]?.id || "");
@@ -102,6 +103,7 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftLockedFieldIds(lockedFieldIds);
     setDraftRequiredFieldIds(requiredFieldIds);
     setDraftClearOnDuplicateFieldIds(clearOnDuplicateFieldIds);
+    setDraftFieldDefaultValues(fieldDefaultValues);
     setDraftAggregationConfig(aggregationConfig);
     setDraftVisibilityRules(visibilityRules);
     setActivePanelId(panels[0]?.id || "");
@@ -113,7 +115,7 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldLastPanelId({});
     setFieldSettingsTarget(null);
     setFieldSettingsAnchor(null);
-  }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, aggregationConfig, visibilityRules]);
+  }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
@@ -266,6 +268,7 @@ export default function EmpLayoutConfiguratorDialog({
       lockedFieldIds: draftLockedFieldIds,
       requiredFieldIds: draftRequiredFieldIds,
       clearOnDuplicateFieldIds: draftClearOnDuplicateFieldIds,
+      fieldDefaultValues: draftFieldDefaultValues,
       aggregationConfig: draftAggregationConfig,
       visibilityRules: draftVisibilityRules,
     });
@@ -282,6 +285,7 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftLockedFieldIds([]);
     setDraftRequiredFieldIds([]);
     setDraftClearOnDuplicateFieldIds([]);
+    setDraftFieldDefaultValues({});
     setDraftAggregationConfig({});
     setDraftVisibilityRules({});
     setActivePanelId(defaultConfig.panels?.[0]?.id || "");
@@ -293,6 +297,7 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftLockedFieldIds(lockedFieldIds);
     setDraftRequiredFieldIds(requiredFieldIds);
     setDraftClearOnDuplicateFieldIds(clearOnDuplicateFieldIds);
+    setDraftFieldDefaultValues(fieldDefaultValues);
     setDraftAggregationConfig(aggregationConfig);
     setDraftVisibilityRules(visibilityRules);
     setIsEditing(false);
@@ -322,18 +327,25 @@ export default function EmpLayoutConfiguratorDialog({
     if (!isEditing) closeFieldSettings();
   }, [isEditing]);
 
-  const fieldItemClass = (field, selected, readOnly = false, tone = "panel") => {
+  const fieldItemClass = (field, selected, readOnly = false) => {
     const required = isFieldRequired(field);
-    const toneClass =
-      tone === "available"
-        ? "emp-layout-config-field-available-item"
-        : required
-          ? "emp-layout-config-field-required"
-          : "emp-layout-config-field-optional";
+    const toneClass = required
+      ? "emp-layout-config-field-required"
+      : "emp-layout-config-field-optional";
     return `emp-layout-config-field group relative flex items-center justify-between gap-2 overflow-hidden px-2.5 text-left transition-colors focus-visible:outline-none ${toneClass} ${
       selected ? "emp-layout-config-field-selected" : ""
     } ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
   };
+
+  const renderFieldStatusIcons = (field) => (
+    <EmpLayoutFieldStatusIcons
+      field={field}
+      hiddenFieldIds={draftHiddenFieldIds}
+      lockedFieldIds={draftLockedFieldIds}
+      clearOnDuplicateFieldIds={draftClearOnDuplicateFieldIds}
+      aggregationConfig={draftAggregationConfig}
+    />
+  );
 
   const renderFieldActions = ({ field, variant }) => {
     if (!isEditing) return null;
@@ -356,27 +368,29 @@ export default function EmpLayoutConfiguratorDialog({
             <Reply className="h-3.5 w-3.5 stroke-white text-white" />
           </button>
         ) : (
-          <button
-            type="button"
-            className="emp-layout-config-field-action"
-            title="Remover do painel"
-            disabled={fixedVisibleFieldIds.includes(field.id)}
-            onClick={(event) => {
-              event.stopPropagation();
-              removeFieldById(field.id);
-            }}
-          >
-            <X className="h-3.5 w-3.5 stroke-white text-white" />
-          </button>
+          <>
+            <button
+              type="button"
+              className="emp-layout-config-field-action"
+              title="Remover do painel"
+              disabled={fixedVisibleFieldIds.includes(field.id)}
+              onClick={(event) => {
+                event.stopPropagation();
+                removeFieldById(field.id);
+              }}
+            >
+              <X className="h-3.5 w-3.5 stroke-white text-white" />
+            </button>
+            <button
+              type="button"
+              className="emp-layout-config-field-action"
+              title="Configurações do campo"
+              onClick={(event) => openFieldSettings(field, event)}
+            >
+              <Settings className="h-3.5 w-3.5 stroke-white text-white" />
+            </button>
+          </>
         )}
-        <button
-          type="button"
-          className="emp-layout-config-field-action"
-          title="Configurações do campo"
-          onClick={(event) => openFieldSettings(field, event)}
-        >
-          <Settings className="h-3.5 w-3.5 stroke-white text-white" />
-        </button>
       </span>
     );
   };
@@ -408,13 +422,17 @@ export default function EmpLayoutConfiguratorDialog({
         setSelectedAvailableIds([field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing, "available")} emp-layout-config-field-available w-full cursor-pointer`}
+      onDoubleClick={(event) => {
+        if (isEditing) openFieldSettings(field, event);
+      }}
+      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing)} emp-layout-config-field-available w-full cursor-pointer`}
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <div className="min-w-0 flex-1">
         <div className="truncate text-xs font-semibold text-white">{field.label}</div>
         <div className="truncate text-[10px] text-white/80">{getAvailableFieldOriginLabel(field.id)}</div>
       </div>
+      {renderFieldStatusIcons(field)}
       {renderFieldActions({ field, variant: "available" })}
     </div>
   );
@@ -455,7 +473,7 @@ export default function EmpLayoutConfiguratorDialog({
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <span className="min-w-0 flex-1 truncate text-xs font-semibold text-white">{field.label}</span>
-      {draftHiddenFieldIds.includes(field.id) && <EyeOff className="h-3 w-3 shrink-0 text-white/90 opacity-0 transition-opacity group-hover:opacity-100" />}
+      {renderFieldStatusIcons(field)}
       {renderFieldActions({ field, variant: "panel" })}
     </div>
   );
@@ -481,7 +499,7 @@ export default function EmpLayoutConfiguratorDialog({
           )}
           {isEditing && (
             <ToolbarBtn onClick={createPanel} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo painel">
-              <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
+              <EmpToolbarIcon icon={Reply} strokeWidth={2.5} />
               <span>Novo</span>
             </ToolbarBtn>
           )}
@@ -674,12 +692,29 @@ export default function EmpLayoutConfiguratorDialog({
         draftHiddenFieldIds={draftHiddenFieldIds}
         draftLockedFieldIds={draftLockedFieldIds}
         draftClearOnDuplicateFieldIds={draftClearOnDuplicateFieldIds}
+        draftRequiredFieldIds={draftRequiredFieldIds}
+        draftFieldDefaultValues={draftFieldDefaultValues}
         draftAggregationConfig={draftAggregationConfig}
         draftVisibilityRules={draftVisibilityRules}
         fields={fields}
         onToggleHidden={(fieldId, checked) => toggleListValue(setDraftHiddenFieldIds, fieldId, checked)}
         onToggleLocked={(fieldId, checked) => toggleListValue(setDraftLockedFieldIds, fieldId, checked)}
         onToggleClearOnDuplicate={(fieldId, checked) => toggleListValue(setDraftClearOnDuplicateFieldIds, fieldId, checked)}
+        onToggleRequired={(fieldId, checked) => {
+          if (checked) {
+            setDraftHiddenFieldIds((prev) => prev.filter((id) => id !== fieldId));
+            setDraftLockedFieldIds((prev) => prev.filter((id) => id !== fieldId));
+          }
+          toggleListValue(setDraftRequiredFieldIds, fieldId, checked);
+        }}
+        onDefaultValueChange={(fieldId, value) =>
+          setDraftFieldDefaultValues((prev) => {
+            const next = { ...prev };
+            if (value === "" || value === null || value === undefined) delete next[fieldId];
+            else next[fieldId] = value;
+            return next;
+          })
+        }
         onToggleAggregation={setAggregationEnabled}
         onAggregationTypeChange={(fieldId, value) =>
           setDraftAggregationConfig((prev) => ({
