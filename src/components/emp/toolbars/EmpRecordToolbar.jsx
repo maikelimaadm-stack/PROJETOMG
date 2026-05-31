@@ -139,10 +139,10 @@ export default function EmpRecordToolbar({
         </div>
       </div>
 
-      <div className="h-8 flex items-center gap-2 bg-white border-b border-sky-100 px-2">
-        <span className="max-w-[150px] h-6 px-2 rounded-md border border-sky-200 text-[#082e54] text-xs font-semibold text-center truncate inline-flex items-center justify-center">{titleCase(badgeLabel)}</span>
-        <span className="text-xs font-semibold text-slate-700 truncate min-w-0 flex-1">{title}</span>
-        {operationLabel && <span className="ml-auto text-[11px] font-bold text-slate-600 whitespace-nowrap">{titleCase(operationLabel)}</span>}
+      <div className="emp-toolbar-info-bar h-8 flex items-center gap-2 border-b border-[#dce3eb] px-2">
+        <span className="max-w-[150px] h-6 px-2 rounded-md border border-sky-200 bg-white text-[#082e54] text-xs font-semibold text-center truncate inline-flex items-center justify-center">{titleCase(badgeLabel)}</span>
+        <span className="text-xs font-semibold text-[#1a1f26] truncate min-w-0 flex-1">{title}</span>
+        {operationLabel && <span className="ml-auto text-[11px] font-semibold text-[#1a1f26] whitespace-nowrap">{titleCase(operationLabel)}</span>}
       </div>
     </div>
   );

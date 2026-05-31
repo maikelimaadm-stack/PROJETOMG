@@ -857,6 +857,10 @@ input[type="number"] {
   color: #082e54;
 }
 
+.cadastro-emp-scope .emp-toolbar-info-bar {
+  background: #eaf2ff !important;
+}
+
 .cadastro-emp-scope .emp-toolbar-btn,
 .cadastro-emp-scope .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar-counter,

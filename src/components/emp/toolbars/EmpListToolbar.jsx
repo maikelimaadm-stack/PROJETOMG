@@ -153,12 +153,12 @@ export default function EmpListToolbar({
       </div>
 
       {viewMode === "record" && (
-        <div className="h-8 flex items-center gap-2 bg-white border-b border-sky-100 px-1 mt-1">
+        <div className="emp-toolbar-info-bar h-8 flex items-center gap-2 border-b border-[#dce3eb] px-1 mt-1">
           {recordLabel && (
             <span className="px-2 py-0.5 rounded-md border border-sky-200 bg-white text-[#082e54] text-xs font-semibold">{titleCase(recordLabel)}</span>
           )}
-          <span className="text-xs font-semibold text-slate-700 truncate min-w-0 flex-1">{title}</span>
-          <span className="ml-auto text-[11px] font-bold text-slate-600 whitespace-nowrap">{titleCase(operationLabel || "Visualização de Registro")}</span>
+          <span className="text-xs font-semibold text-[#1a1f26] truncate min-w-0 flex-1">{title}</span>
+          <span className="ml-auto text-[11px] font-semibold text-[#1a1f26] whitespace-nowrap">{titleCase(operationLabel || "Visualização de Registro")}</span>
         </div>
       )}
     </div>
