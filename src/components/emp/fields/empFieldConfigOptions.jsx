@@ -1,4 +1,6 @@
-export const ENTIDADES_RELACIONAIS = [];
+export const ENTIDADES_RELACIONAIS = [
+  { value: "empresa", label: "Empresa", fields: ["razao_social", "nome_fantasia", "codigo_empresa"] }
+];
 
 export const CAMPOS_FIXOS_EMPRESA = [
   { value: "codigo_empresa", label: "Código", tipo: "number", mock: 1 }

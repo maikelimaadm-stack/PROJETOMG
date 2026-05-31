@@ -1,26 +1,11 @@
+import { CAMPO_VALOR, DEMO_CAMPOS_PERSONALIZADOS } from "@/components/emp/empCamposDemoSeed";
+
 const STORAGE_KEY = "emp_campos_personalizados_local_v1";
 const SEED_FLAG_KEY = "emp_campos_seeded_v1";
+const DEMO_20_FLAG_KEY = "emp_campos_demo_20_v1";
 const AGGR_KEY = "emp_table_aggregation_config";
 
-export const CAMPO_VALOR = {
-  id: "campo-valor-local",
-  label: "VALOR",
-  field_name: "valor",
-  tipo: "number",
-  placeholder: "0,00",
-  usar_decimal: true,
-  decimal_places: 2,
-  alinhamento: "right",
-  largura_coluna: 120,
-  ordem_tabela: 15,
-  visivel_form: true,
-  visivel_tabela: true,
-  visivel_relatorio: true,
-  ordenavel: true,
-  filtravel: true,
-  agregacao_tipo: "sum",
-  ativo: true
-};
+export { CAMPO_VALOR };
 
 const DEFAULT_AGGREGATION = {
   "custom:valor": { enabled: true, type: "sum" }
@@ -50,22 +35,56 @@ const seedAggregationConfig = () => {
     }
   }
   localStorage.setItem(AGGR_KEY, JSON.stringify(DEFAULT_AGGREGATION));
-  window.dispatchEvent(new Event("emp-layout-updated"));
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("emp-layout-updated"));
+  }
+};
+
+const mergeDemoCampos = (records) => {
+  const byFieldName = new Map(records.map((item) => [item.field_name, item]));
+  const merged = [...records];
+
+  DEMO_CAMPOS_PERSONALIZADOS.forEach((demo) => {
+    if (byFieldName.has(demo.field_name)) return;
+    merged.push({
+      ...demo,
+      id: demo.id || `campo-demo-${demo.field_name}`
+    });
+  });
+
+  return merged;
+};
+
+const seedDemoCamposIfNeeded = () => {
+  if (localStorage.getItem(DEMO_20_FLAG_KEY) === "v1") {
+    return readAll();
+  }
+
+  const merged = mergeDemoCampos(readAll());
+  writeAll(merged);
+  localStorage.setItem(DEMO_20_FLAG_KEY, "v1");
+  localStorage.setItem(SEED_FLAG_KEY, "v1");
+  seedAggregationConfig();
+  return merged;
 };
 
 const empCamposLocalStore = {
   list() {
+    seedDemoCamposIfNeeded();
     return [...readAll()].sort((a, b) => (a.ordem_tabela ?? 999) - (b.ordem_tabela ?? 999));
   },
 
   seedIfEmpty() {
-    if (localStorage.getItem(SEED_FLAG_KEY) === "v1" && readAll().length > 0) {
+    seedDemoCamposIfNeeded();
+
+    if (readAll().length > 0) {
       seedAggregationConfig();
       return readAll();
     }
 
-    writeAll([CAMPO_VALOR]);
+    writeAll(DEMO_CAMPOS_PERSONALIZADOS);
     localStorage.setItem(SEED_FLAG_KEY, "v1");
+    localStorage.setItem(DEMO_20_FLAG_KEY, "v1");
     seedAggregationConfig();
     return readAll();
   },
