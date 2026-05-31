@@ -612,12 +612,26 @@ input[type="number"] {
   height: 14px;
   width: 14px;
   flex-shrink: 0;
-  border-color: #bae6fd;
+  border-color: #bae6fd !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
 }
 
 .emp-filter-checkbox[data-state="checked"] {
-  background-color: #082e54;
-  border-color: #082e54;
+  background-color: #21c45d !important;
+  border-color: #21c45d !important;
+  color: #ffffff !important;
+}
+
+.emp-filter-checkbox[data-state="checked"] svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.emp-filter-checkbox:focus-visible {
+  outline: none !important;
+  ring: 1px solid #21c45d !important;
+  box-shadow: 0 0 0 1px #21c45d !important;
 }
 
 .emp-filter-actions {
