@@ -11,6 +11,7 @@ import {
   EyeOff,
   Pencil,
   Plus,
+  Reply,
   RotateCcw,
   Search,
   Settings,
