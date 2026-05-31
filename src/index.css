@@ -510,6 +510,11 @@ input[type="number"] {
   min-height: 100px;
 }
 
+.cadastro-emp-scope .emp-form-image-empty-icon {
+  width: 40px;
+  height: 40px;
+}
+
 .cadastro-emp-scope .emp-form-image-thumb img {
   pointer-events: none;
 }

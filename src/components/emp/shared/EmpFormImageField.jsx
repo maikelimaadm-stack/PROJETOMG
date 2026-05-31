@@ -9,7 +9,6 @@ export default function EmpFormImageField({
   onUpload,
   onClear,
   alt = "Imagem",
-  emptyLabel = "Nenhuma Imagem",
 }) {
   const hasImage = Boolean(value);
 
@@ -22,14 +21,20 @@ export default function EmpFormImageField({
           </div>
         </div>
       ) : (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 px-2 py-2 text-center">
-          <Image className="h-5 w-5 shrink-0 text-[#64748b]" strokeWidth={1.75} aria-hidden="true" />
-          <span className="text-[12px] leading-tight text-[#334155]">{uploading ? "Enviando imagem..." : emptyLabel}</span>
+        <div className="flex h-full w-full items-center justify-center">
+          <Image
+            className="emp-form-image-empty-icon shrink-0 text-[#64748b]"
+            strokeWidth={1.5}
+            aria-hidden="true"
+          />
         </div>
       )}
 
       {!readOnly && (
-        <label className={`absolute inset-0 z-[1] ${uploading ? "cursor-wait" : "cursor-pointer"}`} title={hasImage ? "Trocar imagem" : "Selecionar imagem"}>
+        <label
+          className={`absolute inset-0 z-[1] ${uploading ? "cursor-wait" : "cursor-pointer"}`}
+          title={uploading ? "Enviando imagem..." : hasImage ? "Trocar imagem" : "Selecionar imagem"}
+        >
           <input type="file" accept={accept} className="hidden" onChange={onUpload} disabled={uploading} />
         </label>
       )}
