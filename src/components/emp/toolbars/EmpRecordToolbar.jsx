@@ -11,7 +11,7 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
-const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[11px] font-medium";
+const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[12px] font-medium";
 const NAV_BTN_CLASS = "emp-toolbar-nav-btn";
 
 export default function EmpRecordToolbar({

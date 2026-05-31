@@ -7,7 +7,7 @@ import { EmpFullscreenEnterIcon } from "@/components/emp/EmpTableFullscreenIcon"
 export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 
 const PAGINATION_BTN_BASE =
-  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white text-[11px] font-normal text-[#1a1f26] shadow-none hover:bg-sky-50 disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
+  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BORDER} bg-white text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-sky-50 disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-sky-300`;
 
 const getVisiblePages = (currentPage, totalPages) => {
   if (totalPages <= 0) return [];
@@ -30,7 +30,7 @@ const getVisiblePages = (currentPage, totalPages) => {
 const PaginationBtn = ({ children, className = "", active = false, ...props }) => (
   <button
     type="button"
-    className={`${PAGINATION_BTN_BASE} h-5 min-h-5 ${active ? "emp-table-pagination-page-active" : ""} ${className}`}
+    className={`${PAGINATION_BTN_BASE} h-6 min-h-6 ${active ? "emp-table-pagination-page-active" : ""} ${className}`}
     {...props}
   >
     {children}
@@ -56,7 +56,7 @@ export default function EmpTablePagination({
           <PaginationBtn
             type="button"
             onClick={onToggleFullscreen}
-            className="emp-table-fullscreen-btn w-5 min-w-5 p-0"
+            className="emp-table-fullscreen-btn w-6 min-w-6 p-0"
             title={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
             aria-label={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
             aria-pressed={isFullscreen}
@@ -67,16 +67,16 @@ export default function EmpTablePagination({
       </div>
 
       <div className="flex shrink-0 items-center justify-end gap-1">
-      <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-5 min-w-5 p-0" title="Primeira página" aria-label="Primeira página">
+      <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Primeira página" aria-label="Primeira página">
         <ChevronsLeft className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
-      <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1} className="w-5 min-w-5 p-0" title="Página anterior" aria-label="Página anterior">
+      <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Página anterior" aria-label="Página anterior">
         <ChevronLeft className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       {pageItems.map((item, index) =>
         item === "ellipsis" ? (
-          <span key={`ellipsis-${index}`} className="emp-table-pagination-ellipsis px-0.5 text-[11px] font-normal text-[#1a1f26] select-none leading-5">
+          <span key={`ellipsis-${index}`} className="emp-table-pagination-ellipsis px-0.5 text-[12px] font-normal text-[#1a1f26] select-none leading-6">
             ...
           </span>
         ) : (
@@ -94,16 +94,16 @@ export default function EmpTablePagination({
         )
       )}
 
-      <PaginationBtn onClick={() => onPageChange?.(safePage + 1)} disabled={safePage >= totalPages} className="w-5 min-w-5 p-0" title="Próxima página" aria-label="Próxima página">
+      <PaginationBtn onClick={() => onPageChange?.(safePage + 1)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Próxima página" aria-label="Próxima página">
         <ChevronRight className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
-      <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} className="w-5 min-w-5 p-0" title="Última página" aria-label="Última página">
+      <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Última página" aria-label="Última página">
         <ChevronsRight className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
         <SelectTrigger
-          className={`emp-table-pagination-size h-5 w-[110px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[11px] font-normal text-[#1a1f26] shadow-none hover:bg-sky-50 focus:ring-1 focus:ring-sky-300`}
+          className={`emp-table-pagination-size h-6 w-[110px] shrink-0 ${EMP_TOOLBAR_BORDER} bg-white px-2 text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-sky-50 focus:ring-1 focus:ring-sky-300`}
           aria-label="Registros por página"
         >
           <SelectValue />

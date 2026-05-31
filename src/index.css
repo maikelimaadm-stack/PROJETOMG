@@ -573,9 +573,9 @@ input[type="number"] {
   background-clip: padding-box !important;
   color: #1a1f26 !important;
   font-weight: 600;
-  font-size: 11px;
-  line-height: 24px;
-  height: 24px;
+  font-size: 12px;
+  line-height: 26px;
+  height: 26px;
   padding: 0 6px;
   text-transform: none;
   border: none !important;
@@ -627,9 +627,9 @@ input[type="number"] {
   border-right: 0.5px solid #eef1f4 !important;
   border-bottom: 0.5px solid #eef1f4 !important;
   box-shadow: none !important;
-  font-size: 11px;
-  line-height: 24px;
-  height: 24px;
+  font-size: 12px;
+  line-height: 26px;
+  height: 26px;
   padding: 0 6px;
   background: transparent;
 }
@@ -656,7 +656,7 @@ input[type="number"] {
   gap: 3px;
   padding-left: 4px;
   background: transparent;
-  height: 22px;
+  height: 24px;
   line-height: 0;
 }
 
@@ -904,18 +904,18 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
-  height: 22px !important;
-  min-height: 22px !important;
+  height: 24px !important;
+  min-height: 24px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-counter {
-  height: 22px !important;
-  min-height: 22px !important;
+  height: 24px !important;
+  min-height: 24px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto) {
-  width: 22px !important;
+  width: 24px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto,
@@ -923,27 +923,28 @@ input[type="number"] {
   padding-left: 6px !important;
   padding-right: 6px !important;
   gap: 4px !important;
+  font-size: 12px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-action-icon {
-  width: 14px !important;
-  height: 14px !important;
+  width: 15px !important;
+  height: 15px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-nav-icon {
-  width: 12px !important;
-  height: 12px !important;
+  width: 13px !important;
+  height: 13px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn svg.emp-toolbar-action-icon {
-  width: 14px !important;
-  height: 14px !important;
+  width: 15px !important;
+  height: 15px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-nav-btn svg,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn svg.emp-toolbar-nav-icon {
-  width: 12px !important;
-  height: 12px !important;
+  width: 13px !important;
+  height: 13px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn svg.emp-toolbar-action-icon {
@@ -968,7 +969,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-search-input {
   height: 100% !important;
-  line-height: 22px !important;
+  line-height: 24px !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
   color: #64748b !important;
@@ -1021,8 +1022,9 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn {
-  height: 20px !important;
-  min-height: 20px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  font-size: 12px !important;
   border: 1px solid #bae6fd !important;
   border-radius: 5px !important;
   color: #1a1f26 !important;
@@ -1030,8 +1032,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn svg {
-  width: 12px !important;
-  height: 12px !important;
+  width: 13px !important;
+  height: 13px !important;
   color: #5b6b80 !important;
   stroke: #5b6b80 !important;
 }
@@ -1059,8 +1061,9 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-size {
-  height: 20px !important;
-  min-height: 20px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  font-size: 12px !important;
   box-shadow: none !important;
   color: #1a1f26 !important;
   font-weight: 400 !important;

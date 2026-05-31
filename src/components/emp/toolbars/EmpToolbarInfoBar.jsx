@@ -36,7 +36,7 @@ export default function EmpToolbarInfoBar({
         <span className="min-w-0 truncate text-xs font-semibold text-[#1a1f26]">{title}</span>
       </div>
       {operationLabel ? (
-        <span className="emp-toolbar-operation-label ml-auto inline-flex shrink-0 items-center gap-1 text-[11px] font-normal text-[#5b6b80] whitespace-nowrap">
+        <span className="emp-toolbar-operation-label ml-auto inline-flex shrink-0 items-center gap-1 text-[12px] font-normal text-[#5b6b80] whitespace-nowrap">
           <Icon className="h-3 w-3 shrink-0 text-[#5b6b80]" strokeWidth={2} aria-hidden="true" />
           {label}
         </span>

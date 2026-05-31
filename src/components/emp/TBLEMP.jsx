@@ -728,7 +728,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
   };
 
-  const measureTextWidth = (text, font = '11px Inter, system-ui, sans-serif') => {
+  const measureTextWidth = (text, font = '12px Inter, system-ui, sans-serif') => {
     if (typeof document === "undefined") return String(text || "").length * 7;
     if (!measureCanvasRef.current) measureCanvasRef.current = document.createElement("canvas");
     const ctx = measureCanvasRef.current.getContext("2d");
@@ -739,7 +739,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const autoFitColumnWidth = (col) => {
     const minW = getMinWidth(col);
-    let maxW = measureTextWidth(formatHeaderLabel(col), '600 11px Inter, system-ui, sans-serif') + 38;
+    let maxW = measureTextWidth(formatHeaderLabel(col), '600 12px Inter, system-ui, sans-serif') + 38;
     empresasOrdenadas.slice(0, AUTO_FIT_MEASURE_LIMIT).forEach((emp) => {
       const cellW = measureTextWidth(getFieldValue(emp, col.id)) + 14;
       maxW = Math.max(maxW, cellW);
@@ -802,10 +802,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                         <TableHead
                           key={col.id}
                           style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                          className={`emp-th group relative sticky top-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                          className={`emp-th group relative sticky top-0 align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
                           onDoubleClick={() => handleSort(col.id)}
                         >
-                          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+                          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
                             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
                           </div>
                           <div
@@ -880,7 +880,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-6 leading-6 text-[11px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-[26px] leading-[26px] text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
@@ -899,9 +899,9 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
                           <TableHead
                             key={`total-${col.id}`}
                             style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                            className={`emp-th relative sticky bottom-0 align-middle px-1.5 whitespace-nowrap h-6 py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+                            className={`emp-th relative sticky bottom-0 align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
                           >
-                            <div className={`emp-th-label-wrap flex items-center w-full h-full leading-6 whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+                            <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
                               <span className="emp-th-label truncate font-semibold">
                                 {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
                               </span>
