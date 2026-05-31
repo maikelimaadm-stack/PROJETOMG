@@ -72,9 +72,20 @@ export default function PAGEMP() {
     [empresas, searchTerm]
   );
 
-  const empresasNavegacao = showForm
-    ? empresasFiltradasPainel
-    : (tableFilteredEmpresas ?? empresasFiltradasPainel);
+  const handleFilteredEmpresasChange = useCallback((filtered) => {
+    setTableFilteredEmpresas(filtered);
+  }, []);
+
+  const empresasNavegacao = tableFilteredEmpresas ?? empresasFiltradasPainel;
+
+  const refreshNavRecord = useCallback((list, record, navListOverride) => {
+    const navList = navListOverride ?? tableFilteredEmpresas ?? filterEmpresasBySearch(list, searchTerm);
+    const fresh = findEmpresaInList(list, record) ?? record;
+    const navIndex = navList.findIndex(
+      (item) => item.id === fresh.id || Number(item.codigo_empresa) === Number(fresh.codigo_empresa)
+    );
+    return { fresh, navList, navIndex };
+  }, [searchTerm, tableFilteredEmpresas]);
 
   const currentEmp = empresasNavegacao[selectedIndex] || empresasNavegacao[0] || null;
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
@@ -103,16 +114,11 @@ export default function PAGEMP() {
       queryKey: ["emp-cadastro"],
       queryFn: () => empRepository.list()
     });
-    const fresh = findEmpresaInList(list, normalized) ?? normalized;
+    const { fresh, navIndex } = refreshNavRecord(list, normalized);
     setEditingEmp(fresh);
     if (fresh?.id) setSelectedTableItems([fresh.id]);
-
-    const filtered = filterEmpresasBySearch(list, searchTerm);
-    const navIndex = filtered.findIndex(
-      (item) => item.id === fresh.id || Number(item.codigo_empresa) === Number(fresh.codigo_empresa)
-    );
     if (navIndex >= 0) setSelectedIndex(navIndex);
-  }, [queryClient, searchTerm]);
+  }, [queryClient, refreshNavRecord]);
 
   const deleteMutation = useMutation({ mutationFn: (id) => empRepository.delete(id) });
 
@@ -181,8 +187,21 @@ export default function PAGEMP() {
       if (fresh?.id === editingEmp.id && fresh.updated_date !== editingEmp.updated_date) {
         setEditingEmp(fresh);
       }
+      return;
     }
-  }, [showForm, viewMode, empresasNavegacao, editingEmp?.id, editingEmp?.updated_date, editingEmp?._isDuplicate, selectedIndex]);
+
+    const stillExists = empresas.some((item) => item.id === editingEmp.id);
+    if (!stillExists && empresasNavegacao.length > 0) {
+      const fallbackIndex = Math.min(Math.max(selectedIndex, 0), empresasNavegacao.length - 1);
+      const fallbackEmp = empresasNavegacao[fallbackIndex];
+      if (fallbackEmp) {
+        setEditingEmp(fallbackEmp);
+        setSelectedIndex(fallbackIndex);
+        setSelectedTableItems([fallbackEmp.id]);
+        setFormVersion((version) => version + 1);
+      }
+    }
+  }, [showForm, viewMode, empresasNavegacao, empresas, editingEmp?.id, editingEmp?.updated_date, editingEmp?._isDuplicate, selectedIndex]);
 
   const handleTableSelectionChange = useCallback((ids) => {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
@@ -215,8 +234,9 @@ export default function PAGEMP() {
 
     const wasOnForm = showForm && viewMode === "record";
     const deletedCurrentFromForm = wasOnForm && editingEmp?.id && ids.includes(editingEmp.id);
+    const navListBeforeDelete = empresasNavegacao;
     const navIndexBeforeDelete = deletedCurrentFromForm
-      ? empresasNavegacao.findIndex((item) => item.id === editingEmp.id)
+      ? navListBeforeDelete.findIndex((item) => item.id === editingEmp.id)
       : -1;
 
     let count = 0;
@@ -237,18 +257,22 @@ export default function PAGEMP() {
       queryKey: ["emp-cadastro"],
       queryFn: () => empRepository.list()
     });
-    const filtered = filterEmpresasBySearch(list, searchTerm);
 
     if (deletedCurrentFromForm) {
-      if (filtered.length === 0) {
+      const remainingNav = navListBeforeDelete
+        .filter((item) => !ids.includes(item.id))
+        .map((item) => findEmpresaInList(list, item))
+        .filter(Boolean);
+
+      if (remainingNav.length === 0) {
         setShowForm(false);
         setEditingEmp(null);
         setViewMode("table");
         setSelectedTableItems([]);
         setSelectedIndex(0);
       } else {
-        const nextIndex = Math.min(Math.max(navIndexBeforeDelete, 0), filtered.length - 1);
-        const nextEmp = filtered[nextIndex];
+        const nextIndex = Math.min(Math.max(navIndexBeforeDelete, 0), remainingNav.length - 1);
+        const nextEmp = remainingNav[nextIndex];
         setEditingEmp(nextEmp);
         setSelectedIndex(nextIndex);
         setSelectedTableItems([nextEmp.id]);
@@ -257,19 +281,30 @@ export default function PAGEMP() {
         setFormVersion((version) => version + 1);
       }
     } else {
+      const remainingNav = navListBeforeDelete
+        .filter((item) => !ids.includes(item.id))
+        .map((item) => findEmpresaInList(list, item))
+        .filter(Boolean);
+
       setSelectedTableItems((prev) => prev.filter((id) => !ids.includes(id)));
 
-      if (showForm && viewMode === "record" && editingEmp?.id) {
-        const fresh = findEmpresaInList(filtered, editingEmp);
+      if (showForm && viewMode === "record" && editingEmp?.id && !ids.includes(editingEmp.id)) {
+        const { fresh, navIndex } = refreshNavRecord(list, editingEmp, remainingNav);
         if (fresh) {
           setEditingEmp(fresh);
-          const idx = filtered.findIndex((item) => item.id === fresh.id);
-          if (idx >= 0) setSelectedIndex(idx);
+          if (navIndex >= 0) setSelectedIndex(navIndex);
         }
-      } else if (filtered.length === 0) {
+      } else if (remainingNav.length === 0) {
         setSelectedIndex(0);
+      } else if (selectedTableItems.some((id) => ids.includes(id))) {
+        const nextIndex = Math.min(
+          Math.max(navListBeforeDelete.findIndex((item) => ids.includes(item.id)), 0),
+          remainingNav.length - 1
+        );
+        setSelectedIndex(nextIndex);
+        if (remainingNav[nextIndex]?.id) setSelectedTableItems([remainingNav[nextIndex].id]);
       } else {
-        setSelectedIndex((prev) => Math.min(prev, filtered.length - 1));
+        setSelectedIndex((prev) => Math.min(prev, remainingNav.length - 1));
       }
     }
 
@@ -378,7 +413,7 @@ export default function PAGEMP() {
             selectedRecordId={showForm ? editingEmp?.id : undefined}
             onSelectionChange={handleTableSelectionChange}
             onVisibleDataChange={setVisibleTableData}
-            onFilteredEmpresasChange={setTableFilteredEmpresas}
+            onFilteredEmpresasChange={handleFilteredEmpresasChange}
           />
         </div>
       </div>
