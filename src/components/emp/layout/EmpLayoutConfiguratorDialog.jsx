@@ -273,7 +273,7 @@ export default function EmpLayoutConfiguratorDialog({
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   const fieldItemClass = (selected, readOnly = false) =>
-    `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden border px-2 py-1.5 text-left transition-colors focus-visible:outline-none ${
+    `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden px-2 text-left transition-colors focus-visible:outline-none ${
       selected ? "emp-layout-config-field-selected" : "emp-layout-config-field-default"
     } ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
 
@@ -297,7 +297,7 @@ export default function EmpLayoutConfiguratorDialog({
         setSelectedAvailableIds([field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(selectedAvailableIds.includes(field.id), !isEditing)} w-full`}
+      className={`${fieldItemClass(selectedAvailableIds.includes(field.id), !isEditing)} emp-layout-config-field-available w-full`}
     >
       {isCustomField(field) && <CustomMarker />}
       <div className="min-w-0">
@@ -333,7 +333,7 @@ export default function EmpLayoutConfiguratorDialog({
       }}
       onDrop={() => setDraggedFieldId(null)}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(selectedPanelFieldIds.includes(field.id), !isEditing)} h-8 min-w-[210px]`}
+      className={`${fieldItemClass(selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel min-w-[210px]`}
     >
       {isCustomField(field) && <CustomMarker />}
       <span className="truncate text-xs font-semibold">{field.label}</span>
@@ -394,9 +394,8 @@ export default function EmpLayoutConfiguratorDialog({
           )}
           <div className="ml-auto">
             {isEditing && (
-              <ToolbarBtn onClick={restoreDefault} className={LABELED_BTN_CLASS} title="Restaurar padrão">
+              <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
                 <EmpToolbarIcon icon={RotateCcw} />
-                <span>Restaurar padrão</span>
               </ToolbarBtn>
             )}
           </div>

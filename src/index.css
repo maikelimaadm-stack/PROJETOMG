@@ -1155,27 +1155,47 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field {
-  border-radius: 3px;
-  font-size: 12px;
   box-sizing: border-box;
   flex-shrink: 0;
+  font-size: 12px;
+  border: 0.5px solid #c5ced8;
+  border-radius: 5px;
+  background: #ffffff;
+  box-shadow: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default {
-  border: 0.5px solid #c5ced8;
-  background: #ffffff;
   color: #334155;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default:hover:not(.emp-layout-config-field-readonly) {
-  background: #f8fafc;
+  background: #ffffff;
   color: #1a1f26;
+  border-color: #c5ced8;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default:focus-visible:not(.emp-layout-config-field-readonly) {
+  border-color: #21c45d;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-selected {
-  border: 0.5px solid #21c45d;
-  background: rgba(33, 196, 93, 0.08);
+  border-color: #21c45d;
+  background: #ffffff;
   color: #1a1f26;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-panel {
+  height: 22px;
+  min-height: 22px;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available {
+  min-height: 22px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field:disabled {
@@ -1190,7 +1210,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select {
   border: 0.5px solid #c5ced8 !important;
-  border-radius: 3px !important;
+  border-radius: 5px !important;
   background: #ffffff !important;
   box-shadow: none !important;
   color: #1a1f26 !important;
