@@ -61,7 +61,6 @@ export default function EmpTabs({
           );
         })}
       </div>
-      {trailing ? <div className="emp-form-tabs-trailing relative z-20 ml-1.5 shrink-0 self-center">{trailing}</div> : null}
       <button
         type="button"
         onClick={() => scrollPanels(1)}
@@ -71,6 +70,7 @@ export default function EmpTabs({
       >
         <EmpToolbarIcon icon={ChevronRight} nav />
       </button>
+      {trailing ? <div className="emp-form-tabs-trailing relative z-20 ml-1.5 shrink-0 self-center">{trailing}</div> : null}
     </div>
   );
 }
