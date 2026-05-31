@@ -355,6 +355,7 @@ input[type="number"] {
   z-index: 1;
 }
 
+.cadastro-emp-scope .emp-form-tab-nav-btn,
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-btn {
   background: #ffffff !important;
@@ -362,6 +363,7 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope .emp-form-tab-nav-btn:hover:not(:disabled),
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn:hover:not(:disabled),
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-btn:hover:not(:disabled) {
   background: #ffffff !important;
@@ -369,6 +371,7 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope .emp-form-tab-nav-btn svg,
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn svg,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-btn svg {
   color: var(--emp-toolbar-btn-fg) !important;

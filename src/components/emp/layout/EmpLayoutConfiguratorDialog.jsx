@@ -28,6 +28,7 @@ import {
   EMP_TOOLBAR_SEARCH_INPUT,
   EMP_TOOLBAR_SEARCH_WRAP,
 } from "@/components/emp/toolbars/empToolbarStyles";
+import { usePanelTabsScroll } from "@/components/emp/toolbars/usePanelTabsScroll";
 
 const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = ["principal"];
@@ -97,6 +98,7 @@ export default function EmpLayoutConfiguratorDialog({
   const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
   const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
   const panelsScrollRef = useRef(null);
+  const { canScrollLeft, canScrollRight } = usePanelTabsScroll(panelsScrollRef, [draftPanels, activePanelId, editingPanelId, isEditing]);
 
   React.useEffect(() => {
     if (!open) return;
@@ -601,15 +603,17 @@ export default function EmpLayoutConfiguratorDialog({
                     </ToolbarBtn>
                   )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => scrollPanels(-1)}
-                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 mr-1.5 shrink-0`}
-                  title="Rolar painéis"
-                  aria-label="Rolar painéis para a esquerda"
-                >
-                  <EmpToolbarIcon icon={ChevronLeft} nav />
-                </button>
+                {canScrollLeft ? (
+                  <button
+                    type="button"
+                    onClick={() => scrollPanels(-1)}
+                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 mr-1.5 shrink-0 self-center`}
+                    title="Rolar painéis"
+                    aria-label="Rolar painéis para a esquerda"
+                  >
+                    <EmpToolbarIcon icon={ChevronLeft} nav />
+                  </button>
+                ) : null}
                 <div
                   ref={panelsScrollRef}
                   className="emp-form-tab-list flex h-[30px] min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -669,15 +673,17 @@ export default function EmpLayoutConfiguratorDialog({
                     );
                   })}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => scrollPanels(1)}
-                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 ml-1.5 shrink-0`}
-                  title="Rolar painéis"
-                  aria-label="Rolar painéis para a direita"
-                >
-                  <EmpToolbarIcon icon={ChevronRight} nav />
-                </button>
+                {canScrollRight ? (
+                  <button
+                    type="button"
+                    onClick={() => scrollPanels(1)}
+                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 ml-1.5 shrink-0 self-center`}
+                    title="Rolar painéis"
+                    aria-label="Rolar painéis para a direita"
+                  >
+                    <EmpToolbarIcon icon={ChevronRight} nav />
+                  </button>
+                ) : null}
               </div>
 
               <div className="emp-form-section emp-form-section-panel emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
