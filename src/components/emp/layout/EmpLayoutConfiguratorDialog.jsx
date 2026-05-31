@@ -7,8 +7,10 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
+  Eye,
+  EyeOff,
   Pencil,
-  Reply,
+  Plus,
   RotateCcw,
   Search,
   Settings,
@@ -216,6 +218,14 @@ export default function EmpLayoutConfiguratorDialog({
       return next;
     });
     setActivePanelId(draftPanels.find((panel) => panel.id !== activePanel.id)?.id || "");
+  };
+  const toggleActivePanelHidden = () => {
+    if (!activePanel || !isEditing || activePanelIsFixed) return;
+    setDraftPanels((prev) =>
+      prev.map((panel) =>
+        panel.id === activePanel.id ? { ...panel, hidden: !panel.hidden } : panel
+      )
+    );
   };
   const reorderField = (targetFieldId) => {
     if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel) return;
@@ -498,23 +508,6 @@ export default function EmpLayoutConfiguratorDialog({
             </ToolbarBtn>
           )}
           {isEditing && (
-            <ToolbarBtn onClick={createPanel} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo painel">
-              <EmpToolbarIcon icon={Reply} strokeWidth={2.5} />
-              <span>Novo</span>
-            </ToolbarBtn>
-          )}
-          {isEditing && (
-            <ToolbarBtn
-              disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
-              onClick={deletePanel}
-              className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`}
-              title="Excluir painel"
-            >
-              <EmpToolbarIcon icon={Trash2} />
-              <span>Excluir</span>
-            </ToolbarBtn>
-          )}
-          {isEditing && (
             <ToolbarBtn onClick={handleSave} className={LABELED_BTN_CLASS} title="Salvar">
               <EmpToolbarIcon icon={Check} />
               <span>Salvar</span>
@@ -563,27 +556,49 @@ export default function EmpLayoutConfiguratorDialog({
             <ToolbarBtn
               disabled={!isEditing || panelFieldIds.length === 0}
               onClick={removeAllFields}
-              className={`${LABELED_BTN_CLASS} emp-layout-config-transfer-btn flex-col !h-auto !min-h-[52px] !w-[42px] !gap-1 !px-1 !py-1.5`}
+              className="emp-layout-config-transfer-btn"
               title="Remover todos"
             >
               <EmpToolbarIcon icon={ChevronsLeft} nav />
-              <span className="max-w-[38px] text-center text-[9px] leading-tight">Remover todos</span>
             </ToolbarBtn>
             <ToolbarBtn
               disabled={!isEditing || availableFields.length === 0}
               onClick={addAllFields}
-              className={`${LABELED_BTN_CLASS} emp-layout-config-transfer-btn flex-col !h-auto !min-h-[52px] !w-[42px] !gap-1 !px-1 !py-1.5`}
+              className="emp-layout-config-transfer-btn"
               title="Adicionar todos"
             >
               <EmpToolbarIcon icon={ChevronsRight} nav />
-              <span className="max-w-[38px] text-center text-[9px] leading-tight">Adicionar todos</span>
             </ToolbarBtn>
           </section>
 
           <main className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white">
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
               <div className="emp-form-tabs relative flex h-[30px] items-end justify-start bg-white pl-2 pr-2">
-                <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5">
+                <div className="emp-form-tab-nav-group emp-layout-config-panel-actions relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5">
+                  {isEditing && (
+                    <ToolbarBtn onClick={createPanel} className="emp-toolbar-btn-new" title="Novo painel">
+                      <EmpToolbarIcon icon={Plus} />
+                    </ToolbarBtn>
+                  )}
+                  {isEditing && (
+                    <ToolbarBtn
+                      disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
+                      onClick={deletePanel}
+                      className="emp-toolbar-btn-delete"
+                      title="Excluir painel"
+                    >
+                      <EmpToolbarIcon icon={Trash2} />
+                    </ToolbarBtn>
+                  )}
+                  {isEditing && (
+                    <ToolbarBtn
+                      disabled={!activePanel || activePanelIsFixed}
+                      onClick={toggleActivePanelHidden}
+                      title={activePanel?.hidden ? "Exibir painel" : "Ocultar painel"}
+                    >
+                      <EmpToolbarIcon icon={activePanel?.hidden ? EyeOff : Eye} />
+                    </ToolbarBtn>
+                  )}
                   <button
                     type="button"
                     onClick={() => scrollPanels(-1)}
@@ -635,7 +650,7 @@ export default function EmpLayoutConfiguratorDialog({
                         }}
                         className={`emp-form-tab relative z-10 min-w-max flex-none overflow-hidden whitespace-nowrap ${
                           active ? "emp-form-tab-active" : "emp-form-tab-inactive"
-                        }`}
+                        } ${panel.hidden ? "emp-form-tab-hidden-panel opacity-70" : ""}`}
                       >
                         {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
                         {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
