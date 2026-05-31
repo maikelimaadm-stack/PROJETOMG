@@ -380,6 +380,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab-list {
   gap: 4px;
+  padding-left: 12px;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-nav-btn {
