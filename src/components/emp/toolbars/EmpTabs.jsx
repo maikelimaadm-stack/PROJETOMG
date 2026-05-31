@@ -47,7 +47,7 @@ export default function EmpTabs({
       </div>
       <div
         ref={panelsScrollRef}
-        className="flex h-7 min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="emp-form-tab-list flex h-7 min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         {tabs.map((tab) => {
           const active = tab.id === activeTab;

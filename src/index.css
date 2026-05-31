@@ -296,10 +296,14 @@ input[type="number"] {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 0.5px;
-  background: #e5e7eb;
+  height: 1px;
+  background: #d6dce8;
   pointer-events: none;
   z-index: 1;
+}
+
+.cadastro-emp-scope .emp-form-tab-list {
+  gap: 6px;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-nav-btn {
@@ -312,21 +316,20 @@ input[type="number"] {
   font-size: 12px;
   line-height: 1;
   font-weight: 400;
-  padding: 6px 14px 7px;
+  padding: 6px 14px;
   height: 28px;
   box-sizing: border-box;
   border-radius: 4px 4px 0 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
-}
-
-.cadastro-emp-scope .emp-form-tab + .emp-form-tab {
-  margin-left: -1px;
 }
 
 .cadastro-emp-scope .emp-form-tab-active {
   border-top: 2px solid #21c45d;
-  border-left: 1px solid #e0e0e0;
-  border-right: 1px solid #e0e0e0;
+  border-left: 1px solid #d6dce8;
+  border-right: 1px solid #d6dce8;
   border-bottom: 1px solid #e8faf0;
   background: #e8faf0;
   color: #1a1f26;
@@ -336,11 +339,11 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive {
-  border-top: 1px solid #e0e0e0;
-  border-left: 1px solid #e0e0e0;
-  border-right: 1px solid #e0e0e0;
-  border-bottom: 1px solid #e0e0e0;
-  background: #ffffff;
+  border-top: 1px solid #d6dce8;
+  border-left: 1px solid #d6dce8;
+  border-right: 1px solid #d6dce8;
+  border-bottom: 1px solid #d6dce8;
+  background: #f5f7fa;
   color: #334155;
   font-weight: 400;
   margin-bottom: 0;
@@ -356,23 +359,23 @@ input[type="number"] {
   color: #1a1f26 !important;
   background: #e8faf0 !important;
   border-top-color: #21c45d !important;
-  border-left-color: #e0e0e0 !important;
-  border-right-color: #e0e0e0 !important;
+  border-left-color: #d6dce8 !important;
+  border-right-color: #d6dce8 !important;
   border-bottom-color: #e8faf0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #334155 !important;
-  background: #ffffff !important;
-  border-top-color: #e0e0e0 !important;
-  border-left-color: #e0e0e0 !important;
-  border-right-color: #e0e0e0 !important;
-  border-bottom-color: #e0e0e0 !important;
+  background: #f5f7fa !important;
+  border-top-color: #d6dce8 !important;
+  border-left-color: #d6dce8 !important;
+  border-right-color: #d6dce8 !important;
+  border-bottom-color: #d6dce8 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive:hover {
   color: #1a1f26 !important;
-  background: #ffffff !important;
+  background: #f5f7fa !important;
 }
 
 /* Tabela em tela cheia */
