@@ -13,7 +13,7 @@ import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
 import EmpToolbarInfoBar from "@/components/emp/toolbars/EmpToolbarInfoBar";
 import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
-const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[12px] font-medium";
+const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1 text-[12px] font-medium";
 const EMPTY_SOURCE_ID = "__empty__";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
@@ -186,24 +186,26 @@ export default function EmpLayoutPresetsDialog({
       }}
     >
       <DialogContent
-        className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] !gap-0 !rounded-none border border-[#cfd8e3] !p-0 sm:!p-0 [&>button:last-child]:hidden"
+        className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] !gap-0 overflow-hidden !rounded-lg border border-[#cfd8e3] !p-0 sm:!p-0 [&>button:last-child]:hidden"
         onInteractOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
         <DialogTitle className="sr-only">Layouts personalizados</DialogTitle>
 
-        <button
-          type="button"
-          onClick={handleClose}
-          className="emp-layout-presets-close-icon absolute left-auto right-0.5 top-0.5 z-[60]"
-          title="Fechar"
-          aria-label="Fechar"
-        >
-          <X className="h-3 w-3" strokeWidth={2.25} />
-        </button>
+        <div className="emp-layout-presets-shell flex min-h-0 flex-col gap-1 p-1">
+          <div className="emp-layout-presets-header flex items-center justify-end">
+            <button
+              type="button"
+              onClick={handleClose}
+              className="emp-layout-presets-close-icon"
+              title="Fechar"
+              aria-label="Fechar"
+            >
+              <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </button>
+          </div>
 
-        <div className="emp-layout-presets-shell flex min-h-0 flex-col">
-          <div className="emp-toolbar flex items-center gap-1.5 border-b border-sky-100 bg-white py-1.5">
+          <div className="emp-toolbar flex items-center gap-1 border-b border-sky-100 bg-white pl-1 pt-1">
           {!isInlineEditing ? (
             <>
               <ToolbarBtn onClick={handleNovo} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo layout">
@@ -237,7 +239,7 @@ export default function EmpLayoutPresetsDialog({
             </>
           )}
 
-          <div className="ml-auto flex items-center gap-1.5">
+          <div className="ml-auto flex items-center gap-1 pr-1">
             <EmpBubbleCounter value={String(presets.length)} title="Total de layouts" className="emp-toolbar-bubble-counter" />
           </div>
         </div>
@@ -248,26 +250,26 @@ export default function EmpLayoutPresetsDialog({
           operationLabel={isInlineEditing ? (inlineMode === "new" ? "NOVO REGISTRO" : "EDIÇÃO DE REGISTRO") : "CONSULTA"}
         />
 
-        <div className="emp-layout-presets-table-wrap mt-1 min-h-0 overflow-hidden bg-white">
-          <Card className="emp-table-shell overflow-hidden rounded-none border border-[#c5ced8] bg-white shadow-none">
+        <div className="emp-layout-presets-table-wrap min-h-0 overflow-hidden bg-white">
+          <Card className="emp-table-shell overflow-hidden rounded-md border border-[#c5ced8] bg-white shadow-none">
             <CardContent className="p-0">
               <div className="max-h-[480px] overflow-auto">
                 <Table className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="emp-th h-[26px] w-[30%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-left text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[30%] border-r border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
                         Nome
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] w-[26%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-left text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[26%] border-r border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
                         Origem
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-center text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1 text-center text-xs font-semibold text-[#1a1f26]">
                         Painéis
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1.5 text-center text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] w-[12%] border-r border-b border-[#c5ced8] bg-white px-1 text-center text-xs font-semibold text-[#1a1f26]">
                         Campos
                       </TableHead>
-                      <TableHead className="emp-th h-[26px] border-b border-[#c5ced8] bg-white px-1.5 text-left text-xs font-semibold text-[#1a1f26]">
+                      <TableHead className="emp-th h-[26px] border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
                         Atualizado
                       </TableHead>
                     </TableRow>
@@ -275,7 +277,7 @@ export default function EmpLayoutPresetsDialog({
                   <TableBody>
                     {inlineMode === "new" ? (
                       <TableRow className="emp-row-selected hover:bg-transparent">
-                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1.5 py-0 align-middle">
+                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 align-middle">
                           <Input
                             value={draftName}
                             onChange={(event) => setDraftName(event.target.value)}
@@ -285,7 +287,7 @@ export default function EmpLayoutPresetsDialog({
                             className="h-6 rounded-[5px] border-[#dce3eb] px-1 text-xs shadow-none focus-visible:ring-0"
                           />
                         </TableCell>
-                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1.5 py-0 align-middle">
+                        <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 align-middle">
                           {renderOriginSelect(draftSourcePresetId, (event) => setDraftSourcePresetId(event.target.value))}
                         </TableCell>
                         <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 text-center align-middle text-xs text-[#5b6b80]">
@@ -294,7 +296,7 @@ export default function EmpLayoutPresetsDialog({
                         <TableCell className="emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 text-center align-middle text-xs text-[#5b6b80]">
                           0
                         </TableCell>
-                        <TableCell className="emp-td h-[26px] border-b border-[#c5ced8] px-1.5 py-0 align-middle text-xs text-[#5b6b80]">
+                        <TableCell className="emp-td h-[26px] border-b border-[#c5ced8] px-1 py-0 align-middle text-xs text-[#5b6b80]">
                           —
                         </TableCell>
                       </TableRow>
@@ -352,7 +354,7 @@ export default function EmpLayoutPresetsDialog({
             </CardContent>
           </Card>
 
-          {notice ? <div className="py-0.5 text-xs text-[#5b6b80]">{notice}</div> : null}
+          {notice ? <div className="p-1 text-xs text-[#5b6b80]">{notice}</div> : null}
         </div>
         </div>
       </DialogContent>

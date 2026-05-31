@@ -1516,23 +1516,22 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog {
-  overflow: visible !important;
+  overflow: hidden !important;
   padding: 0 !important;
+  border-radius: 8px !important;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog > .emp-layout-presets-close-icon {
-  position: absolute !important;
-  top: 2px !important;
-  right: 2px !important;
-  left: auto !important;
-  inset-inline-start: auto !important;
-  inset-inline-end: 2px !important;
-  z-index: 60;
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-header {
+  min-height: 14px;
+  padding: 0;
+}
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   margin: 0;
   border: none;
   background: transparent;
@@ -1540,10 +1539,9 @@ input[type="number"] {
   cursor: pointer;
   padding: 0;
   line-height: 0;
-  transform: none !important;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog > .emp-layout-presets-close-icon:hover {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover {
   color: #dc2626;
   background: transparent;
 }
@@ -1551,9 +1549,6 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-shell {
   box-sizing: border-box;
   width: 100%;
-  padding-left: 4px;
-  padding-right: 4px;
-  padding-bottom: 4px;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-table-wrap {
@@ -1562,7 +1557,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-table-shell {
   box-shadow: none;
-  border-radius: 0 !important;
+  border-radius: 6px !important;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-th,
