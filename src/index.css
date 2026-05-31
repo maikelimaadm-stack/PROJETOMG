@@ -1089,9 +1089,31 @@ input[type="number"] {
 }
 
 /* Configurador de layout — alinhado ao formulário de registro */
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-shell {
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-tabs {
+  min-height: 29px;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: #ffffff;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-fields {
+  isolation: isolate;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field {
   border-radius: 3px;
   font-size: 12px;
+  box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default {

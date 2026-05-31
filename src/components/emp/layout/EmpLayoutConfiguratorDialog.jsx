@@ -43,6 +43,8 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
+const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[11px] font-medium";
+
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 const CustomMarker = EmpCustomMarker;
@@ -358,39 +360,45 @@ export default function EmpLayoutConfiguratorDialog({
             </ToolbarBtn>
           )}
           {isEditing && (
-            <ToolbarBtn onClick={createPanel} title="Novo painel">
+            <ToolbarBtn onClick={createPanel} className={LABELED_BTN_CLASS} title="Novo painel">
               <EmpToolbarIcon icon={Plus} />
+              <span>Novo</span>
             </ToolbarBtn>
           )}
           {isEditing && (
             <ToolbarBtn
               disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
               onClick={deletePanel}
+              className={LABELED_BTN_CLASS}
               title="Excluir painel"
             >
               <EmpToolbarIcon icon={Trash2} />
+              <span>Excluir</span>
             </ToolbarBtn>
           )}
           {isEditing && (
-            <ToolbarBtn onClick={handleSave} title="Salvar">
+            <ToolbarBtn onClick={handleSave} className={LABELED_BTN_CLASS} title="Salvar">
               <EmpToolbarIcon icon={Check} />
+              <span>Salvar</span>
             </ToolbarBtn>
           )}
           {isEditing && (
-            <ToolbarBtn onClick={discardChanges} title="Descartar alterações">
+            <ToolbarBtn onClick={discardChanges} className={LABELED_BTN_CLASS} title="Cancelar alterações">
               <EmpToolbarIcon icon={X} />
+              <span>Cancelar</span>
             </ToolbarBtn>
           )}
           <div className="ml-auto">
             {isEditing && (
-              <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
+              <ToolbarBtn onClick={restoreDefault} className={LABELED_BTN_CLASS} title="Restaurar padrão">
                 <EmpToolbarIcon icon={RotateCcw} />
+                <span>Restaurar padrão</span>
               </ToolbarBtn>
             )}
           </div>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-[320px_45px_1fr]">
+        <div className="grid min-h-0 flex-1 grid-cols-[320px_45px_1fr] border-t border-[#d6dce8]">
           <aside className="flex flex-col overflow-hidden border-r border-[#d6dce8] bg-white p-2">
             <div className="mb-2 text-sm font-semibold text-[#1a1f26]">Campos disponíveis</div>
             <div className={`${EMP_TOOLBAR_SEARCH_WRAP} mb-3 w-full`}>
@@ -403,7 +411,7 @@ export default function EmpLayoutConfiguratorDialog({
               <Search className="emp-toolbar-search-icon pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#5b6b80]" />
             </div>
             <div
-              className="flex-1 space-y-1 overflow-auto pr-1"
+              className="emp-layout-config-available-list flex flex-1 flex-col gap-1 overflow-auto pr-1"
               onDragOver={(event) => event.preventDefault()}
             >
               {availableFields.length === 0 ? (
@@ -430,96 +438,98 @@ export default function EmpLayoutConfiguratorDialog({
           </section>
 
           <main className="flex min-w-0 flex-col overflow-hidden bg-white">
-            <div className="emp-form-tabs relative flex h-7 items-end justify-start bg-white pl-2 pr-2">
-              <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-7 shrink-0 items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => scrollPanels(-1)}
-                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
-                  title="Rolar painéis"
+            <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
+              <div className="emp-form-tabs emp-layout-config-tabs relative flex shrink-0 items-end justify-start bg-white pl-2 pr-2">
+                <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex shrink-0 items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => scrollPanels(-1)}
+                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
+                    title="Rolar painéis"
+                  >
+                    <EmpToolbarIcon icon={ChevronLeft} nav />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => scrollPanels(1)}
+                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
+                    title="Rolar painéis"
+                  >
+                    <EmpToolbarIcon icon={ChevronRight} nav />
+                  </button>
+                </div>
+                <div
+                  ref={panelsScrollRef}
+                  className="emp-form-tab-list flex min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
-                  <EmpToolbarIcon icon={ChevronLeft} nav />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollPanels(1)}
-                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
-                  title="Rolar painéis"
-                >
-                  <EmpToolbarIcon icon={ChevronRight} nav />
-                </button>
-              </div>
-              <div
-                ref={panelsScrollRef}
-                className="emp-form-tab-list flex h-7 min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-              >
-                {draftPanels.map((panel) => {
-                  const active = activePanel?.id === panel.id;
-                  return (
-                    <button
-                      key={panel.id}
-                      type="button"
-                      draggable={isEditing && !fixedPanelIds.includes(panel.id)}
-                      onDragStart={() => {
-                        setDraggedPanelId(panel.id);
-                        setActivePanelId(panel.id);
-                      }}
-                      onDragOver={(event) => {
-                        event.preventDefault();
-                        reorderPanel(panel.id);
-                      }}
-                      onDrop={() => setDraggedPanelId(null)}
-                      onDragEnd={() => setDraggedPanelId(null)}
-                      onClick={() => {
-                        setActivePanelId(panel.id);
-                        setEditingPanelId(isEditing && !systemPanelIds.includes(panel.id) ? panel.id : null);
-                        setSelectedPanelFieldIds([]);
-                      }}
-                      className={`emp-form-tab relative z-10 min-w-max flex-none overflow-hidden whitespace-nowrap ${
-                        active ? "emp-form-tab-active" : "emp-form-tab-inactive"
-                      }`}
-                    >
-                      {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
-                      {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
-                        <Input
-                          value={panel.label || ""}
-                          autoFocus
-                          onClick={(event) => event.stopPropagation()}
-                          onBlur={() => setEditingPanelId(null)}
-                          onChange={(event) =>
-                            setDraftPanels((prev) =>
-                              prev.map((item) =>
-                                item.id === panel.id
-                                  ? { ...item, label: formatPanelLabel(event.target.value) }
-                                  : item
+                  {draftPanels.map((panel) => {
+                    const active = activePanel?.id === panel.id;
+                    return (
+                      <button
+                        key={panel.id}
+                        type="button"
+                        draggable={isEditing && !fixedPanelIds.includes(panel.id)}
+                        onDragStart={() => {
+                          setDraggedPanelId(panel.id);
+                          setActivePanelId(panel.id);
+                        }}
+                        onDragOver={(event) => {
+                          event.preventDefault();
+                          reorderPanel(panel.id);
+                        }}
+                        onDrop={() => setDraggedPanelId(null)}
+                        onDragEnd={() => setDraggedPanelId(null)}
+                        onClick={() => {
+                          setActivePanelId(panel.id);
+                          setEditingPanelId(isEditing && !systemPanelIds.includes(panel.id) ? panel.id : null);
+                          setSelectedPanelFieldIds([]);
+                        }}
+                        className={`emp-form-tab relative z-10 min-w-max flex-none overflow-hidden whitespace-nowrap ${
+                          active ? "emp-form-tab-active" : "emp-form-tab-inactive"
+                        }`}
+                      >
+                        {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
+                        {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
+                          <Input
+                            value={panel.label || ""}
+                            autoFocus
+                            onClick={(event) => event.stopPropagation()}
+                            onBlur={() => setEditingPanelId(null)}
+                            onChange={(event) =>
+                              setDraftPanels((prev) =>
+                                prev.map((item) =>
+                                  item.id === panel.id
+                                    ? { ...item, label: formatPanelLabel(event.target.value) }
+                                    : item
+                                )
                               )
-                            )
-                          }
-                          className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
-                        />
-                      ) : (
-                        formatPanelLabel(panel.label)
-                      )}
-                    </button>
-                  );
-                })}
+                            }
+                            className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
+                          />
+                        ) : (
+                          formatPanelLabel(panel.label)
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="emp-layout-config-panel-body min-h-0 flex-1 overflow-auto bg-white">
+                <div
+                  className="emp-layout-config-panel-fields flex min-h-[160px] flex-wrap content-start gap-2 p-3"
+                  onDragOver={(event) => event.preventDefault()}
+                >
+                  {panelFields.length === 0 ? (
+                    <div className="p-4 text-xs text-slate-400">Painel vazio.</div>
+                  ) : (
+                    panelFields.map(renderPanelField)
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto border-[#d6dce8] p-3">
-              <div
-                className="flex min-h-[160px] flex-wrap content-start gap-2"
-                onDragOver={(event) => event.preventDefault()}
-              >
-                {panelFields.length === 0 ? (
-                  <div className="p-4 text-xs text-slate-400">Painel vazio.</div>
-                ) : (
-                  panelFields.map(renderPanelField)
-                )}
-              </div>
-            </div>
-
-            <div className="emp-layout-config-footer flex h-10 items-center gap-3 border-t border-[#d6dce8] bg-[#f8fafc] px-2 py-2">
+            <div className="emp-layout-config-footer flex h-10 shrink-0 items-center gap-3 border-t border-[#d6dce8] bg-[#f8fafc] px-2 py-2">
               <label className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
                 <span>Oculto:</span>
                 <ToggleSwitch
