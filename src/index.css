@@ -1516,7 +1516,6 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog {
-  position: relative !important;
   overflow: visible !important;
   padding: 0 !important;
 }

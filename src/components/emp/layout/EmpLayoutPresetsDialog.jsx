@@ -186,7 +186,7 @@ export default function EmpLayoutPresetsDialog({
       }}
     >
       <DialogContent
-        className="cadastro-emp-scope emp-layout-presets-dialog relative max-w-[920px] !gap-0 !rounded-none border border-[#cfd8e3] !p-0 sm:!p-0 [&>button:last-child]:hidden"
+        className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] !gap-0 !rounded-none border border-[#cfd8e3] !p-0 sm:!p-0 [&>button:last-child]:hidden"
         onInteractOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
