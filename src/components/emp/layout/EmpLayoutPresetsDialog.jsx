@@ -1,9 +1,18 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Copy, Plus, Trash2 } from "lucide-react";
 import { DEFAULT_PRESET_ID } from "@/components/emp/layout/empFormLayoutStore";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
+import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+
+const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[12px] font-medium";
+
+const ToolbarBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
+    {children}
+  </button>
+);
 
 const titleCase = (value) =>
   String(value || "")
@@ -16,7 +25,6 @@ export default function EmpLayoutPresetsDialog({
   presets = [],
   activePresetId,
   currentConfig,
-  defaultConfig,
   onApplyPreset,
   onCreatePreset,
   onDuplicatePreset,
@@ -49,47 +57,46 @@ export default function EmpLayoutPresetsDialog({
     }
     onCreatePreset?.({ name, sourcePresetId });
     setNewName("");
-    setNotice("");
+    setNotice("Layout criado com sucesso.");
   };
 
   const handleDuplicate = (preset) => {
     const baseName = `${preset.name} (cópia)`;
     onDuplicatePreset?.({ name: baseName, sourcePresetId: preset.id });
+    setNotice("Layout duplicado com sucesso.");
   };
 
   const handleSaveCurrent = () => {
-    if (activePresetId === DEFAULT_PRESET_ID) {
-      setNotice("Selecione ou crie um layout personalizado para salvar a configuração.");
-      return;
-    }
     onSaveCurrentPreset?.(currentConfig);
-    setNotice("Layout salvo com sucesso.");
+    setNotice(
+      activePresetId === DEFAULT_PRESET_ID
+        ? "Layout padrão salvo com sucesso."
+        : "Layout personalizado salvo com sucesso."
+    );
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="cadastro-emp-scope max-w-[760px] gap-0 overflow-hidden rounded-none border border-[#cfd8e3] p-0">
+      <DialogContent className="cadastro-emp-scope emp-layout-presets-dialog max-w-[760px] gap-0 overflow-hidden rounded-none border border-[#cfd8e3] p-0">
         <DialogTitle className="sr-only">Layouts personalizados</DialogTitle>
-        <div className="border-b border-[#dce3eb] bg-white px-4 py-3">
-          <div className="text-sm font-semibold text-[#1a1f26]">Layouts personalizados</div>
-          <div className="text-xs text-[#5b6b80]">
-            Crie, duplique e salve configurações de layout do formulário de empresas.
-          </div>
+        <div className="emp-toolbar-info-bar flex h-8 items-center gap-2 border-b border-[#dce3eb] px-3">
+          <span className="text-xs font-semibold text-[#1a1f26]">Layouts personalizados</span>
+          <span className="text-xs text-[#5b6b80]">Crie, duplique e salve configurações do formulário</span>
         </div>
 
-        <div className="max-h-[420px] overflow-auto bg-white p-4">
-          <div className="mb-4 space-y-2">
+        <div className="max-h-[420px] overflow-auto bg-white p-3">
+          <div className="mb-3 space-y-2">
             {presets.map((preset) => {
               const active = preset.id === activePresetId;
               return (
                 <div
                   key={preset.id}
-                  className={`flex items-center gap-2 rounded-[5px] border px-3 py-2 ${
+                  className={`flex items-center gap-1.5 rounded-[5px] border px-2 py-1.5 ${
                     active ? "border-[#21c45d] bg-[#f3fbf6]" : "border-[#dce3eb] bg-white"
                   }`}
                 >
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold text-[#1a1f26]">
+                    <div className="truncate text-xs font-semibold text-[#1a1f26]">
                       {titleCase(preset.name)}
                       {preset.isSystem ? " (sistema)" : ""}
                     </div>
@@ -99,34 +106,28 @@ export default function EmpLayoutPresetsDialog({
                       </div>
                     ) : null}
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="h-7 rounded-[5px] border-[#dce3eb] px-2 text-xs shadow-none"
+                  <ToolbarBtn
                     onClick={() => onApplyPreset?.(preset.id)}
+                    className={LABELED_BTN_CLASS}
+                    title="Aplicar layout"
                   >
                     Aplicar
-                  </Button>
+                  </ToolbarBtn>
                   {!preset.isSystem ? (
                     <>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="h-7 w-7 rounded-[5px] border-[#dce3eb] p-0 shadow-none"
-                        title="Duplicar layout"
+                      <ToolbarBtn
                         onClick={() => handleDuplicate(preset)}
+                        title="Duplicar layout"
                       >
-                        <Copy className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="h-7 w-7 rounded-[5px] border-[#dce3eb] p-0 text-red-600 shadow-none"
-                        title="Excluir layout"
+                        <EmpToolbarIcon icon={Copy} />
+                      </ToolbarBtn>
+                      <ToolbarBtn
                         onClick={() => onDeletePreset?.(preset.id)}
+                        className="emp-toolbar-btn-delete"
+                        title="Excluir layout"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                        <EmpToolbarIcon icon={Trash2} />
+                      </ToolbarBtn>
                     </>
                   ) : null}
                 </div>
@@ -135,20 +136,20 @@ export default function EmpLayoutPresetsDialog({
           </div>
 
           <div className="rounded-[5px] border border-[#dce3eb] bg-[#f8fafc] p-3">
-            <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-[#5b6b80]">Novo layout</div>
-            <div className="grid grid-cols-[120px_minmax(0,1fr)] items-center gap-2">
+            <div className="mb-2 text-xs font-semibold text-[#1a1f26]">Novo layout</div>
+            <div className="grid grid-cols-[110px_minmax(0,1fr)] items-center gap-2">
               <label className="text-right text-xs text-[#1a1f26]">Nome:</label>
               <Input
                 value={newName}
                 onChange={(event) => setNewName(event.target.value)}
                 placeholder="Ex.: Layout comercial"
-                className="h-7 rounded-[5px] border-[#dce3eb] text-xs shadow-none"
+                className="h-6 rounded-[5px] border-[#dce3eb] text-xs shadow-none focus-visible:ring-0"
               />
               <label className="text-right text-xs text-[#1a1f26]">Origem:</label>
               <select
                 value={sourcePresetId}
                 onChange={(event) => setSourcePresetId(event.target.value)}
-                className="emp-layout-config-select h-7 rounded-[5px] border border-[#dce3eb] bg-white px-2 text-xs text-[#1a1f26]"
+                className="emp-layout-config-select h-6 rounded-[5px] border border-[#dce3eb] bg-white px-2 text-xs text-[#1a1f26]"
               >
                 {sourceOptions.map((preset) => (
                   <option key={preset.id} value={preset.id}>
@@ -157,42 +158,26 @@ export default function EmpLayoutPresetsDialog({
                 ))}
               </select>
             </div>
-            <div className="mt-3 flex justify-end gap-2">
-              <Button
-                type="button"
-                className="h-7 rounded-[5px] bg-[#21c45d] px-3 text-xs text-white hover:bg-[#1aad51]"
-                onClick={handleCreate}
-              >
-                <Plus className="mr-1 h-3.5 w-3.5" />
-                Criar layout
-              </Button>
+            <div className="mt-3 flex justify-end">
+              <ToolbarBtn onClick={handleCreate} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Criar layout">
+                <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
+                <span>Criar layout</span>
+              </ToolbarBtn>
             </div>
           </div>
 
           {notice ? <div className="mt-3 text-xs text-[#5b6b80]">{notice}</div> : null}
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#dce3eb] bg-white px-4 py-3">
-          <div className="text-xs text-[#5b6b80]">
-            Layouts personalizados: {customPresets.length}
-          </div>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="h-7 rounded-[5px] border-[#dce3eb] px-3 text-xs shadow-none"
-              onClick={handleSaveCurrent}
-            >
-              Salvar layout atual
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-7 rounded-[5px] border-[#dce3eb] px-3 text-xs shadow-none"
-              onClick={() => onOpenChange(false)}
-            >
-              Fechar
-            </Button>
+        <div className="emp-toolbar flex items-center justify-between border-t border-[#dce3eb] bg-white px-3 py-2">
+          <div className="text-xs text-[#5b6b80]">Layouts personalizados: {customPresets.length}</div>
+          <div className="flex items-center gap-1.5">
+            <ToolbarBtn onClick={handleSaveCurrent} className={LABELED_BTN_CLASS} title="Salvar layout atual">
+              <span>Salvar layout atual</span>
+            </ToolbarBtn>
+            <ToolbarBtn onClick={() => onOpenChange(false)} className={LABELED_BTN_CLASS} title="Fechar">
+              <span>Fechar</span>
+            </ToolbarBtn>
           </div>
         </div>
       </DialogContent>

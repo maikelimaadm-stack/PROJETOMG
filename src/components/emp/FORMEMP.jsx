@@ -340,6 +340,7 @@ export default function FORMEMP({
       basePanels,
       defaultLayout,
       camposPersonalizadosCount: camposPersonalizadosForm.length,
+      mergeNewCustomFields: true,
     });
   }, [
     formLayoutConfig,
@@ -426,14 +427,18 @@ export default function FORMEMP({
   };
 
   const handleSaveLayoutPreset = (config) => {
-    const activeId = empFormLayoutStore.getActivePresetId();
-    if (activeId === DEFAULT_PRESET_ID) return;
     const normalized = normalizeLayoutConfig(config, {
       basePanels,
       defaultLayout,
       camposPersonalizadosCount: camposPersonalizadosForm.length,
     });
+    const activeId = empFormLayoutStore.getActivePresetId();
+    if (activeId === DEFAULT_PRESET_ID) {
+      applyLayoutConfig(normalized, { updateActiveTab: false });
+      return;
+    }
     empFormLayoutStore.updatePresetConfig(activeId, normalized);
+    setFormLayoutConfig(normalized);
     setLayoutPresetsState(empFormLayoutStore.getState());
   };
 

@@ -88,9 +88,26 @@ export const pickLayoutConfig = (source = {}) => {
   return next;
 };
 
+export const mergeNewCustomFieldsIntoLayout = (layout = {}, defaultLayout = {}) => {
+  const nextLayout = { ...layout };
+  const usedFieldIds = new Set(Object.values(nextLayout).flat());
+  const defaultCustomIds = defaultLayout.campos_personalizados || [];
+  const currentCustomIds = nextLayout.campos_personalizados || [];
+  const newCustomIds = defaultCustomIds.filter(
+    (fieldId) => !usedFieldIds.has(fieldId) && !currentCustomIds.includes(fieldId)
+  );
+
+  if (newCustomIds.length === 0) return nextLayout;
+
+  return {
+    ...nextLayout,
+    campos_personalizados: [...currentCustomIds, ...newCustomIds],
+  };
+};
+
 export const normalizeLayoutConfig = (
   source,
-  { basePanels = [], defaultLayout = {}, camposPersonalizadosCount = 0 } = {}
+  { basePanels = [], defaultLayout = {}, camposPersonalizadosCount = 0, mergeNewCustomFields = false } = {}
 ) => {
   const fallback = {
     panels: basePanels,
@@ -111,21 +128,21 @@ export const normalizeLayoutConfig = (
     ...panelsSource,
     ...basePanels.filter((basePanel) => !panelsSource.some((panel) => panel.id === basePanel.id)),
   ];
-  const principalFields = merged.layout?.principal?.length
-    ? merged.layout.principal
-    : defaultLayout.principal;
+
+  let layout = { ...(merged.layout || {}) };
+  if (!layout.principal?.length) {
+    layout.principal = defaultLayout.principal;
+  }
+  if (mergeNewCustomFields && camposPersonalizadosCount > 0) {
+    layout = mergeNewCustomFieldsIntoLayout(layout, defaultLayout);
+  }
 
   return {
     ...merged,
     panels: panels.filter(
       (panel) => panel.id !== "campos_personalizados" || camposPersonalizadosCount > 0
     ),
-    layout: {
-      ...defaultLayout,
-      ...merged.layout,
-      principal: principalFields,
-      campos_personalizados: defaultLayout.campos_personalizados,
-    },
+    layout,
     hiddenFieldIds: (merged.hiddenFieldIds || []).filter(
       (id) => !["status", "codigo_empresa"].includes(id)
     ),
@@ -153,8 +170,18 @@ export const empFormLayoutStore = {
   resolvePresetConfig(presetId, defaultConfig) {
     const preset = this.getPreset(presetId);
     if (!preset) return pickLayoutConfig(defaultConfig);
-    if (preset.isSystem || !preset.config) return pickLayoutConfig(defaultConfig);
+    if (preset.isSystem || !preset.config) {
+      if (presetId === DEFAULT_PRESET_ID) {
+        const legacy = readLegacyConfig();
+        if (legacy) return pickLayoutConfig(legacy);
+      }
+      return pickLayoutConfig(defaultConfig);
+    }
     return pickLayoutConfig(preset.config);
+  },
+
+  resolveFactoryDefaultConfig(defaultConfig) {
+    return pickLayoutConfig(defaultConfig);
   },
 
   setActivePreset(presetId) {
@@ -169,7 +196,7 @@ export const empFormLayoutStore = {
     const state = ensureState();
     const source =
       sourcePresetId === DEFAULT_PRESET_ID
-        ? pickLayoutConfig(defaultConfig)
+        ? this.resolveFactoryDefaultConfig(defaultConfig)
         : this.resolvePresetConfig(sourcePresetId, defaultConfig);
     const now = new Date().toISOString();
     const preset = {
