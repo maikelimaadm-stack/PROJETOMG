@@ -930,7 +930,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-info-bar {
-  background: transparent !important;
+  background: var(--emp-toolbar-btn-bg) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-operation-label svg {
