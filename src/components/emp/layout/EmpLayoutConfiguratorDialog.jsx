@@ -269,16 +269,16 @@ export default function EmpLayoutConfiguratorDialog({
   const scrollPanels = (direction) =>
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
-  const fieldItemClass = (selected) =>
-    `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden border px-2 py-1.5 text-left transition-all focus-visible:outline-none ${
+  const fieldItemClass = (selected, readOnly = false) =>
+    `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden border px-2 py-1.5 text-left transition-colors focus-visible:outline-none ${
       selected ? "emp-layout-config-field-selected" : "emp-layout-config-field-default"
-    }`;
+    } ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
 
   const renderAvailableField = (field) => (
     <button
       key={field.id}
       type="button"
-      disabled={!isEditing}
+      aria-disabled={!isEditing}
       draggable={isEditing}
       onClick={(event) =>
         setSelectedAvailableIds((prev) =>
@@ -294,7 +294,7 @@ export default function EmpLayoutConfiguratorDialog({
         setSelectedAvailableIds([field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(selectedAvailableIds.includes(field.id))} w-full`}
+      className={`${fieldItemClass(selectedAvailableIds.includes(field.id), !isEditing)} w-full`}
     >
       {isCustomField(field) && <CustomMarker />}
       <div className="min-w-0">
@@ -309,7 +309,7 @@ export default function EmpLayoutConfiguratorDialog({
     <button
       key={field.id}
       type="button"
-      disabled={!isEditing}
+      aria-disabled={!isEditing}
       draggable={isEditing && !fixedVisibleFieldIds.includes(field.id)}
       onClick={(event) =>
         setSelectedPanelFieldIds((prev) =>
@@ -330,7 +330,7 @@ export default function EmpLayoutConfiguratorDialog({
       }}
       onDrop={() => setDraggedFieldId(null)}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(selectedPanelFieldIds.includes(field.id))} h-8 min-w-[210px]`}
+      className={`${fieldItemClass(selectedPanelFieldIds.includes(field.id), !isEditing)} h-8 min-w-[210px]`}
     >
       {isCustomField(field) && <CustomMarker />}
       <span className="truncate text-xs font-semibold">{field.label}</span>
@@ -350,7 +350,7 @@ export default function EmpLayoutConfiguratorDialog({
       )}
 
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b border-[#d6dce8] bg-white">
-        <div className="emp-toolbar flex h-auto items-center gap-1.5 overflow-x-auto whitespace-nowrap border-b border-sky-100 bg-white px-2 py-1.5">
+        <div className="emp-layout-config-toolbar emp-toolbar flex h-[35px] min-h-[35px] max-h-[35px] shrink-0 items-center gap-1.5 overflow-x-auto overflow-y-hidden whitespace-nowrap border-b border-sky-100 bg-white px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <ToolbarBtn onClick={() => onOpenChange(false)} title="Voltar">
             <EmpToolbarIcon icon={ChevronLeft} nav />
           </ToolbarBtn>
@@ -484,8 +484,12 @@ export default function EmpLayoutConfiguratorDialog({
                         onDragEnd={() => setDraggedPanelId(null)}
                         onClick={() => {
                           setActivePanelId(panel.id);
-                          setEditingPanelId(isEditing && !systemPanelIds.includes(panel.id) ? panel.id : null);
                           setSelectedPanelFieldIds([]);
+                        }}
+                        onDoubleClick={() => {
+                          if (isEditing && !systemPanelIds.includes(panel.id)) {
+                            setEditingPanelId(panel.id);
+                          }
                         }}
                         className={`emp-form-tab relative z-10 min-w-max flex-none overflow-hidden whitespace-nowrap ${
                           active ? "emp-form-tab-active" : "emp-form-tab-inactive"

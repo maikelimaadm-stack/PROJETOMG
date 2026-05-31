@@ -1093,10 +1093,52 @@ input[type="number"] {
   min-height: 0;
 }
 
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-toolbar {
+  box-sizing: border-box;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-shell {
   min-height: 0;
   gap: 16px;
   padding-top: 16px;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs {
+  flex-shrink: 0;
+  height: 28px;
+  min-height: 28px;
+  max-height: 28px;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-group,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-list {
+  height: 28px;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab {
+  outline: none !important;
+  box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab:focus,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab:focus-visible,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-active {
+  margin-bottom: -1px;
+  border-top-width: 2px !important;
+  border-left-width: 1px !important;
+  border-right-width: 1px !important;
+  border-bottom-width: 1px !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-inactive {
+  margin-bottom: 0;
+  border-width: 1px !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {
@@ -1125,7 +1167,7 @@ input[type="number"] {
   color: #334155;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default:hover:not(:disabled) {
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default:hover:not(.emp-layout-config-field-readonly) {
   background: #f8fafc;
   color: #1a1f26;
 }
@@ -1137,7 +1179,12 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field:disabled {
-  opacity: 0.65;
+  opacity: 1;
+  cursor: default;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-readonly {
+  pointer-events: none;
   cursor: default;
 }
 
