@@ -337,6 +337,7 @@ input[type="number"] {
   font-weight: 600;
   margin-bottom: -1px;
   z-index: 2;
+  border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive {
@@ -349,7 +350,7 @@ input[type="number"] {
   font-weight: 400;
   margin-bottom: 0;
   z-index: 0;
-  border-radius: var(--emp-control-radius) !important;
+  border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive:hover {
@@ -374,7 +375,7 @@ input[type="number"] {
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
   border-bottom-color: #d6dce8 !important;
-  border-radius: var(--emp-control-radius) !important;
+  border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive:hover {
@@ -1144,7 +1145,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-inactive {
   margin-bottom: 0;
   border-width: 1px !important;
-  border-radius: var(--emp-control-radius) !important;
+  border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {
@@ -1192,24 +1193,13 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-panel {
-  height: 28px;
-  min-height: 28px;
+  height: 32px;
+  min-height: 32px;
   padding-top: 0;
   padding-bottom: 0;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-readonly.emp-layout-config-field-panel {
-  height: 32px;
-  min-height: 32px;
-}
-
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available {
-  min-height: 32px;
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-readonly.emp-layout-config-field-available {
   min-height: 36px;
   padding-top: 8px;
   padding-bottom: 8px;
