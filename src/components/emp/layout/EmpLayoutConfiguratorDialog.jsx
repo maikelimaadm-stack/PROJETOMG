@@ -243,7 +243,10 @@ export default function EmpLayoutConfiguratorDialog({
       aggregationConfig: draftAggregationConfig,
       visibilityRules: draftVisibilityRules,
     });
-    onOpenChange(false);
+    setIsEditing(false);
+    setEditingPanelId(null);
+    setSelectedAvailableIds([]);
+    setSelectedPanelFieldIds([]);
   };
   const restoreDefault = () => {
     if (!defaultConfig) return;
