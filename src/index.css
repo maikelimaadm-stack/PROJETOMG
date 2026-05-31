@@ -1514,3 +1514,13 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-configurator .emp-toolbar-search {
   width: 100%;
 }
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-section .emp-table-shell {
+  box-shadow: none;
+}
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-th,
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-td {
+  font-size: 12px;
+  line-height: 1.2;
+}

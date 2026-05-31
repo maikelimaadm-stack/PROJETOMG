@@ -340,7 +340,7 @@ export default function FORMEMP({
       basePanels,
       defaultLayout,
       camposPersonalizadosCount: camposPersonalizadosForm.length,
-      mergeNewCustomFields: true,
+      mergeNewCustomFields: false,
     });
   }, [
     formLayoutConfig,

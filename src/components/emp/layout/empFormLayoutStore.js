@@ -150,6 +150,15 @@ export const normalizeLayoutConfig = (
   };
 };
 
+export function getLayoutPresetMetrics(config, defaultConfig = null) {
+  const source = config || defaultConfig || {};
+  const layout = source.layout || defaultConfig?.layout || {};
+  const panels = source.panels || defaultConfig?.panels || [];
+  const fieldCount = new Set(Object.values(layout).flat().filter(Boolean)).size;
+  const panelCount = panels.filter((panel) => !panel.hidden).length;
+  return { fieldCount, panelCount, layoutCount: panels.length };
+}
+
 export const empFormLayoutStore = {
   getState() {
     return ensureState();

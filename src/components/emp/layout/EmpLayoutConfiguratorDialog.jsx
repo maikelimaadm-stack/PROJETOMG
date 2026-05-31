@@ -896,6 +896,7 @@ export default function EmpLayoutConfiguratorDialog({
         presets={layoutPresets}
         activePresetId={activePresetId}
         currentConfig={buildCurrentConfig()}
+        defaultConfig={defaultConfig}
         onApplyPreset={onPresetApply}
         onCreatePreset={onCreateLayoutPreset}
         onDuplicatePreset={onDuplicateLayoutPreset}
