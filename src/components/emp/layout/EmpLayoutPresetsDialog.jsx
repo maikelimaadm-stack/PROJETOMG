@@ -290,6 +290,7 @@ export default function EmpLayoutPresetsDialog({
         sourceOptions={presets}
         onNameChange={setDraftName}
         onSourcePresetIdChange={setDraftSourcePresetId}
+        onClose={handleCancelar}
       />
     </>
   );

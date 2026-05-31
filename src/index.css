@@ -1525,7 +1525,8 @@ input[type="number"] {
   line-height: 1.2;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab,
+.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-tab {
   position: absolute;
   top: 0;
   right: 0;
@@ -1544,11 +1545,18 @@ input[type="number"] {
   padding: 0;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab:hover {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab:hover,
+.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-tab:hover {
   background: #fee2e2;
   color: #dc2626;
 }
 
-.cadastro-emp-scope .emp-layout-preset-form-popup {
-  border-radius: 0;
+.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-table-shell {
+  box-shadow: none;
+}
+
+.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-th,
+.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-td {
+  font-size: 12px;
+  line-height: 26px;
 }
