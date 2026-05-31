@@ -20,7 +20,7 @@ const REQUIRED_FIELDS = ["razao_social", "tipo_pessoa"];
 const FORM_LAYOUT_KEY = "cadastro_emp_form_layout_config";
 const TABLE_AGGREGATION_KEY = "emp_table_aggregation_config";
 
-const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1";
+const inputClass = "h-7 text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-2";
 
 const buildEmpty = () => ({
   codigo_empresa: "",
@@ -224,7 +224,7 @@ export default function FORMEMP({
 
   const dynamicFields = useMemo(() => [
     { id: "razao_social", name: "razao_social", label: "Razão Social", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "RAZÃO SOCIAL OU NOME COMPLETO" },
-    { id: "status", name: "status", label: "Ativa", type: "switch", compact: true, render: () => <div className="h-[22px] flex items-center px-1"><ToggleSwitch checked={formData.status !== "Inativa"} onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")} disabled={isReadOnly} /></div> },
+    { id: "status", name: "status", label: "Ativa", type: "switch", compact: true, render: () => <div className="h-7 flex items-center px-2"><ToggleSwitch variant="form" checked={formData.status !== "Inativa"} onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")} disabled={isReadOnly} /></div> },
     { id: "codigo_empresa", name: "codigo_empresa", label: "Código", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codigo_empresa || ""} readOnly className={`${inputClass} text-right bg-slate-50`} placeholder="AUTO" /> },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome Fantasia", type: "text", wide: true, uppercase: true, placeholder: "NOME FANTASIA" },
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "autocomplete", required: true, compact: true, errorKey: "tipo_pessoa", options: opcoesTipoPessoa, placeholder: "PF / PJ", displayField: "nome", searchFields: ["nome"] },
@@ -416,32 +416,30 @@ export default function FORMEMP({
           showSearch
         />
 
-        <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
-          <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
-            <div className="px-4 md:px-8 py-1 w-max min-w-[920px] max-w-none">
-              <EmpDynamicFormRenderer
-                panels={activeLayoutConfig.panels}
-                fields={dynamicFields}
-                layout={activeLayoutConfig.layout}
-                hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                activePanelId="principal"
-                values={formData}
-                errors={errors}
-                onChange={handleChange}
-                readOnly={isReadOnly}
-                fieldClassName="rounded-[1.5px]"
-              />
-            </div>
-          </fieldset>
-
+        <div className="flex-1 min-h-0 pb-6 form-scroll-container bg-[#f8fafc]">
           <LegacyTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-          <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
-            <div className="min-h-[360px] px-4 md:px-8 py-1">
-              <div className="w-max min-w-[920px] max-w-none space-y-1">
+          <div className="emp-form-panel mx-4 md:mx-8 border border-t-0 border-[#d6dce8] bg-white min-h-[360px]">
+            <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
+              <div className="px-6 py-5 w-max min-w-[920px] max-w-none">
+                {activeTab === "geral" && (
+                  <div className="mb-2.5">
+                    <EmpDynamicFormRenderer
+                      panels={activeLayoutConfig.panels}
+                      fields={dynamicFields}
+                      layout={activeLayoutConfig.layout}
+                      hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                      lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                      requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                      visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                      activePanelId="principal"
+                      values={formData}
+                      errors={errors}
+                      onChange={handleChange}
+                      readOnly={isReadOnly}
+                    />
+                  </div>
+                )}
                 <EmpDynamicFormRenderer
                   panels={tabs}
                   fields={dynamicFields}
@@ -455,11 +453,10 @@ export default function FORMEMP({
                   errors={errors}
                   onChange={handleChange}
                   readOnly={isReadOnly}
-                  fieldClassName="rounded-[1.5px]"
                 />
               </div>
-            </div>
-          </fieldset>
+            </fieldset>
+          </div>
         </div>
       </form>
     </div>
