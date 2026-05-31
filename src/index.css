@@ -298,30 +298,9 @@ input[type="number"] {
   right: 0;
   bottom: 0;
   height: 1px;
-  background: #c5ced8;
-  transform: scaleY(0.5);
-  transform-origin: bottom;
+  background: #b8c4d4;
   pointer-events: none;
   z-index: 1;
-}
-
-.cadastro-emp-scope .emp-form-tabs-launch::after {
-  background: #b8c4d4;
-  transform: scaleY(0.5);
-  transform-origin: bottom;
-}
-
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn {
-  background: #eaf2ff !important;
-  border-color: #c5ced8 !important;
-}
-
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive,
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab.emp-form-tab-inactive {
-  border-top: 1px solid #c5ced8 !important;
-  border-left-color: #c5ced8 !important;
-  border-right-color: #c5ced8 !important;
-  border-bottom: 1px solid #c5ced8 !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-list {
@@ -1152,11 +1131,6 @@ input[type="number"] {
   height: 32px;
   min-height: 32px;
   max-height: 32px;
-}
-
-.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs::after {
-  background: #b8c4d4;
-  transform: none;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-group,

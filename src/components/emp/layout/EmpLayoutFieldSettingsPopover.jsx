@@ -182,7 +182,6 @@ export default function EmpLayoutFieldSettingsPopover({
                   ))}
                 </SelectContent>
               </Select>
-              </span>
             </span>
           </div>
 
