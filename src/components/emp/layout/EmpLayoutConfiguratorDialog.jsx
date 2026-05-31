@@ -1,27 +1,25 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Check,
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  CornerUpLeft,
   EyeOff,
   Pencil,
   Plus,
+  Reply,
   RotateCcw,
   Search,
   Settings,
   Trash2,
   X,
 } from "lucide-react";
-import EmpConditionalVisibilityEditor from "./EmpConditionalVisibilityEditor";
+import EmpLayoutFieldSettingsPopover from "./EmpLayoutFieldSettingsPopover";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
-import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
 import {
   EMP_TOOLBAR_BTN,
@@ -32,12 +30,6 @@ import {
 const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = ["principal"];
 const DEFAULT_FIXED_VISIBLE_FIELD_IDS = ["status", "codigo_empresa"];
-const AGGREGATION_OPTIONS = [
-  { value: "sum", label: "Soma" },
-  { value: "avg", label: "Média" },
-  { value: "max", label: "Maior" },
-  { value: "min", label: "Menor" },
-];
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -74,7 +66,6 @@ export default function EmpLayoutConfiguratorDialog({
   visibilityRules = {},
   defaultConfig = null,
   onSave,
-  onOpenFieldConfig,
   inline = false,
   systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS,
   fixedPanelIds = DEFAULT_FIXED_PANEL_IDS,
@@ -97,6 +88,8 @@ export default function EmpLayoutConfiguratorDialog({
   const [editingPanelId, setEditingPanelId] = useState(null);
   const [requiredPopup, setRequiredPopup] = useState({ open: false, message: "" });
   const [fieldLastPanelId, setFieldLastPanelId] = useState({});
+  const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
+  const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
   const panelsScrollRef = useRef(null);
 
   React.useEffect(() => {
@@ -115,13 +108,14 @@ export default function EmpLayoutConfiguratorDialog({
     setIsEditing(false);
     setEditingPanelId(null);
     setFieldLastPanelId({});
+    setFieldSettingsTarget(null);
+    setFieldSettingsAnchor(null);
   }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, aggregationConfig, visibilityRules]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
   const panelFieldIds = draftLayout[activePanel?.id] || [];
   const panelFields = panelFieldIds.map((id) => fields.find((field) => field.id === id)).filter(Boolean);
-  const selectedField = fields.find((field) => field.id === selectedPanelFieldIds[0]) || null;
   const activePanelIsSystem = systemPanelIds.includes(activePanel?.id);
   const activePanelIsFixed = fixedPanelIds.includes(activePanel?.id);
   const availableFields = useMemo(
@@ -300,21 +294,27 @@ export default function EmpLayoutConfiguratorDialog({
   const scrollPanels = (direction) =>
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
-  const handleOpenFieldConfig = (field, event) => {
+  const openFieldSettings = (field, event) => {
     event?.stopPropagation?.();
-    if (!isCustomField(field)) {
-      return showRequiredPopup("Somente campos personalizados possuem configuração de campo.");
-    }
-    onOpenFieldConfig?.(field);
+    const chip = event?.currentTarget?.closest?.(".emp-layout-config-field");
+    const rect = chip?.getBoundingClientRect?.();
+    if (!rect) return;
+    setFieldSettingsTarget(field);
+    setFieldSettingsAnchor(rect);
+    if (usedFieldIds.has(field.id)) setSelectedPanelFieldIds([field.id]);
+    else setSelectedAvailableIds([field.id]);
+  };
+
+  const closeFieldSettings = () => {
+    setFieldSettingsTarget(null);
+    setFieldSettingsAnchor(null);
   };
 
   const fieldItemClass = (field, selected, readOnly = false) => {
     const required = isFieldRequired(field);
-    return `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden px-2 text-left transition-colors focus-visible:outline-none ${
+    return `emp-layout-config-field group relative flex items-center justify-between gap-2 overflow-hidden px-2.5 text-left transition-colors focus-visible:outline-none ${
       required ? "emp-layout-config-field-required" : "emp-layout-config-field-optional"
-    } ${selected ? "emp-layout-config-field-selected" : "emp-layout-config-field-default"} ${
-      readOnly ? "emp-layout-config-field-readonly" : ""
-    }`;
+    } ${selected ? "emp-layout-config-field-selected" : ""} ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
   };
 
   const renderFieldActions = ({ field, variant }) => {
@@ -323,7 +323,7 @@ export default function EmpLayoutConfiguratorDialog({
     const removeDisabled = !canEdit || fixedVisibleFieldIds.includes(field.id);
 
     return (
-      <span className="emp-layout-config-field-actions ml-1 flex shrink-0 items-center gap-0.5">
+      <span className="emp-layout-config-field-actions ml-1 flex shrink-0 items-center gap-1">
         {addAction ? (
           <button
             type="button"
@@ -335,7 +335,7 @@ export default function EmpLayoutConfiguratorDialog({
               addFieldById(field.id);
             }}
           >
-            <CornerUpLeft className="h-3.5 w-3.5" />
+            <Reply className="h-3.5 w-3.5" />
           </button>
         ) : (
           <button
@@ -354,9 +354,8 @@ export default function EmpLayoutConfiguratorDialog({
         <button
           type="button"
           className="emp-layout-config-field-action"
-          title="Configuração de campo"
-          disabled={!isCustomField(field)}
-          onClick={(event) => handleOpenFieldConfig(field, event)}
+          title="Configurações do campo"
+          onClick={(event) => openFieldSettings(field, event)}
         >
           <Settings className="h-3.5 w-3.5" />
         </button>
@@ -395,8 +394,8 @@ export default function EmpLayoutConfiguratorDialog({
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-semibold">{field.label}</div>
-        <div className="truncate text-[10px] text-slate-500">{getAvailableFieldOriginLabel(field.id)}</div>
+        <div className="truncate text-xs font-semibold text-white">{field.label}</div>
+        <div className="truncate text-[10px] text-white/80">{getAvailableFieldOriginLabel(field.id)}</div>
       </div>
       {renderFieldActions({ field, variant: "available" })}
     </div>
@@ -437,8 +436,8 @@ export default function EmpLayoutConfiguratorDialog({
       className={`${fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel min-w-[210px] cursor-pointer`}
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
-      <span className="min-w-0 flex-1 truncate text-xs font-semibold">{field.label}</span>
-      {draftHiddenFieldIds.includes(field.id) && <EyeOff className="h-3 w-3 shrink-0 opacity-90" />}
+      <span className="min-w-0 flex-1 truncate text-xs font-semibold text-white">{field.label}</span>
+      {draftHiddenFieldIds.includes(field.id) && <EyeOff className="h-3 w-3 shrink-0 text-white/90 opacity-0 transition-opacity group-hover:opacity-100" />}
       {renderFieldActions({ field, variant: "panel" })}
     </div>
   );
@@ -642,76 +641,34 @@ export default function EmpLayoutConfiguratorDialog({
                 </div>
               </div>
             </div>
-
-            <div className="emp-layout-config-footer flex h-10 shrink-0 items-center gap-3 border-t border-[#d6dce8] bg-[#f8fafc] px-2 py-2">
-              <label className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
-                <span>Oculto:</span>
-                <ToggleSwitch
-                  checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)}
-                  disabled={
-                    !selectedField ||
-                    !isEditing ||
-                    isFieldRequired(selectedField) ||
-                    fixedVisibleFieldIds.includes(selectedField.id)
-                  }
-                  onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)}
-                  className="emp-form-toggle-switch"
-                  checkedClassName="emp-form-toggle-switch-on"
-                />
-              </label>
-              <label className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
-                <span>Bloqueado:</span>
-                <ToggleSwitch
-                  checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)}
-                  disabled={!selectedField || !isEditing || isFieldRequired(selectedField)}
-                  onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)}
-                  className="emp-form-toggle-switch"
-                  checkedClassName="emp-form-toggle-switch-on"
-                />
-              </label>
-              <label className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
-                <span>Totalizar:</span>
-                <ToggleSwitch
-                  checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled}
-                  disabled={!selectedField || !selectedField?.totalizable || !isEditing}
-                  onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)}
-                  className="emp-form-toggle-switch"
-                  checkedClassName="emp-form-toggle-switch-on"
-                />
-              </label>
-              <EmpConditionalVisibilityEditor
-                selectedField={selectedField}
-                fields={fields}
-                visibilityRules={draftVisibilityRules}
-                onChange={setVisibilityRule}
-                disabled={!isEditing}
-              />
-              <Select
-                value={selectedField ? draftAggregationConfig[selectedField.id]?.type || "sum" : "sum"}
-                onValueChange={(value) =>
-                  selectedField &&
-                  setDraftAggregationConfig((prev) => ({
-                    ...prev,
-                    [selectedField.id]: { enabled: true, type: value },
-                  }))
-                }
-                disabled={!selectedField || !draftAggregationConfig[selectedField.id]?.enabled || !isEditing}
-              >
-                <SelectTrigger className="emp-layout-config-select h-6 w-28 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {AGGREGATION_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value} className="text-xs">
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
           </main>
         </div>
       </div>
+
+      <EmpLayoutFieldSettingsPopover
+        field={fieldSettingsTarget}
+        anchorRect={fieldSettingsAnchor}
+        open={!!fieldSettingsTarget}
+        onClose={closeFieldSettings}
+        isEditing={isEditing}
+        isFieldRequired={isFieldRequired}
+        fixedVisibleFieldIds={fixedVisibleFieldIds}
+        draftHiddenFieldIds={draftHiddenFieldIds}
+        draftLockedFieldIds={draftLockedFieldIds}
+        draftAggregationConfig={draftAggregationConfig}
+        draftVisibilityRules={draftVisibilityRules}
+        fields={fields}
+        onToggleHidden={(fieldId, checked) => toggleListValue(setDraftHiddenFieldIds, fieldId, checked)}
+        onToggleLocked={(fieldId, checked) => toggleListValue(setDraftLockedFieldIds, fieldId, checked)}
+        onToggleAggregation={setAggregationEnabled}
+        onAggregationTypeChange={(fieldId, value) =>
+          setDraftAggregationConfig((prev) => ({
+            ...prev,
+            [fieldId]: { enabled: true, type: value },
+          }))
+        }
+        onVisibilityRuleChange={setVisibilityRule}
+      />
 
       <TopNoticeDialog
         open={requiredPopup.open}
