@@ -25,10 +25,9 @@ const isRemoteAvailable = () => {
 
 const seedRemoteIfEmpty = async () => {
   let records = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
-  const templates = buildAllTestRecords();
   const seedVersion = localStorage.getItem(REMOTE_SEED_FLAG);
 
-  if (seedVersion === 'v2' && records.length >= EMP_SEED_TARGET_COUNT) {
+  if (seedVersion === 'v2') {
     return records;
   }
 
@@ -37,6 +36,7 @@ const seedRemoteIfEmpty = async () => {
     return records;
   }
 
+  const templates = buildAllTestRecords();
   const startAt = records.length;
   const toCreate = templates.slice(startAt, EMP_SEED_TARGET_COUNT);
 
@@ -115,12 +115,19 @@ const empRepository = {
   async delete(id) {
     if (await isRemoteAvailable()) {
       try {
-        return base44.entities.EmpresaCadastro.delete(id);
-      } catch {
-        return empLocalStore.delete(id);
+        await base44.entities.EmpresaCadastro.delete(id);
+        empLocalStore.delete(id);
+        return true;
+      } catch (error) {
+        if (empLocalStore.delete(id)) return true;
+        throw error;
       }
     }
-    return empLocalStore.delete(id);
+
+    if (!empLocalStore.delete(id)) {
+      throw new Error("Registro não encontrado");
+    }
+    return true;
   },
 
   async listCamposPersonalizados() {

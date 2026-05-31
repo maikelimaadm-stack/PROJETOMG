@@ -105,7 +105,11 @@ const empLocalStore = {
   },
 
   delete(id) {
-    writeAll(readAll().filter((item) => item.id !== id));
+    const records = readAll();
+    const next = records.filter((item) => item.id !== id);
+    if (next.length === records.length) return false;
+    writeAll(next);
+    return true;
   },
 
   seedIfEmpty() {
@@ -114,7 +118,7 @@ const empLocalStore = {
     let records = readAll();
     const seedVersion = localStorage.getItem(SEED_FLAG_KEY);
 
-    if (seedVersion === "v3" && records.length >= EMP_SEED_TARGET_COUNT) {
+    if (seedVersion === "v3") {
       const withValor = ensureValorOnRecords(records);
       if (withValor !== records) {
         writeAll(withValor);
@@ -133,15 +137,6 @@ const empLocalStore = {
     }
 
     records = ensureValorOnRecords(records);
-
-    if (records.length < EMP_SEED_TARGET_COUNT) {
-      const startAt = records.length;
-      const extras = templates.slice(startAt, EMP_SEED_TARGET_COUNT).map((record, offset) =>
-        toStoredRecord(record, startAt + offset)
-      );
-      records = [...records, ...extras];
-    }
-
     writeAll(records);
     localStorage.setItem(SEED_FLAG_KEY, "v3");
     return records;

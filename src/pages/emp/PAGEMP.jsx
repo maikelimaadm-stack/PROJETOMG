@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import SankhyaListToolbar from "@/components/emp/toolbars/EmpListToolbar";
 import { toast } from "sonner";
 import FORMEMP from "@/components/emp/FORMEMP";
@@ -239,13 +239,14 @@ export default function PAGEMP() {
       ? navListBeforeDelete.findIndex((item) => item.id === editingEmp.id)
       : -1;
 
-    let count = 0;
-    for (const id of ids) {
-      await deleteMutation.mutateAsync(id);
-      count++;
+    try {
+      for (const id of ids) {
+        await empRepository.delete(id);
+      }
+    } catch {
+      toast.error("Não foi possível excluir a empresa.");
+      return;
     }
-
-    if (count === 0) return;
 
     if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
       setAttachmentsRecord(null);
@@ -308,7 +309,7 @@ export default function PAGEMP() {
       }
     }
 
-    toast.success(count === 1 ? "Empresa excluída!" : `${count} empresas excluídas!`);
+    toast.success(ids.length === 1 ? "Empresa excluída!" : `${ids.length} empresas excluídas!`);
   };
 
   const handleExportPdf = () => {
