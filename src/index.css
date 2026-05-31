@@ -298,7 +298,9 @@ input[type="number"] {
   right: 0;
   bottom: 0;
   height: 1px;
-  background: #b8c4d4;
+  background: #c5ced8;
+  transform: scaleY(0.5);
+  transform-origin: bottom;
   pointer-events: none;
   z-index: 1;
 }
@@ -1131,6 +1133,11 @@ input[type="number"] {
   height: 32px;
   min-height: 32px;
   max-height: 32px;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs::after {
+  background: #b8c4d4;
+  transform: none;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-group,
