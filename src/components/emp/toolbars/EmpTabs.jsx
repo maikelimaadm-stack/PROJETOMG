@@ -27,7 +27,7 @@ export default function EmpTabs({
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   return (
-    <div className="emp-form-tabs emp-form-tabs-launch relative flex h-[30px] w-full min-w-0 items-end justify-start self-stretch bg-white pl-2 pr-2">
+    <div className="emp-form-tabs emp-form-tabs-launch relative flex h-[30px] items-end justify-start bg-white pl-2 pr-2">
       <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5">
         <button
           type="button"

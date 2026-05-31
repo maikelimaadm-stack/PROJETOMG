@@ -309,37 +309,6 @@ input[type="number"] {
   z-index: 1;
 }
 
-.cadastro-emp-scope .emp-form-tabs-launch {
-  width: 100%;
-  max-width: 100%;
-  align-self: stretch;
-  box-sizing: border-box;
-}
-
-.cadastro-emp-scope .emp-form-tabs-launch::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: #d6dce8;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.cadastro-emp-scope .emp-form-tabbed-panel {
-  width: 100%;
-  min-width: 0;
-  border: none;
-  background: transparent;
-}
-
-.cadastro-emp-scope .emp-form-tabbed-panel .emp-form-section-panel {
-  border: none;
-  background: #ffffff;
-}
-
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn {
   background: var(--emp-toolbar-btn-bg) !important;
   border-color: #c5ced8 !important;
@@ -435,8 +404,6 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-body {
   gap: 12px;
   padding-top: 14px;
-  width: 100%;
-  min-width: 0;
 }
 
 .cadastro-emp-scope .emp-form-section-principal,
