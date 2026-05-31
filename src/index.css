@@ -314,6 +314,20 @@ input[type="number"] {
   border-color: #c5ced8 !important;
 }
 
+/* Moldura lateral só a partir dos painéis (lançamento) */
+.cadastro-emp-scope .emp-form-panel-framed {
+  box-sizing: border-box;
+  border-left: 1px solid #d6dce8;
+  border-right: 1px solid #d6dce8;
+  background: #ffffff;
+}
+
+.cadastro-emp-scope .emp-form-panel-framed .emp-form-tabs-launch::after {
+  background: #d6dce8;
+  transform: none;
+  height: 1px;
+}
+
 .cadastro-emp-scope .emp-form-tab-list {
   gap: 4px;
 }
