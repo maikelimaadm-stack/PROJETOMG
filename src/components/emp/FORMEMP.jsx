@@ -487,10 +487,9 @@ export default function FORMEMP({
               </fieldset>
             </div>
 
-            <div className="emp-form-panel-framed ml-2 w-max min-w-[920px] max-w-none">
-              <LegacyTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+            <LegacyTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-              <div className="emp-form-section emp-form-section-panel min-h-[380px] pl-2 pr-4 pt-2">
+            <div className="emp-form-section emp-form-section-panel min-h-[380px] w-max min-w-[920px] max-w-none pl-2 pr-4">
               <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                 <EmpDynamicFormRenderer
                   panels={tabs}
@@ -507,7 +506,6 @@ export default function FORMEMP({
                   readOnly={isReadOnly}
                 />
               </fieldset>
-              </div>
             </div>
           </div>
         </div>
