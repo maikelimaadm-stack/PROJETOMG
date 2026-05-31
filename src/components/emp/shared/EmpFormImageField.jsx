@@ -16,8 +16,8 @@ export default function EmpFormImageField({
   return (
     <div className="emp-form-image-field relative h-full w-full">
       {hasImage ? (
-        <div className="flex h-full w-full items-center px-1.5">
-          <div className="emp-form-image-thumb relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#d1d5db] bg-white">
+        <div className="flex h-full w-full items-center justify-center px-1 py-1">
+          <div className="emp-form-image-thumb relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[8px] border border-[#d1d5db] bg-white">
             <img src={value} alt={alt} className="h-full w-full object-contain p-0.5" />
           </div>
         </div>

@@ -13,7 +13,7 @@ const isImageField = (field) => field?.type === "image" || field?.type === "file
 
 const getFieldControlClass = (field, error, className) => {
   if (isImageField(field)) {
-    return `emp-form-field-control emp-form-image-control relative h-8 min-h-8 w-full max-w-[248px] ${error ? "emp-form-field-error" : ""} ${className}`.trim();
+    return `emp-form-field-control emp-form-image-control relative h-12 min-h-12 w-44 max-w-full ${error ? "emp-form-field-error" : ""} ${className}`.trim();
   }
 
   const heightClass = field.wide ? "min-h-6" : "h-6";
