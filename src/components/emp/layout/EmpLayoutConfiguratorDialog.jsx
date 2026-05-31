@@ -355,8 +355,9 @@ export default function EmpLayoutConfiguratorDialog({
             <EmpToolbarIcon icon={ChevronLeft} nav />
           </ToolbarBtn>
           {!isEditing && (
-            <ToolbarBtn onClick={() => setIsEditing(true)} title="Editar layout">
+            <ToolbarBtn onClick={() => setIsEditing(true)} className={LABELED_BTN_CLASS} title="Editar layout">
               <EmpToolbarIcon icon={Pencil} />
+              <span>Editar</span>
             </ToolbarBtn>
           )}
           {isEditing && (
@@ -439,13 +440,14 @@ export default function EmpLayoutConfiguratorDialog({
 
           <main className="flex min-w-0 flex-col overflow-hidden bg-white">
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
-              <div className="emp-form-tabs emp-layout-config-tabs relative flex shrink-0 items-end justify-start bg-white pl-2 pr-2">
-                <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex shrink-0 items-center gap-1.5">
+              <div className="emp-form-tabs relative flex h-7 items-end justify-start bg-white pl-2 pr-2">
+                <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-7 shrink-0 items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => scrollPanels(-1)}
                     className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
                     title="Rolar painéis"
+                    aria-label="Rolar painéis para a esquerda"
                   >
                     <EmpToolbarIcon icon={ChevronLeft} nav />
                   </button>
@@ -454,13 +456,14 @@ export default function EmpLayoutConfiguratorDialog({
                     onClick={() => scrollPanels(1)}
                     className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
                     title="Rolar painéis"
+                    aria-label="Rolar painéis para a direita"
                   >
                     <EmpToolbarIcon icon={ChevronRight} nav />
                   </button>
                 </div>
                 <div
                   ref={panelsScrollRef}
-                  className="emp-form-tab-list flex min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                  className="emp-form-tab-list flex h-7 min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
                   {draftPanels.map((panel) => {
                     const active = activePanel?.id === panel.id;
@@ -515,9 +518,9 @@ export default function EmpLayoutConfiguratorDialog({
                 </div>
               </div>
 
-              <div className="emp-layout-config-panel-body min-h-0 flex-1 overflow-auto bg-white">
+              <div className="emp-form-section emp-form-section-panel emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
                 <div
-                  className="emp-layout-config-panel-fields flex min-h-[160px] flex-wrap content-start gap-2 p-3"
+                  className="emp-layout-config-panel-fields flex min-h-[160px] flex-wrap content-start gap-2"
                   onDragOver={(event) => event.preventDefault()}
                 >
                   {panelFields.length === 0 ? (

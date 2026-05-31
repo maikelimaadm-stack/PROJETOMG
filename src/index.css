@@ -1091,11 +1091,7 @@ input[type="number"] {
 /* Configurador de layout — alinhado ao formulário de registro */
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-shell {
   min-height: 0;
-}
-
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-tabs {
-  min-height: 29px;
-  flex-shrink: 0;
+  gap: 16px;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {
@@ -1103,6 +1099,8 @@ input[type="number"] {
   min-height: 0;
   overflow: auto;
   background: #ffffff;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-fields {
