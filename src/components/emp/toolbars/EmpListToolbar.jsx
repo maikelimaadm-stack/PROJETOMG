@@ -1,7 +1,8 @@
 import React from "react";
 import { Filter, List, Table, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Search, Paperclip, MoreHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_COUNTER, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/components/emp/toolbars/empToolbarStyles";
+import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/components/emp/toolbars/empToolbarStyles";
+import EmpBubbleCounter from "@/components/emp/shared/EmpBubbleCounter";
 import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
 import EmpToolbarInfoBar from "@/components/emp/toolbars/EmpToolbarInfoBar";
 
@@ -147,9 +148,17 @@ export default function EmpListToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <div className={EMP_TOOLBAR_COUNTER}>
-            {viewMode === "record" && total > 0 ? `${currentIndex + 1}/${total}` : selectedCount > 0 ? `${selectedCount}/${total}` : total}
-          </div>
+          <EmpBubbleCounter
+            value={
+              viewMode === "record" && total > 0
+                ? `${currentIndex + 1}/${total}`
+                : selectedCount > 0
+                  ? `${selectedCount}/${total}`
+                  : String(total)
+            }
+            title="Registros"
+            className="emp-toolbar-bubble-counter"
+          />
         </div>
       </div>
 

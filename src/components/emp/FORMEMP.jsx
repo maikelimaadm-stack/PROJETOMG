@@ -11,6 +11,8 @@ import LegacyTabs from "@/components/emp/toolbars/EmpTabs";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/components/emp/layout/EmpDynamicFormRenderer";
 import EmpLayoutConfiguratorDialog from "@/components/emp/layout/EmpLayoutConfiguratorDialog";
+import { countRequiredFormFields } from "@/components/emp/layout/empFormLayoutMetrics";
+import EmpBubbleCounter from "@/components/emp/shared/EmpBubbleCounter";
 import EmpOptionListControl from "@/components/emp/shared/EmpOptionListControl";
 import EmpFormImageField from "@/components/emp/shared/EmpFormImageField";
 import { base44 } from "@/api/base44Client";
@@ -328,6 +330,20 @@ export default function FORMEMP({
     return (activeLayoutConfig.layout?.[panel.id] || []).length > 0;
   });
 
+  const requiredFieldStats = useMemo(() => {
+    const panelIds = ["principal", ...tabs.map((panel) => panel.id)];
+    return countRequiredFormFields({
+      panelIds,
+      layout: activeLayoutConfig.layout,
+      fields: dynamicFields,
+      hiddenFieldIds: activeLayoutConfig.hiddenFieldIds || [],
+      requiredFieldIds: activeLayoutConfig.requiredFieldIds || [],
+      visibilityRules: activeLayoutConfig.visibilityRules || {},
+      values: formData,
+      nativeRequiredFieldNames: REQUIRED_FIELDS,
+    });
+  }, [tabs, activeLayoutConfig, dynamicFields, formData]);
+
   const saveLayoutConfig = (nextConfig) => {
     const normalized = {
       ...nextConfig,
@@ -487,7 +503,19 @@ export default function FORMEMP({
               </fieldset>
             </div>
 
-            <LegacyTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
+            <LegacyTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onChange={setActiveTab}
+              footer={
+                <div className="emp-form-tabs-counter-row">
+                  <EmpBubbleCounter
+                    value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
+                    title="Campos obrigatórios preenchidos"
+                  />
+                </div>
+              }
+            />
 
             <div className="emp-form-section emp-form-section-panel min-h-[380px] w-max min-w-[920px] max-w-none pl-2 pr-4">
               <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>

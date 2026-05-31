@@ -290,6 +290,61 @@ input[type="number"] {
   color: var(--emp-text-strong) !important;
 }
 
+.cadastro-emp-scope .emp-form-tabs-block {
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-tabs-footer {
+  position: relative;
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-form-tabs-counter-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 8px 2px;
+}
+
+.cadastro-emp-scope .emp-bubble-counter {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 22px;
+  padding: 0 8px;
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  color: #4b5563;
+}
+
+.cadastro-emp-scope .emp-bubble-counter__value {
+  position: relative;
+  z-index: 1;
+}
+
+.cadastro-emp-scope .emp-bubble-counter__tail {
+  position: absolute;
+  right: 12px;
+  bottom: -4px;
+  z-index: 0;
+  width: 7px;
+  height: 7px;
+  background: #ffffff;
+  border-right: 1px solid #d1d5db;
+  border-bottom: 1px solid #d1d5db;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.cadastro-emp-scope .emp-toolbar-bubble-counter {
+  margin-bottom: 4px;
+}
+
 /* Abas dos painéis — formulário de registro */
 .cadastro-emp-scope .emp-form-tabs {
   min-height: 30px;
