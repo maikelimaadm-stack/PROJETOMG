@@ -335,6 +335,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-nav-btn {
   margin-bottom: 0;
+  align-self: center;
 }
 
 .cadastro-emp-scope .emp-form-tab {

@@ -28,26 +28,15 @@ export default function EmpTabs({
 
   return (
     <div className="emp-form-tabs emp-form-tabs-launch relative flex h-[30px] items-end justify-start bg-white pl-2 pr-2">
-      <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5">
-        <button
-          type="button"
-          onClick={() => scrollPanels(-1)}
-          className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
-          title="Rolar painéis"
-          aria-label="Rolar painéis para a esquerda"
-        >
-          <EmpToolbarIcon icon={ChevronLeft} nav />
-        </button>
-        <button
-          type="button"
-          onClick={() => scrollPanels(1)}
-          className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
-          title="Rolar painéis"
-          aria-label="Rolar painéis para a direita"
-        >
-          <EmpToolbarIcon icon={ChevronRight} nav />
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => scrollPanels(-1)}
+        className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 mr-1.5 shrink-0`}
+        title="Rolar painéis"
+        aria-label="Rolar painéis para a esquerda"
+      >
+        <EmpToolbarIcon icon={ChevronLeft} nav />
+      </button>
       <div
         ref={panelsScrollRef}
         className="emp-form-tab-list flex h-[30px] min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -71,6 +60,15 @@ export default function EmpTabs({
           );
         })}
       </div>
+      <button
+        type="button"
+        onClick={() => scrollPanels(1)}
+        className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 ml-1.5 shrink-0`}
+        title="Rolar painéis"
+        aria-label="Rolar painéis para a direita"
+      >
+        <EmpToolbarIcon icon={ChevronRight} nav />
+      </button>
     </div>
   );
 }
