@@ -12,7 +12,6 @@ import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/components/emp/layout/EmpDynamicFormRenderer";
 import EmpLayoutConfiguratorDialog from "@/components/emp/layout/EmpLayoutConfiguratorDialog";
 import empFormLayoutStore, {
-  DEFAULT_PRESET_ID,
   normalizeLayoutConfig,
 } from "@/components/emp/layout/empFormLayoutStore";
 import { countRequiredFormFields } from "@/components/emp/layout/empFormLayoutMetrics";
@@ -409,15 +408,6 @@ export default function FORMEMP({
     applyLayoutConfig(config);
   };
 
-  const handleDuplicateLayoutPreset = ({ name, sourcePresetId }) => {
-    empFormLayoutStore.duplicatePreset(sourcePresetId, name, defaultConfigFull);
-    const config = empFormLayoutStore.resolvePresetConfig(
-      empFormLayoutStore.getActivePresetId(),
-      defaultConfigFull
-    );
-    applyLayoutConfig(config);
-  };
-
   const handleDeleteLayoutPreset = (presetId) => {
     empFormLayoutStore.deletePreset(presetId);
     const config = empFormLayoutStore.resolvePresetConfig(
@@ -427,20 +417,8 @@ export default function FORMEMP({
     applyLayoutConfig(config);
   };
 
-  const handleSaveLayoutPreset = (config) => {
-    const normalized = normalizeLayoutConfig(config, {
-      basePanels,
-      defaultLayout,
-      camposPersonalizadosCount: camposPersonalizadosForm.length,
-      mergeNewCustomFields: false,
-    });
-    const activeId = empFormLayoutStore.getActivePresetId();
-    if (activeId === DEFAULT_PRESET_ID) {
-      applyLayoutConfig(normalized, { updateActiveTab: false });
-      return;
-    }
-    empFormLayoutStore.updatePresetConfig(activeId, normalized);
-    setFormLayoutConfig(normalized);
+  const handleRenameLayoutPreset = ({ presetId, name }) => {
+    empFormLayoutStore.renamePreset(presetId, name);
     setLayoutPresetsState(empFormLayoutStore.getState());
   };
 
@@ -501,9 +479,8 @@ export default function FORMEMP({
           activePresetId={layoutPresetsState.activePresetId}
           onPresetApply={handleApplyLayoutPreset}
           onCreateLayoutPreset={handleCreateLayoutPreset}
-          onDuplicateLayoutPreset={handleDuplicateLayoutPreset}
+          onRenameLayoutPreset={handleRenameLayoutPreset}
           onDeleteLayoutPreset={handleDeleteLayoutPreset}
-          onSaveLayoutPreset={handleSaveLayoutPreset}
           systemPanelIds={["principal", "geral", "endereco", "observacoes", "campos_personalizados"]}
           fixedPanelIds={["principal"]}
           fixedVisibleFieldIds={["status", "codigo_empresa"]}

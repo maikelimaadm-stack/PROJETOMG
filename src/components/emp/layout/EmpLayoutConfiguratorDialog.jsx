@@ -78,9 +78,8 @@ export default function EmpLayoutConfiguratorDialog({
   activePresetId = "",
   onPresetApply,
   onCreateLayoutPreset,
-  onDuplicateLayoutPreset,
+  onRenameLayoutPreset,
   onDeleteLayoutPreset,
-  onSaveLayoutPreset,
   systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS,
   fixedPanelIds = DEFAULT_FIXED_PANEL_IDS,
   fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS,
@@ -910,13 +909,11 @@ export default function EmpLayoutConfiguratorDialog({
         onOpenChange={setPresetsDialogOpen}
         presets={layoutPresets}
         activePresetId={activePresetId}
-        currentConfig={buildCurrentConfig()}
         defaultConfig={defaultConfig}
         onApplyPreset={onPresetApply}
         onCreatePreset={onCreateLayoutPreset}
-        onDuplicatePreset={onDuplicateLayoutPreset}
+        onRenamePreset={onRenameLayoutPreset}
         onDeletePreset={onDeleteLayoutPreset}
-        onSaveCurrentPreset={onSaveLayoutPreset}
       />
 
       <TopNoticeDialog

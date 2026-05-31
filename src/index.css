@@ -1524,3 +1524,31 @@ input[type="number"] {
   font-size: 12px;
   line-height: 1.2;
 }
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 30;
+  display: inline-flex;
+  height: 28px;
+  width: 28px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-left: 0.5px solid #c5ced8;
+  border-bottom: 0.5px solid #c5ced8;
+  background: #f8fafc;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0;
+}
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.cadastro-emp-scope .emp-layout-preset-form-popup {
+  border-radius: 0;
+}
