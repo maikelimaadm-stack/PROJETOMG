@@ -1227,6 +1227,11 @@ input[type="number"] {
   color: #1a1f26;
 }
 
+.cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-config-aggregation-select {
+  min-width: 0;
+  max-width: 92px;
+}
+
 .cadastro-emp-scope .emp-layout-field-settings-popover [data-radix-select-viewport] {
   max-height: 220px;
 }

@@ -156,33 +156,34 @@ export default function EmpLayoutFieldSettingsPopover({
               disabled={!isEditing || nativeRequired}
               onChange={(checked) => onToggleRequired?.(field.id, checked)}
             />
-            <ToggleInline
-              label="Totalizar"
-              checked={!!draftAggregationConfig[field.id]?.enabled}
-              disabled={!isEditing || !field?.totalizable}
-              onChange={(checked) => onToggleAggregation?.(field.id, checked)}
-            />
+            <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-[12px] text-[#1a1f26]">
+              <span>Totalizar:</span>
+              <ToggleSwitch
+                checked={!!draftAggregationConfig[field.id]?.enabled}
+                disabled={!isEditing || !field?.totalizable}
+                onChange={(checked) => onToggleAggregation?.(field.id, checked)}
+                className="emp-form-toggle-switch shrink-0"
+                checkedClassName="emp-form-toggle-switch-on"
+              />
+              <Select
+                value={draftAggregationConfig[field.id]?.type || "sum"}
+                onValueChange={(value) => onAggregationTypeChange?.(field.id, value)}
+                disabled={!isEditing || !draftAggregationConfig[field.id]?.enabled}
+                onOpenChange={trackSelectOpenChange}
+              >
+                <SelectTrigger className="emp-layout-config-select emp-layout-config-aggregation-select h-7 w-[92px] shrink-0 px-2 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent portalled={false} className="z-[250]">
+                  {AGGREGATION_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="text-xs">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </span>
           </div>
-
-          <FormRow label="Totalização:">
-            <Select
-              value={draftAggregationConfig[field.id]?.type || "sum"}
-              onValueChange={(value) => onAggregationTypeChange?.(field.id, value)}
-              disabled={!isEditing || !draftAggregationConfig[field.id]?.enabled}
-              onOpenChange={trackSelectOpenChange}
-            >
-              <SelectTrigger className="emp-layout-config-select h-7 w-full max-w-[220px] text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent portalled={false} className="z-[250]">
-                {AGGREGATION_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value} className="text-xs">
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </FormRow>
 
           <FormRow label="Valor padrão:">
             <EmpLayoutFieldDefaultValueEditor
