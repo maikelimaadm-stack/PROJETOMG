@@ -13,6 +13,7 @@ import EmpDynamicFormRenderer from "@/components/emp/layout/EmpDynamicFormRender
 import EmpLayoutConfiguratorDialog from "@/components/emp/layout/EmpLayoutConfiguratorDialog";
 import EmpOptionListControl from "@/components/emp/shared/EmpOptionListControl";
 import EmpFormImageField from "@/components/emp/shared/EmpFormImageField";
+import { EMP_FORM_DEMO_IMAGE_URL } from "@/components/emp/shared/empFormImageAssets";
 import { base44 } from "@/api/base44Client";
 
 const ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
@@ -33,7 +34,7 @@ const buildEmpty = () => ({
   telefone: "",
   whatsapp: "",
   email: "",
-  logo_url: "",
+  logo_url: EMP_FORM_DEMO_IMAGE_URL,
   cep: "",
   endereco: "",
   numero: "",

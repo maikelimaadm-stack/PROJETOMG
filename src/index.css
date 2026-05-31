@@ -459,11 +459,15 @@ input[type="number"] {
   background: #21c45d !important;
 }
 
-.cadastro-emp-scope .emp-form-image-field {
-  min-height: 22px;
+.cadastro-emp-scope .emp-form-image-control {
+  padding: 0;
 }
 
-.cadastro-emp-scope .emp-form-image-field img {
+.cadastro-emp-scope .emp-form-image-field {
+  min-height: 46px;
+}
+
+.cadastro-emp-scope .emp-form-image-thumb img {
   pointer-events: none;
 }
 
