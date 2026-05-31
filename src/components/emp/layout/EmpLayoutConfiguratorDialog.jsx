@@ -599,25 +599,16 @@ export default function EmpLayoutConfiguratorDialog({
                       <EmpToolbarIcon icon={activePanel?.hidden ? EyeOff : Eye} />
                     </ToolbarBtn>
                   )}
-                  <button
-                    type="button"
-                    onClick={() => scrollPanels(-1)}
-                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
-                    title="Rolar painéis"
-                    aria-label="Rolar painéis para a esquerda"
-                  >
-                    <EmpToolbarIcon icon={ChevronLeft} nav />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => scrollPanels(1)}
-                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
-                    title="Rolar painéis"
-                    aria-label="Rolar painéis para a direita"
-                  >
-                    <EmpToolbarIcon icon={ChevronRight} nav />
-                  </button>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => scrollPanels(-1)}
+                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 mr-1.5 shrink-0`}
+                  title="Rolar painéis"
+                  aria-label="Rolar painéis para a esquerda"
+                >
+                  <EmpToolbarIcon icon={ChevronLeft} nav />
+                </button>
                 <div
                   ref={panelsScrollRef}
                   className="emp-form-tab-list flex h-[30px] min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -677,6 +668,15 @@ export default function EmpLayoutConfiguratorDialog({
                     );
                   })}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => scrollPanels(1)}
+                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 ml-1.5 shrink-0`}
+                  title="Rolar painéis"
+                  aria-label="Rolar painéis para a direita"
+                >
+                  <EmpToolbarIcon icon={ChevronRight} nav />
+                </button>
               </div>
 
               <div className="emp-form-section emp-form-section-panel emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
