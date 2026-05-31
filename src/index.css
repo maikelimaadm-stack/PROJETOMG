@@ -858,7 +858,12 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-info-bar {
-  background: #eaf2ff !important;
+  background: transparent !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-operation-label svg {
+  color: #5b6b80 !important;
+  stroke: #5b6b80 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn,
