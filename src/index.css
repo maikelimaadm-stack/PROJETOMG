@@ -298,9 +298,7 @@ input[type="number"] {
   right: 0;
   bottom: 0;
   height: 1px;
-  background: #d6dce8;
-  transform: scaleY(0.5);
-  transform-origin: bottom;
+  background: #b8c4d4;
   pointer-events: none;
   z-index: 1;
 }
