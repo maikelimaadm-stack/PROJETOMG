@@ -109,7 +109,7 @@ export default function EmpDynamicFormRenderer({ panels = [], fields = [], layou
   if (!activePanel) return null;
 
   return (
-    <div className="emp-form-fields space-y-1">
+    <div className="emp-form-fields">
       {visibleFields.length === 0 ? <div className="ml-[172px] text-xs text-slate-500">Nenhum campo configurado para este painel.</div> : visibleFields.map((field) => {
         const value = field.getValue ? field.getValue(values, context) : values[field.name];
         const error = errors[field.errorKey || field.name];

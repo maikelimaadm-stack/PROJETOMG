@@ -437,8 +437,8 @@ export default function FORMEMP({
 
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <div className="emp-form-body flex flex-col">
-            <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
-              <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
+            <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
+              <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                 <EmpDynamicFormRenderer
                   panels={activeLayoutConfig.panels}
                   fields={dynamicFields}
@@ -453,13 +453,13 @@ export default function FORMEMP({
                   onChange={handleChange}
                   readOnly={isReadOnly}
                 />
-              </div>
-            </fieldset>
+              </fieldset>
+            </div>
 
             <LegacyTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
-            <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
-              <div className="emp-form-section emp-form-section-panel min-h-[360px] w-max min-w-[920px] max-w-none pl-2 pr-4">
+            <div className="emp-form-section emp-form-section-panel min-h-[360px] w-max min-w-[920px] max-w-none pl-2 pr-4">
+              <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                 <EmpDynamicFormRenderer
                   panels={tabs}
                   fields={dynamicFields}
@@ -474,8 +474,8 @@ export default function FORMEMP({
                   onChange={handleChange}
                   readOnly={isReadOnly}
                 />
-              </div>
-            </fieldset>
+              </fieldset>
+            </div>
           </div>
         </div>
       </form>

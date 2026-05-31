@@ -384,14 +384,24 @@ input[type="number"] {
   padding-top: 16px;
 }
 
-.cadastro-emp-scope .emp-form-section-principal {
+.cadastro-emp-scope .emp-form-section-principal,
+.cadastro-emp-scope .emp-form-section-panel {
   padding-top: 0;
   padding-bottom: 0;
 }
 
-.cadastro-emp-scope .emp-form-section-panel {
-  padding-top: 0;
-  padding-bottom: 0;
+.cadastro-emp-scope .emp-form-fieldset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.cadastro-emp-scope .emp-form-section-principal .emp-form-fields,
+.cadastro-emp-scope .emp-form-section-panel .emp-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .cadastro-emp-scope .emp-form-fields [data-field] label {

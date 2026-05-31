@@ -68,23 +68,25 @@ export default function PAGEMP() {
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = false;
 
-  const goToTableAfterSave = useCallback(async (savedId) => {
+  const stayOnRecordAfterSave = useCallback(async (savedId) => {
     setReturnRecordAfterNew(null);
-    setShowForm(false);
-    setEditingEmp(null);
-    setViewMode("table");
 
     await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
 
-    if (!savedId) return;
+    if (savedId) {
+      const list = await queryClient.fetchQuery({
+        queryKey: ["emp-cadastro"],
+        queryFn: () => empRepository.list()
+      });
+      const saved = list.find((item) => item.id === savedId);
+      const index = list.findIndex((item) => item.id === savedId);
+      if (index >= 0) setSelectedIndex(index);
+      setSelectedTableItems([savedId]);
+      if (saved) setEditingEmp(saved);
+    }
 
-    const list = await queryClient.fetchQuery({
-      queryKey: ["emp-cadastro"],
-      queryFn: () => empRepository.list()
-    });
-    const index = list.findIndex((item) => item.id === savedId);
-    if (index >= 0) setSelectedIndex(index);
-    setSelectedTableItems([savedId]);
+    setShowForm(true);
+    setViewMode("record");
   }, [queryClient]);
 
   const deleteMutation = useMutation({ mutationFn: (id) => empRepository.delete(id) });
@@ -106,12 +108,12 @@ export default function PAGEMP() {
         toast.success("Empresa cadastrada!");
       }
 
-      await goToTableAfterSave(savedId);
+      await stayOnRecordAfterSave(savedId);
       setFormVersion((version) => version + 1);
     } catch {
       toast.error(isUpdate ? "Não foi possível atualizar a empresa." : "Não foi possível cadastrar a empresa.");
     }
-  }, [editingEmp, goToTableAfterSave]);
+  }, [editingEmp, stayOnRecordAfterSave]);
 
   const handleEdit = (emp) => {
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
