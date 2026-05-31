@@ -464,7 +464,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-image-field {
-  min-height: 46px;
+  min-height: 30px;
 }
 
 .cadastro-emp-scope .emp-form-image-thumb img {
