@@ -582,8 +582,8 @@ export default function EmpLayoutConfiguratorDialog({
 
           <main className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white">
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
-              <div className="emp-form-tabs relative flex h-8 items-end justify-start bg-white pl-2 pr-2">
-                <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-8 shrink-0 items-center gap-1.5">
+              <div className="emp-form-tabs relative flex h-7 items-end justify-start bg-white pl-2 pr-2">
+                <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-7 shrink-0 items-center gap-1.5">
                   <button
                     type="button"
                     onClick={() => scrollPanels(-1)}
@@ -605,7 +605,7 @@ export default function EmpLayoutConfiguratorDialog({
                 </div>
                 <div
                   ref={panelsScrollRef}
-                  className="emp-form-tab-list flex h-8 min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                  className="emp-form-tab-list flex h-7 min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                 >
                   {draftPanels.map((panel) => {
                     const active = activePanel?.id === panel.id;
