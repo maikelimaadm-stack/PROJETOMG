@@ -1,6 +1,8 @@
 import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
+import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
 export const EMP_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 
@@ -25,25 +27,25 @@ export default function EmpTabs({
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   return (
-    <div className="emp-form-tabs relative flex items-end bg-white px-4 md:px-8">
-      <div className="emp-form-tab-nav-group relative z-20 mb-px mr-2 flex shrink-0 items-center gap-1">
+    <div className="emp-form-tabs relative flex items-end justify-start bg-white pl-2 pr-2">
+      <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex shrink-0 items-end gap-1.5">
         <button
           type="button"
           onClick={() => scrollPanels(-1)}
-          className="emp-form-tab-nav-btn"
+          className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
           title="Rolar painéis"
           aria-label="Rolar painéis para a esquerda"
         >
-          <ChevronLeft className="h-3 w-3" strokeWidth={2.25} />
+          <EmpToolbarIcon icon={ChevronLeft} nav />
         </button>
         <button
           type="button"
           onClick={() => scrollPanels(1)}
-          className="emp-form-tab-nav-btn"
+          className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
           title="Rolar painéis"
           aria-label="Rolar painéis para a direita"
         >
-          <ChevronRight className="h-3 w-3" strokeWidth={2.25} />
+          <EmpToolbarIcon icon={ChevronRight} nav />
         </button>
       </div>
       <div
