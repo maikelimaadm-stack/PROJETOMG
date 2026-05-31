@@ -216,9 +216,16 @@ export default function EmpLayoutConfiguratorDialog({
   const addFieldById = (fieldId) => {
     if (!fieldId || !activePanel || !isEditing) return;
     setDraftLayout((prev) => {
-      const current = prev[activePanel.id] || [];
+      const next = { ...prev };
+      Object.keys(next).forEach((panelId) => {
+        if (panelId !== activePanel.id) {
+          next[panelId] = (next[panelId] || []).filter((id) => id !== fieldId);
+        }
+      });
+      const current = next[activePanel.id] || [];
       if (current.includes(fieldId)) return prev;
-      return { ...prev, [activePanel.id]: [...current, fieldId] };
+      next[activePanel.id] = [...current, fieldId];
+      return next;
     });
     setSelectedAvailableIds((prev) => prev.filter((id) => id !== fieldId));
     setSelectedPanelFieldIds([fieldId]);
@@ -226,13 +233,21 @@ export default function EmpLayoutConfiguratorDialog({
   const addAllFields = () => {
     if (!activePanel) return;
     const ids = availableFields.map((field) => field.id);
-    setDraftLayout((prev) => ({
-      ...prev,
-      [activePanel.id]: [
-        ...(prev[activePanel.id] || []),
-        ...ids.filter((id) => !(prev[activePanel.id] || []).includes(id)),
-      ],
-    }));
+    setDraftLayout((prev) => {
+      const next = { ...prev };
+      ids.forEach((fieldId) => {
+        Object.keys(next).forEach((panelId) => {
+          if (panelId !== activePanel.id) {
+            next[panelId] = (next[panelId] || []).filter((id) => id !== fieldId);
+          }
+        });
+      });
+      next[activePanel.id] = [
+        ...(next[activePanel.id] || []),
+        ...ids.filter((id) => !(next[activePanel.id] || []).includes(id)),
+      ];
+      return next;
+    });
     setSelectedAvailableIds([]);
   };
   const removeFieldById = (fieldId) => {

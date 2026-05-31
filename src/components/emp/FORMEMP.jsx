@@ -377,6 +377,7 @@ export default function FORMEMP({
       basePanels,
       defaultLayout,
       camposPersonalizadosCount: camposPersonalizadosForm.length,
+      mergeNewCustomFields: false,
     });
     setFormLayoutConfig(normalized);
     localStorage.setItem(FORM_LAYOUT_KEY, JSON.stringify(normalized));
@@ -431,6 +432,7 @@ export default function FORMEMP({
       basePanels,
       defaultLayout,
       camposPersonalizadosCount: camposPersonalizadosForm.length,
+      mergeNewCustomFields: false,
     });
     const activeId = empFormLayoutStore.getActivePresetId();
     if (activeId === DEFAULT_PRESET_ID) {

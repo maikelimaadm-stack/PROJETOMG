@@ -88,6 +88,21 @@ export const pickLayoutConfig = (source = {}) => {
   return next;
 };
 
+export const sanitizeLayoutFieldPlacements = (layout = {}) => {
+  const seen = new Set();
+  const next = {};
+  Object.entries(layout || {}).forEach(([panelId, fieldIds]) => {
+    const unique = [];
+    (fieldIds || []).forEach((fieldId) => {
+      if (!fieldId || seen.has(fieldId)) return;
+      seen.add(fieldId);
+      unique.push(fieldId);
+    });
+    next[panelId] = unique;
+  });
+  return next;
+};
+
 export const mergeNewCustomFieldsIntoLayout = (layout = {}, defaultLayout = {}) => {
   const nextLayout = { ...layout };
   const usedFieldIds = new Set(Object.values(nextLayout).flat());
@@ -129,12 +144,13 @@ export const normalizeLayoutConfig = (
     ...basePanels.filter((basePanel) => !panelsSource.some((panel) => panel.id === basePanel.id)),
   ];
 
-  let layout = { ...(merged.layout || {}) };
+  let layout = sanitizeLayoutFieldPlacements(merged.layout || {});
   if (!layout.principal?.length) {
     layout.principal = defaultLayout.principal;
   }
   if (mergeNewCustomFields && camposPersonalizadosCount > 0) {
     layout = mergeNewCustomFieldsIntoLayout(layout, defaultLayout);
+    layout = sanitizeLayoutFieldPlacements(layout);
   }
 
   return {

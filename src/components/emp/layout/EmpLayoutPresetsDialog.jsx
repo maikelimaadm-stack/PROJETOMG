@@ -93,7 +93,7 @@ export default function EmpLayoutPresetsDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] gap-0 overflow-hidden rounded-none border border-[#cfd8e3] p-0">
+      <DialogContent className="cadastro-emp-scope emp-layout-presets-dialog max-w-[920px] gap-0 overflow-hidden rounded-none border border-[#cfd8e3] p-0 [&>button:last-child]:hidden">
         <DialogTitle className="sr-only">Layouts personalizados</DialogTitle>
 
         <div className="emp-toolbar relative flex items-center gap-1.5 border-b border-sky-100 bg-white px-2 py-1.5">
