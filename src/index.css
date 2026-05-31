@@ -1515,49 +1515,36 @@ input[type="number"] {
   width: 100%;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon,
-.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-icon {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 1px;
+  right: 1px;
   z-index: 30;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 14px;
+  height: 14px;
   margin: 0;
   border: none;
   background: transparent;
-  color: #64748b;
+  color: #475569;
   cursor: pointer;
   padding: 0;
+  line-height: 0;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover,
-.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-icon:hover {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover {
   color: #dc2626;
   background: transparent;
 }
 
-.cadastro-emp-scope .emp-layout-presets-icon-action:focus-visible {
-  outline: none;
-  color: #1a1f26;
-}
-
-.cadastro-emp-scope .emp-layout-preset-form-layer {
-  pointer-events: auto;
-}
-
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-table-shell,
-.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-table-shell {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-table-shell {
   box-shadow: none;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-th,
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-td,
-.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-th,
-.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-td {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-td {
   font-size: 12px;
   line-height: 26px;
 }

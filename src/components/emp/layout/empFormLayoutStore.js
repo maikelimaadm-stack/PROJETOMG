@@ -88,6 +88,31 @@ export const pickLayoutConfig = (source = {}) => {
   return next;
 };
 
+export const createEmptyLayoutConfig = (defaultConfig = {}) => {
+  const panels = cloneValue(defaultConfig.panels || []);
+  const layout = {};
+  panels.forEach((panel) => {
+    if (panel.id === "principal") {
+      layout.principal = cloneValue(
+        defaultConfig.layout?.principal || ["razao_social", "status", "codigo_empresa"]
+      );
+    } else {
+      layout[panel.id] = [];
+    }
+  });
+  return pickLayoutConfig({
+    panels,
+    layout,
+    hiddenFieldIds: [],
+    lockedFieldIds: [],
+    requiredFieldIds: [],
+    clearOnDuplicateFieldIds: [],
+    fieldDefaultValues: {},
+    aggregationConfig: {},
+    visibilityRules: {},
+  });
+};
+
 export const sanitizeLayoutFieldPlacements = (layout = {}) => {
   const seen = new Set();
   const next = {};
@@ -219,8 +244,10 @@ export const empFormLayoutStore = {
 
   createPreset({ name, sourcePresetId, defaultConfig }) {
     const state = ensureState();
-    const source =
-      sourcePresetId === DEFAULT_PRESET_ID
+    const hasSource = sourcePresetId && sourcePresetId !== "__empty__";
+    const source = !hasSource
+      ? createEmptyLayoutConfig(defaultConfig)
+      : sourcePresetId === DEFAULT_PRESET_ID
         ? this.resolveFactoryDefaultConfig(defaultConfig)
         : this.resolvePresetConfig(sourcePresetId, defaultConfig);
     const now = new Date().toISOString();
@@ -228,6 +255,7 @@ export const empFormLayoutStore = {
       id: `layout_${Date.now()}`,
       name: String(name || "Novo layout").trim() || "Novo layout",
       isSystem: false,
+      sourcePresetId: hasSource ? sourcePresetId : null,
       config: source,
       createdAt: now,
       updatedAt: now,
