@@ -79,7 +79,7 @@ export default function FORMEMP({
 }) {
   const isDuplicating = !!initialData?._isDuplicate;
   const [errors, setErrors] = useState({});
-  const [activeTab, setActiveTab] = useState("principal");
+  const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -321,7 +321,8 @@ export default function FORMEMP({
     };
   })();
 
-  const formPanels = activeLayoutConfig.panels.filter((panel) => {
+  const tabs = activeLayoutConfig.panels.filter((panel) => {
+    if (panel.id === "principal") return false;
     if (panel.hidden) return false;
     if (panel.id === "campos_personalizados" && camposPersonalizadosForm.length === 0) return false;
     return (activeLayoutConfig.layout?.[panel.id] || []).length > 0;
@@ -339,12 +340,8 @@ export default function FORMEMP({
     localStorage.setItem(FORM_LAYOUT_KEY, JSON.stringify(normalized));
     localStorage.setItem(TABLE_AGGREGATION_KEY, JSON.stringify(normalized.aggregationConfig || {}));
     window.dispatchEvent(new Event("emp-layout-updated"));
-    const visiblePanels = normalized.panels.filter((panel) => {
-      if (panel.hidden) return false;
-      if (panel.id === "campos_personalizados" && camposPersonalizadosForm.length === 0) return false;
-      return (normalized.layout?.[panel.id] || []).length > 0;
-    });
-    if (!visiblePanels.some((panel) => panel.id === activeTab)) setActiveTab(visiblePanels[0]?.id || "principal");
+    const visiblePanels = normalized.panels.filter((panel) => !panel.hidden && panel.id !== "principal");
+    if (!visiblePanels.some((panel) => panel.id === activeTab)) setActiveTab(visiblePanels[0]?.id || "geral");
   };
 
   const validateForm = () => {
@@ -471,12 +468,31 @@ export default function FORMEMP({
 
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <div className="emp-form-body flex flex-col">
-            <LegacyTabs tabs={formPanels} activeTab={activeTab} onChange={setActiveTab} />
+            <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
+              <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+                <EmpDynamicFormRenderer
+                  panels={activeLayoutConfig.panels}
+                  fields={dynamicFields}
+                  layout={activeLayoutConfig.layout}
+                  hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                  lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                  requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                  visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                  activePanelId="principal"
+                  values={formData}
+                  errors={errors}
+                  onChange={handleChange}
+                  readOnly={isReadOnly}
+                />
+              </fieldset>
+            </div>
+
+            <LegacyTabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
 
             <div className="emp-form-section emp-form-section-panel min-h-[360px] w-max min-w-[920px] max-w-none pl-2 pr-4">
               <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                 <EmpDynamicFormRenderer
-                  panels={formPanels}
+                  panels={tabs}
                   fields={dynamicFields}
                   layout={activeLayoutConfig.layout}
                   hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
