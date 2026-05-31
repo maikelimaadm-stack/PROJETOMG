@@ -772,7 +772,7 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
         ref={tableStageRef}
         className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
       >
-      <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#eef1f4] bg-white shadow-none">
+      <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
         <CardContent className="h-full min-h-0 p-0 overflow-hidden flex flex-col">
           <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
             <div

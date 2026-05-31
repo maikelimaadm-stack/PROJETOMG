@@ -281,7 +281,7 @@ export default function FORMEMP({
     { id: "telefone", name: "telefone", label: "Telefone", type: "text", compact: true, placeholder: "(00) 0000-0000" },
     { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "text", compact: true, placeholder: "(00) 00000-0000" },
     { id: "email", name: "email", label: "E-mail", type: "text", placeholder: "EMAIL@EMPRESA.COM.BR" },
-    { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "image", compact: true, render: () => <EmpFormImageField value={formData.logo_url} readOnly={isReadOnly} uploading={uploadingLogo} onUpload={handleLogoUpload} onClear={() => handleChange("logo_url", "")} alt="Logo da empresa" /> },
+    { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "image", compact: true, render: () => <EmpFormImageField value={formData.logo_url} readOnly={isReadOnly} uploading={uploadingLogo} onUpload={handleLogoUpload} onClear={() => handleChange("logo_url", "")} alt="Logo da empresa" emptyLabel="Nenhuma Imagem" /> },
     { id: "cep", name: "cep", label: "CEP", type: "text", compact: true, placeholder: "00000-000" },
     { id: "endereco", name: "endereco", label: "Endereço", type: "text", wide: true, uppercase: true, placeholder: "RUA, AVENIDA..." },
     { id: "numero", name: "numero", label: "Número", type: "text", compact: true, placeholder: "Nº" },

@@ -13,7 +13,7 @@ const isImageField = (field) => field?.type === "image" || field?.type === "file
 
 const getFieldControlClass = (field, error, className) => {
   if (isImageField(field)) {
-    return `emp-form-field-control emp-form-image-control relative h-12 min-h-12 w-44 max-w-full ${error ? "emp-form-field-error" : ""} ${className}`.trim();
+    return `emp-form-field-control emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-full ${error ? "emp-form-field-error" : ""} ${className}`.trim();
   }
 
   const heightClass = field.wide ? "min-h-6" : "h-6";
@@ -70,10 +70,11 @@ const conditionMatches = (current, expected, sourceField) => {
 
 function FieldFrame({ field, error, children, className = "" }) {
   const bare = isBareControlField(field);
+  const imageField = isImageField(field);
 
   return (
-    <div data-field={field.dataField || field.name} className={`grid grid-cols-[170px_minmax(0,1fr)] items-center gap-1 ${field.wide ? "md:col-span-2" : ""}`}>
-      <label className="text-[12px] text-[#1a1f26] text-right leading-none">{field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}</label>
+    <div data-field={field.dataField || field.name} className={`grid grid-cols-[170px_minmax(0,1fr)] gap-1 ${imageField ? "items-start" : "items-center"} ${field.wide ? "md:col-span-2" : ""}`}>
+      <label className={`text-[12px] text-[#1a1f26] text-right leading-none ${imageField ? "pt-2" : ""}`}>{field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}</label>
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
