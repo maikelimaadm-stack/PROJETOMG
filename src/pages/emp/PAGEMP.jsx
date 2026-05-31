@@ -9,6 +9,7 @@ import EmpConfiguracaoExportacaoDialog from "@/components/emp/EmpConfiguracaoExp
 import ConfirmDialog from "@/components/common/ConfirmDialog";
 import RegistroAnexosDialog from "@/components/common/RegistroAnexosDialog";
 import empRepository from "@/components/emp/empRepository";
+import { findEmpresaInList, normalizeEmpresaRecord } from "@/components/emp/empCodigoUtils";
 import { printEmpTable, exportEmpTableToExcel } from "@/components/emp/empTableExportUtils";
 import { getEmpPdfExportConfig, getEmpExcelExportConfig } from "@/components/emp/empPdfExportConfig";
 
@@ -80,15 +81,19 @@ export default function PAGEMP() {
   const hasActiveFilters = false;
 
   const stayOnRecordAfterSave = useCallback(async (savedRecord) => {
-    if (!savedRecord?.id) {
+    const normalized = normalizeEmpresaRecord(savedRecord);
+    const savedId = normalized?.id;
+    const savedCodigo = Number(normalized?.codigo_empresa);
+
+    if (!savedId && !(Number.isFinite(savedCodigo) && savedCodigo > 0)) {
       setShowForm(true);
       setViewMode("record");
       return;
     }
 
     setReturnRecordAfterNew(null);
-    setEditingEmp(savedRecord);
-    setSelectedTableItems([savedRecord.id]);
+    setEditingEmp(normalized);
+    if (savedId) setSelectedTableItems([savedId]);
     setShowForm(true);
     setViewMode("record");
 
@@ -98,11 +103,14 @@ export default function PAGEMP() {
       queryKey: ["emp-cadastro"],
       queryFn: () => empRepository.list()
     });
-    const fresh = list.find((item) => item.id === savedRecord.id) ?? savedRecord;
+    const fresh = findEmpresaInList(list, normalized) ?? normalized;
     setEditingEmp(fresh);
+    if (fresh?.id) setSelectedTableItems([fresh.id]);
 
     const filtered = filterEmpresasBySearch(list, searchTerm);
-    const navIndex = filtered.findIndex((item) => item.id === savedRecord.id);
+    const navIndex = filtered.findIndex(
+      (item) => item.id === fresh.id || Number(item.codigo_empresa) === Number(fresh.codigo_empresa)
+    );
     if (navIndex >= 0) setSelectedIndex(navIndex);
   }, [queryClient, searchTerm]);
 

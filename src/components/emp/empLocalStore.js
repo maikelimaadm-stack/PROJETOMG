@@ -1,26 +1,40 @@
 import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from "./empSeedData";
 import empCamposLocalStore from "./empCamposLocalStore";
+import { getNextCodigoEmpresa, stripEmpresaPersistPayload } from "./empCodigoUtils";
 
 const STORAGE_KEY = "emp_cadastro_local_v1";
 const SEED_FLAG_KEY = "emp_cadastro_seeded_v3";
-
-const readAll = () => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
 
 const writeAll = (records) => {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
 };
 
-const nextCodigo = (records) => {
-  const max = records.reduce((acc, item) => Math.max(acc, Number(item.codigo_empresa) || 0), 0);
-  return max + 1;
+const repairMissingCodigos = (records) => {
+  let changed = false;
+  let max = getNextCodigoEmpresa(records) - 1;
+  const next = records.map((record) => {
+    const codigo = Number(record.codigo_empresa);
+    if (Number.isFinite(codigo) && codigo > 0) return record;
+    changed = true;
+    max += 1;
+    return { ...record, codigo_empresa: max };
+  });
+  return changed ? next : records;
 };
+
+const readAll = () => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    const records = raw ? JSON.parse(raw) : [];
+    const repaired = repairMissingCodigos(records);
+    if (repaired !== records) writeAll(repaired);
+    return repaired;
+  } catch {
+    return [];
+  }
+};
+
+const nextCodigo = (records) => getNextCodigoEmpresa(records);
 
 const toStoredRecord = (record, index) => ({
   ...record,
@@ -60,11 +74,12 @@ const empLocalStore = {
 
   create(data) {
     const records = readAll();
+    const payload = stripEmpresaPersistPayload(data);
     const record = {
-      ...data,
+      ...payload,
       id: `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      codigo_empresa: data.codigo_empresa ?? nextCodigo(records),
-      campos_personalizados: data.campos_personalizados || {},
+      codigo_empresa: nextCodigo(records),
+      campos_personalizados: payload.campos_personalizados || {},
       created_date: new Date().toISOString(),
       updated_date: new Date().toISOString()
     };
@@ -77,7 +92,14 @@ const empLocalStore = {
     const records = readAll();
     const index = records.findIndex((item) => item.id === id);
     if (index < 0) throw new Error("Registro não encontrado");
-    records[index] = { ...records[index], ...data, updated_date: new Date().toISOString() };
+    const payload = stripEmpresaPersistPayload(data);
+    records[index] = {
+      ...records[index],
+      ...payload,
+      id: records[index].id,
+      codigo_empresa: records[index].codigo_empresa,
+      updated_date: new Date().toISOString()
+    };
     writeAll(records);
     return records[index];
   },

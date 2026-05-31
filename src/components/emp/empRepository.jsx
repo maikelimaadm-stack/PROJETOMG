@@ -2,6 +2,7 @@ import { base44 } from '@/api/base44Client';
 import empLocalStore from './empLocalStore';
 import empCamposLocalStore from './empCamposLocalStore';
 import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from './empSeedData';
+import { normalizeEmpresaRecord, stripEmpresaPersistPayload } from './empCodigoUtils';
 
 const hasAppId = () => Boolean(import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID);
 const REMOTE_SEED_FLAG = 'emp_remote_seeded_v2';
@@ -81,28 +82,34 @@ const empRepository = {
   },
 
   async create(data) {
+    const payload = stripEmpresaPersistPayload(data);
+
     if (await isRemoteAvailable()) {
       try {
         const all = await base44.entities.EmpresaCadastro.list('-codigo_empresa', 1);
-        const maxCodigo = all.length > 0 ? (all[0].codigo_empresa || 0) : 0;
-        const codigo = Number(maxCodigo) + 1;
-        return base44.entities.EmpresaCadastro.create({ ...data, codigo_empresa: codigo });
+        const maxCodigo = all.length > 0 ? Number(all[0].codigo_empresa) || 0 : 0;
+        const codigo = maxCodigo + 1;
+        const created = await base44.entities.EmpresaCadastro.create({ ...payload, codigo_empresa: codigo });
+        return normalizeEmpresaRecord(created, { ...payload, codigo_empresa: codigo });
       } catch {
-        return empLocalStore.create(data);
+        return empLocalStore.create(payload);
       }
     }
-    return empLocalStore.create(data);
+    return empLocalStore.create(payload);
   },
 
   async update(id, data) {
+    const payload = stripEmpresaPersistPayload(data);
+
     if (await isRemoteAvailable()) {
       try {
-        return base44.entities.EmpresaCadastro.update(id, data);
+        const updated = await base44.entities.EmpresaCadastro.update(id, payload);
+        return normalizeEmpresaRecord(updated, { id, ...payload });
       } catch {
-        return empLocalStore.update(id, data);
+        return empLocalStore.update(id, payload);
       }
     }
-    return empLocalStore.update(id, data);
+    return empLocalStore.update(id, payload);
   },
 
   async delete(id) {
