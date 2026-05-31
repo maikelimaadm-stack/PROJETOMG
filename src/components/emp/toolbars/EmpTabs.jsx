@@ -1,6 +1,5 @@
 import React, { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
 import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
@@ -10,8 +9,6 @@ const formatPanelLabel = (value) =>
   String(value || "")
     .toLowerCase()
     .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
-
-const isCustomPanel = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 
 export default function EmpTabs({
   tabs = [],
@@ -27,8 +24,8 @@ export default function EmpTabs({
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   return (
-    <div className="emp-form-tabs relative flex items-end justify-start bg-white pl-2 pr-2">
-      <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex shrink-0 items-end gap-1.5">
+    <div className="emp-form-tabs relative flex h-7 items-end justify-start bg-white pl-2 pr-2">
+      <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-7 shrink-0 items-center gap-1.5">
         <button
           type="button"
           onClick={() => scrollPanels(-1)}
@@ -50,11 +47,10 @@ export default function EmpTabs({
       </div>
       <div
         ref={panelsScrollRef}
-        className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="flex h-7 min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
-          const custom = isCustomPanel(tab, systemPanelIds);
 
           return (
             <button
@@ -65,7 +61,6 @@ export default function EmpTabs({
                 active ? "emp-form-tab-active" : "emp-form-tab-inactive"
               }`}
             >
-              {custom && <EmpCustomMarker />}
               {formatPanelLabel(tab.label)}
             </button>
           );

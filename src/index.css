@@ -287,8 +287,7 @@ input[type="number"] {
 
 /* Abas dos painéis — formulário de registro */
 .cadastro-emp-scope .emp-form-tabs {
-  min-height: 30px;
-  padding-bottom: 4px;
+  min-height: 28px;
 }
 
 .cadastro-emp-scope .emp-form-tabs::after {
@@ -309,7 +308,6 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab {
   margin-bottom: 0;
-  border: none;
   cursor: pointer;
   font-size: 12px;
   line-height: 1;
@@ -317,7 +315,12 @@ input[type="number"] {
   padding: 6px 14px 7px;
   height: 28px;
   box-sizing: border-box;
+  border-radius: 4px 4px 0 0;
   transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.cadastro-emp-scope .emp-form-tab + .emp-form-tab {
+  margin-left: -1px;
 }
 
 .cadastro-emp-scope .emp-form-tab-active {
@@ -325,20 +328,23 @@ input[type="number"] {
   border-left: 1px solid #e0e0e0;
   border-right: 1px solid #e0e0e0;
   border-bottom: 1px solid #e8faf0;
-  border-radius: 4px 4px 0 0;
   background: #e8faf0;
   color: #1a1f26;
   font-weight: 600;
-  margin-bottom: 0;
+  margin-bottom: -1px;
   z-index: 2;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive {
-  background: transparent;
+  border-top: 1px solid #e0e0e0;
+  border-left: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+  background: #ffffff;
   color: #334155;
-  border: none;
   font-weight: 400;
   margin-bottom: 0;
+  z-index: 0;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive:hover {
@@ -357,12 +363,16 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #334155 !important;
-  background: transparent !important;
+  background: #ffffff !important;
+  border-top-color: #e0e0e0 !important;
+  border-left-color: #e0e0e0 !important;
+  border-right-color: #e0e0e0 !important;
+  border-bottom-color: #e0e0e0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive:hover {
   color: #1a1f26 !important;
-  background: transparent !important;
+  background: #ffffff !important;
 }
 
 /* Tabela em tela cheia */
