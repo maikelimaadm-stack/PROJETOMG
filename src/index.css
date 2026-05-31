@@ -1517,18 +1517,21 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-presets-dialog {
   position: relative;
+  overflow: visible !important;
+  padding: 0 !important;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon {
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 50;
+  top: 2px;
+  right: 2px;
+  left: auto;
+  z-index: 60;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: auto;
-  height: auto;
+  width: 12px;
+  height: 12px;
   margin: 0;
   border: none;
   background: transparent;
@@ -1536,12 +1539,20 @@ input[type="number"] {
   cursor: pointer;
   padding: 0;
   line-height: 0;
-  transform: translate(50%, -50%);
+  transform: none;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover {
   color: #dc2626;
   background: transparent;
+}
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-shell {
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-table-wrap {
+  max-height: 520px;
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-table-shell {
