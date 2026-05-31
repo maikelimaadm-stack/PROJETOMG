@@ -630,7 +630,6 @@ input[type="number"] {
 
 .emp-filter-checkbox:focus-visible {
   outline: none !important;
-  ring: 1px solid #21c45d !important;
   box-shadow: 0 0 0 1px #21c45d !important;
 }
 
