@@ -1,9 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Check, Pencil, Plus, Trash2, X } from "lucide-react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 import {
   DEFAULT_PRESET_ID,
   getLayoutPresetMetrics,
@@ -43,7 +42,6 @@ export default function EmpLayoutPresetsDialog({
   presets = [],
   activePresetId,
   defaultConfig,
-  onApplyPreset,
   onCreatePreset,
   onRenamePreset,
   onDeletePreset,
@@ -55,7 +53,6 @@ export default function EmpLayoutPresetsDialog({
   const [draftSourcePresetId, setDraftSourcePresetId] = useState(DEFAULT_PRESET_ID);
   const [notice, setNotice] = useState("");
 
-  const isEditingForm = formOpen && !!formMode;
   const selectedPreset = presets.find((preset) => preset.id === selectedPresetId) || null;
   const canEditSelected = !!selectedPreset && !selectedPreset.isSystem;
   const canDeleteSelected = canEditSelected;
@@ -148,12 +145,6 @@ export default function EmpLayoutPresetsDialog({
     setNotice("Layout excluído com sucesso.");
   };
 
-  const handleToggleAtivo = (presetId, checked) => {
-    if (!checked) return;
-    onApplyPreset?.(presetId);
-    setSelectedPresetId(presetId);
-  };
-
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
@@ -163,46 +154,31 @@ export default function EmpLayoutPresetsDialog({
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="emp-layout-presets-close-tab"
+            className="emp-layout-presets-close-icon"
             title="Fechar"
             aria-label="Fechar"
           >
-            <X className="h-3.5 w-3.5" />
+            <X className="h-3.5 w-3.5" strokeWidth={2} />
           </button>
 
           <div className="emp-toolbar flex items-center gap-1.5 border-b border-sky-100 bg-white px-2 py-1.5">
-            {!isEditingForm ? (
-              <>
-                <ToolbarBtn onClick={handleNovo} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo layout">
-                  <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
-                  <span>Novo</span>
-                </ToolbarBtn>
-                <ToolbarBtn onClick={handleEditar} className={LABELED_BTN_CLASS} disabled={!canEditSelected} title="Editar">
-                  <EmpToolbarIcon icon={Pencil} />
-                  <span>Editar</span>
-                </ToolbarBtn>
-                <ToolbarBtn
-                  onClick={handleExcluir}
-                  className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`}
-                  disabled={!canDeleteSelected}
-                  title="Excluir"
-                >
-                  <EmpToolbarIcon icon={Trash2} />
-                  <span>Excluir</span>
-                </ToolbarBtn>
-              </>
-            ) : (
-              <>
-                <ToolbarBtn onClick={handleSalvar} className={LABELED_BTN_CLASS} title="Salvar">
-                  <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
-                  <span>Salvar</span>
-                </ToolbarBtn>
-                <ToolbarBtn onClick={handleCancelar} className={LABELED_BTN_CLASS} title="Cancelar">
-                  <EmpToolbarIcon icon={X} />
-                  <span>Cancelar</span>
-                </ToolbarBtn>
-              </>
-            )}
+            <ToolbarBtn onClick={handleNovo} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo layout">
+              <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
+              <span>Novo</span>
+            </ToolbarBtn>
+            <ToolbarBtn onClick={handleEditar} className={LABELED_BTN_CLASS} disabled={!canEditSelected} title="Editar">
+              <EmpToolbarIcon icon={Pencil} />
+              <span>Editar</span>
+            </ToolbarBtn>
+            <ToolbarBtn
+              onClick={handleExcluir}
+              className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`}
+              disabled={!canDeleteSelected}
+              title="Excluir"
+            >
+              <EmpToolbarIcon icon={Trash2} />
+              <span>Excluir</span>
+            </ToolbarBtn>
 
             <div className="ml-auto flex items-center gap-1.5">
               <EmpBubbleCounter value={String(presets.length)} title="Total de layouts" className="emp-toolbar-bubble-counter" />
@@ -212,72 +188,66 @@ export default function EmpLayoutPresetsDialog({
           <EmpToolbarInfoBar
             badgeLabel="Layouts"
             title="Gerenciamento de layouts personalizados"
-            operationLabel={isEditingForm ? (formMode === "new" ? "NOVO LAYOUT" : "EDIÇÃO DE LAYOUT") : "CONSULTA"}
+            operationLabel="CONSULTA"
           />
 
           <div className="max-h-[520px] overflow-hidden bg-white p-1.5">
-            <div className="emp-table-stage relative flex min-h-0 flex-col overflow-hidden">
-              <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
-                <CardContent className="h-full min-h-0 p-0 overflow-hidden flex flex-col">
-                  <div className="relative flex-1 min-h-0 overflow-auto">
-                    <Table className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none">
-                      <TableHeader>
-                        <TableRow className="hover:bg-transparent">
-                          <TableHead className="emp-th w-[34%] px-1.5 text-left">Nome</TableHead>
-                          <TableHead className="emp-th w-[12%] px-1.5 text-center">Painéis</TableHead>
-                          <TableHead className="emp-th w-[12%] px-1.5 text-center">Campos</TableHead>
-                          <TableHead className="emp-th w-[28%] px-1.5 text-left">Atualizado</TableHead>
-                          <TableHead className="emp-th w-[14%] px-1.5 text-center">Ativo</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {presetRows.map(({ preset, metrics }, index) => {
-                          const selected = preset.id === selectedPresetId;
-                          const rowClass = getRowBgClass(index, selected);
-                          const isActive = preset.id === activePresetId;
+            <Card className="emp-table-shell overflow-hidden border border-[#c5ced8] bg-white shadow-none">
+              <CardContent className="p-0">
+                <div className="max-h-[480px] overflow-auto">
+                  <Table className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="emp-th h-[26px] w-[40%] border-r border-b border-[#c5ced8] bg-white px-2 text-left text-xs font-semibold text-[#1a1f26]">
+                          Nome
+                        </TableHead>
+                        <TableHead className="emp-th h-[26px] w-[15%] border-r border-b border-[#c5ced8] bg-white px-2 text-center text-xs font-semibold text-[#1a1f26]">
+                          Painéis
+                        </TableHead>
+                        <TableHead className="emp-th h-[26px] w-[15%] border-r border-b border-[#c5ced8] bg-white px-2 text-center text-xs font-semibold text-[#1a1f26]">
+                          Campos
+                        </TableHead>
+                        <TableHead className="emp-th h-[26px] border-b border-[#c5ced8] bg-white px-2 text-left text-xs font-semibold text-[#1a1f26]">
+                          Atualizado
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {presetRows.map(({ preset, metrics }, index) => {
+                        const selected = preset.id === selectedPresetId;
+                        const rowClass = getRowBgClass(index, selected);
 
-                          return (
-                            <TableRow
-                              key={preset.id}
-                              className={`${rowClass} cursor-pointer transition-colors hover:brightness-[0.98]`}
-                              onClick={() => setSelectedPresetId(preset.id)}
-                            >
-                              <TableCell className={`emp-td px-1.5 py-0 align-middle text-[12px] ${rowClass} ${selected ? "font-semibold" : ""}`}>
-                                <span className="block truncate">
-                                  {titleCase(preset.name)}
-                                  {preset.isSystem ? " (sistema)" : ""}
-                                </span>
-                              </TableCell>
-                              <TableCell className={`emp-td px-1.5 py-0 text-center align-middle text-[12px] ${rowClass}`}>
-                                {metrics.panelCount}
-                              </TableCell>
-                              <TableCell className={`emp-td px-1.5 py-0 text-center align-middle text-[12px] ${rowClass}`}>
-                                {metrics.fieldCount}
-                              </TableCell>
-                              <TableCell className={`emp-td px-1.5 py-0 align-middle text-[12px] text-[#5b6b80] ${rowClass}`}>
-                                {formatDate(preset.updatedAt)}
-                              </TableCell>
-                              <TableCell className={`emp-td px-1.5 py-0 align-middle ${rowClass}`}>
-                                <div className="flex items-center justify-center" onClick={(event) => event.stopPropagation()}>
-                                  <Checkbox
-                                    checked={isActive}
-                                    onCheckedChange={(checked) => handleToggleAtivo(preset.id, checked === true)}
-                                    aria-label={`Ativar layout ${preset.name}`}
-                                    className="h-3.5 w-3.5 rounded-[3px] border-[#94a3b8] data-[state=checked]:border-[#21c45d] data-[state=checked]:bg-[#21c45d]"
-                                  />
-                                </div>
-                              </TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </TableBody>
-                    </Table>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                        return (
+                          <TableRow
+                            key={preset.id}
+                            className={`${rowClass} cursor-pointer transition-colors hover:brightness-[0.98]`}
+                            onClick={() => setSelectedPresetId(preset.id)}
+                          >
+                            <TableCell className={`emp-td h-[26px] border-r border-b border-[#c5ced8] px-2 py-0 align-middle text-xs ${rowClass} ${selected ? "font-semibold" : ""}`}>
+                              <span className="block truncate text-[#1a1f26]">
+                                {titleCase(preset.name)}
+                                {preset.isSystem ? " (sistema)" : ""}
+                              </span>
+                            </TableCell>
+                            <TableCell className={`emp-td h-[26px] border-r border-b border-[#c5ced8] px-2 py-0 text-center align-middle text-xs text-[#1a1f26] ${rowClass}`}>
+                              {metrics.panelCount}
+                            </TableCell>
+                            <TableCell className={`emp-td h-[26px] border-r border-b border-[#c5ced8] px-2 py-0 text-center align-middle text-xs text-[#1a1f26] ${rowClass}`}>
+                              {metrics.fieldCount}
+                            </TableCell>
+                            <TableCell className={`emp-td h-[26px] border-b border-[#c5ced8] px-2 py-0 align-middle text-xs text-[#5b6b80] ${rowClass}`}>
+                              {formatDate(preset.updatedAt)}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
 
-            {notice ? <div className="mt-2 px-1 text-xs text-[#5b6b80]">{notice}</div> : null}
+            {notice ? <div className="mt-1 px-1 text-xs text-[#5b6b80]">{notice}</div> : null}
           </div>
         </DialogContent>
       </Dialog>
@@ -290,6 +260,8 @@ export default function EmpLayoutPresetsDialog({
         sourceOptions={presets}
         onNameChange={setDraftName}
         onSourcePresetIdChange={setDraftSourcePresetId}
+        onSave={handleSalvar}
+        onCancel={handleCancelar}
         onClose={handleCancelar}
       />
     </>

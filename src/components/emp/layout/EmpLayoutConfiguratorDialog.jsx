@@ -910,7 +910,6 @@ export default function EmpLayoutConfiguratorDialog({
         presets={layoutPresets}
         activePresetId={activePresetId}
         defaultConfig={defaultConfig}
-        onApplyPreset={onPresetApply}
         onCreatePreset={onCreateLayoutPreset}
         onRenamePreset={onRenameLayoutPreset}
         onDeletePreset={onDeleteLayoutPreset}

@@ -1515,46 +1515,47 @@ input[type="number"] {
   width: 100%;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-section .emp-table-shell {
-  box-shadow: none;
-}
-
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-th,
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-td {
-  font-size: 12px;
-  line-height: 1.2;
-}
-
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab,
-.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-tab {
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon,
+.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-icon {
   position: absolute;
   top: 0;
   right: 0;
   z-index: 30;
   display: inline-flex;
-  height: 28px;
-  width: 28px;
   align-items: center;
   justify-content: center;
+  width: 24px;
+  height: 24px;
+  margin: 0;
   border: none;
-  border-left: 0.5px solid #c5ced8;
-  border-bottom: 0.5px solid #c5ced8;
-  background: #f8fafc;
+  background: transparent;
   color: #64748b;
   cursor: pointer;
   padding: 0;
 }
 
-.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-tab:hover,
-.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-tab:hover {
-  background: #fee2e2;
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover,
+.cadastro-emp-scope .emp-layout-preset-form-dialog .emp-layout-presets-close-icon:hover {
   color: #dc2626;
+  background: transparent;
 }
 
+.cadastro-emp-scope .emp-layout-presets-icon-action:focus-visible {
+  outline: none;
+  color: #1a1f26;
+}
+
+.cadastro-emp-scope .emp-layout-preset-form-layer {
+  pointer-events: auto;
+}
+
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-table-shell,
 .cadastro-emp-scope .emp-layout-preset-form-dialog .emp-table-shell {
   box-shadow: none;
 }
 
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-th,
+.cadastro-emp-scope .emp-layout-presets-dialog .emp-td,
 .cadastro-emp-scope .emp-layout-preset-form-dialog .emp-th,
 .cadastro-emp-scope .emp-layout-preset-form-dialog .emp-td {
   font-size: 12px;
