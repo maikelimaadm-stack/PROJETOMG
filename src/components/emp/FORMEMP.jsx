@@ -436,7 +436,7 @@ export default function FORMEMP({
         />
 
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
-          <div className="emp-form-body flex flex-col gap-1.5 pt-1.5">
+          <div className="emp-form-body flex flex-col">
             <fieldset className={isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}>
               <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
                 <EmpDynamicFormRenderer
