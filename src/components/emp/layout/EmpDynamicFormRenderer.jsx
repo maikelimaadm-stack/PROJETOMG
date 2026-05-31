@@ -7,6 +7,20 @@ import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
+const isBareControlField = (field) => field?.type === "checkbox" || field?.type === "switch";
+
+function EmpFormToggle({ checked, onChange, disabled }) {
+  return (
+    <ToggleSwitch
+      checked={!!checked}
+      onChange={onChange}
+      disabled={disabled}
+      className="emp-form-toggle-switch"
+      checkedClassName="emp-form-toggle-switch-on"
+    />
+  );
+}
+
 function DefaultControl({ field, value, onChange, readOnly }) {
   const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1";
 
@@ -19,7 +33,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
   }
 
   if (field.type === "checkbox") {
-    return <div className="h-[22px] flex items-center px-1"><ToggleSwitch checked={!!value} onChange={(checked) => onChange(field.name, checked)} disabled={readOnly || field.readOnly} /></div>;
+    return <EmpFormToggle checked={!!value} onChange={(checked) => onChange(field.name, checked)} disabled={readOnly || field.readOnly} />;
   }
 
   return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`${inputClass} ${field.uppercase ? "uppercase" : ""}`} />;
@@ -43,13 +57,19 @@ const conditionMatches = (current, expected, sourceField) => {
 };
 
 function FieldFrame({ field, error, children, className = "" }) {
+  const bare = isBareControlField(field);
+
   return (
     <div data-field={field.dataField || field.name} className={`grid grid-cols-[170px_minmax(0,1fr)] items-center gap-1 ${field.wide ? "md:col-span-2" : ""}`}>
       <label className="text-[12px] text-[#1a1f26] text-right leading-none">{field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}</label>
-      <div className={`emp-form-field-control relative ${field.wide ? "min-h-6" : "h-6"} ${field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full"} ${error ? "emp-form-field-error" : ""} ${className}`}>
-        {isCustomField(field) && <EmpCustomMarker />}
-        {children}
-      </div>
+      {bare ? (
+        <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
+      ) : (
+        <div className={`emp-form-field-control relative ${field.wide ? "min-h-6" : "h-6"} ${field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full"} ${error ? "emp-form-field-error" : ""} ${className}`}>
+          {isCustomField(field) && <EmpCustomMarker />}
+          {children}
+        </div>
+      )}
     </div>
   );
 }

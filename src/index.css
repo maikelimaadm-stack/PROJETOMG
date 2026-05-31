@@ -392,7 +392,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
-  border: 0.5px solid #dce3eb;
+  border: 0.5px solid #c5ced8;
   border-radius: 3px;
   background: #ffffff;
   box-shadow: none;
@@ -401,12 +401,57 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
-  border-color: #082e54;
+  border-color: #21c45d;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control.emp-form-field-error {
   border-color: #ef4444;
   background: #fef2f2;
+}
+
+.cadastro-emp-scope .emp-form-fields .emp-form-field-bare {
+  width: auto;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch {
+  height: 1rem !important;
+  width: 2rem !important;
+  min-height: 1rem !important;
+  min-width: 2rem !important;
+  border-radius: 9999px !important;
+  border: 1px solid #c5ced8 !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch:hover:not(:disabled) {
+  background: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch.emp-form-toggle-switch-on,
+.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] {
+  background: #b8eac8 !important;
+  border-color: #21c45d !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch > span {
+  top: 1px !important;
+  width: 0.75rem !important;
+  height: 0.75rem !important;
+  border-radius: 9999px !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] > span {
+  right: 1px !important;
+  left: auto !important;
+  background: #21c45d !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="false"] > span {
+  left: 1px !important;
+  right: auto !important;
+  background: #94a3b8 !important;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input,
