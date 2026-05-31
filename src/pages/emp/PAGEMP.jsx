@@ -12,6 +12,35 @@ import empRepository from "@/components/emp/empRepository";
 import { printEmpTable, exportEmpTableToExcel } from "@/components/emp/empTableExportUtils";
 import { getEmpPdfExportConfig, getEmpExcelExportConfig } from "@/components/emp/empPdfExportConfig";
 
+const getEmpSearchValues = (emp) => [
+  emp.codigo_empresa,
+  emp.razao_social,
+  emp.nome_fantasia,
+  emp.tipo_pessoa,
+  emp.cpf_cnpj,
+  emp.inscricao_estadual,
+  emp.telefone,
+  emp.whatsapp,
+  emp.email,
+  emp.cep,
+  emp.endereco,
+  emp.numero,
+  emp.bairro,
+  emp.cidade,
+  emp.estado,
+  emp.observacoes,
+  emp.status,
+  ...Object.values(emp.campos_personalizados || {})
+];
+
+const filterEmpresasBySearch = (items, term) => {
+  const termo = String(term || "").toLowerCase().trim();
+  if (!termo) return items;
+  return items.filter((emp) =>
+    getEmpSearchValues(emp).some((value) => String(value || "").toLowerCase().includes(termo))
+  );
+};
+
 export default function PAGEMP() {
   const [showForm, setShowForm] = useState(false);
   const [editingEmp, setEditingEmp] = useState(null);
@@ -37,57 +66,45 @@ export default function PAGEMP() {
     initialData: []
   });
 
-  const empresasFiltradasPainel = useMemo(() => {
-    const termo = String(searchTerm || "").toLowerCase().trim();
-    if (!termo) return empresas;
-    return empresas.filter((emp) => [
-      emp.codigo_empresa,
-      emp.razao_social,
-      emp.nome_fantasia,
-      emp.tipo_pessoa,
-      emp.cpf_cnpj,
-      emp.inscricao_estadual,
-      emp.telefone,
-      emp.whatsapp,
-      emp.email,
-      emp.cep,
-      emp.endereco,
-      emp.numero,
-      emp.bairro,
-      emp.cidade,
-      emp.estado,
-      emp.observacoes,
-      emp.status,
-      ...Object.values(emp.campos_personalizados || {})
-    ].some((value) => String(value || "").toLowerCase().includes(termo)));
-  }, [empresas, searchTerm]);
+  const empresasFiltradasPainel = useMemo(
+    () => filterEmpresasBySearch(empresas, searchTerm),
+    [empresas, searchTerm]
+  );
 
-  const empresasNavegacao = tableFilteredEmpresas ?? empresasFiltradasPainel;
+  const empresasNavegacao = showForm
+    ? empresasFiltradasPainel
+    : (tableFilteredEmpresas ?? empresasFiltradasPainel);
 
   const currentEmp = empresasNavegacao[selectedIndex] || empresasNavegacao[0] || null;
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = false;
 
-  const stayOnRecordAfterSave = useCallback(async (savedId) => {
+  const stayOnRecordAfterSave = useCallback(async (savedRecord) => {
+    if (!savedRecord?.id) {
+      setShowForm(true);
+      setViewMode("record");
+      return;
+    }
+
     setReturnRecordAfterNew(null);
+    setEditingEmp(savedRecord);
+    setSelectedTableItems([savedRecord.id]);
+    setShowForm(true);
+    setViewMode("record");
 
     await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
 
-    if (savedId) {
-      const list = await queryClient.fetchQuery({
-        queryKey: ["emp-cadastro"],
-        queryFn: () => empRepository.list()
-      });
-      const saved = list.find((item) => item.id === savedId);
-      const index = list.findIndex((item) => item.id === savedId);
-      if (index >= 0) setSelectedIndex(index);
-      setSelectedTableItems([savedId]);
-      if (saved) setEditingEmp(saved);
-    }
+    const list = await queryClient.fetchQuery({
+      queryKey: ["emp-cadastro"],
+      queryFn: () => empRepository.list()
+    });
+    const fresh = list.find((item) => item.id === savedRecord.id) ?? savedRecord;
+    setEditingEmp(fresh);
 
-    setShowForm(true);
-    setViewMode("record");
-  }, [queryClient]);
+    const filtered = filterEmpresasBySearch(list, searchTerm);
+    const navIndex = filtered.findIndex((item) => item.id === savedRecord.id);
+    if (navIndex >= 0) setSelectedIndex(navIndex);
+  }, [queryClient, searchTerm]);
 
   const deleteMutation = useMutation({ mutationFn: (id) => empRepository.delete(id) });
 
@@ -95,20 +112,18 @@ export default function PAGEMP() {
     const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
 
     try {
-      let savedId;
+      let savedRecord;
 
       if (isUpdate) {
-        await empRepository.update(editingEmp.id, data);
-        savedId = editingEmp.id;
+        savedRecord = await empRepository.update(editingEmp.id, data);
         toast.success("Empresa atualizada!");
       } else {
         const { _isDuplicate, ...clean } = data;
-        const created = await empRepository.create(clean);
-        savedId = created?.id;
+        savedRecord = await empRepository.create(clean);
         toast.success("Empresa cadastrada!");
       }
 
-      await stayOnRecordAfterSave(savedId);
+      await stayOnRecordAfterSave(savedRecord);
       setFormVersion((version) => version + 1);
     } catch {
       toast.error(isUpdate ? "Não foi possível atualizar a empresa." : "Não foi possível cadastrar a empresa.");
@@ -146,17 +161,20 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
-    if (empresasNavegacao.length === 0) { setSelectedIndex(0); return; }
-    const currentFilteredIndex = editingEmp?.id ? empresasNavegacao.findIndex((item) => item.id === editingEmp.id) : -1;
+    if (empresasNavegacao.length === 0) return;
+
+    const currentFilteredIndex = editingEmp.id
+      ? empresasNavegacao.findIndex((item) => item.id === editingEmp.id)
+      : -1;
+
     if (currentFilteredIndex >= 0) {
       if (selectedIndex !== currentFilteredIndex) setSelectedIndex(currentFilteredIndex);
-      return;
+      const fresh = empresasNavegacao[currentFilteredIndex];
+      if (fresh?.id === editingEmp.id && fresh.updated_date !== editingEmp.updated_date) {
+        setEditingEmp(fresh);
+      }
     }
-    const nextIndex = Math.min(selectedIndex, empresasNavegacao.length - 1);
-    setSelectedIndex(nextIndex);
-    setEditingEmp(empresasNavegacao[nextIndex]);
-    setSelectedTableItems([empresasNavegacao[nextIndex].id]);
-  }, [showForm, viewMode, empresasNavegacao, editingEmp?.id, editingEmp?._isDuplicate, selectedIndex]);
+  }, [showForm, viewMode, empresasNavegacao, editingEmp?.id, editingEmp?.updated_date, editingEmp?._isDuplicate, selectedIndex]);
 
   const handleTableSelectionChange = useCallback((ids) => {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
@@ -226,7 +244,7 @@ export default function PAGEMP() {
         <div className="flex min-h-0 h-full w-full overflow-hidden">
           <div className="min-w-0 flex-1 h-full overflow-hidden">
             <FORMEMP
-              key={`form-${formVersion}-${editingEmp?._isDuplicate ? "dup" : editingEmp ? "rec" : "new"}`}
+              key={`form-${formVersion}-${editingEmp?.id ?? "new"}`}
               initialData={editingEmp}
               isEditing={!!editingEmp}
               onSubmit={handleSubmit}
