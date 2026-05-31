@@ -62,6 +62,7 @@ export default function EmpLayoutConfiguratorDialog({
   hiddenFieldIds = [],
   lockedFieldIds = [],
   requiredFieldIds = [],
+  clearOnDuplicateFieldIds = [],
   aggregationConfig = {},
   visibilityRules = {},
   defaultConfig = null,
@@ -76,6 +77,7 @@ export default function EmpLayoutConfiguratorDialog({
   const [draftHiddenFieldIds, setDraftHiddenFieldIds] = useState(hiddenFieldIds);
   const [draftLockedFieldIds, setDraftLockedFieldIds] = useState(lockedFieldIds);
   const [draftRequiredFieldIds, setDraftRequiredFieldIds] = useState(requiredFieldIds);
+  const [draftClearOnDuplicateFieldIds, setDraftClearOnDuplicateFieldIds] = useState(clearOnDuplicateFieldIds);
   const [draftAggregationConfig, setDraftAggregationConfig] = useState(aggregationConfig);
   const [draftVisibilityRules, setDraftVisibilityRules] = useState(visibilityRules);
   const [activePanelId, setActivePanelId] = useState(panels[0]?.id || "");
@@ -99,6 +101,7 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftHiddenFieldIds(hiddenFieldIds);
     setDraftLockedFieldIds(lockedFieldIds);
     setDraftRequiredFieldIds(requiredFieldIds);
+    setDraftClearOnDuplicateFieldIds(clearOnDuplicateFieldIds);
     setDraftAggregationConfig(aggregationConfig);
     setDraftVisibilityRules(visibilityRules);
     setActivePanelId(panels[0]?.id || "");
@@ -110,7 +113,7 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldLastPanelId({});
     setFieldSettingsTarget(null);
     setFieldSettingsAnchor(null);
-  }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, aggregationConfig, visibilityRules]);
+  }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, aggregationConfig, visibilityRules]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
@@ -262,6 +265,7 @@ export default function EmpLayoutConfiguratorDialog({
       hiddenFieldIds: draftHiddenFieldIds,
       lockedFieldIds: draftLockedFieldIds,
       requiredFieldIds: draftRequiredFieldIds,
+      clearOnDuplicateFieldIds: draftClearOnDuplicateFieldIds,
       aggregationConfig: draftAggregationConfig,
       visibilityRules: draftVisibilityRules,
     });
@@ -277,6 +281,7 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftHiddenFieldIds([]);
     setDraftLockedFieldIds([]);
     setDraftRequiredFieldIds([]);
+    setDraftClearOnDuplicateFieldIds([]);
     setDraftAggregationConfig({});
     setDraftVisibilityRules({});
     setActivePanelId(defaultConfig.panels?.[0]?.id || "");
@@ -287,6 +292,7 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftHiddenFieldIds(hiddenFieldIds);
     setDraftLockedFieldIds(lockedFieldIds);
     setDraftRequiredFieldIds(requiredFieldIds);
+    setDraftClearOnDuplicateFieldIds(clearOnDuplicateFieldIds);
     setDraftAggregationConfig(aggregationConfig);
     setDraftVisibilityRules(visibilityRules);
     setIsEditing(false);
@@ -295,6 +301,7 @@ export default function EmpLayoutConfiguratorDialog({
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   const openFieldSettings = (field, event) => {
+    if (!isEditing) return;
     event?.stopPropagation?.();
     const chip = event?.currentTarget?.closest?.(".emp-layout-config-field");
     const rect = chip?.getBoundingClientRect?.();
@@ -310,6 +317,10 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldSettingsAnchor(null);
   };
 
+  React.useEffect(() => {
+    if (!isEditing) closeFieldSettings();
+  }, [isEditing]);
+
   const fieldItemClass = (field, selected, readOnly = false, tone = "panel") => {
     const required = isFieldRequired(field);
     const toneClass =
@@ -324,9 +335,9 @@ export default function EmpLayoutConfiguratorDialog({
   };
 
   const renderFieldActions = ({ field, variant }) => {
-    const canEdit = isEditing;
+    if (!isEditing) return null;
+
     const addAction = variant === "available";
-    const removeDisabled = !canEdit || fixedVisibleFieldIds.includes(field.id);
 
     return (
       <span className="emp-layout-config-field-actions ml-1 flex shrink-0 items-center gap-1">
@@ -335,7 +346,7 @@ export default function EmpLayoutConfiguratorDialog({
             type="button"
             className="emp-layout-config-field-action"
             title="Adicionar ao painel"
-            disabled={!canEdit || !activePanel}
+            disabled={!activePanel}
             onClick={(event) => {
               event.stopPropagation();
               addFieldById(field.id);
@@ -348,7 +359,7 @@ export default function EmpLayoutConfiguratorDialog({
             type="button"
             className="emp-layout-config-field-action"
             title="Remover do painel"
-            disabled={removeDisabled}
+            disabled={fixedVisibleFieldIds.includes(field.id)}
             onClick={(event) => {
               event.stopPropagation();
               removeFieldById(field.id);
@@ -449,7 +460,7 @@ export default function EmpLayoutConfiguratorDialog({
   );
 
   const content = (
-    <div className="cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden bg-white">
+    <div className={`cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden bg-white${isEditing ? " emp-layout-config-editing" : ""}`}>
       {!inline && (
         <DialogHeader className="sr-only">
           <DialogTitle>Configuração de layout do formulário</DialogTitle>
@@ -661,11 +672,13 @@ export default function EmpLayoutConfiguratorDialog({
         fixedVisibleFieldIds={fixedVisibleFieldIds}
         draftHiddenFieldIds={draftHiddenFieldIds}
         draftLockedFieldIds={draftLockedFieldIds}
+        draftClearOnDuplicateFieldIds={draftClearOnDuplicateFieldIds}
         draftAggregationConfig={draftAggregationConfig}
         draftVisibilityRules={draftVisibilityRules}
         fields={fields}
         onToggleHidden={(fieldId, checked) => toggleListValue(setDraftHiddenFieldIds, fieldId, checked)}
         onToggleLocked={(fieldId, checked) => toggleListValue(setDraftLockedFieldIds, fieldId, checked)}
+        onToggleClearOnDuplicate={(fieldId, checked) => toggleListValue(setDraftClearOnDuplicateFieldIds, fieldId, checked)}
         onToggleAggregation={setAggregationEnabled}
         onAggregationTypeChange={(fieldId, value) =>
           setDraftAggregationConfig((prev) => ({

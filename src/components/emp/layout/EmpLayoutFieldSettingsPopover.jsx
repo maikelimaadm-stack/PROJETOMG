@@ -23,6 +23,19 @@ const isInsideFloatingLayer = (target) => {
   return false;
 };
 
+const ToggleRow = ({ label, checked, disabled, onChange }) => (
+  <label className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12px] text-[#1a1f26]">
+    <span>{label}</span>
+    <ToggleSwitch
+      checked={checked}
+      disabled={disabled}
+      onChange={onChange}
+      className="emp-form-toggle-switch"
+      checkedClassName="emp-form-toggle-switch-on"
+    />
+  </label>
+);
+
 export default function EmpLayoutFieldSettingsPopover({
   field,
   anchorRect,
@@ -33,11 +46,13 @@ export default function EmpLayoutFieldSettingsPopover({
   fixedVisibleFieldIds = [],
   draftHiddenFieldIds = [],
   draftLockedFieldIds = [],
+  draftClearOnDuplicateFieldIds = [],
   draftAggregationConfig = {},
   draftVisibilityRules = {},
   fields = [],
   onToggleHidden,
   onToggleLocked,
+  onToggleClearOnDuplicate,
   onToggleAggregation,
   onAggregationTypeChange,
   onVisibilityRuleChange,
@@ -68,24 +83,24 @@ export default function EmpLayoutFieldSettingsPopover({
   if (!open || !field || !anchorRect) return null;
 
   const required = isFieldRequired(field);
+  const panelWidth = 560;
   const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
-  const panelWidth = 420;
   const left = Math.min(Math.max(8, anchorRect.left), viewportWidth - panelWidth - 8);
   const top = anchorRect.bottom + 6;
 
   return (
     <div
       ref={panelRef}
-      className="emp-layout-field-settings-popover fixed z-[200] w-[420px] max-w-[calc(100vw-16px)] overflow-hidden rounded-sm border border-[#cfd8e3] bg-white shadow-lg"
+      className="emp-layout-field-settings-popover fixed z-[200] w-[560px] max-w-[calc(100vw-16px)] overflow-hidden border border-[#cfd8e3] bg-white shadow-lg"
       style={{ top, left }}
       role="dialog"
       aria-label={`Configurações de ${field.label}`}
     >
-      <div className="flex h-9 items-center justify-between bg-[#455a64] px-3 text-white">
-        <span className="truncate text-sm font-semibold">{field.label}</span>
+      <div className="flex h-9 items-center justify-between border-b border-[#e2e8f0] bg-white px-3">
+        <span className="truncate text-sm font-semibold text-[#1a1f26]">{field.label}</span>
         <button
           type="button"
-          className="inline-flex h-6 w-6 items-center justify-center rounded-sm text-white hover:bg-white/10"
+          className="inline-flex h-6 w-6 items-center justify-center rounded-sm text-[#455a64] hover:bg-slate-100"
           title="Fechar"
           onClick={onClose}
         >
@@ -93,56 +108,50 @@ export default function EmpLayoutFieldSettingsPopover({
         </button>
       </div>
       <div className="space-y-3 px-4 py-3">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-          <label className="flex items-center justify-between gap-2 text-[12px] text-[#1a1f26]">
-            <span>Oculto</span>
-            <ToggleSwitch
-              checked={draftHiddenFieldIds.includes(field.id)}
-              disabled={!isEditing || required || fixedVisibleFieldIds.includes(field.id)}
-              onChange={(checked) => onToggleHidden?.(field.id, checked)}
-              className="emp-form-toggle-switch"
-              checkedClassName="emp-form-toggle-switch-on"
-            />
-          </label>
-          <label className="flex items-center justify-between gap-2 text-[12px] text-[#1a1f26]">
-            <span>Bloqueado</span>
-            <ToggleSwitch
-              checked={draftLockedFieldIds.includes(field.id)}
-              disabled={!isEditing || required}
-              onChange={(checked) => onToggleLocked?.(field.id, checked)}
-              className="emp-form-toggle-switch"
-              checkedClassName="emp-form-toggle-switch-on"
-            />
-          </label>
-          <label className="flex items-center justify-between gap-2 text-[12px] text-[#1a1f26]">
-            <span>Totalizar</span>
-            <ToggleSwitch
-              checked={!!draftAggregationConfig[field.id]?.enabled}
-              disabled={!isEditing || !field?.totalizable}
-              onChange={(checked) => onToggleAggregation?.(field.id, checked)}
-              className="emp-form-toggle-switch"
-              checkedClassName="emp-form-toggle-switch-on"
-            />
-          </label>
-          <div className="flex flex-col gap-1 text-[12px] text-[#1a1f26]">
-            <span>Tipo de totalização</span>
-            <Select
-              value={draftAggregationConfig[field.id]?.type || "sum"}
-              onValueChange={(value) => onAggregationTypeChange?.(field.id, value)}
-              disabled={!isEditing || !draftAggregationConfig[field.id]?.enabled}
-            >
-              <SelectTrigger className="emp-layout-config-select h-7 w-full text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="z-[250]">
-                {AGGREGATION_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value} className="text-xs">
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <ToggleRow
+            label="Oculto"
+            checked={draftHiddenFieldIds.includes(field.id)}
+            disabled={!isEditing || required || fixedVisibleFieldIds.includes(field.id)}
+            onChange={(checked) => onToggleHidden?.(field.id, checked)}
+          />
+          <ToggleRow
+            label="Bloqueado"
+            checked={draftLockedFieldIds.includes(field.id)}
+            disabled={!isEditing || required}
+            onChange={(checked) => onToggleLocked?.(field.id, checked)}
+          />
+          <ToggleRow
+            label="Totalizar"
+            checked={!!draftAggregationConfig[field.id]?.enabled}
+            disabled={!isEditing || !field?.totalizable}
+            onChange={(checked) => onToggleAggregation?.(field.id, checked)}
+          />
+          <ToggleRow
+            label="Limpar ao Duplicar"
+            checked={draftClearOnDuplicateFieldIds.includes(field.id)}
+            disabled={!isEditing || fixedVisibleFieldIds.includes(field.id)}
+            onChange={(checked) => onToggleClearOnDuplicate?.(field.id, checked)}
+          />
+        </div>
+        <div className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
+          <span className="shrink-0">Tipo de totalização</span>
+          <Select
+            value={draftAggregationConfig[field.id]?.type || "sum"}
+            onValueChange={(value) => onAggregationTypeChange?.(field.id, value)}
+            disabled={!isEditing || !draftAggregationConfig[field.id]?.enabled}
+          >
+            <SelectTrigger className="emp-layout-config-select h-7 w-40 text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="z-[250]">
+              {AGGREGATION_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value} className="text-xs">
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div className="border-t border-[#e2e8f0] pt-3">
           <EmpConditionalVisibilityEditor

@@ -45,6 +45,22 @@ const buildEmpty = () => ({
   campos_personalizados: {}
 });
 
+const applyDuplicateFieldClears = (data, clearFieldIds = []) => {
+  if (!data?._isDuplicate || !clearFieldIds.length) return data;
+  const next = { ...data, campos_personalizados: { ...(data.campos_personalizados || {}) } };
+  clearFieldIds.forEach((fieldId) => {
+    if (fieldId === "codigo_empresa") return;
+    if (String(fieldId).startsWith("custom:")) {
+      next.campos_personalizados[String(fieldId).replace(/^custom:/, "")] = "";
+      return;
+    }
+    if (fieldId === "status") next.status = "Ativa";
+    else if (fieldId === "tipo_pessoa") next.tipo_pessoa = "PJ";
+    else next[fieldId] = "";
+  });
+  return next;
+};
+
 const NATIVE_FIELDS = new Set([
   "codigo_empresa", "razao_social", "nome_fantasia", "tipo_pessoa", "cpf_cnpj",
   "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url", "cep",
@@ -78,11 +94,24 @@ export default function FORMEMP({
   const [formData, setFormData] = useState(() => buildFormData(initialData));
 
   useEffect(() => {
-    setFormData(buildFormData(initialData));
+    let next = buildFormData(initialData);
+    if (initialData?._isDuplicate) {
+      const saved = localStorage.getItem(FORM_LAYOUT_KEY);
+      let clearIds = formLayoutConfig?.clearOnDuplicateFieldIds || [];
+      if (!clearIds.length && saved) {
+        try {
+          clearIds = JSON.parse(saved).clearOnDuplicateFieldIds || [];
+        } catch {
+          clearIds = [];
+        }
+      }
+      next = applyDuplicateFieldClears(next, clearIds);
+    }
+    setFormData(next);
     setErrors({});
     setEditMode(!isEditing || !!initialData?._isDuplicate);
     setActiveTab("geral");
-  }, [initialData?.id, initialData?.codigo_empresa, initialData?._isDuplicate, isEditing]);
+  }, [initialData?.id, initialData?.codigo_empresa, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
 
   const { data: camposPersonalizados = [] } = useQuery({
     queryKey: ["emp-campos-personalizados"],
@@ -280,7 +309,7 @@ export default function FORMEMP({
   };
 
   const activeLayoutConfig = (() => {
-    const source = formLayoutConfig || { panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], aggregationConfig: {}, visibilityRules: {} };
+    const source = formLayoutConfig || { panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], aggregationConfig: {}, visibilityRules: {} };
     const panelsSource = source.panels?.some((panel) => panel.id === "principal") ? source.panels : [basePanels[0], ...(source.panels || basePanels)];
     const panels = [...panelsSource, ...basePanels.filter((basePanel) => !panelsSource.some((panel) => panel.id === basePanel.id))];
     const principalFields = source.layout?.principal?.length ? source.layout.principal : defaultLayout.principal;
@@ -359,9 +388,10 @@ export default function FORMEMP({
           hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
           lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
           requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+          clearOnDuplicateFieldIds={activeLayoutConfig.clearOnDuplicateFieldIds || []}
           aggregationConfig={activeLayoutConfig.aggregationConfig || {}}
           visibilityRules={activeLayoutConfig.visibilityRules || {}}
-          defaultConfig={{ panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], aggregationConfig: {}, visibilityRules: {} }}
+          defaultConfig={{ panels: basePanels, layout: defaultLayout, hiddenFieldIds: [], lockedFieldIds: [], requiredFieldIds: [], clearOnDuplicateFieldIds: [], aggregationConfig: {}, visibilityRules: {} }}
           systemPanelIds={["principal", "geral", "endereco", "observacoes", "campos_personalizados"]}
           fixedPanelIds={["principal"]}
           fixedVisibleFieldIds={["status", "codigo_empresa"]}
