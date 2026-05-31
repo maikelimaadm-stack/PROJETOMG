@@ -211,9 +211,69 @@ export default function PAGEMP() {
   const handleConfirmDelete = async () => {
     const ids = deleteState.ids;
     setDeleteState({ open: false, ids: [] });
+    if (ids.length === 0) return;
+
+    const wasOnForm = showForm && viewMode === "record";
+    const deletedCurrentFromForm = wasOnForm && editingEmp?.id && ids.includes(editingEmp.id);
+    const navIndexBeforeDelete = deletedCurrentFromForm
+      ? empresasNavegacao.findIndex((item) => item.id === editingEmp.id)
+      : -1;
+
     let count = 0;
-    for (const id of ids) { await deleteMutation.mutateAsync(id); count++; }
-    if (count > 0) { await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] }); toast.success(count === 1 ? "Empresa excluída!" : `${count} empresas excluídas!`); }
+    for (const id of ids) {
+      await deleteMutation.mutateAsync(id);
+      count++;
+    }
+
+    if (count === 0) return;
+
+    if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
+      setAttachmentsRecord(null);
+    }
+
+    await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+
+    const list = await queryClient.fetchQuery({
+      queryKey: ["emp-cadastro"],
+      queryFn: () => empRepository.list()
+    });
+    const filtered = filterEmpresasBySearch(list, searchTerm);
+
+    if (deletedCurrentFromForm) {
+      if (filtered.length === 0) {
+        setShowForm(false);
+        setEditingEmp(null);
+        setViewMode("table");
+        setSelectedTableItems([]);
+        setSelectedIndex(0);
+      } else {
+        const nextIndex = Math.min(Math.max(navIndexBeforeDelete, 0), filtered.length - 1);
+        const nextEmp = filtered[nextIndex];
+        setEditingEmp(nextEmp);
+        setSelectedIndex(nextIndex);
+        setSelectedTableItems([nextEmp.id]);
+        setShowForm(true);
+        setViewMode("record");
+        setFormVersion((version) => version + 1);
+      }
+    } else {
+      setSelectedTableItems((prev) => prev.filter((id) => !ids.includes(id)));
+
+      if (showForm && viewMode === "record" && editingEmp?.id) {
+        const fresh = findEmpresaInList(filtered, editingEmp);
+        if (fresh) {
+          setEditingEmp(fresh);
+          const idx = filtered.findIndex((item) => item.id === fresh.id);
+          if (idx >= 0) setSelectedIndex(idx);
+        }
+      } else if (filtered.length === 0) {
+        setSelectedIndex(0);
+      } else {
+        setSelectedIndex((prev) => Math.min(prev, filtered.length - 1));
+      }
+    }
+
+    toast.success(count === 1 ? "Empresa excluída!" : `${count} empresas excluídas!`);
   };
 
   const handleExportPdf = () => {
