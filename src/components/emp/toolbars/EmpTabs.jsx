@@ -4,6 +4,9 @@ import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 
 export const EMP_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 
+const tabNavButtonClass =
+  "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
+
 const formatPanelLabel = (value) =>
   String(value || "")
     .toLowerCase()
@@ -25,28 +28,21 @@ export default function EmpTabs({
     panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
   return (
-    <div className="emp-form-tabs relative flex items-end gap-0 bg-[#f8fafc] px-4 md:px-8 before:absolute before:left-4 before:right-4 md:before:left-8 md:before:right-8 before:bottom-0 before:h-px before:bg-[#d6dce8]">
+    <div className="relative h-9 bg-white flex items-end gap-0 before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-slate-300">
       <button
         type="button"
         onClick={() => scrollPanels(-1)}
-        className="emp-form-tab-nav-btn relative z-20 mb-px mr-0.5"
+        className={`${tabNavButtonClass} border-r border-slate-300`}
         title="Rolar painéis"
-        aria-label="Rolar painéis para a esquerda"
       >
-        <ChevronLeft className="h-3.5 w-3.5" strokeWidth={2} />
+        <ChevronLeft className="w-3.5 h-3.5" />
       </button>
-      <button
-        type="button"
-        onClick={() => scrollPanels(1)}
-        className="emp-form-tab-nav-btn relative z-20 mb-px mr-2"
-        title="Rolar painéis"
-        aria-label="Rolar painéis para a direita"
-      >
-        <ChevronRight className="h-3.5 w-3.5" strokeWidth={2} />
+      <button type="button" onClick={() => scrollPanels(1)} className={tabNavButtonClass} title="Rolar painéis">
+        <ChevronRight className="w-3.5 h-3.5" />
       </button>
       <div
         ref={panelsScrollRef}
-        className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+        className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
       >
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
@@ -57,8 +53,10 @@ export default function EmpTabs({
               key={tab.id}
               type="button"
               onClick={() => onChange?.(tab.id)}
-              className={`emp-form-tab relative z-10 flex-none h-8 min-w-max px-4 text-xs whitespace-nowrap transition-colors ${
-                active ? "emp-form-tab-active" : "emp-form-tab-inactive"
+              className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${
+                active
+                  ? "bg-white font-semibold text-slate-600 border-t-2 border-t-[#082e54] border-b-white"
+                  : "bg-slate-50 text-slate-500 border-b-slate-300 hover:bg-white"
               }`}
             >
               {custom && <EmpCustomMarker />}
