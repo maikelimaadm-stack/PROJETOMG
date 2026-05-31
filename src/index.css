@@ -223,6 +223,7 @@ input[type="number"] {
 .cadastro-emp-scope {
   --emp-text: #475569;
   --emp-text-strong: #334155;
+  --emp-control-radius: 5px;
   color: var(--emp-text);
 }
 
@@ -410,7 +411,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
   border: 0.5px solid #c5ced8;
-  border-radius: 3px;
+  border-radius: var(--emp-control-radius);
   background: #ffffff;
   box-shadow: none;
   overflow: hidden;
@@ -1159,7 +1160,7 @@ input[type="number"] {
   flex-shrink: 0;
   font-size: 12px;
   border: 0.5px solid #c5ced8;
-  border-radius: 5px;
+  border-radius: var(--emp-control-radius) !important;
   background: #ffffff;
   box-shadow: none;
   transition: border-color 0.15s ease, background-color 0.15s ease;
@@ -1192,10 +1193,21 @@ input[type="number"] {
   padding-bottom: 0;
 }
 
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-readonly.emp-layout-config-field-panel {
+  height: 28px;
+  min-height: 28px;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available {
   min-height: 22px;
   padding-top: 4px;
   padding-bottom: 4px;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-readonly.emp-layout-config-field-available {
+  min-height: 28px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field:disabled {
@@ -1210,7 +1222,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select {
   border: 0.5px solid #c5ced8 !important;
-  border-radius: 5px !important;
+  border-radius: var(--emp-control-radius) !important;
   background: #ffffff !important;
   box-shadow: none !important;
   color: #1a1f26 !important;
