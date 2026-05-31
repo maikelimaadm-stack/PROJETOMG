@@ -3,6 +3,7 @@ import { Filter, List, Table, Plus, ChevronsLeft, ChevronLeft, ChevronRight, Che
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_COUNTER, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/components/emp/toolbars/empToolbarStyles";
 import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
+import EmpToolbarInfoBar from "@/components/emp/toolbars/EmpToolbarInfoBar";
 
 const titleCase = (value) => String(value || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
@@ -153,13 +154,12 @@ export default function EmpListToolbar({
       </div>
 
       {viewMode === "record" && (
-        <div className="emp-toolbar-info-bar h-8 flex items-center gap-2 border-b border-[#dce3eb] px-1 mt-1">
-          {recordLabel && (
-            <span className="px-2 py-0.5 rounded-md border border-sky-200 bg-white text-[#082e54] text-xs font-semibold">{titleCase(recordLabel)}</span>
-          )}
-          <span className="text-xs font-semibold text-[#1a1f26] truncate min-w-0 flex-1">{title}</span>
-          <span className="ml-auto text-[11px] font-semibold text-[#1a1f26] whitespace-nowrap">{titleCase(operationLabel || "Visualização de Registro")}</span>
-        </div>
+        <EmpToolbarInfoBar
+          badgeLabel={recordLabel || "EMPRESA"}
+          title={title}
+          operationLabel={operationLabel || "Visualização de Registro"}
+          className="mt-1 px-1"
+        />
       )}
     </div>
   );
