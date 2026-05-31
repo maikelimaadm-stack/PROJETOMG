@@ -13,6 +13,7 @@ export default function EmpConditionalVisibilityEditor({
   visibilityRules = {},
   onChange,
   disabled = false,
+  hideLabel = false,
   selectContentClassName = "",
   selectPortalContainer = null,
   selectPortalled = true,
@@ -43,8 +44,8 @@ export default function EmpConditionalVisibilityEditor({
   };
 
   return (
-    <div className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
-      <span>Exibir se:</span>
+    <div className="flex min-w-0 flex-wrap items-center gap-2 text-[12px] text-[#1a1f26]">
+      {!hideLabel && <span className="shrink-0">Exibir se:</span>}
       <Select
         modal={selectModal}
         value={sourceValue}
@@ -52,7 +53,7 @@ export default function EmpConditionalVisibilityEditor({
         disabled={!selectedId || disabled}
         onOpenChange={onSelectOpenChange}
       >
-        <SelectTrigger className="emp-layout-config-select h-6 w-40 text-xs">
+        <SelectTrigger className="emp-layout-config-select h-7 w-40 text-xs">
           <SelectValue />
         </SelectTrigger>
         <SelectContent
@@ -78,7 +79,7 @@ export default function EmpConditionalVisibilityEditor({
           disabled={!selectedId || disabled}
           onOpenChange={onSelectOpenChange}
         >
-          <SelectTrigger className="emp-layout-config-select h-6 w-32 text-xs">
+          <SelectTrigger className="emp-layout-config-select h-7 w-32 text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent

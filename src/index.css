@@ -1219,6 +1219,14 @@ input[type="number"] {
   border-radius: var(--emp-control-radius) !important;
 }
 
+.cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-toggles {
+  scrollbar-width: thin;
+}
+
+.cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-row > span {
+  color: #1a1f26;
+}
+
 .cadastro-emp-scope .emp-layout-field-settings-popover [data-radix-select-viewport] {
   max-height: 220px;
 }
