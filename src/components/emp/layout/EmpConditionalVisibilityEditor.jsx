@@ -32,13 +32,37 @@ export default function EmpConditionalVisibilityEditor({ selectedField, fields =
   };
 
   return (
-    <div className="flex items-center gap-2 text-[12px] text-slate-600">
+    <div className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
       <span>Exibir se:</span>
       <Select value={sourceValue} onValueChange={setSource} disabled={!selectedId || disabled}>
-        <SelectTrigger className="h-7 w-40 rounded-none text-xs bg-white"><SelectValue /></SelectTrigger>
-        <SelectContent><SelectItem value={ALWAYS} className="text-xs">Sempre</SelectItem>{conditionFields.map((field) => <SelectItem key={getFieldValueKey(field)} value={getFieldValueKey(field)} className="text-xs">{field.label}</SelectItem>)}</SelectContent>
+        <SelectTrigger className="emp-layout-config-select h-6 w-40 text-xs">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value={ALWAYS} className="text-xs">
+            Sempre
+          </SelectItem>
+          {conditionFields.map((field) => (
+            <SelectItem key={getFieldValueKey(field)} value={getFieldValueKey(field)} className="text-xs">
+              {field.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
       </Select>
-      {sourceField && <Select value={rule?.value || EMPTY} onValueChange={setValue} disabled={!selectedId || disabled}><SelectTrigger className="h-7 w-32 rounded-none text-xs bg-white"><SelectValue /></SelectTrigger><SelectContent>{valueOptions.map((option) => <SelectItem key={option.value || EMPTY} value={option.value || EMPTY} className="text-xs">{option.label || option.value}</SelectItem>)}</SelectContent></Select>}
+      {sourceField && (
+        <Select value={rule?.value || EMPTY} onValueChange={setValue} disabled={!selectedId || disabled}>
+          <SelectTrigger className="emp-layout-config-select h-6 w-32 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {valueOptions.map((option) => (
+              <SelectItem key={option.value || EMPTY} value={option.value || EMPTY} className="text-xs">
+                {option.label || option.value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
     </div>
   );
 }

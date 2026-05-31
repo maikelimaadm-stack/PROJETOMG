@@ -1,30 +1,74 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, EyeOff, Pencil, Plus, RotateCcw, Search, Trash2, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  EyeOff,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Search,
+  Trash2,
+  X,
+} from "lucide-react";
 import EmpConditionalVisibilityEditor from "./EmpConditionalVisibilityEditor";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
+import {
+  EMP_TOOLBAR_BTN,
+  EMP_TOOLBAR_SEARCH_INPUT,
+  EMP_TOOLBAR_SEARCH_WRAP,
+} from "@/components/emp/toolbars/empToolbarStyles";
 
 const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = ["principal"];
 const DEFAULT_FIXED_VISIBLE_FIELD_IDS = ["status", "codigo_empresa"];
-const AGGREGATION_OPTIONS = [{ value: "sum", label: "Soma" }, { value: "avg", label: "Média" }, { value: "max", label: "Maior" }, { value: "min", label: "Menor" }];
-const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
-const tabNavButtonClass = "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
+const AGGREGATION_OPTIONS = [
+  { value: "sum", label: "Soma" },
+  { value: "avg", label: "Média" },
+  { value: "max", label: "Maior" },
+  { value: "min", label: "Menor" },
+];
+
+const ToolbarBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
+    {children}
+  </button>
+);
 
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 const CustomMarker = EmpCustomMarker;
-const formatPanelLabel = (value) => String(value || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
+const formatPanelLabel = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
-function GreenCheck({ checked, disabled = false, onChange }) {
-  return <button type="button" disabled={disabled} onClick={() => !disabled && onChange?.(!checked)} className={`!h-4 !w-8 relative inline-flex items-center transition-colors border border-slate-300 shadow-none rounded-[1px] bg-white hover:bg-slate-50 ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}><span className={`absolute top-0.5 w-3 h-3 rounded-full transition-all ${checked ? "right-0.5 bg-slate-700" : "left-0.5 bg-slate-300"}`} /></button>;
-}
-
-export default function EmpLayoutConfiguratorDialog({ open, onOpenChange, panels = [], fields = [], layout = {}, hiddenFieldIds = [], lockedFieldIds = [], requiredFieldIds = [], aggregationConfig = {}, visibilityRules = {}, defaultConfig = null, onSave, inline = false, systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS, fixedPanelIds = DEFAULT_FIXED_PANEL_IDS, fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS }) {
+export default function EmpLayoutConfiguratorDialog({
+  open,
+  onOpenChange,
+  panels = [],
+  fields = [],
+  layout = {},
+  hiddenFieldIds = [],
+  lockedFieldIds = [],
+  requiredFieldIds = [],
+  aggregationConfig = {},
+  visibilityRules = {},
+  defaultConfig = null,
+  onSave,
+  inline = false,
+  systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS,
+  fixedPanelIds = DEFAULT_FIXED_PANEL_IDS,
+  fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS,
+}) {
   const [draftPanels, setDraftPanels] = useState(panels);
   const [draftLayout, setDraftLayout] = useState(layout);
   const [draftHiddenFieldIds, setDraftHiddenFieldIds] = useState(hiddenFieldIds);
@@ -45,7 +89,19 @@ export default function EmpLayoutConfiguratorDialog({ open, onOpenChange, panels
 
   React.useEffect(() => {
     if (!open) return;
-    setDraftPanels(panels); setDraftLayout(layout); setDraftHiddenFieldIds(hiddenFieldIds); setDraftLockedFieldIds(lockedFieldIds); setDraftRequiredFieldIds(requiredFieldIds); setDraftAggregationConfig(aggregationConfig); setDraftVisibilityRules(visibilityRules); setActivePanelId(panels[0]?.id || ""); setSelectedAvailableIds([]); setSelectedPanelFieldIds([]); setSearch(""); setIsEditing(false); setEditingPanelId(null);
+    setDraftPanels(panels);
+    setDraftLayout(layout);
+    setDraftHiddenFieldIds(hiddenFieldIds);
+    setDraftLockedFieldIds(lockedFieldIds);
+    setDraftRequiredFieldIds(requiredFieldIds);
+    setDraftAggregationConfig(aggregationConfig);
+    setDraftVisibilityRules(visibilityRules);
+    setActivePanelId(panels[0]?.id || "");
+    setSelectedAvailableIds([]);
+    setSelectedPanelFieldIds([]);
+    setSearch("");
+    setIsEditing(false);
+    setEditingPanelId(null);
   }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, aggregationConfig, visibilityRules]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
@@ -55,30 +111,503 @@ export default function EmpLayoutConfiguratorDialog({ open, onOpenChange, panels
   const selectedField = fields.find((field) => field.id === selectedPanelFieldIds[0]) || null;
   const activePanelIsSystem = systemPanelIds.includes(activePanel?.id);
   const activePanelIsFixed = fixedPanelIds.includes(activePanel?.id);
-  const availableFields = useMemo(() => fields.filter((field) => !usedFieldIds.has(field.id)).filter((field) => !search.trim() || String(field.label || "").toLowerCase().includes(search.trim().toLowerCase())), [fields, usedFieldIds, search]);
+  const availableFields = useMemo(
+    () =>
+      fields
+        .filter((field) => !usedFieldIds.has(field.id))
+        .filter(
+          (field) =>
+            !search.trim() || String(field.label || "").toLowerCase().includes(search.trim().toLowerCase())
+        ),
+    [fields, usedFieldIds, search]
+  );
 
   const showRequiredPopup = (message) => setRequiredPopup({ open: true, message });
-  const addField = () => { if (!selectedAvailableIds.length || !activePanel) return; setDraftLayout((prev) => ({ ...prev, [activePanel.id]: [...(prev[activePanel.id] || []), ...selectedAvailableIds.filter((id) => !(prev[activePanel.id] || []).includes(id))] })); setSelectedAvailableIds([]); setSelectedPanelFieldIds([]); };
-  const addAllFields = () => { if (!activePanel) return; const ids = availableFields.map((field) => field.id); setDraftLayout((prev) => ({ ...prev, [activePanel.id]: [...(prev[activePanel.id] || []), ...ids.filter((id) => !(prev[activePanel.id] || []).includes(id))] })); setSelectedAvailableIds([]); };
-  const removeField = () => { if (!selectedPanelFieldIds.length || !activePanel) return; if (selectedPanelFieldIds.some((id) => fixedVisibleFieldIds.includes(id))) return showRequiredPopup("Código e Ativo não podem ser removidos do layout."); setDraftLayout((prev) => ({ ...prev, [activePanel.id]: (prev[activePanel.id] || []).filter((id) => !selectedPanelFieldIds.includes(id)) })); setSelectedPanelFieldIds([]); };
-  const removeAllFields = () => { if (!activePanel) return; setDraftLayout((prev) => ({ ...prev, [activePanel.id]: (prev[activePanel.id] || []).filter((id) => fixedVisibleFieldIds.includes(id)) })); setSelectedPanelFieldIds([]); };
-  const createPanel = () => { const id = `painel_${Date.now()}`; const next = { id, label: `Painel Personalizado ${draftPanels.filter((panel) => !systemPanelIds.includes(panel.id)).length + 1}` }; setDraftPanels((prev) => [...prev, next]); setDraftLayout((prev) => ({ ...prev, [id]: [] })); setActivePanelId(id); setEditingPanelId(id); setIsEditing(true); };
-  const deletePanel = () => { if (!activePanel || activePanelIsSystem) return; setDraftPanels((prev) => prev.filter((panel) => panel.id !== activePanel.id)); setDraftLayout((prev) => { const next = { ...prev }; delete next[activePanel.id]; return next; }); setActivePanelId(draftPanels.find((panel) => panel.id !== activePanel.id)?.id || ""); };
-  const reorderField = (targetFieldId) => { if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel) return; const list = [...panelFieldIds]; const from = list.indexOf(draggedFieldId); const to = list.indexOf(targetFieldId); if (from < 0 || to < 0) return; list.splice(from, 1); list.splice(to, 0, draggedFieldId); setDraftLayout((prev) => ({ ...prev, [activePanel.id]: list })); };
-  const reorderPanel = (targetPanelId) => { if (!draggedPanelId || draggedPanelId === targetPanelId || fixedPanelIds.includes(draggedPanelId) || fixedPanelIds.includes(targetPanelId)) return; const next = [...draftPanels]; const from = next.findIndex((panel) => panel.id === draggedPanelId); const to = next.findIndex((panel) => panel.id === targetPanelId); if (from < 0 || to < 0) return; const [moved] = next.splice(from, 1); next.splice(to, 0, moved); setDraftPanels(next); };
-  const toggleListValue = (setter, fieldId, checked) => setter((prev) => checked ? Array.from(new Set([...prev, fieldId])) : prev.filter((id) => id !== fieldId));
-  const setAggregationEnabled = (fieldId, enabled) => setDraftAggregationConfig((prev) => { const next = { ...prev }; if (!enabled) delete next[fieldId]; else next[fieldId] = { enabled: true, type: prev[fieldId]?.type || "sum" }; return next; });
-  const setVisibilityRule = (fieldId, rule) => setDraftVisibilityRules((prev) => { const next = { ...prev }; if (!rule) delete next[fieldId]; else next[fieldId] = rule; return next; });
-  const handleSave = () => { onSave?.({ panels: draftPanels, layout: draftLayout, hiddenFieldIds: draftHiddenFieldIds, lockedFieldIds: draftLockedFieldIds, requiredFieldIds: draftRequiredFieldIds, aggregationConfig: draftAggregationConfig, visibilityRules: draftVisibilityRules }); onOpenChange(false); };
-  const restoreDefault = () => { if (!defaultConfig) return; setDraftPanels(defaultConfig.panels || []); setDraftLayout(defaultConfig.layout || {}); setDraftHiddenFieldIds([]); setDraftLockedFieldIds([]); setDraftRequiredFieldIds([]); setDraftAggregationConfig({}); setDraftVisibilityRules({}); setActivePanelId(defaultConfig.panels?.[0]?.id || ""); };
-  const discardChanges = () => { setDraftPanels(panels); setDraftLayout(layout); setDraftHiddenFieldIds(hiddenFieldIds); setDraftLockedFieldIds(lockedFieldIds); setDraftRequiredFieldIds(requiredFieldIds); setDraftAggregationConfig(aggregationConfig); setDraftVisibilityRules(visibilityRules); setIsEditing(false); };
-  const scrollPanels = (direction) => panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
+  const addField = () => {
+    if (!selectedAvailableIds.length || !activePanel) return;
+    setDraftLayout((prev) => ({
+      ...prev,
+      [activePanel.id]: [
+        ...(prev[activePanel.id] || []),
+        ...selectedAvailableIds.filter((id) => !(prev[activePanel.id] || []).includes(id)),
+      ],
+    }));
+    setSelectedAvailableIds([]);
+    setSelectedPanelFieldIds([]);
+  };
+  const addAllFields = () => {
+    if (!activePanel) return;
+    const ids = availableFields.map((field) => field.id);
+    setDraftLayout((prev) => ({
+      ...prev,
+      [activePanel.id]: [
+        ...(prev[activePanel.id] || []),
+        ...ids.filter((id) => !(prev[activePanel.id] || []).includes(id)),
+      ],
+    }));
+    setSelectedAvailableIds([]);
+  };
+  const removeField = () => {
+    if (!selectedPanelFieldIds.length || !activePanel) return;
+    if (selectedPanelFieldIds.some((id) => fixedVisibleFieldIds.includes(id))) {
+      return showRequiredPopup("Código e Ativo não podem ser removidos do layout.");
+    }
+    setDraftLayout((prev) => ({
+      ...prev,
+      [activePanel.id]: (prev[activePanel.id] || []).filter((id) => !selectedPanelFieldIds.includes(id)),
+    }));
+    setSelectedPanelFieldIds([]);
+  };
+  const removeAllFields = () => {
+    if (!activePanel) return;
+    setDraftLayout((prev) => ({
+      ...prev,
+      [activePanel.id]: (prev[activePanel.id] || []).filter((id) => fixedVisibleFieldIds.includes(id)),
+    }));
+    setSelectedPanelFieldIds([]);
+  };
+  const createPanel = () => {
+    const id = `painel_${Date.now()}`;
+    const next = {
+      id,
+      label: `Painel Personalizado ${draftPanels.filter((panel) => !systemPanelIds.includes(panel.id)).length + 1}`,
+    };
+    setDraftPanels((prev) => [...prev, next]);
+    setDraftLayout((prev) => ({ ...prev, [id]: [] }));
+    setActivePanelId(id);
+    setEditingPanelId(id);
+    setIsEditing(true);
+  };
+  const deletePanel = () => {
+    if (!activePanel || activePanelIsSystem) return;
+    setDraftPanels((prev) => prev.filter((panel) => panel.id !== activePanel.id));
+    setDraftLayout((prev) => {
+      const next = { ...prev };
+      delete next[activePanel.id];
+      return next;
+    });
+    setActivePanelId(draftPanels.find((panel) => panel.id !== activePanel.id)?.id || "");
+  };
+  const reorderField = (targetFieldId) => {
+    if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel) return;
+    const list = [...panelFieldIds];
+    const from = list.indexOf(draggedFieldId);
+    const to = list.indexOf(targetFieldId);
+    if (from < 0 || to < 0) return;
+    list.splice(from, 1);
+    list.splice(to, 0, draggedFieldId);
+    setDraftLayout((prev) => ({ ...prev, [activePanel.id]: list }));
+  };
+  const reorderPanel = (targetPanelId) => {
+    if (
+      !draggedPanelId ||
+      draggedPanelId === targetPanelId ||
+      fixedPanelIds.includes(draggedPanelId) ||
+      fixedPanelIds.includes(targetPanelId)
+    ) {
+      return;
+    }
+    const next = [...draftPanels];
+    const from = next.findIndex((panel) => panel.id === draggedPanelId);
+    const to = next.findIndex((panel) => panel.id === targetPanelId);
+    if (from < 0 || to < 0) return;
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setDraftPanels(next);
+  };
+  const toggleListValue = (setter, fieldId, checked) =>
+    setter((prev) => (checked ? Array.from(new Set([...prev, fieldId])) : prev.filter((id) => id !== fieldId)));
+  const setAggregationEnabled = (fieldId, enabled) =>
+    setDraftAggregationConfig((prev) => {
+      const next = { ...prev };
+      if (!enabled) delete next[fieldId];
+      else next[fieldId] = { enabled: true, type: prev[fieldId]?.type || "sum" };
+      return next;
+    });
+  const setVisibilityRule = (fieldId, rule) =>
+    setDraftVisibilityRules((prev) => {
+      const next = { ...prev };
+      if (!rule) delete next[fieldId];
+      else next[fieldId] = rule;
+      return next;
+    });
+  const handleSave = () => {
+    onSave?.({
+      panels: draftPanels,
+      layout: draftLayout,
+      hiddenFieldIds: draftHiddenFieldIds,
+      lockedFieldIds: draftLockedFieldIds,
+      requiredFieldIds: draftRequiredFieldIds,
+      aggregationConfig: draftAggregationConfig,
+      visibilityRules: draftVisibilityRules,
+    });
+    onOpenChange(false);
+  };
+  const restoreDefault = () => {
+    if (!defaultConfig) return;
+    setDraftPanels(defaultConfig.panels || []);
+    setDraftLayout(defaultConfig.layout || {});
+    setDraftHiddenFieldIds([]);
+    setDraftLockedFieldIds([]);
+    setDraftRequiredFieldIds([]);
+    setDraftAggregationConfig({});
+    setDraftVisibilityRules({});
+    setActivePanelId(defaultConfig.panels?.[0]?.id || "");
+  };
+  const discardChanges = () => {
+    setDraftPanels(panels);
+    setDraftLayout(layout);
+    setDraftHiddenFieldIds(hiddenFieldIds);
+    setDraftLockedFieldIds(lockedFieldIds);
+    setDraftRequiredFieldIds(requiredFieldIds);
+    setDraftAggregationConfig(aggregationConfig);
+    setDraftVisibilityRules(visibilityRules);
+    setIsEditing(false);
+  };
+  const scrollPanels = (direction) =>
+    panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
 
-  const renderAvailableField = (field) => <button key={field.id} type="button" disabled={!isEditing} draggable={isEditing} onClick={(event) => setSelectedAvailableIds((prev) => event.ctrlKey || event.metaKey || event.shiftKey ? prev.includes(field.id) ? prev.filter((id) => id !== field.id) : [...prev, field.id] : [field.id])} onDragStart={() => { setDraggedFieldId(field.id); setSelectedAvailableIds([field.id]); }} onDragEnd={() => setDraggedFieldId(null)} className={`relative w-full rounded-none border px-2 py-1.5 text-left overflow-hidden transition-all focus-visible:outline-none flex items-center justify-between gap-2 ${selectedAvailableIds.includes(field.id) ? "bg-[#082e54]/10 border-[#082e54] text-slate-600" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}>{isCustomField(field) && <CustomMarker />}<div className="min-w-0"><div className="text-xs font-semibold truncate">{field.label}</div><div className="text-[10px] text-slate-500 truncate">Disponível</div></div>{field.required && <span className="text-[10px] font-bold text-red-600 leading-none">*</span>}</button>;
-  const renderPanelField = (field) => <button key={field.id} type="button" disabled={!isEditing} draggable={isEditing && !fixedVisibleFieldIds.includes(field.id)} onClick={(event) => setSelectedPanelFieldIds((prev) => event.ctrlKey || event.metaKey || event.shiftKey ? prev.includes(field.id) ? prev.filter((id) => id !== field.id) : [...prev, field.id] : [field.id])} onDragStart={() => { setDraggedFieldId(field.id); setSelectedPanelFieldIds([field.id]); }} onDragOver={(event) => { event.preventDefault(); reorderField(field.id); }} onDrop={() => setDraggedFieldId(null)} onDragEnd={() => setDraggedFieldId(null)} className={`relative h-8 min-w-[210px] px-2 rounded-none text-left items-center transition-all flex border justify-between overflow-hidden focus-visible:outline-none ${selectedPanelFieldIds.includes(field.id) ? "bg-[#082e54]/10 border-[#082e54] text-slate-600" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"}`}>{isCustomField(field) && <CustomMarker />}<span className="text-xs font-semibold truncate">{field.label}</span><span className="flex items-center gap-1 ml-2 opacity-90">{draftHiddenFieldIds.includes(field.id) && <EyeOff className="w-3 h-3" />}{field.required && <span className="text-[10px]">*</span>}</span></button>;
+  const fieldItemClass = (selected) =>
+    `emp-layout-config-field relative flex items-center justify-between gap-2 overflow-hidden border px-2 py-1.5 text-left transition-all focus-visible:outline-none ${
+      selected ? "emp-layout-config-field-selected" : "emp-layout-config-field-default"
+    }`;
 
-  const content = <div className="w-full h-full overflow-hidden flex flex-col bg-white cadastro-emp-scope">{!inline && <DialogHeader className="sr-only"><DialogTitle>Configuração de layout do formulário</DialogTitle></DialogHeader>}<div className="border-slate-300 bg-white min-h-0 flex flex-col overflow-hidden flex-1 border-b"><div className="h-7 flex items-center gap-0 whitespace-nowrap bg-white border-y border-slate-300 overflow-hidden"><Button type="button" variant="outline" size="icon" onClick={() => onOpenChange(false)} className={iconButtonClass}><ChevronLeft className="w-3.5 h-3.5" /></Button>{!isEditing && <Button type="button" variant="outline" size="icon" onClick={() => setIsEditing(true)} className={iconButtonClass}><Pencil className="w-3.5 h-3.5" /></Button>}{isEditing && <Button type="button" variant="outline" size="icon" onClick={createPanel} className={iconButtonClass}><Plus className="w-4 h-4" /></Button>}{isEditing && <Button type="button" variant="outline" size="icon" disabled={!activePanel || activePanelIsSystem || activePanelIsFixed} onClick={deletePanel} className={iconButtonClass}><Trash2 className="w-3.5 h-3.5" /></Button>}{isEditing && <Button type="button" variant="outline" size="icon" onClick={handleSave} className={iconButtonClass}><Check className="w-4 h-4" /></Button>}{isEditing && <Button type="button" variant="outline" size="icon" onClick={discardChanges} className={iconButtonClass}><X className="w-3.5 h-3.5" /></Button>}<div className="ml-auto">{isEditing && <Button type="button" variant="outline" size="icon" onClick={restoreDefault} className={iconButtonClass}><RotateCcw className="w-3.5 h-3.5" /></Button>}</div></div><div className="grid grid-cols-[320px_45px_1fr] flex-1 min-h-0"><aside className="border-r border-slate-300 bg-white p-2 overflow-hidden flex flex-col"><div className="text-sm font-semibold text-slate-500 mb-2">Campos disponíveis</div><div className="relative mb-3"><Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Procurar campo" className="rounded-none text-xs pr-3 pl-3 h-7" /><Search className="w-3.5 h-3.5 text-slate-500 absolute right-2 top-1.5" /></div><div className="flex-1 overflow-auto space-y-1 pr-1" onDragOver={(event) => event.preventDefault()}>{availableFields.length === 0 ? <div className="text-xs text-slate-400 py-4 text-center">Solte aqui para remover do painel.</div> : availableFields.map(renderAvailableField)}</div></aside><section className="border-r border-slate-300 bg-slate-50 flex flex-col items-center justify-center gap-0"><Button type="button" variant="outline" size="icon" disabled={!isEditing || panelFieldIds.length === 0} onClick={removeAllFields} className={iconButtonClass}><ChevronsLeft className="w-3.5 h-3.5" /></Button><Button type="button" variant="outline" size="icon" disabled={!isEditing || selectedPanelFieldIds.length === 0} onClick={removeField} className={iconButtonClass}><ChevronLeft className="w-3.5 h-3.5" /></Button><Button type="button" variant="outline" size="icon" disabled={!isEditing || selectedAvailableIds.length === 0} onClick={addField} className={iconButtonClass}><ChevronRight className="w-3.5 h-3.5" /></Button><Button type="button" variant="outline" size="icon" disabled={!isEditing || availableFields.length === 0} onClick={addAllFields} className={iconButtonClass}><ChevronsRight className="w-3.5 h-3.5" /></Button></section><main className="min-w-0 overflow-hidden flex flex-col bg-white"><div className="relative h-9 bg-white flex items-end gap-0 before:absolute before:left-0 before:right-0 before:bottom-0 before:h-px before:bg-slate-300"><button type="button" onClick={() => scrollPanels(-1)} className={`${tabNavButtonClass} border-r border-slate-300`}><ChevronLeft className="w-3.5 h-3.5" /></button><button type="button" onClick={() => scrollPanels(1)} className={tabNavButtonClass}><ChevronRight className="w-3.5 h-3.5" /></button><div ref={panelsScrollRef} className="flex min-w-0 flex-1 items-end gap-0 overflow-x-auto overflow-y-hidden px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">{draftPanels.map((panel) => <button key={panel.id} type="button" draggable={isEditing && !fixedPanelIds.includes(panel.id)} onDragStart={() => { setDraggedPanelId(panel.id); setActivePanelId(panel.id); }} onDragOver={(event) => { event.preventDefault(); reorderPanel(panel.id); }} onDrop={() => setDraggedPanelId(null)} onDragEnd={() => setDraggedPanelId(null)} onClick={() => { setActivePanelId(panel.id); setEditingPanelId(isEditing && !systemPanelIds.includes(panel.id) ? panel.id : null); setSelectedPanelFieldIds([]); }} className={`relative z-10 flex-none h-8 min-w-max px-4 mx-0.5 border border-slate-300 text-xs whitespace-nowrap transition-colors overflow-hidden ${activePanel?.id === panel.id ? "bg-white font-semibold text-slate-600 border-t-2 border-t-[#082e54] border-b-white" : "bg-slate-50 text-slate-500 border-b-slate-300 hover:bg-white"}`}>{isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}{isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? <Input value={panel.label || ""} autoFocus onClick={(event) => event.stopPropagation()} onBlur={() => setEditingPanelId(null)} onChange={(event) => setDraftPanels((prev) => prev.map((item) => item.id === panel.id ? { ...item, label: formatPanelLabel(event.target.value) } : item))} className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0" /> : formatPanelLabel(panel.label)}</button>)}</div></div><div className="flex-1 overflow-auto p-3 border-slate-300"><div className="flex flex-wrap content-start gap-2 min-h-[160px]" onDragOver={(event) => event.preventDefault()}>{panelFields.length === 0 ? <div className="text-xs text-slate-400 p-4">Painel vazio.</div> : panelFields.map(renderPanelField)}</div></div><div className="border-t flex items-center h-10 border-slate-300 bg-slate-50 gap-3 py-2 px-2"><label className="flex items-center gap-2 text-[12px] text-slate-500"><span>Oculto:</span><GreenCheck checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required || fixedVisibleFieldIds.includes(selectedField.id)} onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)} /></label><label className="flex items-center gap-2 text-[12px] text-slate-500"><span>Bloqueado:</span><GreenCheck checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)} disabled={!selectedField || !isEditing || selectedField.required} onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)} /></label><label className="flex items-center gap-2 text-[12px] text-slate-500"><span>Totalizar:</span><GreenCheck checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled} disabled={!selectedField || !selectedField?.totalizable || !isEditing} onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)} /></label><EmpConditionalVisibilityEditor selectedField={selectedField} fields={fields} visibilityRules={draftVisibilityRules} onChange={setVisibilityRule} disabled={!isEditing} /><Select value={selectedField ? draftAggregationConfig[selectedField.id]?.type || "sum" : "sum"} onValueChange={(value) => selectedField && setDraftAggregationConfig((prev) => ({ ...prev, [selectedField.id]: { enabled: true, type: value } }))} disabled={!selectedField || !draftAggregationConfig[selectedField.id]?.enabled || !isEditing}><SelectTrigger className="h-7 w-28 rounded-none text-xs bg-white"><SelectValue /></SelectTrigger><SelectContent>{AGGREGATION_OPTIONS.map((option) => <SelectItem key={option.value} value={option.value} className="text-xs">{option.label}</SelectItem>)}</SelectContent></Select></div></main></div></div><TopNoticeDialog open={requiredPopup.open} onOpenChange={(nextOpen) => setRequiredPopup((prev) => ({ ...prev, open: nextOpen }))} badge="AVISO" title="Atenção" description={requiredPopup.message} type="warning" confirmText={null} /></div>;
+  const renderAvailableField = (field) => (
+    <button
+      key={field.id}
+      type="button"
+      disabled={!isEditing}
+      draggable={isEditing}
+      onClick={(event) =>
+        setSelectedAvailableIds((prev) =>
+          event.ctrlKey || event.metaKey || event.shiftKey
+            ? prev.includes(field.id)
+              ? prev.filter((id) => id !== field.id)
+              : [...prev, field.id]
+            : [field.id]
+        )
+      }
+      onDragStart={() => {
+        setDraggedFieldId(field.id);
+        setSelectedAvailableIds([field.id]);
+      }}
+      onDragEnd={() => setDraggedFieldId(null)}
+      className={`${fieldItemClass(selectedAvailableIds.includes(field.id))} w-full`}
+    >
+      {isCustomField(field) && <CustomMarker />}
+      <div className="min-w-0">
+        <div className="truncate text-xs font-semibold">{field.label}</div>
+        <div className="truncate text-[10px] text-slate-500">Disponível</div>
+      </div>
+      {field.required && <span className="text-[10px] font-bold leading-none text-red-600">*</span>}
+    </button>
+  );
+
+  const renderPanelField = (field) => (
+    <button
+      key={field.id}
+      type="button"
+      disabled={!isEditing}
+      draggable={isEditing && !fixedVisibleFieldIds.includes(field.id)}
+      onClick={(event) =>
+        setSelectedPanelFieldIds((prev) =>
+          event.ctrlKey || event.metaKey || event.shiftKey
+            ? prev.includes(field.id)
+              ? prev.filter((id) => id !== field.id)
+              : [...prev, field.id]
+            : [field.id]
+        )
+      }
+      onDragStart={() => {
+        setDraggedFieldId(field.id);
+        setSelectedPanelFieldIds([field.id]);
+      }}
+      onDragOver={(event) => {
+        event.preventDefault();
+        reorderField(field.id);
+      }}
+      onDrop={() => setDraggedFieldId(null)}
+      onDragEnd={() => setDraggedFieldId(null)}
+      className={`${fieldItemClass(selectedPanelFieldIds.includes(field.id))} h-8 min-w-[210px]`}
+    >
+      {isCustomField(field) && <CustomMarker />}
+      <span className="truncate text-xs font-semibold">{field.label}</span>
+      <span className="ml-2 flex items-center gap-1 opacity-90">
+        {draftHiddenFieldIds.includes(field.id) && <EyeOff className="h-3 w-3" />}
+        {field.required && <span className="text-[10px]">*</span>}
+      </span>
+    </button>
+  );
+
+  const content = (
+    <div className="cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden bg-white">
+      {!inline && (
+        <DialogHeader className="sr-only">
+          <DialogTitle>Configuração de layout do formulário</DialogTitle>
+        </DialogHeader>
+      )}
+
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b border-[#d6dce8] bg-white">
+        <div className="emp-toolbar flex h-auto items-center gap-1.5 overflow-x-auto whitespace-nowrap border-b border-sky-100 bg-white px-2 py-1.5">
+          <ToolbarBtn onClick={() => onOpenChange(false)} title="Voltar">
+            <EmpToolbarIcon icon={ChevronLeft} nav />
+          </ToolbarBtn>
+          {!isEditing && (
+            <ToolbarBtn onClick={() => setIsEditing(true)} title="Editar layout">
+              <EmpToolbarIcon icon={Pencil} />
+            </ToolbarBtn>
+          )}
+          {isEditing && (
+            <ToolbarBtn onClick={createPanel} title="Novo painel">
+              <EmpToolbarIcon icon={Plus} />
+            </ToolbarBtn>
+          )}
+          {isEditing && (
+            <ToolbarBtn
+              disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
+              onClick={deletePanel}
+              title="Excluir painel"
+            >
+              <EmpToolbarIcon icon={Trash2} />
+            </ToolbarBtn>
+          )}
+          {isEditing && (
+            <ToolbarBtn onClick={handleSave} title="Salvar">
+              <EmpToolbarIcon icon={Check} />
+            </ToolbarBtn>
+          )}
+          {isEditing && (
+            <ToolbarBtn onClick={discardChanges} title="Descartar alterações">
+              <EmpToolbarIcon icon={X} />
+            </ToolbarBtn>
+          )}
+          <div className="ml-auto">
+            {isEditing && (
+              <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
+                <EmpToolbarIcon icon={RotateCcw} />
+              </ToolbarBtn>
+            )}
+          </div>
+        </div>
+
+        <div className="grid min-h-0 flex-1 grid-cols-[320px_45px_1fr]">
+          <aside className="flex flex-col overflow-hidden border-r border-[#d6dce8] bg-white p-2">
+            <div className="mb-2 text-sm font-semibold text-[#1a1f26]">Campos disponíveis</div>
+            <div className={`${EMP_TOOLBAR_SEARCH_WRAP} mb-3 w-full`}>
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Procurar campo"
+                className={`${EMP_TOOLBAR_SEARCH_INPUT} pr-7`}
+              />
+              <Search className="emp-toolbar-search-icon pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#5b6b80]" />
+            </div>
+            <div
+              className="flex-1 space-y-1 overflow-auto pr-1"
+              onDragOver={(event) => event.preventDefault()}
+            >
+              {availableFields.length === 0 ? (
+                <div className="py-4 text-center text-xs text-slate-400">Solte aqui para remover do painel.</div>
+              ) : (
+                availableFields.map(renderAvailableField)
+              )}
+            </div>
+          </aside>
+
+          <section className="flex flex-col items-center justify-center gap-1.5 border-r border-[#d6dce8] bg-[#f8fafc]">
+            <ToolbarBtn disabled={!isEditing || panelFieldIds.length === 0} onClick={removeAllFields} title="Remover todos">
+              <EmpToolbarIcon icon={ChevronsLeft} nav />
+            </ToolbarBtn>
+            <ToolbarBtn disabled={!isEditing || selectedPanelFieldIds.length === 0} onClick={removeField} title="Remover">
+              <EmpToolbarIcon icon={ChevronLeft} nav />
+            </ToolbarBtn>
+            <ToolbarBtn disabled={!isEditing || selectedAvailableIds.length === 0} onClick={addField} title="Adicionar">
+              <EmpToolbarIcon icon={ChevronRight} nav />
+            </ToolbarBtn>
+            <ToolbarBtn disabled={!isEditing || availableFields.length === 0} onClick={addAllFields} title="Adicionar todos">
+              <EmpToolbarIcon icon={ChevronsRight} nav />
+            </ToolbarBtn>
+          </section>
+
+          <main className="flex min-w-0 flex-col overflow-hidden bg-white">
+            <div className="emp-form-tabs relative flex h-7 items-end justify-start bg-white pl-2 pr-2">
+              <div className="emp-form-tab-nav-group relative z-20 mr-1.5 flex h-7 shrink-0 items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => scrollPanels(-1)}
+                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
+                  title="Rolar painéis"
+                >
+                  <EmpToolbarIcon icon={ChevronLeft} nav />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollPanels(1)}
+                  className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn`}
+                  title="Rolar painéis"
+                >
+                  <EmpToolbarIcon icon={ChevronRight} nav />
+                </button>
+              </div>
+              <div
+                ref={panelsScrollRef}
+                className="emp-form-tab-list flex h-7 min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              >
+                {draftPanels.map((panel) => {
+                  const active = activePanel?.id === panel.id;
+                  return (
+                    <button
+                      key={panel.id}
+                      type="button"
+                      draggable={isEditing && !fixedPanelIds.includes(panel.id)}
+                      onDragStart={() => {
+                        setDraggedPanelId(panel.id);
+                        setActivePanelId(panel.id);
+                      }}
+                      onDragOver={(event) => {
+                        event.preventDefault();
+                        reorderPanel(panel.id);
+                      }}
+                      onDrop={() => setDraggedPanelId(null)}
+                      onDragEnd={() => setDraggedPanelId(null)}
+                      onClick={() => {
+                        setActivePanelId(panel.id);
+                        setEditingPanelId(isEditing && !systemPanelIds.includes(panel.id) ? panel.id : null);
+                        setSelectedPanelFieldIds([]);
+                      }}
+                      className={`emp-form-tab relative z-10 min-w-max flex-none overflow-hidden whitespace-nowrap ${
+                        active ? "emp-form-tab-active" : "emp-form-tab-inactive"
+                      }`}
+                    >
+                      {isCustomPanelByIds(panel, systemPanelIds) && <CustomMarker />}
+                      {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
+                        <Input
+                          value={panel.label || ""}
+                          autoFocus
+                          onClick={(event) => event.stopPropagation()}
+                          onBlur={() => setEditingPanelId(null)}
+                          onChange={(event) =>
+                            setDraftPanels((prev) =>
+                              prev.map((item) =>
+                                item.id === panel.id
+                                  ? { ...item, label: formatPanelLabel(event.target.value) }
+                                  : item
+                              )
+                            )
+                          }
+                          className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
+                        />
+                      ) : (
+                        formatPanelLabel(panel.label)
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto border-[#d6dce8] p-3">
+              <div
+                className="flex min-h-[160px] flex-wrap content-start gap-2"
+                onDragOver={(event) => event.preventDefault()}
+              >
+                {panelFields.length === 0 ? (
+                  <div className="p-4 text-xs text-slate-400">Painel vazio.</div>
+                ) : (
+                  panelFields.map(renderPanelField)
+                )}
+              </div>
+            </div>
+
+            <div className="emp-layout-config-footer flex h-10 items-center gap-3 border-t border-[#d6dce8] bg-[#f8fafc] px-2 py-2">
+              <label className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
+                <span>Oculto:</span>
+                <ToggleSwitch
+                  checked={!!selectedField && draftHiddenFieldIds.includes(selectedField.id)}
+                  disabled={
+                    !selectedField ||
+                    !isEditing ||
+                    selectedField.required ||
+                    fixedVisibleFieldIds.includes(selectedField.id)
+                  }
+                  onChange={(checked) => toggleListValue(setDraftHiddenFieldIds, selectedField?.id, checked)}
+                  className="emp-form-toggle-switch"
+                  checkedClassName="emp-form-toggle-switch-on"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
+                <span>Bloqueado:</span>
+                <ToggleSwitch
+                  checked={!!selectedField && draftLockedFieldIds.includes(selectedField.id)}
+                  disabled={!selectedField || !isEditing || selectedField.required}
+                  onChange={(checked) => toggleListValue(setDraftLockedFieldIds, selectedField?.id, checked)}
+                  className="emp-form-toggle-switch"
+                  checkedClassName="emp-form-toggle-switch-on"
+                />
+              </label>
+              <label className="flex items-center gap-2 text-[12px] text-[#1a1f26]">
+                <span>Totalizar:</span>
+                <ToggleSwitch
+                  checked={!!selectedField && !!draftAggregationConfig[selectedField.id]?.enabled}
+                  disabled={!selectedField || !selectedField?.totalizable || !isEditing}
+                  onChange={(checked) => setAggregationEnabled(selectedField?.id, checked)}
+                  className="emp-form-toggle-switch"
+                  checkedClassName="emp-form-toggle-switch-on"
+                />
+              </label>
+              <EmpConditionalVisibilityEditor
+                selectedField={selectedField}
+                fields={fields}
+                visibilityRules={draftVisibilityRules}
+                onChange={setVisibilityRule}
+                disabled={!isEditing}
+              />
+              <Select
+                value={selectedField ? draftAggregationConfig[selectedField.id]?.type || "sum" : "sum"}
+                onValueChange={(value) =>
+                  selectedField &&
+                  setDraftAggregationConfig((prev) => ({
+                    ...prev,
+                    [selectedField.id]: { enabled: true, type: value },
+                  }))
+                }
+                disabled={!selectedField || !draftAggregationConfig[selectedField.id]?.enabled || !isEditing}
+              >
+                <SelectTrigger className="emp-layout-config-select h-6 w-28 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {AGGREGATION_OPTIONS.map((option) => (
+                    <SelectItem key={option.value} value={option.value} className="text-xs">
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </main>
+        </div>
+      </div>
+
+      <TopNoticeDialog
+        open={requiredPopup.open}
+        onOpenChange={(nextOpen) => setRequiredPopup((prev) => ({ ...prev, open: nextOpen }))}
+        badge="AVISO"
+        title="Atenção"
+        description={requiredPopup.message}
+        type="warning"
+        confirmText={null}
+      />
+    </div>
+  );
 
   if (inline) return open ? content : null;
-  return <Dialog open={open} onOpenChange={onOpenChange}><DialogContent className="!fixed !inset-0 !left-0 !top-0 !translate-x-0 !translate-y-0 !w-screen !max-w-none !h-screen !max-h-none overflow-hidden flex flex-col !p-0 !rounded-none">{content}</DialogContent></Dialog>;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="!fixed !inset-0 !left-0 !top-0 !h-screen !max-h-none !w-screen !max-w-none !translate-x-0 !translate-y-0 !rounded-none !p-0 flex flex-col overflow-hidden">
+        {content}
+      </DialogContent>
+    </Dialog>
+  );
 }

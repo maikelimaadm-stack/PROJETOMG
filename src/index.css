@@ -1087,3 +1087,54 @@ input[type="number"] {
     font-size: 16px !important;
   }
 }
+
+/* Configurador de layout — alinhado ao formulário de registro */
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field {
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default {
+  border: 0.5px solid #c5ced8;
+  background: #ffffff;
+  color: #334155;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-default:hover:not(:disabled) {
+  background: #f8fafc;
+  color: #1a1f26;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-selected {
+  border: 0.5px solid #21c45d;
+  background: rgba(33, 196, 93, 0.08);
+  color: #1a1f26;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select {
+  border: 0.5px solid #c5ced8 !important;
+  border-radius: 3px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  color: #1a1f26 !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select:focus,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select:focus-visible {
+  border-color: #21c45d !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-footer label {
+  color: #1a1f26;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-toolbar-search {
+  width: 100%;
+}
