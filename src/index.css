@@ -1190,6 +1190,15 @@ input[type="number"] {
   background: #1db954;
 }
 
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item {
+  background: #546e7a;
+  color: #ffffff;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item:hover {
+  background: #455a64;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-selected {
   box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.85);
 }

@@ -310,11 +310,17 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldSettingsAnchor(null);
   };
 
-  const fieldItemClass = (field, selected, readOnly = false) => {
+  const fieldItemClass = (field, selected, readOnly = false, tone = "panel") => {
     const required = isFieldRequired(field);
-    return `emp-layout-config-field group relative flex items-center justify-between gap-2 overflow-hidden px-2.5 text-left transition-colors focus-visible:outline-none ${
-      required ? "emp-layout-config-field-required" : "emp-layout-config-field-optional"
-    } ${selected ? "emp-layout-config-field-selected" : ""} ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
+    const toneClass =
+      tone === "available"
+        ? "emp-layout-config-field-available-item"
+        : required
+          ? "emp-layout-config-field-required"
+          : "emp-layout-config-field-optional";
+    return `emp-layout-config-field group relative flex items-center justify-between gap-2 overflow-hidden px-2.5 text-left transition-colors focus-visible:outline-none ${toneClass} ${
+      selected ? "emp-layout-config-field-selected" : ""
+    } ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
   };
 
   const renderFieldActions = ({ field, variant }) => {
@@ -390,7 +396,7 @@ export default function EmpLayoutConfiguratorDialog({
         setSelectedAvailableIds([field.id]);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing)} emp-layout-config-field-available w-full cursor-pointer`}
+      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing, "available")} emp-layout-config-field-available w-full cursor-pointer`}
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <div className="min-w-0 flex-1">

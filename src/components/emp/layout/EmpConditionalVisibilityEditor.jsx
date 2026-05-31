@@ -7,7 +7,7 @@ const getFieldValueKey = (field) => field?.id || field?.name || "";
 const getOptionValue = (option) => String(option?.id ?? option?.value ?? option?.label ?? option?.nome ?? "");
 const getOptionLabel = (option) => String(option?.nome ?? option?.label ?? option?.value ?? option?.id ?? "");
 
-export default function EmpConditionalVisibilityEditor({ selectedField, fields = [], visibilityRules = {}, onChange, disabled = false }) {
+export default function EmpConditionalVisibilityEditor({ selectedField, fields = [], visibilityRules = {}, onChange, disabled = false, selectContentClassName = "" }) {
   const selectedId = selectedField?.id;
   const savedRule = selectedId ? visibilityRules[selectedId] : null;
   const defaultRule = selectedField?.defaultVisibilityRule || null;
@@ -38,7 +38,7 @@ export default function EmpConditionalVisibilityEditor({ selectedField, fields =
         <SelectTrigger className="emp-layout-config-select h-6 w-40 text-xs">
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className={selectContentClassName}>
           <SelectItem value={ALWAYS} className="text-xs">
             Sempre
           </SelectItem>
@@ -54,7 +54,7 @@ export default function EmpConditionalVisibilityEditor({ selectedField, fields =
           <SelectTrigger className="emp-layout-config-select h-6 w-32 text-xs">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className={selectContentClassName}>
             {valueOptions.map((option) => (
               <SelectItem key={option.value || EMPTY} value={option.value || EMPTY} className="text-xs">
                 {option.label || option.value}

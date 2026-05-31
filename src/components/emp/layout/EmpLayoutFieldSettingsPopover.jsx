@@ -11,6 +11,18 @@ const AGGREGATION_OPTIONS = [
   { value: "min", label: "Menor" },
 ];
 
+const isInsideFloatingLayer = (target) => {
+  if (!target || typeof target.closest !== "function") return false;
+  if (target.closest('[role="listbox"], [role="option"], [data-radix-popper-content-wrapper]')) {
+    return true;
+  }
+  const portaledLayers = document.querySelectorAll('[data-radix-select-content], [data-radix-popper-content-wrapper]');
+  for (const layer of portaledLayers) {
+    if (layer.contains(target)) return true;
+  }
+  return false;
+};
+
 export default function EmpLayoutFieldSettingsPopover({
   field,
   anchorRect,
@@ -35,16 +47,20 @@ export default function EmpLayoutFieldSettingsPopover({
   useEffect(() => {
     if (!open) return;
     const handlePointerDown = (event) => {
-      if (panelRef.current?.contains(event.target)) return;
+      const target = event.target;
+      if (panelRef.current?.contains(target)) return;
+      if (isInsideFloatingLayer(target)) return;
       onClose?.();
     };
     const handleKeyDown = (event) => {
-      if (event.key === "Escape") onClose?.();
+      if (event.key !== "Escape") return;
+      if (document.querySelector('[data-radix-select-content][data-state="open"]')) return;
+      onClose?.();
     };
-    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("pointerdown", handlePointerDown, true);
     document.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("pointerdown", handlePointerDown, true);
       document.removeEventListener("keydown", handleKeyDown);
     };
   }, [open, onClose]);
@@ -118,7 +134,7 @@ export default function EmpLayoutFieldSettingsPopover({
               <SelectTrigger className="emp-layout-config-select h-7 w-full text-xs">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[250]">
                 {AGGREGATION_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value} className="text-xs">
                     {option.label}
@@ -135,6 +151,7 @@ export default function EmpLayoutFieldSettingsPopover({
             visibilityRules={draftVisibilityRules}
             onChange={onVisibilityRuleChange}
             disabled={!isEditing}
+            selectContentClassName="z-[250]"
           />
         </div>
       </div>
