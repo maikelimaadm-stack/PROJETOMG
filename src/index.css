@@ -426,7 +426,7 @@ input[type="number"] {
   border-width: 1px;
   border-style: solid;
   border-color: #d6dce8;
-  background: #eaf2ff;
+  background: #ffffff;
   color: #334155;
   font-weight: 400;
   z-index: 0;
@@ -435,6 +435,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab-inactive:hover {
   color: #1a1f26;
+  background: #ffffff;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
@@ -467,15 +468,21 @@ input[type="number"] {
 }
 
 /* Campos do formulário de registro */
+.cadastro-emp-scope .form-scroll-container {
+  background: #ffffff;
+}
+
 .cadastro-emp-scope .emp-form-body {
   gap: 12px;
   padding-top: 14px;
+  background: #ffffff;
 }
 
 .cadastro-emp-scope .emp-form-section-principal,
 .cadastro-emp-scope .emp-form-section-panel {
   padding-top: 0;
   padding-bottom: 0;
+  background: #ffffff;
 }
 
 .cadastro-emp-scope .emp-form-fieldset {
