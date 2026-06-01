@@ -355,6 +355,10 @@ input[type="number"] {
   z-index: 1;
 }
 
+.cadastro-emp-scope .emp-form-panels-zone .emp-form-tabs::after {
+  display: none;
+}
+
 .cadastro-emp-scope .emp-form-tab-nav-btn,
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-btn {
