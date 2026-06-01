@@ -106,9 +106,7 @@ export const createEmptyLayoutConfig = (defaultConfig = {}) => {
   const layout = {};
   panels.forEach((panel) => {
     if (panel.id === "principal") {
-      layout.principal = cloneValue(
-        defaultConfig.layout?.principal || ["razao_social", "status", "codigo_empresa"]
-      );
+      layout.principal = cloneValue(defaultConfig.layout?.principal || ["razao_social"]);
     } else {
       layout[panel.id] = [];
     }
@@ -185,8 +183,8 @@ export const normalizeLayoutConfig = (
   ];
 
   let layout = sanitizeLayoutFieldPlacements(merged.layout || {});
-  if (!layout.principal?.length) {
-    layout.principal = defaultLayout.principal;
+  if (!Array.isArray(layout.principal)) {
+    layout.principal = [];
   }
   if (mergeNewCustomFields && camposPersonalizadosCount > 0) {
     layout = mergeNewCustomFieldsIntoLayout(layout, defaultLayout);

@@ -309,7 +309,7 @@ export default function FORMEMP({
   ];
 
   const defaultLayout = {
-    principal: ["razao_social", "status", "codigo_empresa"],
+    principal: ["razao_social"],
     geral: ["nome_fantasia", "tipo_pessoa", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
     endereco: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
     observacoes: ["observacoes"],
@@ -426,7 +426,10 @@ export default function FORMEMP({
   };
 
   const saveLayoutConfig = (nextConfig) => {
-    applyLayoutConfig(nextConfig);
+    applyLayoutConfig({
+      ...activeLayoutConfig,
+      ...nextConfig,
+    });
   };
 
   const saveFieldLayoutConfig = (nextFieldLayoutConfig) => {

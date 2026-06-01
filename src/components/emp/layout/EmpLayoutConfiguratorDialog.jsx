@@ -108,17 +108,18 @@ export default function EmpLayoutConfiguratorDialog({
   const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
   const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
   const panelsScrollRef = useRef(null);
+  const wasOpenRef = useRef(false);
   const { canScrollLeft, canScrollRight } = usePanelTabsScroll(panelsScrollRef, [draftPanels, activePanelId, editingPanelId, isEditing]);
 
   React.useEffect(() => {
     if (!open) {
+      wasOpenRef.current = false;
       setPresetsDialogOpen(false);
       return;
     }
-  }, [open]);
 
-  React.useEffect(() => {
-    if (!open) return;
+    if (wasOpenRef.current) return;
+
     setDraftPanels(panels);
     setDraftLayout(layout);
     setDraftHiddenFieldIds(hiddenFieldIds);
@@ -138,6 +139,7 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldLastPanelId({});
     setFieldSettingsTarget(null);
     setFieldSettingsAnchor(null);
+    wasOpenRef.current = true;
   }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
