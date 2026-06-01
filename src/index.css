@@ -357,7 +357,10 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch::after {
-  display: none;
+  display: block;
+  z-index: 2;
+  background: #d6dce8;
+  transform: none;
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch {
@@ -419,32 +422,20 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-tab-active {
-  margin-bottom: 0;
+  margin-bottom: -1px;
   border-width: 1px;
   border-style: solid;
   border-top-width: 3px;
-  border-bottom-width: 0;
+  border-bottom-width: 2px;
   border-top-color: var(--emp-accent-green);
   border-left-color: #d6dce8;
   border-right-color: #d6dce8;
-  border-bottom-color: transparent;
+  border-bottom-color: #ffffff;
   background: #ffffff;
   color: #1a1f26;
   font-weight: 700;
-  z-index: 9;
+  z-index: 12;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
-}
-
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active::after {
-  content: "";
-  position: absolute;
-  left: -2px;
-  right: -2px;
-  bottom: -5px;
-  height: 8px;
-  background: #ffffff;
-  pointer-events: none;
-  z-index: 20;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive {
@@ -465,30 +456,25 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active:hover {
-  margin-bottom: 0 !important;
+  margin-bottom: -1px !important;
   color: #1a1f26 !important;
   font-weight: 700 !important;
   background: #ffffff !important;
   border-width: 1px !important;
   border-style: solid !important;
   border-top-width: 3px !important;
-  border-bottom-width: 0 !important;
+  border-bottom-width: 2px !important;
   border-top-color: var(--emp-accent-green) !important;
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
-  border-bottom-color: transparent !important;
+  border-bottom-color: #ffffff !important;
   z-index: 15 !important;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active,
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active:hover {
-  box-shadow: 0 4px 0 #ffffff !important;
-}
-
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover {
-  border-bottom-color: transparent !important;
+  border-bottom-color: #d6dce8 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
@@ -537,10 +523,11 @@ input[type="number"] {
   box-sizing: border-box;
   width: 100%;
   min-width: 920px;
+  margin-top: -1px;
   padding-top: 8px;
   padding-bottom: 8px;
   background: #ffffff;
-  border-top: 1px solid #d6dce8;
+  border-top: none;
   border-left: 1px solid #d6dce8;
   border-right: 1px solid #d6dce8;
   border-bottom: 1px solid #d6dce8;

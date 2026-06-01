@@ -55,8 +55,8 @@ export default function EmpTabs({
               key={tab.id}
               type="button"
               onClick={() => onChange?.(tab.id)}
-              className={`emp-form-tab relative z-10 flex-none min-w-max overflow-hidden whitespace-nowrap ${
-                active ? "emp-form-tab-active" : "emp-form-tab-inactive"
+              className={`emp-form-tab relative flex-none min-w-max overflow-hidden whitespace-nowrap ${
+                active ? "emp-form-tab-active z-[15]" : "emp-form-tab-inactive z-[2]"
               }`}
             >
               {custom && <EmpCustomMarker />}
