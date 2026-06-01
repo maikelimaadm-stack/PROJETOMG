@@ -115,10 +115,10 @@ export default function EmpFieldLayoutConfigDialog({
           {draft.mode === "compact" && (
             <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
               <label className="mb-2 block text-xs font-semibold text-slate-600">
-                Quantidade de colunas por linha (1 a 8)
+                Quantidade de colunas por linha (1 a 6)
               </label>
               <div className="flex flex-wrap gap-2">
-                {Array.from({ length: 8 }, (_, index) => index + 1).map((count) => (
+                {Array.from({ length: 6 }, (_, index) => index + 1).map((count) => (
                   <button
                     key={count}
                     type="button"

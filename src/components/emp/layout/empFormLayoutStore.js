@@ -76,7 +76,7 @@ export const DEFAULT_FIELD_LAYOUT_CONFIG = {
 export const normalizeFieldLayoutConfig = (source = {}) => {
   let mode = source?.mode === "compact" || source?.mode === "columns" ? "compact" : "stacked";
   if (source?.mode === "stacked") mode = "stacked";
-  const columns = Math.min(8, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
+  const columns = Math.min(6, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
   return { mode, columns: mode === "stacked" ? 1 : columns };
 };
 
