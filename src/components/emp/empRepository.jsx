@@ -7,7 +7,7 @@ import { normalizeEmpresaRecord, reserveNextCodigoEmpresa, stripEmpresaPersistPa
 const hasAppId = () => Boolean(import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID);
 const REMOTE_SEED_FLAG = 'emp_remote_seeded_v2';
 
-const useRemoteApi = async () => {
+const checkRemoteApiAvailability = async () => {
   if (!hasAppId()) return false;
   try {
     await Promise.race([
@@ -22,7 +22,7 @@ const useRemoteApi = async () => {
 
 let remoteAvailablePromise = null;
 const isRemoteAvailable = () => {
-  if (!remoteAvailablePromise) remoteAvailablePromise = useRemoteApi();
+  if (!remoteAvailablePromise) remoteAvailablePromise = checkRemoteApiAvailability();
   return remoteAvailablePromise;
 };
 

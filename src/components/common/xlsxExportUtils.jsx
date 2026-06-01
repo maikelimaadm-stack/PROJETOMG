@@ -6,8 +6,11 @@ const escapeXml = (value) => String(value ?? "")
   .replaceAll(">", "&gt;")
   .replaceAll('"', "&quot;");
 
-const sanitizeSheetName = (name) => String(name || "Planilha")
-  .replace(/[\\/?*\[\]:]/g, " ")
+const INVALID_SHEET_NAME_CHARS = new Set(["\\", "/", "?", "*", "[", "]", ":"]);
+
+const sanitizeSheetName = (name) => Array.from(String(name || "Planilha"))
+  .map((char) => (INVALID_SHEET_NAME_CHARS.has(char) ? " " : char))
+  .join("")
   .trim()
   .slice(0, 31) || "Planilha";
 

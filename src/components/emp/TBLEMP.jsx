@@ -66,8 +66,25 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
   const [frozenColumnCount, setFrozenColumnCount] = useState(() => { const s = Number(localStorage.getItem(FROZEN_KEY) || 0); return Number.isFinite(s) ? s : 0; });
-  const [colunasOrdem, setColunasOrdem] = useState(() => { const s = localStorage.getItem(ORDER_KEY); if (s) { try { return JSON.parse(s); } catch {} } return COLUNAS_BASE.map((c) => c.id); });
-  const [colunasVisiveis, setColunasVisiveis] = useState(() => { const s = localStorage.getItem(VISIBLE_KEY); if (s) { try { return Array.from(new Set([...JSON.parse(s), ...COLUNAS_BASE.filter((c) => c.default).map((c) => c.id)])); } catch {} } return COLUNAS_BASE.filter((c) => c.default).map((c) => c.id); });
+  const [colunasOrdem, setColunasOrdem] = useState(() => {
+    const saved = localStorage.getItem(ORDER_KEY);
+    if (!saved) return COLUNAS_BASE.map((c) => c.id);
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return COLUNAS_BASE.map((c) => c.id);
+    }
+  });
+  const [colunasVisiveis, setColunasVisiveis] = useState(() => {
+    const saved = localStorage.getItem(VISIBLE_KEY);
+    const defaultVisible = COLUNAS_BASE.filter((c) => c.default).map((c) => c.id);
+    if (!saved) return defaultVisible;
+    try {
+      return Array.from(new Set([...JSON.parse(saved), ...defaultVisible]));
+    } catch {
+      return defaultVisible;
+    }
+  });
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
 
   const lastRowClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
