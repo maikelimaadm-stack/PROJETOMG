@@ -21,8 +21,8 @@ const iconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.
 const confirmIconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#21c45d] bg-[#21c45d] hover:bg-[#1fb455] text-white shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-[#21c45d]";
 const cancelIconButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-white";
 const tabNavButtonClass = "relative z-20 h-7 w-7 self-center rounded-none border-0 bg-white hover:bg-slate-50 text-black shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex items-center justify-center";
-const greenButtonClass = iconButtonClass;
-const brandBlueButtonClass = iconButtonClass;
+const greenButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#21c45d] bg-[#21c45d] hover:bg-[#1fb455] text-white shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-[#21c45d]";
+const brandBlueButtonClass = "h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-[#082e54] bg-[#082e54] hover:bg-[#0a3f72] text-white shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 disabled:opacity-40 disabled:bg-[#082e54]";
 
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
