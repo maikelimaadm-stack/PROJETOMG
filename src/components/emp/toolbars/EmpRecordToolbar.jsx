@@ -62,10 +62,12 @@ export default function EmpRecordToolbar({
           <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}
         <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
-        <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
-          <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
-          <span>Novo</span>
-        </ToolbarBtn>
+        {!showSaveActions && (
+          <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
+            <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
+            <span>Novo</span>
+          </ToolbarBtn>
+        )}
         {onToggleFilter && (
           <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
             <EmpToolbarIcon icon={Filter} />
