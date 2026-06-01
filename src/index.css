@@ -566,6 +566,15 @@ input[type="number"] {
   border-top: 0.5px solid #d6dce8;
 }
 
+.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel-detail-collapsed {
+  padding-bottom: 0;
+}
+
+.cadastro-emp-scope .emp-form-section-panel-detail-collapsed .emp-form-detail-panel-title {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+
 .cadastro-emp-scope .emp-form-section-panel-detail .emp-form-fields {
   padding-bottom: 8px;
 }

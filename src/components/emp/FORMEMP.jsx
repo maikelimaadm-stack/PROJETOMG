@@ -662,7 +662,7 @@ export default function FORMEMP({
                     />
                   </div>
                   {detailPanels.map((panel) => (
-                    <div key={panel.id} className="emp-form-section emp-form-section-panel emp-form-section-panel-detail w-full min-w-[920px] max-w-none pl-2 pr-4">
+                    <div key={panel.id} className={`emp-form-section emp-form-section-panel emp-form-section-panel-detail w-full min-w-[920px] max-w-none pl-2 pr-4 ${collapsedDetailPanelIds.includes(panel.id) ? "emp-form-section-panel-detail-collapsed" : ""}`}>
                       <button
                         type="button"
                         className="emp-form-detail-panel-title"
