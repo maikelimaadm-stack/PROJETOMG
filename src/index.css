@@ -522,6 +522,32 @@ input[type="number"] {
   max-width: none;
 }
 
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-column-image {
+  width: auto;
+  max-width: 100px;
+}
+
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-column-image .emp-form-image-control {
+  width: 100px;
+  max-width: 100px;
+}
+
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-span-full .emp-form-field-control {
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-control textarea {
+  width: 100%;
+  min-height: 48px;
+  resize: vertical;
+}
+
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-control input,
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-control .emp-autocomplete,
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-control > div {
+  width: 100%;
+}
+
 .cadastro-emp-scope .emp-field-layout-preview {
   border: 1px solid #dbe3ec;
   border-radius: 6px;

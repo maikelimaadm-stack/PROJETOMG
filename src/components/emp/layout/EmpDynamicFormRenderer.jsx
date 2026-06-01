@@ -12,19 +12,26 @@ const isBareControlField = (field) => field?.type === "checkbox" || field?.type 
 
 const isImageField = (field) => field?.type === "image" || field?.type === "file" || field?.type === "imagem";
 
-const shouldSpanFullRow = (field) =>
-  field?.wide ||
-  field?.type === "textarea" ||
-  field?.type === "option_list" ||
-  isImageField(field);
+const shouldSpanFullRow = (field, columnMode = false) => {
+  if (!columnMode) return false;
+  return field?.type === "textarea" || field?.type === "option_list" || (field?.wide && !isImageField(field));
+};
 
-const getFieldControlClass = (field, error, className) => {
+const getFieldControlClass = (field, error, className, columnMode = false) => {
   if (isImageField(field)) {
-    return `emp-form-field-control emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-full ${error ? "emp-form-field-error" : ""} ${className}`.trim();
+    return `emp-form-field-control emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-[100px] shrink-0 ${error ? "emp-form-field-error" : ""} ${className}`.trim();
   }
 
-  const heightClass = field.wide ? "min-h-6" : "h-6";
-  const widthClass = field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full";
+  const heightClass =
+    field.type === "textarea" ? "min-h-[48px]" : field.wide && columnMode ? "min-h-6" : field.wide ? "min-h-6" : "h-6";
+
+  let widthClass = "w-full";
+  if (!columnMode) {
+    widthClass = field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full";
+  } else if (!isBareControlField(field)) {
+    widthClass = "w-full max-w-none";
+  }
+
   return `emp-form-field-control relative ${heightClass} ${widthClass} ${error ? "emp-form-field-error" : ""} ${className}`.trim();
 };
 
@@ -44,7 +51,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
   const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1";
 
   if (field.type === "textarea") {
-    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className="text-xs uppercase bg-transparent px-1" rows={field.rows || 2} />;
+    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className="w-full text-xs uppercase bg-transparent px-1" rows={field.rows || 2} />;
   }
 
   if (["select", "autocomplete", "relation"].includes(field.type)) {
@@ -87,7 +94,7 @@ function FieldFrameStacked({ field, error, children, className = "" }) {
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
-        <div className={getFieldControlClass(field, error, className)}>
+        <div className={getFieldControlClass(field, error, className, false)}>
           {isCustomField(field) && <EmpCustomMarker />}
           {children}
         </div>
@@ -103,7 +110,7 @@ function FieldFrameColumns({ field, error, children, className = "", spanFull = 
   return (
     <div
       data-field={field.dataField || field.name}
-      className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "items-start" : ""}`}
+      className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""}`}
     >
       <label className="emp-form-field-label-top text-[12px] text-[#1a1f26] leading-none">
         {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
@@ -111,7 +118,7 @@ function FieldFrameColumns({ field, error, children, className = "", spanFull = 
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
-        <div className={getFieldControlClass(field, error, `${className} w-full`.trim())}>
+        <div className={getFieldControlClass(field, error, className, true)}>
           {isCustomField(field) && <EmpCustomMarker />}
           {children}
         </div>
@@ -177,7 +184,7 @@ export default function EmpDynamicFormRenderer({
           field={configuredField}
           error={error}
           className={fieldClassName}
-          spanFull={shouldSpanFullRow(configuredField)}
+          spanFull={shouldSpanFullRow(configuredField, true)}
         >
           {control}
         </FieldFrameColumns>
