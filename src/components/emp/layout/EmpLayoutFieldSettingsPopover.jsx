@@ -149,10 +149,10 @@ export default function EmpLayoutFieldSettingsPopover({
               onChange={(checked) => onToggleClearOnDuplicate?.(field.id, checked)}
             />
             <ToggleInline
-              label="Ativo"
-              checked={!draftHiddenFieldIds.includes(field.id)}
+              label="Oculto"
+              checked={draftHiddenFieldIds.includes(field.id)}
               disabled={!isEditing || required || fixedVisibleFieldIds.includes(field.id)}
-              onChange={(checked) => onToggleHidden?.(field.id, !checked)}
+              onChange={(checked) => onToggleHidden?.(field.id, checked)}
             />
             <ToggleInline
               label="Obrigatório"

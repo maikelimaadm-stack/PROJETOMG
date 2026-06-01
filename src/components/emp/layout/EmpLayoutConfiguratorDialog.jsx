@@ -20,6 +20,7 @@ import {
   Layers,
 } from "lucide-react";
 import EmpLayoutFieldSettingsPopover from "./EmpLayoutFieldSettingsPopover";
+import EmpLayoutFieldStatusIcons from "./EmpLayoutFieldStatusIcons";
 import EmpLayoutPresetsDialog from "./EmpLayoutPresetsDialog";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
@@ -430,6 +431,16 @@ export default function EmpLayoutConfiguratorDialog({
     } ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
   };
 
+  const renderFieldStatusIcons = (field) => (
+    <EmpLayoutFieldStatusIcons
+      field={field}
+      hiddenFieldIds={draftHiddenFieldIds}
+      lockedFieldIds={draftLockedFieldIds}
+      clearOnDuplicateFieldIds={draftClearOnDuplicateFieldIds}
+      aggregationConfig={draftAggregationConfig}
+    />
+  );
+
   const renderFieldActions = ({ field, variant }) => {
     if (!isEditing) return null;
 
@@ -513,8 +524,9 @@ export default function EmpLayoutConfiguratorDialog({
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <div className="min-w-0 flex-1">
         <div className="truncate text-xs font-semibold text-white">{field.label}</div>
-        <div className="truncate text-[10px] text-white/80">Guia: {getAvailableFieldOriginLabel(field.id)}</div>
+        <div className="truncate text-[10px] text-white/80">{getAvailableFieldOriginLabel(field.id)}</div>
       </div>
+      {renderFieldStatusIcons(field)}
       {renderFieldActions({ field, variant: "available" })}
     </div>
   );
@@ -540,8 +552,9 @@ export default function EmpLayoutConfiguratorDialog({
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <div className="min-w-0 flex-1">
         <div className="truncate text-xs font-semibold text-white">{field.label}</div>
-        <div className="truncate text-[10px] text-white/80">Guia: {panelLabel}</div>
+        <div className="truncate text-[10px] text-white/80">Painel: {panelLabel}</div>
       </div>
+      {renderFieldStatusIcons(field)}
     </div>
   );
 
@@ -580,10 +593,8 @@ export default function EmpLayoutConfiguratorDialog({
       className={`${fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel min-w-[210px] cursor-pointer`}
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-semibold text-white">{field.label}</div>
-        <div className="truncate text-[10px] text-white/80">Guia: {formatPanelLabel(activePanel?.label || activePanel?.id)}</div>
-      </div>
+      <span className="min-w-0 flex-1 truncate text-xs font-semibold text-white">{field.label}</span>
+      {renderFieldStatusIcons(field)}
       {renderFieldActions({ field, variant: "panel" })}
     </div>
   );
