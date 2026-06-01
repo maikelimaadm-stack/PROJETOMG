@@ -4,12 +4,19 @@ import { Textarea } from "@/components/ui/textarea";
 import EmpAutocomplete from "@/components/emp/shared/EmpAutocomplete";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
+import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/components/emp/layout/empFormLayoutStore";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
 const isBareControlField = (field) => field?.type === "checkbox" || field?.type === "switch";
 
 const isImageField = (field) => field?.type === "image" || field?.type === "file" || field?.type === "imagem";
+
+const shouldSpanFullRow = (field) =>
+  field?.wide ||
+  field?.type === "textarea" ||
+  field?.type === "option_list" ||
+  isImageField(field);
 
 const getFieldControlClass = (field, error, className) => {
   if (isImageField(field)) {
@@ -68,13 +75,15 @@ const conditionMatches = (current, expected, sourceField) => {
   return currentValues.has(expectedText);
 };
 
-function FieldFrame({ field, error, children, className = "" }) {
+function FieldFrameStacked({ field, error, children, className = "" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
 
   return (
-    <div data-field={field.dataField || field.name} className={`grid grid-cols-[170px_minmax(0,1fr)] gap-1 ${imageField ? "items-start" : "items-center"} ${field.wide ? "md:col-span-2" : ""}`}>
-      <label className={`text-[12px] text-[#1a1f26] text-right leading-none ${imageField ? "pt-2" : ""}`}>{field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}</label>
+    <div data-field={field.dataField || field.name} className={`grid grid-cols-[170px_minmax(0,1fr)] gap-1 ${imageField ? "items-start" : "items-center"}`}>
+      <label className={`text-[12px] text-[#1a1f26] text-right leading-none ${imageField ? "pt-2" : ""}`}>
+        {field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
@@ -87,9 +96,52 @@ function FieldFrame({ field, error, children, className = "" }) {
   );
 }
 
-export default function EmpDynamicFormRenderer({ panels = [], fields = [], layout = {}, hiddenFieldIds = [], lockedFieldIds = [], requiredFieldIds = [], visibilityRules = {}, activePanelId, values = {}, errors = {}, onChange, readOnly = false, context = {}, fieldClassName = "" }) {
+function FieldFrameColumns({ field, error, children, className = "", spanFull = false }) {
+  const bare = isBareControlField(field);
+  const imageField = isImageField(field);
+
+  return (
+    <div
+      data-field={field.dataField || field.name}
+      className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "items-start" : ""}`}
+    >
+      <label className="emp-form-field-label-top text-[12px] text-[#1a1f26] leading-none">
+        {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {bare ? (
+        <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
+      ) : (
+        <div className={getFieldControlClass(field, error, `${className} w-full`.trim())}>
+          {isCustomField(field) && <EmpCustomMarker />}
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function EmpDynamicFormRenderer({
+  panels = [],
+  fields = [],
+  layout = {},
+  hiddenFieldIds = [],
+  lockedFieldIds = [],
+  requiredFieldIds = [],
+  visibilityRules = {},
+  fieldLayoutConfig = DEFAULT_FIELD_LAYOUT_CONFIG,
+  activePanelId,
+  values = {},
+  errors = {},
+  onChange,
+  readOnly = false,
+  context = {},
+  fieldClassName = "",
+}) {
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const activeFieldIds = layout?.[activePanel?.id] || [];
+  const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
+  const isColumnMode = normalizedFieldLayout.mode === "columns";
+  const columnCount = normalizedFieldLayout.columns;
 
   const visibleFields = activeFieldIds
     .map((fieldId) => fields.find((field) => field.id === fieldId))
@@ -109,15 +161,52 @@ export default function EmpDynamicFormRenderer({ panels = [], fields = [], layou
 
   if (!activePanel) return null;
 
+  const renderField = (field) => {
+    const value = field.getValue ? field.getValue(values, context) : values[field.name];
+    const error = errors[field.errorKey || field.name];
+    const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
+    const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
+    const control = field.render
+      ? field.render({ field: configuredField, value, values, errors, onChange, readOnly: fieldReadOnly, context })
+      : <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />;
+
+    if (isColumnMode) {
+      return (
+        <FieldFrameColumns
+          key={field.id}
+          field={configuredField}
+          error={error}
+          className={fieldClassName}
+          spanFull={shouldSpanFullRow(configuredField)}
+        >
+          {control}
+        </FieldFrameColumns>
+      );
+    }
+
+    return (
+      <FieldFrameStacked key={field.id} field={configuredField} error={error} className={fieldClassName}>
+        {control}
+      </FieldFrameStacked>
+    );
+  };
+
+  if (visibleFields.length === 0) {
+    return (
+      <div className={`emp-form-fields ${isColumnMode ? "emp-form-fields-columns" : ""}`}>
+        <div className={`text-xs text-slate-500 ${isColumnMode ? "" : "ml-[172px]"}`}>
+          Nenhum campo configurado para este painel.
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="emp-form-fields">
-      {visibleFields.length === 0 ? <div className="ml-[172px] text-xs text-slate-500">Nenhum campo configurado para este painel.</div> : visibleFields.map((field) => {
-        const value = field.getValue ? field.getValue(values, context) : values[field.name];
-        const error = errors[field.errorKey || field.name];
-        const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
-        const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
-        return <FieldFrame key={field.id} field={configuredField} error={error} className={fieldClassName}>{field.render ? field.render({ field: configuredField, value, values, errors, onChange, readOnly: fieldReadOnly, context }) : <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />}</FieldFrame>;
-      })}
+    <div
+      className={`emp-form-fields ${isColumnMode ? "emp-form-fields-columns" : ""}`}
+      style={isColumnMode ? { "--emp-form-field-columns": columnCount } : undefined}
+    >
+      {visibleFields.map(renderField)}
     </div>
   );
 }

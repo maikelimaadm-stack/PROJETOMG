@@ -11,6 +11,7 @@ import LegacyTabs from "@/components/emp/toolbars/EmpTabs";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/components/emp/layout/EmpDynamicFormRenderer";
 import EmpLayoutConfiguratorDialog from "@/components/emp/layout/EmpLayoutConfiguratorDialog";
+import EmpFieldLayoutConfigDialog from "@/components/emp/layout/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
   normalizeLayoutConfig,
 } from "@/components/emp/layout/empFormLayoutStore";
@@ -86,6 +87,7 @@ export default function FORMEMP({
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
+  const [fieldLayoutConfigOpen, setFieldLayoutConfigOpen] = useState(false);
   const [layoutPresetsState, setLayoutPresetsState] = useState(() => empFormLayoutStore.getState());
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -325,6 +327,7 @@ export default function FORMEMP({
       fieldDefaultValues: {},
       aggregationConfig: {},
       visibilityRules: {},
+      fieldLayoutConfig: { mode: "stacked", columns: 2 },
     }),
     [basePanels, defaultLayout]
   );
@@ -426,6 +429,15 @@ export default function FORMEMP({
     applyLayoutConfig(nextConfig);
   };
 
+  const saveFieldLayoutConfig = (nextFieldLayoutConfig) => {
+    applyLayoutConfig({
+      ...activeLayoutConfig,
+      fieldLayoutConfig: nextFieldLayoutConfig,
+    });
+  };
+
+  const fieldLayoutConfig = activeLayoutConfig.fieldLayoutConfig;
+
   const validateForm = () => {
     const nextErrors = {};
     REQUIRED_FIELDS.forEach((field) => {
@@ -494,6 +506,12 @@ export default function FORMEMP({
   return (
     <div className="h-full min-h-0 overflow-hidden bg-white">
       <TopNoticeDialog open={noticeDialog.open} onOpenChange={(open) => setNoticeDialog((prev) => ({ ...prev, open }))} badge="AVISO" title={noticeDialog.title} description={noticeDialog.description} type="warning" confirmText="Entendi" />
+      <EmpFieldLayoutConfigDialog
+        open={fieldLayoutConfigOpen}
+        onOpenChange={setFieldLayoutConfigOpen}
+        fieldLayoutConfig={fieldLayoutConfig}
+        onSave={saveFieldLayoutConfig}
+      />
       <form onSubmit={handleSubmit} className="bg-white h-full min-h-0 overflow-hidden flex flex-col">
         <style>{`
           .form-scroll-container {
@@ -532,6 +550,7 @@ export default function FORMEMP({
           onEditRecord={() => setEditMode(true)}
           onSettingsClick={onSettingsClick}
           onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
+          onFieldLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setFieldLayoutConfigOpen(true); }}
           onToggleView={onToggleView}
           total={total}
           currentIndex={currentIndex}
@@ -566,6 +585,7 @@ export default function FORMEMP({
                   lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
                   requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
                   visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                  fieldLayoutConfig={fieldLayoutConfig}
                   activePanelId="principal"
                   values={formData}
                   errors={errors}
@@ -598,6 +618,7 @@ export default function FORMEMP({
                   lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
                   requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
                   visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                  fieldLayoutConfig={fieldLayoutConfig}
                   activePanelId={activeTab}
                   values={formData}
                   errors={errors}

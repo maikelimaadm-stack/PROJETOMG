@@ -28,6 +28,7 @@ export default function EmpRecordToolbar({
   onEditRecord,
   onSettingsClick,
   onLayoutConfigClick,
+  onFieldLayoutConfigClick,
   onAttachClick,
   attachDisabled = false,
   onToggleView,
@@ -129,8 +130,9 @@ export default function EmpRecordToolbar({
               <DropdownMenuTrigger asChild>
                 <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções"><EmpToolbarIcon icon={MoreHorizontal} /></button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48 rounded-md p-1">
+              <DropdownMenuContent align="end" className="w-56 rounded-md p-1">
                 <DropdownMenuItem onClick={onLayoutConfigClick} disabled={!onLayoutConfigClick} className="h-8 cursor-pointer gap-2 text-xs px-2">Layout do formulário</DropdownMenuItem>
+                <DropdownMenuItem onClick={onFieldLayoutConfigClick} disabled={!onFieldLayoutConfigClick} className="h-8 cursor-pointer gap-2 text-xs px-2">Configurar layout de campos</DropdownMenuItem>
                 <DropdownMenuItem onClick={onSettingsClick} disabled={!onSettingsClick} className="h-8 cursor-pointer gap-2 text-xs px-2">Campos personalizados</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

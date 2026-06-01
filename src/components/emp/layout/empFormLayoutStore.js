@@ -68,6 +68,17 @@ const ensureState = () => {
   return state;
 };
 
+export const DEFAULT_FIELD_LAYOUT_CONFIG = {
+  mode: "stacked",
+  columns: 2,
+};
+
+export const normalizeFieldLayoutConfig = (source = {}) => {
+  const mode = source?.mode === "columns" ? "columns" : "stacked";
+  const columns = Math.min(4, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
+  return { mode, columns: mode === "columns" ? columns : 1 };
+};
+
 export const layoutConfigFields = [
   "panels",
   "layout",
@@ -78,6 +89,7 @@ export const layoutConfigFields = [
   "fieldDefaultValues",
   "aggregationConfig",
   "visibilityRules",
+  "fieldLayoutConfig",
 ];
 
 export const pickLayoutConfig = (source = {}) => {
@@ -110,6 +122,7 @@ export const createEmptyLayoutConfig = (defaultConfig = {}) => {
     fieldDefaultValues: {},
     aggregationConfig: {},
     visibilityRules: {},
+    fieldLayoutConfig: { ...DEFAULT_FIELD_LAYOUT_CONFIG },
   });
 };
 
@@ -159,6 +172,7 @@ export const normalizeLayoutConfig = (
     fieldDefaultValues: {},
     aggregationConfig: {},
     visibilityRules: {},
+    fieldLayoutConfig: { ...DEFAULT_FIELD_LAYOUT_CONFIG },
   };
   const merged = { ...fallback, ...(source || {}) };
   const panelsSource = merged.panels?.some((panel) => panel.id === "principal")
@@ -188,6 +202,7 @@ export const normalizeLayoutConfig = (
       (id) => !["status", "codigo_empresa"].includes(id)
     ),
     visibilityRules: merged.visibilityRules || {},
+    fieldLayoutConfig: normalizeFieldLayoutConfig(merged.fieldLayoutConfig),
   };
 };
 
