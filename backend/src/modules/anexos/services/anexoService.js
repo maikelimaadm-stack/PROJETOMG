@@ -1,5 +1,10 @@
 import { anexoRepository } from "../repositories/anexoRepository.js";
-import { isSupabaseStorageConfigured, supabaseAdmin, supabaseBucketName } from "../../../integrations/supabase/adminClient.js";
+import {
+  ensureSupabaseStorageBucket,
+  isSupabaseStorageConfigured,
+  supabaseAdmin,
+  supabaseBucketName,
+} from "../../../integrations/supabase/adminClient.js";
 
 export const anexoService = {
   list(filters) {
@@ -20,6 +25,8 @@ export const anexoService = {
     if (!isSupabaseStorageConfigured || !supabaseAdmin) {
       throw new Error("Supabase Storage não configurado no backend/.env");
     }
+
+    await ensureSupabaseStorageBucket();
 
     const objectPath = `${tenantId}/${Date.now()}-${filename}`;
     const { error } = await supabaseAdmin.storage

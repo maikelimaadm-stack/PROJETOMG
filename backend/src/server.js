@@ -7,11 +7,23 @@ import { closePrismaClient } from "./database/prismaClient.js";
 
 dotenv.config();
 
+const parseAllowedOrigins = () =>
+  String(process.env.FRONTEND_ORIGINS || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
+
 const buildServer = () => {
   const app = Fastify({ logger: true });
+  const allowedOrigins = parseAllowedOrigins();
 
   app.register(cors, {
-    origin: true,
+    origin(origin, callback) {
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.length === 0) return callback(null, true);
+      if (allowedOrigins.includes(origin)) return callback(null, true);
+      return callback(new Error("Origin não permitida"), false);
+    },
     credentials: true,
   });
   app.register(multipart);

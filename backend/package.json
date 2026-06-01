@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
-    "validate:connections": "node scripts/validateConnections.js"
+    "validate:connections": "node scripts/validateConnections.js",
+    "smoke:empresas": "node scripts/smokeEmpresas.js"
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",

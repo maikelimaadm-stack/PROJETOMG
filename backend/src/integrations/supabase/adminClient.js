@@ -14,6 +14,34 @@ export const supabaseAdmin = isSupabaseStorageConfigured
   ? createClient(url, serviceRoleKey, { auth: { persistSession: false } })
   : null;
 
+let bucketReady = false;
+
+export const ensureSupabaseStorageBucket = async () => {
+  if (!supabaseAdmin || !isSupabaseStorageConfigured) {
+    throw new Error("SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY ausentes");
+  }
+  if (bucketReady) return true;
+
+  const { data: buckets, error: listError } = await supabaseAdmin.storage.listBuckets();
+  if (listError) {
+    throw new Error(`Falha ao listar buckets Supabase: ${listError.message}`);
+  }
+
+  const exists = (buckets || []).some((item) => item.name === supabaseBucketName);
+  if (!exists) {
+    const { error: createError } = await supabaseAdmin.storage.createBucket(supabaseBucketName, {
+      public: true,
+      fileSizeLimit: "20MB",
+    });
+    if (createError) {
+      throw new Error(`Falha ao criar bucket ${supabaseBucketName}: ${createError.message}`);
+    }
+  }
+
+  bucketReady = true;
+  return true;
+};
+
 export const verifySupabaseStorageConnection = async () => {
   if (!supabaseAdmin || !isSupabaseStorageConfigured) {
     return { configured: false, connected: false, error: "SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY ausentes" };
