@@ -9,12 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Filter, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { toast } from "sonner";
 import empRepository from "@/components/emp/empRepository";
 import LegacyRecordToolbar from "@/components/emp/toolbars/EmpRecordToolbar";
 import SankhyaListToolbar from "@/components/emp/toolbars/EmpListToolbar";
+import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 import TopNoticeDialog from "@/components/common/TopNoticeDialog";
 import EmpRelationConfig from "@/components/emp/fields/EmpRelationConfig";
 import EmpManualOptionsConfig from "@/components/emp/fields/EmpManualOptionsConfig";
@@ -50,6 +50,9 @@ const initialForm = {
   campos_dependentes: [], usar_decimal: false, decimal_places: 2, usar_mascara: false, mascaras_text: ""
 };
 
+const FILTER_POPOVER_WIDTH = 272;
+const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
+
 const CAMPO_CONFIG_FIELD_BOX =
   "border border-slate-300 bg-white focus-within:border-green-500 transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
 
@@ -84,6 +87,10 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
   const [filtrosColunas, setFiltrosColunas] = useState({});
+  const tableStageRef = useRef(null);
+  const filterAnchorRefs = useRef({});
+  const filterPanelRef = useRef(null);
+  const [filterAnchorRect, setFilterAnchorRect] = useState(null);
 
   const { data: campos = [], isLoading, isFetching, isFetched } = useQuery({
     queryKey: ["emp-campos-personalizados"],
@@ -277,83 +284,195 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
       return sortConfig.direction === "asc" ? compare : -compare;
     });
   }, [campos, filtrosColunas, tableColumns, sortConfig]);
-  const renderFilterControl = (colunaId, columnLabel) => {
+  const renderFilterIcon = (active) =>
+    active
+      ? <FilterX className={FILTER_ICON_CLASS} strokeWidth={2} />
+      : <Filter className={FILTER_ICON_CLASS} strokeWidth={2} />;
+
+  const getRowBgClass = (index, selected) => {
+    if (selected) return "emp-row-selected";
+    return index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
+  };
+
+  const closeFilterMenu = () => {
+    setMenuFiltroAberto(null);
+    setFilterAnchorRect(null);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({ colunaId: null, valores: [] });
+  };
+
+  const getFilterPanelRect = (colunaId) => {
+    const el = filterAnchorRefs.current[colunaId];
+    const stage = tableStageRef.current;
+    if (!el || !stage) return null;
+    const rect = el.getBoundingClientRect();
+    const stageRect = stage.getBoundingClientRect();
+    const padding = 8;
+    const maxLeft = stageRect.width - FILTER_POPOVER_WIDTH - padding;
+    const left = Math.min(Math.max(rect.right - FILTER_POPOVER_WIDTH - stageRect.left, padding), maxLeft);
+    const top = rect.bottom + 6 - stageRect.top;
+    return { columnId: colunaId, left, top, width: rect.width, height: rect.height };
+  };
+
+  const openFilterMenu = (colunaId) => {
+    setFilterAnchorRect(getFilterPanelRect(colunaId));
+    setMenuFiltroAberto(colunaId);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({ colunaId, valores: [...getValoresFiltro(colunaId)] });
+  };
+
+  const toggleFilterMenu = (colunaId) => {
+    if (menuFiltroAberto === colunaId) {
+      closeFilterMenu();
+      return;
+    }
+    openFilterMenu(colunaId);
+  };
+
+  const updateFilterAnchorRect = () => {
+    if (!menuFiltroAberto) {
+      setFilterAnchorRect(null);
+      return;
+    }
+    setFilterAnchorRect(getFilterPanelRect(menuFiltroAberto));
+  };
+
+  React.useLayoutEffect(() => {
+    updateFilterAnchorRect();
+    if (!menuFiltroAberto) return undefined;
+    const onReflow = () => updateFilterAnchorRect();
+    const raf = requestAnimationFrame(updateFilterAnchorRect);
+    window.addEventListener("resize", onReflow);
+    window.addEventListener("scroll", onReflow, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", onReflow);
+      window.removeEventListener("scroll", onReflow, true);
+    };
+  }, [menuFiltroAberto, tableColumns]);
+
+  React.useEffect(() => {
+    if (!menuFiltroAberto) return undefined;
+    const onPointerDown = (event) => {
+      const panel = filterPanelRef.current;
+      const anchor = filterAnchorRefs.current[menuFiltroAberto];
+      if (panel?.contains(event.target) || anchor?.contains(event.target)) return;
+      closeFilterMenu();
+    };
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        event.stopPropagation();
+        closeFilterMenu();
+      }
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown, { passive: true });
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [menuFiltroAberto]);
+
+  const renderFilterPopoverContent = (colunaId) => {
+    const coluna = tableColumns.find((col) => col.id === colunaId);
     const options = columnOptions[colunaId] || [];
     const valoresSelecionados = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
     const filteredOptions = options.filter((option) => String(option).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
     const allVisibleSelected = filteredOptions.length > 0 && filteredOptions.every((option) => valoresSelecionados.includes(option));
+    const closeFilter = closeFilterMenu;
 
     return (
-      <Popover
-        open={menuFiltroAberto === colunaId}
-        onOpenChange={(open) => {
-          setMenuFiltroAberto(open ? colunaId : null);
-          setBuscaFiltroMenu("");
-          setFiltroTemp(open ? { colunaId, valores: [...getValoresFiltro(colunaId)] } : { colunaId: null, valores: [] });
-        }}
+      <div
+        ref={filterPanelRef}
+        className="emp-filter-popover absolute p-0 z-[9999]"
+        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
       >
-        <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className={`h-4 w-4 min-w-4 p-0 ${hasActiveFilter(colunaId) ? "text-emerald-700" : "text-slate-500 hover:text-slate-700"}`}>
-            <Filter className="w-3.5 h-3.5" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent align="end" side="bottom" sideOffset={4} className="w-[300px] p-0 z-[9999] rounded-none">
-          <div className="space-y-0.5 border-b px-1 py-1">
-            <button type="button" className="flex items-center w-full h-8 text-xs hover:bg-slate-100 rounded pr-2 pl-2" onClick={() => { setSortConfig({ key: colunaId, direction: "asc" }); setMenuFiltroAberto(null); }}>
-              <ArrowDownAZ className="w-4 h-4 mr-2" /> Classificar do Menor para o Maior
-            </button>
-            <button type="button" className="flex items-center w-full px-2 h-8 text-xs hover:bg-slate-100 rounded" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); setMenuFiltroAberto(null); }}>
-              <ArrowUpZA className="w-4 h-4 mr-2" /> Classificar do Maior para o Menor
+        <div className="emp-filter-sort-section">
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            onClick={() => { setSortConfig({ key: colunaId, direction: "asc" }); closeFilter(); }}
+          >
+            <ArrowDownAZ className="w-4 h-4 mr-2 shrink-0" />
+            <span>Classificar do Menor para o Maior</span>
+          </button>
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}
+          >
+            <ArrowUpZA className="w-4 h-4 mr-2 shrink-0" />
+            <span>Classificar do Maior para o Menor</span>
+          </button>
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            disabled={!hasActiveFilter(colunaId)}
+            onClick={() => { clearColumnFilter(colunaId); closeFilter(); }}
+          >
+            <X className="w-4 h-4 mr-2 shrink-0" />
+            <span className="truncate">Limpar Filtro de &apos;{coluna?.label || colunaId}&apos;</span>
+          </button>
+        </div>
+
+        <div className="emp-filter-body">
+          <input
+            value={buscaFiltroMenu}
+            onChange={(event) => setBuscaFiltroMenu(event.target.value)}
+            placeholder="PESQUISAR"
+            className="emp-filter-field emp-filter-search"
+          />
+
+          <div className="emp-filter-value-list">
+            <label className="emp-filter-value-list-header">
+              <Checkbox
+                checked={allVisibleSelected}
+                onCheckedChange={(checked) => {
+                  setFiltroTemp((prev) => {
+                    const restantes = prev.valores.filter((value) => !filteredOptions.includes(value));
+                    return { ...prev, valores: checked ? [...new Set([...restantes, ...filteredOptions])] : restantes };
+                  });
+                }}
+                className="emp-filter-checkbox"
+              />
+              <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
+            </label>
+            {filteredOptions.map((option) => (
+              <label key={option} className="emp-filter-value-list-item">
+                <Checkbox
+                  checked={valoresSelecionados.includes(option)}
+                  onCheckedChange={(checked) => {
+                    setFiltroTemp((prev) => ({ ...prev, valores: checked ? [...prev.valores, option] : prev.valores.filter((item) => item !== option) }));
+                  }}
+                  className="emp-filter-checkbox"
+                />
+                <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={option}>{option}</span>
+              </label>
+            ))}
+          </div>
+
+          <div className="emp-filter-actions">
+            <button
+              type="button"
+              title="Aplicar filtro"
+              className={EMP_TOOLBAR_BTN}
+              onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); }}
+            >
+              <Check className="w-3.5 h-3.5" />
             </button>
             <button
               type="button"
-              className={`flex items-center w-full px-2 h-8 text-xs rounded ${hasActiveFilter(colunaId) ? "hover:bg-slate-100 text-slate-700" : "text-slate-300 cursor-not-allowed"}`}
-              disabled={!hasActiveFilter(colunaId)}
-              onClick={() => { clearColumnFilter(colunaId); setMenuFiltroAberto(null); }}
+              title="Cancelar"
+              className={EMP_TOOLBAR_BTN}
+              onClick={closeFilter}
             >
-              <X className="w-4 h-4 mr-2" /> Limpar Filtro de "{columnLabel}"
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
-          <div className="p-1 space-y-1">
-            <Input value={buscaFiltroMenu} onChange={(event) => setBuscaFiltroMenu(event.target.value)} placeholder="PESQUISAR" className="h-[22px] text-xs uppercase rounded-none shadow-none focus-visible:ring-0 px-1" />
-            <div className="border border-slate-300 rounded-none max-h-64 overflow-y-auto p-1 bg-white">
-              <label className="flex h-8 items-center gap-2 px-2 py-0 text-xs text-slate-700 border-b border-slate-200 whitespace-nowrap overflow-hidden">
-                <Checkbox
-                  checked={allVisibleSelected}
-                  onCheckedChange={(checked) => {
-                    setFiltroTemp((prev) => {
-                      const restantes = prev.valores.filter((value) => !filteredOptions.includes(value));
-                      return { ...prev, valores: checked ? [...new Set([...restantes, ...filteredOptions])] : restantes };
-                    });
-                  }}
-                  className="h-3.5 w-3.5 shrink-0"
-                />
-                <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
-              </label>
-              {filteredOptions.map((option) => (
-                <label key={option} className="flex h-6 items-center gap-2 px-2 py-0 text-xs text-slate-700 hover:bg-slate-50 whitespace-nowrap overflow-hidden">
-                  <Checkbox
-                    checked={valoresSelecionados.includes(option)}
-                    onCheckedChange={(checked) => {
-                      setFiltroTemp((prev) => ({ ...prev, valores: checked ? [...prev.valores, option] : prev.valores.filter((item) => item !== option) }));
-                    }}
-                    className="h-3.5 w-3.5 shrink-0"
-                  />
-                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{option}</span>
-                </label>
-              ))}
-            </div>
-            <div className="flex items-center justify-end gap-0 pt-2">
-              <Button variant="outline" size="icon" title="Aplicar filtro" className="h-8 w-10 rounded-none border-slate-200 text-slate-800 hover:bg-slate-50" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}>
-                <Check className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="icon" title="Cancelar" className="h-8 w-10 rounded-none -ml-px border-slate-200 text-slate-800 hover:bg-slate-50" onClick={() => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}>
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </PopoverContent>
-      </Popover>
+        </div>
+      </div>
     );
   };
 
@@ -406,92 +525,98 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
         :
         <div className="flex-1 min-h-0 overflow-hidden bg-white flex flex-col">
           <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
-          <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
-            <Table className="emp-campos-config-table w-full min-w-[760px] border-separate border-spacing-0 table-fixed">
-              <TableHeader className="bg-white">
-                <TableRow className="sticky top-0 z-40 bg-white">
-                  {tableColumns.map((coluna) => (
-                    <TableHead
-                      key={coluna.id}
-                      className={`group relative sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 ${coluna.widthClass}`}
-                      onDoubleClick={() => handleSort(coluna.id)}
-                    >
-                      <div className="block w-full h-full leading-7 whitespace-nowrap overflow-hidden text-ellipsis">
-                        {coluna.label}
-                      </div>
-                      <div
-                        className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-white/95 pl-1 transition-opacity ${hasActiveFilter(coluna.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        {renderFilterControl(coluna.id, coluna.label)}
-                      </div>
-                    </TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(isLoading || (isFetching && campos.length === 0)) ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">
-                      Carregando...
-                    </TableCell>
-                  </TableRow>
-                ) : campos.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">
-                      Nenhum campo criado.
-                    </TableCell>
-                  </TableRow>
-                ) : camposFiltradosOrdenados.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">
-                      Nenhum campo encontrado para os filtros aplicados.
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  camposFiltradosOrdenados.map((campo, index) => {
-                    const id = campo.id || campo.field_id;
-                    const sel = selectedCampoIds.includes(id);
-                    const rowTone = sel
-                      ? "bg-green-500 hover:bg-green-600 text-white"
-                      : index % 2 === 0
-                        ? "bg-gray-100 hover:bg-gray-200"
-                        : "bg-white hover:bg-gray-100";
-                    const cellTone = sel
-                      ? "bg-green-500 text-white border-green-600"
-                      : index % 2 === 0
-                        ? "bg-gray-100 text-gray-700 border-gray-300"
-                        : "bg-white text-gray-700 border-gray-300";
-                    return (
-                      <TableRow
-                        key={id}
-                        className={`${rowTone} transition-colors border-b cursor-pointer select-none`}
-                        onClick={(e) => handleRowSelect(campo, e)}
-                        onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}
-                      >
-                        <TableCell className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis select-none px-2 font-medium ${cellTone}`}>
-                          {campo.label}
-                        </TableCell>
-                        <TableCell className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis select-none px-2 ${cellTone}`}>
-                          {TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}
-                        </TableCell>
-                        <TableCell className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden select-none px-2 ${cellTone}`}>
-                          <div className="h-full flex items-center gap-1 overflow-hidden">
-                            {campo.metadata?.native_select && <Badge variant="secondary" className="text-[10px]">Nativa</Badge>}
-                            {campo.visivel_form && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Form</Badge>}
-                            {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Tabela</Badge>}
-                            {(campo.options_source_entity || campo.relation_entity) && <Badge variant="secondary" className="text-[10px]">Vínculo</Badge>}
-                            {(campo.agregacao_tipo || campo.agregacao) && <Badge variant="secondary" className="text-[10px]">Total</Badge>}
-                            {campo.usar_decimal && <Badge variant="secondary" className="text-[10px]">{campo.decimal_places ?? 2} dec.</Badge>}
-                            {campo.usar_mascara && <Badge variant="secondary" className="text-[10px]">Máscara</Badge>}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
+          <div ref={tableStageRef} className={`emp-table-stage relative flex-1 min-h-0 flex flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
+            <div className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
+              <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
+                <Table className="emp-table-pro w-full min-w-[760px] border-separate border-spacing-0 table-fixed select-none">
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      {tableColumns.map((coluna) => {
+                        const isColFiltered = hasActiveFilter(coluna.id);
+                        const isFilterOpen = menuFiltroAberto === coluna.id;
+                        return (
+                          <TableHead
+                            key={coluna.id}
+                            className={`emp-th group relative sticky top-0 align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none cursor-pointer z-40 ${coluna.widthClass}`}
+                            onDoubleClick={() => handleSort(coluna.id)}
+                          >
+                            <div className="emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden">
+                              <span className="emp-th-label truncate font-semibold">{coluna.label}</span>
+                            </div>
+                            <div className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5" onClick={(event) => event.stopPropagation()} onDoubleClick={(event) => event.stopPropagation()}>
+                              <span
+                                ref={(el) => {
+                                  if (el) filterAnchorRefs.current[coluna.id] = el;
+                                  else delete filterAnchorRefs.current[coluna.id];
+                                }}
+                                role="button"
+                                tabIndex={0}
+                                className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${isColFiltered || isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"}`}
+                                title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
+                                onClick={(event) => {
+                                  event.stopPropagation();
+                                  toggleFilterMenu(coluna.id);
+                                }}
+                                onDoubleClick={(event) => {
+                                  event.stopPropagation();
+                                  if (!isColFiltered) return;
+                                  clearColumnFilter(coluna.id);
+                                  closeFilterMenu();
+                                }}
+                                onKeyDown={(event) => {
+                                  if (event.key === "Enter" || event.key === " ") {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    toggleFilterMenu(coluna.id);
+                                  }
+                                }}
+                              >
+                                {renderFilterIcon(isColFiltered)}
+                              </span>
+                            </div>
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {(isLoading || (isFetching && campos.length === 0))
+                      ? <TableRow><TableCell colSpan={3} className="emp-td text-center py-8 text-xs text-slate-400">Carregando...</TableCell></TableRow>
+                      : campos.length === 0
+                        ? <TableRow><TableCell colSpan={3} className="emp-td text-center py-8 text-xs text-slate-400">Nenhum campo criado.</TableCell></TableRow>
+                        : camposFiltradosOrdenados.length === 0
+                          ? <TableRow><TableCell colSpan={3} className="emp-td text-center py-8 text-xs text-slate-400">Nenhum campo encontrado para os filtros aplicados.</TableCell></TableRow>
+                          : camposFiltradosOrdenados.map((campo, index) => {
+                            const id = campo.id || campo.field_id;
+                            const isSelected = selectedCampoIds.includes(id);
+                            const rowClass = getRowBgClass(index, isSelected);
+                            return (
+                              <TableRow key={id} className={`${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowSelect(campo, e)} onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}>
+                                <TableCell className={`emp-td py-0 h-[26px] leading-[26px] text-[12px] align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none px-1.5 ${rowClass} ${isSelected ? "font-semibold" : ""}`}>
+                                  {campo.label}
+                                </TableCell>
+                                <TableCell className={`emp-td py-0 h-[26px] leading-[26px] text-[12px] align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none px-1.5 ${rowClass} ${isSelected ? "font-semibold" : ""}`}>
+                                  {TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}
+                                </TableCell>
+                                <TableCell className={`emp-td py-0 h-[26px] leading-[26px] text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isSelected ? "font-semibold" : ""}`}>
+                                  <div className="h-full flex items-center gap-1 overflow-hidden">
+                                    {campo.metadata?.native_select && <Badge variant="secondary" className="text-[10px]">Nativa</Badge>}
+                                    {campo.visivel_form && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Form</Badge>}
+                                    {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Tabela</Badge>}
+                                    {(campo.options_source_entity || campo.relation_entity) && <Badge variant="secondary" className="text-[10px]">Vínculo</Badge>}
+                                    {(campo.agregacao_tipo || campo.agregacao) && <Badge variant="secondary" className="text-[10px]">Total</Badge>}
+                                    {campo.usar_decimal && <Badge variant="secondary" className="text-[10px]">{campo.decimal_places ?? 2} dec.</Badge>}
+                                    {campo.usar_mascara && <Badge variant="secondary" className="text-[10px]">Máscara</Badge>}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            );
+                          })}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+            {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
           </div>
         </div>
       }
