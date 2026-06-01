@@ -39,6 +39,14 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(false);
     } catch (error) {
       console.error("Unexpected auth error:", error);
+      const message = String(error?.message || "").toLowerCase();
+      if (message.includes("auth session missing")) {
+        setAuthError(null);
+        setIsLoadingAuth(false);
+        setIsAuthenticated(false);
+        setUser(null);
+        return;
+      }
       setAuthError({
         type: "auth_not_configured",
         message: error.message || "Falha ao validar autenticação",

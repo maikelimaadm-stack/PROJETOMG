@@ -54,12 +54,15 @@ const AuthenticatedApp = () => {
     if (authError.type === "user_not_registered") return <UserNotRegisteredError />;
     if (authError.type === "auth_required") { navigateToLogin(); return null; }
     if (authError.type === "auth_not_configured") {
+      const shouldShowEnvHint = String(authError.message || "").toLowerCase().includes("não configurado");
       return (
         <div className="fixed inset-0 flex items-center justify-center bg-white px-6">
           <div className="max-w-xl rounded border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-            <h2 className="mb-2 text-base font-semibold">Supabase Auth não configurado</h2>
+            <h2 className="mb-2 text-base font-semibold">Falha na autenticação</h2>
             <p>{authError.message}</p>
-            <p className="mt-2">Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no arquivo .env para autenticação.</p>
+            {shouldShowEnvHint ? (
+              <p className="mt-2">Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no arquivo .env para autenticação.</p>
+            ) : null}
           </div>
         </div>
       );
