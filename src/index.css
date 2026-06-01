@@ -672,7 +672,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
   border: 0.5px solid #c5ced8;
-  border-radius: var(--emp-control-radius);
+  border-radius: 1.5px;
   background: #ffffff;
   box-shadow: none;
   overflow: hidden;
