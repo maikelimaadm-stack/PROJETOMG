@@ -8,6 +8,9 @@ import ToggleSwitch from "@/components/common/ToggleSwitch";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Filter, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { toast } from "sonner";
 import empRepository from "@/components/emp/empRepository";
 import LegacyRecordToolbar from "@/components/emp/toolbars/EmpRecordToolbar";
@@ -76,6 +79,11 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   const [editMode, setEditMode] = useState(false);
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "", type: "warning", onConfirm: null, confirmText: "Entendi", cancelText: "" });
   const initialFieldAppliedRef = useRef(false);
+  const [sortConfig, setSortConfig] = useState({ key: "campo", direction: "asc" });
+  const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
+  const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
+  const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
+  const [filtrosColunas, setFiltrosColunas] = useState({});
 
   const { data: campos = [], isLoading, isFetching, isFetched } = useQuery({
     queryKey: ["emp-campos-personalizados"],
@@ -131,7 +139,19 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
 
   const resetForm = () => { setForm(initialForm); setEditingId(null); setIsDirty(false); setIsDuplicating(false); setEditMode(false); setShowForm(false); };
   const handleToggleView = () => { if (showForm) { resetForm(); return; } if (selectedCampo && selectedCampoIds.length <= 1) handleEdit(selectedCampo); };
-  const handleRowSelect = (campo, event) => { const id = campo.id || campo.field_id; setSelectedCampoIds((p) => event?.ctrlKey || event?.metaKey ? p.includes(id) ? p.filter((x) => x !== id) : [...p, id] : [id]); };
+  const handleRowSelect = (campo, event) => {
+    if (event?.target?.closest?.("button, input, [role='checkbox'], [data-radix-popper-content-wrapper]")) return;
+    const id = campo.id || campo.field_id;
+    if (event?.ctrlKey || event?.metaKey) {
+      setSelectedCampoIds((prev) => prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]);
+      return;
+    }
+    if (selectedCampoIds.length === 1 && selectedCampoIds[0] === id) {
+      setSelectedCampoIds([]);
+      return;
+    }
+    setSelectedCampoIds([id]);
+  };
   const navigateCampo = (index) => { const ni = Math.min(Math.max(index, 0), Math.max(campos.length - 1, 0)); const c = campos[ni]; if (!c) return; setSelectedCampoIds([c.id || c.field_id]); handleEdit(c); };
   const handleNew = () => { setForm(initialForm); setEditingId(null); setSelectedCampoIds([]); setIsDirty(true); setIsDuplicating(false); setEditMode(true); setShowForm(true); };
 
@@ -198,6 +218,145 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   const handleDeleteSelected = () => { const sel = campos.filter((c) => selectedCampoIds.includes(c.id || c.field_id)); if (!sel.length) return; showNotice({ title: "Confirmar exclusão", description: sel.length === 1 ? `Excluir "${sel[0].label}"?` : `Excluir ${sel.length} campos?`, type: "danger", confirmText: "Excluir", cancelText: "Cancelar", onConfirm: () => { sel.forEach((c) => deleteMutation.mutate(c)); setSelectedCampoIds([]); } }); };
   const handleDuplicateCurrent = () => { if (!selectedCampo) return; const { id, field_id, created_date, updated_date, created_by, ...copy } = selectedCampo; setForm({ ...initialForm, ...copy, options_text: copy.options_text || (copy.options || []).map((o) => o.label || o.value || o).join("\n"), label: `${selectedCampo.label || "Campo"} - Cópia`, field_name: "", agregacao_tipo: selectedCampo.agregacao_tipo || selectedCampo.agregacao || "none", usar_decimal: !!selectedCampo.usar_decimal, decimal_places: selectedCampo.decimal_places ?? 2, usar_mascara: !!selectedCampo.usar_mascara, mascaras_text: selectedCampo.mascaras_text || "" }); setEditingId(null); setSelectedCampoIds([]); setIsDirty(true); setIsDuplicating(true); setEditMode(true); setShowForm(true); };
 
+  const getTipoLabel = (campo) => TIPOS_CAMPO.find((tipo) => tipo.value === campo.tipo)?.label || campo.tipo || "";
+  const getUsoItems = (campo) => {
+    const items = [];
+    if (campo.metadata?.native_select) items.push("NATIVA");
+    if (campo.visivel_form) items.push("FORM");
+    if (campo.visivel_tabela) items.push("TABELA");
+    if (campo.options_source_entity || campo.relation_entity) items.push("VINCULO");
+    if (campo.agregacao_tipo || campo.agregacao) items.push("TOTAL");
+    if (campo.usar_decimal) items.push(`${campo.decimal_places ?? 2} DEC.`);
+    if (campo.usar_mascara) items.push("MASCARA");
+    return items;
+  };
+  const getColumnValue = (campo, colunaId) => {
+    if (colunaId === "campo") return String(campo.label || "");
+    if (colunaId === "tipo") return String(getTipoLabel(campo) || "");
+    if (colunaId === "uso") return getUsoItems(campo).join(", ");
+    return "";
+  };
+  const tableColumns = useMemo(() => [
+    { id: "campo", label: "Campo", widthClass: "w-[260px]" },
+    { id: "tipo", label: "Tipo", widthClass: "w-[150px]" },
+    { id: "uso", label: "Uso", widthClass: "" },
+  ], []);
+  const columnOptions = useMemo(() => {
+    const next = {};
+    tableColumns.forEach((coluna) => {
+      next[coluna.id] = Array.from(new Set(campos.map((campo) => getColumnValue(campo, coluna.id)).filter(Boolean)))
+        .sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base" }));
+    });
+    return next;
+  }, [campos, tableColumns]);
+  const getValoresFiltro = (colunaId) => filtrosColunas[colunaId] || [];
+  const setValoresFiltro = (colunaId, valores) => {
+    setFiltrosColunas((prev) => ({ ...prev, [colunaId]: [...new Set(valores)] }));
+  };
+  const clearColumnFilter = (colunaId) => {
+    setFiltrosColunas((prev) => {
+      const next = { ...prev };
+      delete next[colunaId];
+      return next;
+    });
+  };
+  const hasActiveFilter = (colunaId) => getValoresFiltro(colunaId).length > 0;
+  const handleSort = (key) => setSortConfig((prev) => ({ key, direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc" }));
+  const camposFiltradosOrdenados = useMemo(() => {
+    const filtrados = campos.filter((campo) =>
+      tableColumns.every((coluna) => {
+        const filtro = filtrosColunas[coluna.id] || [];
+        if (!filtro.length) return true;
+        return filtro.includes(getColumnValue(campo, coluna.id));
+      })
+    );
+    return [...filtrados].sort((a, b) => {
+      const aValue = getColumnValue(a, sortConfig.key);
+      const bValue = getColumnValue(b, sortConfig.key);
+      const compare = String(aValue).localeCompare(String(bValue), "pt-BR", { sensitivity: "base", numeric: true });
+      return sortConfig.direction === "asc" ? compare : -compare;
+    });
+  }, [campos, filtrosColunas, tableColumns, sortConfig]);
+  const renderFilterControl = (colunaId, columnLabel) => {
+    const options = columnOptions[colunaId] || [];
+    const valoresSelecionados = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
+    const filteredOptions = options.filter((option) => String(option).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
+    const allVisibleSelected = filteredOptions.length > 0 && filteredOptions.every((option) => valoresSelecionados.includes(option));
+
+    return (
+      <Popover
+        open={menuFiltroAberto === colunaId}
+        onOpenChange={(open) => {
+          setMenuFiltroAberto(open ? colunaId : null);
+          setBuscaFiltroMenu("");
+          setFiltroTemp(open ? { colunaId, valores: [...getValoresFiltro(colunaId)] } : { colunaId: null, valores: [] });
+        }}
+      >
+        <PopoverTrigger asChild>
+          <Button variant="ghost" size="icon" className={`h-4 w-4 min-w-4 p-0 ${hasActiveFilter(colunaId) ? "text-emerald-700" : "text-slate-500 hover:text-slate-700"}`}>
+            <Filter className="w-3.5 h-3.5" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" side="bottom" sideOffset={4} className="w-[300px] p-0 z-[9999] rounded-none">
+          <div className="space-y-0.5 border-b px-1 py-1">
+            <button type="button" className="flex items-center w-full h-8 text-xs hover:bg-slate-100 rounded pr-2 pl-2" onClick={() => { setSortConfig({ key: colunaId, direction: "asc" }); setMenuFiltroAberto(null); }}>
+              <ArrowDownAZ className="w-4 h-4 mr-2" /> Classificar do Menor para o Maior
+            </button>
+            <button type="button" className="flex items-center w-full px-2 h-8 text-xs hover:bg-slate-100 rounded" onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); setMenuFiltroAberto(null); }}>
+              <ArrowUpZA className="w-4 h-4 mr-2" /> Classificar do Maior para o Menor
+            </button>
+            <button
+              type="button"
+              className={`flex items-center w-full px-2 h-8 text-xs rounded ${hasActiveFilter(colunaId) ? "hover:bg-slate-100 text-slate-700" : "text-slate-300 cursor-not-allowed"}`}
+              disabled={!hasActiveFilter(colunaId)}
+              onClick={() => { clearColumnFilter(colunaId); setMenuFiltroAberto(null); }}
+            >
+              <X className="w-4 h-4 mr-2" /> Limpar Filtro de "{columnLabel}"
+            </button>
+          </div>
+          <div className="p-1 space-y-1">
+            <Input value={buscaFiltroMenu} onChange={(event) => setBuscaFiltroMenu(event.target.value)} placeholder="PESQUISAR" className="h-[22px] text-xs uppercase rounded-none shadow-none focus-visible:ring-0 px-1" />
+            <div className="border border-slate-300 rounded-none max-h-64 overflow-y-auto p-1 bg-white">
+              <label className="flex h-8 items-center gap-2 px-2 py-0 text-xs text-slate-700 border-b border-slate-200 whitespace-nowrap overflow-hidden">
+                <Checkbox
+                  checked={allVisibleSelected}
+                  onCheckedChange={(checked) => {
+                    setFiltroTemp((prev) => {
+                      const restantes = prev.valores.filter((value) => !filteredOptions.includes(value));
+                      return { ...prev, valores: checked ? [...new Set([...restantes, ...filteredOptions])] : restantes };
+                    });
+                  }}
+                  className="h-3.5 w-3.5 shrink-0"
+                />
+                <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
+              </label>
+              {filteredOptions.map((option) => (
+                <label key={option} className="flex h-6 items-center gap-2 px-2 py-0 text-xs text-slate-700 hover:bg-slate-50 whitespace-nowrap overflow-hidden">
+                  <Checkbox
+                    checked={valoresSelecionados.includes(option)}
+                    onCheckedChange={(checked) => {
+                      setFiltroTemp((prev) => ({ ...prev, valores: checked ? [...prev.valores, option] : prev.valores.filter((item) => item !== option) }));
+                    }}
+                    className="h-3.5 w-3.5 shrink-0"
+                  />
+                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">{option}</span>
+                </label>
+              ))}
+            </div>
+            <div className="flex items-center justify-end gap-0 pt-2">
+              <Button variant="outline" size="icon" title="Aplicar filtro" className="h-8 w-10 rounded-none border-slate-200 text-slate-800 hover:bg-slate-50" onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}>
+                <Check className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="icon" title="Cancelar" className="h-8 w-10 rounded-none -ml-px border-slate-200 text-slate-800 hover:bg-slate-50" onClick={() => { setMenuFiltroAberto(null); setBuscaFiltroMenu(""); setFiltroTemp({ colunaId: null, valores: [] }); }}>
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
+    );
+  };
+
   const operationLabel = isDuplicating
     ? "NOVO REGISTRO DUPLICADO"
     : editingId
@@ -251,15 +410,23 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
             <Table className="emp-campos-config-table w-full min-w-[760px] border-separate border-spacing-0 table-fixed">
               <TableHeader className="bg-white">
                 <TableRow className="sticky top-0 z-40 bg-white">
-                  <TableHead className="sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[260px]">
-                    Campo
-                  </TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[150px]">
-                    Tipo
-                  </TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7">
-                    Uso
-                  </TableHead>
+                  {tableColumns.map((coluna) => (
+                    <TableHead
+                      key={coluna.id}
+                      className={`group relative sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 ${coluna.widthClass}`}
+                      onDoubleClick={() => handleSort(coluna.id)}
+                    >
+                      <div className="block w-full h-full leading-7 whitespace-nowrap overflow-hidden text-ellipsis">
+                        {coluna.label}
+                      </div>
+                      <div
+                        className={`absolute right-2 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5 bg-white/95 pl-1 transition-opacity ${hasActiveFilter(coluna.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        {renderFilterControl(coluna.id, coluna.label)}
+                      </div>
+                    </TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -275,24 +442,40 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                       Nenhum campo criado.
                     </TableCell>
                   </TableRow>
+                ) : camposFiltradosOrdenados.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">
+                      Nenhum campo encontrado para os filtros aplicados.
+                    </TableCell>
+                  </TableRow>
                 ) : (
-                  campos.map((campo, index) => {
+                  camposFiltradosOrdenados.map((campo, index) => {
                     const id = campo.id || campo.field_id;
                     const sel = selectedCampoIds.includes(id);
+                    const rowTone = sel
+                      ? "bg-green-500 hover:bg-green-600 text-white"
+                      : index % 2 === 0
+                        ? "bg-gray-100 hover:bg-gray-200"
+                        : "bg-white hover:bg-gray-100";
+                    const cellTone = sel
+                      ? "bg-green-500 text-white border-green-600"
+                      : index % 2 === 0
+                        ? "bg-gray-100 text-gray-700 border-gray-300"
+                        : "bg-white text-gray-700 border-gray-300";
                     return (
                       <TableRow
                         key={id}
-                        className={`${sel ? "bg-green-500 hover:bg-green-600 text-white" : index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`}
+                        className={`${rowTone} transition-colors border-b cursor-pointer select-none`}
                         onClick={(e) => handleRowSelect(campo, e)}
                         onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}
                       >
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis font-medium ${sel ? "text-white border-green-600" : "text-[#374151] border-gray-300"}`}>
+                        <TableCell className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis select-none px-2 font-medium ${cellTone}`}>
                           {campo.label}
                         </TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "text-white border-green-600" : "text-[#374151] border-gray-300"}`}>
+                        <TableCell className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis select-none px-2 ${cellTone}`}>
                           {TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}
                         </TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "text-white border-green-600" : "text-[#374151] border-gray-300"}`}>
+                        <TableCell className={`py-1 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden select-none px-2 ${cellTone}`}>
                           <div className="h-full flex items-center gap-1 overflow-hidden">
                             {campo.metadata?.native_select && <Badge variant="secondary" className="text-[10px]">Nativa</Badge>}
                             {campo.visivel_form && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Form</Badge>}
