@@ -490,6 +490,8 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-section-panel {
   box-sizing: border-box;
+  width: 100%;
+  min-width: 920px;
   padding-top: 0;
   padding-bottom: 0;
   background: #f4f7fc;
