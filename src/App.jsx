@@ -1,11 +1,11 @@
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/shared/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClientInstance } from "@/lib/query-client";
+import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
-import { AuthProvider, useAuth } from "@/lib/AuthContext";
-import UserNotRegisteredError from "@/components/UserNotRegisteredError";
-import PAGEMP from "./pages/emp/PAGEMP";
-import { base44 } from "@/api/base44Client";
+import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
+import UserNotRegisteredError from "@/shared/components/UserNotRegisteredError";
+import PAGEMP from "@/modules/empresas/pages/PAGEMP";
+import { base44 } from "@/integrations/base44/base44Client";
 
 function MinimalLayout({ children }) {
   const location = useLocation();
