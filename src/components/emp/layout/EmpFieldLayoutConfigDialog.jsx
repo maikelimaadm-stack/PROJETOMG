@@ -118,7 +118,7 @@ export default function EmpFieldLayoutConfigDialog({
                 Quantidade de colunas por linha
               </label>
               <div className="flex flex-wrap gap-2">
-                {[1, 2, 3, 4].map((count) => (
+                {Array.from({ length: 8 }, (_, index) => index + 1).map((count) => (
                   <button
                     key={count}
                     type="button"
