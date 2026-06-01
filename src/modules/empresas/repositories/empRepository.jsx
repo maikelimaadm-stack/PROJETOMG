@@ -1,24 +1,17 @@
-import { base44 } from '@/integrations/base44/base44Client';
-import empLocalStore from '../storage/empLocalStore';
-import empCamposLocalStore from '../storage/empCamposLocalStore';
-import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from '../config/empSeedData';
-import { normalizeEmpresaRecord, reserveNextCodigoEmpresa, stripEmpresaPersistPayload, syncLastIssuedCodigo } from '../utils/empCodigoUtils';
+import { EmpresaApi } from "@/apis/empresa/EmpresaApi";
+import empLocalStore from "../storage/empLocalStore";
+import empCamposLocalStore from "../storage/empCamposLocalStore";
+import { buildAllTestRecords, buildValorForIndex, EMP_SEED_TARGET_COUNT } from "../config/empSeedData";
+import {
+  normalizeEmpresaRecord,
+  reserveNextCodigoEmpresa,
+  stripEmpresaPersistPayload,
+  syncLastIssuedCodigo,
+} from "../utils/empCodigoUtils";
 
-const hasAppId = () => Boolean(import.meta.env.VITE_BASE44_APP_ID || import.meta.env.BASE44_APP_ID);
-const REMOTE_SEED_FLAG = 'emp_remote_seeded_v2';
+const REMOTE_SEED_FLAG = "emp_remote_seeded_v2";
 
-const checkRemoteApiAvailability = async () => {
-  if (!hasAppId()) return false;
-  try {
-    await Promise.race([
-      base44.entities.EmpresaCadastro.list('-codigo_empresa', 1),
-      new Promise((_, reject) => setTimeout(() => reject(new Error('remote-timeout')), 4000)),
-    ]);
-    return true;
-  } catch {
-    return false;
-  }
-};
+const checkRemoteApiAvailability = async () => EmpresaApi.isAvailable();
 
 let remoteAvailablePromise = null;
 const isRemoteAvailable = () => {
@@ -27,7 +20,7 @@ const isRemoteAvailable = () => {
 };
 
 const seedRemoteIfEmpty = async () => {
-  let records = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+  let records = await EmpresaApi.listEmpresas();
   const seedVersion = localStorage.getItem(REMOTE_SEED_FLAG);
 
   if (seedVersion === 'v2') {
@@ -44,10 +37,10 @@ const seedRemoteIfEmpty = async () => {
   const toCreate = templates.slice(startAt, EMP_SEED_TARGET_COUNT);
 
   for (const record of toCreate) {
-    const latest = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+    const latest = await EmpresaApi.listEmpresas();
     syncLastIssuedCodigo(latest);
     const codigo = reserveNextCodigoEmpresa(latest);
-    await base44.entities.EmpresaCadastro.create({
+    await EmpresaApi.createEmpresa({
       ...record,
       codigo_empresa: codigo,
       campos_personalizados: {
@@ -58,7 +51,7 @@ const seedRemoteIfEmpty = async () => {
   }
 
   localStorage.setItem(REMOTE_SEED_FLAG, 'v2');
-  records = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+  records = await EmpresaApi.listEmpresas();
   syncLastIssuedCodigo(records);
   return records;
 };
@@ -82,7 +75,7 @@ const empRepository = {
   async get(id) {
     if (await isRemoteAvailable()) {
       try {
-        return base44.entities.EmpresaCadastro.filter({ id });
+        return await EmpresaApi.getEmpresa(id);
       } catch {
         return empLocalStore.filter({ id });
       }
@@ -95,10 +88,10 @@ const empRepository = {
 
     if (await isRemoteAvailable()) {
       try {
-        const list = await base44.entities.EmpresaCadastro.list('-codigo_empresa');
+        const list = await EmpresaApi.listEmpresas();
         syncLastIssuedCodigo(list);
         const codigo = reserveNextCodigoEmpresa(list);
-        const created = await base44.entities.EmpresaCadastro.create({ ...payload, codigo_empresa: codigo });
+        const created = await EmpresaApi.createEmpresa({ ...payload, codigo_empresa: codigo });
         return normalizeEmpresaRecord(created, { ...payload, codigo_empresa: codigo });
       } catch {
         return empLocalStore.create(payload);
@@ -112,7 +105,7 @@ const empRepository = {
 
     if (await isRemoteAvailable()) {
       try {
-        const updated = await base44.entities.EmpresaCadastro.update(id, payload);
+        const updated = await EmpresaApi.updateEmpresa(id, payload);
         return normalizeEmpresaRecord(updated, { id, ...payload });
       } catch {
         return empLocalStore.update(id, payload);
@@ -124,7 +117,7 @@ const empRepository = {
   async delete(id) {
     if (await isRemoteAvailable()) {
       try {
-        await base44.entities.EmpresaCadastro.delete(id);
+        await EmpresaApi.deleteEmpresa(id);
         empLocalStore.delete(id);
         return true;
       } catch (error) {
@@ -142,7 +135,7 @@ const empRepository = {
   async listCamposPersonalizados() {
     if (await isRemoteAvailable()) {
       try {
-        return base44.entities.CampoPersonalizadoEmpresa.list('ordem_tabela');
+        return await EmpresaApi.listCamposPersonalizados();
       } catch {
         return empCamposLocalStore.seedIfEmpty();
       }
@@ -153,7 +146,7 @@ const empRepository = {
   async createCampoPersonalizado(data) {
     if (await isRemoteAvailable()) {
       try {
-        return base44.entities.CampoPersonalizadoEmpresa.create(data);
+        return await EmpresaApi.createCampoPersonalizado(data);
       } catch {
         return empCamposLocalStore.create(data);
       }
@@ -164,7 +157,7 @@ const empRepository = {
   async updateCampoPersonalizado(id, data) {
     if (await isRemoteAvailable()) {
       try {
-        return base44.entities.CampoPersonalizadoEmpresa.update(id, data);
+        return await EmpresaApi.updateCampoPersonalizado(id, data);
       } catch {
         return empCamposLocalStore.update(id, data);
       }
@@ -175,7 +168,7 @@ const empRepository = {
   async deleteCampoPersonalizado(campo) {
     if (await isRemoteAvailable()) {
       try {
-        return base44.entities.CampoPersonalizadoEmpresa.delete(campo.id || campo.field_id);
+        return await EmpresaApi.deleteCampoPersonalizado(campo.id || campo.field_id);
       } catch {
         return empCamposLocalStore.delete(campo.id || campo.field_id);
       }
@@ -184,19 +177,14 @@ const empRepository = {
   },
 
   async listOptionsSources(sources) {
-    const result = {};
-    await Promise.all((sources || []).map(async ({ entity, labelField, valueField }) => {
+    if (await isRemoteAvailable()) {
       try {
-        const items = await base44.entities[entity]?.list?.() || [];
-        result[entity] = items.map(item => ({
-          id: item[valueField] || item.id,
-          nome: item[labelField] || item.nome || item.name || ''
-        }));
+        return await EmpresaApi.listOptionsSources(sources);
       } catch {
-        result[entity] = [];
+        return {};
       }
-    }));
-    return result;
+    }
+    return {};
   }
 };
 

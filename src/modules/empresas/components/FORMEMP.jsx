@@ -19,7 +19,7 @@ import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLay
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpOptionListControl from "@/framework/cadastro/formularios/EmpOptionListControl";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
-import { base44 } from "@/integrations/base44/base44Client";
+import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 const ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
@@ -180,7 +180,7 @@ export default function FORMEMP({
     if (!file) return;
     setUploadingLogo(true);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await AnexosApi.uploadFile(file);
       setFormData((prev) => ({ ...prev, logo_url: file_url }));
     } finally {
       setUploadingLogo(false);
@@ -267,7 +267,7 @@ export default function FORMEMP({
           onUpload={(event) => {
             const file = event.target.files?.[0];
             if (!file) return;
-            base44.integrations.Core.UploadFile({ file })
+            AnexosApi.uploadFile(file)
               .then(({ file_url }) => handleCustomChange(campo.field_name, file_url))
               .catch(() => setNoticeDialog({ open: true, title: "Erro ao enviar", description: "Não foi possível enviar a imagem." }));
           }}

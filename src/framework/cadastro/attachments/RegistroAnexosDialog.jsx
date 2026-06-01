@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { base44 } from "@/integrations/base44/base44Client";
+import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
@@ -45,7 +45,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
 
   const { data: savedAnexos = [] } = useQuery({
     queryKey,
-    queryFn: () => base44.entities.RegistroAnexo.filter({ entity_name: entityName, record_id: recordId }, "-created_date"),
+    queryFn: () => AnexosApi.list(entityName, recordId),
     enabled: open && !!entityName && !!recordId,
     initialData: []
   });
@@ -53,7 +53,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
   const anexos = recordId ? savedAnexos : pendingAnexos;
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.RegistroAnexo.delete(id),
+    mutationFn: (id) => AnexosApi.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
       toast.success("Anexo removido.");
@@ -71,7 +71,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
     setUploading(true);
     const novosAnexos = [];
     for (const file of files) {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await AnexosApi.uploadFile(file);
       const anexoData = {
         entity_name: entityName,
         record_id: recordId,
@@ -82,7 +82,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
         file_size: file.size
       };
       if (recordId) {
-        await base44.entities.RegistroAnexo.create(anexoData);
+        await AnexosApi.create(anexoData);
       } else {
         novosAnexos.push({ ...anexoData, id: `pending-${Date.now()}-${file.name}` });
       }

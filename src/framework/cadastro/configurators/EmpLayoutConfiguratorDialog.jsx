@@ -19,8 +19,8 @@ import {
   X,
   Layers,
 } from "lucide-react";
-import EmpLayoutFieldSettingsPopover from "./EmpLayoutFieldSettingsPopover";
-import EmpLayoutFieldStatusIcons from "./EmpLayoutFieldStatusIcons";
+import EmpLayoutFieldSettingsPopover from "@/framework/cadastro/layouts/EmpLayoutFieldSettingsPopover";
+import EmpLayoutFieldStatusIcons from "@/framework/cadastro/layouts/EmpLayoutFieldStatusIcons";
 import EmpLayoutPresetsDialog from "./EmpLayoutPresetsDialog";
 import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";

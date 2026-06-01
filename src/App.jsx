@@ -5,9 +5,8 @@ import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import UserNotRegisteredError from "@/shared/components/UserNotRegisteredError";
 import PAGEMP from "@/modules/empresas/pages/PAGEMP";
-import { base44 } from "@/integrations/base44/base44Client";
 
-function MinimalLayout({ children }) {
+function MinimalLayout({ children, onLogout }) {
   const location = useLocation();
 
   return (
@@ -20,7 +19,7 @@ function MinimalLayout({ children }) {
           </div>
           <button
             type="button"
-            onClick={() => base44.auth.logout()}
+            onClick={onLogout}
             className="h-7 px-3 rounded-none border border-slate-300 bg-white text-xs text-slate-600 hover:text-slate-700 hover:bg-slate-50"
           >
             Sair
@@ -41,7 +40,7 @@ function MinimalLayout({ children }) {
 }
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
+  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, logout } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -61,9 +60,9 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<MinimalLayout><PAGEMP /></MinimalLayout>} />
-      <Route path="/CadastroEmpresas" element={<MinimalLayout><PAGEMP /></MinimalLayout>} />
-      <Route path="*" element={<MinimalLayout><PAGEMP /></MinimalLayout>} />
+      <Route path="/" element={<MinimalLayout onLogout={logout}><PAGEMP /></MinimalLayout>} />
+      <Route path="/CadastroEmpresas" element={<MinimalLayout onLogout={logout}><PAGEMP /></MinimalLayout>} />
+      <Route path="*" element={<MinimalLayout onLogout={logout}><PAGEMP /></MinimalLayout>} />
     </Routes>
   );
 };
