@@ -6,40 +6,54 @@ import ToggleSwitch from "@/components/common/ToggleSwitch";
 import EmpCustomMarker from "@/components/emp/shared/EmpCustomMarker";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/components/emp/layout/empFormLayoutStore";
 
+const STACKED_TEXT_WIDTH = "w-full max-w-[480px]";
+const COMPACT_TEXT_WIDTH = "w-full max-w-[220px]";
+
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
 const isBareControlField = (field) => field?.type === "checkbox" || field?.type === "switch";
 
 const isImageField = (field) => field?.type === "image" || field?.type === "file" || field?.type === "imagem";
 
-const shouldSpanFullRow = (field, columnMode = false) => {
-  if (!columnMode) return false;
+const isTextLikeField = (field) =>
+  field?.type === "textarea" ||
+  field?.wide ||
+  (!field?.compact && !field?.medium && !isBareControlField(field) && !isImageField(field));
+
+const shouldSpanFullRow = (field, gridMode = false) => {
+  if (!gridMode) return false;
   return field?.type === "textarea" || field?.type === "option_list" || isImageField(field);
 };
 
-const getFieldControlClass = (field, error, className, columnMode = false) => {
+const getFieldControlClass = (field, error, className, layoutMode = "stacked") => {
   if (isImageField(field)) {
     return `emp-form-field-control emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-[100px] shrink-0 ${error ? "emp-form-field-error" : ""} ${className}`.trim();
   }
 
   const heightClass =
-    field.type === "textarea" ? "min-h-[48px]" : field.wide && columnMode ? "min-h-6" : field.wide ? "min-h-6" : "h-6";
+    field.type === "textarea"
+      ? layoutMode === "compact"
+        ? "min-h-[40px]"
+        : "min-h-[48px]"
+      : field.wide
+        ? "min-h-6"
+        : "h-6";
 
   let widthClass = "w-full";
-  if (!columnMode) {
-    if (field.type === "textarea") {
-      widthClass = "w-full max-w-[340px]";
-    } else if (field.wide) {
-      widthClass = "w-full max-w-[300px]";
-    } else if (field.medium) {
-      widthClass = "w-64 max-w-full";
-    } else if (field.compact) {
-      widthClass = "w-44 max-w-full";
-    } else {
-      widthClass = "w-full max-w-[260px]";
-    }
-  } else if (!isBareControlField(field)) {
-    widthClass = "w-full max-w-none";
+
+  if (layoutMode === "columns") {
+    widthClass = isBareControlField(field) ? "w-auto" : "w-full max-w-none";
+  } else if (layoutMode === "compact") {
+    if (field.compact) widthClass = "w-40 max-w-full";
+    else if (field.medium) widthClass = "w-52 max-w-full";
+    else if (isTextLikeField(field)) widthClass = COMPACT_TEXT_WIDTH;
+    else widthClass = COMPACT_TEXT_WIDTH;
+  } else if (isTextLikeField(field)) {
+    widthClass = STACKED_TEXT_WIDTH;
+  } else if (field.medium) {
+    widthClass = "w-64 max-w-full";
+  } else if (field.compact) {
+    widthClass = "w-44 max-w-full";
   }
 
   return `emp-form-field-control relative ${heightClass} ${widthClass} ${error ? "emp-form-field-error" : ""} ${className}`.trim();
@@ -104,7 +118,7 @@ function FieldFrameStacked({ field, error, children, className = "" }) {
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
-        <div className={getFieldControlClass(field, error, className, false)}>
+        <div className={getFieldControlClass(field, error, className, "stacked")}>
           {isCustomField(field) && <EmpCustomMarker />}
           {children}
         </div>
@@ -113,22 +127,23 @@ function FieldFrameStacked({ field, error, children, className = "" }) {
   );
 }
 
-function FieldFrameColumns({ field, error, children, className = "", spanFull = false }) {
+function FieldFrameGrid({ field, error, children, className = "", spanFull = false, layoutMode = "columns" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
+  const compactMode = layoutMode === "compact";
 
   return (
     <div
       data-field={field.dataField || field.name}
-      className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""}`}
+      className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""} ${compactMode ? "emp-form-field-column-compact" : ""}`}
     >
-      <label className="emp-form-field-label-top text-[12px] text-[#1a1f26] leading-none">
+      <label className={`emp-form-field-label-top leading-none text-[#1a1f26] ${compactMode ? "text-[11px]" : "text-[12px]"}`}>
         {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
-        <div className={getFieldControlClass(field, error, className, true)}>
+        <div className={getFieldControlClass(field, error, className, layoutMode)}>
           {isCustomField(field) && <EmpCustomMarker />}
           {children}
         </div>
@@ -158,8 +173,14 @@ export default function EmpDynamicFormRenderer({
   const activeFieldIds = layout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
   const isPrincipalPanel = activePanel?.id === "principal";
-  const useColumnMode = normalizedFieldLayout.mode === "columns" && !isPrincipalPanel;
+  const layoutMode = isPrincipalPanel ? "stacked" : normalizedFieldLayout.mode;
+  const useGridMode = layoutMode === "columns" || layoutMode === "compact";
   const columnCount = normalizedFieldLayout.columns;
+  const fieldsContainerClass = layoutMode === "compact"
+    ? "emp-form-fields-compact"
+    : layoutMode === "columns"
+      ? "emp-form-fields-columns"
+      : "";
 
   const visibleFields = activeFieldIds
     .map((fieldId) => fields.find((field) => field.id === fieldId))
@@ -188,17 +209,18 @@ export default function EmpDynamicFormRenderer({
       ? field.render({ field: configuredField, value, values, errors, onChange, readOnly: fieldReadOnly, context })
       : <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />;
 
-    if (useColumnMode) {
+    if (useGridMode) {
       return (
-        <FieldFrameColumns
+        <FieldFrameGrid
           key={field.id}
           field={configuredField}
           error={error}
           className={fieldClassName}
           spanFull={shouldSpanFullRow(configuredField, true)}
+          layoutMode={layoutMode}
         >
           {control}
-        </FieldFrameColumns>
+        </FieldFrameGrid>
       );
     }
 
@@ -211,8 +233,8 @@ export default function EmpDynamicFormRenderer({
 
   if (visibleFields.length === 0) {
     return (
-      <div className={`emp-form-fields ${useColumnMode ? "emp-form-fields-columns" : ""}`}>
-        <div className={`text-xs text-slate-500 ${useColumnMode ? "" : "ml-[172px]"}`}>
+      <div className={`emp-form-fields ${fieldsContainerClass}`}>
+        <div className={`text-xs text-slate-500 ${useGridMode ? "" : "ml-[172px]"}`}>
           Nenhum campo configurado para este painel.
         </div>
       </div>
@@ -221,8 +243,8 @@ export default function EmpDynamicFormRenderer({
 
   return (
     <div
-      className={`emp-form-fields ${useColumnMode ? "emp-form-fields-columns" : ""}`}
-      style={useColumnMode ? { "--emp-form-field-columns": columnCount } : undefined}
+      className={`emp-form-fields ${fieldsContainerClass}`}
+      style={useGridMode ? { "--emp-form-field-columns": columnCount } : undefined}
     >
       {visibleFields.map(renderField)}
     </div>

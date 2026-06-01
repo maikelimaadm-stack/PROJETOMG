@@ -21,6 +21,23 @@ const LayoutPreview = ({ mode, columns }) => {
     );
   }
 
+  if (mode === "compact") {
+    const cells = Array.from({ length: Math.max(columns, 3) * 2 }, (_, index) => index);
+    return (
+      <div
+        className="emp-field-layout-preview emp-field-layout-preview-compact"
+        style={{ gridTemplateColumns: `repeat(${Math.max(columns, 3)}, minmax(0, 1fr))` }}
+      >
+        {cells.map((cell) => (
+          <div key={cell} className="emp-field-layout-preview-cell">
+            <span className="emp-field-layout-preview-label-top emp-field-layout-preview-label-compact" />
+            <span className="emp-field-layout-preview-control emp-field-layout-preview-control-compact" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   const cells = Array.from({ length: columns * 2 }, (_, index) => index);
   return (
     <div
@@ -59,11 +76,13 @@ export default function EmpFieldLayoutConfigDialog({
     setDraft({ ...DEFAULT_FIELD_LAYOUT_CONFIG });
   };
 
+  const showColumnPicker = draft.mode === "columns" || draft.mode === "compact";
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         onInteractOutside={(event) => event.preventDefault()}
-        className="cadastro-emp-scope bg-white fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1rem)] max-w-[520px] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-hidden rounded-lg border border-slate-200 p-0 shadow-lg"
+        className="cadastro-emp-scope bg-white fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1rem)] max-w-[560px] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-hidden rounded-lg border border-slate-200 p-0 shadow-lg"
       >
         <DialogTitle className="sr-only">Configurar layout de campos</DialogTitle>
 
@@ -79,7 +98,7 @@ export default function EmpFieldLayoutConfigDialog({
           </Button>
         </div>
 
-        <div className="space-y-4 p-3">
+        <div className="space-y-4 p-3 max-h-[70vh] overflow-y-auto">
           <p className="text-xs text-slate-500">
             Escolha como os campos das abas serão exibidos. O painel Principal permanece sempre no modelo vertical.
           </p>
@@ -105,14 +124,25 @@ export default function EmpFieldLayoutConfigDialog({
               <div className="min-w-0 flex-1 space-y-2">
                 <div>
                   <div className="text-xs font-semibold text-slate-700">Modelo em colunas</div>
-                  <div className="text-[11px] text-slate-500">Campos das abas lado a lado, com o nome acima de cada campo.</div>
+                  <div className="text-[11px] text-slate-500">Campos das abas lado a lado, com o nome acima e largura ajustável.</div>
                 </div>
                 <LayoutPreview mode="columns" columns={draft.mode === "columns" ? draft.columns : 2} />
               </div>
             </label>
+
+            <label className="flex cursor-pointer gap-3 rounded-md border border-slate-200 p-3 hover:bg-slate-50">
+              <RadioGroupItem value="compact" className="mt-0.5" />
+              <div className="min-w-0 flex-1 space-y-2">
+                <div>
+                  <div className="text-xs font-semibold text-slate-700">Modelo compacto</div>
+                  <div className="text-[11px] text-slate-500">Campos menores e mais densos, com o nome acima, ideal para muitos campos.</div>
+                </div>
+                <LayoutPreview mode="compact" columns={draft.mode === "compact" ? draft.columns : 3} />
+              </div>
+            </label>
           </RadioGroup>
 
-          {draft.mode === "columns" && (
+          {showColumnPicker && (
             <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
               <label className="mb-2 block text-xs font-semibold text-slate-600">
                 Quantidade de colunas por linha
