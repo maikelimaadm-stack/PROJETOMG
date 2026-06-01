@@ -390,6 +390,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab {
   margin-bottom: -1px;
+  position: relative;
   cursor: pointer;
   font-size: 12px;
   line-height: 1;
@@ -405,6 +406,17 @@ input[type="number"] {
   align-items: center;
   justify-content: center;
   transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.cadastro-emp-scope .emp-form-tab-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: #ffffff;
+  pointer-events: none;
 }
 
 .cadastro-emp-scope .emp-form-tab-active {
