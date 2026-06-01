@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Check, RotateCcw, X } from "lucide-react";
-import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/components/emp/layout/empFormLayoutStore";
+import { Check, X } from "lucide-react";
+import { normalizeFieldLayoutConfig } from "@/components/emp/layout/empFormLayoutStore";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
   EMP_CONFIG_DIALOG_CLOSE_ROW,
@@ -72,10 +72,6 @@ export default function EmpFieldLayoutConfigDialog({
     onOpenChange(false);
   };
 
-  const handleReset = () => {
-    setDraft({ ...DEFAULT_FIELD_LAYOUT_CONFIG });
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -93,17 +89,13 @@ export default function EmpFieldLayoutConfigDialog({
           </div>
 
           <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
-            <ToolbarBtn onClick={handleReset} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Restaurar padrão">
-              <EmpToolbarIcon icon={RotateCcw} />
-              <span>Restaurar padrão</span>
+            <ToolbarBtn onClick={handleSave} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Salvar">
+              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
+              <span>Salvar</span>
             </ToolbarBtn>
             <ToolbarBtn onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Cancelar">
               <EmpToolbarIcon icon={X} />
               <span>Cancelar</span>
-            </ToolbarBtn>
-            <ToolbarBtn onClick={handleSave} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Salvar">
-              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
-              <span>Salvar</span>
             </ToolbarBtn>
           </div>
 
@@ -127,8 +119,8 @@ export default function EmpFieldLayoutConfigDialog({
                     onValueChange={(mode) => setDraft((prev) => normalizeFieldLayoutConfig({ ...prev, mode }))}
                     className="space-y-2"
                   >
-                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "stacked" ? "emp-row-selected border-[#c5ced8]" : "border-[#dce3eb] bg-white"}`}>
-                      <RadioGroupItem value="stacked" className="mt-0.5" />
+                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "stacked" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
+                      <RadioGroupItem value="stacked" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
                       <div className="min-w-0 flex-1 space-y-2">
                         <div>
                           <div className="text-xs font-semibold text-[#1a1f26]">Modelo vertical</div>
@@ -138,8 +130,8 @@ export default function EmpFieldLayoutConfigDialog({
                       </div>
                     </label>
 
-                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "compact" ? "emp-row-selected border-[#c5ced8]" : "border-[#dce3eb] bg-white"}`}>
-                      <RadioGroupItem value="compact" className="mt-0.5" />
+                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "compact" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
+                      <RadioGroupItem value="compact" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
                       <div className="min-w-0 flex-1 space-y-2">
                         <div>
                           <div className="text-xs font-semibold text-[#1a1f26]">Modelo compacto</div>
