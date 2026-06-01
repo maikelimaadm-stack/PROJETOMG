@@ -221,13 +221,13 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope {
-  --emp-text: #475569;
-  --emp-text-strong: #334155;
+  --emp-text: #1f2937;
+  --emp-text-strong: #0f172a;
   --emp-control-radius: 5px;
   --emp-accent-green: #21c45d;
   --emp-toolbar-btn-bg: #eaf2ff;
   --emp-toolbar-btn-bg-hover: #dde9fb;
-  --emp-toolbar-btn-fg: #334155;
+  --emp-toolbar-btn-fg: #0f172a;
   color: var(--emp-text);
 }
 
@@ -240,7 +240,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope :where(.text-slate-400) {
-  color: #64748b !important;
+  color: #334155 !important;
 }
 
 .cadastro-emp-scope :where(.text-slate-500, .text-slate-600) {
@@ -267,19 +267,24 @@ input[type="number"] {
 .cadastro-emp-scope textarea,
 .cadastro-emp-scope select,
 .cadastro-emp-scope [data-radix-select-trigger] {
-  color: var(--emp-text);
+  color: var(--emp-text-strong) !important;
 }
 
 .cadastro-emp-scope label:not([class*="text-red"]) {
-  color: var(--emp-text);
+  color: var(--emp-text-strong);
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) {
-  color: var(--emp-text);
+  color: var(--emp-text-strong) !important;
+}
+
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) span {
+  color: var(--emp-text-strong) !important;
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white) svg {
-  color: var(--emp-text) !important;
+  color: var(--emp-text-strong) !important;
+  stroke: var(--emp-text-strong) !important;
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):hover {
@@ -1323,8 +1328,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-operation-label svg {
-  color: #5b6b80 !important;
-  stroke: #5b6b80 !important;
+  color: #1f2937 !important;
+  stroke: #1f2937 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn,

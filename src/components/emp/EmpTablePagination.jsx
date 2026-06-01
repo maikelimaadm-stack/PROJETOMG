@@ -7,7 +7,7 @@ import { EmpFullscreenEnterIcon } from "@/components/emp/EmpTableFullscreenIcon"
 export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 
 const PAGINATION_BTN_BASE =
-  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} bg-[#eaf2ff] text-[12px] font-normal text-[#334155] shadow-none hover:bg-[#dde9fb] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
+  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} bg-[#eaf2ff] text-[12px] font-normal text-[#0f172a] shadow-none hover:bg-[#dde9fb] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
 
 const getVisiblePages = (currentPage, totalPages) => {
   if (totalPages <= 0) return [];
