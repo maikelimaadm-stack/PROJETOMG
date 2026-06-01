@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Check, X } from "lucide-react";
+import ToggleSwitch from "@/components/common/ToggleSwitch";
 import { normalizeFieldLayoutConfig } from "@/components/emp/layout/empFormLayoutStore";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
@@ -24,61 +24,28 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
-const LayoutPreview = ({ mode, columns }) => {
-  if (mode === "vertical") {
-    return (
-      <div className="emp-field-layout-preview emp-field-layout-preview-stacked">
-        {[1, 2, 3].map((row) => (
-          <div key={row} className="emp-field-layout-preview-row">
-            <span className="emp-field-layout-preview-label" />
-            <span className="emp-field-layout-preview-control" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (mode === "details" || mode === "detailsCompact") {
-    return (
-      <div className="emp-field-layout-preview emp-field-layout-preview-details">
-        {[1, 2, 3].map((panel) => (
-          <div key={panel} className="emp-field-layout-preview-detail-panel">
-            <span className="emp-field-layout-preview-detail-title" />
-            {mode === "detailsCompact" ? (
-              <div className="emp-field-layout-preview-detail-compact-grid">
-                <span className="emp-field-layout-preview-detail-line" />
-                <span className="emp-field-layout-preview-detail-line" />
-                <span className="emp-field-layout-preview-detail-line emp-field-layout-preview-detail-line-short" />
-                <span className="emp-field-layout-preview-detail-line" />
-              </div>
-            ) : (
-              <>
-                <span className="emp-field-layout-preview-detail-line" />
-                <span className="emp-field-layout-preview-detail-line emp-field-layout-preview-detail-line-short" />
-              </>
-            )}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  const previewColumns = 2;
-  const cells = Array.from({ length: previewColumns * 2 }, (_, index) => index);
-  return (
-    <div
-      className="emp-field-layout-preview emp-field-layout-preview-compact"
-      style={{ gridTemplateColumns: `repeat(${previewColumns}, minmax(0, 1fr))` }}
-    >
-      {cells.map((cell) => (
-        <div key={cell} className="emp-field-layout-preview-cell">
-          <span className="emp-field-layout-preview-label-top emp-field-layout-preview-label-compact" />
-          <span className="emp-field-layout-preview-control emp-field-layout-preview-control-compact" />
-        </div>
-      ))}
-    </div>
-  );
-};
+const LAYOUT_OPTIONS = [
+  {
+    mode: "vertical",
+    title: "Modelo vertical",
+    description: "Painéis em abas e campos um abaixo do outro.",
+  },
+  {
+    mode: "compact",
+    title: "Modelo compacto",
+    description: "Painéis em abas, campos menores e mais densos.",
+  },
+  {
+    mode: "details",
+    title: "Modelo de detalhes",
+    description: "Painéis em lista cinza, recolhíveis ao clicar.",
+  },
+  {
+    mode: "detailsCompact",
+    title: "Modelo detalhes + compacto",
+    description: "Painéis em lista recolhível e campos compactos, incluindo o Principal.",
+  },
+];
 
 export default function EmpFieldLayoutConfigDialog({
   open,
@@ -96,6 +63,10 @@ export default function EmpFieldLayoutConfigDialog({
   const handleSave = () => {
     onSave?.(normalizeFieldLayoutConfig(draft));
     onOpenChange(false);
+  };
+
+  const setMode = (mode) => {
+    setDraft((prev) => normalizeFieldLayoutConfig({ ...prev, mode }));
   };
 
   return (
@@ -140,55 +111,32 @@ export default function EmpFieldLayoutConfigDialog({
                 </div>
 
                 <div className="max-h-[70vh] overflow-y-auto p-2">
-                  <RadioGroup
-                    value={draft.mode}
-                    onValueChange={(mode) => setDraft((prev) => normalizeFieldLayoutConfig({ ...prev, mode }))}
-                    className="space-y-2"
-                  >
-                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "vertical" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
-                      <RadioGroupItem value="vertical" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
-                      <div className="min-w-0 flex-1 space-y-2">
-                        <div>
-                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo vertical</div>
-                          <div className="text-[11px] text-[#5b6b80]">Painéis em abas e campos um abaixo do outro.</div>
-                        </div>
-                        <LayoutPreview mode="vertical" columns={1} />
-                      </div>
-                    </label>
-
-                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "compact" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
-                      <RadioGroupItem value="compact" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
-                      <div className="min-w-0 flex-1 space-y-2">
-                        <div>
-                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo compacto</div>
-                          <div className="text-[11px] text-[#5b6b80]">Painéis em abas, campos menores e mais densos.</div>
-                        </div>
-                        <LayoutPreview mode="compact" columns={2} />
-                      </div>
-                    </label>
-
-                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "details" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
-                      <RadioGroupItem value="details" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
-                      <div className="min-w-0 flex-1 space-y-2">
-                        <div>
-                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo de detalhes</div>
-                          <div className="text-[11px] text-[#5b6b80]">Painéis em lista cinza, recolhíveis ao clicar.</div>
-                        </div>
-                        <LayoutPreview mode="details" columns={1} />
-                      </div>
-                    </label>
-
-                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "detailsCompact" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
-                      <RadioGroupItem value="detailsCompact" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
-                      <div className="min-w-0 flex-1 space-y-2">
-                        <div>
-                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo detalhes + compacto</div>
-                          <div className="text-[11px] text-[#5b6b80]">Painéis em lista recolhível e campos compactos, incluindo o Principal.</div>
-                        </div>
-                        <LayoutPreview mode="detailsCompact" columns={draft.columns} />
-                      </div>
-                    </label>
-                  </RadioGroup>
+                  <div className="space-y-2">
+                    {LAYOUT_OPTIONS.map((option) => {
+                      const active = draft.mode === option.mode;
+                      return (
+                        <button
+                          key={option.mode}
+                          type="button"
+                          onClick={() => setMode(option.mode)}
+                          className={`flex w-full cursor-pointer items-center gap-3 rounded-md border-[0.5px] p-2 text-left transition-colors hover:brightness-[0.98] ${active ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}
+                        >
+                          <span onClick={(event) => event.stopPropagation()} className="flex shrink-0 items-center">
+                            <ToggleSwitch
+                              checked={active}
+                              onChange={(checked) => checked && setMode(option.mode)}
+                              className="emp-form-toggle-switch"
+                              checkedClassName="emp-form-toggle-switch-on"
+                            />
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-xs font-semibold text-[#1a1f26]">{option.title}</span>
+                            <span className="block text-[11px] text-[#5b6b80]">{option.description}</span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
 
                   {["compact", "detailsCompact"].includes(draft.mode) && (
                     <div className="mt-2 rounded-md border-[0.5px] border-[#dce3eb] bg-white p-2">
