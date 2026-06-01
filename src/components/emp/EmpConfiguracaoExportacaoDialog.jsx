@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { X } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Check, X } from "lucide-react";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import { saveEmpExcelExportConfig, saveEmpPdfExportConfig } from "@/components/emp/empPdfExportConfig";
 import {
-  EMP_CONFIG_DIALOG_BADGE,
+  EMP_CONFIG_DIALOG_CLOSE_BUTTON,
+  EMP_CONFIG_DIALOG_CLOSE_ROW,
   EMP_CONFIG_DIALOG_CONTENT,
-  EMP_CONFIG_DIALOG_HEADER,
-  EMP_CONFIG_DIALOG_ICON_BTN,
-  EMP_CONFIG_DIALOG_TITLE,
+  EMP_CONFIG_DIALOG_SHELL,
+  EMP_CONFIG_DIALOG_TABLE_SHELL,
+  EMP_CONFIG_DIALOG_TABLE_WRAP,
+  EMP_CONFIG_DIALOG_TOOLBAR,
+  EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN,
 } from "@/components/emp/dialogs/empConfigDialogStyles";
+import EmpBubbleCounter from "@/components/emp/shared/EmpBubbleCounter";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
+import EmpToolbarInfoBar from "@/components/emp/toolbars/EmpToolbarInfoBar";
+import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+
+const ToolbarBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
+    {children}
+  </button>
+);
 
 export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, columns = [], initialConfig, tipo = "pdf" }) {
   const [useConfiguredColumns, setUseConfiguredColumns] = useState(false);
@@ -24,33 +39,83 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
   const saveConfig = (config) => tipo === "excel" ? saveEmpExcelExportConfig(config) : saveEmpPdfExportConfig(config);
   const handleUseConfiguredColumnsChange = (checked) => { setUseConfiguredColumns(checked); saveConfig({ useConfiguredColumns: checked, columnIds }); };
   const toggleColumn = (id) => setColumnIds((prev) => { const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]; saveConfig({ useConfiguredColumns, columnIds: next }); return next; });
+  const selectAllColumns = () => { const next = columns.map((col) => col.id); setColumnIds(next); saveConfig({ useConfiguredColumns, columnIds: next }); };
+  const clearColumns = () => { setColumnIds([]); saveConfig({ useConfiguredColumns, columnIds: [] }); };
   const titulo = tipo === "excel" ? "Configuração da exportação Excel" : "Configuração da exportação PDF";
+  const badge = tipo === "excel" ? "Excel" : "PDF";
 
   return (
     <Dialog open={open} onOpenChange={(o) => o && onOpenChange(o)}>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className={`${EMP_CONFIG_DIALOG_CONTENT} max-w-[760px] [&>button:last-child]:hidden`}>
+      <DialogContent onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className={`${EMP_CONFIG_DIALOG_CONTENT} max-w-[760px]`}>
         <DialogTitle className="sr-only">{titulo}</DialogTitle>
-        <div className="overflow-hidden bg-white">
-          <div className={EMP_CONFIG_DIALOG_HEADER}>
-            <span className={`${EMP_CONFIG_DIALOG_BADGE} w-[70px]`}>{tipo === "excel" ? "EXCEL" : "PDF"}</span>
-            <span className={EMP_CONFIG_DIALOG_TITLE}>{titulo}</span>
-            <Button type="button" onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_ICON_BTN} title="Fechar">
-              <X className="w-4 h-4" />
-            </Button>
+
+        <div className={EMP_CONFIG_DIALOG_SHELL}>
+          <div className={EMP_CONFIG_DIALOG_CLOSE_ROW}>
+            <button type="button" onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_CLOSE_BUTTON} title="Fechar" aria-label="Fechar">
+              <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </button>
           </div>
-          <div className="border-b border-slate-200 p-3">
-            <label className="flex items-center gap-2 text-xs text-slate-600">
+
+          <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
+            <ToolbarBtn onClick={selectAllColumns} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Selecionar todas">
+              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
+              <span>Todas</span>
+            </ToolbarBtn>
+            <ToolbarBtn onClick={clearColumns} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Limpar seleção">
+              <EmpToolbarIcon icon={X} />
+              <span>Limpar</span>
+            </ToolbarBtn>
+            <div className="ml-auto flex items-center gap-1 pr-1">
+              <EmpBubbleCounter value={String(columnIds.length)} title="Colunas selecionadas" className="emp-toolbar-bubble-counter" />
+            </div>
+          </div>
+
+          <EmpToolbarInfoBar badgeLabel={badge} title={titulo} operationLabel="Configuração" />
+
+          <div className="px-2 py-1">
+            <label className="flex h-6 items-center gap-2 text-xs font-semibold text-[#1a1f26]">
               <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={useConfiguredColumns} onChange={handleUseConfiguredColumnsChange} />
               <span className="truncate">Sempre exportar as colunas selecionadas abaixo</span>
             </label>
           </div>
-          <div className="m-3 mt-2 max-h-72 overflow-auto rounded-md border border-slate-200">
-            {columns.map((col) =>
-              <label key={col.id} className="flex h-8 items-center gap-2 border-b border-slate-200 px-3 text-xs text-slate-600 last:border-b-0 hover:bg-slate-50">
-                <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={columnIds.includes(col.id)} onChange={() => toggleColumn(col.id)} />
-                <span className="truncate">{col.label}</span>
-              </label>
-            )}
+
+          <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
+            <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
+              <CardContent className="p-0">
+                <div className="max-h-[360px] overflow-auto">
+                  <Table className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none">
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="emp-th h-[26px] w-[72px] border-r border-b border-[#c5ced8] bg-white px-1 text-center text-xs font-semibold text-[#1a1f26]">
+                          Exportar
+                        </TableHead>
+                        <TableHead className="emp-th h-[26px] border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
+                          Coluna
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {columns.map((col, index) => {
+                        const selected = columnIds.includes(col.id);
+                        const rowClass = selected ? "emp-row-selected" : index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
+                        return (
+                          <TableRow key={col.id} className={`${rowClass} cursor-pointer transition-colors hover:brightness-[0.98]`} onClick={() => toggleColumn(col.id)}>
+                            <TableCell className={`emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 text-center align-middle ${rowClass}`}>
+                              <span onClick={(event) => event.stopPropagation()}>
+                              <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={selected} onChange={() => toggleColumn(col.id)} />
+                              </span>
+                            </TableCell>
+                            <TableCell className={`emp-td h-[26px] border-b border-[#c5ced8] px-1 py-0 align-middle text-xs ${rowClass}`}>
+                              <span className={`block truncate ${selected ? "font-semibold text-[#1a1f26]" : "text-[#5b6b80]"}`}>{col.label}</span>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </DialogContent>

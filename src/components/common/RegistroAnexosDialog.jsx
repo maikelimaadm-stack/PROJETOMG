@@ -1,18 +1,33 @@
 import React, { useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X, ExternalLink, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  EMP_CONFIG_DIALOG_BADGE,
+  EMP_CONFIG_DIALOG_CLOSE_BUTTON,
+  EMP_CONFIG_DIALOG_CLOSE_ROW,
   EMP_CONFIG_DIALOG_CONTENT,
-  EMP_CONFIG_DIALOG_HEADER,
-  EMP_CONFIG_DIALOG_ICON_BTN,
-  EMP_CONFIG_DIALOG_TITLE,
+  EMP_CONFIG_FIELD_WRAP,
+  EMP_CONFIG_DIALOG_SHELL,
+  EMP_CONFIG_DIALOG_TABLE_SHELL,
+  EMP_CONFIG_DIALOG_TABLE_WRAP,
+  EMP_CONFIG_DIALOG_TOOLBAR,
+  EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN,
 } from "@/components/emp/dialogs/empConfigDialogStyles";
+import EmpBubbleCounter from "@/components/emp/shared/EmpBubbleCounter";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
+import EmpToolbarInfoBar from "@/components/emp/toolbars/EmpToolbarInfoBar";
+import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
+
+const ToolbarBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
+    {children}
+  </button>
+);
 
 const formatSize = (bytes = 0) => {
   if (!bytes) return "";
@@ -20,10 +35,6 @@ const formatSize = (bytes = 0) => {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 };
-
-const titleCase = (value) => String(value || "")
-  .toLowerCase()
-  .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
 export default function RegistroAnexosDialog({ open, onOpenChange, entityName, recordId, title, pendingAnexos = [], onPendingChange }) {
   const inputRef = useRef(null);
@@ -88,66 +99,77 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
 
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => nextOpen && onOpenChange(nextOpen)}>
-      <DialogContent onInteractOutside={(event) => event.preventDefault()} onEscapeKeyDown={(event) => event.preventDefault()} className={`${EMP_CONFIG_DIALOG_CONTENT} max-w-[760px] overflow-x-hidden overflow-y-auto [&>button:last-child]:hidden`}>
-        <div className="space-y-3">
+      <DialogContent onInteractOutside={(event) => event.preventDefault()} onEscapeKeyDown={(event) => event.preventDefault()} className={`${EMP_CONFIG_DIALOG_CONTENT} max-w-[760px]`}>
+        <DialogTitle className="sr-only">Anexos</DialogTitle>
+
+        <div className={EMP_CONFIG_DIALOG_SHELL}>
           <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
-          <div className="bg-white">
-            <div className={EMP_CONFIG_DIALOG_HEADER}>
-              <span className={`${EMP_CONFIG_DIALOG_BADGE} w-[90px]`}>Anexos</span>
-              <span className={EMP_CONFIG_DIALOG_TITLE}>{title || "Lote"}</span>
-              <Button type="button" onClick={() => onOpenChange(false)} title="Fechar" className={EMP_CONFIG_DIALOG_ICON_BTN}>
-                <X className="w-4 h-4" />
-              </Button>
+          <div className={EMP_CONFIG_DIALOG_CLOSE_ROW}>
+            <button type="button" onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_CLOSE_BUTTON} title="Fechar" aria-label="Fechar">
+              <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </button>
+          </div>
+
+          <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
+            <ToolbarBtn onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Anexar arquivo">
+              {uploading ? <Loader2 className="emp-toolbar-action-icon h-3.5 w-3.5 animate-spin" /> : <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />}
+              <span>Anexar</span>
+            </ToolbarBtn>
+            <div className="ml-auto flex items-center gap-1 pr-1">
+              <EmpBubbleCounter value={String(anexos.length)} title="Total de anexos" className="emp-toolbar-bubble-counter" />
             </div>
-            <div className="px-4 md:px-8 py-2 w-full space-y-1">
-              <div className="grid items-center gap-1 grid-cols-[210px_minmax(0,1fr)]">
-                <label className="text-xs text-slate-600 text-right leading-none">
-                  Nome do arquivo:<span className="text-red-500 ml-0.5">*</span>
-                </label>
-                <div className="grid grid-cols-[minmax(0,1fr)_28px] h-6 border border-slate-300 rounded-md bg-white focus-within:border-slate-400 transition-colors overflow-hidden">
+          </div>
+
+          <EmpToolbarInfoBar badgeLabel="Anexos" title={title || "Lote"} operationLabel="Configuração" />
+
+          <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
+            <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
+              <CardContent className="p-0">
+                <div className="grid grid-cols-[210px_minmax(0,1fr)] items-center border-b border-[#c5ced8] px-1 py-1">
+                  <label className="pr-2 text-right text-xs font-semibold text-[#1a1f26]">
+                    Nome do arquivo:<span className="text-red-500 ml-0.5">*</span>
+                  </label>
                   <Input
                     value={attachmentName}
                     onChange={(e) => setAttachmentName(e.target.value)}
                     placeholder="EX: CONTRATO, NOTA FISCAL, GTA..."
-                    className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-2"
-                    style={{ textTransform: "uppercase" }} />
-                  
-                  <Button type="button" variant="outline" size="icon" onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className="h-[23px] w-7 rounded-none border-y-0 border-r-0 border-l border-slate-300 bg-white hover:bg-slate-50 text-slate-500 shadow-none p-0" title="Anexar arquivo">
-                    {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                  </Button>
+                    className={`${EMP_CONFIG_FIELD_WRAP} uppercase`}
+                    style={{ textTransform: "uppercase" }}
+                  />
                 </div>
-              </div>
-            </div>
-          </div>
 
-          <div className="px-3 pb-3">
-            <div className="border border-slate-200 rounded-md max-h-80 overflow-auto bg-white">
-            <div className="grid grid-cols-[1fr_1.4fr_28px] bg-white border-b border-slate-200 text-[11px] font-semibold text-slate-500">
-              <div className="px-2 py-1 border-r border-slate-200">Nome do arquivo:</div>
-              <div className="px-2 py-1 border-r border-slate-200">Arquivo</div>
-              <div className="h-7 flex items-center justify-center"></div>
-            </div>
-            {anexos.length === 0 ?
-              <div className="p-6 text-center text-xs text-slate-500">Nenhum arquivo anexado.</div> :
-              anexos.map((anexo) =>
-              <div key={anexo.id} className="grid grid-cols-[1fr_1.4fr_28px] items-center border-b last:border-b-0 border-slate-200 text-xs">
-              <div className="h-7 px-2 flex items-center border-r border-slate-200 overflow-hidden">
-                <span className="truncate font-medium text-slate-700">{anexo.attachment_name || anexo.file_name}</span>
+                <div className="max-h-80 overflow-auto">
+                  <div className="grid grid-cols-[1fr_1.4fr_28px] bg-white border-b border-[#c5ced8] text-xs font-semibold text-[#1a1f26]">
+                    <div className="h-[26px] px-1 flex items-center border-r border-[#c5ced8]">Nome do arquivo:</div>
+                    <div className="h-[26px] px-1 flex items-center border-r border-[#c5ced8]">Arquivo</div>
+                    <div className="h-[26px] flex items-center justify-center"></div>
+                  </div>
+                  {anexos.length === 0 ?
+                    <div className="p-6 text-center text-xs text-[#5b6b80]">Nenhum arquivo anexado.</div> :
+                    anexos.map((anexo, index) => {
+                      const rowClass = index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
+                      return (
+                        <div key={anexo.id} className={`grid grid-cols-[1fr_1.4fr_28px] items-center border-b last:border-b-0 border-[#c5ced8] text-xs ${rowClass}`}>
+                          <div className="h-[26px] px-1 flex items-center border-r border-[#c5ced8] overflow-hidden">
+                            <span className="truncate font-medium text-[#1a1f26]">{anexo.attachment_name || anexo.file_name}</span>
+                          </div>
+                          <a href={anexo.file_url} target="_blank" rel="noreferrer" className="h-[26px] min-w-0 flex items-center gap-1.5 text-[#5b6b80] hover:text-[#1a1f26] px-1 border-r border-[#c5ced8] overflow-hidden">
+                            <span className="truncate">{anexo.file_name}</span>
+                            <span className="shrink-0 text-[#5b6b80]">{formatSize(anexo.file_size)}</span>
+                            <ExternalLink className="w-3 h-3 shrink-0" />
+                          </a>
+                          <div className="h-[26px] flex items-center justify-center overflow-hidden">
+                            <Button type="button" variant="ghost" size="icon" className="emp-toolbar-btn h-[24px] w-[24px] rounded-[5px] border-0 bg-[#eaf2ff] text-[#334155] hover:bg-[#dde9fb] shadow-none p-0" onClick={() => recordId ? deleteMutation.mutate(anexo.id) : onPendingChange?.(pendingAnexos.filter((item) => item.id !== anexo.id))}>
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              </CardContent>
+            </Card>
               </div>
-              <a href={anexo.file_url} target="_blank" rel="noreferrer" className="h-7 min-w-0 flex items-center gap-1.5 text-slate-600 hover:text-slate-700 px-2 border-r border-slate-200 overflow-hidden">
-                <span className="truncate">{anexo.file_name}</span>
-                <span className="shrink-0 text-slate-400">{formatSize(anexo.file_size)}</span>
-                <ExternalLink className="w-3 h-3 shrink-0" />
-              </a>
-              <div className="h-7 flex items-center justify-center overflow-hidden">
-                <Button type="button" variant="ghost" size="icon" className="h-5 w-5 rounded-md border-0 bg-white text-slate-500 hover:bg-slate-100 shadow-none p-0" onClick={() => recordId ? deleteMutation.mutate(anexo.id) : onPendingChange?.(pendingAnexos.filter((item) => item.id !== anexo.id))}>
-                  <X className="w-3 h-3" />
-                </Button>
-              </div>
-            </div>
-              )}
-            </div>
-          </div>
         </div>
       </DialogContent>
     </Dialog>);

@@ -1,19 +1,27 @@
 export const EMP_CONFIG_DIALOG_CONTENT =
-  "cadastro-emp-scope bg-white fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1rem)] max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-hidden rounded-lg border border-slate-200 p-0 shadow-lg sm:w-full";
+  "cadastro-emp-scope emp-layout-presets-dialog !gap-0 overflow-hidden !rounded-lg border border-[#cfd8e3] !p-0 sm:!p-0 [&>button:last-child]:hidden";
 
-export const EMP_CONFIG_DIALOG_HEADER =
-  "flex items-center gap-2 border-b border-slate-200 px-3 py-2";
+export const EMP_CONFIG_DIALOG_SHELL =
+  "emp-layout-presets-shell flex min-h-0 flex-col gap-1 p-1";
 
-export const EMP_CONFIG_DIALOG_BADGE =
-  "inline-flex h-5 items-center rounded-sm border border-slate-300 px-1.5 text-[11px] font-bold text-slate-500";
+export const EMP_CONFIG_DIALOG_CLOSE_ROW =
+  "emp-layout-presets-header flex items-center justify-end";
 
-export const EMP_CONFIG_DIALOG_TITLE =
-  "flex-1 truncate text-xs font-semibold text-slate-600";
+export const EMP_CONFIG_DIALOG_CLOSE_BUTTON = "emp-layout-presets-close-icon";
 
-export const EMP_CONFIG_DIALOG_ICON_BTN =
-  "rounded-md border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none h-7 w-7";
+export const EMP_CONFIG_DIALOG_TOOLBAR =
+  "emp-toolbar flex items-center gap-1 border-b border-sky-100 bg-white pl-1 pt-1";
+
+export const EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN =
+  "emp-toolbar-btn-labeled w-auto px-2 gap-1 text-[12px] font-medium";
+
+export const EMP_CONFIG_DIALOG_TABLE_WRAP =
+  "emp-layout-presets-table-wrap min-h-0 overflow-hidden bg-white";
+
+export const EMP_CONFIG_DIALOG_TABLE_SHELL =
+  "emp-table-shell overflow-hidden rounded-md border border-[#c5ced8] bg-white shadow-none";
 
 export const EMP_CONFIG_FIELD_WRAP =
-  "border border-slate-300 rounded-md bg-white focus-within:border-slate-400 transition-colors";
+  "h-6 rounded-[5px] border-[#dce3eb] px-1 text-xs shadow-none focus-visible:ring-0";
 
-export const EMP_CONFIG_TEXT_LABEL = "text-xs text-slate-600";
+export const EMP_CONFIG_TEXT_LABEL = "text-xs font-semibold text-[#1a1f26]";
