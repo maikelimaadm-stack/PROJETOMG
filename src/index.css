@@ -474,6 +474,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-body {
   gap: 0;
+  min-height: 100%;
   padding-top: 14px;
   background: #ffffff;
 }
@@ -490,7 +491,11 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-section-panel {
   padding-top: 0;
   padding-bottom: 0;
-  background: #ffffff;
+  background: #f8fafc;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone {
+  background: #f8fafc;
 }
 
 .cadastro-emp-scope .emp-form-fieldset {

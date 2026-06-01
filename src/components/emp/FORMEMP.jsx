@@ -599,37 +599,39 @@ export default function FORMEMP({
               </fieldset>
             </div>
 
-            <LegacyTabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onChange={setActiveTab}
-              trailing={
-                <EmpBubbleCounter
-                  value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
-                  title="Campos obrigatórios preenchidos"
-                  className="emp-toolbar-bubble-counter"
-                />
-              }
-            />
+            <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
+              <LegacyTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+                trailing={
+                  <EmpBubbleCounter
+                    value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
+                    title="Campos obrigatórios preenchidos"
+                    className="emp-toolbar-bubble-counter"
+                  />
+                }
+              />
 
-            <div className="emp-form-section emp-form-section-panel min-h-[380px] w-max min-w-[920px] max-w-none pl-2 pr-4">
-              <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
-                <EmpDynamicFormRenderer
-                  panels={tabs}
-                  fields={dynamicFields}
-                  layout={activeLayoutConfig.layout}
-                  hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                  lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                  requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                  visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                  fieldLayoutConfig={fieldLayoutConfig}
-                  activePanelId={activeTab}
-                  values={formData}
-                  errors={errors}
-                  onChange={handleChange}
-                  readOnly={isReadOnly}
-                />
-              </fieldset>
+              <div className="emp-form-section emp-form-section-panel min-h-[380px] w-max min-w-[920px] max-w-none pl-2 pr-4">
+                <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+                  <EmpDynamicFormRenderer
+                    panels={tabs}
+                    fields={dynamicFields}
+                    layout={activeLayoutConfig.layout}
+                    hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                    lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                    requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                    visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                    fieldLayoutConfig={fieldLayoutConfig}
+                    activePanelId={activeTab}
+                    values={formData}
+                    errors={errors}
+                    onChange={handleChange}
+                    readOnly={isReadOnly}
+                  />
+                </fieldset>
+              </div>
             </div>
           </div>
         </div>
