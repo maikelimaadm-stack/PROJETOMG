@@ -546,6 +546,38 @@ input[type="number"] {
   margin-top: 4px;
 }
 
+.cadastro-emp-scope .emp-form-panels-zone-details {
+  gap: 8px;
+}
+
+.cadastro-emp-scope .emp-form-details-panels {
+  min-width: 920px;
+}
+
+.cadastro-emp-scope .emp-form-details-summary {
+  height: 24px;
+}
+
+.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel-detail {
+  min-height: 0;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0.5px solid #d6dce8;
+}
+
+.cadastro-emp-scope .emp-form-detail-panel-title {
+  height: 26px;
+  display: flex;
+  align-items: center;
+  margin: 0 -16px 8px -8px;
+  padding: 0 8px;
+  border-bottom: 0.5px solid #d6dce8;
+  color: #1a1f26;
+  font-size: 12px;
+  font-weight: 600;
+  background: #ffffff;
+}
+
 .cadastro-emp-scope .emp-form-fieldset {
   margin: 0;
   padding: 0;
@@ -645,6 +677,45 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.cadastro-emp-scope .emp-field-layout-preview-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cadastro-emp-scope .emp-field-layout-preview-detail-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 5px;
+  border: 0.5px solid #dce3eb;
+  border-radius: 4px;
+  background: #ffffff;
+}
+
+.cadastro-emp-scope .emp-field-layout-preview-detail-title,
+.cadastro-emp-scope .emp-field-layout-preview-detail-line,
+.cadastro-emp-scope .emp-field-layout-preview-detail-line-short {
+  display: block;
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.cadastro-emp-scope .emp-field-layout-preview-detail-title {
+  width: 36%;
+  height: 6px;
+  background: #94a3b8;
+}
+
+.cadastro-emp-scope .emp-field-layout-preview-detail-line {
+  width: 84%;
+  height: 8px;
+}
+
+.cadastro-emp-scope .emp-field-layout-preview-detail-line-short {
+  width: 58%;
 }
 
 .cadastro-emp-scope .emp-field-layout-preview-row {
