@@ -396,6 +396,10 @@ input[type="number"] {
   padding-left: 12px;
 }
 
+.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-list {
+  padding-left: 24px;
+}
+
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-nav-btn {
   margin-bottom: 0;
   align-self: center;
