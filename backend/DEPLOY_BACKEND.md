@@ -28,7 +28,7 @@ Use essa URL no frontend (`VITE_API_URL`).
 ## Deploy via Render
 
 1. Crie um novo Web Service no Render apontando para o repo.
-2. Use `backend/render.yaml` como base de configuracao.
+2. Use `render.yaml` (raiz do repo) ou `backend/render.yaml`.
 3. Defina todas as variaveis obrigatorias.
 4. Deploy.
 5. Execute no terminal remoto (ou local apontando para producao):
@@ -43,7 +43,7 @@ npm run check:prod
 ## Deploy via Railway
 
 1. Crie um novo projeto no Railway conectado ao repo.
-2. Railway usa `backend/railway.json` + `Dockerfile`.
+2. Railway usa `railway.json` (raiz) apontando para `backend/Dockerfile`.
 3. Defina todas as variaveis obrigatorias.
 4. Deploy.
 5. Execute:
