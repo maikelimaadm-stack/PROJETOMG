@@ -327,7 +327,7 @@ export default function FORMEMP({
       fieldDefaultValues: {},
       aggregationConfig: {},
       visibilityRules: {},
-      fieldLayoutConfig: { mode: "stacked", columns: 2 },
+      fieldLayoutConfig: { mode: "stacked", columns: 3 },
     }),
     [basePanels, defaultLayout]
   );

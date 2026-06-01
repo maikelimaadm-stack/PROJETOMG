@@ -70,11 +70,12 @@ const ensureState = () => {
 
 export const DEFAULT_FIELD_LAYOUT_CONFIG = {
   mode: "stacked",
-  columns: 2,
+  columns: 3,
 };
 
 export const normalizeFieldLayoutConfig = (source = {}) => {
-  const mode = ["stacked", "columns", "compact"].includes(source?.mode) ? source.mode : "stacked";
+  let mode = source?.mode === "compact" || source?.mode === "columns" ? "compact" : "stacked";
+  if (source?.mode === "stacked") mode = "stacked";
   const columns = Math.min(4, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
   return { mode, columns: mode === "stacked" ? 1 : columns };
 };
