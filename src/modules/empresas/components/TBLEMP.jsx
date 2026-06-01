@@ -71,6 +71,7 @@ export default function TBLEMP({
   onServerPageChange = null,
   onServerPageSizeChange = null,
   onServerSortChange = null,
+  moduleTitle = "Cadastro",
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codigo_empresa", direction: "asc" });
@@ -998,7 +999,17 @@ export default function TBLEMP({
       </Card>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>
-      <EmpConfiguracaoColunasDialog open={showConfigColunas} onOpenChange={setShowConfigColunas} colunasDisponiveis={colunasDisponiveis} colunasVisiveis={colunasVisiveis} colunasOrdem={colunasOrdem} frozenColumnCount={frozenColumnCount} onChange={handleColumnLayoutChange} onResetDefault={handleResetColumnLayout} />
+      <EmpConfiguracaoColunasDialog
+        open={showConfigColunas}
+        onOpenChange={setShowConfigColunas}
+        moduleTitle={moduleTitle}
+        colunasDisponiveis={colunasDisponiveis}
+        colunasVisiveis={colunasVisiveis}
+        colunasOrdem={colunasOrdem}
+        frozenColumnCount={frozenColumnCount}
+        onChange={handleColumnLayoutChange}
+        onResetDefault={handleResetColumnLayout}
+      />
     </div>
   );
 }

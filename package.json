@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "typecheck": "tsc -p ./jsconfig.json",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate:module": "node scripts/generate-cadastro-module.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

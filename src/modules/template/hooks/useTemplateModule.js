@@ -1,12 +1,7 @@
 import { useMemo } from "react";
-import templateRepository from "@/modules/template/repositories/templateRepository";
+import { templateModuleDefinition } from "@/modules/template/config/moduleDefinition";
 
 export default function useTemplateModule() {
-  return useMemo(
-    () => ({
-      repository: templateRepository,
-    }),
-    []
-  );
+  return useMemo(() => templateModuleDefinition, []);
 }
 

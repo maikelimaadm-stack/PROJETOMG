@@ -8,9 +8,9 @@ import EmpConfiguracaoCamposDialog from "@/framework/cadastro/configurators/EmpC
 import EmpConfiguracaoExportacaoDialog from "@/framework/cadastro/configurators/EmpConfiguracaoExportacaoDialog";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexosDialog";
-import empRepository from "@/modules/empresas/repositories/empRepository";
+import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
-import { printEmpTable, exportEmpTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
+import { printCadastroTable, exportCadastroTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
 import {
   getEmpPdfExportConfig,
   getEmpExcelExportConfig,
@@ -24,6 +24,13 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   page: 1,
   pageSize: 50,
   totalPages: 1,
+};
+
+const moduleRepository = empresasModuleDefinition.repository;
+const moduleLabels = {
+  singular: empresasModuleDefinition.singularLabel,
+  plural: empresasModuleDefinition.pluralLabel,
+  title: `Cadastro de ${empresasModuleDefinition.pluralLabel}`,
 };
 
 export default function PAGEMP() {
@@ -52,7 +59,7 @@ export default function PAGEMP() {
   const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE } = useQuery({
     queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
     queryFn: () =>
-      empRepository.listPage({
+      moduleRepository.listPage({
         page: queryPage,
         pageSize: queryPageSize,
         search: searchTerm,
@@ -107,7 +114,7 @@ export default function PAGEMP() {
     const latestPage = await queryClient.fetchQuery({
       queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
       queryFn: () =>
-        empRepository.listPage({
+        moduleRepository.listPage({
           page: queryPage,
           pageSize: queryPageSize,
           search: searchTerm,
@@ -126,21 +133,26 @@ export default function PAGEMP() {
     const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
 
     try {
+      const validatedData = empresasModuleDefinition.schema.parse(data);
       let savedRecord;
 
       if (isUpdate) {
-        savedRecord = await empRepository.update(editingEmp.id, data);
-        toast.success("Empresa atualizada!");
+        savedRecord = await moduleRepository.update(editingEmp.id, validatedData);
+        toast.success(`${moduleLabels.singular} atualizada!`);
       } else {
-        const { _isDuplicate, ...clean } = data;
-        savedRecord = await empRepository.create(clean);
-        toast.success("Empresa cadastrada!");
+        const { _isDuplicate, ...clean } = validatedData;
+        savedRecord = await moduleRepository.create(clean);
+        toast.success(`${moduleLabels.singular} cadastrada!`);
       }
 
       await stayOnRecordAfterSave(savedRecord);
       setFormVersion((version) => version + 1);
     } catch {
-      toast.error(isUpdate ? "Não foi possível atualizar a empresa." : "Não foi possível cadastrar a empresa.");
+      toast.error(
+        isUpdate
+          ? `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
+          : `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
+      );
     }
   }, [editingEmp, stayOnRecordAfterSave]);
 
@@ -249,10 +261,10 @@ export default function PAGEMP() {
 
     try {
       for (const id of ids) {
-        await empRepository.delete(id);
+        await moduleRepository.delete(id);
       }
     } catch {
-      toast.error("Não foi possível excluir a empresa.");
+      toast.error(`Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`);
       return;
     }
 
@@ -265,7 +277,7 @@ export default function PAGEMP() {
     const latestPage = await queryClient.fetchQuery({
       queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
       queryFn: () =>
-        empRepository.listPage({
+        moduleRepository.listPage({
           page: queryPage,
           pageSize: queryPageSize,
           search: searchTerm,
@@ -325,7 +337,11 @@ export default function PAGEMP() {
       }
     }
 
-    toast.success(ids.length === 1 ? "Empresa excluída!" : `${ids.length} empresas excluídas!`);
+    toast.success(
+      ids.length === 1
+        ? `${moduleLabels.singular} excluída!`
+        : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
+    );
   };
 
   const handleExportPdf = () => {
@@ -337,7 +353,7 @@ export default function PAGEMP() {
     const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
     const filterRows = (rows = []) => rows.map((row) => selIdx.map((i) => row[i]));
     const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
-    printEmpTable({ columns: selCols, rows: filterRows(selectedTableItems.length > 0 ? selRows || [] : srcRows || []), totalRows, title: `Cadastro de Empresas - ${new Date().toLocaleDateString("pt-BR")}` });
+    printCadastroTable({ columns: selCols, rows: filterRows(selectedTableItems.length > 0 ? selRows || [] : srcRows || []), totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
   };
 
   const handleExportExcel = () => {
@@ -348,7 +364,7 @@ export default function PAGEMP() {
     const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
     const filterRows = (rows = []) => rows.map((row) => selIdx.map((i) => row[i]));
     const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
-    exportEmpTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows, title: `Cadastro de Empresas - ${new Date().toLocaleDateString("pt-BR")}` });
+    exportCadastroTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
   };
 
   return (
@@ -394,7 +410,7 @@ export default function PAGEMP() {
                 }}
                 initialFieldName={configCamposInitialField}
                 inline
-                repository={empRepository}
+                repository={moduleRepository}
               />
             </section>
           )}
@@ -411,7 +427,7 @@ export default function PAGEMP() {
             }}
             initialFieldName={configCamposInitialField}
             inline
-            repository={empRepository}
+            repository={moduleRepository}
           />
         </section>
       )}
@@ -439,7 +455,7 @@ export default function PAGEMP() {
             onConfigExportExcel={() => setShowConfigExcel(true)}
             onConfigColumns={() => setShowConfigColunas(true)}
             selectedCount={selectedTableItems.length}
-            title="Cadastro de Empresas"
+            title={moduleLabels.title}
             recordLabel=""
           />
           </div>
@@ -466,6 +482,7 @@ export default function PAGEMP() {
               setQuerySort(nextSort);
               setQueryPage(1);
             }}
+            moduleTitle={moduleLabels.title}
           />
         </div>
       </div>
@@ -490,16 +507,20 @@ export default function PAGEMP() {
       <RegistroAnexosDialog
         open={!!attachmentsRecord?.id}
         onOpenChange={(o) => { if (!o) setAttachmentsRecord(null); }}
-        entityName="EmpresaCadastro"
+        entityName={empresasModuleDefinition.entityName}
         recordId={attachmentsRecord?.id}
-        title={attachmentsRecord?.razao_social || attachmentsRecord?.codigo_empresa || "Empresa"}
+        title={attachmentsRecord?.razao_social || attachmentsRecord?.codigo_empresa || moduleLabels.singular}
       />
 
       <ConfirmDialog
         open={deleteState.open}
         onOpenChange={(o) => setDeleteState((p) => ({ ...p, open: o }))}
         title="Confirmar exclusão"
-        description={deleteState.ids.length > 1 ? `Deseja excluir ${deleteState.ids.length} empresas?` : "Deseja excluir esta empresa?"}
+        description={
+          deleteState.ids.length > 1
+            ? `Deseja excluir ${deleteState.ids.length} ${moduleLabels.plural.toLowerCase()}?`
+            : `Deseja excluir esta ${moduleLabels.singular.toLowerCase()}?`
+        }
         confirmText="Excluir"
         cancelText="Cancelar"
         variant="destructive"

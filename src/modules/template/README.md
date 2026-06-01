@@ -17,3 +17,24 @@ Fluxo padrao:
 
 `UI -> repository -> API -> backend -> Prisma -> PostgreSQL`
 
+## Gerador de modulo
+
+Use o gerador com os parametros obrigatorios:
+
+```bash
+npm run generate:module -- \
+  --moduleId fazendas \
+  --entityName FazendaCadastro \
+  --singularLabel Fazenda \
+  --pluralLabel Fazendas \
+  --repository fazendaRepository \
+  --api FazendaApi \
+  --schema fazendaSchema
+```
+
+Para validar sem gravar arquivos:
+
+```bash
+npm run generate:module -- --moduleId fazendas --entityName FazendaCadastro --singularLabel Fazenda --pluralLabel Fazendas --repository fazendaRepository --api FazendaApi --schema fazendaSchema --dry-run
+```
+

@@ -43,7 +43,8 @@ npm run check:prod
 ## Deploy via Railway
 
 1. Crie um novo projeto no Railway conectado ao repo.
-2. Railway usa `railway.json` (raiz) apontando para `backend/Dockerfile`.
+2. Railway usa `railway.json` (raiz) + `Dockerfile.railway`.
+3. Com isso, **não é necessário configurar rootDirectory para `backend`**.
 3. Defina todas as variaveis obrigatorias.
 4. Deploy.
 5. Execute:

@@ -27,6 +27,10 @@ Configure os envs no provedor do backend:
 - `SUPABASE_STORAGE_BUCKET=erp-anexos`
 - `FRONTEND_ORIGINS=https://SEU_APP.vercel.app,https://SEU_DOMINIO_CUSTOM`
 
+Para Railway:
+- o repo já inclui `railway.json` + `Dockerfile.railway` na raiz
+- não precisa setar `rootDirectory=backend`
+
 URL backend producao (apos deploy):
 
 - `BACKEND_PRODUCTION_URL=<preencher-url-publica>`

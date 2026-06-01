@@ -6,7 +6,7 @@ const escapeHtml = (value) => String(value ?? "")
   .replaceAll(">", "&gt;")
   .replaceAll('"', "&quot;");
 
-const buildTableHtml = ({ columns = [], rows = [], totalRows = [], title = "Cadastro de Empresas" }) => {
+const buildTableHtml = ({ columns = [], rows = [], totalRows = [], title = "Cadastro" }) => {
   const totalWidth = columns.reduce((sum, col) => sum + Number(col.width || 120), 0);
   const pageWidthMm = 281;
   const pxToMmRatio = pageWidthMm / Math.max(totalWidth, 1);
@@ -38,7 +38,15 @@ const buildTableHtml = ({ columns = [], rows = [], totalRows = [], title = "Cada
 </html>`;
 };
 
-export function printEmpTable(data) {
+const toExportFileName = (title = "cadastro") =>
+  String(title || "cadastro")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "") || "cadastro";
+
+export function printCadastroTable(data) {
   const printWindow = window.open("", "_blank");
   if (!printWindow) return;
   printWindow.document.write(buildTableHtml(data));
@@ -47,6 +55,22 @@ export function printEmpTable(data) {
   printWindow.print();
 }
 
-export function exportEmpTableToExcel({ columns = [], rows = [], totalRows = [], title = "Cadastro de Empresas" }) {
-  exportRowsToXlsx({ columns, rows, totalRows, title, fileName: "cadastro_empresas" });
+export function exportCadastroTableToExcel({
+  columns = [],
+  rows = [],
+  totalRows = [],
+  title = "Cadastro",
+  fileName,
+}) {
+  exportRowsToXlsx({
+    columns,
+    rows,
+    totalRows,
+    title,
+    fileName: fileName || toExportFileName(title),
+  });
 }
+
+// Compatibilidade retroativa com implementacao Empresas.
+export const printEmpTable = printCadastroTable;
+export const exportEmpTableToExcel = exportCadastroTableToExcel;
