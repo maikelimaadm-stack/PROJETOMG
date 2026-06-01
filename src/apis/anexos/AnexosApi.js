@@ -22,12 +22,7 @@ export const AnexosApi = {
   async uploadFile(file) {
     const formData = new FormData();
     formData.append("file", file);
-    try {
-      const payload = await apiClient.post("/api/anexos/upload", formData);
-      return { file_url: payload?.file_url || payload?.url || "" };
-    } catch {
-      // Fallback local para ambiente sem backend configurado.
-      return { file_url: URL.createObjectURL(file) };
-    }
+    const payload = await apiClient.post("/api/anexos/upload", formData);
+    return { file_url: payload?.file_url || payload?.url || "" };
   },
 };

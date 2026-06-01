@@ -13,3 +13,16 @@ export const supabaseBucketName = bucket;
 export const supabaseAdmin = isSupabaseStorageConfigured
   ? createClient(url, serviceRoleKey, { auth: { persistSession: false } })
   : null;
+
+export const verifySupabaseStorageConnection = async () => {
+  if (!supabaseAdmin || !isSupabaseStorageConfigured) {
+    return { configured: false, connected: false, error: "SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY ausentes" };
+  }
+
+  const { error } = await supabaseAdmin.storage.listBuckets();
+  return {
+    configured: true,
+    connected: !error,
+    error: error?.message || null,
+  };
+};

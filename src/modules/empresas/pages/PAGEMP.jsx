@@ -11,35 +11,19 @@ import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexo
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
 import { printEmpTable, exportEmpTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
-import { getEmpPdfExportConfig, getEmpExcelExportConfig } from "@/modules/empresas/config/empPdfExportConfig";
+import {
+  getEmpPdfExportConfig,
+  getEmpExcelExportConfig,
+  saveEmpExcelExportConfig,
+  saveEmpPdfExportConfig,
+} from "@/modules/empresas/config/empPdfExportConfig";
 
-const getEmpSearchValues = (emp) => [
-  emp.codigo_empresa,
-  emp.razao_social,
-  emp.nome_fantasia,
-  emp.tipo_pessoa,
-  emp.cpf_cnpj,
-  emp.inscricao_estadual,
-  emp.telefone,
-  emp.whatsapp,
-  emp.email,
-  emp.cep,
-  emp.endereco,
-  emp.numero,
-  emp.bairro,
-  emp.cidade,
-  emp.estado,
-  emp.observacoes,
-  emp.status,
-  ...Object.values(emp.campos_personalizados || {})
-];
-
-const filterEmpresasBySearch = (items, term) => {
-  const termo = String(term || "").toLowerCase().trim();
-  if (!termo) return items;
-  return items.filter((emp) =>
-    getEmpSearchValues(emp).some((value) => String(value || "").toLowerCase().includes(termo))
-  );
+const DEFAULT_EMPRESAS_RESPONSE = {
+  items: [],
+  total: 0,
+  page: 1,
+  pageSize: 50,
+  totalPages: 1,
 };
 
 export default function PAGEMP() {
@@ -60,18 +44,27 @@ export default function PAGEMP() {
   const [attachmentsRecord, setAttachmentsRecord] = useState(null);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
+  const [queryPage, setQueryPage] = useState(1);
+  const [queryPageSize, setQueryPageSize] = useState(50);
+  const [querySort, setQuerySort] = useState({ key: "codigo_empresa", direction: "asc" });
   const queryClient = useQueryClient();
 
-  const { data: empresas = [] } = useQuery({
-    queryKey: ["emp-cadastro"],
-    queryFn: () => empRepository.list(),
-    initialData: []
+  const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE } = useQuery({
+    queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
+    queryFn: () =>
+      empRepository.listPage({
+        page: queryPage,
+        pageSize: queryPageSize,
+        search: searchTerm,
+        sortBy: querySort.key,
+        sortDir: querySort.direction,
+      }),
+    placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
   });
 
-  const empresasFiltradasPainel = useMemo(
-    () => filterEmpresasBySearch(empresas, searchTerm),
-    [empresas, searchTerm]
-  );
+  const empresas = empresasResponse.items || [];
+  const totalEmpresas = empresasResponse.total || 0;
+  const empresasFiltradasPainel = empresas;
 
   const handleFilteredEmpresasChange = useCallback((filtered) => {
     setTableFilteredEmpresas(filtered);
@@ -80,7 +73,7 @@ export default function PAGEMP() {
   const empresasNavegacao = tableFilteredEmpresas ?? empresasFiltradasPainel;
 
   const refreshNavRecord = useCallback((list, record, navListOverride) => {
-    const navList = navListOverride ?? tableFilteredEmpresas ?? filterEmpresasBySearch(list, searchTerm);
+    const navList = navListOverride ?? tableFilteredEmpresas ?? list;
     const fresh = findEmpresaInList(list, record) ?? record;
     const navIndex = navList.findIndex(
       (item) => item.id === fresh.id || Number(item.codigo_empresa) === Number(fresh.codigo_empresa)
@@ -111,15 +104,23 @@ export default function PAGEMP() {
 
     await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
 
-    const list = await queryClient.fetchQuery({
-      queryKey: ["emp-cadastro"],
-      queryFn: () => empRepository.list()
+    const latestPage = await queryClient.fetchQuery({
+      queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
+      queryFn: () =>
+        empRepository.listPage({
+          page: queryPage,
+          pageSize: queryPageSize,
+          search: searchTerm,
+          sortBy: querySort.key,
+          sortDir: querySort.direction,
+        }),
     });
+    const list = latestPage.items || [];
     const { fresh, navIndex } = refreshNavRecord(list, normalized);
     setEditingEmp(fresh);
     if (fresh?.id) setSelectedTableItems([fresh.id]);
     if (navIndex >= 0) setSelectedIndex(navIndex);
-  }, [queryClient, refreshNavRecord]);
+  }, [queryClient, refreshNavRecord, queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction]);
 
   const handleSubmit = useCallback(async (data) => {
     const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
@@ -174,6 +175,11 @@ export default function PAGEMP() {
     setConfigCamposInitialField(fieldName || null);
     setShowConfigCampos(true);
   };
+
+  const handleSearchChange = useCallback((value) => {
+    setSearchTerm(value);
+    setQueryPage(1);
+  }, []);
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
@@ -256,10 +262,18 @@ export default function PAGEMP() {
 
     await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
 
-    const list = await queryClient.fetchQuery({
-      queryKey: ["emp-cadastro"],
-      queryFn: () => empRepository.list()
+    const latestPage = await queryClient.fetchQuery({
+      queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
+      queryFn: () =>
+        empRepository.listPage({
+          page: queryPage,
+          pageSize: queryPageSize,
+          search: searchTerm,
+          sortBy: querySort.key,
+          sortDir: querySort.direction,
+        }),
     });
+    const list = latestPage.items || [];
 
     if (deletedCurrentFromForm) {
       const remainingNav = navListBeforeDelete
@@ -365,7 +379,7 @@ export default function PAGEMP() {
               onDuplicate={() => editingEmp && handleDuplicate(editingEmp)}
               filterOpen={false} filterActive={false}
               searchValue={searchTerm}
-              onSearchChange={setSearchTerm}
+              onSearchChange={handleSearchChange}
               onAttachClick={() => editingEmp?.id && setAttachmentsRecord(editingEmp)}
               attachDisabled={false}
             />
@@ -380,6 +394,7 @@ export default function PAGEMP() {
                 }}
                 initialFieldName={configCamposInitialField}
                 inline
+                repository={empRepository}
               />
             </section>
           )}
@@ -396,6 +411,7 @@ export default function PAGEMP() {
             }}
             initialFieldName={configCamposInitialField}
             inline
+            repository={empRepository}
           />
         </section>
       )}
@@ -405,10 +421,10 @@ export default function PAGEMP() {
           <div className="flex-none shrink-0">
           <SankhyaListToolbar
             viewMode={viewMode}
-            total={empresasNavegacao.length}
+            total={totalEmpresas}
             currentIndex={selectedIndex}
             searchValue={searchTerm}
-            onSearchChange={setSearchTerm}
+            onSearchChange={handleSearchChange}
             onNew={handleNew}
             onToggleView={handleToggleView}
             toggleViewDisabled={selectedTableItems.length > 1}
@@ -433,17 +449,43 @@ export default function PAGEMP() {
             onEdit={handleEdit}
             showConfigColunas={showConfigColunas}
             setShowConfigColunas={setShowConfigColunas}
-            searchTerm={searchTerm}
+            searchTerm=""
             selectedRecordId={showForm ? editingEmp?.id : undefined}
             onSelectionChange={handleTableSelectionChange}
             onVisibleDataChange={setVisibleTableData}
             onFilteredEmpresasChange={handleFilteredEmpresasChange}
+            serverPage={queryPage}
+            serverPageSize={queryPageSize}
+            serverTotal={totalEmpresas}
+            onServerPageChange={setQueryPage}
+            onServerPageSizeChange={(nextPageSize) => {
+              setQueryPageSize(nextPageSize);
+              setQueryPage(1);
+            }}
+            onServerSortChange={(nextSort) => {
+              setQuerySort(nextSort);
+              setQueryPage(1);
+            }}
           />
         </div>
       </div>
 
-      <EmpConfiguracaoExportacaoDialog open={showConfigPdf} onOpenChange={setShowConfigPdf} columns={visibleTableData.allColumns || visibleTableData.columns || []} initialConfig={getEmpPdfExportConfig()} tipo="pdf" />
-      <EmpConfiguracaoExportacaoDialog open={showConfigExcel} onOpenChange={setShowConfigExcel} columns={visibleTableData.allColumns || visibleTableData.columns || []} initialConfig={getEmpExcelExportConfig()} tipo="excel" />
+      <EmpConfiguracaoExportacaoDialog
+        open={showConfigPdf}
+        onOpenChange={setShowConfigPdf}
+        columns={visibleTableData.allColumns || visibleTableData.columns || []}
+        initialConfig={getEmpPdfExportConfig()}
+        tipo="pdf"
+        onSaveConfig={(config) => saveEmpPdfExportConfig(config)}
+      />
+      <EmpConfiguracaoExportacaoDialog
+        open={showConfigExcel}
+        onOpenChange={setShowConfigExcel}
+        columns={visibleTableData.allColumns || visibleTableData.columns || []}
+        initialConfig={getEmpExcelExportConfig()}
+        tipo="excel"
+        onSaveConfig={(config) => saveEmpExcelExportConfig(config)}
+      />
 
       <RegistroAnexosDialog
         open={!!attachmentsRecord?.id}

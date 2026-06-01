@@ -5,11 +5,12 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Empresa {
   id                   String   @id @default(cuid())
-  tenant_id            String?  @db.VarChar(64)
+  tenant_id            String   @default("default") @db.VarChar(64)
   codigo_empresa       Int      @default(0)
   razao_social         String   @db.VarChar(255)
   nome_fantasia        String?  @db.VarChar(255)
@@ -34,15 +35,18 @@ model Empresa {
 
   anexos RegistroAnexo[]
 
+  @@unique([tenant_id, codigo_empresa])
   @@index([tenant_id, codigo_empresa])
+  @@index([tenant_id, razao_social])
+  @@index([tenant_id, status])
   @@index([razao_social])
   @@index([cpf_cnpj])
 }
 
 model CampoPersonalizado {
   id                    String   @id @default(cuid())
-  tenant_id             String?  @db.VarChar(64)
-  field_name            String   @unique @db.VarChar(128)
+  tenant_id             String   @default("default") @db.VarChar(64)
+  field_name            String   @db.VarChar(128)
   label                 String   @db.VarChar(255)
   placeholder           String?  @db.VarChar(255)
   descricao             String?
@@ -67,13 +71,15 @@ model CampoPersonalizado {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
+  @@unique([tenant_id, field_name])
   @@index([tenant_id, ativo])
+  @@index([tenant_id, ordem_tabela])
   @@index([ordem_tabela])
 }
 
 model RegistroAnexo {
   id              String   @id @default(cuid())
-  tenant_id       String?  @db.VarChar(64)
+  tenant_id       String   @default("default") @db.VarChar(64)
   entity_name     String   @db.VarChar(128)
   record_id       String?  @db.VarChar(128)
   empresa_id      String?  @db.VarChar(64)
@@ -88,6 +94,7 @@ model RegistroAnexo {
   empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
 
   @@index([entity_name, record_id])
+  @@index([tenant_id, entity_name, record_id])
   @@index([tenant_id, createdAt])
   @@index([empresa_id])
 }

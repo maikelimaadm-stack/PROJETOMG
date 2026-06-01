@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { Check, X } from "lucide-react";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
-import { saveEmpExcelExportConfig, saveEmpPdfExportConfig } from "@/modules/empresas/config/empPdfExportConfig";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
   EMP_CONFIG_DIALOG_CLOSE_ROW,
@@ -27,7 +26,14 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
-export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, columns = [], initialConfig, tipo = "pdf" }) {
+export default function EmpConfiguracaoExportacaoDialog({
+  open,
+  onOpenChange,
+  columns = [],
+  initialConfig,
+  tipo = "pdf",
+  onSaveConfig,
+}) {
   const [useConfiguredColumns, setUseConfiguredColumns] = useState(false);
   const [columnIds, setColumnIds] = useState([]);
 
@@ -36,7 +42,9 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
     setColumnIds(initialConfig?.columnIds?.length ? initialConfig.columnIds : columns.map((c) => c.id));
   }, [initialConfig, columns, open]);
 
-  const saveConfig = (config) => tipo === "excel" ? saveEmpExcelExportConfig(config) : saveEmpPdfExportConfig(config);
+  const saveConfig = (config) => {
+    onSaveConfig?.(config, tipo);
+  };
   const handleUseConfiguredColumnsChange = (checked) => { setUseConfiguredColumns(checked); saveConfig({ useConfiguredColumns: checked, columnIds }); };
   const toggleColumn = (id) => setColumnIds((prev) => { const next = prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]; saveConfig({ useConfiguredColumns, columnIds: next }); return next; });
   const selectAllColumns = () => { const next = columns.map((col) => col.id); setColumnIds(next); saveConfig({ useConfiguredColumns, columnIds: next }); };

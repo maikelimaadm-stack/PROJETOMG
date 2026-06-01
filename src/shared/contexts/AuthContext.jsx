@@ -13,9 +13,18 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     checkAppState();
-    const subscription = AuthApi.onAuthStateChange(async () => {
-      await checkAppState();
-    });
+    let subscription = { unsubscribe: () => {} };
+    try {
+      subscription = AuthApi.onAuthStateChange(async () => {
+        await checkAppState();
+      });
+    } catch (error) {
+      setAuthError({
+        type: "auth_not_configured",
+        message: error.message || "Supabase Auth não configurado.",
+      });
+      setIsLoadingAuth(false);
+    }
     return () => subscription.unsubscribe?.();
   }, []);
 
@@ -31,7 +40,7 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       console.error("Unexpected auth error:", error);
       setAuthError({
-        type: "auth_required",
+        type: "auth_not_configured",
         message: error.message || "Falha ao validar autenticação",
       });
       setIsLoadingAuth(false);
@@ -41,14 +50,13 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await AuthApi.logout();
+    await AuthApi.logout().catch(() => null);
     setUser(null);
     setIsAuthenticated(false);
   };
 
   const navigateToLogin = () => {
-    // O app segue operável em modo local quando auth externa não estiver configurada.
-    setAuthError(null);
+    window.location.reload();
   };
 
   return (

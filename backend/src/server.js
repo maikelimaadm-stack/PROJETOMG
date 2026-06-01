@@ -18,6 +18,13 @@ const buildServer = () => {
 
   app.setErrorHandler((error, _request, reply) => {
     app.log.error(error);
+    const message = String(error?.message || "");
+    const isDatabaseUnavailable = message.includes("Can't reach database server");
+    if (isDatabaseUnavailable) {
+      return reply.status(503).send({
+        message: "Banco de dados indisponível. Verifique DATABASE_URL/DIRECT_URL.",
+      });
+    }
     reply.status(error.statusCode || 500).send({
       message: error.message || "Erro interno do servidor",
     });

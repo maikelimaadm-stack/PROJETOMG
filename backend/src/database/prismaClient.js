@@ -5,16 +5,26 @@ dotenv.config();
 
 let prisma = null;
 
-const canUsePrisma = () => Boolean(process.env.DATABASE_URL);
+const requireDatabaseConfig = () => {
+  if (!process.env.DATABASE_URL) {
+    throw new Error("DATABASE_URL não configurada no backend/.env");
+  }
+};
 
 export const getPrismaClient = () => {
-  if (!canUsePrisma()) return null;
+  requireDatabaseConfig();
   if (!prisma) {
     prisma = new PrismaClient({
       log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
     });
   }
   return prisma;
+};
+
+export const verifyDatabaseConnection = async () => {
+  const client = getPrismaClient();
+  await client.$queryRaw`SELECT 1`;
+  return true;
 };
 
 export const closePrismaClient = async () => {

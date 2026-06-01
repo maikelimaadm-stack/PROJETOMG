@@ -55,7 +55,23 @@ const formatHeaderLabel = (col) => {
   return label;
 };
 
-export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setShowConfigColunas, searchTerm = "", selectedRecordId, onSelectionChange, onVisibleDataChange, onFilteredEmpresasChange }) {
+export default function TBLEMP({
+  empresas = [],
+  onEdit,
+  showConfigColunas,
+  setShowConfigColunas,
+  searchTerm = "",
+  selectedRecordId,
+  onSelectionChange,
+  onVisibleDataChange,
+  onFilteredEmpresasChange,
+  serverPage = 1,
+  serverPageSize = 50,
+  serverTotal = null,
+  onServerPageChange = null,
+  onServerPageSizeChange = null,
+  onServerSortChange = null,
+}) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codigo_empresa", direction: "asc" });
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
@@ -101,8 +117,10 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
   const measureCanvasRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const serverMode = typeof onServerPageChange === "function";
+  const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
+    if (serverPageSize) return serverPageSize;
     const saved = Number(localStorage.getItem(PAGE_SIZE_KEY));
     return EMP_PAGE_SIZE_OPTIONS.includes(saved) ? saved : 50;
   });
@@ -387,31 +405,65 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
     onFilteredEmpresasChange?.(empresasOrdenadas);
   }, [empresasOrdenadas, onFilteredEmpresasChange]);
 
+  useEffect(() => {
+    if (!serverMode) return;
+    setCurrentPage(serverPage || 1);
+  }, [serverMode, serverPage]);
+
+  useEffect(() => {
+    if (!serverMode) return;
+    if (serverPageSize && serverPageSize !== pageSize) setPageSize(serverPageSize);
+  }, [serverMode, serverPageSize, pageSize]);
+
   const totalPages = useMemo(() => {
+    if (serverMode) {
+      if (!serverTotal || serverTotal <= 0) return 1;
+      return Math.ceil(serverTotal / pageSize);
+    }
     if (empresasOrdenadas.length === 0) return 1;
     return Math.ceil(empresasOrdenadas.length / pageSize);
-  }, [empresasOrdenadas.length, pageSize]);
+  }, [serverMode, serverTotal, empresasOrdenadas.length, pageSize]);
 
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
 
   const empresasPaginadas = useMemo(() => {
+    if (serverMode) return empresasOrdenadas;
     const start = (safeCurrentPage - 1) * pageSize;
     return empresasOrdenadas.slice(start, start + pageSize);
-  }, [empresasOrdenadas, safeCurrentPage, pageSize]);
+  }, [serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
 
   useEffect(() => {
     localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
   }, [pageSize]);
 
   useEffect(() => {
+    if (serverMode) {
+      onServerPageChange?.(1);
+      return;
+    }
     setCurrentPage(1);
-  }, [filtrosColunas, searchTerm, pageSize]);
+  }, [serverMode, onServerPageChange, filtrosColunas, searchTerm, pageSize]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
 
-  const handleSort = (key) => setSortConfig((p) => ({ key, direction: p.key === key && p.direction === "asc" ? "desc" : "asc" }));
+  const handleSort = (key) =>
+    setSortConfig((p) => {
+      const next = { key, direction: p.key === key && p.direction === "asc" ? "desc" : "asc" };
+      onServerSortChange?.(next);
+      return next;
+    });
+
+  const handlePageChange = (nextPage) => {
+    setCurrentPage(nextPage);
+    onServerPageChange?.(nextPage);
+  };
+
+  const handlePageSizeChange = (nextPageSize) => {
+    setPageSize(nextPageSize);
+    onServerPageSizeChange?.(nextPageSize);
+  };
 
   const handleRowSelect = (emp, event) => {
     if (event?.target?.closest?.("button, input, [role='checkbox'], [data-radix-popper-content-wrapper]")) return;
@@ -936,8 +988,8 @@ export default function TBLEMP({ empresas = [], onEdit, showConfigColunas, setSh
               currentPage={safeCurrentPage}
               totalPages={totalPages}
               pageSize={pageSize}
-              onPageChange={setCurrentPage}
-              onPageSizeChange={setPageSize}
+              onPageChange={handlePageChange}
+              onPageSizeChange={handlePageSizeChange}
               isFullscreen={isTableFullscreen}
               onToggleFullscreen={handleToggleTableFullscreen}
             />

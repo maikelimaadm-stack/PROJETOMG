@@ -5,63 +5,79 @@ const toNumber = (value, fallback = 0) => {
   return Number.isFinite(numeric) ? numeric : fallback;
 };
 
-const normalizeEmpresaPayload = (payload = {}) => ({
-  codigo_empresa: toNumber(payload.codigo_empresa, 0),
-  razao_social: payload.razao_social || "",
-  nome_fantasia: payload.nome_fantasia || "",
-  tipo_pessoa: payload.tipo_pessoa || "PJ",
-  cpf_cnpj: payload.cpf_cnpj || "",
-  inscricao_estadual: payload.inscricao_estadual || "",
-  telefone: payload.telefone || "",
-  whatsapp: payload.whatsapp || "",
-  email: payload.email || "",
-  logo_url: payload.logo_url || "",
-  cep: payload.cep || "",
-  endereco: payload.endereco || "",
-  numero: payload.numero || "",
-  bairro: payload.bairro || "",
-  cidade: payload.cidade || "",
-  estado: payload.estado || "",
-  observacoes: payload.observacoes || "",
-  status: payload.status || "Ativa",
-  campos_personalizados: payload.campos_personalizados || {},
-});
+const normalizeEmpresaPayload = (payload = {}, { isUpdate = false } = {}) => {
+  const normalized = {
+    razao_social: payload.razao_social || "",
+    nome_fantasia: payload.nome_fantasia || "",
+    tipo_pessoa: payload.tipo_pessoa || "PJ",
+    cpf_cnpj: payload.cpf_cnpj || "",
+    inscricao_estadual: payload.inscricao_estadual || "",
+    telefone: payload.telefone || "",
+    whatsapp: payload.whatsapp || "",
+    email: payload.email || "",
+    logo_url: payload.logo_url || "",
+    cep: payload.cep || "",
+    endereco: payload.endereco || "",
+    numero: payload.numero || "",
+    bairro: payload.bairro || "",
+    cidade: payload.cidade || "",
+    estado: payload.estado || "",
+    observacoes: payload.observacoes || "",
+    status: payload.status || "Ativa",
+    campos_personalizados: payload.campos_personalizados || {},
+  };
+
+  const parsedCodigo = toNumber(payload.codigo_empresa, 0);
+  if (!isUpdate || parsedCodigo > 0) {
+    normalized.codigo_empresa = parsedCodigo;
+  }
+
+  return normalized;
+};
 
 export const empresaService = {
-  list() {
-    return empresaRepository.list();
+  list(query = {}, tenantId) {
+    return empresaRepository.list({
+      tenantId,
+      page: query.page,
+      pageSize: query.pageSize,
+      search: query.search,
+      sortBy: query.sortBy,
+      sortDir: query.sortDir,
+      filters: query.filters,
+    });
   },
 
-  get(id) {
-    return empresaRepository.getById(id);
+  get(id, tenantId) {
+    return empresaRepository.getById(id, tenantId);
   },
 
-  create(payload) {
-    return empresaRepository.create(normalizeEmpresaPayload(payload));
+  create(payload, tenantId) {
+    return empresaRepository.create(normalizeEmpresaPayload(payload, { isUpdate: false }), tenantId);
   },
 
-  update(id, payload) {
-    return empresaRepository.update(id, normalizeEmpresaPayload(payload));
+  update(id, payload, tenantId) {
+    return empresaRepository.update(id, normalizeEmpresaPayload(payload, { isUpdate: true }), tenantId);
   },
 
-  remove(id) {
-    return empresaRepository.remove(id);
+  remove(id, tenantId) {
+    return empresaRepository.remove(id, tenantId);
   },
 
-  listCampos() {
-    return empresaRepository.listCampos();
+  listCampos(tenantId) {
+    return empresaRepository.listCampos(tenantId);
   },
 
-  createCampo(payload) {
-    return empresaRepository.createCampo(payload);
+  createCampo(payload, tenantId) {
+    return empresaRepository.createCampo(payload, tenantId);
   },
 
-  updateCampo(id, payload) {
-    return empresaRepository.updateCampo(id, payload);
+  updateCampo(id, payload, tenantId) {
+    return empresaRepository.updateCampo(id, payload, tenantId);
   },
 
-  removeCampo(id) {
-    return empresaRepository.removeCampo(id);
+  removeCampo(id, tenantId) {
+    return empresaRepository.removeCampo(id, tenantId);
   },
 
   async listOptionsSources(sources = []) {

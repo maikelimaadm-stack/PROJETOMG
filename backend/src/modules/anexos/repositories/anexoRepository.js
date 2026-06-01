@@ -1,46 +1,39 @@
 import { getPrismaClient } from "../../../database/prismaClient.js";
-import { memoryStore } from "../../../storage/memoryStore.js";
-
-const executeWithFallback = async (prismaOperation, fallbackOperation) => {
-  const prisma = getPrismaClient();
-  if (!prisma) return fallbackOperation();
-  try {
-    return await prismaOperation(prisma);
-  } catch {
-    return fallbackOperation();
-  }
-};
+const withTenantWhere = (tenantId, extra = {}) => ({
+  tenant_id: tenantId,
+  ...extra,
+});
 
 export const anexoRepository = {
-  async list({ entityName, recordId }) {
-    return executeWithFallback(
-      (prisma) =>
-        prisma.registroAnexo.findMany({
-          where: {
-            ...(entityName ? { entity_name: entityName } : {}),
-            ...(recordId ? { record_id: recordId } : {}),
-          },
-          orderBy: [{ createdAt: "desc" }],
-        }),
-      () => memoryStore.listAnexos({ entityName, recordId })
-    );
+  async list({ tenantId, entityName, recordId }) {
+    const prisma = getPrismaClient();
+    return prisma.registroAnexo.findMany({
+      where: withTenantWhere(tenantId, {
+        ...(entityName ? { entity_name: entityName } : {}),
+        ...(recordId ? { record_id: recordId } : {}),
+      }),
+      orderBy: [{ createdAt: "desc" }],
+    });
   },
 
-  async create(data) {
-    return executeWithFallback(
-      (prisma) => prisma.registroAnexo.create({ data }),
-      () => memoryStore.createAnexo(data)
-    );
-  },
-
-  async remove(id) {
-    const result = await executeWithFallback(
-      async (prisma) => {
-        await prisma.registroAnexo.delete({ where: { id } });
-        return true;
+  async create(data, tenantId) {
+    const prisma = getPrismaClient();
+    return prisma.registroAnexo.create({
+      data: {
+        ...data,
+        tenant_id: tenantId,
       },
-      () => memoryStore.deleteAnexo(id)
-    );
-    return Boolean(result);
+    });
+  },
+
+  async remove(id, tenantId) {
+    const prisma = getPrismaClient();
+    const current = await prisma.registroAnexo.findFirst({
+      where: withTenantWhere(tenantId, { id }),
+      select: { id: true },
+    });
+    if (!current) return false;
+    await prisma.registroAnexo.delete({ where: { id: current.id } });
+    return true;
   },
 };

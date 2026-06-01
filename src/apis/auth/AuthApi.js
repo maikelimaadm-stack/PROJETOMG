@@ -1,9 +1,9 @@
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
-const GUEST_USER = {
-  id: "guest-local",
-  email: "guest@local",
-  role: "admin",
+const assertSupabaseAuthConfig = () => {
+  if (!isSupabaseConfigured || !supabase) {
+    throw new Error("Supabase Auth não configurado (VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY).");
+  }
 };
 
 export const AuthApi = {
@@ -12,7 +12,7 @@ export const AuthApi = {
   },
 
   async getCurrentUser() {
-    if (!isSupabaseConfigured || !supabase) return GUEST_USER;
+    assertSupabaseAuthConfig();
     const {
       data: { user },
       error,
@@ -22,33 +22,28 @@ export const AuthApi = {
   },
 
   async getSession() {
-    if (!isSupabaseConfigured || !supabase) return { session: null };
+    assertSupabaseAuthConfig();
     const { data, error } = await supabase.auth.getSession();
     if (error) throw error;
     return data;
   },
 
   async signInWithPassword({ email, password }) {
-    if (!isSupabaseConfigured || !supabase) {
-      return { user: GUEST_USER };
-    }
+    assertSupabaseAuthConfig();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
     return data;
   },
 
   async logout() {
-    if (!isSupabaseConfigured || !supabase) return true;
+    assertSupabaseAuthConfig();
     const { error } = await supabase.auth.signOut();
     if (error) throw error;
     return true;
   },
 
   onAuthStateChange(callback) {
-    if (!isSupabaseConfigured || !supabase) {
-      callback("SIGNED_IN", { user: GUEST_USER });
-      return { unsubscribe: () => {} };
-    }
+    assertSupabaseAuthConfig();
     const { data } = supabase.auth.onAuthStateChange((_event, session) => {
       callback(_event, session);
     });

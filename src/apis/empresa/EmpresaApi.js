@@ -7,6 +7,10 @@ const toQuery = (params = {}) => {
   const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value == null || value === "") return;
+    if (typeof value === "object") {
+      searchParams.set(key, JSON.stringify(value));
+      return;
+    }
     searchParams.set(key, String(value));
   });
   const query = searchParams.toString();
@@ -14,18 +18,19 @@ const toQuery = (params = {}) => {
 };
 
 export const EmpresaApi = {
-  async isAvailable() {
-    try {
-      await apiClient.get("/api/health");
-      return true;
-    } catch {
-      return false;
-    }
+  ping() {
+    return apiClient.get("/api/health");
   },
 
-  async listEmpresas() {
-    const payload = await apiClient.get(EMPRESAS_PATH);
-    return payload?.items || [];
+  async listEmpresas(params = {}) {
+    const payload = await apiClient.get(`${EMPRESAS_PATH}${toQuery(params)}`);
+    return {
+      items: payload?.items || [],
+      total: Number(payload?.total || 0),
+      page: Number(payload?.page || 1),
+      pageSize: Number(payload?.pageSize || params.pageSize || 50),
+      totalPages: Number(payload?.totalPages || 1),
+    };
   },
 
   async getEmpresa(id) {

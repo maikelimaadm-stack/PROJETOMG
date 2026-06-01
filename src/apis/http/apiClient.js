@@ -10,6 +10,16 @@ const buildUrl = (path) => {
   return `${baseUrl}${normalizedPath}`;
 };
 
+const getTenantId = () => {
+  try {
+    const tenant = localStorage.getItem("erp_tenant_id");
+    if (tenant && tenant.trim()) return tenant.trim();
+  } catch {
+    // noop
+  }
+  return "default";
+};
+
 export class ApiError extends Error {
   constructor(message, status = 500, data = null) {
     super(message);
@@ -35,6 +45,7 @@ export const apiClient = {
       method,
       headers: {
         ...(body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+        "X-Tenant-Id": getTenantId(),
         ...headers,
       },
       body: body == null ? undefined : body instanceof FormData ? body : JSON.stringify(body),

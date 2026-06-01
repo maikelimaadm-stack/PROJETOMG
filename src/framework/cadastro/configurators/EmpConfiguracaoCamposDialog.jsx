@@ -11,7 +11,6 @@ import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { toast } from "sonner";
-import empRepository from "@/modules/empresas/repositories/empRepository";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
@@ -71,7 +70,16 @@ function Field({ label, children, required = false, wide = false, compact = fals
   );
 }
 
-export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline = false, initialFieldName = null }) {
+export default function EmpConfiguracaoCamposDialog({
+  open,
+  onOpenChange,
+  inline = false,
+  initialFieldName = null,
+  repository,
+}) {
+  if (!repository) {
+    throw new Error("EmpConfiguracaoCamposDialog requer prop repository.");
+  }
   const queryClient = useQueryClient();
   const [form, setForm] = useState(initialForm);
   const [editingId, setEditingId] = useState(null);
@@ -94,7 +102,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
 
   const { data: campos = [], isLoading, isFetching, isFetched } = useQuery({
     queryKey: ["emp-campos-personalizados"],
-    queryFn: () => empRepository.listCamposPersonalizados(),
+    queryFn: () => repository.listCamposPersonalizados(),
     enabled: open,
     staleTime: 30_000,
     initialData: []
@@ -113,12 +121,12 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   const saveMutation = useMutation({
     mutationFn: () => {
       const payload = buildPayload();
-      return editingId ? empRepository.updateCampoPersonalizado(editingId, payload) : empRepository.createCampoPersonalizado(payload);
+      return editingId ? repository.updateCampoPersonalizado(editingId, payload) : repository.createCampoPersonalizado(payload);
     },
     onSuccess: async (saved) => {
       const wasEditing = !!editingId;
       await queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
-      const updated = await empRepository.listCamposPersonalizados();
+      const updated = await repository.listCamposPersonalizados();
       const savedId = saved?.id || editingId;
       const target = updated.find((c) => c.id === savedId) || saved;
       if (target) loadCampoForm(target);
@@ -127,7 +135,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (campo) => empRepository.deleteCampoPersonalizado(campo),
+    mutationFn: (campo) => repository.deleteCampoPersonalizado(campo),
     onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] }); toast.success("Campo excluído."); },
     onError: (error) => showNotice({ title: "Erro ao excluir", description: error.message || "Não foi possível excluir.", type: "danger" })
   });
