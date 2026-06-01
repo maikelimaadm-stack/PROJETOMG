@@ -38,21 +38,32 @@ const LayoutPreview = ({ mode, columns }) => {
     );
   }
 
-  if (mode === "details") {
+  if (mode === "details" || mode === "detailsCompact") {
     return (
       <div className="emp-field-layout-preview emp-field-layout-preview-details">
         {[1, 2, 3].map((panel) => (
           <div key={panel} className="emp-field-layout-preview-detail-panel">
             <span className="emp-field-layout-preview-detail-title" />
-            <span className="emp-field-layout-preview-detail-line" />
-            <span className="emp-field-layout-preview-detail-line emp-field-layout-preview-detail-line-short" />
+            {mode === "detailsCompact" ? (
+              <div className="emp-field-layout-preview-detail-compact-grid">
+                <span className="emp-field-layout-preview-detail-line" />
+                <span className="emp-field-layout-preview-detail-line" />
+                <span className="emp-field-layout-preview-detail-line emp-field-layout-preview-detail-line-short" />
+                <span className="emp-field-layout-preview-detail-line" />
+              </div>
+            ) : (
+              <>
+                <span className="emp-field-layout-preview-detail-line" />
+                <span className="emp-field-layout-preview-detail-line emp-field-layout-preview-detail-line-short" />
+              </>
+            )}
           </div>
         ))}
       </div>
     );
   }
 
-  const previewColumns = mode === "compact" ? 2 : Math.max(columns, 3);
+  const previewColumns = 2;
   const cells = Array.from({ length: previewColumns * 2 }, (_, index) => index);
   return (
     <div
@@ -125,7 +136,7 @@ export default function EmpFieldLayoutConfigDialog({
             <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
               <CardContent className="p-0">
                 <div className="border-b-[0.5px] border-[#dce3eb] px-2 py-1 text-xs text-[#5b6b80]">
-                  Escolha como os painéis e campos serão exibidos. O painel Principal permanece sempre no modelo vertical.
+                  Escolha como os painéis e campos serão exibidos.
                 </div>
 
                 <div className="max-h-[70vh] overflow-y-auto p-2">
@@ -156,17 +167,6 @@ export default function EmpFieldLayoutConfigDialog({
                       </div>
                     </label>
 
-                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "columns" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
-                      <RadioGroupItem value="columns" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
-                      <div className="min-w-0 flex-1 space-y-2">
-                        <div>
-                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo de colunas</div>
-                          <div className="text-[11px] text-[#5b6b80]">Painéis em abas e campos distribuídos em colunas.</div>
-                        </div>
-                        <LayoutPreview mode="columns" columns={draft.columns} />
-                      </div>
-                    </label>
-
                     <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "details" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
                       <RadioGroupItem value="details" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
                       <div className="min-w-0 flex-1 space-y-2">
@@ -177,9 +177,20 @@ export default function EmpFieldLayoutConfigDialog({
                         <LayoutPreview mode="details" columns={1} />
                       </div>
                     </label>
+
+                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "detailsCompact" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
+                      <RadioGroupItem value="detailsCompact" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div>
+                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo detalhes + compacto</div>
+                          <div className="text-[11px] text-[#5b6b80]">Painéis em lista recolhível e campos compactos, incluindo o Principal.</div>
+                        </div>
+                        <LayoutPreview mode="detailsCompact" columns={draft.columns} />
+                      </div>
+                    </label>
                   </RadioGroup>
 
-                  {["compact", "columns"].includes(draft.mode) && (
+                  {["compact", "detailsCompact"].includes(draft.mode) && (
                     <div className="mt-2 rounded-md border-[0.5px] border-[#dce3eb] bg-white p-2">
                       <label className="mb-2 block text-xs font-semibold text-[#1a1f26]">
                         Quantidade de colunas por linha (1 a 6)

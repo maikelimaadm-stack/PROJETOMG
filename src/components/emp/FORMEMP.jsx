@@ -329,7 +329,7 @@ export default function FORMEMP({
       fieldDefaultValues: {},
       aggregationConfig: {},
       visibilityRules: {},
-      fieldLayoutConfig: { mode: "columns", columns: 3 },
+      fieldLayoutConfig: { mode: "compact", columns: 3 },
     }),
     [basePanels, defaultLayout]
   );
@@ -364,7 +364,12 @@ export default function FORMEMP({
   const principalLayoutFields = activeLayoutConfig.layout?.principal || [];
   const principalInUse = principalLayoutFields.length > 0;
   const fieldLayoutConfig = activeLayoutConfig.fieldLayoutConfig;
-  const useDetailsPanelLayout = fieldLayoutConfig?.mode === "details";
+  const useDetailsPanelLayout = ["details", "detailsCompact"].includes(fieldLayoutConfig?.mode);
+  const standalonePrincipalInUse = principalInUse && !useDetailsPanelLayout;
+  const detailPanels = [
+    ...(principalInUse ? activeLayoutConfig.panels.filter((panel) => panel.id === "principal" && !panel.hidden) : []),
+    ...tabs,
+  ];
   const [collapsedDetailPanelIds, setCollapsedDetailPanelIds] = useState([]);
   const toggleDetailPanel = (panelId) => {
     setCollapsedDetailPanelIds((prev) =>
@@ -588,8 +593,8 @@ export default function FORMEMP({
         />
 
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
-          <div className={`emp-form-body flex flex-col ${principalInUse ? "" : "emp-form-body-no-principal"}`}>
-            {principalInUse && (
+          <div className={`emp-form-body flex flex-col ${standalonePrincipalInUse ? "" : "emp-form-body-no-principal"}`}>
+            {standalonePrincipalInUse && (
               <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <EmpDynamicFormRenderer
@@ -611,7 +616,7 @@ export default function FORMEMP({
               </div>
             )}
 
-            <div className={`emp-form-panels-zone flex min-h-0 flex-1 flex-col ${principalInUse ? "" : "emp-form-panels-zone-no-principal"} ${useDetailsPanelLayout ? "emp-form-panels-zone-details" : ""}`}>
+            <div className={`emp-form-panels-zone flex min-h-0 flex-1 flex-col ${standalonePrincipalInUse ? "" : "emp-form-panels-zone-no-principal"} ${useDetailsPanelLayout ? "emp-form-panels-zone-details" : ""}`}>
               {!useDetailsPanelLayout ? (
                 <>
                   <LegacyTabs
@@ -656,7 +661,7 @@ export default function FORMEMP({
                       className="emp-toolbar-bubble-counter"
                     />
                   </div>
-                  {tabs.map((panel) => (
+                  {detailPanels.map((panel) => (
                     <div key={panel.id} className="emp-form-section emp-form-section-panel emp-form-section-panel-detail w-full min-w-[920px] max-w-none pl-2 pr-4">
                       <button
                         type="button"
@@ -670,7 +675,7 @@ export default function FORMEMP({
                       {!collapsedDetailPanelIds.includes(panel.id) && (
                         <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                           <EmpDynamicFormRenderer
-                            panels={tabs}
+                            panels={detailPanels}
                             fields={dynamicFields}
                             layout={activeLayoutConfig.layout}
                             hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
