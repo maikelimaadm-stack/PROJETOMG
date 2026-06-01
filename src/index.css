@@ -534,6 +534,12 @@ input[type="number"] {
   max-width: 100px;
 }
 
+.cadastro-emp-scope .emp-form-fields-columns .emp-form-field-span-full.emp-form-field-column-image {
+  width: auto;
+  max-width: max-content;
+  align-self: start;
+}
+
 .cadastro-emp-scope .emp-form-fields-columns .emp-form-field-column-image .emp-form-image-control {
   width: 100px;
   max-width: 100px;

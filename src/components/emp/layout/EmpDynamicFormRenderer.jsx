@@ -14,7 +14,7 @@ const isImageField = (field) => field?.type === "image" || field?.type === "file
 
 const shouldSpanFullRow = (field, columnMode = false) => {
   if (!columnMode) return false;
-  return field?.type === "textarea" || field?.type === "option_list";
+  return field?.type === "textarea" || field?.type === "option_list" || isImageField(field);
 };
 
 const getFieldControlClass = (field, error, className, columnMode = false) => {
