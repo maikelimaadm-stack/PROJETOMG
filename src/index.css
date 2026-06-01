@@ -616,6 +616,10 @@ input[type="number"] {
   background: #ffffff;
 }
 
+.cadastro-emp-scope .emp-form-fields:not(.emp-form-fields-columns) .emp-form-field-control textarea {
+  min-height: 44px;
+}
+
 .cadastro-emp-scope .emp-form-fields [data-field] label {
   color: #1a1f26;
 }

@@ -27,7 +27,17 @@ const getFieldControlClass = (field, error, className, columnMode = false) => {
 
   let widthClass = "w-full";
   if (!columnMode) {
-    widthClass = field.medium ? "w-64 max-w-full" : field.compact ? "w-44 max-w-full" : "w-full";
+    if (field.type === "textarea") {
+      widthClass = "w-full max-w-[340px]";
+    } else if (field.wide) {
+      widthClass = "w-full max-w-[300px]";
+    } else if (field.medium) {
+      widthClass = "w-64 max-w-full";
+    } else if (field.compact) {
+      widthClass = "w-44 max-w-full";
+    } else {
+      widthClass = "w-full max-w-[260px]";
+    }
   } else if (!isBareControlField(field)) {
     widthClass = "w-full max-w-none";
   }
