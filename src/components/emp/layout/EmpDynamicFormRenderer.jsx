@@ -14,7 +14,7 @@ const isImageField = (field) => field?.type === "image" || field?.type === "file
 
 const shouldSpanFullRow = (field, columnMode = false) => {
   if (!columnMode) return false;
-  return field?.type === "textarea" || field?.type === "option_list" || (field?.wide && !isImageField(field));
+  return field?.type === "textarea" || field?.type === "option_list";
 };
 
 const getFieldControlClass = (field, error, className, columnMode = false) => {
@@ -62,7 +62,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
     return <EmpFormToggle checked={!!value} onChange={(checked) => onChange(field.name, checked)} disabled={readOnly || field.readOnly} />;
   }
 
-  return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`${inputClass} ${field.uppercase ? "uppercase" : ""}`} />;
+  return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`${inputClass} w-full min-w-0 ${field.uppercase ? "uppercase" : ""}`} />;
 }
 
 const normalizeConditionText = (value) => String(value ?? "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -147,7 +147,8 @@ export default function EmpDynamicFormRenderer({
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const activeFieldIds = layout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
-  const isColumnMode = normalizedFieldLayout.mode === "columns";
+  const isPrincipalPanel = activePanel?.id === "principal";
+  const useColumnMode = normalizedFieldLayout.mode === "columns" && !isPrincipalPanel;
   const columnCount = normalizedFieldLayout.columns;
 
   const visibleFields = activeFieldIds
@@ -177,7 +178,7 @@ export default function EmpDynamicFormRenderer({
       ? field.render({ field: configuredField, value, values, errors, onChange, readOnly: fieldReadOnly, context })
       : <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />;
 
-    if (isColumnMode) {
+    if (useColumnMode) {
       return (
         <FieldFrameColumns
           key={field.id}
@@ -200,8 +201,8 @@ export default function EmpDynamicFormRenderer({
 
   if (visibleFields.length === 0) {
     return (
-      <div className={`emp-form-fields ${isColumnMode ? "emp-form-fields-columns" : ""}`}>
-        <div className={`text-xs text-slate-500 ${isColumnMode ? "" : "ml-[172px]"}`}>
+      <div className={`emp-form-fields ${useColumnMode ? "emp-form-fields-columns" : ""}`}>
+        <div className={`text-xs text-slate-500 ${useColumnMode ? "" : "ml-[172px]"}`}>
           Nenhum campo configurado para este painel.
         </div>
       </div>
@@ -210,8 +211,8 @@ export default function EmpDynamicFormRenderer({
 
   return (
     <div
-      className={`emp-form-fields ${isColumnMode ? "emp-form-fields-columns" : ""}`}
-      style={isColumnMode ? { "--emp-form-field-columns": columnCount } : undefined}
+      className={`emp-form-fields ${useColumnMode ? "emp-form-fields-columns" : ""}`}
+      style={useColumnMode ? { "--emp-form-field-columns": columnCount } : undefined}
     >
       {visibleFields.map(renderField)}
     </div>

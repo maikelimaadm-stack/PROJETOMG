@@ -81,7 +81,7 @@ export default function EmpFieldLayoutConfigDialog({
 
         <div className="space-y-4 p-3">
           <p className="text-xs text-slate-500">
-            Escolha como os campos do formulário serão exibidos em cada painel.
+            Escolha como os campos das abas serão exibidos. O painel Principal permanece sempre no modelo vertical.
           </p>
 
           <RadioGroup
@@ -105,7 +105,7 @@ export default function EmpFieldLayoutConfigDialog({
               <div className="min-w-0 flex-1 space-y-2">
                 <div>
                   <div className="text-xs font-semibold text-slate-700">Modelo em colunas</div>
-                  <div className="text-[11px] text-slate-500">Campos lado a lado, com o nome acima de cada campo.</div>
+                  <div className="text-[11px] text-slate-500">Campos das abas lado a lado, com o nome acima de cada campo.</div>
                 </div>
                 <LayoutPreview mode="columns" columns={draft.mode === "columns" ? draft.columns : 2} />
               </div>

@@ -492,9 +492,16 @@ input[type="number"] {
   gap: 4px;
 }
 
+.cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-columns {
+  display: grid;
+  grid-template-columns: repeat(var(--emp-form-field-columns, 2), minmax(0, 1fr));
+  gap: 8px 12px;
+  align-items: start;
+}
+
 .cadastro-emp-scope .emp-form-fields.emp-form-fields-columns {
   display: grid;
-  grid-template-columns: repeat(var(--emp-form-field-columns, 2), minmax(140px, 1fr));
+  grid-template-columns: repeat(var(--emp-form-field-columns, 2), minmax(0, 1fr));
   gap: 8px 12px;
   align-items: start;
 }
@@ -546,6 +553,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-fields-columns .emp-form-field-control .emp-autocomplete,
 .cadastro-emp-scope .emp-form-fields-columns .emp-form-field-control > div {
   width: 100%;
+  min-width: 0;
 }
 
 .cadastro-emp-scope .emp-field-layout-preview {
