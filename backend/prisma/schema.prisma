@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Empresa {
+  id                   String   @id @default(cuid())
+  tenant_id            String?  @db.VarChar(64)
+  codigo_empresa       Int      @default(0)
+  razao_social         String   @db.VarChar(255)
+  nome_fantasia        String?  @db.VarChar(255)
+  tipo_pessoa          String   @default("PJ") @db.VarChar(4)
+  cpf_cnpj             String?  @db.VarChar(32)
+  inscricao_estadual   String?  @db.VarChar(64)
+  telefone             String?  @db.VarChar(32)
+  whatsapp             String?  @db.VarChar(32)
+  email                String?  @db.VarChar(255)
+  logo_url             String?  @db.VarChar(2048)
+  cep                  String?  @db.VarChar(16)
+  endereco             String?  @db.VarChar(255)
+  numero               String?  @db.VarChar(32)
+  bairro               String?  @db.VarChar(255)
+  cidade               String?  @db.VarChar(255)
+  estado               String?  @db.VarChar(8)
+  observacoes          String?
+  status               String   @default("Ativa") @db.VarChar(32)
+  campos_personalizados Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  anexos RegistroAnexo[]
+
+  @@index([tenant_id, codigo_empresa])
+  @@index([razao_social])
+  @@index([cpf_cnpj])
+}
+
+model CampoPersonalizado {
+  id                    String   @id @default(cuid())
+  tenant_id             String?  @db.VarChar(64)
+  field_name            String   @unique @db.VarChar(128)
+  label                 String   @db.VarChar(255)
+  placeholder           String?  @db.VarChar(255)
+  descricao             String?
+  tipo                  String   @db.VarChar(64)
+  ordem_tabela          Int      @default(0)
+  largura_coluna        Int      @default(120)
+  obrigatorio           Boolean  @default(false)
+  read_only             Boolean  @default(false)
+  visivel_form          Boolean  @default(true)
+  visivel_tabela        Boolean  @default(false)
+  visivel_relatorio     Boolean  @default(false)
+  ativo                 Boolean  @default(true)
+  opcoes                Json?
+  options_source        String?  @db.VarChar(128)
+  options_label_field   String?  @db.VarChar(128)
+  options_value_field   String?  @db.VarChar(128)
+  formula               String?
+  usar_decimal          Boolean  @default(false)
+  decimal_places        Int      @default(2)
+  usar_mascara          Boolean  @default(false)
+  mascaras_text         String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@index([tenant_id, ativo])
+  @@index([ordem_tabela])
+}
+
+model RegistroAnexo {
+  id              String   @id @default(cuid())
+  tenant_id       String?  @db.VarChar(64)
+  entity_name     String   @db.VarChar(128)
+  record_id       String?  @db.VarChar(128)
+  empresa_id      String?  @db.VarChar(64)
+  attachment_name String?  @db.VarChar(255)
+  file_name       String   @db.VarChar(255)
+  file_url        String   @db.VarChar(4096)
+  file_type       String?  @db.VarChar(255)
+  file_size       Int?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
+
+  @@index([entity_name, record_id])
+  @@index([tenant_id, createdAt])
+  @@index([empresa_id])
+}

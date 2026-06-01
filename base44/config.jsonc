@@ -1,9 +1,0 @@
-{
-  "name": "MAK GEST\u00c3O",
-  "site": {
-    "installCommand": "npm install",
-    "buildCommand": "npm run build",
-    "serveCommand": "npm run dev",
-    "outputDirectory": "./dist"
-  }
-}
