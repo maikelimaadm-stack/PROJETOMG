@@ -1777,6 +1777,23 @@ input[type="number"] {
   margin: 0;
 }
 
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b {
+  border-bottom: 0.5px solid #c5ced8 !important;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x {
+  border-left: 0.5px solid #c5ced8 !important;
+  border-right: 0.5px solid #c5ced8 !important;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-l {
+  border-left: 0.5px solid #c5ced8 !important;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b:last-child {
+  border-bottom: 0 !important;
+}
+
 /* Campos personalizados — visual alinhado ao cadastro de lote */
 .cadastro-emp-scope .emp-form-field-control-lote {
   border-width: 1px !important;
