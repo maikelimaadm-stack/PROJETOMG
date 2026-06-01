@@ -1482,8 +1482,11 @@ input[type="number"] {
   stroke: #ffffff !important;
 }
 
-.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new span {
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new span,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new .emp-toolbar-action-icon,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new .emp-toolbar-nav-icon {
   color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:hover:not(:disabled) {
@@ -1494,31 +1497,35 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
-  color: #ef4444 !important;
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
 }
 
-.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete span {
-  color: #ef4444 !important;
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete span,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete .emp-toolbar-action-icon,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete .emp-toolbar-nav-icon {
+  color: #dc2626 !important;
+  stroke: #dc2626 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete svg,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete svg {
-  color: #ef4444 !important;
-  stroke: #ef4444 !important;
+  color: #dc2626 !important;
+  stroke: #dc2626 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
-  color: #dc2626 !important;
-  background: var(--emp-toolbar-btn-bg-hover) !important;
+  color: #b91c1c !important;
+  background: #fecaca !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) span {
-  color: #dc2626 !important;
+  color: #b91c1c !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) svg {
-  color: #dc2626 !important;
-  stroke: #dc2626 !important;
+  color: #b91c1c !important;
+  stroke: #b91c1c !important;
 }
 
 .cadastro-emp-scope .emp-toolbar input::placeholder {
