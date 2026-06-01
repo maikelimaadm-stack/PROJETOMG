@@ -15,6 +15,13 @@ const parseAllowedOrigins = () =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+const resolvePort = () => {
+  const rawPort = process.env.PORT || process.env.BACKEND_PORT || "3001";
+  const parsed = Number(rawPort);
+  if (!Number.isFinite(parsed) || parsed <= 0) return 3001;
+  return parsed;
+};
+
 const buildServer = () => {
   const app = Fastify({ logger: true });
   const allowedOrigins = parseAllowedOrigins();
@@ -56,7 +63,7 @@ const buildServer = () => {
 const start = async () => {
   const app = buildServer();
   const host = process.env.BACKEND_HOST || "0.0.0.0";
-  const port = Number(process.env.BACKEND_PORT || 3001);
+  const port = resolvePort();
 
   try {
     await app.listen({ host, port });
