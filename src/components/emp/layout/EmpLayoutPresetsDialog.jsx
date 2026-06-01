@@ -228,7 +228,7 @@ export default function EmpLayoutPresetsDialog({
             </>
           ) : (
             <>
-              <ToolbarBtn onClick={handleSalvar} className={LABELED_BTN_CLASS} title="Salvar">
+              <ToolbarBtn onClick={handleSalvar} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
                 <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
                 <span>Salvar</span>
               </ToolbarBtn>

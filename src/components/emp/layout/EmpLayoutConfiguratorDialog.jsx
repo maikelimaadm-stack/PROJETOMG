@@ -619,7 +619,7 @@ export default function EmpLayoutConfiguratorDialog({
             </ToolbarBtn>
           )}
           {isEditing && (
-            <ToolbarBtn onClick={handleSave} className={LABELED_BTN_CLASS} title="Salvar">
+            <ToolbarBtn onClick={handleSave} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
               <EmpToolbarIcon icon={Check} />
               <span>Salvar</span>
             </ToolbarBtn>
