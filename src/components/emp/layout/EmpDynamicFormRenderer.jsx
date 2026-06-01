@@ -221,13 +221,7 @@ export default function EmpDynamicFormRenderer({
   };
 
   if (visibleFields.length === 0) {
-    return (
-      <div className={`emp-form-fields ${useCompactMode ? "emp-form-fields-compact" : ""}`}>
-        <div className={`text-xs text-slate-500 ${useCompactMode ? "" : "ml-[172px]"}`}>
-          Nenhum campo configurado para este painel.
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
