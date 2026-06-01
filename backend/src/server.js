@@ -4,8 +4,10 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import { registerRoutes } from "./routes/index.js";
 import { closePrismaClient } from "./database/prismaClient.js";
+import { validateRuntimeEnv } from "./config/env.js";
 
 dotenv.config();
+validateRuntimeEnv();
 
 const parseAllowedOrigins = () =>
   String(process.env.FRONTEND_ORIGINS || "")
@@ -31,6 +33,11 @@ const buildServer = () => {
   app.setErrorHandler((error, _request, reply) => {
     app.log.error(error);
     const message = String(error?.message || "");
+    if (message.includes("Origin não permitida")) {
+      return reply.status(403).send({
+        message: "Origin não permitida",
+      });
+    }
     const isDatabaseUnavailable = message.includes("Can't reach database server");
     if (isDatabaseUnavailable) {
       return reply.status(503).send({

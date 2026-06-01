@@ -27,6 +27,11 @@ Configure os envs no provedor do backend:
 - `SUPABASE_STORAGE_BUCKET=erp-anexos`
 - `FRONTEND_ORIGINS=https://SEU_APP.vercel.app,https://SEU_DOMINIO_CUSTOM`
 
+URL backend producao (apos deploy):
+
+- `BACKEND_PRODUCTION_URL=<preencher-url-publica>`
+- `VITE_API_URL=$BACKEND_PRODUCTION_URL`
+
 ## 3) Checklist de validacao
 
 No backend:
@@ -44,5 +49,11 @@ No frontend:
 ```bash
 npm run lint
 npm run build
+```
+
+Validacao rapida em producao:
+
+```bash
+curl -sS "$BACKEND_PRODUCTION_URL/api/health"
 ```
 

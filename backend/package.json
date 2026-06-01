@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
+    "start:prod": "NODE_ENV=production node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "validate:connections": "node scripts/validateConnections.js",
-    "smoke:empresas": "node scripts/smokeEmpresas.js"
+    "smoke:empresas": "node scripts/smokeEmpresas.js",
+    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run smoke:empresas",
+    "docker:build": "docker build -t mak-gestao-backend ."
   },
   "dependencies": {
     "@fastify/cors": "^11.1.0",
