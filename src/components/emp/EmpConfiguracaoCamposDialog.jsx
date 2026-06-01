@@ -47,11 +47,20 @@ const initialForm = {
   campos_dependentes: [], usar_decimal: false, decimal_places: 2, usar_mascara: false, mascaras_text: ""
 };
 
+const CAMPO_CONFIG_FIELD_BOX =
+  "border border-slate-300 bg-white focus-within:border-green-500 transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
+
 function Field({ label, children, required = false, wide = false, compact = false, medium = false }) {
   return (
     <div className={`grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 ${wide ? "md:col-span-2" : ""}`}>
-      <label className="text-[12px] text-slate-500 text-right leading-none">{label}:{required && <span className="text-red-500 ml-0.5">*</span>}</label>
-      <div className={`${wide ? "min-h-6" : "h-6"} ${medium ? "w-64 max-w-full" : compact ? "w-44 max-w-full" : "w-full"} border border-slate-300 bg-white focus-within:border-[#082e54] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0`}>{children}</div>
+      <label className="text-[12px] text-slate-600 text-right leading-none">
+        {label}:{required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      <div
+        className={`${wide ? "min-h-6" : "h-6"} ${medium ? "w-64 max-w-full" : compact ? "w-44 max-w-full" : "w-full"} ${CAMPO_CONFIG_FIELD_BOX}`}
+      >
+        {children}
+      </div>
     </div>
   );
 }
@@ -192,7 +201,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   const operationLabel = isDuplicating ? "Novo Registro Duplicado" : editingId ? editMode ? "Edição de Registro" : "Visualização de Registro" : "Novo Registro";
 
   const content = (
-    <div className="w-full h-full overflow-hidden flex flex-col bg-white">
+    <div className="emp-campos-config-lote w-full h-full overflow-hidden flex flex-col bg-white">
       <TopNoticeDialog open={noticeDialog.open} onOpenChange={(o) => setNoticeDialog((p) => ({ ...p, open: o }))} badge={noticeDialog.type === "danger" ? "EXCLUIR" : "AVISO"} title={noticeDialog.title} description={noticeDialog.description} type={noticeDialog.type} confirmText={noticeDialog.confirmText} cancelText={noticeDialog.cancelText} onConfirm={noticeDialog.onConfirm} />
       {!inline && <DialogHeader className="sr-only"><DialogTitle>Configuração de campos personalizados - Empresas</DialogTitle></DialogHeader>}
       {showForm ?
@@ -211,14 +220,19 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
               <EmpMaskConfig form={form} updateForm={updateForm} />
               <Field label="Prévia" wide><div className="px-2 py-1 text-xs text-slate-700 uppercase bg-slate-50 min-h-[48px]">{form.label || "Nome do campo"}: {form.tipo === "calculado" ? montarFormulaVisual(form.calculation_builder?.items || []) || "Calculado automaticamente" : form.placeholder || "Valor do campo"}</div></Field>
               <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 pt-1">
-                <span className="text-[12px] text-slate-500 text-right leading-none">Exibir em:</span>
+                <span className="text-[12px] text-slate-600 text-right leading-none">Exibir em:</span>
                 <div className="flex items-center gap-4">
-                  {[["obrigatorio", "Obrigatório"], ["visivel_tabela", "Tabela"], ["visivel_relatorio", "Relatório"]].map(([field, label]) =>
-                    <div key={field} className="h-[22px] flex items-center gap-1.5 bg-transparent">
-                      <span className="text-[12px] text-slate-500">{label}:</span>
+                  {[["obrigatorio", "Obrigatório"], ["visivel_tabela", "Tabela"], ["visivel_relatorio", "Relatório"]].map(([field, label]) => (
+                    <button
+                      key={field}
+                      type="button"
+                      onClick={() => !isReadOnly && updateForm(field, !form[field])}
+                      className="h-[22px] flex items-center gap-1.5 bg-transparent"
+                    >
+                      <span className="text-[12px] text-slate-600">{label}:</span>
                       <ToggleSwitch checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} />
-                    </div>
-                  )}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -227,36 +241,89 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
         :
         <div className="flex-1 min-h-0 overflow-hidden bg-white flex flex-col">
           <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados - Empresas" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
-          <div className="overflow-auto flex-1 min-h-0">
-            <Table className="w-full min-w-[760px] border-separate border-spacing-0 table-fixed">
+          <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
+            <Table className="emp-campos-config-table w-full min-w-[760px] border-separate border-spacing-0 table-fixed">
               <TableHeader className="bg-white">
                 <TableRow className="sticky top-0 z-40 bg-white">
-                  <TableHead className="sticky top-0 z-40 align-middle text-slate-600 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[260px]">Campo</TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-slate-600 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[150px]">Tipo</TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-slate-600 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7">Uso</TableHead>
+                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[260px]">
+                    Campo
+                  </TableHead>
+                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[150px]">
+                    Tipo
+                  </TableHead>
+                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7">
+                    Uso
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {(isLoading || (isFetching && campos.length === 0)) ? <TableRow><TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Carregando...</TableCell></TableRow>
-                  : campos.length === 0 ? <TableRow><TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">Nenhum campo criado.</TableCell></TableRow>
-                  : campos.map((campo, index) => {
+                {(isLoading || (isFetching && campos.length === 0)) ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">
+                      Carregando...
+                    </TableCell>
+                  </TableRow>
+                ) : campos.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center py-8 text-xs text-slate-400 border border-gray-300">
+                      Nenhum campo criado.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  campos.map((campo, index) => {
                     const id = campo.id || campo.field_id;
                     const sel = selectedCampoIds.includes(id);
+                    const rowTone = sel
+                      ? "bg-green-500 hover:bg-green-600 text-white"
+                      : index % 2 === 0
+                        ? "bg-gray-100 hover:bg-gray-200"
+                        : "bg-white hover:bg-gray-100";
+                    const cellTone = sel ? "text-white border-green-600 font-medium" : "text-gray-700 border-gray-300 font-normal";
+
                     return (
-                      <TableRow key={id} className={`${index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`} onClick={(e) => handleRowSelect(campo, e)} onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "font-bold text-slate-600" : "font-normal text-slate-500"} border-gray-300`}>{campo.label}</TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "font-bold text-slate-600" : "font-normal text-slate-500"} border-gray-300`}>{TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}</TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "font-bold text-slate-600" : "font-normal text-slate-500"} border-gray-300`}>
+                      <TableRow
+                        key={id}
+                        className={`${rowTone} transition-colors border-b cursor-pointer select-none`}
+                        onClick={(e) => handleRowSelect(campo, e)}
+                        onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}
+                      >
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${cellTone}`}>
+                          {campo.label}
+                        </TableCell>
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${cellTone}`}>
+                          {TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}
+                        </TableCell>
+                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${cellTone}`}>
                           <div className="h-full flex items-center gap-1 overflow-hidden">
-                            {campo.visivel_form && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">Form</Badge>}
-                            {campo.visivel_tabela && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">Tabela</Badge>}
-                            {campo.usar_decimal && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">{campo.decimal_places ?? 2} dec.</Badge>}
-                            {campo.usar_mascara && <Badge variant="outline" className="text-xs rounded-none border-slate-300 bg-white text-slate-500 font-normal">Máscara</Badge>}
+                            {campo.metadata?.native_select && <Badge variant="secondary" className="text-[10px]">Nativa</Badge>}
+                            {campo.visivel_form && (
+                              <Badge variant="outline" className={`text-[10px] ${sel ? "bg-white/90 text-slate-700" : ""}`}>
+                                Form
+                              </Badge>
+                            )}
+                            {campo.visivel_tabela && (
+                              <Badge variant="outline" className={`text-[10px] ${sel ? "bg-white/90 text-slate-700" : ""}`}>
+                                Tabela
+                              </Badge>
+                            )}
+                            {(campo.options_source_entity || campo.relation_entity) && (
+                              <Badge variant="secondary" className="text-[10px]">
+                                Vínculo
+                              </Badge>
+                            )}
+                            {(campo.agregacao_tipo || campo.agregacao) && campo.agregacao_tipo !== "none" && (
+                              <Badge variant="secondary" className="text-[10px]">
+                                Total
+                              </Badge>
+                            )}
+                            {campo.usar_decimal && <Badge variant="secondary" className="text-[10px]">{campo.decimal_places ?? 2} dec.</Badge>}
+                            {campo.usar_mascara && <Badge variant="secondary" className="text-[10px]">Máscara</Badge>}
                           </div>
                         </TableCell>
                       </TableRow>
                     );
-                  })}
+                  })
+                )}
               </TableBody>
             </Table>
           </div>

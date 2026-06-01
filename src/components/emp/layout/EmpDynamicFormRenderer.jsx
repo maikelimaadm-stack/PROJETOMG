@@ -26,8 +26,10 @@ const shouldSpanFullRow = (field, gridMode = false) => {
 };
 
 const getFieldControlClass = (field, error, className, layoutMode = "stacked") => {
+  const loteStyle = isCustomField(field);
+
   if (isImageField(field)) {
-    return `emp-form-field-control emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-[100px] shrink-0 ${error ? "emp-form-field-error" : ""} ${className}`.trim();
+    return `emp-form-field-control ${loteStyle ? "emp-form-field-control-lote" : ""} emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-[100px] shrink-0 ${error ? "emp-form-field-error" : ""} ${className}`.trim();
   }
 
   const heightClass =
@@ -52,10 +54,18 @@ const getFieldControlClass = (field, error, className, layoutMode = "stacked") =
     widthClass = "w-44 max-w-full";
   }
 
-  return `emp-form-field-control relative ${heightClass} ${widthClass} ${error ? "emp-form-field-error" : ""} ${className}`.trim();
+  return `emp-form-field-control ${loteStyle ? "emp-form-field-control-lote" : ""} relative ${heightClass} ${widthClass} ${error ? "emp-form-field-error" : ""} ${className}`.trim();
 };
 
-function EmpFormToggle({ checked, onChange, disabled }) {
+function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
+  if (loteStyle) {
+    return (
+      <div className="h-[22px] flex items-center px-1">
+        <ToggleSwitch checked={!!checked} onChange={onChange} disabled={disabled} />
+      </div>
+    );
+  }
+
   return (
     <ToggleSwitch
       checked={!!checked}
@@ -79,7 +89,14 @@ function DefaultControl({ field, value, onChange, readOnly }) {
   }
 
   if (field.type === "checkbox") {
-    return <EmpFormToggle checked={!!value} onChange={(checked) => onChange(field.name, checked)} disabled={readOnly || field.readOnly} />;
+    return (
+      <EmpFormToggle
+        checked={!!value}
+        onChange={(checked) => onChange(field.name, checked)}
+        disabled={readOnly || field.readOnly}
+        loteStyle={isCustomField(field)}
+      />
+    );
   }
 
   return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`${inputClass} w-full min-w-0 ${field.uppercase ? "uppercase" : ""}`} />;
@@ -105,17 +122,21 @@ const conditionMatches = (current, expected, sourceField) => {
 function FieldFrameStacked({ field, error, children, className = "" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
+  const loteStyle = isCustomField(field);
 
   return (
-    <div data-field={field.dataField || field.name} className={`grid grid-cols-[170px_minmax(0,1fr)] gap-1 ${imageField ? "items-start" : "items-center"}`}>
-      <label className={`text-[12px] text-[#1a1f26] text-right leading-none ${imageField ? "pt-2" : ""}`}>
+    <div
+      data-field={field.dataField || field.name}
+      className={`grid ${loteStyle ? "grid-cols-[190px_minmax(0,1fr)]" : "grid-cols-[170px_minmax(0,1fr)]"} gap-1 ${imageField ? "items-start" : "items-center"}`}
+    >
+      <label className={`text-[12px] ${loteStyle ? "text-slate-600" : "text-[#1a1f26]"} text-right leading-none ${imageField ? "pt-2" : ""}`}>
         {field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
         <div className={getFieldControlClass(field, error, className, "stacked")}>
-          {isCustomField(field) && <EmpCustomMarker />}
+          {loteStyle && <EmpCustomMarker variant="lote" />}
           {children}
         </div>
       )}
@@ -126,20 +147,21 @@ function FieldFrameStacked({ field, error, children, className = "" }) {
 function FieldFrameGrid({ field, error, children, className = "", spanFull = false }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
+  const loteStyle = isCustomField(field);
 
   return (
     <div
       data-field={field.dataField || field.name}
       className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""} emp-form-field-column-compact`}
     >
-      <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
+      <label className={`emp-form-field-label-top text-[12px] leading-none ${loteStyle ? "text-slate-600" : "text-[#1a1f26]"}`}>
         {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
         <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
       ) : (
         <div className={getFieldControlClass(field, error, className, "compact")}>
-          {isCustomField(field) && <EmpCustomMarker />}
+          {loteStyle && <EmpCustomMarker variant="lote" />}
           {children}
         </div>
       )}
@@ -224,9 +246,11 @@ export default function EmpDynamicFormRenderer({
     return null;
   }
 
+  const hasCustomFields = visibleFields.some(isCustomField);
+
   return (
     <div
-      className={`emp-form-fields ${useCompactMode ? "emp-form-fields-compact" : ""}`}
+      className={`emp-form-fields ${useCompactMode ? "emp-form-fields-compact" : ""} ${hasCustomFields ? "emp-form-fields-custom" : ""}`}
       style={useCompactMode ? { "--emp-form-field-columns": columnCount } : undefined}
     >
       {visibleFields.map(renderField)}

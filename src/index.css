@@ -1776,3 +1776,35 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-td .emp-layout-config-select {
   margin: 0;
 }
+
+/* Campos personalizados — visual alinhado ao cadastro de lote */
+.cadastro-emp-scope .emp-form-field-control-lote {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #cbd5e1 !important;
+  border-radius: 0 !important;
+  background: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-form-field-control-lote:focus-within {
+  border-color: #22c55e !important;
+}
+
+.cadastro-emp-scope .emp-form-field-control-lote.emp-form-field-error {
+  border-color: #ef4444 !important;
+  background: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote input,
+.cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote textarea {
+  background: #ffffff;
+}
+
+.cadastro-emp-scope .emp-campos-config-lote .emp-campos-config-table thead th {
+  color: #111827;
+  font-weight: 500;
+}
+
+.cadastro-emp-scope .emp-campos-config-lote .emp-campos-config-table tbody tr.bg-green-500 .text-white {
+  color: #ffffff;
+}
