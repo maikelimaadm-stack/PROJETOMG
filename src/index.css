@@ -1782,7 +1782,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b {
-  border-bottom: 0.5px solid #dce3eb !important;
+  position: relative;
+  border-bottom: 0 !important;
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x {
@@ -1803,9 +1804,25 @@ input[type="number"] {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 0.5px;
+  width: 1px;
   background: #dce3eb;
   pointer-events: none;
+  transform: scaleX(0.5);
+  transform-origin: left center;
+  z-index: 1;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #dce3eb;
+  pointer-events: none;
+  transform: scaleY(0.5);
+  transform-origin: center bottom;
   z-index: 1;
 }
 
@@ -1816,10 +1833,15 @@ input[type="number"] {
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x::after {
   right: 0;
+  transform-origin: right center;
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b:last-child {
   border-bottom: 0 !important;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b:last-child::after {
+  display: none;
 }
 
 /* Campos personalizados — visual alinhado ao cadastro de lote */
