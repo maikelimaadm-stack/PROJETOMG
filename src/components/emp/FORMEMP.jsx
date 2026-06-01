@@ -359,6 +359,8 @@ export default function FORMEMP({
     if (panel.id === "campos_personalizados" && camposPersonalizadosForm.length === 0) return false;
     return (activeLayoutConfig.layout?.[panel.id] || []).length > 0;
   });
+  const principalLayoutFields = activeLayoutConfig.layout?.principal || [];
+  const principalInUse = principalLayoutFields.length > 0;
 
   const requiredFieldStats = useMemo(() => {
     const panelIds = ["principal", ...tabs.map((panel) => panel.id)];
@@ -578,28 +580,30 @@ export default function FORMEMP({
         />
 
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
-          <div className="emp-form-body flex flex-col">
-            <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
-              <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
-                <EmpDynamicFormRenderer
-                  panels={activeLayoutConfig.panels}
-                  fields={dynamicFields}
-                  layout={activeLayoutConfig.layout}
-                  hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                  lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                  requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                  visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                  fieldLayoutConfig={fieldLayoutConfig}
-                  activePanelId="principal"
-                  values={formData}
-                  errors={errors}
-                  onChange={handleChange}
-                  readOnly={isReadOnly}
-                />
-              </fieldset>
-            </div>
+          <div className={`emp-form-body flex flex-col ${principalInUse ? "" : "emp-form-body-no-principal"}`}>
+            {principalInUse && (
+              <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
+                <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+                  <EmpDynamicFormRenderer
+                    panels={activeLayoutConfig.panels}
+                    fields={dynamicFields}
+                    layout={activeLayoutConfig.layout}
+                    hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                    lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                    requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                    visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                    fieldLayoutConfig={fieldLayoutConfig}
+                    activePanelId="principal"
+                    values={formData}
+                    errors={errors}
+                    onChange={handleChange}
+                    readOnly={isReadOnly}
+                  />
+                </fieldset>
+              </div>
+            )}
 
-            <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
+            <div className={`emp-form-panels-zone flex min-h-0 flex-1 flex-col ${principalInUse ? "" : "emp-form-panels-zone-no-principal"}`}>
               <LegacyTabs
                 tabs={tabs}
                 activeTab={activeTab}
