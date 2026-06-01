@@ -4,6 +4,13 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { X } from "lucide-react";
 import ToggleSwitch from "@/components/common/ToggleSwitch";
 import { saveEmpExcelExportConfig, saveEmpPdfExportConfig } from "@/components/emp/empPdfExportConfig";
+import {
+  EMP_CONFIG_DIALOG_BADGE,
+  EMP_CONFIG_DIALOG_CONTENT,
+  EMP_CONFIG_DIALOG_HEADER,
+  EMP_CONFIG_DIALOG_ICON_BTN,
+  EMP_CONFIG_DIALOG_TITLE,
+} from "@/components/emp/dialogs/empConfigDialogStyles";
 
 export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, columns = [], initialConfig, tipo = "pdf" }) {
   const [useConfiguredColumns, setUseConfiguredColumns] = useState(false);
@@ -21,25 +28,27 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
 
   return (
     <Dialog open={open} onOpenChange={(o) => o && onOpenChange(o)}>
-      <DialogContent onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="bg-transparent fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1rem)] max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-hidden border-0 shadow-lg sm:w-full rounded-none sm:rounded-none sm:p-0 max-w-[760px]">
+      <DialogContent onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className={`${EMP_CONFIG_DIALOG_CONTENT} max-w-[760px] [&>button:last-child]:hidden`}>
         <DialogTitle className="sr-only">{titulo}</DialogTitle>
-        <div className="bg-white border border-slate-200 cadastro-emp-scope">
-          <div className="h-8 flex items-center gap-2 border-b border-slate-200 px-2">
-            <span className="w-[70px] h-5 px-1.5 rounded-none border border-slate-300 bg-white text-slate-500 text-[11px] font-bold text-center truncate inline-flex items-center justify-center">{tipo === "excel" ? "EXCEL" : "PDF"}</span>
-            <span className="text-xs font-semibold text-slate-500 truncate flex-1">{titulo}</span>
-            <Button type="button" onClick={() => onOpenChange(false)} className="rounded-none border border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none h-7 w-7"><X className="w-4 h-4" /></Button>
+        <div className="overflow-hidden bg-white">
+          <div className={EMP_CONFIG_DIALOG_HEADER}>
+            <span className={`${EMP_CONFIG_DIALOG_BADGE} w-[70px]`}>{tipo === "excel" ? "EXCEL" : "PDF"}</span>
+            <span className={EMP_CONFIG_DIALOG_TITLE}>{titulo}</span>
+            <Button type="button" onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_ICON_BTN} title="Fechar">
+              <X className="w-4 h-4" />
+            </Button>
           </div>
-          <div className="mx-3 my-1">
-            <label className="text-xs text-slate-500 items-center flex gap-2">
-              <ToggleSwitch checked={useConfiguredColumns} onChange={handleUseConfiguredColumnsChange} />
+          <div className="px-3 py-2 border-b border-[#dce3eb]">
+            <label className="text-[12px] text-[#1a1f26] items-center flex gap-2">
+              <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={useConfiguredColumns} onChange={handleUseConfiguredColumnsChange} />
               <span className="truncate">Sempre exportar as colunas selecionadas abaixo</span>
             </label>
           </div>
-          <div className="border-t border-slate-200 rounded-none max-h-72 overflow-auto">
+          <div className="max-h-72 overflow-auto border-t border-[#dce3eb]">
             {columns.map((col) =>
-              <label key={col.id} className="flex items-center gap-2 px-3 py-2 text-xs border-b border-slate-200 last:border-b-0 hover:bg-slate-50 rounded-none">
-                <ToggleSwitch checked={columnIds.includes(col.id)} onChange={() => toggleColumn(col.id)} />
-                <span className="truncate text-slate-500">{col.label}</span>
+              <label key={col.id} className="flex h-7 items-center gap-2 px-3 text-xs border-b border-[#dce3eb] last:border-b-0 hover:bg-slate-50 rounded-none">
+                <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={columnIds.includes(col.id)} onChange={() => toggleColumn(col.id)} />
+                <span className="truncate text-[#1a1f26]">{col.label}</span>
               </label>
             )}
           </div>
