@@ -489,21 +489,21 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-section-panel .emp-form-fields {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
 }
 
 .cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-compact,
 .cadastro-emp-scope .emp-form-fields.emp-form-fields-compact {
   display: grid;
   grid-template-columns: repeat(var(--emp-form-field-columns, 3), minmax(0, 1fr));
-  gap: 4px 10px;
+  gap: 8px 12px;
   align-items: start;
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-column {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 3px;
   min-width: 0;
 }
 
