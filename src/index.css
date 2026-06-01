@@ -562,6 +562,7 @@ input[type="number"] {
   min-height: 0;
   margin-top: 0;
   padding-top: 0;
+  padding-bottom: 0;
   border-top: 0.5px solid #d6dce8;
 }
 
@@ -569,13 +570,30 @@ input[type="number"] {
   height: 26px;
   display: flex;
   align-items: center;
+  gap: 6px;
+  width: calc(100% + 24px);
   margin: 0 -16px 8px -8px;
   padding: 0 8px;
   border-bottom: 0.5px solid #d6dce8;
   color: #1a1f26;
   font-size: 12px;
   font-weight: 600;
-  background: #ffffff;
+  text-align: left;
+  background: #f1f5f9;
+  border-top: 0;
+  border-left: 0;
+  border-right: 0;
+  cursor: pointer;
+}
+
+.cadastro-emp-scope .emp-form-detail-panel-title:hover {
+  background: #e8eef6;
+}
+
+.cadastro-emp-scope .emp-form-detail-panel-title svg {
+  color: #5b6b80;
+  stroke: #5b6b80;
+  flex: 0 0 auto;
 }
 
 .cadastro-emp-scope .emp-form-fieldset {

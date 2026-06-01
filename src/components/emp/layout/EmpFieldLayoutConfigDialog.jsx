@@ -25,6 +25,19 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
 );
 
 const LayoutPreview = ({ mode, columns }) => {
+  if (mode === "vertical") {
+    return (
+      <div className="emp-field-layout-preview emp-field-layout-preview-stacked">
+        {[1, 2, 3].map((row) => (
+          <div key={row} className="emp-field-layout-preview-row">
+            <span className="emp-field-layout-preview-label" />
+            <span className="emp-field-layout-preview-control" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   if (mode === "details") {
     return (
       <div className="emp-field-layout-preview emp-field-layout-preview-details">
@@ -39,11 +52,12 @@ const LayoutPreview = ({ mode, columns }) => {
     );
   }
 
-  const cells = Array.from({ length: Math.max(columns, 3) * 2 }, (_, index) => index);
+  const previewColumns = mode === "compact" ? 2 : Math.max(columns, 3);
+  const cells = Array.from({ length: previewColumns * 2 }, (_, index) => index);
   return (
     <div
       className="emp-field-layout-preview emp-field-layout-preview-compact"
-      style={{ gridTemplateColumns: `repeat(${Math.max(columns, 3)}, minmax(0, 1fr))` }}
+      style={{ gridTemplateColumns: `repeat(${previewColumns}, minmax(0, 1fr))` }}
     >
       {cells.map((cell) => (
         <div key={cell} className="emp-field-layout-preview-cell">
@@ -120,6 +134,28 @@ export default function EmpFieldLayoutConfigDialog({
                     onValueChange={(mode) => setDraft((prev) => normalizeFieldLayoutConfig({ ...prev, mode }))}
                     className="space-y-2"
                   >
+                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "vertical" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
+                      <RadioGroupItem value="vertical" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div>
+                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo vertical</div>
+                          <div className="text-[11px] text-[#5b6b80]">Painéis em abas e campos um abaixo do outro.</div>
+                        </div>
+                        <LayoutPreview mode="vertical" columns={1} />
+                      </div>
+                    </label>
+
+                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "compact" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
+                      <RadioGroupItem value="compact" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div>
+                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo compacto</div>
+                          <div className="text-[11px] text-[#5b6b80]">Painéis em abas, campos menores e mais densos.</div>
+                        </div>
+                        <LayoutPreview mode="compact" columns={2} />
+                      </div>
+                    </label>
+
                     <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "columns" ? "bg-[#ecfdf3] border-[#21c45d]" : "border-[#dce3eb] bg-white"}`}>
                       <RadioGroupItem value="columns" className="mt-0.5 border-[#21c45d] text-[#21c45d] [&_svg]:fill-[#21c45d] [&_svg]:text-[#21c45d]" />
                       <div className="min-w-0 flex-1 space-y-2">
@@ -136,14 +172,14 @@ export default function EmpFieldLayoutConfigDialog({
                       <div className="min-w-0 flex-1 space-y-2">
                         <div>
                           <div className="text-xs font-semibold text-[#1a1f26]">Modelo de detalhes</div>
-                          <div className="text-[11px] text-[#5b6b80]">Painéis abertos um abaixo do outro, com campos em detalhe.</div>
+                          <div className="text-[11px] text-[#5b6b80]">Painéis em lista cinza, recolhíveis ao clicar.</div>
                         </div>
                         <LayoutPreview mode="details" columns={1} />
                       </div>
                     </label>
                   </RadioGroup>
 
-                  {draft.mode === "columns" && (
+                  {["compact", "columns"].includes(draft.mode) && (
                     <div className="mt-2 rounded-md border-[0.5px] border-[#dce3eb] bg-white p-2">
                       <label className="mb-2 block text-xs font-semibold text-[#1a1f26]">
                         Quantidade de colunas por linha (1 a 6)

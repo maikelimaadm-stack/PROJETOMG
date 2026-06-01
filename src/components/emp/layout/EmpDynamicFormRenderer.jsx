@@ -191,7 +191,7 @@ export default function EmpDynamicFormRenderer({
   const activeFieldIds = layout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
   const isPrincipalPanel = activePanel?.id === "principal";
-  const layoutMode = isPrincipalPanel ? "stacked" : normalizedFieldLayout.mode === "columns" ? "compact" : "stacked";
+  const layoutMode = isPrincipalPanel ? "stacked" : ["compact", "columns"].includes(normalizedFieldLayout.mode) ? "compact" : "stacked";
   const useCompactMode = layoutMode === "compact";
   const columnCount = normalizedFieldLayout.columns;
 

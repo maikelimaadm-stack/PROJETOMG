@@ -20,6 +20,7 @@ import EmpBubbleCounter from "@/components/emp/shared/EmpBubbleCounter";
 import EmpOptionListControl from "@/components/emp/shared/EmpOptionListControl";
 import EmpFormImageField from "@/components/emp/shared/EmpFormImageField";
 import { base44 } from "@/api/base44Client";
+import { ChevronDown, ChevronRight } from "lucide-react";
 
 const ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
 const UPPER_FIELDS = ["razao_social", "nome_fantasia", "cpf_cnpj", "inscricao_estadual", "email", "cep", "endereco", "numero", "bairro", "cidade", "estado", "observacoes"];
@@ -364,6 +365,12 @@ export default function FORMEMP({
   const principalInUse = principalLayoutFields.length > 0;
   const fieldLayoutConfig = activeLayoutConfig.fieldLayoutConfig;
   const useDetailsPanelLayout = fieldLayoutConfig?.mode === "details";
+  const [collapsedDetailPanelIds, setCollapsedDetailPanelIds] = useState([]);
+  const toggleDetailPanel = (panelId) => {
+    setCollapsedDetailPanelIds((prev) =>
+      prev.includes(panelId) ? prev.filter((id) => id !== panelId) : [...prev, panelId]
+    );
+  };
 
   const requiredFieldStats = useMemo(() => {
     const panelIds = ["principal", ...tabs.map((panel) => panel.id)];
@@ -651,24 +658,34 @@ export default function FORMEMP({
                   </div>
                   {tabs.map((panel) => (
                     <div key={panel.id} className="emp-form-section emp-form-section-panel emp-form-section-panel-detail w-full min-w-[920px] max-w-none pl-2 pr-4">
-                      <div className="emp-form-detail-panel-title">{panel.label || panel.name}</div>
-                      <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
-                        <EmpDynamicFormRenderer
-                          panels={tabs}
-                          fields={dynamicFields}
-                          layout={activeLayoutConfig.layout}
-                          hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                          lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                          requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                          visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                          fieldLayoutConfig={fieldLayoutConfig}
-                          activePanelId={panel.id}
-                          values={formData}
-                          errors={errors}
-                          onChange={handleChange}
-                          readOnly={isReadOnly}
-                        />
-                      </fieldset>
+                      <button
+                        type="button"
+                        className="emp-form-detail-panel-title"
+                        onClick={() => toggleDetailPanel(panel.id)}
+                        aria-expanded={!collapsedDetailPanelIds.includes(panel.id)}
+                      >
+                        {collapsedDetailPanelIds.includes(panel.id) ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                        <span>{panel.label || panel.name}</span>
+                      </button>
+                      {!collapsedDetailPanelIds.includes(panel.id) && (
+                        <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+                          <EmpDynamicFormRenderer
+                            panels={tabs}
+                            fields={dynamicFields}
+                            layout={activeLayoutConfig.layout}
+                            hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                            lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                            requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                            visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                            fieldLayoutConfig={fieldLayoutConfig}
+                            activePanelId={panel.id}
+                            values={formData}
+                            errors={errors}
+                            onChange={handleChange}
+                            readOnly={isReadOnly}
+                          />
+                        </fieldset>
+                      )}
                     </div>
                   ))}
                 </div>

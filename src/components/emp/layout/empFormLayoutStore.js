@@ -75,8 +75,10 @@ export const DEFAULT_FIELD_LAYOUT_CONFIG = {
 
 export const normalizeFieldLayoutConfig = (source = {}) => {
   let mode = "columns";
-  if (source?.mode === "details" || source?.mode === "stacked") mode = "details";
-  if (source?.mode === "columns" || source?.mode === "compact") mode = "columns";
+  if (source?.mode === "details") mode = "details";
+  if (source?.mode === "vertical" || source?.mode === "stacked") mode = "vertical";
+  if (source?.mode === "compact") mode = "compact";
+  if (source?.mode === "columns") mode = "columns";
   const columns = Math.min(6, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
   return { mode, columns };
 };
