@@ -489,14 +489,18 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-section-panel {
+  box-sizing: border-box;
   padding-top: 0;
   padding-bottom: 0;
-  background: var(--emp-toolbar-btn-bg);
+  background: #f4f7fc;
+  border-left: 1px solid #d6dce8;
+  border-right: 1px solid #d6dce8;
+  border-bottom: 0;
 }
 
 .cadastro-emp-scope .emp-form-panels-zone {
   margin-top: 8px;
-  background: var(--emp-toolbar-btn-bg);
+  background: #f4f7fc;
 }
 
 .cadastro-emp-scope .emp-form-fieldset {
