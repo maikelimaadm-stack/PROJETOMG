@@ -535,7 +535,6 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-panels-zone {
   margin-top: 8px;
-  padding-left: 12px;
   background: #ffffff;
 }
 
@@ -1501,7 +1500,6 @@ input[type="number"] {
   min-height: 0;
   gap: 0;
   padding-top: 14px;
-  padding-left: 12px;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs {
