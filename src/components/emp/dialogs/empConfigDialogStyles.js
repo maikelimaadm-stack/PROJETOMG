@@ -1,19 +1,19 @@
 export const EMP_CONFIG_DIALOG_CONTENT =
-  "cadastro-emp-scope !fixed !left-[50%] !top-[50%] !translate-x-[-50%] !translate-y-[-50%] !w-[calc(100%-1rem)] !max-h-[90vh] !gap-0 overflow-hidden !rounded-lg border border-[#cfd8e3] !bg-white !p-0 shadow-lg sm:!w-full";
+  "cadastro-emp-scope bg-white fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1rem)] max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-hidden rounded-lg border border-slate-200 p-0 shadow-lg sm:w-full";
 
 export const EMP_CONFIG_DIALOG_HEADER =
-  "h-8 flex items-center gap-2 border-b border-[#dce3eb] px-2 bg-white";
+  "flex items-center gap-2 border-b border-slate-200 px-3 py-2";
 
 export const EMP_CONFIG_DIALOG_BADGE =
-  "h-5 px-1.5 rounded-none border border-[#c5ced8] bg-white text-[#5b6b80] text-[11px] font-bold inline-flex items-center justify-center truncate";
+  "inline-flex h-5 items-center rounded-sm border border-slate-300 px-1.5 text-[11px] font-bold text-slate-500";
 
 export const EMP_CONFIG_DIALOG_TITLE =
-  "text-xs font-semibold text-[#5b6b80] truncate flex-1";
+  "flex-1 truncate text-xs font-semibold text-slate-600";
 
 export const EMP_CONFIG_DIALOG_ICON_BTN =
-  "h-7 w-7 rounded-none border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none";
+  "rounded-md border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none h-7 w-7";
 
 export const EMP_CONFIG_FIELD_WRAP =
-  "border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#21c45d] transition-colors";
+  "border border-slate-300 rounded-md bg-white focus-within:border-slate-400 transition-colors";
 
-export const EMP_CONFIG_TEXT_LABEL = "text-[12px] text-[#1a1f26]";
+export const EMP_CONFIG_TEXT_LABEL = "text-xs text-slate-600";

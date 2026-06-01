@@ -38,17 +38,17 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
               <X className="w-4 h-4" />
             </Button>
           </div>
-          <div className="px-3 py-2 border-b border-[#dce3eb]">
-            <label className="text-[12px] text-[#1a1f26] items-center flex gap-2">
+          <div className="border-b border-slate-200 p-3">
+            <label className="flex items-center gap-2 text-xs text-slate-600">
               <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={useConfiguredColumns} onChange={handleUseConfiguredColumnsChange} />
               <span className="truncate">Sempre exportar as colunas selecionadas abaixo</span>
             </label>
           </div>
-          <div className="max-h-72 overflow-auto border-t border-[#dce3eb]">
+          <div className="m-3 mt-2 max-h-72 overflow-auto rounded-md border border-slate-200">
             {columns.map((col) =>
-              <label key={col.id} className="flex h-7 items-center gap-2 px-3 text-xs border-b border-[#dce3eb] last:border-b-0 hover:bg-slate-50 rounded-none">
+              <label key={col.id} className="flex h-8 items-center gap-2 border-b border-slate-200 px-3 text-xs text-slate-600 last:border-b-0 hover:bg-slate-50">
                 <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={columnIds.includes(col.id)} onChange={() => toggleColumn(col.id)} />
-                <span className="truncate text-[#1a1f26]">{col.label}</span>
+                <span className="truncate">{col.label}</span>
               </label>
             )}
           </div>

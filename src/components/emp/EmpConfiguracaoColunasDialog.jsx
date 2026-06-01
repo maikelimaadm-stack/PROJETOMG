@@ -13,7 +13,7 @@ import {
 } from "@/components/emp/dialogs/empConfigDialogStyles";
 
 const iconButtonClass = EMP_CONFIG_DIALOG_ICON_BTN;
-const moveButtonClass = "h-7 w-7 rounded-none border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none disabled:opacity-40";
+const moveButtonClass = "h-7 w-7 rounded-md border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none disabled:opacity-40";
 
 export default function EmpConfiguracaoColunasDialog({
   open,
@@ -80,8 +80,8 @@ export default function EmpConfiguracaoColunasDialog({
 
   const renderColumnButton = ({ col, selected, onClick, subtitle, index, origem }) =>
     <button key={col.id} type="button" draggable onClick={onClick} onDragStart={() => startDrag(col.id, origem)} onDragOver={(e) => { e.preventDefault(); if (origem === "used") reorderUsedByDrop(col.id); }} onDrop={finishDrag} onDragEnd={finishDrag}
-      className={`relative flex h-7 w-full items-center gap-2 border-b border-[#dce3eb] px-3 text-left text-xs last:border-b-0 hover:bg-slate-50 ${selected ? "bg-[#ecfdf3] text-[#1a1f26]" : "bg-white text-[#1a1f26]"} ${draggedColumnId === col.id ? "opacity-50" : ""}`}>
-      {index !== undefined && <span className="flex h-5 w-6 shrink-0 items-center justify-center rounded-none border border-[#dce3eb] bg-white text-[10px] text-[#5b6b80]">{index + 1}</span>}
+      className={`relative flex h-8 w-full items-center gap-2 border-b border-slate-200 px-3 text-left text-xs last:border-b-0 hover:bg-slate-50 ${selected ? "bg-slate-50 text-slate-700" : "bg-white text-slate-600"} ${draggedColumnId === col.id ? "opacity-50" : ""}`}>
+      {index !== undefined && <span className="flex h-5 w-6 shrink-0 items-center justify-center rounded-sm bg-slate-100 text-[10px] text-slate-600">{index + 1}</span>}
       {index !== undefined && <button type="button" title={index < frozenColumnCount ? "Coluna congelada" : index === frozenColumnCount ? "Congelar coluna" : "Congele as colunas anteriores primeiro"} onClick={(e) => toggleFreezeColumn(index, e)} disabled={index > frozenColumnCount} className="flex h-5 w-5 shrink-0 items-center justify-center text-slate-400 hover:text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed"><Columns3 className={`w-3.5 h-3.5 transition-colors ${index < frozenColumnCount ? "text-emerald-500" : index === frozenColumnCount ? "text-slate-400" : "text-slate-300"}`} /></button>}
       <span className="min-w-0 flex-1 truncate">{col.label}</span>
       <span className="shrink-0 text-[10px] text-slate-400">{subtitle}</span>
@@ -100,35 +100,35 @@ export default function EmpConfiguracaoColunasDialog({
           </div>
           <div className="grid grid-cols-[1fr_44px_1.15fr_36px] h-[430px] min-h-0">
             <aside className="overflow-hidden flex flex-col" onDragOver={(e) => e.preventDefault()} onDrop={dropToAvailable}>
-              <div className="h-8 px-3 border-b border-[#dce3eb] flex items-center text-xs font-semibold text-[#5b6b80]">Colunas disponíveis</div>
-              <div className="relative p-2 border-b border-[#dce3eb]">
-                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Procurar coluna" className="h-7 text-xs pr-8 rounded-[2px] border-[0.5px] border-[#c5ced8] shadow-none focus-visible:ring-0 focus-visible:border-[#21c45d]" />
+              <div className="h-8 px-3 border-b border-slate-200 flex items-center text-xs font-semibold text-slate-600">Colunas disponíveis</div>
+              <div className="relative p-2 border-b border-slate-200">
+                <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Procurar coluna" className="h-7 text-xs pr-8 rounded-md border-slate-200 shadow-none focus-visible:ring-0" />
                 <Search className="w-3.5 h-3.5 text-slate-500 absolute right-4 top-3.5" />
               </div>
               <div className="flex-1 overflow-auto">
                 {filteredAvailable.length === 0 ? <div className="text-xs text-slate-400 py-6 text-center">Nenhuma coluna disponível.</div> : filteredAvailable.map((col) => renderColumnButton({ col, selected: selectedAvailableIds.includes(col.id), onClick: (e) => selectAvailable(col.id, e), subtitle: "Disponível", origem: "available" }))}
               </div>
             </aside>
-            <section className="bg-white border-x border-[#dce3eb] flex flex-col items-center justify-center gap-0">
+            <section className="bg-slate-50 border-x border-slate-200 flex flex-col items-center justify-center gap-0">
               <Button type="button" variant="outline" size="icon" disabled={usedColumns.length === 0} onClick={removeAll} className={moveButtonClass} title="Remover todas"><ChevronsLeft className="w-3.5 h-3.5" /></Button>
               <Button type="button" variant="outline" size="icon" disabled={selectedUsedIds.length === 0} onClick={removeSelected} className={moveButtonClass} title="Remover selecionadas"><ChevronLeft className="w-3.5 h-3.5" /></Button>
               <Button type="button" variant="outline" size="icon" disabled={selectedAvailableIds.length === 0} onClick={addSelected} className={moveButtonClass} title="Adicionar selecionadas"><ChevronRight className="w-3.5 h-3.5" /></Button>
               <Button type="button" variant="outline" size="icon" disabled={availableColumns.length === 0} onClick={addAll} className={moveButtonClass} title="Adicionar todas"><ChevronsRight className="w-3.5 h-3.5" /></Button>
             </section>
             <main className="overflow-hidden flex flex-col" onDragOver={(e) => e.preventDefault()} onDrop={dropToUsed}>
-              <div className="h-8 px-3 border-b border-[#dce3eb] flex items-center justify-between text-xs font-semibold text-[#5b6b80]">
+              <div className="h-8 px-3 border-b border-slate-200 flex items-center justify-between text-xs font-semibold text-slate-600">
                 <span>Colunas em uso</span>
                 <span className="font-normal text-slate-400">{usedColumns.length} colunas</span>
               </div>
-              <div className="relative p-2 border-b border-[#dce3eb]">
-                <Input value={searchUsed} onChange={(e) => setSearchUsed(e.target.value)} placeholder="Procurar coluna em uso" className="h-7 text-xs pr-8 rounded-[2px] border-[0.5px] border-[#c5ced8] shadow-none focus-visible:ring-0 focus-visible:border-[#21c45d]" />
+              <div className="relative p-2 border-b border-slate-200">
+                <Input value={searchUsed} onChange={(e) => setSearchUsed(e.target.value)} placeholder="Procurar coluna em uso" className="h-7 text-xs pr-8 rounded-md border-slate-200 shadow-none focus-visible:ring-0" />
                 <Search className="w-3.5 h-3.5 text-slate-500 absolute right-4 top-3.5" />
               </div>
               <div className="flex-1 overflow-auto">
                 {filteredUsed.length === 0 ? <div className="text-xs text-slate-400 py-6 text-center">Nenhuma coluna em uso encontrada.</div> : filteredUsed.map((col) => { const originalIndex = usedColumns.findIndex((c) => c.id === col.id); return renderColumnButton({ col, selected: selectedUsedIds.includes(col.id), onClick: (e) => selectUsed(col.id, e), subtitle: "Em uso", index: originalIndex, origem: "used" }); })}
               </div>
             </main>
-            <section className="bg-white border-l border-[#dce3eb] flex flex-col items-center justify-center gap-0">
+            <section className="bg-slate-50 border-l border-slate-200 flex flex-col items-center justify-center gap-0">
               <Button type="button" variant="outline" size="icon" disabled={selectedUsedIds.length !== 1} onClick={() => moveSelected(-1)} className={moveButtonClass} title="Subir coluna"><ChevronUp className="w-3.5 h-3.5" /></Button>
               <Button type="button" variant="outline" size="icon" disabled={selectedUsedIds.length !== 1} onClick={() => moveSelected(1)} className={moveButtonClass} title="Descer coluna"><ChevronDown className="w-3.5 h-3.5" /></Button>
             </section>

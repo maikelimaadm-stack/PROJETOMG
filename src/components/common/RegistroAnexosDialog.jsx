@@ -89,9 +89,9 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
   return (
     <Dialog open={open} onOpenChange={(nextOpen) => nextOpen && onOpenChange(nextOpen)}>
       <DialogContent onInteractOutside={(event) => event.preventDefault()} onEscapeKeyDown={(event) => event.preventDefault()} className={`${EMP_CONFIG_DIALOG_CONTENT} max-w-[760px] overflow-x-hidden overflow-y-auto [&>button:last-child]:hidden`}>
-        <div className="space-y-1 p-1">
+        <div className="space-y-3">
           <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
-          <div className="border border-[#dce3eb] bg-white">
+          <div className="bg-white">
             <div className={EMP_CONFIG_DIALOG_HEADER}>
               <span className={`${EMP_CONFIG_DIALOG_BADGE} w-[90px]`}>Anexos</span>
               <span className={EMP_CONFIG_DIALOG_TITLE}>{title || "Lote"}</span>
@@ -101,18 +101,18 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
             </div>
             <div className="px-4 md:px-8 py-2 w-full space-y-1">
               <div className="grid items-center gap-1 grid-cols-[210px_minmax(0,1fr)]">
-                <label className="text-[12px] text-[#1a1f26] text-right leading-none">
+                <label className="text-xs text-slate-600 text-right leading-none">
                   Nome do arquivo:<span className="text-red-500 ml-0.5">*</span>
                 </label>
-                <div className="grid grid-cols-[minmax(0,1fr)_28px] h-6 border-[0.5px] border-[#c5ced8] bg-white focus-within:border-[#21c45d] transition-colors overflow-hidden">
+                <div className="grid grid-cols-[minmax(0,1fr)_28px] h-6 border border-slate-300 rounded-md bg-white focus-within:border-slate-400 transition-colors overflow-hidden">
                   <Input
                     value={attachmentName}
                     onChange={(e) => setAttachmentName(e.target.value)}
                     placeholder="EX: CONTRATO, NOTA FISCAL, GTA..."
-                    className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1"
+                    className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-2"
                     style={{ textTransform: "uppercase" }} />
                   
-                  <Button type="button" variant="outline" size="icon" onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className="h-[23px] w-7 rounded-none border-y-0 border-r-0 border-l-[0.5px] border-[#c5ced8] bg-white hover:bg-slate-50 text-slate-500 shadow-none p-0" title="Anexar arquivo">
+                  <Button type="button" variant="outline" size="icon" onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className="h-[23px] w-7 rounded-none border-y-0 border-r-0 border-l border-slate-300 bg-white hover:bg-slate-50 text-slate-500 shadow-none p-0" title="Anexar arquivo">
                     {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
                   </Button>
                 </div>
@@ -120,27 +120,27 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
             </div>
           </div>
 
-          <div>
-            <div className="border border-[#dce3eb] rounded-none max-h-80 overflow-auto bg-white">
-            <div className="grid grid-cols-[1fr_1.4fr_28px] bg-white border-b border-[#dce3eb] text-[11px] font-semibold text-[#5b6b80]">
-              <div className="px-2 py-1 border-r border-[#dce3eb]">Nome do arquivo:</div>
-              <div className="px-2 py-1 border-r border-[#dce3eb]">Arquivo</div>
+          <div className="px-3 pb-3">
+            <div className="border border-slate-200 rounded-md max-h-80 overflow-auto bg-white">
+            <div className="grid grid-cols-[1fr_1.4fr_28px] bg-white border-b border-slate-200 text-[11px] font-semibold text-slate-500">
+              <div className="px-2 py-1 border-r border-slate-200">Nome do arquivo:</div>
+              <div className="px-2 py-1 border-r border-slate-200">Arquivo</div>
               <div className="h-7 flex items-center justify-center"></div>
             </div>
             {anexos.length === 0 ?
-              <div className="p-6 text-center text-xs text-[#5b6b80]">Nenhum arquivo anexado.</div> :
+              <div className="p-6 text-center text-xs text-slate-500">Nenhum arquivo anexado.</div> :
               anexos.map((anexo) =>
-              <div key={anexo.id} className="grid grid-cols-[1fr_1.4fr_28px] items-center border-b last:border-b-0 border-[#dce3eb] text-xs">
-              <div className="h-7 px-2 flex items-center border-r border-[#dce3eb] overflow-hidden">
-                <span className="truncate font-medium text-[#1a1f26]">{anexo.attachment_name || anexo.file_name}</span>
+              <div key={anexo.id} className="grid grid-cols-[1fr_1.4fr_28px] items-center border-b last:border-b-0 border-slate-200 text-xs">
+              <div className="h-7 px-2 flex items-center border-r border-slate-200 overflow-hidden">
+                <span className="truncate font-medium text-slate-700">{anexo.attachment_name || anexo.file_name}</span>
               </div>
-              <a href={anexo.file_url} target="_blank" rel="noreferrer" className="h-7 min-w-0 flex items-center gap-1.5 text-[#1a1f26] hover:text-[#1a1f26] px-2 border-r border-[#dce3eb] overflow-hidden">
+              <a href={anexo.file_url} target="_blank" rel="noreferrer" className="h-7 min-w-0 flex items-center gap-1.5 text-slate-600 hover:text-slate-700 px-2 border-r border-slate-200 overflow-hidden">
                 <span className="truncate">{anexo.file_name}</span>
                 <span className="shrink-0 text-slate-400">{formatSize(anexo.file_size)}</span>
                 <ExternalLink className="w-3 h-3 shrink-0" />
               </a>
               <div className="h-7 flex items-center justify-center overflow-hidden">
-                <Button type="button" variant="ghost" size="icon" className="h-5 w-5 rounded-none border-0 bg-white text-slate-500 hover:bg-slate-50 shadow-none p-0" onClick={() => recordId ? deleteMutation.mutate(anexo.id) : onPendingChange?.(pendingAnexos.filter((item) => item.id !== anexo.id))}>
+                <Button type="button" variant="ghost" size="icon" className="h-5 w-5 rounded-md border-0 bg-white text-slate-500 hover:bg-slate-100 shadow-none p-0" onClick={() => recordId ? deleteMutation.mutate(anexo.id) : onPendingChange?.(pendingAnexos.filter((item) => item.id !== anexo.id))}>
                   <X className="w-3 h-3" />
                 </Button>
               </div>
