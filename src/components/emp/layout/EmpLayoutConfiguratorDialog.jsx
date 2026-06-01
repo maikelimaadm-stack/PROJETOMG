@@ -34,7 +34,7 @@ import { usePanelTabsScroll } from "@/components/emp/toolbars/usePanelTabsScroll
 
 const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = ["principal"];
-const DEFAULT_FIXED_VISIBLE_FIELD_IDS = ["status", "codigo_empresa"];
+const DEFAULT_FIXED_VISIBLE_FIELD_IDS = [];
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -257,9 +257,6 @@ export default function EmpLayoutConfiguratorDialog({
   };
   const removeFieldById = (fieldId) => {
     if (!fieldId || !activePanel || !isEditing) return;
-    if (fixedVisibleFieldIds.includes(fieldId)) {
-      return showRequiredPopup("Código e Ativo não podem ser removidos do layout.");
-    }
     setFieldLastPanelId((prev) => ({ ...prev, [fieldId]: activePanel.id }));
     setDraftLayout((prev) => ({
       ...prev,

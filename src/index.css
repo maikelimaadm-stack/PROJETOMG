@@ -512,6 +512,13 @@ input[type="number"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 12px;
+}
+
+.cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control input,
+.cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control textarea,
+.cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control button {
+  font-size: 12px;
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-span-full {
@@ -540,7 +547,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control textarea {
   width: 100%;
-  min-height: 40px;
+  min-height: 48px;
   resize: vertical;
 }
 

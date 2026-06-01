@@ -199,9 +199,7 @@ export const normalizeLayoutConfig = (
       (panel) => panel.id !== "campos_personalizados" || camposPersonalizadosCount > 0
     ),
     layout,
-    hiddenFieldIds: (merged.hiddenFieldIds || []).filter(
-      (id) => !["status", "codigo_empresa"].includes(id)
-    ),
+    hiddenFieldIds: merged.hiddenFieldIds || [],
     visibilityRules: merged.visibilityRules || {},
     fieldLayoutConfig: normalizeFieldLayoutConfig(merged.fieldLayoutConfig),
   };

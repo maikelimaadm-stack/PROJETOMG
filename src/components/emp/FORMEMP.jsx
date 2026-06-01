@@ -495,7 +495,7 @@ export default function FORMEMP({
           onDeleteLayoutPreset={handleDeleteLayoutPreset}
           systemPanelIds={["principal", "geral", "endereco", "observacoes", "campos_personalizados"]}
           fixedPanelIds={["principal"]}
-          fixedVisibleFieldIds={["status", "codigo_empresa"]}
+          fixedVisibleFieldIds={[]}
           onSave={saveLayoutConfig}
           brandTheme
         />

@@ -32,9 +32,7 @@ const getFieldControlClass = (field, error, className, layoutMode = "stacked") =
 
   const heightClass =
     field.type === "textarea"
-      ? layoutMode === "compact"
-        ? "min-h-[40px]"
-        : "min-h-[48px]"
+      ? "min-h-[48px]"
       : field.wide
         ? "min-h-6"
         : "h-6";
@@ -134,7 +132,7 @@ function FieldFrameGrid({ field, error, children, className = "", spanFull = fal
       data-field={field.dataField || field.name}
       className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""} emp-form-field-column-compact`}
     >
-      <label className="emp-form-field-label-top text-[11px] leading-none text-[#1a1f26]">
+      <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
         {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
