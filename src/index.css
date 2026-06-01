@@ -414,7 +414,7 @@ input[type="number"] {
   border-top-color: var(--emp-accent-green);
   border-left-color: #d6dce8;
   border-right-color: #d6dce8;
-  border-bottom-color: transparent;
+  border-bottom-color: #ffffff;
   background: #ffffff;
   color: #1a1f26;
   font-weight: 700;
@@ -426,7 +426,7 @@ input[type="number"] {
   border-width: 1px;
   border-style: solid;
   border-color: #d6dce8;
-  background: #ffffff;
+  background: var(--emp-toolbar-btn-bg);
   color: #334155;
   font-weight: 400;
   z-index: 0;
@@ -435,7 +435,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab-inactive:hover {
   color: #1a1f26;
-  background: #ffffff;
+  background: var(--emp-toolbar-btn-bg-hover);
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
@@ -449,14 +449,14 @@ input[type="number"] {
   border-top-color: var(--emp-accent-green) !important;
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
-  border-bottom-color: transparent !important;
+  border-bottom-color: #ffffff !important;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #334155 !important;
   font-weight: 400 !important;
-  background: #ffffff !important;
+  background: var(--emp-toolbar-btn-bg) !important;
   border-width: 1px !important;
   border-top-width: 1px !important;
   border-color: #d6dce8 !important;
@@ -465,7 +465,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive:hover {
   color: #1a1f26 !important;
-  background: #ffffff !important;
+  background: var(--emp-toolbar-btn-bg-hover) !important;
 }
 
 /* Campos do formulário de registro */
