@@ -1,11 +1,28 @@
 import React, { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { X } from "lucide-react";
+import { Check, RotateCcw, X } from "lucide-react";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/components/emp/layout/empFormLayoutStore";
+import {
+  EMP_CONFIG_DIALOG_CLOSE_BUTTON,
+  EMP_CONFIG_DIALOG_CLOSE_ROW,
+  EMP_CONFIG_DIALOG_CONTENT,
+  EMP_CONFIG_DIALOG_SHELL,
+  EMP_CONFIG_DIALOG_TABLE_SHELL,
+  EMP_CONFIG_DIALOG_TABLE_WRAP,
+  EMP_CONFIG_DIALOG_TOOLBAR,
+  EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN,
+} from "@/components/emp/dialogs/empConfigDialogStyles";
+import EmpToolbarIcon from "@/components/emp/toolbars/EmpToolbarIcon";
+import EmpToolbarInfoBar from "@/components/emp/toolbars/EmpToolbarInfoBar";
+import { EMP_TOOLBAR_BTN } from "@/components/emp/toolbars/empToolbarStyles";
 
-const iconButtonClass = "rounded-md border-0 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none h-7 w-7";
+const ToolbarBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
+    {children}
+  </button>
+);
 
 const LayoutPreview = ({ mode, columns }) => {
   if (mode === "stacked") {
@@ -63,91 +80,102 @@ export default function EmpFieldLayoutConfigDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         onInteractOutside={(event) => event.preventDefault()}
-        className="cadastro-emp-scope bg-white fixed left-[50%] top-[50%] z-50 grid w-[calc(100%-1rem)] max-w-[520px] translate-x-[-50%] translate-y-[-50%] gap-0 overflow-hidden rounded-lg border border-slate-200 p-0 shadow-lg"
+        onEscapeKeyDown={(event) => event.preventDefault()}
+        className={`${EMP_CONFIG_DIALOG_CONTENT} max-w-[560px]`}
       >
         <DialogTitle className="sr-only">Configurar layout de campos</DialogTitle>
 
-        <div className="flex items-center gap-2 border-b border-slate-200 px-3 py-2">
-          <span className="inline-flex h-5 items-center rounded-sm border border-slate-300 px-1.5 text-[11px] font-bold text-slate-500">
-            Campos
-          </span>
-          <span className="flex-1 truncate text-xs font-semibold text-slate-600">
-            Configurar layout de campos
-          </span>
-          <Button type="button" onClick={() => onOpenChange(false)} title="Fechar" className={iconButtonClass}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
+        <div className={EMP_CONFIG_DIALOG_SHELL}>
+          <div className={EMP_CONFIG_DIALOG_CLOSE_ROW}>
+            <button type="button" onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_CLOSE_BUTTON} title="Fechar" aria-label="Fechar">
+              <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+            </button>
+          </div>
 
-        <div className="space-y-4 p-3 max-h-[70vh] overflow-y-auto">
-          <p className="text-xs text-slate-500">
-            Escolha como os campos das abas serão exibidos. O painel Principal permanece sempre no modelo vertical.
-          </p>
+          <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
+            <ToolbarBtn onClick={handleReset} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Restaurar padrão">
+              <EmpToolbarIcon icon={RotateCcw} />
+              <span>Restaurar padrão</span>
+            </ToolbarBtn>
+            <ToolbarBtn onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Cancelar">
+              <EmpToolbarIcon icon={X} />
+              <span>Cancelar</span>
+            </ToolbarBtn>
+            <ToolbarBtn onClick={handleSave} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Salvar">
+              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
+              <span>Salvar</span>
+            </ToolbarBtn>
+          </div>
 
-          <RadioGroup
-            value={draft.mode}
-            onValueChange={(mode) => setDraft((prev) => normalizeFieldLayoutConfig({ ...prev, mode }))}
-            className="space-y-3"
-          >
-            <label className="flex cursor-pointer gap-3 rounded-md border border-slate-200 p-3 hover:bg-slate-50">
-              <RadioGroupItem value="stacked" className="mt-0.5" />
-              <div className="min-w-0 flex-1 space-y-2">
-                <div>
-                  <div className="text-xs font-semibold text-slate-700">Modelo vertical</div>
-                  <div className="text-[11px] text-slate-500">Campos um abaixo do outro, com o nome à esquerda.</div>
+          <EmpToolbarInfoBar
+            badgeLabel="Campos"
+            title="Configurar layout de campos"
+            operationLabel="Configuração"
+            className="!border-b-[0.5px]"
+          />
+
+          <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
+            <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
+              <CardContent className="p-0">
+                <div className="border-b-[0.5px] border-[#dce3eb] px-2 py-1 text-xs text-[#5b6b80]">
+                  Escolha como os campos das abas serão exibidos. O painel Principal permanece sempre no modelo vertical.
                 </div>
-                <LayoutPreview mode="stacked" columns={1} />
-              </div>
-            </label>
 
-            <label className="flex cursor-pointer gap-3 rounded-md border border-slate-200 p-3 hover:bg-slate-50">
-              <RadioGroupItem value="compact" className="mt-0.5" />
-              <div className="min-w-0 flex-1 space-y-2">
-                <div>
-                  <div className="text-xs font-semibold text-slate-700">Modelo compacto</div>
-                  <div className="text-[11px] text-slate-500">Campos menores e mais densos, com o nome acima, ideal para muitos campos.</div>
-                </div>
-                <LayoutPreview mode="compact" columns={draft.mode === "compact" ? draft.columns : 3} />
-              </div>
-            </label>
-          </RadioGroup>
-
-          {draft.mode === "compact" && (
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-3">
-              <label className="mb-2 block text-xs font-semibold text-slate-600">
-                Quantidade de colunas por linha (1 a 6)
-              </label>
-              <div className="flex flex-wrap gap-2">
-                {Array.from({ length: 6 }, (_, index) => index + 1).map((count) => (
-                  <button
-                    key={count}
-                    type="button"
-                    onClick={() => setDraft((prev) => ({ ...prev, columns: count }))}
-                    className={`h-8 min-w-[44px] rounded-md border px-3 text-xs font-medium transition-colors ${
-                      draft.columns === count
-                        ? "border-emerald-500 bg-emerald-50 text-emerald-700"
-                        : "border-slate-200 bg-white text-slate-600 hover:bg-slate-100"
-                    }`}
+                <div className="max-h-[70vh] overflow-y-auto p-2">
+                  <RadioGroup
+                    value={draft.mode}
+                    onValueChange={(mode) => setDraft((prev) => normalizeFieldLayoutConfig({ ...prev, mode }))}
+                    className="space-y-2"
                   >
-                    {count}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
+                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "stacked" ? "emp-row-selected border-[#c5ced8]" : "border-[#dce3eb] bg-white"}`}>
+                      <RadioGroupItem value="stacked" className="mt-0.5" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div>
+                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo vertical</div>
+                          <div className="text-[11px] text-[#5b6b80]">Campos um abaixo do outro, com o nome à esquerda.</div>
+                        </div>
+                        <LayoutPreview mode="stacked" columns={1} />
+                      </div>
+                    </label>
 
-        <div className="flex items-center justify-between gap-2 border-t border-slate-200 px-3 py-2">
-          <Button type="button" variant="ghost" onClick={handleReset} className="h-8 rounded-md px-3 text-xs text-slate-600">
-            Restaurar padrão
-          </Button>
-          <div className="flex items-center gap-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-8 rounded-md px-3 text-xs">
-              Cancelar
-            </Button>
-            <Button type="button" onClick={handleSave} className="h-8 rounded-md bg-emerald-600 px-3 text-xs hover:bg-emerald-700">
-              Salvar
-            </Button>
+                    <label className={`flex cursor-pointer gap-3 rounded-md border-[0.5px] p-2 transition-colors hover:brightness-[0.98] ${draft.mode === "compact" ? "emp-row-selected border-[#c5ced8]" : "border-[#dce3eb] bg-white"}`}>
+                      <RadioGroupItem value="compact" className="mt-0.5" />
+                      <div className="min-w-0 flex-1 space-y-2">
+                        <div>
+                          <div className="text-xs font-semibold text-[#1a1f26]">Modelo compacto</div>
+                          <div className="text-[11px] text-[#5b6b80]">Campos menores e mais densos, com o nome acima, ideal para muitos campos.</div>
+                        </div>
+                        <LayoutPreview mode="compact" columns={draft.mode === "compact" ? draft.columns : 3} />
+                      </div>
+                    </label>
+                  </RadioGroup>
+
+                  {draft.mode === "compact" && (
+                    <div className="mt-2 rounded-md border-[0.5px] border-[#dce3eb] bg-white p-2">
+                      <label className="mb-2 block text-xs font-semibold text-[#1a1f26]">
+                        Quantidade de colunas por linha (1 a 6)
+                      </label>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Array.from({ length: 6 }, (_, index) => index + 1).map((count) => (
+                          <button
+                            key={count}
+                            type="button"
+                            onClick={() => setDraft((prev) => ({ ...prev, columns: count }))}
+                            className={`h-[24px] min-w-[36px] rounded-[5px] px-2 text-xs font-medium transition-colors ${
+                              draft.columns === count
+                                ? "emp-toolbar-btn emp-toolbar-btn-new text-white"
+                                : "emp-toolbar-btn bg-[#eaf2ff] text-[#334155] hover:bg-[#dde9fb]"
+                            }`}
+                          >
+                            {count}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </DialogContent>
