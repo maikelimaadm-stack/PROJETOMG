@@ -339,6 +339,7 @@ input[type="number"] {
 /* Abas dos painéis — formulário de registro */
 .cadastro-emp-scope .emp-form-tabs {
   min-height: 30px;
+  overflow: visible;
 }
 
 .cadastro-emp-scope .emp-form-tabs::after {
@@ -421,8 +422,20 @@ input[type="number"] {
   background: #ffffff;
   color: #1a1f26;
   font-weight: 700;
-  z-index: 2;
+  z-index: 6;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-tab-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 4px;
+  background: #ffffff;
+  pointer-events: none;
+  z-index: 7;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive {
@@ -455,6 +468,7 @@ input[type="number"] {
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
   border-bottom-color: #ffffff !important;
+  z-index: 6 !important;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
