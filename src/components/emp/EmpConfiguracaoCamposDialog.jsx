@@ -525,9 +525,10 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
         :
         <div className="flex-1 min-h-0 overflow-hidden bg-white flex flex-col">
           <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
-          <div ref={tableStageRef} className={`emp-table-stage relative flex-1 min-h-0 flex flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
-            <div className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
-              <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
+            <div ref={tableStageRef} className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
+              <div className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
+                <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
                 <Table className="emp-table-pro w-full min-w-[760px] border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
@@ -591,7 +592,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                             const isSelected = selectedCampoIds.includes(id);
                             const rowClass = getRowBgClass(index, isSelected);
                             return (
-                              <TableRow key={id} className={`${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowSelect(campo, e)} onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}>
+                              <TableRow key={id} className={`${rowClass} h-[26px] transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowSelect(campo, e)} onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}>
                                 <TableCell className={`emp-td py-0 h-[26px] leading-[26px] text-[12px] align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none px-1.5 ${rowClass} ${isSelected ? "font-semibold" : ""}`}>
                                   {campo.label}
                                 </TableCell>
@@ -599,14 +600,14 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                                   {TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}
                                 </TableCell>
                                 <TableCell className={`emp-td py-0 h-[26px] leading-[26px] text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isSelected ? "font-semibold" : ""}`}>
-                                  <div className="h-full flex items-center gap-1 overflow-hidden">
-                                    {campo.metadata?.native_select && <Badge variant="secondary" className="text-[10px]">Nativa</Badge>}
-                                    {campo.visivel_form && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Form</Badge>}
-                                    {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Tabela</Badge>}
-                                    {(campo.options_source_entity || campo.relation_entity) && <Badge variant="secondary" className="text-[10px]">Vínculo</Badge>}
-                                    {(campo.agregacao_tipo || campo.agregacao) && <Badge variant="secondary" className="text-[10px]">Total</Badge>}
-                                    {campo.usar_decimal && <Badge variant="secondary" className="text-[10px]">{campo.decimal_places ?? 2} dec.</Badge>}
-                                    {campo.usar_mascara && <Badge variant="secondary" className="text-[10px]">Máscara</Badge>}
+                                  <div className="h-[26px] flex items-center gap-1 overflow-hidden">
+                                    {campo.metadata?.native_select && <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0 leading-none">Nativa</Badge>}
+                                    {campo.visivel_form && <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 leading-none bg-white/90 text-slate-700">Form</Badge>}
+                                    {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] h-4 px-1 py-0 leading-none bg-white/90 text-slate-700">Tabela</Badge>}
+                                    {(campo.options_source_entity || campo.relation_entity) && <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0 leading-none">Vínculo</Badge>}
+                                    {(campo.agregacao_tipo || campo.agregacao) && <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0 leading-none">Total</Badge>}
+                                    {campo.usar_decimal && <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0 leading-none">{campo.decimal_places ?? 2} dec.</Badge>}
+                                    {campo.usar_mascara && <Badge variant="secondary" className="text-[10px] h-4 px-1 py-0 leading-none">Máscara</Badge>}
                                   </div>
                                 </TableCell>
                               </TableRow>
@@ -614,9 +615,10 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                           })}
                   </TableBody>
                 </Table>
+                </div>
               </div>
+              {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
             </div>
-            {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
           </div>
         </div>
       }
