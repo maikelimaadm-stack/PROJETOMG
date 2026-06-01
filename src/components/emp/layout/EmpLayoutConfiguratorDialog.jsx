@@ -738,7 +738,7 @@ export default function EmpLayoutConfiguratorDialog({
 
           <main className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white">
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
-              <div className="emp-form-tabs relative flex h-[30px] items-end justify-start bg-white pl-2 pr-2">
+              <div className="emp-form-tabs emp-form-tabs-launch relative flex h-[30px] items-end justify-start bg-white pl-2 pr-2">
                 <div className="emp-form-tab-nav-group emp-layout-config-panel-actions relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5 self-center">
                   {isEditing && (
                     <ToolbarBtn onClick={createPanel} className="emp-toolbar-btn-new" title="Novo painel">
@@ -806,8 +806,8 @@ export default function EmpLayoutConfiguratorDialog({
                             setEditingPanelId(panel.id);
                           }
                         }}
-                        className={`emp-form-tab relative z-10 min-w-max flex-none overflow-hidden whitespace-nowrap ${
-                          active ? "emp-form-tab-active" : "emp-form-tab-inactive"
+                        className={`emp-form-tab relative min-w-max flex-none overflow-hidden whitespace-nowrap ${
+                          active ? "emp-form-tab-active z-[15]" : "emp-form-tab-inactive z-[2]"
                         } ${panel.hidden ? "emp-form-tab-hidden-panel opacity-70" : ""}`}
                       >
                         {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}

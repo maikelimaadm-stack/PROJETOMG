@@ -1498,7 +1498,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-shell {
   min-height: 0;
-  gap: 12px;
+  gap: 0;
   padding-top: 14px;
 }
 
@@ -1507,6 +1507,12 @@ input[type="number"] {
   height: 30px;
   min-height: 30px;
   max-height: 30px;
+  overflow: visible;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs.emp-form-tabs-launch {
+  position: relative;
+  z-index: 8;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-group,
@@ -1527,21 +1533,15 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-active {
-  margin-bottom: -1px;
-}
-
-.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-inactive {
-  margin-bottom: -1px;
-}
-
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {
   flex: 1;
   min-height: 0;
   overflow: auto;
   background: #ffffff;
-  padding-top: 0;
-  padding-bottom: 0;
+  margin-top: -1px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  border-top: none;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-fields {
