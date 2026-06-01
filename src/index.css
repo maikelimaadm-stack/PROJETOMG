@@ -360,6 +360,11 @@ input[type="number"] {
   display: none;
 }
 
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch {
+  position: relative;
+  z-index: 8;
+}
+
 .cadastro-emp-scope .emp-form-tab-nav-btn,
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-nav-btn,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-btn {
@@ -426,7 +431,7 @@ input[type="number"] {
   background: #ffffff;
   color: #1a1f26;
   font-weight: 700;
-  z-index: 6;
+  z-index: 9;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
@@ -435,11 +440,11 @@ input[type="number"] {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -2px;
-  height: 4px;
+  bottom: -3px;
+  height: 6px;
   background: #ffffff;
   pointer-events: none;
-  z-index: 8;
+  z-index: 10;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive {
@@ -472,7 +477,7 @@ input[type="number"] {
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
   border-bottom-color: transparent !important;
-  z-index: 6 !important;
+  z-index: 9 !important;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
@@ -522,6 +527,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-section-panel {
+  position: relative;
+  z-index: 1;
   box-sizing: border-box;
   width: 100%;
   min-width: 920px;
