@@ -53,7 +53,7 @@ const CAMPO_CONFIG_FIELD_BOX =
 function Field({ label, children, required = false, wide = false, compact = false, medium = false }) {
   return (
     <div className={`grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 ${wide ? "md:col-span-2" : ""}`}>
-      <label className="text-[12px] text-slate-600 text-right leading-none">
+      <label className="text-[12px] text-[#475569] text-right leading-none">
         {label}:{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       <div
@@ -198,7 +198,13 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
   const handleDeleteSelected = () => { const sel = campos.filter((c) => selectedCampoIds.includes(c.id || c.field_id)); if (!sel.length) return; showNotice({ title: "Confirmar exclusão", description: sel.length === 1 ? `Excluir "${sel[0].label}"?` : `Excluir ${sel.length} campos?`, type: "danger", confirmText: "Excluir", cancelText: "Cancelar", onConfirm: () => { sel.forEach((c) => deleteMutation.mutate(c)); setSelectedCampoIds([]); } }); };
   const handleDuplicateCurrent = () => { if (!selectedCampo) return; const { id, field_id, created_date, updated_date, created_by, ...copy } = selectedCampo; setForm({ ...initialForm, ...copy, options_text: copy.options_text || (copy.options || []).map((o) => o.label || o.value || o).join("\n"), label: `${selectedCampo.label || "Campo"} - Cópia`, field_name: "", agregacao_tipo: selectedCampo.agregacao_tipo || selectedCampo.agregacao || "none", usar_decimal: !!selectedCampo.usar_decimal, decimal_places: selectedCampo.decimal_places ?? 2, usar_mascara: !!selectedCampo.usar_mascara, mascaras_text: selectedCampo.mascaras_text || "" }); setEditingId(null); setSelectedCampoIds([]); setIsDirty(true); setIsDuplicating(true); setEditMode(true); setShowForm(true); };
 
-  const operationLabel = isDuplicating ? "Novo Registro Duplicado" : editingId ? editMode ? "Edição de Registro" : "Visualização de Registro" : "Novo Registro";
+  const operationLabel = isDuplicating
+    ? "NOVO REGISTRO DUPLICADO"
+    : editingId
+      ? editMode
+        ? "EDIÇÃO DE REGISTRO"
+        : "VISUALIZAÇÃO DE REGISTRO"
+      : "NOVO REGISTRO";
 
   const content = (
     <div className="emp-campos-config-lote w-full h-full overflow-hidden flex flex-col bg-white">
@@ -206,7 +212,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
       {!inline && <DialogHeader className="sr-only"><DialogTitle>Configuração de campos personalizados - Empresas</DialogTitle></DialogHeader>}
       {showForm ?
         <form onSubmit={handleSubmit} className="bg-white flex-1 min-h-0 flex flex-col overflow-hidden">
-          <LegacyRecordToolbar title={form.label || (editingId ? "Editar Campo" : "Novo Campo")} badgeLabel="Campo Personalizado" operationLabel={operationLabel} showSaveActions={editMode} showEditAction={isReadOnly} showDeleteDuplicateActions={!!editingId && !editMode && !isDuplicating && !isNativeSelect} onSave={() => handleSubmit({ preventDefault: () => {} })} onCancel={handleDiscard} onEditRecord={() => setEditMode(true)} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} onNew={handleNew} total={campos.length} currentIndex={selectedIndex} onFirst={() => navigateCampo(0)} onPrevious={() => navigateCampo(selectedIndex - 1)} onNext={() => navigateCampo(selectedIndex + 1)} onLast={() => navigateCampo(campos.length - 1)} onDelete={handleDeleteCurrent} onDuplicate={handleDuplicateCurrent} onSettingsClick={() => {}} showUtilityActions={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
+          <LegacyRecordToolbar title={form.label || (editingId ? "EDITAR CAMPO" : "NOVO CAMPO")} badgeLabel="CAMPO PERSONALIZADO" operationLabel={operationLabel} showSaveActions={editMode} showEditAction={isReadOnly} showDeleteDuplicateActions={!!editingId && !editMode && !isDuplicating && !isNativeSelect} onSave={() => handleSubmit({ preventDefault: () => {} })} onCancel={handleDiscard} onEditRecord={() => setEditMode(true)} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} onNew={handleNew} total={campos.length} currentIndex={selectedIndex} onFirst={() => navigateCampo(0)} onPrevious={() => navigateCampo(selectedIndex - 1)} onNext={() => navigateCampo(selectedIndex + 1)} onLast={() => navigateCampo(campos.length - 1)} onDelete={handleDeleteCurrent} onDuplicate={handleDuplicateCurrent} onSettingsClick={() => {}} showUtilityActions={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
           <fieldset className={`flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
             <div className="px-4 md:px-8 py-2 space-y-1 max-w-[780px]">
               <Field label="Nome do campo" required><Input value={form.label} onChange={(e) => updateForm("label", e.target.value)} readOnly={isNativeSelect} placeholder="EX: CONTATO RESPONSÁVEL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
@@ -220,7 +226,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
               <EmpMaskConfig form={form} updateForm={updateForm} />
               <Field label="Prévia" wide><div className="px-2 py-1 text-xs text-slate-700 uppercase bg-slate-50 min-h-[48px]">{form.label || "Nome do campo"}: {form.tipo === "calculado" ? montarFormulaVisual(form.calculation_builder?.items || []) || "Calculado automaticamente" : form.placeholder || "Valor do campo"}</div></Field>
               <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 pt-1">
-                <span className="text-[12px] text-slate-600 text-right leading-none">Exibir em:</span>
+                <span className="text-[12px] text-[#475569] text-right leading-none">Exibir em:</span>
                 <div className="flex items-center gap-4">
                   {[["obrigatorio", "Obrigatório"], ["visivel_tabela", "Tabela"], ["visivel_relatorio", "Relatório"]].map(([field, label]) => (
                     <button
@@ -229,8 +235,8 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                       onClick={() => !isReadOnly && updateForm(field, !form[field])}
                       className="h-[22px] flex items-center gap-1.5 bg-transparent"
                     >
-                      <span className="text-[12px] text-slate-600">{label}:</span>
-                      <ToggleSwitch checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} />
+                      <span className="text-[12px] text-[#475569]">{label}:</span>
+                      <ToggleSwitch variant="lote" checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} />
                     </button>
                   ))}
                 </div>
@@ -240,18 +246,18 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
         </form>
         :
         <div className="flex-1 min-h-0 overflow-hidden bg-white flex flex-col">
-          <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados - Empresas" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
+          <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
           <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
             <Table className="emp-campos-config-table w-full min-w-[760px] border-separate border-spacing-0 table-fixed">
               <TableHeader className="bg-white">
                 <TableRow className="sticky top-0 z-40 bg-white">
-                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[260px]">
+                  <TableHead className="sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[260px]">
                     Campo
                   </TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[150px]">
+                  <TableHead className="sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7 w-[150px]">
                     Tipo
                   </TableHead>
-                  <TableHead className="sticky top-0 z-40 align-middle text-gray-900 px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7">
+                  <TableHead className="sticky top-0 z-40 align-middle text-[#111827] px-2 text-xs font-medium text-left border-r border-b border-gray-300 bg-white whitespace-nowrap h-7">
                     Uso
                   </TableHead>
                 </TableRow>
@@ -273,49 +279,26 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                   campos.map((campo, index) => {
                     const id = campo.id || campo.field_id;
                     const sel = selectedCampoIds.includes(id);
-                    const rowTone = sel
-                      ? "bg-green-500 hover:bg-green-600 text-white"
-                      : index % 2 === 0
-                        ? "bg-gray-100 hover:bg-gray-200"
-                        : "bg-white hover:bg-gray-100";
-                    const cellTone = sel ? "text-white border-green-600 font-medium" : "text-gray-700 border-gray-300 font-normal";
-
                     return (
                       <TableRow
                         key={id}
-                        className={`${rowTone} transition-colors border-b cursor-pointer select-none`}
+                        className={`${sel ? "bg-green-500 hover:bg-green-600 text-white" : index % 2 === 0 ? "bg-gray-100 hover:bg-gray-200" : "bg-white hover:bg-gray-100"} transition-colors border-b cursor-pointer select-none`}
                         onClick={(e) => handleRowSelect(campo, e)}
                         onDoubleClick={() => selectedCampoIds.length <= 1 && handleEdit(campo)}
                       >
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${cellTone}`}>
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis font-medium ${sel ? "text-white border-green-600" : "text-[#374151] border-gray-300"}`}>
                           {campo.label}
                         </TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${cellTone}`}>
+                        <TableCell className={`h-7 px-2 py-0 text-xs leading-7 align-middle border-r border-b whitespace-nowrap overflow-hidden text-ellipsis ${sel ? "text-white border-green-600" : "text-[#374151] border-gray-300"}`}>
                           {TIPOS_CAMPO.find((t) => t.value === campo.tipo)?.label || campo.tipo}
                         </TableCell>
-                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${cellTone}`}>
+                        <TableCell className={`h-7 px-2 py-0 text-xs align-middle border-r border-b whitespace-nowrap overflow-hidden ${sel ? "text-white border-green-600" : "text-[#374151] border-gray-300"}`}>
                           <div className="h-full flex items-center gap-1 overflow-hidden">
                             {campo.metadata?.native_select && <Badge variant="secondary" className="text-[10px]">Nativa</Badge>}
-                            {campo.visivel_form && (
-                              <Badge variant="outline" className={`text-[10px] ${sel ? "bg-white/90 text-slate-700" : ""}`}>
-                                Form
-                              </Badge>
-                            )}
-                            {campo.visivel_tabela && (
-                              <Badge variant="outline" className={`text-[10px] ${sel ? "bg-white/90 text-slate-700" : ""}`}>
-                                Tabela
-                              </Badge>
-                            )}
-                            {(campo.options_source_entity || campo.relation_entity) && (
-                              <Badge variant="secondary" className="text-[10px]">
-                                Vínculo
-                              </Badge>
-                            )}
-                            {(campo.agregacao_tipo || campo.agregacao) && campo.agregacao_tipo !== "none" && (
-                              <Badge variant="secondary" className="text-[10px]">
-                                Total
-                              </Badge>
-                            )}
+                            {campo.visivel_form && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Form</Badge>}
+                            {campo.visivel_tabela && <Badge variant="outline" className="text-[10px] bg-white/90 text-slate-700">Tabela</Badge>}
+                            {(campo.options_source_entity || campo.relation_entity) && <Badge variant="secondary" className="text-[10px]">Vínculo</Badge>}
+                            {(campo.agregacao_tipo || campo.agregacao) && <Badge variant="secondary" className="text-[10px]">Total</Badge>}
                             {campo.usar_decimal && <Badge variant="secondary" className="text-[10px]">{campo.decimal_places ?? 2} dec.</Badge>}
                             {campo.usar_mascara && <Badge variant="secondary" className="text-[10px]">Máscara</Badge>}
                           </div>

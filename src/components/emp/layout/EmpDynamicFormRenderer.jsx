@@ -61,7 +61,7 @@ function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
   if (loteStyle) {
     return (
       <div className="h-[22px] flex items-center px-1">
-        <ToggleSwitch checked={!!checked} onChange={onChange} disabled={disabled} />
+        <ToggleSwitch variant="lote" checked={!!checked} onChange={onChange} disabled={disabled} />
       </div>
     );
   }
@@ -78,14 +78,15 @@ function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
 }
 
 function DefaultControl({ field, value, onChange, readOnly }) {
-  const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-white px-1";
+  const loteStyle = isCustomField(field);
+  const inputClass = `h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 ${loteStyle ? "bg-transparent" : "bg-white"} px-1`;
 
   if (field.type === "textarea") {
-    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className="w-full text-xs uppercase bg-white px-1" rows={field.rows || 2} />;
+    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`w-full text-xs uppercase ${loteStyle ? "bg-transparent" : "bg-white"} px-1`} rows={field.rows || 2} />;
   }
 
   if (["select", "autocomplete", "relation"].includes(field.type)) {
-    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} placeholder={field.placeholder || "BUSCAR..."} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-white h-[22px] text-xs px-1" />;
+    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} placeholder={field.placeholder || "BUSCAR..."} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full" inputClassName={`border-0 shadow-none focus-visible:ring-0 ${loteStyle ? "bg-transparent" : "bg-white"} h-[22px] text-xs px-1`} />;
   }
 
   if (field.type === "checkbox") {
@@ -129,7 +130,7 @@ function FieldFrameStacked({ field, error, children, className = "" }) {
       data-field={field.dataField || field.name}
       className={`grid ${loteStyle ? "grid-cols-[190px_minmax(0,1fr)]" : "grid-cols-[170px_minmax(0,1fr)]"} gap-1 ${imageField ? "items-start" : "items-center"}`}
     >
-      <label className={`text-[12px] ${loteStyle ? "text-slate-600" : "text-[#1a1f26]"} text-right leading-none ${imageField ? "pt-2" : ""}`}>
+      <label className={`text-[12px] ${loteStyle ? "text-[#475569]" : "text-[#1a1f26]"} text-right leading-none ${imageField ? "pt-2" : ""}`}>
         {field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
@@ -154,7 +155,7 @@ function FieldFrameGrid({ field, error, children, className = "", spanFull = fal
       data-field={field.dataField || field.name}
       className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""} emp-form-field-column-compact`}
     >
-      <label className={`emp-form-field-label-top text-[12px] leading-none ${loteStyle ? "text-slate-600" : "text-[#1a1f26]"}`}>
+      <label className={`emp-form-field-label-top text-[12px] leading-none ${loteStyle ? "text-[#475569]" : "text-[#1a1f26]"}`}>
         {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (

@@ -223,15 +223,16 @@ export default function FORMEMP({
     const value = formData.campos_personalizados?.[campo.field_name] || "";
     const campoOptions = campoEngine.getOptionsCampo(campo, relatedOptions);
     const fieldReadOnly = campo.read_only || isReadOnly;
+    const customInputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1";
 
     if (campo.tipo === "textarea") {
-      return <Textarea value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`text-xs uppercase bg-white px-1 ${readOnlyClass}`} rows={campo.rows || 2} />;
+      return <Textarea value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`text-xs uppercase bg-transparent px-1 ${readOnlyClass}`} rows={campo.rows || 2} />;
     }
 
     if (campo.tipo === "calculado") {
       const calculatedValue = campoEngine.calcularCampo(formData, campo);
       const places = Math.min(6, Math.max(0, Number(campo.decimal_places ?? 2)));
-      return <Input value={Number(calculatedValue || 0).toLocaleString("pt-BR", campo.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 2 })} readOnly placeholder="CALCULADO" className={inputClass} />;
+      return <Input value={Number(calculatedValue || 0).toLocaleString("pt-BR", campo.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 2 })} readOnly placeholder="CALCULADO" className={`${customInputClass} bg-slate-50`} />;
     }
 
     if (campo.tipo === "option_list") {
@@ -241,20 +242,20 @@ export default function FORMEMP({
 
     if (campo.tipo === "select" || campo.tipo === "relation") {
       const options = campoOptions.map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
-      return <EmpAutocomplete items={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue || "")} placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()} displayField="nome" searchFields={["nome"]} disabled={fieldReadOnly} readOnly={fieldReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-white h-[22px] text-xs px-1" />;
+      return <EmpAutocomplete items={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue || "")} placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()} displayField="nome" searchFields={["nome"]} disabled={fieldReadOnly} readOnly={fieldReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1" />;
     }
 
     if (campo.tipo === "time") {
-      return <Input type="time" value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} readOnly={fieldReadOnly} className={`${inputClass} ${readOnlyClass}`} />;
+      return <Input type="time" value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} />;
     }
 
     if (["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo)) {
       const dateTimeValue = splitDateTimeValue(value);
-      return <div className="grid grid-cols-2 gap-1"><Input type="date" value={dateTimeValue.date} onChange={(e) => handleCustomDateTimeChange(campo.field_name, "date", e.target.value)} readOnly={fieldReadOnly} className={`${inputClass} ${readOnlyClass}`} /><Input type="time" value={dateTimeValue.time} onChange={(e) => handleCustomDateTimeChange(campo.field_name, "time", e.target.value)} readOnly={fieldReadOnly} className={`${inputClass} ${readOnlyClass}`} /></div>;
+      return <div className="grid grid-cols-2 gap-1"><Input type="date" value={dateTimeValue.date} onChange={(e) => handleCustomDateTimeChange(campo.field_name, "date", e.target.value)} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} /><Input type="time" value={dateTimeValue.time} onChange={(e) => handleCustomDateTimeChange(campo.field_name, "time", e.target.value)} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} /></div>;
     }
 
     if (campo.tipo === "number" && campo.usar_mascara) {
-      return <Input type="text" inputMode="numeric" value={formatMaskedNumber(value, campo)} onChange={(e) => handleCustomChange(campo.field_name, formatMaskedNumber(e.target.value, campo))} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${inputClass} ${readOnlyClass}`} />;
+      return <Input type="text" inputMode="numeric" value={formatMaskedNumber(value, campo)} onChange={(e) => handleCustomChange(campo.field_name, formatMaskedNumber(e.target.value, campo))} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} />;
     }
 
     if (["imagem", "image", "file"].includes(campo.tipo)) {
@@ -275,7 +276,7 @@ export default function FORMEMP({
       );
     }
 
-    return <Input type={campo.tipo === "number" ? "number" : campo.tipo === "date" ? "date" : "text"} value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${inputClass} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`} />;
+    return <Input type={campo.tipo === "number" ? "number" : campo.tipo === "date" ? "date" : "text"} value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${customInputClass} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`} />;
   };
 
   const dynamicFields = useMemo(() => [

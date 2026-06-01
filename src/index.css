@@ -1797,14 +1797,9 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote input,
 .cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote textarea {
-  background: #ffffff;
+  background: transparent !important;
 }
 
-.cadastro-emp-scope .emp-campos-config-lote .emp-campos-config-table thead th {
-  color: #111827;
-  font-weight: 500;
-}
-
-.cadastro-emp-scope .emp-campos-config-lote .emp-campos-config-table tbody tr.bg-green-500 .text-white {
-  color: #ffffff;
+.cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote input.bg-slate-50 {
+  background: #f8fafc !important;
 }
