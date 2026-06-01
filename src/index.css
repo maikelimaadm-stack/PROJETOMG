@@ -232,7 +232,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope :where(.border, input, textarea, button, [role="button"], [data-radix-select-trigger]) {
-  border-radius: 1.5px !important;
+  border-radius: 2px !important;
 }
 
 .cadastro-emp-scope :where(.text-black):not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-amber"]) {
@@ -672,7 +672,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
   border: 0.5px solid #c5ced8;
-  border-radius: 1.5px;
+  border-radius: 2px;
   background: #ffffff;
   box-shadow: none;
   overflow: hidden;
