@@ -473,7 +473,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-body {
-  gap: 12px;
+  gap: 0;
   padding-top: 14px;
   background: #f8fafc;
 }
@@ -483,7 +483,7 @@ input[type="number"] {
   min-width: 920px;
   box-sizing: border-box;
   padding-top: 0;
-  padding-bottom: 0;
+  padding-bottom: 12px;
   background: #ffffff;
 }
 
