@@ -31,6 +31,7 @@ const moveButtonClass = "emp-toolbar-btn h-[24px] w-[24px] rounded-[5px] border-
 export default function EmpConfiguracaoColunasDialog({
   open,
   onOpenChange,
+  moduleTitle = "Cadastro",
   colunasDisponiveis = [],
   colunasVisiveis = [],
   colunasOrdem = [],
@@ -122,7 +123,7 @@ export default function EmpConfiguracaoColunasDialog({
             </div>
           </div>
 
-          <EmpToolbarInfoBar badgeLabel="Colunas" title="Configuração das colunas - Cadastro de Empresas" operationLabel="Configuração" className="!border-b-[0.5px]" />
+          <EmpToolbarInfoBar badgeLabel="Colunas" title={`Configuração das colunas - ${moduleTitle}`} operationLabel="Configuração" className="!border-b-[0.5px]" />
 
           <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
             <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>

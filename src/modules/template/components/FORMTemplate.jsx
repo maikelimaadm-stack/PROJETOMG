@@ -1,6 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
+import EmpRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 
-export default function FORMTemplate() {
-  return <div className="p-2 text-xs text-[#5b6b80]">Formulario do template</div>;
+export default function FORMTemplate({ onSubmit, onCancel }) {
+  const [state, setState] = useState({ nome: "", status: "Ativo" });
+
+  return (
+    <div className="h-full min-h-0 overflow-hidden flex flex-col bg-white">
+      <EmpRecordToolbar
+        title="Template de Cadastro"
+        operationLabel="Exemplo"
+        badgeLabel="TEMPLATE"
+        showSaveActions
+        onSave={() => onSubmit?.(state)}
+        onCancel={onCancel}
+      />
+      <div className="p-3 space-y-3">
+        <label className="text-xs text-slate-700 flex flex-col gap-1">
+          Nome
+          <input
+            className="h-9 px-2 border border-slate-300 text-sm"
+            value={state.nome}
+            onChange={(event) => setState((prev) => ({ ...prev, nome: event.target.value }))}
+          />
+        </label>
+      </div>
+    </div>
+  );
 }
 
