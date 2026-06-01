@@ -1777,17 +1777,21 @@ input[type="number"] {
   margin: 0;
 }
 
+.cadastro-emp-scope.emp-config-columns-dialog .emp-table-shell {
+  border-color: #dce3eb !important;
+}
+
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b {
-  border-bottom: 0.5px solid #c5ced8 !important;
+  border-bottom: 0.5px solid #dce3eb !important;
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x {
-  border-left: 0.5px solid #c5ced8 !important;
-  border-right: 0.5px solid #c5ced8 !important;
+  border-left: 0.5px solid #dce3eb !important;
+  border-right: 0.5px solid #dce3eb !important;
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-l {
-  border-left: 0.5px solid #c5ced8 !important;
+  border-left: 0.5px solid #dce3eb !important;
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b:last-child {
