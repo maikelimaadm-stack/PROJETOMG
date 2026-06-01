@@ -70,7 +70,7 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
             </div>
           </div>
 
-          <EmpToolbarInfoBar badgeLabel={badge} title={titulo} operationLabel="Configuração" />
+          <EmpToolbarInfoBar badgeLabel={badge} title={titulo} operationLabel="Configuração" className="!border-b-[0.5px]" />
 
           <div className="px-2 py-1">
             <label className="flex h-6 items-center gap-2 text-xs font-semibold text-[#1a1f26]">
@@ -86,10 +86,10 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
                   <Table className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none">
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">
-                        <TableHead className="emp-th h-[26px] w-[72px] border-r border-b border-[#c5ced8] bg-white px-1 text-center text-xs font-semibold text-[#1a1f26]">
+                        <TableHead className="emp-th h-[26px] w-[72px] border-r-[0.5px] border-b-[0.5px] border-[#c5ced8] bg-white px-1 text-center text-xs font-semibold text-[#1a1f26]">
                           Exportar
                         </TableHead>
-                        <TableHead className="emp-th h-[26px] border-b border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
+                        <TableHead className="emp-th h-[26px] border-b-[0.5px] border-[#c5ced8] bg-white px-1 text-left text-xs font-semibold text-[#1a1f26]">
                           Coluna
                         </TableHead>
                       </TableRow>
@@ -100,12 +100,12 @@ export default function EmpConfiguracaoExportacaoDialog({ open, onOpenChange, co
                         const rowClass = selected ? "emp-row-selected" : index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
                         return (
                           <TableRow key={col.id} className={`${rowClass} cursor-pointer transition-colors hover:brightness-[0.98]`} onClick={() => toggleColumn(col.id)}>
-                            <TableCell className={`emp-td h-[26px] border-r border-b border-[#c5ced8] px-1 py-0 text-center align-middle ${rowClass}`}>
+                            <TableCell className={`emp-td h-[26px] border-r-[0.5px] border-b-[0.5px] border-[#c5ced8] px-1 py-0 text-center align-middle ${rowClass}`}>
                               <span onClick={(event) => event.stopPropagation()}>
                               <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={selected} onChange={() => toggleColumn(col.id)} />
                               </span>
                             </TableCell>
-                            <TableCell className={`emp-td h-[26px] border-b border-[#c5ced8] px-1 py-0 align-middle text-xs ${rowClass}`}>
+                            <TableCell className={`emp-td h-[26px] border-b-[0.5px] border-[#c5ced8] px-1 py-0 align-middle text-xs ${rowClass}`}>
                               <span className={`block truncate ${selected ? "font-semibold text-[#1a1f26]" : "text-[#5b6b80]"}`}>{col.label}</span>
                             </TableCell>
                           </TableRow>

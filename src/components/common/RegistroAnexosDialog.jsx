@@ -120,12 +120,12 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
             </div>
           </div>
 
-          <EmpToolbarInfoBar badgeLabel="Anexos" title={title || "Lote"} operationLabel="Configuração" />
+          <EmpToolbarInfoBar badgeLabel="Anexos" title={title || "Lote"} operationLabel="Configuração" className="!border-b-[0.5px]" />
 
           <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
             <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
               <CardContent className="p-0">
-                <div className="grid grid-cols-[210px_minmax(0,1fr)] items-center border-b border-[#c5ced8] px-1 py-1">
+                <div className="grid grid-cols-[210px_minmax(0,1fr)] items-center border-b-[0.5px] border-[#c5ced8] px-1 py-1">
                   <label className="pr-2 text-right text-xs font-semibold text-[#1a1f26]">
                     Nome do arquivo:<span className="text-red-500 ml-0.5">*</span>
                   </label>
@@ -139,9 +139,9 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
                 </div>
 
                 <div className="max-h-80 overflow-auto">
-                  <div className="grid grid-cols-[1fr_1.4fr_28px] bg-white border-b border-[#c5ced8] text-xs font-semibold text-[#1a1f26]">
-                    <div className="h-[26px] px-1 flex items-center border-r border-[#c5ced8]">Nome do arquivo:</div>
-                    <div className="h-[26px] px-1 flex items-center border-r border-[#c5ced8]">Arquivo</div>
+                  <div className="grid grid-cols-[1fr_1.4fr_28px] bg-white border-b-[0.5px] border-[#c5ced8] text-xs font-semibold text-[#1a1f26]">
+                    <div className="h-[26px] px-1 flex items-center border-r-[0.5px] border-[#c5ced8]">Nome do arquivo:</div>
+                    <div className="h-[26px] px-1 flex items-center border-r-[0.5px] border-[#c5ced8]">Arquivo</div>
                     <div className="h-[26px] flex items-center justify-center"></div>
                   </div>
                   {anexos.length === 0 ?
@@ -149,11 +149,11 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
                     anexos.map((anexo, index) => {
                       const rowClass = index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
                       return (
-                        <div key={anexo.id} className={`grid grid-cols-[1fr_1.4fr_28px] items-center border-b last:border-b-0 border-[#c5ced8] text-xs ${rowClass}`}>
-                          <div className="h-[26px] px-1 flex items-center border-r border-[#c5ced8] overflow-hidden">
+                        <div key={anexo.id} className={`grid grid-cols-[1fr_1.4fr_28px] items-center border-b-[0.5px] last:border-b-0 border-[#c5ced8] text-xs ${rowClass}`}>
+                          <div className="h-[26px] px-1 flex items-center border-r-[0.5px] border-[#c5ced8] overflow-hidden">
                             <span className="truncate font-medium text-[#1a1f26]">{anexo.attachment_name || anexo.file_name}</span>
                           </div>
-                          <a href={anexo.file_url} target="_blank" rel="noreferrer" className="h-[26px] min-w-0 flex items-center gap-1.5 text-[#5b6b80] hover:text-[#1a1f26] px-1 border-r border-[#c5ced8] overflow-hidden">
+                          <a href={anexo.file_url} target="_blank" rel="noreferrer" className="h-[26px] min-w-0 flex items-center gap-1.5 text-[#5b6b80] hover:text-[#1a1f26] px-1 border-r-[0.5px] border-[#c5ced8] overflow-hidden">
                             <span className="truncate">{anexo.file_name}</span>
                             <span className="shrink-0 text-[#5b6b80]">{formatSize(anexo.file_size)}</span>
                             <ExternalLink className="w-3 h-3 shrink-0" />
