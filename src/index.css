@@ -1786,12 +1786,36 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x {
-  border-left: 0.5px solid #dce3eb !important;
-  border-right: 0.5px solid #dce3eb !important;
+  position: relative;
+  border-left: 0 !important;
+  border-right: 0 !important;
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-l {
-  border-left: 0.5px solid #dce3eb !important;
+  position: relative;
+  border-left: 0 !important;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x::before,
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x::after,
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-l::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0.5px;
+  background: #dce3eb;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x::before,
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-l::before {
+  left: 0;
+}
+
+.cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-x::after {
+  right: 0;
 }
 
 .cadastro-emp-scope.emp-config-columns-dialog .emp-config-columns-border-b:last-child {
