@@ -54,12 +54,12 @@ const FILTER_POPOVER_WIDTH = 272;
 const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 const CAMPO_CONFIG_FIELD_BOX =
-  "border border-slate-300 bg-white focus-within:border-green-500 transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
+  "border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#21c45d] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
 
 function Field({ label, children, required = false, wide = false, compact = false, medium = false }) {
   return (
     <div className={`grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 ${wide ? "md:col-span-2" : ""}`}>
-      <label className="text-[12px] text-[#475569] text-right leading-none">
+      <label className="text-[12px] text-[#1a1f26] text-right leading-none">
         {label}:{required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       <div
@@ -504,7 +504,7 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
               <EmpMaskConfig form={form} updateForm={updateForm} />
               <Field label="Prévia" wide><div className="px-2 py-1 text-xs text-slate-700 uppercase bg-slate-50 min-h-[48px]">{form.label || "Nome do campo"}: {form.tipo === "calculado" ? montarFormulaVisual(form.calculation_builder?.items || []) || "Calculado automaticamente" : form.placeholder || "Valor do campo"}</div></Field>
               <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1 pt-1">
-                <span className="text-[12px] text-[#475569] text-right leading-none">Exibir em:</span>
+                <span className="text-[12px] text-[#1a1f26] text-right leading-none">Exibir em:</span>
                 <div className="flex items-center gap-4">
                   {[["obrigatorio", "Obrigatório"], ["visivel_tabela", "Tabela"], ["visivel_relatorio", "Relatório"]].map(([field, label]) => (
                     <button
@@ -513,8 +513,8 @@ export default function EmpConfiguracaoCamposDialog({ open, onOpenChange, inline
                       onClick={() => !isReadOnly && updateForm(field, !form[field])}
                       className="h-[22px] flex items-center gap-1.5 bg-transparent"
                     >
-                      <span className="text-[12px] text-[#475569]">{label}:</span>
-                      <ToggleSwitch variant="lote" checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} />
+                      <span className="text-[12px] text-[#1a1f26]">{label}:</span>
+                      <ToggleSwitch className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" checked={!!form[field]} onChange={(checked) => updateForm(field, checked)} disabled={isReadOnly} />
                     </button>
                   ))}
                 </div>
