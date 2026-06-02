@@ -237,9 +237,11 @@ input[type="number"] {
   --emp-table-bg: #ffffff;
   --emp-table-band-bg: #ffffff;
   --emp-table-row-selected-bg: #f6f6f6;
-  --emp-table-row-alt-bg: #fefefe;
-  --emp-table-line: #d8e0e8;
+  --emp-table-row-alt-bg: #ffffff;
+  --emp-table-line: #e8ecef;
   --emp-table-band-edge: #e8ecef;
+  --emp-table-data-height: 22px;
+  --emp-table-header-height: 24px;
   color: var(--emp-text);
 }
 
@@ -1071,8 +1073,8 @@ input[type="number"] {
   color: #1a1f26 !important;
   font-weight: 600;
   font-size: 12px;
-  line-height: 26px;
-  height: 26px;
+  line-height: var(--emp-table-header-height);
+  height: var(--emp-table-header-height);
   padding: 0 6px;
   text-transform: none;
   border: none !important;
@@ -1087,8 +1089,8 @@ input[type="number"] {
   color: #1a1f26 !important;
   font-weight: 600;
   font-size: 12px;
-  line-height: 26px;
-  height: 26px;
+  line-height: var(--emp-table-header-height);
+  height: var(--emp-table-header-height);
   padding: 0 6px;
   text-transform: none;
   border: none !important;
@@ -1149,22 +1151,19 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pro .emp-td {
   border: none !important;
   box-shadow:
-    inset -1px 0 0 0 var(--emp-table-line),
-    inset 0 -1px 0 0 var(--emp-table-line) !important;
+    inset -0.5px 0 0 0 var(--emp-table-line),
+    inset 0 -0.5px 0 0 var(--emp-table-line) !important;
   font-size: 12px;
-  line-height: 26px;
-  height: 26px;
+  line-height: var(--emp-table-data-height) !important;
+  height: var(--emp-table-data-height) !important;
   padding: 0 6px;
-  background: transparent;
-}
-
-.cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
   background: #ffffff !important;
   color: #344054 !important;
 }
 
+.cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td,
 .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
-  background: var(--emp-table-row-alt-bg) !important;
+  background: #ffffff !important;
   color: #344054 !important;
 }
 
@@ -2402,22 +2401,22 @@ input[type="number"] {
 
 .erp-shell-breadcrumbs {
   min-height: 0;
-  padding-top: 2px !important;
-  padding-bottom: 2px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
 }
 
 .erp-shell-header {
   min-height: 0;
-  height: 2.25rem !important;
-  padding-left: 0.75rem !important;
-  padding-right: 0.75rem !important;
+  height: 2.5rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
 }
 
 .erp-shell-content-wrap {
-  padding-top: 0 !important;
-  padding-bottom: 0.5rem !important;
-  padding-left: 0.75rem !important;
-  padding-right: 0.75rem !important;
+  padding-top: 0.25rem !important;
+  padding-bottom: 0.75rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-list"],

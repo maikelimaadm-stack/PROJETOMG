@@ -54,7 +54,7 @@ function ErpTopHeader({
   const selectorValue = selectedEmpresaId || (allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION);
 
   return (
-    <header className="erp-shell-header flex h-9 shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-3">
+    <header className="erp-shell-header flex h-10 shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-4">
       <div className="flex min-w-0 items-center gap-2">
         <SidebarTrigger className="erp-shell-trigger h-8 w-8 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" />
       </div>
@@ -133,7 +133,7 @@ function ErpBreadcrumbs({ pathname }) {
   }
 
   return (
-    <div className="erp-shell-breadcrumbs flex shrink-0 items-center justify-between gap-2 px-0 py-0.5">
+    <div className="erp-shell-breadcrumbs flex shrink-0 items-center justify-between gap-2 px-1 py-1.5">
       <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="text-xs font-semibold text-[#1a1f26]">
           {trail.map((crumb, index) => {
@@ -192,7 +192,7 @@ function ErpShellBody({
           onLogout={onLogout}
         />
 
-        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden px-3 pb-2 pt-0">
+        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-3 pt-1">
           <ErpBreadcrumbs pathname={pathname} />
           <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}
