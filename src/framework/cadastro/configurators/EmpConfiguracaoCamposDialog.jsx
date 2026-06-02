@@ -610,13 +610,13 @@ export default function EmpConfiguracaoCamposDialog({
       {!inline && <DialogHeader className="sr-only"><DialogTitle>Configuração de campos personalizados - Empresas</DialogTitle></DialogHeader>}
       {showForm ?
         <EmpSplitToolbarLayout
-          className="min-h-0 flex-1"
+          className="h-full min-h-0 flex-1"
           toolbar={
             <LegacyRecordToolbar title={form.label || (editingId ? "EDITAR CAMPO" : "NOVO CAMPO")} badgeLabel="CAMPO PERSONALIZADO" operationLabel={operationLabel} showSaveActions={editMode} showEditAction={isReadOnly} showDeleteDuplicateActions={!!editingId && !editMode && !isDuplicating && !isNativeSelect} onSave={() => handleSubmit({ preventDefault: () => {} })} onCancel={handleDiscard} onEditRecord={() => setEditMode(true)} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} onNew={handleNew} total={campos.length} currentIndex={selectedIndex} onFirst={() => navigateCampo(0)} onPrevious={() => navigateCampo(selectedIndex - 1)} onNext={() => navigateCampo(selectedIndex + 1)} onLast={() => navigateCampo(campos.length - 1)} onDelete={handleDeleteCurrent} onDuplicate={handleDuplicateCurrent} onSettingsClick={() => {}} showUtilityActions={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
           }
         >
-        <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <fieldset className={`flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+        <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+          <fieldset className={`form-scroll-container min-h-0 flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
             <div className="px-4 md:px-8 py-2 space-y-1 max-w-[780px]">
               <Field label="Nome do campo" required><Input value={form.label} onChange={(e) => updateForm("label", e.target.value)} readOnly={isNativeSelect} placeholder="EX: CONTATO RESPONSÁVEL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
               <Field label="Tipo"><EmpAutocomplete items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="BUSCAR TIPO..." displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 uppercase" /></Field>
@@ -678,14 +678,14 @@ export default function EmpConfiguracaoCamposDialog({
         </EmpSplitToolbarLayout>
         :
         <EmpSplitToolbarLayout
-          className="min-h-0 flex-1"
+          className="h-full min-h-0 flex-1"
           toolbar={
             <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
           }
         >
-          <div className="emp-table-scroll-host flex min-h-0 flex-1 flex-col overflow-hidden select-none p-1.5">
+          <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden p-1.5">
             <div ref={tableStageRef} className={`emp-table-stage relative h-full min-h-0 ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
-              <div className="emp-table-shell flex min-h-0 flex-1 flex-col overflow-hidden bg-white shadow-none">
+              <div className="emp-table-shell flex h-full min-h-0 flex-col overflow-hidden bg-white shadow-none">
                 <div className="emp-campos-config-table-wrap min-h-0 flex-1 overflow-auto">
                 <Table className="emp-table-pro w-full min-w-[760px] border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>

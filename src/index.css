@@ -989,15 +989,15 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-root {
   display: flex;
   flex-direction: column;
-  flex: 1 1 0%;
+  flex: 1 1 auto;
   min-height: 0;
-  overflow: hidden;
+  height: 100%;
 }
 
 .cadastro-emp-scope .emp-table-stage {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  flex: 1 1 0%;
+  height: 100%;
   min-height: 0;
   width: 100%;
   overflow: hidden;
@@ -1006,13 +1006,14 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-stage > .emp-table-shell {
   min-height: 0;
   height: auto;
+  max-height: 100%;
   align-self: stretch;
   overflow: hidden;
 }
 
 .cadastro-emp-scope .emp-table-stage > .emp-table-bottom-dock {
   min-height: auto;
-  align-self: stretch;
+  flex-shrink: 0;
 }
 
 .cadastro-emp-scope .emp-table-shell {
@@ -1033,7 +1034,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-body-scroll {
-  flex: 1 1 0%;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: auto !important;
   overscroll-behavior: contain;
@@ -1673,8 +1674,16 @@ input[type="number"] {
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
-  padding-top: 8px;
-  background: var(--emp-surface-bg) !important;
+  padding-top: 0;
+  background: var(--emp-table-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-card .emp-table-panel,
+.cadastro-emp-scope .emp-content-card.emp-table-card .emp-table-panel {
+  height: 100%;
+  min-height: 0;
+  padding-top: 0 !important;
+  background: var(--emp-table-bg) !important;
 }
 
 .cadastro-emp-scope .emp-table-root,
@@ -2228,12 +2237,28 @@ input[type="number"] {
 
 .erp-shell-main {
   background: var(--erp-page-bg) !important;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .erp-shell-content-area {
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.erp-shell-content-area > .cadastro-emp-scope {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
 }
 
 .erp-shell-content-card {
@@ -2245,29 +2270,24 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-view,
 .cadastro-emp-scope .emp-split-view {
   gap: 8px;
-  flex: 1 1 0%;
+  flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
-.cadastro-emp-scope .emp-content-card > .emp-table-root,
-.cadastro-emp-scope .emp-table-card > .emp-table-root {
-  flex: 1 1 0%;
+.cadastro-emp-scope .emp-content-card > .emp-table-panel {
+  flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
 }
 
-.cadastro-emp-scope .emp-content-card > .emp-form-scroll-host {
-  flex: 1 1 0%;
+.cadastro-emp-scope .emp-content-card > .emp-form-scroll-host,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container {
+  flex: 1 1 auto;
   min-height: 0;
   overflow: auto !important;
   overscroll-behavior: contain;
-}
-
-.cadastro-emp-scope .emp-content-card > .emp-table-scroll-host {
-  flex: 1 1 0%;
-  min-height: 0;
-  overflow: hidden !important;
-  display: flex;
-  flex-direction: column;
 }
 
 .cadastro-emp-scope .emp-toolbar-card {
@@ -2283,8 +2303,9 @@ input[type="number"] {
 .cadastro-emp-scope .emp-content-card {
   display: flex;
   flex-direction: column;
-  flex: 1 1 0%;
+  flex: 1 1 auto;
   min-height: 0;
+  height: 100%;
   background: var(--emp-table-bg) !important;
   border: 1px solid var(--emp-table-frame-border) !important;
   border-radius: 6px !important;

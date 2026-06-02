@@ -860,10 +860,10 @@ export default function TBLEMP({
     });
 
   return (
-    <div className="emp-table-root flex min-h-0 flex-1 flex-col overflow-hidden select-none">
+    <div className="emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none">
       <div
         ref={tableStageRef}
-        className={`emp-table-stage relative min-h-0 flex-1 ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
+        className={`emp-table-stage relative h-full min-h-0 ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
       >
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
           <div

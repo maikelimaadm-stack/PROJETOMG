@@ -21,7 +21,7 @@ export default function PAGTemplate() {
         <FORMTemplate onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
       ) : (
         <EmpSplitToolbarLayout
-          className="flex-1"
+          className="h-full min-h-0 flex-1"
           contentClassName="emp-table-card"
           toolbar={
             <SankhyaListToolbar
@@ -42,7 +42,9 @@ export default function PAGTemplate() {
             />
           }
         >
-          <TBLTemplate />
+          <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+            <TBLTemplate />
+          </div>
         </EmpSplitToolbarLayout>
       )}
 

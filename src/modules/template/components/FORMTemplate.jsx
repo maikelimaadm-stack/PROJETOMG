@@ -20,7 +20,7 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
           />
         }
       >
-      <div className="p-3 space-y-3">
+        <div className="form-scroll-container h-full min-h-0 flex-1 overflow-auto p-3 space-y-3">
         <label className="text-xs text-slate-700 flex flex-col gap-1">
           Nome
           <input
@@ -29,7 +29,7 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
             onChange={(event) => setState((prev) => ({ ...prev, nome: event.target.value }))}
           />
         </label>
-      </div>
+        </div>
       </EmpSplitToolbarLayout>
     </div>
   );
