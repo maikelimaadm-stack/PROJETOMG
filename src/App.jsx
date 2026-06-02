@@ -1,11 +1,12 @@
 import { Toaster } from "@/shared/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
-import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import { lazy, Suspense, useState } from "react";
 import generatedModules from "@/modules/generatedModules.json";
 import PAGEMP from "@/modules/empresas/pages/PAGEMP";
+import ErpShell from "@/shared/layouts/ErpShell";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const generatedModuleRoutes = generatedModules
@@ -95,77 +96,37 @@ function LoginScreen({ onLogin, isLoading, errorMessage }) {
   );
 }
 
-function MinimalLayout({
-  children,
-  onLogout,
-  empresas,
-  selectedEmpresaId,
-  onSelectEmpresa,
-  allowAllEmpresas,
-  modulesNavigation = [],
-}) {
+function ModuleLoadingFallback() {
+  return (
+    <div className="flex h-full w-full items-center justify-center text-xs text-slate-500">
+      Carregando módulo...
+    </div>
+  );
+}
+
+function ErpLayoutRoute() {
   const location = useLocation();
-  const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
-  const selectorValue =
-    selectedEmpresaId || (allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION);
+  const {
+    logout,
+    empresas,
+    allowAllEmpresas,
+    selectedEmpresaId,
+    selectEmpresa,
+  } = useAuth();
 
   return (
-    <div className="h-[100dvh] overflow-hidden bg-white flex flex-col" style={{ "--app-content-offset": "73px" }}>
-      <header className="flex-none border-b border-slate-200 bg-white">
-        <div className="px-4 py-2 flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-sm font-semibold text-slate-700 leading-tight">MAK Gestão ERP</h1>
-            <p className="text-xs text-slate-600">Sistema de gestão</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <label className="text-xs text-slate-600">Empresa:</label>
-            <select
-              value={selectorValue}
-              onChange={(event) => onSelectEmpresa(event.target.value)}
-              className="h-7 min-w-[170px] border border-slate-300 bg-white px-2 text-xs text-slate-700"
-            >
-              {allowAllEmpresas ? (
-                <option value="all">Todas as Empresas</option>
-              ) : (
-                <option value={AUTHORIZED_SCOPE_OPTION}>Empresas autorizadas</option>
-              )}
-              {empresas.map((empresa) => (
-                <option key={empresa.id} value={empresa.id}>
-                  {empresa.codempresa} - {empresa.nome_empresa}
-                </option>
-              ))}
-            </select>
-          </div>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="h-7 px-3 rounded-none border border-slate-300 bg-white text-xs text-slate-600 hover:text-slate-700 hover:bg-slate-50"
-          >
-            Sair
-          </button>
-        </div>
-        <nav className="h-8 px-4 flex items-center border-t border-slate-200">
-          <Link
-            to="/CadastroEmpresas"
-            className={`h-7 px-3 inline-flex items-center text-xs border-x border-slate-200 ${location.pathname === "/CadastroEmpresas" || location.pathname === "/" ? "font-semibold text-slate-700 bg-slate-50" : "text-slate-600 bg-white"}`}
-          >
-            Cadastro de Empresas
-          </Link>
-          {modulesNavigation
-            .filter((module) => module.moduleId !== "empresas")
-            .map((module) => (
-            <Link
-              key={module.moduleId}
-              to={module.routePath}
-              className={`h-7 px-3 inline-flex items-center text-xs border-r border-slate-200 ${location.pathname === module.routePath ? "font-semibold text-slate-700 bg-slate-50" : "text-slate-600 bg-white"}`}
-            >
-              {module.menuLabel}
-            </Link>
-          ))}
-        </nav>
-      </header>
-      <main className="flex-1 min-h-0 overflow-hidden">{children}</main>
-    </div>
+    <ErpShell
+      pathname={location.pathname}
+      onLogout={logout}
+      empresas={empresas}
+      allowAllEmpresas={allowAllEmpresas}
+      selectedEmpresaId={selectedEmpresaId}
+      onSelectEmpresa={selectEmpresa}
+    >
+      <Suspense fallback={<ModuleLoadingFallback />}>
+        <Outlet />
+      </Suspense>
+    </ErpShell>
   );
 }
 
@@ -174,33 +135,26 @@ const AuthenticatedApp = () => {
     isLoadingAuth,
     isLoadingPublicSettings,
     authError,
-    logout,
     isAuthenticated,
     login,
-    empresas,
-    allowAllEmpresas,
-    selectedEmpresaId,
-    selectEmpresa,
   } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-800" />
       </div>
     );
   }
 
-  if (authError) {
-    if (!isAuthenticated) {
-      return (
-        <LoginScreen
-          onLogin={login}
-          isLoading={isLoadingAuth}
-          errorMessage={authError.message}
-        />
-      );
-    }
+  if (authError && !isAuthenticated) {
+    return (
+      <LoginScreen
+        onLogin={login}
+        isLoading={isLoadingAuth}
+        errorMessage={authError.message}
+      />
+    );
   }
 
   if (!isAuthenticated) {
@@ -215,60 +169,23 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          <MinimalLayout
-            onLogout={logout}
-            empresas={empresas}
-            allowAllEmpresas={allowAllEmpresas}
-            selectedEmpresaId={selectedEmpresaId}
-            onSelectEmpresa={selectEmpresa}
-            modulesNavigation={generatedModuleRoutes}
-          >
-            <Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}>
-              <PAGEMP />
-            </Suspense>
-          </MinimalLayout>
-        }
-      />
-      <Route
-        path="/CadastroEmpresas"
-        element={
-          <MinimalLayout
-            onLogout={logout}
-            empresas={empresas}
-            allowAllEmpresas={allowAllEmpresas}
-            selectedEmpresaId={selectedEmpresaId}
-            onSelectEmpresa={selectEmpresa}
-            modulesNavigation={generatedModuleRoutes}
-          >
-            <Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}>
-              <PAGEMP />
-            </Suspense>
-          </MinimalLayout>
-        }
-      />
-      {generatedModuleRoutes.map((module) => (
+      <Route element={<ErpLayoutRoute />}>
         <Route
-          key={module.moduleId}
-          path={module.routePath}
-          element={
-            <MinimalLayout
-              onLogout={logout}
-              empresas={empresas}
-              allowAllEmpresas={allowAllEmpresas}
-              selectedEmpresaId={selectedEmpresaId}
-              onSelectEmpresa={selectEmpresa}
-              modulesNavigation={generatedModuleRoutes}
-            >
-              <Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}>
-                <module.Component />
-              </Suspense>
-            </MinimalLayout>
-          }
+          path="/"
+          element={<PAGEMP />}
         />
-      ))}
+        <Route
+          path="/CadastroEmpresas"
+          element={<PAGEMP />}
+        />
+        {generatedModuleRoutes.map((module) => (
+          <Route
+            key={module.moduleId}
+            path={module.routePath}
+            element={<module.Component />}
+          />
+        ))}
+      </Route>
       <Route path="*" element={<Navigate to="/CadastroEmpresas" replace />} />
     </Routes>
   );

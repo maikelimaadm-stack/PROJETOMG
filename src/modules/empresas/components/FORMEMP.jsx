@@ -5,9 +5,11 @@ import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
+import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpLayoutConfiguratorDialog";
 import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
@@ -317,6 +319,11 @@ export default function FORMEMP({
     });
   }, [tabs, activeLayoutConfig, dynamicFields, formData]);
 
+  const requiredCounterTone =
+    requiredFieldStats.total > 0 && requiredFieldStats.filled >= requiredFieldStats.total
+      ? "complete"
+      : "incomplete";
+
   const applyLayoutConfig = (source, { updateActiveTab = true } = {}) => {
     const normalized = normalizeLayoutConfig(source, {
       basePanels,
@@ -420,10 +427,47 @@ export default function FORMEMP({
   };
 
   const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";
+  const { setPageHeader, clearPageHeader } = useErpPageHeader();
+
+  const recordHeaderTitle = useMemo(() => {
+    const code = String(formData.codempresa || "").trim();
+    const name = String(formData.razao_social || "").trim();
+    if (code && name) return `${code} - ${name}`;
+    if (code) return code;
+    if (name) return name;
+    if (isDuplicating) return "Duplicar empresa";
+    if (!isEditing) return "Nova empresa";
+    return null;
+  }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+
+  useEffect(() => {
+    if (layoutConfigOpen || fieldLayoutConfigOpen) {
+      setPageHeader({
+        recordTitle: null,
+        operationLabel: "Configuração",
+        contextSuffix: "Configuração de layout",
+      });
+      return;
+    }
+
+    setPageHeader({
+      recordTitle: recordHeaderTitle,
+      operationLabel,
+      contextSuffix: null,
+    });
+  }, [
+    recordHeaderTitle,
+    operationLabel,
+    layoutConfigOpen,
+    fieldLayoutConfigOpen,
+    setPageHeader,
+  ]);
+
+  useEffect(() => () => clearPageHeader(), [clearPageHeader]);
 
   if (layoutConfigOpen) {
     return (
-      <section className="w-full h-full max-w-full bg-white overflow-hidden">
+      <section className="cadastro-emp-scope w-full h-full max-w-full overflow-hidden">
         <EmpLayoutConfiguratorDialog
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}
@@ -450,7 +494,7 @@ export default function FORMEMP({
   }
 
   return (
-    <div className="h-full min-h-0 overflow-hidden bg-white">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <TopNoticeDialog open={noticeDialog.open} onOpenChange={(open) => setNoticeDialog((prev) => ({ ...prev, open }))} badge="AVISO" title={noticeDialog.title} description={noticeDialog.description} type="warning" confirmText="Entendi" />
       <EmpFieldLayoutConfigDialog
         open={fieldLayoutConfigOpen}
@@ -458,7 +502,7 @@ export default function FORMEMP({
         fieldLayoutConfig={fieldLayoutConfig}
         onSave={saveFieldLayoutConfig}
       />
-      <form onSubmit={handleSubmit} className="bg-white h-full min-h-0 overflow-hidden flex flex-col">
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <style>{`
           .form-scroll-container {
             scrollbar-width: thin;
@@ -484,42 +528,43 @@ export default function FORMEMP({
             background-color: #94a3b8;
           }
         `}</style>
-        <LegacyRecordToolbar
-          title={`${formData.codempresa ? `${formData.codempresa} - ` : ""}${formData.razao_social || (isDuplicating ? "Duplicar empresa" : isEditing ? "Editar empresa" : "Nova empresa")}`}
-          badgeLabel="EMPRESA"
-          operationLabel={operationLabel}
-          showSaveActions={editMode}
-          showEditAction={isReadOnly}
-          showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
-          showRecordNavigation={isEditing && !editMode && !isDuplicating}
-          onSave={handleSubmit}
-          onCancel={onCancel}
-          onEditRecord={() => setEditMode(true)}
-          onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
-          onFieldLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setFieldLayoutConfigOpen(true); }}
-          onToggleView={onToggleView}
-          total={total}
-          currentIndex={currentIndex}
-          onNew={onNew}
-          onFirst={onFirst}
-          onPrevious={onPrevious}
-          onNext={onNext}
-          onLast={onLast}
-          onDelete={onDelete}
-          onDuplicate={onDuplicate}
-          onRefresh={onRefresh}
-          filterOpen={filterOpen}
-          filterActive={filterActive}
-          onToggleFilter={onToggleFilter}
-          onClearFilter={onClearFilter}
-          onAttachClick={onAttachClick}
-          attachDisabled={attachDisabled}
-          searchValue={searchValue}
-          onSearchChange={onSearchChange}
-          showSearch
-        />
-
-        <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
+        <EmpSplitToolbarLayout
+          className="h-full min-h-0 flex-1"
+          toolbar={
+            <LegacyRecordToolbar
+              showSaveActions={editMode}
+              showEditAction={isReadOnly}
+              showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
+              showRecordNavigation={isEditing && !editMode && !isDuplicating}
+              onSave={handleSubmit}
+              onCancel={onCancel}
+              onEditRecord={() => setEditMode(true)}
+              onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
+              onFieldLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setFieldLayoutConfigOpen(true); }}
+              onToggleView={onToggleView}
+              total={total}
+              currentIndex={currentIndex}
+              onNew={onNew}
+              onFirst={onFirst}
+              onPrevious={onPrevious}
+              onNext={onNext}
+              onLast={onLast}
+              onDelete={onDelete}
+              onDuplicate={onDuplicate}
+              onRefresh={onRefresh}
+              filterOpen={filterOpen}
+              filterActive={filterActive}
+              onToggleFilter={onToggleFilter}
+              onClearFilter={onClearFilter}
+              onAttachClick={onAttachClick}
+              attachDisabled={attachDisabled}
+              searchValue={searchValue}
+              onSearchChange={onSearchChange}
+              showSearch
+            />
+          }
+        >
+        <div className="form-scroll-container min-h-0 flex-1 overflow-auto pb-6 pr-2">
           <div className={`emp-form-body flex flex-col ${standalonePrincipalInUse ? "" : "emp-form-body-no-principal"}`}>
             {standalonePrincipalInUse && (
               <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">
@@ -554,6 +599,7 @@ export default function FORMEMP({
                       <EmpBubbleCounter
                         value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
                         title="Campos obrigatórios preenchidos"
+                        tone={requiredCounterTone}
                         className="emp-toolbar-bubble-counter"
                       />
                     }
@@ -585,6 +631,7 @@ export default function FORMEMP({
                     <EmpBubbleCounter
                       value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
                       title="Campos obrigatórios preenchidos"
+                      tone={requiredCounterTone}
                       className="emp-toolbar-bubble-counter"
                     />
                   </div>
@@ -625,6 +672,7 @@ export default function FORMEMP({
             </div>
           </div>
         </div>
+        </EmpSplitToolbarLayout>
       </form>
     </div>
   );

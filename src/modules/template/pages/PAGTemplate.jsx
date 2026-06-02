@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexosDialog";
 import EmpConfiguracaoCamposDialog from "@/framework/cadastro/configurators/EmpConfiguracaoCamposDialog";
 import EmpConfiguracaoExportacaoDialog from "@/framework/cadastro/configurators/EmpConfiguracaoExportacaoDialog";
@@ -15,29 +16,36 @@ export default function PAGTemplate() {
   const [showAnexos, setShowAnexos] = useState(false);
 
   return (
-    <div className="h-full min-h-0 overflow-hidden bg-white">
+    <div className="cadastro-emp-scope h-full min-h-0 overflow-hidden flex flex-col">
       {showForm ? (
         <FORMTemplate onSubmit={() => setShowForm(false)} onCancel={() => setShowForm(false)} />
       ) : (
-        <>
-          <SankhyaListToolbar
-            viewMode="table"
-            total={0}
-            currentIndex={0}
-            searchValue=""
-            onSearchChange={() => {}}
-            onNew={() => setShowForm(true)}
-            onToggleView={() => setShowForm(true)}
-            filterActive={false}
-            onConfigColumns={() => setShowConfigCampos(true)}
-            onConfigExportPdf={() => setShowConfigPdf(true)}
-            onConfigExportExcel={() => setShowConfigExcel(true)}
-            onAttachClick={() => setShowAnexos(true)}
-            title="Template de Cadastro"
-            recordLabel=""
-          />
-          <TBLTemplate />
-        </>
+        <EmpSplitToolbarLayout
+          className="h-full min-h-0 flex-1"
+          contentClassName="emp-table-card"
+          toolbar={
+            <SankhyaListToolbar
+              viewMode="table"
+              total={0}
+              currentIndex={0}
+              searchValue=""
+              onSearchChange={() => {}}
+              onNew={() => setShowForm(true)}
+              onToggleView={() => setShowForm(true)}
+              filterActive={false}
+              onConfigColumns={() => setShowConfigCampos(true)}
+              onConfigExportPdf={() => setShowConfigPdf(true)}
+              onConfigExportExcel={() => setShowConfigExcel(true)}
+              onAttachClick={() => setShowAnexos(true)}
+              title="Template de Cadastro"
+              recordLabel=""
+            />
+          }
+        >
+          <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+            <TBLTemplate />
+          </div>
+        </EmpSplitToolbarLayout>
       )}
 
       <EmpConfiguracaoCamposDialog open={showConfigCampos} onOpenChange={setShowConfigCampos} repository={templateRepository} />

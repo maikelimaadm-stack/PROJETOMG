@@ -29,6 +29,7 @@ import {
   EMP_TOOLBAR_SEARCH_WRAP,
 } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { usePanelTabsScroll } from "@/framework/cadastro/toolbars/usePanelTabsScroll";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 
 const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = ["principal"];
@@ -590,46 +591,49 @@ export default function EmpLayoutConfiguratorDialog({
   );
 
   const content = (
-    <div className={`cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden bg-white${isEditing ? " emp-layout-config-editing" : ""}`}>
+    <div className={`cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}`}>
       {!inline && (
         <DialogHeader className="sr-only">
           <DialogTitle>Configuração de layout do formulário</DialogTitle>
         </DialogHeader>
       )}
 
-      <div className="flex min-h-0 flex-1 flex-col overflow-hidden border-b border-[#d6dce8] bg-white">
-        <div className="emp-layout-config-toolbar emp-toolbar flex h-[35px] min-h-[35px] max-h-[35px] shrink-0 items-center gap-1.5 overflow-x-auto overflow-y-hidden whitespace-nowrap border-b border-sky-100 bg-white px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <ToolbarBtn onClick={() => onOpenChange(false)} title="Voltar">
-            <EmpToolbarIcon icon={ChevronLeft} nav />
-          </ToolbarBtn>
-          {!isEditing && (
-            <ToolbarBtn onClick={() => setIsEditing(true)} className={LABELED_BTN_CLASS} title="Editar layout">
-              <EmpToolbarIcon icon={Pencil} />
-              <span>Editar</span>
+      <EmpSplitToolbarLayout
+        className="flex-1"
+        toolbar={
+          <div className="emp-layout-config-toolbar emp-toolbar flex h-[35px] min-h-[35px] max-h-[35px] shrink-0 items-center gap-1.5 overflow-x-auto overflow-y-hidden whitespace-nowrap bg-white px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <ToolbarBtn onClick={() => onOpenChange(false)} title="Voltar">
+              <EmpToolbarIcon icon={ChevronLeft} nav />
             </ToolbarBtn>
-          )}
-          {isEditing && (
-            <ToolbarBtn onClick={handleSave} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
-              <EmpToolbarIcon icon={Check} />
-              <span>Salvar</span>
-            </ToolbarBtn>
-          )}
-          {isEditing && (
-            <ToolbarBtn onClick={discardChanges} className={LABELED_BTN_CLASS} title="Cancelar alterações">
-              <EmpToolbarIcon icon={X} />
-              <span>Cancelar</span>
-            </ToolbarBtn>
-          )}
-          <div className="ml-auto">
-            {isEditing && (
-              <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
-                <EmpToolbarIcon icon={RotateCcw} />
+            {!isEditing && (
+              <ToolbarBtn onClick={() => setIsEditing(true)} className={LABELED_BTN_CLASS} title="Editar layout">
+                <EmpToolbarIcon icon={Pencil} />
+                <span>Editar</span>
               </ToolbarBtn>
             )}
+            {isEditing && (
+              <ToolbarBtn onClick={handleSave} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
+                <EmpToolbarIcon icon={Check} />
+                <span>Salvar</span>
+              </ToolbarBtn>
+            )}
+            {isEditing && (
+              <ToolbarBtn onClick={discardChanges} className={LABELED_BTN_CLASS} title="Cancelar alterações">
+                <EmpToolbarIcon icon={X} />
+                <span>Cancelar</span>
+              </ToolbarBtn>
+            )}
+            <div className="ml-auto">
+              {isEditing && (
+                <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
+                  <EmpToolbarIcon icon={RotateCcw} />
+                </ToolbarBtn>
+              )}
+            </div>
           </div>
-        </div>
-
-        <div className="grid min-h-0 flex-1 grid-cols-[320px_56px_1fr] border-t border-[#d6dce8]">
+        }
+      >
+        <div className="grid min-h-0 h-full flex-1 grid-cols-[320px_56px_1fr]">
           <aside className="flex flex-col overflow-hidden border-r border-[#d6dce8] bg-white p-2">
             <div className="mb-2 flex gap-1">
               <button
@@ -780,7 +784,7 @@ export default function EmpLayoutConfiguratorDialog({
                         }}
                         className={`emp-form-tab relative min-w-max flex-none overflow-hidden whitespace-nowrap ${
                           active ? "emp-form-tab-active z-[15]" : "emp-form-tab-inactive z-[2]"
-                        } ${panel.hidden ? "emp-form-tab-hidden-panel opacity-70" : ""}`}
+                        } ${panel.hidden ? "emp-form-tab-hidden-panel" : ""}`}
                       >
                         {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
                         {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
@@ -835,7 +839,7 @@ export default function EmpLayoutConfiguratorDialog({
             </div>
           </main>
         </div>
-      </div>
+      </EmpSplitToolbarLayout>
 
       <EmpLayoutFieldSettingsPopover
         field={fieldSettingsTarget}

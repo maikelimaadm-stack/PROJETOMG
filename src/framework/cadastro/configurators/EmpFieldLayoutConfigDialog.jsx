@@ -17,6 +17,7 @@ import {
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
 import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -85,17 +86,20 @@ export default function EmpFieldLayoutConfigDialog({
             </button>
           </div>
 
-          <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
-            <ToolbarBtn onClick={handleSave} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Salvar">
-              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
-              <span>Salvar</span>
-            </ToolbarBtn>
-            <ToolbarBtn onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Cancelar">
-              <EmpToolbarIcon icon={X} />
-              <span>Cancelar</span>
-            </ToolbarBtn>
-          </div>
-
+          <EmpSplitToolbarLayout
+            toolbar={
+              <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
+                <ToolbarBtn onClick={handleSave} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Salvar">
+                  <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
+                  <span>Salvar</span>
+                </ToolbarBtn>
+                <ToolbarBtn onClick={() => onOpenChange(false)} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Cancelar">
+                  <EmpToolbarIcon icon={X} />
+                  <span>Cancelar</span>
+                </ToolbarBtn>
+              </div>
+            }
+          >
           <EmpToolbarInfoBar
             badgeLabel="Campos"
             title="Configurar layout de campos"
@@ -165,6 +169,7 @@ export default function EmpFieldLayoutConfigDialog({
               </CardContent>
             </Card>
           </div>
+          </EmpSplitToolbarLayout>
         </div>
       </DialogContent>
     </Dialog>

@@ -10,9 +10,13 @@ import {
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 
 const LEGACY_CONFIG_KEY = "cadastro_emp_form_layout_config";
+const LOCAL_PERSONALIZACOES_ROOT = ".local/personalizacoes/empresas";
 
 let syncTimer = null;
 let boundUserId = null;
+
+export const isLocalPersonalizacoesMode = () =>
+  import.meta.env.DEV && String(import.meta.env.VITE_LOCAL_PERSONALIZACOES || "").toLowerCase() === "true";
 
 const readJson = (key) => {
   try {
@@ -40,7 +44,7 @@ export const initEmpresasFormLayoutLocal = (userId) => {
 };
 
 export const syncEmpresasFormLayoutRemote = (userId = boundUserId) => {
-  if (!userId) return;
+  if (!userId || isLocalPersonalizacoesMode()) return;
   bindLayoutStoreUser(userId);
 
   void (async () => {
@@ -68,7 +72,7 @@ export const syncEmpresasFormLayoutRemote = (userId = boundUserId) => {
 };
 
 export const scheduleEmpresasFormLayoutSync = (userId = boundUserId) => {
-  if (!userId) return;
+  if (!userId || isLocalPersonalizacoesMode()) return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(async () => {
     bindLayoutStoreUser(userId);
@@ -97,3 +101,57 @@ export const resetEmpresasFormLayoutSync = () => {
 };
 
 export const getEmpresasFormLayoutKey = (userId) => getLayoutStorageKeys(userId).legacyKey;
+
+const downloadJson = (filename, payload) => {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = url;
+  anchor.download = filename;
+  anchor.click();
+  URL.revokeObjectURL(url);
+};
+
+export const exportEmpresasFormLayoutSnapshot = () => {
+  const config = readStoredLayoutConfig();
+  if (!config) {
+    console.warn("[emp-personalizacoes] Nenhum layout salvo no localStorage.");
+    return null;
+  }
+  return {
+    exportedAt: new Date().toISOString(),
+    screen: "empresas.form_layout",
+    storageKey: getLayoutStorageKeys(boundUserId).legacyKey,
+    config,
+  };
+};
+
+export const registerEmpresasPersonalizacoesDevTools = () => {
+  if (!import.meta.env.DEV) return;
+
+  window.__empPersonalizacoes = {
+    mode: isLocalPersonalizacoesMode(),
+    storageRoot: LOCAL_PERSONALIZACOES_ROOT,
+    exportFormLayout: () => {
+      const snapshot = exportEmpresasFormLayoutSnapshot();
+      if (!snapshot) return null;
+      downloadJson("form-layout.snapshot.json", snapshot);
+      console.info("[emp-personalizacoes] Exportado form-layout.snapshot.json");
+      return snapshot;
+    },
+    readFormLayout: () => readStoredLayoutConfig(),
+    copyFormLayout: async () => {
+      const snapshot = exportEmpresasFormLayoutSnapshot();
+      if (!snapshot) return null;
+      await navigator.clipboard.writeText(JSON.stringify(snapshot, null, 2));
+      console.info("[emp-personalizacoes] Layout copiado para a área de transferência.");
+      return snapshot;
+    },
+  };
+
+  if (isLocalPersonalizacoesMode()) {
+    console.info(
+      "[emp-personalizacoes] Modo local ativo — sync remoto desabilitado. Use window.__empPersonalizacoes.exportFormLayout()"
+    );
+  }
+};

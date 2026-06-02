@@ -13,6 +13,7 @@ import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react"
 import { toast } from "sonner";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
 import EmpRelationConfig from "@/framework/cadastro/fields/EmpRelationConfig";
@@ -604,13 +605,18 @@ export default function EmpConfiguracaoCamposDialog({
       : "NOVO REGISTRO";
 
   const content = (
-    <div className="emp-campos-config-lote w-full h-full overflow-hidden flex flex-col bg-white">
+    <div className="cadastro-emp-scope emp-campos-config-lote w-full h-full overflow-hidden flex flex-col">
       <TopNoticeDialog open={noticeDialog.open} onOpenChange={(o) => setNoticeDialog((p) => ({ ...p, open: o }))} badge={noticeDialog.type === "danger" ? "EXCLUIR" : "AVISO"} title={noticeDialog.title} description={noticeDialog.description} type={noticeDialog.type} confirmText={noticeDialog.confirmText} cancelText={noticeDialog.cancelText} onConfirm={noticeDialog.onConfirm} />
       {!inline && <DialogHeader className="sr-only"><DialogTitle>Configuração de campos personalizados - Empresas</DialogTitle></DialogHeader>}
       {showForm ?
-        <form onSubmit={handleSubmit} className="bg-white flex-1 min-h-0 flex flex-col overflow-hidden">
-          <LegacyRecordToolbar title={form.label || (editingId ? "EDITAR CAMPO" : "NOVO CAMPO")} badgeLabel="CAMPO PERSONALIZADO" operationLabel={operationLabel} showSaveActions={editMode} showEditAction={isReadOnly} showDeleteDuplicateActions={!!editingId && !editMode && !isDuplicating && !isNativeSelect} onSave={() => handleSubmit({ preventDefault: () => {} })} onCancel={handleDiscard} onEditRecord={() => setEditMode(true)} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} onNew={handleNew} total={campos.length} currentIndex={selectedIndex} onFirst={() => navigateCampo(0)} onPrevious={() => navigateCampo(selectedIndex - 1)} onNext={() => navigateCampo(selectedIndex + 1)} onLast={() => navigateCampo(campos.length - 1)} onDelete={handleDeleteCurrent} onDuplicate={handleDuplicateCurrent} onSettingsClick={() => {}} showUtilityActions={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
-          <fieldset className={`flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+        <EmpSplitToolbarLayout
+          className="h-full min-h-0 flex-1"
+          toolbar={
+            <LegacyRecordToolbar title={form.label || (editingId ? "EDITAR CAMPO" : "NOVO CAMPO")} badgeLabel="CAMPO PERSONALIZADO" operationLabel={operationLabel} showSaveActions={editMode} showEditAction={isReadOnly} showDeleteDuplicateActions={!!editingId && !editMode && !isDuplicating && !isNativeSelect} onSave={() => handleSubmit({ preventDefault: () => {} })} onCancel={handleDiscard} onEditRecord={() => setEditMode(true)} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} onNew={handleNew} total={campos.length} currentIndex={selectedIndex} onFirst={() => navigateCampo(0)} onPrevious={() => navigateCampo(selectedIndex - 1)} onNext={() => navigateCampo(selectedIndex + 1)} onLast={() => navigateCampo(campos.length - 1)} onDelete={handleDeleteCurrent} onDuplicate={handleDuplicateCurrent} onSettingsClick={() => {}} showUtilityActions={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
+          }
+        >
+        <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+          <fieldset className={`form-scroll-container min-h-0 flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
             <div className="px-4 md:px-8 py-2 space-y-1 max-w-[780px]">
               <Field label="Nome do campo" required><Input value={form.label} onChange={(e) => updateForm("label", e.target.value)} readOnly={isNativeSelect} placeholder="EX: CONTATO RESPONSÁVEL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
               <Field label="Tipo"><EmpAutocomplete items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="BUSCAR TIPO..." displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 uppercase" /></Field>
@@ -669,13 +675,18 @@ export default function EmpConfiguracaoCamposDialog({
             </div>
           </fieldset>
         </form>
+        </EmpSplitToolbarLayout>
         :
-        <div className="flex-1 min-h-0 overflow-hidden bg-white flex flex-col">
-          <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
-          <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
-            <div ref={tableStageRef} className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
-              <div className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
-                <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
+        <EmpSplitToolbarLayout
+          className="h-full min-h-0 flex-1"
+          toolbar={
+            <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
+          }
+        >
+          <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden p-1.5">
+            <div ref={tableStageRef} className={`emp-table-stage relative h-full min-h-0 ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
+              <div className="emp-table-shell flex h-full min-h-0 flex-col overflow-hidden bg-white shadow-none">
+                <div className="emp-campos-config-table-wrap min-h-0 flex-1 overflow-auto">
                 <Table className="emp-table-pro w-full min-w-[760px] border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
@@ -767,7 +778,7 @@ export default function EmpConfiguracaoCamposDialog({
               {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
             </div>
           </div>
-        </div>
+        </EmpSplitToolbarLayout>
       }
     </div>
   );

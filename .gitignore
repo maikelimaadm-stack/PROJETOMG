@@ -1,6 +1,11 @@
 #env
 .env
 .env.*
+!.env.example
+!.env.local.example
+
+# Personalizações locais (não versionar)
+.local/
 
 # Logs
 logs

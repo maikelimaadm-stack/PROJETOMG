@@ -16,7 +16,7 @@ export function useFormEmpCustomFields({
   onUploadError,
 }) {
   const readOnlyClass = isReadOnly ? "cursor-default" : "";
-  const customInputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1";
+  const customInputClass = "emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase";
 
   const handleCustomDateTimeChange = (fieldName, part, nextValue) => {
     const current = splitDateTimeValue(formData.campos_personalizados?.[fieldName]);
@@ -41,7 +41,7 @@ export function useFormEmpCustomFields({
           onChange={(e) => handleCustomChange(campo.field_name, e.target.value)}
           placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
           readOnly={fieldReadOnly}
-          className={`text-xs uppercase bg-transparent px-1 ${readOnlyClass}`}
+          className={`emp-form-input text-xs uppercase bg-white px-2 ${readOnlyClass}`}
           rows={campo.rows || 2}
         />
       );
@@ -60,7 +60,7 @@ export function useFormEmpCustomFields({
           )}
           readOnly
           placeholder="CALCULADO"
-          className={`${customInputClass} bg-slate-50`}
+          className={`${customInputClass} ${readOnlyClass}`}
         />
       );
     }
@@ -99,7 +99,7 @@ export function useFormEmpCustomFields({
           disabled={fieldReadOnly}
           readOnly={fieldReadOnly}
           className="w-full"
-          inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1"
+          inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase"
         />
       );
     }

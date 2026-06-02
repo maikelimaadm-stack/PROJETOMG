@@ -7,7 +7,6 @@ import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
 
 const STACKED_TEXT_WIDTH = "w-full max-w-[480px]";
-const COMPACT_TEXT_WIDTH = "w-full max-w-[220px]";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
@@ -32,20 +31,12 @@ const getFieldControlClass = (field, error, className, layoutMode = "stacked") =
     return `emp-form-field-control ${loteStyle ? "emp-form-field-control-lote" : ""} emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-[100px] shrink-0 ${error ? "emp-form-field-error" : ""} ${className}`.trim();
   }
 
-  const heightClass =
-    field.type === "textarea"
-      ? "min-h-[48px]"
-      : field.wide
-        ? "min-h-6"
-        : "h-6";
+  const heightClass = field.type === "textarea" ? "min-h-[var(--emp-form-textarea-min-height)]" : "min-h-[var(--emp-form-control-height)]";
 
   let widthClass = "w-full";
 
   if (layoutMode === "compact") {
-    if (field.compact) widthClass = "w-40 max-w-full";
-    else if (field.medium) widthClass = "w-52 max-w-full";
-    else if (isTextLikeField(field)) widthClass = COMPACT_TEXT_WIDTH;
-    else widthClass = COMPACT_TEXT_WIDTH;
+    widthClass = "w-full";
   } else if (isTextLikeField(field)) {
     widthClass = STACKED_TEXT_WIDTH;
   } else if (field.medium) {
@@ -58,35 +49,30 @@ const getFieldControlClass = (field, error, className, layoutMode = "stacked") =
 };
 
 function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
-  if (loteStyle) {
-    return (
-      <div className="h-[22px] flex items-center px-1">
-        <ToggleSwitch variant="lote" checked={!!checked} onChange={onChange} disabled={disabled} />
-      </div>
-    );
-  }
-
   return (
-    <ToggleSwitch
-      checked={!!checked}
-      onChange={onChange}
-      disabled={disabled}
-      className="emp-form-toggle-switch"
-      checkedClassName="emp-form-toggle-switch-on"
-    />
+    <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">
+      <ToggleSwitch
+        checked={!!checked}
+        onChange={onChange}
+        disabled={disabled}
+        className="emp-form-toggle-switch"
+        checkedClassName="emp-form-toggle-switch-on"
+        variant={loteStyle ? "lote" : "default"}
+      />
+    </div>
   );
 }
 
 function DefaultControl({ field, value, onChange, readOnly }) {
   const loteStyle = isCustomField(field);
-  const inputClass = `h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 ${loteStyle ? "bg-transparent" : "bg-white"} px-1`;
+  const inputClass = `emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white ${field.uppercase !== false ? "uppercase" : ""}`.trim();
 
   if (field.type === "textarea") {
-    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`w-full text-xs uppercase ${loteStyle ? "bg-transparent" : "bg-white"} px-1`} rows={field.rows || 2} />;
+    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className="emp-form-input w-full bg-white px-2 uppercase" rows={field.rows || 2} />;
   }
 
   if (["select", "autocomplete", "relation"].includes(field.type)) {
-    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} placeholder={field.placeholder || "BUSCAR..."} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full" inputClassName={`border-0 shadow-none focus-visible:ring-0 ${loteStyle ? "bg-transparent" : "bg-white"} h-[22px] text-xs px-1`} />;
+    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} placeholder={field.placeholder || "BUSCAR..."} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full emp-autocomplete" inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase" />;
   }
 
   if (field.type === "checkbox") {
@@ -100,7 +86,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
     );
   }
 
-  return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`${inputClass} w-full min-w-0 ${field.uppercase ? "uppercase" : ""}`} />;
+  return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={inputClass} />;
 }
 
 const normalizeConditionText = (value) => String(value ?? "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -134,7 +120,7 @@ function FieldFrameStacked({ field, error, children, className = "" }) {
         {field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
-        <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
+        <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">{children}</div>
       ) : (
         <div className={getFieldControlClass(field, error, className, "stacked")}>
           {loteStyle && <EmpCustomMarker variant="lote" />}
@@ -159,7 +145,7 @@ function FieldFrameGrid({ field, error, children, className = "", spanFull = fal
         {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
-        <div className="emp-form-field-bare flex h-6 items-center">{children}</div>
+        <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">{children}</div>
       ) : (
         <div className={getFieldControlClass(field, error, className, "compact")}>
           {loteStyle && <EmpCustomMarker variant="lote" />}
@@ -190,8 +176,7 @@ export default function EmpDynamicFormRenderer({
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const activeFieldIds = layout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
-  const isPrincipalPanel = activePanel?.id === "principal";
-  const layoutMode = isPrincipalPanel && normalizedFieldLayout.mode !== "detailsCompact" ? "stacked" : ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode) ? "compact" : "stacked";
+  const layoutMode = ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode) ? "compact" : "stacked";
   const useCompactMode = layoutMode === "compact";
   const columnCount = normalizedFieldLayout.columns;
 

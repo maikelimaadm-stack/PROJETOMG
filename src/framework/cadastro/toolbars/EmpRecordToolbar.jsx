@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
-import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -57,7 +56,7 @@ export default function EmpRecordToolbar({
 
   return (
     <div className="bg-white emp-toolbar shadow-none overflow-hidden">
-      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5 border-b border-sky-100">
+      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5 border-b border-[#f4f4f4]">
         {onBack && (
           <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}
@@ -148,8 +147,6 @@ export default function EmpRecordToolbar({
           />
         </div>
       </div>
-
-      <EmpToolbarInfoBar badgeLabel={badgeLabel} title={title} operationLabel={operationLabel} />
     </div>
   );
 }

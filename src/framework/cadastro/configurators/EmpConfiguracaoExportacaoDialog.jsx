@@ -19,6 +19,7 @@ import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
 import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -64,20 +65,23 @@ export default function EmpConfiguracaoExportacaoDialog({
             </button>
           </div>
 
-          <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
-            <ToolbarBtn onClick={selectAllColumns} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Selecionar todas">
-              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
-              <span>Todas</span>
-            </ToolbarBtn>
-            <ToolbarBtn onClick={clearColumns} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Limpar seleção">
-              <EmpToolbarIcon icon={X} />
-              <span>Limpar</span>
-            </ToolbarBtn>
-            <div className="ml-auto flex items-center gap-1 pr-1">
-              <EmpBubbleCounter value={String(columnIds.length)} title="Colunas selecionadas" className="emp-toolbar-bubble-counter" />
-            </div>
-          </div>
-
+          <EmpSplitToolbarLayout
+            toolbar={
+              <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
+                <ToolbarBtn onClick={selectAllColumns} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Selecionar todas">
+                  <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
+                  <span>Todas</span>
+                </ToolbarBtn>
+                <ToolbarBtn onClick={clearColumns} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Limpar seleção">
+                  <EmpToolbarIcon icon={X} />
+                  <span>Limpar</span>
+                </ToolbarBtn>
+                <div className="ml-auto flex items-center gap-1 pr-1">
+                  <EmpBubbleCounter value={String(columnIds.length)} title="Colunas selecionadas" className="emp-toolbar-bubble-counter" />
+                </div>
+              </div>
+            }
+          >
           <EmpToolbarInfoBar badgeLabel={badge} title={titulo} operationLabel="Configuração" className="!border-b-[0.5px]" />
 
           <div className="px-2 py-1">
@@ -125,6 +129,7 @@ export default function EmpConfiguracaoExportacaoDialog({
               </CardContent>
             </Card>
           </div>
+          </EmpSplitToolbarLayout>
         </div>
       </DialogContent>
     </Dialog>

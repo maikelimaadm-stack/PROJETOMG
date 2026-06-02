@@ -10,6 +10,10 @@
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "generate:module": "node scripts/generate-cadastro-module.mjs",
+    "personalizacoes:init": "node scripts/personalizacoes/emp-personalizacoes.mjs init",
+    "personalizacoes:status": "node scripts/personalizacoes/emp-personalizacoes.mjs status",
+    "personalizacoes:import": "node scripts/personalizacoes/emp-personalizacoes.mjs import",
+    "personalizacoes:apply-form-layout": "node scripts/personalizacoes/emp-personalizacoes.mjs apply-form-layout",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui"
   },

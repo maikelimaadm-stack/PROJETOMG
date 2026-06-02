@@ -7,7 +7,7 @@ export default function PAGCampos() {
   const { empresas } = useAuth();
 
   return (
-    <div className="h-full min-h-0 overflow-hidden bg-white flex flex-col">
+    <div className="cadastro-emp-scope h-full min-h-0 overflow-hidden flex flex-col">
       <EmpConfiguracaoCamposDialog
         open
         inline

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Card, CardContent } from "@/shared/ui/card";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import { useQuery } from "@tanstack/react-query";
@@ -7,6 +6,7 @@ import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
+import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import {
@@ -95,6 +95,8 @@ export default function TBLEMP({
   const lastSelectedIdRef = useRef(null);
   const tableStageRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  const headerScrollRef = useRef(null);
+  const footerScrollRef = useRef(null);
   const tableRef = useRef(null);
   const [isTableFullscreen, setIsTableFullscreen] = useState(false);
   const dragRef = useRef(null);
@@ -425,7 +427,7 @@ export default function TBLEMP({
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, [syncTableFullscreen]);
 
-  const handleToggleTableFullscreen = async () => {
+  const handleToggleTableFullscreen = useCallback(async () => {
     const el = tableStageRef.current;
     if (!el) return;
     try {
@@ -434,7 +436,22 @@ export default function TBLEMP({
     } catch {
       /* navegador sem suporte */
     }
-  };
+  }, []);
+
+  const { registerTableFullscreen, unregisterTableFullscreen } = useErpTableFullscreen();
+
+  useEffect(() => {
+    registerTableFullscreen({
+      onToggle: handleToggleTableFullscreen,
+      isFullscreen: isTableFullscreen,
+    });
+    return () => unregisterTableFullscreen();
+  }, [
+    registerTableFullscreen,
+    unregisterTableFullscreen,
+    handleToggleTableFullscreen,
+    isTableFullscreen,
+  ]);
 
   const handleTableKeyDown = (e) => {
     if (e.key === "Escape" && document.fullscreenElement === tableStageRef.current) return;
@@ -452,7 +469,7 @@ export default function TBLEMP({
 
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";
-    return index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
+    return "emp-row-even";
   };
 
   const agregacoes = useMemo(() => campoEngine.calcularAgregacoes ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {}) : {}, [empresasOrdenadas, colunasOrdenadas]);
@@ -516,6 +533,21 @@ export default function TBLEMP({
       window.removeEventListener("scroll", onReflow, true);
     };
   }, [menuFiltroAberto, colunasOrdenadas, columnWidths, frozenColumnCount]);
+
+  useEffect(() => {
+    const body = scrollContainerRef.current;
+    const footer = footerScrollRef.current;
+    const header = headerScrollRef.current;
+    if (!body) return undefined;
+    const syncHorizontalScroll = () => {
+      const left = body.scrollLeft;
+      if (footer) footer.scrollLeft = left;
+      if (header) header.scrollLeft = left;
+    };
+    body.addEventListener("scroll", syncHorizontalScroll, { passive: true });
+    syncHorizontalScroll();
+    return () => body.removeEventListener("scroll", syncHorizontalScroll);
+  }, [colunasOrdenadas, columnWidths, agregacoes]);
 
   useEffect(() => {
     if (!menuFiltroAberto) return undefined;
@@ -730,108 +762,143 @@ export default function TBLEMP({
     onVisibleDataChange?.({ columns: buildCols(exp), rows: buildRows(empresasOrdenadas, exp), selectedRows: buildRows(selEmps, exp), totalRows: totalRow ? [totalRow] : [], allColumns: buildCols(colunasTodasOrdenadas), allRows: buildRows(empresasOrdenadas, colunasTodasOrdenadas), allSelectedRows: buildRows(selEmps, colunasTodasOrdenadas), allTotalRows: totalRow ? [totalRow] : [] });
   }, [colunasOrdenadas, colunasTodasOrdenadas, empresasOrdenadas, selectedItems, onVisibleDataChange, agregacoes, columnWidths]);
 
+  const hasTotalRow = Object.keys(agregacoes).length > 0;
+
+  const renderHeaderCells = () =>
+    colunasOrdenadas.map((col, colIndex) => {
+      const width = columnPixelWidths[col.id] || 160;
+      const isFrozen = colIndex < frozenColumnCount;
+      const isResizing = resizeColumnId === col.id;
+      const isColFiltered = hasActiveFilter(col.id);
+      const isFilterOpen = menuFiltroAberto === col.id;
+      return (
+        <TableHead
+          key={col.id}
+          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          className={`emp-th group relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          onDoubleClick={() => handleSort(col.id)}
+        >
+          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+            <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
+          </div>
+          <div
+            className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => e.stopPropagation()}
+          >
+            <span
+              ref={(el) => {
+                if (el) filterAnchorRefs.current[col.id] = el;
+                else delete filterAnchorRefs.current[col.id];
+              }}
+              role="button"
+              tabIndex={0}
+              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${
+                isColFiltered || isFilterOpen
+                  ? "opacity-100 pointer-events-auto"
+                  : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+              }`}
+              title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleFilterMenu(col.id);
+              }}
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                if (!isColFiltered) return;
+                clearColumnFilter(col.id);
+                closeFilterMenu();
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleFilterMenu(col.id);
+                }
+              }}
+            >
+              {renderFilterIcon(isColFiltered)}
+            </span>
+          </div>
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label={`Redimensionar coluna ${formatHeaderLabel(col)}. Duplo clique para ajustar automaticamente.`}
+            className={`emp-col-resize-handle absolute top-0 right-0 h-full w-[7px] translate-x-1/2 z-[60] cursor-col-resize touch-none ${
+              isResizing ? "emp-col-resize-active" : ""
+            }`}
+            onMouseDown={(e) => startDragResize(e, col)}
+            onTouchStart={(e) => startDragResize(e, col)}
+            onClick={(e) => e.stopPropagation()}
+            onDoubleClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              autoFitColumnWidth(col);
+            }}
+          />
+        </TableHead>
+      );
+    });
+
+  const renderTotalCells = () =>
+    colunasOrdenadas.map((col, ci) => {
+      const width = columnPixelWidths[col.id] || 160;
+      const isFrozen = ci < frozenColumnCount;
+      return (
+        <TableHead
+          key={`total-${col.id}`}
+          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          className={`emp-th relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+        >
+          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+            <span className="emp-th-label truncate font-semibold">
+              {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
+            </span>
+          </div>
+        </TableHead>
+      );
+    });
+
   return (
-    <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
+    <div className="emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none">
       <div
         ref={tableStageRef}
-        className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
+        className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
       >
-      <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
-        <CardContent className="h-full min-h-0 p-0 overflow-hidden flex flex-col">
-          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
+          <div
+            ref={headerScrollRef}
+            className="emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden"
+          >
             <div
-              ref={scrollContainerRef}
-              tabIndex={0}
-              onKeyDown={handleTableKeyDown}
-              className="relative flex-1 min-h-0 w-full outline-none overflow-auto"
+              className="block w-max min-w-full"
+              style={{ width: totalTableWidth, minWidth: totalTableWidth }}
             >
-              <div
-                className="block w-max min-w-full"
+              <Table
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                className="emp-table-pro emp-table-pro-header w-full border-separate border-spacing-0 table-fixed select-none"
               >
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
+                </TableHeader>
+              </Table>
+            </div>
+          </div>
+          <div
+            ref={scrollContainerRef}
+            tabIndex={0}
+            onKeyDown={handleTableKeyDown}
+            className="emp-table-body-scroll min-h-0 flex-1 outline-none overflow-auto"
+          >
+            <div
+              className="block w-max min-w-full min-h-full"
+              style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+            >
               <Table
                 ref={tableRef}
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none"
+                className="emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none"
               >
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">
-                    {colunasOrdenadas.map((col, colIndex) => {
-                      const width = columnPixelWidths[col.id] || 160;
-                      const isFrozen = colIndex < frozenColumnCount;
-                      const isResizing = resizeColumnId === col.id;
-                      const isColFiltered = hasActiveFilter(col.id);
-                      const isFilterOpen = menuFiltroAberto === col.id;
-                      return (
-                        <TableHead
-                          key={col.id}
-                          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                          className={`emp-th group relative sticky top-0 align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
-                          onDoubleClick={() => handleSort(col.id)}
-                        >
-                          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-                            <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
-                          </div>
-                          <div
-                              className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
-                              onClick={(e) => e.stopPropagation()}
-                              onDoubleClick={(e) => e.stopPropagation()}
-                            >
-                              <span
-                                ref={(el) => {
-                                  if (el) filterAnchorRefs.current[col.id] = el;
-                                  else delete filterAnchorRefs.current[col.id];
-                                }}
-                                role="button"
-                                tabIndex={0}
-                                className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${
-                                  isColFiltered || isFilterOpen
-                                    ? "opacity-100 pointer-events-auto"
-                                    : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
-                                }`}
-                                title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleFilterMenu(col.id);
-                                }}
-                                onDoubleClick={(e) => {
-                                  e.stopPropagation();
-                                  if (!isColFiltered) return;
-                                  clearColumnFilter(col.id);
-                                  closeFilterMenu();
-                                }}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter" || e.key === " ") {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    toggleFilterMenu(col.id);
-                                  }
-                                }}
-                              >
-                                {renderFilterIcon(isColFiltered)}
-                              </span>
-                            </div>
-                          <div
-                            role="separator"
-                            aria-orientation="vertical"
-                            aria-label={`Redimensionar coluna ${formatHeaderLabel(col)}. Duplo clique para ajustar automaticamente.`}
-                            className={`emp-col-resize-handle absolute top-0 right-0 h-full w-[7px] translate-x-1/2 z-[60] cursor-col-resize touch-none ${
-                              isResizing ? "emp-col-resize-active" : ""
-                            }`}
-                            onMouseDown={(e) => startDragResize(e, col)}
-                            onTouchStart={(e) => startDragResize(e, col)}
-                            onClick={(e) => e.stopPropagation()}
-                            onDoubleClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              autoFitColumnWidth(col);
-                            }}
-                          />
-                        </TableHead>
-                      );
-                    })}
-                  </TableRow>
-                </TableHeader>
                 <TableBody>
                   {isLoadingEmpresas
                     ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando empresas...</TableCell></TableRow>
@@ -846,7 +913,7 @@ export default function TBLEMP({
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 h-[26px] leading-[26px] text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );
@@ -855,44 +922,41 @@ export default function TBLEMP({
                     ); })
                   }
                 </TableBody>
-                {Object.keys(agregacoes).length > 0 && (
-                  <TableFooter className="emp-table-footer border-0 bg-[#eaf2ff] font-semibold [&>tr]:border-0">
+              </Table>
+            </div>
+          </div>
+        </div>
+        <div className="emp-table-bottom-dock">
+          {hasTotalRow ? (
+            <div
+              ref={footerScrollRef}
+              className="emp-table-footer-bar overflow-x-hidden overflow-y-hidden"
+            >
+              <div
+                className="block w-max min-w-full"
+                style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+              >
+                <Table
+                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                  className="emp-table-pro emp-table-pro-footer w-full border-separate border-spacing-0 table-fixed select-none"
+                >
+                  <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
                     <TableRow className="emp-total-row border-0 hover:bg-transparent">
-                      {colunasOrdenadas.map((col, ci) => {
-                        const width = columnPixelWidths[col.id] || 160;
-                        const isFrozen = ci < frozenColumnCount;
-                        return (
-                          <TableHead
-                            key={`total-${col.id}`}
-                            style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                            className={`emp-th relative sticky bottom-0 align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
-                          >
-                            <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-                              <span className="emp-th-label truncate font-semibold">
-                                {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
-                              </span>
-                            </div>
-                          </TableHead>
-                        );
-                      })}
+                      {renderTotalCells()}
                     </TableRow>
                   </TableFooter>
-                )}
-              </Table>
+                </Table>
               </div>
             </div>
-            <EmpTablePagination
-              currentPage={safeCurrentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-              isFullscreen={isTableFullscreen}
-              onToggleFullscreen={handleToggleTableFullscreen}
-            />
-          </div>
-        </CardContent>
-      </Card>
+          ) : null}
+          <EmpTablePagination
+            currentPage={safeCurrentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={handlePageChange}
+            onPageSizeChange={handlePageSizeChange}
+          />
+        </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>
       <EmpConfiguracaoColunasDialog
