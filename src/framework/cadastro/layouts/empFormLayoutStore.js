@@ -1,6 +1,31 @@
-const PRESETS_KEY = "cadastro_emp_form_layout_presets_v1";
-const LEGACY_KEY = "cadastro_emp_form_layout_config";
+const LEGACY_PRESETS_KEY = "cadastro_emp_form_layout_presets_v1";
+const LEGACY_CONFIG_KEY = "cadastro_emp_form_layout_config";
 export const DEFAULT_PRESET_ID = "default";
+
+let boundUserId = null;
+
+export const bindLayoutStoreUser = (userId) => {
+  boundUserId = userId ? String(userId) : null;
+};
+
+const getPresetsKey = () => getLayoutStorageKeys().presetsKey;
+const getLegacyKey = () => getLayoutStorageKeys().legacyKey;
+const getAggregationKey = () => getLayoutStorageKeys().aggregationKey;
+
+export const getLayoutStorageKeys = (userId = boundUserId) => {
+  if (!userId) {
+    return {
+      presetsKey: LEGACY_PRESETS_KEY,
+      legacyKey: LEGACY_CONFIG_KEY,
+      aggregationKey: "emp_table_aggregation_config",
+    };
+  }
+  return {
+    presetsKey: `cadastro:${userId}:emp:form_layout_presets_v1`,
+    legacyKey: `cadastro:${userId}:emp:form_layout_config`,
+    aggregationKey: `cadastro:${userId}:emp:table_aggregation_config`,
+  };
+};
 
 const createSystemPreset = () => ({
   id: DEFAULT_PRESET_ID,
@@ -20,7 +45,7 @@ const cloneValue = (value) => JSON.parse(JSON.stringify(value));
 
 const readState = () => {
   try {
-    const raw = localStorage.getItem(PRESETS_KEY);
+    const raw = localStorage.getItem(getPresetsKey());
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed?.presets?.length) return null;
@@ -31,12 +56,12 @@ const readState = () => {
 };
 
 const writeState = (state) => {
-  localStorage.setItem(PRESETS_KEY, JSON.stringify(state));
+  localStorage.setItem(getPresetsKey(), JSON.stringify(state));
 };
 
 const readLegacyConfig = () => {
   try {
-    const raw = localStorage.getItem(LEGACY_KEY);
+    const raw = localStorage.getItem(getLegacyKey());
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -44,7 +69,7 @@ const readLegacyConfig = () => {
 };
 
 const writeLegacyConfig = (config) => {
-  localStorage.setItem(LEGACY_KEY, JSON.stringify(config));
+  localStorage.setItem(getLegacyKey(), JSON.stringify(config));
 };
 
 const ensureState = () => {

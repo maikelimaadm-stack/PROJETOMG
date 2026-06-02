@@ -11,25 +11,40 @@ import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormR
 import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpLayoutConfiguratorDialog";
 import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
+  getLayoutStorageKeys,
   normalizeLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
+import {
+  getEmpresasFormLayoutKey,
+  hydrateEmpresasFormLayout,
+  scheduleEmpresasFormLayoutSync,
+} from "@/framework/cadastro/layouts/userLayoutPreferencesSync";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
+import { useAuth } from "@/shared/contexts/AuthContext";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import {
   ESTADOS_BR,
   UPPER_FIELDS,
   REQUIRED_FIELDS,
-  FORM_LAYOUT_KEY,
-  TABLE_AGGREGATION_KEY,
   inputClass,
   applyDuplicateFieldClears,
   buildEmptyEmpresaForm,
   NATIVE_FIELDS,
 } from "./formEmp.constants";
 import { useFormEmpCustomFields } from "./formEmp.customFields";
+
+const readStoredLayoutConfig = (layoutKey) => {
+  if (!layoutKey) return null;
+  try {
+    const saved = localStorage.getItem(layoutKey);
+    return saved ? JSON.parse(saved) : null;
+  } catch {
+    return null;
+  }
+};
 
 export default function FORMEMP({
   onSubmit, onCancel, onAttachClick, attachDisabled = false,
@@ -40,20 +55,41 @@ export default function FORMEMP({
   searchValue = "", onSearchChange,
   initialData, isEditing
 }) {
+  const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
   const [errors, setErrors] = useState({});
   const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
   const [fieldLayoutConfigOpen, setFieldLayoutConfigOpen] = useState(false);
   const [layoutPresetsState, setLayoutPresetsState] = useState(() => empFormLayoutStore.getState());
+  const [layoutHydrated, setLayoutHydrated] = useState(false);
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
-  const [formLayoutConfig, setFormLayoutConfig] = useState(() => {
-    const saved = localStorage.getItem(FORM_LAYOUT_KEY);
-    if (!saved) return null;
-    try { return JSON.parse(saved); } catch { return null; }
-  });
+  const [formLayoutConfig, setFormLayoutConfig] = useState(null);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setLayoutHydrated(false);
+      setFormLayoutConfig(null);
+      return;
+    }
+
+    let cancelled = false;
+    setLayoutHydrated(false);
+
+    hydrateEmpresasFormLayout(user.id).then(() => {
+      if (cancelled) return;
+      const layoutKey = getEmpresasFormLayoutKey(user.id);
+      setFormLayoutConfig(readStoredLayoutConfig(layoutKey));
+      setLayoutPresetsState(empFormLayoutStore.getState());
+      setLayoutHydrated(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const buildFormData = (data) =>
     data
@@ -64,7 +100,8 @@ export default function FORMEMP({
   useEffect(() => {
     let next = buildFormData(initialData);
     if (initialData?._isDuplicate) {
-      const saved = localStorage.getItem(FORM_LAYOUT_KEY);
+      const layoutKey = user?.id ? getEmpresasFormLayoutKey(user.id) : null;
+      const saved = layoutKey ? localStorage.getItem(layoutKey) : null;
       let clearIds = formLayoutConfig?.clearOnDuplicateFieldIds || [];
       if (!clearIds.length && saved) {
         try {
@@ -301,12 +338,14 @@ export default function FORMEMP({
       camposPersonalizadosCount: camposPersonalizadosForm.length,
       mergeNewCustomFields: false,
     });
+    const { legacyKey, aggregationKey } = getLayoutStorageKeys(user?.id);
     setFormLayoutConfig(normalized);
-    localStorage.setItem(FORM_LAYOUT_KEY, JSON.stringify(normalized));
-    localStorage.setItem(TABLE_AGGREGATION_KEY, JSON.stringify(normalized.aggregationConfig || {}));
+    localStorage.setItem(legacyKey, JSON.stringify(normalized));
+    localStorage.setItem(aggregationKey, JSON.stringify(normalized.aggregationConfig || {}));
     window.dispatchEvent(new Event("emp-layout-updated"));
     empFormLayoutStore.persistActiveConfig(normalized);
     setLayoutPresetsState(empFormLayoutStore.getState());
+    if (user?.id) scheduleEmpresasFormLayoutSync(user.id);
     if (updateActiveTab) {
       const visiblePanels = normalized.panels.filter((panel) => !panel.hidden && panel.id !== "principal");
       if (!visiblePanels.some((panel) => panel.id === activeTab)) {
@@ -314,6 +353,12 @@ export default function FORMEMP({
       }
     }
     return normalized;
+  };
+
+  const handleRenameLayoutPreset = ({ presetId, name }) => {
+    empFormLayoutStore.renamePreset(presetId, name);
+    setLayoutPresetsState(empFormLayoutStore.getState());
+    if (user?.id) scheduleEmpresasFormLayoutSync(user.id);
   };
 
   const handleApplyLayoutPreset = (presetId) => {
@@ -340,10 +385,13 @@ export default function FORMEMP({
     applyLayoutConfig(config);
   };
 
-  const handleRenameLayoutPreset = ({ presetId, name }) => {
-    empFormLayoutStore.renamePreset(presetId, name);
-    setLayoutPresetsState(empFormLayoutStore.getState());
-  };
+  if (!layoutHydrated && user?.id) {
+    return (
+      <div className="h-full min-h-0 flex items-center justify-center bg-white text-xs text-slate-400">
+        Carregando layout do formulário...
+      </div>
+    );
+  }
 
   const saveLayoutConfig = (nextConfig) => {
     applyLayoutConfig({

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { AuthApi } from "@/apis/auth/AuthApi";
+import { resetEmpresasFormLayoutSync } from "@/framework/cadastro/layouts/userLayoutPreferencesSync";
 
 const AuthContext = createContext();
 
@@ -145,6 +146,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await AuthApi.logout().catch(() => null);
+    resetEmpresasFormLayoutSync();
     setUser(null);
     setCliente(null);
     setEmpresas([]);
