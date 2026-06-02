@@ -7,7 +7,13 @@ import { closePrismaClient } from "./database/prismaClient.js";
 import { validateRuntimeEnv } from "./config/env.js";
 
 dotenv.config();
-validateRuntimeEnv();
+try {
+  validateRuntimeEnv();
+} catch (error) {
+  // In cloud deploys we prefer a degraded boot + health diagnostics over crash loops (502).
+  // Missing envs will surface in /api/health and failing routes as needed.
+  console.warn(`[env] ${error.message}`);
+}
 
 const parseAllowedOrigins = () =>
   String(process.env.FRONTEND_ORIGINS || "")
