@@ -102,6 +102,22 @@ const buildServer = () => {
   const allowedOrigins = parseAllowedOrigins();
   const jwtSecret = String(process.env.JWT_SECRET || "mak-gestao-dev-jwt-secret");
 
+  // DELETE/GET sem corpo não deve falhar quando o client envia Content-Type: application/json.
+  app.removeContentTypeParser("application/json");
+  app.addContentTypeParser("application/json", { parseAs: "string" }, (request, body, done) => {
+    const raw = body == null ? "" : String(body);
+    if (!raw.trim()) {
+      done(null, undefined);
+      return;
+    }
+    try {
+      done(null, JSON.parse(raw));
+    } catch (error) {
+      error.statusCode = 400;
+      done(error, undefined);
+    }
+  });
+
   app.register(fastifyRateLimit, {
     max: Number(process.env.RATE_LIMIT_MAX || 240),
     timeWindow: "1 minute",
@@ -126,6 +142,8 @@ const buildServer = () => {
       return callback(new Error("Origin não permitida"), false);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Authorization", "Content-Type", "X-Empresa-Id"],
   });
   app.register(multipart);
 

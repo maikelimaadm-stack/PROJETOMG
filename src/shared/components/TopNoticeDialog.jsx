@@ -22,8 +22,12 @@ export default function TopNoticeDialog({
   const iconClass = isDanger ? "text-red-600" : type === "info" ? "text-slate-500" : "text-amber-500";
 
   const handleConfirm = async () => {
-    await onConfirm?.();
-    onOpenChange?.(false);
+    try {
+      await onConfirm?.();
+      onOpenChange?.(false);
+    } catch {
+      // Mantém o dialog aberto para o usuário tentar novamente.
+    }
   };
 
   return (

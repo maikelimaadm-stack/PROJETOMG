@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
@@ -63,6 +63,7 @@ export default function PAGEMP() {
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const pendingDeleteIdsRef = useRef([]);
   const queryClient = useQueryClient();
 
   const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE } = useQuery({
@@ -193,7 +194,11 @@ export default function PAGEMP() {
     setFormVersion((p) => p + 1);
   };
 
-  const handleRequestDelete = (ids) => setDeleteState({ open: true, ids: Array.isArray(ids) ? ids : [ids] });
+  const handleRequestDelete = (ids) => {
+    const normalized = (Array.isArray(ids) ? ids : [ids]).filter(Boolean);
+    pendingDeleteIdsRef.current = normalized;
+    setDeleteState({ open: true, ids: normalized });
+  };
 
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
@@ -255,8 +260,11 @@ export default function PAGEMP() {
   };
 
   const handleConfirmDelete = async () => {
-    const ids = deleteState.ids;
-    if (ids.length === 0) return;
+    const ids = pendingDeleteIdsRef.current.length > 0 ? pendingDeleteIdsRef.current : deleteState.ids;
+    if (ids.length === 0) {
+      toast.error("Nenhum registro selecionado para exclusão.");
+      throw new Error("Nenhum registro selecionado para exclusão.");
+    }
 
     const wasOnForm = showForm && viewMode === "record";
     const deletedCurrentFromForm = wasOnForm && editingEmp?.id && ids.includes(editingEmp.id);
@@ -276,7 +284,7 @@ export default function PAGEMP() {
           `Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`
         )
       );
-      return;
+      throw error;
     }
 
     if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
@@ -346,7 +354,9 @@ export default function PAGEMP() {
         ? `${moduleLabels.singular} excluída!`
         : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
     );
+    pendingDeleteIdsRef.current = [];
     setDeleteState({ open: false, ids: [] });
+    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
   };
 
   const handleExportPdf = () => {
