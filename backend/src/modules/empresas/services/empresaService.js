@@ -36,9 +36,9 @@ const normalizeEmpresaPayload = (payload = {}, { isUpdate = false } = {}) => {
 };
 
 export const empresaService = {
-  list(query = {}, tenantId) {
+  list(query = {}, scope) {
     return empresaRepository.list({
-      tenantId,
+      scope,
       page: query.page,
       pageSize: query.pageSize,
       search: query.search,
@@ -48,39 +48,39 @@ export const empresaService = {
     });
   },
 
-  get(id, tenantId) {
-    return empresaRepository.getById(id, tenantId);
+  get(id, scope) {
+    return empresaRepository.getById(id, scope);
   },
 
-  create(payload, tenantId) {
-    return empresaRepository.create(normalizeEmpresaPayload(payload, { isUpdate: false }), tenantId);
+  create(payload, scope) {
+    return empresaRepository.create(normalizeEmpresaPayload(payload, { isUpdate: false }), scope);
   },
 
-  update(id, payload, tenantId) {
-    return empresaRepository.update(id, normalizeEmpresaPayload(payload, { isUpdate: true }), tenantId);
+  update(id, payload, scope) {
+    return empresaRepository.update(id, normalizeEmpresaPayload(payload, { isUpdate: true }), scope);
   },
 
-  remove(id, tenantId) {
-    return empresaRepository.remove(id, tenantId);
+  remove(id, scope) {
+    return empresaRepository.remove(id, scope);
   },
 
-  listCampos(tenantId) {
-    return empresaRepository.listCampos(tenantId);
+  listCampos(scope) {
+    return empresaRepository.listCampos(scope);
   },
 
-  createCampo(payload, tenantId) {
-    return empresaRepository.createCampo(payload, tenantId);
+  createCampo(payload, scope) {
+    return empresaRepository.createCampo(payload, scope);
   },
 
-  updateCampo(id, payload, tenantId) {
-    return empresaRepository.updateCampo(id, payload, tenantId);
+  updateCampo(id, payload, scope) {
+    return empresaRepository.updateCampo(id, payload, scope);
   },
 
-  removeCampo(id, tenantId) {
-    return empresaRepository.removeCampo(id, tenantId);
+  removeCampo(id, scope) {
+    return empresaRepository.removeCampo(id, scope);
   },
 
-  async listOptionsSources(sources = []) {
+  async listOptionsSources(sources = [], _scope) {
     // Placeholder para evolução multi-entity.
     const result = {};
     for (const source of sources) {

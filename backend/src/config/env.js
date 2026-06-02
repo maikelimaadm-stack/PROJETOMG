@@ -5,6 +5,7 @@ const requiredRuntimeVars = [
   "SUPABASE_ANON_KEY",
   "SUPABASE_SERVICE_ROLE_KEY",
   "SUPABASE_STORAGE_BUCKET",
+  "JWT_SECRET",
 ];
 
 const missingVars = (keys = []) => keys.filter((key) => !String(process.env[key] || "").trim());

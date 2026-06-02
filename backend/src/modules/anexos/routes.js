@@ -1,10 +1,5 @@
 import { anexoService } from "./services/anexoService.js";
-
-const getTenantId = (request) => {
-  const headerTenant = request.headers["x-tenant-id"];
-  if (headerTenant && String(headerTenant).trim()) return String(headerTenant).trim();
-  return "default";
-};
+import { assertRole, loadAccessScope } from "../auth/accessScope.js";
 
 const readMultipartFile = async (request) => {
   const file = await request.file();
@@ -21,34 +16,35 @@ const readMultipartFile = async (request) => {
 };
 
 export const registerAnexosRoutes = async (app) => {
-  app.get("/api/anexos", async (request) => {
-    const tenantId = getTenantId(request);
+  app.get("/api/anexos", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
     const items = await anexoService.list({
-      tenantId,
+      scope,
       entityName: request.query?.entityName,
       recordId: request.query?.recordId,
     });
     return { items };
   });
 
-  app.post("/api/anexos", async (request, reply) => {
-    const tenantId = getTenantId(request);
-    const item = await anexoService.create(request.body || {}, tenantId);
+  app.post("/api/anexos", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
+    const item = await anexoService.create(request.body || {}, scope);
     return reply.status(201).send({ item });
   });
 
-  app.delete("/api/anexos/:id", async (request, reply) => {
-    const tenantId = getTenantId(request);
-    const ok = await anexoService.remove(request.params.id, tenantId);
+  app.delete("/api/anexos/:id", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN"]);
+    const ok = await anexoService.remove(request.params.id, scope);
     if (!ok) return reply.status(404).send({ message: "Anexo não encontrado" });
     return { ok: true };
   });
 
-  app.post("/api/anexos/upload", async (request, reply) => {
-    const tenantId = getTenantId(request);
+  app.post("/api/anexos/upload", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
     const file = await readMultipartFile(request);
     if (!file) return reply.status(400).send({ message: "Arquivo não informado" });
-    const result = await anexoService.uploadFile({ ...file, tenantId });
+    const result = await anexoService.uploadFile({ ...file, scope });
     return { ...result };
   });
 };
