@@ -1089,7 +1089,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
-  background: #f8fafb !important;
+  background: var(--emp-table-band-bg) !important;
   color: #344054 !important;
 }
 
@@ -1562,21 +1562,26 @@ input[type="number"] {
   border-top: 1px solid var(--emp-table-frame-border) !important;
 }
 
-.cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
-  height: 24px !important;
-  min-height: 24px !important;
-  font-size: 12px !important;
+.cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn {
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  font-size: 11px !important;
+  line-height: 22px !important;
   border: none !important;
   border-radius: 5px !important;
-  color: var(--emp-toolbar-btn-fg) !important;
-  font-weight: 400 !important;
-  background: var(--emp-toolbar-btn-bg) !important;
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
+  color: var(--emp-toolbar-btn-fg) !important;
+  font-weight: 400 !important;
+  background: var(--emp-toolbar-btn-bg) !important;
+}
+
 .cadastro-emp-scope .emp-table-pagination-btn svg {
-  width: 13px !important;
-  height: 13px !important;
+  width: 11px !important;
+  height: 11px !important;
   color: var(--emp-toolbar-btn-fg) !important;
   stroke: var(--emp-toolbar-btn-fg) !important;
 }
@@ -1591,8 +1596,6 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn.emp-table-pagination-page-active {
-  height: 24px !important;
-  min-height: 24px !important;
   border: none !important;
   color: #ffffff !important;
   background: var(--emp-accent-primary) !important;
@@ -1622,9 +1625,10 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-size {
-  height: 24px !important;
-  min-height: 24px !important;
-  font-size: 12px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  font-size: 11px !important;
   box-shadow: none !important;
   color: #94a3b8 !important;
   font-weight: 400 !important;
@@ -2111,7 +2115,20 @@ input[type="number"] {
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-separator"] svg,
 .erp-shell-breadcrumbs svg {
-  color: #94a3b8;
+  color: #64748b;
+}
+
+.erp-shell-breadcrumbs [data-slot="breadcrumb-list"],
+.erp-shell-breadcrumbs [data-slot="breadcrumb-page"],
+.erp-shell-breadcrumbs [data-slot="breadcrumb-item"] {
+  color: #1a1f26 !important;
+  font-weight: 600 !important;
+}
+
+.erp-shell-operation-badge,
+.erp-shell-operation-badge svg {
+  color: #1a1f26 !important;
+  font-weight: 600 !important;
 }
 
 .erp-shell-trigger svg {

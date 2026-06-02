@@ -29,7 +29,7 @@ const getVisiblePages = (currentPage, totalPages) => {
 const PaginationBtn = ({ children, className = "", active = false, ...props }) => (
   <button
     type="button"
-    className={`${PAGINATION_BTN_BASE} h-6 min-h-6 ${active ? "emp-table-pagination-page-active text-white" : "text-[#0f172a]"} ${className}`}
+    className={`${PAGINATION_BTN_BASE} h-[22px] min-h-[22px] max-h-[22px] ${active ? "emp-table-pagination-page-active text-white" : "text-[#0f172a]"} ${className}`}
     {...props}
   >
     {children}
@@ -49,16 +49,16 @@ export default function EmpTablePagination({
   return (
     <div className="emp-table-pagination flex shrink-0 items-center justify-end gap-2 border-t border-[#e8edf3] bg-white px-2 py-1">
       <div className="flex shrink-0 items-center justify-end gap-1">
-      <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-7 min-w-7 p-0" title="Primeira página" aria-label="Primeira página">
-        <ChevronsLeft className="h-3 w-3 shrink-0" strokeWidth={2} />
+      <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Primeira página" aria-label="Primeira página">
+        <ChevronsLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
-      <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1} className="w-7 min-w-7 p-0" title="Página anterior" aria-label="Página anterior">
-        <ChevronLeft className="h-3 w-3 shrink-0" strokeWidth={2} />
+      <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Página anterior" aria-label="Página anterior">
+        <ChevronLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       {pageItems.map((item, index) =>
         item === "ellipsis" ? (
-          <span key={`ellipsis-${index}`} className="emp-table-pagination-ellipsis px-0.5 text-[12px] font-normal text-[#1a1f26] select-none leading-6">
+          <span key={`ellipsis-${index}`} className="emp-table-pagination-ellipsis px-0.5 text-[11px] font-normal text-[#1a1f26] select-none leading-[22px]">
             ...
           </span>
         ) : (
@@ -69,23 +69,23 @@ export default function EmpTablePagination({
             title={`Página ${item}`}
             aria-label={`Página ${item}`}
             aria-current={item === safePage ? "page" : undefined}
-            className="min-w-[20px] px-1"
+            className="min-w-[18px] px-1 text-[11px]"
           >
             {item}
           </PaginationBtn>
         )
       )}
 
-      <PaginationBtn onClick={() => onPageChange?.(safePage + 1)} disabled={safePage >= totalPages} className="w-7 min-w-7 p-0" title="Próxima página" aria-label="Próxima página">
-        <ChevronRight className="h-3 w-3 shrink-0" strokeWidth={2} />
+      <PaginationBtn onClick={() => onPageChange?.(safePage + 1)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Próxima página" aria-label="Próxima página">
+        <ChevronRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
-      <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} className="w-7 min-w-7 p-0" title="Última página" aria-label="Última página">
-        <ChevronsRight className="h-3 w-3 shrink-0" strokeWidth={2} />
+      <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Última página" aria-label="Última página">
+        <ChevronsRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
         <SelectTrigger
-          className={`emp-table-pagination-size h-6 w-[118px] shrink-0 ${EMP_TOOLBAR_FIELD_BORDER} bg-white px-2 text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-white focus:ring-1 focus:ring-sky-300`}
+          className={`emp-table-pagination-size h-[22px] min-h-[22px] max-h-[22px] w-[112px] shrink-0 ${EMP_TOOLBAR_FIELD_BORDER} bg-white px-2 text-[11px] font-normal text-[#1a1f26] shadow-none hover:bg-white focus:ring-1 focus:ring-sky-300`}
           aria-label="Registros por página"
         >
           <SelectValue />

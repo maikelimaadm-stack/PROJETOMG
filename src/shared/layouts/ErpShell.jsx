@@ -112,8 +112,8 @@ function ErpOperationBadge({ operationLabel }) {
   const { Icon, label } = getOperationBadge(operationLabel);
 
   return (
-    <span className="erp-shell-operation-badge inline-flex shrink-0 items-center gap-1 text-xs font-medium text-slate-500 whitespace-nowrap">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={2} aria-hidden="true" />
+    <span className="erp-shell-operation-badge inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[#1a1f26] whitespace-nowrap">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-[#1a1f26]" strokeWidth={2} aria-hidden="true" />
       {label}
     </span>
   );
@@ -135,7 +135,7 @@ function ErpBreadcrumbs({ pathname }) {
   return (
     <div className="erp-shell-breadcrumbs flex shrink-0 items-center justify-between gap-3 px-1 py-3">
       <Breadcrumb className="min-w-0 flex-1">
-        <BreadcrumbList className="text-xs text-slate-500">
+        <BreadcrumbList className="text-xs font-semibold text-[#1a1f26]">
           {trail.map((crumb, index) => {
             const isLast = index === trail.length - 1;
             return (
@@ -144,12 +144,12 @@ function ErpBreadcrumbs({ pathname }) {
                 <BreadcrumbItem>
                   {isLast ? (
                     <BreadcrumbPage
-                      className={`text-xs font-medium ${crumb.isRecord ? "text-slate-700 truncate max-w-[min(100%,420px)]" : "text-slate-700"}`}
+                      className={`text-xs font-semibold text-[#1a1f26] ${crumb.isRecord ? "truncate max-w-[min(100%,420px)]" : ""}`}
                     >
                       {crumb.label}
                     </BreadcrumbPage>
                   ) : (
-                    <span className="text-xs text-slate-500">{crumb.label}</span>
+                    <span className="text-xs font-semibold text-[#1a1f26]">{crumb.label}</span>
                   )}
                 </BreadcrumbItem>
               </React.Fragment>
