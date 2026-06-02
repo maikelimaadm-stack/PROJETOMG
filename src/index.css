@@ -540,7 +540,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #ffffff !important;
-  font-weight: 400 !important;
+  font-weight: 700 !important;
   background: var(--emp-accent-primary) !important;
   border-width: 1px !important;
   border-top-width: 1px !important;
