@@ -18,8 +18,48 @@ try {
 const parseAllowedOrigins = () =>
   String(process.env.FRONTEND_ORIGINS || "")
     .split(",")
-    .map((item) => item.trim())
+    .map((item) => item.trim().replaceAll('"', "").replaceAll("'", ""))
     .filter(Boolean);
+
+const normalizeOrigin = (origin = "") => String(origin).trim().replace(/\/+$/, "");
+
+const isWildcardEntry = (entry = "") => entry.includes("*");
+
+const matchWildcardOrigin = (origin, pattern) => {
+  const escaped = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+    .replace(/\*/g, ".*");
+  return new RegExp(`^${escaped}$`, "i").test(origin);
+};
+
+const isVercelDomain = (origin = "") => {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+};
+
+const isOriginAllowed = (origin, allowedOrigins) => {
+  if (!origin) return true;
+  const normalizedOrigin = normalizeOrigin(origin);
+
+  if (allowedOrigins.length === 0) return true;
+
+  const normalizedAllowed = allowedOrigins.map((item) => normalizeOrigin(item));
+  if (normalizedAllowed.includes(normalizedOrigin)) return true;
+
+  const wildcardMatch = normalizedAllowed
+    .filter(isWildcardEntry)
+    .some((pattern) => matchWildcardOrigin(normalizedOrigin, pattern));
+  if (wildcardMatch) return true;
+
+  const hasVercelOriginConfigured = normalizedAllowed.some((item) => item.includes("vercel.app"));
+  if (hasVercelOriginConfigured && isVercelDomain(normalizedOrigin)) return true;
+
+  return false;
+};
 
 const resolveHost = () => {
   const configuredHost = String(process.env.BACKEND_HOST || "")
@@ -47,9 +87,7 @@ const buildServer = () => {
 
   app.register(cors, {
     origin(origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.length === 0) return callback(null, true);
-      if (allowedOrigins.includes(origin)) return callback(null, true);
+      if (isOriginAllowed(origin, allowedOrigins)) return callback(null, true);
       return callback(new Error("Origin não permitida"), false);
     },
     credentials: true,
