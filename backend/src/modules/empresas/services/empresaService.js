@@ -10,6 +10,7 @@ const normalizeEmpresaPayload = (payload = {}, { isUpdate = false } = {}) => {
     razao_social: payload.razao_social || "",
     nome_fantasia: payload.nome_fantasia || "",
     tipo_pessoa: payload.tipo_pessoa || "PJ",
+    tipo_vinculo: payload.tipo_vinculo || null,
     cpf_cnpj: payload.cpf_cnpj || "",
     inscricao_estadual: payload.inscricao_estadual || "",
     telefone: payload.telefone || "",
@@ -27,9 +28,9 @@ const normalizeEmpresaPayload = (payload = {}, { isUpdate = false } = {}) => {
     campos_personalizados: payload.campos_personalizados || {},
   };
 
-  const parsedCodigo = toNumber(payload.codigo_empresa, 0);
+  const parsedCodigo = toNumber(payload.codempresa, 0);
   if (!isUpdate || parsedCodigo > 0) {
-    normalized.codigo_empresa = parsedCodigo;
+    normalized.codempresa = parsedCodigo;
   }
 
   return normalized;

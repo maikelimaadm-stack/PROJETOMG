@@ -5,10 +5,14 @@ import {
 } from "../campos/campoPersonalizadoValidators.js";
 
 const baseEmpresaSchema = z.object({
-  codigo_empresa: z.number().int().positive().optional(),
+  codempresa: z.number().int().positive().optional(),
   razao_social: z.string().min(1).max(255),
   nome_fantasia: z.string().max(255).optional().nullable(),
   tipo_pessoa: z.enum(["PJ", "PF"]).default("PJ"),
+  tipo_vinculo: z.preprocess((value) => {
+    if (value === "" || value == null) return null;
+    return value;
+  }, z.enum(["proprietario", "arrendatario"]).optional().nullable()),
   cpf_cnpj: z.string().max(32).optional().nullable(),
   inscricao_estadual: z.string().max(64).optional().nullable(),
   telefone: z.string().max(32).optional().nullable(),

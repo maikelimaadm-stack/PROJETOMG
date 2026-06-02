@@ -131,7 +131,7 @@ function MinimalLayout({
               )}
               {empresas.map((empresa) => (
                 <option key={empresa.id} value={empresa.id}>
-                  {empresa.codigo_empresa} - {empresa.nome_empresa}
+                  {empresa.codempresa} - {empresa.nome_empresa}
                 </option>
               ))}
             </select>

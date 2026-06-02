@@ -81,7 +81,7 @@ export default function FORM__MODULE_ID_PASCAL__({
     }
     setFormState({
       empresa_id: initialData.empresa_id,
-      codigo_empresa: initialData.codigo_empresa,
+      codempresa: initialData.codempresa,
       nome_empresa: initialData.nome_empresa,
       nome: initialData.nome || "",
       status: initialData.status || "Ativo",

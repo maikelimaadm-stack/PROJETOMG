@@ -42,7 +42,7 @@ const run = async () => {
   const globalFieldName = `campo_global_${tag}`;
   const specificFieldName = `campo_empresa_${tag}`;
 
-  const createGlobal = await requestJson("/api/fazendas/campos", {
+  const createGlobal = await requestJson("/api/empresas/campos", {
     method: "POST",
     token,
     empresaId: empresaA.id,
@@ -57,7 +57,7 @@ const run = async () => {
   });
   assert(createGlobal.ok, `Falha ao criar campo global (${createGlobal.status}).`);
 
-  const createSpecific = await requestJson("/api/fazendas/campos", {
+  const createSpecific = await requestJson("/api/empresas/campos", {
     method: "POST",
     token,
     empresaId: empresaA.id,
@@ -73,7 +73,7 @@ const run = async () => {
   });
   assert(createSpecific.ok, `Falha ao criar campo específico (${createSpecific.status}).`);
 
-  const listEmpresaA = await requestJson("/api/fazendas/campos?mode=aplicavel", {
+  const listEmpresaA = await requestJson("/api/empresas/campos?mode=aplicavel", {
     token,
     empresaId: empresaA.id,
   });
@@ -83,7 +83,7 @@ const run = async () => {
   assert(namesA.includes(specificFieldName), "Campo específico não apareceu na empresa A.");
 
   if (empresaB?.id && empresaB.id !== empresaA.id) {
-    const listEmpresaB = await requestJson("/api/fazendas/campos?mode=aplicavel", {
+    const listEmpresaB = await requestJson("/api/empresas/campos?mode=aplicavel", {
       token,
       empresaId: empresaB.id,
     });
@@ -93,30 +93,33 @@ const run = async () => {
     assert(!namesB.includes(specificFieldName), "Campo específico vazou para empresa B.");
   }
 
-  const createRecord = await requestJson("/api/fazendas", {
+  const createRecord = await requestJson("/api/empresas", {
     method: "POST",
     token,
     empresaId: empresaA.id,
     body: {
-      nome: `FAZENDA CAMPOS ${tag}`,
-      status: "Ativo",
+      razao_social: `EMPRESA CAMPOS ${tag}`,
+      status: "Ativa",
       campos_personalizados: {
         [globalFieldName]: "valor global",
         [specificFieldName]: "valor empresa",
       },
     },
   });
-  assert(createRecord.ok, `Falha ao criar registro com campos (${createRecord.status}).`);
+  assert(
+    createRecord.ok,
+    `Falha ao criar registro com campos (${createRecord.status}): ${createRecord.payload?.message || "sem mensagem"}`
+  );
   const recordId = createRecord.payload.item.id;
 
-  const blockDelete = await requestJson(`/api/fazendas/campos/${createGlobal.payload.item.id}`, {
+  const blockDelete = await requestJson(`/api/empresas/campos/${createGlobal.payload.item.id}`, {
     method: "DELETE",
     token,
     empresaId: empresaA.id,
   });
   assert(blockDelete.status === 409, "Campo com registros filhos deveria bloquear exclusão.");
 
-  const blockUpdate = await requestJson(`/api/fazendas/campos/${createGlobal.payload.item.id}`, {
+  const blockUpdate = await requestJson(`/api/empresas/campos/${createGlobal.payload.item.id}`, {
     method: "PUT",
     token,
     empresaId: empresaA.id,
@@ -124,20 +127,20 @@ const run = async () => {
   });
   assert(blockUpdate.status === 409, "Campo com registros filhos deveria bloquear edição.");
 
-  await requestJson(`/api/fazendas/${recordId}`, {
+  await requestJson(`/api/empresas/${recordId}`, {
     method: "DELETE",
     token,
-    empresaId: empresaA.id,
+    empresaId: recordId,
   });
 
-  const deleteGlobal = await requestJson(`/api/fazendas/campos/${createGlobal.payload.item.id}`, {
+  const deleteGlobal = await requestJson(`/api/empresas/campos/${createGlobal.payload.item.id}`, {
     method: "DELETE",
     token,
     empresaId: empresaA.id,
   });
   assert(deleteGlobal.ok, "Campo global deveria excluir após remover registros.");
 
-  const deleteSpecific = await requestJson(`/api/fazendas/campos/${createSpecific.payload.item.id}`, {
+  const deleteSpecific = await requestJson(`/api/empresas/campos/${createSpecific.payload.item.id}`, {
     method: "DELETE",
     token,
     empresaId: empresaA.id,

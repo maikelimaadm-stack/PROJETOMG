@@ -1,8 +1,8 @@
 export const getColumnFilterType = (col) => {
-  if (col?.id === "codigo_empresa") return "number";
+  if (col?.id === "codempresa") return "number";
   if (col?.tipo === "date" || col?.id === "data") return "date";
   if (col?.tipo === "number" && col?.usar_mascara) return "list";
-  if (["number", "calculado"].includes(col?.tipo) || col?.id === "codigo_empresa") return "number";
+  if (["number", "calculado"].includes(col?.tipo) || col?.id === "codempresa") return "number";
   return "list";
 };
 
@@ -50,7 +50,7 @@ export const formatRangeTokenForInput = (token, ft, col) => {
   }
   const n = parseNumberFilterValue(raw);
   if (!Number.isFinite(n)) return raw;
-  if (col?.id === "codigo_empresa") return String(n);
+  if (col?.id === "codempresa") return String(n);
   const places = col?.decimal_places ?? 2;
   return n.toLocaleString("pt-BR", col?.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
 };

@@ -78,7 +78,7 @@ export const __MODULE_ID__Repository = {
         id: empresaId,
         cliente_id: scope.clienteId,
       },
-      select: { id: true, codigo_empresa: true, razao_social: true },
+      select: { id: true, codempresa: true, razao_social: true },
     });
     if (!empresa) {
       const error = new Error("Empresa inválida para este cliente.");
@@ -93,7 +93,7 @@ export const __MODULE_ID__Repository = {
         observacoes: payload.observacoes || "",
         campos_personalizados: payload.campos_personalizados || {},
         empresa_id: empresa.id,
-        codigo_empresa: empresa.codigo_empresa,
+        codempresa: empresa.codempresa,
         nome_empresa: empresa.razao_social,
         cliente_id: scope.clienteId,
         entity_name: ENTITY_NAME,
@@ -106,7 +106,7 @@ export const __MODULE_ID__Repository = {
       action: "CREATE",
       entityId: item.id,
       empresaId: empresa.id,
-      codigoEmpresa: empresa.codigo_empresa,
+      codigoEmpresa: empresa.codempresa,
       nomeEmpresa: empresa.razao_social,
       payload: { id: item.id },
     });
@@ -137,7 +137,7 @@ export const __MODULE_ID__Repository = {
       action: "UPDATE",
       entityId: item.id,
       empresaId: item.empresa_id || null,
-      codigoEmpresa: item.codigo_empresa || null,
+      codigoEmpresa: item.codempresa || null,
       nomeEmpresa: item.nome_empresa || null,
       payload: { id: item.id },
     });
@@ -157,7 +157,7 @@ export const __MODULE_ID__Repository = {
       action: "DELETE",
       entityId: current.id,
       empresaId: current.empresa_id || null,
-      codigoEmpresa: current.codigo_empresa || null,
+      codigoEmpresa: current.codempresa || null,
       nomeEmpresa: current.nome_empresa || null,
       payload: { id: current.id },
     });

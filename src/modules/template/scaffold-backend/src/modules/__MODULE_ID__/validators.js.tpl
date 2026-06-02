@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const __MODULE_ID__CreateSchema = z.object({
   empresa_id: z.string().min(1).optional(),
-  codigo_empresa: z.number().int().positive().optional(),
+  codempresa: z.number().int().positive().optional(),
   nome_empresa: z.string().max(255).optional(),
   nome: z.string().min(1).max(255),
   status: z.string().max(32).optional().default("Ativo"),

@@ -2,10 +2,11 @@ export const FILTER_POPOVER_WIDTH = 272;
 export const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 export const COLUNAS_BASE = [
-  { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "right", width: 90 },
-  { id: "razao_social", label: "Razão Social", default: true, sortable: true, align: "left", width: 260 },
-  { id: "nome_fantasia", label: "Nome Fantasia", default: true, sortable: true, align: "left", width: 220 },
+  { id: "codempresa", label: "Cód. Empresa", default: true, sortable: true, align: "right", width: 90 },
+  { id: "razao_social", label: "Nome/Razão Social Emp.", default: true, sortable: true, align: "left", width: 260 },
+  { id: "nome_fantasia", label: "Nome fantasia", default: true, sortable: true, align: "left", width: 220 },
   { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "left", width: 80 },
+  { id: "tipo_vinculo", label: "Vínculo", default: true, sortable: true, align: "left", width: 120 },
   { id: "cpf_cnpj", label: "CPF/CNPJ", default: true, sortable: true, align: "left", width: 160 },
   {
     id: "inscricao_estadual",

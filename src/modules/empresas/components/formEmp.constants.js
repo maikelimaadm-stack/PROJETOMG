@@ -49,10 +49,11 @@ export const TABLE_AGGREGATION_KEY = "emp_table_aggregation_config";
 export const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-white px-1";
 
 export const buildEmptyEmpresaForm = () => ({
-  codigo_empresa: "",
+  codempresa: "",
   razao_social: "",
   nome_fantasia: "",
   tipo_pessoa: "PJ",
+  tipo_vinculo: "",
   cpf_cnpj: "",
   inscricao_estadual: "",
   telefone: "",
@@ -74,23 +75,25 @@ export const applyDuplicateFieldClears = (data, clearFieldIds = []) => {
   if (!data?._isDuplicate || !clearFieldIds.length) return data;
   const next = { ...data, campos_personalizados: { ...(data.campos_personalizados || {}) } };
   clearFieldIds.forEach((fieldId) => {
-    if (fieldId === "codigo_empresa") return;
+    if (fieldId === "codempresa") return;
     if (String(fieldId).startsWith("custom:")) {
       next.campos_personalizados[String(fieldId).replace(/^custom:/, "")] = "";
       return;
     }
     if (fieldId === "status") next.status = "Ativa";
     else if (fieldId === "tipo_pessoa") next.tipo_pessoa = "PJ";
+    else if (fieldId === "tipo_vinculo") next.tipo_vinculo = "";
     else next[fieldId] = "";
   });
   return next;
 };
 
 export const NATIVE_FIELDS = new Set([
-  "codigo_empresa",
+  "codempresa",
   "razao_social",
   "nome_fantasia",
   "tipo_pessoa",
+  "tipo_vinculo",
   "cpf_cnpj",
   "inscricao_estadual",
   "telefone",

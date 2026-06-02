@@ -57,7 +57,7 @@ export const anexoRepository = {
       },
       select: {
         id: true,
-        codigo_empresa: true,
+        codempresa: true,
         razao_social: true,
       },
     });
@@ -78,7 +78,7 @@ export const anexoRepository = {
         file_size: data.file_size ?? null,
         storage_path: data.storage_path || null,
         empresa_id: empresaId,
-        codigo_empresa: empresa.codigo_empresa,
+        codempresa: empresa.codempresa,
         nome_empresa: empresa.razao_social,
         cliente_id: scope.clienteId,
         tenant_id: scope.clienteId,
@@ -90,7 +90,7 @@ export const anexoRepository = {
       action: "CREATE",
       entityId: created.id,
       empresaId: empresa.id,
-      codigoEmpresa: empresa.codigo_empresa,
+      codigoEmpresa: empresa.codempresa,
       nomeEmpresa: empresa.razao_social,
       payload: {
         entity_name: created.entity_name,
@@ -108,7 +108,7 @@ export const anexoRepository = {
       select: {
         id: true,
         empresa_id: true,
-        codigo_empresa: true,
+        codempresa: true,
         nome_empresa: true,
       },
     });
@@ -120,7 +120,7 @@ export const anexoRepository = {
       action: "DELETE",
       entityId: current.id,
       empresaId: current.empresa_id,
-      codigoEmpresa: current.codigo_empresa,
+      codigoEmpresa: current.codempresa,
       nomeEmpresa: current.nome_empresa,
       payload: { id: current.id },
     });

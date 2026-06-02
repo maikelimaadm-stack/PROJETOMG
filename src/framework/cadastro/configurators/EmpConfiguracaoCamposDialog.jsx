@@ -247,7 +247,7 @@ export default function EmpConfiguracaoCamposDialog({
   const getUsoItems = (campo) => {
     const items = [];
     if (!campo.empresa_id) items.push("GLOBAL");
-    else items.push(`EMP ${campo.codigo_empresa || ""}`.trim());
+    else items.push(`EMP ${campo.codempresa || ""}`.trim());
     if (campo.metadata?.native_select) items.push("NATIVA");
     if (campo.visivel_form) items.push("FORM");
     if (campo.visivel_tabela) items.push("TABELA");
@@ -538,7 +538,7 @@ export default function EmpConfiguracaoCamposDialog({
                       <option value="">Selecionar Empresa</option>
                       {empresas.map((empresa) => (
                         <option key={empresa.id} value={empresa.id}>
-                          {empresa.codigo_empresa} - {empresa.nome_empresa || empresa.razao_social}
+                          {empresa.codempresa} - {empresa.nome_empresa || empresa.razao_social}
                         </option>
                       ))}
                     </select>

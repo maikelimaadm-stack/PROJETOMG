@@ -43,7 +43,7 @@ export default function TBL__MODULE_ID_PASCAL__({
 
   const columns = useMemo(
     () => [
-      { id: "codigo_empresa", label: "Código Empresa" },
+      { id: "codempresa", label: "Código Empresa" },
       { id: "nome_empresa", label: "Empresa" },
       { id: "nome", label: "Nome" },
       { id: "status", label: "Status" },
@@ -56,7 +56,7 @@ export default function TBL__MODULE_ID_PASCAL__({
     () =>
       items.map((item) =>
         columns.map((column) => {
-          if (column.id === "codigo_empresa") return item.codigo_empresa || "-";
+          if (column.id === "codempresa") return item.codempresa || "-";
           if (column.id === "nome_empresa") return item.nome_empresa || "-";
           if (column.id === "nome") return item.nome || "-";
           if (column.id === "status") return item.status || "-";
@@ -95,7 +95,7 @@ export default function TBL__MODULE_ID_PASCAL__({
                 }}
                 onDoubleClick={() => onEdit?.(item)}
               >
-                <TableCell>{item.codigo_empresa || "-"}</TableCell>
+                <TableCell>{item.codempresa || "-"}</TableCell>
                 <TableCell>{item.nome_empresa || "-"}</TableCell>
                 <TableCell>{item.nome || "-"}</TableCell>
                 <TableCell>{item.status || "-"}</TableCell>

@@ -1,6 +1,6 @@
 const SYSTEM_FIELDS = new Set([
   "id",
-  "codigo_empresa",
+  "codempresa",
   "created_date",
   "updated_date",
   "created_by",
@@ -15,12 +15,20 @@ export const stripEmpresaPersistPayload = (data = {}) => {
   return payload;
 };
 
+const mapApiTimestamps = (record) => {
+  if (!record || typeof record !== "object") return record;
+  const mapped = { ...record };
+  if (mapped.updatedAt && !mapped.updated_date) mapped.updated_date = mapped.updatedAt;
+  if (mapped.createdAt && !mapped.created_date) mapped.created_date = mapped.createdAt;
+  return mapped;
+};
+
 export const normalizeEmpresaRecord = (record, fallback = null) => {
   if (!record) return fallback;
-  if (Array.isArray(record)) return record[0] || fallback;
-  if (record?.data && typeof record.data === "object") return record.data;
-  if (record?.id || record?.codigo_empresa != null) return record;
-  return fallback ? { ...fallback, ...record } : record;
+  if (Array.isArray(record)) return mapApiTimestamps(record[0]) || fallback;
+  if (record?.data && typeof record.data === "object") return mapApiTimestamps(record.data);
+  if (record?.id || record?.codempresa != null) return mapApiTimestamps(record);
+  return fallback ? mapApiTimestamps({ ...fallback, ...record }) : mapApiTimestamps(record);
 };
 
 export const findEmpresaInList = (list = [], savedRecord) => {
@@ -31,9 +39,9 @@ export const findEmpresaInList = (list = [], savedRecord) => {
     if (byId) return byId;
   }
 
-  const codigo = Number(savedRecord.codigo_empresa);
+  const codigo = Number(savedRecord.codempresa);
   if (Number.isFinite(codigo) && codigo > 0) {
-    return list.find((item) => Number(item.codigo_empresa) === codigo) ?? null;
+    return list.find((item) => Number(item.codempresa) === codigo) ?? null;
   }
 
   return null;
