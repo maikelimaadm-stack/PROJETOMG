@@ -96,6 +96,7 @@ export default function TBLEMP({
   const lastSelectedIdRef = useRef(null);
   const tableStageRef = useRef(null);
   const scrollContainerRef = useRef(null);
+  const footerScrollRef = useRef(null);
   const tableRef = useRef(null);
   const [isTableFullscreen, setIsTableFullscreen] = useState(false);
   const dragRef = useRef(null);
@@ -534,6 +535,18 @@ export default function TBLEMP({
   }, [menuFiltroAberto, colunasOrdenadas, columnWidths, frozenColumnCount]);
 
   useEffect(() => {
+    const body = scrollContainerRef.current;
+    const footer = footerScrollRef.current;
+    if (!body || !footer) return undefined;
+    const syncFooterScroll = () => {
+      footer.scrollLeft = body.scrollLeft;
+    };
+    body.addEventListener("scroll", syncFooterScroll, { passive: true });
+    syncFooterScroll();
+    return () => body.removeEventListener("scroll", syncFooterScroll);
+  }, [colunasOrdenadas, columnWidths, agregacoes]);
+
+  useEffect(() => {
     if (!menuFiltroAberto) return undefined;
     const onPointerDown = (event) => {
       const panel = filterPanelRef.current;
@@ -746,6 +759,27 @@ export default function TBLEMP({
     onVisibleDataChange?.({ columns: buildCols(exp), rows: buildRows(empresasOrdenadas, exp), selectedRows: buildRows(selEmps, exp), totalRows: totalRow ? [totalRow] : [], allColumns: buildCols(colunasTodasOrdenadas), allRows: buildRows(empresasOrdenadas, colunasTodasOrdenadas), allSelectedRows: buildRows(selEmps, colunasTodasOrdenadas), allTotalRows: totalRow ? [totalRow] : [] });
   }, [colunasOrdenadas, colunasTodasOrdenadas, empresasOrdenadas, selectedItems, onVisibleDataChange, agregacoes, columnWidths]);
 
+  const hasTotalRow = Object.keys(agregacoes).length > 0;
+
+  const renderTotalCells = () =>
+    colunasOrdenadas.map((col, ci) => {
+      const width = columnPixelWidths[col.id] || 160;
+      const isFrozen = ci < frozenColumnCount;
+      return (
+        <TableHead
+          key={`total-${col.id}`}
+          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          className={`emp-th relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+        >
+          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+            <span className="emp-th-label truncate font-semibold">
+              {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
+            </span>
+          </div>
+        </TableHead>
+      );
+    });
+
   return (
     <div className="flex-1 min-h-0 overflow-hidden bg-white select-none">
       <div
@@ -753,13 +787,13 @@ export default function TBLEMP({
         className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
       >
       <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
-        <CardContent className="h-full min-h-0 p-0 overflow-hidden flex flex-col">
+        <CardContent className="flex h-full min-h-0 flex-col overflow-hidden p-0">
           <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
               ref={scrollContainerRef}
               tabIndex={0}
               onKeyDown={handleTableKeyDown}
-              className="relative flex-1 min-h-0 w-full outline-none overflow-auto"
+              className="emp-table-body-scroll relative min-h-0 flex-1 w-full outline-none overflow-auto"
             >
               <div
                 className="block w-max min-w-full"
@@ -871,32 +905,31 @@ export default function TBLEMP({
                     ); })
                   }
                 </TableBody>
-                {Object.keys(agregacoes).length > 0 && (
-                  <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
-                    <TableRow className="emp-total-row border-0 hover:bg-transparent">
-                      {colunasOrdenadas.map((col, ci) => {
-                        const width = columnPixelWidths[col.id] || 160;
-                        const isFrozen = ci < frozenColumnCount;
-                        return (
-                          <TableHead
-                            key={`total-${col.id}`}
-                            style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-                            className={`emp-th relative sticky bottom-0 align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
-                          >
-                            <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-                              <span className="emp-th-label truncate font-semibold">
-                                {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
-                              </span>
-                            </div>
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  </TableFooter>
-                )}
               </Table>
               </div>
             </div>
+            {hasTotalRow ? (
+              <div
+                ref={footerScrollRef}
+                className="emp-table-footer-bar shrink-0 overflow-x-auto overflow-y-hidden border-t border-[#f4f4f4] bg-white"
+              >
+                <div
+                  className="block w-max min-w-full"
+                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                >
+                  <Table
+                    style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                    className="emp-table-pro emp-table-pro-footer w-full border-separate border-spacing-0 table-fixed select-none"
+                  >
+                    <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
+                      <TableRow className="emp-total-row border-0 hover:bg-transparent">
+                        {renderTotalCells()}
+                      </TableRow>
+                    </TableFooter>
+                  </Table>
+                </div>
+              </div>
+            ) : null}
             <EmpTablePagination
               currentPage={safeCurrentPage}
               totalPages={totalPages}

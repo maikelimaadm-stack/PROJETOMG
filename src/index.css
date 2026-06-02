@@ -227,8 +227,9 @@ input[type="number"] {
   --emp-accent-green: #21c45d;
   --emp-accent-primary: #2563eb;
   --emp-accent-primary-hover: #1d4ed8;
-  --emp-toolbar-btn-bg: #eaf2ff;
-  --emp-toolbar-btn-bg-hover: #dde9fb;
+  --emp-toolbar-btn-bg: #ffffff;
+  --emp-toolbar-btn-bg-hover: #f8fafc;
+  --emp-toolbar-btn-border: #f4f4f4;
   --emp-toolbar-btn-fg: #0f172a;
   --emp-table-frame-border: #f4f4f4;
   --emp-surface-bg: #fdfdfd;
@@ -1344,16 +1345,24 @@ input[type="number"] {
 .cadastro-emp-scope .emp-toolbar-btn,
 .cadastro-emp-scope .emp-header-ctrl,
 .cadastro-emp-scope .emp-table-pagination-btn {
-  border: none !important;
   border-radius: 5px !important;
   box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete),
+.cadastro-emp-scope .emp-header-ctrl {
+  border: 1px solid var(--emp-toolbar-btn-border) !important;
+}
+
+.cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
+  border: 1px solid var(--emp-toolbar-btn-border) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar-counter,
 .cadastro-emp-scope .emp-table-pagination-size,
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-size {
-  border: 1px solid #e8edf3 !important;
+  border: 1px solid var(--emp-toolbar-btn-border) !important;
   border-radius: 5px !important;
 }
 
@@ -1507,12 +1516,12 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-nav-btn {
   background: #ffffff !important;
-  border: 1px solid #e8edf3 !important;
+  border: 1px solid var(--emp-toolbar-btn-border) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-nav-btn:hover:not(:disabled) {
-  background: #f8fafc !important;
-  border-color: #dde4ec !important;
+  background: var(--emp-toolbar-btn-bg-hover) !important;
+  border-color: #e8edf3 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-nav-btn svg.emp-toolbar-nav-icon {
@@ -1526,7 +1535,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
-  background: #fee2e2 !important;
+  background: #ffffff !important;
+  border: 1px solid #fecaca !important;
   color: #dc2626 !important;
 }
 
@@ -1545,7 +1555,8 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
   color: #b91c1c !important;
-  background: #fecaca !important;
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) span {
@@ -1563,8 +1574,20 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
+  flex-shrink: 0 !important;
   border-top: 1px solid var(--emp-table-frame-border) !important;
   background: var(--emp-table-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-footer-bar {
+  flex-shrink: 0 !important;
+  background: var(--emp-table-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn {
@@ -1573,15 +1596,18 @@ input[type="number"] {
   max-height: 22px !important;
   font-size: 11px !important;
   line-height: 22px !important;
-  border: none !important;
   border-radius: 5px !important;
   box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
+  border: 1px solid var(--emp-toolbar-btn-border) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
   color: var(--emp-toolbar-btn-fg) !important;
   font-weight: 400 !important;
-  background: var(--emp-toolbar-btn-bg) !important;
+  background: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn svg {
@@ -2133,7 +2159,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar {
-  background: var(--emp-surface-bg) !important;
+  background: #ffffff !important;
+  border-bottom: 1px solid var(--emp-toolbar-btn-border) !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-separator"] svg,

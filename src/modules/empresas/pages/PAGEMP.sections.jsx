@@ -22,9 +22,9 @@ export const EmpresasTablePanel = ({
   toolbarProps,
   tableProps,
 }) => (
-  <div className={hidden ? "hidden" : "flex min-h-0 flex-1 w-full flex-col overflow-hidden"}>
-    <div className="min-w-0 flex-1 min-h-0 overflow-hidden flex flex-col">
-      <div className="flex-none shrink-0">
+  <div className={hidden ? "hidden" : "flex min-h-0 flex-1 w-full flex-col overflow-hidden bg-white"}>
+    <div className="min-w-0 flex-1 min-h-0 overflow-hidden flex flex-col bg-white">
+      <div className="flex-none shrink-0 bg-white">
         <SankhyaListToolbar {...toolbarProps} />
       </div>
       <div className="emp-table-panel min-h-0 flex-1 overflow-hidden bg-white">

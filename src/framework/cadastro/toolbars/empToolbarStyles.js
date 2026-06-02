@@ -1,12 +1,12 @@
-/** Borda só em campos (pesquisa, contador); botões sem borda */
-export const EMP_TOOLBAR_FIELD_BORDER = "border border-sky-200 rounded-[5px]";
+/** Borda clara em campos; botões brancos com borda leve (Novo/Salvar mantêm azul via CSS) */
+export const EMP_TOOLBAR_FIELD_BORDER = "border border-[#f4f4f4] rounded-[5px]";
 
-export const EMP_TOOLBAR_BTN_SHAPE = "rounded-[5px] border-0";
+export const EMP_TOOLBAR_BTN_SHAPE = "rounded-[5px] border border-[#f4f4f4]";
 
-export const EMP_TOOLBAR_BTN_BG = "bg-[#eaf2ff]";
+export const EMP_TOOLBAR_BTN_BG = "bg-white";
 
 export const EMP_TOOLBAR_BTN =
-  `emp-toolbar-btn inline-flex h-[28px] w-[28px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} ${EMP_TOOLBAR_BTN_BG} text-[#0f172a] shadow-none hover:bg-[#dde9fb] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
+  `emp-toolbar-btn inline-flex h-[28px] w-[28px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} ${EMP_TOOLBAR_BTN_BG} text-[#0f172a] shadow-none hover:bg-[#f8fafc] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
 
 export const EMP_TOOLBAR_SEARCH_WRAP =
   `emp-toolbar-search relative flex h-[28px] w-40 md:w-52 shrink-0 items-center ${EMP_TOOLBAR_FIELD_BORDER} bg-white overflow-hidden`;
@@ -22,4 +22,4 @@ export const EMP_TOOLBAR_ICON_CLASS = "emp-toolbar-action-icon shrink-0";
 export const EMP_TOOLBAR_NAV_ICON_CLASS = "emp-toolbar-nav-icon shrink-0";
 
 export const EMP_HEADER_CTRL_BTN =
-  `emp-toolbar-btn emp-header-ctrl inline-flex h-[28px] w-[28px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} ${EMP_TOOLBAR_BTN_BG} text-[#0f172a] shadow-none hover:bg-[#dde9fb] transition-colors focus-visible:outline-none focus-visible:ring-0`;
+  `emp-toolbar-btn emp-header-ctrl inline-flex h-[28px] w-[28px] shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} ${EMP_TOOLBAR_BTN_BG} text-[#0f172a] shadow-none hover:bg-[#f8fafc] transition-colors focus-visible:outline-none focus-visible:ring-0`;
