@@ -7,13 +7,32 @@ import { closePrismaClient } from "./database/prismaClient.js";
 import { validateRuntimeEnv } from "./config/env.js";
 
 dotenv.config();
-validateRuntimeEnv();
+try {
+  validateRuntimeEnv();
+} catch (error) {
+  // In cloud deploys we prefer a degraded boot + health diagnostics over crash loops (502).
+  // Missing envs will surface in /api/health and failing routes as needed.
+  console.warn(`[env] ${error.message}`);
+}
 
 const parseAllowedOrigins = () =>
   String(process.env.FRONTEND_ORIGINS || "")
     .split(",")
     .map((item) => item.trim())
     .filter(Boolean);
+
+const resolveHost = () => {
+  const configuredHost = String(process.env.BACKEND_HOST || "")
+    .replaceAll('"', "")
+    .replaceAll("'", "")
+    .trim();
+
+  if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
+    return "0.0.0.0";
+  }
+
+  return configuredHost || "0.0.0.0";
+};
 
 const resolvePort = () => {
   const rawPort = process.env.PORT || process.env.BACKEND_PORT || "3001";
@@ -62,7 +81,7 @@ const buildServer = () => {
 
 const start = async () => {
   const app = buildServer();
-  const host = process.env.BACKEND_HOST || "0.0.0.0";
+  const host = resolveHost();
   const port = resolvePort();
 
   try {
