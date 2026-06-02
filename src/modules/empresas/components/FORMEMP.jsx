@@ -9,6 +9,7 @@ import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpLayoutConfiguratorDialog";
 import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
@@ -461,7 +462,7 @@ export default function FORMEMP({
 
   if (layoutConfigOpen) {
     return (
-      <section className="w-full h-full max-w-full bg-white overflow-hidden">
+      <section className="cadastro-emp-scope w-full h-full max-w-full overflow-hidden">
         <EmpLayoutConfiguratorDialog
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}
@@ -488,7 +489,7 @@ export default function FORMEMP({
   }
 
   return (
-    <div className="h-full min-h-0 overflow-hidden bg-white">
+    <div className="cadastro-emp-scope h-full min-h-0 overflow-hidden">
       <TopNoticeDialog open={noticeDialog.open} onOpenChange={(open) => setNoticeDialog((prev) => ({ ...prev, open }))} badge="AVISO" title={noticeDialog.title} description={noticeDialog.description} type="warning" confirmText="Entendi" />
       <EmpFieldLayoutConfigDialog
         open={fieldLayoutConfigOpen}
@@ -496,7 +497,7 @@ export default function FORMEMP({
         fieldLayoutConfig={fieldLayoutConfig}
         onSave={saveFieldLayoutConfig}
       />
-      <form onSubmit={handleSubmit} className="bg-white h-full min-h-0 overflow-hidden flex flex-col">
+      <form onSubmit={handleSubmit} className="h-full min-h-0 overflow-hidden flex flex-col">
         <style>{`
           .form-scroll-container {
             scrollbar-width: thin;
@@ -522,38 +523,41 @@ export default function FORMEMP({
             background-color: #94a3b8;
           }
         `}</style>
-        <LegacyRecordToolbar
-          showSaveActions={editMode}
-          showEditAction={isReadOnly}
-          showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
-          showRecordNavigation={isEditing && !editMode && !isDuplicating}
-          onSave={handleSubmit}
-          onCancel={onCancel}
-          onEditRecord={() => setEditMode(true)}
-          onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
-          onFieldLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setFieldLayoutConfigOpen(true); }}
-          onToggleView={onToggleView}
-          total={total}
-          currentIndex={currentIndex}
-          onNew={onNew}
-          onFirst={onFirst}
-          onPrevious={onPrevious}
-          onNext={onNext}
-          onLast={onLast}
-          onDelete={onDelete}
-          onDuplicate={onDuplicate}
-          onRefresh={onRefresh}
-          filterOpen={filterOpen}
-          filterActive={filterActive}
-          onToggleFilter={onToggleFilter}
-          onClearFilter={onClearFilter}
-          onAttachClick={onAttachClick}
-          attachDisabled={attachDisabled}
-          searchValue={searchValue}
-          onSearchChange={onSearchChange}
-          showSearch
-        />
-
+        <EmpSplitToolbarLayout
+          toolbar={
+            <LegacyRecordToolbar
+              showSaveActions={editMode}
+              showEditAction={isReadOnly}
+              showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
+              showRecordNavigation={isEditing && !editMode && !isDuplicating}
+              onSave={handleSubmit}
+              onCancel={onCancel}
+              onEditRecord={() => setEditMode(true)}
+              onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
+              onFieldLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setFieldLayoutConfigOpen(true); }}
+              onToggleView={onToggleView}
+              total={total}
+              currentIndex={currentIndex}
+              onNew={onNew}
+              onFirst={onFirst}
+              onPrevious={onPrevious}
+              onNext={onNext}
+              onLast={onLast}
+              onDelete={onDelete}
+              onDuplicate={onDuplicate}
+              onRefresh={onRefresh}
+              filterOpen={filterOpen}
+              filterActive={filterActive}
+              onToggleFilter={onToggleFilter}
+              onClearFilter={onClearFilter}
+              onAttachClick={onAttachClick}
+              attachDisabled={attachDisabled}
+              searchValue={searchValue}
+              onSearchChange={onSearchChange}
+              showSearch
+            />
+          }
+        >
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <div className={`emp-form-body flex flex-col ${standalonePrincipalInUse ? "" : "emp-form-body-no-principal"}`}>
             {standalonePrincipalInUse && (
@@ -660,6 +664,7 @@ export default function FORMEMP({
             </div>
           </div>
         </div>
+        </EmpSplitToolbarLayout>
       </form>
     </div>
   );

@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexosDialog";
 import EmpConfiguracaoCamposDialog from "@/framework/cadastro/configurators/EmpConfiguracaoCamposDialog";
@@ -114,7 +115,7 @@ export default function PAG__MODULE_ID_PASCAL__() {
   };
 
   return (
-    <div className="h-full min-h-0 overflow-hidden bg-white flex flex-col">
+    <div className="cadastro-emp-scope h-full min-h-0 overflow-hidden flex flex-col">
       {showForm ? (
         <FORM__MODULE_ID_PASCAL__
           initialData={editingItem}
@@ -142,35 +143,40 @@ export default function PAG__MODULE_ID_PASCAL__() {
           onSearchChange={(value) => { setSearch(value); setQueryPage(1); }}
         />
       ) : (
-        <>
-          <SankhyaListToolbar
-            viewMode="table"
-            total={data.total || 0}
-            currentIndex={0}
-            searchValue={search}
-            onSearchChange={(value) => { setSearch(value); setQueryPage(1); }}
-            onNew={() => { setEditingItem(null); setShowForm(true); }}
-            onToggleView={() => {
-              if (selectedItem) {
-                setEditingItem(selectedItem);
-                setShowForm(true);
-              }
-            }}
-            toggleViewDisabled={selectedIds.length !== 1}
-            filterActive={false}
-            onDelete={() => setDeleteState({ open: true, ids: selectedIds })}
-            onDuplicate={() => selectedItem && setEditingItem({ ...selectedItem, id: undefined })}
-            onAttachClick={() => selectedItem && setAttachmentsRecord(selectedItem)}
-            attachDisabled={selectedIds.length !== 1}
-            onExportPdf={handleExportPdf}
-            onConfigExportPdf={() => setShowConfigPdf(true)}
-            onExportExcel={handleExportExcel}
-            onConfigExportExcel={() => setShowConfigExcel(true)}
-            onConfigColumns={() => setShowConfigFields(true)}
-            selectedCount={selectedIds.length}
-            title={labels.title}
-            recordLabel=""
-          />
+        <EmpSplitToolbarLayout
+          className="flex-1"
+          contentClassName="emp-table-card"
+          toolbar={
+            <SankhyaListToolbar
+              viewMode="table"
+              total={data.total || 0}
+              currentIndex={0}
+              searchValue={search}
+              onSearchChange={(value) => { setSearch(value); setQueryPage(1); }}
+              onNew={() => { setEditingItem(null); setShowForm(true); }}
+              onToggleView={() => {
+                if (selectedItem) {
+                  setEditingItem(selectedItem);
+                  setShowForm(true);
+                }
+              }}
+              toggleViewDisabled={selectedIds.length !== 1}
+              filterActive={false}
+              onDelete={() => setDeleteState({ open: true, ids: selectedIds })}
+              onDuplicate={() => selectedItem && setEditingItem({ ...selectedItem, id: undefined })}
+              onAttachClick={() => selectedItem && setAttachmentsRecord(selectedItem)}
+              attachDisabled={selectedIds.length !== 1}
+              onExportPdf={handleExportPdf}
+              onConfigExportPdf={() => setShowConfigPdf(true)}
+              onExportExcel={handleExportExcel}
+              onConfigExportExcel={() => setShowConfigExcel(true)}
+              onConfigColumns={() => setShowConfigFields(true)}
+              selectedCount={selectedIds.length}
+              title={labels.title}
+              recordLabel=""
+            />
+          }
+        >
           <TBL__MODULE_ID_PASCAL__
             items={items}
             onEdit={(item) => { setEditingItem(item); setShowForm(true); }}
@@ -185,7 +191,7 @@ export default function PAG__MODULE_ID_PASCAL__() {
             }}
             onSelectionChange={setSelectedIds}
           />
-        </>
+        </EmpSplitToolbarLayout>
       )}
 
       <EmpConfiguracaoCamposDialog

@@ -22,6 +22,7 @@ import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
 import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -112,16 +113,19 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
             </button>
           </div>
 
-          <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
-            <ToolbarBtn onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Anexar arquivo">
-              {uploading ? <Loader2 className="emp-toolbar-action-icon h-3.5 w-3.5 animate-spin" /> : <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />}
-              <span>Anexar</span>
-            </ToolbarBtn>
-            <div className="ml-auto flex items-center gap-1 pr-1">
-              <EmpBubbleCounter value={String(anexos.length)} title="Total de anexos" className="emp-toolbar-bubble-counter" />
-            </div>
-          </div>
-
+          <EmpSplitToolbarLayout
+            toolbar={
+              <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
+                <ToolbarBtn onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Anexar arquivo">
+                  {uploading ? <Loader2 className="emp-toolbar-action-icon h-3.5 w-3.5 animate-spin" /> : <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />}
+                  <span>Anexar</span>
+                </ToolbarBtn>
+                <div className="ml-auto flex items-center gap-1 pr-1">
+                  <EmpBubbleCounter value={String(anexos.length)} title="Total de anexos" className="emp-toolbar-bubble-counter" />
+                </div>
+              </div>
+            }
+          >
           <EmpToolbarInfoBar badgeLabel="Anexos" title={title || "Lote"} operationLabel="Configuração" className="!border-b-[0.5px]" />
 
           <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
@@ -171,7 +175,8 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
                 </div>
               </CardContent>
             </Card>
-              </div>
+          </div>
+          </EmpSplitToolbarLayout>
         </div>
       </DialogContent>
     </Dialog>);

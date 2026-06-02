@@ -19,6 +19,7 @@ import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
 import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -113,16 +114,19 @@ export default function EmpConfiguracaoColunasDialog({
             </button>
           </div>
 
-          <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
-            <ToolbarBtn onClick={onResetDefault} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Restaurar padrão">
-              <EmpToolbarIcon icon={RotateCcw} />
-              <span>Restaurar padrão</span>
-            </ToolbarBtn>
-            <div className="ml-auto flex items-center gap-1 pr-1">
-              <EmpBubbleCounter value={String(usedColumns.length)} title="Colunas em uso" className="emp-toolbar-bubble-counter" />
-            </div>
-          </div>
-
+          <EmpSplitToolbarLayout
+            toolbar={
+              <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
+                <ToolbarBtn onClick={onResetDefault} className={EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} title="Restaurar padrão">
+                  <EmpToolbarIcon icon={RotateCcw} />
+                  <span>Restaurar padrão</span>
+                </ToolbarBtn>
+                <div className="ml-auto flex items-center gap-1 pr-1">
+                  <EmpBubbleCounter value={String(usedColumns.length)} title="Colunas em uso" className="emp-toolbar-bubble-counter" />
+                </div>
+              </div>
+            }
+          >
           <EmpToolbarInfoBar badgeLabel="Colunas" title={`Configuração das colunas - ${moduleTitle}`} operationLabel="Configuração" className="!border-b-[0.5px]" />
 
           <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
@@ -166,6 +170,7 @@ export default function EmpConfiguracaoColunasDialog({
               </CardContent>
             </Card>
           </div>
+          </EmpSplitToolbarLayout>
         </div>
         <TopNoticeDialog open={warningOpen} onOpenChange={setWarningOpen} badge="AVISO" title="Colunas obrigatórias" description="É necessário manter pelo menos uma coluna em uso para fechar a configuração." type="warning" confirmText="Entendi" />
       </DialogContent>

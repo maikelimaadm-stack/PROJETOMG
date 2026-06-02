@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import EmpRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import __REPOSITORY_NAME__ from "@/modules/__MODULE_ID__/repositories/__REPOSITORY_NAME__";
@@ -182,40 +183,45 @@ export default function FORM__MODULE_ID_PASCAL__({
   };
 
   return (
-    <div className="h-full min-h-0 overflow-hidden bg-white flex flex-col">
-      <EmpRecordToolbar
-        title="Cadastro de __PLURAL_LABEL__"
-        operationLabel={initialData?.id ? "Edição" : "Cadastro"}
-        badgeLabel="__SINGULAR_LABEL__"
-        showSaveActions
-        showUtilityActions
-        onCancel={onCancel}
-        onSave={() => {
-          if (!validate()) return;
-          const calculated = campoEngine.aplicarCamposCalculados
-            ? campoEngine.aplicarCamposCalculados(formState, camposPersonalizadosForm)
-            : formState;
-          onSubmit?.({
-            ...formState,
-            campos_personalizados: calculated.campos_personalizados || {},
-          });
-        }}
-        onSettingsClick={onSettingsClick}
-        onAttachClick={onAttachClick}
-        onToggleView={onToggleView}
-        onFirst={onFirst}
-        onPrevious={onPrevious}
-        onNext={onNext}
-        onLast={onLast}
-        onDelete={onDelete}
-        onDuplicate={onDuplicate}
-        onNew={onNew}
-        total={total}
-        currentIndex={currentIndex}
-        showSearch
-        searchValue={searchValue}
-        onSearchChange={onSearchChange}
-      />
+    <div className="cadastro-emp-scope h-full min-h-0 overflow-hidden flex flex-col">
+      <EmpSplitToolbarLayout
+        className="flex-1"
+        toolbar={
+          <EmpRecordToolbar
+            title="Cadastro de __PLURAL_LABEL__"
+            operationLabel={initialData?.id ? "Edição" : "Cadastro"}
+            badgeLabel="__SINGULAR_LABEL__"
+            showSaveActions
+            showUtilityActions
+            onCancel={onCancel}
+            onSave={() => {
+              if (!validate()) return;
+              const calculated = campoEngine.aplicarCamposCalculados
+                ? campoEngine.aplicarCamposCalculados(formState, camposPersonalizadosForm)
+                : formState;
+              onSubmit?.({
+                ...formState,
+                campos_personalizados: calculated.campos_personalizados || {},
+              });
+            }}
+            onSettingsClick={onSettingsClick}
+            onAttachClick={onAttachClick}
+            onToggleView={onToggleView}
+            onFirst={onFirst}
+            onPrevious={onPrevious}
+            onNext={onNext}
+            onLast={onLast}
+            onDelete={onDelete}
+            onDuplicate={onDuplicate}
+            onNew={onNew}
+            total={total}
+            currentIndex={currentIndex}
+            showSearch
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+          />
+        }
+      >
       <div className="flex-1 min-h-0 overflow-auto p-3 space-y-3">
         <EmpDynamicFormRenderer
           panels={[
@@ -244,6 +250,7 @@ export default function FORM__MODULE_ID_PASCAL__({
           />
         ) : null}
       </div>
+      </EmpSplitToolbarLayout>
     </div>
   );
 }

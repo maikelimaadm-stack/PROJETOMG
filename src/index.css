@@ -2236,7 +2236,8 @@ input[type="number"] {
   background: var(--erp-surface-bg) !important;
 }
 
-.cadastro-emp-scope .emp-table-view {
+.cadastro-emp-scope .emp-table-view,
+.cadastro-emp-scope .emp-split-view {
   gap: 8px;
 }
 
@@ -2248,7 +2249,8 @@ input[type="number"] {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
-.cadastro-emp-scope .emp-table-card {
+.cadastro-emp-scope .emp-table-card,
+.cadastro-emp-scope .emp-content-card {
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
@@ -2271,8 +2273,23 @@ input[type="number"] {
 }
 
 .erp-shell .cadastro-emp-scope .emp-table-card,
+.erp-shell .cadastro-emp-scope .emp-content-card,
 .erp-shell .cadastro-emp-scope .emp-toolbar-card {
   background: var(--emp-table-bg, #ffffff) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
+.cadastro-emp-scope .emp-toolbar-card .emp-layout-config-toolbar {
+  border-bottom: none !important;
+}
+
+.cadastro-emp-scope .emp-config-dialog-shell .emp-split-view {
+  gap: 8px;
+}
+
+.cadastro-emp-scope .emp-config-dialog-shell .emp-toolbar-card,
+.cadastro-emp-scope .emp-config-dialog-shell .emp-content-card {
+  border-radius: 6px !important;
 }
 
 .erp-shell .cadastro-emp-scope .emp-table-root,

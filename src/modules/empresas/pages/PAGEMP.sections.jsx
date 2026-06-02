@@ -1,5 +1,6 @@
 import React from "react";
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import FORMEMP from "@/modules/empresas/components/FORMEMP";
 import TBLEMP from "@/modules/empresas/components/TBLEMP";
 import EmpConfiguracaoExportacaoDialog from "@/framework/cadastro/configurators/EmpConfiguracaoExportacaoDialog";
@@ -22,14 +23,13 @@ export const EmpresasTablePanel = ({
   toolbarProps,
   tableProps,
 }) => (
-  <div className={hidden ? "hidden" : "emp-table-view flex min-h-0 flex-1 w-full flex-col gap-2 overflow-hidden"}>
-    <div className="emp-toolbar-card shrink-0 overflow-hidden rounded-md border border-[#f4f4f4] bg-white shadow-sm">
-      <SankhyaListToolbar {...toolbarProps} />
-    </div>
-    <div className="emp-table-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-[#f4f4f4] bg-white shadow-sm">
-      <TBLEMP {...tableProps} />
-    </div>
-  </div>
+  <EmpSplitToolbarLayout
+    className={hidden ? "hidden" : "emp-table-view min-h-0 flex-1 w-full"}
+    contentClassName="emp-table-card"
+    toolbar={<SankhyaListToolbar {...toolbarProps} />}
+  >
+    <TBLEMP {...tableProps} />
+  </EmpSplitToolbarLayout>
 );
 
 export const EmpresasDialogs = ({
