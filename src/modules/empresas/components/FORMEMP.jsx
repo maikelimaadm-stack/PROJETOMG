@@ -497,7 +497,7 @@ export default function FORMEMP({
         fieldLayoutConfig={fieldLayoutConfig}
         onSave={saveFieldLayoutConfig}
       />
-      <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <style>{`
           .form-scroll-container {
             scrollbar-width: thin;
@@ -559,7 +559,7 @@ export default function FORMEMP({
             />
           }
         >
-        <div className="form-scroll-container h-full min-h-0 flex-1 overflow-auto pb-6 pr-2">
+        <div className="form-scroll-container min-h-0 flex-1 overflow-auto pb-6 pr-2">
           <div className={`emp-form-body flex flex-col ${standalonePrincipalInUse ? "" : "emp-form-body-no-principal"}`}>
             {standalonePrincipalInUse && (
               <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">

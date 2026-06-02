@@ -515,12 +515,17 @@ input[type="number"] {
 
 /* Campos do formulário de registro */
 .cadastro-emp-scope .form-scroll-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: #ffffff;
 }
 
 .cadastro-emp-scope .emp-form-body {
   gap: 0;
-  min-height: 100%;
+  min-height: 0;
   padding-top: 14px;
   background: #ffffff;
 }
@@ -992,6 +997,7 @@ input[type="number"] {
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
+  overflow: hidden;
 }
 
 .cadastro-emp-scope .emp-table-stage {
@@ -1007,7 +1013,6 @@ input[type="number"] {
   min-height: 0;
   height: auto;
   max-height: 100%;
-  align-self: stretch;
   overflow: hidden;
 }
 
@@ -1020,10 +1025,10 @@ input[type="number"] {
   display: flex;
   flex-direction: column;
   min-height: 0;
+  height: 100%;
   overflow: hidden;
-  border-radius: 6px 6px 0 0 !important;
-  border: 1px solid var(--emp-table-frame-border) !important;
-  border-bottom: none !important;
+  border-radius: 0 !important;
+  border: none !important;
   background: var(--emp-table-bg) !important;
 }
 
@@ -1038,6 +1043,7 @@ input[type="number"] {
   min-height: 0;
   overflow: auto !important;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: var(--emp-table-bg) !important;
 }
 
@@ -1637,9 +1643,9 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-bottom-dock {
   flex-shrink: 0;
   background: var(--emp-table-bg) !important;
-  border: 1px solid var(--emp-table-frame-border);
-  border-top: none;
-  border-radius: 0 0 6px 6px;
+  border: none;
+  border-top: 1px solid var(--emp-table-frame-border);
+  border-radius: 0;
   z-index: 2;
 }
 
@@ -1675,6 +1681,7 @@ input[type="number"] {
   min-height: 0;
   height: 100%;
   padding-top: 0;
+  overflow: hidden;
   background: var(--emp-table-bg) !important;
 }
 
@@ -2174,7 +2181,23 @@ input[type="number"] {
 }
 
 /* Shell ERP — menu lateral MAK Gestão */
+.group\/sidebar-wrapper {
+  min-height: 0 !important;
+  max-height: 100% !important;
+  height: 100% !important;
+  overflow: hidden !important;
+}
+
+.erp-shell .erp-shell-main {
+  min-height: 0 !important;
+  max-height: 100% !important;
+  height: 100% !important;
+}
+
 .erp-shell {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
   --erp-nav-active-bg: #2563eb;
   --erp-nav-active-fg: #ffffff;
   --erp-surface-bg: #f5f5f5;
@@ -2239,7 +2262,10 @@ input[type="number"] {
   background: var(--erp-page-bg) !important;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  flex: 1 1 auto;
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: 100% !important;
   overflow: hidden;
 }
 
@@ -2249,7 +2275,6 @@ input[type="number"] {
   box-shadow: none !important;
   flex: 1 1 auto;
   min-height: 0;
-  height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -2282,12 +2307,12 @@ input[type="number"] {
   height: 100%;
 }
 
-.cadastro-emp-scope .emp-content-card > .emp-form-scroll-host,
 .cadastro-emp-scope .emp-content-card > .form-scroll-container {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto !important;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cadastro-emp-scope .emp-toolbar-card {

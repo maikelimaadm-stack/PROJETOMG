@@ -10,8 +10,8 @@ import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexo
 export const EmpresasFormPanel = ({ showForm, formProps }) => {
   if (!showForm) return null;
   return (
-    <div className="relative flex min-h-0 flex-1 w-full overflow-hidden">
-      <div className="flex min-h-0 flex-1 w-full flex-col overflow-hidden">
+    <div className="relative flex h-full min-h-0 w-full flex-1 overflow-hidden">
+      <div className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
         <FORMEMP {...formProps} />
       </div>
     </div>
@@ -24,7 +24,7 @@ export const EmpresasTablePanel = ({
   tableProps,
 }) => (
   <EmpSplitToolbarLayout
-    className={hidden ? "hidden" : "emp-table-view min-h-0 flex-1 w-full"}
+    className={hidden ? "hidden" : "emp-table-view flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"}
     contentClassName="emp-table-card"
     toolbar={<SankhyaListToolbar {...toolbarProps} />}
   >

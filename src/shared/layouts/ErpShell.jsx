@@ -172,7 +172,7 @@ function ErpShellBody({
   allowAllEmpresas,
 }) {
   return (
-    <div className="erp-shell flex min-h-svh w-full bg-[#f5f5f5]">
+    <div className="erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[#f5f5f5]">
       <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[#e8ecef] bg-[#f5f5f5]">
         <SidebarHeader className="border-b border-[#e8ecef] p-0">
           <Link to="/CadastroEmpresas" className="erp-sidebar-brand block hover:opacity-95">
@@ -183,7 +183,7 @@ function ErpShellBody({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="erp-shell-main min-w-0 bg-[#f5f5f5]">
+      <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#f5f5f5]">
         <ErpTopHeader
           empresas={empresas}
           selectedEmpresaId={selectedEmpresaId}
@@ -205,7 +205,7 @@ function ErpShellBody({
 
 export default function ErpShell(props) {
   return (
-    <SidebarProvider defaultOpen>
+    <SidebarProvider defaultOpen className="h-full max-h-full min-h-0 overflow-hidden">
       <ErpPageHeaderProvider>
         <ErpTableFullscreenProvider>
           <ErpShellBody {...props} />
