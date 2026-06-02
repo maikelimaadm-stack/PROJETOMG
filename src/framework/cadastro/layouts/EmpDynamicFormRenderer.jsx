@@ -7,7 +7,6 @@ import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
 
 const STACKED_TEXT_WIDTH = "w-full max-w-[480px]";
-const COMPACT_TEXT_WIDTH = "w-full max-w-[220px]";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
@@ -37,10 +36,7 @@ const getFieldControlClass = (field, error, className, layoutMode = "stacked") =
   let widthClass = "w-full";
 
   if (layoutMode === "compact") {
-    if (field.compact) widthClass = "w-40 max-w-full";
-    else if (field.medium) widthClass = "w-52 max-w-full";
-    else if (isTextLikeField(field)) widthClass = COMPACT_TEXT_WIDTH;
-    else widthClass = COMPACT_TEXT_WIDTH;
+    widthClass = "w-full";
   } else if (isTextLikeField(field)) {
     widthClass = STACKED_TEXT_WIDTH;
   } else if (field.medium) {
@@ -180,8 +176,7 @@ export default function EmpDynamicFormRenderer({
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const activeFieldIds = layout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
-  const isPrincipalPanel = activePanel?.id === "principal";
-  const layoutMode = isPrincipalPanel && normalizedFieldLayout.mode !== "detailsCompact" ? "stacked" : ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode) ? "compact" : "stacked";
+  const layoutMode = ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode) ? "compact" : "stacked";
   const useCompactMode = layoutMode === "compact";
   const columnCount = normalizedFieldLayout.columns;
 

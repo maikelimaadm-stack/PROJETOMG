@@ -229,6 +229,7 @@ input[type="number"] {
   --emp-form-border-color: #d6dce8;
   --emp-form-border-width: 1px;
   --emp-form-textarea-min-height: 52px;
+  --emp-form-field-column-width: 200px;
   --emp-accent-green: #21c45d;
   --emp-accent-primary: #2563eb;
   --emp-accent-primary-hover: #1d4ed8;
@@ -722,9 +723,15 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-compact,
 .cadastro-emp-scope .emp-form-fields.emp-form-fields-compact {
   display: grid;
-  grid-template-columns: repeat(var(--emp-form-field-columns, 3), minmax(0, 1fr));
-  gap: 8px 12px;
+  grid-template-columns: repeat(
+    var(--emp-form-field-columns, 3),
+    minmax(0, var(--emp-form-field-column-width, 200px))
+  );
+  gap: 8px 10px;
   align-items: start;
+  justify-content: start;
+  width: fit-content;
+  max-width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-column {
@@ -732,6 +739,8 @@ input[type="number"] {
   flex-direction: column;
   gap: 3px;
   min-width: 0;
+  width: var(--emp-form-field-column-width, 200px);
+  max-width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-label-top {
@@ -755,11 +764,12 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-column-compact .emp-form-field-control {
-  max-width: 220px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-span-full .emp-form-field-control {
-  max-width: 480px;
+  max-width: 100%;
   width: 100%;
 }
 
