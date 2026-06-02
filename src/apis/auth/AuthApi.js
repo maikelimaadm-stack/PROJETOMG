@@ -2,6 +2,7 @@ const AUTH_TOKEN_KEY = "erp_auth_token";
 const EMPRESA_SELECTION_KEY = "erp_empresa_id";
 
 const getApiBaseUrl = () => {
+  if (import.meta.env.DEV) return "";
   const configured = String(import.meta.env.VITE_API_URL || "").trim();
   if (!configured) return "";
   if (/^https?:\/\//i.test(configured)) return configured.replace(/\/+$/, "");

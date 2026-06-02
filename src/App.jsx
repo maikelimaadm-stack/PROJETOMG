@@ -1,11 +1,25 @@
 import { Toaster } from "@/shared/ui/toaster";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import { lazy, Suspense, useState } from "react";
+import generatedModules from "@/modules/generatedModules.json";
 
 const PAGEMP = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
+const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
+const generatedModuleRoutes = generatedModules
+  .filter((moduleConfig) => moduleConfig.moduleId !== "empresas")
+  .map((moduleConfig) => {
+    const key = `/src/${moduleConfig.pageFile}`;
+    const loader = generatedPageLoaders[key];
+    if (!loader) return null;
+    return {
+      ...moduleConfig,
+      Component: lazy(loader),
+    };
+  })
+  .filter(Boolean);
 
 function LoginScreen({ onLogin, isLoading, errorMessage }) {
   const [cliente, setCliente] = useState("demo");
@@ -88,6 +102,7 @@ function MinimalLayout({
   selectedEmpresaId,
   onSelectEmpresa,
   allowAllEmpresas,
+  modulesNavigation = [],
 }) {
   const location = useLocation();
   const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
@@ -99,7 +114,7 @@ function MinimalLayout({
       <header className="flex-none border-b border-slate-200 bg-white">
         <div className="px-4 py-2 flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-sm font-semibold text-slate-700 leading-tight">Cadastro de Empresas</h1>
+            <h1 className="text-sm font-semibold text-slate-700 leading-tight">MAK Gestão ERP</h1>
             <p className="text-xs text-slate-600">Sistema de gestão</p>
           </div>
           <div className="flex items-center gap-2">
@@ -136,6 +151,17 @@ function MinimalLayout({
           >
             Cadastro de Empresas
           </Link>
+          {modulesNavigation
+            .filter((module) => module.moduleId !== "empresas")
+            .map((module) => (
+            <Link
+              key={module.moduleId}
+              to={module.routePath}
+              className={`h-7 px-3 inline-flex items-center text-xs border-r border-slate-200 ${location.pathname === module.routePath ? "font-semibold text-slate-700 bg-slate-50" : "text-slate-600 bg-white"}`}
+            >
+              {module.menuLabel}
+            </Link>
+          ))}
         </nav>
       </header>
       <main className="flex-1 min-h-0 overflow-hidden">{children}</main>
@@ -189,9 +215,61 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<MinimalLayout onLogout={logout} empresas={empresas} allowAllEmpresas={allowAllEmpresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
-      <Route path="/CadastroEmpresas" element={<MinimalLayout onLogout={logout} empresas={empresas} allowAllEmpresas={allowAllEmpresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
-      <Route path="*" element={<MinimalLayout onLogout={logout} empresas={empresas} allowAllEmpresas={allowAllEmpresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
+      <Route
+        path="/"
+        element={
+          <MinimalLayout
+            onLogout={logout}
+            empresas={empresas}
+            allowAllEmpresas={allowAllEmpresas}
+            selectedEmpresaId={selectedEmpresaId}
+            onSelectEmpresa={selectEmpresa}
+            modulesNavigation={generatedModuleRoutes}
+          >
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}>
+              <PAGEMP />
+            </Suspense>
+          </MinimalLayout>
+        }
+      />
+      <Route
+        path="/CadastroEmpresas"
+        element={
+          <MinimalLayout
+            onLogout={logout}
+            empresas={empresas}
+            allowAllEmpresas={allowAllEmpresas}
+            selectedEmpresaId={selectedEmpresaId}
+            onSelectEmpresa={selectEmpresa}
+            modulesNavigation={generatedModuleRoutes}
+          >
+            <Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}>
+              <PAGEMP />
+            </Suspense>
+          </MinimalLayout>
+        }
+      />
+      {generatedModuleRoutes.map((module) => (
+        <Route
+          key={module.moduleId}
+          path={module.routePath}
+          element={
+            <MinimalLayout
+              onLogout={logout}
+              empresas={empresas}
+              allowAllEmpresas={allowAllEmpresas}
+              selectedEmpresaId={selectedEmpresaId}
+              onSelectEmpresa={selectEmpresa}
+              modulesNavigation={generatedModuleRoutes}
+            >
+              <Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}>
+                <module.Component />
+              </Suspense>
+            </MinimalLayout>
+          }
+        />
+      ))}
+      <Route path="*" element={<Navigate to="/CadastroEmpresas" replace />} />
     </Routes>
   );
 };

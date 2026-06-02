@@ -64,8 +64,8 @@ export const empresaService = {
     return empresaRepository.remove(id, scope);
   },
 
-  listCampos(scope) {
-    return empresaRepository.listCampos(scope);
+  listCampos(scope, mode = "aplicavel") {
+    return empresaRepository.listCampos(scope, mode);
   },
 
   createCampo(payload, scope) {

@@ -40,6 +40,7 @@ const toTitleCase = (v) => String(v || "").toLowerCase().replace(/(^|\s)([a-zá�
 
 const initialForm = {
   label: "", field_name: "", placeholder: "", descricao: "", tipo: "text",
+  aplicacao_modo: "todas", empresa_id: null,
   col_span: 12, largura_coluna: 160, ordem_tabela: 999,
   obrigatorio: false, read_only: false, visivel_form: true, visivel_tabela: true, visivel_relatorio: true,
   ordenavel: true, filtravel: true, alinhamento: "left", agregacao_tipo: "none", agregacao_campo_base: "",
@@ -76,6 +77,7 @@ export default function EmpConfiguracaoCamposDialog({
   inline = false,
   initialFieldName = null,
   repository,
+  empresas = [],
 }) {
   if (!repository) {
     throw new Error("EmpConfiguracaoCamposDialog requer prop repository.");
@@ -101,8 +103,8 @@ export default function EmpConfiguracaoCamposDialog({
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
 
   const { data: campos = [], isLoading, isFetching, isFetched } = useQuery({
-    queryKey: ["emp-campos-personalizados"],
-    queryFn: () => repository.listCamposPersonalizados(),
+    queryKey: ["emp-campos-personalizados", "config"],
+    queryFn: () => repository.listCamposPersonalizados("config"),
     enabled: open,
     staleTime: 30_000,
     initialData: []
@@ -126,12 +128,17 @@ export default function EmpConfiguracaoCamposDialog({
     onSuccess: async (saved) => {
       const wasEditing = !!editingId;
       await queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
-      const updated = await repository.listCamposPersonalizados();
+      const updated = await repository.listCamposPersonalizados("config");
       const savedId = saved?.id || editingId;
       const target = updated.find((c) => c.id === savedId) || saved;
       if (target) loadCampoForm(target);
       toast.success(wasEditing ? "Campo atualizado." : "Campo criado.");
-    }
+    },
+    onError: (error) => showNotice({
+      title: "Erro ao salvar campo",
+      description: error?.data?.message || error?.message || "Não foi possível salvar o campo.",
+      type: "danger",
+    }),
   });
 
   const deleteMutation = useMutation({
@@ -149,7 +156,7 @@ export default function EmpConfiguracaoCamposDialog({
     const protectedOptions = form.metadata?.protected_options || [];
     const hasManual = ["select", "option_list"].includes(form.tipo);
     const manualOptions = hasManual ? [...new Set([...protectedOptions, ...String(form.options_text || "").split("\n").map((i) => i.trim().toUpperCase()).filter(Boolean)])].sort((a, b) => a.localeCompare(b, "pt-BR", { sensitivity: "base" })).map((i) => ({ value: i, label: i, protected: protectedOptions.includes(i) })) : [];
-    return { ...form, field_name: editingId ? form.field_name : toSnakeCase(form.label), metadata: form.metadata || {}, col_span: 12, largura_coluna: 160, ordem_tabela: 999, read_only: form.tipo === "calculado", ordenavel: true, filtravel: !["textarea"].includes(form.tipo), alinhamento: form.tipo === "number" && form.usar_mascara ? "left" : ["number", "calculado"].includes(form.tipo) ? "right" : "left", options: manualOptions, options_text: hasManual ? manualOptions.map((o) => o.label).join("\n") : "", options_source: "", agregacao_tipo: form.tipo === "number" && form.usar_mascara ? undefined : form.agregacao_tipo === "none" ? undefined : form.agregacao_tipo, agregacao_campo_base: "", formula, calculation_builder: { items }, campos_dependentes: deps, dependencias: deps, decimal_places: Math.min(6, Math.max(0, Number(form.decimal_places) || 0)), usar_decimal: ["number", "calculado"].includes(form.tipo) && !form.usar_mascara && !!form.usar_decimal, usar_mascara: form.tipo === "number" && !form.usar_decimal && !!form.usar_mascara, mascaras_text: form.tipo === "number" && form.usar_mascara ? String(form.mascaras_text || "").split("\n").map((i) => i.trim()).filter(Boolean).join("\n") : "", visivel_form: true, label: toTitleCase(form.label), placeholder: String(form.placeholder || "").toUpperCase(), descricao: String(form.descricao || "").toUpperCase() };
+    return { ...form, field_name: editingId ? form.field_name : toSnakeCase(form.label), aplicacao_modo: form.aplicacao_modo || (form.empresa_id ? "empresa" : "todas"), empresa_id: form.aplicacao_modo === "empresa" ? form.empresa_id : null, metadata: form.metadata || {}, col_span: 12, largura_coluna: 160, ordem_tabela: 999, read_only: form.tipo === "calculado", ordenavel: true, filtravel: !["textarea"].includes(form.tipo), alinhamento: form.tipo === "number" && form.usar_mascara ? "left" : ["number", "calculado"].includes(form.tipo) ? "right" : "left", options: manualOptions, options_text: hasManual ? manualOptions.map((o) => o.label).join("\n") : "", options_source: "", agregacao_tipo: form.tipo === "number" && form.usar_mascara ? undefined : form.agregacao_tipo === "none" ? undefined : form.agregacao_tipo, agregacao_campo_base: "", formula, calculation_builder: { items }, campos_dependentes: deps, dependencias: deps, decimal_places: Math.min(6, Math.max(0, Number(form.decimal_places) || 0)), usar_decimal: ["number", "calculado"].includes(form.tipo) && !form.usar_mascara && !!form.usar_decimal, usar_mascara: form.tipo === "number" && !form.usar_decimal && !!form.usar_mascara, mascaras_text: form.tipo === "number" && form.usar_mascara ? String(form.mascaras_text || "").split("\n").map((i) => i.trim()).filter(Boolean).join("\n") : "", visivel_form: true, label: toTitleCase(form.label), placeholder: String(form.placeholder || "").toUpperCase(), descricao: String(form.descricao || "").toUpperCase() };
   };
 
   const resetForm = () => { setForm(initialForm); setEditingId(null); setIsDirty(false); setIsDuplicating(false); setEditMode(false); setShowForm(false); };
@@ -184,6 +191,9 @@ export default function EmpConfiguracaoCamposDialog({
       const opts = [...(form.metadata?.protected_options || []), ...String(form.options_text || "").split("\n")].map((i) => i.trim().toUpperCase()).filter(Boolean);
       if (opts.length === 0) return showNotice({ title: "Opções obrigatórias", description: "Informe pelo menos uma opção.", confirmText: null });
     }
+    if (form.aplicacao_modo === "empresa" && !form.empresa_id) {
+      return showNotice({ title: "Empresa obrigatória", description: "Selecione a empresa para campos específicos.", confirmText: null });
+    }
     saveMutation.mutate();
   };
 
@@ -205,7 +215,7 @@ export default function EmpConfiguracaoCamposDialog({
   const loadCampoForm = (campo) => {
     const items = campo.calculation_builder?.items || (campo.campos_dependentes || []).map((f, i) => ({ field: f, operator: i === 0 ? "*" : "*" }));
     setEditingId(campo.id || campo.field_id); setSelectedCampoIds([campo.id || campo.field_id]); setIsDirty(false); setIsDuplicating(false); setEditMode(false); setShowForm(true);
-    setForm({ ...initialForm, ...campo, options_text: campo.options_text || (campo.options || []).map((o) => o.label || o.value || o).join("\n"), agregacao_tipo: campo.agregacao_tipo || campo.agregacao || "none", calculation_builder: { items: items.length ? items : initialForm.calculation_builder.items }, usar_decimal: !!campo.usar_decimal, decimal_places: campo.decimal_places ?? 2, usar_mascara: !!campo.usar_mascara, mascaras_text: campo.mascaras_text || "" });
+    setForm({ ...initialForm, ...campo, aplicacao_modo: campo.empresa_id ? "empresa" : "todas", empresa_id: campo.empresa_id || null, options_text: campo.options_text || (campo.options || []).map((o) => o.label || o.value || o).join("\n"), agregacao_tipo: campo.agregacao_tipo || campo.agregacao || "none", calculation_builder: { items: items.length ? items : initialForm.calculation_builder.items }, usar_decimal: !!campo.usar_decimal, decimal_places: campo.decimal_places ?? 2, usar_mascara: !!campo.usar_mascara, mascaras_text: campo.mascaras_text || "" });
   };
 
   React.useEffect(() => {
@@ -236,6 +246,8 @@ export default function EmpConfiguracaoCamposDialog({
   const getTipoLabel = (campo) => TIPOS_CAMPO.find((tipo) => tipo.value === campo.tipo)?.label || campo.tipo || "";
   const getUsoItems = (campo) => {
     const items = [];
+    if (!campo.empresa_id) items.push("GLOBAL");
+    else items.push(`EMP ${campo.codigo_empresa || ""}`.trim());
     if (campo.metadata?.native_select) items.push("NATIVA");
     if (campo.visivel_form) items.push("FORM");
     if (campo.visivel_tabela) items.push("TABELA");
@@ -505,6 +517,34 @@ export default function EmpConfiguracaoCamposDialog({
               <Field label="Tipo"><EmpAutocomplete items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="BUSCAR TIPO..." displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 uppercase" /></Field>
               <Field label="Texto de ajuda"><Input value={form.placeholder} onChange={(e) => updateForm("placeholder", e.target.value)} placeholder="TEXTO MOSTRADO NO CAMPO" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
               <Field label="Descrição"><Input value={form.descricao} onChange={(e) => updateForm("descricao", e.target.value)} placeholder="EXPLICAÇÃO OPCIONAL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
+              <div className="grid grid-cols-[190px_minmax(0,1fr)] items-start gap-1">
+                <span className="text-[12px] text-[#1a1f26] text-right leading-none pt-1">Aplicação do Campo:</span>
+                <div className="space-y-2 py-1">
+                  <label className="flex items-center gap-2 text-xs text-slate-700">
+                    <input type="radio" name="aplicacao_modo" checked={form.aplicacao_modo !== "empresa"} disabled={isReadOnly} onChange={() => updateForm("aplicacao_modo", "todas")} />
+                    Todas as Empresas do Cliente
+                  </label>
+                  <label className="flex items-center gap-2 text-xs text-slate-700">
+                    <input type="radio" name="aplicacao_modo" checked={form.aplicacao_modo === "empresa"} disabled={isReadOnly} onChange={() => updateForm("aplicacao_modo", "empresa")} />
+                    Empresa Específica
+                  </label>
+                  {form.aplicacao_modo === "empresa" ? (
+                    <select
+                      className="h-7 w-full max-w-md border border-slate-300 px-2 text-xs"
+                      value={form.empresa_id || ""}
+                      disabled={isReadOnly}
+                      onChange={(event) => updateForm("empresa_id", event.target.value || null)}
+                    >
+                      <option value="">Selecionar Empresa</option>
+                      {empresas.map((empresa) => (
+                        <option key={empresa.id} value={empresa.id}>
+                          {empresa.codigo_empresa} - {empresa.nome_empresa || empresa.razao_social}
+                        </option>
+                      ))}
+                    </select>
+                  ) : null}
+                </div>
+              </div>
               {["select", "option_list"].includes(form.tipo) && <EmpManualOptionsConfig form={form} updateForm={updateForm} />}
               {form.tipo === "relation" && <EmpRelationConfig form={form} updateForm={updateForm} mode="relation" />}
               {form.tipo === "calculado" && <EmpCalculationBuilder value={form.calculation_builder?.items || []} fields={camposCalculo} onChange={(items) => updateForm("calculation_builder", { items })} />}

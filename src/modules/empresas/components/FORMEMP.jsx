@@ -1,10 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Input } from "@/shared/ui/input";
-import { Textarea } from "@/shared/ui/textarea";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
-import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
@@ -17,7 +15,6 @@ import empFormLayoutStore, {
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
-import EmpOptionListControl from "@/framework/cadastro/formularios/EmpOptionListControl";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { ChevronDown, ChevronRight } from "lucide-react";
@@ -31,9 +28,8 @@ import {
   applyDuplicateFieldClears,
   buildEmptyEmpresaForm,
   NATIVE_FIELDS,
-  splitDateTimeValue,
-  formatMaskedNumber,
 } from "./formEmp.constants";
+import { useFormEmpCustomFields } from "./formEmp.customFields";
 
 export default function FORMEMP({
   onSubmit, onCancel, onSettingsClick, onAttachClick, attachDisabled = false,
@@ -114,7 +110,6 @@ export default function FORMEMP({
   });
 
   const isReadOnly = isEditing && !isDuplicating && !editMode;
-  const readOnlyClass = isReadOnly ? "cursor-default" : "";
 
   const handleChange = (field, value) => {
     if (isReadOnly) return;
@@ -153,76 +148,14 @@ export default function FORMEMP({
   const opcoesEstado = useMemo(() => ESTADOS_BR.map((item) => ({ id: item, nome: item })), []);
   const opcoesTipoPessoa = useMemo(() => [{ id: "PF", nome: "PESSOA FÍSICA (PF)" }, { id: "PJ", nome: "PESSOA JURÍDICA (PJ)" }], []);
 
-  const handleCustomDateTimeChange = (fieldName, part, nextValue) => {
-    const current = splitDateTimeValue(formData.campos_personalizados?.[fieldName]);
-    const horaAtual = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-    const next = {
-      ...current,
-      [part]: nextValue,
-      ...(part === "date" && nextValue && !current.time ? { time: horaAtual } : {})
-    };
-    handleCustomChange(fieldName, next.date ? `${next.date}T${next.time || "00:00"}` : "");
-  };
-
-  const renderCampoPersonalizado = (campo) => {
-    const value = formData.campos_personalizados?.[campo.field_name] || "";
-    const campoOptions = campoEngine.getOptionsCampo(campo, relatedOptions);
-    const fieldReadOnly = campo.read_only || isReadOnly;
-    const customInputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1";
-
-    if (campo.tipo === "textarea") {
-      return <Textarea value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`text-xs uppercase bg-transparent px-1 ${readOnlyClass}`} rows={campo.rows || 2} />;
-    }
-
-    if (campo.tipo === "calculado") {
-      const calculatedValue = campoEngine.calcularCampo(formData, campo);
-      const places = Math.min(6, Math.max(0, Number(campo.decimal_places ?? 2)));
-      return <Input value={Number(calculatedValue || 0).toLocaleString("pt-BR", campo.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 2 })} readOnly placeholder="CALCULADO" className={`${customInputClass} bg-slate-50`} />;
-    }
-
-    if (campo.tipo === "option_list") {
-      const options = campoOptions.map((option) => ({ value: String(option.value || option.label || "").toUpperCase(), label: String(option.label || option.value || "").toUpperCase() }));
-      return <EmpOptionListControl options={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue)} disabled={fieldReadOnly} placeholder={(campo.placeholder || "SELECIONE UMA OU MAIS OPÇÕES").toUpperCase()} />;
-    }
-
-    if (campo.tipo === "select" || campo.tipo === "relation") {
-      const options = campoOptions.map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })).sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
-      return <EmpAutocomplete items={options} value={value} onChange={(nextValue) => handleCustomChange(campo.field_name, nextValue || "")} placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()} displayField="nome" searchFields={["nome"]} disabled={fieldReadOnly} readOnly={fieldReadOnly} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1" />;
-    }
-
-    if (campo.tipo === "time") {
-      return <Input type="time" value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} />;
-    }
-
-    if (["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo)) {
-      const dateTimeValue = splitDateTimeValue(value);
-      return <div className="grid grid-cols-2 gap-1"><Input type="date" value={dateTimeValue.date} onChange={(e) => handleCustomDateTimeChange(campo.field_name, "date", e.target.value)} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} /><Input type="time" value={dateTimeValue.time} onChange={(e) => handleCustomDateTimeChange(campo.field_name, "time", e.target.value)} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} /></div>;
-    }
-
-    if (campo.tipo === "number" && campo.usar_mascara) {
-      return <Input type="text" inputMode="numeric" value={formatMaskedNumber(value, campo)} onChange={(e) => handleCustomChange(campo.field_name, formatMaskedNumber(e.target.value, campo))} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${customInputClass} ${readOnlyClass}`} />;
-    }
-
-    if (["imagem", "image", "file"].includes(campo.tipo)) {
-      return (
-        <EmpFormImageField
-          value={value}
-          readOnly={fieldReadOnly}
-          onUpload={(event) => {
-            const file = event.target.files?.[0];
-            if (!file) return;
-            AnexosApi.uploadFile(file)
-              .then(({ file_url }) => handleCustomChange(campo.field_name, file_url))
-              .catch(() => setNoticeDialog({ open: true, title: "Erro ao enviar", description: "Não foi possível enviar a imagem." }));
-          }}
-          onClear={() => handleCustomChange(campo.field_name, "")}
-          alt={campo.label || "Imagem"}
-        />
-      );
-    }
-
-    return <Input type={campo.tipo === "number" ? "number" : campo.tipo === "date" ? "date" : "text"} value={value} onChange={(e) => handleCustomChange(campo.field_name, e.target.value)} placeholder={(campo.placeholder || campo.label || "").toUpperCase()} readOnly={fieldReadOnly} className={`${customInputClass} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`} />;
-  };
+  const { renderCampoPersonalizado } = useFormEmpCustomFields({
+    formData,
+    isReadOnly,
+    handleCustomChange,
+    relatedOptions,
+    onUploadError: () =>
+      setNoticeDialog({ open: true, title: "Erro ao enviar", description: "Não foi possível enviar a imagem." }),
+  });
 
   const dynamicFields = useMemo(() => [
     { id: "razao_social", name: "razao_social", label: "Razão Social", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "RAZÃO SOCIAL OU NOME COMPLETO" },

@@ -69,7 +69,14 @@ export const anexoRepository = {
 
     const created = await prisma.registroAnexo.create({
       data: {
-        ...data,
+        entity_name: data.entity_name,
+        record_id: data.record_id || null,
+        attachment_name: data.attachment_name || null,
+        file_name: data.file_name,
+        file_url: data.file_url,
+        file_type: data.file_type || null,
+        file_size: data.file_size ?? null,
+        storage_path: data.storage_path || null,
         empresa_id: empresaId,
         codigo_empresa: empresa.codigo_empresa,
         nome_empresa: empresa.razao_social,

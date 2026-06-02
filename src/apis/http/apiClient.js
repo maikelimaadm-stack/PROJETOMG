@@ -1,4 +1,5 @@
 const getApiBaseUrl = () => {
+  if (import.meta.env.DEV) return "";
   const configured = String(import.meta.env.VITE_API_URL || "").trim();
   const defaultProductionApiUrl = "https://projetomg-production.up.railway.app";
 

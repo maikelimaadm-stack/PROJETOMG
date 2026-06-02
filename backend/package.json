@@ -13,7 +13,13 @@
     "validate:connections": "node scripts/validateConnections.js",
     "smoke:empresas": "node scripts/smokeEmpresas.js",
     "smoke:auth-permissoes": "node scripts/smokeAuthPermissoes.js",
-    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run smoke:empresas && npm run smoke:auth-permissoes",
+    "smoke:fazendas": "node scripts/smokeFazendas.js",
+    "smoke:fazendas-advanced": "node scripts/smokeFazendasAdvanced.js",
+    "smoke:campos": "node scripts/smokeCamposPersonalizados.js",
+    "smoke:campos-tipos": "node scripts/smokeCamposTipos.js",
+    "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
+    "security:multiempresa": "node scripts/securityMultiempresaProbe.js",
+    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run ensure:campos-indexes && npm run smoke:empresas && npm run smoke:auth-permissoes && npm run smoke:fazendas && npm run smoke:fazendas-advanced && npm run smoke:campos && npm run smoke:campos-tipos && npm run security:multiempresa",
     "docker:build": "docker build -t mak-gestao-backend ."
   },
   "dependencies": {
