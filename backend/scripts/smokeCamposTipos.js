@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { smokeLoginBody } from "./smokeCredentials.js";
 
 dotenv.config();
 
@@ -25,7 +26,7 @@ const requestJson = async (path, { method = "GET", token, empresaId, body } = {}
 const login = async () => {
   const { ok, payload } = await requestJson("/api/auth/login", {
     method: "POST",
-    body: { cliente: "demo", usuario: "demo", senha: "123" },
+    body: smokeLoginBody(),
   });
   if (!ok || !payload?.token) throw new Error("Falha no login para smoke de tipos de campo.");
   return payload;

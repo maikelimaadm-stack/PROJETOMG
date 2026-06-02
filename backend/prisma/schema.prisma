@@ -95,7 +95,7 @@ model Empresa {
 model CampoPersonalizado {
   id                    String   @id @default(cuid())
   tenant_id             String   @default("default") @db.VarChar(64) // legado (compatibilidade)
-  cliente_id            String   @default("demo") @db.VarChar(64)
+  cliente_id            String   @db.VarChar(64)
   empresa_id            String?  @db.VarChar(64)
   codempresa        Int?
   nome_empresa          String?  @db.VarChar(255)
@@ -162,7 +162,7 @@ model CadastroRegistro {
 model RegistroAnexo {
   id              String   @id @default(cuid())
   tenant_id       String   @default("default") @db.VarChar(64) // legado (compatibilidade)
-  cliente_id      String   @default("demo") @db.VarChar(64)
+  cliente_id      String   @db.VarChar(64)
   entity_name     String   @db.VarChar(128)
   record_id       String?  @db.VarChar(128)
   empresa_id      String?  @db.VarChar(64)

@@ -22,9 +22,9 @@ const generatedModuleRoutes = generatedModules
   .filter(Boolean);
 
 function LoginScreen({ onLogin, isLoading, errorMessage }) {
-  const [cliente, setCliente] = useState("demo");
-  const [usuario, setUsuario] = useState("demo");
-  const [senha, setSenha] = useState("123");
+  const [cliente, setCliente] = useState("");
+  const [usuario, setUsuario] = useState("");
+  const [senha, setSenha] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -52,7 +52,7 @@ function LoginScreen({ onLogin, isLoading, errorMessage }) {
               className="mt-1 h-9 w-full border border-slate-300 px-2 text-sm"
               value={cliente}
               onChange={(event) => setCliente(event.target.value)}
-              placeholder="demo"
+              placeholder="Cliente"
               autoComplete="organization"
             />
           </label>
@@ -62,7 +62,7 @@ function LoginScreen({ onLogin, isLoading, errorMessage }) {
               className="mt-1 h-9 w-full border border-slate-300 px-2 text-sm"
               value={usuario}
               onChange={(event) => setUsuario(event.target.value)}
-              placeholder="demo"
+              placeholder="Usuário"
               autoComplete="username"
             />
           </label>
@@ -73,7 +73,7 @@ function LoginScreen({ onLogin, isLoading, errorMessage }) {
               type="password"
               value={senha}
               onChange={(event) => setSenha(event.target.value)}
-              placeholder="123"
+              placeholder="Senha"
               autoComplete="current-password"
             />
           </label>

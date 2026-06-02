@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { smokeLoginBody } from "./smokeCredentials.js";
 
 dotenv.config();
 
@@ -10,11 +11,7 @@ const login = async () => {
   const response = await fetch(`${BASE_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      cliente: "demo",
-      usuario: "demo",
-      senha: "123",
-    }),
+    body: JSON.stringify(smokeLoginBody()),
   });
 
   const payload = await response.json();

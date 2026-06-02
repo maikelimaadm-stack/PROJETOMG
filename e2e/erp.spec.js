@@ -3,15 +3,15 @@ import { test, expect } from "@playwright/test";
 const login = async (page) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Login do Sistema" })).toBeVisible();
-  await page.locator('input[autocomplete="organization"]').fill("demo");
-  await page.locator('input[autocomplete="username"]').fill("demo");
+  await page.locator('input[autocomplete="organization"]').fill("kaiman");
+  await page.locator('input[autocomplete="username"]').fill("maike");
   await page.locator('input[autocomplete="current-password"]').fill("123");
   await page.getByRole("button", { name: "Entrar" }).click();
   await expect(page.getByRole("heading", { name: "MAK Gestão ERP" })).toBeVisible({ timeout: 20_000 });
 };
 
 test.describe("Autenticação", () => {
-  test("login com credenciais demo", async ({ page }) => {
+  test("login com credenciais do banco", async ({ page }) => {
     await login(page);
     await expect(page.getByRole("link", { name: "Cadastro de Empresas" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Campos Personalizados" }).first()).toBeVisible();
