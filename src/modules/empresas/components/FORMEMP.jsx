@@ -13,11 +13,12 @@ import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFi
 import empFormLayoutStore, {
   getLayoutStorageKeys,
   normalizeLayoutConfig,
+  readStoredLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import {
-  getEmpresasFormLayoutKey,
-  hydrateEmpresasFormLayout,
+  initEmpresasFormLayoutLocal,
   scheduleEmpresasFormLayoutSync,
+  syncEmpresasFormLayoutRemote,
 } from "@/framework/cadastro/layouts/userLayoutPreferencesSync";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
@@ -32,19 +33,12 @@ import {
   inputClass,
   applyDuplicateFieldClears,
   buildEmptyEmpresaForm,
+  buildEmpFormDefaultConfig,
+  EMP_FORM_BASE_PANELS,
+  EMP_FORM_DEFAULT_LAYOUT,
   NATIVE_FIELDS,
 } from "./formEmp.constants";
 import { useFormEmpCustomFields } from "./formEmp.customFields";
-
-const readStoredLayoutConfig = (layoutKey) => {
-  if (!layoutKey) return null;
-  try {
-    const saved = localStorage.getItem(layoutKey);
-    return saved ? JSON.parse(saved) : null;
-  } catch {
-    return null;
-  }
-};
 
 export default function FORMEMP({
   onSubmit, onCancel, onAttachClick, attachDisabled = false,
@@ -61,8 +55,6 @@ export default function FORMEMP({
   const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
   const [fieldLayoutConfigOpen, setFieldLayoutConfigOpen] = useState(false);
-  const [layoutPresetsState, setLayoutPresetsState] = useState(() => empFormLayoutStore.getState());
-  const [layoutHydrated, setLayoutHydrated] = useState(false);
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
@@ -70,25 +62,21 @@ export default function FORMEMP({
 
   useEffect(() => {
     if (!user?.id) {
-      setLayoutHydrated(false);
       setFormLayoutConfig(null);
-      return;
+      return undefined;
     }
 
-    let cancelled = false;
-    setLayoutHydrated(false);
+    const localConfig = initEmpresasFormLayoutLocal(user.id);
+    setFormLayoutConfig(localConfig);
+    syncEmpresasFormLayoutRemote(user.id);
 
-    hydrateEmpresasFormLayout(user.id).then(() => {
-      if (cancelled) return;
-      const layoutKey = getEmpresasFormLayoutKey(user.id);
-      setFormLayoutConfig(readStoredLayoutConfig(layoutKey));
-      setLayoutPresetsState(empFormLayoutStore.getState());
-      setLayoutHydrated(true);
-    });
-
-    return () => {
-      cancelled = true;
+    const handleRemoteLayout = (event) => {
+      if (event.detail?.userId && event.detail.userId !== user.id) return;
+      setFormLayoutConfig(readStoredLayoutConfig());
     };
+
+    window.addEventListener("emp-layout-hydrated", handleRemoteLayout);
+    return () => window.removeEventListener("emp-layout-hydrated", handleRemoteLayout);
   }, [user?.id]);
 
   const buildFormData = (data) =>
@@ -100,7 +88,7 @@ export default function FORMEMP({
   useEffect(() => {
     let next = buildFormData(initialData);
     if (initialData?._isDuplicate) {
-      const layoutKey = user?.id ? getEmpresasFormLayoutKey(user.id) : null;
+      const layoutKey = user?.id ? getLayoutStorageKeys(user.id).legacyKey : null;
       const saved = layoutKey ? localStorage.getItem(layoutKey) : null;
       let clearIds = formLayoutConfig?.clearOnDuplicateFieldIds || [];
       if (!clearIds.length && saved) {
@@ -242,58 +230,32 @@ export default function FORMEMP({
     ...camposPersonalizadosForm.map((campo) => ({ id: `custom:${campo.field_name}`, name: campo.field_name, label: campo.label, type: campo.tipo, origem: "customizado", optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "", required: campo.obrigatorio, errorKey: `campos_personalizados.${campo.field_name}`, wide: ["textarea", "option_list"].includes(campo.tipo), medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo), compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo), totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara, options: ["select", "option_list"].includes(campo.tipo) ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })) : [], displayField: "nome", searchFields: ["nome"], render: () => renderCampoPersonalizado(campo) }))
   ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions]);
 
-  const basePanels = [
-    { id: "principal", label: "Principal" },
-    { id: "geral", label: "Geral" },
-    { id: "endereco", label: "Endereço" },
-    { id: "observacoes", label: "Observações" },
-    ...(camposPersonalizadosForm.length > 0 ? [{ id: "campos_personalizados", label: "Campos Personalizados" }] : [])
-  ];
-
-  const defaultLayout = {
-    principal: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
-    geral: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
-    endereco: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
-    observacoes: ["observacoes"],
-    campos_personalizados: camposPersonalizadosForm.map((campo) => `custom:${campo.field_name}`)
-  };
-
-  const defaultConfigFull = useMemo(
-    () => ({
-      panels: basePanels,
-      layout: defaultLayout,
-      hiddenFieldIds: [],
-      lockedFieldIds: [],
-      requiredFieldIds: [],
-      clearOnDuplicateFieldIds: [],
-      fieldDefaultValues: {},
-      aggregationConfig: {},
-      visibilityRules: {},
-      fieldLayoutConfig: { mode: "compact", columns: 3 },
-    }),
-    [basePanels, defaultLayout]
+  const basePanels = useMemo(
+    () => EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
+    []
   );
 
+  const defaultLayout = useMemo(
+    () => ({
+      principal: [...EMP_FORM_DEFAULT_LAYOUT.principal],
+      geral: [...EMP_FORM_DEFAULT_LAYOUT.geral],
+      endereco: [...EMP_FORM_DEFAULT_LAYOUT.endereco],
+      observacoes: [...EMP_FORM_DEFAULT_LAYOUT.observacoes],
+    }),
+    []
+  );
+
+  const defaultConfigFull = useMemo(() => buildEmpFormDefaultConfig(), []);
+
   const activeLayoutConfig = useMemo(() => {
-    const presetConfig = empFormLayoutStore.resolvePresetConfig(
-      layoutPresetsState.activePresetId,
-      defaultConfigFull
-    );
-    const source = formLayoutConfig || presetConfig;
+    const source = formLayoutConfig || defaultConfigFull;
     return normalizeLayoutConfig(source, {
       basePanels,
       defaultLayout,
-      camposPersonalizadosCount: camposPersonalizadosForm.length,
+      camposPersonalizadosCount: 0,
       mergeNewCustomFields: false,
     });
-  }, [
-    formLayoutConfig,
-    layoutPresetsState.activePresetId,
-    basePanels,
-    defaultLayout,
-    defaultConfigFull,
-    camposPersonalizadosForm.length,
-  ]);
+  }, [formLayoutConfig, basePanels, defaultLayout, defaultConfigFull]);
 
   const tabs = activeLayoutConfig.panels.filter((panel) => {
     if (panel.id === "principal") return false;
@@ -335,7 +297,7 @@ export default function FORMEMP({
     const normalized = normalizeLayoutConfig(source, {
       basePanels,
       defaultLayout,
-      camposPersonalizadosCount: camposPersonalizadosForm.length,
+      camposPersonalizadosCount: 0,
       mergeNewCustomFields: false,
     });
     const { legacyKey, aggregationKey } = getLayoutStorageKeys(user?.id);
@@ -344,7 +306,6 @@ export default function FORMEMP({
     localStorage.setItem(aggregationKey, JSON.stringify(normalized.aggregationConfig || {}));
     window.dispatchEvent(new Event("emp-layout-updated"));
     empFormLayoutStore.persistActiveConfig(normalized);
-    setLayoutPresetsState(empFormLayoutStore.getState());
     if (user?.id) scheduleEmpresasFormLayoutSync(user.id);
     if (updateActiveTab) {
       const visiblePanels = normalized.panels.filter((panel) => !panel.hidden && panel.id !== "principal");
@@ -354,44 +315,6 @@ export default function FORMEMP({
     }
     return normalized;
   };
-
-  const handleRenameLayoutPreset = ({ presetId, name }) => {
-    empFormLayoutStore.renamePreset(presetId, name);
-    setLayoutPresetsState(empFormLayoutStore.getState());
-    if (user?.id) scheduleEmpresasFormLayoutSync(user.id);
-  };
-
-  const handleApplyLayoutPreset = (presetId) => {
-    empFormLayoutStore.setActivePreset(presetId);
-    const config = empFormLayoutStore.resolvePresetConfig(presetId, defaultConfigFull);
-    applyLayoutConfig(config);
-  };
-
-  const handleCreateLayoutPreset = ({ name, sourcePresetId }) => {
-    empFormLayoutStore.createPreset({ name, sourcePresetId, defaultConfig: defaultConfigFull });
-    const config = empFormLayoutStore.resolvePresetConfig(
-      empFormLayoutStore.getActivePresetId(),
-      defaultConfigFull
-    );
-    applyLayoutConfig(config);
-  };
-
-  const handleDeleteLayoutPreset = (presetId) => {
-    empFormLayoutStore.deletePreset(presetId);
-    const config = empFormLayoutStore.resolvePresetConfig(
-      empFormLayoutStore.getActivePresetId(),
-      defaultConfigFull
-    );
-    applyLayoutConfig(config);
-  };
-
-  if (!layoutHydrated && user?.id) {
-    return (
-      <div className="h-full min-h-0 flex items-center justify-center bg-white text-xs text-slate-400">
-        Carregando layout do formulário...
-      </div>
-    );
-  }
 
   const saveLayoutConfig = (nextConfig) => {
     applyLayoutConfig({
@@ -457,12 +380,6 @@ export default function FORMEMP({
           aggregationConfig={activeLayoutConfig.aggregationConfig || {}}
           visibilityRules={activeLayoutConfig.visibilityRules || {}}
           defaultConfig={defaultConfigFull}
-          layoutPresets={layoutPresetsState.presets}
-          activePresetId={layoutPresetsState.activePresetId}
-          onPresetApply={handleApplyLayoutPreset}
-          onCreateLayoutPreset={handleCreateLayoutPreset}
-          onRenameLayoutPreset={handleRenameLayoutPreset}
-          onDeleteLayoutPreset={handleDeleteLayoutPreset}
           systemPanelIds={["principal", "geral", "endereco", "observacoes", "campos_personalizados"]}
           fixedPanelIds={["principal"]}
           fixedVisibleFieldIds={[]}

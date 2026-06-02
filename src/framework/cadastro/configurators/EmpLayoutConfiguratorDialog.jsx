@@ -17,11 +17,9 @@ import {
   Settings,
   Trash2,
   X,
-  Layers,
 } from "lucide-react";
 import EmpLayoutFieldSettingsPopover from "@/framework/cadastro/layouts/EmpLayoutFieldSettingsPopover";
 import EmpLayoutFieldStatusIcons from "@/framework/cadastro/layouts/EmpLayoutFieldStatusIcons";
-import EmpLayoutPresetsDialog from "./EmpLayoutPresetsDialog";
 import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
@@ -74,12 +72,6 @@ export default function EmpLayoutConfiguratorDialog({
   defaultConfig = null,
   onSave,
   inline = false,
-  layoutPresets = [],
-  activePresetId = "",
-  onPresetApply,
-  onCreateLayoutPreset,
-  onRenameLayoutPreset,
-  onDeleteLayoutPreset,
   systemPanelIds = DEFAULT_SYSTEM_PANEL_IDS,
   fixedPanelIds = DEFAULT_FIXED_PANEL_IDS,
   fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS,
@@ -98,7 +90,6 @@ export default function EmpLayoutConfiguratorDialog({
   const [selectedPanelFieldIds, setSelectedPanelFieldIds] = useState([]);
   const [search, setSearch] = useState("");
   const [sidebarMode, setSidebarMode] = useState("available");
-  const [presetsDialogOpen, setPresetsDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [draggedFieldId, setDraggedFieldId] = useState(null);
   const [draggedPanelId, setDraggedPanelId] = useState(null);
@@ -114,7 +105,6 @@ export default function EmpLayoutConfiguratorDialog({
   React.useEffect(() => {
     if (!open) {
       wasOpenRef.current = false;
-      setPresetsDialogOpen(false);
       return;
     }
 
@@ -630,24 +620,6 @@ export default function EmpLayoutConfiguratorDialog({
               <span>Cancelar</span>
             </ToolbarBtn>
           )}
-          <div className="ml-2 flex min-w-0 items-center gap-1.5">
-            <select
-              value={activePresetId}
-              onChange={(event) => onPresetApply?.(event.target.value)}
-              className="emp-layout-config-select h-7 max-w-[180px] rounded-[5px] border border-[#dce3eb] bg-white px-2 text-xs text-[#1a1f26]"
-              title="Layout ativo"
-            >
-              {layoutPresets.map((preset) => (
-                <option key={preset.id} value={preset.id}>
-                  {preset.name}
-                </option>
-              ))}
-            </select>
-            <ToolbarBtn onClick={() => setPresetsDialogOpen(true)} className={LABELED_BTN_CLASS} title="Gerenciar layouts">
-              <EmpToolbarIcon icon={Layers} />
-              <span>Layouts</span>
-            </ToolbarBtn>
-          </div>
           <div className="ml-auto">
             {isEditing && (
               <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
@@ -907,17 +879,6 @@ export default function EmpLayoutConfiguratorDialog({
           }))
         }
         onVisibilityRuleChange={setVisibilityRule}
-      />
-
-      <EmpLayoutPresetsDialog
-        open={presetsDialogOpen}
-        onOpenChange={setPresetsDialogOpen}
-        presets={layoutPresets}
-        activePresetId={activePresetId}
-        defaultConfig={defaultConfig}
-        onCreatePreset={onCreateLayoutPreset}
-        onRenamePreset={onRenameLayoutPreset}
-        onDeletePreset={onDeleteLayoutPreset}
       />
 
       <TopNoticeDialog

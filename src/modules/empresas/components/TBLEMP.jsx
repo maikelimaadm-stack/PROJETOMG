@@ -117,7 +117,7 @@ export default function TBLEMP({
       ...c,
       id: `custom:${c.field_name}`,
       label: c.label,
-      default: true,
+      default: false,
       sortable: c.ordenavel !== false,
       filtravel: c.filtravel !== false,
       align: c.tipo === "date" ? "center" : (c.tipo === "number" || c.tipo === "calculado") ? "right" : "left",

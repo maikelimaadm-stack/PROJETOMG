@@ -46,6 +46,38 @@ export const UPPER_FIELDS = [
 export const REQUIRED_FIELDS = ["razao_social", "tipo_pessoa"];
 export const FORM_LAYOUT_KEY = "cadastro_emp_form_layout_config";
 export const TABLE_AGGREGATION_KEY = "emp_table_aggregation_config";
+
+export const EMP_FORM_BASE_PANELS = [
+  { id: "principal", label: "Principal" },
+  { id: "geral", label: "Geral" },
+  { id: "endereco", label: "Endereço" },
+  { id: "observacoes", label: "Observações" },
+];
+
+export const EMP_FORM_DEFAULT_LAYOUT = {
+  principal: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
+  geral: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
+  endereco: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
+  observacoes: ["observacoes"],
+};
+
+export const buildEmpFormDefaultConfig = () => ({
+  panels: EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
+  layout: {
+    principal: [...EMP_FORM_DEFAULT_LAYOUT.principal],
+    geral: [...EMP_FORM_DEFAULT_LAYOUT.geral],
+    endereco: [...EMP_FORM_DEFAULT_LAYOUT.endereco],
+    observacoes: [...EMP_FORM_DEFAULT_LAYOUT.observacoes],
+  },
+  hiddenFieldIds: [],
+  lockedFieldIds: [],
+  requiredFieldIds: [],
+  clearOnDuplicateFieldIds: [],
+  fieldDefaultValues: {},
+  aggregationConfig: {},
+  visibilityRules: {},
+  fieldLayoutConfig: { mode: "vertical", columns: 1 },
+});
 export const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-white px-1";
 
 export const buildEmptyEmpresaForm = () => ({
