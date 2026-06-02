@@ -7,17 +7,10 @@ const requiredRuntimeVars = [
   "SUPABASE_STORAGE_BUCKET",
 ];
 
-const requiredProductionVars = [
-  "FRONTEND_ORIGINS",
-];
-
 const missingVars = (keys = []) => keys.filter((key) => !String(process.env[key] || "").trim());
 
 export const validateRuntimeEnv = () => {
-  const missing = [
-    ...missingVars(requiredRuntimeVars),
-    ...(String(process.env.NODE_ENV || "").toLowerCase() === "production" ? missingVars(requiredProductionVars) : []),
-  ];
+  const missing = [...missingVars(requiredRuntimeVars)];
 
   if (missing.length === 0) return true;
 

@@ -15,6 +15,19 @@ const parseAllowedOrigins = () =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+const resolveHost = () => {
+  const configuredHost = String(process.env.BACKEND_HOST || "")
+    .replaceAll('"', "")
+    .replaceAll("'", "")
+    .trim();
+
+  if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
+    return "0.0.0.0";
+  }
+
+  return configuredHost || "0.0.0.0";
+};
+
 const resolvePort = () => {
   const rawPort = process.env.PORT || process.env.BACKEND_PORT || "3001";
   const parsed = Number(rawPort);
@@ -62,7 +75,7 @@ const buildServer = () => {
 
 const start = async () => {
   const app = buildServer();
-  const host = process.env.BACKEND_HOST || "0.0.0.0";
+  const host = resolveHost();
   const port = resolvePort();
 
   try {
