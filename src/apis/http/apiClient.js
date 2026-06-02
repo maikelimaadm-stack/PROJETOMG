@@ -1,7 +1,17 @@
 const getApiBaseUrl = () => {
-  const configured = import.meta.env.VITE_API_URL;
-  if (!configured) return "";
-  return String(configured).replace(/\/+$/, "");
+  const configured = String(import.meta.env.VITE_API_URL || "").trim();
+  const defaultProductionApiUrl = "https://projetomg-production.up.railway.app";
+
+  const normalizeUrl = (value) => {
+    if (!value) return "";
+    if (/^https?:\/\//i.test(value)) return value.replace(/\/+$/, "");
+    // Common misconfiguration in Vercel: domain without protocol.
+    return `https://${value}`.replace(/\/+$/, "");
+  };
+
+  if (configured) return normalizeUrl(configured);
+  if (import.meta.env.PROD) return defaultProductionApiUrl;
+  return "";
 };
 
 const buildUrl = (path) => {
