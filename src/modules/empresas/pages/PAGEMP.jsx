@@ -34,6 +34,12 @@ const moduleLabels = {
 };
 
 export default function PAGEMP() {
+  const resolveErrorMessage = (error, fallback) => {
+    const apiMessage = error?.data?.message || error?.message;
+    if (apiMessage && String(apiMessage).trim()) return String(apiMessage);
+    return fallback;
+  };
+
   const [showForm, setShowForm] = useState(false);
   const [editingEmp, setEditingEmp] = useState(null);
   const [deleteState, setDeleteState] = useState({ open: false, ids: [] });
@@ -147,11 +153,14 @@ export default function PAGEMP() {
 
       await stayOnRecordAfterSave(savedRecord);
       setFormVersion((version) => version + 1);
-    } catch {
+    } catch (error) {
       toast.error(
-        isUpdate
-          ? `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
-          : `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
+        resolveErrorMessage(
+          error,
+          isUpdate
+            ? `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
+            : `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
+        )
       );
     }
   }, [editingEmp, stayOnRecordAfterSave]);
@@ -263,8 +272,13 @@ export default function PAGEMP() {
       for (const id of ids) {
         await moduleRepository.delete(id);
       }
-    } catch {
-      toast.error(`Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`);
+    } catch (error) {
+      toast.error(
+        resolveErrorMessage(
+          error,
+          `Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`
+        )
+      );
       return;
     }
 
