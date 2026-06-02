@@ -1,7 +1,11 @@
 import { z } from "zod";
 
 export const empresasSchema = z.object({
-  codigo_empresa: z.number().int().positive().optional(),
+  codigo_empresa: z.preprocess((value) => {
+    if (value === "" || value == null) return undefined;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : value;
+  }, z.number().int().positive().optional()),
   razao_social: z.string().min(1),
   nome_fantasia: z.string().optional().nullable(),
   tipo_pessoa: z.enum(["PJ", "PF"]).default("PJ"),
