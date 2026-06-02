@@ -16,7 +16,7 @@ const MAX_PAGE_SIZE = 200;
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
-  codigo_empresa: { codigo_empresa: "asc" },
+  codempresa: { codempresa: "asc" },
   razao_social: { razao_social: "asc" },
   nome_fantasia: { nome_fantasia: "asc" },
   cpf_cnpj: { cpf_cnpj: "asc" },
@@ -25,8 +25,8 @@ const ORDER_BY_MAP = {
   updatedAt: { updatedAt: "desc" },
 };
 
-const resolveOrderBy = (sortBy = "codigo_empresa", sortDir = "asc") => {
-  const base = ORDER_BY_MAP[sortBy] || ORDER_BY_MAP.codigo_empresa;
+const resolveOrderBy = (sortBy = "codempresa", sortDir = "asc") => {
+  const base = ORDER_BY_MAP[sortBy] || ORDER_BY_MAP.codempresa;
   const direction = String(sortDir || "asc").toLowerCase() === "desc" ? "desc" : "asc";
   const [key] = Object.keys(base);
   return { [key]: direction };
@@ -46,7 +46,7 @@ const buildSearchWhere = (search) => {
   ];
 
   if (Number.isFinite(numericSearch)) {
-    or.push({ codigo_empresa: Math.floor(numericSearch) });
+    or.push({ codempresa: Math.floor(numericSearch) });
   }
 
   return { OR: or };
@@ -56,6 +56,7 @@ const FILTER_FIELD_MAP = {
   status: "status",
   cidade: "cidade",
   tipo_pessoa: "tipo_pessoa",
+  tipo_vinculo: "tipo_vinculo",
 };
 
 const buildFiltersWhere = (filters = {}) => {
@@ -162,7 +163,7 @@ export const empresaRepository = {
   async create(data, scope) {
     const prisma = getPrismaClient();
     const created = await runSerializableWithRetry(prisma, async (tx) => {
-      let codigo = Number(data.codigo_empresa || 0);
+      let codigo = Number(data.codempresa || 0);
       if (!Number.isFinite(codigo) || codigo <= 0) {
         const sequence = await tx.empresaCodigoSequencia.findUnique({
           where: { cliente_id: scope.clienteId },
@@ -171,9 +172,9 @@ export const empresaRepository = {
         if (!sequence) {
           const maxCodigo = await tx.empresa.aggregate({
             where: { cliente_id: scope.clienteId },
-            _max: { codigo_empresa: true },
+            _max: { codempresa: true },
           });
-          codigo = Number(maxCodigo._max.codigo_empresa || 0) + 1;
+          codigo = Number(maxCodigo._max.codempresa || 0) + 1;
           await tx.empresaCodigoSequencia.create({
             data: {
               cliente_id: scope.clienteId,
@@ -190,7 +191,7 @@ export const empresaRepository = {
         }
       } else {
         const existingCode = await tx.empresa.findFirst({
-          where: { cliente_id: scope.clienteId, codigo_empresa: codigo },
+          where: { cliente_id: scope.clienteId, codempresa: codigo },
           select: { id: true },
         });
         if (existingCode) {
@@ -205,7 +206,7 @@ export const empresaRepository = {
       return tx.empresa.create({
         data: {
           ...data,
-          codigo_empresa: codigo,
+          codempresa: codigo,
           cliente_id: scope.clienteId,
           tenant_id: scope.clienteId,
         },
@@ -217,10 +218,10 @@ export const empresaRepository = {
       action: "CREATE",
       entityId: created.id,
       empresaId: created.id,
-      codigoEmpresa: created.codigo_empresa,
+      codigoEmpresa: created.codempresa,
       nomeEmpresa: created.razao_social,
       payload: {
-        codigo_empresa: created.codigo_empresa,
+        codempresa: created.codempresa,
         razao_social: created.razao_social,
         status: created.status,
       },
@@ -244,7 +245,7 @@ export const empresaRepository = {
       action: "UPDATE",
       entityId: updated.id,
       empresaId: updated.id,
-      codigoEmpresa: updated.codigo_empresa,
+      codigoEmpresa: updated.codempresa,
       nomeEmpresa: updated.razao_social,
       payload: {
         before: {
@@ -264,20 +265,31 @@ export const empresaRepository = {
     const prisma = getPrismaClient();
     const current = await prisma.empresa.findFirst({
       where: buildScopeWhere(scope, { id }),
-      select: { id: true, codigo_empresa: true, razao_social: true },
+      select: { id: true, codempresa: true, razao_social: true },
     });
     if (!current) return false;
-    await prisma.empresa.delete({ where: { id: current.id } });
+    try {
+      await prisma.empresa.delete({ where: { id: current.id } });
+    } catch (error) {
+      if (String(error?.code || "") === "P2003") {
+        const conflictError = new Error(
+          "Não é possível excluir a empresa pois existem registros vinculados."
+        );
+        conflictError.statusCode = 409;
+        throw conflictError;
+      }
+      throw error;
+    }
     await auditService.log({
       scope,
       entityName: "Empresa",
       action: "DELETE",
       entityId: current.id,
       empresaId: current.id,
-      codigoEmpresa: current.codigo_empresa,
+      codigoEmpresa: current.codempresa,
       nomeEmpresa: current.razao_social,
       payload: {
-        codigo_empresa: current.codigo_empresa,
+        codempresa: current.codempresa,
         razao_social: current.razao_social,
       },
     });

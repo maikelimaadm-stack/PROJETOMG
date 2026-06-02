@@ -58,7 +58,7 @@ export default function TBLEMP({
   moduleTitle = "Cadastro",
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ key: "codigo_empresa", direction: "asc" });
+  const [sortConfig, setSortConfig] = useState({ key: "codempresa", direction: "asc" });
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
@@ -177,10 +177,15 @@ export default function TBLEMP({
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
 
   const getFieldValue = (emp, colId) => {
-    if (colId === "codigo_empresa") return emp.codigo_empresa ?? "-";
+    if (colId === "codempresa") return emp.codempresa ?? "-";
     if (colId === "razao_social") return emp.razao_social || "-";
     if (colId === "nome_fantasia") return emp.nome_fantasia || "-";
     if (colId === "tipo_pessoa") return emp.tipo_pessoa || "-";
+    if (colId === "tipo_vinculo") {
+      if (emp.tipo_vinculo === "proprietario") return "PROPRIETÁRIO";
+      if (emp.tipo_vinculo === "arrendatario") return "ARRENDATÁRIO";
+      return "-";
+    }
     if (colId === "cpf_cnpj") return emp.cpf_cnpj || "-";
     if (colId === "inscricao_estadual") return emp.inscricao_estadual || "-";
     if (colId === "telefone") return emp.telefone || "-";
@@ -201,7 +206,7 @@ export default function TBLEMP({
 
   const resolveColumnAlign = (col) => {
     if (col?.tipo === "date") return "center";
-    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codigo_empresa" || col?.id === "custom:valor") return "right";
+    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codempresa" || col?.id === "custom:valor") return "right";
     return "left";
   };
 
@@ -218,7 +223,7 @@ export default function TBLEMP({
     if (align === "center") return "justify-center";
     return "justify-start";
   };
-  const getComparableValue = (emp, col) => { if (col.id === "codigo_empresa") return Number(emp.codigo_empresa || 0); return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id); };
+  const getComparableValue = (emp, col) => { if (col.id === "codempresa") return Number(emp.codempresa || 0); return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id); };
 
   const empresaPassaFiltros = (emp, excludeColId = null) => {
     const termo = String(searchTerm || "").toLowerCase().trim();
@@ -280,7 +285,7 @@ export default function TBLEMP({
   const empresasOrdenadas = useMemo(() => {
     const sorted = [...empresasFiltradas];
     sorted.sort((a, b) => {
-      if (sortConfig.key === "codigo_empresa") { const aV = Number(a.codigo_empresa || 0); const bV = Number(b.codigo_empresa || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
+      if (sortConfig.key === "codempresa") { const aV = Number(a.codempresa || 0); const bV = Number(b.codempresa || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
       const aV = String(getFieldValue(a, sortConfig.key)).toLowerCase();
       const bV = String(getFieldValue(b, sortConfig.key)).toLowerCase();
       if (aV < bV) return sortConfig.direction === "asc" ? -1 : 1;
@@ -681,7 +686,7 @@ export default function TBLEMP({
   };
 
   const formatTotalValue = (valor, col) => {
-    const isInt = col.id === "codigo_empresa";
+    const isInt = col.id === "codempresa";
     const places = col.decimal_places ?? 2;
     return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
   };

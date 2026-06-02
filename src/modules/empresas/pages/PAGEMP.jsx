@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
-import { useAuth } from "@/shared/contexts/AuthContext";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
 import { printCadastroTable, exportCadastroTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
 import {
@@ -12,7 +11,6 @@ import {
   saveEmpPdfExportConfig,
 } from "@/modules/empresas/config/empPdfExportConfig";
 import {
-  EmpresasCamposOnlyPanel,
   EmpresasDialogs,
   EmpresasFormPanel,
   EmpresasTablePanel,
@@ -34,7 +32,6 @@ const moduleLabels = {
 };
 
 export default function PAGEMP() {
-  const { empresas: empresasAuth } = useAuth();
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
     if (apiMessage && String(apiMessage).trim()) return String(apiMessage);
@@ -45,8 +42,6 @@ export default function PAGEMP() {
   const [editingEmp, setEditingEmp] = useState(null);
   const [deleteState, setDeleteState] = useState({ open: false, ids: [] });
   const [showConfigColunas, setShowConfigColunas] = useState(false);
-  const [showConfigCampos, setShowConfigCampos] = useState(false);
-  const [configCamposInitialField, setConfigCamposInitialField] = useState(null);
   const [showConfigPdf, setShowConfigPdf] = useState(false);
   const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
@@ -60,7 +55,7 @@ export default function PAGEMP() {
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(50);
-  const [querySort, setQuerySort] = useState({ key: "codigo_empresa", direction: "asc" });
+  const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const queryClient = useQueryClient();
 
   const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE } = useQuery({
@@ -90,7 +85,7 @@ export default function PAGEMP() {
     const navList = navListOverride ?? tableFilteredEmpresas ?? list;
     const fresh = findEmpresaInList(list, record) ?? record;
     const navIndex = navList.findIndex(
-      (item) => item.id === fresh.id || Number(item.codigo_empresa) === Number(fresh.codigo_empresa)
+      (item) => item.id === fresh.id || Number(item.codempresa) === Number(fresh.codempresa)
     );
     return { fresh, navList, navIndex };
   }, [searchTerm, tableFilteredEmpresas]);
@@ -102,7 +97,7 @@ export default function PAGEMP() {
   const stayOnRecordAfterSave = useCallback(async (savedRecord) => {
     const normalized = normalizeEmpresaRecord(savedRecord);
     const savedId = normalized?.id;
-    const savedCodigo = Number(normalized?.codigo_empresa);
+    const savedCodigo = Number(normalized?.codempresa);
 
     if (!savedId && !(Number.isFinite(savedCodigo) && savedCodigo > 0)) {
       setShowForm(true);
@@ -185,7 +180,7 @@ export default function PAGEMP() {
 
   const handleDuplicate = (emp) => {
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
-    const { id, created_date, updated_date, created_by, codigo_empresa, ...dup } = emp;
+    const { id, created_date, updated_date, created_by, codempresa, ...dup } = emp;
     setEditingEmp({ ...dup, _isDuplicate: true });
     setShowForm(true);
     setViewMode("record");
@@ -193,10 +188,6 @@ export default function PAGEMP() {
   };
 
   const handleRequestDelete = (ids) => setDeleteState({ open: true, ids: Array.isArray(ids) ? ids : [ids] });
-  const handleOpenConfigCampos = (fieldName = null) => {
-    setConfigCamposInitialField(fieldName || null);
-    setShowConfigCampos(true);
-  };
 
   const handleSearchChange = useCallback((value) => {
     setSearchTerm(value);
@@ -214,7 +205,7 @@ export default function PAGEMP() {
     if (currentFilteredIndex >= 0) {
       if (selectedIndex !== currentFilteredIndex) setSelectedIndex(currentFilteredIndex);
       const fresh = empresasNavegacao[currentFilteredIndex];
-      if (fresh?.id === editingEmp.id && fresh.updated_date !== editingEmp.updated_date) {
+      if (fresh?.id === editingEmp.id && fresh.updatedAt !== editingEmp.updatedAt) {
         setEditingEmp(fresh);
       }
       return;
@@ -231,7 +222,7 @@ export default function PAGEMP() {
         setFormVersion((version) => version + 1);
       }
     }
-  }, [showForm, viewMode, empresasNavegacao, empresas, editingEmp?.id, editingEmp?.updated_date, editingEmp?._isDuplicate, selectedIndex]);
+  }, [showForm, viewMode, empresasNavegacao, empresas, editingEmp?.id, editingEmp?.updatedAt, editingEmp?._isDuplicate, selectedIndex]);
 
   const handleTableSelectionChange = useCallback((ids) => {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
@@ -382,23 +373,10 @@ export default function PAGEMP() {
     exportCadastroTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
   };
 
-  const configCamposProps = {
-    open: showConfigCampos,
-    onOpenChange: (nextOpen) => {
-      setShowConfigCampos(nextOpen);
-      if (!nextOpen) setConfigCamposInitialField(null);
-    },
-    initialFieldName: configCamposInitialField,
-    inline: true,
-    repository: moduleRepository,
-    empresas: empresasAuth || [],
-  };
-
   return (
     <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-full min-h-0 overflow-hidden flex flex-col">
       <EmpresasFormPanel
         showForm={showForm}
-        showConfigCampos={showConfigCampos}
         formProps={{
           key: `form-${formVersion}-${editingEmp?.id ?? "new"}`,
           initialData: editingEmp,
@@ -422,7 +400,6 @@ export default function PAGEMP() {
             setViewMode("table");
             setReturnRecordAfterNew(null);
           },
-          onSettingsClick: handleOpenConfigCampos,
           onToggleView: handleToggleView,
           total: empresasNavegacao.length,
           currentIndex: selectedIndex,
@@ -440,17 +417,10 @@ export default function PAGEMP() {
           onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
           attachDisabled: false,
         }}
-        configCamposProps={configCamposProps}
-      />
-
-      <EmpresasCamposOnlyPanel
-        showForm={showForm}
-        showConfigCampos={showConfigCampos}
-        configCamposProps={configCamposProps}
       />
 
       <EmpresasTablePanel
-        hidden={showForm || showConfigCampos}
+        hidden={showForm}
         toolbarProps={{
           viewMode,
           total: totalEmpresas,
@@ -527,7 +497,7 @@ export default function PAGEMP() {
           recordId: attachmentsRecord?.id,
           title:
             attachmentsRecord?.razao_social ||
-            attachmentsRecord?.codigo_empresa ||
+            attachmentsRecord?.codempresa ||
             moduleLabels.singular,
         }}
         confirmDeleteProps={{

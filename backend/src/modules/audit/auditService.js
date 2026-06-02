@@ -20,7 +20,7 @@ export const auditService = {
           cliente_id: scope.clienteId,
           usuario_id: scope.userId,
           empresa_id: empresaId,
-          codigo_empresa: codigoEmpresa,
+          codempresa: codigoEmpresa,
           nome_empresa: nomeEmpresa,
           entity_name: entityName,
           entity_id: entityId,

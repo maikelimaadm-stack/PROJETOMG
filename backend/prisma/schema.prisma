@@ -51,10 +51,11 @@ model Empresa {
   id                   String   @id @default(cuid())
   tenant_id            String   @default("default") @db.VarChar(64) // legado (compatibilidade)
   cliente_id           String?  @db.VarChar(64)
-  codigo_empresa       Int      @default(0)
+  codempresa           Int      @default(0)
   razao_social         String   @db.VarChar(255)
   nome_fantasia        String?  @db.VarChar(255)
   tipo_pessoa          String   @default("PJ") @db.VarChar(4)
+  tipo_vinculo         String?  @db.VarChar(32)
   cpf_cnpj             String?  @db.VarChar(32)
   inscricao_estadual   String?  @db.VarChar(64)
   telefone             String?  @db.VarChar(32)
@@ -79,12 +80,12 @@ model Empresa {
   camposPersonalizados CampoPersonalizado[]
   cadastros CadastroRegistro[]
 
-  @@unique([cliente_id, codigo_empresa])
-  @@unique([tenant_id, codigo_empresa])
-  @@index([cliente_id, codigo_empresa])
+  @@unique([cliente_id, codempresa])
+  @@unique([tenant_id, codempresa])
+  @@index([cliente_id, codempresa])
   @@index([cliente_id, razao_social])
   @@index([cliente_id, status])
-  @@index([tenant_id, codigo_empresa])
+  @@index([tenant_id, codempresa])
   @@index([tenant_id, razao_social])
   @@index([tenant_id, status])
   @@index([razao_social])
@@ -96,7 +97,7 @@ model CampoPersonalizado {
   tenant_id             String   @default("default") @db.VarChar(64) // legado (compatibilidade)
   cliente_id            String   @default("demo") @db.VarChar(64)
   empresa_id            String?  @db.VarChar(64)
-  codigo_empresa        Int?
+  codempresa        Int?
   nome_empresa          String?  @db.VarChar(255)
   entity_name           String   @default("EmpresaCadastro") @db.VarChar(128)
   field_name            String   @db.VarChar(128)
@@ -139,7 +140,7 @@ model CadastroRegistro {
   id                   String   @id @default(cuid())
   cliente_id           String   @db.VarChar(64)
   empresa_id           String   @db.VarChar(64)
-  codigo_empresa       Int
+  codempresa           Int
   nome_empresa         String   @db.VarChar(255)
   entity_name          String   @db.VarChar(128)
   nome                 String   @db.VarChar(255)
@@ -165,7 +166,7 @@ model RegistroAnexo {
   entity_name     String   @db.VarChar(128)
   record_id       String?  @db.VarChar(128)
   empresa_id      String?  @db.VarChar(64)
-  codigo_empresa  Int?
+  codempresa  Int?
   nome_empresa    String?  @db.VarChar(255)
   attachment_name String?  @db.VarChar(255)
   file_name       String   @db.VarChar(255)
@@ -215,7 +216,7 @@ model AuditLog {
   cliente_id     String?  @db.VarChar(64)
   usuario_id     String?  @db.VarChar(64)
   empresa_id     String?  @db.VarChar(64)
-  codigo_empresa Int?
+  codempresa     Int?
   nome_empresa   String?  @db.VarChar(255)
   entity_name    String   @db.VarChar(120)
   entity_id      String?  @db.VarChar(120)

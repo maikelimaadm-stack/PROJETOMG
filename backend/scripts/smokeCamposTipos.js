@@ -149,7 +149,7 @@ const buildFieldDefinitions = (tag) => [
 ];
 
 const runFieldTypeCycle = async ({ token, empresaId, fieldDef }) => {
-  const createField = await requestJson("/api/fazendas/campos", {
+  const createField = await requestJson("/api/empresas/campos", {
     method: "POST",
     token,
     empresaId,
@@ -159,34 +159,34 @@ const runFieldTypeCycle = async ({ token, empresaId, fieldDef }) => {
   const createdField = createField.payload.item;
   const fieldName = createdField.field_name;
 
-  const createRecord = await requestJson("/api/fazendas", {
+  const createRecord = await requestJson("/api/empresas", {
     method: "POST",
     token,
     empresaId,
     body: {
-      nome: `FAZENDA TIPO ${fieldDef.key.toUpperCase()} ${Date.now()}`,
-      status: "Ativo",
+      razao_social: `EMPRESA TIPO ${fieldDef.key.toUpperCase()} ${Date.now()}`,
+      status: "Ativa",
       campos_personalizados: { [fieldName]: fieldDef.initialValue },
     },
   });
   assert(createRecord.ok, `[${fieldDef.key}] falha ao incluir registro (${createRecord.status}).`);
   const recordId = createRecord.payload.item.id;
 
-  const readRecord = await requestJson(`/api/fazendas/${recordId}`, { token, empresaId });
+  const readRecord = await requestJson(`/api/empresas/${recordId}`, { token, empresaId: recordId });
   assert(readRecord.ok, `[${fieldDef.key}] falha ao consultar registro.`);
   assert(
     readRecord.payload.item?.campos_personalizados?.[fieldName] != null,
     `[${fieldDef.key}] valor não persistiu após inclusão.`
   );
 
-  const blockDelete = await requestJson(`/api/fazendas/campos/${createdField.id}`, {
+  const blockDelete = await requestJson(`/api/empresas/campos/${createdField.id}`, {
     method: "DELETE",
     token,
     empresaId,
   });
   assert(blockDelete.status === 409, `[${fieldDef.key}] exclusão deveria bloquear com registros filhos.`);
 
-  const blockUpdate = await requestJson(`/api/fazendas/campos/${createdField.id}`, {
+  const blockUpdate = await requestJson(`/api/empresas/campos/${createdField.id}`, {
     method: "PUT",
     token,
     empresaId,
@@ -194,10 +194,10 @@ const runFieldTypeCycle = async ({ token, empresaId, fieldDef }) => {
   });
   assert(blockUpdate.status === 409, `[${fieldDef.key}] edição deveria bloquear com registros filhos.`);
 
-  const updateRecord = await requestJson(`/api/fazendas/${recordId}`, {
+  const updateRecord = await requestJson(`/api/empresas/${recordId}`, {
     method: "PUT",
     token,
-    empresaId,
+    empresaId: recordId,
     body: {
       campos_personalizados: {
         ...createRecord.payload.item.campos_personalizados,
@@ -207,9 +207,9 @@ const runFieldTypeCycle = async ({ token, empresaId, fieldDef }) => {
   });
   assert(updateRecord.ok, `[${fieldDef.key}] falha ao editar registro (${updateRecord.status}).`);
 
-  await requestJson(`/api/fazendas/${recordId}`, { method: "DELETE", token, empresaId });
+  await requestJson(`/api/empresas/${recordId}`, { method: "DELETE", token, empresaId: recordId });
 
-  const deleteField = await requestJson(`/api/fazendas/campos/${createdField.id}`, {
+  const deleteField = await requestJson(`/api/empresas/campos/${createdField.id}`, {
     method: "DELETE",
     token,
     empresaId,
@@ -224,7 +224,7 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
   const baseBName = `tipo_calc_base_b_${tag}`;
   const calcName = `tipo_calculado_${tag}`;
 
-  const createBaseA = await requestJson("/api/fazendas/campos", {
+  const createBaseA = await requestJson("/api/empresas/campos", {
     method: "POST",
     token,
     empresaId,
@@ -237,7 +237,7 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
       visivel_tabela: true,
     },
   });
-  const createBaseB = await requestJson("/api/fazendas/campos", {
+  const createBaseB = await requestJson("/api/empresas/campos", {
     method: "POST",
     token,
     empresaId,
@@ -252,7 +252,7 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
   });
   assert(createBaseA.ok && createBaseB.ok, "[calculado] falha ao criar campos base.");
 
-  const createCalc = await requestJson("/api/fazendas/campos", {
+  const createCalc = await requestJson("/api/empresas/campos", {
     method: "POST",
     token,
     empresaId,
@@ -270,13 +270,13 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
   assert(createCalc.ok, `[calculado] falha ao criar campo (${createCalc.status}).`);
   const calcField = createCalc.payload.item;
 
-  const createRecord = await requestJson("/api/fazendas", {
+  const createRecord = await requestJson("/api/empresas", {
     method: "POST",
     token,
     empresaId,
     body: {
-      nome: `FAZENDA CALCULADO ${tag}`,
-      status: "Ativo",
+      razao_social: `EMPRESA CALCULADO ${tag}`,
+      status: "Ativa",
       campos_personalizados: {
         [baseAName]: "10",
         [baseBName]: "5",
@@ -286,18 +286,18 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
   assert(createRecord.ok, "[calculado] falha ao incluir registro.");
   const recordId = createRecord.payload.item.id;
 
-  const blockDelete = await requestJson(`/api/fazendas/campos/${calcField.id}`, {
+  const blockDelete = await requestJson(`/api/empresas/campos/${calcField.id}`, {
     method: "DELETE",
     token,
     empresaId,
   });
   assert(blockDelete.status === 409, "[calculado] exclusão deveria bloquear com registros filhos.");
 
-  await requestJson(`/api/fazendas/${recordId}`, { method: "DELETE", token, empresaId });
+  await requestJson(`/api/empresas/${recordId}`, { method: "DELETE", token, empresaId: recordId });
 
-  await requestJson(`/api/fazendas/campos/${calcField.id}`, { method: "DELETE", token, empresaId });
-  await requestJson(`/api/fazendas/campos/${createBaseA.payload.item.id}`, { method: "DELETE", token, empresaId });
-  await requestJson(`/api/fazendas/campos/${createBaseB.payload.item.id}`, { method: "DELETE", token, empresaId });
+  await requestJson(`/api/empresas/campos/${calcField.id}`, { method: "DELETE", token, empresaId });
+  await requestJson(`/api/empresas/campos/${createBaseA.payload.item.id}`, { method: "DELETE", token, empresaId });
+  await requestJson(`/api/empresas/campos/${createBaseB.payload.item.id}`, { method: "DELETE", token, empresaId });
 };
 
 const run = async () => {
@@ -314,7 +314,7 @@ const run = async () => {
   await runCalculadoCycle({ token, empresaId, tag });
 
   const specificFieldName = `tipo_empresa_${tag}`;
-  const createSpecific = await requestJson("/api/fazendas/campos", {
+  const createSpecific = await requestJson("/api/empresas/campos", {
     method: "POST",
     token,
     empresaId,
@@ -332,7 +332,7 @@ const run = async () => {
 
   const empresaB = session.empresas?.[1];
   if (empresaB?.id && empresaB.id !== empresaId) {
-    const listB = await requestJson("/api/fazendas/campos?mode=aplicavel", {
+    const listB = await requestJson("/api/empresas/campos?mode=aplicavel", {
       token,
       empresaId: empresaB.id,
     });
@@ -341,7 +341,7 @@ const run = async () => {
     assert(!namesB.includes(specificFieldName), "Campo específico vazou para outra empresa.");
   }
 
-  await requestJson(`/api/fazendas/campos/${createSpecific.payload.item.id}`, {
+  await requestJson(`/api/empresas/campos/${createSpecific.payload.item.id}`, {
     method: "DELETE",
     token,
     empresaId,

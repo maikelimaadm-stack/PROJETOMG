@@ -7,10 +7,10 @@ const prisma = new PrismaClient();
 
 const getDuplicateGroups = async () =>
   prisma.$queryRawUnsafe(`
-    SELECT cliente_id, codigo_empresa, COUNT(*)::int AS total
+    SELECT cliente_id, codempresa, COUNT(*)::int AS total
     FROM "Empresa"
     WHERE cliente_id IS NOT NULL
-    GROUP BY cliente_id, codigo_empresa
+    GROUP BY cliente_id, codempresa
     HAVING COUNT(*) > 1
   `);
 
@@ -25,29 +25,29 @@ const run = async () => {
     const empresas = await prisma.empresa.findMany({
       where: { cliente_id: clienteId },
       orderBy: [
-        { codigo_empresa: "asc" },
+        { codempresa: "asc" },
         { createdAt: "asc" },
         { id: "asc" },
       ],
-      select: { id: true, codigo_empresa: true },
+      select: { id: true, codempresa: true },
     });
     if (empresas.length === 0) continue;
 
     const firstByCode = new Map();
     for (const empresa of empresas) {
-      const code = Number(empresa.codigo_empresa || 0);
+      const code = Number(empresa.codempresa || 0);
       if (code <= 0) continue;
       if (!firstByCode.has(code)) firstByCode.set(code, empresa.id);
     }
 
     const maxExistingCode = empresas.reduce(
-      (max, empresa) => Math.max(max, Number(empresa.codigo_empresa || 0)),
+      (max, empresa) => Math.max(max, Number(empresa.codempresa || 0)),
       0
     );
     let nextCode = Math.max(1, maxExistingCode + 1);
 
     for (const empresa of empresas) {
-      const currentCode = Number(empresa.codigo_empresa || 0);
+      const currentCode = Number(empresa.codempresa || 0);
       const isPrimaryForCode =
         currentCode > 0 && firstByCode.get(currentCode) === empresa.id;
 
@@ -55,7 +55,7 @@ const run = async () => {
 
       await prisma.empresa.update({
         where: { id: empresa.id },
-        data: { codigo_empresa: nextCode },
+        data: { codempresa: nextCode },
       });
       nextCode += 1;
     }

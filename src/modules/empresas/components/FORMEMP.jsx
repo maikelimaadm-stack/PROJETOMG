@@ -32,7 +32,7 @@ import {
 import { useFormEmpCustomFields } from "./formEmp.customFields";
 
 export default function FORMEMP({
-  onSubmit, onCancel, onSettingsClick, onAttachClick, attachDisabled = false,
+  onSubmit, onCancel, onAttachClick, attachDisabled = false,
   onToggleView, total = 0, currentIndex = 0,
   onNew, onFirst, onPrevious, onNext, onLast,
   onDelete, onDuplicate, onRefresh,
@@ -79,7 +79,7 @@ export default function FORMEMP({
     setErrors({});
     setEditMode(!isEditing || !!initialData?._isDuplicate);
     setActiveTab("geral");
-  }, [initialData?.id, initialData?.codigo_empresa, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
+  }, [initialData?.id, initialData?.codempresa, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
 
   const { data: camposPersonalizados = [] } = useQuery({
     queryKey: ["emp-campos-personalizados"],
@@ -146,7 +146,31 @@ export default function FORMEMP({
   };
 
   const opcoesEstado = useMemo(() => ESTADOS_BR.map((item) => ({ id: item, nome: item })), []);
-  const opcoesTipoPessoa = useMemo(() => [{ id: "PF", nome: "PESSOA FÍSICA (PF)" }, { id: "PJ", nome: "PESSOA JURÍDICA (PJ)" }], []);
+
+  const renderTipoPessoaSelect = () => (
+    <select
+      value={formData.tipo_pessoa || "PJ"}
+      onChange={(event) => handleChange("tipo_pessoa", event.target.value)}
+      disabled={isReadOnly}
+      className={`${inputClass} w-full`}
+    >
+      <option value="PJ">PESSOA JURÍDICA (PJ)</option>
+      <option value="PF">PESSOA FÍSICA (PF)</option>
+    </select>
+  );
+
+  const renderTipoVinculoSelect = () => (
+    <select
+      value={formData.tipo_vinculo || ""}
+      onChange={(event) => handleChange("tipo_vinculo", event.target.value)}
+      disabled={isReadOnly}
+      className={`${inputClass} w-full`}
+    >
+      <option value="">SELECIONE</option>
+      <option value="proprietario">PROPRIETÁRIO</option>
+      <option value="arrendatario">ARRENDATÁRIO</option>
+    </select>
+  );
 
   const { renderCampoPersonalizado } = useFormEmpCustomFields({
     formData,
@@ -158,11 +182,12 @@ export default function FORMEMP({
   });
 
   const dynamicFields = useMemo(() => [
-    { id: "razao_social", name: "razao_social", label: "Razão Social", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "RAZÃO SOCIAL OU NOME COMPLETO" },
+    { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "select", required: true, compact: true, errorKey: "tipo_pessoa", render: renderTipoPessoaSelect },
+    { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
+    { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
+    { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
     { id: "status", name: "status", label: "Ativa", type: "switch", compact: true, render: () => <ToggleSwitch checked={formData.status !== "Inativa"} onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")} disabled={isReadOnly} className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" /> },
-    { id: "codigo_empresa", name: "codigo_empresa", label: "Código", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codigo_empresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
-    { id: "nome_fantasia", name: "nome_fantasia", label: "Nome Fantasia", type: "text", wide: true, uppercase: true, placeholder: "NOME FANTASIA" },
-    { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "autocomplete", required: true, compact: true, errorKey: "tipo_pessoa", options: opcoesTipoPessoa, placeholder: "PF / PJ", displayField: "nome", searchFields: ["nome"] },
+    { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", wide: true, uppercase: true, placeholder: "NOME FANTASIA" },
     { id: "cpf_cnpj", name: "cpf_cnpj", label: formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ", type: "text", compact: true, placeholder: formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00" },
     { id: "inscricao_estadual", name: "inscricao_estadual", label: "Inscrição Estadual", type: "text", compact: true, placeholder: "INSCRIÇÃO ESTADUAL" },
     { id: "telefone", name: "telefone", label: "Telefone", type: "text", compact: true, placeholder: "(00) 0000-0000" },
@@ -177,7 +202,7 @@ export default function FORMEMP({
     { id: "estado", name: "estado", label: "Estado (UF)", type: "autocomplete", compact: true, options: opcoesEstado, placeholder: "UF", displayField: "nome", searchFields: ["nome"] },
     { id: "observacoes", name: "observacoes", label: "Observações", type: "textarea", wide: true, uppercase: true, placeholder: "OBSERVAÇÕES GERAIS..." },
     ...camposPersonalizadosForm.map((campo) => ({ id: `custom:${campo.field_name}`, name: campo.field_name, label: campo.label, type: campo.tipo, origem: "customizado", optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "", required: campo.obrigatorio, errorKey: `campos_personalizados.${campo.field_name}`, wide: ["textarea", "option_list"].includes(campo.tipo), medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo), compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo), totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara, options: ["select", "option_list"].includes(campo.tipo) ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })) : [], displayField: "nome", searchFields: ["nome"], render: () => renderCampoPersonalizado(campo) }))
-  ], [formData, isReadOnly, opcoesEstado, opcoesTipoPessoa, uploadingLogo, camposPersonalizadosForm, relatedOptions]);
+  ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions]);
 
   const basePanels = [
     { id: "principal", label: "Principal" },
@@ -188,8 +213,8 @@ export default function FORMEMP({
   ];
 
   const defaultLayout = {
-    principal: ["razao_social"],
-    geral: ["nome_fantasia", "tipo_pessoa", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
+    principal: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
+    geral: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
     endereco: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
     observacoes: ["observacoes"],
     campos_personalizados: camposPersonalizadosForm.map((campo) => `custom:${campo.field_name}`)
@@ -434,7 +459,7 @@ export default function FORMEMP({
           }
         `}</style>
         <LegacyRecordToolbar
-          title={`${formData.codigo_empresa ? `${formData.codigo_empresa} - ` : ""}${formData.razao_social || (isDuplicating ? "Duplicar empresa" : isEditing ? "Editar empresa" : "Nova empresa")}`}
+          title={`${formData.codempresa ? `${formData.codempresa} - ` : ""}${formData.razao_social || (isDuplicating ? "Duplicar empresa" : isEditing ? "Editar empresa" : "Nova empresa")}`}
           badgeLabel="EMPRESA"
           operationLabel={operationLabel}
           showSaveActions={editMode}
@@ -444,7 +469,6 @@ export default function FORMEMP({
           onSave={handleSubmit}
           onCancel={onCancel}
           onEditRecord={() => setEditMode(true)}
-          onSettingsClick={onSettingsClick}
           onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
           onFieldLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setFieldLayoutConfigOpen(true); }}
           onToggleView={onToggleView}

@@ -1,7 +1,7 @@
 export const ENTIDADES_RELACIONAIS = [];
 
 export const CAMPOS_FIXOS_EMPRESA = [
-  { value: "codigo_empresa", label: "Código", tipo: "number", mock: 1 }
+  { value: "codempresa", label: "Código", tipo: "number", mock: 1 }
 ];
 
 export const OPERACOES_CALCULO = [

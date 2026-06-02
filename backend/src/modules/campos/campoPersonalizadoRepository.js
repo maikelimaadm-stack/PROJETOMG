@@ -30,7 +30,7 @@ const buildApplicableFieldsWhere = (scope, entityName) => {
 const resolveEmpresaForCampo = async (prisma, scope, payload) => {
   const aplicacaoModo = payload.aplicacao_modo || (payload.empresa_id ? "empresa" : "todas");
   if (aplicacaoModo === "todas" || !payload.empresa_id) {
-    return { empresa_id: null, codigo_empresa: null, nome_empresa: null };
+    return { empresa_id: null, codempresa: null, nome_empresa: null };
   }
 
   const empresaId = payload.empresa_id || scope.selectedEmpresaId;
@@ -48,7 +48,7 @@ const resolveEmpresaForCampo = async (prisma, scope, payload) => {
 
   const empresa = await prisma.empresa.findFirst({
     where: { id: empresaId, cliente_id: scope.clienteId },
-    select: { id: true, codigo_empresa: true, razao_social: true },
+    select: { id: true, codempresa: true, razao_social: true },
   });
   if (!empresa) {
     const error = new Error("Empresa inválida para este cliente.");
@@ -58,7 +58,7 @@ const resolveEmpresaForCampo = async (prisma, scope, payload) => {
 
   return {
     empresa_id: empresa.id,
-    codigo_empresa: empresa.codigo_empresa,
+    codempresa: empresa.codempresa,
     nome_empresa: empresa.razao_social,
   };
 };
@@ -176,7 +176,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       action: "CREATE",
       entityId: created.id,
       empresaId: created.empresa_id,
-      codigoEmpresa: created.codigo_empresa,
+      codigoEmpresa: created.codempresa,
       nomeEmpresa: created.nome_empresa,
       payload: {
         field_name: created.field_name,
@@ -243,7 +243,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       action: "UPDATE",
       entityId: updated.id,
       empresaId: updated.empresa_id,
-      codigoEmpresa: updated.codigo_empresa,
+      codigoEmpresa: updated.codempresa,
       nomeEmpresa: updated.nome_empresa,
       payload: { field_name: updated.field_name, label: updated.label },
     });
@@ -281,7 +281,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       action: "DELETE",
       entityId: current.id,
       empresaId: current.empresa_id,
-      codigoEmpresa: current.codigo_empresa,
+      codigoEmpresa: current.codempresa,
       nomeEmpresa: current.nome_empresa,
       payload: { id: current.id, field_name: current.field_name },
     });

@@ -16,7 +16,7 @@ const sanitizeUser = (user) => ({
 
 const sanitizeEmpresa = (empresa) => ({
   id: empresa.id,
-  codigo_empresa: empresa.codigo_empresa,
+  codempresa: empresa.codempresa,
   nome_empresa: empresa.razao_social,
 });
 
@@ -67,7 +67,7 @@ export const ensureDemoIdentity = async () => {
 
   const existingEmpresa = await prisma.empresa.findFirst({
     where: { cliente_id: cliente.id },
-    orderBy: { codigo_empresa: "asc" },
+    orderBy: { codempresa: "asc" },
     select: { id: true },
   });
 
@@ -76,7 +76,7 @@ export const ensureDemoIdentity = async () => {
       data: {
         cliente_id: cliente.id,
         tenant_id: cliente.id,
-        codigo_empresa: 1,
+        codempresa: 1,
         razao_social: "EMPRESA DEMO",
         nome_fantasia: "EMPRESA DEMO",
         status: "Ativa",
@@ -95,10 +95,10 @@ const fetchEmpresasPermitidas = async (usuario) => {
   if (usuario.acesso_global) {
     const empresas = await prisma.empresa.findMany({
       where: { cliente_id: usuario.cliente_id },
-      orderBy: [{ codigo_empresa: "asc" }],
+      orderBy: [{ codempresa: "asc" }],
       select: {
         id: true,
-        codigo_empresa: true,
+        codempresa: true,
         razao_social: true,
       },
     });
@@ -111,7 +111,7 @@ const fetchEmpresasPermitidas = async (usuario) => {
       empresa: {
         select: {
           id: true,
-          codigo_empresa: true,
+          codempresa: true,
           razao_social: true,
         },
       },
