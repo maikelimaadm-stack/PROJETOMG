@@ -989,34 +989,36 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-root {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 1 0%;
   min-height: 0;
-  height: 100%;
+  overflow: hidden;
 }
 
 .cadastro-emp-scope .emp-table-stage {
   display: grid;
   grid-template-rows: minmax(0, 1fr) auto;
-  height: 100%;
+  flex: 1 1 0%;
   min-height: 0;
   width: 100%;
   overflow: hidden;
 }
 
-.cadastro-emp-scope .emp-table-stage > .emp-table-shell,
-.cadastro-emp-scope .emp-table-stage > .emp-table-bottom-dock {
+.cadastro-emp-scope .emp-table-stage > .emp-table-shell {
   min-height: 0;
+  height: auto;
+  align-self: stretch;
+  overflow: hidden;
 }
 
-.cadastro-emp-scope .emp-table-stage > .emp-table-shell {
-  overflow: hidden;
+.cadastro-emp-scope .emp-table-stage > .emp-table-bottom-dock {
+  min-height: auto;
+  align-self: stretch;
 }
 
 .cadastro-emp-scope .emp-table-shell {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  height: 100%;
   overflow: hidden;
   border-radius: 6px 6px 0 0 !important;
   border: 1px solid var(--emp-table-frame-border) !important;
@@ -1031,9 +1033,10 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-body-scroll {
-  flex: 1 1 auto;
+  flex: 1 1 0%;
   min-height: 0;
-  overflow: auto;
+  overflow: auto !important;
+  overscroll-behavior: contain;
   background: var(--emp-table-bg) !important;
 }
 
@@ -1636,6 +1639,7 @@ input[type="number"] {
   border: 1px solid var(--emp-table-frame-border);
   border-top: none;
   border-radius: 0 0 6px 6px;
+  z-index: 2;
 }
 
 .cadastro-emp-scope .emp-table-footer-bar {
@@ -2241,28 +2245,29 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-view,
 .cadastro-emp-scope .emp-split-view {
   gap: 8px;
+  flex: 1 1 0%;
   min-height: 0;
-  height: 100%;
 }
 
 .cadastro-emp-scope .emp-content-card > .emp-table-root,
 .cadastro-emp-scope .emp-table-card > .emp-table-root {
-  flex: 1 1 auto;
+  flex: 1 1 0%;
   min-height: 0;
-  height: 100%;
-  max-height: 100%;
 }
 
-.cadastro-emp-scope .emp-content-card > .form-scroll-container,
-.cadastro-emp-scope .emp-content-card .emp-form-scroll-host,
-.cadastro-emp-scope .emp-content-card > .emp-table-scroll-host {
-  flex: 1 1 auto;
+.cadastro-emp-scope .emp-content-card > .emp-form-scroll-host {
+  flex: 1 1 0%;
   min-height: 0;
   overflow: auto !important;
+  overscroll-behavior: contain;
 }
 
 .cadastro-emp-scope .emp-content-card > .emp-table-scroll-host {
+  flex: 1 1 0%;
+  min-height: 0;
   overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
 }
 
 .cadastro-emp-scope .emp-toolbar-card {
@@ -2278,7 +2283,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-content-card {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 1 0%;
   min-height: 0;
   background: var(--emp-table-bg) !important;
   border: 1px solid var(--emp-table-frame-border) !important;
@@ -2295,7 +2300,9 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-card .emp-table-bottom-dock,
 .cadastro-emp-scope .emp-content-card .emp-table-bottom-dock {
+  border: none !important;
   border-top: 1px solid var(--emp-table-frame-border) !important;
+  border-radius: 0 !important;
 }
 
 .erp-shell .cadastro-emp-scope {
