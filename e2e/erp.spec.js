@@ -7,13 +7,13 @@ const login = async (page) => {
   await page.locator('input[autocomplete="username"]').fill("maike");
   await page.locator('input[autocomplete="current-password"]').fill("123");
   await page.getByRole("button", { name: "Entrar" }).click();
-  await expect(page.getByRole("heading", { name: "MAK Gestão ERP" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("MAK Gestão ERP").first()).toBeVisible({ timeout: 20_000 });
 };
 
 test.describe("Autenticação", () => {
   test("login com credenciais do banco", async ({ page }) => {
     await login(page);
-    await expect(page.getByRole("link", { name: "Cadastro de Empresas" }).first()).toBeVisible();
+    await expect(page.getByRole("link", { name: "Empresas" }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: "Campos Personalizados" }).first()).toBeVisible();
   });
 });
@@ -24,7 +24,7 @@ test.describe("Navegação de módulos", () => {
   });
 
   test("acessa cadastro de empresas", async ({ page }) => {
-    await page.getByRole("link", { name: "Cadastro de Empresas" }).first().click();
+    await page.getByRole("link", { name: "Empresas" }).first().click();
     await expect(page.getByText("Cadastro de Empresas").first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Novo" }).first()).toBeVisible();
   });
@@ -39,7 +39,7 @@ test.describe("Navegação de módulos", () => {
 test.describe("CRUD Empresas (UI)", () => {
   test.beforeEach(async ({ page }) => {
     await login(page);
-    await page.getByRole("link", { name: "Cadastro de Empresas" }).first().click();
+    await page.getByRole("link", { name: "Empresas" }).first().click();
     await expect(page.getByText("Cadastro de Empresas").first()).toBeVisible();
   });
 
