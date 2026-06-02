@@ -43,6 +43,15 @@ const registerGeneratedModuleRoutes = async (app) => {
 };
 
 export const registerRoutes = async (app) => {
+  app.get("/", async () => ({
+    ok: true,
+    service: "erp-backend",
+    message: "API do ERP em execução. Este endereço é o backend — abra o frontend no Vercel para usar o sistema.",
+    frontend: process.env.FRONTEND_URL || "https://projetomg.vercel.app",
+    health: "/api/health",
+    docs: "Use /api/health para verificar banco, auth e storage.",
+  }));
+
   app.get("/api/health", async () => {
     const status = {
       service: "erp-backend",
