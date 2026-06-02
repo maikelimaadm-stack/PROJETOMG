@@ -233,6 +233,8 @@ input[type="number"] {
   --emp-accent-green: #21c45d;
   --emp-accent-primary: #2563eb;
   --emp-accent-primary-hover: #1d4ed8;
+  --emp-accent-primary-light: #60a5fa;
+  --emp-accent-primary-light-hover: #4a94f0;
   --emp-toolbar-btn-bg: #ffffff;
   --emp-toolbar-btn-bg-hover: #f8fafc;
   --emp-toolbar-btn-border: #e8ecef;
@@ -350,7 +352,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-bubble-counter--complete {
-  background: var(--emp-accent-primary) !important;
+  background: var(--emp-accent-primary-light) !important;
   border: none !important;
   color: #ffffff !important;
   font-weight: 600;
@@ -369,9 +371,9 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-bubble-counter--complete .emp-bubble-counter__tail {
-  background: var(--emp-accent-primary);
-  border-right: 1px solid var(--emp-accent-primary);
-  border-bottom: 1px solid var(--emp-accent-primary);
+  background: var(--emp-accent-primary-light);
+  border-right: 1px solid var(--emp-accent-primary-light);
+  border-bottom: 1px solid var(--emp-accent-primary-light);
 }
 
 .cadastro-emp-scope .emp-bubble-counter--incomplete .emp-bubble-counter__tail {
@@ -498,7 +500,7 @@ input[type="number"] {
   border-style: solid;
   border-top-width: 3px;
   border-bottom-width: 2px;
-  border-top-color: var(--emp-accent-primary);
+  border-top-color: var(--emp-accent-primary-light);
   border-left-color: #d6dce8;
   border-right-color: #d6dce8;
   border-bottom-color: #ffffff;
@@ -516,7 +518,7 @@ input[type="number"] {
   border-left-color: #ffffff;
   border-right-color: #ffffff;
   border-bottom-color: #d6dce8;
-  background: var(--emp-accent-primary);
+  background: var(--emp-accent-primary-light);
   color: #ffffff;
   font-weight: 700;
   z-index: 0;
@@ -525,7 +527,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab-inactive:hover {
   color: #ffffff;
-  background: var(--emp-accent-primary-hover);
+  background: var(--emp-accent-primary-light-hover);
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
@@ -538,7 +540,7 @@ input[type="number"] {
   border-style: solid !important;
   border-top-width: 3px !important;
   border-bottom-width: 2px !important;
-  border-top-color: var(--emp-accent-primary) !important;
+  border-top-color: var(--emp-accent-primary-light) !important;
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
   border-bottom-color: #ffffff !important;
@@ -554,7 +556,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #ffffff !important;
   font-weight: 700 !important;
-  background: var(--emp-accent-primary) !important;
+  background: var(--emp-accent-primary-light) !important;
   border-width: 1px !important;
   border-top-width: 1px !important;
   border-top-color: #ffffff !important;
