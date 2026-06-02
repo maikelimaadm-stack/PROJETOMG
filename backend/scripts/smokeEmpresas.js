@@ -129,9 +129,28 @@ const run = async () => {
     empresaId: empresaA.item.id,
   });
   assert(
-    selectedEmpresa.items.length === 1 && selectedEmpresa.items[0].id === empresaA.item.id,
-    "filtro por empresa selecionada falhou"
+    selectedEmpresa.items.some((item) => item.id === empresaA.item.id),
+    "empresa criada não encontrada na listagem do cadastro"
   );
+
+  const updateWithOtherHeader = await requestJson(`/api/empresas/${empresaB.item.id}`, {
+    method: "PUT",
+    empresaId: empresaA.item.id,
+    body: {
+      ...empresaB.item,
+      razao_social: "Empresa Beta Atualizada",
+    },
+  });
+  assert(
+    updateWithOtherHeader.item?.razao_social === "Empresa Beta Atualizada",
+    "update de empresa falhou com header de outra empresa"
+  );
+
+  const deleteWithOtherHeader = await requestJson(`/api/empresas/${empresaB.item.id}`, {
+    method: "DELETE",
+    empresaId: empresaA.item.id,
+  });
+  assert(deleteWithOtherHeader.ok === true, "delete de empresa falhou com header de outra empresa");
 
   const updated = await requestJson(`/api/empresas/${empresaA.item.id}`, {
     method: "PUT",
@@ -195,7 +214,6 @@ const run = async () => {
   await requestJson(`/api/anexos/${anexo.item.id}`, { method: "DELETE" });
   await requestJson(`/api/empresas/campos/${campo.item.id}`, { method: "DELETE" });
   await requestJson(`/api/empresas/${empresaA.item.id}`, { method: "DELETE" });
-  await requestJson(`/api/empresas/${empresaB.item.id}`, { method: "DELETE" });
 
   console.log("Smoke test Empresas finalizado com sucesso.");
 };

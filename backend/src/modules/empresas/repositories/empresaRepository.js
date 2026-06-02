@@ -75,12 +75,10 @@ const buildFiltersWhere = (filters = {}) => {
   return { AND: and };
 };
 
-const buildScopeWhere = (scope, extra = {}) => {
+const buildCadastroScopeWhere = (scope, extra = {}) => {
   const and = [{ cliente_id: scope.clienteId }];
 
-  if (scope.selectedEmpresaId) {
-    and.push({ id: scope.selectedEmpresaId });
-  } else if (!scope.acessoGlobal) {
+  if (!scope.acessoGlobal) {
     and.push({
       id: {
         in: scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID],
@@ -125,7 +123,7 @@ export const empresaRepository = {
     const scopedClauses = [];
     if (searchWhere) scopedClauses.push(searchWhere);
     if (filtersWhere) scopedClauses.push(filtersWhere);
-    const where = buildScopeWhere(
+    const where = buildCadastroScopeWhere(
       scope,
       scopedClauses.length === 0
         ? {}
@@ -156,7 +154,7 @@ export const empresaRepository = {
   async getById(id, scope) {
     const prisma = getPrismaClient();
     return prisma.empresa.findFirst({
-      where: buildScopeWhere(scope, { id }),
+      where: buildCadastroScopeWhere(scope, { id }),
     });
   },
 
@@ -232,7 +230,7 @@ export const empresaRepository = {
   async update(id, data, scope) {
     const prisma = getPrismaClient();
     const current = await prisma.empresa.findFirst({
-      where: buildScopeWhere(scope, { id }),
+      where: buildCadastroScopeWhere(scope, { id }),
     });
     if (!current) return null;
     const updated = await prisma.empresa.update({
@@ -264,12 +262,15 @@ export const empresaRepository = {
   async remove(id, scope) {
     const prisma = getPrismaClient();
     const current = await prisma.empresa.findFirst({
-      where: buildScopeWhere(scope, { id }),
+      where: buildCadastroScopeWhere(scope, { id }),
       select: { id: true, codempresa: true, razao_social: true },
     });
     if (!current) return false;
     try {
-      await prisma.empresa.delete({ where: { id: current.id } });
+      await prisma.$transaction(async (tx) => {
+        await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
+        await tx.empresa.delete({ where: { id: current.id } });
+      });
     } catch (error) {
       if (String(error?.code || "") === "P2003") {
         const conflictError = new Error(

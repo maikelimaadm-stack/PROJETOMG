@@ -76,6 +76,7 @@ export default function PAGEMP() {
         sortDir: querySort.direction,
       }),
     placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
+    staleTime: 30_000,
   });
 
   const empresas = empresasResponse.items || [];
@@ -134,8 +135,6 @@ export default function PAGEMP() {
       (item) => item.id === savedId || Number(item.codempresa) === Number(normalized.codempresa)
     );
     if (navIndex >= 0) setSelectedIndex(navIndex);
-
-    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel]);
 
   const handleSubmit = useCallback(async (data) => {
@@ -348,8 +347,6 @@ export default function PAGEMP() {
         ? `${moduleLabels.singular} excluída!`
         : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
     );
-
-    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
   };
 
   const handleExportPdf = () => {
