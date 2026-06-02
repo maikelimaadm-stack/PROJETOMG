@@ -149,19 +149,17 @@ export default function PAGEMP() {
     upsertEmpresaInSelector(normalized);
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
-  const handleSubmit = useCallback(async (data) => {
+  const handleSubmit = useCallback((data) => {
     const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
 
     try {
       const validatedData = empresasModuleDefinition.schema.parse(data);
-      let savedRecord;
-      const cacheSnapshot = isUpdate
-        ? queryClient.getQueriesData({ queryKey: ["emp-cadastro"] })
-        : null;
-      const selectorSnapshot = isUpdate ? empresasSelector : null;
 
       if (isUpdate) {
         const optimistic = normalizeEmpresaRecord({ ...editingEmp, ...validatedData });
+        const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
+        const selectorSnapshot = empresasSelector;
+
         patchEmpresasCache(queryClient, (previous) => ({
           ...previous,
           items: previous.items.map((item) =>
@@ -170,25 +168,86 @@ export default function PAGEMP() {
         }));
         upsertEmpresaInSelector(optimistic);
         setEditingEmp(optimistic);
-
-        try {
-          savedRecord = await moduleRepository.update(editingEmp.id, validatedData);
-        } catch (error) {
-          cacheSnapshot?.forEach(([key, value]) => {
-            queryClient.setQueryData(key, value);
-          });
-          if (selectorSnapshot) replaceEmpresasInSelector(selectorSnapshot);
-          throw error;
-        }
+        stayOnRecordAfterSave(optimistic);
         toast.success(`${moduleLabels.singular} atualizada!`);
-      } else {
-        const { _isDuplicate, ...clean } = validatedData;
-        savedRecord = await moduleRepository.create(clean);
-        toast.success(`${moduleLabels.singular} cadastrada!`);
+
+        void moduleRepository
+          .update(editingEmp.id, validatedData)
+          .then((savedRecord) => {
+            const normalized = normalizeEmpresaRecord(savedRecord);
+            patchEmpresasCache(queryClient, (previous) => ({
+              ...previous,
+              items: previous.items.map((item) =>
+                item.id === editingEmp.id ? { ...item, ...normalized } : item
+              ),
+            }));
+            setEditingEmp(normalized);
+            upsertEmpresaInSelector(normalized);
+          })
+          .catch((error) => {
+            cacheSnapshot.forEach(([key, value]) => {
+              queryClient.setQueryData(key, value);
+            });
+            replaceEmpresasInSelector(selectorSnapshot);
+            toast.error(
+              resolveErrorMessage(
+                error,
+                `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
+              )
+            );
+          });
+        return;
       }
 
-      stayOnRecordAfterSave(savedRecord);
-      if (!isUpdate) setFormVersion((version) => version + 1);
+      const { _isDuplicate, ...clean } = validatedData;
+      const pendingId = `pending-${crypto.randomUUID()}`;
+      const optimistic = normalizeEmpresaRecord({ ...clean, id: pendingId });
+      const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
+
+      patchEmpresasCache(queryClient, (previous) => ({
+        ...previous,
+        items: [optimistic, ...previous.items],
+        total: previous.total + 1,
+      }));
+      stayOnRecordAfterSave(optimistic);
+      toast.success(`${moduleLabels.singular} cadastrada!`);
+      setFormVersion((version) => version + 1);
+
+      void moduleRepository
+        .create(clean)
+        .then((savedRecord) => {
+          const normalized = normalizeEmpresaRecord(savedRecord);
+          patchEmpresasCache(queryClient, (previous) => ({
+            ...previous,
+            items: previous.items.map((item) =>
+              item.id === pendingId ? normalized : item
+            ),
+          }));
+          setEditingEmp((current) =>
+            current?.id === pendingId ? normalized : current
+          );
+          setSelectedTableItems((current) =>
+            current.includes(pendingId) ? [normalized.id] : current
+          );
+          upsertEmpresaInSelector(normalized);
+        })
+        .catch((error) => {
+          cacheSnapshot.forEach(([key, value]) => {
+            queryClient.setQueryData(key, value);
+          });
+          patchEmpresasCache(queryClient, (previous) => ({
+            ...previous,
+            items: previous.items.filter((item) => item.id !== pendingId),
+            total: Math.max(0, previous.total - 1),
+          }));
+          removeEmpresasFromSelector([pendingId]);
+          toast.error(
+            resolveErrorMessage(
+              error,
+              `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
+            )
+          );
+        });
     } catch (error) {
       toast.error(
         resolveErrorMessage(
@@ -198,12 +257,12 @@ export default function PAGEMP() {
             : `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
         )
       );
-      throw error;
     }
   }, [
     editingEmp,
     empresasSelector,
     queryClient,
+    removeEmpresasFromSelector,
     replaceEmpresasInSelector,
     stayOnRecordAfterSave,
     upsertEmpresaInSelector,

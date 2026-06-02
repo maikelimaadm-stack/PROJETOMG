@@ -135,35 +135,74 @@ export default function EmpConfiguracaoCamposDialog({
       const payload = buildPayload();
       return editingId ? repository.updateCampoPersonalizado(editingId, payload) : repository.createCampoPersonalizado(payload);
     },
-    onSuccess: (saved) => {
+    onMutate: () => {
+      const payload = buildPayload();
       const wasEditing = !!editingId;
-      const savedId = saved?.id || editingId;
+      const optimisticId = editingId || `pending-${crypto.randomUUID()}`;
+      const optimistic = { ...payload, id: optimisticId, field_id: optimisticId };
+      const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-campos-personalizados"] });
+
       patchCamposCache(queryClient, (items) => {
-        const exists = items.some((item) => getCampoId(item) === savedId);
+        const exists = items.some((item) => getCampoId(item) === optimisticId);
         if (exists) {
-          return items.map((item) => (getCampoId(item) === savedId ? { ...item, ...saved } : item));
+          return items.map((item) => (getCampoId(item) === optimisticId ? { ...item, ...optimistic } : item));
         }
-        return [...items, saved];
+        return [...items, optimistic];
+      });
+
+      loadCampoForm(optimistic);
+      setEditMode(false);
+      toast.success(wasEditing ? "Campo atualizado." : "Campo criado.");
+
+      return { cacheSnapshot, optimisticId, wasEditing };
+    },
+    onSuccess: (saved, _vars, context) => {
+      const savedId = saved?.id || context?.optimisticId;
+      patchCamposCache(queryClient, (items) => {
+        const withoutPending = items.filter((item) => getCampoId(item) !== context?.optimisticId);
+        const exists = withoutPending.some((item) => getCampoId(item) === savedId);
+        if (exists) {
+          return withoutPending.map((item) => (getCampoId(item) === savedId ? { ...item, ...saved } : item));
+        }
+        return [...withoutPending, saved];
       });
       if (saved) loadCampoForm(saved);
-      toast.success(wasEditing ? "Campo atualizado." : "Campo criado.");
     },
-    onError: (error) => showNotice({
-      title: "Erro ao salvar campo",
-      description: error?.data?.message || error?.message || "Não foi possível salvar o campo.",
-      type: "danger",
-    }),
+    onError: (error, _vars, context) => {
+      context?.cacheSnapshot?.forEach(([key, value]) => {
+        queryClient.setQueryData(key, value);
+      });
+      showNotice({
+        title: "Erro ao salvar campo",
+        description: error?.data?.message || error?.message || "Não foi possível salvar o campo.",
+        type: "danger",
+      });
+    },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: (campo) => repository.deleteCampoPersonalizado(campo),
-    onSuccess: (_result, campo) => {
-      const campoId = getCampoId(campo);
-      patchCamposCache(queryClient, (items) => items.filter((item) => getCampoId(item) !== campoId));
-      toast.success("Campo excluído.");
-    },
-    onError: (error) => showNotice({ title: "Erro ao excluir", description: error.message || "Não foi possível excluir.", type: "danger" })
-  });
+  const deleteCampoOptimistic = (campo, { onAfterRemove } = {}) => {
+    const campoId = getCampoId(campo);
+    const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-campos-personalizados"] });
+
+    patchCamposCache(queryClient, (items) => items.filter((item) => getCampoId(item) !== campoId));
+    onAfterRemove?.();
+
+    void repository
+      .deleteCampoPersonalizado(campo)
+      .then(() => {
+        toast.success("Campo excluído.");
+      })
+      .catch((error) => {
+        cacheSnapshot.forEach(([key, value]) => {
+          queryClient.setQueryData(key, value);
+        });
+        showNotice({
+          title: "Erro ao excluir",
+          description: error?.data?.message || error?.message || "Não foi possível excluir.",
+          type: "danger",
+        });
+      });
+  };
 
   const showNotice = ({ title, description, type = "warning", onConfirm = null, confirmText = "Entendi", cancelText = "" }) => setNoticeDialog({ open: true, title, description, type, onConfirm, confirmText, cancelText });
 
@@ -257,7 +296,17 @@ export default function EmpConfiguracaoCamposDialog({
 
   const handleEdit = (campo) => loadCampoForm(campo);
   const handleDiscard = () => { if (editingId && !isDuplicating) { const orig = campos.find((c) => c.id === editingId); if (orig) { loadCampoForm(orig); return; } } const prev = campos.find((c) => (c.id || c.field_id) === selectedCampoIds[0]); if (prev) { loadCampoForm(prev); return; } if (campos.length > 0) { loadCampoForm(campos[0]); return; } resetForm(); };
-  const handleDeleteCurrent = () => { if (!selectedCampo) return; showNotice({ title: "Confirmar exclusão", description: `Excluir o campo "${selectedCampo.label}"?`, type: "danger", confirmText: "Excluir", cancelText: "Cancelar", onConfirm: () => { deleteMutation.mutate(selectedCampo); resetForm(); } }); };
+  const handleDeleteCurrent = () => {
+    if (!selectedCampo) return;
+    showNotice({
+      title: "Confirmar exclusão",
+      description: `Excluir o campo "${selectedCampo.label}"?`,
+      type: "danger",
+      confirmText: "Excluir",
+      cancelText: "Cancelar",
+      onConfirm: () => deleteCampoOptimistic(selectedCampo, { onAfterRemove: resetForm }),
+    });
+  };
   const handleDeleteSelected = () => {
     const sel = campos.filter((c) => selectedCampoIds.includes(c.id || c.field_id));
     if (!sel.length) return;
@@ -267,17 +316,27 @@ export default function EmpConfiguracaoCamposDialog({
       type: "danger",
       confirmText: "Excluir",
       cancelText: "Cancelar",
-      onConfirm: async () => {
+      onConfirm: () => {
         const ids = new Set(sel.map((c) => getCampoId(c)));
+        const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-campos-personalizados"] });
+
         patchCamposCache(queryClient, (items) => items.filter((item) => !ids.has(getCampoId(item))));
         setSelectedCampoIds([]);
-        try {
-          await Promise.all(sel.map((c) => repository.deleteCampoPersonalizado(c)));
-          toast.success(sel.length === 1 ? "Campo excluído." : `${sel.length} campos excluídos.`);
-        } catch (error) {
-          await queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
-          showNotice({ title: "Erro ao excluir", description: error.message || "Não foi possível excluir.", type: "danger" });
-        }
+
+        void Promise.all(sel.map((c) => repository.deleteCampoPersonalizado(c)))
+          .then(() => {
+            toast.success(sel.length === 1 ? "Campo excluído." : `${sel.length} campos excluídos.`);
+          })
+          .catch((error) => {
+            cacheSnapshot.forEach(([key, value]) => {
+              queryClient.setQueryData(key, value);
+            });
+            showNotice({
+              title: "Erro ao excluir",
+              description: error?.data?.message || error?.message || "Não foi possível excluir.",
+              type: "danger",
+            });
+          });
       },
     });
   };

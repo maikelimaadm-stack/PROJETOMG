@@ -21,13 +21,11 @@ export default function TopNoticeDialog({
   const Icon = type === "info" ? Info : AlertTriangle;
   const iconClass = isDanger ? "text-red-600" : type === "info" ? "text-slate-500" : "text-amber-500";
 
-  const handleConfirm = async () => {
-    try {
-      await onConfirm?.();
-      onOpenChange?.(false);
-    } catch {
-      // Mantém o dialog aberto para o usuário tentar novamente.
-    }
+  const handleConfirm = () => {
+    onOpenChange?.(false);
+    void Promise.resolve(onConfirm?.()).catch(() => {
+      // Erros são tratados pelo chamador (toast / rollback otimista).
+    });
   };
 
   return (
