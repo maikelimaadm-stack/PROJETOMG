@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/shared/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/modules/empresas/repositories/empRepository";
@@ -50,7 +50,9 @@ export default function FORMEMP({
   onDelete, onDuplicate, onRefresh,
   filterOpen = false, filterActive = false, onToggleFilter, onClearFilter,
   searchValue = "", onSearchChange,
-  initialData, isEditing
+  initialData,
+  isEditing,
+  recordKey,
 }) {
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
@@ -86,6 +88,7 @@ export default function FORMEMP({
       ? { ...buildEmptyEmpresaForm(), ...data, campos_personalizados: data.campos_personalizados || {} }
       : buildEmptyEmpresaForm();
   const [formData, setFormData] = useState(() => buildFormData(initialData));
+  const previousRecordKeyRef = useRef(recordKey);
 
   useEffect(() => {
     let next = buildFormData(initialData);
@@ -102,11 +105,30 @@ export default function FORMEMP({
       }
       next = applyDuplicateFieldClears(next, clearIds);
     }
+    const isRecordNavigation =
+      isEditing &&
+      !initialData?._isDuplicate &&
+      previousRecordKeyRef.current &&
+      recordKey &&
+      previousRecordKeyRef.current !== recordKey &&
+      recordKey !== "new" &&
+      recordKey !== "duplicate";
+    previousRecordKeyRef.current = recordKey;
     setFormData(next);
     setErrors({});
     setEditMode(!isEditing || !!initialData?._isDuplicate);
-    setActiveTab("geral");
-  }, [initialData?.id, initialData?.codempresa, initialData?.updatedAt, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
+    if (!isRecordNavigation) {
+      setActiveTab("geral");
+    }
+  }, [
+    recordKey,
+    initialData?.id,
+    initialData?.codempresa,
+    initialData?.updatedAt,
+    initialData?._isDuplicate,
+    isEditing,
+    formLayoutConfig?.clearOnDuplicateFieldIds,
+  ]);
 
   const { data: camposPersonalizados = [], isFetched: camposPersonalizadosReady } = useQuery({
     queryKey: ["emp-campos-personalizados"],
@@ -168,6 +190,12 @@ export default function FORMEMP({
     try {
       const { file_url } = await AnexosApi.uploadFile(file);
       setFormData((prev) => ({ ...prev, logo_url: file_url }));
+    } catch {
+      setNoticeDialog({
+        open: true,
+        title: "Falha no envio",
+        description: "Não foi possível enviar a imagem. Tente novamente.",
+      });
     } finally {
       setUploadingLogo(false);
     }

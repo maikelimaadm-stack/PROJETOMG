@@ -332,7 +332,6 @@ export default function PAGEMP() {
         setEditingEmp(fallbackEmp);
         setSelectedIndex(fallbackIndex);
         setSelectedTableItems([fallbackEmp.id]);
-        setFormVersion((version) => version + 1);
       }
     }
   }, [showForm, viewMode, empresasNavegacao, empresas, editingEmp?.id, editingEmp?.updatedAt, editingEmp?._isDuplicate, selectedIndex]);
@@ -412,7 +411,6 @@ export default function PAGEMP() {
         setSelectedTableItems([nextEmp.id]);
         setShowForm(true);
         setViewMode("record");
-        setFormVersion((version) => version + 1);
       }
     } else {
       const remainingNav = navListBeforeDelete
@@ -439,6 +437,10 @@ export default function PAGEMP() {
         if (remainingNav[nextIndex]?.id) setSelectedTableItems([remainingNav[nextIndex].id]);
       } else {
         setSelectedIndex((prev) => Math.min(prev, remainingNav.length - 1));
+      }
+
+      if (wasOnForm && viewMode === "record" && !editingEmp?.id && !editingEmp?._isDuplicate) {
+        setFormVersion((version) => version + 1);
       }
     }
 
@@ -495,8 +497,9 @@ export default function PAGEMP() {
       <EmpresasFormPanel
         showForm={showForm}
         formProps={{
-          key: `form-${formVersion}-${editingEmp?.id ?? "new"}`,
+          key: `form-${formVersion}`,
           initialData: editingEmp,
+          recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
           isEditing: !!editingEmp,
           onSubmit: handleSubmit,
           onCancel: () => {

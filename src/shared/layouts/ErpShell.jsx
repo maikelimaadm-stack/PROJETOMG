@@ -28,6 +28,12 @@ import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
+const resolveCompanySelectorValue = (selectedEmpresaId, allowAllEmpresas) => {
+  if (selectedEmpresaId === "all") return "all";
+  if (selectedEmpresaId) return selectedEmpresaId;
+  return allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION;
+};
+
 function ErpBrand() {
   return (
     <div className="erp-sidebar-brand flex items-center gap-3 px-3 py-4">
@@ -51,7 +57,7 @@ function ErpTopHeader({
 }) {
   const { visible: tableFullscreenVisible, isFullscreen, onToggle: onToggleTableFullscreen } =
     useErpTableFullscreen();
-  const selectorValue = selectedEmpresaId || (allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION);
+  const selectorValue = resolveCompanySelectorValue(selectedEmpresaId, allowAllEmpresas);
 
   return (
     <header className="erp-shell-header flex h-10 shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-4">

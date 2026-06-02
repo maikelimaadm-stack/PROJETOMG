@@ -116,9 +116,14 @@ export const AuthProvider = ({ children }) => {
 
   const selectEmpresa = (empresaId) => {
     const normalizedEmpresaId =
-      empresaId === "__AUTHORIZED_SCOPE__" ? null : empresaId;
+      empresaId === "__AUTHORIZED_SCOPE__"
+        ? null
+        : empresaId === "all"
+          ? "all"
+          : empresaId;
     AuthApi.setSelectedEmpresaId(normalizedEmpresaId);
     setSelectedEmpresaId(normalizedEmpresaId);
+    void queryClientInstance.invalidateQueries({ queryKey: ["emp-cadastro"] });
   };
 
   const mapEmpresaForSelector = (empresa) => ({
@@ -152,8 +157,9 @@ export const AuthProvider = ({ children }) => {
     setEmpresas((previous) => previous.filter((item) => !idSet.has(item.id)));
     setSelectedEmpresaId((previous) => {
       if (previous && idSet.has(previous)) {
-        AuthApi.setSelectedEmpresaId(null);
-        return null;
+        const nextSelection = allowAllEmpresas ? "all" : null;
+        AuthApi.setSelectedEmpresaId(nextSelection);
+        return nextSelection;
       }
       return previous;
     });
