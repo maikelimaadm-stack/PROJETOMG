@@ -1,13 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
 import { toast } from "sonner";
-import FORMEMP from "@/modules/empresas/components/FORMEMP";
-import TBLEMP from "@/modules/empresas/components/TBLEMP";
-import EmpConfiguracaoCamposDialog from "@/framework/cadastro/configurators/EmpConfiguracaoCamposDialog";
-import EmpConfiguracaoExportacaoDialog from "@/framework/cadastro/configurators/EmpConfiguracaoExportacaoDialog";
-import ConfirmDialog from "@/shared/components/ConfirmDialog";
-import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexosDialog";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
 import { printCadastroTable, exportCadastroTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
@@ -17,6 +10,12 @@ import {
   saveEmpExcelExportConfig,
   saveEmpPdfExportConfig,
 } from "@/modules/empresas/config/empPdfExportConfig";
+import {
+  EmpresasCamposOnlyPanel,
+  EmpresasDialogs,
+  EmpresasFormPanel,
+  EmpresasTablePanel,
+} from "./PAGEMP.sections";
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -381,164 +380,166 @@ export default function PAGEMP() {
     exportCadastroTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
   };
 
+  const configCamposProps = {
+    open: showConfigCampos,
+    onOpenChange: (nextOpen) => {
+      setShowConfigCampos(nextOpen);
+      if (!nextOpen) setConfigCamposInitialField(null);
+    },
+    initialFieldName: configCamposInitialField,
+    inline: true,
+    repository: moduleRepository,
+  };
+
   return (
     <div className="cadastro-emp-scope -mt-px p-0 md:p-0 bg-white h-full min-h-0 overflow-hidden flex flex-col">
-
-      {showForm && (
-        <div className="relative flex min-h-0 h-full w-full overflow-hidden">
-          <div className="min-w-0 flex-1 h-full overflow-hidden">
-            <FORMEMP
-              key={`form-${formVersion}-${editingEmp?.id ?? "new"}`}
-              initialData={editingEmp}
-              isEditing={!!editingEmp}
-              onSubmit={handleSubmit}
-              onCancel={() => {
-                if (editingEmp && !editingEmp._isDuplicate) { setFormVersion((p) => p + 1); setViewMode("record"); return; }
-                if ((editingEmp?._isDuplicate || !editingEmp) && returnRecordAfterNew) { setEditingEmp(returnRecordAfterNew); setShowForm(true); setViewMode("record"); setReturnRecordAfterNew(null); return; }
-                setShowForm(false); setEditingEmp(null); setViewMode("table"); setReturnRecordAfterNew(null);
-              }}
-              onSettingsClick={handleOpenConfigCampos}
-              onToggleView={handleToggleView}
-              total={empresasNavegacao.length} currentIndex={selectedIndex}
-              onNew={handleNew}
-              onFirst={() => navigateRecord(0)}
-              onPrevious={() => navigateRecord(selectedIndex - 1)}
-              onNext={() => navigateRecord(selectedIndex + 1)}
-              onLast={() => navigateRecord(empresasNavegacao.length - 1)}
-              onDelete={() => editingEmp?.id && handleRequestDelete(editingEmp.id)}
-              onDuplicate={() => editingEmp && handleDuplicate(editingEmp)}
-              filterOpen={false} filterActive={false}
-              searchValue={searchTerm}
-              onSearchChange={handleSearchChange}
-              onAttachClick={() => editingEmp?.id && setAttachmentsRecord(editingEmp)}
-              attachDisabled={false}
-            />
-          </div>
-          {showConfigCampos && (
-            <section className="absolute inset-0 z-[80] flex min-h-0 flex-col overflow-hidden bg-white">
-              <EmpConfiguracaoCamposDialog
-                open={showConfigCampos}
-                onOpenChange={(nextOpen) => {
-                  setShowConfigCampos(nextOpen);
-                  if (!nextOpen) setConfigCamposInitialField(null);
-                }}
-                initialFieldName={configCamposInitialField}
-                inline
-                repository={moduleRepository}
-              />
-            </section>
-          )}
-        </div>
-      )}
-
-      {!showForm && showConfigCampos && (
-        <section className="flex min-h-0 flex-1 h-full w-full overflow-hidden bg-white">
-          <EmpConfiguracaoCamposDialog
-            open={showConfigCampos}
-            onOpenChange={(nextOpen) => {
-              setShowConfigCampos(nextOpen);
-              if (!nextOpen) setConfigCamposInitialField(null);
-            }}
-            initialFieldName={configCamposInitialField}
-            inline
-            repository={moduleRepository}
-          />
-        </section>
-      )}
-
-      <div className={showForm || showConfigCampos ? "hidden" : "flex min-h-0 flex-1 w-full overflow-hidden"}>
-        <div className="min-w-0 flex-1 min-h-0 overflow-hidden flex flex-col">
-          <div className="flex-none shrink-0">
-          <SankhyaListToolbar
-            viewMode={viewMode}
-            total={totalEmpresas}
-            currentIndex={selectedIndex}
-            searchValue={searchTerm}
-            onSearchChange={handleSearchChange}
-            onNew={handleNew}
-            onToggleView={handleToggleView}
-            toggleViewDisabled={selectedTableItems.length > 1}
-            filterActive={false}
-            onDelete={() => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)}
-            onDuplicate={() => selectedTableEmp && handleDuplicate(selectedTableEmp)}
-            onAttachClick={() => selectedTableEmp && setAttachmentsRecord(selectedTableEmp)}
-            attachDisabled={selectedTableItems.length !== 1}
-            onExportPdf={handleExportPdf}
-            onConfigExportPdf={() => setShowConfigPdf(true)}
-            onExportExcel={handleExportExcel}
-            onConfigExportExcel={() => setShowConfigExcel(true)}
-            onConfigColumns={() => setShowConfigColunas(true)}
-            selectedCount={selectedTableItems.length}
-            title={moduleLabels.title}
-            recordLabel=""
-          />
-          </div>
-          <TBLEMP
-            key="tbl-emp"
-            empresas={empresasFiltradasPainel}
-            onEdit={handleEdit}
-            showConfigColunas={showConfigColunas}
-            setShowConfigColunas={setShowConfigColunas}
-            searchTerm=""
-            selectedRecordId={showForm ? editingEmp?.id : undefined}
-            onSelectionChange={handleTableSelectionChange}
-            onVisibleDataChange={setVisibleTableData}
-            onFilteredEmpresasChange={handleFilteredEmpresasChange}
-            serverPage={queryPage}
-            serverPageSize={queryPageSize}
-            serverTotal={totalEmpresas}
-            onServerPageChange={setQueryPage}
-            onServerPageSizeChange={(nextPageSize) => {
-              setQueryPageSize(nextPageSize);
-              setQueryPage(1);
-            }}
-            onServerSortChange={(nextSort) => {
-              setQuerySort(nextSort);
-              setQueryPage(1);
-            }}
-            moduleTitle={moduleLabels.title}
-          />
-        </div>
-      </div>
-
-      <EmpConfiguracaoExportacaoDialog
-        open={showConfigPdf}
-        onOpenChange={setShowConfigPdf}
-        columns={visibleTableData.allColumns || visibleTableData.columns || []}
-        initialConfig={getEmpPdfExportConfig()}
-        tipo="pdf"
-        onSaveConfig={(config) => saveEmpPdfExportConfig(config)}
-      />
-      <EmpConfiguracaoExportacaoDialog
-        open={showConfigExcel}
-        onOpenChange={setShowConfigExcel}
-        columns={visibleTableData.allColumns || visibleTableData.columns || []}
-        initialConfig={getEmpExcelExportConfig()}
-        tipo="excel"
-        onSaveConfig={(config) => saveEmpExcelExportConfig(config)}
+      <EmpresasFormPanel
+        showForm={showForm}
+        showConfigCampos={showConfigCampos}
+        formProps={{
+          key: `form-${formVersion}-${editingEmp?.id ?? "new"}`,
+          initialData: editingEmp,
+          isEditing: !!editingEmp,
+          onSubmit: handleSubmit,
+          onCancel: () => {
+            if (editingEmp && !editingEmp._isDuplicate) {
+              setFormVersion((p) => p + 1);
+              setViewMode("record");
+              return;
+            }
+            if ((editingEmp?._isDuplicate || !editingEmp) && returnRecordAfterNew) {
+              setEditingEmp(returnRecordAfterNew);
+              setShowForm(true);
+              setViewMode("record");
+              setReturnRecordAfterNew(null);
+              return;
+            }
+            setShowForm(false);
+            setEditingEmp(null);
+            setViewMode("table");
+            setReturnRecordAfterNew(null);
+          },
+          onSettingsClick: handleOpenConfigCampos,
+          onToggleView: handleToggleView,
+          total: empresasNavegacao.length,
+          currentIndex: selectedIndex,
+          onNew: handleNew,
+          onFirst: () => navigateRecord(0),
+          onPrevious: () => navigateRecord(selectedIndex - 1),
+          onNext: () => navigateRecord(selectedIndex + 1),
+          onLast: () => navigateRecord(empresasNavegacao.length - 1),
+          onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
+          onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
+          filterOpen: false,
+          filterActive: false,
+          searchValue: searchTerm,
+          onSearchChange: handleSearchChange,
+          onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
+          attachDisabled: false,
+        }}
+        configCamposProps={configCamposProps}
       />
 
-      <RegistroAnexosDialog
-        open={!!attachmentsRecord?.id}
-        onOpenChange={(o) => { if (!o) setAttachmentsRecord(null); }}
-        entityName={empresasModuleDefinition.entityName}
-        recordId={attachmentsRecord?.id}
-        title={attachmentsRecord?.razao_social || attachmentsRecord?.codigo_empresa || moduleLabels.singular}
+      <EmpresasCamposOnlyPanel
+        showForm={showForm}
+        showConfigCampos={showConfigCampos}
+        configCamposProps={configCamposProps}
       />
 
-      <ConfirmDialog
-        open={deleteState.open}
-        onOpenChange={(o) => setDeleteState((p) => ({ ...p, open: o }))}
-        title="Confirmar exclusão"
-        description={
-          deleteState.ids.length > 1
-            ? `Deseja excluir ${deleteState.ids.length} ${moduleLabels.plural.toLowerCase()}?`
-            : `Deseja excluir esta ${moduleLabels.singular.toLowerCase()}?`
-        }
-        confirmText="Excluir"
-        cancelText="Cancelar"
-        variant="destructive"
-        onConfirm={handleConfirmDelete}
+      <EmpresasTablePanel
+        hidden={showForm || showConfigCampos}
+        toolbarProps={{
+          viewMode,
+          total: totalEmpresas,
+          currentIndex: selectedIndex,
+          searchValue: searchTerm,
+          onSearchChange: handleSearchChange,
+          onNew: handleNew,
+          onToggleView: handleToggleView,
+          toggleViewDisabled: selectedTableItems.length > 1,
+          filterActive: false,
+          onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),
+          onDuplicate: () => selectedTableEmp && handleDuplicate(selectedTableEmp),
+          onAttachClick: () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp),
+          attachDisabled: selectedTableItems.length !== 1,
+          onExportPdf: handleExportPdf,
+          onConfigExportPdf: () => setShowConfigPdf(true),
+          onExportExcel: handleExportExcel,
+          onConfigExportExcel: () => setShowConfigExcel(true),
+          onConfigColumns: () => setShowConfigColunas(true),
+          selectedCount: selectedTableItems.length,
+          title: moduleLabels.title,
+          recordLabel: "",
+        }}
+        tableProps={{
+          key: "tbl-emp",
+          empresas: empresasFiltradasPainel,
+          onEdit: handleEdit,
+          showConfigColunas,
+          setShowConfigColunas,
+          searchTerm: "",
+          selectedRecordId: showForm ? editingEmp?.id : undefined,
+          onSelectionChange: handleTableSelectionChange,
+          onVisibleDataChange: setVisibleTableData,
+          onFilteredEmpresasChange: handleFilteredEmpresasChange,
+          serverPage: queryPage,
+          serverPageSize: queryPageSize,
+          serverTotal: totalEmpresas,
+          onServerPageChange: setQueryPage,
+          onServerPageSizeChange: (nextPageSize) => {
+            setQueryPageSize(nextPageSize);
+            setQueryPage(1);
+          },
+          onServerSortChange: (nextSort) => {
+            setQuerySort(nextSort);
+            setQueryPage(1);
+          },
+          moduleTitle: moduleLabels.title,
+        }}
+      />
+
+      <EmpresasDialogs
+        exportPdfProps={{
+          open: showConfigPdf,
+          onOpenChange: setShowConfigPdf,
+          columns: visibleTableData.allColumns || visibleTableData.columns || [],
+          initialConfig: getEmpPdfExportConfig(),
+          tipo: "pdf",
+          onSaveConfig: (config) => saveEmpPdfExportConfig(config),
+        }}
+        exportExcelProps={{
+          open: showConfigExcel,
+          onOpenChange: setShowConfigExcel,
+          columns: visibleTableData.allColumns || visibleTableData.columns || [],
+          initialConfig: getEmpExcelExportConfig(),
+          tipo: "excel",
+          onSaveConfig: (config) => saveEmpExcelExportConfig(config),
+        }}
+        anexosProps={{
+          open: !!attachmentsRecord?.id,
+          onOpenChange: (open) => {
+            if (!open) setAttachmentsRecord(null);
+          },
+          entityName: empresasModuleDefinition.entityName,
+          recordId: attachmentsRecord?.id,
+          title:
+            attachmentsRecord?.razao_social ||
+            attachmentsRecord?.codigo_empresa ||
+            moduleLabels.singular,
+        }}
+        confirmDeleteProps={{
+          open: deleteState.open,
+          onOpenChange: (open) => setDeleteState((previous) => ({ ...previous, open })),
+          title: "Confirmar exclusão",
+          description:
+            deleteState.ids.length > 1
+              ? `Deseja excluir ${deleteState.ids.length} ${moduleLabels.plural.toLowerCase()}?`
+              : `Deseja excluir esta ${moduleLabels.singular.toLowerCase()}?`,
+          confirmText: "Excluir",
+          cancelText: "Cancelar",
+          variant: "destructive",
+          onConfirm: handleConfirmDelete,
+        }}
       />
     </div>
   );

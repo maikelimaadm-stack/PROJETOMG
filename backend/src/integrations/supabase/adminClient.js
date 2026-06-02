@@ -30,11 +30,19 @@ export const ensureSupabaseStorageBucket = async () => {
   const exists = (buckets || []).some((item) => item.name === supabaseBucketName);
   if (!exists) {
     const { error: createError } = await supabaseAdmin.storage.createBucket(supabaseBucketName, {
-      public: true,
+      public: false,
       fileSizeLimit: "20MB",
     });
     if (createError) {
       throw new Error(`Falha ao criar bucket ${supabaseBucketName}: ${createError.message}`);
+    }
+  } else {
+    const { error: updateError } = await supabaseAdmin.storage.updateBucket(supabaseBucketName, {
+      public: false,
+      fileSizeLimit: "20MB",
+    });
+    if (updateError) {
+      throw new Error(`Falha ao atualizar bucket ${supabaseBucketName}: ${updateError.message}`);
     }
   }
 
@@ -53,4 +61,13 @@ export const verifySupabaseStorageConnection = async () => {
     connected: !error,
     error: error?.message || null,
   };
+};
+
+export const createSignedDownloadUrl = async (storagePath, expiresIn = 60 * 60) => {
+  if (!storagePath || !supabaseAdmin) return null;
+  const { data, error } = await supabaseAdmin.storage
+    .from(supabaseBucketName)
+    .createSignedUrl(storagePath, expiresIn);
+  if (error || !data?.signedUrl) return null;
+  return data.signedUrl;
 };

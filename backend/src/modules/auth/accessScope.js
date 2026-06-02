@@ -60,8 +60,6 @@ export const loadAccessScope = async (request) => {
   let selectedEmpresaId = null;
   if (requestedEmpresaId && requestedEmpresaId !== "all") {
     selectedEmpresaId = requestedEmpresaId;
-  } else if (!user.acesso_global) {
-    selectedEmpresaId = allowedEmpresaIds[0] || null;
   }
 
   return {
@@ -70,6 +68,7 @@ export const loadAccessScope = async (request) => {
     perfil: user.perfil,
     acessoGlobal: user.acesso_global,
     allowedEmpresaIds,
+    requestedEmpresaId,
     selectedEmpresaId,
     allowAllEmpresas: user.acesso_global && !selectedEmpresaId,
   };

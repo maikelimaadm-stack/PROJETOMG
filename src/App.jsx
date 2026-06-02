@@ -81,8 +81,18 @@ function LoginScreen({ onLogin, isLoading, errorMessage }) {
   );
 }
 
-function MinimalLayout({ children, onLogout, empresas, selectedEmpresaId, onSelectEmpresa }) {
+function MinimalLayout({
+  children,
+  onLogout,
+  empresas,
+  selectedEmpresaId,
+  onSelectEmpresa,
+  allowAllEmpresas,
+}) {
   const location = useLocation();
+  const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
+  const selectorValue =
+    selectedEmpresaId || (allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION);
 
   return (
     <div className="h-[100dvh] overflow-hidden bg-white flex flex-col" style={{ "--app-content-offset": "73px" }}>
@@ -95,11 +105,15 @@ function MinimalLayout({ children, onLogout, empresas, selectedEmpresaId, onSele
           <div className="flex items-center gap-2">
             <label className="text-xs text-slate-600">Empresa:</label>
             <select
-              value={selectedEmpresaId || "all"}
+              value={selectorValue}
               onChange={(event) => onSelectEmpresa(event.target.value)}
               className="h-7 min-w-[170px] border border-slate-300 bg-white px-2 text-xs text-slate-700"
             >
-              <option value="all">Todas as Empresas</option>
+              {allowAllEmpresas ? (
+                <option value="all">Todas as Empresas</option>
+              ) : (
+                <option value={AUTHORIZED_SCOPE_OPTION}>Empresas autorizadas</option>
+              )}
               {empresas.map((empresa) => (
                 <option key={empresa.id} value={empresa.id}>
                   {empresa.codigo_empresa} - {empresa.nome_empresa}
@@ -138,6 +152,7 @@ const AuthenticatedApp = () => {
     isAuthenticated,
     login,
     empresas,
+    allowAllEmpresas,
     selectedEmpresaId,
     selectEmpresa,
   } = useAuth();
@@ -174,9 +189,9 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<MinimalLayout onLogout={logout} empresas={empresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
-      <Route path="/CadastroEmpresas" element={<MinimalLayout onLogout={logout} empresas={empresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
-      <Route path="*" element={<MinimalLayout onLogout={logout} empresas={empresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
+      <Route path="/" element={<MinimalLayout onLogout={logout} empresas={empresas} allowAllEmpresas={allowAllEmpresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
+      <Route path="/CadastroEmpresas" element={<MinimalLayout onLogout={logout} empresas={empresas} allowAllEmpresas={allowAllEmpresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
+      <Route path="*" element={<MinimalLayout onLogout={logout} empresas={empresas} allowAllEmpresas={allowAllEmpresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
     </Routes>
   );
 };

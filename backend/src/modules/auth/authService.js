@@ -169,12 +169,14 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
     : empresas.length === 1
       ? empresas[0].id
       : null;
+  const allowAllEmpresas = Boolean(usuarioData.acesso_global);
 
   return {
     cliente: clienteData,
     user: sanitizeUser(usuarioData),
     empresas,
     selectedEmpresaId,
+    allowAllEmpresas,
   };
 };
 

@@ -9,9 +9,11 @@
     "start:prod": "NODE_ENV=production node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
+    "prisma:normalize-codes": "node scripts/normalizeEmpresaCodes.js",
     "validate:connections": "node scripts/validateConnections.js",
     "smoke:empresas": "node scripts/smokeEmpresas.js",
-    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run smoke:empresas",
+    "smoke:auth-permissoes": "node scripts/smokeAuthPermissoes.js",
+    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run smoke:empresas && npm run smoke:auth-permissoes",
     "docker:build": "docker build -t mak-gestao-backend ."
   },
   "dependencies": {

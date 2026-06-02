@@ -23,6 +23,9 @@ export const AnexosApi = {
     const formData = new FormData();
     formData.append("file", file);
     const payload = await apiClient.post("/api/anexos/upload", formData);
-    return { file_url: payload?.file_url || payload?.url || "" };
+    return {
+      file_url: payload?.file_url || payload?.url || "",
+      storage_path: payload?.storage_path || null,
+    };
   },
 };

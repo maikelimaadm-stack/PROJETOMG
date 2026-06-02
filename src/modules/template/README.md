@@ -1,6 +1,7 @@
 ## Template oficial de modulo ERP
 
 Use este template para criar novos modulos de cadastro sem acoplar ao dominio Empresas.
+O gerador oficial agora cria estrutura **full-stack**.
 
 Estrutura base:
 
@@ -12,6 +13,7 @@ Estrutura base:
 - `services/` - regras de orquestracao do modulo
 - `hooks/` - hooks de composicao para pagina/componentes
 - `utils/` - mapeamentos e utilitarios do dominio
+- `scaffold-backend/` - templates backend (routes/controller/service/repository/validators, smoke e prisma scaffold)
 
 Fluxo padrao:
 
@@ -32,9 +34,26 @@ npm run generate:module -- \
   --schema fazendaSchema
 ```
 
+Por padrao, o gerador cria frontend e backend.
+
+Opcoes:
+
+- `--frontend-only`: gera apenas frontend
+- `--backend-only`: gera apenas backend
+- `--dry-run`: simula sem gravar arquivos
+- `--force`: sobrescreve quando o modulo ja existe
+
 Para validar sem gravar arquivos:
 
 ```bash
-npm run generate:module -- --moduleId fazendas --entityName FazendaCadastro --singularLabel Fazenda --pluralLabel Fazendas --repository fazendaRepository --api FazendaApi --schema fazendaSchema --dry-run
+npm run generate:module -- \
+  --moduleId fazendas \
+  --entityName FazendaCadastro \
+  --singularLabel Fazenda \
+  --pluralLabel Fazendas \
+  --repository fazendaRepository \
+  --api FazendaApi \
+  --schema fazendaSchema \
+  --dry-run
 ```
 

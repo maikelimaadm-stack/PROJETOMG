@@ -9,51 +9,24 @@ import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/Emp
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
-
-const FILTER_POPOVER_WIDTH = 272;
-const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
-
-const COLUNAS_BASE = [
-  { id: "codigo_empresa", label: "Código", default: true, sortable: true, align: "right", width: 90 },
-  { id: "razao_social", label: "Razão Social", default: true, sortable: true, align: "left", width: 260 },
-  { id: "nome_fantasia", label: "Nome Fantasia", default: true, sortable: true, align: "left", width: 220 },
-  { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "left", width: 80 },
-  { id: "cpf_cnpj", label: "CPF/CNPJ", default: true, sortable: true, align: "left", width: 160 },
-  { id: "inscricao_estadual", label: "Inscrição Estadual", default: false, sortable: true, align: "left", width: 170 },
-  { id: "telefone", label: "Telefone", default: true, sortable: true, align: "left", width: 130 },
-  { id: "whatsapp", label: "WhatsApp", default: false, sortable: true, align: "left", width: 140 },
-  { id: "email", label: "E-mail", default: true, sortable: true, align: "left", width: 200 },
-  { id: "logo_url", label: "Logo", default: false, sortable: false, align: "left", width: 180 },
-  { id: "cep", label: "CEP", default: false, sortable: true, align: "left", width: 110 },
-  { id: "endereco", label: "Endereço", default: false, sortable: true, align: "left", width: 240 },
-  { id: "numero", label: "Número", default: false, sortable: true, align: "left", width: 100 },
-  { id: "bairro", label: "Bairro", default: false, sortable: true, align: "left", width: 150 },
-  { id: "cidade", label: "Cidade", default: true, sortable: true, align: "left", width: 150 },
-  { id: "estado", label: "UF", default: true, sortable: true, align: "left", width: 70 },
-  { id: "observacoes", label: "Observações", default: false, sortable: true, align: "left", width: 260 },
-  { id: "status", label: "Status", default: true, sortable: true, align: "left", width: 90 },
-];
-
-const WIDTHS_KEY = "emp_col_widths";
-const FROZEN_KEY = "emp_col_frozen";
-const VISIBLE_KEY = "emp_col_visiveis";
-const ORDER_KEY = "emp_col_ordem";
-const AGGR_KEY = "emp_table_aggregation_config";
-const PAGE_SIZE_KEY = "emp_table_page_size";
-const ROW_DBLCLICK_OPEN_MS = 260;
-const ROW_DBLCLICK_PAIR_MS = 500;
-const MIN_COL_WIDTH = 80;
-const MAX_AUTO_FIT_WIDTH = 520;
-const AUTO_FIT_MEASURE_LIMIT = 300;
-const getMinWidth = (col) => Math.max(MIN_COL_WIDTH, String(col?.label || "").length * 7 + 18);
-
-const fmtData = (d) => { if (!d) return "-"; const [a, m, dia] = String(d).split("T")[0].split("-"); return !a || !m || !dia ? "-" : `${dia}/${m}/${a}`; };
-
-const formatHeaderLabel = (col) => {
-  const label = String(col?.label || "");
-  if (col?.id === "custom:valor" || label.toUpperCase() === "VALOR") return "VALOR";
-  return label;
-};
+import {
+  AGGR_KEY,
+  AUTO_FIT_MEASURE_LIMIT,
+  COLUNAS_BASE,
+  FILTER_ICON_CLASS,
+  FILTER_POPOVER_WIDTH,
+  FROZEN_KEY,
+  MAX_AUTO_FIT_WIDTH,
+  MIN_COL_WIDTH,
+  ORDER_KEY,
+  PAGE_SIZE_KEY,
+  ROW_DBLCLICK_OPEN_MS,
+  ROW_DBLCLICK_PAIR_MS,
+  VISIBLE_KEY,
+  WIDTHS_KEY,
+  formatHeaderLabel,
+  getMinWidth,
+} from "./tblEmp.constants";
 
 export default function TBLEMP({
   empresas = [],
