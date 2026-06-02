@@ -1030,14 +1030,19 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pro-header thead .emp-th {
   position: relative !important;
   top: auto !important;
-}
-
-.cadastro-emp-scope .emp-table-pro-header thead .emp-th {
-  box-shadow: none !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro-header thead .emp-th:not(:last-child) {
-  box-shadow: inset -0.5px 0 0 0 var(--emp-table-line) !important;
+  box-shadow: inset -1px 0 0 0 var(--emp-table-band-edge), inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th {
+  box-shadow: inset 0 1px 0 0 var(--emp-table-band-edge) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th:not(:last-child) {
+  box-shadow: inset -1px 0 0 0 var(--emp-table-band-edge), inset 0 1px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro {
@@ -1131,7 +1136,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pro .emp-td {
   border: none !important;
-  box-shadow: inset -0.5px 0 0 0 var(--emp-table-line), inset 0 -0.5px 0 0 var(--emp-table-line) !important;
+  box-shadow: inset -1px 0 0 0 var(--emp-table-line), inset 0 -1px 0 0 var(--emp-table-line) !important;
   font-size: 12px;
   line-height: 26px;
   height: 26px;
@@ -1663,6 +1668,12 @@ input[type="number"] {
   min-height: 0;
   height: 100%;
   padding-top: 8px;
+  background: var(--emp-surface-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-root,
+.cadastro-emp-scope .emp-table-stage {
+  background: transparent !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn {
@@ -2224,10 +2235,15 @@ input[type="number"] {
   background: var(--emp-surface-bg, #fdfdfd) !important;
 }
 
-.erp-shell .cadastro-emp-scope .emp-table-stage,
 .erp-shell .cadastro-emp-scope .emp-table-shell,
-.erp-shell .cadastro-emp-scope .emp-table-panel {
+.erp-shell .cadastro-emp-scope .emp-table-bottom-dock {
   background: var(--emp-table-bg, #ffffff) !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-table-panel,
+.erp-shell .cadastro-emp-scope .emp-table-root,
+.erp-shell .cadastro-emp-scope .emp-table-stage {
+  background: var(--emp-surface-bg, #fdfdfd) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar {
