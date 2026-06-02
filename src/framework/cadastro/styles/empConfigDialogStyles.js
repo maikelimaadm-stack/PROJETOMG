@@ -19,7 +19,7 @@ export const EMP_CONFIG_DIALOG_TABLE_WRAP =
   "emp-layout-presets-table-wrap min-h-0 overflow-hidden bg-white";
 
 export const EMP_CONFIG_DIALOG_TABLE_SHELL =
-  "emp-table-shell overflow-hidden rounded-md border-[0.5px] border-[#c5ced8] bg-white shadow-none";
+  "emp-table-shell overflow-hidden rounded-md border border-[#dce3eb] bg-white shadow-none";
 
 export const EMP_CONFIG_FIELD_WRAP =
   "h-6 rounded-[5px] border-[#dce3eb] px-1 text-xs shadow-none focus-visible:ring-0";

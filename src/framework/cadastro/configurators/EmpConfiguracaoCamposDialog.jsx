@@ -685,7 +685,7 @@ export default function EmpConfiguracaoCamposDialog({
         >
           <div className="flex-1 min-h-0 overflow-hidden select-none p-1.5">
             <div ref={tableStageRef} className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
-              <div className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
+              <div className="emp-table-shell flex-1 min-h-0 overflow-hidden bg-white shadow-none">
                 <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
                 <Table className="emp-table-pro w-full min-w-[760px] border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>
