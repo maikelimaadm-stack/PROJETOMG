@@ -3,13 +3,37 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const BASE_URL = process.env.SMOKE_BASE_URL || "http://127.0.0.1:3001";
-const tenantPrimary = `smoke-${Date.now()}`;
-const tenantSecondary = `${tenantPrimary}-other`;
+let authToken = null;
+let selectedEmpresaHeader = "all";
 
-const requestJson = async (path, { method = "GET", tenantId = tenantPrimary, body } = {}) => {
+const login = async () => {
+  const response = await fetch(`${BASE_URL}/api/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      cliente: "demo",
+      usuario: "demo",
+      senha: "123",
+    }),
+  });
+
+  const payload = await response.json();
+  if (!response.ok) {
+    throw new Error(`login falhou ${response.status}: ${payload?.message || "sem payload"}`);
+  }
+  if (!payload?.token) {
+    throw new Error("login sem token");
+  }
+
+  authToken = payload.token;
+  selectedEmpresaHeader = payload.selectedEmpresaId || "all";
+};
+
+const requestJson = async (path, { method = "GET", empresaId = selectedEmpresaHeader, body } = {}) => {
   const headers = {
-    "X-Tenant-Id": tenantId,
+    Authorization: `Bearer ${authToken}`,
   };
+  if (empresaId) headers["X-Empresa-Id"] = empresaId;
   if (body) {
     headers["Content-Type"] = "application/json";
   }
@@ -34,14 +58,15 @@ const requestJson = async (path, { method = "GET", tenantId = tenantPrimary, bod
   return payload;
 };
 
-const requestUpload = async (fileName, content, tenantId = tenantPrimary) => {
+const requestUpload = async (fileName, content, empresaId = selectedEmpresaHeader) => {
   const form = new FormData();
   const file = new File([content], fileName, { type: "text/plain" });
   form.append("file", file);
   const response = await fetch(`${BASE_URL}/api/anexos/upload`, {
     method: "POST",
     headers: {
-      "X-Tenant-Id": tenantId,
+      Authorization: `Bearer ${authToken}`,
+      ...(empresaId ? { "X-Empresa-Id": empresaId } : {}),
     },
     body: form,
   });
@@ -61,6 +86,8 @@ const assert = (condition, message) => {
 
 const run = async () => {
   console.log("Iniciando smoke test Empresas...");
+
+  await login();
 
   const health = await fetch(`${BASE_URL}/api/health`).then((r) => r.json());
   assert(health.ok === true, "healthcheck não está saudável");
@@ -85,20 +112,7 @@ const run = async () => {
       campos_personalizados: {},
     },
   });
-  const empresaOtherTenant = await requestJson("/api/empresas", {
-    method: "POST",
-    tenantId: tenantSecondary,
-    body: {
-      razao_social: "Empresa Outro Tenant",
-      nome_fantasia: "Outro",
-      status: "Ativa",
-      cidade: "Curitiba",
-      campos_personalizados: {},
-    },
-  });
-
-  assert(empresaA.item?.id && empresaB.item?.id, "falha ao criar empresas no tenant principal");
-  assert(empresaOtherTenant.item?.id, "falha ao criar empresa no tenant secundário");
+  assert(empresaA.item?.id && empresaB.item?.id, "falha ao criar empresas");
 
   const listPaged = await requestJson(
     "/api/empresas?page=1&pageSize=1&sortBy=razao_social&sortDir=asc&search=Empresa"
@@ -114,12 +128,12 @@ const run = async () => {
     "filtro por status não retornou apenas itens inativos"
   );
 
-  const tenantIsolation = await requestJson("/api/empresas?page=1&pageSize=20", {
-    tenantId: tenantSecondary,
+  const selectedEmpresa = await requestJson("/api/empresas?page=1&pageSize=20", {
+    empresaId: empresaA.item.id,
   });
   assert(
-    tenantIsolation.items.length === 1 && tenantIsolation.items[0].id === empresaOtherTenant.item.id,
-    "isolamento de tenant falhou"
+    selectedEmpresa.items.length === 1 && selectedEmpresa.items[0].id === empresaA.item.id,
+    "filtro por empresa selecionada falhou"
   );
 
   const updated = await requestJson(`/api/empresas/${empresaA.item.id}`, {
@@ -161,6 +175,7 @@ const run = async () => {
   const upload = await requestUpload("smoke.txt", "smoke-upload");
   const anexo = await requestJson("/api/anexos", {
     method: "POST",
+    empresaId: empresaA.item.id,
     body: {
       entity_name: "EmpresaCadastro",
       record_id: empresaA.item.id,
@@ -175,7 +190,8 @@ const run = async () => {
   assert(anexo.item?.id, "create anexo falhou");
 
   const anexosList = await requestJson(
-    `/api/anexos?entityName=EmpresaCadastro&recordId=${encodeURIComponent(empresaA.item.id)}`
+    `/api/anexos?entityName=EmpresaCadastro&recordId=${encodeURIComponent(empresaA.item.id)}`,
+    { empresaId: empresaA.item.id }
   );
   assert(anexosList.items.some((item) => item.id === anexo.item.id), "anexo não encontrado na listagem");
 
@@ -183,10 +199,6 @@ const run = async () => {
   await requestJson(`/api/empresas/campos/${campo.item.id}`, { method: "DELETE" });
   await requestJson(`/api/empresas/${empresaA.item.id}`, { method: "DELETE" });
   await requestJson(`/api/empresas/${empresaB.item.id}`, { method: "DELETE" });
-  await requestJson(`/api/empresas/${empresaOtherTenant.item.id}`, {
-    method: "DELETE",
-    tenantId: tenantSecondary,
-  });
 
   console.log("Smoke test Empresas finalizado com sucesso.");
 };

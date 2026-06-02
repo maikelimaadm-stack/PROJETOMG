@@ -3,19 +3,109 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { BrowserRouter as Router, Route, Routes, Link, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
-import UserNotRegisteredError from "@/shared/components/UserNotRegisteredError";
-import PAGEMP from "@/modules/empresas/pages/PAGEMP";
+import { lazy, Suspense, useState } from "react";
 
-function MinimalLayout({ children, onLogout }) {
+const PAGEMP = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
+
+function LoginScreen({ onLogin, isLoading, errorMessage }) {
+  const [cliente, setCliente] = useState("demo");
+  const [usuario, setUsuario] = useState("demo");
+  const [senha, setSenha] = useState("123");
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+      await onLogin({ cliente, usuario, senha });
+    } catch {
+      // AuthContext já atualiza o estado de erro exibido na tela.
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-slate-100 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-md rounded border border-slate-200 bg-white p-6 shadow-sm"
+      >
+        <h1 className="text-lg font-semibold text-slate-700">Login do Sistema</h1>
+        <p className="mt-1 text-xs text-slate-500">
+          Informe cliente, usuário e senha para acessar o ERP.
+        </p>
+        <div className="mt-5 space-y-3">
+          <label className="block text-xs font-medium text-slate-600">
+            Cliente
+            <input
+              className="mt-1 h-9 w-full border border-slate-300 px-2 text-sm"
+              value={cliente}
+              onChange={(event) => setCliente(event.target.value)}
+              placeholder="demo"
+              autoComplete="organization"
+            />
+          </label>
+          <label className="block text-xs font-medium text-slate-600">
+            Usuário
+            <input
+              className="mt-1 h-9 w-full border border-slate-300 px-2 text-sm"
+              value={usuario}
+              onChange={(event) => setUsuario(event.target.value)}
+              placeholder="demo"
+              autoComplete="username"
+            />
+          </label>
+          <label className="block text-xs font-medium text-slate-600">
+            Senha
+            <input
+              className="mt-1 h-9 w-full border border-slate-300 px-2 text-sm"
+              type="password"
+              value={senha}
+              onChange={(event) => setSenha(event.target.value)}
+              placeholder="123"
+              autoComplete="current-password"
+            />
+          </label>
+        </div>
+        {errorMessage ? (
+          <div className="mt-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+            {errorMessage}
+          </div>
+        ) : null}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="mt-5 h-9 w-full border border-slate-700 bg-slate-700 text-sm text-white disabled:opacity-60"
+        >
+          {isLoading ? "Entrando..." : "Entrar"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+function MinimalLayout({ children, onLogout, empresas, selectedEmpresaId, onSelectEmpresa }) {
   const location = useLocation();
 
   return (
     <div className="h-[100dvh] overflow-hidden bg-white flex flex-col" style={{ "--app-content-offset": "73px" }}>
       <header className="flex-none border-b border-slate-200 bg-white">
-        <div className="px-4 py-2 flex items-center justify-between">
+        <div className="px-4 py-2 flex items-center justify-between gap-3">
           <div>
             <h1 className="text-sm font-semibold text-slate-700 leading-tight">Cadastro de Empresas</h1>
             <p className="text-xs text-slate-600">Sistema de gestão</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <label className="text-xs text-slate-600">Empresa:</label>
+            <select
+              value={selectedEmpresaId || "all"}
+              onChange={(event) => onSelectEmpresa(event.target.value)}
+              className="h-7 min-w-[170px] border border-slate-300 bg-white px-2 text-xs text-slate-700"
+            >
+              <option value="all">Todas as Empresas</option>
+              {empresas.map((empresa) => (
+                <option key={empresa.id} value={empresa.id}>
+                  {empresa.codigo_empresa} - {empresa.nome_empresa}
+                </option>
+              ))}
+            </select>
           </div>
           <button
             type="button"
@@ -40,7 +130,17 @@ function MinimalLayout({ children, onLogout }) {
 }
 
 const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, logout } = useAuth();
+  const {
+    isLoadingAuth,
+    isLoadingPublicSettings,
+    authError,
+    logout,
+    isAuthenticated,
+    login,
+    empresas,
+    selectedEmpresaId,
+    selectEmpresa,
+  } = useAuth();
 
   if (isLoadingPublicSettings || isLoadingAuth) {
     return (
@@ -51,29 +151,32 @@ const AuthenticatedApp = () => {
   }
 
   if (authError) {
-    if (authError.type === "user_not_registered") return <UserNotRegisteredError />;
-    if (authError.type === "auth_required") { navigateToLogin(); return null; }
-    if (authError.type === "auth_not_configured") {
-      const shouldShowEnvHint = String(authError.message || "").toLowerCase().includes("não configurado");
+    if (!isAuthenticated) {
       return (
-        <div className="fixed inset-0 flex items-center justify-center bg-white px-6">
-          <div className="max-w-xl rounded border border-red-200 bg-red-50 p-5 text-sm text-red-800">
-            <h2 className="mb-2 text-base font-semibold">Falha na autenticação</h2>
-            <p>{authError.message}</p>
-            {shouldShowEnvHint ? (
-              <p className="mt-2">Configure VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY no arquivo .env para autenticação.</p>
-            ) : null}
-          </div>
-        </div>
+        <LoginScreen
+          onLogin={login}
+          isLoading={isLoadingAuth}
+          errorMessage={authError.message}
+        />
       );
     }
   }
 
+  if (!isAuthenticated) {
+    return (
+      <LoginScreen
+        onLogin={login}
+        isLoading={isLoadingAuth}
+        errorMessage={null}
+      />
+    );
+  }
+
   return (
     <Routes>
-      <Route path="/" element={<MinimalLayout onLogout={logout}><PAGEMP /></MinimalLayout>} />
-      <Route path="/CadastroEmpresas" element={<MinimalLayout onLogout={logout}><PAGEMP /></MinimalLayout>} />
-      <Route path="*" element={<MinimalLayout onLogout={logout}><PAGEMP /></MinimalLayout>} />
+      <Route path="/" element={<MinimalLayout onLogout={logout} empresas={empresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
+      <Route path="/CadastroEmpresas" element={<MinimalLayout onLogout={logout} empresas={empresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
+      <Route path="*" element={<MinimalLayout onLogout={logout} empresas={empresas} selectedEmpresaId={selectedEmpresaId} onSelectEmpresa={selectEmpresa}><Suspense fallback={<div className="h-full w-full flex items-center justify-center text-xs text-slate-500">Carregando módulo...</div>}><PAGEMP /></Suspense></MinimalLayout>} />
     </Routes>
   );
 };

@@ -8,6 +8,7 @@ const toPositiveInt = (value, fallback) => {
 
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
+const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
   codigo_empresa: { codigo_empresa: "asc" },
@@ -68,23 +69,46 @@ const buildFiltersWhere = (filters = {}) => {
   return { AND: and };
 };
 
-const withTenantWhere = (tenantId, extra = {}) => ({
-  tenant_id: tenantId,
-  ...extra,
-});
+const buildScopeWhere = (scope, extra = {}) => {
+  const and = [{ cliente_id: scope.clienteId }];
+
+  if (scope.selectedEmpresaId) {
+    and.push({ id: scope.selectedEmpresaId });
+  } else if (!scope.acessoGlobal) {
+    and.push({
+      id: {
+        in: scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID],
+      },
+    });
+  }
+
+  if (extra && Object.keys(extra).length > 0) {
+    and.push(extra);
+  }
+
+  if (and.length === 1) return and[0];
+  return { AND: and };
+};
 
 export const empresaRepository = {
-  async list({ tenantId, page = 1, pageSize = DEFAULT_PAGE_SIZE, search = "", sortBy, sortDir, filters = {} }) {
+  async list({ scope, page = 1, pageSize = DEFAULT_PAGE_SIZE, search = "", sortBy, sortDir, filters = {} }) {
     const prisma = getPrismaClient();
     const safePage = toPositiveInt(page, 1);
     const safePageSize = Math.min(MAX_PAGE_SIZE, toPositiveInt(pageSize, DEFAULT_PAGE_SIZE));
     const skip = (safePage - 1) * safePageSize;
     const searchWhere = buildSearchWhere(search);
     const filtersWhere = buildFiltersWhere(filters);
-    const where = withTenantWhere(tenantId, {
-      ...(searchWhere || {}),
-      ...(filtersWhere || {}),
-    });
+    const scopedClauses = [];
+    if (searchWhere) scopedClauses.push(searchWhere);
+    if (filtersWhere) scopedClauses.push(filtersWhere);
+    const where = buildScopeWhere(
+      scope,
+      scopedClauses.length === 0
+        ? {}
+        : scopedClauses.length === 1
+          ? scopedClauses[0]
+          : { AND: scopedClauses }
+    );
 
     const [items, total] = await Promise.all([
       prisma.empresa.findMany({
@@ -105,19 +129,21 @@ export const empresaRepository = {
     };
   },
 
-  async getById(id, tenantId) {
+  async getById(id, scope) {
     const prisma = getPrismaClient();
     return prisma.empresa.findFirst({
-      where: withTenantWhere(tenantId, { id }),
+      where: buildScopeWhere(scope, { id }),
     });
   },
 
-  async create(data, tenantId) {
+  async create(data, scope) {
     const prisma = getPrismaClient();
     let codigo = Number(data.codigo_empresa || 0);
     if (!Number.isFinite(codigo) || codigo <= 0) {
       const lastEmpresa = await prisma.empresa.findFirst({
-        where: withTenantWhere(tenantId),
+        where: {
+          cliente_id: scope.clienteId,
+        },
         orderBy: { codigo_empresa: "desc" },
         select: { codigo_empresa: true },
       });
@@ -128,15 +154,16 @@ export const empresaRepository = {
       data: {
         ...data,
         codigo_empresa: codigo,
-        tenant_id: tenantId,
+        cliente_id: scope.clienteId,
+        tenant_id: scope.clienteId,
       },
     });
   },
 
-  async update(id, data, tenantId) {
+  async update(id, data, scope) {
     const prisma = getPrismaClient();
     const current = await prisma.empresa.findFirst({
-      where: withTenantWhere(tenantId, { id }),
+      where: buildScopeWhere(scope, { id }),
     });
     if (!current) return null;
     return prisma.empresa.update({
@@ -145,10 +172,10 @@ export const empresaRepository = {
     });
   },
 
-  async remove(id, tenantId) {
+  async remove(id, scope) {
     const prisma = getPrismaClient();
     const current = await prisma.empresa.findFirst({
-      where: withTenantWhere(tenantId, { id }),
+      where: buildScopeWhere(scope, { id }),
       select: { id: true },
     });
     if (!current) return false;
@@ -156,28 +183,34 @@ export const empresaRepository = {
     return true;
   },
 
-  async listCampos(tenantId) {
+  async listCampos(scope) {
     const prisma = getPrismaClient();
     return prisma.campoPersonalizado.findMany({
-      where: withTenantWhere(tenantId),
+      where: {
+        cliente_id: scope.clienteId,
+      },
       orderBy: [{ ordem_tabela: "asc" }],
     });
   },
 
-  async createCampo(data, tenantId) {
+  async createCampo(data, scope) {
     const prisma = getPrismaClient();
     return prisma.campoPersonalizado.create({
       data: {
         ...data,
-        tenant_id: tenantId,
+        cliente_id: scope.clienteId,
+        tenant_id: scope.clienteId,
       },
     });
   },
 
-  async updateCampo(id, data, tenantId) {
+  async updateCampo(id, data, scope) {
     const prisma = getPrismaClient();
     const current = await prisma.campoPersonalizado.findFirst({
-      where: withTenantWhere(tenantId, { id }),
+      where: {
+        id,
+        cliente_id: scope.clienteId,
+      },
       select: { id: true },
     });
     if (!current) return null;
@@ -187,10 +220,13 @@ export const empresaRepository = {
     });
   },
 
-  async removeCampo(id, tenantId) {
+  async removeCampo(id, scope) {
     const prisma = getPrismaClient();
     const current = await prisma.campoPersonalizado.findFirst({
-      where: withTenantWhere(tenantId, { id }),
+      where: {
+        id,
+        cliente_id: scope.clienteId,
+      },
       select: { id: true },
     });
     if (!current) return false;

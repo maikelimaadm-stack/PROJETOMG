@@ -8,9 +8,46 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum UsuarioPerfil {
+  ADMIN
+  OPERADOR
+  CONSULTA
+}
+
+model Cliente {
+  id        String    @id @default(cuid())
+  codigo    String    @unique @db.VarChar(64)
+  nome      String    @db.VarChar(255)
+  ativo     Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  usuarios  Usuario[]
+  empresas  Empresa[]
+}
+
+model Usuario {
+  id             String             @id @default(cuid())
+  cliente_id     String             @db.VarChar(64)
+  login          String             @db.VarChar(120)
+  senha_hash     String             @db.VarChar(255)
+  perfil         UsuarioPerfil      @default(OPERADOR)
+  acesso_global  Boolean            @default(false)
+  ativo          Boolean            @default(true)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  cliente        Cliente            @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  permissoes     PermissaoEmpresa[]
+
+  @@unique([cliente_id, login])
+  @@index([cliente_id, ativo])
+}
+
 model Empresa {
   id                   String   @id @default(cuid())
-  tenant_id            String   @default("default") @db.VarChar(64)
+  tenant_id            String   @default("default") @db.VarChar(64) // legado (compatibilidade)
+  cliente_id           String?  @db.VarChar(64)
   codigo_empresa       Int      @default(0)
   razao_social         String   @db.VarChar(255)
   nome_fantasia        String?  @db.VarChar(255)
@@ -33,9 +70,14 @@ model Empresa {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
+  cliente Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
   anexos RegistroAnexo[]
+  permissoes PermissaoEmpresa[]
 
   @@unique([tenant_id, codigo_empresa])
+  @@index([cliente_id, codigo_empresa])
+  @@index([cliente_id, razao_social])
+  @@index([cliente_id, status])
   @@index([tenant_id, codigo_empresa])
   @@index([tenant_id, razao_social])
   @@index([tenant_id, status])
@@ -45,7 +87,8 @@ model Empresa {
 
 model CampoPersonalizado {
   id                    String   @id @default(cuid())
-  tenant_id             String   @default("default") @db.VarChar(64)
+  tenant_id             String   @default("default") @db.VarChar(64) // legado (compatibilidade)
+  cliente_id            String   @default("demo") @db.VarChar(64)
   field_name            String   @db.VarChar(128)
   label                 String   @db.VarChar(255)
   placeholder           String?  @db.VarChar(255)
@@ -72,6 +115,8 @@ model CampoPersonalizado {
   updatedAt             DateTime @updatedAt
 
   @@unique([tenant_id, field_name])
+  @@index([cliente_id, ativo])
+  @@index([cliente_id, ordem_tabela])
   @@index([tenant_id, ativo])
   @@index([tenant_id, ordem_tabela])
   @@index([ordem_tabela])
@@ -79,10 +124,13 @@ model CampoPersonalizado {
 
 model RegistroAnexo {
   id              String   @id @default(cuid())
-  tenant_id       String   @default("default") @db.VarChar(64)
+  tenant_id       String   @default("default") @db.VarChar(64) // legado (compatibilidade)
+  cliente_id      String   @default("demo") @db.VarChar(64)
   entity_name     String   @db.VarChar(128)
   record_id       String?  @db.VarChar(128)
   empresa_id      String?  @db.VarChar(64)
+  codigo_empresa  Int?
+  nome_empresa    String?  @db.VarChar(255)
   attachment_name String?  @db.VarChar(255)
   file_name       String   @db.VarChar(255)
   file_url        String   @db.VarChar(4096)
@@ -93,8 +141,22 @@ model RegistroAnexo {
 
   empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
 
+  @@index([cliente_id, entity_name, record_id])
+  @@index([cliente_id, createdAt])
   @@index([entity_name, record_id])
   @@index([tenant_id, entity_name, record_id])
   @@index([tenant_id, createdAt])
+  @@index([empresa_id])
+}
+
+model PermissaoEmpresa {
+  usuario_id  String
+  empresa_id  String
+  createdAt   DateTime @default(now())
+
+  usuario     Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  empresa     Empresa @relation(fields: [empresa_id], references: [id], onDelete: Cascade)
+
+  @@id([usuario_id, empresa_id])
   @@index([empresa_id])
 }

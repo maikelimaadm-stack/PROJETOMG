@@ -16,6 +16,9 @@ export const registerRoutes = async (app) => {
     const status = {
       service: "erp-backend",
       db: { configured: Boolean(process.env.DATABASE_URL), connected: false, error: null },
+      auth: {
+        jwtConfigured: Boolean(process.env.JWT_SECRET),
+      },
       supabase: {
         authConfigured: Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY),
         storageConfigured: isSupabaseStorageConfigured,

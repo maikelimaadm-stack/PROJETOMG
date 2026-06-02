@@ -5,6 +5,9 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [cliente, setCliente] = useState(null);
+  const [empresas, setEmpresas] = useState([]);
+  const [selectedEmpresaId, setSelectedEmpresaId] = useState(AuthApi.getSelectedEmpresaId());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(false);
@@ -20,8 +23,8 @@ export const AuthProvider = ({ children }) => {
       });
     } catch (error) {
       setAuthError({
-        type: "auth_not_configured",
-        message: error.message || "Supabase Auth não configurado.",
+        type: "auth_error",
+        message: error.message || "Falha ao iniciar autenticação.",
       });
       setIsLoadingAuth(false);
     }
@@ -33,50 +36,96 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(true);
       setAuthError(null);
       setAppPublicSettings(null);
-      const currentUser = await AuthApi.getCurrentUser();
-      setUser(currentUser);
-      setIsAuthenticated(Boolean(currentUser));
-      setIsLoadingAuth(false);
-    } catch (error) {
-      console.error("Unexpected auth error:", error);
-      const message = String(error?.message || "").toLowerCase();
-      if (message.includes("auth session missing")) {
-        setAuthError(null);
-        setIsLoadingAuth(false);
-        setIsAuthenticated(false);
+      const session = await AuthApi.getSession();
+      if (!session?.user) {
         setUser(null);
+        setCliente(null);
+        setEmpresas([]);
+        setIsAuthenticated(false);
+        setIsLoadingAuth(false);
         return;
       }
+      setUser(session.user);
+      setCliente(session.cliente || null);
+      setEmpresas(session.empresas || []);
+      setSelectedEmpresaId(session.selectedEmpresaId || AuthApi.getSelectedEmpresaId());
+      setIsAuthenticated(true);
+      setIsLoadingAuth(false);
+    } catch (error) {
       setAuthError({
-        type: "auth_not_configured",
-        message: error.message || "Falha ao validar autenticação",
+        type: "auth_error",
+        message: error.message || "Falha ao validar sessão",
       });
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       setUser(null);
+      setCliente(null);
+      setEmpresas([]);
     }
+  };
+
+  const login = async ({ cliente: clienteCodigo, usuario, senha }) => {
+    setIsLoadingAuth(true);
+    setAuthError(null);
+    try {
+      const payload = await AuthApi.login({
+        cliente: clienteCodigo,
+        usuario,
+        senha,
+      });
+      setUser(payload.user || null);
+      setCliente(payload.cliente || null);
+      setEmpresas(payload.empresas || []);
+      const nextEmpresaId = payload.selectedEmpresaId || (payload.empresas?.[0]?.id ?? "all");
+      if (nextEmpresaId) AuthApi.setSelectedEmpresaId(nextEmpresaId);
+      setSelectedEmpresaId(nextEmpresaId || null);
+      setIsAuthenticated(Boolean(payload.user));
+      setIsLoadingAuth(false);
+      return payload;
+    } catch (error) {
+      setAuthError({ type: "auth_error", message: error.message || "Falha no login." });
+      setIsLoadingAuth(false);
+      throw error;
+    }
+  };
+
+  const selectEmpresa = (empresaId) => {
+    AuthApi.setSelectedEmpresaId(empresaId);
+    setSelectedEmpresaId(empresaId);
   };
 
   const logout = async () => {
     await AuthApi.logout().catch(() => null);
     setUser(null);
+    setCliente(null);
+    setEmpresas([]);
+    setSelectedEmpresaId(null);
     setIsAuthenticated(false);
   };
 
   const navigateToLogin = () => {
-    window.location.reload();
+    setIsAuthenticated(false);
+    setUser(null);
+    setCliente(null);
+    setEmpresas([]);
+    setSelectedEmpresaId(null);
   };
 
   return (
     <AuthContext.Provider
       value={{
       user,
+      cliente,
+      empresas,
+      selectedEmpresaId,
       isAuthenticated,
       isLoadingAuth,
       isLoadingPublicSettings,
       authError,
       appPublicSettings,
+      login,
       logout,
+      selectEmpresa,
       navigateToLogin,
       checkAppState,
     }}>

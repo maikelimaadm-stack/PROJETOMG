@@ -2,9 +2,12 @@ import dotenv from "dotenv";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
+import fastifyJwt from "@fastify/jwt";
+import fastifyRateLimit from "@fastify/rate-limit";
 import { registerRoutes } from "./routes/index.js";
 import { closePrismaClient } from "./database/prismaClient.js";
 import { validateRuntimeEnv } from "./config/env.js";
+import { ensureDemoIdentity } from "./modules/auth/authService.js";
 
 dotenv.config();
 try {
@@ -44,8 +47,11 @@ const isVercelDomain = (origin = "") => {
 const isOriginAllowed = (origin, allowedOrigins) => {
   if (!origin) return true;
   const normalizedOrigin = normalizeOrigin(origin);
+  const isProduction = String(process.env.NODE_ENV || "").toLowerCase() === "production";
 
-  if (allowedOrigins.length === 0) return true;
+  if (allowedOrigins.length === 0) {
+    return !isProduction;
+  }
 
   const normalizedAllowed = allowedOrigins.map((item) => normalizeOrigin(item));
   if (normalizedAllowed.includes(normalizedOrigin)) return true;
@@ -84,6 +90,25 @@ const resolvePort = () => {
 const buildServer = () => {
   const app = Fastify({ logger: true });
   const allowedOrigins = parseAllowedOrigins();
+  const jwtSecret = String(process.env.JWT_SECRET || "mak-gestao-dev-jwt-secret");
+
+  app.register(fastifyRateLimit, {
+    max: Number(process.env.RATE_LIMIT_MAX || 240),
+    timeWindow: "1 minute",
+    allowList: ["127.0.0.1", "::1"],
+  });
+
+  app.register(fastifyJwt, {
+    secret: jwtSecret,
+  });
+
+  app.decorate("authenticate", async function authenticate(request, reply) {
+    try {
+      await request.jwtVerify();
+    } catch {
+      return reply.status(401).send({ message: "Não autenticado." });
+    }
+  });
 
   app.register(cors, {
     origin(origin, callback) {
@@ -123,6 +148,7 @@ const start = async () => {
   const port = resolvePort();
 
   try {
+    await ensureDemoIdentity();
     await app.listen({ host, port });
     app.log.info(`Backend ativo em http://${host}:${port}`);
   } catch (error) {

@@ -20,14 +20,24 @@ const buildUrl = (path) => {
   return `${baseUrl}${normalizedPath}`;
 };
 
-const getTenantId = () => {
+const getAuthToken = () => {
   try {
-    const tenant = localStorage.getItem("erp_tenant_id");
-    if (tenant && tenant.trim()) return tenant.trim();
+    const token = localStorage.getItem("erp_auth_token");
+    if (token && token.trim()) return token.trim();
   } catch {
     // noop
   }
-  return "default";
+  return null;
+};
+
+const getSelectedEmpresaId = () => {
+  try {
+    const empresaId = localStorage.getItem("erp_empresa_id");
+    if (empresaId && empresaId.trim()) return empresaId.trim();
+  } catch {
+    // noop
+  }
+  return null;
 };
 
 export class ApiError extends Error {
@@ -51,11 +61,14 @@ const parseResponse = async (response) => {
 
 export const apiClient = {
   async request(path, { method = "GET", body, headers = {}, signal } = {}) {
+    const token = getAuthToken();
+    const selectedEmpresaId = getSelectedEmpresaId();
     const response = await fetch(buildUrl(path), {
       method,
       headers: {
         ...(body instanceof FormData ? {} : { "Content-Type": "application/json" }),
-        "X-Tenant-Id": getTenantId(),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(selectedEmpresaId ? { "X-Empresa-Id": selectedEmpresaId } : {}),
         ...headers,
       },
       body: body == null ? undefined : body instanceof FormData ? body : JSON.stringify(body),

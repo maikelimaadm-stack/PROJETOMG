@@ -1,67 +1,128 @@
-import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+const AUTH_TOKEN_KEY = "erp_auth_token";
+const EMPRESA_SELECTION_KEY = "erp_empresa_id";
 
-const assertSupabaseAuthConfig = () => {
-  if (!isSupabaseConfigured || !supabase) {
-    throw new Error("Supabase Auth não configurado (VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY).");
-  }
+const getApiBaseUrl = () => {
+  const configured = String(import.meta.env.VITE_API_URL || "").trim();
+  if (!configured) return "";
+  if (/^https?:\/\//i.test(configured)) return configured.replace(/\/+$/, "");
+  return `https://${configured}`.replace(/\/+$/, "");
 };
 
-const isSessionMissingError = (error) => {
-  const message = String(error?.message || "").toLowerCase();
-  const name = String(error?.name || "").toLowerCase();
-  return (
-    message.includes("auth session missing") ||
-    name.includes("authsessionmissingerror") ||
-    error?.status === 400
-  );
+const request = async (path, { method = "GET", body, token } = {}) => {
+  const response = await fetch(`${getApiBaseUrl()}${path}`, {
+    method,
+    headers: {
+      ...(body ? { "Content-Type": "application/json" } : {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(payload?.message || `Falha em ${method} ${path}`);
+  }
+  return payload;
+};
+
+const emitAuthChange = () => {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("erp-auth-changed"));
 };
 
 export const AuthApi = {
+  getToken() {
+    try {
+      return localStorage.getItem(AUTH_TOKEN_KEY) || null;
+    } catch {
+      return null;
+    }
+  },
+
+  setToken(token) {
+    if (!token) return;
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    emitAuthChange();
+  },
+
+  getSelectedEmpresaId() {
+    try {
+      return localStorage.getItem(EMPRESA_SELECTION_KEY) || null;
+    } catch {
+      return null;
+    }
+  },
+
+  setSelectedEmpresaId(empresaId) {
+    if (!empresaId) {
+      localStorage.removeItem(EMPRESA_SELECTION_KEY);
+    } else {
+      localStorage.setItem(EMPRESA_SELECTION_KEY, empresaId);
+    }
+    emitAuthChange();
+  },
+
+  clearSession() {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(EMPRESA_SELECTION_KEY);
+    emitAuthChange();
+  },
+
   isConfigured() {
-    return isSupabaseConfigured;
+    return true;
+  },
+
+  async login(credentials) {
+    const payload = await request("/api/auth/login", {
+      method: "POST",
+      body: credentials,
+    });
+
+    if (payload?.token) {
+      this.setToken(payload.token);
+    }
+    if (payload?.selectedEmpresaId) {
+      this.setSelectedEmpresaId(payload.selectedEmpresaId);
+    }
+    return payload;
   },
 
   async getCurrentUser() {
-    assertSupabaseAuthConfig();
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-    if (sessionError && !isSessionMissingError(sessionError)) throw sessionError;
-    if (!sessionData?.session?.access_token) return null;
-
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.getUser(sessionData.session.access_token);
-    if (error && !isSessionMissingError(error)) throw error;
-    if (error && isSessionMissingError(error)) return null;
-    return user || null;
+    const session = await this.getSession();
+    return session?.user || null;
   },
 
   async getSession() {
-    assertSupabaseAuthConfig();
-    const { data, error } = await supabase.auth.getSession();
-    if (error) throw error;
-    return data;
+    const token = this.getToken();
+    if (!token) return null;
+    return request("/api/auth/session", {
+      method: "GET",
+      token,
+    });
   },
 
-  async signInWithPassword({ email, password }) {
-    assertSupabaseAuthConfig();
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    return data;
+  async listEmpresas() {
+    const token = this.getToken();
+    if (!token) return [];
+    const payload = await request("/api/auth/empresas", {
+      method: "GET",
+      token,
+    });
+    return payload?.empresas || [];
   },
 
   async logout() {
-    assertSupabaseAuthConfig();
-    const { error } = await supabase.auth.signOut();
-    if (error && !isSessionMissingError(error)) throw error;
+    this.clearSession();
     return true;
   },
 
   onAuthStateChange(callback) {
-    assertSupabaseAuthConfig();
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      callback(_event, session);
-    });
-    return { unsubscribe: () => data.subscription.unsubscribe() };
+    const handler = () => callback("session_changed");
+    window.addEventListener("erp-auth-changed", handler);
+    return {
+      unsubscribe: () => {
+        window.removeEventListener("erp-auth-changed", handler);
+      },
+    };
   },
 };
