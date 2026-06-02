@@ -225,9 +225,12 @@ input[type="number"] {
   --emp-text-strong: #0f172a;
   --emp-control-radius: 5px;
   --emp-accent-green: #21c45d;
+  --emp-accent-primary: #2563eb;
+  --emp-accent-primary-hover: #1d4ed8;
   --emp-toolbar-btn-bg: #eaf2ff;
   --emp-toolbar-btn-bg-hover: #dde9fb;
   --emp-toolbar-btn-fg: #0f172a;
+  --emp-table-frame-border: #e8edf3;
   color: var(--emp-text);
 }
 
@@ -976,7 +979,7 @@ input[type="number"] {
 /* Tabela profissional — mockup Cadastro de Empresas */
 .cadastro-emp-scope .emp-table-shell {
   border-radius: 6px !important;
-  border: 0.5px solid #c5ced8 !important;
+  border: 1px solid var(--emp-table-frame-border) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro {
@@ -1374,18 +1377,18 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
-  height: 24px !important;
-  min-height: 24px !important;
+  height: 28px !important;
+  min-height: 28px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-counter {
-  height: 24px !important;
-  min-height: 24px !important;
+  height: 28px !important;
+  min-height: 28px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto) {
-  width: 24px !important;
+  width: 28px !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto,
@@ -1469,7 +1472,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new {
-  background: var(--emp-accent-green) !important;
+  background: var(--emp-accent-primary) !important;
   border: none !important;
   color: #ffffff !important;
 }
@@ -1490,7 +1493,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:hover:not(:disabled) {
-  background: #1fb455 !important;
+  background: var(--emp-accent-primary-hover) !important;
   border: none !important;
   color: #ffffff !important;
   box-shadow: none !important;
@@ -1534,12 +1537,12 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
-  border-top: 0.5px solid #c5ced8 !important;
+  border-top: 1px solid var(--emp-table-frame-border) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
-  height: 24px !important;
-  min-height: 24px !important;
+  height: 28px !important;
+  min-height: 28px !important;
   font-size: 12px !important;
   border: none !important;
   border-radius: 5px !important;
@@ -1567,15 +1570,16 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pagination-btn.emp-table-pagination-page-active {
   border: none !important;
-  color: #6b9494 !important;
-  background: #ffffff !important;
+  color: #ffffff !important;
+  background: var(--emp-accent-primary) !important;
   box-shadow: none !important;
+  font-weight: 600 !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn.emp-table-pagination-page-active:hover {
   border: none !important;
-  color: #5d8585 !important;
-  background: #f8fcfc !important;
+  color: #ffffff !important;
+  background: var(--emp-accent-primary-hover) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-ellipsis {
@@ -1584,8 +1588,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-size {
-  height: 24px !important;
-  min-height: 24px !important;
+  height: 28px !important;
+  min-height: 28px !important;
   font-size: 12px !important;
   box-shadow: none !important;
   color: #1a1f26 !important;
@@ -2005,11 +2009,35 @@ input[type="number"] {
   --erp-nav-active-bg: #2563eb;
   --erp-nav-active-fg: #ffffff;
   --erp-page-bg: #f3f5f8;
+  --erp-sidebar-bg: #f8fafc;
+  --erp-sidebar-submenu-bg: #f1f5f9;
 }
 
 .erp-shell .erp-sidebar,
 .erp-shell [data-sidebar="sidebar"] {
-  background: #ffffff;
+  background: var(--erp-sidebar-bg) !important;
+}
+
+.erp-shell .erp-sidebar-content,
+.erp-shell .erp-sidebar-footer {
+  background: var(--erp-sidebar-bg);
+}
+
+.erp-shell .erp-sidebar-submenu,
+.erp-shell .erp-sidebar-submenu-list {
+  background: var(--erp-sidebar-submenu-bg);
+  border-radius: 6px;
+  margin: 0 4px 4px;
+  padding-bottom: 4px !important;
+}
+
+.erp-shell .erp-sidebar-brand {
+  background: var(--erp-sidebar-bg);
+}
+
+.erp-shell .erp-sidebar [data-sidebar="header"] {
+  background: var(--erp-sidebar-bg);
+  border-bottom-color: #e8edf3 !important;
 }
 
 .erp-shell .erp-sidebar-link[data-active="true"],
@@ -2028,7 +2056,7 @@ input[type="number"] {
 .erp-shell .erp-sidebar-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-sub-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-group-trigger:hover {
-  background: #f1f5f9 !important;
+  background: #e8eef5 !important;
   color: #0f172a !important;
 }
 
@@ -2041,7 +2069,8 @@ input[type="number"] {
 }
 
 .erp-shell-content-card {
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  border-color: #e8edf3 !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-separator"] svg,

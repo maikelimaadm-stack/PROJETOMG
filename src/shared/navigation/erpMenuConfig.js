@@ -22,15 +22,8 @@ generatedModules.forEach((module) => {
   }
 });
 
+/** Apenas módulos já implementados no sistema. */
 export const ERP_MENU_SECTIONS = [
-  {
-    id: "dashboard",
-    type: "link",
-    label: "Dashboard",
-    icon: "layout-dashboard",
-    routePath: "/dashboard",
-    disabled: true,
-  },
   {
     id: "cadastros",
     type: "group",
@@ -45,42 +38,6 @@ export const ERP_MENU_SECTIONS = [
         moduleId: "empresas",
       },
       {
-        id: "clientes",
-        label: "Clientes",
-        routePath: "/cadastros/clientes",
-        disabled: true,
-      },
-      {
-        id: "fornecedores",
-        label: "Fornecedores",
-        routePath: "/cadastros/fornecedores",
-        disabled: true,
-      },
-      {
-        id: "produtos",
-        label: "Produtos",
-        routePath: "/cadastros/produtos",
-        disabled: true,
-      },
-      {
-        id: "servicos",
-        label: "Serviços",
-        routePath: "/cadastros/servicos",
-        disabled: true,
-      },
-      {
-        id: "funcionarios",
-        label: "Funcionários",
-        routePath: "/cadastros/funcionarios",
-        disabled: true,
-      },
-      {
-        id: "transportadoras",
-        label: "Transportadoras",
-        routePath: "/cadastros/transportadoras",
-        disabled: true,
-      },
-      {
         id: "campos_personalizados",
         label: "Campos Personalizados",
         routePath: moduleById.campos?.routePath || "/CadastroCamposPersonalizados",
@@ -88,78 +45,7 @@ export const ERP_MENU_SECTIONS = [
       },
     ],
   },
-  {
-    id: "financeiro",
-    type: "group",
-    label: "Financeiro",
-    icon: "wallet",
-    defaultOpen: false,
-    items: [],
-    disabled: true,
-  },
-  {
-    id: "estoque",
-    type: "group",
-    label: "Estoque",
-    icon: "boxes",
-    defaultOpen: false,
-    items: [],
-    disabled: true,
-  },
-  {
-    id: "vendas",
-    type: "group",
-    label: "Vendas",
-    icon: "shopping-cart",
-    defaultOpen: false,
-    items: [],
-    disabled: true,
-  },
-  {
-    id: "compras",
-    type: "group",
-    label: "Compras",
-    icon: "shopping-bag",
-    defaultOpen: false,
-    items: [],
-    disabled: true,
-  },
-  {
-    id: "fiscal",
-    type: "group",
-    label: "Fiscal",
-    icon: "file-text",
-    defaultOpen: false,
-    items: [],
-    disabled: true,
-  },
-  {
-    id: "relatorios",
-    type: "group",
-    label: "Relatórios",
-    icon: "bar-chart-3",
-    defaultOpen: false,
-    items: [],
-    disabled: true,
-  },
-  {
-    id: "configuracoes",
-    type: "group",
-    label: "Configurações",
-    icon: "settings",
-    defaultOpen: false,
-    items: [],
-    disabled: true,
-  },
 ];
-
-export const ERP_SUPPORT_LINK = {
-  id: "suporte",
-  label: "Suporte",
-  icon: "help-circle",
-  routePath: "/suporte",
-  disabled: true,
-};
 
 export const resolveErpRouteMeta = (pathname) => {
   const normalized = pathname === "/" ? "/CadastroEmpresas" : pathname;

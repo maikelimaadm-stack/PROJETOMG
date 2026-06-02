@@ -121,9 +121,9 @@ export default function ErpShell({
   return (
     <SidebarProvider defaultOpen>
       <div className="erp-shell flex min-h-svh w-full bg-[#f3f5f8]">
-        <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-slate-200 bg-white">
-          <SidebarHeader className="border-b border-slate-200 p-0">
-            <Link to="/CadastroEmpresas" className="block hover:opacity-95">
+        <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[#e8edf3] bg-[#f8fafc]">
+          <SidebarHeader className="border-b border-[#e8edf3] p-0">
+            <Link to="/CadastroEmpresas" className="erp-sidebar-brand block hover:opacity-95">
               <ErpBrand />
             </Link>
           </SidebarHeader>

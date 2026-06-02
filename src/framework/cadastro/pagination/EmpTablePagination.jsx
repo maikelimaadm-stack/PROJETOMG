@@ -30,7 +30,7 @@ const getVisiblePages = (currentPage, totalPages) => {
 const PaginationBtn = ({ children, className = "", active = false, ...props }) => (
   <button
     type="button"
-    className={`${PAGINATION_BTN_BASE} h-6 min-h-6 ${active ? "emp-table-pagination-page-active" : ""} ${className}`}
+    className={`${PAGINATION_BTN_BASE} h-7 min-h-7 ${active ? "emp-table-pagination-page-active" : ""} ${className}`}
     {...props}
   >
     {children}
@@ -50,13 +50,13 @@ export default function EmpTablePagination({
   const pageItems = useMemo(() => getVisiblePages(safePage, totalPages), [safePage, totalPages]);
 
   return (
-    <div className="emp-table-pagination flex shrink-0 items-center justify-between gap-2 border-t border-[#eef1f4] bg-white px-2 py-1">
+    <div className="emp-table-pagination flex shrink-0 items-center justify-between gap-2 border-t border-[#e8edf3] bg-white px-2 py-1.5">
       <div className="flex shrink-0 items-center">
         {onToggleFullscreen ? (
           <PaginationBtn
             type="button"
             onClick={onToggleFullscreen}
-            className="emp-table-fullscreen-btn w-6 min-w-6 p-0"
+            className="emp-table-fullscreen-btn w-7 min-w-7 p-0"
             title={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
             aria-label={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
             aria-pressed={isFullscreen}
@@ -67,10 +67,10 @@ export default function EmpTablePagination({
       </div>
 
       <div className="flex shrink-0 items-center justify-end gap-1">
-      <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Primeira página" aria-label="Primeira página">
+      <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-7 min-w-7 p-0" title="Primeira página" aria-label="Primeira página">
         <ChevronsLeft className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
-      <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Página anterior" aria-label="Página anterior">
+      <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1} className="w-7 min-w-7 p-0" title="Página anterior" aria-label="Página anterior">
         <ChevronLeft className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
@@ -94,16 +94,16 @@ export default function EmpTablePagination({
         )
       )}
 
-      <PaginationBtn onClick={() => onPageChange?.(safePage + 1)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Próxima página" aria-label="Próxima página">
+      <PaginationBtn onClick={() => onPageChange?.(safePage + 1)} disabled={safePage >= totalPages} className="w-7 min-w-7 p-0" title="Próxima página" aria-label="Próxima página">
         <ChevronRight className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
-      <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Última página" aria-label="Última página">
+      <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} className="w-7 min-w-7 p-0" title="Última página" aria-label="Última página">
         <ChevronsRight className="h-3 w-3 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
         <SelectTrigger
-          className={`emp-table-pagination-size h-6 w-[110px] shrink-0 ${EMP_TOOLBAR_FIELD_BORDER} bg-white px-2 text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-white focus:ring-1 focus:ring-sky-300`}
+          className={`emp-table-pagination-size h-7 w-[118px] shrink-0 ${EMP_TOOLBAR_FIELD_BORDER} bg-white px-2 text-[12px] font-normal text-[#1a1f26] shadow-none hover:bg-white focus:ring-1 focus:ring-sky-300`}
           aria-label="Registros por página"
         >
           <SelectValue />
