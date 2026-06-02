@@ -230,9 +230,11 @@ input[type="number"] {
   --emp-toolbar-btn-bg: #eaf2ff;
   --emp-toolbar-btn-bg-hover: #dde9fb;
   --emp-toolbar-btn-fg: #0f172a;
-  --emp-table-frame-border: #e8edf3;
-  --emp-table-band-bg: #f5f7f9;
-  --emp-table-line: #ebeef2;
+  --emp-table-frame-border: #e8e8e8;
+  --emp-surface-bg: #f5f5f5;
+  --emp-table-band-bg: #f5f5f5;
+  --emp-table-row-alt-bg: #fafafa;
+  --emp-table-line: #ececec;
   color: var(--emp-text);
 }
 
@@ -1089,12 +1091,12 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
-  background: var(--emp-table-band-bg) !important;
+  background: var(--emp-table-row-alt-bg) !important;
   color: #344054 !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
-  background: #f0f2f5 !important;
+  background: #f0f0f0 !important;
   color: #1a1f26 !important;
   font-weight: 600;
 }
@@ -1560,6 +1562,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
   border-top: 1px solid var(--emp-table-frame-border) !important;
+  background: var(--emp-surface-bg) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn {
@@ -1632,8 +1635,8 @@ input[type="number"] {
   box-shadow: none !important;
   color: #94a3b8 !important;
   font-weight: 400 !important;
-  background: #fafbfc !important;
-  border-color: #e8edf3 !important;
+  background: #ffffff !important;
+  border-color: var(--emp-table-frame-border) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-size span,
@@ -2048,9 +2051,11 @@ input[type="number"] {
 .erp-shell {
   --erp-nav-active-bg: #2563eb;
   --erp-nav-active-fg: #ffffff;
-  --erp-page-bg: #f3f5f8;
-  --erp-sidebar-bg: #f8fafc;
-  --erp-sidebar-submenu-bg: #f1f5f9;
+  --erp-surface-bg: #f5f5f5;
+  --erp-page-bg: #f5f5f5;
+  --erp-sidebar-bg: #f5f5f5;
+  --erp-sidebar-submenu-bg: #f5f5f5;
+  --erp-border: #e8e8e8;
 }
 
 .erp-shell .erp-sidebar,
@@ -2077,7 +2082,7 @@ input[type="number"] {
 
 .erp-shell .erp-sidebar [data-sidebar="header"] {
   background: var(--erp-sidebar-bg);
-  border-bottom-color: #e8edf3 !important;
+  border-bottom-color: #e8e8e8 !important;
 }
 
 .erp-shell .erp-sidebar-link[data-active="true"],
@@ -2096,7 +2101,7 @@ input[type="number"] {
 .erp-shell .erp-sidebar-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-sub-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-group-trigger:hover {
-  background: #e8eef5 !important;
+  background: #ebebeb !important;
   color: #0f172a !important;
 }
 
@@ -2110,7 +2115,18 @@ input[type="number"] {
 
 .erp-shell-content-card {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
-  border-color: #e8edf3 !important;
+  border-color: var(--erp-border) !important;
+  background: var(--erp-surface-bg) !important;
+}
+
+.erp-shell .cadastro-emp-scope {
+  border-radius: inherit;
+  background: var(--emp-surface-bg, #f5f5f5) !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-table-stage,
+.erp-shell .cadastro-emp-scope .emp-table-shell {
+  background: var(--emp-surface-bg, #f5f5f5) !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-separator"] svg,
@@ -2134,8 +2150,4 @@ input[type="number"] {
 .erp-shell-trigger svg {
   width: 1rem;
   height: 1rem;
-}
-
-.erp-shell .cadastro-emp-scope {
-  border-radius: inherit;
 }
