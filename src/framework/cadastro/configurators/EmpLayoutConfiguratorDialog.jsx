@@ -784,7 +784,7 @@ export default function EmpLayoutConfiguratorDialog({
                         }}
                         className={`emp-form-tab relative min-w-max flex-none overflow-hidden whitespace-nowrap ${
                           active ? "emp-form-tab-active z-[15]" : "emp-form-tab-inactive z-[2]"
-                        } ${panel.hidden ? "emp-form-tab-hidden-panel opacity-70" : ""}`}
+                        } ${panel.hidden ? "emp-form-tab-hidden-panel" : ""}`}
                       >
                         {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
                         {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
