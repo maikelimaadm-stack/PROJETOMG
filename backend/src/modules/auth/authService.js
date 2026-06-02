@@ -1,11 +1,6 @@
 import bcrypt from "bcryptjs";
 import { getPrismaClient } from "../../database/prismaClient.js";
 
-const DEMO_CLIENTE_CODIGO = "demo";
-const DEMO_CLIENTE_NOME = "Cliente Demo";
-const DEMO_LOGIN = "demo";
-const DEMO_PASSWORD = "123";
-
 const sanitizeUser = (user) => ({
   id: user.id,
   cliente_id: user.cliente_id,
@@ -24,71 +19,6 @@ const normalizeCredentials = ({ cliente, usuario }) => ({
   clienteCodigo: String(cliente || "").trim().toLowerCase(),
   login: String(usuario || "").trim().toLowerCase(),
 });
-
-export const ensureDemoIdentity = async () => {
-  const prisma = getPrismaClient();
-  const cliente = await prisma.cliente.upsert({
-    where: { codigo: DEMO_CLIENTE_CODIGO },
-    create: {
-      id: DEMO_CLIENTE_CODIGO,
-      codigo: DEMO_CLIENTE_CODIGO,
-      nome: DEMO_CLIENTE_NOME,
-      ativo: true,
-    },
-    update: {
-      nome: DEMO_CLIENTE_NOME,
-      ativo: true,
-    },
-  });
-
-  const senhaHash = await bcrypt.hash(DEMO_PASSWORD, 10);
-  const usuario = await prisma.usuario.upsert({
-    where: {
-      cliente_id_login: {
-        cliente_id: cliente.id,
-        login: DEMO_LOGIN,
-      },
-    },
-    create: {
-      cliente_id: cliente.id,
-      login: DEMO_LOGIN,
-      senha_hash: senhaHash,
-      perfil: "ADMIN",
-      acesso_global: true,
-      ativo: true,
-    },
-    update: {
-      senha_hash: senhaHash,
-      perfil: "ADMIN",
-      acesso_global: true,
-      ativo: true,
-    },
-  });
-
-  const existingEmpresa = await prisma.empresa.findFirst({
-    where: { cliente_id: cliente.id },
-    orderBy: { codempresa: "asc" },
-    select: { id: true },
-  });
-
-  if (!existingEmpresa) {
-    await prisma.empresa.create({
-      data: {
-        cliente_id: cliente.id,
-        tenant_id: cliente.id,
-        codempresa: 1,
-        razao_social: "EMPRESA DEMO",
-        nome_fantasia: "EMPRESA DEMO",
-        status: "Ativa",
-      },
-    });
-  }
-
-  return {
-    cliente,
-    usuario: sanitizeUser(usuario),
-  };
-};
 
 const fetchEmpresasPermitidas = async (usuario) => {
   const prisma = getPrismaClient();
@@ -125,8 +55,6 @@ const fetchEmpresasPermitidas = async (usuario) => {
 
 export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
   const prisma = getPrismaClient();
-  await ensureDemoIdentity();
-
   const { clienteCodigo, login } = normalizeCredentials({ cliente, usuario });
 
   const clienteData = await prisma.cliente.findFirst({
@@ -201,4 +129,3 @@ export const createSessionTokenPayload = (session) => ({
 });
 
 export const sanitizeSessionUser = sanitizeUser;
-

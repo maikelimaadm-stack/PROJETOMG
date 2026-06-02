@@ -7,7 +7,6 @@ import fastifyRateLimit from "@fastify/rate-limit";
 import { registerRoutes } from "./routes/index.js";
 import { closePrismaClient } from "./database/prismaClient.js";
 import { validateRuntimeEnv } from "./config/env.js";
-import { ensureDemoIdentity } from "./modules/auth/authService.js";
 
 dotenv.config();
 try {
@@ -159,7 +158,6 @@ const start = async () => {
   const port = resolvePort();
 
   try {
-    await ensureDemoIdentity();
     await app.listen({ host, port });
     app.log.info(`Backend ativo em http://${host}:${port}`);
   } catch (error) {

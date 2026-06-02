@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { SMOKE_CLIENTE, SMOKE_SENHA, SMOKE_USUARIO, smokeLoginBody } from "./smokeCredentials.js";
 
 dotenv.config();
 
@@ -26,13 +27,13 @@ const requestJson = async (path, { method = "GET", token, empresaId, body } = {}
   return { status: response.status, ok: response.ok, payload };
 };
 
-const login = async ({ cliente = "demo", usuario = "demo", senha = "123" } = {}) => {
+const login = async (overrides = {}) => {
   const { ok, payload, status } = await requestJson("/api/auth/login", {
     method: "POST",
-    body: { cliente, usuario, senha },
+    body: smokeLoginBody(overrides),
   });
   if (!ok) {
-    throw new Error(`login ${cliente}/${usuario} falhou (${status}): ${payload?.message || "sem payload"}`);
+    throw new Error(`login ${overrides.cliente || SMOKE_CLIENTE}/${overrides.usuario || SMOKE_USUARIO} falhou (${status}): ${payload?.message || "sem payload"}`);
   }
   return payload;
 };
@@ -76,22 +77,22 @@ const run = async () => {
   assert(createEmpresaB.ok, `Falha ao criar empresa B: ${createEmpresaB.payload?.message || createEmpresaB.status}`);
   const empresaB = createEmpresaB.payload.item;
 
-  const clienteDemo = await prisma.cliente.findFirst({
-    where: { codigo: { equals: "demo", mode: "insensitive" } },
+  const clienteSeed = await prisma.cliente.findFirst({
+    where: { codigo: { equals: SMOKE_CLIENTE, mode: "insensitive" } },
     select: { id: true },
   });
-  assert(clienteDemo?.id, "Cliente demo não encontrado.");
+  assert(clienteSeed?.id, `Cliente "${SMOKE_CLIENTE}" não encontrado. Execute npm run seed.`);
 
   const senhaHash = await bcrypt.hash(senhaPlano, 10);
   const restritoUser = await prisma.usuario.upsert({
     where: {
       cliente_id_login: {
-        cliente_id: clienteDemo.id,
+        cliente_id: clienteSeed.id,
         login: restritoLogin,
       },
     },
     create: {
-      cliente_id: clienteDemo.id,
+      cliente_id: clienteSeed.id,
       login: restritoLogin,
       senha_hash: senhaHash,
       perfil: "OPERADOR",
@@ -112,7 +113,6 @@ const run = async () => {
   });
 
   const restritoSession = await login({
-    cliente: "demo",
     usuario: restritoLogin,
     senha: senhaPlano,
   });

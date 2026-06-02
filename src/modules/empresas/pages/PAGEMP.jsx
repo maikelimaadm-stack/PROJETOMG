@@ -31,6 +31,13 @@ const moduleLabels = {
   title: `Cadastro de ${empresasModuleDefinition.pluralLabel}`,
 };
 
+const patchEmpresasCache = (queryClient, updater) => {
+  queryClient.setQueriesData({ queryKey: ["emp-cadastro"] }, (previous) => {
+    if (!previous?.items) return previous;
+    return updater(previous);
+  });
+};
+
 export default function PAGEMP() {
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
@@ -94,12 +101,11 @@ export default function PAGEMP() {
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = false;
 
-  const stayOnRecordAfterSave = useCallback(async (savedRecord) => {
+  const stayOnRecordAfterSave = useCallback((savedRecord) => {
     const normalized = normalizeEmpresaRecord(savedRecord);
     const savedId = normalized?.id;
-    const savedCodigo = Number(normalized?.codempresa);
 
-    if (!savedId && !(Number.isFinite(savedCodigo) && savedCodigo > 0)) {
+    if (!savedId) {
       setShowForm(true);
       setViewMode("record");
       return;
@@ -107,29 +113,30 @@ export default function PAGEMP() {
 
     setReturnRecordAfterNew(null);
     setEditingEmp(normalized);
-    if (savedId) setSelectedTableItems([savedId]);
+    setSelectedTableItems([savedId]);
     setShowForm(true);
     setViewMode("record");
 
-    await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
-
-    const latestPage = await queryClient.fetchQuery({
-      queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
-      queryFn: () =>
-        moduleRepository.listPage({
-          page: queryPage,
-          pageSize: queryPageSize,
-          search: searchTerm,
-          sortBy: querySort.key,
-          sortDir: querySort.direction,
-        }),
+    patchEmpresasCache(queryClient, (previous) => {
+      const exists = previous.items.some((item) => item.id === savedId);
+      const items = exists
+        ? previous.items.map((item) => (item.id === savedId ? { ...item, ...normalized } : item))
+        : [normalized, ...previous.items];
+      return {
+        ...previous,
+        items,
+        total: exists ? previous.total : previous.total + 1,
+      };
     });
-    const list = latestPage.items || [];
-    const { fresh, navIndex } = refreshNavRecord(list, normalized);
-    setEditingEmp(fresh);
-    if (fresh?.id) setSelectedTableItems([fresh.id]);
+
+    const navList = tableFilteredEmpresas ?? empresasFiltradasPainel;
+    const navIndex = navList.findIndex(
+      (item) => item.id === savedId || Number(item.codempresa) === Number(normalized.codempresa)
+    );
     if (navIndex >= 0) setSelectedIndex(navIndex);
-  }, [queryClient, refreshNavRecord, queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction]);
+
+    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+  }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel]);
 
   const handleSubmit = useCallback(async (data) => {
     const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
@@ -147,8 +154,8 @@ export default function PAGEMP() {
         toast.success(`${moduleLabels.singular} cadastrada!`);
       }
 
-      await stayOnRecordAfterSave(savedRecord);
-      setFormVersion((version) => version + 1);
+      stayOnRecordAfterSave(savedRecord);
+      if (!isUpdate) setFormVersion((version) => version + 1);
     } catch (error) {
       toast.error(
         resolveErrorMessage(
@@ -278,20 +285,13 @@ export default function PAGEMP() {
       setAttachmentsRecord(null);
     }
 
-    await queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+    patchEmpresasCache(queryClient, (previous) => ({
+      ...previous,
+      items: previous.items.filter((item) => !ids.includes(item.id)),
+      total: Math.max(0, previous.total - ids.length),
+    }));
 
-    const latestPage = await queryClient.fetchQuery({
-      queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
-      queryFn: () =>
-        moduleRepository.listPage({
-          page: queryPage,
-          pageSize: queryPageSize,
-          search: searchTerm,
-          sortBy: querySort.key,
-          sortDir: querySort.direction,
-        }),
-    });
-    const list = latestPage.items || [];
+    const list = navListBeforeDelete.filter((item) => !ids.includes(item.id));
 
     if (deletedCurrentFromForm) {
       const remainingNav = navListBeforeDelete
@@ -348,6 +348,8 @@ export default function PAGEMP() {
         ? `${moduleLabels.singular} excluída!`
         : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
     );
+
+    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
   };
 
   const handleExportPdf = () => {

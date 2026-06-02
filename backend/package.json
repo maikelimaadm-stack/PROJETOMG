@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "start:prod": "NODE_ENV=production node src/server.js",
+    "start:prod": "node scripts/seedBootstrap.js && NODE_ENV=production node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:normalize-codes": "node scripts/normalizeEmpresaCodes.js",
+    "seed": "node scripts/seedBootstrap.js",
+    "prisma:seed": "node scripts/seedBootstrap.js",
     "validate:connections": "node scripts/validateConnections.js",
     "smoke:empresas": "node scripts/smokeEmpresas.js",
     "smoke:auth-permissoes": "node scripts/smokeAuthPermissoes.js",
@@ -18,7 +20,7 @@
     "migrate:codempresa": "node scripts/renameCodempresaColumns.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
     "security:multiempresa": "node scripts/securityMultiempresaProbe.js",
-    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run ensure:campos-indexes && npm run smoke:empresas && npm run smoke:auth-permissoes && npm run smoke:campos && npm run smoke:campos-tipos && npm run security:multiempresa",
+    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run seed && npm run ensure:campos-indexes && npm run smoke:empresas && npm run smoke:auth-permissoes && npm run smoke:campos && npm run smoke:campos-tipos && npm run security:multiempresa",
     "docker:build": "docker build -t mak-gestao-backend ."
   },
   "dependencies": {
@@ -36,5 +38,8 @@
   },
   "devDependencies": {
     "prisma": "^6.9.0"
+  },
+  "prisma": {
+    "seed": "node scripts/seedBootstrap.js"
   }
 }
