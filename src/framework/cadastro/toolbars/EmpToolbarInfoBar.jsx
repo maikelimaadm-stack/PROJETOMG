@@ -1,24 +1,11 @@
 import React from "react";
-import { ChevronRight, Copy, Eye, Pencil, Plus } from "lucide-react";
+import { ChevronRight } from "lucide-react";
+import { getOperationBadge } from "@/shared/layouts/erpOperationBadge";
 
 const titleCase = (value) =>
   String(value || "")
     .toLowerCase()
     .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
-
-const getOperationBadge = (operationLabel) => {
-  const normalized = String(operationLabel || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toUpperCase();
-
-  if (normalized.includes("VISUALIZ")) return { Icon: Eye, label: "Visualização" };
-  if (normalized.includes("EDICAO")) return { Icon: Pencil, label: "Edição" };
-  if (normalized.includes("DUPLICAD")) return { Icon: Copy, label: "Duplicado" };
-  if (normalized.includes("NOVO")) return { Icon: Plus, label: "Novo" };
-
-  return { Icon: Eye, label: titleCase(operationLabel || "Visualização") };
-};
 
 export default function EmpToolbarInfoBar({
   badgeLabel = "EMPRESA",

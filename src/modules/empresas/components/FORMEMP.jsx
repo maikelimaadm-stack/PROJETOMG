@@ -5,6 +5,7 @@ import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
+import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
@@ -420,6 +421,32 @@ export default function FORMEMP({
   };
 
   const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";
+  const { setPageHeader, clearPageHeader } = useErpPageHeader();
+
+  useEffect(() => {
+    if (layoutConfigOpen) {
+      setPageHeader({
+        recordCode: formData.codempresa || null,
+        operationLabel: "Configuração",
+        contextSuffix: "Layout do formulário",
+      });
+      return;
+    }
+
+    setPageHeader({
+      recordCode: formData.codempresa || null,
+      operationLabel,
+      contextSuffix: fieldLayoutConfigOpen ? "Layout de campos" : null,
+    });
+  }, [
+    formData.codempresa,
+    operationLabel,
+    layoutConfigOpen,
+    fieldLayoutConfigOpen,
+    setPageHeader,
+  ]);
+
+  useEffect(() => () => clearPageHeader(), [clearPageHeader]);
 
   if (layoutConfigOpen) {
     return (
@@ -485,9 +512,6 @@ export default function FORMEMP({
           }
         `}</style>
         <LegacyRecordToolbar
-          title={`${formData.codempresa ? `${formData.codempresa} - ` : ""}${formData.razao_social || (isDuplicating ? "Duplicar empresa" : isEditing ? "Editar empresa" : "Nova empresa")}`}
-          badgeLabel="EMPRESA"
-          operationLabel={operationLabel}
           showSaveActions={editMode}
           showEditAction={isReadOnly}
           showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}

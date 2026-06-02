@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
-import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -148,8 +147,6 @@ export default function EmpRecordToolbar({
           />
         </div>
       </div>
-
-      <EmpToolbarInfoBar badgeLabel={badgeLabel} title={title} operationLabel={operationLabel} />
     </div>
   );
 }

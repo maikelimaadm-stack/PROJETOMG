@@ -16,6 +16,8 @@ import {
   SidebarTrigger,
 } from "@/shared/ui/sidebar";
 import ErpSidebarNav from "@/shared/layouts/ErpSidebarNav";
+import { ErpPageHeaderProvider, useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
+import { getOperationBadge } from "@/shared/layouts/erpOperationBadge";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
@@ -79,21 +81,45 @@ function ErpTopHeader({
   );
 }
 
-function ErpBreadcrumbs({ pathname }) {
-  const crumbs = buildErpBreadcrumbs(pathname);
+function ErpOperationBadge({ operationLabel }) {
+  if (!operationLabel) return null;
+  const { Icon, label } = getOperationBadge(operationLabel);
 
   return (
-    <div className="erp-shell-breadcrumbs shrink-0 px-1 py-3">
-      <Breadcrumb>
+    <span className="erp-shell-operation-badge inline-flex shrink-0 items-center gap-1 text-xs font-medium text-slate-500 whitespace-nowrap">
+      <Icon className="h-3.5 w-3.5 shrink-0 text-slate-400" strokeWidth={2} aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+function ErpBreadcrumbs({ pathname }) {
+  const { header } = useErpPageHeader();
+  const crumbs = buildErpBreadcrumbs(pathname);
+  const trail = [...crumbs];
+
+  if (header.recordCode) {
+    trail.push({ label: String(header.recordCode), isCode: true });
+  }
+
+  if (header.contextSuffix) {
+    trail.push({ label: header.contextSuffix });
+  }
+
+  return (
+    <div className="erp-shell-breadcrumbs flex shrink-0 items-center justify-between gap-3 px-1 py-3">
+      <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="text-xs text-slate-500">
-          {crumbs.map((crumb, index) => {
-            const isLast = index === crumbs.length - 1;
+          {trail.map((crumb, index) => {
+            const isLast = index === trail.length - 1;
             return (
               <React.Fragment key={`${crumb.label}-${index}`}>
                 {index > 0 ? <BreadcrumbSeparator /> : null}
                 <BreadcrumbItem>
                   {isLast ? (
-                    <BreadcrumbPage className="text-xs font-medium text-slate-700">
+                    <BreadcrumbPage
+                      className={`text-xs font-medium ${crumb.isCode ? "text-slate-600 tabular-nums" : "text-slate-700"}`}
+                    >
                       {crumb.label}
                     </BreadcrumbPage>
                   ) : (
@@ -105,11 +131,12 @@ function ErpBreadcrumbs({ pathname }) {
           })}
         </BreadcrumbList>
       </Breadcrumb>
+      <ErpOperationBadge operationLabel={header.operationLabel} />
     </div>
   );
 }
 
-export default function ErpShell({
+function ErpShellBody({
   children,
   pathname,
   onLogout,
@@ -119,35 +146,43 @@ export default function ErpShell({
   allowAllEmpresas,
 }) {
   return (
-    <SidebarProvider defaultOpen>
-      <div className="erp-shell flex min-h-svh w-full bg-[#f3f5f8]">
-        <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[#e8edf3] bg-[#f8fafc]">
-          <SidebarHeader className="border-b border-[#e8edf3] p-0">
-            <Link to="/CadastroEmpresas" className="erp-sidebar-brand block hover:opacity-95">
-              <ErpBrand />
-            </Link>
-          </SidebarHeader>
-          <ErpSidebarNav />
-          <SidebarRail />
-        </Sidebar>
+    <div className="erp-shell flex min-h-svh w-full bg-[#f3f5f8]">
+      <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[#e8edf3] bg-[#f8fafc]">
+        <SidebarHeader className="border-b border-[#e8edf3] p-0">
+          <Link to="/CadastroEmpresas" className="erp-sidebar-brand block hover:opacity-95">
+            <ErpBrand />
+          </Link>
+        </SidebarHeader>
+        <ErpSidebarNav />
+        <SidebarRail />
+      </Sidebar>
 
-        <SidebarInset className="erp-shell-main min-w-0 bg-[#f3f5f8]">
-          <ErpTopHeader
-            empresas={empresas}
-            selectedEmpresaId={selectedEmpresaId}
-            onSelectEmpresa={onSelectEmpresa}
-            allowAllEmpresas={allowAllEmpresas}
-            onLogout={onLogout}
-          />
+      <SidebarInset className="erp-shell-main min-w-0 bg-[#f3f5f8]">
+        <ErpTopHeader
+          empresas={empresas}
+          selectedEmpresaId={selectedEmpresaId}
+          onSelectEmpresa={onSelectEmpresa}
+          allowAllEmpresas={allowAllEmpresas}
+          onLogout={onLogout}
+        />
 
-          <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-1">
-            <ErpBreadcrumbs pathname={pathname} />
-            <div className="erp-shell-content-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
-              {children}
-            </div>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-1">
+          <ErpBreadcrumbs pathname={pathname} />
+          <div className="erp-shell-content-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-slate-200 bg-white shadow-sm">
+            {children}
           </div>
-        </SidebarInset>
-      </div>
+        </div>
+      </SidebarInset>
+    </div>
+  );
+}
+
+export default function ErpShell(props) {
+  return (
+    <SidebarProvider defaultOpen>
+      <ErpPageHeaderProvider>
+        <ErpShellBody {...props} />
+      </ErpPageHeaderProvider>
     </SidebarProvider>
   );
 }

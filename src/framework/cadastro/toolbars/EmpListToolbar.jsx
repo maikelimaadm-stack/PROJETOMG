@@ -4,7 +4,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
-import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 
 const titleCase = (value) => String(value || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
@@ -161,15 +160,6 @@ export default function EmpListToolbar({
           />
         </div>
       </div>
-
-      {viewMode === "record" && (
-        <EmpToolbarInfoBar
-          badgeLabel={recordLabel || "EMPRESA"}
-          title={title}
-          operationLabel={operationLabel || "Visualização de Registro"}
-          className="mt-1 px-1"
-        />
-      )}
     </div>
   );
 }
