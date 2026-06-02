@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { X } from "lucide-react";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,6 +18,11 @@ import {
 } from "@/shared/ui/sidebar";
 import ErpSidebarNav from "@/shared/layouts/ErpSidebarNav";
 import { ErpPageHeaderProvider, useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
+import {
+  ErpTableFullscreenProvider,
+  useErpTableFullscreen,
+} from "@/shared/layouts/ErpTableFullscreenContext";
+import { EmpFullscreenEnterIcon } from "@/framework/cadastro/pagination/EmpTableFullscreenIcon";
 import { getOperationBadge } from "@/shared/layouts/erpOperationBadge";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 
@@ -43,6 +49,8 @@ function ErpTopHeader({
   allowAllEmpresas,
   onLogout,
 }) {
+  const { visible: tableFullscreenVisible, isFullscreen, onToggle: onToggleTableFullscreen } =
+    useErpTableFullscreen();
   const selectorValue = selectedEmpresaId || (allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION);
 
   return (
@@ -70,13 +78,31 @@ function ErpTopHeader({
         </select>
       </div>
 
-      <button
-        type="button"
-        onClick={onLogout}
-        className="erp-shell-logout h-8 rounded-md border border-slate-300 bg-white px-3 text-xs text-slate-600 hover:bg-slate-50 hover:text-slate-800"
-      >
-        Sair
-      </button>
+      <div className="flex items-center gap-2">
+        {tableFullscreenVisible && onToggleTableFullscreen ? (
+          <button
+            type="button"
+            onClick={onToggleTableFullscreen}
+            className="erp-shell-table-fullscreen inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+            title={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
+            aria-label={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
+            aria-pressed={isFullscreen}
+          >
+            {isFullscreen ? (
+              <X className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+            ) : (
+              <EmpFullscreenEnterIcon className="h-3.5 w-3.5 shrink-0" />
+            )}
+          </button>
+        ) : null}
+        <button
+          type="button"
+          onClick={onLogout}
+          className="erp-shell-logout h-8 rounded-md border border-slate-300 bg-white px-3 text-xs text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+        >
+          Sair
+        </button>
+      </div>
     </header>
   );
 }
@@ -181,7 +207,9 @@ export default function ErpShell(props) {
   return (
     <SidebarProvider defaultOpen>
       <ErpPageHeaderProvider>
-        <ErpShellBody {...props} />
+        <ErpTableFullscreenProvider>
+          <ErpShellBody {...props} />
+        </ErpTableFullscreenProvider>
       </ErpPageHeaderProvider>
     </SidebarProvider>
   );

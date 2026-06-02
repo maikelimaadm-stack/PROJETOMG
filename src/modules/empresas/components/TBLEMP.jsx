@@ -7,6 +7,7 @@ import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
+import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import {
@@ -425,7 +426,7 @@ export default function TBLEMP({
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
   }, [syncTableFullscreen]);
 
-  const handleToggleTableFullscreen = async () => {
+  const handleToggleTableFullscreen = useCallback(async () => {
     const el = tableStageRef.current;
     if (!el) return;
     try {
@@ -434,7 +435,22 @@ export default function TBLEMP({
     } catch {
       /* navegador sem suporte */
     }
-  };
+  }, []);
+
+  const { registerTableFullscreen, unregisterTableFullscreen } = useErpTableFullscreen();
+
+  useEffect(() => {
+    registerTableFullscreen({
+      onToggle: handleToggleTableFullscreen,
+      isFullscreen: isTableFullscreen,
+    });
+    return () => unregisterTableFullscreen();
+  }, [
+    registerTableFullscreen,
+    unregisterTableFullscreen,
+    handleToggleTableFullscreen,
+    isTableFullscreen,
+  ]);
 
   const handleTableKeyDown = (e) => {
     if (e.key === "Escape" && document.fullscreenElement === tableStageRef.current) return;
@@ -887,8 +903,6 @@ export default function TBLEMP({
               pageSize={pageSize}
               onPageChange={handlePageChange}
               onPageSizeChange={handlePageSizeChange}
-              isFullscreen={isTableFullscreen}
-              onToggleFullscreen={handleToggleTableFullscreen}
             />
           </div>
         </CardContent>

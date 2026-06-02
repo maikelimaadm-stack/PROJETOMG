@@ -435,11 +435,11 @@ export default function FORMEMP({
   }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
 
   useEffect(() => {
-    if (layoutConfigOpen) {
+    if (layoutConfigOpen || fieldLayoutConfigOpen) {
       setPageHeader({
-        recordTitle: recordHeaderTitle,
+        recordTitle: null,
         operationLabel: "Configuração",
-        contextSuffix: "Layout do formulário",
+        contextSuffix: "Configuração de layout",
       });
       return;
     }
@@ -447,7 +447,7 @@ export default function FORMEMP({
     setPageHeader({
       recordTitle: recordHeaderTitle,
       operationLabel,
-      contextSuffix: fieldLayoutConfigOpen ? "Layout de campos" : null,
+      contextSuffix: null,
     });
   }, [
     recordHeaderTitle,

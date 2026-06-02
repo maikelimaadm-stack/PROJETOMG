@@ -1,13 +1,12 @@
 import React, { useMemo } from "react";
-import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, X } from "lucide-react";
+import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { EMP_TOOLBAR_BTN_SHAPE, EMP_TOOLBAR_FIELD_BORDER } from "@/framework/cadastro/toolbars/empToolbarStyles";
-import { EmpFullscreenEnterIcon } from "@/framework/cadastro/pagination/EmpTableFullscreenIcon";
 
 export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 
 const PAGINATION_BTN_BASE =
-  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} bg-[#eaf2ff] text-[12px] font-normal text-[#0f172a] shadow-none hover:bg-[#dde9fb] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
+  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} bg-[#eaf2ff] text-[12px] font-normal shadow-none hover:bg-[#dde9fb] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
 
 const getVisiblePages = (currentPage, totalPages) => {
   if (totalPages <= 0) return [];
@@ -30,7 +29,7 @@ const getVisiblePages = (currentPage, totalPages) => {
 const PaginationBtn = ({ children, className = "", active = false, ...props }) => (
   <button
     type="button"
-    className={`${PAGINATION_BTN_BASE} h-7 min-h-7 ${active ? "emp-table-pagination-page-active" : ""} ${className}`}
+    className={`${PAGINATION_BTN_BASE} h-7 min-h-7 ${active ? "emp-table-pagination-page-active text-white" : "text-[#0f172a]"} ${className}`}
     {...props}
   >
     {children}
@@ -43,29 +42,12 @@ export default function EmpTablePagination({
   pageSize = 50,
   onPageChange,
   onPageSizeChange,
-  isFullscreen = false,
-  onToggleFullscreen,
 }) {
   const safePage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
   const pageItems = useMemo(() => getVisiblePages(safePage, totalPages), [safePage, totalPages]);
 
   return (
-    <div className="emp-table-pagination flex shrink-0 items-center justify-between gap-2 border-t border-[#e8edf3] bg-white px-2 py-1.5">
-      <div className="flex shrink-0 items-center">
-        {onToggleFullscreen ? (
-          <PaginationBtn
-            type="button"
-            onClick={onToggleFullscreen}
-            className="emp-table-fullscreen-btn w-7 min-w-7 p-0"
-            title={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
-            aria-label={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
-            aria-pressed={isFullscreen}
-          >
-            {isFullscreen ? <X className="h-3 w-3 shrink-0" strokeWidth={2} /> : <EmpFullscreenEnterIcon />}
-          </PaginationBtn>
-        ) : null}
-      </div>
-
+    <div className="emp-table-pagination flex shrink-0 items-center justify-end gap-2 border-t border-[#e8edf3] bg-white px-2 py-1.5">
       <div className="flex shrink-0 items-center justify-end gap-1">
       <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-7 min-w-7 p-0" title="Primeira página" aria-label="Primeira página">
         <ChevronsLeft className="h-3 w-3 shrink-0" strokeWidth={2} />
