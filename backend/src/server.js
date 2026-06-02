@@ -44,10 +44,21 @@ const isVercelDomain = (origin = "") => {
   }
 };
 
+const isLocalDevOrigin = (origin = "") => {
+  try {
+    const { hostname } = new URL(origin);
+    return hostname === "localhost" || hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+};
+
 const isOriginAllowed = (origin, allowedOrigins) => {
   if (!origin) return true;
   const normalizedOrigin = normalizeOrigin(origin);
   const isProduction = String(process.env.NODE_ENV || "").toLowerCase() === "production";
+
+  if (!isProduction && isLocalDevOrigin(normalizedOrigin)) return true;
 
   if (allowedOrigins.length === 0) {
     return !isProduction;

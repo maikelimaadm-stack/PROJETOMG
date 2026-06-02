@@ -82,7 +82,22 @@ const assertFieldNameUnique = async (prisma, { scope, entityName, fieldName, emp
   }
 };
 
-const countRecordsUsingField = async (prisma, { scope, entityName, fieldName, campoEmpresaId }) => {
+const extractFormulaFieldNames = (formula) => {
+  const tokens = String(formula || "").match(/[a-zA-Z_][a-zA-Z0-9_]*|\d+(?:[.,]\d+)?|[()+\-*/]/g) || [];
+  return tokens.filter((token) => /^[a-zA-Z_]/.test(token));
+};
+
+const recordUsesAnyField = (campos, fieldNames) =>
+  fieldNames.some((fieldName) => hasFieldValue(campos, fieldName));
+
+const countRecordsUsingField = async (
+  prisma,
+  { scope, entityName, fieldName, campoEmpresaId, formula, tipo }
+) => {
+  const dependencyFields =
+    tipo === "calculado" ? extractFormulaFieldNames(formula) : [];
+  const trackedFields = Array.from(new Set([fieldName, ...dependencyFields]));
+
   if (entityName === "EmpresaCadastro") {
     const where = { cliente_id: scope.clienteId };
     if (campoEmpresaId) where.id = campoEmpresaId;
@@ -90,7 +105,9 @@ const countRecordsUsingField = async (prisma, { scope, entityName, fieldName, ca
       where,
       select: { campos_personalizados: true },
     });
-    return records.filter((record) => hasFieldValue(record.campos_personalizados, fieldName)).length;
+    return records.filter((record) =>
+      recordUsesAnyField(record.campos_personalizados, trackedFields)
+    ).length;
   }
 
   const where = {
@@ -103,7 +120,9 @@ const countRecordsUsingField = async (prisma, { scope, entityName, fieldName, ca
     where,
     select: { campos_personalizados: true },
   });
-  return records.filter((record) => hasFieldValue(record.campos_personalizados, fieldName)).length;
+  return records.filter((record) =>
+    recordUsesAnyField(record.campos_personalizados, trackedFields)
+  ).length;
 };
 
 const sanitizeCampoPayload = (payload = {}) => {
@@ -181,6 +200,8 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       entityName,
       fieldName: current.field_name,
       campoEmpresaId: current.empresa_id,
+      formula: current.formula,
+      tipo: current.tipo,
     });
     if (usageCount > 0) {
       const error = new Error(
@@ -242,6 +263,8 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       entityName,
       fieldName: current.field_name,
       campoEmpresaId: current.empresa_id,
+      formula: current.formula,
+      tipo: current.tipo,
     });
     if (usageCount > 0) {
       const error = new Error(
@@ -269,7 +292,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
     const prisma = getPrismaClient();
     const current = await prisma.campoPersonalizado.findFirst({
       where: { id, cliente_id: scope.clienteId, entity_name: entityName },
-      select: { field_name: true, empresa_id: true },
+      select: { field_name: true, empresa_id: true, formula: true, tipo: true },
     });
     if (!current) return 0;
     return countRecordsUsingField(prisma, {
@@ -277,6 +300,8 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       entityName,
       fieldName: current.field_name,
       campoEmpresaId: current.empresa_id,
+      formula: current.formula,
+      tipo: current.tipo,
     });
   },
 });

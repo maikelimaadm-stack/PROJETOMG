@@ -9,6 +9,7 @@ import generatedModules from "@/modules/generatedModules.json";
 const PAGEMP = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const generatedModuleRoutes = generatedModules
+  .filter((moduleConfig) => moduleConfig.moduleId !== "empresas")
   .map((moduleConfig) => {
     const key = `/src/${moduleConfig.pageFile}`;
     const loader = generatedPageLoaders[key];
@@ -150,7 +151,9 @@ function MinimalLayout({
           >
             Cadastro de Empresas
           </Link>
-          {modulesNavigation.map((module) => (
+          {modulesNavigation
+            .filter((module) => module.moduleId !== "empresas")
+            .map((module) => (
             <Link
               key={module.moduleId}
               to={module.routePath}
