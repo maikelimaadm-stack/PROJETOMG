@@ -423,10 +423,21 @@ export default function FORMEMP({
   const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
+  const recordHeaderTitle = useMemo(() => {
+    const code = String(formData.codempresa || "").trim();
+    const name = String(formData.razao_social || "").trim();
+    if (code && name) return `${code} - ${name}`;
+    if (code) return code;
+    if (name) return name;
+    if (isDuplicating) return "Duplicar empresa";
+    if (!isEditing) return "Nova empresa";
+    return null;
+  }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+
   useEffect(() => {
     if (layoutConfigOpen) {
       setPageHeader({
-        recordCode: formData.codempresa || null,
+        recordTitle: recordHeaderTitle,
         operationLabel: "Configuração",
         contextSuffix: "Layout do formulário",
       });
@@ -434,12 +445,12 @@ export default function FORMEMP({
     }
 
     setPageHeader({
-      recordCode: formData.codempresa || null,
+      recordTitle: recordHeaderTitle,
       operationLabel,
       contextSuffix: fieldLayoutConfigOpen ? "Layout de campos" : null,
     });
   }, [
-    formData.codempresa,
+    recordHeaderTitle,
     operationLabel,
     layoutConfigOpen,
     fieldLayoutConfigOpen,

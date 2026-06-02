@@ -98,8 +98,8 @@ function ErpBreadcrumbs({ pathname }) {
   const crumbs = buildErpBreadcrumbs(pathname);
   const trail = [...crumbs];
 
-  if (header.recordCode) {
-    trail.push({ label: String(header.recordCode), isCode: true });
+  if (header.recordTitle) {
+    trail.push({ label: String(header.recordTitle), isRecord: true });
   }
 
   if (header.contextSuffix) {
@@ -118,7 +118,7 @@ function ErpBreadcrumbs({ pathname }) {
                 <BreadcrumbItem>
                   {isLast ? (
                     <BreadcrumbPage
-                      className={`text-xs font-medium ${crumb.isCode ? "text-slate-600 tabular-nums" : "text-slate-700"}`}
+                      className={`text-xs font-medium ${crumb.isRecord ? "text-slate-700 truncate max-w-[min(100%,420px)]" : "text-slate-700"}`}
                     >
                       {crumb.label}
                     </BreadcrumbPage>
