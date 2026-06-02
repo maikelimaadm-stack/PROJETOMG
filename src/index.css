@@ -1017,7 +1017,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-header-bar {
   flex-shrink: 0;
   background: var(--emp-table-band-bg) !important;
-  border-bottom: 1px solid var(--emp-table-band-edge) !important;
+  border-bottom: none !important;
 }
 
 .cadastro-emp-scope .emp-table-body-scroll {
@@ -1030,19 +1030,11 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pro-header thead .emp-th {
   position: relative !important;
   top: auto !important;
-  box-shadow: inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
-}
-
-.cadastro-emp-scope .emp-table-pro-header thead .emp-th:not(:last-child) {
-  box-shadow: inset -1px 0 0 0 var(--emp-table-band-edge), inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th {
-  box-shadow: inset 0 1px 0 0 var(--emp-table-band-edge) !important;
-}
-
-.cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th:not(:last-child) {
-  box-shadow: inset -1px 0 0 0 var(--emp-table-band-edge), inset 0 1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro {
@@ -1085,29 +1077,23 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th {
-  box-shadow: inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+  top: 0;
+  z-index: 45;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th:not(:last-child) {
-  box-shadow: inset -0.5px 0 0 0 var(--emp-table-line), inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
-  box-shadow: inset 0 0.5px 0 0 var(--emp-band-divider) !important;
+  bottom: 0;
+  z-index: 44;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child) {
-  box-shadow: inset -0.5px 0 0 0 var(--emp-band-divider), inset 0 0.5px 0 0 var(--emp-band-divider) !important;
-}
-
-.cadastro-emp-scope .emp-table-pro thead tr,
-.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer tr {
-  border: none !important;
-}
-
-.cadastro-emp-scope .emp-table-pro thead .emp-th {
-  top: 0;
-  z-index: 45;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th[class*="z-50"] {
@@ -1136,7 +1122,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pro .emp-td {
   border: none !important;
-  box-shadow: inset -1px 0 0 0 var(--emp-table-line), inset 0 -1px 0 0 var(--emp-table-line) !important;
+  box-shadow: none !important;
   font-size: 12px;
   line-height: 26px;
   height: 26px;
@@ -1639,7 +1625,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-footer-bar {
   flex-shrink: 0 !important;
   background: var(--emp-table-band-bg) !important;
-  border-top: 1px solid var(--emp-table-band-edge) !important;
+  border-top: none !important;
 }
 
 .cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th {
@@ -1657,7 +1643,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
   flex-shrink: 0 !important;
-  border-top: 1px solid var(--emp-table-band-edge) !important;
+  border-top: none !important;
   background: var(--emp-table-bg) !important;
 }
 
