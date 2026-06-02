@@ -47,7 +47,7 @@ export default function EmpTablePagination({
   const pageItems = useMemo(() => getVisiblePages(safePage, totalPages), [safePage, totalPages]);
 
   return (
-    <div className="emp-table-pagination flex shrink-0 items-center justify-end gap-2 border-t border-[#f4f4f4] bg-[#fdfdfd] px-2 py-1">
+    <div className="emp-table-pagination flex shrink-0 items-center justify-end gap-2 border-t border-[#f4f4f4] bg-white px-2 py-1">
       <div className="flex shrink-0 items-center justify-end gap-1">
       <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Primeira página" aria-label="Primeira página">
         <ChevronsLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />

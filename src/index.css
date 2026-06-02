@@ -232,7 +232,8 @@ input[type="number"] {
   --emp-toolbar-btn-fg: #0f172a;
   --emp-table-frame-border: #f4f4f4;
   --emp-surface-bg: #fdfdfd;
-  --emp-table-band-bg: #fcfcfc;
+  --emp-table-bg: #ffffff;
+  --emp-table-band-bg: #ffffff;
   --emp-table-row-alt-bg: #fefefe;
   --emp-table-line: #f4f4f4;
   color: var(--emp-text);
@@ -984,6 +985,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-shell {
   border-radius: 6px !important;
   border: 1px solid var(--emp-table-frame-border) !important;
+  background: var(--emp-table-bg) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro {
@@ -1562,7 +1564,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
   border-top: 1px solid var(--emp-table-frame-border) !important;
-  background: var(--emp-surface-bg) !important;
+  background: var(--emp-table-bg) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn {
@@ -2125,8 +2127,13 @@ input[type="number"] {
 }
 
 .erp-shell .cadastro-emp-scope .emp-table-stage,
-.erp-shell .cadastro-emp-scope .emp-table-shell {
-  background: var(--emp-surface-bg, #fdfdfd) !important;
+.erp-shell .cadastro-emp-scope .emp-table-shell,
+.erp-shell .cadastro-emp-scope .emp-table-panel {
+  background: var(--emp-table-bg, #ffffff) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar {
+  background: var(--emp-surface-bg) !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-separator"] svg,

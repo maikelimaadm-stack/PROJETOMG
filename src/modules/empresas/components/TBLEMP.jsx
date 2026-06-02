@@ -747,7 +747,7 @@ export default function TBLEMP({
   }, [colunasOrdenadas, colunasTodasOrdenadas, empresasOrdenadas, selectedItems, onVisibleDataChange, agregacoes, columnWidths]);
 
   return (
-    <div className="flex-1 min-h-0 overflow-hidden bg-white select-none p-1.5">
+    <div className="flex-1 min-h-0 overflow-hidden bg-white select-none">
       <div
         ref={tableStageRef}
         className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
