@@ -27,7 +27,7 @@ export const EmpresasTablePanel = ({
       <div className="flex-none shrink-0 bg-white pb-2">
         <SankhyaListToolbar {...toolbarProps} />
       </div>
-      <div className="emp-table-panel min-h-0 flex-1 overflow-hidden bg-white">
+      <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
         <TBLEMP {...tableProps} />
       </div>
     </div>

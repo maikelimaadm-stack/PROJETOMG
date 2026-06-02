@@ -239,6 +239,7 @@ input[type="number"] {
   --emp-table-row-selected-bg: #f6f6f6;
   --emp-table-row-alt-bg: #fefefe;
   --emp-table-line: #f4f4f4;
+  --emp-table-band-edge: #e8ecef;
   color: var(--emp-text);
 }
 
@@ -985,15 +986,58 @@ input[type="number"] {
 }
 
 /* Tabela profissional — mockup Cadastro de Empresas */
-.cadastro-emp-scope .emp-table-shell {
-  flex: 1 1 auto;
-  min-height: 0;
+.cadastro-emp-scope .emp-table-root {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+}
+
+.cadastro-emp-scope .emp-table-stage {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-table-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
   border-radius: 6px 6px 0 0 !important;
   border: 1px solid var(--emp-table-frame-border) !important;
   border-bottom: none !important;
   background: var(--emp-table-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-header-bar {
+  flex-shrink: 0;
+  background: var(--emp-table-band-bg) !important;
+  border-bottom: 1px solid var(--emp-table-band-edge) !important;
+}
+
+.cadastro-emp-scope .emp-table-body-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  background: var(--emp-table-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro-header thead .emp-th {
+  position: relative !important;
+  top: auto !important;
+}
+
+.cadastro-emp-scope .emp-table-pro-header thead .emp-th {
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-table-pro-header thead .emp-th:not(:last-child) {
+  box-shadow: inset -0.5px 0 0 0 var(--emp-table-line) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro {
@@ -1036,11 +1080,11 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th {
-  box-shadow: inset 0 -0.5px 0 0 var(--emp-band-divider) !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th:not(:last-child) {
-  box-shadow: inset -0.5px 0 0 0 var(--emp-band-divider), inset 0 -0.5px 0 0 var(--emp-band-divider) !important;
+  box-shadow: inset -0.5px 0 0 0 var(--emp-table-line), inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
@@ -1579,13 +1623,6 @@ input[type="number"] {
   color: #94a3b8;
 }
 
-.cadastro-emp-scope .emp-table-stage {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 0;
-}
-
 .cadastro-emp-scope .emp-table-bottom-dock {
   flex-shrink: 0;
   background: var(--emp-table-bg) !important;
@@ -1594,17 +1631,10 @@ input[type="number"] {
   border-radius: 0 0 6px 6px;
 }
 
-.cadastro-emp-scope .emp-table-pagination {
-  gap: 4px !important;
-  flex-shrink: 0 !important;
-  border-top: 1px solid var(--emp-table-line) !important;
-  background: var(--emp-table-bg) !important;
-}
-
 .cadastro-emp-scope .emp-table-footer-bar {
   flex-shrink: 0 !important;
   background: var(--emp-table-band-bg) !important;
-  border-top: 1px solid var(--emp-table-line) !important;
+  border-top: 1px solid var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th {
@@ -1619,7 +1649,19 @@ input[type="number"] {
   background: var(--emp-table-band-bg) !important;
 }
 
+.cadastro-emp-scope .emp-table-pagination {
+  gap: 4px !important;
+  flex-shrink: 0 !important;
+  border-top: 1px solid var(--emp-table-band-edge) !important;
+  background: var(--emp-table-bg) !important;
+}
+
 .cadastro-emp-scope .emp-table-panel {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
   padding-top: 8px;
 }
 
