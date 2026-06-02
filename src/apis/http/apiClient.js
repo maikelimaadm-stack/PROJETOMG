@@ -73,10 +73,11 @@ const resolveEmpresaHeader = (empresaHeader) => {
 export const apiClient = {
   async request(path, { method = "GET", body, headers = {}, signal, empresaHeader } = {}) {
     const token = getAuthToken();
+    const hasJsonBody = body != null && !(body instanceof FormData);
     const response = await fetch(buildUrl(path), {
       method,
       headers: {
-        ...(body instanceof FormData ? {} : { "Content-Type": "application/json" }),
+        ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...resolveEmpresaHeader(empresaHeader),
         ...headers,

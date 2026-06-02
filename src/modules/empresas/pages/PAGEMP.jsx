@@ -256,7 +256,6 @@ export default function PAGEMP() {
 
   const handleConfirmDelete = async () => {
     const ids = deleteState.ids;
-    setDeleteState({ open: false, ids: [] });
     if (ids.length === 0) return;
 
     const wasOnForm = showForm && viewMode === "record";
@@ -347,6 +346,7 @@ export default function PAGEMP() {
         ? `${moduleLabels.singular} excluída!`
         : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
     );
+    setDeleteState({ open: false, ids: [] });
   };
 
   const handleExportPdf = () => {
