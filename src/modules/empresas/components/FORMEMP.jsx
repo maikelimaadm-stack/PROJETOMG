@@ -79,7 +79,7 @@ export default function FORMEMP({
     setErrors({});
     setEditMode(!isEditing || !!initialData?._isDuplicate);
     setActiveTab("geral");
-  }, [initialData?.id, initialData?.codempresa, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
+  }, [initialData?.id, initialData?.codempresa, initialData?.updatedAt, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
 
   const { data: camposPersonalizados = [] } = useQuery({
     queryKey: ["emp-campos-personalizados"],

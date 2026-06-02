@@ -60,16 +60,25 @@ const parseResponse = async (response) => {
   }
 };
 
+const resolveEmpresaHeader = (empresaHeader) => {
+  if (empresaHeader === false) return {};
+  if (empresaHeader != null && String(empresaHeader).trim()) {
+    return { "X-Empresa-Id": String(empresaHeader).trim() };
+  }
+  const selectedEmpresaId = getSelectedEmpresaId();
+  if (selectedEmpresaId) return { "X-Empresa-Id": selectedEmpresaId };
+  return {};
+};
+
 export const apiClient = {
-  async request(path, { method = "GET", body, headers = {}, signal } = {}) {
+  async request(path, { method = "GET", body, headers = {}, signal, empresaHeader } = {}) {
     const token = getAuthToken();
-    const selectedEmpresaId = getSelectedEmpresaId();
     const response = await fetch(buildUrl(path), {
       method,
       headers: {
         ...(body instanceof FormData ? {} : { "Content-Type": "application/json" }),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        ...(selectedEmpresaId ? { "X-Empresa-Id": selectedEmpresaId } : {}),
+        ...resolveEmpresaHeader(empresaHeader),
         ...headers,
       },
       body: body == null ? undefined : body instanceof FormData ? body : JSON.stringify(body),
