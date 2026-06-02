@@ -89,44 +89,105 @@ const main = async () => {
     "__SCHEMA_NAME__": String(args.schema),
   };
 
-  const scaffoldDir = path.join(repoRoot, "src/modules/template/scaffold");
+  const frontendScaffoldDir = path.join(repoRoot, "src/modules/template/scaffold");
+  const backendScaffoldDir = path.join(repoRoot, "src/modules/template/scaffold-backend");
   const targetModuleDir = path.join(repoRoot, "src/modules", moduleId);
+  const backendRootDir = path.join(repoRoot, "backend");
+  const targetBackendModuleDir = path.join(backendRootDir, "src/modules", moduleId);
   const dryRun = Boolean(args["dry-run"]);
   const force = Boolean(args.force);
+  const frontendOnly = Boolean(args["frontend-only"]);
+  const backendOnly = Boolean(args["backend-only"]);
 
-  const scaffoldFiles = await walk(scaffoldDir);
-  if (scaffoldFiles.length === 0) {
-    console.error("Nenhum scaffold encontrado em src/modules/template/scaffold.");
+  if (frontendOnly && backendOnly) {
+    console.error("Use apenas uma opção: --frontend-only ou --backend-only.");
     process.exit(1);
   }
 
-  if (!dryRun) {
+  const generationContexts = [];
+  if (!backendOnly) {
+    generationContexts.push({
+      name: "frontend",
+      scaffoldDir: frontendScaffoldDir,
+      targetRoot: targetModuleDir,
+    });
+  }
+  if (!frontendOnly) {
+    generationContexts.push({
+      name: "backend",
+      scaffoldDir: backendScaffoldDir,
+      targetRoot: backendRootDir,
+    });
+  }
+
+  if (generationContexts.length === 0) {
+    console.error("Nenhum contexto de geração selecionado.");
+    process.exit(1);
+  }
+
+  for (const context of generationContexts) {
     try {
-      await fs.access(targetModuleDir);
-      if (!force) {
-        console.error(`Módulo já existe: ${targetModuleDir}. Use --force para sobrescrever.`);
-        process.exit(1);
-      }
+      await fs.access(context.scaffoldDir);
     } catch {
-      // módulo ainda não existe
+      console.error(`Scaffold não encontrado para ${context.name}: ${context.scaffoldDir}`);
+      process.exit(1);
+    }
+  }
+
+  if (!dryRun) {
+    if (!backendOnly) {
+      try {
+        await fs.access(targetModuleDir);
+        if (!force) {
+          console.error(`Módulo frontend já existe: ${targetModuleDir}. Use --force para sobrescrever.`);
+          process.exit(1);
+        }
+      } catch {
+        // módulo ainda não existe
+      }
+    }
+
+    if (!frontendOnly) {
+      try {
+        await fs.access(targetBackendModuleDir);
+        if (!force) {
+          console.error(
+            `Módulo backend já existe: ${targetBackendModuleDir}. Use --force para sobrescrever.`
+          );
+          process.exit(1);
+        }
+      } catch {
+        // módulo ainda não existe
+      }
     }
   }
 
   const plannedFiles = [];
 
-  for (const scaffoldFile of scaffoldFiles) {
-    const relative = path.relative(scaffoldDir, scaffoldFile);
-    const relativeWithoutTpl = relative.replace(/\.tpl$/, "");
-    const targetRelative = replaceTokens(relativeWithoutTpl, replacements);
-    const targetPath = path.join(targetModuleDir, targetRelative);
-    const rawContent = await fs.readFile(scaffoldFile, "utf8");
-    const content = replaceTokens(rawContent, replacements);
+  for (const context of generationContexts) {
+    const scaffoldFiles = await walk(context.scaffoldDir);
+    if (scaffoldFiles.length === 0) {
+      console.error(`Nenhum scaffold encontrado em ${context.scaffoldDir}.`);
+      process.exit(1);
+    }
 
-    plannedFiles.push(targetPath);
+    for (const scaffoldFile of scaffoldFiles) {
+      const relative = path.relative(context.scaffoldDir, scaffoldFile);
+      const relativeWithoutTpl = relative.replace(/\.tpl$/, "");
+      const targetRelative = replaceTokens(relativeWithoutTpl, replacements);
+      const targetPath =
+        context.name === "frontend"
+          ? path.join(context.targetRoot, targetRelative)
+          : path.join(context.targetRoot, targetRelative);
+      const rawContent = await fs.readFile(scaffoldFile, "utf8");
+      const content = replaceTokens(rawContent, replacements);
 
-    if (!dryRun) {
-      await fs.mkdir(path.dirname(targetPath), { recursive: true });
-      await fs.writeFile(targetPath, content, "utf8");
+      plannedFiles.push(targetPath);
+
+      if (!dryRun) {
+        await fs.mkdir(path.dirname(targetPath), { recursive: true });
+        await fs.writeFile(targetPath, content, "utf8");
+      }
     }
   }
 

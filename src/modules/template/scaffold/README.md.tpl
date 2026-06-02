@@ -20,4 +20,7 @@ Gerado automaticamente a partir do framework de cadastro.
 - Campos personalizados / layout configurável / exportação / anexos (na página)
 - Paginação e toolbars (na tabela/página)
 - API e Repository (`apis/`, `repositories/`)
+- Backend full-stack (`backend/src/modules/__MODULE_ID__/...`)
+- Prisma scaffold e migration base (`backend/prisma/scaffold/`)
+- Smoke base de backend (`backend/scripts/smoke__MODULE_ID_PASCAL__.js`)
 
