@@ -524,6 +524,7 @@ export default function FORMEMP({
           }
         `}</style>
         <EmpSplitToolbarLayout
+          className="flex-1 min-h-0 h-full"
           toolbar={
             <LegacyRecordToolbar
               showSaveActions={editMode}
@@ -558,7 +559,7 @@ export default function FORMEMP({
             />
           }
         >
-        <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
+        <div className="emp-form-scroll-host flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <div className={`emp-form-body flex flex-col ${standalonePrincipalInUse ? "" : "emp-form-body-no-principal"}`}>
             {standalonePrincipalInUse && (
               <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">

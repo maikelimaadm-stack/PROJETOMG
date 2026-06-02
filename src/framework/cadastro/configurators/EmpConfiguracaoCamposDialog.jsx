@@ -610,7 +610,7 @@ export default function EmpConfiguracaoCamposDialog({
       {!inline && <DialogHeader className="sr-only"><DialogTitle>Configuração de campos personalizados - Empresas</DialogTitle></DialogHeader>}
       {showForm ?
         <EmpSplitToolbarLayout
-          className="flex-1"
+          className="flex-1 min-h-0 h-full"
           toolbar={
             <LegacyRecordToolbar title={form.label || (editingId ? "EDITAR CAMPO" : "NOVO CAMPO")} badgeLabel="CAMPO PERSONALIZADO" operationLabel={operationLabel} showSaveActions={editMode} showEditAction={isReadOnly} showDeleteDuplicateActions={!!editingId && !editMode && !isDuplicating && !isNativeSelect} onSave={() => handleSubmit({ preventDefault: () => {} })} onCancel={handleDiscard} onEditRecord={() => setEditMode(true)} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} onNew={handleNew} total={campos.length} currentIndex={selectedIndex} onFirst={() => navigateCampo(0)} onPrevious={() => navigateCampo(selectedIndex - 1)} onNext={() => navigateCampo(selectedIndex + 1)} onLast={() => navigateCampo(campos.length - 1)} onDelete={handleDeleteCurrent} onDuplicate={handleDuplicateCurrent} onSettingsClick={() => {}} showUtilityActions={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
           }
@@ -678,15 +678,15 @@ export default function EmpConfiguracaoCamposDialog({
         </EmpSplitToolbarLayout>
         :
         <EmpSplitToolbarLayout
-          className="flex-1"
+          className="flex-1 min-h-0 h-full"
           toolbar={
             <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
           }
         >
-          <div className="flex-1 min-h-0 overflow-hidden select-none p-1.5">
-            <div ref={tableStageRef} className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
-              <div className="emp-table-shell flex-1 min-h-0 overflow-hidden bg-white shadow-none">
-                <div className="emp-campos-config-table-wrap overflow-auto flex-1 min-h-0">
+          <div className="emp-table-scroll-host flex min-h-0 flex-1 flex-col overflow-hidden select-none p-1.5">
+            <div ref={tableStageRef} className={`emp-table-stage relative h-full min-h-0 ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
+              <div className="emp-table-shell flex min-h-0 flex-1 flex-col overflow-hidden bg-white shadow-none">
+                <div className="emp-campos-config-table-wrap min-h-0 flex-1 overflow-auto">
                 <Table className="emp-table-pro w-full min-w-[760px] border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">

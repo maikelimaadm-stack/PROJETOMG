@@ -1000,6 +1000,16 @@ input[type="number"] {
   height: 100%;
   min-height: 0;
   width: 100%;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-table-stage > .emp-table-shell,
+.cadastro-emp-scope .emp-table-stage > .emp-table-bottom-dock {
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-table-stage > .emp-table-shell {
+  overflow: hidden;
 }
 
 .cadastro-emp-scope .emp-table-shell {
@@ -2231,6 +2241,28 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-view,
 .cadastro-emp-scope .emp-split-view {
   gap: 8px;
+  min-height: 0;
+  height: 100%;
+}
+
+.cadastro-emp-scope .emp-content-card > .emp-table-root,
+.cadastro-emp-scope .emp-table-card > .emp-table-root {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container,
+.cadastro-emp-scope .emp-content-card .emp-form-scroll-host,
+.cadastro-emp-scope .emp-content-card > .emp-table-scroll-host {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .emp-table-scroll-host {
+  overflow: hidden !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-card {
