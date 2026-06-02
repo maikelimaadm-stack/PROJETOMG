@@ -224,6 +224,10 @@ input[type="number"] {
   --emp-text: #1f2937;
   --emp-text-strong: #0f172a;
   --emp-control-radius: 5px;
+  --emp-form-control-height: 26px;
+  --emp-form-font-size: 12px;
+  --emp-form-border-color: #c5ced8;
+  --emp-form-textarea-min-height: 52px;
   --emp-accent-green: #21c45d;
   --emp-accent-primary: #2563eb;
   --emp-accent-primary-hover: #1d4ed8;
@@ -246,7 +250,18 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope :where(.border, input, textarea, button, [role="button"], [data-radix-select-trigger]) {
-  border-radius: 2px !important;
+  border-radius: var(--emp-control-radius) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-td,
+.cadastro-emp-scope .emp-table-pro thead .emp-th,
+.cadastro-emp-scope .emp-table-pro tfoot .emp-th {
+  border-radius: 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch,
+.cadastro-emp-scope .emp-form-toggle-switch > span {
+  border-radius: 9999px !important;
 }
 
 .cadastro-emp-scope :where(.text-black):not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-amber"]) {
@@ -551,14 +566,12 @@ input[type="number"] {
   box-sizing: border-box;
   width: 100%;
   min-width: 920px;
-  margin-top: -1px;
+  margin-top: 8px;
   padding-top: 8px;
   padding-bottom: 8px;
   background: #ffffff;
-  border-top: none;
-  border-left: 1px solid #d6dce8;
-  border-right: 1px solid #d6dce8;
-  border-bottom: 1px solid #d6dce8;
+  border: 1px solid var(--emp-form-border-color);
+  border-radius: var(--emp-control-radius);
 }
 
 .cadastro-emp-scope .emp-form-panels-zone {
@@ -587,7 +600,9 @@ input[type="number"] {
   margin-top: 0;
   padding-top: 0;
   padding-bottom: 10px;
-  border-top: 0.5px solid #d6dce8;
+  border: 1px solid var(--emp-form-border-color);
+  border-radius: var(--emp-control-radius);
+  overflow: hidden;
 }
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel-detail-collapsed {
@@ -604,19 +619,19 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-detail-panel-title {
-  height: 26px;
+  height: var(--emp-form-control-height);
   display: flex;
   align-items: center;
   gap: 6px;
-  width: calc(100% + 24px);
-  margin: 0 -16px 8px -8px;
-  padding: 0 8px;
-  border-bottom: 0.5px solid #d6dce8;
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--emp-form-border-color);
   color: #1a1f26;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--emp-form-font-size);
+  font-weight: 700;
   text-align: left;
-  background: #f1f5f9;
+  background: #ffffff;
   border-top: 0;
   border-left: 0;
   border-right: 0;
@@ -671,13 +686,15 @@ input[type="number"] {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 12px;
+  font-size: var(--emp-form-font-size);
+  font-weight: 700;
+  color: var(--emp-form-label-color, #1a1f26);
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control input,
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control textarea,
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control button {
-  font-size: 12px;
+  font-size: var(--emp-form-font-size);
 }
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-span-full {
@@ -839,21 +856,25 @@ input[type="number"] {
   background: #ffffff;
 }
 
-.cadastro-emp-scope .emp-form-fields [data-field] label {
+.cadastro-emp-scope .emp-form-fields [data-field] label,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-label-top {
   color: #1a1f26;
+  font-size: var(--emp-form-font-size);
+  font-weight: 700 !important;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
-  border: 0.5px solid #c5ced8;
-  border-radius: 2px;
+  border: 1px solid var(--emp-form-border-color);
+  border-radius: var(--emp-control-radius) !important;
   background: #ffffff;
   box-shadow: none;
   overflow: hidden;
+  min-height: var(--emp-form-control-height);
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
-  border-color: #21c45d;
+  border-color: var(--emp-accent-primary);
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control.emp-form-field-error {
@@ -863,6 +884,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-bare {
   width: auto;
+  min-height: var(--emp-form-control-height);
 }
 
 .cadastro-emp-scope .emp-form-toggle-switch {
@@ -871,7 +893,7 @@ input[type="number"] {
   min-height: 1rem !important;
   min-width: 2rem !important;
   border-radius: 9999px !important;
-  border: 1px solid #c5ced8 !important;
+  border: 1px solid var(--emp-form-border-color) !important;
   background: #ffffff !important;
   box-shadow: none !important;
   padding: 0 !important;
@@ -883,13 +905,13 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-toggle-switch.emp-form-toggle-switch-on,
 .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] {
-  background: #21c45d !important;
-  border-color: #21c45d !important;
+  background: var(--emp-accent-primary) !important;
+  border-color: var(--emp-accent-primary) !important;
 }
 
 .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"]:hover:not(:disabled) {
-  background: #1fb455 !important;
-  border-color: #1fb455 !important;
+  background: var(--emp-accent-primary-hover) !important;
+  border-color: var(--emp-accent-primary-hover) !important;
 }
 
 .cadastro-emp-scope .emp-form-toggle-switch > span {
@@ -908,7 +930,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="false"] > span {
   left: 1px !important;
   right: auto !important;
-  background: #21c45d !important;
+  background: #94a3b8 !important;
 }
 
 .cadastro-emp-scope .emp-form-image-control {
@@ -917,6 +939,7 @@ input[type="number"] {
   min-height: 100px;
   width: 100px;
   max-width: 100px;
+  border-radius: var(--emp-control-radius) !important;
 }
 
 .cadastro-emp-scope .emp-form-image-field {
@@ -934,16 +957,26 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input,
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea,
-.cadastro-emp-scope .emp-form-fields .emp-form-field-control button {
-  height: 22px;
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control button,
+.cadastro-emp-scope .emp-form-fields .emp-form-input {
+  height: var(--emp-form-control-height);
+  min-height: var(--emp-form-control-height);
   border: 0;
-  border-radius: 0;
+  border-radius: var(--emp-control-radius) !important;
   box-shadow: none;
   background: #ffffff;
+  font-size: var(--emp-form-font-size);
+  text-transform: uppercase;
+  color: #1a1f26;
+  padding: 0 8px;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea {
-  min-height: 48px;
+  min-height: var(--emp-form-textarea-min-height);
+  height: auto;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  text-transform: uppercase;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input:focus-visible,
@@ -1052,11 +1085,11 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pro-header thead .emp-th {
   position: relative !important;
   top: auto !important;
-  box-shadow: inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: inset 0 -0.5px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro-header thead .emp-th:not(:last-child) {
-  box-shadow: inset -1px 0 0 0 var(--emp-table-band-edge), inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: inset -0.5px 0 0 0 var(--emp-table-band-edge), inset 0 -0.5px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro {
@@ -1099,19 +1132,19 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th {
-  box-shadow: inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: inset 0 -0.5px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro thead .emp-th:not(:last-child) {
-  box-shadow: inset -1px 0 0 0 var(--emp-table-band-edge), inset 0 -1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: inset -0.5px 0 0 0 var(--emp-table-band-edge), inset 0 -0.5px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
-  box-shadow: inset 0 1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: inset 0 0.5px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child) {
-  box-shadow: inset -1px 0 0 0 var(--emp-table-band-edge), inset 0 1px 0 0 var(--emp-table-band-edge) !important;
+  box-shadow: inset -0.5px 0 0 0 var(--emp-table-band-edge), inset 0 0.5px 0 0 var(--emp-table-band-edge) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro thead tr,
@@ -1375,8 +1408,8 @@ input[type="number"] {
 }
 
 .emp-filter-checkbox[data-state="checked"] {
-  background-color: #21c45d !important;
-  border-color: #21c45d !important;
+  background-color: var(--emp-accent-primary) !important;
+  border-color: var(--emp-accent-primary) !important;
   color: #ffffff !important;
 }
 
@@ -1387,7 +1420,18 @@ input[type="number"] {
 
 .emp-filter-checkbox:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 1px #21c45d !important;
+  box-shadow: 0 0 0 1px var(--emp-accent-primary) !important;
+}
+
+.cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) {
+  background-color: var(--emp-accent-primary) !important;
+  border-color: var(--emp-accent-primary) !important;
+  color: #ffffff !important;
+}
+
+.cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .emp-filter-actions {
@@ -2158,13 +2202,13 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-field-control-lote {
   border-width: 1px !important;
   border-style: solid !important;
-  border-color: #cbd5e1 !important;
-  border-radius: 0 !important;
+  border-color: var(--emp-form-border-color) !important;
+  border-radius: var(--emp-control-radius) !important;
   background: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-form-field-control-lote:focus-within {
-  border-color: #22c55e !important;
+  border-color: var(--emp-accent-primary) !important;
 }
 
 .cadastro-emp-scope .emp-form-field-control-lote.emp-form-field-error {
