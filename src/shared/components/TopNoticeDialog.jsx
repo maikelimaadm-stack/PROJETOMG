@@ -21,8 +21,8 @@ export default function TopNoticeDialog({
   const Icon = type === "info" ? Info : AlertTriangle;
   const iconClass = isDanger ? "text-red-600" : type === "info" ? "text-slate-500" : "text-amber-500";
 
-  const handleConfirm = () => {
-    onConfirm?.();
+  const handleConfirm = async () => {
+    await onConfirm?.();
     onOpenChange?.(false);
   };
 
