@@ -24,6 +24,8 @@ model Cliente {
 
   usuarios  Usuario[]
   empresas  Empresa[]
+  sequencia EmpresaCodigoSequencia?
+  logs      AuditLog[]
 }
 
 model Usuario {
@@ -74,6 +76,7 @@ model Empresa {
   anexos RegistroAnexo[]
   permissoes PermissaoEmpresa[]
 
+  @@unique([cliente_id, codigo_empresa])
   @@unique([tenant_id, codigo_empresa])
   @@index([cliente_id, codigo_empresa])
   @@index([cliente_id, razao_social])
@@ -134,6 +137,7 @@ model RegistroAnexo {
   attachment_name String?  @db.VarChar(255)
   file_name       String   @db.VarChar(255)
   file_url        String   @db.VarChar(4096)
+  storage_path    String?  @db.VarChar(4096)
   file_type       String?  @db.VarChar(255)
   file_size       Int?
   createdAt       DateTime @default(now())
@@ -159,4 +163,38 @@ model PermissaoEmpresa {
 
   @@id([usuario_id, empresa_id])
   @@index([empresa_id])
+}
+
+model EmpresaCodigoSequencia {
+  id          String   @id @default(cuid())
+  cliente_id  String   @db.VarChar(64)
+  next_codigo Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cliente     Cliente  @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cliente_id])
+}
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  cliente_id     String?  @db.VarChar(64)
+  usuario_id     String?  @db.VarChar(64)
+  empresa_id     String?  @db.VarChar(64)
+  codigo_empresa Int?
+  nome_empresa   String?  @db.VarChar(255)
+  entity_name    String   @db.VarChar(120)
+  entity_id      String?  @db.VarChar(120)
+  action         String   @db.VarChar(40)
+  payload        Json?
+  createdAt      DateTime @default(now())
+
+  cliente        Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
+
+  @@index([cliente_id, createdAt])
+  @@index([usuario_id, createdAt])
+  @@index([empresa_id, createdAt])
+  @@index([entity_name, entity_id, createdAt])
+  @@index([action, createdAt])
 }

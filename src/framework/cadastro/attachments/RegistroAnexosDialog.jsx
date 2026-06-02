@@ -71,13 +71,15 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
     setUploading(true);
     const novosAnexos = [];
     for (const file of files) {
-      const { file_url } = await AnexosApi.uploadFile(file);
+      const { file_url, storage_path } = await AnexosApi.uploadFile(file);
       const anexoData = {
         entity_name: entityName,
         record_id: recordId,
+        empresa_id: entityName === "EmpresaCadastro" ? recordId : undefined,
         attachment_name: attachmentName.trim(),
         file_name: file.name,
         file_url,
+        storage_path,
         file_type: file.type,
         file_size: file.size
       };

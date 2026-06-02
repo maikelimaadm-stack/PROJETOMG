@@ -30,6 +30,7 @@ export const registerAuthRoutes = async (app) => {
         cliente: session.cliente,
         empresas: session.empresas,
         selectedEmpresaId: session.selectedEmpresaId,
+        allowAllEmpresas: session.allowAllEmpresas,
       };
     } catch (error) {
       const statusCode = error.statusCode || 401;
@@ -58,6 +59,7 @@ export const registerAuthRoutes = async (app) => {
         },
         empresas,
         selectedEmpresaId: scope.selectedEmpresaId || (scope.allowAllEmpresas ? "all" : null),
+        allowAllEmpresas: scope.acessoGlobal,
       };
     }
   );
@@ -71,6 +73,7 @@ export const registerAuthRoutes = async (app) => {
       return {
         empresas,
         selectedEmpresaId: scope.selectedEmpresaId || (scope.allowAllEmpresas ? "all" : null),
+        allowAllEmpresas: scope.acessoGlobal,
       };
     }
   );

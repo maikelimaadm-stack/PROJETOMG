@@ -7,6 +7,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [cliente, setCliente] = useState(null);
   const [empresas, setEmpresas] = useState([]);
+  const [allowAllEmpresas, setAllowAllEmpresas] = useState(false);
   const [selectedEmpresaId, setSelectedEmpresaId] = useState(AuthApi.getSelectedEmpresaId());
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -41,6 +42,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setCliente(null);
         setEmpresas([]);
+        setAllowAllEmpresas(false);
         setIsAuthenticated(false);
         setIsLoadingAuth(false);
         return;
@@ -48,6 +50,7 @@ export const AuthProvider = ({ children }) => {
       setUser(session.user);
       setCliente(session.cliente || null);
       setEmpresas(session.empresas || []);
+      setAllowAllEmpresas(Boolean(session.allowAllEmpresas));
       setSelectedEmpresaId(session.selectedEmpresaId || AuthApi.getSelectedEmpresaId());
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
@@ -61,6 +64,7 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
       setCliente(null);
       setEmpresas([]);
+      setAllowAllEmpresas(false);
     }
   };
 
@@ -76,9 +80,10 @@ export const AuthProvider = ({ children }) => {
       setUser(payload.user || null);
       setCliente(payload.cliente || null);
       setEmpresas(payload.empresas || []);
-      const nextEmpresaId = payload.selectedEmpresaId || (payload.empresas?.[0]?.id ?? "all");
-      if (nextEmpresaId) AuthApi.setSelectedEmpresaId(nextEmpresaId);
-      setSelectedEmpresaId(nextEmpresaId || null);
+      setAllowAllEmpresas(Boolean(payload.allowAllEmpresas));
+      const nextEmpresaId = payload.selectedEmpresaId || null;
+      AuthApi.setSelectedEmpresaId(nextEmpresaId);
+      setSelectedEmpresaId(nextEmpresaId);
       setIsAuthenticated(Boolean(payload.user));
       setIsLoadingAuth(false);
       return payload;
@@ -90,8 +95,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const selectEmpresa = (empresaId) => {
-    AuthApi.setSelectedEmpresaId(empresaId);
-    setSelectedEmpresaId(empresaId);
+    const normalizedEmpresaId =
+      empresaId === "__AUTHORIZED_SCOPE__" ? null : empresaId;
+    AuthApi.setSelectedEmpresaId(normalizedEmpresaId);
+    setSelectedEmpresaId(normalizedEmpresaId);
   };
 
   const logout = async () => {
@@ -99,6 +106,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setCliente(null);
     setEmpresas([]);
+    setAllowAllEmpresas(false);
     setSelectedEmpresaId(null);
     setIsAuthenticated(false);
   };
@@ -108,6 +116,7 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setCliente(null);
     setEmpresas([]);
+    setAllowAllEmpresas(false);
     setSelectedEmpresaId(null);
   };
 
@@ -117,6 +126,7 @@ export const AuthProvider = ({ children }) => {
       user,
       cliente,
       empresas,
+      allowAllEmpresas,
       selectedEmpresaId,
       isAuthenticated,
       isLoadingAuth,

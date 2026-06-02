@@ -28,8 +28,14 @@ export const registerAnexosRoutes = async (app) => {
 
   app.post("/api/anexos", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
-    const item = await anexoService.create(request.body || {}, scope);
-    return reply.status(201).send({ item });
+    try {
+      const item = await anexoService.create(request.body || {}, scope);
+      return reply.status(201).send({ item });
+    } catch (error) {
+      return reply.status(error?.statusCode || 400).send({
+        message: error?.message || "Falha ao criar anexo.",
+      });
+    }
   });
 
   app.delete("/api/anexos/:id", { preHandler: app.authenticate }, async (request, reply) => {

@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../../../database/prismaClient.js";
+import { auditService } from "../../audit/auditService.js";
 
 const toPositiveInt = (value, fallback) => {
   const parsed = Number(value);
@@ -90,6 +91,24 @@ const buildScopeWhere = (scope, extra = {}) => {
   return { AND: and };
 };
 
+const runSerializableWithRetry = async (prisma, operation, attempts = 3) => {
+  let currentAttempt = 0;
+  while (currentAttempt < attempts) {
+    try {
+      return await prisma.$transaction((tx) => operation(tx), {
+        isolationLevel: "Serializable",
+      });
+    } catch (error) {
+      currentAttempt += 1;
+      const isRetryable = String(error?.code || "") === "P2034";
+      if (!isRetryable || currentAttempt >= attempts) {
+        throw error;
+      }
+    }
+  }
+  throw new Error("Falha ao executar transação serializável.");
+};
+
 export const empresaRepository = {
   async list({ scope, page = 1, pageSize = DEFAULT_PAGE_SIZE, search = "", sortBy, sortDir, filters = {} }) {
     const prisma = getPrismaClient();
@@ -138,26 +157,71 @@ export const empresaRepository = {
 
   async create(data, scope) {
     const prisma = getPrismaClient();
-    let codigo = Number(data.codigo_empresa || 0);
-    if (!Number.isFinite(codigo) || codigo <= 0) {
-      const lastEmpresa = await prisma.empresa.findFirst({
-        where: {
-          cliente_id: scope.clienteId,
-        },
-        orderBy: { codigo_empresa: "desc" },
-        select: { codigo_empresa: true },
-      });
-      codigo = Number(lastEmpresa?.codigo_empresa || 0) + 1;
-    }
+    const created = await runSerializableWithRetry(prisma, async (tx) => {
+      let codigo = Number(data.codigo_empresa || 0);
+      if (!Number.isFinite(codigo) || codigo <= 0) {
+        const sequence = await tx.empresaCodigoSequencia.findUnique({
+          where: { cliente_id: scope.clienteId },
+          select: { next_codigo: true },
+        });
+        if (!sequence) {
+          const maxCodigo = await tx.empresa.aggregate({
+            where: { cliente_id: scope.clienteId },
+            _max: { codigo_empresa: true },
+          });
+          codigo = Number(maxCodigo._max.codigo_empresa || 0) + 1;
+          await tx.empresaCodigoSequencia.create({
+            data: {
+              cliente_id: scope.clienteId,
+              next_codigo: codigo + 1,
+            },
+          });
+        } else {
+          const updatedSequence = await tx.empresaCodigoSequencia.update({
+            where: { cliente_id: scope.clienteId },
+            data: { next_codigo: { increment: 1 } },
+            select: { next_codigo: true },
+          });
+          codigo = Number(updatedSequence.next_codigo) - 1;
+        }
+      } else {
+        const existingCode = await tx.empresa.findFirst({
+          where: { cliente_id: scope.clienteId, codigo_empresa: codigo },
+          select: { id: true },
+        });
+        if (existingCode) {
+          const conflictError = new Error(
+            `Código de empresa ${codigo} já existe para este cliente.`
+          );
+          conflictError.statusCode = 409;
+          throw conflictError;
+        }
+      }
 
-    return prisma.empresa.create({
-      data: {
-        ...data,
-        codigo_empresa: codigo,
-        cliente_id: scope.clienteId,
-        tenant_id: scope.clienteId,
+      return tx.empresa.create({
+        data: {
+          ...data,
+          codigo_empresa: codigo,
+          cliente_id: scope.clienteId,
+          tenant_id: scope.clienteId,
+        },
+      });
+    });
+    await auditService.log({
+      scope,
+      entityName: "Empresa",
+      action: "CREATE",
+      entityId: created.id,
+      empresaId: created.id,
+      codigoEmpresa: created.codigo_empresa,
+      nomeEmpresa: created.razao_social,
+      payload: {
+        codigo_empresa: created.codigo_empresa,
+        razao_social: created.razao_social,
+        status: created.status,
       },
     });
+    return created;
   },
 
   async update(id, data, scope) {
@@ -166,20 +230,53 @@ export const empresaRepository = {
       where: buildScopeWhere(scope, { id }),
     });
     if (!current) return null;
-    return prisma.empresa.update({
+    const updated = await prisma.empresa.update({
       where: { id: current.id },
       data,
     });
+    await auditService.log({
+      scope,
+      entityName: "Empresa",
+      action: "UPDATE",
+      entityId: updated.id,
+      empresaId: updated.id,
+      codigoEmpresa: updated.codigo_empresa,
+      nomeEmpresa: updated.razao_social,
+      payload: {
+        before: {
+          razao_social: current.razao_social,
+          status: current.status,
+        },
+        after: {
+          razao_social: updated.razao_social,
+          status: updated.status,
+        },
+      },
+    });
+    return updated;
   },
 
   async remove(id, scope) {
     const prisma = getPrismaClient();
     const current = await prisma.empresa.findFirst({
       where: buildScopeWhere(scope, { id }),
-      select: { id: true },
+      select: { id: true, codigo_empresa: true, razao_social: true },
     });
     if (!current) return false;
     await prisma.empresa.delete({ where: { id: current.id } });
+    await auditService.log({
+      scope,
+      entityName: "Empresa",
+      action: "DELETE",
+      entityId: current.id,
+      empresaId: current.id,
+      codigoEmpresa: current.codigo_empresa,
+      nomeEmpresa: current.razao_social,
+      payload: {
+        codigo_empresa: current.codigo_empresa,
+        razao_social: current.razao_social,
+      },
+    });
     return true;
   },
 
@@ -195,13 +292,21 @@ export const empresaRepository = {
 
   async createCampo(data, scope) {
     const prisma = getPrismaClient();
-    return prisma.campoPersonalizado.create({
+    const created = await prisma.campoPersonalizado.create({
       data: {
         ...data,
         cliente_id: scope.clienteId,
         tenant_id: scope.clienteId,
       },
     });
+    await auditService.log({
+      scope,
+      entityName: "CampoPersonalizado",
+      action: "CREATE",
+      entityId: created.id,
+      payload: { field_name: created.field_name, label: created.label },
+    });
+    return created;
   },
 
   async updateCampo(id, data, scope) {
@@ -214,10 +319,18 @@ export const empresaRepository = {
       select: { id: true },
     });
     if (!current) return null;
-    return prisma.campoPersonalizado.update({
+    const updated = await prisma.campoPersonalizado.update({
       where: { id: current.id },
       data,
     });
+    await auditService.log({
+      scope,
+      entityName: "CampoPersonalizado",
+      action: "UPDATE",
+      entityId: updated.id,
+      payload: { field_name: updated.field_name, label: updated.label },
+    });
+    return updated;
   },
 
   async removeCampo(id, scope) {
@@ -231,6 +344,13 @@ export const empresaRepository = {
     });
     if (!current) return false;
     await prisma.campoPersonalizado.delete({ where: { id: current.id } });
+    await auditService.log({
+      scope,
+      entityName: "CampoPersonalizado",
+      action: "DELETE",
+      entityId: current.id,
+      payload: { id: current.id },
+    });
     return true;
   },
 };

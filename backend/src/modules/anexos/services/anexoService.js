@@ -1,5 +1,6 @@
 import { anexoRepository } from "../repositories/anexoRepository.js";
 import {
+  createSignedDownloadUrl,
   ensureSupabaseStorageBucket,
   isSupabaseStorageConfigured,
   supabaseAdmin,
@@ -7,8 +8,19 @@ import {
 } from "../../../integrations/supabase/adminClient.js";
 
 export const anexoService = {
-  list(filters) {
-    return anexoRepository.list(filters);
+  async list(filters) {
+    const items = await anexoRepository.list(filters);
+    const withSignedUrl = await Promise.all(
+      items.map(async (item) => {
+        if (!item.storage_path) return item;
+        const signedUrl = await createSignedDownloadUrl(item.storage_path);
+        return {
+          ...item,
+          file_url: signedUrl || item.file_url,
+        };
+      })
+    );
+    return withSignedUrl;
   },
 
   create(data, scope) {
