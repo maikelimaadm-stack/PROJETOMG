@@ -210,7 +210,7 @@ export const empresaRepository = {
         },
       });
     });
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "Empresa",
       action: "CREATE",
@@ -237,7 +237,7 @@ export const empresaRepository = {
       where: { id: current.id },
       data,
     });
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "Empresa",
       action: "UPDATE",
@@ -281,7 +281,7 @@ export const empresaRepository = {
       }
       throw error;
     }
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "Empresa",
       action: "DELETE",

@@ -170,7 +170,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       },
     });
 
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "CampoPersonalizado",
       action: "CREATE",
@@ -237,7 +237,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       },
     });
 
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "CampoPersonalizado",
       action: "UPDATE",
@@ -275,7 +275,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
     }
 
     await prisma.campoPersonalizado.delete({ where: { id: current.id } });
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "CampoPersonalizado",
       action: "DELETE",

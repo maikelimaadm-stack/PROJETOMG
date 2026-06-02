@@ -38,6 +38,15 @@ const TIPOS_CAMPO = [
 const toSnakeCase = (v) => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9]+/g, "_").replace(/^_+|_+$/g, "").toLowerCase();
 const toTitleCase = (v) => String(v || "").toLowerCase().replace(/(^|\s)([a-záàâãéèêíïóôõöúçñ])/g, (m) => m.toUpperCase());
 
+const patchCamposCache = (queryClient, updater) => {
+  queryClient.setQueriesData({ queryKey: ["emp-campos-personalizados"] }, (previous) => {
+    if (!Array.isArray(previous)) return previous;
+    return updater(previous);
+  });
+};
+
+const getCampoId = (campo) => campo?.id || campo?.field_id || null;
+
 const initialForm = {
   label: "", field_name: "", placeholder: "", descricao: "", tipo: "text",
   aplicacao_modo: "todas", empresa_id: null,
@@ -106,7 +115,8 @@ export default function EmpConfiguracaoCamposDialog({
     queryKey: ["emp-campos-personalizados", "config"],
     queryFn: () => repository.listCamposPersonalizados("config"),
     enabled: open,
-    staleTime: 30_000,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
     initialData: []
   });
 
@@ -125,13 +135,17 @@ export default function EmpConfiguracaoCamposDialog({
       const payload = buildPayload();
       return editingId ? repository.updateCampoPersonalizado(editingId, payload) : repository.createCampoPersonalizado(payload);
     },
-    onSuccess: async (saved) => {
+    onSuccess: (saved) => {
       const wasEditing = !!editingId;
-      await queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
-      const updated = await repository.listCamposPersonalizados("config");
       const savedId = saved?.id || editingId;
-      const target = updated.find((c) => c.id === savedId) || saved;
-      if (target) loadCampoForm(target);
+      patchCamposCache(queryClient, (items) => {
+        const exists = items.some((item) => getCampoId(item) === savedId);
+        if (exists) {
+          return items.map((item) => (getCampoId(item) === savedId ? { ...item, ...saved } : item));
+        }
+        return [...items, saved];
+      });
+      if (saved) loadCampoForm(saved);
       toast.success(wasEditing ? "Campo atualizado." : "Campo criado.");
     },
     onError: (error) => showNotice({
@@ -143,7 +157,11 @@ export default function EmpConfiguracaoCamposDialog({
 
   const deleteMutation = useMutation({
     mutationFn: (campo) => repository.deleteCampoPersonalizado(campo),
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] }); toast.success("Campo excluído."); },
+    onSuccess: (_result, campo) => {
+      const campoId = getCampoId(campo);
+      patchCamposCache(queryClient, (items) => items.filter((item) => getCampoId(item) !== campoId));
+      toast.success("Campo excluído.");
+    },
     onError: (error) => showNotice({ title: "Erro ao excluir", description: error.message || "Não foi possível excluir.", type: "danger" })
   });
 
@@ -240,7 +258,29 @@ export default function EmpConfiguracaoCamposDialog({
   const handleEdit = (campo) => loadCampoForm(campo);
   const handleDiscard = () => { if (editingId && !isDuplicating) { const orig = campos.find((c) => c.id === editingId); if (orig) { loadCampoForm(orig); return; } } const prev = campos.find((c) => (c.id || c.field_id) === selectedCampoIds[0]); if (prev) { loadCampoForm(prev); return; } if (campos.length > 0) { loadCampoForm(campos[0]); return; } resetForm(); };
   const handleDeleteCurrent = () => { if (!selectedCampo) return; showNotice({ title: "Confirmar exclusão", description: `Excluir o campo "${selectedCampo.label}"?`, type: "danger", confirmText: "Excluir", cancelText: "Cancelar", onConfirm: () => { deleteMutation.mutate(selectedCampo); resetForm(); } }); };
-  const handleDeleteSelected = () => { const sel = campos.filter((c) => selectedCampoIds.includes(c.id || c.field_id)); if (!sel.length) return; showNotice({ title: "Confirmar exclusão", description: sel.length === 1 ? `Excluir "${sel[0].label}"?` : `Excluir ${sel.length} campos?`, type: "danger", confirmText: "Excluir", cancelText: "Cancelar", onConfirm: () => { sel.forEach((c) => deleteMutation.mutate(c)); setSelectedCampoIds([]); } }); };
+  const handleDeleteSelected = () => {
+    const sel = campos.filter((c) => selectedCampoIds.includes(c.id || c.field_id));
+    if (!sel.length) return;
+    showNotice({
+      title: "Confirmar exclusão",
+      description: sel.length === 1 ? `Excluir "${sel[0].label}"?` : `Excluir ${sel.length} campos?`,
+      type: "danger",
+      confirmText: "Excluir",
+      cancelText: "Cancelar",
+      onConfirm: async () => {
+        const ids = new Set(sel.map((c) => getCampoId(c)));
+        patchCamposCache(queryClient, (items) => items.filter((item) => !ids.has(getCampoId(item))));
+        setSelectedCampoIds([]);
+        try {
+          await Promise.all(sel.map((c) => repository.deleteCampoPersonalizado(c)));
+          toast.success(sel.length === 1 ? "Campo excluído." : `${sel.length} campos excluídos.`);
+        } catch (error) {
+          await queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
+          showNotice({ title: "Erro ao excluir", description: error.message || "Não foi possível excluir.", type: "danger" });
+        }
+      },
+    });
+  };
   const handleDuplicateCurrent = () => { if (!selectedCampo) return; const { id, field_id, created_date, updated_date, created_by, ...copy } = selectedCampo; setForm({ ...initialForm, ...copy, options_text: copy.options_text || (copy.options || []).map((o) => o.label || o.value || o).join("\n"), label: `${selectedCampo.label || "Campo"} - Cópia`, field_name: "", agregacao_tipo: selectedCampo.agregacao_tipo || selectedCampo.agregacao || "none", usar_decimal: !!selectedCampo.usar_decimal, decimal_places: selectedCampo.decimal_places ?? 2, usar_mascara: !!selectedCampo.usar_mascara, mascaras_text: selectedCampo.mascaras_text || "" }); setEditingId(null); setSelectedCampoIds([]); setIsDirty(true); setIsDuplicating(true); setEditMode(true); setShowForm(true); };
 
   const getTipoLabel = (campo) => TIPOS_CAMPO.find((tipo) => tipo.value === campo.tipo)?.label || campo.tipo || "";

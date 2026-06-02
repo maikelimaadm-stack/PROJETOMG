@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
+import { useAuth } from "@/shared/contexts/AuthContext";
 import { printCadastroTable, exportCadastroTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
 import {
   getEmpPdfExportConfig,
@@ -39,6 +40,13 @@ const patchEmpresasCache = (queryClient, updater) => {
 };
 
 export default function PAGEMP() {
+  const {
+    empresas: empresasSelector,
+    upsertEmpresaInSelector,
+    removeEmpresasFromSelector,
+    replaceEmpresasInSelector,
+  } = useAuth();
+
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
     if (apiMessage && String(apiMessage).trim()) return String(apiMessage);
@@ -77,7 +85,8 @@ export default function PAGEMP() {
         sortDir: querySort.direction,
       }),
     placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
-    staleTime: 30_000,
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
   });
 
   const empresas = empresasResponse.items || [];
@@ -136,7 +145,9 @@ export default function PAGEMP() {
       (item) => item.id === savedId || Number(item.codempresa) === Number(normalized.codempresa)
     );
     if (navIndex >= 0) setSelectedIndex(navIndex);
-  }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel]);
+
+    upsertEmpresaInSelector(normalized);
+  }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
   const handleSubmit = useCallback(async (data) => {
     const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
@@ -144,9 +155,31 @@ export default function PAGEMP() {
     try {
       const validatedData = empresasModuleDefinition.schema.parse(data);
       let savedRecord;
+      const cacheSnapshot = isUpdate
+        ? queryClient.getQueriesData({ queryKey: ["emp-cadastro"] })
+        : null;
+      const selectorSnapshot = isUpdate ? empresasSelector : null;
 
       if (isUpdate) {
-        savedRecord = await moduleRepository.update(editingEmp.id, validatedData);
+        const optimistic = normalizeEmpresaRecord({ ...editingEmp, ...validatedData });
+        patchEmpresasCache(queryClient, (previous) => ({
+          ...previous,
+          items: previous.items.map((item) =>
+            item.id === editingEmp.id ? { ...item, ...optimistic } : item
+          ),
+        }));
+        upsertEmpresaInSelector(optimistic);
+        setEditingEmp(optimistic);
+
+        try {
+          savedRecord = await moduleRepository.update(editingEmp.id, validatedData);
+        } catch (error) {
+          cacheSnapshot?.forEach(([key, value]) => {
+            queryClient.setQueryData(key, value);
+          });
+          if (selectorSnapshot) replaceEmpresasInSelector(selectorSnapshot);
+          throw error;
+        }
         toast.success(`${moduleLabels.singular} atualizada!`);
       } else {
         const { _isDuplicate, ...clean } = validatedData;
@@ -165,8 +198,16 @@ export default function PAGEMP() {
             : `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
         )
       );
+      throw error;
     }
-  }, [editingEmp, stayOnRecordAfterSave]);
+  }, [
+    editingEmp,
+    empresasSelector,
+    queryClient,
+    replaceEmpresasInSelector,
+    stayOnRecordAfterSave,
+    upsertEmpresaInSelector,
+  ]);
 
   const handleEdit = (emp) => {
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
@@ -273,31 +314,21 @@ export default function PAGEMP() {
       ? navListBeforeDelete.findIndex((item) => item.id === editingEmp.id)
       : -1;
 
-    try {
-      for (const id of ids) {
-        await moduleRepository.delete(id);
-      }
-    } catch (error) {
-      toast.error(
-        resolveErrorMessage(
-          error,
-          `Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`
-        )
-      );
-      throw error;
-    }
-
-    if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
-      setAttachmentsRecord(null);
-    }
+    const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
+    const selectorSnapshot = empresasSelector;
 
     patchEmpresasCache(queryClient, (previous) => ({
       ...previous,
       items: previous.items.filter((item) => !ids.includes(item.id)),
       total: Math.max(0, previous.total - ids.length),
     }));
+    removeEmpresasFromSelector(ids);
 
     const list = navListBeforeDelete.filter((item) => !ids.includes(item.id));
+
+    if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
+      setAttachmentsRecord(null);
+    }
 
     if (deletedCurrentFromForm) {
       const remainingNav = navListBeforeDelete
@@ -349,14 +380,29 @@ export default function PAGEMP() {
       }
     }
 
-    toast.success(
-      ids.length === 1
-        ? `${moduleLabels.singular} excluída!`
-        : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
-    );
     pendingDeleteIdsRef.current = [];
     setDeleteState({ open: false, ids: [] });
-    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+
+    try {
+      await Promise.all(ids.map((id) => moduleRepository.delete(id)));
+      toast.success(
+        ids.length === 1
+          ? `${moduleLabels.singular} excluída!`
+          : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
+      );
+    } catch (error) {
+      cacheSnapshot.forEach(([key, data]) => {
+        queryClient.setQueryData(key, data);
+      });
+      replaceEmpresasInSelector(selectorSnapshot);
+      toast.error(
+        resolveErrorMessage(
+          error,
+          `Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`
+        )
+      );
+      throw error;
+    }
   };
 
   const handleExportPdf = () => {
