@@ -194,7 +194,7 @@ function ErpShellBody({
 
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-1">
           <ErpBreadcrumbs pathname={pathname} />
-          <div className="erp-shell-content-card flex min-h-0 flex-1 flex-col overflow-hidden rounded-md border border-[#f4f4f4] bg-[#fdfdfd] shadow-sm">
+          <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}
           </div>
         </div>
