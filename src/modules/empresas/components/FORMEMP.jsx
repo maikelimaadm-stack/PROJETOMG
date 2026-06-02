@@ -21,59 +21,19 @@ import EmpOptionListControl from "@/framework/cadastro/formularios/EmpOptionList
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { ChevronDown, ChevronRight } from "lucide-react";
-
-const ESTADOS_BR = ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"];
-const UPPER_FIELDS = ["razao_social", "nome_fantasia", "cpf_cnpj", "inscricao_estadual", "email", "cep", "endereco", "numero", "bairro", "cidade", "estado", "observacoes"];
-const REQUIRED_FIELDS = ["razao_social", "tipo_pessoa"];
-const FORM_LAYOUT_KEY = "cadastro_emp_form_layout_config";
-const TABLE_AGGREGATION_KEY = "emp_table_aggregation_config";
-
-const inputClass = "h-[22px] text-xs border-0 rounded-none shadow-none focus-visible:ring-0 bg-white px-1";
-
-const buildEmpty = () => ({
-  codigo_empresa: "",
-  razao_social: "",
-  nome_fantasia: "",
-  tipo_pessoa: "PJ",
-  cpf_cnpj: "",
-  inscricao_estadual: "",
-  telefone: "",
-  whatsapp: "",
-  email: "",
-  logo_url: "",
-  cep: "",
-  endereco: "",
-  numero: "",
-  bairro: "",
-  cidade: "",
-  estado: "",
-  observacoes: "",
-  status: "Ativa",
-  campos_personalizados: {}
-});
-
-const applyDuplicateFieldClears = (data, clearFieldIds = []) => {
-  if (!data?._isDuplicate || !clearFieldIds.length) return data;
-  const next = { ...data, campos_personalizados: { ...(data.campos_personalizados || {}) } };
-  clearFieldIds.forEach((fieldId) => {
-    if (fieldId === "codigo_empresa") return;
-    if (String(fieldId).startsWith("custom:")) {
-      next.campos_personalizados[String(fieldId).replace(/^custom:/, "")] = "";
-      return;
-    }
-    if (fieldId === "status") next.status = "Ativa";
-    else if (fieldId === "tipo_pessoa") next.tipo_pessoa = "PJ";
-    else next[fieldId] = "";
-  });
-  return next;
-};
-
-const NATIVE_FIELDS = new Set([
-  "codigo_empresa", "razao_social", "nome_fantasia", "tipo_pessoa", "cpf_cnpj",
-  "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url", "cep",
-  "endereco", "numero", "bairro", "cidade", "estado", "observacoes", "status",
-  "campos_personalizados"
-]);
+import {
+  ESTADOS_BR,
+  UPPER_FIELDS,
+  REQUIRED_FIELDS,
+  FORM_LAYOUT_KEY,
+  TABLE_AGGREGATION_KEY,
+  inputClass,
+  applyDuplicateFieldClears,
+  buildEmptyEmpresaForm,
+  NATIVE_FIELDS,
+  splitDateTimeValue,
+  formatMaskedNumber,
+} from "./formEmp.constants";
 
 export default function FORMEMP({
   onSubmit, onCancel, onSettingsClick, onAttachClick, attachDisabled = false,
@@ -99,7 +59,10 @@ export default function FORMEMP({
     try { return JSON.parse(saved); } catch { return null; }
   });
 
-  const buildFormData = (data) => data ? { ...buildEmpty(), ...data, campos_personalizados: data.campos_personalizados || {} } : buildEmpty();
+  const buildFormData = (data) =>
+    data
+      ? { ...buildEmptyEmpresaForm(), ...data, campos_personalizados: data.campos_personalizados || {} }
+      : buildEmptyEmpresaForm();
   const [formData, setFormData] = useState(() => buildFormData(initialData));
 
   useEffect(() => {
@@ -190,12 +153,6 @@ export default function FORMEMP({
   const opcoesEstado = useMemo(() => ESTADOS_BR.map((item) => ({ id: item, nome: item })), []);
   const opcoesTipoPessoa = useMemo(() => [{ id: "PF", nome: "PESSOA FÍSICA (PF)" }, { id: "PJ", nome: "PESSOA JURÍDICA (PJ)" }], []);
 
-  const splitDateTimeValue = (value) => {
-    if (!value) return { date: "", time: "" };
-    const [datePart, timePart = ""] = String(value).replace(" ", "T").split("T");
-    return { date: datePart || "", time: timePart.slice(0, 5) || "" };
-  };
-
   const handleCustomDateTimeChange = (fieldName, part, nextValue) => {
     const current = splitDateTimeValue(formData.campos_personalizados?.[fieldName]);
     const horaAtual = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
@@ -205,19 +162,6 @@ export default function FORMEMP({
       ...(part === "date" && nextValue && !current.time ? { time: horaAtual } : {})
     };
     handleCustomChange(fieldName, next.date ? `${next.date}T${next.time || "00:00"}` : "");
-  };
-
-  const onlyDigits = (value) => String(value || "").replace(/\D/g, "");
-  const applyNumberMask = (digits, mask) => {
-    let index = 0;
-    return String(mask || "").replace(/#/g, () => digits[index++] || "").replace(/[^0-9]+$/g, "");
-  };
-  const getBestMask = (digits, masks) => masks.find((mask) => (mask.match(/#/g) || []).length >= digits.length) || masks[masks.length - 1] || "";
-  const formatMaskedNumber = (value, campo) => {
-    const masks = String(campo.mascaras_text || "").split("\n").map((item) => item.trim()).filter(Boolean).sort((a, b) => (a.match(/#/g) || []).length - (b.match(/#/g) || []).length);
-    const maxDigits = Math.max(...masks.map((mask) => (mask.match(/#/g) || []).length), 0);
-    const digits = onlyDigits(value).slice(0, maxDigits || undefined);
-    return applyNumberMask(digits, getBestMask(digits, masks));
   };
 
   const renderCampoPersonalizado = (campo) => {
