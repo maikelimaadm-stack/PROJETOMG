@@ -319,6 +319,11 @@ export default function FORMEMP({
     });
   }, [tabs, activeLayoutConfig, dynamicFields, formData]);
 
+  const requiredCounterTone =
+    requiredFieldStats.total > 0 && requiredFieldStats.filled >= requiredFieldStats.total
+      ? "complete"
+      : "incomplete";
+
   const applyLayoutConfig = (source, { updateActiveTab = true } = {}) => {
     const normalized = normalizeLayoutConfig(source, {
       basePanels,
@@ -594,6 +599,7 @@ export default function FORMEMP({
                       <EmpBubbleCounter
                         value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
                         title="Campos obrigatórios preenchidos"
+                        tone={requiredCounterTone}
                         className="emp-toolbar-bubble-counter"
                       />
                     }
@@ -625,6 +631,7 @@ export default function FORMEMP({
                     <EmpBubbleCounter
                       value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
                       title="Campos obrigatórios preenchidos"
+                      tone={requiredCounterTone}
                       className="emp-toolbar-bubble-counter"
                     />
                   </div>

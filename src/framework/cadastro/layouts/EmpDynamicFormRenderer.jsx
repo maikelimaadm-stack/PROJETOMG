@@ -120,7 +120,7 @@ function FieldFrameStacked({ field, error, children, className = "" }) {
       data-field={field.dataField || field.name}
       className={`grid grid-cols-[170px_minmax(0,1fr)] gap-1 ${imageField ? "items-start" : "items-center"}`}
     >
-      <label className={`text-[12px] font-bold text-[#1a1f26] text-right leading-none ${imageField ? "pt-2" : ""}`}>
+      <label className={`text-[12px] text-[#1a1f26] text-right leading-none ${imageField ? "pt-2" : ""}`}>
         {field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (
@@ -145,7 +145,7 @@ function FieldFrameGrid({ field, error, children, className = "", spanFull = fal
       data-field={field.dataField || field.name}
       className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""} emp-form-field-column-compact`}
     >
-      <label className="emp-form-field-label-top text-[12px] font-bold leading-none text-[#1a1f26]">
+      <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
         {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
       </label>
       {bare ? (

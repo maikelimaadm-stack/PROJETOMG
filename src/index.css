@@ -226,7 +226,8 @@ input[type="number"] {
   --emp-control-radius: 5px;
   --emp-form-control-height: 26px;
   --emp-form-font-size: 12px;
-  --emp-form-border-color: #c5ced8;
+  --emp-form-border-color: #e8ecef;
+  --emp-form-border-width: 1.5px;
   --emp-form-textarea-min-height: 52px;
   --emp-accent-green: #21c45d;
   --emp-accent-primary: #2563eb;
@@ -340,11 +341,30 @@ input[type="number"] {
   padding: 0 8px;
   background: #ffffff;
   border: 1px solid #d1d5db;
-  border-radius: 4px;
+  border-radius: var(--emp-control-radius);
   font-size: 12px;
   font-weight: 400;
   line-height: 1;
   color: #4b5563;
+}
+
+.cadastro-emp-scope .emp-bubble-counter--complete {
+  background: var(--emp-accent-primary) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.cadastro-emp-scope .emp-bubble-counter--incomplete {
+  background: #dc2626 !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+.cadastro-emp-scope .emp-bubble-counter--complete .emp-bubble-counter__tail,
+.cadastro-emp-scope .emp-bubble-counter--incomplete .emp-bubble-counter__tail {
+  display: none;
 }
 
 .cadastro-emp-scope .emp-bubble-counter__value {
@@ -465,7 +485,7 @@ input[type="number"] {
   border-style: solid;
   border-top-width: 3px;
   border-bottom-width: 2px;
-  border-top-color: var(--emp-accent-green);
+  border-top-color: var(--emp-accent-primary);
   border-left-color: #d6dce8;
   border-right-color: #d6dce8;
   border-bottom-color: #ffffff;
@@ -479,17 +499,20 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-tab-inactive {
   border-width: 1px;
   border-style: solid;
-  border-color: #d6dce8;
-  background: var(--emp-toolbar-btn-bg);
-  color: #334155;
+  border-top-color: #ffffff;
+  border-left-color: #ffffff;
+  border-right-color: #ffffff;
+  border-bottom-color: #d6dce8;
+  background: var(--emp-accent-primary);
+  color: #ffffff;
   font-weight: 400;
   z-index: 0;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive:hover {
-  color: #1a1f26;
-  background: var(--emp-toolbar-btn-bg-hover);
+  color: #ffffff;
+  background: var(--emp-accent-primary-hover);
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
@@ -502,7 +525,7 @@ input[type="number"] {
   border-style: solid !important;
   border-top-width: 3px !important;
   border-bottom-width: 2px !important;
-  border-top-color: var(--emp-accent-green) !important;
+  border-top-color: var(--emp-accent-primary) !important;
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
   border-bottom-color: #ffffff !important;
@@ -516,18 +539,21 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
-  color: #334155 !important;
+  color: #ffffff !important;
   font-weight: 400 !important;
-  background: var(--emp-toolbar-btn-bg) !important;
+  background: var(--emp-accent-primary) !important;
   border-width: 1px !important;
   border-top-width: 1px !important;
-  border-color: #d6dce8 !important;
+  border-top-color: #ffffff !important;
+  border-left-color: #ffffff !important;
+  border-right-color: #ffffff !important;
+  border-bottom-color: #d6dce8 !important;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive:hover {
-  color: #1a1f26 !important;
-  background: var(--emp-toolbar-btn-bg-hover) !important;
+  color: #ffffff !important;
+  background: var(--emp-accent-primary-hover) !important;
 }
 
 /* Campos do formulário de registro */
@@ -687,7 +713,7 @@ input[type="number"] {
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: var(--emp-form-font-size);
-  font-weight: 700;
+  font-weight: 400;
   color: var(--emp-form-label-color, #1a1f26);
 }
 
@@ -860,7 +886,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-fields .emp-form-field-label-top {
   color: #1a1f26;
   font-size: var(--emp-form-font-size);
-  font-weight: 700 !important;
+  font-weight: 400 !important;
 }
 
 .cadastro-emp-scope .emp-form-fields:not(.emp-form-fields-compact) [data-field] label {
@@ -868,7 +894,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
-  border: 1px solid var(--emp-form-border-color);
+  border: var(--emp-form-border-width) solid var(--emp-form-border-color);
   border-radius: var(--emp-control-radius) !important;
   background: #ffffff !important;
   box-shadow: none;
@@ -1001,9 +1027,8 @@ input[type="number"] {
   box-shadow: none;
 }
 
-.cadastro-emp-scope .emp-form-fields [data-field] input,
-.cadastro-emp-scope .emp-form-fields [data-field] textarea {
-  color: #1a1f26;
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control .bg-transparent:not(.emp-custom-marker) {
+  background-color: #ffffff !important;
 }
 
 /* Tabela em tela cheia */
@@ -1663,37 +1688,37 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
-  background: #ffffff !important;
-  border: var(--emp-toolbar-btn-border-width) solid #f5d0d0 !important;
-  color: #dc2626 !important;
+  background: #dc2626 !important;
+  border: none !important;
+  color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete span,
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete .emp-toolbar-action-icon,
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete .emp-toolbar-nav-icon {
-  color: #dc2626 !important;
-  stroke: #dc2626 !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete svg,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete svg {
-  color: #dc2626 !important;
-  stroke: #dc2626 !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
-  color: #b91c1c !important;
-  background: #fef2f2 !important;
-  border-color: #fca5a5 !important;
+  color: #ffffff !important;
+  background: #b91c1c !important;
+  border: none !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) span {
-  color: #b91c1c !important;
+  color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) svg {
-  color: #b91c1c !important;
-  stroke: #b91c1c !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-toolbar input::placeholder {
@@ -2215,7 +2240,7 @@ input[type="number"] {
 
 /* Campos personalizados — visual alinhado ao cadastro de lote */
 .cadastro-emp-scope .emp-form-field-control-lote {
-  border-width: 1px !important;
+  border-width: var(--emp-form-border-width) !important;
   border-style: solid !important;
   border-color: var(--emp-form-border-color) !important;
   border-radius: var(--emp-control-radius) !important;
