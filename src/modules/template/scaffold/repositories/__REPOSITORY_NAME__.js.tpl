@@ -44,6 +44,10 @@ const __REPOSITORY_NAME__ = {
   deleteCampoPersonalizado(campo) {
     return __API_NAME__.removeField(campo.id || campo.field_id);
   },
+
+  listOptionsSources(sources = []) {
+    return __API_NAME__.listOptions(sources);
+  },
 };
 
 export default __REPOSITORY_NAME__;

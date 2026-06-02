@@ -1,5 +1,10 @@
 import { __MODULE_ID__Service } from "./service.js";
-import { __MODULE_ID__CreateSchema, __MODULE_ID__UpdateSchema } from "./validators.js";
+import {
+  __MODULE_ID__CreateSchema,
+  __MODULE_ID__FieldCreateSchema,
+  __MODULE_ID__FieldUpdateSchema,
+  __MODULE_ID__UpdateSchema,
+} from "./validators.js";
 
 const parseBodyOrThrow = (schema, payload) => {
   const parsed = schema.safeParse(payload || {});
@@ -38,6 +43,38 @@ export const __MODULE_ID__Controller = {
     const ok = await __MODULE_ID__Service.remove({ scope, id });
     if (!ok) return reply.status(404).send({ message: "__SINGULAR_LABEL__ não encontrado(a)." });
     return { ok: true };
+  },
+
+  async listFields({ scope }) {
+    const items = await __MODULE_ID__Service.listFields({ scope });
+    return { items };
+  },
+
+  async createField({ scope, payload, reply }) {
+    const parsedPayload = parseBodyOrThrow(__MODULE_ID__FieldCreateSchema, payload);
+    const item = await __MODULE_ID__Service.createField({ scope, payload: parsedPayload });
+    return reply.status(201).send({ item });
+  },
+
+  async updateField({ scope, id, payload, reply }) {
+    const parsedPayload = parseBodyOrThrow(__MODULE_ID__FieldUpdateSchema, payload);
+    const item = await __MODULE_ID__Service.updateField({ scope, id, payload: parsedPayload });
+    if (!item) return reply.status(404).send({ message: "Campo não encontrado." });
+    return { item };
+  },
+
+  async removeField({ scope, id, reply }) {
+    const ok = await __MODULE_ID__Service.removeField({ scope, id });
+    if (!ok) return reply.status(404).send({ message: "Campo não encontrado." });
+    return { ok: true };
+  },
+
+  async listOptions({ scope, payload }) {
+    const items = await __MODULE_ID__Service.listOptions({
+      scope,
+      sources: payload?.sources || [],
+    });
+    return { items };
   },
 };
 

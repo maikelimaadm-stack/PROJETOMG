@@ -8,24 +8,12 @@ const toPositiveInt = (value, fallback) => {
 };
 
 const DEFAULT_PAGE_SIZE = 50;
+const ENTITY_NAME = "__ENTITY_NAME__";
 
-// IMPORTANTE:
-// Substitua "__MODULE_ID__" pelo model Prisma real (ex.: fazenda).
-// Este arquivo já nasce com os contratos multiempresa obrigatórios.
-const MODEL_NAME = "__MODULE_ID__";
-
-const getModel = (prisma) => {
-  const model = prisma[MODEL_NAME];
-  if (!model) {
-    throw new Error(
-      `Model Prisma '${MODEL_NAME}' não encontrado. Atualize __MODULE_ID__/repository.js após gerar o módulo.`
-    );
-  }
-  return model;
-};
+const getModel = (prisma) => prisma.cadastroRegistro;
 
 const buildScopeWhere = (scope, extra = {}) => {
-  const and = [{ cliente_id: scope.clienteId }];
+  const and = [{ cliente_id: scope.clienteId }, { entity_name: ENTITY_NAME }];
   if (scope.selectedEmpresaId) {
     and.push({ empresa_id: scope.selectedEmpresaId });
   } else if (!scope.acessoGlobal) {
@@ -46,7 +34,13 @@ export const __MODULE_ID__Repository = {
     const page = toPositiveInt(query.page, 1);
     const pageSize = Math.min(200, toPositiveInt(query.pageSize, DEFAULT_PAGE_SIZE));
     const skip = (page - 1) * pageSize;
-    const where = buildScopeWhere(scope);
+    const searchValue = String(query.search || "").trim();
+    const where = buildScopeWhere(scope, searchValue ? {
+      OR: [
+        { nome: { contains: searchValue, mode: "insensitive" } },
+        { observacoes: { contains: searchValue, mode: "insensitive" } },
+      ],
+    } : {});
 
     const [items, total] = await Promise.all([
       model.findMany({ where, skip, take: pageSize, orderBy: { createdAt: "desc" } }),
@@ -92,11 +86,15 @@ export const __MODULE_ID__Repository = {
 
     const item = await model.create({
       data: {
-        ...payload,
+        nome: payload.nome,
+        status: payload.status || "Ativo",
+        observacoes: payload.observacoes || "",
+        campos_personalizados: payload.campos_personalizados || {},
         empresa_id: empresa.id,
         codigo_empresa: empresa.codigo_empresa,
         nome_empresa: empresa.razao_social,
         cliente_id: scope.clienteId,
+        entity_name: ENTITY_NAME,
       },
     });
 
@@ -121,7 +119,14 @@ export const __MODULE_ID__Repository = {
 
     const item = await model.update({
       where: { id: current.id },
-      data: payload,
+      data: {
+        ...(payload.nome != null ? { nome: payload.nome } : {}),
+        ...(payload.status != null ? { status: payload.status } : {}),
+        ...(payload.observacoes != null ? { observacoes: payload.observacoes } : {}),
+        ...(payload.campos_personalizados != null
+          ? { campos_personalizados: payload.campos_personalizados }
+          : {}),
+      },
     });
 
     await auditService.log({
@@ -155,6 +160,69 @@ export const __MODULE_ID__Repository = {
       payload: { id: current.id },
     });
     return true;
+  },
+
+  async listFields({ scope }) {
+    const prisma = getPrismaClient();
+    return prisma.campoPersonalizado.findMany({
+      where: {
+        cliente_id: scope.clienteId,
+        entity_name: ENTITY_NAME,
+      },
+      orderBy: [{ ordem_tabela: "asc" }],
+    });
+  },
+
+  async createField({ scope, payload }) {
+    const prisma = getPrismaClient();
+    return prisma.campoPersonalizado.create({
+      data: {
+        ...payload,
+        cliente_id: scope.clienteId,
+        entity_name: ENTITY_NAME,
+        tenant_id: scope.clienteId,
+      },
+    });
+  },
+
+  async updateField({ scope, id, payload }) {
+    const prisma = getPrismaClient();
+    const current = await prisma.campoPersonalizado.findFirst({
+      where: {
+        id,
+        cliente_id: scope.clienteId,
+        entity_name: ENTITY_NAME,
+      },
+      select: { id: true },
+    });
+    if (!current) return null;
+    return prisma.campoPersonalizado.update({
+      where: { id: current.id },
+      data: payload,
+    });
+  },
+
+  async removeField({ scope, id }) {
+    const prisma = getPrismaClient();
+    const current = await prisma.campoPersonalizado.findFirst({
+      where: {
+        id,
+        cliente_id: scope.clienteId,
+        entity_name: ENTITY_NAME,
+      },
+      select: { id: true },
+    });
+    if (!current) return false;
+    await prisma.campoPersonalizado.delete({ where: { id: current.id } });
+    return true;
+  },
+
+  async listOptions({ sources = [] }) {
+    const result = {};
+    for (const source of sources) {
+      result[source.entity] = [];
+    }
+    return result;
   },
 };
 

@@ -25,6 +25,7 @@ model Cliente {
   usuarios  Usuario[]
   empresas  Empresa[]
   sequencia EmpresaCodigoSequencia?
+  cadastros CadastroRegistro[]
   logs      AuditLog[]
 }
 
@@ -75,6 +76,8 @@ model Empresa {
   cliente Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
   anexos RegistroAnexo[]
   permissoes PermissaoEmpresa[]
+  camposPersonalizados CampoPersonalizado[]
+  cadastros CadastroRegistro[]
 
   @@unique([cliente_id, codigo_empresa])
   @@unique([tenant_id, codigo_empresa])
@@ -92,6 +95,10 @@ model CampoPersonalizado {
   id                    String   @id @default(cuid())
   tenant_id             String   @default("default") @db.VarChar(64) // legado (compatibilidade)
   cliente_id            String   @default("demo") @db.VarChar(64)
+  empresa_id            String?  @db.VarChar(64)
+  codigo_empresa        Int?
+  nome_empresa          String?  @db.VarChar(255)
+  entity_name           String   @default("EmpresaCadastro") @db.VarChar(128)
   field_name            String   @db.VarChar(128)
   label                 String   @db.VarChar(255)
   placeholder           String?  @db.VarChar(255)
@@ -117,12 +124,38 @@ model CampoPersonalizado {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
 
-  @@unique([tenant_id, field_name])
+  empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
+
+  @@index([cliente_id, entity_name, empresa_id])
+  @@index([cliente_id, entity_name, ativo])
+  @@index([cliente_id, entity_name, ordem_tabela])
   @@index([cliente_id, ativo])
-  @@index([cliente_id, ordem_tabela])
   @@index([tenant_id, ativo])
   @@index([tenant_id, ordem_tabela])
   @@index([ordem_tabela])
+}
+
+model CadastroRegistro {
+  id                   String   @id @default(cuid())
+  cliente_id           String   @db.VarChar(64)
+  empresa_id           String   @db.VarChar(64)
+  codigo_empresa       Int
+  nome_empresa         String   @db.VarChar(255)
+  entity_name          String   @db.VarChar(128)
+  nome                 String   @db.VarChar(255)
+  status               String   @default("Ativo") @db.VarChar(32)
+  observacoes          String?
+  campos_personalizados Json?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  empresa Empresa @relation(fields: [empresa_id], references: [id], onDelete: Restrict)
+
+  @@index([cliente_id, entity_name, createdAt])
+  @@index([cliente_id, empresa_id, entity_name, createdAt])
+  @@index([cliente_id, entity_name, nome])
+  @@index([entity_name, status])
 }
 
 model RegistroAnexo {

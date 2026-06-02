@@ -68,5 +68,10 @@ export const __API_NAME__ = {
     await apiClient.delete(`${FIELDS_PATH}/${id}`);
     return true;
   },
+
+  async listOptions(sources = []) {
+    const payload = await apiClient.post(`${BASE_PATH}/options`, { sources });
+    return payload?.items || {};
+  },
 };
 

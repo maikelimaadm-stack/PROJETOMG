@@ -10,7 +10,7 @@ const listQuerySchema = z.object({
   sortDir: z.enum(["asc", "desc"]).optional(),
 });
 
-export const register__MODULE_ID_PASCAL__Routes = async (app) => {
+export const registerModuleRoutes = async (app) => {
   app.get("/api/__MODULE_ID__", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
     const parsed = listQuerySchema.safeParse(request.query || {});
@@ -44,6 +44,47 @@ export const register__MODULE_ID_PASCAL__Routes = async (app) => {
     const scope = await loadAccessScope(request);
     assertRole(scope, ["ADMIN"]);
     return __MODULE_ID__Controller.remove({ scope, id: request.params.id, reply });
+  });
+
+  app.get("/api/__MODULE_ID__/campos", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    return __MODULE_ID__Controller.listFields({ scope });
+  });
+
+  app.post("/api/__MODULE_ID__/campos", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN", "OPERADOR"]);
+    return __MODULE_ID__Controller.createField({
+      scope,
+      payload: request.body || {},
+      reply,
+    });
+  });
+
+  app.put("/api/__MODULE_ID__/campos/:id", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN", "OPERADOR"]);
+    return __MODULE_ID__Controller.updateField({
+      scope,
+      id: request.params.id,
+      payload: request.body || {},
+      reply,
+    });
+  });
+
+  app.delete("/api/__MODULE_ID__/campos/:id", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN"]);
+    return __MODULE_ID__Controller.removeField({
+      scope,
+      id: request.params.id,
+      reply,
+    });
+  });
+
+  app.post("/api/__MODULE_ID__/options", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    return __MODULE_ID__Controller.listOptions({ scope, payload: request.body || {} });
   });
 };
 

@@ -32,7 +32,26 @@ const login = async () => {
 const run = async () => {
   const session = await login();
   const token = session.token;
-  const empresaId = session.selectedEmpresaId || "all";
+  const empresaId = session.selectedEmpresaId === "all"
+    ? session.empresas?.[0]?.id
+    : session.selectedEmpresaId || session.empresas?.[0]?.id;
+  if (!empresaId) throw new Error("Nenhuma empresa disponível para smoke.");
+
+  const createResult = await requestJson("/api/__MODULE_ID__", {
+    method: "POST",
+    token,
+    empresaId,
+    body: {
+      nome: "__SINGULAR_LABEL__ smoke",
+      status: "Ativo",
+      observacoes: "registro de teste",
+      campos_personalizados: {},
+    },
+  });
+  if (!createResult.ok || !createResult.payload?.item?.id) {
+    throw new Error(`Falha ao criar __MODULE_ID__: ${createResult.status}`);
+  }
+  const createdId = createResult.payload.item.id;
 
   const listResult = await requestJson("/api/__MODULE_ID__?page=1&pageSize=10", {
     token,
@@ -41,6 +60,25 @@ const run = async () => {
 
   if (!listResult.ok) {
     throw new Error(`Falha na listagem inicial do módulo __MODULE_ID__: ${listResult.status}`);
+  }
+
+  const updateResult = await requestJson(`/api/__MODULE_ID__/${createdId}`, {
+    method: "PUT",
+    token,
+    empresaId,
+    body: { nome: "__SINGULAR_LABEL__ smoke editado", status: "Ativo" },
+  });
+  if (!updateResult.ok) {
+    throw new Error(`Falha ao atualizar __MODULE_ID__: ${updateResult.status}`);
+  }
+
+  const removeResult = await requestJson(`/api/__MODULE_ID__/${createdId}`, {
+    method: "DELETE",
+    token,
+    empresaId,
+  });
+  if (!removeResult.ok) {
+    throw new Error(`Falha ao excluir __MODULE_ID__: ${removeResult.status}`);
   }
 
   console.log("Smoke __MODULE_ID__ concluído com sucesso.");

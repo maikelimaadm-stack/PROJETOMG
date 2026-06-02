@@ -31,8 +31,8 @@ const empRepository = {
     return EmpresaApi.deleteEmpresa(id);
   },
 
-  async listCamposPersonalizados() {
-    return EmpresaApi.listCamposPersonalizados();
+  async listCamposPersonalizados(mode = "aplicavel") {
+    return EmpresaApi.listCamposPersonalizados({ mode });
   },
 
   async createCampoPersonalizado(data) {

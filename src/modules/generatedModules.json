@@ -1,0 +1,14 @@
+[
+  {
+    "moduleId": "empresas",
+    "routePath": "/CadastroEmpresas",
+    "menuLabel": "Cadastro de Empresas",
+    "pageFile": "modules/empresas/pages/PAGEMP.jsx"
+  },
+  {
+    "moduleId": "fazendas",
+    "routePath": "/CadastroFazendas",
+    "menuLabel": "Cadastro de Fazendas",
+    "pageFile": "modules/fazendas/pages/PAGFazendas.jsx"
+  }
+]

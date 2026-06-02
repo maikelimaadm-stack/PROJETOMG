@@ -61,6 +61,34 @@ const walk = async (dir) => {
   return files.flat();
 };
 
+const generatedModulesRegistryPath = path.join(repoRoot, "src/modules/generatedModules.json");
+
+const updateGeneratedModulesRegistry = async ({ moduleId, moduleIdPascal, pluralLabel }) => {
+  let registry = [];
+  try {
+    const raw = await fs.readFile(generatedModulesRegistryPath, "utf8");
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) registry = parsed;
+  } catch {
+    registry = [];
+  }
+
+  const nextEntry = {
+    moduleId,
+    routePath: `/Cadastro${moduleIdPascal}`,
+    menuLabel: `Cadastro de ${pluralLabel}`,
+    pageFile: `modules/${moduleId}/pages/PAG${moduleIdPascal}.jsx`,
+  };
+
+  const withoutCurrent = registry.filter((item) => item.moduleId !== moduleId);
+  const nextRegistry = [...withoutCurrent, nextEntry].sort((a, b) =>
+    a.menuLabel.localeCompare(b.menuLabel, "pt-BR", { sensitivity: "base" })
+  );
+
+  await fs.mkdir(path.dirname(generatedModulesRegistryPath), { recursive: true });
+  await fs.writeFile(generatedModulesRegistryPath, `${JSON.stringify(nextRegistry, null, 2)}\n`, "utf8");
+};
+
 const main = async () => {
   const args = parseArgs(process.argv.slice(2));
   const missing = requiredArgs.filter((key) => !args[key]);
@@ -88,6 +116,7 @@ const main = async () => {
     "__API_NAME__": String(args.api),
     "__SCHEMA_NAME__": String(args.schema),
   };
+  const moduleIdPascal = replacements.__MODULE_ID_PASCAL__;
 
   const frontendScaffoldDir = path.join(repoRoot, "src/modules/template/scaffold");
   const backendScaffoldDir = path.join(repoRoot, "src/modules/template/scaffold-backend");
@@ -189,6 +218,15 @@ const main = async () => {
         await fs.writeFile(targetPath, content, "utf8");
       }
     }
+  }
+
+  if (!dryRun && !backendOnly) {
+    await updateGeneratedModulesRegistry({
+      moduleId,
+      moduleIdPascal,
+      pluralLabel: String(args.pluralLabel),
+    });
+    plannedFiles.push(generatedModulesRegistryPath);
   }
 
   console.log(dryRun ? "Dry-run do gerador concluído." : "Módulo gerado com sucesso.");

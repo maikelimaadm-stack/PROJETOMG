@@ -1,14 +1,45 @@
+import fs from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { registerAuthRoutes } from "../modules/auth/routes.js";
 import { registerEmpresasRoutes } from "../modules/empresas/routes.js";
 import { registerAnexosRoutes } from "../modules/anexos/routes.js";
 import { verifyDatabaseConnection } from "../database/prismaClient.js";
 import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "../integrations/supabase/adminClient.js";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const modulesDir = path.resolve(__dirname, "..", "modules");
+const coreModules = new Set(["auth", "empresas", "anexos", "audit"]);
+
 const withTimeout = async (operation, timeoutMs, timeoutMessage) => {
   const timeout = new Promise((_, reject) => {
     setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
   });
   return Promise.race([operation(), timeout]);
+};
+
+const registerGeneratedModuleRoutes = async (app) => {
+  const entries = await fs.readdir(modulesDir, { withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const moduleId = entry.name;
+    if (coreModules.has(moduleId)) continue;
+
+    const routesPath = path.join(modulesDir, moduleId, "routes.js");
+    try {
+      await fs.access(routesPath);
+    } catch {
+      continue;
+    }
+
+    const loadedModule = await import(pathToFileURL(routesPath).href);
+    const registerModuleRoutes = loadedModule.registerModuleRoutes;
+    if (typeof registerModuleRoutes === "function") {
+      await registerModuleRoutes(app);
+      app.log.info(`Rotas do módulo '${moduleId}' registradas automaticamente.`);
+    }
+  }
 };
 
 export const registerRoutes = async (app) => {
@@ -62,4 +93,5 @@ export const registerRoutes = async (app) => {
   await registerAuthRoutes(app);
   await registerEmpresasRoutes(app);
   await registerAnexosRoutes(app);
+  await registerGeneratedModuleRoutes(app);
 };

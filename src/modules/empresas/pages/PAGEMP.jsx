@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
+import { useAuth } from "@/shared/contexts/AuthContext";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
 import { printCadastroTable, exportCadastroTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
 import {
@@ -33,6 +34,7 @@ const moduleLabels = {
 };
 
 export default function PAGEMP() {
+  const { empresas: empresasAuth } = useAuth();
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
     if (apiMessage && String(apiMessage).trim()) return String(apiMessage);
@@ -389,6 +391,7 @@ export default function PAGEMP() {
     initialFieldName: configCamposInitialField,
     inline: true,
     repository: moduleRepository,
+    empresas: empresasAuth || [],
   };
 
   return (

@@ -53,8 +53,8 @@ export const EmpresaApi = {
     return true;
   },
 
-  async listCamposPersonalizados() {
-    const payload = await apiClient.get(CAMPOS_PATH);
+  async listCamposPersonalizados({ mode = "aplicavel" } = {}) {
+    const payload = await apiClient.get(`${CAMPOS_PATH}${toQuery({ mode })}`);
     return payload?.items || [];
   },
 
