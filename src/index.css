@@ -723,7 +723,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-control textarea {
   width: 100%;
-  min-height: 48px;
+  min-height: var(--emp-form-textarea-min-height);
   resize: vertical;
 }
 
@@ -735,7 +735,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields:not(.emp-form-fields-compact) .emp-form-field-control textarea {
-  min-height: 48px;
+  min-height: var(--emp-form-textarea-min-height);
 }
 
 .cadastro-emp-scope .emp-field-layout-preview {
@@ -861,6 +861,10 @@ input[type="number"] {
   color: #1a1f26;
   font-size: var(--emp-form-font-size);
   font-weight: 700 !important;
+}
+
+.cadastro-emp-scope .emp-form-fields:not(.emp-form-fields-compact) [data-field] label {
+  text-align: right;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
