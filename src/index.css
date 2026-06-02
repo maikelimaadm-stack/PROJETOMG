@@ -230,11 +230,11 @@ input[type="number"] {
   --emp-toolbar-btn-bg: #eaf2ff;
   --emp-toolbar-btn-bg-hover: #dde9fb;
   --emp-toolbar-btn-fg: #0f172a;
-  --emp-table-frame-border: #e8e8e8;
-  --emp-surface-bg: #f5f5f5;
-  --emp-table-band-bg: #f5f5f5;
-  --emp-table-row-alt-bg: #fafafa;
-  --emp-table-line: #ececec;
+  --emp-table-frame-border: #f4f4f4;
+  --emp-surface-bg: #fdfdfd;
+  --emp-table-band-bg: #fcfcfc;
+  --emp-table-row-alt-bg: #fefefe;
+  --emp-table-line: #f4f4f4;
   color: var(--emp-text);
 }
 
@@ -1096,7 +1096,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
-  background: #f0f0f0 !important;
+  background: #f6f6f6 !important;
   color: #1a1f26 !important;
   font-weight: 600;
 }
@@ -2051,11 +2051,11 @@ input[type="number"] {
 .erp-shell {
   --erp-nav-active-bg: #2563eb;
   --erp-nav-active-fg: #ffffff;
-  --erp-surface-bg: #f5f5f5;
-  --erp-page-bg: #f5f5f5;
-  --erp-sidebar-bg: #f5f5f5;
-  --erp-sidebar-submenu-bg: #f5f5f5;
-  --erp-border: #e8e8e8;
+  --erp-surface-bg: #fdfdfd;
+  --erp-page-bg: #fdfdfd;
+  --erp-sidebar-bg: #fdfdfd;
+  --erp-sidebar-submenu-bg: #fdfdfd;
+  --erp-border: #f4f4f4;
 }
 
 .erp-shell .erp-sidebar,
@@ -2082,7 +2082,7 @@ input[type="number"] {
 
 .erp-shell .erp-sidebar [data-sidebar="header"] {
   background: var(--erp-sidebar-bg);
-  border-bottom-color: #e8e8e8 !important;
+  border-bottom-color: #f4f4f4 !important;
 }
 
 .erp-shell .erp-sidebar-link[data-active="true"],
@@ -2101,7 +2101,7 @@ input[type="number"] {
 .erp-shell .erp-sidebar-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-sub-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-group-trigger:hover {
-  background: #ebebeb !important;
+  background: #f7f7f7 !important;
   color: #0f172a !important;
 }
 
@@ -2121,12 +2121,12 @@ input[type="number"] {
 
 .erp-shell .cadastro-emp-scope {
   border-radius: inherit;
-  background: var(--emp-surface-bg, #f5f5f5) !important;
+  background: var(--emp-surface-bg, #fdfdfd) !important;
 }
 
 .erp-shell .cadastro-emp-scope .emp-table-stage,
 .erp-shell .cadastro-emp-scope .emp-table-shell {
-  background: var(--emp-surface-bg, #f5f5f5) !important;
+  background: var(--emp-surface-bg, #fdfdfd) !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-separator"] svg,
