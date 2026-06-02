@@ -174,6 +174,36 @@ export const writeStoredLayoutConfig = (config) => {
   localStorage.setItem(getLegacyKey(), JSON.stringify(pickLayoutConfig(config)));
 };
 
+export const mergeSavedFormLayout = (saved, defaults) => {
+  if (!saved || typeof saved !== "object") return pickLayoutConfig(defaults);
+
+  const defaultLayout = defaults?.layout || {};
+  const savedLayout = saved.layout || {};
+  const layout = { ...defaultLayout };
+
+  Object.entries(savedLayout).forEach(([panelId, fieldIds]) => {
+    if (Array.isArray(fieldIds)) {
+      layout[panelId] = fieldIds;
+    }
+  });
+
+  const totalPlaced = Object.values(layout).flat().filter(Boolean).length;
+  if (totalPlaced === 0) return pickLayoutConfig(defaults);
+
+  const panels = Array.isArray(saved.panels) && saved.panels.length ? saved.panels : defaults.panels;
+
+  return pickLayoutConfig({
+    ...defaults,
+    ...saved,
+    panels,
+    layout,
+    fieldLayoutConfig: saved.fieldLayoutConfig || defaults.fieldLayoutConfig,
+  });
+};
+
+export const countLayoutFields = (layout = {}) =>
+  Object.values(layout).flat().filter(Boolean).length;
+
 export const empFormLayoutStore = {
   persistActiveConfig(config) {
     writeStoredLayoutConfig(config);

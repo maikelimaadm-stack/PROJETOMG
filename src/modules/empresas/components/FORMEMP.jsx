@@ -12,6 +12,7 @@ import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpL
 import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
   getLayoutStorageKeys,
+  mergeSavedFormLayout,
   normalizeLayoutConfig,
   readStoredLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
@@ -70,8 +71,7 @@ export default function FORMEMP({
     setFormLayoutConfig(localConfig);
     syncEmpresasFormLayoutRemote(user.id);
 
-    const handleRemoteLayout = (event) => {
-      if (event.detail?.userId && event.detail.userId !== user.id) return;
+    const handleRemoteLayout = () => {
       setFormLayoutConfig(readStoredLayoutConfig());
     };
 
@@ -106,7 +106,7 @@ export default function FORMEMP({
     setActiveTab("geral");
   }, [initialData?.id, initialData?.codempresa, initialData?.updatedAt, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
 
-  const { data: camposPersonalizados = [] } = useQuery({
+  const { data: camposPersonalizados = [], isFetched: camposPersonalizadosReady } = useQuery({
     queryKey: ["emp-campos-personalizados"],
     queryFn: () => empRepository.listCamposPersonalizados(),
     initialData: [],
@@ -227,7 +227,31 @@ export default function FORMEMP({
     { id: "cidade", name: "cidade", label: "Cidade", type: "text", uppercase: true, placeholder: "CIDADE" },
     { id: "estado", name: "estado", label: "Estado (UF)", type: "autocomplete", compact: true, options: opcoesEstado, placeholder: "UF", displayField: "nome", searchFields: ["nome"] },
     { id: "observacoes", name: "observacoes", label: "Observações", type: "textarea", wide: true, uppercase: true, placeholder: "OBSERVAÇÕES GERAIS..." },
-    ...camposPersonalizadosForm.map((campo) => ({ id: `custom:${campo.field_name}`, name: campo.field_name, label: campo.label, type: campo.tipo, origem: "customizado", optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "", required: campo.obrigatorio, errorKey: `campos_personalizados.${campo.field_name}`, wide: ["textarea", "option_list"].includes(campo.tipo), medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo), compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo), totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara, options: ["select", "option_list"].includes(campo.tipo) ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({ id: String(option.value || option.label || ""), nome: String(option.label || option.value || "").toUpperCase() })) : [], displayField: "nome", searchFields: ["nome"], render: () => renderCampoPersonalizado(campo) }))
+    ...camposPersonalizadosForm.map((campo) => ({
+      id: `custom:${campo.field_name}`,
+      name: campo.field_name,
+      label: campo.label,
+      type: campo.tipo,
+      origem: "customizado",
+      dataField: `campos_personalizados.${campo.field_name}`,
+      getValue: (values) => values.campos_personalizados?.[campo.field_name] ?? "",
+      optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "",
+      required: campo.obrigatorio,
+      errorKey: `campos_personalizados.${campo.field_name}`,
+      wide: ["textarea", "option_list"].includes(campo.tipo),
+      medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo),
+      compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo),
+      totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara,
+      options: ["select", "option_list"].includes(campo.tipo)
+        ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({
+            id: String(option.value || option.label || ""),
+            nome: String(option.label || option.value || "").toUpperCase(),
+          }))
+        : [],
+      displayField: "nome",
+      searchFields: ["nome"],
+      render: () => renderCampoPersonalizado(campo),
+    }))
   ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions]);
 
   const basePanels = useMemo(
@@ -248,7 +272,7 @@ export default function FORMEMP({
   const defaultConfigFull = useMemo(() => buildEmpFormDefaultConfig(), []);
 
   const activeLayoutConfig = useMemo(() => {
-    const source = formLayoutConfig || defaultConfigFull;
+    const source = mergeSavedFormLayout(formLayoutConfig, defaultConfigFull);
     return normalizeLayoutConfig(source, {
       basePanels,
       defaultLayout,
@@ -314,6 +338,41 @@ export default function FORMEMP({
       }
     }
     return normalized;
+  };
+
+  useEffect(() => {
+    if (!user?.id || !formLayoutConfig) return;
+
+    const placedIds = Object.values(activeLayoutConfig.layout || {}).flat().filter(Boolean);
+    if (placedIds.length === 0) {
+      applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
+      return;
+    }
+
+    const hasPendingCustomFields = placedIds.some((fieldId) => String(fieldId).startsWith("custom:"));
+    if (hasPendingCustomFields && !camposPersonalizadosReady) return;
+
+    const knownFieldIds = new Set(dynamicFields.map((field) => field.id));
+    const validPlacedIds = placedIds.filter((fieldId) => knownFieldIds.has(fieldId));
+    if (validPlacedIds.length === 0) {
+      applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
+    }
+  }, [
+    user?.id,
+    formLayoutConfig,
+    activeLayoutConfig.layout,
+    defaultConfigFull,
+    dynamicFields,
+    camposPersonalizadosReady,
+  ]);
+
+  const handleDynamicFieldChange = (fieldName, value) => {
+    const field = dynamicFields.find((item) => item.name === fieldName);
+    if (field?.origem === "customizado") {
+      handleCustomChange(fieldName, value);
+      return;
+    }
+    handleChange(fieldName, value);
   };
 
   const saveLayoutConfig = (nextConfig) => {
@@ -463,7 +522,7 @@ export default function FORMEMP({
         <div className="flex-1 min-h-0 pb-6 pr-2 form-scroll-container">
           <div className={`emp-form-body flex flex-col ${standalonePrincipalInUse ? "" : "emp-form-body-no-principal"}`}>
             {standalonePrincipalInUse && (
-              <div className="emp-form-section emp-form-section-principal w-max min-w-[920px] max-w-none pl-2 pr-4">
+              <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <EmpDynamicFormRenderer
                     panels={activeLayoutConfig.panels}
@@ -477,7 +536,7 @@ export default function FORMEMP({
                     activePanelId="principal"
                     values={formData}
                     errors={errors}
-                    onChange={handleChange}
+                    onChange={handleDynamicFieldChange}
                     readOnly={isReadOnly}
                   />
                 </fieldset>
@@ -514,7 +573,7 @@ export default function FORMEMP({
                         activePanelId={activeTab}
                         values={formData}
                         errors={errors}
-                        onChange={handleChange}
+                        onChange={handleDynamicFieldChange}
                         readOnly={isReadOnly}
                       />
                     </fieldset>
@@ -554,7 +613,7 @@ export default function FORMEMP({
                             activePanelId={panel.id}
                             values={formData}
                             errors={errors}
-                            onChange={handleChange}
+                            onChange={handleDynamicFieldChange}
                             readOnly={isReadOnly}
                           />
                         </fieldset>
