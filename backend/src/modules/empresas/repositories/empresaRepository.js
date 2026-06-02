@@ -171,7 +171,7 @@ export const empresaRepository = {
         });
         if (!sequence) {
           const maxCodigo = await tx.empresa.aggregate({
-            where: { cliente_id: scope.clienteId },
+            where: { tenant_id: scope.clienteId },
             _max: { codempresa: true },
           });
           codigo = Number(maxCodigo._max.codempresa || 0) + 1;
@@ -191,7 +191,7 @@ export const empresaRepository = {
         }
       } else {
         const existingCode = await tx.empresa.findFirst({
-          where: { cliente_id: scope.clienteId, codempresa: codigo },
+          where: { tenant_id: scope.clienteId, codempresa: codigo },
           select: { id: true },
         });
         if (existingCode) {

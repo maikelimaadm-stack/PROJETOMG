@@ -53,6 +53,11 @@ export const seedBootstrap = async (prisma = new PrismaClient()) => {
 };
 
 const run = async () => {
+  if (String(process.env.SEED_SKIP || "").toLowerCase() === "true") {
+    console.log("Seed ignorado (SEED_SKIP=true).");
+    return;
+  }
+
   const prisma = new PrismaClient();
   try {
     const { cliente, usuario } = await seedBootstrap(prisma);
