@@ -1,7 +1,7 @@
 /** Borda clara em campos; botões brancos com borda leve (Novo/Salvar mantêm azul via CSS) */
-export const EMP_TOOLBAR_FIELD_BORDER = "border border-[#f4f4f4] rounded-[5px]";
+export const EMP_TOOLBAR_FIELD_BORDER = "border-[1.5px] border-[#e8ecef] rounded-[5px]";
 
-export const EMP_TOOLBAR_BTN_SHAPE = "rounded-[5px] border border-[#f4f4f4]";
+export const EMP_TOOLBAR_BTN_SHAPE = "rounded-[5px] border-[1.5px] border-[#e8ecef]";
 
 export const EMP_TOOLBAR_BTN_BG = "bg-white";
 

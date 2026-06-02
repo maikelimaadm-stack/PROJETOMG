@@ -786,15 +786,14 @@ export default function TBLEMP({
         ref={tableStageRef}
         className={`emp-table-stage relative flex h-full min-h-0 flex-col ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
       >
-      <Card className="emp-table-shell flex-1 min-h-0 overflow-hidden border border-[#c5ced8] bg-white shadow-none">
-        <CardContent className="flex h-full min-h-0 flex-col overflow-hidden p-0">
-          <div className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div
-              ref={scrollContainerRef}
-              tabIndex={0}
-              onKeyDown={handleTableKeyDown}
-              className="emp-table-body-scroll relative min-h-0 flex-1 w-full outline-none overflow-auto"
-            >
+      <Card className="emp-table-shell min-h-0 flex-1 overflow-hidden bg-white shadow-none">
+        <CardContent className="flex h-full min-h-0 flex-1 flex-col overflow-hidden p-0">
+          <div
+            ref={scrollContainerRef}
+            tabIndex={0}
+            onKeyDown={handleTableKeyDown}
+            className="emp-table-body-scroll relative min-h-0 h-full w-full flex-1 outline-none overflow-auto"
+          >
               <div
                 className="block w-max min-w-full"
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
@@ -908,38 +907,39 @@ export default function TBLEMP({
               </Table>
               </div>
             </div>
-            {hasTotalRow ? (
-              <div
-                ref={footerScrollRef}
-                className="emp-table-footer-bar shrink-0 overflow-x-auto overflow-y-hidden border-t border-[#f4f4f4] bg-white"
-              >
-                <div
-                  className="block w-max min-w-full"
-                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                >
-                  <Table
-                    style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                    className="emp-table-pro emp-table-pro-footer w-full border-separate border-spacing-0 table-fixed select-none"
-                  >
-                    <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
-                      <TableRow className="emp-total-row border-0 hover:bg-transparent">
-                        {renderTotalCells()}
-                      </TableRow>
-                    </TableFooter>
-                  </Table>
-                </div>
-              </div>
-            ) : null}
-            <EmpTablePagination
-              currentPage={safeCurrentPage}
-              totalPages={totalPages}
-              pageSize={pageSize}
-              onPageChange={handlePageChange}
-              onPageSizeChange={handlePageSizeChange}
-            />
-          </div>
         </CardContent>
       </Card>
+      <div className="emp-table-bottom-dock shrink-0">
+        {hasTotalRow ? (
+          <div
+            ref={footerScrollRef}
+            className="emp-table-footer-bar overflow-x-auto overflow-y-hidden"
+          >
+            <div
+              className="block w-max min-w-full"
+              style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+            >
+              <Table
+                style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                className="emp-table-pro emp-table-pro-footer w-full border-separate border-spacing-0 table-fixed select-none"
+              >
+                <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
+                  <TableRow className="emp-total-row border-0 hover:bg-transparent">
+                    {renderTotalCells()}
+                  </TableRow>
+                </TableFooter>
+              </Table>
+            </div>
+          </div>
+        ) : null}
+        <EmpTablePagination
+          currentPage={safeCurrentPage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>
       <EmpConfiguracaoColunasDialog

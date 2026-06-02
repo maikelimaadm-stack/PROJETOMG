@@ -229,12 +229,14 @@ input[type="number"] {
   --emp-accent-primary-hover: #1d4ed8;
   --emp-toolbar-btn-bg: #ffffff;
   --emp-toolbar-btn-bg-hover: #f8fafc;
-  --emp-toolbar-btn-border: #f4f4f4;
+  --emp-toolbar-btn-border: #e8ecef;
+  --emp-toolbar-btn-border-width: 1.5px;
   --emp-toolbar-btn-fg: #0f172a;
   --emp-table-frame-border: #f4f4f4;
   --emp-surface-bg: #fdfdfd;
   --emp-table-bg: #ffffff;
-  --emp-table-band-bg: #ffffff;
+  --emp-table-band-bg: #f6f6f6;
+  --emp-table-row-selected-bg: #f6f6f6;
   --emp-table-row-alt-bg: #fefefe;
   --emp-table-line: #f4f4f4;
   color: var(--emp-text);
@@ -984,8 +986,13 @@ input[type="number"] {
 
 /* Tabela profissional — mockup Cadastro de Empresas */
 .cadastro-emp-scope .emp-table-shell {
-  border-radius: 6px !important;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px 6px 0 0 !important;
   border: 1px solid var(--emp-table-frame-border) !important;
+  border-bottom: none !important;
   background: var(--emp-table-bg) !important;
 }
 
@@ -1099,7 +1106,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
-  background: #f6f6f6 !important;
+  background: var(--emp-table-row-selected-bg) !important;
   color: #1a1f26 !important;
   font-weight: 600;
 }
@@ -1351,18 +1358,18 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete),
 .cadastro-emp-scope .emp-header-ctrl {
-  border: 1px solid var(--emp-toolbar-btn-border) !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
-  border: 1px solid var(--emp-toolbar-btn-border) !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar-counter,
 .cadastro-emp-scope .emp-table-pagination-size,
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-size {
-  border: 1px solid var(--emp-toolbar-btn-border) !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
   border-radius: 5px !important;
 }
 
@@ -1516,7 +1523,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-nav-btn {
   background: #ffffff !important;
-  border: 1px solid var(--emp-toolbar-btn-border) !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-nav-btn:hover:not(:disabled) {
@@ -1536,7 +1543,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
   background: #ffffff !important;
-  border: 1px solid #fecaca !important;
+  border: var(--emp-toolbar-btn-border-width) solid #f5d0d0 !important;
   color: #dc2626 !important;
 }
 
@@ -1572,22 +1579,48 @@ input[type="number"] {
   color: #94a3b8;
 }
 
+.cadastro-emp-scope .emp-table-stage {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-table-bottom-dock {
+  flex-shrink: 0;
+  background: var(--emp-table-bg) !important;
+  border: 1px solid var(--emp-table-frame-border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+
 .cadastro-emp-scope .emp-table-pagination {
   gap: 4px !important;
   flex-shrink: 0 !important;
-  border-top: 1px solid var(--emp-table-frame-border) !important;
+  border-top: 1px solid var(--emp-table-line) !important;
   background: var(--emp-table-bg) !important;
 }
 
 .cadastro-emp-scope .emp-table-footer-bar {
   flex-shrink: 0 !important;
-  background: var(--emp-table-bg) !important;
+  background: var(--emp-table-band-bg) !important;
+  border-top: 1px solid var(--emp-table-line) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer .emp-th {
   position: relative !important;
   top: auto !important;
   bottom: auto !important;
+  background: var(--emp-table-band-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer,
+.cadastro-emp-scope .emp-table-pro-footer tfoot.emp-table-footer > tr {
+  background: var(--emp-table-band-bg) !important;
+}
+
+.cadastro-emp-scope .emp-table-panel {
+  padding-top: 8px;
 }
 
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn {
@@ -1600,9 +1633,6 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
-.cadastro-emp-scope .emp-table-pagination .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
-  border: 1px solid var(--emp-toolbar-btn-border) !important;
-}
 
 .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
   color: var(--emp-toolbar-btn-fg) !important;
