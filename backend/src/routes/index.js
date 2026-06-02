@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { registerAuthRoutes } from "../modules/auth/routes.js";
 import { registerEmpresasRoutes } from "../modules/empresas/routes.js";
 import { registerAnexosRoutes } from "../modules/anexos/routes.js";
+import { registerPreferencesRoutes } from "../modules/preferences/routes.js";
 import { verifyDatabaseConnection } from "../database/prismaClient.js";
 import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "../integrations/supabase/adminClient.js";
 
@@ -100,6 +101,7 @@ export const registerRoutes = async (app) => {
   });
 
   await registerAuthRoutes(app);
+  await registerPreferencesRoutes(app);
   await registerEmpresasRoutes(app);
   await registerAnexosRoutes(app);
   await registerGeneratedModuleRoutes(app);

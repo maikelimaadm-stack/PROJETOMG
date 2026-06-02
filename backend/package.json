@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "start:prod": "node scripts/seedBootstrap.js && NODE_ENV=production node src/server.js",
+    "start:prod": "node scripts/seedBootstrap.js && node scripts/ensureUsuarioPreferenciaTable.js && NODE_ENV=production node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:normalize-codes": "node scripts/normalizeEmpresaCodes.js",
@@ -19,6 +19,7 @@
     "smoke:campos-tipos": "node scripts/smokeCamposTipos.js",
     "migrate:codempresa": "node scripts/renameCodempresaColumns.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
+    "ensure:usuario-preferencias": "node scripts/ensureUsuarioPreferenciaTable.js",
     "security:multiempresa": "node scripts/securityMultiempresaProbe.js",
     "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run seed && npm run ensure:campos-indexes && npm run smoke:empresas && npm run smoke:auth-permissoes && npm run smoke:campos && npm run smoke:campos-tipos && npm run security:multiempresa",
     "docker:build": "docker build -t mak-gestao-backend ."
