@@ -1,0 +1,30 @@
+{
+  "exportedAt": "2026-06-02T12:00:00.000Z",
+  "screen": "empresas.form_layout",
+  "storageKey": "cadastro:USER_ID:emp:form_layout_config",
+  "config": {
+    "panels": [
+      { "id": "principal", "label": "Principal" },
+      { "id": "geral", "label": "Geral" },
+      { "id": "endereco", "label": "Endereço" },
+      { "id": "observacoes", "label": "Observações" }
+    ],
+    "layout": {
+      "principal": ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
+      "geral": ["nome_fantasia", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
+      "endereco": ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
+      "observacoes": ["observacoes"]
+    },
+    "hiddenFieldIds": [],
+    "lockedFieldIds": [],
+    "requiredFieldIds": [],
+    "clearOnDuplicateFieldIds": [],
+    "fieldDefaultValues": {},
+    "aggregationConfig": {},
+    "visibilityRules": {},
+    "fieldLayoutConfig": {
+      "mode": "vertical",
+      "columns": 1
+    }
+  }
+}
