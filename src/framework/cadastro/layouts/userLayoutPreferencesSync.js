@@ -2,17 +2,17 @@ import {
   USER_PREFERENCE_SCREENS,
   userPreferencesApi,
 } from "@/apis/preferences/userPreferencesApi";
-import empFormLayoutStore, {
+import {
   bindLayoutStoreUser,
   getLayoutStorageKeys,
+  readStoredLayoutConfig,
+  writeStoredLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 
-const LEGACY_PRESETS_KEY = "cadastro_emp_form_layout_presets_v1";
 const LEGACY_CONFIG_KEY = "cadastro_emp_form_layout_config";
 
 let syncTimer = null;
 let boundUserId = null;
-let hydrationPromise = null;
 
 const readJson = (key) => {
   try {
@@ -23,96 +23,66 @@ const readJson = (key) => {
   }
 };
 
-const writeJson = (key, value) => {
-  localStorage.setItem(key, JSON.stringify(value));
-};
-
 const migrateLegacyToUserKeys = (userId) => {
-  const { presetsKey, legacyKey } = getLayoutStorageKeys(userId);
-  const hasUserPresets = localStorage.getItem(presetsKey);
-  const hasUserConfig = localStorage.getItem(legacyKey);
-  if (hasUserPresets || hasUserConfig) return;
+  const { legacyKey } = getLayoutStorageKeys(userId);
+  if (localStorage.getItem(legacyKey)) return;
 
-  const legacyPresets = localStorage.getItem(LEGACY_PRESETS_KEY);
   const legacyConfig = localStorage.getItem(LEGACY_CONFIG_KEY);
-  if (legacyPresets) localStorage.setItem(presetsKey, legacyPresets);
   if (legacyConfig) localStorage.setItem(legacyKey, legacyConfig);
 };
 
-const buildLayoutBlob = (userId) => {
-  bindLayoutStoreUser(userId);
-  const { legacyKey } = getLayoutStorageKeys(userId);
-  return {
-    version: 1,
-    activeConfig: readJson(legacyKey),
-    presetsState: empFormLayoutStore.getState(),
-  };
-};
-
-const applyLayoutBlob = (userId, blob) => {
-  if (!blob || typeof blob !== "object") return false;
-  bindLayoutStoreUser(userId);
-  const { presetsKey, legacyKey } = getLayoutStorageKeys(userId);
-  let applied = false;
-
-  if (blob.presetsState?.presets?.length) {
-    writeJson(presetsKey, blob.presetsState);
-    applied = true;
-  }
-  if (blob.activeConfig) {
-    writeJson(legacyKey, blob.activeConfig);
-    applied = true;
-  }
-  return applied;
-};
-
-const hasLocalLayoutData = (userId) => {
-  const { presetsKey, legacyKey } = getLayoutStorageKeys(userId);
-  return Boolean(localStorage.getItem(presetsKey) || localStorage.getItem(legacyKey));
-};
-
-export const hydrateEmpresasFormLayout = async (userId) => {
+export const initEmpresasFormLayoutLocal = (userId) => {
   if (!userId) return null;
-  if (hydrationPromise && boundUserId === userId) return hydrationPromise;
+  boundUserId = userId;
+  bindLayoutStoreUser(userId);
+  migrateLegacyToUserKeys(userId);
+  return readStoredLayoutConfig();
+};
 
-  hydrationPromise = (async () => {
-    boundUserId = userId;
-    bindLayoutStoreUser(userId);
-    migrateLegacyToUserKeys(userId);
+export const syncEmpresasFormLayoutRemote = (userId = boundUserId) => {
+  if (!userId) return;
+  bindLayoutStoreUser(userId);
 
+  void (async () => {
     try {
       const remote = await userPreferencesApi.get(USER_PREFERENCE_SCREENS.empresasFormLayout);
-      if (remote?.config && applyLayoutBlob(userId, remote.config)) {
-        return empFormLayoutStore.getState();
+      const activeConfig = remote?.config?.activeConfig;
+      if (!activeConfig) return;
+
+      const localUpdatedAt = readJson(`${getLayoutStorageKeys(userId).legacyKey}__updatedAt`);
+      const remoteUpdatedAt = remote?.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
+      const localTime = localUpdatedAt ? new Date(localUpdatedAt).getTime() : 0;
+
+      if (remoteUpdatedAt >= localTime) {
+        writeStoredLayoutConfig(activeConfig);
+        window.dispatchEvent(new CustomEvent("emp-layout-hydrated", { detail: { userId } }));
+      } else if (readStoredLayoutConfig()) {
+        scheduleEmpresasFormLayoutSync(userId);
       }
     } catch (error) {
-      if (error?.status !== 404) {
-        console.warn("Falha ao carregar layout remoto:", error);
+      if (error?.status !== 404 && readStoredLayoutConfig()) {
+        scheduleEmpresasFormLayoutSync(userId);
       }
     }
-
-    if (hasLocalLayoutData(userId)) {
-      scheduleEmpresasFormLayoutSync(userId);
-    }
-
-    return empFormLayoutStore.getState();
   })();
-
-  try {
-    return await hydrationPromise;
-  } finally {
-    hydrationPromise = null;
-  }
 };
 
 export const scheduleEmpresasFormLayoutSync = (userId = boundUserId) => {
   if (!userId) return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(async () => {
-    const blob = buildLayoutBlob(userId);
-    if (!blob.activeConfig && !blob.presetsState?.presets?.length) return;
+    bindLayoutStoreUser(userId);
+    const activeConfig = readStoredLayoutConfig();
+    if (!activeConfig) return;
+
+    const { legacyKey } = getLayoutStorageKeys(userId);
+    localStorage.setItem(`${legacyKey}__updatedAt`, new Date().toISOString());
+
     try {
-      await userPreferencesApi.save(USER_PREFERENCE_SCREENS.empresasFormLayout, blob);
+      await userPreferencesApi.save(USER_PREFERENCE_SCREENS.empresasFormLayout, {
+        version: 2,
+        activeConfig,
+      });
     } catch (error) {
       console.warn("Falha ao sincronizar layout do formulário:", error);
     }
@@ -123,7 +93,6 @@ export const resetEmpresasFormLayoutSync = () => {
   boundUserId = null;
   clearTimeout(syncTimer);
   syncTimer = null;
-  hydrationPromise = null;
   bindLayoutStoreUser(null);
 };
 
