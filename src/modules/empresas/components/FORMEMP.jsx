@@ -49,7 +49,6 @@ export default function FORMEMP({
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
-  const [isSaving, setIsSaving] = useState(false);
   const [formLayoutConfig, setFormLayoutConfig] = useState(() => {
     const saved = localStorage.getItem(FORM_LAYOUT_KEY);
     if (!saved) return null;
@@ -78,7 +77,6 @@ export default function FORMEMP({
     }
     setFormData(next);
     setErrors({});
-    setIsSaving(false);
     setEditMode(!isEditing || !!initialData?._isDuplicate);
     setActiveTab("geral");
   }, [initialData?.id, initialData?.codempresa, initialData?.updatedAt, initialData?._isDuplicate, isEditing, formLayoutConfig?.clearOnDuplicateFieldIds]);
@@ -381,19 +379,14 @@ export default function FORMEMP({
     return false;
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
     if (event?.preventDefault) event.preventDefault();
-    if (isReadOnly || isSaving) return;
+    if (isReadOnly) return;
     if (!validateForm()) return;
     const calculated = campoEngine.aplicarCamposCalculados ? campoEngine.aplicarCamposCalculados(formData, camposPersonalizadosForm) : formData;
     const { _isDuplicate, ...clean } = { ...formData, campos_personalizados: calculated.campos_personalizados || {} };
-    setIsSaving(true);
-    try {
-      await onSubmit(clean);
-      if (isEditing && !isDuplicating) setEditMode(false);
-    } finally {
-      setIsSaving(false);
-    }
+    if (isEditing && !isDuplicating) setEditMode(false);
+    onSubmit(clean);
   };
 
   const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";

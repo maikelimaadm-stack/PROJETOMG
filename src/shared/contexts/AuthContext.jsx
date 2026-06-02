@@ -101,6 +101,48 @@ export const AuthProvider = ({ children }) => {
     setSelectedEmpresaId(normalizedEmpresaId);
   };
 
+  const mapEmpresaForSelector = (empresa) => ({
+    id: empresa.id,
+    codempresa: Number(empresa.codempresa || 0),
+    nome_empresa: empresa.nome_empresa || empresa.razao_social || "",
+    razao_social: empresa.razao_social || empresa.nome_empresa || "",
+    status: empresa.status || "Ativa",
+  });
+
+  const upsertEmpresaInSelector = (empresa) => {
+    if (!empresa?.id) return;
+    const mapped = mapEmpresaForSelector(empresa);
+    setEmpresas((previous) => {
+      const index = previous.findIndex((item) => item.id === mapped.id);
+      if (index >= 0) {
+        const next = [...previous];
+        next[index] = { ...next[index], ...mapped };
+        return next;
+      }
+      return [...previous, mapped].sort(
+        (a, b) => Number(a.codempresa || 0) - Number(b.codempresa || 0)
+      );
+    });
+  };
+
+  const removeEmpresasFromSelector = (ids = []) => {
+    const idSet = new Set(ids.filter(Boolean));
+    if (idSet.size === 0) return;
+
+    setEmpresas((previous) => previous.filter((item) => !idSet.has(item.id)));
+    setSelectedEmpresaId((previous) => {
+      if (previous && idSet.has(previous)) {
+        AuthApi.setSelectedEmpresaId(null);
+        return null;
+      }
+      return previous;
+    });
+  };
+
+  const replaceEmpresasInSelector = (nextEmpresas = []) => {
+    setEmpresas(Array.isArray(nextEmpresas) ? nextEmpresas : []);
+  };
+
   const logout = async () => {
     await AuthApi.logout().catch(() => null);
     setUser(null);
@@ -136,6 +178,9 @@ export const AuthProvider = ({ children }) => {
       login,
       logout,
       selectEmpresa,
+      upsertEmpresaInSelector,
+      removeEmpresasFromSelector,
+      replaceEmpresasInSelector,
       navigateToLogin,
       checkAppState,
     }}>

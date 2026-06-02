@@ -1,16 +1,6 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
 import { auditService } from "../audit/auditService.js";
 
-const hasFieldValue = (campos, fieldName) => {
-  if (!campos || typeof campos !== "object") return false;
-  const value = campos[fieldName];
-  if (value == null) return false;
-  if (typeof value === "string") return value.trim() !== "";
-  if (Array.isArray(value)) return value.length > 0;
-  if (typeof value === "object") return Object.keys(value).length > 0;
-  return true;
-};
-
 const buildApplicableFieldsWhere = (scope, entityName) => {
   const and = [{ cliente_id: scope.clienteId }, { entity_name: entityName }];
   const or = [{ empresa_id: null }];
@@ -87,8 +77,32 @@ const extractFormulaFieldNames = (formula) => {
   return tokens.filter((token) => /^[a-zA-Z_]/.test(token));
 };
 
-const recordUsesAnyField = (campos, fieldNames) =>
-  fieldNames.some((fieldName) => hasFieldValue(campos, fieldName));
+const assertSafeFieldName = (fieldName) => {
+  const safe = String(fieldName || "");
+  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(safe)) {
+    const error = new Error(`Nome de campo inválido: ${fieldName}`);
+    error.statusCode = 400;
+    throw error;
+  }
+  return safe;
+};
+
+const buildFieldHasValueSql = (fieldName) => {
+  const safe = assertSafeFieldName(fieldName);
+  return `(
+    campos_personalizados ? '${safe}'
+    AND (
+      CASE jsonb_typeof(campos_personalizados->'${safe}')
+        WHEN 'string' THEN COALESCE(NULLIF(btrim(campos_personalizados->>'${safe}'), ''), NULL) IS NOT NULL
+        WHEN 'number' THEN true
+        WHEN 'boolean' THEN true
+        WHEN 'array' THEN jsonb_array_length(campos_personalizados->'${safe}') > 0
+        WHEN 'object' THEN campos_personalizados->'${safe}' <> '{}'::jsonb
+        ELSE false
+      END
+    )
+  )`;
+};
 
 const countRecordsUsingField = async (
   prisma,
@@ -96,33 +110,43 @@ const countRecordsUsingField = async (
 ) => {
   const dependencyFields =
     tipo === "calculado" ? extractFormulaFieldNames(formula) : [];
-  const trackedFields = Array.from(new Set([fieldName, ...dependencyFields]));
+  const trackedFields = Array.from(new Set([fieldName, ...dependencyFields]))
+    .map(assertSafeFieldName)
+    .filter(Boolean);
+
+  if (trackedFields.length === 0) return 0;
+
+  const fieldConditions = trackedFields.map(buildFieldHasValueSql).join(" OR ");
 
   if (entityName === "EmpresaCadastro") {
-    const where = { cliente_id: scope.clienteId };
-    if (campoEmpresaId) where.id = campoEmpresaId;
-    const records = await prisma.empresa.findMany({
-      where,
-      select: { campos_personalizados: true },
-    });
-    return records.filter((record) =>
-      recordUsesAnyField(record.campos_personalizados, trackedFields)
-    ).length;
+    let sql = `
+      SELECT COUNT(*)::int AS count
+      FROM "Empresa"
+      WHERE cliente_id = $1
+    `;
+    const params = [scope.clienteId];
+    if (campoEmpresaId) {
+      params.push(campoEmpresaId);
+      sql += ` AND id = $${params.length}`;
+    }
+    sql += ` AND (${fieldConditions})`;
+    const result = await prisma.$queryRawUnsafe(sql, ...params);
+    return Number(result[0]?.count ?? 0);
   }
 
-  const where = {
-    cliente_id: scope.clienteId,
-    entity_name: entityName,
-  };
-  if (campoEmpresaId) where.empresa_id = campoEmpresaId;
-
-  const records = await prisma.cadastroRegistro.findMany({
-    where,
-    select: { campos_personalizados: true },
-  });
-  return records.filter((record) =>
-    recordUsesAnyField(record.campos_personalizados, trackedFields)
-  ).length;
+  let sql = `
+    SELECT COUNT(*)::int AS count
+    FROM "CadastroRegistro"
+    WHERE cliente_id = $1 AND entity_name = $2
+  `;
+  const params = [scope.clienteId, entityName];
+  if (campoEmpresaId) {
+    params.push(campoEmpresaId);
+    sql += ` AND empresa_id = $${params.length}`;
+  }
+  sql += ` AND (${fieldConditions})`;
+  const result = await prisma.$queryRawUnsafe(sql, ...params);
+  return Number(result[0]?.count ?? 0);
 };
 
 const sanitizeCampoPayload = (payload = {}) => {
@@ -170,7 +194,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       },
     });
 
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "CampoPersonalizado",
       action: "CREATE",
@@ -237,7 +261,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       },
     });
 
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "CampoPersonalizado",
       action: "UPDATE",
@@ -275,7 +299,7 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
     }
 
     await prisma.campoPersonalizado.delete({ where: { id: current.id } });
-    await auditService.log({
+    void auditService.log({
       scope,
       entityName: "CampoPersonalizado",
       action: "DELETE",
