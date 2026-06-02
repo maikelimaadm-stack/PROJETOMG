@@ -69,14 +69,14 @@ function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
 
 function DefaultControl({ field, value, onChange, readOnly }) {
   const loteStyle = isCustomField(field);
-  const inputClass = `emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 ${loteStyle ? "bg-transparent" : "bg-white"} ${field.uppercase !== false ? "uppercase" : ""}`.trim();
+  const inputClass = `emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white ${field.uppercase !== false ? "uppercase" : ""}`.trim();
 
   if (field.type === "textarea") {
-    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={`emp-form-input w-full ${loteStyle ? "bg-transparent" : "bg-white"} px-2 uppercase`} rows={field.rows || 2} />;
+    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className="emp-form-input w-full bg-white px-2 uppercase" rows={field.rows || 2} />;
   }
 
   if (["select", "autocomplete", "relation"].includes(field.type)) {
-    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} placeholder={field.placeholder || "BUSCAR..."} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full" inputClassName={`emp-form-input border-0 shadow-none focus-visible:ring-0 ${loteStyle ? "bg-transparent" : "bg-white"} uppercase`} />;
+    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} placeholder={field.placeholder || "BUSCAR..."} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full emp-autocomplete" inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase" />;
   }
 
   if (field.type === "checkbox") {

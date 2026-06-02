@@ -78,7 +78,7 @@ export const buildEmpFormDefaultConfig = () => ({
   visibilityRules: {},
   fieldLayoutConfig: { mode: "vertical", columns: 1 },
 });
-export const inputClass = "emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase";
+export const inputClass = "emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase w-full";
 
 export const buildEmptyEmpresaForm = () => ({
   codempresa: "",

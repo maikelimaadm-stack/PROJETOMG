@@ -870,7 +870,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control {
   border: 1px solid var(--emp-form-border-color);
   border-radius: var(--emp-control-radius) !important;
-  background: #ffffff;
+  background: #ffffff !important;
   box-shadow: none;
   overflow: hidden;
   min-height: var(--emp-form-control-height);
@@ -961,18 +961,29 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input,
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea,
-.cadastro-emp-scope .emp-form-fields .emp-form-field-control button,
-.cadastro-emp-scope .emp-form-fields .emp-form-input {
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control select,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control button:not(.emp-form-toggle-switch),
+.cadastro-emp-scope .emp-form-fields .emp-form-input,
+.cadastro-emp-scope .emp-form-fields .emp-autocomplete input {
   height: var(--emp-form-control-height);
   min-height: var(--emp-form-control-height);
   border: 0;
   border-radius: var(--emp-control-radius) !important;
   box-shadow: none;
-  background: #ffffff;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
   font-size: var(--emp-form-font-size);
   text-transform: uppercase;
   color: #1a1f26;
   padding: 0 8px;
+}
+
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control input:read-only,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control input[readonly],
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea:read-only,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control select:disabled {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea {
@@ -2221,12 +2232,10 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote input,
-.cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote textarea {
-  background: transparent !important;
-}
-
-.cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote input.bg-slate-50 {
-  background: #f8fafc !important;
+.cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote textarea,
+.cadastro-emp-scope .emp-form-fields-custom .emp-form-field-control-lote select {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
 }
 
 /* Shell ERP — menu lateral MAK Gestão */
