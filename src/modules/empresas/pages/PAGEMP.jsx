@@ -74,7 +74,7 @@ export default function PAGEMP() {
   const pendingDeleteIdsRef = useRef([]);
   const queryClient = useQueryClient();
 
-  const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE } = useQuery({
+  const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
     queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
     queryFn: () =>
       moduleRepository.listPage({
@@ -91,6 +91,7 @@ export default function PAGEMP() {
 
   const empresas = empresasResponse.items || [];
   const totalEmpresas = empresasResponse.total || 0;
+  const empresasLoading = isLoading || (isFetching && empresas.length === 0);
   const empresasFiltradasPainel = empresas;
 
   const handleFilteredEmpresasChange = useCallback((filtered) => {
@@ -275,6 +276,7 @@ export default function PAGEMP() {
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
+    setFormVersion((version) => version + 1);
   };
 
   const handleNew = () => {
@@ -350,6 +352,7 @@ export default function PAGEMP() {
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
+    setFormVersion((version) => version + 1);
   };
 
   const navigateRecord = (index) => {
@@ -561,6 +564,7 @@ export default function PAGEMP() {
         tableProps={{
           key: "tbl-emp",
           empresas: empresasFiltradasPainel,
+          isLoadingEmpresas: empresasLoading,
           onEdit: handleEdit,
           showConfigColunas,
           setShowConfigColunas,

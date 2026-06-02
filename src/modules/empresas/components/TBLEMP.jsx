@@ -41,6 +41,7 @@ import {
 
 export default function TBLEMP({
   empresas = [],
+  isLoadingEmpresas = false,
   onEdit,
   showConfigColunas,
   setShowConfigColunas,
@@ -832,7 +833,9 @@ export default function TBLEMP({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {empresasOrdenadas.length === 0
+                  {isLoadingEmpresas
+                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando empresas...</TableCell></TableRow>
+                    : empresasOrdenadas.length === 0
                     ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasPaginadas.map((emp, index) => {
                       const isSelected = selectedItems.includes(emp.id);

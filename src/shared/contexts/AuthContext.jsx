@@ -1,6 +1,23 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { AuthApi } from "@/apis/auth/AuthApi";
 import { resetEmpresasFormLayoutSync } from "@/framework/cadastro/layouts/userLayoutPreferencesSync";
+import { queryClientInstance } from "@/shared/contexts/queryClient";
+import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
+
+const prefetchEmpresasCadastro = () => {
+  void queryClientInstance.prefetchQuery({
+    queryKey: ["emp-cadastro", 1, 50, "", "codempresa", "asc"],
+    queryFn: () =>
+      empresasModuleDefinition.repository.listPage({
+        page: 1,
+        pageSize: 50,
+        search: "",
+        sortBy: "codempresa",
+        sortDir: "asc",
+      }),
+    staleTime: 60_000,
+  });
+};
 
 const AuthContext = createContext();
 
@@ -55,6 +72,7 @@ export const AuthProvider = ({ children }) => {
       setSelectedEmpresaId(session.selectedEmpresaId || AuthApi.getSelectedEmpresaId());
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
+      prefetchEmpresasCadastro();
     } catch (error) {
       setAuthError({
         type: "auth_error",
@@ -87,6 +105,7 @@ export const AuthProvider = ({ children }) => {
       setSelectedEmpresaId(nextEmpresaId);
       setIsAuthenticated(Boolean(payload.user));
       setIsLoadingAuth(false);
+      if (payload.user) prefetchEmpresasCadastro();
       return payload;
     } catch (error) {
       setAuthError({ type: "auth_error", message: error.message || "Falha no login." });

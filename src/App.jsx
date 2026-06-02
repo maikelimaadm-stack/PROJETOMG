@@ -5,8 +5,8 @@ import { BrowserRouter as Router, Route, Routes, Link, Navigate, useLocation } f
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import { lazy, Suspense, useState } from "react";
 import generatedModules from "@/modules/generatedModules.json";
+import PAGEMP from "@/modules/empresas/pages/PAGEMP";
 
-const PAGEMP = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const generatedModuleRoutes = generatedModules
   .filter((moduleConfig) => moduleConfig.moduleId !== "empresas")
