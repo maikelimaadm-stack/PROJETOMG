@@ -1,11 +1,15 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import { Checkbox } from "@/shared/ui/checkbox";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCalculationBuilder from "@/framework/cadastro/fields/EmpCalculationBuilder";
 import { montarFormulaVisual } from "@/framework/cadastro/fields/empFieldConfigOptions";
+import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
+import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { CADCPS_APLICACAO, CADCPS_TIPOS } from "@/modules/cadcps/config/cadcpsConstants";
+import repCps from "@/modules/cadcps/repositories/repCps";
 
 const toSnake = (v) =>
   String(v || "")
@@ -54,43 +58,81 @@ const FieldRow = ({ label, children, wide }) => (
   </div>
 );
 
-export default function FRMCPS({
-  open,
-  editingItem,
-  telas = [],
+export default function FORMCPS({
+  initialData,
+  isEditing,
+  recordKey,
+  telas: telasProp = [],
   empresas = [],
   formulaFields = [],
   onSubmit,
   onCancel,
-  saving = false,
+  onToggleView,
+  total = 0,
+  currentIndex = 0,
+  onNew,
+  onFirst,
+  onPrevious,
+  onNext,
+  onLast,
+  onDelete,
+  onDuplicate,
+  searchValue = "",
+  onSearchChange,
 }) {
+  const isDuplicating = !!initialData?._isDuplicate;
+  const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
   const [form, setForm] = useState(emptyForm);
+  const previousRecordKeyRef = useRef(recordKey);
+
+  const { data: telasQuery = [] } = useQuery({
+    queryKey: ["cadcps-telas"],
+    queryFn: () => repCps.listTelas(),
+    staleTime: 60_000,
+  });
+  const telas = telasProp.length ? telasProp : telasQuery;
+
+  const mapItemToForm = (item) => {
+    if (!item) return emptyForm();
+    return {
+      ...emptyForm(),
+      ...item,
+      tela_ids: (item.telas || []).map((t) => t.id),
+      empresa_ids: item.empresa_ids || [],
+      opcoes: item.opcoes || [],
+      opcoesDraft: (item.opcoes || []).map((o) => o.descricao).join("\n"),
+      calculation_builder: item.calculation_builder || emptyForm().calculation_builder,
+    };
+  };
 
   useEffect(() => {
-    if (!open) return;
-    if (!editingItem) {
-      setForm(emptyForm());
-      return;
+    const isRecordNavigation =
+      isEditing &&
+      !initialData?._isDuplicate &&
+      previousRecordKeyRef.current &&
+      recordKey &&
+      previousRecordKeyRef.current !== recordKey &&
+      recordKey !== "new" &&
+      recordKey !== "duplicate";
+    previousRecordKeyRef.current = recordKey;
+    setForm(mapItemToForm(initialData));
+    setEditMode(!isEditing || !!initialData?._isDuplicate);
+    if (!isRecordNavigation && !initialData) {
+      setEditMode(true);
     }
-    setForm({
-      ...emptyForm(),
-      ...editingItem,
-      tela_ids: (editingItem.telas || []).map((t) => t.id),
-      empresa_ids: editingItem.empresa_ids || [],
-      opcoes: editingItem.opcoes || [],
-      opcoesDraft: (editingItem.opcoes || []).map((o) => o.descricao).join("\n"),
-      calculation_builder:
-        editingItem.calculation_builder ||
-        emptyForm().calculation_builder,
-    });
-  }, [open, editingItem]);
+  }, [recordKey, initialData?.id, initialData?.updatedAt, initialData?._isDuplicate, isEditing]);
+
+  const isReadOnly = isEditing && !isDuplicating && !editMode;
 
   const listaTipos = useMemo(
     () => ["lista", "lista_multipla"].includes(form.tipo),
     [form.tipo]
   );
 
-  const update = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+  const update = (key, value) => {
+    if (isReadOnly) return;
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
   const toggleTela = (telaId) => {
     setForm((prev) => ({
@@ -161,23 +203,50 @@ export default function FRMCPS({
   };
 
   const handleSubmit = (event) => {
-    event.preventDefault();
+    event?.preventDefault?.();
     if (!form.nome.trim()) return;
     if (form.tela_ids.length === 0) return;
     if (form.aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS && form.empresa_ids.length === 0) return;
     onSubmit?.(buildPayload());
+    setEditMode(false);
   };
 
-  if (!open) return null;
-
   return (
-    <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-col overflow-hidden bg-white">
-      <div className="min-h-0 flex-1 overflow-auto p-4">
+    <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-1 flex-col overflow-hidden bg-white">
+      <EmpSplitToolbarLayout
+        className="h-full min-h-0 flex-1"
+        toolbar={
+          <LegacyRecordToolbar
+            showSaveActions={editMode}
+            showEditAction={isReadOnly}
+            showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
+            showUtilityActions={false}
+            showRecordNavigation={isEditing && !editMode && !isDuplicating}
+            onSave={handleSubmit}
+            onCancel={onCancel}
+            onEditRecord={() => setEditMode(true)}
+            onToggleView={onToggleView}
+            total={total}
+            currentIndex={currentIndex}
+            onNew={onNew}
+            onFirst={onFirst}
+            onPrevious={onPrevious}
+            onNext={onNext}
+            onLast={onLast}
+            onDelete={onDelete}
+            onDuplicate={onDuplicate}
+            searchValue={searchValue}
+            onSearchChange={onSearchChange}
+            showSearch
+          />
+        }
+      >
+      <div className="form-scroll-container min-h-0 flex-1 overflow-auto p-4 pb-6">
         <div className="grid gap-4 md:grid-cols-2">
           <section className="space-y-2 rounded border border-[#dce3eb] p-3">
             <h3 className="text-xs font-semibold uppercase text-slate-600">Informações básicas</h3>
             <FieldRow label="Código">
-              <Input value={editingItem?.codigo ?? "Automático"} readOnly className="h-7 text-xs" />
+              <Input value={initialData?.codigo ?? "Automático"} readOnly className="h-7 text-xs" />
             </FieldRow>
             <FieldRow label="Nome do Campo">
               <Input
@@ -185,7 +254,7 @@ export default function FRMCPS({
                 onChange={(e) => {
                   const nome = e.target.value;
                   update("nome", nome);
-                  if (!editingItem) update("field_name", toSnake(nome));
+                  if (!initialData?.id || isDuplicating) update("field_name", toSnake(nome));
                 }}
                 className="h-7 text-xs"
               />
@@ -195,7 +264,7 @@ export default function FRMCPS({
                 value={form.field_name}
                 onChange={(e) => update("field_name", e.target.value)}
                 className="h-7 text-xs"
-                readOnly={!!editingItem}
+                readOnly={!!initialData?.id && !isDuplicating}
               />
             </FieldRow>
             <FieldRow label="Descrição" wide>
@@ -402,18 +471,7 @@ export default function FRMCPS({
           ) : null}
         </div>
       </div>
-      <div className="flex shrink-0 justify-end gap-2 border-t border-[#dce3eb] bg-white p-3">
-        <button type="button" onClick={onCancel} className="h-8 rounded border border-[#c5ced8] px-4 text-xs">
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={saving}
-          className="h-8 rounded bg-[#4fafff] px-4 text-xs font-semibold text-white disabled:opacity-60"
-        >
-          {saving ? "Salvando..." : "Salvar"}
-        </button>
-      </div>
+      </EmpSplitToolbarLayout>
     </form>
   );
 }
