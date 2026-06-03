@@ -7,7 +7,7 @@ import { OPERACOES_CALCULO, montarFormulaAmigavel, calcularPreviewVisual } from 
 const EMPTY_ITEM = { field: "", operator: "*" };
 const fieldRow = "grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1";
 const fieldLabel = "text-[12px] text-[#1a1f26] text-right leading-none";
-const fieldBox = "h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#21c45d] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none";
+const fieldBox = "h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#0089e4] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none";
 const triggerCls = "h-[22px] text-xs border-0 rounded-none shadow-none focus:ring-0 bg-transparent px-1";
 
 export default function EmpCalculationBuilder({ value = [], fields = [], onChange }) {
