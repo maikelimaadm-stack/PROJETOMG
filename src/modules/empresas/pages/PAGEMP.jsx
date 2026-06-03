@@ -42,6 +42,7 @@ const patchEmpresasCache = (queryClient, updater) => {
 export default function PAGEMP() {
   const {
     empresas: empresasSelector,
+    selectedEmpresaId,
     upsertEmpresaInSelector,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
@@ -72,7 +73,20 @@ export default function PAGEMP() {
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const pendingDeleteIdsRef = useRef([]);
+  const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
   const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (previousScopeEmpresaIdRef.current === selectedEmpresaId) return;
+    previousScopeEmpresaIdRef.current = selectedEmpresaId;
+    setShowForm(false);
+    setEditingEmp(null);
+    setViewMode("table");
+    setSelectedTableItems([]);
+    setSelectedIndex(0);
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+  }, [selectedEmpresaId]);
 
   const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
     queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],

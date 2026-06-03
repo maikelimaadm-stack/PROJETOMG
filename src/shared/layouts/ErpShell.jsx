@@ -70,17 +70,24 @@ function ErpTopHeader({
         <select
           value={selectorValue}
           onChange={(event) => onSelectEmpresa(event.target.value)}
-          className="erp-shell-company-select h-8 min-w-[180px] rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-700"
+          className="erp-shell-company-select h-8 min-w-[220px] max-w-[320px] rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-700"
+          title="Escolha ver todas as empresas ou focar em uma só"
         >
-          {allowAllEmpresas ? <option value="all">Todas as Empresas</option> : null}
-          {!allowAllEmpresas ? (
-            <option value={AUTHORIZED_SCOPE_OPTION}>Empresas autorizadas</option>
+          <optgroup label="Visão geral">
+            {allowAllEmpresas ? <option value="all">Todas as empresas</option> : null}
+            {!allowAllEmpresas ? (
+              <option value={AUTHORIZED_SCOPE_OPTION}>Todas as empresas autorizadas</option>
+            ) : null}
+          </optgroup>
+          {empresas.length > 0 ? (
+            <optgroup label="Uma empresa">
+              {empresas.map((empresa) => (
+                <option key={empresa.id} value={empresa.id}>
+                  {empresa.codempresa} - {empresa.nome_empresa}
+                </option>
+              ))}
+            </optgroup>
           ) : null}
-          {empresas.map((empresa) => (
-            <option key={empresa.id} value={empresa.id}>
-              {empresa.codempresa} - {empresa.nome_empresa}
-            </option>
-          ))}
         </select>
       </div>
 

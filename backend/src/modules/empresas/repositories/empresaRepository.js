@@ -86,6 +86,10 @@ const buildCadastroScopeWhere = (scope, extra = {}) => {
     });
   }
 
+  if (scope.selectedEmpresaId) {
+    and.push({ id: scope.selectedEmpresaId });
+  }
+
   if (extra && Object.keys(extra).length > 0) {
     and.push(extra);
   }
