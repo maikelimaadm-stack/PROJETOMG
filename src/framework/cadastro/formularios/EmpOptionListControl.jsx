@@ -24,7 +24,7 @@ export default function EmpOptionListControl({ options = [], value, onChange, di
           const checked = selected.includes(optionValue);
           return (
             <label key={optionValue} className="flex h-[22px] w-full items-center gap-1 text-xs text-slate-700 uppercase text-left bg-white hover:bg-slate-50 px-1 cursor-pointer">
-              <input type="checkbox" checked={checked} onChange={() => toggleOption(optionValue)} disabled={disabled} className="h-3 w-3 rounded-none border-slate-400 accent-[#0089e4] focus:ring-0" />
+              <input type="checkbox" checked={checked} onChange={() => toggleOption(optionValue)} disabled={disabled} className="h-3 w-3 rounded-none border-slate-400 accent-[#4fafff] focus:ring-0" />
               <span>{optionLabel}</span>
             </label>
           );
