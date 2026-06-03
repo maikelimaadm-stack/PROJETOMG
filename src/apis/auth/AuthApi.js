@@ -9,12 +9,13 @@ const getApiBaseUrl = () => {
   return `https://${configured}`.replace(/\/+$/, "");
 };
 
-const request = async (path, { method = "GET", body, token } = {}) => {
+const request = async (path, { method = "GET", body, token, headers: extraHeaders } = {}) => {
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     method,
     headers: {
       ...(body ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...(extraHeaders || {}),
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -96,18 +97,22 @@ export const AuthApi = {
   async getSession() {
     const token = this.getToken();
     if (!token) return null;
+    const selectedEmpresaId = this.getSelectedEmpresaId();
     return request("/api/auth/session", {
       method: "GET",
       token,
+      headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
     });
   },
 
   async listEmpresas() {
     const token = this.getToken();
     if (!token) return [];
+    const selectedEmpresaId = this.getSelectedEmpresaId();
     const payload = await request("/api/auth/empresas", {
       method: "GET",
       token,
+      headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
     });
     return payload?.empresas || [];
   },

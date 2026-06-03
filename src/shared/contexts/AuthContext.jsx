@@ -69,7 +69,12 @@ export const AuthProvider = ({ children }) => {
       setCliente(session.cliente || null);
       setEmpresas(session.empresas || []);
       setAllowAllEmpresas(Boolean(session.allowAllEmpresas));
-      setSelectedEmpresaId(session.selectedEmpresaId || AuthApi.getSelectedEmpresaId());
+      const persistedEmpresaId = AuthApi.getSelectedEmpresaId();
+      setSelectedEmpresaId(
+        persistedEmpresaId != null && String(persistedEmpresaId).trim() !== ""
+          ? persistedEmpresaId
+          : session.selectedEmpresaId ?? null
+      );
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       prefetchEmpresasCadastro();
@@ -120,7 +125,7 @@ export const AuthProvider = ({ children }) => {
         ? null
         : empresaId === "all"
           ? "all"
-          : empresaId;
+          : String(empresaId).trim();
     AuthApi.setSelectedEmpresaId(normalizedEmpresaId);
     setSelectedEmpresaId(normalizedEmpresaId);
     void queryClientInstance.invalidateQueries({ queryKey: ["emp-cadastro"] });
