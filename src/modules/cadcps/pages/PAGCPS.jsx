@@ -447,7 +447,7 @@ export default function PAGCPS() {
   };
 
   return (
-    <div className="cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <CamposFormPanel
         showForm={showForm}
         formProps={{

@@ -4,8 +4,6 @@ import { Textarea } from "@/shared/ui/textarea";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
-import ErpFloatingField from "@/shared/forms/ErpFloatingField";
-import { cn } from "@/shared/utils/utils";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
 
 const STACKED_TEXT_WIDTH = "w-full max-w-[480px]";
@@ -70,11 +68,11 @@ function DefaultControl({ field, value, onChange, readOnly }) {
   const inputClass = `emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white ${field.uppercase !== false ? "uppercase" : ""}`.trim();
 
   if (field.type === "textarea") {
-    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} className="erp-float-input erp-float-textarea w-full uppercase" rows={field.rows || 2} />;
+    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className="emp-form-input w-full bg-white px-2 uppercase" rows={field.rows || 2} />;
   }
 
   if (["select", "autocomplete", "relation"].includes(field.type)) {
-    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full emp-autocomplete" inputClassName="erp-float-input border-0 shadow-none focus-visible:ring-0 bg-transparent uppercase" />;
+    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} placeholder={field.placeholder || "BUSCAR..."} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full emp-autocomplete" inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase" />;
   }
 
   if (field.type === "checkbox") {
@@ -88,7 +86,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
     );
   }
 
-  return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} className={cn("erp-float-input", inputClass)} />;
+  return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} placeholder={field.placeholder} className={inputClass} />;
 }
 
 const normalizeConditionText = (value) => String(value ?? "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
@@ -108,60 +106,27 @@ const conditionMatches = (current, expected, sourceField) => {
   return currentValues.has(expectedText);
 };
 
-function FieldFrameStacked({ field, error, children, className = "", value }) {
+function FieldFrameStacked({ field, error, children, className = "" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
   const loteStyle = isCustomField(field);
 
-  if (imageField) {
-    return (
-      <div
-        data-field={field.dataField || field.name}
-        className={cn("flex flex-col gap-1", error && "erp-field-invalid", className)}
-      >
-        <span className="text-[12px] font-medium text-[#1a1f26]">
-          {field.label}
-          {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}
-        </span>
+  return (
+    <div
+      data-field={field.dataField || field.name}
+      className={`grid grid-cols-[170px_minmax(0,1fr)] gap-1 ${imageField ? "items-start" : "items-center"}`}
+    >
+      <label className={`text-[12px] text-[#1a1f26] text-right leading-none ${imageField ? "pt-2" : ""}`}>
+        {field.label}:{field.required && <span className="text-red-500 ml-0.5">*</span>}
+      </label>
+      {bare ? (
+        <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">{children}</div>
+      ) : (
         <div className={getFieldControlClass(field, error, className, "stacked")}>
           {loteStyle && <EmpCustomMarker variant="lote" />}
           {children}
         </div>
-      </div>
-    );
-  }
-
-  if (bare) {
-    return (
-      <div
-        data-field={field.dataField || field.name}
-        className={cn("erp-float-field-wrapper", error && "erp-field-invalid", className)}
-      >
-        <div className="erp-float-switch-row">
-          <span className="erp-float-switch-label">
-            {field.label}
-            {field.required ? <span className="erp-float-required"> *</span> : null}
-          </span>
-          {children}
-        </div>
-      </div>
-    );
-  }
-
-  const filled =
-    value !== null && value !== undefined && (typeof value === "boolean" ? value : String(value).trim() !== "");
-
-  return (
-    <div
-      data-field={field.dataField || field.name}
-      className={cn("erp-float-field-wrapper", error && "erp-field-invalid", className)}
-    >
-      <ErpFloatingField label={field.label} required={field.required} filled={filled}>
-        <div className="relative flex min-h-[var(--emp-form-control-height)] w-full items-center">
-          {loteStyle && <EmpCustomMarker variant="lote" />}
-          {children}
-        </div>
-      </ErpFloatingField>
+      )}
     </div>
   );
 }
@@ -257,7 +222,7 @@ export default function EmpDynamicFormRenderer({
     }
 
     return (
-      <FieldFrameStacked key={field.id} field={configuredField} error={error} className={fieldClassName} value={value}>
+      <FieldFrameStacked key={field.id} field={configuredField} error={error} className={fieldClassName}>
         {control}
       </FieldFrameStacked>
     );
