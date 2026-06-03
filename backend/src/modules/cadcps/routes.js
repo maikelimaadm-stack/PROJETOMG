@@ -25,8 +25,15 @@ export const registerCadcpsRoutes = async (app) => {
   });
 
   app.get("/api/cadcps/telas", { preHandler: app.authenticate }, async () => {
-    await svcCps.ensureTelasSeed();
-    const items = await svcCps.listTelas();
+    let items = await svcCps.listTelas();
+    if (!items.length) {
+      try {
+        await svcCps.ensureTelasSeed();
+      } catch (error) {
+        app.log.error({ err: error }, "Falha ao sincronizar telas CADCPS.");
+      }
+      items = await svcCps.listTelas();
+    }
     return { items };
   });
 

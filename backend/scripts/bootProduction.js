@@ -21,7 +21,11 @@ const runStep = (label, command, args) =>
 
 const run = async () => {
   await runStep("Garantir tabelas CADCPS", "node", ["scripts/ensureCadcpsTables.js"]);
-  await runStep("Popular telas CADCPS", "node", ["scripts/seedCadcpsTelas.js"]);
+  try {
+    await runStep("Popular telas CADCPS", "node", ["scripts/seedCadcpsTelas.js"]);
+  } catch (error) {
+    console.warn(`[boot] Popular telas CADCPS falhou (servidor sobe mesmo assim): ${error.message}`);
+  }
 
   if (String(process.env.SEED_SKIP || "").toLowerCase() !== "true") {
     await runStep("Seed bootstrap", "node", ["scripts/seedBootstrap.js"]);

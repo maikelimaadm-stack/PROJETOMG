@@ -101,10 +101,12 @@ export const registerRoutes = async (app) => {
     };
   });
 
-  await registerAuthRoutes(app);
-  await registerPreferencesRoutes(app);
-  await registerCadcpsRoutes(app);
-  await registerEmpresasRoutes(app);
-  await registerAnexosRoutes(app);
+  await Promise.all([
+    registerAuthRoutes(app),
+    registerPreferencesRoutes(app),
+    registerCadcpsRoutes(app),
+    registerEmpresasRoutes(app),
+    registerAnexosRoutes(app),
+  ]);
   await registerGeneratedModuleRoutes(app);
 };

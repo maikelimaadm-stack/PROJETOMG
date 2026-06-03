@@ -1,4 +1,5 @@
-import { Toaster } from "@/shared/ui/toaster";
+import { ErpToaster } from "@/shared/feedback/ErpToaster";
+import { ErpConfirmProvider } from "@/shared/feedback/ErpConfirmProvider";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet } from "react-router-dom";
@@ -195,10 +196,12 @@ export default function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <Router>
-          <AuthenticatedApp />
-        </Router>
-        <Toaster />
+        <ErpConfirmProvider>
+          <Router>
+            <AuthenticatedApp />
+          </Router>
+          <ErpToaster />
+        </ErpConfirmProvider>
       </QueryClientProvider>
     </AuthProvider>
   );

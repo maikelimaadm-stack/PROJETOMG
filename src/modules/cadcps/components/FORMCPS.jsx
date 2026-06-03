@@ -9,7 +9,7 @@ import { montarFormulaVisual } from "@/framework/cadastro/fields/empFieldConfigO
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
-import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
+import { reportRequiredFieldErrors, clearRequiredFieldErrors } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import { CADCPS_APLICACAO, CADCPS_TIPOS } from "@/modules/cadcps/config/cadcpsConstants";
 import { CPS_FORM_PANELS, CPS_INPUT_CLASS } from "@/modules/cadcps/config/formCps.constants";
@@ -114,7 +114,6 @@ export default function FORMCPS({
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
   const [activeTab, setActiveTab] = useState("configuracoes");
   const [form, setForm] = useState(emptyForm);
-  const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const previousRecordKeyRef = useRef(recordKey);
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
@@ -242,32 +241,17 @@ export default function FORMCPS({
   };
 
   const validateForm = () => {
-    if (!form.tela_id) {
-      setNoticeDialog({
-        open: true,
-        title: "Tela obrigatória",
-        description: "Selecione a tela (cadastro) onde este campo será usado.",
-      });
-      return false;
-    }
-    if (!form.nome.trim()) {
-      setNoticeDialog({
-        open: true,
-        title: "Campo obrigatório",
-        description: "Informe o nome do campo.",
-      });
-      return false;
-    }
+    const errors = {};
+    if (!form.tela_id) errors.tela_id = true;
+    if (!form.nome.trim()) errors.nome = true;
     if (form.aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS && form.empresa_ids.length === 0) {
-      setNoticeDialog({
-        open: true,
-        title: "Empresa obrigatória",
-        description: "Selecione ao menos uma empresa na aplicação específica.",
-      });
-      setActiveTab("aplicacao");
-      return false;
+      errors.empresa_ids = true;
     }
-    return true;
+    clearRequiredFieldErrors();
+    if (Object.keys(errors).length === 0) return true;
+    if (errors.empresa_ids) setActiveTab("aplicacao");
+    reportRequiredFieldErrors(errors);
+    return false;
   };
 
   const handleSubmit = (event) => {
@@ -310,6 +294,7 @@ export default function FORMCPS({
         </CpsFieldRow>
 
         <CpsFieldRow label="Tela" required>
+          <div data-field="tela_id" className="contents">
           {telasLoading ? (
             <span className="px-2 text-xs text-slate-500">Carregando telas...</span>
           ) : telas.length === 0 ? (
@@ -338,9 +323,11 @@ export default function FORMCPS({
               ))}
             </select>
           )}
+          </div>
         </CpsFieldRow>
 
         <CpsFieldRow label="Nome do campo" required>
+          <div data-field="nome" className="contents">
           <Input
             value={form.nome}
             onChange={(e) => {
@@ -352,6 +339,7 @@ export default function FORMCPS({
             className={CPS_INPUT_CLASS}
             placeholder="NOME DO CAMPO"
           />
+          </div>
         </CpsFieldRow>
 
         <CpsFieldRow label="Nome técnico">
@@ -462,7 +450,10 @@ export default function FORMCPS({
           </div>
         </CpsFieldRow>
         {form.aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS ? (
-          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+          <div
+            data-field="empresa_ids"
+            className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1"
+          >
             <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">
               Empresas:
             </label>
@@ -624,15 +615,6 @@ export default function FORMCPS({
 
   return (
     <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-      <TopNoticeDialog
-        open={noticeDialog.open}
-        onOpenChange={(open) => setNoticeDialog((prev) => ({ ...prev, open }))}
-        badge="AVISO"
-        title={noticeDialog.title}
-        description={noticeDialog.description}
-        type="warning"
-        confirmText="Entendi"
-      />
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <EmpSplitToolbarLayout
           className="h-full min-h-0 flex-1"

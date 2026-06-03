@@ -1,6 +1,10 @@
-import React from "react";
-import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
+import React, { useEffect, useState } from "react";
+import ErpConfirmModal from "@/shared/feedback/ErpConfirmModal";
 
+/**
+ * Wrapper declarativo — usa o mesmo modal centralizado do ERP.
+ * Para fluxos imperativos prefira confirmAction() de @/shared/feedback.
+ */
 export default function ConfirmDialog({
   open,
   onOpenChange,
@@ -9,19 +13,37 @@ export default function ConfirmDialog({
   onConfirm,
   confirmText = "Excluir",
   cancelText = "Cancelar",
-  variant = "default"
+  variant = "destructive",
+  closeOnOutside = true,
 }) {
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    if (!open) setBusy(false);
+  }, [open]);
+
+  const handleConfirm = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await onConfirm?.();
+      onOpenChange?.(false);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
-    <TopNoticeDialog
+    <ErpConfirmModal
       open={open}
-      onOpenChange={onOpenChange}
-      badge={variant === "destructive" ? "EXCLUIR" : "AVISO"}
       title={title}
-      description={description}
-      type={variant === "destructive" ? "danger" : variant}
-      confirmText={confirmText}
+      message={description}
+      confirmText={busy ? "Aguarde..." : confirmText}
       cancelText={cancelText}
-      onConfirm={onConfirm}
+      variant={variant}
+      closeOnOutside={closeOnOutside && !busy}
+      onConfirm={handleConfirm}
+      onCancel={() => onOpenChange?.(false)}
     />
   );
 }

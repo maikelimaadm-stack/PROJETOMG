@@ -13,6 +13,7 @@ RUN npm run prisma:generate
 
 COPY backend/src ./src
 COPY backend/scripts ./scripts
+COPY config/cadastro-modules.registry.json ./config/cadastro-modules.registry.json
 
 EXPOSE 3001
 

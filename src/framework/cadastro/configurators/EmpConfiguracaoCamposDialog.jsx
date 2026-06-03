@@ -10,12 +10,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/shared/ui/button";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
-import { toast } from "sonner";
+import { showSuccess, showWarning, showError } from "@/shared/feedback";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
-import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
+import { confirmAction } from "@/shared/feedback";
 import EmpRelationConfig from "@/framework/cadastro/fields/EmpRelationConfig";
 import EmpManualOptionsConfig from "@/framework/cadastro/fields/EmpManualOptionsConfig";
 import EmpCalculationBuilder from "@/framework/cadastro/fields/EmpCalculationBuilder";
@@ -100,7 +100,6 @@ export default function EmpConfiguracaoCamposDialog({
   const [isDirty, setIsDirty] = useState(false);
   const [isDuplicating, setIsDuplicating] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "", type: "warning", onConfirm: null, confirmText: "Entendi", cancelText: "" });
   const initialFieldAppliedRef = useRef(false);
   const [sortConfig, setSortConfig] = useState({ key: "campo", direction: "asc" });
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
@@ -153,7 +152,7 @@ export default function EmpConfiguracaoCamposDialog({
 
       loadCampoForm(optimistic);
       setEditMode(false);
-      toast.success(wasEditing ? "Campo atualizado." : "Campo criado.");
+      showSuccess(wasEditing ? "Campo atualizado." : "Campo criado.");
 
       return { cacheSnapshot, optimisticId, wasEditing };
     },
@@ -191,7 +190,7 @@ export default function EmpConfiguracaoCamposDialog({
     void repository
       .deleteCampoPersonalizado(campo)
       .then(() => {
-        toast.success("Campo excluído.");
+        showSuccess("Campo excluído.");
       })
       .catch((error) => {
         cacheSnapshot.forEach(([key, value]) => {
@@ -205,7 +204,28 @@ export default function EmpConfiguracaoCamposDialog({
       });
   };
 
-  const showNotice = ({ title, description, type = "warning", onConfirm = null, confirmText = "Entendi", cancelText = "" }) => setNoticeDialog({ open: true, title, description, type, onConfirm, confirmText, cancelText });
+  const showNotice = async ({
+    title,
+    description,
+    type = "warning",
+    onConfirm = null,
+    confirmText = "Confirmar",
+    cancelText = "Cancelar",
+  }) => {
+    if (onConfirm) {
+      const ok = await confirmAction({
+        title,
+        message: description,
+        variant: type === "danger" ? "destructive" : "default",
+        confirmText,
+        cancelText,
+      });
+      if (ok) await onConfirm();
+      return;
+    }
+    if (type === "danger") showError(description);
+    else showWarning(description);
+  };
 
   const buildPayload = () => {
     const items = form.calculation_builder?.items || [];
@@ -326,7 +346,7 @@ export default function EmpConfiguracaoCamposDialog({
 
         void Promise.all(sel.map((c) => repository.deleteCampoPersonalizado(c)))
           .then(() => {
-            toast.success(sel.length === 1 ? "Campo excluído." : `${sel.length} campos excluídos.`);
+            showSuccess(sel.length === 1 ? "Campo excluído." : `${sel.length} campos excluídos.`);
           })
           .catch((error) => {
             cacheSnapshot.forEach(([key, value]) => {
@@ -606,7 +626,6 @@ export default function EmpConfiguracaoCamposDialog({
 
   const content = (
     <div className="cadastro-emp-scope emp-campos-config-lote w-full h-full overflow-hidden flex flex-col">
-      <TopNoticeDialog open={noticeDialog.open} onOpenChange={(o) => setNoticeDialog((p) => ({ ...p, open: o }))} badge={noticeDialog.type === "danger" ? "EXCLUIR" : "AVISO"} title={noticeDialog.title} description={noticeDialog.description} type={noticeDialog.type} confirmText={noticeDialog.confirmText} cancelText={noticeDialog.cancelText} onConfirm={noticeDialog.onConfirm} />
       {!inline && <DialogHeader className="sr-only"><DialogTitle>Configuração de campos personalizados - Empresas</DialogTitle></DialogHeader>}
       {showForm ?
         <EmpSplitToolbarLayout

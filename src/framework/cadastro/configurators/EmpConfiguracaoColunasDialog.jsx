@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent } from "@/shared/ui/card";
 import { Input } from "@/shared/ui/input";
-import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
+import { showWarning } from "@/shared/feedback";
 import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp, ChevronsLeft, ChevronsRight, Columns3, RotateCcw, Search, X } from "lucide-react";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
@@ -46,7 +46,6 @@ export default function EmpConfiguracaoColunasDialog({
   const [searchUsed, setSearchUsed] = useState("");
   const [draggedColumnId, setDraggedColumnId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
-  const [warningOpen, setWarningOpen] = useState(false);
 
   const orderedColumns = useMemo(() => {
     const byId = new Map(colunasDisponiveis.filter((c) => !c.fixo).map((col) => [col.id, col]));
@@ -90,7 +89,13 @@ export default function EmpConfiguracaoColunasDialog({
   const dropToAvailable = () => { if (draggedFrom !== "used") return finishDrag(); const ids = selectedUsedIds.includes(draggedColumnId) ? selectedUsedIds : [draggedColumnId]; removeColumns(ids.filter(Boolean)); setSelectedUsedIds([]); finishDrag(); };
   const dropToUsed = () => { if (draggedFrom !== "available") return finishDrag(); const ids = selectedAvailableIds.includes(draggedColumnId) ? selectedAvailableIds : [draggedColumnId]; addColumns(ids.filter(Boolean)); setSelectedAvailableIds([]); finishDrag(); };
   const reorderUsedByDrop = (targetId) => { if (draggedFrom !== "used" || !draggedColumnId || draggedColumnId === targetId) return; const currentOrder = usedColumns.map((c) => c.id); const from = currentOrder.indexOf(draggedColumnId); const to = currentOrder.indexOf(targetId); if (from < 0 || to < 0) return; const [moved] = currentOrder.splice(from, 1); currentOrder.splice(to, 0, moved); commitLayout(currentOrder, currentOrder); };
-  const requestClose = () => { if (usedColumns.length === 0) { setWarningOpen(true); return; } onOpenChange(false); };
+  const requestClose = () => {
+    if (usedColumns.length === 0) {
+      showWarning("É necessário manter pelo menos uma coluna em uso para fechar a configuração.");
+      return;
+    }
+    onOpenChange(false);
+  };
   const toggleFreezeColumn = (index, event) => { event.stopPropagation(); if (index === frozenColumnCount) { commitLayout(colunasVisiveis, usedColumns.map((c) => c.id), frozenColumnCount + 1); } if (index === frozenColumnCount - 1) { commitLayout(colunasVisiveis, usedColumns.map((c) => c.id), frozenColumnCount - 1); } };
 
   const renderColumnButton = ({ col, selected, onClick, subtitle, index, origem }) =>
@@ -172,7 +177,6 @@ export default function EmpConfiguracaoColunasDialog({
           </div>
           </EmpSplitToolbarLayout>
         </div>
-        <TopNoticeDialog open={warningOpen} onOpenChange={setWarningOpen} badge="AVISO" title="Colunas obrigatórias" description="É necessário manter pelo menos uma coluna em uso para fechar a configuração." type="warning" confirmText="Entendi" />
       </DialogContent>
     </Dialog>
   );

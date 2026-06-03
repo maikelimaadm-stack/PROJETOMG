@@ -7,13 +7,31 @@ const registryPath = path.resolve(__dirname, "../../../../config/cadastro-module
 
 const EXCLUDED_MODULE_IDS = new Set(["cadcps"]);
 
+const FALLBACK_REGISTRY = [
+  {
+    moduleId: "empresas",
+    codigo: "EMPRESAS",
+    nome: "Empresas",
+    entityName: "EmpresaCadastro",
+    ordem: 10,
+    ativo: true,
+  },
+];
+
 let cachedRegistry = null;
 
 const loadRegistryFile = () => {
   if (cachedRegistry) return cachedRegistry;
-  const raw = fs.readFileSync(registryPath, "utf8");
-  const parsed = JSON.parse(raw);
-  cachedRegistry = Array.isArray(parsed) ? parsed : [];
+  try {
+    const raw = fs.readFileSync(registryPath, "utf8");
+    const parsed = JSON.parse(raw);
+    cachedRegistry = Array.isArray(parsed) && parsed.length ? parsed : FALLBACK_REGISTRY;
+  } catch (error) {
+    console.warn(
+      `[cadcps] Registry não encontrado em ${registryPath} — usando fallback (${error.message}).`
+    );
+    cachedRegistry = FALLBACK_REGISTRY;
+  }
   return cachedRegistry;
 };
 

@@ -102,6 +102,14 @@ const buildServer = () => {
   const app = Fastify({ logger: true, pluginTimeout });
   const allowedOrigins = parseAllowedOrigins();
   const jwtSecret = String(process.env.JWT_SECRET || "mak-gestao-dev-jwt-secret");
+  if (
+    String(process.env.NODE_ENV || "").toLowerCase() === "production" &&
+    !String(process.env.JWT_SECRET || "").trim()
+  ) {
+    console.warn(
+      "[env] JWT_SECRET não definido no Railway — usando fallback interno. Defina JWT_SECRET nas variáveis do serviço."
+    );
+  }
 
   // DELETE/GET sem corpo não deve falhar quando o client envia Content-Type: application/json.
   app.removeContentTypeParser("application/json");
