@@ -4,6 +4,7 @@ import { smokeLoginBody } from "./smokeCredentials.js";
 dotenv.config();
 
 const BASE_URL = process.env.SMOKE_BASE_URL || "http://127.0.0.1:3001";
+const CAMPOS_PATH = "/api/cadcps/campos";
 
 const assert = (condition, message) => {
   if (!condition) throw new Error(message);
@@ -84,8 +85,8 @@ const buildFieldDefinitions = (tag) => [
       visivel_form: true,
       visivel_tabela: true,
     },
-    initialValue: "2025-01-15",
-    updatedValue: "2025-06-01",
+    initialValue: "2024-01-15",
+    updatedValue: "2024-06-20",
   },
   {
     key: "time",
@@ -97,8 +98,8 @@ const buildFieldDefinitions = (tag) => [
       visivel_form: true,
       visivel_tabela: true,
     },
-    initialValue: "14:30",
-    updatedValue: "16:00",
+    initialValue: "08:30",
+    updatedValue: "14:45",
   },
   {
     key: "datetime",
@@ -110,14 +111,14 @@ const buildFieldDefinitions = (tag) => [
       visivel_form: true,
       visivel_tabela: true,
     },
-    initialValue: "2025-01-15T14:30",
-    updatedValue: "2025-06-01T16:00",
+    initialValue: "2024-01-15T10:00",
+    updatedValue: "2024-06-20T16:30",
   },
   {
     key: "select",
     body: {
       field_name: `tipo_select_${tag}`,
-      label: `Select ${tag}`,
+      label: `Lista ${tag}`,
       tipo: "select",
       aplicacao_modo: "todas",
       visivel_form: true,
@@ -150,10 +151,9 @@ const buildFieldDefinitions = (tag) => [
 ];
 
 const runFieldTypeCycle = async ({ token, empresaId, fieldDef }) => {
-  const createField = await requestJson("/api/empresas/campos", {
+  const createField = await requestJson(CAMPOS_PATH, {
     method: "POST",
     token,
-    empresaId,
     body: fieldDef.body,
   });
   assert(createField.ok, `[${fieldDef.key}] falha ao criar campo (${createField.status}).`);
@@ -180,14 +180,14 @@ const runFieldTypeCycle = async ({ token, empresaId, fieldDef }) => {
     `[${fieldDef.key}] valor não persistiu após inclusão.`
   );
 
-  const blockDelete = await requestJson(`/api/empresas/campos/${createdField.id}`, {
+  const blockDelete = await requestJson(`${CAMPOS_PATH}/${createdField.id}`, {
     method: "DELETE",
     token,
     empresaId,
   });
   assert(blockDelete.status === 409, `[${fieldDef.key}] exclusão deveria bloquear com registros filhos.`);
 
-  const blockUpdate = await requestJson(`/api/empresas/campos/${createdField.id}`, {
+  const blockUpdate = await requestJson(`${CAMPOS_PATH}/${createdField.id}`, {
     method: "PUT",
     token,
     empresaId,
@@ -210,7 +210,7 @@ const runFieldTypeCycle = async ({ token, empresaId, fieldDef }) => {
 
   await requestJson(`/api/empresas/${recordId}`, { method: "DELETE", token, empresaId: recordId });
 
-  const deleteField = await requestJson(`/api/empresas/campos/${createdField.id}`, {
+  const deleteField = await requestJson(`${CAMPOS_PATH}/${createdField.id}`, {
     method: "DELETE",
     token,
     empresaId,
@@ -225,7 +225,7 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
   const baseBName = `tipo_calc_base_b_${tag}`;
   const calcName = `tipo_calculado_${tag}`;
 
-  const createBaseA = await requestJson("/api/empresas/campos", {
+  const createBaseA = await requestJson(CAMPOS_PATH, {
     method: "POST",
     token,
     empresaId,
@@ -238,7 +238,7 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
       visivel_tabela: true,
     },
   });
-  const createBaseB = await requestJson("/api/empresas/campos", {
+  const createBaseB = await requestJson(CAMPOS_PATH, {
     method: "POST",
     token,
     empresaId,
@@ -253,7 +253,7 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
   });
   assert(createBaseA.ok && createBaseB.ok, "[calculado] falha ao criar campos base.");
 
-  const createCalc = await requestJson("/api/empresas/campos", {
+  const createCalc = await requestJson(CAMPOS_PATH, {
     method: "POST",
     token,
     empresaId,
@@ -287,7 +287,7 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
   assert(createRecord.ok, "[calculado] falha ao incluir registro.");
   const recordId = createRecord.payload.item.id;
 
-  const blockDelete = await requestJson(`/api/empresas/campos/${calcField.id}`, {
+  const blockDelete = await requestJson(`${CAMPOS_PATH}/${calcField.id}`, {
     method: "DELETE",
     token,
     empresaId,
@@ -296,9 +296,9 @@ const runCalculadoCycle = async ({ token, empresaId, tag }) => {
 
   await requestJson(`/api/empresas/${recordId}`, { method: "DELETE", token, empresaId: recordId });
 
-  await requestJson(`/api/empresas/campos/${calcField.id}`, { method: "DELETE", token, empresaId });
-  await requestJson(`/api/empresas/campos/${createBaseA.payload.item.id}`, { method: "DELETE", token, empresaId });
-  await requestJson(`/api/empresas/campos/${createBaseB.payload.item.id}`, { method: "DELETE", token, empresaId });
+  await requestJson(`${CAMPOS_PATH}/${calcField.id}`, { method: "DELETE", token, empresaId });
+  await requestJson(`${CAMPOS_PATH}/${createBaseA.payload.item.id}`, { method: "DELETE", token, empresaId });
+  await requestJson(`${CAMPOS_PATH}/${createBaseB.payload.item.id}`, { method: "DELETE", token, empresaId });
 };
 
 const run = async () => {
@@ -315,25 +315,34 @@ const run = async () => {
   await runCalculadoCycle({ token, empresaId, tag });
 
   const specificFieldName = `tipo_empresa_${tag}`;
-  const createSpecific = await requestJson("/api/empresas/campos", {
+  const createSpecific = await requestJson(CAMPOS_PATH, {
     method: "POST",
     token,
-    empresaId,
     body: {
       field_name: specificFieldName,
       label: `Campo Empresa ${tag}`,
       tipo: "text",
-      aplicacao_modo: "empresa",
-      empresa_id: empresaId,
+      aplicacao_modo: "especificas",
+      empresa_ids: [empresaId],
       visivel_form: true,
       visivel_tabela: true,
     },
   });
   assert(createSpecific.ok, "Falha ao criar campo específico de empresa.");
+  const specificField = createSpecific.payload.item;
+
+  const aplicavel = await requestJson("/api/cadcps/aplicavel/EmpresaCadastro", {
+    token,
+    empresaId,
+  });
+  assert(
+    (aplicavel.payload?.items || []).some((item) => item.field_name === specificFieldName),
+    "Campo específico não apareceu na listagem aplicável."
+  );
 
   const empresaB = session.empresas?.[1];
   if (empresaB?.id && empresaB.id !== empresaId) {
-    const listB = await requestJson("/api/empresas/campos?mode=aplicavel", {
+    const listB = await requestJson("/api/cadcps/aplicavel/EmpresaCadastro", {
       token,
       empresaId: empresaB.id,
     });
@@ -342,16 +351,12 @@ const run = async () => {
     assert(!namesB.includes(specificFieldName), "Campo específico vazou para outra empresa.");
   }
 
-  await requestJson(`/api/empresas/campos/${createSpecific.payload.item.id}`, {
-    method: "DELETE",
-    token,
-    empresaId,
-  });
+  await requestJson(`${CAMPOS_PATH}/${specificField.id}`, { method: "DELETE", token });
 
-  console.log(`Smoke de tipos de campo concluído (${definitions.length + 1} tipos testados).`);
+  console.log("Smoke tipos de campo (CADCPS): OK");
 };
 
 run().catch((error) => {
-  console.error(`Smoke de tipos de campo falhou: ${error.message}`);
+  console.error("Smoke tipos de campo falhou:", error.message);
   process.exit(1);
 });

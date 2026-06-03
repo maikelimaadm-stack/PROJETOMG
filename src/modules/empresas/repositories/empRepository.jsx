@@ -35,17 +35,6 @@ const empRepository = {
     return EmpresaApi.listCamposPersonalizados({ mode });
   },
 
-  async createCampoPersonalizado(data) {
-    return EmpresaApi.createCampoPersonalizado(data);
-  },
-
-  async updateCampoPersonalizado(id, data) {
-    return EmpresaApi.updateCampoPersonalizado(id, data);
-  },
-
-  async deleteCampoPersonalizado(campo) {
-    return EmpresaApi.deleteCampoPersonalizado(campo.id || campo.field_id);
-  },
 
   async listOptionsSources(sources) {
     return EmpresaApi.listOptionsSources(sources);

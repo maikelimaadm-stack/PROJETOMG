@@ -17,11 +17,13 @@
     "smoke:auth-permissoes": "node scripts/smokeAuthPermissoes.js",
     "smoke:campos": "node scripts/smokeCamposPersonalizados.js",
     "smoke:campos-tipos": "node scripts/smokeCamposTipos.js",
+    "smoke:cadcps": "node scripts/smokeCadcps.js",
+    "migrate:cadcps": "node scripts/migrateCampoPersonalizadoToCadcps.js",
     "migrate:codempresa": "node scripts/renameCodempresaColumns.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
     "ensure:usuario-preferencias": "node scripts/ensureUsuarioPreferenciaTable.js",
     "security:multiempresa": "node scripts/securityMultiempresaProbe.js",
-    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run seed && npm run ensure:campos-indexes && npm run smoke:empresas && npm run smoke:auth-permissoes && npm run smoke:campos && npm run smoke:campos-tipos && npm run security:multiempresa",
+    "check:prod": "npm run prisma:validate && npm run prisma:generate && npm run validate:connections && npm run seed && npm run ensure:campos-indexes && npm run smoke:empresas && npm run smoke:auth-permissoes && npm run smoke:cadcps && npm run smoke:campos && npm run smoke:campos-tipos && npm run security:multiempresa",
     "docker:build": "docker build -t mak-gestao-backend ."
   },
   "dependencies": {

@@ -5,13 +5,14 @@ import { registerAuthRoutes } from "../modules/auth/routes.js";
 import { registerEmpresasRoutes } from "../modules/empresas/routes.js";
 import { registerAnexosRoutes } from "../modules/anexos/routes.js";
 import { registerPreferencesRoutes } from "../modules/preferences/routes.js";
+import { registerCadcpsRoutes } from "../modules/cadcps/routes.js";
 import { verifyDatabaseConnection } from "../database/prismaClient.js";
 import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "../integrations/supabase/adminClient.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const modulesDir = path.resolve(__dirname, "..", "modules");
-const coreModules = new Set(["auth", "empresas", "anexos", "audit"]);
+const coreModules = new Set(["auth", "empresas", "anexos", "audit", "cadcps"]);
 
 const withTimeout = async (operation, timeoutMs, timeoutMessage) => {
   const timeout = new Promise((_, reject) => {
@@ -102,6 +103,7 @@ export const registerRoutes = async (app) => {
 
   await registerAuthRoutes(app);
   await registerPreferencesRoutes(app);
+  await registerCadcpsRoutes(app);
   await registerEmpresasRoutes(app);
   await registerAnexosRoutes(app);
   await registerGeneratedModuleRoutes(app);

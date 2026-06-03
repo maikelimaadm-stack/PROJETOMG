@@ -1,5 +1,11 @@
 import { TemplateApi } from "@/modules/template/apis/TemplateApi";
 import { templateSchema } from "@/modules/template/config/templateSchema";
+import repCps from "@/modules/cadcps/repositories/repCps";
+import {
+  legacyPayloadToCadcps,
+  listCamposForLegacyDialog,
+  toLegacyDialogCampo,
+} from "@/modules/cadcps/adapters/legacyDialogAdapter";
 
 export const templateRepository = {
   async listPage(params = {}) {
@@ -32,22 +38,22 @@ export const templateRepository = {
     return true;
   },
   async listCamposPersonalizados() {
-    const payload = await TemplateApi.listFields();
-    return payload?.items || [];
+    return listCamposForLegacyDialog();
   },
   async createCampoPersonalizado(data) {
-    const payload = await TemplateApi.createField(data);
-    return payload?.item || payload;
+    const payload = await legacyPayloadToCadcps(data);
+    const created = await repCps.create(payload);
+    return toLegacyDialogCampo(created);
   },
   async updateCampoPersonalizado(id, data) {
-    const payload = await TemplateApi.updateField(id, data);
-    return payload?.item || payload;
+    const payload = await legacyPayloadToCadcps(data);
+    const updated = await repCps.update(id, payload);
+    return toLegacyDialogCampo(updated);
   },
   async deleteCampoPersonalizado(campo) {
-    await TemplateApi.removeField(campo.id || campo.field_id);
+    await repCps.remove(campo.id || campo.field_id);
     return true;
   },
 };
 
 export default templateRepository;
-

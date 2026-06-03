@@ -27,6 +27,8 @@ model Cliente {
   sequencia EmpresaCodigoSequencia?
   cadastros CadastroRegistro[]
   logs      AuditLog[]
+  cadcpsSequencia CadCpsCodigoSequencia?
+  cadcpsCampos    CadCpsCampo[]
 }
 
 model Usuario {
@@ -79,6 +81,7 @@ model Empresa {
   anexos RegistroAnexo[]
   permissoes PermissaoEmpresa[]
   camposPersonalizados CampoPersonalizado[]
+  cadcpsEmpresas       CadCpsCampoEmpresa[]
   cadastros CadastroRegistro[]
 
   @@unique([cliente_id, codempresa])
@@ -135,6 +138,139 @@ model CampoPersonalizado {
   @@index([tenant_id, ativo])
   @@index([tenant_id, ordem_tabela])
   @@index([ordem_tabela])
+}
+
+/// Catálogo global de telas/módulos do ERP (CADCPS)
+model CadCpsTela {
+  id          String   @id @default(cuid())
+  codigo      String   @unique @db.VarChar(64)
+  nome        String   @db.VarChar(128)
+  entity_name String   @unique @db.VarChar(128)
+  ativo       Boolean  @default(true)
+  ordem       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campos CadCpsCampoTela[]
+
+  @@index([ativo, ordem])
+}
+
+/// Definição de campo personalizado (pertence ao cliente)
+model CadCpsCampo {
+  id                 String   @id @default(cuid())
+  cliente_id         String   @db.VarChar(64)
+  codigo             Int
+  nome               String   @db.VarChar(255)
+  field_name         String   @db.VarChar(128)
+  descricao          String?
+  tipo               String   @db.VarChar(64)
+  ativo              Boolean  @default(true)
+  obrigatorio        Boolean  @default(false)
+  read_only          Boolean  @default(false)
+  visivel_form       Boolean  @default(true)
+  visivel_tabela     Boolean  @default(false)
+  visivel_relatorio  Boolean  @default(false)
+  pesquisavel        Boolean  @default(true)
+  filtravel          Boolean  @default(true)
+  exportavel         Boolean  @default(true)
+  auditavel          Boolean  @default(true)
+  aplicacao_modo     String   @default("todas") @db.VarChar(32)
+  placeholder        String?  @db.VarChar(255)
+  formula            String?
+  calculation_builder Json?
+  usar_mascara       Boolean  @default(false)
+  mascaras_text      String?
+  usar_decimal       Boolean  @default(false)
+  decimal_places     Int      @default(2)
+  separador_decimal  String   @default(",") @db.VarChar(8)
+  separador_milhar   String   @default(".") @db.VarChar(8)
+  ordem_tabela       Int      @default(999)
+  largura_coluna     Int      @default(160)
+  relation_entity    String?  @db.VarChar(128)
+  options_label_field String? @db.VarChar(128)
+  options_value_field String? @db.VarChar(128)
+  legacy_campo_id    String?  @db.VarChar(64)
+  created_by         String?  @db.VarChar(64)
+  updated_by         String?  @db.VarChar(64)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  cliente  Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  telas    CadCpsCampoTela[]
+  empresas CadCpsCampoEmpresa[]
+  opcoes   CadCpsCampoOpcao[]
+  historico CadCpsHistorico[]
+
+  @@unique([cliente_id, codigo])
+  @@unique([cliente_id, field_name])
+  @@index([cliente_id, ativo])
+  @@index([cliente_id, tipo])
+  @@index([cliente_id, aplicacao_modo])
+}
+
+model CadCpsCampoTela {
+  campo_id String @db.VarChar(64)
+  tela_id  String @db.VarChar(64)
+
+  campo CadCpsCampo @relation(fields: [campo_id], references: [id], onDelete: Cascade)
+  tela  CadCpsTela  @relation(fields: [tela_id], references: [id], onDelete: Cascade)
+
+  @@id([campo_id, tela_id])
+  @@index([tela_id])
+}
+
+model CadCpsCampoEmpresa {
+  campo_id   String @db.VarChar(64)
+  empresa_id String @db.VarChar(64)
+
+  campo   CadCpsCampo @relation(fields: [campo_id], references: [id], onDelete: Cascade)
+  empresa Empresa     @relation(fields: [empresa_id], references: [id], onDelete: Cascade)
+
+  @@id([campo_id, empresa_id])
+  @@index([empresa_id])
+}
+
+model CadCpsCampoOpcao {
+  id        String   @id @default(cuid())
+  campo_id  String   @db.VarChar(64)
+  codigo    String   @db.VarChar(64)
+  descricao String   @db.VarChar(255)
+  ordem     Int      @default(0)
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campo CadCpsCampo @relation(fields: [campo_id], references: [id], onDelete: Cascade)
+
+  @@unique([campo_id, codigo])
+  @@index([campo_id, ordem])
+}
+
+model CadCpsHistorico {
+  id          String   @id @default(cuid())
+  cliente_id  String   @db.VarChar(64)
+  campo_id    String   @db.VarChar(64)
+  usuario_id  String?  @db.VarChar(64)
+  acao        String   @db.VarChar(64)
+  valor_anterior Json?
+  valor_novo     Json?
+  createdAt   DateTime @default(now())
+
+  campo CadCpsCampo @relation(fields: [campo_id], references: [id], onDelete: Cascade)
+
+  @@index([cliente_id, campo_id, createdAt])
+  @@index([usuario_id, createdAt])
+}
+
+model CadCpsCodigoSequencia {
+  id          String   @id @default(cuid())
+  cliente_id  String   @unique @db.VarChar(64)
+  next_codigo Int      @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
 }
 
 model CadastroRegistro {

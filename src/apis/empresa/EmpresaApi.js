@@ -63,21 +63,6 @@ export const EmpresaApi = {
     return payload?.items || [];
   },
 
-  async createCampoPersonalizado(data) {
-    const payload = await apiClient.post(CAMPOS_PATH, data, CADASTRO_LIST_SCOPE);
-    return payload?.item || payload;
-  },
-
-  async updateCampoPersonalizado(id, data) {
-    const payload = await apiClient.put(`${CAMPOS_PATH}/${id}`, data, CADASTRO_LIST_SCOPE);
-    return payload?.item || payload;
-  },
-
-  async deleteCampoPersonalizado(id) {
-    await apiClient.delete(`${CAMPOS_PATH}/${id}`, CADASTRO_LIST_SCOPE);
-    return true;
-  },
-
   async listOptionsSources(sources = []) {
     const payload = await apiClient.post("/api/empresas/options", { sources }, CADASTRO_LIST_SCOPE);
     return payload?.items || {};

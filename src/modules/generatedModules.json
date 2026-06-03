@@ -6,9 +6,9 @@
     "pageFile": "modules/empresas/pages/PAGEMP.jsx"
   },
   {
-    "moduleId": "campos",
+    "moduleId": "cadcps",
     "routePath": "/CadastroCamposPersonalizados",
     "menuLabel": "Campos Personalizados",
-    "pageFile": "modules/campos/pages/PAGCampos.jsx"
+    "pageFile": "modules/cadcps/pages/PAGCPS.jsx"
   }
 ]
