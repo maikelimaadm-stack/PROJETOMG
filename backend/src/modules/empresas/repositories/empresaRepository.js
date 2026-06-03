@@ -1,9 +1,9 @@
 import { getPrismaClient } from "../../../database/prismaClient.js";
 import { auditService } from "../../audit/auditService.js";
-import { createCampoPersonalizadoRepository } from "../../campos/campoPersonalizadoRepository.js";
+import { svcCps } from "../../cadcps/svcCps.js";
+import { toLegacyCampoList } from "../../cadcps/campoLegacyAdapter.js";
 
 const EMPRESAS_ENTITY_NAME = "EmpresaCadastro";
-const camposRepository = createCampoPersonalizadoRepository(EMPRESAS_ENTITY_NAME);
 
 const toPositiveInt = (value, fallback) => {
   const parsed = Number(value);
@@ -302,18 +302,18 @@ export const empresaRepository = {
   },
 
   async listCampos(scope, mode = "aplicavel") {
-    return camposRepository.list({ scope, mode });
-  },
-
-  async createCampo(data, scope) {
-    return camposRepository.create({ scope, payload: data });
-  },
-
-  async updateCampo(id, data, scope) {
-    return camposRepository.update({ scope, id, payload: data });
-  },
-
-  async removeCampo(id, scope) {
-    return camposRepository.remove({ scope, id });
+    if (mode === "config") {
+      const telas = await svcCps.listTelas();
+      const telaEmpresas = telas.find((t) => t.entity_name === EMPRESAS_ENTITY_NAME);
+      const result = await svcCps.list(scope, {
+        page: 1,
+        pageSize: 500,
+        sortBy: "codigo",
+        sortDir: "asc",
+        ...(telaEmpresas?.id ? { tela_id: telaEmpresas.id } : {}),
+      });
+      return toLegacyCampoList(result.items);
+    }
+    return svcCps.listApplicableLegacy(scope, EMPRESAS_ENTITY_NAME);
   },
 };

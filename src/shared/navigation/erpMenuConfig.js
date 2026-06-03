@@ -40,8 +40,8 @@ export const ERP_MENU_SECTIONS = [
       {
         id: "campos_personalizados",
         label: "Campos Personalizados",
-        routePath: moduleById.campos?.routePath || "/CadastroCamposPersonalizados",
-        moduleId: "campos",
+        routePath: moduleById.cadcps?.routePath || "/CadastroCamposPersonalizados",
+        moduleId: "cadcps",
       },
     ],
   },

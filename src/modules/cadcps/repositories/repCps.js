@@ -1,0 +1,39 @@
+import { apiCps } from "@/apis/cadcps/apiCps";
+
+const repCps = {
+  async listTelas() {
+    const payload = await apiCps.listTelas();
+    return payload?.items || [];
+  },
+
+  async listPage(params) {
+    return apiCps.listCampos(params);
+  },
+
+  async getById(id) {
+    const payload = await apiCps.getCampo(id);
+    return payload?.item || null;
+  },
+
+  async listHistorico(id) {
+    const payload = await apiCps.listHistorico(id);
+    return payload?.items || [];
+  },
+
+  async create(data) {
+    const payload = await apiCps.createCampo(data);
+    return payload?.item || payload;
+  },
+
+  async update(id, data) {
+    const payload = await apiCps.updateCampo(id, data);
+    return payload?.item || payload;
+  },
+
+  async remove(id) {
+    await apiCps.deleteCampo(id);
+    return true;
+  },
+};
+
+export default repCps;

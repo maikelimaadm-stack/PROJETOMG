@@ -69,18 +69,6 @@ export const empresaService = {
     return empresaRepository.listCampos(scope, mode);
   },
 
-  createCampo(payload, scope) {
-    return empresaRepository.createCampo(payload, scope);
-  },
-
-  updateCampo(id, payload, scope) {
-    return empresaRepository.updateCampo(id, payload, scope);
-  },
-
-  removeCampo(id, scope) {
-    return empresaRepository.removeCampo(id, scope);
-  },
-
   async listOptionsSources(sources = [], _scope) {
     // Placeholder para evolução multi-entity.
     const result = {};

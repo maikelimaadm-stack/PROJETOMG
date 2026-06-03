@@ -1,8 +1,6 @@
 import { empresaService } from "./services/empresaService.js";
 import { assertRole, loadAccessScope } from "../auth/accessScope.js";
 import {
-  campoPersonalizadoSchema,
-  campoUpdateSchema,
   empresaCreateSchema,
   empresaUpdateSchema,
   parseOrThrow,
@@ -33,53 +31,6 @@ export const registerEmpresasRoutes = async (app) => {
     const mode = String(request.query?.mode || "aplicavel").toLowerCase() === "config" ? "config" : "aplicavel";
     const items = await empresaService.listCampos(scope, mode);
     return { items };
-  });
-
-  app.post("/api/empresas/campos", { preHandler: app.authenticate }, async (request, reply) => {
-    const scope = await loadAccessScope(request);
-    ensureMutationRole(scope);
-    const payload = parseOrThrow(
-      campoPersonalizadoSchema,
-      request.body,
-      "Payload inválido para criação de campo."
-    );
-    const item = await empresaService.createCampo(payload, scope);
-    return reply.status(201).send({ item });
-  });
-
-  app.put("/api/empresas/campos/:id", { preHandler: app.authenticate }, async (request, reply) => {
-    const scope = await loadAccessScope(request);
-    ensureMutationRole(scope);
-    try {
-      const payload = parseOrThrow(
-        campoUpdateSchema,
-        request.body,
-        "Payload inválido para atualização de campo."
-      );
-      const item = await empresaService.updateCampo(request.params.id, payload, scope);
-      if (!item) return reply.status(404).send({ message: "Campo não encontrado para atualização" });
-      return { item };
-    } catch (error) {
-      if (error?.statusCode && error.statusCode !== 404) {
-        return reply.status(error.statusCode).send({ message: error.message });
-      }
-      return reply.status(404).send({ message: "Campo não encontrado para atualização" });
-    }
-  });
-
-  app.delete("/api/empresas/campos/:id", { preHandler: app.authenticate }, async (request, reply) => {
-    const scope = await loadAccessScope(request);
-    ensureMutationRole(scope);
-    try {
-      const ok = await empresaService.removeCampo(request.params.id, scope);
-      if (!ok) return reply.status(404).send({ message: "Campo não encontrado para exclusão" });
-      return { ok: true };
-    } catch (error) {
-      if (error?.statusCode && error.statusCode !== 404) {
-        return reply.status(error.statusCode).send({ message: error.message });
-      }
-      return reply.status(404).send({ message: "Campo não encontrado para exclusão" });
-    }
   });
 
   app.post("/api/empresas/options", { preHandler: app.authenticate }, async (request) => {

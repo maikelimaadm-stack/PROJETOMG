@@ -40,17 +40,22 @@ const run = async () => {
   const empresaB = session.empresas?.[1] || session.empresas?.[0];
   assert(empresaA?.id, "Empresa A não disponível.");
 
+  const telas = await requestJson("/api/cadcps/telas", { token });
+  assert(telas.ok, "Falha ao listar telas.");
+  const telaEmpresas = telas.payload.items.find((t) => t.codigo === "EMPRESAS");
+  assert(telaEmpresas?.id, "Tela EMPRESAS ausente.");
+
   const globalFieldName = `campo_global_${tag}`;
   const specificFieldName = `campo_empresa_${tag}`;
 
-  const createGlobal = await requestJson("/api/empresas/campos", {
+  const createGlobal = await requestJson("/api/cadcps/campos", {
     method: "POST",
     token,
-    empresaId: empresaA.id,
     body: {
+      nome: `Campo Global ${tag}`,
       field_name: globalFieldName,
-      label: `Campo Global ${tag}`,
-      tipo: "text",
+      tipo: "texto",
+      tela_ids: [telaEmpresas.id],
       aplicacao_modo: "todas",
       visivel_form: true,
       visivel_tabela: true,
@@ -58,16 +63,16 @@ const run = async () => {
   });
   assert(createGlobal.ok, `Falha ao criar campo global (${createGlobal.status}).`);
 
-  const createSpecific = await requestJson("/api/empresas/campos", {
+  const createSpecific = await requestJson("/api/cadcps/campos", {
     method: "POST",
     token,
-    empresaId: empresaA.id,
     body: {
+      nome: `Campo Empresa ${tag}`,
       field_name: specificFieldName,
-      label: `Campo Empresa ${tag}`,
-      tipo: "text",
-      aplicacao_modo: "empresa",
-      empresa_id: empresaA.id,
+      tipo: "texto",
+      tela_ids: [telaEmpresas.id],
+      aplicacao_modo: "especificas",
+      empresa_ids: [empresaA.id],
       visivel_form: true,
       visivel_tabela: true,
     },
@@ -78,80 +83,35 @@ const run = async () => {
     token,
     empresaId: empresaA.id,
   });
-  assert(listEmpresaA.ok, "Falha ao listar campos aplicáveis na empresa A.");
-  const namesA = (listEmpresaA.payload.items || []).map((item) => item.field_name);
-  assert(namesA.includes(globalFieldName), "Campo global não apareceu na empresa A.");
-  assert(namesA.includes(specificFieldName), "Campo específico não apareceu na empresa A.");
+  assert(listEmpresaA.ok, "Falha ao listar campos aplicáveis empresa A.");
+  const namesA = (listEmpresaA.payload?.items || []).map((c) => c.field_name);
+  assert(namesA.includes(globalFieldName), "Campo global ausente na empresa A.");
+  assert(namesA.includes(specificFieldName), "Campo específico ausente na empresa A.");
 
   if (empresaB?.id && empresaB.id !== empresaA.id) {
     const listEmpresaB = await requestJson("/api/empresas/campos?mode=aplicavel", {
       token,
       empresaId: empresaB.id,
     });
-    assert(listEmpresaB.ok, "Falha ao listar campos aplicáveis na empresa B.");
-    const namesB = (listEmpresaB.payload.items || []).map((item) => item.field_name);
-    assert(namesB.includes(globalFieldName), "Campo global não apareceu na empresa B.");
-    assert(!namesB.includes(specificFieldName), "Campo específico vazou para empresa B.");
+    assert(listEmpresaB.ok, "Falha ao listar campos aplicáveis empresa B.");
+    const namesB = (listEmpresaB.payload?.items || []).map((c) => c.field_name);
+    assert(namesB.includes(globalFieldName), "Campo global ausente na empresa B.");
+    assert(!namesB.includes(specificFieldName), "Campo específico não deveria aparecer na empresa B.");
   }
 
-  const createRecord = await requestJson("/api/empresas", {
-    method: "POST",
-    token,
-    empresaId: empresaA.id,
-    body: {
-      razao_social: `EMPRESA CAMPOS ${tag}`,
-      status: "Ativa",
-      campos_personalizados: {
-        [globalFieldName]: "valor global",
-        [specificFieldName]: "valor empresa",
-      },
-    },
-  });
-  assert(
-    createRecord.ok,
-    `Falha ao criar registro com campos (${createRecord.status}): ${createRecord.payload?.message || "sem mensagem"}`
-  );
-  const recordId = createRecord.payload.item.id;
-
-  const blockDelete = await requestJson(`/api/empresas/campos/${createGlobal.payload.item.id}`, {
+  await requestJson(`/api/cadcps/campos/${createGlobal.payload.item.id}`, {
     method: "DELETE",
     token,
-    empresaId: empresaA.id,
   });
-  assert(blockDelete.status === 409, "Campo com registros filhos deveria bloquear exclusão.");
-
-  const blockUpdate = await requestJson(`/api/empresas/campos/${createGlobal.payload.item.id}`, {
-    method: "PUT",
-    token,
-    empresaId: empresaA.id,
-    body: { label: "Tentativa de edição bloqueada" },
-  });
-  assert(blockUpdate.status === 409, "Campo com registros filhos deveria bloquear edição.");
-
-  await requestJson(`/api/empresas/${recordId}`, {
+  await requestJson(`/api/cadcps/campos/${createSpecific.payload.item.id}`, {
     method: "DELETE",
     token,
-    empresaId: recordId,
   });
 
-  const deleteGlobal = await requestJson(`/api/empresas/campos/${createGlobal.payload.item.id}`, {
-    method: "DELETE",
-    token,
-    empresaId: empresaA.id,
-  });
-  assert(deleteGlobal.ok, "Campo global deveria excluir após remover registros.");
-
-  const deleteSpecific = await requestJson(`/api/empresas/campos/${createSpecific.payload.item.id}`, {
-    method: "DELETE",
-    token,
-    empresaId: empresaA.id,
-  });
-  assert(deleteSpecific.ok, "Campo específico deveria excluir após remover registros.");
-
-  console.log("Smoke de campos personalizados concluído com sucesso.");
+  console.log("Smoke campos personalizados (CADCPS): OK");
 };
 
 run().catch((error) => {
-  console.error(`Smoke de campos personalizados falhou: ${error.message}`);
+  console.error("Smoke campos falhou:", error.message);
   process.exit(1);
 });

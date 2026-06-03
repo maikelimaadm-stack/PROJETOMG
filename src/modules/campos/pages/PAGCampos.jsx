@@ -1,20 +1,4 @@
-import React from "react";
-import EmpConfiguracaoCamposDialog from "@/framework/cadastro/configurators/EmpConfiguracaoCamposDialog";
-import empRepository from "@/modules/empresas/repositories/empRepository";
-import { useAuth } from "@/shared/contexts/AuthContext";
+import PAGCPS from "@/modules/cadcps/pages/PAGCPS";
 
-export default function PAGCampos() {
-  const { empresas } = useAuth();
-
-  return (
-    <div className="cadastro-emp-scope h-full min-h-0 overflow-hidden flex flex-col">
-      <EmpConfiguracaoCamposDialog
-        open
-        inline
-        onOpenChange={() => {}}
-        repository={empRepository}
-        empresas={empresas || []}
-      />
-    </div>
-  );
-}
+/** @deprecated Use PAGCPS — mantido apenas para compatibilidade de rota legada. */
+export default PAGCPS;

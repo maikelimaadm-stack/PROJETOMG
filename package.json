@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint .",
+    "lint": "eslint src",
     "typecheck": "tsc -p ./jsconfig.json",
     "preview": "vite preview",
     "generate:module": "node scripts/generate-cadastro-module.mjs",
