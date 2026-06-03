@@ -40,7 +40,7 @@ export default function EmpFormImageField({
           aria-live="polite"
           aria-busy="true"
         >
-          <Loader2 className="h-5 w-5 animate-spin text-[#0089e4]" aria-hidden="true" />
+          <Loader2 className="h-5 w-5 animate-spin text-[#4fafff]" aria-hidden="true" />
           <span className="sr-only">Enviando imagem...</span>
         </div>
       ) : null}

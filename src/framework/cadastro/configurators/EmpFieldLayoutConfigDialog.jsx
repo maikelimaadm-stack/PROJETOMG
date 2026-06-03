@@ -123,7 +123,7 @@ export default function EmpFieldLayoutConfigDialog({
                           key={option.mode}
                           type="button"
                           onClick={() => setMode(option.mode)}
-                          className={`flex w-full cursor-pointer items-center gap-3 rounded-md border-[0.5px] p-2 text-left transition-colors hover:brightness-[0.98] ${active ? "bg-[#e6f4fc] border-[#0089e4]" : "border-[#dce3eb] bg-white"}`}
+                          className={`flex w-full cursor-pointer items-center gap-3 rounded-md border-[0.5px] p-2 text-left transition-colors hover:brightness-[0.98] ${active ? "bg-[#e8f6ff] border-[#4fafff]" : "border-[#dce3eb] bg-white"}`}
                         >
                           <span onClick={(event) => event.stopPropagation()} className="flex shrink-0 items-center">
                             <ToggleSwitch

@@ -37,7 +37,7 @@ const resolveCompanySelectorValue = (selectedEmpresaId, allowAllEmpresas) => {
 function ErpBrand() {
   return (
     <div className="erp-sidebar-brand flex items-center gap-3 px-3 py-4">
-      <div className="erp-sidebar-logo flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#0089e4] text-sm font-bold text-white">
+      <div className="erp-sidebar-logo flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#4fafff] text-sm font-bold text-white">
         M
       </div>
       <div className="min-w-0">

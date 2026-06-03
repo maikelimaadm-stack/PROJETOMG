@@ -805,7 +805,15 @@ export default function EmpLayoutConfiguratorDialog({
                             className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
                           />
                         ) : (
-                          formatPanelLabel(panel.label)
+                          <span className="inline-flex items-center gap-1.5">
+                            {panel.hidden ? (
+                              <EyeOff
+                                className="emp-form-tab-hidden-icon h-3.5 w-3.5 shrink-0 stroke-white text-white"
+                                aria-hidden="true"
+                              />
+                            ) : null}
+                            {formatPanelLabel(panel.label)}
+                          </span>
                         )}
                       </button>
                     );

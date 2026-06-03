@@ -230,13 +230,14 @@ input[type="number"] {
   --emp-form-border-width: 1px;
   --emp-form-textarea-min-height: 52px;
   --emp-form-field-column-width: 200px;
-  --emp-accent-green: #0089e4;
-  --emp-accent-primary: #0089e4;
-  --emp-accent-primary-hover: #006fb8;
-  --emp-accent-primary-light: #0089e4;
-  --emp-accent-primary-light-hover: #006fb8;
-  --emp-accent-danger: #ec323d;
-  --emp-accent-danger-hover: #d42a34;
+  --emp-accent-green: #4fafff;
+  --emp-accent-primary: #4fafff;
+  --emp-accent-primary-hover: #35a3f5;
+  --emp-accent-primary-light: #9fd8ff;
+  --emp-accent-primary-light-hover: #85ceff;
+  --emp-accent-primary-muted: #b8e8ff;
+  --emp-accent-danger: #ff7a84;
+  --emp-accent-danger-hover: #ff95a0;
   --emp-accent-danger-foreground: #ffffff;
   --emp-accent-primary-foreground: #ffffff;
   --emp-toolbar-btn-bg: #ffffff;
@@ -311,24 +312,24 @@ input[type="number"] {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive) {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action) {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive) span {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action) span {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive) svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action) svg {
   color: var(--emp-text-strong) !important;
   stroke: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):hover {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action):hover {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):hover svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action):hover svg {
   color: var(--emp-text-strong) !important;
 }
 
@@ -509,7 +510,7 @@ input[type="number"] {
   border-right-color: #d6dce8;
   border-bottom-color: #ffffff;
   background: #ffffff;
-  color: #1a1f26;
+  color: #000000;
   font-weight: 700;
   z-index: 12;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
@@ -524,7 +525,7 @@ input[type="number"] {
   border-bottom-color: #d6dce8;
   background: var(--emp-accent-primary);
   color: #ffffff;
-  font-weight: 700;
+  font-weight: 400;
   z-index: 0;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
@@ -537,7 +538,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active:hover {
   margin-bottom: -1px !important;
-  color: #1a1f26 !important;
+  color: #000000 !important;
   font-weight: 700 !important;
   background: #ffffff !important;
   border-width: 1px !important;
@@ -559,7 +560,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #ffffff !important;
-  font-weight: 700 !important;
+  font-weight: 400 !important;
   background: var(--emp-accent-primary) !important;
   border-width: 1px !important;
   border-top-width: 1px !important;
@@ -586,8 +587,19 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab-inactive.emp-form-tab-hidden-panel {
   opacity: 1 !important;
-  background: var(--emp-accent-primary-hover) !important;
+  background: var(--emp-accent-primary-muted) !important;
   color: #ffffff !important;
+  font-weight: 400 !important;
+}
+
+.cadastro-emp-scope .emp-form-tab-inactive.emp-form-tab-hidden-panel:hover {
+  background: var(--emp-accent-primary-light) !important;
+}
+
+.cadastro-emp-scope .emp-form-tab-inactive.emp-form-tab-hidden-panel .emp-form-tab-hidden-icon,
+.cadastro-emp-scope .emp-form-tab-inactive.emp-form-tab-hidden-panel .emp-form-tab-hidden-icon svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 /* Campos do formulário de registro */
@@ -2369,7 +2381,7 @@ input[type="number"] {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  --erp-nav-active-bg: #0089e4;
+  --erp-nav-active-bg: #4fafff;
   --erp-nav-active-fg: #ffffff;
   --erp-surface-bg: #f5f5f5;
   --erp-page-bg: #f5f5f5;
