@@ -223,19 +223,19 @@ input[type="number"] {
 .cadastro-emp-scope {
   --emp-text: #1f2937;
   --emp-text-strong: #0f172a;
-  --emp-control-radius: 5px;
-  --emp-form-control-height: 26px;
-  --emp-form-font-size: 12px;
-  --emp-form-border-color: #bcc6d4;
+  --emp-control-radius: 8px;
+  --emp-form-control-height: 40px;
+  --emp-form-font-size: 13px;
+  --emp-form-border-color: #cbd5e1;
   --emp-form-border-width: 1px;
-  --emp-form-textarea-min-height: 52px;
+  --emp-form-textarea-min-height: 88px;
   --emp-form-field-column-width: 200px;
-  --emp-accent-green: #4fafff;
-  --emp-accent-primary: #4fafff;
-  --emp-accent-primary-hover: #35a3f5;
-  --emp-accent-primary-light: #9fd8ff;
-  --emp-accent-primary-light-hover: #85ceff;
-  --emp-accent-primary-muted: #b8e8ff;
+  --emp-accent-green: #2d8a4e;
+  --emp-accent-primary: #2d8a4e;
+  --emp-accent-primary-hover: #256f3f;
+  --emp-accent-primary-light: #86efac;
+  --emp-accent-primary-light-hover: #6ee7a0;
+  --emp-accent-primary-muted: #dcfce7;
   --emp-accent-danger: #f25560;
   --emp-accent-danger-hover: #e03d48;
   --emp-accent-danger-foreground: #ffffff;
@@ -2690,7 +2690,514 @@ input[type="number"] {
 }
 
 .erp-field-invalid,
-.erp-field-invalid .emp-form-field-control {
+.erp-field-invalid .emp-form-field-control,
+.erp-field-invalid.erp-float-field .erp-float-control-wrap {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35);
+}
+
+/* ——— Design system moderno (floating labels, cards, grid) ——— */
+.erp-ui,
+.cadastro-emp-scope.erp-ui {
+  --erp-float-height: var(--emp-form-control-height, 40px);
+  --erp-float-radius: var(--emp-control-radius, 8px);
+  --erp-float-border: var(--emp-form-border-color, #cbd5e1);
+  --erp-float-border-focus: var(--emp-accent-primary, #2d8a4e);
+  --erp-float-label: #64748b;
+  --erp-float-label-active: var(--emp-accent-primary, #2d8a4e);
+  --erp-float-bg: #ffffff;
+  --erp-float-error: #dc2626;
+  --erp-state-success: #16a34a;
+  --erp-state-warning: #d97706;
+  --erp-state-error: #dc2626;
+  --erp-state-info: #2563eb;
+}
+
+.erp-float-field {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+}
+
+.erp-float-field--textarea {
+  max-width: 640px;
+}
+
+.erp-float-field--select {
+  max-width: 480px;
+}
+
+.erp-float-control-wrap {
+  position: relative;
+  min-height: var(--erp-float-height);
+  border: 1px solid var(--erp-float-border);
+  border-radius: var(--erp-float-radius);
+  background: var(--erp-float-bg);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.erp-float-field:hover:not(.erp-float-field--disabled) .erp-float-control-wrap {
+  border-color: #94a3b8;
+}
+
+.erp-float-field--focused .erp-float-control-wrap,
+.erp-float-field--floated.erp-float-field--focused .erp-float-control-wrap {
+  border-color: var(--erp-float-border-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--erp-float-border-focus) 18%, transparent);
+}
+
+.erp-float-field--disabled .erp-float-control-wrap {
+  background: #f8fafc;
+  opacity: 0.72;
+  cursor: not-allowed;
+}
+
+.erp-float-field--readonly .erp-float-control-wrap {
+  background: #f8fafc;
+}
+
+.erp-float-control,
+.erp-float-input {
+  width: 100%;
+  min-height: calc(var(--erp-float-height) - 2px);
+  border: 0;
+  background: transparent;
+  padding: 14px 12px 4px;
+  font-size: var(--emp-form-font-size, 13px);
+  color: var(--emp-text-strong);
+  outline: none;
+  border-radius: var(--erp-float-radius);
+}
+
+.erp-float-textarea {
+  min-height: var(--emp-form-textarea-min-height, 88px);
+  resize: vertical;
+  padding-top: 20px;
+}
+
+.erp-float-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--erp-float-label);
+  pointer-events: none;
+  transition: top 0.2s ease, transform 0.2s ease, font-size 0.2s ease, color 0.2s ease;
+  z-index: 2;
+  background: transparent;
+  padding: 0 2px;
+  max-width: calc(100% - 24px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.erp-float-field--floated .erp-float-label,
+.erp-float-field--focused .erp-float-label {
+  top: 6px;
+  transform: translateY(0);
+  font-size: 11px;
+  color: var(--erp-float-label-active);
+  font-weight: 500;
+}
+
+.erp-float-required {
+  color: var(--erp-state-error);
+}
+
+.erp-float-error {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: var(--erp-float-error);
+}
+
+.erp-float-hint {
+  margin: 4px 0 0;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.erp-float-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+}
+
+.erp-float-select-value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.erp-float-select-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #64748b;
+}
+
+.erp-float-select-clear {
+  width: 14px;
+  height: 14px;
+  opacity: 0.6;
+}
+
+.erp-float-select-clear:hover {
+  opacity: 1;
+}
+
+.erp-float-select-chevron {
+  width: 16px;
+  height: 16px;
+  opacity: 0.5;
+}
+
+.erp-float-select-content {
+  width: var(--radix-popover-trigger-width);
+}
+
+.erp-float-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: var(--erp-float-height);
+  max-width: 480px;
+  padding: 0 4px;
+}
+
+.erp-float-switch-label {
+  font-size: 13px;
+  color: var(--emp-text-strong);
+}
+
+.erp-form-grid {
+  display: grid;
+  gap: 12px 16px;
+  width: 100%;
+}
+
+.erp-form-grid--1 {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.erp-form-grid--2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.erp-form-grid--3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.erp-form-grid--4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.erp-form-grid-span-2 {
+  grid-column: 1 / -1;
+  max-width: 640px;
+}
+
+@media (max-width: 1280px) {
+  .erp-form-grid--4 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .erp-form-grid--4,
+  .erp-form-grid--3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .erp-form-grid--4,
+  .erp-form-grid--3,
+  .erp-form-grid--2 {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.erp-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  overflow: hidden;
+}
+
+.erp-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #fafbfc;
+}
+
+.erp-card__body {
+  padding: 16px;
+}
+
+.erp-card__footer {
+  padding: 12px 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.erp-form-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
+.erp-form-section__toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  flex: 1;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.erp-form-section__chevron {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  transition: transform 0.2s ease;
+  color: #64748b;
+}
+
+.erp-form-section__chevron--collapsed {
+  transform: rotate(-90deg);
+}
+
+.erp-form-section__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--emp-text-strong);
+}
+
+.erp-form-section__subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.erp-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #e2e8f0;
+  background: #fafbfc;
+}
+
+.erp-form-footer__btn--primary {
+  background: var(--emp-accent-primary) !important;
+  color: #fff !important;
+}
+
+.erp-form-footer__btn--primary:hover {
+  background: var(--emp-accent-primary-hover) !important;
+}
+
+/* Toast com ícone e barra de progresso */
+.erp-toast-panel {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: start;
+  min-width: 280px;
+  max-width: 420px;
+  padding: 12px 14px 10px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.erp-toast-panel--success {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.erp-toast-panel--error {
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.erp-toast-panel--warning {
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+
+.erp-toast-panel--info {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.erp-toast-panel__icon {
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+}
+
+.erp-toast-panel--success .erp-toast-panel__icon {
+  color: var(--erp-state-success);
+}
+
+.erp-toast-panel--error .erp-toast-panel__icon {
+  color: var(--erp-state-error);
+}
+
+.erp-toast-panel--warning .erp-toast-panel__icon {
+  color: var(--erp-state-warning);
+}
+
+.erp-toast-panel--info .erp-toast-panel__icon {
+  color: var(--erp-state-info);
+}
+
+.erp-toast-panel__message {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.erp-toast-panel__description {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #475569;
+}
+
+.erp-toast-panel__close {
+  border: 0;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 4px;
+}
+
+.erp-toast-panel__close:hover {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.erp-toast-panel__progress-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: rgba(15, 23, 42, 0.06);
+}
+
+.erp-toast-panel__progress-bar {
+  height: 100%;
+  background: var(--emp-accent-primary, #2d8a4e);
+  transition: width 0.05s linear;
+}
+
+.erp-confirm-dialog--modern [data-radix-dialog-overlay] {
+  backdrop-filter: blur(4px);
+}
+
+.erp-confirm-dialog__icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #ecfdf5;
+  color: var(--emp-accent-primary, #2d8a4e);
+  flex-shrink: 0;
+}
+
+.erp-confirm-dialog__icon-wrap--danger {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Login moderno */
+.erp-login-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(160deg, #f8fafc 0%, #ecfdf5 100%);
+}
+
+.erp-login-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 28px 24px 24px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+}
+
+.erp-login-card h1 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.erp-login-card p {
+  margin: 6px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.erp-login-fields {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.erp-login-submit {
+  margin-top: 8px;
+  width: 100%;
+  height: 42px;
+  border-radius: 8px;
+  background: var(--emp-accent-primary, #2d8a4e);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border: 0;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.erp-login-submit:hover:not(:disabled) {
+  background: var(--emp-accent-primary-hover, #256f3f);
+}
+
+.erp-login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
