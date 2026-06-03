@@ -64,7 +64,7 @@ const FILTER_POPOVER_WIDTH = 272;
 const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 const CAMPO_CONFIG_FIELD_BOX =
-  "border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#21c45d] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
+  "border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#0089e4] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
 
 function Field({ label, children, required = false, wide = false, compact = false, medium = false }) {
   return (

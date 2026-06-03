@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
@@ -15,6 +15,7 @@ export function useFormEmpCustomFields({
   relatedOptions = {},
   onUploadError,
 }) {
+  const [uploadingFields, setUploadingFields] = useState({});
   const readOnlyClass = isReadOnly ? "cursor-default" : "";
   const customInputClass = "emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase";
 
@@ -153,16 +154,23 @@ export function useFormEmpCustomFields({
     }
 
     if (["imagem", "image", "file"].includes(campo.tipo)) {
+      const uploading = Boolean(uploadingFields[campo.field_name]);
       return (
         <EmpFormImageField
           value={value}
           readOnly={fieldReadOnly}
+          uploading={uploading}
           onUpload={(event) => {
             const file = event.target.files?.[0];
             if (!file) return;
+            const fieldName = campo.field_name;
+            setUploadingFields((previous) => ({ ...previous, [fieldName]: true }));
             AnexosApi.uploadFile(file)
-              .then(({ file_url }) => handleCustomChange(campo.field_name, file_url))
-              .catch(() => onUploadError?.());
+              .then(({ file_url }) => handleCustomChange(fieldName, file_url))
+              .catch(() => onUploadError?.())
+              .finally(() => {
+                setUploadingFields((previous) => ({ ...previous, [fieldName]: false }));
+              });
           }}
           onClear={() => handleCustomChange(campo.field_name, "")}
           alt={campo.label || "Imagem"}

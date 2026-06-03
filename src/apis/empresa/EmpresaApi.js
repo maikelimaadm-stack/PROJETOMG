@@ -3,8 +3,8 @@ import { apiClient } from "@/apis/http/apiClient";
 const EMPRESAS_PATH = "/api/empresas";
 const CAMPOS_PATH = "/api/empresas/campos";
 
-/** Cadastro de empresas ignora o filtro global do header — lista todas permitidas. */
-const CADASTRO_SCOPE = { empresaHeader: false };
+/** Usa o seletor global do header: empresa individual ou "Todas as Empresas". */
+const CADASTRO_LIST_SCOPE = {};
 /** Operações em um registro específico usam o ID do registro como escopo. */
 const recordScope = (id) => ({ empresaHeader: id });
 
@@ -28,7 +28,7 @@ export const EmpresaApi = {
   },
 
   async listEmpresas(params = {}) {
-    const payload = await apiClient.get(`${EMPRESAS_PATH}${toQuery(params)}`, CADASTRO_SCOPE);
+    const payload = await apiClient.get(`${EMPRESAS_PATH}${toQuery(params)}`, CADASTRO_LIST_SCOPE);
     return {
       items: payload?.items || [],
       total: Number(payload?.total || 0),
@@ -44,7 +44,7 @@ export const EmpresaApi = {
   },
 
   async createEmpresa(data) {
-    const payload = await apiClient.post(EMPRESAS_PATH, data, CADASTRO_SCOPE);
+    const payload = await apiClient.post(EMPRESAS_PATH, data, CADASTRO_LIST_SCOPE);
     return payload?.item || payload;
   },
 
@@ -59,27 +59,27 @@ export const EmpresaApi = {
   },
 
   async listCamposPersonalizados({ mode = "aplicavel" } = {}) {
-    const payload = await apiClient.get(`${CAMPOS_PATH}${toQuery({ mode })}`, CADASTRO_SCOPE);
+    const payload = await apiClient.get(`${CAMPOS_PATH}${toQuery({ mode })}`, CADASTRO_LIST_SCOPE);
     return payload?.items || [];
   },
 
   async createCampoPersonalizado(data) {
-    const payload = await apiClient.post(CAMPOS_PATH, data, CADASTRO_SCOPE);
+    const payload = await apiClient.post(CAMPOS_PATH, data, CADASTRO_LIST_SCOPE);
     return payload?.item || payload;
   },
 
   async updateCampoPersonalizado(id, data) {
-    const payload = await apiClient.put(`${CAMPOS_PATH}/${id}`, data, CADASTRO_SCOPE);
+    const payload = await apiClient.put(`${CAMPOS_PATH}/${id}`, data, CADASTRO_LIST_SCOPE);
     return payload?.item || payload;
   },
 
   async deleteCampoPersonalizado(id) {
-    await apiClient.delete(`${CAMPOS_PATH}/${id}`, CADASTRO_SCOPE);
+    await apiClient.delete(`${CAMPOS_PATH}/${id}`, CADASTRO_LIST_SCOPE);
     return true;
   },
 
   async listOptionsSources(sources = []) {
-    const payload = await apiClient.post("/api/empresas/options", { sources }, CADASTRO_SCOPE);
+    const payload = await apiClient.post("/api/empresas/options", { sources }, CADASTRO_LIST_SCOPE);
     return payload?.items || {};
   },
 

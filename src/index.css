@@ -230,11 +230,15 @@ input[type="number"] {
   --emp-form-border-width: 1px;
   --emp-form-textarea-min-height: 52px;
   --emp-form-field-column-width: 200px;
-  --emp-accent-green: #21c45d;
-  --emp-accent-primary: #2563eb;
-  --emp-accent-primary-hover: #1d4ed8;
-  --emp-accent-primary-light: #60a5fa;
-  --emp-accent-primary-light-hover: #4a94f0;
+  --emp-accent-green: #0089e4;
+  --emp-accent-primary: #0089e4;
+  --emp-accent-primary-hover: #006fb8;
+  --emp-accent-primary-light: #0089e4;
+  --emp-accent-primary-light-hover: #006fb8;
+  --emp-accent-danger: #ec323d;
+  --emp-accent-danger-hover: #d42a34;
+  --emp-accent-danger-foreground: #ffffff;
+  --emp-accent-primary-foreground: #ffffff;
   --emp-toolbar-btn-bg: #ffffff;
   --emp-toolbar-btn-bg-hover: #f8fafc;
   --emp-toolbar-btn-border: #e8ecef;
@@ -352,16 +356,16 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-bubble-counter--complete {
-  background: var(--emp-accent-primary-light) !important;
+  background: var(--emp-accent-primary) !important;
   border: none !important;
-  color: #ffffff !important;
+  color: var(--emp-accent-primary-foreground) !important;
   font-weight: 600;
 }
 
 .cadastro-emp-scope .emp-bubble-counter--incomplete {
-  background: #dc2626 !important;
+  background: var(--emp-accent-danger) !important;
   border: none !important;
-  color: #ffffff !important;
+  color: var(--emp-accent-danger-foreground) !important;
   font-weight: 600;
 }
 
@@ -371,15 +375,15 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-bubble-counter--complete .emp-bubble-counter__tail {
-  background: var(--emp-accent-primary-light);
-  border-right: 1px solid var(--emp-accent-primary-light);
-  border-bottom: 1px solid var(--emp-accent-primary-light);
+  background: var(--emp-accent-primary);
+  border-right: 1px solid var(--emp-accent-primary);
+  border-bottom: 1px solid var(--emp-accent-primary);
 }
 
 .cadastro-emp-scope .emp-bubble-counter--incomplete .emp-bubble-counter__tail {
-  background: #dc2626;
-  border-right: 1px solid #dc2626;
-  border-bottom: 1px solid #dc2626;
+  background: var(--emp-accent-danger);
+  border-right: 1px solid var(--emp-accent-danger);
+  border-bottom: 1px solid var(--emp-accent-danger);
 }
 
 .cadastro-emp-scope .emp-bubble-counter__value {
@@ -500,7 +504,7 @@ input[type="number"] {
   border-style: solid;
   border-top-width: 3px;
   border-bottom-width: 2px;
-  border-top-color: var(--emp-accent-primary-light);
+  border-top-color: var(--emp-accent-primary);
   border-left-color: #d6dce8;
   border-right-color: #d6dce8;
   border-bottom-color: #ffffff;
@@ -518,7 +522,7 @@ input[type="number"] {
   border-left-color: #ffffff;
   border-right-color: #ffffff;
   border-bottom-color: #d6dce8;
-  background: var(--emp-accent-primary-light);
+  background: var(--emp-accent-primary);
   color: #ffffff;
   font-weight: 700;
   z-index: 0;
@@ -527,7 +531,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab-inactive:hover {
   color: #ffffff;
-  background: var(--emp-accent-primary-light-hover);
+  background: var(--emp-accent-primary-hover);
 }
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
@@ -540,7 +544,7 @@ input[type="number"] {
   border-style: solid !important;
   border-top-width: 3px !important;
   border-bottom-width: 2px !important;
-  border-top-color: var(--emp-accent-primary-light) !important;
+  border-top-color: var(--emp-accent-primary) !important;
   border-left-color: #d6dce8 !important;
   border-right-color: #d6dce8 !important;
   border-bottom-color: #ffffff !important;
@@ -556,7 +560,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #ffffff !important;
   font-weight: 700 !important;
-  background: var(--emp-accent-primary-light) !important;
+  background: var(--emp-accent-primary) !important;
   border-width: 1px !important;
   border-top-width: 1px !important;
   border-top-color: #ffffff !important;
@@ -582,7 +586,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tab-inactive.emp-form-tab-hidden-panel {
   opacity: 1 !important;
-  background: var(--emp-accent-primary-light-hover) !important;
+  background: var(--emp-accent-primary-hover) !important;
   color: #ffffff !important;
 }
 
@@ -947,7 +951,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control.emp-form-field-error {
-  border-color: #ef4444;
+  border-color: var(--emp-accent-danger);
   background: #ffffff;
 }
 
@@ -1727,7 +1731,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
-  background: #dc2626 !important;
+  background: var(--emp-accent-danger) !important;
   border: none !important;
   color: #ffffff !important;
 }
@@ -1747,7 +1751,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
   color: #ffffff !important;
-  background: #b91c1c !important;
+  background: var(--emp-accent-danger-hover) !important;
   border: none !important;
 }
 
@@ -1941,7 +1945,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete:hover:not(:disabled) {
-  background: #dc2626 !important;
+  background: var(--emp-accent-danger) !important;
   border: none !important;
   color: #ffffff !important;
 }
@@ -2017,12 +2021,12 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required {
-  background: #ef4444;
+  background: var(--emp-accent-danger);
   color: #ffffff;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required:hover {
-  background: #dc2626;
+  background: var(--emp-accent-danger-hover);
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-status-icons {
@@ -2031,21 +2035,35 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional {
-  background: #546e7a;
-  color: #ffffff;
+  background: var(--emp-accent-primary);
+  color: var(--emp-accent-primary-foreground);
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional:hover {
-  background: #455a64;
+  background: var(--emp-accent-primary-hover);
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item {
-  background: #546e7a;
-  color: #ffffff;
+  background: var(--emp-accent-primary);
+  color: var(--emp-accent-primary-foreground);
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item:hover {
-  background: #455a64;
+  background: var(--emp-accent-primary-hover);
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-panel {
+  color: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required span,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional span,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item span,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-panel span {
+  color: #ffffff !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-selected {
@@ -2071,11 +2089,11 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-config-field-required:hover {
-  background: #ef4444;
+  background: var(--emp-accent-danger);
 }
 
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-config-field-optional:hover {
-  background: #546e7a;
+  background: var(--emp-accent-primary);
 }
 
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-toggles {
@@ -2109,9 +2127,20 @@ input[type="number"] {
   padding: 0;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action svg {
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action svg,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-status-icons svg,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-status-icons span {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete,
+.cadastro-emp-scope .emp-form-tab-inactive,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional,
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item {
+  --emp-on-accent-fg: #ffffff;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
@@ -2161,7 +2190,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select:focus,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-select:focus-visible {
-  border-color: #21c45d !important;
+  border-color: var(--emp-accent-primary) !important;
   outline: none !important;
   box-shadow: none !important;
 }
@@ -2201,7 +2230,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-presets-dialog .emp-layout-presets-close-icon:hover {
-  color: #dc2626;
+  color: var(--emp-accent-danger);
   background: transparent;
 }
 
@@ -2311,7 +2340,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-field-control-lote.emp-form-field-error {
-  border-color: #ef4444 !important;
+  border-color: var(--emp-accent-danger) !important;
   background: #ffffff !important;
 }
 
@@ -2340,7 +2369,7 @@ input[type="number"] {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  --erp-nav-active-bg: #2563eb;
+  --erp-nav-active-bg: #0089e4;
   --erp-nav-active-fg: #ffffff;
   --erp-surface-bg: #f5f5f5;
   --erp-page-bg: #f5f5f5;
@@ -2385,7 +2414,7 @@ input[type="number"] {
 
 .erp-shell .erp-sidebar-link[data-active="true"]:hover,
 .erp-shell .erp-sidebar-sub-link[data-active="true"]:hover {
-  background: #1d4ed8 !important;
+  background: var(--emp-accent-primary-hover) !important;
   color: #ffffff !important;
 }
 

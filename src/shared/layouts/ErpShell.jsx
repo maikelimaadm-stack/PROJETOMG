@@ -28,10 +28,16 @@ import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
+const resolveCompanySelectorValue = (selectedEmpresaId, allowAllEmpresas) => {
+  if (selectedEmpresaId === "all") return "all";
+  if (selectedEmpresaId) return selectedEmpresaId;
+  return allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION;
+};
+
 function ErpBrand() {
   return (
     <div className="erp-sidebar-brand flex items-center gap-3 px-3 py-4">
-      <div className="erp-sidebar-logo flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#2563eb] text-sm font-bold text-white">
+      <div className="erp-sidebar-logo flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#0089e4] text-sm font-bold text-white">
         M
       </div>
       <div className="min-w-0">
@@ -51,7 +57,7 @@ function ErpTopHeader({
 }) {
   const { visible: tableFullscreenVisible, isFullscreen, onToggle: onToggleTableFullscreen } =
     useErpTableFullscreen();
-  const selectorValue = selectedEmpresaId || (allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION);
+  const selectorValue = resolveCompanySelectorValue(selectedEmpresaId, allowAllEmpresas);
 
   return (
     <header className="erp-shell-header flex h-10 shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-4">
@@ -64,17 +70,24 @@ function ErpTopHeader({
         <select
           value={selectorValue}
           onChange={(event) => onSelectEmpresa(event.target.value)}
-          className="erp-shell-company-select h-8 min-w-[180px] rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-700"
+          className="erp-shell-company-select h-8 min-w-[220px] max-w-[320px] rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-700"
+          title="Escolha ver todas as empresas ou focar em uma só"
         >
-          {allowAllEmpresas ? <option value="all">Todas as Empresas</option> : null}
-          {!allowAllEmpresas ? (
-            <option value={AUTHORIZED_SCOPE_OPTION}>Empresas autorizadas</option>
+          <optgroup label="Visão geral">
+            {allowAllEmpresas ? <option value="all">Todas as empresas</option> : null}
+            {!allowAllEmpresas ? (
+              <option value={AUTHORIZED_SCOPE_OPTION}>Todas as empresas autorizadas</option>
+            ) : null}
+          </optgroup>
+          {empresas.length > 0 ? (
+            <optgroup label="Uma empresa">
+              {empresas.map((empresa) => (
+                <option key={empresa.id} value={empresa.id}>
+                  {empresa.codempresa} - {empresa.nome_empresa}
+                </option>
+              ))}
+            </optgroup>
           ) : null}
-          {empresas.map((empresa) => (
-            <option key={empresa.id} value={empresa.id}>
-              {empresa.codempresa} - {empresa.nome_empresa}
-            </option>
-          ))}
         </select>
       </div>
 

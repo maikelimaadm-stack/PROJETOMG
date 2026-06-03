@@ -1,5 +1,5 @@
 import React from "react";
-import { Image } from "lucide-react";
+import { Image, Loader2 } from "lucide-react";
 
 export default function EmpFormImageField({
   value = "",
@@ -17,7 +17,11 @@ export default function EmpFormImageField({
       {hasImage ? (
         <div className="flex h-full w-full items-center justify-center p-1.5">
           <div className="emp-form-image-thumb relative flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-[6px] border border-[#d1d5db] bg-white">
-            <img src={value} alt={alt} className="max-h-full max-w-full object-contain p-0.5" />
+            <img
+              src={value}
+              alt={alt}
+              className={`max-h-full max-w-full object-contain p-0.5 ${uploading ? "opacity-40" : ""}`}
+            />
           </div>
         </div>
       ) : (
@@ -30,16 +34,27 @@ export default function EmpFormImageField({
         </div>
       )}
 
+      {uploading ? (
+        <div
+          className="absolute inset-0 z-[3] flex items-center justify-center rounded-[6px] bg-white/70"
+          aria-live="polite"
+          aria-busy="true"
+        >
+          <Loader2 className="h-5 w-5 animate-spin text-[#0089e4]" aria-hidden="true" />
+          <span className="sr-only">Enviando imagem...</span>
+        </div>
+      ) : null}
+
       {!readOnly && (
         <label
-          className={`absolute inset-0 z-[1] ${uploading ? "cursor-wait" : "cursor-pointer"}`}
+          className={`absolute inset-0 z-[1] ${uploading ? "cursor-wait pointer-events-none" : "cursor-pointer"}`}
           title={uploading ? "Enviando imagem..." : hasImage ? "Trocar imagem" : "Selecionar imagem"}
         >
           <input type="file" accept={accept} className="hidden" onChange={onUpload} disabled={uploading} />
         </label>
       )}
 
-      {!readOnly && hasImage && onClear && (
+      {!readOnly && hasImage && onClear && !uploading ? (
         <button
           type="button"
           onClick={(event) => {
@@ -53,7 +68,7 @@ export default function EmpFormImageField({
         >
           ×
         </button>
-      )}
+      ) : null}
     </div>
   );
 }
