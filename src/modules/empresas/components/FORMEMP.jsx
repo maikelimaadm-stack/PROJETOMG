@@ -488,7 +488,7 @@ export default function FORMEMP({
 
   if (layoutConfigOpen) {
     return (
-      <section className="cadastro-emp-scope erp-ui w-full h-full max-w-full overflow-hidden">
+      <section className="cadastro-emp-scope w-full h-full max-w-full overflow-hidden">
         <EmpLayoutConfiguratorDialog
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}

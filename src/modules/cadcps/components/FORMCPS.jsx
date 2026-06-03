@@ -1,13 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/shared/ui/input";
+import { Textarea } from "@/shared/ui/textarea";
 import { Checkbox } from "@/shared/ui/checkbox";
-import {
-  ErpFloatingInput,
-  ErpFloatingSelect,
-  ErpFloatingSwitch,
-  ErpFloatingTextarea,
-  ErpFormGrid,
-} from "@/shared/forms";
+import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCalculationBuilder from "@/framework/cadastro/fields/EmpCalculationBuilder";
 import { montarFormulaVisual } from "@/framework/cadastro/fields/empFieldConfigOptions";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
@@ -16,7 +12,7 @@ import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
 import { reportRequiredFieldErrors, clearRequiredFieldErrors } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import { CADCPS_APLICACAO, CADCPS_TIPOS } from "@/modules/cadcps/config/cadcpsConstants";
-import { CPS_FORM_PANELS } from "@/modules/cadcps/config/formCps.constants";
+import { CPS_FORM_PANELS, CPS_INPUT_CLASS } from "@/modules/cadcps/config/formCps.constants";
 import repCps from "@/modules/cadcps/repositories/repCps";
 
 const toSnake = (v) =>
@@ -26,6 +22,9 @@ const toSnake = (v) =>
     .replace(/[^a-zA-Z0-9]+/g, "_")
     .replace(/^_+|_+$/g, "")
     .toLowerCase();
+
+const CONTROL_CLASS =
+  "emp-form-field-control relative min-h-[var(--emp-form-control-height)] w-full max-w-[480px] border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff]";
 
 const emptyForm = () => ({
   nome: "",
@@ -58,6 +57,36 @@ const emptyForm = () => ({
   opcoes: [],
   opcoesDraft: "",
 });
+
+function CpsFieldRow({ label, children, required = false }) {
+  return (
+    <div className="grid grid-cols-[170px_minmax(0,1fr)] items-center gap-1">
+      <label className="text-right text-[12px] leading-none text-[#1a1f26]">
+        {label}
+        {required && <span className="text-red-500 ml-0.5">*</span>}
+        <span>:</span>
+      </label>
+      <div className={CONTROL_CLASS}>{children}</div>
+    </div>
+  );
+}
+
+function CpsToggleRow({ label, checked, onChange, disabled }) {
+  return (
+    <div className="grid grid-cols-[170px_minmax(0,1fr)] items-center gap-1">
+      <label className="text-right text-[12px] leading-none text-[#1a1f26]">{label}:</label>
+      <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] max-w-[480px] items-center">
+        <ToggleSwitch
+          checked={checked}
+          onChange={onChange}
+          disabled={disabled}
+          className="emp-form-toggle-switch"
+          checkedClassName="emp-form-toggle-switch-on"
+        />
+      </div>
+    </div>
+  );
+}
 
 export default function FORMCPS({
   initialData,
@@ -161,21 +190,6 @@ export default function FORMCPS({
 
   const showMaskConfig = useMemo(() => form.tipo === "texto", [form.tipo]);
 
-  const telaOptions = useMemo(
-    () => telas.map((tela) => ({ value: String(tela.id), label: tela.nome })),
-    [telas]
-  );
-
-  const tipoOptions = useMemo(
-    () => CADCPS_TIPOS.map((t) => ({ value: t.value, label: t.label })),
-    []
-  );
-
-  const relationOptions = useMemo(
-    () => telas.map((t) => ({ value: t.entity_name, label: t.nome })),
-    [telas]
-  );
-
   const buildPayload = () => {
     const opcoes = listaTipos
       ? String(form.opcoesDraft || "")
@@ -274,43 +288,47 @@ export default function FORMCPS({
     <fieldset
       className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none opacity-90" : ""}`}
     >
-      <ErpFormGrid columns={2} className="emp-form-fields">
-        <ErpFloatingInput
-          label="Código"
-          value={initialData?.codigo ?? "Automático"}
-          readOnly
-          disabled
-        />
-        <div data-field="tela_id">
+      <div className="emp-form-fields flex flex-col gap-2">
+        <CpsFieldRow label="Código">
+          <Input value={initialData?.codigo ?? "Automático"} readOnly className={CPS_INPUT_CLASS} />
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Tela" required>
+          <div data-field="tela_id" className="contents">
           {telasLoading ? (
-            <p className="text-xs text-slate-500 py-3">Carregando telas...</p>
+            <span className="px-2 text-xs text-slate-500">Carregando telas...</span>
           ) : telas.length === 0 ? (
-            <div className="flex flex-col gap-2 py-2 text-xs text-amber-800">
+            <div className="flex min-h-[var(--emp-form-control-height)] flex-col justify-center gap-1 px-2 text-xs text-amber-800">
               <span>Nenhuma tela disponível.</span>
               <button
                 type="button"
-                className="w-fit rounded-lg border border-slate-200 bg-white px-3 py-1 hover:bg-slate-50"
+                className="w-fit rounded border border-[#c5ced8] bg-white px-2 py-0.5"
                 onClick={() => void refetchTelas()}
               >
                 Tentar novamente
               </button>
             </div>
           ) : (
-            <ErpFloatingSelect
-              label="Tela"
-              required
+            <select
               value={form.tela_id}
-              onValueChange={(v) => update("tela_id", v)}
-              options={telaOptions}
+              onChange={(e) => update("tela_id", e.target.value)}
               disabled={isReadOnly || lockTela}
-              readOnly={isReadOnly || lockTela}
-            />
+              className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
+            >
+              <option value="">SELECIONE A TELA...</option>
+              {telas.map((tela) => (
+                <option key={tela.id} value={tela.id}>
+                  {tela.nome}
+                </option>
+              ))}
+            </select>
           )}
-        </div>
-        <div data-field="nome">
-          <ErpFloatingInput
-            label="Nome do campo"
-            required
+          </div>
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Nome do campo" required>
+          <div data-field="nome" className="contents">
+          <Input
             value={form.nome}
             onChange={(e) => {
               const nome = e.target.value;
@@ -318,50 +336,71 @@ export default function FORMCPS({
               if (!initialData?.id || isDuplicating) update("field_name", toSnake(nome));
             }}
             readOnly={isReadOnly}
+            className={CPS_INPUT_CLASS}
+            placeholder="NOME DO CAMPO"
           />
-        </div>
-        <ErpFloatingInput
-          label="Nome técnico"
-          value={form.field_name}
-          onChange={(e) => update("field_name", e.target.value)}
-          readOnly={isReadOnly || (!!initialData?.id && !isDuplicating)}
-        />
-        <ErpFloatingSelect
-          label="Tipo do campo"
-          required
-          value={form.tipo}
-          onValueChange={(v) => update("tipo", v)}
-          options={tipoOptions}
-          disabled={isReadOnly}
-          readOnly={isReadOnly}
-        />
-        <ErpFloatingSwitch
+          </div>
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Nome técnico">
+          <Input
+            value={form.field_name}
+            onChange={(e) => update("field_name", e.target.value)}
+            readOnly={isReadOnly || (!!initialData?.id && !isDuplicating)}
+            className={CPS_INPUT_CLASS}
+            placeholder="NOME_TECNICO"
+          />
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Tipo do campo" required>
+          <select
+            value={form.tipo}
+            onChange={(e) => update("tipo", e.target.value)}
+            disabled={isReadOnly}
+            className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
+          >
+            {CADCPS_TIPOS.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </CpsFieldRow>
+
+        <CpsToggleRow
           label="Ativo"
           checked={form.ativo}
           onChange={(v) => update("ativo", v)}
           disabled={isReadOnly}
         />
-      </ErpFormGrid>
+      </div>
     </fieldset>
   );
 
   const renderConfiguracoes = () => (
     <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none" : ""}`}>
-      <ErpFormGrid columns={2} className="emp-form-fields">
-        <ErpFloatingInput
-          label="Placeholder"
-          value={form.placeholder}
-          onChange={(e) => update("placeholder", e.target.value)}
-          readOnly={isReadOnly}
-        />
-        <ErpFloatingTextarea
-          label="Descrição"
-          value={form.descricao}
-          onChange={(e) => update("descricao", e.target.value)}
-          readOnly={isReadOnly}
-          className="erp-form-grid-span-2"
-          rows={3}
-        />
+      <div className="emp-form-fields flex flex-col gap-2">
+        <CpsFieldRow label="Placeholder">
+          <Input
+            value={form.placeholder}
+            onChange={(e) => update("placeholder", e.target.value)}
+            readOnly={isReadOnly}
+            className={CPS_INPUT_CLASS}
+            placeholder="TEXTO DE AJUDA"
+          />
+        </CpsFieldRow>
+        <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+          <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">Descrição:</label>
+          <div className={`${CONTROL_CLASS} max-w-[640px]`}>
+            <Textarea
+              value={form.descricao}
+              onChange={(e) => update("descricao", e.target.value)}
+              readOnly={isReadOnly}
+              className="emp-form-input min-h-[72px] w-full border-0 bg-white px-2 shadow-none focus-visible:ring-0"
+              placeholder="DESCRIÇÃO DO CAMPO"
+            />
+          </div>
+        </div>
         {[
           ["obrigatorio", "Obrigatório"],
           ["read_only", "Somente leitura"],
@@ -373,7 +412,7 @@ export default function FORMCPS({
           ["exportavel", "Exportável"],
           ["auditavel", "Auditável"],
         ].map(([key, label]) => (
-          <ErpFloatingSwitch
+          <CpsToggleRow
             key={key}
             label={label}
             checked={form[key]}
@@ -381,16 +420,15 @@ export default function FORMCPS({
             disabled={isReadOnly}
           />
         ))}
-      </ErpFormGrid>
+      </div>
     </fieldset>
   );
 
   const renderAplicacao = () => (
     <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none" : ""}`}>
       <div className="emp-form-fields flex flex-col gap-2">
-        <div className="erp-form-grid-span-2 max-w-[640px]">
-          <p className="mb-2 text-xs font-medium text-slate-600">Modo de aplicação</p>
-          <div className="flex min-h-[var(--emp-form-control-height)] flex-col justify-center gap-2 text-xs">
+        <CpsFieldRow label="Modo de aplicação">
+          <div className="flex min-h-[var(--emp-form-control-height)] flex-col justify-center gap-2 px-2 text-xs">
             <label className="inline-flex items-center gap-2">
               <input
                 type="radio"
@@ -410,10 +448,15 @@ export default function FORMCPS({
               Empresas específicas
             </label>
           </div>
-        </div>
+        </CpsFieldRow>
         {form.aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS ? (
-          <div data-field="empresa_ids" className="erp-form-grid-span-2 w-full max-w-[640px]">
-            <p className="mb-2 text-xs font-medium text-slate-600">Empresas</p>
+          <div
+            data-field="empresa_ids"
+            className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1"
+          >
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">
+              Empresas:
+            </label>
             <div className="max-h-64 w-full max-w-[640px] overflow-auto rounded border border-[#c5ced8] bg-white">
               <table className="w-full text-xs">
                 <thead>
@@ -448,31 +491,39 @@ export default function FORMCPS({
 
   const renderTipo = () => (
     <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none" : ""}`}>
-      <ErpFormGrid columns={2} className="emp-form-fields">
+      <div className="emp-form-fields flex flex-col gap-2">
         {showNumericConfig ? (
           <>
             <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
               Configuração numérica
             </p>
-            <ErpFloatingInput
-              label="Casas decimais"
-              type="number"
-              value={form.decimal_places}
-              onChange={(e) => update("decimal_places", Number(e.target.value))}
-              readOnly={isReadOnly}
-            />
-            <ErpFloatingInput
-              label="Separador decimal"
-              value={form.separador_decimal}
-              onChange={(e) => update("separador_decimal", e.target.value)}
-              readOnly={isReadOnly}
-            />
-            <ErpFloatingInput
-              label="Separador milhar"
-              value={form.separador_milhar}
-              onChange={(e) => update("separador_milhar", e.target.value)}
-              readOnly={isReadOnly}
-            />
+            <CpsFieldRow label="Casas decimais">
+              <Input
+                type="number"
+                min={0}
+                max={6}
+                value={form.decimal_places}
+                onChange={(e) => update("decimal_places", Number(e.target.value))}
+                readOnly={isReadOnly}
+                className={CPS_INPUT_CLASS}
+              />
+            </CpsFieldRow>
+            <CpsFieldRow label="Separador decimal">
+              <Input
+                value={form.separador_decimal}
+                onChange={(e) => update("separador_decimal", e.target.value)}
+                readOnly={isReadOnly}
+                className={CPS_INPUT_CLASS}
+              />
+            </CpsFieldRow>
+            <CpsFieldRow label="Separador milhar">
+              <Input
+                value={form.separador_milhar}
+                onChange={(e) => update("separador_milhar", e.target.value)}
+                readOnly={isReadOnly}
+                className={CPS_INPUT_CLASS}
+              />
+            </CpsFieldRow>
           </>
         ) : null}
 
@@ -482,7 +533,7 @@ export default function FORMCPS({
           </p>
         ) : null}
         {showMaskConfig ? (
-          <ErpFloatingSwitch
+          <CpsToggleRow
             label="Usar máscara"
             checked={form.usar_mascara}
             onChange={(v) => update("usar_mascara", v)}
@@ -490,42 +541,60 @@ export default function FORMCPS({
           />
         ) : null}
         {showMaskConfig && form.usar_mascara ? (
-          <ErpFloatingTextarea
-            label="Máscaras"
-            value={form.mascaras_text}
-            onChange={(e) => update("mascaras_text", e.target.value)}
-            readOnly={isReadOnly}
-            className="erp-form-grid-span-2 font-mono text-xs"
-            rows={5}
-          />
+          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">Máscaras:</label>
+            <div className={`${CONTROL_CLASS} max-w-[640px]`}>
+              <Textarea
+                value={form.mascaras_text}
+                onChange={(e) => update("mascaras_text", e.target.value)}
+                readOnly={isReadOnly}
+                className="emp-form-input min-h-[120px] w-full border-0 bg-white px-2 font-mono text-xs shadow-none focus-visible:ring-0"
+                placeholder={"CPF\n###.###.###-##"}
+              />
+            </div>
+          </div>
         ) : null}
 
         {listaTipos ? (
-          <ErpFloatingTextarea
-            label="Opções da lista"
-            value={form.opcoesDraft}
-            onChange={(e) => update("opcoesDraft", e.target.value)}
-            readOnly={isReadOnly}
-            className="erp-form-grid-span-2"
-            rows={5}
-          />
+          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">
+              Opções da lista:
+            </label>
+            <div className={`${CONTROL_CLASS} max-w-[640px]`}>
+              <Textarea
+                value={form.opcoesDraft}
+                onChange={(e) => update("opcoesDraft", e.target.value)}
+                readOnly={isReadOnly}
+                className="emp-form-input min-h-[120px] w-full border-0 bg-white px-2 text-xs shadow-none focus-visible:ring-0"
+              />
+            </div>
+          </div>
         ) : null}
 
         {form.tipo === "relacao" ? (
-          <ErpFloatingSelect
-            label="Cadastro relacionado"
-            value={form.relation_entity}
-            onValueChange={(v) => update("relation_entity", v)}
-            options={relationOptions}
-            disabled={isReadOnly}
-            readOnly={isReadOnly}
-          />
+          <CpsFieldRow label="Cadastro relacionado">
+            <select
+              value={form.relation_entity}
+              onChange={(e) => update("relation_entity", e.target.value)}
+              disabled={isReadOnly}
+              className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
+            >
+              <option value="">SELECIONE...</option>
+              {telas.map((t) => (
+                <option key={t.id} value={t.entity_name}>
+                  {t.nome}
+                </option>
+              ))}
+            </select>
+          </CpsFieldRow>
         ) : null}
 
         {form.tipo === "formula" ? (
-          <div className="erp-form-grid-span-2 w-full max-w-[640px]">
-            <p className="mb-2 text-xs font-medium text-slate-600">Construtor de fórmula</p>
-            <div className="rounded-lg border border-slate-200 bg-white p-2">
+          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">
+              Construtor de fórmula:
+            </label>
+            <div className="w-full max-w-[640px] rounded border border-[#c5ced8] bg-white p-2">
               <EmpCalculationBuilder
                 value={form.calculation_builder?.items || []}
                 fields={formulaFields}
@@ -534,7 +603,7 @@ export default function FORMCPS({
             </div>
           </div>
         ) : null}
-      </ErpFormGrid>
+      </div>
     </fieldset>
   );
 
@@ -545,7 +614,7 @@ export default function FORMCPS({
   };
 
   return (
-    <div className="cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <EmpSplitToolbarLayout
           className="h-full min-h-0 flex-1"
