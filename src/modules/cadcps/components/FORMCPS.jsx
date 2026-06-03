@@ -23,13 +23,16 @@ const toSnake = (v) =>
     .replace(/^_+|_+$/g, "")
     .toLowerCase();
 
+const CONTROL_CLASS =
+  "emp-form-field-control relative min-h-[var(--emp-form-control-height)] w-full max-w-[480px] border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff]";
+
 const emptyForm = () => ({
   nome: "",
   field_name: "",
   descricao: "",
   ativo: true,
   tipo: "texto",
-  tela_ids: [],
+  tela_id: "",
   aplicacao_modo: CADCPS_APLICACAO.TODAS,
   empresa_ids: [],
   obrigatorio: false,
@@ -55,27 +58,24 @@ const emptyForm = () => ({
   opcoesDraft: "",
 });
 
-function CpsFormField({ label, children, required = false, wide = false }) {
+function CpsFieldRow({ label, children, required = false }) {
   return (
-    <div
-      className={`emp-form-field-column emp-form-field-column-compact ${wide ? "emp-form-field-span-full" : ""}`}
-    >
-      <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
+    <div className="grid grid-cols-[170px_minmax(0,1fr)] items-center gap-1">
+      <label className="text-right text-[12px] leading-none text-[#1a1f26]">
         {label}
         {required && <span className="text-red-500 ml-0.5">*</span>}
+        <span>:</span>
       </label>
-      <div className="emp-form-field-control relative min-h-[var(--emp-form-control-height)] w-full max-w-[480px] border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff]">
-        {children}
-      </div>
+      <div className={CONTROL_CLASS}>{children}</div>
     </div>
   );
 }
 
-function CpsToggleField({ label, checked, onChange, disabled }) {
+function CpsToggleRow({ label, checked, onChange, disabled }) {
   return (
-    <div className="emp-form-field-column emp-form-field-column-compact">
-      <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">{label}</label>
-      <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">
+    <div className="grid grid-cols-[170px_minmax(0,1fr)] items-center gap-1">
+      <label className="text-right text-[12px] leading-none text-[#1a1f26]">{label}:</label>
+      <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] max-w-[480px] items-center">
         <ToggleSwitch
           checked={checked}
           onChange={onChange}
@@ -112,7 +112,7 @@ export default function FORMCPS({
 }) {
   const isDuplicating = !!initialData?._isDuplicate;
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
-  const [activeTab, setActiveTab] = useState("informacoes");
+  const [activeTab, setActiveTab] = useState("configuracoes");
   const [form, setForm] = useState(emptyForm);
   const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const previousRecordKeyRef = useRef(recordKey);
@@ -135,7 +135,7 @@ export default function FORMCPS({
     return {
       ...emptyForm(),
       ...item,
-      tela_ids: (item.telas || []).map((t) => t.id),
+      tela_id: item.telas?.[0]?.id || "",
       empresa_ids: item.empresa_ids || [],
       opcoes: item.opcoes || [],
       opcoesDraft: (item.opcoes || []).map((o) => o.descricao).join("\n"),
@@ -157,25 +157,16 @@ export default function FORMCPS({
     setEditMode(!isEditing || !!initialData?._isDuplicate);
     if (!isRecordNavigation && !initialData) {
       setEditMode(true);
-      setActiveTab("informacoes");
+      setActiveTab("configuracoes");
     }
   }, [recordKey, initialData?.id, initialData?.updatedAt, initialData?._isDuplicate, isEditing]);
 
   const isReadOnly = isEditing && !isDuplicating && !editMode;
+  const lockTela = isEditing && !!initialData?.id && !isDuplicating;
 
   const update = (key, value) => {
     if (isReadOnly) return;
     setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const toggleTela = (telaId) => {
-    if (isReadOnly) return;
-    setForm((prev) => ({
-      ...prev,
-      tela_ids: prev.tela_ids.includes(telaId)
-        ? prev.tela_ids.filter((id) => id !== telaId)
-        : [...prev.tela_ids, telaId],
-    }));
   };
 
   const toggleEmpresa = (empresaId) => {
@@ -218,7 +209,7 @@ export default function FORMCPS({
       descricao: form.descricao,
       tipo: form.tipo,
       ativo: form.ativo,
-      tela_ids: form.tela_ids,
+      tela_id: form.tela_id,
       aplicacao_modo: form.aplicacao_modo,
       empresa_ids:
         form.aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS ? form.empresa_ids : [],
@@ -249,22 +240,20 @@ export default function FORMCPS({
   };
 
   const validateForm = () => {
+    if (!form.tela_id) {
+      setNoticeDialog({
+        open: true,
+        title: "Tela obrigatória",
+        description: "Selecione a tela (cadastro) onde este campo será usado.",
+      });
+      return false;
+    }
     if (!form.nome.trim()) {
       setNoticeDialog({
         open: true,
         title: "Campo obrigatório",
         description: "Informe o nome do campo.",
       });
-      setActiveTab("informacoes");
-      return false;
-    }
-    if (form.tela_ids.length === 0) {
-      setNoticeDialog({
-        open: true,
-        title: "Tela obrigatória",
-        description: "Selecione ao menos uma tela para vincular o campo.",
-      });
-      setActiveTab("telas");
       return false;
     }
     if (form.aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS && form.empresa_ids.length === 0) {
@@ -309,15 +298,47 @@ export default function FORMCPS({
     return () => clearPageHeader();
   }, [recordHeaderTitle, operationLabel, setPageHeader, clearPageHeader]);
 
-  const renderInformacoes = () => (
+  const renderPrincipal = () => (
     <fieldset
       className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none opacity-90" : ""}`}
     >
-      <div className="emp-form-fields emp-form-fields-custom flex flex-col gap-2">
-        <CpsFormField label="Código">
+      <div className="emp-form-fields flex flex-col gap-2">
+        <CpsFieldRow label="Código">
           <Input value={initialData?.codigo ?? "Automático"} readOnly className={CPS_INPUT_CLASS} />
-        </CpsFormField>
-        <CpsFormField label="Nome do campo" required>
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Tela" required>
+          {telasLoading ? (
+            <span className="px-2 text-xs text-slate-500">Carregando telas...</span>
+          ) : telas.length === 0 ? (
+            <div className="flex min-h-[var(--emp-form-control-height)] flex-col justify-center gap-1 px-2 text-xs text-amber-800">
+              <span>Nenhuma tela disponível.</span>
+              <button
+                type="button"
+                className="w-fit rounded border border-[#c5ced8] bg-white px-2 py-0.5"
+                onClick={() => void refetchTelas()}
+              >
+                Tentar novamente
+              </button>
+            </div>
+          ) : (
+            <select
+              value={form.tela_id}
+              onChange={(e) => update("tela_id", e.target.value)}
+              disabled={isReadOnly || lockTela}
+              className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
+            >
+              <option value="">SELECIONE A TELA...</option>
+              {telas.map((tela) => (
+                <option key={tela.id} value={tela.id}>
+                  {tela.nome}
+                </option>
+              ))}
+            </select>
+          )}
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Nome do campo" required>
           <Input
             value={form.nome}
             onChange={(e) => {
@@ -329,34 +350,34 @@ export default function FORMCPS({
             className={CPS_INPUT_CLASS}
             placeholder="NOME DO CAMPO"
           />
-        </CpsFormField>
-        <CpsFormField label="Nome técnico (field_name)">
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Nome técnico">
           <Input
             value={form.field_name}
             onChange={(e) => update("field_name", e.target.value)}
             readOnly={isReadOnly || (!!initialData?.id && !isDuplicating)}
             className={CPS_INPUT_CLASS}
-            placeholder="nome_tecnico"
+            placeholder="NOME_TECNICO"
           />
-        </CpsFormField>
-        <CpsFormField label="Descrição" wide>
-          <Textarea
-            value={form.descricao}
-            onChange={(e) => update("descricao", e.target.value)}
-            readOnly={isReadOnly}
-            className="emp-form-input min-h-[72px] w-full bg-white px-2"
-            placeholder="Descrição do campo"
-          />
-        </CpsFormField>
-        <CpsFormField label="Placeholder">
-          <Input
-            value={form.placeholder}
-            onChange={(e) => update("placeholder", e.target.value)}
-            readOnly={isReadOnly}
-            className={CPS_INPUT_CLASS}
-          />
-        </CpsFormField>
-        <CpsToggleField
+        </CpsFieldRow>
+
+        <CpsFieldRow label="Tipo do campo" required>
+          <select
+            value={form.tipo}
+            onChange={(e) => update("tipo", e.target.value)}
+            disabled={isReadOnly}
+            className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
+          >
+            {CADCPS_TIPOS.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </CpsFieldRow>
+
+        <CpsToggleRow
           label="Ativo"
           checked={form.ativo}
           onChange={(v) => update("ativo", v)}
@@ -366,45 +387,49 @@ export default function FORMCPS({
     </fieldset>
   );
 
-  const renderTelas = () => (
+  const renderConfiguracoes = () => (
     <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none" : ""}`}>
       <div className="emp-form-fields flex flex-col gap-2">
-        {telasLoading ? (
-          <p className="text-xs text-slate-500">Carregando telas...</p>
-        ) : telas.length === 0 ? (
-          <div className="rounded border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900">
-            <p>Nenhuma tela disponível. O catálogo será recarregado automaticamente.</p>
-            <button
-              type="button"
-              className="mt-2 rounded border border-[#c5ced8] bg-white px-2 py-1 text-xs"
-              onClick={() => void refetchTelas()}
-            >
-              Tentar novamente
-            </button>
+        <CpsFieldRow label="Placeholder">
+          <Input
+            value={form.placeholder}
+            onChange={(e) => update("placeholder", e.target.value)}
+            readOnly={isReadOnly}
+            className={CPS_INPUT_CLASS}
+            placeholder="TEXTO DE AJUDA"
+          />
+        </CpsFieldRow>
+        <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+          <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">Descrição:</label>
+          <div className={`${CONTROL_CLASS} max-w-[640px]`}>
+            <Textarea
+              value={form.descricao}
+              onChange={(e) => update("descricao", e.target.value)}
+              readOnly={isReadOnly}
+              className="emp-form-input min-h-[72px] w-full border-0 bg-white px-2 shadow-none focus-visible:ring-0"
+              placeholder="DESCRIÇÃO DO CAMPO"
+            />
           </div>
-        ) : (
-          <div className="emp-form-field-column emp-form-field-column-compact emp-form-field-span-full">
-            <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
-              Telas do sistema
-            </label>
-            <div className="flex w-full max-w-[640px] flex-col gap-1 rounded border border-[#c5ced8] bg-white p-2">
-              {telas.map((tela) => (
-                <label
-                  key={tela.id}
-                  className="flex min-h-[32px] cursor-pointer items-center gap-2 rounded px-2 text-xs hover:bg-slate-50"
-                >
-                  <Checkbox
-                    checked={form.tela_ids.includes(tela.id)}
-                    onCheckedChange={() => toggleTela(tela.id)}
-                    disabled={isReadOnly}
-                  />
-                  <span className="font-medium text-[#1a1f26]">{tela.nome}</span>
-                  <span className="text-slate-500">({tela.entity_name})</span>
-                </label>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
+        {[
+          ["obrigatorio", "Obrigatório"],
+          ["read_only", "Somente leitura"],
+          ["visivel_form", "Exibir no formulário"],
+          ["visivel_tabela", "Exibir na tabela"],
+          ["visivel_relatorio", "Exibir no relatório"],
+          ["pesquisavel", "Pesquisável"],
+          ["filtravel", "Filtrável"],
+          ["exportavel", "Exportável"],
+          ["auditavel", "Auditável"],
+        ].map(([key, label]) => (
+          <CpsToggleRow
+            key={key}
+            label={label}
+            checked={form[key]}
+            onChange={(v) => update(key, v)}
+            disabled={isReadOnly}
+          />
+        ))}
       </div>
     </fieldset>
   );
@@ -412,7 +437,7 @@ export default function FORMCPS({
   const renderAplicacao = () => (
     <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none" : ""}`}>
       <div className="emp-form-fields flex flex-col gap-2">
-        <CpsFormField label="Modo de aplicação">
+        <CpsFieldRow label="Modo de aplicação">
           <div className="flex min-h-[var(--emp-form-control-height)] flex-col justify-center gap-2 px-2 text-xs">
             <label className="inline-flex items-center gap-2">
               <input
@@ -433,11 +458,11 @@ export default function FORMCPS({
               Empresas específicas
             </label>
           </div>
-        </CpsFormField>
+        </CpsFieldRow>
         {form.aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS ? (
-          <div className="emp-form-field-column emp-form-field-column-compact emp-form-field-span-full">
-            <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
-              Empresas vinculadas
+          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">
+              Empresas:
             </label>
             <div className="max-h-64 w-full max-w-[640px] overflow-auto rounded border border-[#c5ced8] bg-white">
               <table className="w-full text-xs">
@@ -471,58 +496,15 @@ export default function FORMCPS({
     </fieldset>
   );
 
-  const renderConfiguracoes = () => (
-    <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none" : ""}`}>
-      <div className="emp-form-fields flex flex-col gap-2">
-        {[
-          ["obrigatorio", "Obrigatório"],
-          ["read_only", "Somente leitura"],
-          ["visivel_form", "Exibir no formulário"],
-          ["visivel_tabela", "Exibir na tabela"],
-          ["visivel_relatorio", "Exibir no relatório"],
-          ["pesquisavel", "Pesquisável"],
-          ["filtravel", "Filtrável"],
-          ["exportavel", "Exportável"],
-          ["auditavel", "Auditável"],
-        ].map(([key, label]) => (
-          <CpsToggleField
-            key={key}
-            label={label}
-            checked={form[key]}
-            onChange={(v) => update(key, v)}
-            disabled={isReadOnly}
-          />
-        ))}
-      </div>
-    </fieldset>
-  );
-
   const renderTipo = () => (
     <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none" : ""}`}>
       <div className="emp-form-fields flex flex-col gap-2">
-        <CpsFormField label="Tipo do campo" required>
-          <select
-            value={form.tipo}
-            onChange={(e) => update("tipo", e.target.value)}
-            disabled={isReadOnly}
-            className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
-          >
-            {CADCPS_TIPOS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </CpsFormField>
-
-        {showNumericConfig ? (
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Configuração numérica
-          </p>
-        ) : null}
         {showNumericConfig ? (
           <>
-            <CpsFormField label="Casas decimais">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+              Configuração numérica
+            </p>
+            <CpsFieldRow label="Casas decimais">
               <Input
                 type="number"
                 min={0}
@@ -532,95 +514,88 @@ export default function FORMCPS({
                 readOnly={isReadOnly}
                 className={CPS_INPUT_CLASS}
               />
-            </CpsFormField>
-            <CpsFormField label="Separador decimal">
+            </CpsFieldRow>
+            <CpsFieldRow label="Separador decimal">
               <Input
                 value={form.separador_decimal}
                 onChange={(e) => update("separador_decimal", e.target.value)}
                 readOnly={isReadOnly}
                 className={CPS_INPUT_CLASS}
               />
-            </CpsFormField>
-            <CpsFormField label="Separador milhar">
+            </CpsFieldRow>
+            <CpsFieldRow label="Separador milhar">
               <Input
                 value={form.separador_milhar}
                 onChange={(e) => update("separador_milhar", e.target.value)}
                 readOnly={isReadOnly}
                 className={CPS_INPUT_CLASS}
               />
-            </CpsFormField>
+            </CpsFieldRow>
           </>
         ) : null}
 
         <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
           Máscara de entrada
         </p>
-        <CpsToggleField
+        <CpsToggleRow
           label="Ativar máscara"
           checked={form.usar_mascara}
           onChange={(v) => update("usar_mascara", v)}
           disabled={isReadOnly}
         />
         {form.usar_mascara ? (
-          <CpsFormField label="Máscaras (uma por bloco: nome e padrão)" wide>
-            <Textarea
-              value={form.mascaras_text}
-              onChange={(e) => update("mascaras_text", e.target.value)}
-              readOnly={isReadOnly}
-              className="emp-form-input min-h-[120px] w-full bg-white px-2 font-mono text-xs"
-              placeholder={"CPF\n###.###.###-##"}
-            />
-          </CpsFormField>
+          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">Máscaras:</label>
+            <div className={`${CONTROL_CLASS} max-w-[640px]`}>
+              <Textarea
+                value={form.mascaras_text}
+                onChange={(e) => update("mascaras_text", e.target.value)}
+                readOnly={isReadOnly}
+                className="emp-form-input min-h-[120px] w-full border-0 bg-white px-2 font-mono text-xs shadow-none focus-visible:ring-0"
+                placeholder={"CPF\n###.###.###-##"}
+              />
+            </div>
+          </div>
         ) : null}
 
         {listaTipos ? (
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Opções da lista
-          </p>
-        ) : null}
-        {listaTipos ? (
-          <CpsFormField label="Opções da lista (uma por linha)" wide>
-            <Textarea
-              value={form.opcoesDraft}
-              onChange={(e) => update("opcoesDraft", e.target.value)}
-              readOnly={isReadOnly}
-              className="emp-form-input min-h-[120px] w-full bg-white px-2 text-xs"
-            />
-          </CpsFormField>
+          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">
+              Opções da lista:
+            </label>
+            <div className={`${CONTROL_CLASS} max-w-[640px]`}>
+              <Textarea
+                value={form.opcoesDraft}
+                onChange={(e) => update("opcoesDraft", e.target.value)}
+                readOnly={isReadOnly}
+                className="emp-form-input min-h-[120px] w-full border-0 bg-white px-2 text-xs shadow-none focus-visible:ring-0"
+              />
+            </div>
+          </div>
         ) : null}
 
         {form.tipo === "relacao" ? (
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Relação com outro cadastro
-          </p>
-        ) : null}
-        {form.tipo === "relacao" ? (
-          <CpsFormField label="Cadastro relacionado">
+          <CpsFieldRow label="Cadastro relacionado">
             <select
               value={form.relation_entity}
               onChange={(e) => update("relation_entity", e.target.value)}
               disabled={isReadOnly}
               className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
             >
-              <option value="">Selecione...</option>
+              <option value="">SELECIONE...</option>
               {telas.map((t) => (
                 <option key={t.id} value={t.entity_name}>
                   {t.nome}
                 </option>
               ))}
             </select>
-          </CpsFormField>
+          </CpsFieldRow>
         ) : null}
 
         {form.tipo === "formula" ? (
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-            Campo calculado
-          </p>
-        ) : null}
-        {form.tipo === "formula" ? (
-          <div className="emp-form-field-column emp-form-field-column-compact emp-form-field-span-full">
-            <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
-              Construtor de fórmula
+          <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
+            <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">
+              Construtor de fórmula:
             </label>
             <div className="w-full max-w-[640px] rounded border border-[#c5ced8] bg-white p-2">
               <EmpCalculationBuilder
@@ -636,8 +611,6 @@ export default function FORMCPS({
   );
 
   const panelContent = {
-    informacoes: renderInformacoes,
-    telas: renderTelas,
     aplicacao: renderAplicacao,
     configuracoes: renderConfiguracoes,
     tipo: renderTipo,
@@ -684,8 +657,12 @@ export default function FORMCPS({
           }
         >
           <div className="form-scroll-container min-h-0 flex-1 overflow-auto pb-6 pr-2">
-            <div className="emp-form-body flex flex-col emp-form-body-no-principal">
-              <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col emp-form-panels-zone-no-principal">
+            <div className="emp-form-body flex flex-col">
+              <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">
+                {renderPrincipal()}
+              </div>
+
+              <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
                 <LegacyTabs tabs={CPS_FORM_PANELS} activeTab={activeTab} onChange={setActiveTab} />
                 <div className="emp-form-section emp-form-section-panel min-h-[380px] w-full min-w-[920px] max-w-none pl-2 pr-4">
                   {panelContent[activeTab]?.()}

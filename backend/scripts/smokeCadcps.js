@@ -51,7 +51,7 @@ const run = async () => {
       nome: `Campo Smoke ${tag}`,
       field_name: `campo_smoke_${tag}`,
       tipo: "texto",
-      tela_ids: [telaEmpresas.id],
+      tela_id: telaEmpresas.id,
       aplicacao_modo: "todas",
       visivel_form: true,
       visivel_tabela: true,

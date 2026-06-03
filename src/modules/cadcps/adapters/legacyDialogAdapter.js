@@ -85,7 +85,7 @@ export const legacyPayloadToCadcps = async (payload = {}) => {
     descricao: payload.descricao,
     placeholder: payload.placeholder,
     tipo,
-    tela_ids: telaId ? [telaId] : [],
+    tela_id: telaId || "",
     aplicacao_modo,
     empresa_ids: payload.empresa_id ? [payload.empresa_id] : payload.empresa_ids,
     obrigatorio: payload.obrigatorio,

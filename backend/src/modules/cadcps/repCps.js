@@ -131,11 +131,17 @@ const buildApplicableWhere = (scope, entityName) => {
   return { AND: and };
 };
 
+const resolveTelaIdsFromPayload = (payload, fallbackTelas = []) => {
+  const single = payload?.tela_id || payload?.tela_ids?.[0] || fallbackTelas[0]?.id;
+  return single ? [String(single)] : [];
+};
+
 const syncRelations = async (prisma, campoId, { tela_ids = [], empresa_ids = [], opcoes = [], aplicacao_modo }) => {
+  const telaIds = tela_ids.slice(0, 1);
   await prisma.cadCpsCampoTela.deleteMany({ where: { campo_id: campoId } });
-  if (tela_ids.length) {
+  if (telaIds.length) {
     await prisma.cadCpsCampoTela.createMany({
-      data: tela_ids.map((tela_id) => ({ campo_id: campoId, tela_id })),
+      data: telaIds.map((tela_id) => ({ campo_id: campoId, tela_id })),
       skipDuplicates: true,
     });
   }
@@ -275,7 +281,7 @@ export const repCps = {
 
     const created = await prisma.cadCpsCampo.create({ data });
     await syncRelations(prisma, created.id, {
-      tela_ids: payload.tela_ids,
+      tela_ids: resolveTelaIdsFromPayload(payload),
       empresa_ids: payload.empresa_ids,
       opcoes: payload.opcoes,
       aplicacao_modo,
@@ -349,13 +355,14 @@ export const repCps = {
     await prisma.cadCpsCampo.update({ where: { id }, data });
 
     if (
+      payload.tela_id ||
       payload.tela_ids ||
       payload.empresa_ids ||
       payload.opcoes ||
       payload.aplicacao_modo !== undefined
     ) {
       await syncRelations(prisma, id, {
-        tela_ids: payload.tela_ids || current.telas.map((t) => t.id),
+        tela_ids: resolveTelaIdsFromPayload(payload, current.telas),
         empresa_ids: payload.empresa_ids || current.empresa_ids,
         opcoes: payload.opcoes || current.opcoes,
         aplicacao_modo: payload.aplicacao_modo || current.aplicacao_modo,
