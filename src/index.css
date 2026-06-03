@@ -236,8 +236,8 @@ input[type="number"] {
   --emp-accent-primary-light: #9fd8ff;
   --emp-accent-primary-light-hover: #85ceff;
   --emp-accent-primary-muted: #b8e8ff;
-  --emp-accent-danger: #ff7a84;
-  --emp-accent-danger-hover: #ff95a0;
+  --emp-accent-danger: #f25560;
+  --emp-accent-danger-hover: #e03d48;
   --emp-accent-danger-foreground: #ffffff;
   --emp-accent-primary-foreground: #ffffff;
   --emp-toolbar-btn-bg: #ffffff;
@@ -485,7 +485,7 @@ input[type="number"] {
   cursor: pointer;
   font-size: 12px;
   line-height: 1;
-  font-weight: 400;
+  font-weight: 700;
   padding: 0 14px;
   height: 30px;
   min-height: 30px;
@@ -525,7 +525,7 @@ input[type="number"] {
   border-bottom-color: #d6dce8;
   background: var(--emp-accent-primary);
   color: #ffffff;
-  font-weight: 400;
+  font-weight: 700;
   z-index: 0;
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
@@ -560,7 +560,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
   color: #ffffff !important;
-  font-weight: 400 !important;
+  font-weight: 700 !important;
   background: var(--emp-accent-primary) !important;
   border-width: 1px !important;
   border-top-width: 1px !important;
@@ -589,7 +589,7 @@ input[type="number"] {
   opacity: 1 !important;
   background: var(--emp-accent-primary-muted) !important;
   color: #ffffff !important;
-  font-weight: 400 !important;
+  font-weight: 700 !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive.emp-form-tab-hidden-panel:hover {

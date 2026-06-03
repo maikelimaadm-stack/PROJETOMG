@@ -30,7 +30,9 @@ const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
 const resolveCompanySelectorValue = (selectedEmpresaId, allowAllEmpresas) => {
   if (selectedEmpresaId === "all") return "all";
-  if (selectedEmpresaId) return selectedEmpresaId;
+  const normalizedId =
+    selectedEmpresaId != null ? String(selectedEmpresaId).trim() : "";
+  if (normalizedId) return normalizedId;
   return allowAllEmpresas ? "all" : AUTHORIZED_SCOPE_OPTION;
 };
 
@@ -82,7 +84,7 @@ function ErpTopHeader({
           {empresas.length > 0 ? (
             <optgroup label="Uma empresa">
               {empresas.map((empresa) => (
-                <option key={empresa.id} value={empresa.id}>
+                <option key={String(empresa.id)} value={String(empresa.id)}>
                   {empresa.codempresa} - {empresa.nome_empresa}
                 </option>
               ))}
