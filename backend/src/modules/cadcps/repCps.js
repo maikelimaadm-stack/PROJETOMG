@@ -1,7 +1,8 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
 import { auditService } from "../audit/auditService.js";
 import { assertCampoNotInUse } from "./cadcpsFieldUsage.js";
-import { CADCPS_APLICACAO } from "./cadcpsConstants.js";
+import { CADCPS_APLICACAO, normalizeCadcpsTipo } from "./cadcpsConstants.js";
+import { listCadastroModulesForCadcps } from "./cadastroModuleRegistry.js";
 
 const CAMPO_INCLUDE = {
   telas: { include: { tela: true } },
@@ -11,8 +12,12 @@ const CAMPO_INCLUDE = {
 
 const mapCampoRow = (row) => {
   if (!row) return null;
+  const tipo = normalizeCadcpsTipo(row.tipo);
+  const deprecatedMask = ["cpf", "cnpj", "telefone", "cep", "rg"].includes(row.tipo);
   return {
     ...row,
+    tipo,
+    ...(deprecatedMask && !row.usar_mascara ? { usar_mascara: true } : {}),
     telas: (row.telas || []).map((link) => link.tela).filter(Boolean),
     empresa_ids: (row.empresas || []).map((link) => link.empresa_id),
     empresas_vinculadas: (row.empresas || []).map((link) => link.empresa).filter(Boolean),
@@ -171,12 +176,32 @@ const syncRelations = async (prisma, campoId, { tela_ids = [], empresa_ids = [],
 export const repCps = {
   async ensureTelasSeed() {
     const prisma = getPrismaClient();
-    const { CADCPS_TELAS_SEED } = await import("./cadcpsConstants.js");
-    for (const tela of CADCPS_TELAS_SEED) {
+    const registry = listCadastroModulesForCadcps();
+    const activeCodes = new Set(registry.map((t) => t.codigo));
+
+    for (const tela of registry) {
       await prisma.cadCpsTela.upsert({
         where: { codigo: tela.codigo },
-        create: { ...tela },
-        update: { nome: tela.nome, entity_name: tela.entity_name, ordem: tela.ordem, ativo: true },
+        create: {
+          codigo: tela.codigo,
+          nome: tela.nome,
+          entity_name: tela.entity_name,
+          ordem: tela.ordem,
+          ativo: true,
+        },
+        update: {
+          nome: tela.nome,
+          entity_name: tela.entity_name,
+          ordem: tela.ordem,
+          ativo: true,
+        },
+      });
+    }
+
+    if (activeCodes.size) {
+      await prisma.cadCpsTela.updateMany({
+        where: { codigo: { notIn: [...activeCodes] } },
+        data: { ativo: false },
       });
     }
   },
@@ -249,7 +274,7 @@ export const repCps = {
       nome: payload.nome,
       field_name,
       descricao: payload.descricao,
-      tipo: payload.tipo,
+      tipo: normalizeCadcpsTipo(payload.tipo),
       ativo: payload.ativo ?? true,
       obrigatorio: payload.obrigatorio ?? false,
       read_only: payload.read_only ?? false,
@@ -315,7 +340,7 @@ export const repCps = {
       ...(payload.nome !== undefined ? { nome: payload.nome } : {}),
       ...(payload.field_name !== undefined ? { field_name } : {}),
       ...(payload.descricao !== undefined ? { descricao: payload.descricao } : {}),
-      ...(payload.tipo !== undefined ? { tipo: payload.tipo } : {}),
+      ...(payload.tipo !== undefined ? { tipo: normalizeCadcpsTipo(payload.tipo) } : {}),
       ...(payload.ativo !== undefined ? { ativo: payload.ativo } : {}),
       ...(payload.obrigatorio !== undefined ? { obrigatorio: payload.obrigatorio } : {}),
       ...(payload.read_only !== undefined ? { read_only: payload.read_only } : {}),

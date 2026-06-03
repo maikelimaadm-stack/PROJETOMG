@@ -185,9 +185,11 @@ export default function FORMCPS({
   );
 
   const showNumericConfig = useMemo(
-    () => ["decimal", "moeda", "percentual", "inteiro"].includes(form.tipo) || form.usar_decimal,
-    [form.tipo, form.usar_decimal]
+    () => ["decimal", "moeda", "percentual"].includes(form.tipo),
+    [form.tipo]
   );
+
+  const showMaskConfig = useMemo(() => form.tipo === "texto", [form.tipo]);
 
   const buildPayload = () => {
     const opcoes = listaTipos
@@ -230,7 +232,7 @@ export default function FORMCPS({
       calculation_builder: form.calculation_builder,
       usar_mascara: form.usar_mascara,
       mascaras_text: form.mascaras_text,
-      usar_decimal: showNumericConfig || form.usar_decimal,
+      usar_decimal: showNumericConfig ? true : form.tipo === "inteiro" ? false : form.usar_decimal,
       decimal_places: form.decimal_places,
       separador_decimal: form.separador_decimal,
       separador_milhar: form.separador_milhar,
@@ -534,16 +536,20 @@ export default function FORMCPS({
           </>
         ) : null}
 
-        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-          Máscara de entrada
-        </p>
-        <CpsToggleRow
-          label="Ativar máscara"
-          checked={form.usar_mascara}
-          onChange={(v) => update("usar_mascara", v)}
-          disabled={isReadOnly}
-        />
-        {form.usar_mascara ? (
+        {showMaskConfig ? (
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+            Máscara de entrada (CPF, CNPJ, telefone, etc.)
+          </p>
+        ) : null}
+        {showMaskConfig ? (
+          <CpsToggleRow
+            label="Usar máscara"
+            checked={form.usar_mascara}
+            onChange={(v) => update("usar_mascara", v)}
+            disabled={isReadOnly}
+          />
+        ) : null}
+        {showMaskConfig && form.usar_mascara ? (
           <div className="grid grid-cols-[170px_minmax(0,1fr)] items-start gap-1">
             <label className="pt-2 text-right text-[12px] leading-none text-[#1a1f26]">Máscaras:</label>
             <div className={`${CONTROL_CLASS} max-w-[640px]`}>

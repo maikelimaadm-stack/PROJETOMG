@@ -25,11 +25,8 @@ export const registerCadcpsRoutes = async (app) => {
   });
 
   app.get("/api/cadcps/telas", { preHandler: app.authenticate }, async () => {
-    let items = await svcCps.listTelas();
-    if (!items.length) {
-      await svcCps.ensureTelasSeed();
-      items = await svcCps.listTelas();
-    }
+    await svcCps.ensureTelasSeed();
+    const items = await svcCps.listTelas();
     return { items };
   });
 
