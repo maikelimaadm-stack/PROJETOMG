@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { showSuccess, showError } from "@/shared/feedback";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
 import { useAuth } from "@/shared/contexts/AuthContext";
@@ -184,7 +184,7 @@ export default function PAGEMP() {
         upsertEmpresaInSelector(optimistic);
         setEditingEmp(optimistic);
         stayOnRecordAfterSave(optimistic);
-        toast.success(`${moduleLabels.singular} atualizada!`);
+        showSuccess(`${moduleLabels.singular} atualizada!`);
 
         void moduleRepository
           .update(editingEmp.id, validatedData)
@@ -204,7 +204,7 @@ export default function PAGEMP() {
               queryClient.setQueryData(key, value);
             });
             replaceEmpresasInSelector(selectorSnapshot);
-            toast.error(
+            showError(
               resolveErrorMessage(
                 error,
                 `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
@@ -225,7 +225,7 @@ export default function PAGEMP() {
         total: previous.total + 1,
       }));
       stayOnRecordAfterSave(optimistic);
-      toast.success(`${moduleLabels.singular} cadastrada!`);
+      showSuccess(`${moduleLabels.singular} cadastrada!`);
       setFormVersion((version) => version + 1);
 
       void moduleRepository
@@ -256,7 +256,7 @@ export default function PAGEMP() {
             total: Math.max(0, previous.total - 1),
           }));
           removeEmpresasFromSelector([pendingId]);
-          toast.error(
+          showError(
             resolveErrorMessage(
               error,
               `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
@@ -264,7 +264,7 @@ export default function PAGEMP() {
           );
         });
     } catch (error) {
-      toast.error(
+      showError(
         resolveErrorMessage(
           error,
           isUpdate
@@ -378,7 +378,7 @@ export default function PAGEMP() {
   const handleConfirmDelete = async () => {
     const ids = pendingDeleteIdsRef.current.length > 0 ? pendingDeleteIdsRef.current : deleteState.ids;
     if (ids.length === 0) {
-      toast.error("Nenhum registro selecionado para exclusão.");
+      showError("Nenhum registro selecionado para exclusão.");
       throw new Error("Nenhum registro selecionado para exclusão.");
     }
 
@@ -463,7 +463,7 @@ export default function PAGEMP() {
 
     try {
       await Promise.all(ids.map((id) => moduleRepository.delete(id)));
-      toast.success(
+      showSuccess(
         ids.length === 1
           ? `${moduleLabels.singular} excluída!`
           : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
@@ -473,7 +473,7 @@ export default function PAGEMP() {
         queryClient.setQueryData(key, data);
       });
       replaceEmpresasInSelector(selectorSnapshot);
-      toast.error(
+      showError(
         resolveErrorMessage(
           error,
           `Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`

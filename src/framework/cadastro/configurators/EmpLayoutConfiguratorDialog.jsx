@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import EmpLayoutFieldSettingsPopover from "@/framework/cadastro/layouts/EmpLayoutFieldSettingsPopover";
 import EmpLayoutFieldStatusIcons from "@/framework/cadastro/layouts/EmpLayoutFieldStatusIcons";
-import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
+import { showWarning } from "@/shared/feedback";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
 import {
@@ -95,7 +95,6 @@ export default function EmpLayoutConfiguratorDialog({
   const [draggedFieldId, setDraggedFieldId] = useState(null);
   const [draggedPanelId, setDraggedPanelId] = useState(null);
   const [editingPanelId, setEditingPanelId] = useState(null);
-  const [requiredPopup, setRequiredPopup] = useState({ open: false, message: "" });
   const [fieldLastPanelId, setFieldLastPanelId] = useState({});
   const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
   const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
@@ -210,7 +209,7 @@ export default function EmpLayoutConfiguratorDialog({
   const getAvailableFieldOriginLabel = (fieldId) =>
     getPanelLabelById(fieldLastPanelId[fieldId] || findDefaultPanelForField(fieldId, defaultConfig?.layout));
 
-  const showRequiredPopup = (message) => setRequiredPopup({ open: true, message });
+  const showRequiredPopup = (message) => showWarning(message);
   const addFieldById = (fieldId) => {
     if (!fieldId || !activePanel || !isEditing) return;
     setDraftLayout((prev) => {
@@ -893,15 +892,6 @@ export default function EmpLayoutConfiguratorDialog({
         onVisibilityRuleChange={setVisibilityRule}
       />
 
-      <TopNoticeDialog
-        open={requiredPopup.open}
-        onOpenChange={(nextOpen) => setRequiredPopup((prev) => ({ ...prev, open: nextOpen }))}
-        badge="AVISO"
-        title="Atenção"
-        description={requiredPopup.message}
-        type="warning"
-        confirmText={null}
-      />
     </div>
   );
 

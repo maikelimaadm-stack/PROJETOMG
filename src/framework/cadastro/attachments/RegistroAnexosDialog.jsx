@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Plus, X, ExternalLink, Loader2 } from "lucide-react";
-import { toast } from "sonner";
+import { showSuccess, showError } from "@/shared/feedback";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
   EMP_CONFIG_DIALOG_CLOSE_ROW,
@@ -57,7 +57,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
     mutationFn: (id) => AnexosApi.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });
-      toast.success("Anexo removido.");
+      showSuccess("Anexo removido.");
     }
   });
 
@@ -65,7 +65,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
     if (!attachmentName.trim()) {
-      toast.error("Informe o nome do arquivo antes de anexar.");
+      showError("Informe o nome do arquivo antes de anexar.");
       event.target.value = "";
       return;
     }
@@ -97,7 +97,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
     setAttachmentName("");
     event.target.value = "";
     queryClient.invalidateQueries({ queryKey });
-    toast.success(files.length === 1 ? "Arquivo anexado." : "Arquivos anexados.");
+    showSuccess(files.length === 1 ? "Arquivo anexado." : "Arquivos anexados.");
   };
 
   return (

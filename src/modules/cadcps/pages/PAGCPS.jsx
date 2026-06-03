@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { showSuccess, showError } from "@/shared/feedback";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
 import repCps from "@/modules/cadcps/repositories/repCps";
@@ -174,7 +174,7 @@ export default function PAGCPS() {
           }));
           setEditingItem(optimistic);
           stayOnRecordAfterSave(optimistic);
-          toast.success(`${moduleLabels.singular} atualizado!`);
+          showSuccess(`${moduleLabels.singular} atualizado!`);
 
           void moduleRepository
             .update(editingItem.id, validatedData)
@@ -192,7 +192,7 @@ export default function PAGCPS() {
               cacheSnapshot.forEach(([key, value]) => {
                 queryClient.setQueryData(key, value);
               });
-              toast.error(
+              showError(
                 resolveErrorMessage(
                   error,
                   `Não foi possível atualizar o ${moduleLabels.singular.toLowerCase()}.`
@@ -213,7 +213,7 @@ export default function PAGCPS() {
           total: previous.total + 1,
         }));
         stayOnRecordAfterSave(optimistic);
-        toast.success(`${moduleLabels.singular} cadastrado!`);
+        showSuccess(`${moduleLabels.singular} cadastrado!`);
         setFormVersion((version) => version + 1);
 
         void moduleRepository
@@ -240,7 +240,7 @@ export default function PAGCPS() {
               items: previous.items.filter((item) => item.id !== pendingId),
               total: Math.max(0, previous.total - 1),
             }));
-            toast.error(
+            showError(
               resolveErrorMessage(
                 error,
                 `Não foi possível cadastrar o ${moduleLabels.singular.toLowerCase()}.`
@@ -248,7 +248,7 @@ export default function PAGCPS() {
             );
           });
       } catch (error) {
-        toast.error(
+        showError(
           resolveErrorMessage(
             error,
             isUpdate
@@ -373,7 +373,7 @@ export default function PAGCPS() {
     const ids =
       pendingDeleteIdsRef.current.length > 0 ? pendingDeleteIdsRef.current : deleteState.ids;
     if (ids.length === 0) {
-      toast.error("Nenhum registro selecionado para exclusão.");
+      showError("Nenhum registro selecionado para exclusão.");
       throw new Error("Nenhum registro selecionado para exclusão.");
     }
 
@@ -426,7 +426,7 @@ export default function PAGCPS() {
 
     try {
       await Promise.all(ids.map((id) => moduleRepository.remove(id)));
-      toast.success(
+      showSuccess(
         ids.length === 1
           ? `${moduleLabels.singular} excluído!`
           : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídos!`
@@ -436,7 +436,7 @@ export default function PAGCPS() {
       cacheSnapshot.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
-      toast.error(
+      showError(
         resolveErrorMessage(
           error,
           `Não foi possível excluir o ${moduleLabels.singular.toLowerCase()}.`

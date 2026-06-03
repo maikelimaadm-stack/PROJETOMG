@@ -2618,3 +2618,79 @@ input[type="number"] {
   width: 1rem;
   height: 1rem;
 }
+
+/* —— Feedback global (toast + confirmação + campos obrigatórios) —— */
+@keyframes erp-toast-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes erp-toast-slide-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+[data-sonner-toaster][data-y-position="top"] {
+  top: 16px !important;
+  right: 16px !important;
+}
+
+[data-sonner-toast].erp-toast-base,
+[data-sonner-toast] {
+  animation: erp-toast-slide-in 0.28s ease-out;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12) !important;
+  border: 1px solid #e2e8f0 !important;
+  font-size: 13px !important;
+  padding: 12px 14px !important;
+}
+
+[data-sonner-toast][data-removed="true"] {
+  animation: erp-toast-slide-out 0.22s ease-in forwards;
+}
+
+[data-sonner-toast].erp-toast-success {
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
+  color: #14532d !important;
+}
+
+[data-sonner-toast].erp-toast-error {
+  background: #fef2f2 !important;
+  border-color: #fca5a5 !important;
+  color: #7f1d1d !important;
+}
+
+[data-sonner-toast].erp-toast-warning {
+  background: #fffbeb !important;
+  border-color: #fcd34d !important;
+  color: #78350f !important;
+}
+
+[data-sonner-toast].erp-toast-info {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+.erp-confirm-dialog {
+  z-index: 80;
+}
+
+.erp-field-invalid,
+.erp-field-invalid .emp-form-field-control {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35);
+}

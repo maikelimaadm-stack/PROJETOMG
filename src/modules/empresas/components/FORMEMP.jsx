@@ -3,7 +3,7 @@ import { Input } from "@/shared/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
-import TopNoticeDialog from "@/shared/components/TopNoticeDialog";
+import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
@@ -60,7 +60,6 @@ export default function FORMEMP({
   const [activeTab, setActiveTab] = useState("geral");
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
   const [fieldLayoutConfigOpen, setFieldLayoutConfigOpen] = useState(false);
-  const [noticeDialog, setNoticeDialog] = useState({ open: false, title: "", description: "" });
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
   const [formLayoutConfig, setFormLayoutConfig] = useState(null);
@@ -191,11 +190,7 @@ export default function FORMEMP({
       const { file_url } = await AnexosApi.uploadFile(file);
       setFormData((prev) => ({ ...prev, logo_url: file_url }));
     } catch {
-      setNoticeDialog({
-        open: true,
-        title: "Falha no envio",
-        description: "Não foi possível enviar a imagem. Tente novamente.",
-      });
+      showError("Não foi possível enviar a imagem. Tente novamente.");
     } finally {
       setUploadingLogo(false);
     }
@@ -233,8 +228,7 @@ export default function FORMEMP({
     isReadOnly,
     handleCustomChange,
     relatedOptions,
-    onUploadError: () =>
-      setNoticeDialog({ open: true, title: "Erro ao enviar", description: "Não foi possível enviar a imagem." }),
+    onUploadError: () => showError("Não foi possível enviar a imagem."),
   });
 
   const dynamicFields = useMemo(() => [
@@ -437,10 +431,9 @@ export default function FORMEMP({
       });
     }
     setErrors(nextErrors);
+    clearRequiredFieldErrors();
     if (Object.keys(nextErrors).length === 0) return true;
-    setNoticeDialog({ open: true, title: "Campos obrigatórios", description: "Preencha os campos obrigatórios antes de salvar a empresa." });
-    const firstField = Object.keys(nextErrors)[0];
-    document.querySelector(`[data-field="${firstField}"]`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+    reportRequiredFieldErrors(nextErrors);
     return false;
   };
 
@@ -523,7 +516,6 @@ export default function FORMEMP({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
-      <TopNoticeDialog open={noticeDialog.open} onOpenChange={(open) => setNoticeDialog((prev) => ({ ...prev, open }))} badge="AVISO" title={noticeDialog.title} description={noticeDialog.description} type="warning" confirmText="Entendi" />
       <EmpFieldLayoutConfigDialog
         open={fieldLayoutConfigOpen}
         onOpenChange={setFieldLayoutConfigOpen}

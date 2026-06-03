@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
+import { showSuccess, showError } from "@/shared/feedback";
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
@@ -61,16 +61,16 @@ export default function PAG__MODULE_ID_PASCAL__() {
     try {
       if (editingItem?.id) {
         await repository.update(editingItem.id, payload);
-        toast.success(`${labels.singular} atualizada!`);
+        showSuccess(`${labels.singular} atualizada!`);
       } else {
         await repository.create(payload);
-        toast.success(`${labels.singular} cadastrada!`);
+        showSuccess(`${labels.singular} cadastrada!`);
       }
       setShowForm(false);
       setEditingItem(null);
       await refreshList();
     } catch {
-      toast.error(`Falha ao salvar ${labels.singular.toLowerCase()}.`);
+      showError(`Falha ao salvar ${labels.singular.toLowerCase()}.`);
     }
   };
 
@@ -84,9 +84,9 @@ export default function PAG__MODULE_ID_PASCAL__() {
       setShowForm(false);
       setEditingItem(null);
       await refreshList();
-      toast.success("Registros excluídos.");
+      showSuccess("Registros excluídos.");
     } catch {
-      toast.error("Falha ao excluir registros.");
+      showError("Falha ao excluir registros.");
     }
   };
 
