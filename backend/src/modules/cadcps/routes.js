@@ -19,7 +19,11 @@ const parseOrThrow = (schema, data, message) => {
 };
 
 export const registerCadcpsRoutes = async (app) => {
-  await svcCps.ensureTelasSeed();
+  try {
+    await svcCps.ensureTelasSeed();
+  } catch (error) {
+    app.log.error({ err: error }, "Falha ao inicializar telas CADCPS — verifique migration.");
+  }
 
   app.get("/api/cadcps/telas", { preHandler: app.authenticate }, async () => {
     const items = await svcCps.listTelas();

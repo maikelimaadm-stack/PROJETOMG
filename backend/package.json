@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "node --watch src/server.js",
     "start": "node src/server.js",
-    "start:prod": "node scripts/seedBootstrap.js && node scripts/ensureUsuarioPreferenciaTable.js && NODE_ENV=production node src/server.js",
+    "start:prod": "node scripts/ensureCadcpsTables.js && node scripts/seedBootstrap.js && node scripts/ensureUsuarioPreferenciaTable.js && NODE_ENV=production node src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:validate": "prisma validate",
     "prisma:normalize-codes": "node scripts/normalizeEmpresaCodes.js",

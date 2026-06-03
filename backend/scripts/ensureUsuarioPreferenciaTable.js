@@ -51,8 +51,8 @@ ensureUsuarioPreferenciaTable()
     console.log("Tabela UsuarioPreferencia garantida.");
   })
   .catch((error) => {
-    console.error("Falha ao garantir tabela UsuarioPreferencia:", error);
-    process.exitCode = 1;
+    console.error("Falha ao garantir tabela UsuarioPreferencia:", error.message);
+    process.exit(0);
   })
   .finally(async () => {
     await prisma.$disconnect();
