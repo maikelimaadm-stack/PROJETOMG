@@ -1,11 +1,18 @@
-import { CADCPS_TIPO_TO_LEGACY } from "./cadcpsConstants.js";
+import { CADCPS_TIPO_TO_LEGACY, normalizeCadcpsTipo } from "./cadcpsConstants.js";
 
 /**
  * Converte registro CADCPS para formato legado consumido por campoEngine / FORMEMP.
  */
 export const toLegacyCampoShape = (campo) => {
   if (!campo) return null;
-  const legacyTipo = CADCPS_TIPO_TO_LEGACY[campo.tipo] || campo.tipo;
+  const tipoCanon = normalizeCadcpsTipo(campo.tipo);
+  const legacyTipo = CADCPS_TIPO_TO_LEGACY[tipoCanon] || campo.tipo;
+  const usar_decimal =
+    tipoCanon === "inteiro"
+      ? false
+      : ["decimal", "moeda", "percentual"].includes(tipoCanon)
+        ? true
+        : !!campo.usar_decimal;
   const opcoes = (campo.opcoes || []).map((o) => ({
     value: o.codigo,
     label: o.descricao,
@@ -23,8 +30,8 @@ export const toLegacyCampoShape = (campo) => {
     field_name: campo.field_name,
     descricao: campo.descricao,
     placeholder: campo.placeholder,
-    tipo: legacyTipo,
-    tipo_cadcps: campo.tipo,
+    tipo: tipoCanon === "sim_nao" ? "checkbox" : legacyTipo,
+    tipo_cadcps: tipoCanon,
     obrigatorio: campo.obrigatorio,
     read_only: campo.read_only,
     visivel_form: campo.visivel_form,
@@ -35,7 +42,7 @@ export const toLegacyCampoShape = (campo) => {
     options: opcoes,
     formula: campo.formula,
     calculation_builder: campo.calculation_builder,
-    usar_decimal: campo.usar_decimal,
+    usar_decimal,
     decimal_places: campo.decimal_places,
     usar_mascara: campo.usar_mascara,
     mascaras_text: campo.mascaras_text,

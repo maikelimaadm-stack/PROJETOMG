@@ -19,6 +19,7 @@
     "smoke:campos": "node scripts/smokeCamposPersonalizados.js",
     "smoke:campos-tipos": "node scripts/smokeCamposTipos.js",
     "smoke:cadcps": "node scripts/smokeCadcps.js",
+    "smoke:cadcps-tipos": "node scripts/smokeCadcpsTipos.js",
     "migrate:cadcps": "node scripts/migrateCampoPersonalizadoToCadcps.js",
     "migrate:codempresa": "node scripts/renameCodempresaColumns.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",

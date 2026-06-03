@@ -1,25 +1,14 @@
 import dotenv from "dotenv";
 import { getPrismaClient } from "../src/database/prismaClient.js";
-import { CADCPS_TELAS_SEED } from "../src/modules/cadcps/cadcpsConstants.js";
+import { repCps } from "../src/modules/cadcps/repCps.js";
 
 dotenv.config();
 
 const run = async () => {
+  await repCps.ensureTelasSeed();
   const prisma = getPrismaClient();
-  for (const tela of CADCPS_TELAS_SEED) {
-    await prisma.cadCpsTela.upsert({
-      where: { codigo: tela.codigo },
-      create: { ...tela },
-      update: {
-        nome: tela.nome,
-        entity_name: tela.entity_name,
-        ordem: tela.ordem,
-        ativo: true,
-      },
-    });
-  }
   const count = await prisma.cadCpsTela.count({ where: { ativo: true } });
-  console.log(`Seed telas CADCPS: ${count} tela(s) ativa(s).`);
+  console.log(`Seed telas CADCPS (registry): ${count} tela(s) ativa(s).`);
 };
 
 run()

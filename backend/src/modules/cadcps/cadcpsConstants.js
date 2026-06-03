@@ -3,6 +3,7 @@ export const CADCPS_APLICACAO = {
   ESPECIFICAS: "especificas",
 };
 
+/** Tipos canônicos (valor persistido). Labels no frontend. */
 export const CADCPS_TIPOS = [
   "texto",
   "observacao",
@@ -15,11 +16,6 @@ export const CADCPS_TIPOS = [
   "data_hora",
   "sim_nao",
   "email",
-  "telefone",
-  "cpf",
-  "cnpj",
-  "cep",
-  "rg",
   "url",
   "lista",
   "lista_multipla",
@@ -30,23 +26,17 @@ export const CADCPS_TIPOS = [
   "formula",
 ];
 
-export const CADCPS_TELAS_SEED = [
-  { codigo: "EMPRESAS", nome: "Empresas", entity_name: "EmpresaCadastro", ordem: 10 },
-  { codigo: "FAZENDAS", nome: "Fazendas", entity_name: "FazendaCadastro", ordem: 20 },
-  { codigo: "CURRAIS", nome: "Currais", entity_name: "CurralCadastro", ordem: 30 },
-  { codigo: "PASTOS", nome: "Pastos", entity_name: "PastoCadastro", ordem: 40 },
-  { codigo: "PRODUTOS", nome: "Produtos", entity_name: "ProdutoCadastro", ordem: 50 },
-  { codigo: "CLIENTES", nome: "Clientes", entity_name: "ClienteCadastro", ordem: 60 },
-  { codigo: "FORNECEDORES", nome: "Fornecedores", entity_name: "FornecedorCadastro", ordem: 70 },
-  { codigo: "FUNCIONARIOS", nome: "Funcionários", entity_name: "FuncionarioCadastro", ordem: 80 },
-  { codigo: "MAQUINAS", nome: "Máquinas", entity_name: "MaquinaCadastro", ordem: 90 },
-  { codigo: "VEICULOS", nome: "Veículos", entity_name: "VeiculoCadastro", ordem: 100 },
-  { codigo: "FINANCEIRO", nome: "Financeiro", entity_name: "FinanceiroCadastro", ordem: 110 },
-  { codigo: "CENTROS_CUSTO", nome: "Centros de Custo", entity_name: "CentroCustoCadastro", ordem: 120 },
-  { codigo: "LANCAMENTOS", nome: "Lançamentos", entity_name: "LancamentoCadastro", ordem: 130 },
-];
+/** Tipos removidos — normalizados para texto + máscara quando lidos do banco. */
+export const CADCPS_TIPOS_REMOVIDOS = ["cpf", "cnpj", "telefone", "cep", "rg"];
 
-/** Mapeamento tipo legado → tipo CADCPS */
+export const normalizeCadcpsTipo = (tipo) => {
+  const value = String(tipo || "").trim();
+  if (CADCPS_TIPOS_REMOVIDOS.includes(value)) return "texto";
+  if (CADCPS_TIPOS.includes(value)) return value;
+  return value;
+};
+
+/** Mapeamento tipo legado (dialog antigo) → tipo CADCPS */
 export const LEGACY_TIPO_TO_CADCPS = {
   text: "texto",
   textarea: "observacao",
@@ -60,6 +50,11 @@ export const LEGACY_TIPO_TO_CADCPS = {
   calculado: "formula",
   image: "imagem",
   file: "arquivo",
+  cpf: "texto",
+  cnpj: "texto",
+  telefone: "texto",
+  cep: "texto",
+  rg: "texto",
 };
 
 /** Mapeamento tipo CADCPS → tipo legado (runtime Empresas / campoEngine) */
@@ -75,11 +70,6 @@ export const CADCPS_TIPO_TO_LEGACY = {
   data_hora: "datetime",
   sim_nao: "text",
   email: "text",
-  telefone: "text",
-  cpf: "text",
-  cnpj: "text",
-  cep: "text",
-  rg: "text",
   url: "text",
   lista: "select",
   lista_multipla: "option_list",

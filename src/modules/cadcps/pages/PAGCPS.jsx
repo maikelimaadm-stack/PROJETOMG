@@ -72,13 +72,20 @@ export default function PAGCPS() {
         sortDir: querySort.direction,
       }),
     placeholderData: (previous) => previous ?? DEFAULT_RESPONSE,
-    staleTime: 60_000,
+    staleTime: 0,
     gcTime: 5 * 60_000,
   });
+
+  const invalidateCamposQueries = useCallback(() => {
+    void queryClient.invalidateQueries({ queryKey: ["cadcps-campos"] });
+    void queryClient.invalidateQueries({ queryKey: ["cadcps-telas"] });
+    void queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
+  }, [queryClient]);
 
   const { data: telas = [] } = useQuery({
     queryKey: ["cadcps-telas"],
     queryFn: () => repCps.listTelas(),
+    staleTime: 0,
   });
 
   const campos = listResponse.items || [];
@@ -179,6 +186,7 @@ export default function PAGCPS() {
                 ),
               }));
               setEditingItem(savedRecord);
+              invalidateCamposQueries();
             })
             .catch((error) => {
               cacheSnapshot.forEach(([key, value]) => {
@@ -221,6 +229,7 @@ export default function PAGCPS() {
             setSelectedTableItems((current) =>
               current.includes(pendingId) ? [savedRecord.id] : current
             );
+            invalidateCamposQueries();
           })
           .catch((error) => {
             cacheSnapshot.forEach(([key, value]) => {
@@ -249,7 +258,7 @@ export default function PAGCPS() {
         );
       }
     },
-    [editingItem, queryClient, stayOnRecordAfterSave]
+    [editingItem, queryClient, stayOnRecordAfterSave, invalidateCamposQueries]
   );
 
   const handleEdit = (item) => {
@@ -422,6 +431,7 @@ export default function PAGCPS() {
           ? `${moduleLabels.singular} excluído!`
           : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídos!`
       );
+      invalidateCamposQueries();
     } catch (error) {
       cacheSnapshot.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);

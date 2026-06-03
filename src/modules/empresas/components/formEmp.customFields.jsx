@@ -5,6 +5,7 @@ import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import EmpOptionListControl from "@/framework/cadastro/formularios/EmpOptionListControl";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
+import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { splitDateTimeValue, formatMaskedNumber } from "./formEmp.constants";
 
@@ -34,6 +35,22 @@ export function useFormEmpCustomFields({
     const value = formData.campos_personalizados?.[campo.field_name] || "";
     const campoOptions = campoEngine.getOptionsCampo(campo, relatedOptions);
     const fieldReadOnly = campo.read_only || isReadOnly;
+
+    if (campo.tipo === "checkbox" || campo.tipo_cadcps === "sim_nao") {
+      const checked =
+        value === true || value === "true" || value === "1" || value === "sim";
+      return (
+        <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">
+          <ToggleSwitch
+            checked={checked}
+            onChange={(next) => handleCustomChange(campo.field_name, next)}
+            disabled={fieldReadOnly}
+            className="emp-form-toggle-switch"
+            checkedClassName="emp-form-toggle-switch-on"
+          />
+        </div>
+      );
+    }
 
     if (campo.tipo === "textarea") {
       return (
@@ -136,6 +153,21 @@ export function useFormEmpCustomFields({
             className={`${customInputClass} ${readOnlyClass}`}
           />
         </div>
+      );
+    }
+
+    if (campo.tipo === "number" && campo.tipo_cadcps === "inteiro") {
+      return (
+        <Input
+          type="number"
+          step="1"
+          inputMode="numeric"
+          value={value}
+          onChange={(e) => handleCustomChange(campo.field_name, e.target.value.replace(/\D/g, ""))}
+          placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
+          readOnly={fieldReadOnly}
+          className={`${customInputClass} ${readOnlyClass}`}
+        />
       );
     }
 

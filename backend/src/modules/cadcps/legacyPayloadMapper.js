@@ -1,5 +1,10 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
-import { CADCPS_APLICACAO, CADCPS_TIPOS, LEGACY_TIPO_TO_CADCPS } from "./cadcpsConstants.js";
+import {
+  CADCPS_APLICACAO,
+  CADCPS_TIPOS,
+  LEGACY_TIPO_TO_CADCPS,
+  normalizeCadcpsTipo,
+} from "./cadcpsConstants.js";
 
 const mapOpcoes = (opcoes = []) =>
   opcoes.map((opcao, index) => {
@@ -37,7 +42,11 @@ const resolveDefaultTelaId = async (body) => {
  */
 export const normalizeLegacyCampoPayload = async (body = {}) => {
   const tipoRaw = String(body.tipo || "").trim();
-  const tipo = LEGACY_TIPO_TO_CADCPS[tipoRaw] || tipoRaw;
+  let tipo = LEGACY_TIPO_TO_CADCPS[tipoRaw] || tipoRaw;
+  if (tipoRaw === "number") {
+    tipo = body.usar_decimal ? "decimal" : "inteiro";
+  }
+  tipo = CADCPS_TIPOS.includes(tipo) ? tipo : normalizeCadcpsTipo(tipo);
   const nome = body.nome || body.label;
   const tela_id = await resolveDefaultTelaId(body);
 
@@ -56,10 +65,12 @@ export const normalizeLegacyCampoPayload = async (body = {}) => {
 
   const normalized = {
     ...body,
-    nome,
-    tipo: CADCPS_TIPOS.includes(tipo) ? tipo : body.tipo,
-    tela_id,
-    aplicacao_modo,
+    ...(nome !== undefined ? { nome } : {}),
+    ...(tipoRaw ? { tipo } : {}),
+    ...(body.tela_id || body.tela_ids?.length ? { tela_id } : {}),
+    ...(body.aplicacao_modo !== undefined || body.empresa_id
+      ? { aplicacao_modo }
+      : {}),
     ...(empresa_ids ? { empresa_ids } : {}),
     ...(opcoes ? { opcoes } : {}),
   };
