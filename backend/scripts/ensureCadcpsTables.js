@@ -14,10 +14,38 @@ const migrationPath = path.resolve(
 
 const prisma = new PrismaClient();
 
+const IGNORED_ERROR_CODES = new Set([
+  "42P07", // duplicate_table
+  "42710", // duplicate_object (constraint, etc.)
+  "42P16", // invalid_table_definition (constraint already exists in some PG versions)
+]);
+
+const splitSqlStatements = (sql) =>
+  sql
+    .replace(/--[^\n]*/g, "")
+    .split(";")
+    .map((chunk) => chunk.trim())
+    .filter(Boolean);
+
+const runStatement = async (statement) => {
+  try {
+    await prisma.$executeRawUnsafe(statement);
+  } catch (error) {
+    const code = error?.code || error?.meta?.code;
+    if (IGNORED_ERROR_CODES.has(code)) return;
+    const message = String(error?.message || "");
+    if (message.includes("already exists")) return;
+    throw error;
+  }
+};
+
 const run = async () => {
   const sql = fs.readFileSync(migrationPath, "utf8");
-  await prisma.$executeRawUnsafe(sql);
-  console.log("Tabelas CADCPS garantidas.");
+  const statements = splitSqlStatements(sql);
+  for (const statement of statements) {
+    await runStatement(`${statement};`);
+  }
+  console.log(`Tabelas CADCPS garantidas (${statements.length} comando(s)).`);
 };
 
 run()

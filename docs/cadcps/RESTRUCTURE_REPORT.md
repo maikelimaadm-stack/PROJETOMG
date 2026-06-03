@@ -4,7 +4,13 @@
 
 O módulo de Campos Personalizados foi reestruturado como **CADCPS**, independente do cadastro de Empresas, com modelagem relacional, API `/api/cadcps`, UI dedicada (PAGCPS / FRMCPS / TABCPS) e adaptadores para consumo legado (FORMEMP, Template).
 
-**Status:** implementação concluída; testes `lint`, `build`, `prisma validate`, `prisma generate`, `validate:connections`, `smoke:cadcps`, `smoke:campos`, `smoke:campos-tipos` executados com sucesso neste ambiente.
+**Status:** implementação concluída; testes `lint`, `build`, `prisma validate`, `prisma generate`, `smoke:cadcps`, `smoke:campos` executados com sucesso neste ambiente.
+
+### Correção pós-merge (branch `cursor/cadcps-form-fix-7ea5`)
+
+- **Railway / boot:** `ensureCadcpsTables.js` passou a executar o SQL da migration **comando a comando** (corrige erro PostgreSQL `42601` — múltiplos comandos em prepared statement), que impedia o deploy e o seed de telas.
+- **UI FORMCPS:** formulário vertical por painéis (Informações, Telas, Aplicação, Configurações gerais, Tipo e opções), alinhado ao cadastro de Empresas; lista de telas com checkboxes; blocos condicionais por tipo (numérico, máscara, lista, relação, fórmula).
+- **Boot produção:** `bootProduction.js` + `seedCadcpsTelas.js`; GET `/api/cadcps/telas` re-seeda se vazio.
 
 ---
 
