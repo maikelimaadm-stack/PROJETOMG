@@ -16,7 +16,9 @@ export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   keys.forEach((key) => {
     root.querySelectorAll(`[data-field="${key}"]`).forEach((node) => {
       node.classList.add(INVALID_CLASS);
-      const control = node.querySelector(".emp-form-field-control, input, textarea, select");
+      const control = node.querySelector(
+        ".erp-float-field, .emp-form-field-control, input, textarea, select, button[role='combobox']"
+      );
       control?.classList.add(INVALID_CLASS);
     });
   });
