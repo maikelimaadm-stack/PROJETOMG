@@ -13,22 +13,23 @@ const mapOpcoes = (opcoes = []) =>
     };
   });
 
-const resolveDefaultTelaIds = async (body) => {
-  if (Array.isArray(body.tela_ids) && body.tela_ids.length) return body.tela_ids;
+const resolveDefaultTelaId = async (body) => {
+  if (body.tela_id) return String(body.tela_id);
+  if (Array.isArray(body.tela_ids) && body.tela_ids.length) return String(body.tela_ids[0]);
+
   const entityName = body.entity_name || "EmpresaCadastro";
   const prisma = getPrismaClient();
   const tela = await prisma.cadCpsTela.findFirst({
     where: { entity_name: entityName },
     select: { id: true },
   });
-  if (!tela?.id) {
-    const fallback = await prisma.cadCpsTela.findFirst({
-      where: { codigo: "EMPRESAS" },
-      select: { id: true },
-    });
-    return fallback?.id ? [fallback.id] : [];
-  }
-  return [tela.id];
+  if (tela?.id) return tela.id;
+
+  const fallback = await prisma.cadCpsTela.findFirst({
+    where: { codigo: "EMPRESAS" },
+    select: { id: true },
+  });
+  return fallback?.id ? String(fallback.id) : "";
 };
 
 /**
@@ -38,7 +39,7 @@ export const normalizeLegacyCampoPayload = async (body = {}) => {
   const tipoRaw = String(body.tipo || "").trim();
   const tipo = LEGACY_TIPO_TO_CADCPS[tipoRaw] || tipoRaw;
   const nome = body.nome || body.label;
-  const tela_ids = await resolveDefaultTelaIds(body);
+  const tela_id = await resolveDefaultTelaId(body);
 
   const aplicacao_modo =
     body.aplicacao_modo === "empresa" || body.empresa_id
@@ -57,7 +58,7 @@ export const normalizeLegacyCampoPayload = async (body = {}) => {
     ...body,
     nome,
     tipo: CADCPS_TIPOS.includes(tipo) ? tipo : body.tipo,
-    tela_ids,
+    tela_id,
     aplicacao_modo,
     ...(empresa_ids ? { empresa_ids } : {}),
     ...(opcoes ? { opcoes } : {}),
@@ -65,5 +66,6 @@ export const normalizeLegacyCampoPayload = async (body = {}) => {
 
   delete normalized.label;
   delete normalized.entity_name;
+  delete normalized.tela_ids;
   return normalized;
 };

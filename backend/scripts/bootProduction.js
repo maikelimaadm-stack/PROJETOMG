@@ -31,6 +31,12 @@ const run = async () => {
 
   await runStep("Tabela preferências", "node", ["scripts/ensureUsuarioPreferenciaTable.js"]);
 
+  if (!String(process.env.JWT_SECRET || "").trim()) {
+    console.warn(
+      "[boot] AVISO: JWT_SECRET não definido no Railway — defina a variável ou o login da API falhará."
+    );
+  }
+
   console.log("[boot] Iniciando servidor...");
   const server = spawn("node", ["src/server.js"], {
     stdio: "inherit",

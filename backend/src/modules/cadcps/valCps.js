@@ -28,7 +28,7 @@ export const cadcpsCampoBaseSchema = z.object({
   auditavel: z.boolean().optional(),
   aplicacao_modo: z.enum([CADCPS_APLICACAO.TODAS, CADCPS_APLICACAO.ESPECIFICAS]).optional(),
   empresa_ids: z.array(z.string().min(1)).optional(),
-  tela_ids: z.array(z.string().min(1)).min(1),
+  tela_id: z.string().min(1),
   placeholder: z.string().max(255).optional().nullable(),
   formula: z.string().optional().nullable(),
   calculation_builder: z.any().optional().nullable(),
@@ -48,7 +48,7 @@ export const cadcpsCampoBaseSchema = z.object({
 
 export const cadcpsCampoCreateSchema = cadcpsCampoBaseSchema;
 export const cadcpsCampoUpdateSchema = cadcpsCampoBaseSchema.partial().extend({
-  tela_ids: z.array(z.string().min(1)).min(1).optional(),
+  tela_id: z.string().min(1).optional(),
 });
 
 export const cadcpsListQuerySchema = z.object({

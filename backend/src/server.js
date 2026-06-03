@@ -98,7 +98,8 @@ const resolvePort = () => {
 };
 
 const buildServer = () => {
-  const app = Fastify({ logger: true });
+  const pluginTimeout = Number(process.env.FASTIFY_PLUGIN_TIMEOUT_MS || 120_000);
+  const app = Fastify({ logger: true, pluginTimeout });
   const allowedOrigins = parseAllowedOrigins();
   const jwtSecret = String(process.env.JWT_SECRET || "mak-gestao-dev-jwt-secret");
 

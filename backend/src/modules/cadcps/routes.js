@@ -19,12 +19,10 @@ const parseOrThrow = (schema, data, message) => {
 };
 
 export const registerCadcpsRoutes = async (app) => {
-  try {
-    await svcCps.ensureTelasSeed();
-    app.log.info("Telas CADCPS inicializadas.");
-  } catch (error) {
-    app.log.error({ err: error }, "Falha ao inicializar telas CADCPS no boot — GET /telas tentará novamente.");
-  }
+  // Seed de telas não bloqueia o registro de rotas (evita FST_ERR_PLUGIN_TIMEOUT no Railway).
+  void svcCps.ensureTelasSeed().catch((error) => {
+    app.log.error({ err: error }, "Seed telas CADCPS em background falhou — GET /telas tentará novamente.");
+  });
 
   app.get("/api/cadcps/telas", { preHandler: app.authenticate }, async () => {
     let items = await svcCps.listTelas();

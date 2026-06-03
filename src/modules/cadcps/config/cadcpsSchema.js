@@ -6,7 +6,7 @@ export const cadcpsFormSchema = z.object({
   descricao: z.string().optional().nullable(),
   tipo: z.string().min(1),
   ativo: z.boolean().optional(),
-  tela_ids: z.array(z.string()).min(1),
+  tela_id: z.string().min(1),
   aplicacao_modo: z.enum(["todas", "especificas"]).optional(),
   empresa_ids: z.array(z.string()).optional(),
   obrigatorio: z.boolean().optional(),
