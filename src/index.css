@@ -2214,6 +2214,19 @@ input[type="number"] {
   color: #1a1f26;
 }
 
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-footer-btn {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-footer-btn:hover:not(:disabled),
+.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-footer-btn:focus-visible {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-toolbar-search {
   width: 100%;
 }

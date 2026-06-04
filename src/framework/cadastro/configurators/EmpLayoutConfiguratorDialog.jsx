@@ -1300,17 +1300,17 @@ export default function EmpLayoutConfiguratorDialog({
                   )}
                 </div>
                 {isEditing && selectedPanelFieldIds.length === 1 && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#e2e8f0] pt-2">
+                  <div className="emp-layout-config-footer mt-3 flex flex-wrap items-center gap-2 pt-2">
                     <span className="text-[11px] font-semibold text-[#5b6b80]">Tipo de largura:</span>
                     {FIELD_WIDTH_TYPE_OPTIONS.map(({ value, label }) => (
                       <button
                         key={value}
                         type="button"
                         onClick={() => setFieldWidthType(selectedPanelFieldIds[0], value)}
-                        className={`h-6 rounded px-2 text-[10px] font-semibold ${
+                        className={`emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold ${
                           draftFieldSizes[selectedPanelFieldIds[0]] === value
-                            ? "bg-[#eaf2ff] text-[#2563eb]"
-                            : "bg-[#f1f5f9] text-[#64748b]"
+                            ? "text-[#2563eb] underline underline-offset-2"
+                            : "text-[#64748b]"
                         }`}
                       >
                         {label}
@@ -1319,7 +1319,7 @@ export default function EmpLayoutConfiguratorDialog({
                     <button
                       type="button"
                       onClick={() => setFieldWidthType(selectedPanelFieldIds[0], "")}
-                      className="h-6 rounded px-2 text-[10px] font-semibold bg-[#f1f5f9] text-[#64748b]"
+                      className="emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold text-[#64748b]"
                     >
                       Padrão do tipo
                     </button>
