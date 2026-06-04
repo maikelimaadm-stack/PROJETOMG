@@ -56,7 +56,10 @@ import {
   rowHasRoomForField,
   createRowId,
 } from "@/framework/cadastro/layouts/empFormLayoutRows";
-import { getMaxFieldsPerRow } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
+import {
+  getMaxFieldsPerRow,
+  resolveCardColSpan,
+} from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 
 const DEFAULT_SYSTEM_PANEL_IDS = ["principais", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = [];
@@ -199,16 +202,11 @@ export default function EmpLayoutConfiguratorDialog({
     return rows.length ? rows : [createEmptyLayoutRow(card?.id || "card")];
   };
 
-  const getActiveCardColSpan = (card = activeCard) => {
-    const span = Number(card?.colSpan);
-    return Number.isFinite(span) && span > 0 ? (span <= 6 ? 6 : 12) : 12;
-  };
+  const getActiveCardColSpan = (card = activeCard) => resolveCardColSpan(card?.colSpan);
 
   const activeCardSpan = getActiveCardColSpan();
-  const isHalfWidthCard = activeCardSpan <= 6;
-  const panelFieldMinWidthClass = isHalfWidthCard
-    ? "min-w-0 flex-[1_1_calc(25%-9px)] max-w-[calc(25%-6px)]"
-    : "min-w-[210px]";
+  const isHalfWidthCard = activeCardSpan === 6;
+  const panelFieldMinWidthClass = isHalfWidthCard ? "min-w-0 w-full" : "min-w-[210px]";
 
   const resolveTargetRowId = (rows, colSpan = getActiveCardColSpan()) => {
     if (selectedPanelFieldIds.length) {
@@ -408,7 +406,7 @@ export default function EmpLayoutConfiguratorDialog({
     const nextCardsByPanel = stripFieldFromAllCards(draftCardsByPanel, fieldId);
     let rows = removeFieldFromRows(ensureCardRows(activeCard), fieldId);
     const rowId = targetRowId || resolveTargetRowId(rows);
-    rows = placeFieldOnCardRows(rows, fieldId, { preferredRowId: rowId });
+    rows = placeFieldOnCardRows(rows, fieldId, { preferredRowId: rowId, card: activeCard });
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id ? normalizeLayoutCardV3({ ...card, rows }) : normalizeLayoutCardV3(card)
     );

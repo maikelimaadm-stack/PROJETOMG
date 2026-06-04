@@ -24,6 +24,7 @@ import {
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
   getMaxFieldsPerRow,
+  resolveCardColSpan,
   resolveFieldWidthTypePreset,
   normalizeFieldWidthTypes,
   inferFieldWidthType,
@@ -156,8 +157,13 @@ assert.ok(cardWithRows.rows.length >= 1);
 assert.deepEqual(flattenRowsToFieldIds(cardWithRows), ["a", "b", "c"]);
 
 // --- Limites por card
+assert.equal(resolveCardColSpan(12), 12);
+assert.equal(resolveCardColSpan(6), 6);
+assert.equal(resolveCardColSpan(4), 6);
+assert.equal(resolveCardColSpan(undefined), 12);
 assert.equal(getMaxFieldsPerRow(12), 6);
 assert.equal(getMaxFieldsPerRow(6), 4);
+assert.equal(getMaxFieldsPerRow(4), 4, "colSpan parcial normaliza para meio → 4 campos");
 
 let halfRowPlacement = [createEmptyLayoutRow("half", 0)];
 ["a", "b", "c", "d"].forEach((fieldId) => {

@@ -179,12 +179,16 @@ export const MAX_FIELDS_PER_ROW_BY_COL_SPAN = Object.freeze({
   6: 4,
 });
 
-/** Máximo de campos por linha (única regra automática de quebra). */
+/** Normaliza colSpan do card para 6 (meio) ou 12 (inteiro). */
+export function resolveCardColSpan(colSpan) {
+  const span = Number(colSpan);
+  if (!Number.isFinite(span) || span < 1) return 12;
+  return span <= 6 ? 6 : 12;
+}
+
+/** Máximo de campos por linha — só por colSpan do card, sem limite por largura em px. */
 export function getMaxFieldsPerRow(colSpan = 12) {
-  const span = Number(colSpan) || 12;
-  if (span >= 12) return MAX_FIELDS_PER_ROW_BY_COL_SPAN[12];
-  if (span >= 6) return MAX_FIELDS_PER_ROW_BY_COL_SPAN[6];
-  return 2;
+  return MAX_FIELDS_PER_ROW_BY_COL_SPAN[resolveCardColSpan(colSpan)];
 }
 
 /**
