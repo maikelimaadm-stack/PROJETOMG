@@ -155,7 +155,11 @@ export default function FORMEMP({
     queryKey: ["emp-form-related-options", relatedSources.map((source) => `${source.entity}:${source.labelField}:${source.valueField}`).join("|")],
     queryFn: () => empRepository.listOptionsSources(relatedSources),
     enabled: relatedSources.length > 0,
-    initialData: {}
+    initialData: {},
+    placeholderData: (previous) => previous ?? {},
+    staleTime: 120_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: false,
   });
 
   const isReadOnly = isEditing && !isDuplicating && !editMode;

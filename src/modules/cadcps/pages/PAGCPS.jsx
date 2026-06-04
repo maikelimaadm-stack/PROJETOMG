@@ -72,8 +72,9 @@ export default function PAGCPS() {
         sortDir: querySort.direction,
       }),
     placeholderData: (previous) => previous ?? DEFAULT_RESPONSE,
-    staleTime: 0,
+    staleTime: 60_000,
     gcTime: 5 * 60_000,
+    refetchOnMount: false,
   });
 
   const invalidateCamposQueries = useCallback(() => {
@@ -85,12 +86,15 @@ export default function PAGCPS() {
   const { data: telas = [] } = useQuery({
     queryKey: ["cadcps-telas"],
     queryFn: () => repCps.listTelas(),
-    staleTime: 0,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    placeholderData: [],
+    refetchOnMount: false,
   });
 
   const campos = listResponse.items || [];
   const totalCampos = listResponse.total || 0;
-  const camposLoading = isLoading || (isFetching && campos.length === 0);
+  const camposLoading = isLoading && campos.length === 0;
 
   const handleFilteredCamposChange = useCallback((filtered) => {
     setTableFilteredCampos(filtered);

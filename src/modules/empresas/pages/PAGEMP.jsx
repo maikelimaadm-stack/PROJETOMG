@@ -105,7 +105,7 @@ export default function PAGEMP() {
 
   const empresas = empresasResponse.items || [];
   const totalEmpresas = empresasResponse.total || 0;
-  const empresasLoading = isLoading || (isFetching && empresas.length === 0);
+  const empresasLoading = isLoading && empresas.length === 0;
   const empresasFiltradasPainel = empresas;
 
   const handleFilteredEmpresasChange = useCallback((filtered) => {

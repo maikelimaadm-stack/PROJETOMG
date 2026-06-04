@@ -113,7 +113,14 @@ export default function TBLEMP({
     return EMP_PAGE_SIZE_OPTIONS.includes(saved) ? saved : 50;
   });
 
-  const { data: camposPersonalizados = [] } = useQuery({ queryKey: ["emp-campos-personalizados"], queryFn: () => empRepository.listCamposPersonalizados(), initialData: [] });
+  const { data: camposPersonalizados = [] } = useQuery({
+    queryKey: ["emp-campos-personalizados"],
+    queryFn: () => empRepository.listCamposPersonalizados(),
+    initialData: [],
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: false,
+  });
 
   const colunasDisponiveis = useMemo(() => {
     const dinamicas = camposPersonalizados.map(campoEngine.normalize).filter((c) => c.ativo !== false && c.visivel_tabela === true).map((c) => ({

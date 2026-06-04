@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import ReactDOM from "react-dom";
-import { X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/shared/ui/input";
+import { cn } from "@/shared/utils/utils";
 
 export default function EmpAutocomplete({
   items = [],
@@ -16,7 +17,8 @@ export default function EmpAutocomplete({
   inputClassName = "",
   disabled = false,
   readOnly = false,
-  uppercaseDisplay = true
+  uppercaseDisplay = true,
+  showSearchButton = false,
 }) {
   const [open, setOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -134,12 +136,62 @@ export default function EmpAutocomplete({
     return content ? ReactDOM.createPortal(content, portalContainerRef.current || document.body) : null;
   };
 
+  const openSearch = () => {
+    if (disabled || readOnly) return;
+    calcPosition();
+    setOpen(true);
+    inputRef.current?.focus();
+  };
+
   return (
-    <div ref={wrapperRef} className={`relative ${className || ""}`}>
-      <div className="relative">
-        <Input ref={inputRef} value={searchTerm} onChange={(e) => { setSearchTerm(e.target.value); if (!open) setOpen(true); calcPosition(); }} onFocus={() => { if (disabled || readOnly) return; calcPosition(); setOpen(true); }} onKeyDown={handleKeyDown} disabled={disabled} readOnly={readOnly} placeholder={placeholder} className={`pr-8 h-8 text-xs rounded-none ${uppercaseDisplay ? "uppercase" : ""} ${inputClassName}`} style={uppercaseDisplay ? { textTransform: "uppercase" } : undefined} />
-        {searchTerm && !disabled && !readOnly && <button type="button" onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleClear(); }} className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-slate-600"><X className="w-3.5 h-3.5" /></button>}
+    <div ref={wrapperRef} className={cn("emp-form-autocomplete-wrap", showSearchButton && "emp-form-autocomplete-wrap--with-btn", className)}>
+      <div className="relative min-w-0 flex-1">
+        <Input
+          ref={inputRef}
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            if (!open) setOpen(true);
+            calcPosition();
+          }}
+          onFocus={() => {
+            if (disabled || readOnly) return;
+            calcPosition();
+            setOpen(true);
+          }}
+          onKeyDown={handleKeyDown}
+          disabled={disabled}
+          readOnly={readOnly}
+          placeholder={placeholder}
+          className={`${showSearchButton ? "pr-2" : "pr-8"} h-full min-h-0 text-xs rounded-none border-0 ${uppercaseDisplay ? "uppercase" : ""} ${inputClassName}`}
+          style={uppercaseDisplay ? { textTransform: "uppercase" } : undefined}
+        />
+        {!showSearchButton && searchTerm && !disabled && !readOnly ? (
+          <button
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              handleClear();
+            }}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        ) : null}
       </div>
+      {showSearchButton ? (
+        <button
+          type="button"
+          className="emp-form-lookup-btn shrink-0"
+          tabIndex={-1}
+          disabled={disabled || readOnly}
+          onClick={openSearch}
+          aria-label="Pesquisar"
+        >
+          <Search className="h-3.5 w-3.5" />
+        </button>
+      ) : null}
       {renderDropdown()}
     </div>
   );

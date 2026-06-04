@@ -2,13 +2,12 @@ import React from "react";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
+import EmpFormDateControl from "@/framework/cadastro/formularios/EmpFormDateControl";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
-import ErpFloatingField from "@/shared/forms/ErpFloatingField";
 import { cn } from "@/shared/utils/utils";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
-
-const STACKED_TEXT_WIDTH = "w-full max-w-[480px]";
+import { resolveFieldWidthToken, shouldFieldSpanFullRow } from "@/framework/cadastro/layouts/empFormFieldSizing";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
@@ -16,91 +15,110 @@ const isBareControlField = (field) => field?.type === "checkbox" || field?.type 
 
 const isImageField = (field) => field?.type === "image" || field?.type === "file" || field?.type === "imagem";
 
-const isTextLikeField = (field) =>
-  field?.type === "textarea" ||
-  field?.wide ||
-  (!field?.compact && !field?.medium && !isBareControlField(field) && !isImageField(field));
-
-const shouldSpanFullRow = (field, gridMode = false) => {
-  if (!gridMode) return false;
-  return field?.type === "textarea" || field?.type === "option_list" || isImageField(field);
-};
-
-const getFieldControlClass = (field, error, className, layoutMode = "stacked") => {
-  const loteStyle = isCustomField(field);
-
-  if (isImageField(field)) {
-    return `emp-form-field-control ${loteStyle ? "emp-form-field-control-lote" : ""} emp-form-image-control relative h-[100px] min-h-[100px] w-[100px] max-w-[100px] shrink-0 ${error ? "emp-form-field-error" : ""} ${className}`.trim();
-  }
-
-  const heightClass = field.type === "textarea" ? "min-h-[var(--emp-form-textarea-min-height)]" : "min-h-[var(--emp-form-control-height)]";
-
-  let widthClass = "w-full";
-
-  if (layoutMode === "compact") {
-    widthClass = "w-full";
-  } else if (isTextLikeField(field)) {
-    widthClass = STACKED_TEXT_WIDTH;
-  } else if (field.medium) {
-    widthClass = "w-64 max-w-full";
-  } else if (field.compact) {
-    widthClass = "w-44 max-w-full";
-  }
-
-  return `emp-form-field-control ${loteStyle ? "emp-form-field-control-lote" : ""} relative ${heightClass} ${widthClass} ${error ? "emp-form-field-error" : ""} ${className}`.trim();
-};
+const isDateField = (field) =>
+  ["date", "datetime", "datetime-local"].includes(String(field?.type || "").toLowerCase());
 
 function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
   return (
-    <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">
-      <ToggleSwitch
-        checked={!!checked}
-        onChange={onChange}
-        disabled={disabled}
-        className="emp-form-toggle-switch"
-        checkedClassName="emp-form-toggle-switch-on"
-        variant={loteStyle ? "lote" : "default"}
-      />
-    </div>
+    <ToggleSwitch
+      checked={!!checked}
+      onChange={onChange}
+      disabled={disabled}
+      className="emp-form-toggle-switch"
+      checkedClassName="emp-form-toggle-switch-on"
+      variant={loteStyle ? "lote" : "default"}
+    />
   );
 }
 
 function DefaultControl({ field, value, onChange, readOnly }) {
   const loteStyle = isCustomField(field);
-  const inputClass = `emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white ${field.uppercase !== false ? "uppercase" : ""}`.trim();
+  const inputClass =
+    "emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white uppercase".trim();
 
   if (field.type === "textarea") {
-    return <Textarea value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} className="erp-float-input erp-float-textarea w-full uppercase" rows={field.rows || 2} />;
+    return (
+      <Textarea
+        value={value || ""}
+        onChange={(e) => onChange(field.name, e.target.value)}
+        readOnly={readOnly || field.readOnly}
+        className="emp-form-input w-full min-h-[var(--emp-form-textarea-min-height)] border-0 bg-white px-2 uppercase"
+        rows={field.rows || 2}
+      />
+    );
   }
 
   if (["select", "autocomplete", "relation"].includes(field.type)) {
-    return <EmpAutocomplete items={field.options || []} value={value || ""} onChange={(nextValue) => onChange(field.name, nextValue || "")} displayField={field.displayField || "nome"} searchFields={field.searchFields || [field.displayField || "nome"]} disabled={readOnly || field.readOnly} readOnly={readOnly || field.readOnly} className="w-full emp-autocomplete" inputClassName="erp-float-input border-0 shadow-none focus-visible:ring-0 bg-transparent uppercase" />;
+    return (
+      <EmpAutocomplete
+        items={field.options || []}
+        value={value || ""}
+        onChange={(nextValue) => onChange(field.name, nextValue || "")}
+        displayField={field.displayField || "nome"}
+        searchFields={field.searchFields || [field.displayField || "nome"]}
+        disabled={readOnly || field.readOnly}
+        readOnly={readOnly || field.readOnly}
+        className="w-full min-w-0 emp-autocomplete"
+        inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase"
+        showSearchButton
+      />
+    );
   }
 
-  if (field.type === "checkbox") {
+  if (field.type === "checkbox" || field.type === "switch") {
     return (
       <EmpFormToggle
         checked={!!value}
         onChange={(checked) => onChange(field.name, checked)}
         disabled={readOnly || field.readOnly}
-        loteStyle={isCustomField(field)}
+        loteStyle={loteStyle}
       />
     );
   }
 
-  return <Input type={field.type === "datetime" ? "datetime-local" : field.type || "text"} value={value || ""} onChange={(e) => onChange(field.name, e.target.value)} readOnly={readOnly || field.readOnly} className={cn("erp-float-input", inputClass)} />;
+  if (isDateField(field)) {
+    return (
+      <EmpFormDateControl
+        type={field.type === "datetime" ? "datetime-local" : field.type || "date"}
+        value={value || ""}
+        onChange={(e) => onChange(field.name, e.target.value)}
+        readOnly={readOnly || field.readOnly}
+        disabled={readOnly || field.readOnly}
+      />
+    );
+  }
+
+  return (
+    <Input
+      type={field.type === "number" ? "number" : "text"}
+      value={value || ""}
+      onChange={(e) => onChange(field.name, e.target.value)}
+      readOnly={readOnly || field.readOnly}
+      className={inputClass}
+    />
+  );
 }
 
-const normalizeConditionText = (value) => String(value ?? "").trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+const normalizeConditionText = (value) =>
+  String(value ?? "")
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+
 const getOptionValue = (option) => String(option?.id ?? option?.value ?? option?.label ?? option?.nome ?? "");
 const getOptionLabel = (option) => String(option?.nome ?? option?.label ?? option?.value ?? option?.id ?? "");
+
 const conditionMatches = (current, expected, sourceField) => {
   const expectedText = normalizeConditionText(expected);
   const currentValues = new Set([normalizeConditionText(current)]);
   (sourceField?.options || []).forEach((option) => {
     const optionValue = getOptionValue(option);
     const optionLabel = getOptionLabel(option);
-    if (normalizeConditionText(optionValue) === normalizeConditionText(current) || normalizeConditionText(optionLabel) === normalizeConditionText(current)) {
+    if (
+      normalizeConditionText(optionValue) === normalizeConditionText(current) ||
+      normalizeConditionText(optionLabel) === normalizeConditionText(current)
+    ) {
       currentValues.add(normalizeConditionText(optionValue));
       currentValues.add(normalizeConditionText(optionLabel));
     }
@@ -108,22 +126,30 @@ const conditionMatches = (current, expected, sourceField) => {
   return currentValues.has(expectedText);
 };
 
-function FieldFrameStacked({ field, error, children, className = "", value }) {
+/** Layout SGG: label externa à esquerda, largura do controle conforme o tipo. */
+function FieldFrameSgg({ field, error, children, spanFull = false, className = "" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
   const loteStyle = isCustomField(field);
+  const widthToken = resolveFieldWidthToken(field);
+  const fullRow = spanFull || shouldFieldSpanFullRow(field);
 
   if (imageField) {
     return (
       <div
         data-field={field.dataField || field.name}
-        className={cn("flex flex-col gap-1", error && "erp-field-invalid", className)}
+        className={cn("emp-form-field-inline emp-form-field--image", fullRow && "emp-form-field--full")}
       >
-        <span className="text-[12px] font-medium text-[#1a1f26]">
+        <label className="emp-form-field-label-inline">
           {field.label}
-          {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}
-        </span>
-        <div className={getFieldControlClass(field, error, className, "stacked")}>
+          {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}:
+        </label>
+        <div
+          className={cn(
+            "emp-form-field-control emp-form-image-control",
+            error && "erp-field-invalid"
+          )}
+        >
           {loteStyle && <EmpCustomMarker variant="lote" />}
           {children}
         </div>
@@ -135,58 +161,38 @@ function FieldFrameStacked({ field, error, children, className = "", value }) {
     return (
       <div
         data-field={field.dataField || field.name}
-        className={cn("erp-float-field-wrapper", error && "erp-field-invalid", className)}
+        className={cn("emp-form-field-inline emp-form-field--toggle", `emp-form-field--${widthToken}`)}
       >
-        <div className="erp-float-switch-row">
-          <span className="erp-float-switch-label">
-            {field.label}
-            {field.required ? <span className="erp-float-required"> *</span> : null}
-          </span>
+        <label className="emp-form-field-label-inline">
+          {field.label}
+          {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}:
+        </label>
+        <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">
           {children}
         </div>
       </div>
     );
   }
 
-  const filled =
-    value !== null && value !== undefined && (typeof value === "boolean" ? value : String(value).trim() !== "");
-
   return (
     <div
       data-field={field.dataField || field.name}
-      className={cn("erp-float-field-wrapper", error && "erp-field-invalid", className)}
-    >
-      <ErpFloatingField label={field.label} required={field.required} filled={filled}>
-        <div className="relative flex min-h-[var(--emp-form-control-height)] w-full items-center">
-          {loteStyle && <EmpCustomMarker variant="lote" />}
-          {children}
-        </div>
-      </ErpFloatingField>
-    </div>
-  );
-}
-
-function FieldFrameGrid({ field, error, children, className = "", spanFull = false }) {
-  const bare = isBareControlField(field);
-  const imageField = isImageField(field);
-  const loteStyle = isCustomField(field);
-
-  return (
-    <div
-      data-field={field.dataField || field.name}
-      className={`emp-form-field-column ${spanFull ? "emp-form-field-span-full" : ""} ${imageField ? "emp-form-field-column-image items-start" : ""} emp-form-field-column-compact`}
-    >
-      <label className="emp-form-field-label-top text-[12px] leading-none text-[#1a1f26]">
-        {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
-      </label>
-      {bare ? (
-        <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">{children}</div>
-      ) : (
-        <div className={getFieldControlClass(field, error, className, "compact")}>
-          {loteStyle && <EmpCustomMarker variant="lote" />}
-          {children}
-        </div>
+        className={cn(
+        "emp-form-field-inline",
+        `emp-form-field--${widthToken}`,
+        fullRow && "emp-form-field--full",
+        field.type === "textarea" && "emp-form-field--textarea-row",
+        className
       )}
+    >
+      <label className="emp-form-field-label-inline">
+        {field.label}
+        {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}:
+      </label>
+      <div className={cn("emp-form-field-control", error && "erp-field-invalid")}>
+        {loteStyle && <EmpCustomMarker variant="lote" />}
+        {children}
+      </div>
     </div>
   );
 }
@@ -211,9 +217,7 @@ export default function EmpDynamicFormRenderer({
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const activeFieldIds = layout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
-  const layoutMode = ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode) ? "compact" : "stacked";
-  const useCompactMode = layoutMode === "compact";
-  const columnCount = normalizedFieldLayout.columns;
+  const useCompactMode = ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode);
 
   const visibleFields = activeFieldIds
     .map((fieldId) => fields.find((field) => field.id === fieldId))
@@ -224,7 +228,9 @@ export default function EmpDynamicFormRenderer({
       if (rule?.always) return true;
       if (rule?.sourceFieldName) {
         const sourceField = fields.find((item) => item.id === rule.sourceFieldId);
-        if (sourceField?.type !== "select" || !["manual", "native"].includes(sourceField?.optionsMode)) return true;
+        if (sourceField?.type !== "select" || !["manual", "native"].includes(sourceField?.optionsMode)) {
+          return true;
+        }
         const current = values[rule.sourceFieldName] ?? values.campos_personalizados?.[rule.sourceFieldName];
         return conditionMatches(current, rule.value, sourceField);
       }
@@ -240,39 +246,34 @@ export default function EmpDynamicFormRenderer({
     const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
     const control = field.render
       ? field.render({ field: configuredField, value, values, errors, onChange, readOnly: fieldReadOnly, context })
-      : <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />;
-
-    if (useCompactMode) {
-      return (
-        <FieldFrameGrid
-          key={field.id}
-          field={configuredField}
-          error={error}
-          className={fieldClassName}
-          spanFull={shouldSpanFullRow(configuredField, true)}
-        >
-          {control}
-        </FieldFrameGrid>
+      : (
+        <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />
       );
-    }
 
     return (
-      <FieldFrameStacked key={field.id} field={configuredField} error={error} className={fieldClassName} value={value}>
+      <FieldFrameSgg
+        key={field.id}
+        field={configuredField}
+        error={error}
+        spanFull={useCompactMode && shouldFieldSpanFullRow(configuredField)}
+        className={fieldClassName}
+      >
         {control}
-      </FieldFrameStacked>
+      </FieldFrameSgg>
     );
   };
 
-  if (visibleFields.length === 0) {
-    return null;
-  }
+  if (visibleFields.length === 0) return null;
 
   const hasCustomFields = visibleFields.some(isCustomField);
 
   return (
     <div
-      className={`emp-form-fields ${useCompactMode ? "emp-form-fields-compact" : ""} ${hasCustomFields ? "emp-form-fields-custom" : ""}`}
-      style={useCompactMode ? { "--emp-form-field-columns": columnCount } : undefined}
+      className={cn(
+        "emp-form-fields emp-form-fields-sgg",
+        useCompactMode && "emp-form-fields-compact",
+        hasCustomFields && "emp-form-fields-custom"
+      )}
     >
       {visibleFields.map(renderField)}
     </div>
