@@ -48,6 +48,7 @@ import {
   normalizeCardRows,
   packFieldIdsIntoRows,
   removeFieldFromRows,
+  reorderFieldWithinRows,
   createRowId,
 } from "@/framework/cadastro/layouts/empFormLayoutRows";
 
@@ -83,7 +84,6 @@ export default function EmpLayoutConfiguratorDialog({
   panels = [],
   fields = [],
   layout = {},
-  layoutV3 = {},
   fieldSizes = {},
   fieldLayoutConfig = DEFAULT_FIELD_LAYOUT_CONFIG,
   previewValues = {},
@@ -102,9 +102,8 @@ export default function EmpLayoutConfiguratorDialog({
   fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS,
 }) {
   const [draftPanels, setDraftPanels] = useState(panels);
-  const [draftLayout, setDraftLayout] = useState(layout);
   const [draftCardsByPanel, setDraftCardsByPanel] = useState(() =>
-    initCardsByPanel({ panels, layout, layoutV3, defaultLayout: defaultConfig?.layout })
+    initCardsByPanel({ panels, layout, defaultLayout: defaultConfig?.layout })
   );
   const [draftFieldSizes, setDraftFieldSizes] = useState(fieldSizes);
   const [activeCardId, setActiveCardId] = useState("");
@@ -143,11 +142,9 @@ export default function EmpLayoutConfiguratorDialog({
     const cards = initCardsByPanel({
       panels,
       layout,
-      layoutV3,
       defaultLayout: defaultConfig?.layout,
     });
     setDraftPanels(panels);
-    setDraftLayout(layout);
     setDraftCardsByPanel(cards);
     setDraftFieldSizes(fieldSizes || {});
     const firstPanelId = panels[0]?.id || "";
@@ -171,7 +168,7 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldSettingsTarget(null);
     setFieldSettingsAnchor(null);
     wasOpenRef.current = true;
-  }, [open, panels, layout, layoutV3, fieldSizes, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules, defaultConfig]);
+  }, [open, panels, layout, fieldSizes, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules, defaultConfig]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
@@ -180,9 +177,9 @@ export default function EmpLayoutConfiguratorDialog({
     ? normalizeCardRows(activeCard, draftFieldSizes, fields)
     : null;
   const activeCardRows = activeCardNormalized?.rows || [];
-  const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
-  const panelFieldIds =
-    flattenRowsToFieldIds(activeCardNormalized || {}) || draftLayout[activePanel?.id] || [];
+  const draftLayoutFlat = useMemo(() => flattenLayoutFromCards(draftCardsByPanel), [draftCardsByPanel]);
+  const usedFieldIds = useMemo(() => new Set(Object.values(draftLayoutFlat).flat()), [draftLayoutFlat]);
+  const panelFieldIds = flattenRowsToFieldIds(activeCardNormalized || {});
 
   React.useEffect(() => {
     if (!activePanel) return;
@@ -195,7 +192,6 @@ export default function EmpLayoutConfiguratorDialog({
 
   const applyCardsState = (nextCardsByPanel) => {
     setDraftCardsByPanel(nextCardsByPanel);
-    setDraftLayout(flattenLayoutFromCards(nextCardsByPanel));
   };
 
   const updateActiveCardRows = (rows) => {
@@ -226,7 +222,7 @@ export default function EmpLayoutConfiguratorDialog({
       id: createRowId(activeCard?.id || "card", index + 1),
       order: index + 1,
       fieldIds: row.fieldIds,
-      fullWidth: row.fullWidth,
+      fieldBalance: row.fieldBalance,
     }));
     updateActiveCardRows(packed.length ? packed : [createEmptyLayoutRow(activeCard?.id || "card")]);
   };
@@ -283,7 +279,7 @@ export default function EmpLayoutConfiguratorDialog({
   const usedFieldsInLayout = useMemo(() => {
     const items = [];
     draftPanels.forEach((panel) => {
-      (draftLayout[panel.id] || []).forEach((fieldId) => {
+      (draftLayoutFlat[panel.id] || []).forEach((fieldId) => {
         const field = fields.find((item) => item.id === fieldId);
         if (!field) return;
         items.push({
@@ -294,7 +290,7 @@ export default function EmpLayoutConfiguratorDialog({
       });
     });
     return items;
-  }, [draftPanels, draftLayout, fields]);
+  }, [draftPanels, draftLayoutFlat, fields]);
 
   const filteredUsedFields = useMemo(
     () =>
@@ -311,8 +307,7 @@ export default function EmpLayoutConfiguratorDialog({
 
   const buildCurrentConfig = () => ({
     panels: draftPanels,
-    layout: draftLayout,
-    layoutV3: buildLayoutV3FromCards(draftCardsByPanel),
+    layout: buildLayoutV3FromCards(draftCardsByPanel),
     fieldSizes: draftFieldSizes,
     hiddenFieldIds: draftHiddenFieldIds,
     lockedFieldIds: draftLockedFieldIds,
@@ -377,7 +372,7 @@ export default function EmpLayoutConfiguratorDialog({
       id: createRowId(activeCard.id, index + 1),
       order: index + 1,
       fieldIds: row.fieldIds,
-      fullWidth: row.fullWidth,
+      fieldBalance: row.fieldBalance,
     }));
     const cards = (stripped[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id
@@ -453,13 +448,14 @@ export default function EmpLayoutConfiguratorDialog({
   };
   const reorderField = (targetFieldId) => {
     if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel || !activeCard) return;
-    const list = [...panelFieldIds];
-    const from = list.indexOf(draggedFieldId);
-    const to = list.indexOf(targetFieldId);
-    if (from < 0 || to < 0) return;
-    list.splice(from, 1);
-    list.splice(to, 0, draggedFieldId);
-    updateActiveCardFieldIds(list);
+    const rows = reorderFieldWithinRows(activeCardRows, draggedFieldId, targetFieldId);
+    updateActiveCardRows(
+      rows.map((row, index) => ({
+        ...row,
+        id: row.id || createRowId(activeCard.id, index + 1),
+        order: index + 1,
+      }))
+    );
   };
 
   const createCard = () => {
@@ -574,8 +570,7 @@ export default function EmpLayoutConfiguratorDialog({
   const handleSave = () => {
     onSave?.({
       panels: draftPanels,
-      layout: draftLayout,
-      layoutV3: buildLayoutV3FromCards(draftCardsByPanel),
+      layout: buildLayoutV3FromCards(draftCardsByPanel),
       fieldSizes: draftFieldSizes,
       hiddenFieldIds: draftHiddenFieldIds,
       lockedFieldIds: draftLockedFieldIds,
@@ -598,7 +593,6 @@ export default function EmpLayoutConfiguratorDialog({
       defaultLayout: defaultConfig.layout,
     });
     setDraftPanels(defaultConfig.panels || []);
-    setDraftLayout(defaultConfig.layout || {});
     setDraftCardsByPanel(cards);
     setDraftFieldSizes(defaultConfig.fieldSizes || {});
     setActiveCardId(cards[defaultConfig.panels?.[0]?.id]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
@@ -612,9 +606,8 @@ export default function EmpLayoutConfiguratorDialog({
     setActivePanelId(defaultConfig.panels?.[0]?.id || "");
   };
   const discardChanges = () => {
-    const cards = initCardsByPanel({ panels, layout, layoutV3, defaultLayout: defaultConfig?.layout });
+    const cards = initCardsByPanel({ panels, layout, defaultLayout: defaultConfig?.layout });
     setDraftPanels(panels);
-    setDraftLayout(layout);
     setDraftCardsByPanel(cards);
     setDraftFieldSizes(fieldSizes || {});
     setActiveCardId(cards[panels[0]?.id]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
@@ -1149,8 +1142,8 @@ export default function EmpLayoutConfiguratorDialog({
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
                 <p className="mb-2 text-[10px] text-[#64748b]">
-                  Card → Linha → Campo (linhas geradas por largura padrão). Arraste para reordenar; solte na aba
-                  do card para mover. Textarea sempre na última linha, largura total.
+                  Card → Linha → Campo. Arraste para reordenar ou mover entre cards; quebra de linha automática
+                  apenas ao atingir 6 campos (card inteiro) ou 4 (meio card).
                 </p>
                 <div className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2">
                   {activeCardRows.length === 0 ? (
@@ -1163,14 +1156,10 @@ export default function EmpLayoutConfiguratorDialog({
                       return (
                         <div
                           key={layoutRow.id}
-                          className={cn(
-                            "emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2",
-                            layoutRow.fullWidth && "emp-layout-config-row--full"
-                          )}
+                          className="emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2"
                         >
                           <div className="mb-2 text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
                             Linha {layoutRow.order}
-                            {layoutRow.fullWidth ? " · largura total" : ""}
                           </div>
                           <div
                             className="emp-layout-config-panel-fields flex min-h-[40px] flex-wrap content-start gap-2"
@@ -1205,7 +1194,7 @@ export default function EmpLayoutConfiguratorDialog({
                       onClick={() => setFieldWidthType(selectedPanelFieldIds[0], "")}
                       className="h-6 rounded px-2 text-[10px] font-semibold bg-[#f1f5f9] text-[#64748b]"
                     >
-                      Automático
+                      Padrão do tipo
                     </button>
                   </div>
                 )}

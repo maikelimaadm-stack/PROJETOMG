@@ -28,7 +28,7 @@ export function getCachedCardRows(card, fieldSizes = {}, fields = [], containerW
     return cardRowsCache.get(cacheKey);
   }
 
-  const rows = getCardRowsForRender(card, fieldSizes, fields, widthKey);
+  const rows = getCardRowsForRender(card, fieldSizes, fields, widthKey || undefined);
 
   if (cardRowsCache.size >= MAX_CACHE_ENTRIES) {
     const first = cardRowsCache.keys().next().value;

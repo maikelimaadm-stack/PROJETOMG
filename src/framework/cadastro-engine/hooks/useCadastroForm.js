@@ -4,7 +4,7 @@ import { CadastroEngine } from "../core/CadastroEngine.js";
 import { registerCadastroModule } from "../core/ModuleRegistry.js";
 import { LAYOUT_MAIN_TAB_ID } from "../preferences/layoutMigration.js";
 import { ensureBuiltinFieldTypes } from "../field/registerBuiltinFieldTypes.js";
-import { pickLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
+import { getPanelFieldIdsFromLayout, pickLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
 
 ensureBuiltinFieldTypes();
 
@@ -119,10 +119,8 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
     return panels.filter((panel) => {
       if (panel.hidden) return false;
       if (panel.id === "principal") return false;
-      const panelFields = activeLayoutConfig.layout?.[panel.id];
-      const hasLayoutFields = Array.isArray(panelFields)
-        ? panelFields.length > 0
-        : false;
+      const panelFields = getPanelFieldIdsFromLayout(activeLayoutConfig.layout, panel.id);
+      const hasLayoutFields = panelFields.length > 0;
       const fallbackFields = defaultLayout?.[panel.id] || [];
       const hasFallbackFields = Array.isArray(fallbackFields) && fallbackFields.length > 0;
       if (

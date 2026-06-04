@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
-import { buildLayoutV3FromCards, flattenLayoutFromCards } from "@/framework/cadastro/layouts/empFormLayoutCards";
+import { buildLayoutV3FromCards } from "@/framework/cadastro/layouts/empFormLayoutCards";
 
 /**
  * Preview em tempo real do layout (sem salvar).
@@ -18,8 +18,7 @@ export default function EmpLayoutConfiguratorPreview({
   activePanelId,
   values = {},
 }) {
-  const layoutV3 = useMemo(() => buildLayoutV3FromCards(cardsByPanel), [cardsByPanel]);
-  const layout = useMemo(() => flattenLayoutFromCards(cardsByPanel), [cardsByPanel]);
+  const layout = useMemo(() => buildLayoutV3FromCards(cardsByPanel), [cardsByPanel]);
   const previewPanels = panels.filter((panel) => !panel.hidden);
 
   return (
@@ -29,7 +28,6 @@ export default function EmpLayoutConfiguratorPreview({
         panels={previewPanels}
         fields={fields}
         layout={layout}
-        layoutV3={layoutV3}
         hiddenFieldIds={hiddenFieldIds}
         lockedFieldIds={lockedFieldIds}
         requiredFieldIds={requiredFieldIds}

@@ -241,12 +241,20 @@ export const sanitizeLayoutV3 = (layoutV3 = {}) => {
     const normalizedPanel = normalizePanelLayoutV3(panelLayout, { panelId });
     const cards = normalizedPanel.cards.map((card, index) => {
       const uniqueFieldIds = [];
-      flattenRowsToFieldIds(card).forEach((fieldId) => {
+      const sourceIds =
+        Array.isArray(card.fieldIds) && card.fieldIds.length
+          ? card.fieldIds
+          : flattenRowsToFieldIds(card);
+      sourceIds.forEach((fieldId) => {
         if (!fieldId || globalSeen.has(fieldId)) return;
         globalSeen.add(fieldId);
         uniqueFieldIds.push(fieldId);
       });
-      const normalized = normalizeLayoutCardV3({ ...card, fieldIds: uniqueFieldIds, rows: [] });
+      const normalized = normalizeLayoutCardV3({
+        ...card,
+        fieldIds: uniqueFieldIds,
+        rows: [],
+      });
       return { ...normalized, order: index + 1 };
     });
     next[panelId] = { cards };
@@ -358,9 +366,9 @@ export const resolveLayoutConfig = (config, { defaultLayout = {}, defaults = nul
     ...working,
     version: LAYOUT_CONFIG_VERSION_V3,
     layout: layoutV3,
-    layoutV3,
-    layoutFlat,
   };
+  delete resolved.layoutV3;
+  delete resolved.layoutFlat;
 
   return { config: resolved, layoutV3, layoutFlat, migrated };
 };
@@ -372,17 +380,18 @@ export const resolveLayoutConfig = (config, { defaultLayout = {}, defaults = nul
  */
 export const syncLayoutV3FromFlat = (config, flatLayout) => {
   const existingV3 =
-    config?.layoutV3 ||
-    (isLayoutStructureV3(config?.layout) ? config.layout : {}) ||
+    (isLayoutStructureV3(config?.layout) ? config.layout : null) ||
+    (isLayoutStructureV3(config?.layoutV3) ? config.layoutV3 : {}) ||
     {};
   const layoutV3 = sanitizeLayoutV3(rebuildV3LayoutFromFlat(flatLayout, existingV3));
-  return {
+  const next = {
     ...config,
     version: LAYOUT_CONFIG_VERSION_V3,
     layout: layoutV3,
-    layoutV3,
-    layoutFlat: flattenV3LayoutToV2(layoutV3),
   };
+  delete next.layoutV3;
+  delete next.layoutFlat;
+  return next;
 };
 
 /**
@@ -393,4 +402,58 @@ export const syncLayoutV3FromFlat = (config, flatLayout) => {
 export const getFlatLayoutFromConfig = (config, options = {}) => {
   const { layoutFlat } = resolveLayoutConfig(config, options);
   return layoutFlat;
+};
+
+/**
+ * Converte qualquer entrada de layout (V2 flat, V3 ou legado layoutV3) para V3 sanitizado.
+ * @param {unknown} layout
+ * @param {{ defaultFlatLayout?: Record<string, string[]>, existingV3?: Record<string, PanelLayoutV3> }} [options]
+ * @returns {Record<string, PanelLayoutV3>}
+ */
+export const coerceLayoutToV3 = (layout, { defaultFlatLayout = {}, existingV3 } = {}) => {
+  const existing = isLayoutStructureV3(existingV3)
+    ? existingV3
+    : isLayoutStructureV3(layout)
+      ? layout
+      : {};
+
+  if (isLayoutStructureV3(layout)) {
+    return sanitizeLayoutV3(layout);
+  }
+
+  if (isLayoutStructureV2(layout)) {
+    return sanitizeLayoutV3(rebuildV3LayoutFromFlat(layout, existing));
+  }
+
+  if (layout && typeof layout === "object" && Object.keys(layout).length > 0) {
+    const hasV3Panel = Object.values(layout).some((panelLayout) => isPanelLayoutV3(panelLayout));
+    if (hasV3Panel) {
+      return sanitizeLayoutV3(
+        Object.fromEntries(
+          Object.entries(layout).map(([panelId, panelLayout]) => [
+            panelId,
+            isPanelLayoutV3(panelLayout)
+              ? panelLayout
+              : normalizePanelLayoutV3(panelLayout, { panelId }),
+          ])
+        )
+      );
+    }
+  }
+
+  if (Object.keys(defaultFlatLayout).length > 0) {
+    return sanitizeLayoutV3(rebuildV3LayoutFromFlat(defaultFlatLayout, existing));
+  }
+
+  return sanitizeLayoutV3(existing);
+};
+
+/**
+ * IDs de campos de um painel (derivado do layout V3 — não persiste flat).
+ * @param {Record<string, PanelLayoutV3>|Record<string, string[]>} layout
+ * @param {string} panelId
+ */
+export const getPanelFieldIdsFromLayout = (layout, panelId) => {
+  const v3 = isLayoutStructureV3(layout) ? layout : coerceLayoutToV3(layout);
+  return flattenV3LayoutToV2(v3)[panelId] || [];
 };

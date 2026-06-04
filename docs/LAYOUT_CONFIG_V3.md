@@ -12,10 +12,10 @@ Aba (Painel)
 ## Schema (`version: 3`)
 
 - `layout[panelId].cards[]`: `{ id, label, order, collapsible, columns, colSpan, rows[], fieldIds[] }`
-- `rows[]`: `{ id, order, fieldIds[], fullWidth? }` — geradas por empacotamento (min/ideal/max px + limite por card)
+- `rows[]`: `{ id, order, fieldIds[], fieldBalance? }` — ordem do usuário; quebra automática só ao atingir 6 (card inteiro) ou 4 (meio card)
 - Larguras por **tipo de campo** (`empFormFieldWidthPresets.js`): min-width + flex-grow (sem XS/SM/MD)
 - Card colSpan **12** → até **6** campos/linha; **6** → até **3**; menor → **2**
-- Textarea: sempre **última linha**, `fullWidth: true`, não mistura com outros campos
+- Textarea: mesma regra dos demais (`TEXTAREA`, min-width 320px, flex-grow na linha)
 - `fieldSizes[fieldId]`: `XS | SM | MD | LG | XL` (grid de 12 colunas)
 - `fieldLayoutConfig`: `{ mode: "corporate", columns: 12 }`
 

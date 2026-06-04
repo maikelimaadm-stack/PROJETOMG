@@ -1,6 +1,6 @@
 /**
- * Testes LayoutConfigV3 + motor de balanceamento corporativo
- * Executar: node scripts/test-layout-config-v3.mjs
+ * Testes LayoutConfigV3 + motor corporativo V3 (sem decisões automáticas de layout)
+ * Executar: npm run test:layout-v3
  */
 import assert from "node:assert/strict";
 import {
@@ -17,6 +17,7 @@ import {
   flattenRowsToFieldIds,
   packFieldIdsIntoRows,
   normalizeCardRows,
+  reorderFieldWithinRows,
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
   getMaxFieldsPerRow,
@@ -26,13 +27,12 @@ import {
 } from "../src/framework/cadastro/layouts/empFormFieldWidthPresets.js";
 import {
   buildBalancedRows,
-  fixOrphanCompactRows,
+  packFieldsByMaxCount,
   computeRowFieldBalance,
   getRowBudgetPx,
-  rowContentWidthPx,
+  fixOrphanCompactRows,
 } from "../src/framework/cadastro/layouts/empFormRowBalance.js";
 import {
-  isCompactLayoutField,
   isExpansiveLayoutField,
   isInlineMediaField,
 } from "../src/framework/cadastro/layouts/empFormFieldLayoutGroups.js";
@@ -91,37 +91,44 @@ assert.deepEqual(principalCard.fieldIds, legacyV2.layout.principal);
 
 const emptyResolved = resolveLayoutConfig(null, { defaultLayout: EMP_DEFAULT.layout, defaults: EMP_DEFAULT });
 assert.equal(emptyResolved.config.version, 3);
-assert.ok(emptyResolved.layoutFlat.principal.length > 0, "fallback deve preencher painel principal");
+assert.ok(
+  emptyResolved.layoutV3?.principal?.cards?.length > 0 ||
+    emptyResolved.config?.layout?.principal?.cards?.length > 0,
+  "fallback deve preencher painel principal"
+);
 assert.equal(emptyResolved.migrated, true);
 
 const normalized = normalizeLayoutConfig(legacyV2, {
   basePanels: EMP_DEFAULT.panels,
   defaultLayout: EMP_DEFAULT.layout,
 });
-assert.ok(Array.isArray(normalized.layout.principal), "consumidor V2: layout.principal é array");
-assert.deepEqual(normalized.layout.principal, legacyV2.layout.principal);
-assert.ok(normalized.layoutV3?.principal?.cards?.length > 0, "layoutV3 disponível");
+assert.ok(normalized.layout.principal?.cards?.length > 0, "layout canônico V3 em layout.principal");
 assert.equal(normalized.version, 3);
+assert.equal(normalized.layoutV3, undefined, "sem alias layoutV3 em runtime");
 assert.equal(normalized.fieldLayoutConfig.mode, "corporate");
+const principalIds = normalized.layout.principal.cards.flatMap((c) => c.fieldIds || []);
+assert.ok(principalIds.includes("tipo_pessoa"), "campos migrados para cards V3");
 
 const sanitized = sanitizeLayoutFieldPlacements(normalized.layout);
 assert.equal(countLayoutFields(sanitized), totalV2);
 
 const repaired = ensureLayoutFields({ panels: EMP_DEFAULT.panels, layout: { principal: [] } }, EMP_DEFAULT);
-assert.ok(repaired.layout.principal.includes("razao_social") || repaired.layout.principal.includes("tipo_pessoa"));
+const repairedPrincipalIds = flattenV3LayoutToV2(repaired.layout).principal || [];
+assert.ok(
+  repairedPrincipalIds.includes("razao_social") || repairedPrincipalIds.includes("tipo_pessoa")
+);
 
 const merged = mergeSavedFormLayout(
   { panels: EMP_DEFAULT.panels, layout: { principal: ["razao_social"] } },
   EMP_DEFAULT
 );
-assert.ok(Array.isArray(merged.layout.principal));
-assert.ok(merged.layoutV3);
+assert.ok(merged.layout?.principal?.cards?.length > 0, "mergeSavedFormLayout retorna V3");
 
 const picked = pickLayoutConfig(normalized);
 assert.equal(picked.version, 3);
 assert.ok(picked.layout.principal.cards, "persistência: layout em V3 (cards)");
-const persistedFlat = flattenV3LayoutToV2(picked.layout);
-assert.equal(countLayoutFields(persistedFlat), totalV2);
+assert.equal(picked.layoutV3, undefined, "pickLayoutConfig não persiste layoutV3 duplicado");
+assert.equal(countLayoutFields(picked.layout), totalV2);
 
 const dupConfig = migrateV2ToV3({
   panels: EMP_DEFAULT.panels,
@@ -144,59 +151,49 @@ const cardWithRows = normalizeLayoutCardV3({
 assert.ok(cardWithRows.rows.length >= 1);
 assert.deepEqual(flattenRowsToFieldIds(cardWithRows), ["a", "b", "c"]);
 
-const packed = normalizeCardRows(
-  {
-    id: "c1",
-    colSpan: 12,
-    fieldIds: ["a", "b", "c", "d", "e", "f", "g"],
-  },
-  {},
-  [
-    { id: "a", type: "text" },
-    { id: "b", type: "text" },
-    { id: "c", type: "text" },
-    { id: "d", type: "text" },
-    { id: "e", type: "text" },
-    { id: "f", type: "text" },
-    { id: "g", type: "text" },
-  ]
-);
-assert.ok(packed.rows.length >= 2, "quebra linha após 6 campos no card inteiro");
-assert.equal(flattenRowsToFieldIds(packed).length, 7, "preserva todos os campos");
-
+// --- Limites por card
 assert.equal(getMaxFieldsPerRow(12), 6);
 assert.equal(getMaxFieldsPerRow(6), 4);
-assert.equal(getMaxFieldsPerRow(4), 2);
 
-// --- Larguras mínimas por tipo
+const textFields = Array.from({ length: 7 }, (_, i) => ({ id: `f${i + 1}`, type: "text" }));
+
+const fullCardPacked = normalizeCardRows(
+  { id: "c1", colSpan: 12, fieldIds: textFields.map((f) => f.id) },
+  {},
+  textFields
+);
+assert.equal(fullCardPacked.rows[0].fieldIds.length, 6, "card inteiro: máx. 6 na primeira linha");
+assert.equal(fullCardPacked.rows[1].fieldIds.length, 1, "sétimo campo na segunda linha");
+assert.equal(flattenRowsToFieldIds(fullCardPacked).length, 7);
+
+const halfCardPacked = normalizeCardRows(
+  { id: "c2", colSpan: 6, fieldIds: ["a", "b", "c", "d", "e"] },
+  {},
+  ["a", "b", "c", "d", "e"].map((id) => ({ id, type: "text" }))
+);
+assert.equal(halfCardPacked.rows[0].fieldIds.length, 4, "card meio: máx. 4 na primeira linha");
+assert.equal(halfCardPacked.rows[1].fieldIds.length, 1);
+
+// --- Larguras mínimas por categoria técnica
 assert.equal(resolveFieldWidthTypePreset({ type: "number" }).min, 120);
 assert.equal(resolveFieldWidthTypePreset({ type: "date" }).min, 140);
-assert.equal(resolveFieldWidthTypePreset({ type: "text", widthType: "EMAIL" }).min, 240);
-assert.equal(resolveFieldWidthTypePreset({ type: "text", widthType: "PHONE" }).min, 160);
-assert.equal(resolveFieldWidthTypePreset({ type: "text", medium: true }).min, 260);
+assert.equal(resolveFieldWidthTypePreset({ type: "datetime" }).min, 180);
+assert.equal(resolveFieldWidthTypePreset({ type: "email" }).min, 260);
+assert.equal(resolveFieldWidthTypePreset({ type: "textarea" }).min, 320);
+assert.equal(resolveFieldWidthTypePreset({ type: "image" }).min, 180);
+assert.equal(resolveFieldWidthTypePreset({ type: "file" }).min, 220);
+assert.equal(resolveFieldWidthTypePreset({ type: "autocomplete" }).min, 260);
 
-// --- XS legado → tipo de largura
 assert.deepEqual(normalizeFieldWidthTypes({ f1: "XS", f2: "MD" }), {
-  f1: "SHORT_TEXT",
-  f2: "MEDIUM_TEXT",
+  f1: "TEXTO_CURTO",
+  f2: "TEXTO_MEDIO",
 });
 
-// --- Grupos
-assert.equal(isExpansiveLayoutField({ type: "textarea" }), true);
-assert.equal(isCompactLayoutField({ type: "number" }), true);
-assert.equal(isCompactLayoutField({ type: "image" }), true);
-assert.equal(isInlineMediaField({ type: "image" }), true);
-assert.equal(isExpansiveLayoutField({ type: "image", layoutExpand: true }), true);
-assert.equal(inferFieldWidthType({ type: "image", layoutExpand: true }), "IMAGE_EXPAND");
-
-const manualPack = packFieldIdsIntoRows(
-  ["f1", "f2", "f3", "f4", "f5", "f6", "f7"],
-  {
-    fields: Array.from({ length: 7 }, (_, i) => ({ id: `f${i + 1}`, type: "text" })),
-    card: { colSpan: 12 },
-  }
-);
-assert.ok(manualPack.length >= 2, "máx. 6 compactos por linha no card inteiro");
+// --- Sem classificação expansiva / linha exclusiva automática
+assert.equal(isExpansiveLayoutField({ type: "textarea" }), false);
+assert.equal(isExpansiveLayoutField({ type: "text", wide: true }), false);
+assert.equal(inferFieldWidthType({ type: "text", wide: true }), "TEXTO_CURTO");
+assert.equal(inferFieldWidthType({ type: "image", layoutExpand: true }), "IMAGEM");
 
 const withTextarea = packFieldIdsIntoRows(["a", "b", "obs"], {
   fields: [
@@ -206,34 +203,32 @@ const withTextarea = packFieldIdsIntoRows(["a", "b", "obs"], {
   ],
   card: { colSpan: 12 },
 });
-assert.equal(withTextarea[withTextarea.length - 1].fieldIds[0], "obs");
-assert.equal(withTextarea[withTextarea.length - 1].fullWidth, true);
+assert.equal(withTextarea.length, 1, "textarea na mesma linha quando cabe na ordem");
+assert.deepEqual(withTextarea[0].fieldIds, ["a", "b", "obs"]);
+assert.equal(withTextarea[0].fullWidth, false);
 
-const orphanFixed = fixOrphanCompactRows(
-  [["a", "b", "c", "d", "e"], ["f"]],
-  Array.from({ length: 6 }, (_, i) => ({ id: String.fromCharCode(97 + i), type: "text" })),
-  {},
-  { colSpan: 12 }
-);
-assert.ok(
-  orphanFixed.every((row) => row.length !== 1),
-  "compacto não permanece sozinho"
-);
+const orphanUnchanged = fixOrphanCompactRows([["f"]]);
+assert.deepEqual(orphanUnchanged, [["f"]], "campo sozinho permanece sozinho");
 
-const lineFillAlone = buildBalancedRows(["obs"], {
+const aloneField = buildBalancedRows(["obs"], {
   fields: [{ id: "obs", type: "textarea" }],
   card: { colSpan: 12 },
 });
-assert.equal(lineFillAlone.length, 1);
-assert.equal(lineFillAlone[0].fullWidth, true);
+assert.equal(aloneField.length, 1);
+assert.equal(aloneField[0].fullWidth, false);
+assert.equal(aloneField[0].fieldIds[0], "obs");
 
-const imageCompactRow = buildBalancedRows(["logo"], {
-  fields: [{ id: "logo", type: "image" }],
+const imageInRow = buildBalancedRows(["logo", "nome"], {
+  fields: [
+    { id: "logo", type: "image" },
+    { id: "nome", type: "text" },
+  ],
   card: { colSpan: 12 },
 });
-assert.equal(imageCompactRow[0].fullWidth, false, "imagem padrão não vira linha exclusiva");
+assert.equal(imageInRow[0].fieldIds.length, 2);
+assert.equal(isInlineMediaField({ type: "image" }), true);
 
-// --- Redistribuição igual (6 × 140px)
+// --- Redistribuição proporcional preenche a linha
 const fullCardWidthPx = 920;
 const sixFields = ["a", "b", "c", "d", "e", "f"].map((id) => ({ id, type: "text" }));
 const equalBalance = computeRowFieldBalance(
@@ -246,41 +241,81 @@ const equalBalance = computeRowFieldBalance(
 const budget = getRowBudgetPx(12, fullCardWidthPx) - 5 * 8;
 const widths = Object.values(equalBalance).map((b) => b.targetWidthPx);
 const sumWidths = widths.reduce((s, w) => s + w, 0);
-assert.ok(Math.abs(sumWidths - budget) <= 12, "6 campos iguais preenchem a linha");
+assert.ok(Math.abs(sumWidths - budget) <= 12, "6 campos preenchem a linha sem sobra");
 widths.forEach((w) => assert.ok(Math.abs(w - widths[0]) <= 2, "distribuição igual entre iguais"));
 
-// --- Redistribuição proporcional (260+220+140 → preenche linha)
+Object.values(equalBalance).forEach((entry) => {
+  assert.equal(entry.flexGrow, 1);
+  assert.equal(entry.maxWidth, "none");
+  assert.match(entry.flex, /^1 1 /);
+});
+
 const propBalance = computeRowFieldBalance(
   ["a", "b", "c"],
   [
-    { id: "a", type: "text", medium: true },
+    { id: "a", type: "text", widthType: "TEXTO_MEDIO" },
     { id: "b", type: "autocomplete" },
     { id: "c", type: "text" },
   ],
   12,
-  {},
+  { a: "TEXTO_MEDIO" },
   fullCardWidthPx
 );
 assert.ok(propBalance.a.targetWidthPx > propBalance.c.targetWidthPx);
-assert.ok(propBalance.b.targetWidthPx > propBalance.c.targetWidthPx);
 const propSum =
   propBalance.a.targetWidthPx + propBalance.b.targetWidthPx + propBalance.c.targetWidthPx;
-assert.ok(Math.abs(propSum - (getRowBudgetPx(12, fullCardWidthPx) - 16)) <= 4, "proporcional preenche 100%");
+assert.ok(Math.abs(propSum - (getRowBudgetPx(12, fullCardWidthPx) - 16)) <= 4);
 
-// --- Nenhum compacto com flex fixo 0 0
-Object.values(propBalance).forEach((entry) => {
-  assert.match(entry.flex, /^1 1 /, "compactos usam flex-grow, nunca largura fixa");
-});
-
-const normalizedWithBalance = normalizeCardRows(
-  { id: "c1", colSpan: 12, fieldIds: ["a", "b", "razao"] },
+// --- Linhas explícitas do usuário são preservadas
+const userRowsCard = normalizeCardRows(
+  {
+    id: "user",
+    colSpan: 12,
+    rows: [
+      { id: "r1", order: 1, fieldIds: ["solo"] },
+      { id: "r2", order: 2, fieldIds: ["a", "b", "obs"] },
+    ],
+  },
   {},
   [
+    { id: "solo", type: "text" },
     { id: "a", type: "text" },
-    { id: "b", type: "number" },
-    { id: "razao", type: "text", wide: true },
+    { id: "b", type: "text" },
+    { id: "obs", type: "textarea" },
   ]
 );
-assert.ok(normalizedWithBalance.rows.some((r) => r.fieldBalance?.a));
+assert.equal(userRowsCard.rows.length, 2);
+assert.deepEqual(userRowsCard.rows[0].fieldIds, ["solo"]);
+assert.deepEqual(userRowsCard.rows[1].fieldIds, ["a", "b", "obs"]);
+
+// --- Reordenação dentro das linhas
+const reordered = reorderFieldWithinRows(
+  [
+    { id: "r1", order: 1, fieldIds: ["a", "b"] },
+    { id: "r2", order: 2, fieldIds: ["c"] },
+  ],
+  "c",
+  "a"
+);
+assert.deepEqual(reordered[0].fieldIds, ["c", "a", "b"]);
+
+// --- packFieldsByMaxCount ordem preservada
+const maxPack = packFieldsByMaxCount(["1", "2", "3", "4", "5", "6", "7"], { colSpan: 12 });
+assert.deepEqual(maxPack[0], ["1", "2", "3", "4", "5", "6"]);
+assert.deepEqual(maxPack[1], ["7"]);
+
+// --- Três a seis campos na mesma linha (card inteiro)
+for (const count of [3, 4, 5, 6]) {
+  const ids = Array.from({ length: count }, (_, i) => `f${i}`);
+  const row = buildBalancedRows(ids, {
+    fields: ids.map((id) => ({ id, type: "text" })),
+    card: { colSpan: 12 },
+    containerWidthPx: fullCardWidthPx,
+  });
+  assert.equal(row.length, 1, `${count} campos em uma linha`);
+  const bal = row[0].fieldBalance;
+  const total = Object.values(bal).reduce((s, e) => s + e.targetWidthPx, 0);
+  assert.ok(Math.abs(total - (getRowBudgetPx(12, fullCardWidthPx) - (count - 1) * 8)) <= 6);
+}
 
 console.log("✓ Todos os testes LayoutConfigV3 passaram.");

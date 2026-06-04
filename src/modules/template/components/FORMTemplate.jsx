@@ -62,7 +62,6 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
           panels={layoutConfig.panels}
           fields={TEMPLATE_FIELDS}
           layout={layoutConfig.layout}
-          layoutV3={layoutConfig.layoutV3}
           fieldSizes={layoutConfig.fieldSizes || {}}
           fieldLayoutConfig={layoutConfig.fieldLayoutConfig}
           previewValues={state}
@@ -108,7 +107,6 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
             panels={layoutConfig.panels}
             fields={TEMPLATE_FIELDS}
             layout={layoutConfig.layout}
-            layoutV3={layoutConfig.layoutV3}
             fieldSizes={layoutConfig.fieldSizes || {}}
             fieldLayoutConfig={layoutConfig.fieldLayoutConfig}
             activePanelId={activeTab}
