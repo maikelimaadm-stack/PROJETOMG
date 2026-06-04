@@ -224,6 +224,21 @@ const hydrated = ensureLayoutFields(readStoredLayoutConfig(), TEST_DEFAULTS, {
   knownFieldIds: ["a", "b", "c", "d", "email"],
 });
 assertCanonicalConfig(hydrated, "layout remoto simulado");
-assert.equal(hydrated.fieldSizes?.email, "EMAIL");
+assert.equal(hydrated.fieldSizes?.email, "CAMPO_PRINCIPAL");
+
+// --- fieldSizes legados normalizam para CAMPO_PRINCIPAL (mesmo min/grow)
+const legacySizes = pickLayoutConfig({
+  ...TEST_DEFAULTS,
+  fieldSizes: {
+    razao_social: "TEXTO_LONGO",
+    email: "EMAIL",
+    tipo_vinculo: "LOOKUP_RELACAO",
+    nome_fantasia: "TEXTO_MEDIO",
+  },
+});
+assert.equal(legacySizes.fieldSizes.razao_social, "CAMPO_PRINCIPAL");
+assert.equal(legacySizes.fieldSizes.email, "CAMPO_PRINCIPAL");
+assert.equal(legacySizes.fieldSizes.tipo_vinculo, "CAMPO_PRINCIPAL");
+assert.equal(legacySizes.fieldSizes.nome_fantasia, "CAMPO_PRINCIPAL");
 
 console.log("✓ Todos os testes de persistência Layout V3 passaram.");

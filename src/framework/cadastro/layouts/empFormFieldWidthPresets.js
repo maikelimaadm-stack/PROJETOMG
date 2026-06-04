@@ -77,8 +77,20 @@ const LEGACY_WIDTH_TYPE_ALIASES = {
   STATUS: "SIM_NAO",
 };
 
-const LOOKUP_TYPES = new Set(["autocomplete", "relation"]);
-const SELECT_TYPES = new Set(["select", "option_list", "multiselect", "multi_select"]);
+const LOOKUP_TYPES = new Set([
+  "autocomplete",
+  "relation",
+  "relacao",
+  "lookup",
+]);
+const SELECT_TYPES = new Set([
+  "select",
+  "option_list",
+  "multiselect",
+  "multi_select",
+  "lista",
+  "lista_multipla",
+]);
 const DATE_TYPES = new Set(["date"]);
 const DATETIME_TYPES = new Set(["datetime", "datetime-local", "data_hora", "datahora"]);
 const TIME_TYPES = new Set(["time", "hora"]);
