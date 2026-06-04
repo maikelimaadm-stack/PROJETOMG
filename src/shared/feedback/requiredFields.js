@@ -2,11 +2,11 @@ import { showWarning, REQUIRED_FIELDS_MESSAGE } from "@/shared/feedback/erpNotif
 
 const INVALID_CLASS = "erp-field-invalid";
 
+const CONTROL_SELECTOR =
+  ".emp-form-field-control, .emp-form-field-bare, input, textarea, select, button.emp-form-lookup-btn, button.emp-form-date-btn";
+
 /**
- * Destaca campos inválidos, exibe toast WARNING e foca o primeiro campo.
- * @param {Record<string, boolean>} errorMap - chave = data-field ou nome do campo
- * @param {{ message?: string, root?: HTMLElement | Document }} [options]
- * @returns {boolean} true se não há erros
+ * Destaca apenas o controle do campo (não a linha inteira), toast lateral e foco no primeiro.
  */
 export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   const keys = Object.keys(errorMap).filter((key) => errorMap[key]);
@@ -15,9 +15,10 @@ export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   const root = options.root || document;
   keys.forEach((key) => {
     root.querySelectorAll(`[data-field="${key}"]`).forEach((node) => {
-      node.classList.add(INVALID_CLASS);
-      const control = node.querySelector(".emp-form-field-control, input, textarea, select");
-      control?.classList.add(INVALID_CLASS);
+      const control = node.querySelector(CONTROL_SELECTOR);
+      if (control) {
+        control.classList.add(INVALID_CLASS);
+      }
     });
   });
 
@@ -27,7 +28,7 @@ export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   if (first) {
     first.scrollIntoView({ behavior: "smooth", block: "center" });
     const focusable = first.querySelector(
-      "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button"
+      "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button:not([disabled])"
     );
     focusable?.focus?.({ preventScroll: true });
   }

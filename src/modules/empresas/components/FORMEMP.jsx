@@ -155,7 +155,11 @@ export default function FORMEMP({
     queryKey: ["emp-form-related-options", relatedSources.map((source) => `${source.entity}:${source.labelField}:${source.valueField}`).join("|")],
     queryFn: () => empRepository.listOptionsSources(relatedSources),
     enabled: relatedSources.length > 0,
-    initialData: {}
+    initialData: {},
+    placeholderData: (previous) => previous ?? {},
+    staleTime: 120_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: false,
   });
 
   const isReadOnly = isEditing && !isDuplicating && !editMode;
@@ -395,6 +399,12 @@ export default function FORMEMP({
     camposPersonalizadosReady,
   ]);
 
+  useEffect(() => {
+    if (!formLayoutConfig || layoutConfigOpen) return;
+    if (tabs.length > 0) return;
+    applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
+  }, [formLayoutConfig, tabs.length, layoutConfigOpen, defaultConfigFull]);
+
   const handleDynamicFieldChange = (fieldName, value) => {
     const field = dynamicFields.find((item) => item.name === fieldName);
     if (field?.origem === "customizado") {
@@ -515,7 +525,7 @@ export default function FORMEMP({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope erp-ui flex h-full min-h-0 flex-col overflow-hidden">
       <EmpFieldLayoutConfigDialog
         open={fieldLayoutConfigOpen}
         onOpenChange={setFieldLayoutConfigOpen}
