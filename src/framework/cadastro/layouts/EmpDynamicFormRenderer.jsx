@@ -45,7 +45,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
         value={value || ""}
         onChange={(e) => onChange(field.name, e.target.value)}
         readOnly={readOnly || field.readOnly}
-        className="emp-form-input w-full min-h-[var(--emp-form-textarea-min-height)] border-0 bg-white px-2 uppercase"
+        className="emp-form-input emp-form-textarea-corp w-full min-h-0 border-0 bg-white uppercase"
         rows={field.rows || 2}
       />
     );
@@ -133,6 +133,7 @@ const conditionMatches = (current, expected, sourceField) => {
 function FieldFrameCorp({ field, error, children, gridSpan = 4, className = "" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
+  const textareaField = field?.type === "textarea";
   const loteStyle = isCustomField(field);
 
   return (
@@ -142,6 +143,7 @@ function FieldFrameCorp({ field, error, children, gridSpan = 4, className = "" }
         "emp-form-field-corp",
         `emp-form-field-corp--span-${gridSpan}`,
         imageField && "emp-form-field-corp--image",
+        textareaField && "emp-form-field-corp--textarea",
         bare && "emp-form-field-corp--bare",
         className
       )}

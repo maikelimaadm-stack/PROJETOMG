@@ -229,6 +229,8 @@ input[type="number"] {
   --emp-form-border-color: #bcc6d4;
   --emp-form-border-width: 1px;
   --emp-form-textarea-min-height: 52px;
+  --emp-form-textarea-corp-height: 40px;
+  --emp-form-textarea-corp-max-height: 120px;
   --emp-form-field-column-width: 200px;
   --emp-accent-green: #4fafff;
   --emp-accent-primary: #4fafff;
@@ -944,7 +946,7 @@ input[type="number"] {
   font-weight: 400 !important;
 }
 
-.cadastro-emp-scope .emp-form-fields:not(.emp-form-fields-compact) [data-field] label {
+.cadastro-emp-scope .emp-form-fields:not(.emp-form-fields-compact):not(.emp-form-fields-corp) [data-field] label {
   text-align: right;
 }
 
@@ -2829,8 +2831,163 @@ select.erp-field-invalid {
   min-height: auto;
 }
 
-.cadastro-emp-scope .emp-form-field-corp--image .emp-form-field-control {
-  min-height: auto;
+/* Uniformidade visual — layout corporativo (altura base única) */
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-label-top,
+.cadastro-emp-scope .emp-form-fields-corp [data-field] > label {
+  text-align: left;
+}
+
+.cadastro-emp-scope .emp-form-card-row-grid {
+  align-items: end;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp {
+  align-self: end;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: var(--emp-form-control-height, 26px);
+  min-height: var(--emp-form-control-height, 26px);
+  max-height: var(--emp-form-control-height, 26px);
+  padding: 0;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control > *:not(.emp-custom-marker) {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control input,
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control select,
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control .emp-form-input,
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control .emp-autocomplete input {
+  height: var(--emp-form-control-height, 26px) !important;
+  min-height: var(--emp-form-control-height, 26px) !important;
+  max-height: var(--emp-form-control-height, 26px) !important;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: var(--emp-form-control-height, 26px);
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-autocomplete-wrap {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-autocomplete-wrap .relative {
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-date-control {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-date-btn,
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-lookup-btn {
+  height: 100%;
+  min-height: 0;
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--image .emp-form-field-control {
+  height: var(--emp-form-control-height, 26px);
+  min-height: var(--emp-form-control-height, 26px);
+  max-height: var(--emp-form-control-height, 26px);
+  justify-content: flex-start;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--image .emp-form-image-field {
+  height: 100%;
+  min-height: 0;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-thumb {
+  height: 100%;
+  max-height: calc(var(--emp-form-control-height, 26px) - 4px);
+  width: auto;
+  max-width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-thumb img {
+  max-height: calc(var(--emp-form-control-height, 26px) - 6px);
+  max-width: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-empty-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-field {
+  min-height: 0;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--textarea {
+  align-self: end;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-field-control {
+  height: auto;
+  min-height: var(--emp-form-textarea-corp-height, 40px);
+  max-height: var(--emp-form-textarea-corp-max-height, 120px);
+  align-items: stretch;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-textarea-corp {
+  height: var(--emp-form-textarea-corp-height, 40px) !important;
+  min-height: var(--emp-form-textarea-corp-height, 40px) !important;
+  max-height: calc(var(--emp-form-textarea-corp-max-height, 120px) - 2px);
+  resize: vertical;
+  overflow-y: auto;
+  padding: 4px 8px;
+  line-height: 1.25;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--bare .emp-form-field-control {
+  height: auto;
+  min-height: var(--emp-form-control-height, 26px);
+  max-height: none;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--bare {
+  align-self: center;
+}
+
+@media (max-width: 1024px) {
+  .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control {
+    height: var(--emp-form-control-height, 26px);
+    min-height: var(--emp-form-control-height, 26px);
+    max-height: var(--emp-form-control-height, 26px);
+  }
+
+  .cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-field-control {
+    min-height: var(--emp-form-textarea-corp-height, 40px);
+    max-height: var(--emp-form-textarea-corp-max-height, 120px);
+  }
 }
 
 .cadastro-emp-scope .emp-layout-config-preview {

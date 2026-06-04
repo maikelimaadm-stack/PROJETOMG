@@ -13,7 +13,7 @@ export default function EmpFormImageField({
   const hasImage = Boolean(value);
 
   return (
-    <div className="emp-form-image-field relative h-full w-full">
+    <div className="emp-form-image-field emp-form-image-field-corp relative h-full w-full min-h-0">
       {hasImage ? (
         <div className="flex h-full w-full items-center justify-center p-1.5">
           <div className="emp-form-image-thumb relative flex h-full w-full min-h-0 min-w-0 items-center justify-center overflow-hidden rounded-[6px] border border-[#d1d5db] bg-white">
@@ -27,7 +27,7 @@ export default function EmpFormImageField({
       ) : (
         <div className="flex h-full w-full items-center justify-center">
           <Image
-            className="emp-form-image-empty-icon shrink-0 text-[#64748b]"
+            className="emp-form-image-empty-icon emp-form-image-empty-icon-corp shrink-0 text-[#64748b]"
             strokeWidth={1.5}
             aria-hidden="true"
           />
