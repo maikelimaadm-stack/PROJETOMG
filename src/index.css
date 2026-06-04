@@ -2688,11 +2688,11 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-card {
   flex-shrink: 0;
-  background: var(--emp-surface-bg, #fafafa) !important;
+  background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .cadastro-emp-scope .emp-table-card,
@@ -2738,12 +2738,20 @@ input[type="number"] {
 }
 
 .erp-shell .cadastro-emp-scope .emp-toolbar-card {
-  background: var(--emp-surface-bg, #fafafa) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
 .cadastro-emp-scope .emp-toolbar-card .emp-layout-config-toolbar {
+  background: transparent !important;
+  border: none !important;
+  border-top: none !important;
   border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-split-view {
@@ -2764,8 +2772,13 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar {
-  background: var(--emp-surface-bg, #fafafa) !important;
+  background: transparent !important;
+  border: none !important;
+  border-top: none !important;
   border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-separator"] svg,

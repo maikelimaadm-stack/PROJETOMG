@@ -147,12 +147,16 @@
   background: transparent !important;
 }
 
-/* —— Toolbar —— */
+/* —— Toolbar (faixa sem fundo nem bordas — botões flutuam no fundo da página) —— */
 .cadastro-emp-scope .emp-toolbar,
 .cadastro-emp-scope .emp-toolbar-card {
-  background: #ffffff !important;
-  border-bottom: 1px solid var(--erp-color-border) !important;
-  transition: background var(--erp-ds-transition), border-color var(--erp-ds-transition);
+  background: transparent !important;
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-info-bar {
