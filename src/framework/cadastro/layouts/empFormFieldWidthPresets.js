@@ -1,10 +1,10 @@
 /**
  * Larguras corporativas — min-width e flex-grow por categoria técnica.
- * O motor não decide layout; só aplica min-width + flex-grow na linha.
+ * Campos principais (texto, select, lookup, e-mail, etc.) compartilham o mesmo preset.
  * @module empFormFieldWidthPresets
  */
 
-/** @typedef {'CODIGO'|'SIM_NAO'|'TEXTO_CURTO'|'NUMERO'|'DATA'|'DATA_HORA'|'TEXTO_MEDIO'|'TEXTO_LONGO'|'EMAIL'|'LOOKUP_RELACAO'|'IMAGEM'|'ANEXO'|'TEXTAREA'} FieldWidthType */
+/** @typedef {'CAMPO_PRINCIPAL'|'CODIGO'|'SIM_NAO'|'TEXTO_CURTO'|'NUMERO'|'DATA'|'DATA_HORA'|'IMAGEM'|'ANEXO'} FieldWidthType */
 
 /**
  * @typedef {Object} FieldWidthTypePreset
@@ -14,60 +14,59 @@
 
 /** @type {Record<string, FieldWidthTypePreset>} */
 export const FIELD_WIDTH_TYPE_PRESETS = {
+  CAMPO_PRINCIPAL: { min: 260, grow: 3 },
   CODIGO: { min: 120, grow: 0.5 },
   SIM_NAO: { min: 120, grow: 0.5 },
   TEXTO_CURTO: { min: 140, grow: 1 },
   NUMERO: { min: 120, grow: 1 },
   DATA: { min: 140, grow: 1 },
   DATA_HORA: { min: 180, grow: 1 },
-  TEXTO_MEDIO: { min: 220, grow: 2 },
-  TEXTO_LONGO: { min: 320, grow: 4 },
-  EMAIL: { min: 260, grow: 3 },
-  LOOKUP_RELACAO: { min: 260, grow: 2 },
   IMAGEM: { min: 180, grow: 1 },
   ANEXO: { min: 220, grow: 1 },
-  TEXTAREA: { min: 320, grow: 4 },
 };
 
 export const FIELD_WIDTH_TYPE_OPTIONS = [
+  { value: "CAMPO_PRINCIPAL", label: "Campo principal (texto, select, lookup, e-mail)" },
   { value: "CODIGO", label: "Código" },
-  { value: "SIM_NAO", label: "Sim/Não" },
-  { value: "TEXTO_CURTO", label: "Texto curto" },
+  { value: "SIM_NAO", label: "Sim/Não / Status" },
+  { value: "TEXTO_CURTO", label: "Texto curto (CEP, UF, telefone)" },
   { value: "NUMERO", label: "Número" },
   { value: "DATA", label: "Data" },
   { value: "DATA_HORA", label: "Data e hora" },
-  { value: "TEXTO_MEDIO", label: "Texto médio" },
-  { value: "TEXTO_LONGO", label: "Texto longo" },
-  { value: "EMAIL", label: "E-mail" },
-  { value: "LOOKUP_RELACAO", label: "Lookup / relação" },
   { value: "IMAGEM", label: "Imagem" },
   { value: "ANEXO", label: "Anexo" },
-  { value: "TEXTAREA", label: "Textarea" },
 ];
 
-/** XS–XL legado → categorias técnicas */
+/** XS–XL legado → categorias atuais */
 const LEGACY_SIZE_TO_WIDTH_TYPE = {
   XS: "TEXTO_CURTO",
   SM: "TEXTO_CURTO",
-  MD: "TEXTO_MEDIO",
-  LG: "TEXTO_MEDIO",
-  XL: "TEXTO_LONGO",
-  FULL: "TEXTAREA",
+  MD: "CAMPO_PRINCIPAL",
+  LG: "CAMPO_PRINCIPAL",
+  XL: "CAMPO_PRINCIPAL",
+  FULL: "CAMPO_PRINCIPAL",
 };
 
 /** Tipos de largura anteriores → categorias atuais */
 const LEGACY_WIDTH_TYPE_ALIASES = {
-  SHORT_TEXT: "TEXTO_CURTO",
+  SHORT_TEXT: "CAMPO_PRINCIPAL",
+  MEDIUM_TEXT: "CAMPO_PRINCIPAL",
+  LONG_TEXT: "CAMPO_PRINCIPAL",
+  TEXTO_MEDIO: "CAMPO_PRINCIPAL",
+  TEXTO_LONGO: "CAMPO_PRINCIPAL",
+  EMAIL: "CAMPO_PRINCIPAL",
+  LOOKUP: "CAMPO_PRINCIPAL",
+  LOOKUP_RELACAO: "CAMPO_PRINCIPAL",
+  SELECT: "CAMPO_PRINCIPAL",
+  MULTILINE: "CAMPO_PRINCIPAL",
+  TEXTAREA: "CAMPO_PRINCIPAL",
   NUMBER: "NUMERO",
   DATE: "DATA",
   DATETIME: "DATA_HORA",
   TIME: "DATA",
-  SELECT: "TEXTO_MEDIO",
-  LOOKUP: "LOOKUP_RELACAO",
   PHONE: "TEXTO_CURTO",
-  MEDIUM_TEXT: "TEXTO_MEDIO",
-  LONG_TEXT: "TEXTO_LONGO",
-  MULTILINE: "TEXTAREA",
+  UF: "TEXTO_CURTO",
+  CEP: "TEXTO_CURTO",
   IMAGE: "IMAGEM",
   ATTACHMENT: "ANEXO",
   IMAGE_EXPAND: "IMAGEM",
@@ -75,37 +74,34 @@ const LEGACY_WIDTH_TYPE_ALIASES = {
   CODE: "CODIGO",
   BOOLEAN: "SIM_NAO",
   YES_NO: "SIM_NAO",
+  STATUS: "SIM_NAO",
 };
 
 const LOOKUP_TYPES = new Set(["autocomplete", "relation"]);
 const SELECT_TYPES = new Set(["select", "option_list", "multiselect", "multi_select"]);
 const DATE_TYPES = new Set(["date"]);
-const DATETIME_TYPES = new Set(["datetime", "datetime-local"]);
-const TIME_TYPES = new Set(["time"]);
+const DATETIME_TYPES = new Set(["datetime", "datetime-local", "data_hora", "datahora"]);
+const TIME_TYPES = new Set(["time", "hora"]);
 const NUMBER_TYPES = new Set(["number", "decimal", "moeda", "percentual", "integer", "calculado"]);
-const MULTILINE_TYPES = new Set(["textarea", "html", "richtext", "rich_text", "memo", "markdown"]);
+const MULTILINE_TYPES = new Set(["textarea", "html", "richtext", "rich_text", "memo", "markdown", "observacao"]);
 const IMAGE_TYPES = new Set(["image", "imagem"]);
 const ATTACHMENT_TYPES = new Set(["file", "attachment", "attachments", "document", "documents"]);
 const EMAIL_TYPES = new Set(["email", "e-mail", "mail"]);
-const CODE_FIELD_IDS = new Set(["codempresa", "codigo", "code", "id"]);
-const YES_NO_FIELD_IDS = new Set(["status", "ativo", "active", "habilitado"]);
+const MAIN_TEXT_TYPES = new Set(["text", "texto", "string", "url", "cpf_cnpj", "cpf", "cnpj"]);
+const COMPACT_TEXT_TYPES = new Set(["cep", "tel", "phone", "telefone", "whatsapp", "mobile", "celular"]);
+const CODE_TYPES = new Set(["code", "codigo"]);
+const YES_NO_TYPES = new Set(["checkbox", "switch", "sim_nao", "yes_no", "boolean"]);
 
 /**
- * @param {object} field
+ * @param {string|null} typeKey
+ * @returns {FieldWidthType|null}
  */
-function isCodeField(field) {
-  const id = String(field?.id || field?.name || "").toLowerCase();
-  return CODE_FIELD_IDS.has(id) || id.endsWith("_codigo") || id.startsWith("cod_");
-}
-
-/**
- * @param {object} field
- */
-function isYesNoField(field) {
-  const id = String(field?.id || field?.name || "").toLowerCase();
-  if (YES_NO_FIELD_IDS.has(id)) return true;
-  const type = String(field?.type || "").toLowerCase();
-  return type === "checkbox" || type === "switch";
+function canonicalWidthType(typeKey) {
+  if (!typeKey) return null;
+  if (FIELD_WIDTH_TYPE_PRESETS[typeKey]) return /** @type {FieldWidthType} */ (typeKey);
+  if (LEGACY_WIDTH_TYPE_ALIASES[typeKey]) return LEGACY_WIDTH_TYPE_ALIASES[typeKey];
+  if (LEGACY_SIZE_TO_WIDTH_TYPE[typeKey]) return LEGACY_SIZE_TO_WIDTH_TYPE[typeKey];
+  return null;
 }
 
 /**
@@ -117,38 +113,35 @@ export function resolveStoredWidthType(field, fieldWidthTypes = {}) {
     .trim()
     .toUpperCase();
   if (!raw) return null;
-  if (FIELD_WIDTH_TYPE_PRESETS[raw]) return raw;
-  if (LEGACY_WIDTH_TYPE_ALIASES[raw]) return LEGACY_WIDTH_TYPE_ALIASES[raw];
-  if (LEGACY_SIZE_TO_WIDTH_TYPE[raw]) return LEGACY_SIZE_TO_WIDTH_TYPE[raw];
-  return null;
+  return canonicalWidthType(raw);
 }
 
 /**
- * Inferência apenas pelo tipo nativo do campo (sem wide/medium/heurística de nome).
+ * Inferência pelo tipo do componente (sem heurística por nome/id).
  * @param {object} field
  * @returns {FieldWidthType}
  */
 export function inferFieldWidthType(field) {
-  if (!field) return "TEXTO_CURTO";
-
-  if (isCodeField(field)) return "CODIGO";
-  if (isYesNoField(field)) return "SIM_NAO";
+  if (!field) return "CAMPO_PRINCIPAL";
 
   const type = String(field.type || "text").toLowerCase();
 
-  if (MULTILINE_TYPES.has(type)) return "TEXTAREA";
+  if (CODE_TYPES.has(type)) return "CODIGO";
+  if (YES_NO_TYPES.has(type)) return "SIM_NAO";
+  if (COMPACT_TEXT_TYPES.has(type)) return "TEXTO_CURTO";
   if (IMAGE_TYPES.has(type)) return "IMAGEM";
   if (ATTACHMENT_TYPES.has(type)) return "ANEXO";
   if (NUMBER_TYPES.has(type)) return "NUMERO";
   if (DATETIME_TYPES.has(type)) return "DATA_HORA";
   if (DATE_TYPES.has(type)) return "DATA";
   if (TIME_TYPES.has(type)) return "DATA";
-  if (EMAIL_TYPES.has(type)) return "EMAIL";
-  if (SELECT_TYPES.has(type)) return "TEXTO_MEDIO";
-  if (LOOKUP_TYPES.has(type) || field.lookup === true) return "LOOKUP_RELACAO";
-  if (type === "checkbox" || type === "switch") return "SIM_NAO";
+  if (EMAIL_TYPES.has(type)) return "CAMPO_PRINCIPAL";
+  if (MULTILINE_TYPES.has(type)) return "CAMPO_PRINCIPAL";
+  if (SELECT_TYPES.has(type)) return "CAMPO_PRINCIPAL";
+  if (LOOKUP_TYPES.has(type) || field.lookup === true) return "CAMPO_PRINCIPAL";
+  if (MAIN_TEXT_TYPES.has(type)) return "CAMPO_PRINCIPAL";
 
-  return "TEXTO_CURTO";
+  return "CAMPO_PRINCIPAL";
 }
 
 /**
@@ -158,7 +151,8 @@ export function inferFieldWidthType(field) {
 export function resolveFieldWidthTypePreset(field, fieldWidthTypes = {}) {
   const stored = resolveStoredWidthType(field, fieldWidthTypes);
   const typeKey = stored || inferFieldWidthType(field);
-  const preset = FIELD_WIDTH_TYPE_PRESETS[typeKey] || FIELD_WIDTH_TYPE_PRESETS.TEXTO_CURTO;
+  const preset =
+    FIELD_WIDTH_TYPE_PRESETS[typeKey] || FIELD_WIDTH_TYPE_PRESETS.CAMPO_PRINCIPAL;
 
   return {
     type: /** @type {FieldWidthType} */ (typeKey),
@@ -201,8 +195,9 @@ export function resolveFieldWidthPreset(field, fieldSizes = {}) {
 
 /** @deprecated */
 export function getFieldPackWidth(field, fieldSizes = {}) {
-  return resolveFieldWidthTypePreset(field, fieldSizes).min || 140;
+  return resolveFieldWidthTypePreset(field, fieldSizes).min || 260;
 }
 
 /** @deprecated */
-export const isTextareaField = (field) => inferFieldWidthType(field) === "TEXTAREA";
+export const isTextareaField = (field) =>
+  MULTILINE_TYPES.has(String(field?.type || "").toLowerCase());
