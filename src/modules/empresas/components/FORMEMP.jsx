@@ -399,6 +399,12 @@ export default function FORMEMP({
     camposPersonalizadosReady,
   ]);
 
+  useEffect(() => {
+    if (!formLayoutConfig || layoutConfigOpen) return;
+    if (tabs.length > 0) return;
+    applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
+  }, [formLayoutConfig, tabs.length, layoutConfigOpen, defaultConfigFull]);
+
   const handleDynamicFieldChange = (fieldName, value) => {
     const field = dynamicFields.find((item) => item.name === fieldName);
     if (field?.origem === "customizado") {
@@ -492,7 +498,7 @@ export default function FORMEMP({
 
   if (layoutConfigOpen) {
     return (
-      <section className="cadastro-emp-scope erp-ui w-full h-full max-w-full overflow-hidden">
+      <section className="cadastro-emp-scope w-full h-full max-w-full overflow-hidden">
         <EmpLayoutConfiguratorDialog
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}
@@ -519,7 +525,7 @@ export default function FORMEMP({
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope erp-ui flex h-full min-h-0 flex-col overflow-hidden">
       <EmpFieldLayoutConfigDialog
         open={fieldLayoutConfigOpen}
         onOpenChange={setFieldLayoutConfigOpen}

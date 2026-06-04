@@ -223,19 +223,19 @@ input[type="number"] {
 .cadastro-emp-scope {
   --emp-text: #1f2937;
   --emp-text-strong: #0f172a;
-  --emp-control-radius: 8px;
-  --emp-form-control-height: 40px;
-  --emp-form-font-size: 13px;
-  --emp-form-border-color: #cbd5e1;
+  --emp-control-radius: 5px;
+  --emp-form-control-height: 26px;
+  --emp-form-font-size: 12px;
+  --emp-form-border-color: #bcc6d4;
   --emp-form-border-width: 1px;
-  --emp-form-textarea-min-height: 88px;
+  --emp-form-textarea-min-height: 52px;
   --emp-form-field-column-width: 200px;
-  --emp-accent-green: #2d8a4e;
-  --emp-accent-primary: #2d8a4e;
-  --emp-accent-primary-hover: #256f3f;
-  --emp-accent-primary-light: #86efac;
-  --emp-accent-primary-light-hover: #6ee7a0;
-  --emp-accent-primary-muted: #dcfce7;
+  --emp-accent-green: #4fafff;
+  --emp-accent-primary: #4fafff;
+  --emp-accent-primary-hover: #35a3f5;
+  --emp-accent-primary-light: #9fd8ff;
+  --emp-accent-primary-light-hover: #85ceff;
+  --emp-accent-primary-muted: #b8e8ff;
   --emp-accent-danger: #f25560;
   --emp-accent-danger-hover: #e03d48;
   --emp-accent-danger-foreground: #ffffff;
@@ -727,8 +727,8 @@ input[type="number"] {
   min-width: 0;
 }
 
-.cadastro-emp-scope .emp-form-section-principal .emp-form-fields,
-.cadastro-emp-scope .emp-form-section-panel .emp-form-fields {
+.cadastro-emp-scope .emp-form-section-principal .emp-form-fields:not(.emp-form-fields-sgg),
+.cadastro-emp-scope .emp-form-section-panel .emp-form-fields:not(.emp-form-fields-sgg) {
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -738,8 +738,8 @@ input[type="number"] {
   background: #ffffff;
 }
 
-.cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-compact:not(.emp-form-fields-sgg),
-.cadastro-emp-scope .emp-form-fields.emp-form-fields-compact:not(.emp-form-fields-sgg) {
+.cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-compact,
+.cadastro-emp-scope .emp-form-fields.emp-form-fields-compact {
   display: grid;
   grid-template-columns: repeat(
     var(--emp-form-field-columns, 3),
@@ -2689,6 +2689,11 @@ input[type="number"] {
   z-index: 80;
 }
 
+.erp-field-invalid,
+.erp-field-invalid .emp-form-field-control {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35);
+}
 .erp-field-invalid.emp-form-field-control,
 .erp-field-invalid.emp-form-field-bare,
 input.erp-field-invalid,
@@ -3306,65 +3311,3 @@ select.erp-field-invalid {
   color: #dc2626;
 }
 
-/* Login moderno */
-.erp-login-screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: linear-gradient(160deg, #f8fafc 0%, #ecfdf5 100%);
-}
-
-.erp-login-card {
-  width: 100%;
-  max-width: 400px;
-  padding: 28px 24px 24px;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: #fff;
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
-}
-
-.erp-login-card h1 {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #0f172a;
-}
-
-.erp-login-card p {
-  margin: 6px 0 0;
-  font-size: 12px;
-  color: #64748b;
-}
-
-.erp-login-fields {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.erp-login-submit {
-  margin-top: 8px;
-  width: 100%;
-  height: 42px;
-  border-radius: 8px;
-  background: var(--emp-accent-primary, #2d8a4e);
-  color: #fff;
-  font-weight: 600;
-  font-size: 14px;
-  border: 0;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-
-.erp-login-submit:hover:not(:disabled) {
-  background: var(--emp-accent-primary-hover, #256f3f);
-}
-
-.erp-login-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}

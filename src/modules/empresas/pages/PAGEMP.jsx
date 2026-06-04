@@ -507,7 +507,7 @@ export default function PAGEMP() {
   };
 
   return (
-    <div className="cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <EmpresasFormPanel
         showForm={showForm}
         formProps={{

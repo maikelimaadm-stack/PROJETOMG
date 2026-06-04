@@ -237,7 +237,13 @@ export default function EmpDynamicFormRenderer({
       return typeof field.showWhen === "function" ? field.showWhen(values, context) : true;
     });
 
-  if (!activePanel) return null;
+  if (!activePanel) {
+    return (
+      <div className="emp-form-fields emp-form-fields-sgg emp-form-fields-empty px-2 py-3 text-xs text-slate-500">
+        Aba de formulário indisponível. Verifique a configuração de layout.
+      </div>
+    );
+  }
 
   const renderField = (field) => {
     const value = field.getValue ? field.getValue(values, context) : values[field.name];
@@ -263,9 +269,15 @@ export default function EmpDynamicFormRenderer({
     );
   };
 
-  if (visibleFields.length === 0) return null;
-
   const hasCustomFields = visibleFields.some(isCustomField);
+
+  if (visibleFields.length === 0) {
+    return (
+      <div className="emp-form-fields emp-form-fields-sgg emp-form-fields-empty px-2 py-3 text-xs text-slate-500">
+        Nenhum campo visível nesta aba. Ajuste o layout em Configuração de layout.
+      </div>
+    );
+  }
 
   return (
     <div
