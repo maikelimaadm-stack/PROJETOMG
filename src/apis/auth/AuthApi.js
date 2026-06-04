@@ -1,5 +1,15 @@
 const AUTH_TOKEN_KEY = "erp_auth_token";
 const EMPRESA_SELECTION_KEY = "erp_empresa_id";
+const DEV_AUTH_MOCK = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_MOCK === "true";
+
+const DEV_MOCK_SESSION = {
+  token: "dev-mock-token",
+  user: { id: "dev-user", nome: "Desenvolvimento", login: "dev" },
+  cliente: { id: "dev-cliente", codigo: "kaiman", nome: "Kaiman (mock)" },
+  empresas: [{ id: "dev-empresa-1", codempresa: "001", razao_social: "EMPRESA MOCK" }],
+  selectedEmpresaId: "dev-empresa-1",
+  allowAllEmpresas: true,
+};
 
 const getApiBaseUrl = () => {
   if (import.meta.env.DEV) return "";
@@ -8,6 +18,9 @@ const getApiBaseUrl = () => {
   if (/^https?:\/\//i.test(configured)) return configured.replace(/\/+$/, "");
   return `https://${configured}`.replace(/\/+$/, "");
 };
+
+const backendOfflineMessage = () =>
+  "Backend local indisponível (porta 3001). Em outro terminal: cd backend && npm install && npm run dev. Confira backend/.env (DATABASE_URL). Ou use login mock: VITE_DEV_AUTH_MOCK=true em .env.local.";
 
 const request = async (path, { method = "GET", body, token, headers: extraHeaders } = {}) => {
   let response;
@@ -23,16 +36,31 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
     });
   } catch {
     if (import.meta.env.DEV) {
-      throw new Error(
-        "API indisponível. Inicie o backend local: cd backend && cp .env.example .env (preencha DATABASE_URL) && npm install && npm run dev — porta 3001."
-      );
+      throw new Error(backendOfflineMessage());
     }
     throw new Error(`Falha em ${method} ${path}`);
   }
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(payload?.message || `Falha em ${method} ${path}`);
+    if (import.meta.env.DEV && response.status >= 500 && !payload?.message) {
+      throw new Error(backendOfflineMessage());
+    }
+    const apiMessage = String(payload?.message || "").trim();
+    if (
+      import.meta.env.DEV &&
+      (apiMessage.includes("DATABASE_URL") || apiMessage.includes("Can't reach database"))
+    ) {
+      throw new Error(
+        "Banco indisponível. Ajuste DATABASE_URL e DIRECT_URL em backend/.env (credenciais reais do Supabase/Postgres)."
+      );
+    }
+    if (import.meta.env.DEV && apiMessage.includes("PROJECT_REF")) {
+      throw new Error(
+        "backend/.env ainda está com valores de exemplo. Copie as URLs reais do Supabase em DATABASE_URL e DIRECT_URL."
+      );
+    }
+    throw new Error(apiMessage || `Falha em ${method} ${path}`);
   }
   return payload;
 };
@@ -85,6 +113,13 @@ export const AuthApi = {
   },
 
   async login(credentials) {
+    if (DEV_AUTH_MOCK) {
+      const payload = { ...DEV_MOCK_SESSION };
+      this.setToken(payload.token);
+      this.setSelectedEmpresaId(payload.selectedEmpresaId);
+      return payload;
+    }
+
     const payload = await request("/api/auth/login", {
       method: "POST",
       body: credentials,
@@ -107,6 +142,15 @@ export const AuthApi = {
   async getSession() {
     const token = this.getToken();
     if (!token) return null;
+    if (DEV_AUTH_MOCK && token === DEV_MOCK_SESSION.token) {
+      return {
+        user: DEV_MOCK_SESSION.user,
+        cliente: DEV_MOCK_SESSION.cliente,
+        empresas: DEV_MOCK_SESSION.empresas,
+        selectedEmpresaId: this.getSelectedEmpresaId() || DEV_MOCK_SESSION.selectedEmpresaId,
+        allowAllEmpresas: true,
+      };
+    }
     const selectedEmpresaId = this.getSelectedEmpresaId();
     return request("/api/auth/session", {
       method: "GET",
@@ -118,6 +162,9 @@ export const AuthApi = {
   async listEmpresas() {
     const token = this.getToken();
     if (!token) return [];
+    if (DEV_AUTH_MOCK && token === DEV_MOCK_SESSION.token) {
+      return DEV_MOCK_SESSION.empresas;
+    }
     const selectedEmpresaId = this.getSelectedEmpresaId();
     const payload = await request("/api/auth/empresas", {
       method: "GET",

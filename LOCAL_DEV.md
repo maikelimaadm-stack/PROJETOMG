@@ -2,7 +2,25 @@
 
 O frontend (`npm run dev`, porta **5173**) envia `/api/*` para o backend em **http://127.0.0.1:3001** (proxy do Vite).
 
-Se aparecer **"Falha em POST /api/auth/login"**, em geral o backend **não está rodando** ou o `.env` do backend está incompleto.
+Se aparecer **"Falha em POST /api/auth/login"**, o backend **não está na porta 3001** (ou o banco falhou). Rode na raiz:
+
+```bash
+npm run check:api
+```
+
+## Atalho: entrar sem backend (só tela / layout)
+
+```bash
+cp .env.local.example .env.local
+# deixe VITE_DEV_AUTH_MOCK=true
+npm run dev
+```
+
+Qualquer login/senha na tela de login funciona. **Cadastro de empresas e APIs** ainda exigem backend + Postgres.
+
+---
+
+## Backend real (recomendado)
 
 ## 1. Backend
 
