@@ -15,7 +15,7 @@ const registry = new Map();
  *   validator?: Function,
  *   formatter?: Function,
  *   parser?: Function,
- *   layoutBehavior?: 'compact'|'expansive'|'inline-media',
+ *   layoutBehavior?: 'standard'|'inline-media',
  *   aliases?: string[],
  * }} definition
  */
@@ -45,6 +45,5 @@ export function listFieldTypes() {
 export function inferRegisteredLayoutBehavior(field) {
   const def = getFieldTypeDefinition(field?.type);
   if (def?.layoutBehavior) return def.layoutBehavior;
-  if (field?.wide || field?.layoutExpand) return "expansive";
-  return "compact";
+  return "standard";
 }

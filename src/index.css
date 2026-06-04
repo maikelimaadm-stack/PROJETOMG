@@ -2792,35 +2792,11 @@ select.erp-field-invalid {
   min-width: 0;
 }
 
-.cadastro-emp-scope .emp-form-card-row--full .emp-form-card-row-grid--flex {
-  flex-wrap: wrap;
-}
-
-.cadastro-emp-scope .emp-form-field-corp--full-row {
-  flex: 1 1 100% !important;
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: 100% !important;
-}
-
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp:not(.emp-form-field-corp--full-row):not(.emp-form-field-corp--balanced-grow):not(.emp-form-field-corp--line-fill) {
-  flex-grow: 1;
-  flex-shrink: 1;
-  flex-basis: 0;
-  max-width: none;
-}
-
 .cadastro-emp-scope .emp-form-field-corp--balanced-grow {
+  flex-grow: 1;
   flex-shrink: 1;
   min-width: 0;
   max-width: none;
-}
-
-.cadastro-emp-scope .emp-form-field-corp--line-fill {
-  flex: 1 1 100% !important;
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: 100% !important;
 }
 
 .cadastro-emp-scope .emp-form-card-rows {
@@ -2906,9 +2882,9 @@ select.erp-field-invalid {
   max-width: 100%;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp:not(.emp-form-field-corp--full-row) .emp-form-field-control {
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control {
   width: 100%;
-  max-width: 100%;
+  max-width: none;
 }
 
 .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control input,
@@ -2992,39 +2968,25 @@ select.erp-field-invalid {
   height: 18px;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--image-expanded .emp-form-field-control {
-  height: auto;
-  min-height: 120px;
-  max-height: none;
-  padding: 4px;
-}
-
 .cadastro-emp-scope .emp-form-field-corp--textarea {
   align-self: end;
 }
 
-.cadastro-emp-scope .emp-form-field-corp--textarea.emp-form-field-corp--full-row .emp-form-field-control {
-  height: auto;
-  min-height: var(--emp-field-textarea-min, var(--emp-form-textarea-corp-height, 80px));
-  max-height: var(--emp-field-textarea-max, var(--emp-form-textarea-corp-max-height, 200px));
-  align-items: stretch;
-  width: 100%;
-}
-
-.cadastro-emp-scope .emp-form-field-corp--textarea.emp-form-field-corp--full-row .emp-form-textarea-corp {
-  height: var(--emp-field-textarea-min, 80px) !important;
-  min-height: var(--emp-field-textarea-min, 80px) !important;
-  max-height: var(--emp-field-textarea-max, 200px) !important;
+.cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-field-control {
+  height: var(--emp-form-control-height, 26px);
+  min-height: var(--emp-form-control-height, 26px);
+  max-height: var(--emp-form-control-height, 26px);
+  align-items: center;
 }
 
 .cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-textarea-corp {
-  height: var(--emp-form-textarea-corp-height, 40px) !important;
-  min-height: var(--emp-form-textarea-corp-height, 40px) !important;
-  max-height: calc(var(--emp-form-textarea-corp-max-height, 120px) - 2px);
-  resize: vertical;
-  overflow-y: auto;
+  height: var(--emp-form-control-height, 26px) !important;
+  min-height: var(--emp-form-control-height, 26px) !important;
+  max-height: var(--emp-form-control-height, 26px) !important;
+  resize: none;
+  overflow: hidden;
   padding: 4px 8px;
-  line-height: 1.25;
+  line-height: 1.15;
   box-sizing: border-box;
 }
 
@@ -3048,10 +3010,6 @@ select.erp-field-invalid {
     max-height: var(--emp-form-control-height, 26px);
   }
 
-  .cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-field-control {
-    min-height: var(--emp-form-textarea-corp-height, 40px);
-    max-height: var(--emp-form-textarea-corp-max-height, 120px);
-  }
 }
 
 .cadastro-emp-scope .emp-layout-config-preview {

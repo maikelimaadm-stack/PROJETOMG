@@ -48,6 +48,7 @@ import {
   normalizeCardRows,
   packFieldIdsIntoRows,
   removeFieldFromRows,
+  reorderFieldWithinRows,
   createRowId,
 } from "@/framework/cadastro/layouts/empFormLayoutRows";
 
@@ -226,7 +227,7 @@ export default function EmpLayoutConfiguratorDialog({
       id: createRowId(activeCard?.id || "card", index + 1),
       order: index + 1,
       fieldIds: row.fieldIds,
-      fullWidth: row.fullWidth,
+      fieldBalance: row.fieldBalance,
     }));
     updateActiveCardRows(packed.length ? packed : [createEmptyLayoutRow(activeCard?.id || "card")]);
   };
@@ -377,7 +378,7 @@ export default function EmpLayoutConfiguratorDialog({
       id: createRowId(activeCard.id, index + 1),
       order: index + 1,
       fieldIds: row.fieldIds,
-      fullWidth: row.fullWidth,
+      fieldBalance: row.fieldBalance,
     }));
     const cards = (stripped[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id
@@ -453,13 +454,14 @@ export default function EmpLayoutConfiguratorDialog({
   };
   const reorderField = (targetFieldId) => {
     if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel || !activeCard) return;
-    const list = [...panelFieldIds];
-    const from = list.indexOf(draggedFieldId);
-    const to = list.indexOf(targetFieldId);
-    if (from < 0 || to < 0) return;
-    list.splice(from, 1);
-    list.splice(to, 0, draggedFieldId);
-    updateActiveCardFieldIds(list);
+    const rows = reorderFieldWithinRows(activeCardRows, draggedFieldId, targetFieldId);
+    updateActiveCardRows(
+      rows.map((row, index) => ({
+        ...row,
+        id: row.id || createRowId(activeCard.id, index + 1),
+        order: index + 1,
+      }))
+    );
   };
 
   const createCard = () => {
@@ -1149,8 +1151,8 @@ export default function EmpLayoutConfiguratorDialog({
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
                 <p className="mb-2 text-[10px] text-[#64748b]">
-                  Card → Linha → Campo (linhas geradas por largura padrão). Arraste para reordenar; solte na aba
-                  do card para mover. Textarea sempre na última linha, largura total.
+                  Card → Linha → Campo. Arraste para reordenar ou mover entre cards; quebra de linha automática
+                  apenas ao atingir 6 campos (card inteiro) ou 4 (meio card).
                 </p>
                 <div className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2">
                   {activeCardRows.length === 0 ? (
@@ -1163,14 +1165,10 @@ export default function EmpLayoutConfiguratorDialog({
                       return (
                         <div
                           key={layoutRow.id}
-                          className={cn(
-                            "emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2",
-                            layoutRow.fullWidth && "emp-layout-config-row--full"
-                          )}
+                          className="emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2"
                         >
                           <div className="mb-2 text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
                             Linha {layoutRow.order}
-                            {layoutRow.fullWidth ? " · largura total" : ""}
                           </div>
                           <div
                             className="emp-layout-config-panel-fields flex min-h-[40px] flex-wrap content-start gap-2"
@@ -1205,7 +1203,7 @@ export default function EmpLayoutConfiguratorDialog({
                       onClick={() => setFieldWidthType(selectedPanelFieldIds[0], "")}
                       className="h-6 rounded px-2 text-[10px] font-semibold bg-[#f1f5f9] text-[#64748b]"
                     >
-                      Automático
+                      Padrão do tipo
                     </button>
                   </div>
                 )}
