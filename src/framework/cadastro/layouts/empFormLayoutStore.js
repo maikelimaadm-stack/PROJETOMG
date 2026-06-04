@@ -87,6 +87,9 @@ export const pickLayoutConfig = (source = {}) => {
   });
   next.version = LAYOUT_CONFIG_VERSION_V3;
   next.layout = cloneValue(sanitizeLayoutV3(resolved.layout || {}));
+  if (next.fieldSizes) {
+    next.fieldSizes = normalizeFieldSizes(next.fieldSizes);
+  }
   return stripRuntimeLayoutAliases(next);
 };
 

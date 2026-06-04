@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/shared/ui/input";
+import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
@@ -228,16 +229,16 @@ export default function FORMEMP({
     </select>
   );
 
-  const renderStatusSelect = () => (
-    <select
-      value={formData.status === "Inativa" ? "Inativa" : "Ativa"}
-      onChange={(event) => handleChange("status", event.target.value)}
-      disabled={isReadOnly}
-      className={`${inputClass} w-full`}
-    >
-      <option value="Ativa">SIM</option>
-      <option value="Inativa">NÃO</option>
-    </select>
+  const renderStatusToggle = () => (
+    <div className="h-full w-full flex items-center px-1">
+      <ToggleSwitch
+        className="emp-form-toggle-switch shrink-0"
+        checkedClassName="emp-form-toggle-switch-on"
+        checked={formData.status !== "Inativa"}
+        onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")}
+        disabled={isReadOnly}
+      />
+    </div>
   );
 
   const { renderCampoPersonalizado } = useFormEmpCustomFields({
@@ -251,22 +252,22 @@ export default function FORMEMP({
   const dynamicFields = useMemo(() => [
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "select", required: true, compact: true, errorKey: "tipo_pessoa", render: renderTipoPessoaSelect },
     { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
-    { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
+    { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", widthType: "CODIGO", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
     { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
-    { id: "status", name: "status", label: "Ativa", type: "select", compact: true, render: renderStatusSelect },
+    { id: "status", name: "status", label: "Ativa", type: "text", widthType: "SIM_NAO", compact: true, render: renderStatusToggle },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", medium: true, uppercase: true, placeholder: "NOME FANTASIA" },
-    { id: "cpf_cnpj", name: "cpf_cnpj", label: formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ", type: "text", compact: true, placeholder: formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00" },
-    { id: "inscricao_estadual", name: "inscricao_estadual", label: "Inscrição Estadual", type: "text", compact: true, placeholder: "INSCRIÇÃO ESTADUAL" },
-    { id: "telefone", name: "telefone", label: "Telefone", type: "text", widthType: "PHONE", compact: true, placeholder: "(00) 0000-0000" },
-    { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "text", widthType: "PHONE", compact: true, placeholder: "(00) 00000-0000" },
-    { id: "email", name: "email", label: "E-mail", type: "text", widthType: "EMAIL", placeholder: "EMAIL@EMPRESA.COM.BR" },
+    { id: "cpf_cnpj", name: "cpf_cnpj", label: formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ", type: "cpf_cnpj", compact: true, placeholder: formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00" },
+    { id: "inscricao_estadual", name: "inscricao_estadual", label: "Inscrição Estadual", type: "text", placeholder: "INSCRIÇÃO ESTADUAL" },
+    { id: "telefone", name: "telefone", label: "Telefone", type: "tel", compact: true, placeholder: "(00) 0000-0000" },
+    { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "tel", compact: true, placeholder: "(00) 00000-0000" },
+    { id: "email", name: "email", label: "E-mail", type: "email", placeholder: "EMAIL@EMPRESA.COM.BR" },
     { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "image", compact: true, render: () => <EmpFormImageField value={formData.logo_url} readOnly={isReadOnly} uploading={uploadingLogo} onUpload={handleLogoUpload} onClear={() => handleChange("logo_url", "")} alt="Logo da empresa" /> },
-    { id: "cep", name: "cep", label: "CEP", type: "text", compact: true, placeholder: "00000-000" },
+    { id: "cep", name: "cep", label: "CEP", type: "cep", compact: true, placeholder: "00000-000" },
     { id: "endereco", name: "endereco", label: "Endereço", type: "text", medium: true, uppercase: true, placeholder: "RUA, AVENIDA..." },
-    { id: "numero", name: "numero", label: "Número", type: "text", compact: true, placeholder: "Nº" },
+    { id: "numero", name: "numero", label: "Número", type: "text", widthType: "NUMERO", compact: true, placeholder: "Nº" },
     { id: "bairro", name: "bairro", label: "Bairro", type: "text", uppercase: true, placeholder: "BAIRRO" },
     { id: "cidade", name: "cidade", label: "Cidade", type: "text", uppercase: true, placeholder: "CIDADE" },
-    { id: "estado", name: "estado", label: "Estado (UF)", type: "autocomplete", compact: true, options: opcoesEstado, placeholder: "UF", displayField: "nome", searchFields: ["nome"] },
+    { id: "estado", name: "estado", label: "Estado (UF)", type: "autocomplete", widthType: "UF", compact: true, options: opcoesEstado, placeholder: "UF", displayField: "nome", searchFields: ["nome"] },
     { id: "observacoes", name: "observacoes", label: "Observações", type: "textarea", wide: true, uppercase: true, placeholder: "OBSERVAÇÕES GERAIS..." },
     ...camposPersonalizadosForm.map((campo) => ({
       id: `custom:${campo.field_name}`,

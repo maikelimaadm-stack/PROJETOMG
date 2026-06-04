@@ -2784,16 +2784,19 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-card-row-grid--flex {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 8px;
   align-items: flex-end;
-  justify-content: stretch;
+  justify-content: flex-start;
   width: 100%;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-form-field-corp--balanced-grow {
-  flex-grow: 1;
+  /* flex-grow vem do preset inline (CAMPO_PRINCIPAL = 3, compactos < 3) */
   flex-shrink: 1;
   min-width: 0;
   max-width: none;
@@ -2809,6 +2812,9 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-card-row {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
