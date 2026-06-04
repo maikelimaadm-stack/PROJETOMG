@@ -1,7 +1,9 @@
 /**
- * LayoutConfigV3 — Painel → Card → Campo
+ * LayoutConfigV3 — Painel → Card → Linha → Campo
  * @module layoutConfigV3
  */
+
+import { flattenRowsToFieldIds, normalizeCardRows } from "./empFormLayoutRows.js";
 
 export const LAYOUT_CONFIG_VERSION_V2 = 2;
 export const LAYOUT_CONFIG_VERSION_V3 = 3;
@@ -22,7 +24,8 @@ const cloneValue = (value) => JSON.parse(JSON.stringify(value));
  * @property {boolean} [collapsible]
  * @property {number} [columns] — colunas internas do grid de campos (12)
  * @property {number} [colSpan] — largura do card na linha (6 = metade, 12 = inteira)
- * @property {string[]} fieldIds
+ * @property {import('./empFormLayoutRows.js').LayoutRowV3[]} [rows]
+ * @property {string[]} fieldIds — espelho ordenado das linhas (compat)
  */
 
 /**
@@ -118,9 +121,18 @@ export const normalizeLayoutCardV3 = (source = {}, index = 0) => {
   let colSpan = Number(source.colSpan);
   if (!Number.isFinite(colSpan) || colSpan < 1) colSpan = 12;
   colSpan = Math.min(12, Math.max(1, colSpan));
-  const fieldIds = Array.isArray(source.fieldIds)
-    ? source.fieldIds.filter((fieldId) => typeof fieldId === "string" && fieldId)
-    : [];
+  const normalized = normalizeCardRows(
+    {
+      ...source,
+      id,
+      label,
+      order,
+      collapsible: source.collapsible !== false,
+      columns,
+      colSpan,
+    },
+    source.fieldSizes || {}
+  );
 
   return {
     id,
@@ -129,7 +141,8 @@ export const normalizeLayoutCardV3 = (source = {}, index = 0) => {
     collapsible: source.collapsible !== false,
     columns,
     colSpan,
-    fieldIds,
+    rows: normalized.rows,
+    fieldIds: normalized.fieldIds,
   };
 };
 
@@ -180,7 +193,7 @@ export const flattenV3LayoutToV2 = (layoutV3 = {}) => {
     [...(panelLayout.cards || [])]
       .sort((a, b) => a.order - b.order)
       .forEach((card) => {
-        (card.fieldIds || []).forEach((fieldId) => {
+        flattenRowsToFieldIds(card).forEach((fieldId) => {
           if (!fieldId || seen.has(fieldId)) return;
           seen.add(fieldId);
           fieldIds.push(fieldId);
@@ -228,12 +241,13 @@ export const sanitizeLayoutV3 = (layoutV3 = {}) => {
     const normalizedPanel = normalizePanelLayoutV3(panelLayout, { panelId });
     const cards = normalizedPanel.cards.map((card, index) => {
       const uniqueFieldIds = [];
-      (card.fieldIds || []).forEach((fieldId) => {
+      flattenRowsToFieldIds(card).forEach((fieldId) => {
         if (!fieldId || globalSeen.has(fieldId)) return;
         globalSeen.add(fieldId);
         uniqueFieldIds.push(fieldId);
       });
-      return { ...card, fieldIds: uniqueFieldIds, order: index + 1 };
+      const normalized = normalizeLayoutCardV3({ ...card, fieldIds: uniqueFieldIds, rows: [] });
+      return { ...normalized, order: index + 1 };
     });
     next[panelId] = { cards };
   });
@@ -248,7 +262,10 @@ export const countLayoutFieldsV3 = (layoutV3 = {}) =>
     if (!isPanelLayoutV3(panelLayout)) return total;
     return (
       total +
-      panelLayout.cards.reduce((cardTotal, card) => cardTotal + (card.fieldIds?.length || 0), 0)
+      panelLayout.cards.reduce(
+        (cardTotal, card) => cardTotal + flattenRowsToFieldIds(card).length,
+        0
+      )
     );
   }, 0);
 

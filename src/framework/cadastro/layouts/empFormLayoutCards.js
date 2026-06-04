@@ -1,6 +1,7 @@
 import {
   DEFAULT_VIRTUAL_CARD_ID,
   normalizePanelLayoutV3,
+  normalizeLayoutCardV3,
   isPanelLayoutV3,
   flattenV3LayoutToV2,
   isLayoutStructureV2,
@@ -16,7 +17,7 @@ export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, de
     return normalizePanelLayoutV3(panelV3, {
       panelId,
       defaultFieldIds: defaultLayout[panelId] || [],
-    }).cards;
+    }).cards.map((card) => normalizeLayoutCardV3(card));
   }
 
   const panelLayout = layout?.[panelId];
@@ -24,7 +25,7 @@ export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, de
     return normalizePanelLayoutV3(panelLayout, {
       panelId,
       defaultFieldIds: defaultLayout[panelId] || [],
-    }).cards;
+    }).cards.map((card) => normalizeLayoutCardV3(card));
   }
 
   const fieldIds = Array.isArray(panelLayout)
