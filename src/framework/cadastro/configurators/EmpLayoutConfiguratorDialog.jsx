@@ -30,6 +30,16 @@ import {
 } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { usePanelTabsScroll } from "@/framework/cadastro/toolbars/usePanelTabsScroll";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
+import EmpLayoutConfiguratorPreview from "@/framework/cadastro/configurators/EmpLayoutConfiguratorPreview";
+import {
+  initCardsByPanel,
+  flattenLayoutFromCards,
+  buildLayoutV3FromCards,
+  createNewCardId,
+} from "@/framework/cadastro/layouts/empFormLayoutCards";
+import { DEFAULT_VIRTUAL_CARD_ID } from "@/framework/cadastro/layouts/layoutConfigV3";
+import { DEFAULT_FIELD_LAYOUT_CONFIG } from "@/framework/cadastro/layouts/empFormLayoutStore";
+import { FIELD_SIZE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
 
 const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = ["principal"];
@@ -63,6 +73,10 @@ export default function EmpLayoutConfiguratorDialog({
   panels = [],
   fields = [],
   layout = {},
+  layoutV3 = {},
+  fieldSizes = {},
+  fieldLayoutConfig = DEFAULT_FIELD_LAYOUT_CONFIG,
+  previewValues = {},
   hiddenFieldIds = [],
   lockedFieldIds = [],
   requiredFieldIds = [],
@@ -79,6 +93,12 @@ export default function EmpLayoutConfiguratorDialog({
 }) {
   const [draftPanels, setDraftPanels] = useState(panels);
   const [draftLayout, setDraftLayout] = useState(layout);
+  const [draftCardsByPanel, setDraftCardsByPanel] = useState(() =>
+    initCardsByPanel({ panels, layout, layoutV3, defaultLayout: defaultConfig?.layout })
+  );
+  const [draftFieldSizes, setDraftFieldSizes] = useState(fieldSizes);
+  const [activeCardId, setActiveCardId] = useState("");
+  const [editingCardId, setEditingCardId] = useState(null);
   const [draftHiddenFieldIds, setDraftHiddenFieldIds] = useState(hiddenFieldIds);
   const [draftLockedFieldIds, setDraftLockedFieldIds] = useState(lockedFieldIds);
   const [draftRequiredFieldIds, setDraftRequiredFieldIds] = useState(requiredFieldIds);
@@ -110,8 +130,19 @@ export default function EmpLayoutConfiguratorDialog({
 
     if (wasOpenRef.current) return;
 
+    const cards = initCardsByPanel({
+      panels,
+      layout,
+      layoutV3,
+      defaultLayout: defaultConfig?.layout,
+    });
     setDraftPanels(panels);
     setDraftLayout(layout);
+    setDraftCardsByPanel(cards);
+    setDraftFieldSizes(fieldSizes || {});
+    const firstPanelId = panels[0]?.id || "";
+    setActiveCardId(cards[firstPanelId]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
+    setEditingCardId(null);
     setDraftHiddenFieldIds(hiddenFieldIds);
     setDraftLockedFieldIds(lockedFieldIds);
     setDraftRequiredFieldIds(requiredFieldIds);
@@ -119,7 +150,7 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftFieldDefaultValues(fieldDefaultValues);
     setDraftAggregationConfig(aggregationConfig);
     setDraftVisibilityRules(visibilityRules);
-    setActivePanelId(panels[0]?.id || "");
+    setActivePanelId(firstPanelId);
     setSelectedAvailableIds([]);
     setSelectedPanelFieldIds([]);
     setSearch("");
@@ -130,11 +161,37 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldSettingsTarget(null);
     setFieldSettingsAnchor(null);
     wasOpenRef.current = true;
-  }, [open, panels, layout, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules]);
+  }, [open, panels, layout, layoutV3, fieldSizes, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules, defaultConfig]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
+  const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
+  const activeCard = activePanelCards.find((card) => card.id === activeCardId) || activePanelCards[0];
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
-  const panelFieldIds = draftLayout[activePanel?.id] || [];
+  const panelFieldIds = activeCard?.fieldIds || draftLayout[activePanel?.id] || [];
+
+  React.useEffect(() => {
+    if (!activePanel) return;
+    const cards = draftCardsByPanel[activePanel.id]?.cards || [];
+    if (!cards.length) return;
+    if (!cards.some((card) => card.id === activeCardId)) {
+      setActiveCardId(cards[0].id);
+    }
+  }, [activePanel?.id, draftCardsByPanel, activeCardId]);
+
+  const applyCardsState = (nextCardsByPanel) => {
+    setDraftCardsByPanel(nextCardsByPanel);
+    setDraftLayout(flattenLayoutFromCards(nextCardsByPanel));
+  };
+
+  const updateActiveCardFieldIds = (fieldIds) => {
+    if (!activePanel || !activeCard) return;
+    const nextCardsByPanel = { ...draftCardsByPanel };
+    const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
+      card.id === activeCard.id ? { ...card, fieldIds: [...fieldIds] } : card
+    );
+    nextCardsByPanel[activePanel.id] = { cards };
+    applyCardsState(nextCardsByPanel);
+  };
   const panelFields = panelFieldIds.map((id) => fields.find((field) => field.id === id)).filter(Boolean);
   const activePanelIsSystem = systemPanelIds.includes(activePanel?.id);
   const activePanelIsFixed = fixedPanelIds.includes(activePanel?.id);
@@ -190,6 +247,8 @@ export default function EmpLayoutConfiguratorDialog({
   const buildCurrentConfig = () => ({
     panels: draftPanels,
     layout: draftLayout,
+    layoutV3: buildLayoutV3FromCards(draftCardsByPanel),
+    fieldSizes: draftFieldSizes,
     hiddenFieldIds: draftHiddenFieldIds,
     lockedFieldIds: draftLockedFieldIds,
     requiredFieldIds: draftRequiredFieldIds,
@@ -211,53 +270,56 @@ export default function EmpLayoutConfiguratorDialog({
 
   const showRequiredPopup = (message) => showWarning(message);
   const addFieldById = (fieldId) => {
-    if (!fieldId || !activePanel || !isEditing) return;
-    setDraftLayout((prev) => {
-      const next = { ...prev };
-      Object.keys(next).forEach((panelId) => {
-        if (panelId !== activePanel.id) {
-          next[panelId] = (next[panelId] || []).filter((id) => id !== fieldId);
-        }
-      });
-      const current = next[activePanel.id] || [];
-      if (current.includes(fieldId)) return prev;
-      next[activePanel.id] = [...current, fieldId];
-      return next;
+    if (!fieldId || !activePanel || !activeCard || !isEditing) return;
+    const nextCardsByPanel = { ...draftCardsByPanel };
+    Object.keys(nextCardsByPanel).forEach((panelId) => {
+      const cards = (nextCardsByPanel[panelId]?.cards || []).map((card) => ({
+        ...card,
+        fieldIds: (card.fieldIds || []).filter((id) => id !== fieldId),
+      }));
+      nextCardsByPanel[panelId] = { cards };
     });
+    const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
+      card.id === activeCard.id
+        ? { ...card, fieldIds: [...(card.fieldIds || []), fieldId] }
+        : card
+    );
+    nextCardsByPanel[activePanel.id] = { cards };
+    applyCardsState(nextCardsByPanel);
     setSelectedAvailableIds((prev) => prev.filter((id) => id !== fieldId));
     setSelectedPanelFieldIds([fieldId]);
   };
   const addAllFields = () => {
-    if (!activePanel) return;
+    if (!activePanel || !activeCard) return;
     const ids = availableFields.map((field) => field.id);
-    setDraftLayout((prev) => {
-      const next = { ...prev };
-      ids.forEach((fieldId) => {
-        Object.keys(next).forEach((panelId) => {
-          if (panelId !== activePanel.id) {
-            next[panelId] = (next[panelId] || []).filter((id) => id !== fieldId);
-          }
-        });
-      });
-      next[activePanel.id] = [
-        ...(next[activePanel.id] || []),
-        ...ids.filter((id) => !(next[activePanel.id] || []).includes(id)),
-      ];
-      return next;
+    const nextCardsByPanel = { ...draftCardsByPanel };
+    Object.keys(nextCardsByPanel).forEach((panelId) => {
+      const cards = (nextCardsByPanel[panelId]?.cards || []).map((card) => ({
+        ...card,
+        fieldIds: (card.fieldIds || []).filter((id) => !ids.includes(id)),
+      }));
+      nextCardsByPanel[panelId] = { cards };
     });
+    const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
+      card.id === activeCard.id
+        ? {
+            ...card,
+            fieldIds: [...new Set([...(card.fieldIds || []), ...ids])],
+          }
+        : card
+    );
+    nextCardsByPanel[activePanel.id] = { cards };
+    applyCardsState(nextCardsByPanel);
     setSelectedAvailableIds([]);
   };
   const removeFieldById = (fieldId) => {
-    if (!fieldId || !activePanel || !isEditing) return;
+    if (!fieldId || !activePanel || !activeCard || !isEditing) return;
     setFieldLastPanelId((prev) => ({ ...prev, [fieldId]: activePanel.id }));
-    setDraftLayout((prev) => ({
-      ...prev,
-      [activePanel.id]: (prev[activePanel.id] || []).filter((id) => id !== fieldId),
-    }));
+    updateActiveCardFieldIds((panelFieldIds || []).filter((id) => id !== fieldId));
     setSelectedPanelFieldIds((prev) => prev.filter((id) => id !== fieldId));
   };
   const removeAllFields = () => {
-    if (!activePanel) return;
+    if (!activePanel || !activeCard) return;
     setFieldLastPanelId((prev) => {
       const next = { ...prev };
       (panelFieldIds || []).forEach((id) => {
@@ -265,10 +327,7 @@ export default function EmpLayoutConfiguratorDialog({
       });
       return next;
     });
-    setDraftLayout((prev) => ({
-      ...prev,
-      [activePanel.id]: (prev[activePanel.id] || []).filter((id) => fixedVisibleFieldIds.includes(id)),
-    }));
+    updateActiveCardFieldIds((panelFieldIds || []).filter((id) => fixedVisibleFieldIds.includes(id)));
     setSelectedPanelFieldIds([]);
   };
   const createPanel = () => {
@@ -278,20 +337,24 @@ export default function EmpLayoutConfiguratorDialog({
       label: `Painel Personalizado ${draftPanels.filter((panel) => !systemPanelIds.includes(panel.id)).length + 1}`,
     };
     setDraftPanels((prev) => [...prev, next]);
-    setDraftLayout((prev) => ({ ...prev, [id]: [] }));
+    applyCardsState({
+      ...draftCardsByPanel,
+      [id]: { cards: [{ id: DEFAULT_VIRTUAL_CARD_ID, label: "Geral", order: 1, collapsible: true, columns: 12, fieldIds: [] }] },
+    });
     setActivePanelId(id);
+    setActiveCardId(DEFAULT_VIRTUAL_CARD_ID);
     setEditingPanelId(id);
     setIsEditing(true);
   };
   const deletePanel = () => {
     if (!activePanel || activePanelIsSystem) return;
     setDraftPanels((prev) => prev.filter((panel) => panel.id !== activePanel.id));
-    setDraftLayout((prev) => {
-      const next = { ...prev };
-      delete next[activePanel.id];
-      return next;
-    });
-    setActivePanelId(draftPanels.find((panel) => panel.id !== activePanel.id)?.id || "");
+    const nextCards = { ...draftCardsByPanel };
+    delete nextCards[activePanel.id];
+    applyCardsState(nextCards);
+    const nextPanelId = draftPanels.find((panel) => panel.id !== activePanel.id)?.id || "";
+    setActivePanelId(nextPanelId);
+    setActiveCardId(nextCards[nextPanelId]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
   };
   const toggleActivePanelHidden = () => {
     if (!activePanel || !isEditing || activePanelIsFixed) return;
@@ -309,7 +372,74 @@ export default function EmpLayoutConfiguratorDialog({
     if (from < 0 || to < 0) return;
     list.splice(from, 1);
     list.splice(to, 0, draggedFieldId);
-    setDraftLayout((prev) => ({ ...prev, [activePanel.id]: list }));
+    updateActiveCardFieldIds(list);
+  };
+
+  const createCard = () => {
+    if (!activePanel || !isEditing) return;
+    const existing = draftCardsByPanel[activePanel.id]?.cards || [];
+    const id = createNewCardId(activePanel.id, existing);
+    const label = `Card ${existing.length + 1}`;
+    const nextCardsByPanel = { ...draftCardsByPanel };
+    nextCardsByPanel[activePanel.id] = {
+      cards: [
+        ...existing,
+        { id, label, order: existing.length + 1, collapsible: true, columns: 12, fieldIds: [] },
+      ],
+    };
+    applyCardsState(nextCardsByPanel);
+    setActiveCardId(id);
+    setEditingCardId(id);
+  };
+
+  const renameCard = (cardId, label) => {
+    if (!activePanel) return;
+    const nextCardsByPanel = { ...draftCardsByPanel };
+    nextCardsByPanel[activePanel.id] = {
+      cards: (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
+        card.id === cardId ? { ...card, label: formatPanelLabel(label) } : card
+      ),
+    };
+    applyCardsState(nextCardsByPanel);
+  };
+
+  const deleteCard = (cardId) => {
+    if (!activePanel || !isEditing) return;
+    const existing = draftCardsByPanel[activePanel.id]?.cards || [];
+    if (existing.length <= 1) return;
+    const removed = existing.find((card) => card.id === cardId);
+    let nextCards = existing.filter((card) => card.id !== cardId);
+    if (removed?.fieldIds?.length && nextCards[0]) {
+      nextCards = nextCards.map((card, index) =>
+        index === 0
+          ? { ...card, fieldIds: [...new Set([...(card.fieldIds || []), ...removed.fieldIds])] }
+          : card
+      );
+    }
+    const nextCardsByPanel = { ...draftCardsByPanel, [activePanel.id]: { cards: nextCards } };
+    applyCardsState(nextCardsByPanel);
+    setActiveCardId(nextCards[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
+  };
+
+  const moveCard = (cardId, direction) => {
+    if (!activePanel) return;
+    const cards = [...(draftCardsByPanel[activePanel.id]?.cards || [])];
+    const index = cards.findIndex((card) => card.id === cardId);
+    const target = index + direction;
+    if (index < 0 || target < 0 || target >= cards.length) return;
+    const [moved] = cards.splice(index, 1);
+    cards.splice(target, 0, moved);
+    const normalized = cards.map((card, orderIndex) => ({ ...card, order: orderIndex + 1 }));
+    applyCardsState({ ...draftCardsByPanel, [activePanel.id]: { cards: normalized } });
+  };
+
+  const setFieldSize = (fieldId, size) => {
+    setDraftFieldSizes((prev) => {
+      const next = { ...prev };
+      if (!size) delete next[fieldId];
+      else next[fieldId] = size;
+      return next;
+    });
   };
   const reorderPanel = (targetPanelId) => {
     if (
@@ -348,6 +478,8 @@ export default function EmpLayoutConfiguratorDialog({
     onSave?.({
       panels: draftPanels,
       layout: draftLayout,
+      layoutV3: buildLayoutV3FromCards(draftCardsByPanel),
+      fieldSizes: draftFieldSizes,
       hiddenFieldIds: draftHiddenFieldIds,
       lockedFieldIds: draftLockedFieldIds,
       requiredFieldIds: draftRequiredFieldIds,
@@ -363,8 +495,16 @@ export default function EmpLayoutConfiguratorDialog({
   };
   const restoreDefault = () => {
     if (!defaultConfig) return;
+    const cards = initCardsByPanel({
+      panels: defaultConfig.panels || [],
+      layout: defaultConfig.layout || {},
+      defaultLayout: defaultConfig.layout,
+    });
     setDraftPanels(defaultConfig.panels || []);
     setDraftLayout(defaultConfig.layout || {});
+    setDraftCardsByPanel(cards);
+    setDraftFieldSizes(defaultConfig.fieldSizes || {});
+    setActiveCardId(cards[defaultConfig.panels?.[0]?.id]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
     setDraftHiddenFieldIds([]);
     setDraftLockedFieldIds([]);
     setDraftRequiredFieldIds([]);
@@ -375,8 +515,12 @@ export default function EmpLayoutConfiguratorDialog({
     setActivePanelId(defaultConfig.panels?.[0]?.id || "");
   };
   const discardChanges = () => {
+    const cards = initCardsByPanel({ panels, layout, layoutV3, defaultLayout: defaultConfig?.layout });
     setDraftPanels(panels);
     setDraftLayout(layout);
+    setDraftCardsByPanel(cards);
+    setDraftFieldSizes(fieldSizes || {});
+    setActiveCardId(cards[panels[0]?.id]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
     setDraftHiddenFieldIds(hiddenFieldIds);
     setDraftLockedFieldIds(lockedFieldIds);
     setDraftRequiredFieldIds(requiredFieldIds);
@@ -632,7 +776,7 @@ export default function EmpLayoutConfiguratorDialog({
           </div>
         }
       >
-        <div className="grid min-h-0 h-full flex-1 grid-cols-[320px_56px_1fr]">
+        <div className="grid min-h-0 h-full flex-1 grid-cols-[280px_48px_minmax(0,1fr)_minmax(340px,38%)]">
           <aside className="flex flex-col overflow-hidden border-r border-[#d6dce8] bg-white p-2">
             <div className="mb-2 flex gap-1">
               <button
@@ -831,20 +975,107 @@ export default function EmpLayoutConfiguratorDialog({
                 ) : null}
               </div>
 
+              <div className="emp-layout-config-cards-bar">
+                {isEditing && (
+                  <ToolbarBtn onClick={createCard} className="emp-toolbar-btn-new h-7 px-2 text-[11px]" title="Novo card">
+                    <EmpToolbarIcon icon={Plus} />
+                    <span>Card</span>
+                  </ToolbarBtn>
+                )}
+                {activePanelCards.map((card) => {
+                  const active = card.id === activeCard?.id;
+                  return (
+                    <div key={card.id} className="inline-flex items-center gap-0.5">
+                      {isEditing && editingCardId === card.id ? (
+                        <Input
+                          value={card.label || ""}
+                          autoFocus
+                          onBlur={() => setEditingCardId(null)}
+                          onChange={(event) => renameCard(card.id, event.target.value)}
+                          className="h-7 w-28 border-[#dce3eb] text-[11px]"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveCardId(card.id);
+                            setSelectedPanelFieldIds([]);
+                          }}
+                          onDoubleClick={() => isEditing && setEditingCardId(card.id)}
+                          className={`emp-layout-config-card-tab ${active ? "emp-layout-config-card-tab-active" : ""}`}
+                        >
+                          {card.label}
+                        </button>
+                      )}
+                      {isEditing && active && activePanelCards.length > 1 && (
+                        <ToolbarBtn onClick={() => deleteCard(card.id)} className="h-6 w-6" title="Excluir card">
+                          <EmpToolbarIcon icon={Trash2} />
+                        </ToolbarBtn>
+                      )}
+                      {isEditing && active && (
+                        <>
+                          <ToolbarBtn onClick={() => moveCard(card.id, -1)} className="h-6 w-6" title="Mover card">
+                            <EmpToolbarIcon icon={ChevronLeft} />
+                          </ToolbarBtn>
+                          <ToolbarBtn onClick={() => moveCard(card.id, 1)} className="h-6 w-6" title="Mover card">
+                            <EmpToolbarIcon icon={ChevronRight} />
+                          </ToolbarBtn>
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
               <div className="emp-form-section emp-form-section-panel emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
                 <div
                   className="emp-layout-config-panel-fields flex min-h-[160px] flex-wrap content-start gap-2"
                   onDragOver={(event) => event.preventDefault()}
                 >
                   {panelFields.length === 0 ? (
-                    <div className="p-4 text-xs text-slate-400">Painel vazio.</div>
+                    <div className="p-4 text-xs text-slate-400">Card vazio. Arraste campos ou use os botões de transferência.</div>
                   ) : (
                     panelFields.map(renderPanelField)
                   )}
                 </div>
+                {isEditing && selectedPanelFieldIds.length === 1 && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#e2e8f0] pt-2">
+                    <span className="text-[11px] font-semibold text-[#5b6b80]">Largura no grid:</span>
+                    {FIELD_SIZE_OPTIONS.map((size) => (
+                      <button
+                        key={size}
+                        type="button"
+                        onClick={() => setFieldSize(selectedPanelFieldIds[0], size)}
+                        className={`h-6 rounded px-2 text-[10px] font-semibold ${
+                          draftFieldSizes[selectedPanelFieldIds[0]] === size
+                            ? "bg-[#eaf2ff] text-[#2563eb]"
+                            : "bg-[#f1f5f9] text-[#64748b]"
+                        }`}
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </main>
+
+          <aside className="emp-layout-config-preview min-h-0 overflow-auto">
+            <EmpLayoutConfiguratorPreview
+              panels={draftPanels}
+              fields={fields}
+              cardsByPanel={draftCardsByPanel}
+              hiddenFieldIds={draftHiddenFieldIds}
+              lockedFieldIds={draftLockedFieldIds}
+              requiredFieldIds={draftRequiredFieldIds}
+              visibilityRules={draftVisibilityRules}
+              fieldSizes={draftFieldSizes}
+              fieldLayoutConfig={fieldLayoutConfig}
+              activePanelId={activePanel?.id}
+              values={previewValues}
+            />
+          </aside>
         </div>
       </EmpSplitToolbarLayout>
 

@@ -8,6 +8,7 @@ import {
   resolveLayoutConfig,
   syncLayoutV3FromFlat,
 } from "./layoutConfigV3.js";
+import { normalizeFieldSizes } from "./empFormFieldGrid.js";
 
 const LEGACY_CONFIG_KEY = "cadastro_emp_form_layout_config";
 
@@ -35,18 +36,13 @@ const getLegacyKey = () => getLayoutStorageKeys().legacyKey;
 const cloneValue = (value) => JSON.parse(JSON.stringify(value));
 
 export const DEFAULT_FIELD_LAYOUT_CONFIG = {
-  mode: "vertical",
-  columns: 1,
+  mode: "corporate",
+  columns: 12,
 };
 
 export const normalizeFieldLayoutConfig = (source = {}) => {
-  let mode = "vertical";
-  if (source?.mode === "details") mode = "details";
-  if (source?.mode === "detailsCompact" || source?.mode === "details_compact") mode = "detailsCompact";
-  if (source?.mode === "vertical" || source?.mode === "stacked") mode = "vertical";
-  if (source?.mode === "compact" || source?.mode === "columns") mode = "compact";
-  const columns = Math.min(6, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
-  return { mode, columns };
+  const columns = Math.min(12, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
+  return { mode: "corporate", columns };
 };
 
 export const layoutConfigFields = [
@@ -61,6 +57,7 @@ export const layoutConfigFields = [
   "aggregationConfig",
   "visibilityRules",
   "fieldLayoutConfig",
+  "fieldSizes",
 ];
 
 export const pickLayoutConfig = (source = {}) => {
@@ -100,6 +97,7 @@ export const createEmptyLayoutConfig = (defaultConfig = {}) => {
     aggregationConfig: {},
     visibilityRules: {},
     fieldLayoutConfig: { ...DEFAULT_FIELD_LAYOUT_CONFIG },
+    fieldSizes: {},
   });
 };
 
@@ -151,6 +149,7 @@ export const normalizeLayoutConfig = (
     aggregationConfig: {},
     visibilityRules: {},
     fieldLayoutConfig: { ...DEFAULT_FIELD_LAYOUT_CONFIG },
+    fieldSizes: {},
   };
   const merged = { ...fallback, ...(source || {}) };
   const panelsSource = merged.panels?.some((panel) => panel.id === "principal")
@@ -187,6 +186,7 @@ export const normalizeLayoutConfig = (
     hiddenFieldIds: merged.hiddenFieldIds || [],
     visibilityRules: merged.visibilityRules || {},
     fieldLayoutConfig: normalizeFieldLayoutConfig(merged.fieldLayoutConfig),
+    fieldSizes: normalizeFieldSizes(merged.fieldSizes),
   };
 };
 

@@ -2703,7 +2703,126 @@ select.erp-field-invalid {
   box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35);
 }
 
-/* Layout SGG — label à esquerda, campos com largura por tipo */
+/* Layout corporativo V3 — cards, labels acima, grid 12 colunas */
+.cadastro-emp-scope .emp-form-fields-corp {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-card {
+  border: 1px solid var(--emp-form-border-color, #c5ced8);
+  border-radius: var(--emp-control-radius, 6px);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-form-card--virtual {
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.cadastro-emp-scope .emp-form-card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--emp-accent-primary, #2563eb);
+  background: #f8fafc;
+  border: 0;
+  border-bottom: 1px solid var(--emp-form-border-color, #c5ced8);
+  text-align: left;
+  cursor: pointer;
+}
+
+.cadastro-emp-scope .emp-form-card-body {
+  padding: 8px 10px 10px;
+}
+
+.cadastro-emp-scope .emp-form-card-grid {
+  display: grid;
+  gap: 6px 10px;
+  align-items: start;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-field-corp {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.cadastro-emp-scope .emp-form-field-label-top {
+  font-size: var(--emp-form-font-size, 11px);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--emp-text, #1a1f26);
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control {
+  min-height: var(--emp-form-control-height, 34px);
+  border: 1px solid var(--emp-form-border-color, #c5ced8);
+  border-radius: var(--emp-control-radius, 6px);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--bare .emp-form-field-control {
+  border: 0;
+  background: transparent;
+  min-height: auto;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--image .emp-form-field-control {
+  min-height: auto;
+}
+
+.cadastro-emp-scope .emp-layout-config-preview {
+  border-left: 1px solid #d6dce8;
+  background: #f1f5f9;
+  overflow: auto;
+}
+
+.cadastro-emp-scope .emp-layout-config-preview-inner {
+  padding: 12px;
+  min-height: 100%;
+}
+
+.cadastro-emp-scope .emp-layout-config-cards-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cadastro-emp-scope .emp-layout-config-card-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 5px;
+  border: 1px solid #dce3eb;
+  background: #fff;
+  color: #334155;
+  cursor: pointer;
+}
+
+.cadastro-emp-scope .emp-layout-config-card-tab-active {
+  border-color: var(--emp-accent-primary, #2563eb);
+  color: var(--emp-accent-primary, #2563eb);
+  background: #eaf2ff;
+}
+
+/* Layout SGG (legado — remoção planejada) */
 .cadastro-emp-scope .emp-form-fields-sgg.emp-form-fields-compact,
 .cadastro-emp-scope .emp-form-fields-sgg {
   display: flex;

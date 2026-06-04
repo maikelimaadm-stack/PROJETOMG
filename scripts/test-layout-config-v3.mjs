@@ -83,6 +83,7 @@ assert.ok(Array.isArray(normalized.layout.principal), "consumidor V2: layout.pri
 assert.deepEqual(normalized.layout.principal, legacyV2.layout.principal);
 assert.ok(normalized.layoutV3?.principal?.cards?.length > 0, "layoutV3 disponível");
 assert.equal(normalized.version, 3);
+assert.equal(normalized.fieldLayoutConfig.mode, "corporate");
 
 // --- sanitize não remove campos
 const sanitized = sanitizeLayoutFieldPlacements(normalized.layout);
