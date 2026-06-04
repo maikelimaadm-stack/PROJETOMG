@@ -20,6 +20,12 @@ import {
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import { getMaxFieldsPerRow } from "../src/framework/cadastro/layouts/empFormFieldWidthPresets.js";
 import {
+  buildBalancedRows,
+  fixOrphanRows,
+  computeRowFieldBalance,
+  isExpandableWidthType,
+} from "../src/framework/cadastro/layouts/empFormRowBalance.js";
+import {
   countLayoutFields,
   ensureLayoutFields,
   mergeSavedFormLayout,
@@ -194,5 +200,55 @@ const withTextarea = packFieldIdsIntoRows(["a", "b", "obs"], {
 });
 assert.equal(withTextarea[withTextarea.length - 1].fieldIds[0], "obs");
 assert.equal(withTextarea[withTextarea.length - 1].fullWidth, true);
+
+// --- Motor de balanceamento: sem linha órfã (1 campo sozinho)
+const orphanFixed = fixOrphanRows([["a", "b", "c", "d", "e"], ["f"]]);
+assert.equal(orphanFixed.length, 2);
+assert.ok(orphanFixed.every((row) => row.length !== 1), "nenhuma linha com campo único");
+
+const sevenBalanced = buildBalancedRows(
+  ["f1", "f2", "f3", "f4", "f5", "f6", "f7"],
+  {
+    fields: Array.from({ length: 7 }, (_, i) => ({ id: `f${i + 1}`, type: "text" })),
+    card: { colSpan: 12 },
+  }
+);
+assert.ok(sevenBalanced.length >= 2);
+sevenBalanced
+  .filter((row) => !row.fullWidth)
+  .forEach((row) => {
+    assert.ok(row.fieldIds.length >= 2, "linha regular não deve ter órfão");
+    assert.ok(row.fieldBalance && Object.keys(row.fieldBalance).length > 0, "fieldBalance por linha");
+  });
+
+// --- Tipos fixos (número/data) não absorvem sobra
+assert.equal(isExpandableWidthType("NUMBER"), false);
+assert.equal(isExpandableWidthType("SHORT_TEXT"), true);
+const mixedBalance = computeRowFieldBalance(
+  ["nome", "qtd", "dt"],
+  [
+    { id: "nome", type: "text" },
+    { id: "qtd", type: "number" },
+    { id: "dt", type: "date" },
+  ],
+  12,
+  {}
+);
+assert.match(mixedBalance.qtd.flex, /^0 0 /);
+assert.match(mixedBalance.dt.flex, /^0 0 /);
+assert.ok(mixedBalance.nome.expandable);
+
+// --- fieldBalance persiste na normalização
+const normalizedWithBalance = normalizeCardRows(
+  { id: "c1", colSpan: 12, fieldIds: ["a", "b", "c"] },
+  {},
+  [
+    { id: "a", type: "text" },
+    { id: "b", type: "number" },
+    { id: "c", type: "text", wide: true },
+  ]
+);
+const firstRow = normalizedWithBalance.rows[0];
+assert.ok(firstRow.fieldBalance?.a, "fieldBalance persistido em normalizeLayoutRowV3");
 
 console.log("✓ Todos os testes LayoutConfigV3 passaram.");

@@ -1,5 +1,5 @@
 import { resolveFieldGridSpan } from "./empFormFieldGrid.js";
-import { getMaxFieldsPerRow, isTextareaField } from "./empFormFieldWidthPresets.js";
+import { buildBalancedRows } from "./empFormRowBalance.js";
 
 /**
  * @typedef {Object} LayoutRowV3
@@ -7,6 +7,7 @@ import { getMaxFieldsPerRow, isTextareaField } from "./empFormFieldWidthPresets.
  * @property {number} [order]
  * @property {string[]} fieldIds
  * @property {boolean} [fullWidth]
+ * @property {Record<string, { flex: string, minWidth: string, expandable?: boolean, growWeight?: number }>} [fieldBalance]
  */
 
 const GRID_COLUMNS = 12;
@@ -50,61 +51,26 @@ export const normalizeLayoutRowV3 = (source = {}, index = 0, cardId = "card") =>
   const fieldIds = Array.isArray(source.fieldIds)
     ? source.fieldIds.filter((fieldId) => typeof fieldId === "string" && fieldId)
     : [];
+  const fieldBalance =
+    source.fieldBalance && typeof source.fieldBalance === "object" ? { ...source.fieldBalance } : undefined;
+
   return {
     id,
     order,
     fieldIds,
     fullWidth: Boolean(source.fullWidth),
+    ...(fieldBalance ? { fieldBalance } : {}),
   };
 };
 
 /**
- * Empacota campos em linhas: limite por card, textarea isolada no final.
- * Largura na linha é flex-grow (preenchimento automático).
+ * Empacota e balanceia linhas (motor automático).
  * @param {string[]} fieldIds
  * @param {{ fieldSizes?: Record<string, string>, fields?: object[], card?: object }} [options]
  */
 export const packFieldIdsIntoRows = (fieldIds = [], options = {}) => {
-  const { fields = [], card = {} } = options;
-  const colSpan = Number(card.colSpan) || 12;
-  const maxPerRow = getMaxFieldsPerRow(colSpan);
-
-  const regular = [];
-  const textareas = [];
-
-  fieldIds.forEach((fieldId) => {
-    if (!fieldId) return;
-    const field = fields.find((item) => item.id === fieldId) || { id: fieldId };
-    if (isTextareaField(field)) textareas.push(fieldId);
-    else regular.push(fieldId);
-  });
-
-  const rows = [];
-  let current = [];
-
-  const flush = () => {
-    if (!current.length) return;
-    rows.push({ fieldIds: [...current], fullWidth: false });
-    current = [];
-  };
-
-  regular.forEach((fieldId) => {
-    if (current.length >= maxPerRow) flush();
-    current.push(fieldId);
-    if (current.length >= maxPerRow) flush();
-  });
-
-  flush();
-
-  textareas.forEach((fieldId) => {
-    rows.push({ fieldIds: [fieldId], fullWidth: true });
-  });
-
-  if (!rows.length && fieldIds.length) {
-    return [{ fieldIds: [...fieldIds], fullWidth: false }];
-  }
-
-  return rows.filter((row) => row.fieldIds.length);
+  const { fieldSizes = {}, fields = [], card = {} } = options;
+  return buildBalancedRows(fieldIds, { fields, card, fieldSizes });
 };
 
 /** @deprecated Empacotamento legado por grid 12 */
@@ -147,7 +113,7 @@ export const packFieldIdsIntoGridRows = (fieldIds = [], fieldSizes = {}, fields 
 export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = []) => {
   const cardId = card.id || "card";
   const fieldIds = flattenRowsToFieldIds(card);
-  const packed = packFieldIdsIntoRows(fieldIds, { fields, card });
+  const packed = packFieldIdsIntoRows(fieldIds, { fields, card, fieldSizes: fieldWidthTypes });
 
   const rows = packed.map((row, index) =>
     normalizeLayoutRowV3(
@@ -155,6 +121,7 @@ export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = []) 
         id: createRowId(cardId, index + 1),
         fieldIds: row.fieldIds,
         fullWidth: row.fullWidth,
+        fieldBalance: row.fieldBalance,
       },
       index,
       cardId

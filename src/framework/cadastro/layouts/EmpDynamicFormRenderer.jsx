@@ -130,13 +130,22 @@ const conditionMatches = (current, expected, sourceField) => {
 };
 
 /** Layout corporativo: min-width por tipo + flex-grow (preenche a linha). */
-function FieldFrameCorp({ field, error, children, fieldSizes = {}, fullRow = false, className = "" }) {
+function FieldFrameCorp({
+  field,
+  error,
+  children,
+  fieldSizes = {},
+  fullRow = false,
+  rowBalance = null,
+  className = "",
+}) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
   const textareaField = field?.type === "textarea";
   const loteStyle = isCustomField(field);
   const preset = resolveFieldWidthTypePreset(field, fieldSizes);
   const typeClass = `emp-form-field-corp--type-${preset.type.toLowerCase().replace(/_/g, "-")}`;
+  const balanced = rowBalance?.[field.id];
 
   const isFull = fullRow || preset.fullRow;
   const widthStyle = isFull
@@ -152,12 +161,21 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, fullRow = fal
             }
           : {}),
       }
-    : {
-        flex: `${preset.flexGrow ?? 1} 1 ${typeof preset.flexBasis === "string" ? preset.flexBasis : `${preset.flexBasis ?? 0}px`}`,
-        minWidth: `${preset.min}px`,
-        maxWidth: "none",
-        width: "auto",
-      };
+    : balanced
+      ? {
+          flex: balanced.flex,
+          minWidth: balanced.minWidth,
+          maxWidth: "none",
+          width: "auto",
+          flexGrow: balanced.expandable ? balanced.growWeight : 0,
+          flexShrink: 0,
+        }
+      : {
+          flex: "1 1 140px",
+          minWidth: `${preset.min}px`,
+          maxWidth: "none",
+          width: "auto",
+        };
 
   return (
     <div
@@ -167,6 +185,8 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, fullRow = fal
         "emp-form-field-corp",
         typeClass,
         isFull && "emp-form-field-corp--full-row",
+        balanced && !balanced.expandable && "emp-form-field-corp--fixed-width",
+        balanced && balanced.expandable && "emp-form-field-corp--balanced-grow",
         imageField && "emp-form-field-corp--image",
         textareaField && "emp-form-field-corp--textarea",
         bare && "emp-form-field-corp--bare",
@@ -298,7 +318,7 @@ export default function EmpDynamicFormRenderer({
     );
   };
 
-  const renderField = (field, fullRow = false) => {
+  const renderField = (field, fullRow = false, rowBalance = null) => {
     const value = field.getValue ? field.getValue(values, context) : values[field.name];
     const error = errors[field.errorKey || field.name];
     const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
@@ -311,6 +331,7 @@ export default function EmpDynamicFormRenderer({
         error={error}
         fieldSizes={fieldSizes}
         fullRow={fullRow}
+        rowBalance={rowBalance}
         className={fieldClassName}
       >
         {control}
@@ -364,7 +385,9 @@ export default function EmpDynamicFormRenderer({
                       )}
                     >
                       <div className="emp-form-card-row-grid emp-form-card-row-grid--flex">
-                        {rowFields.map((field) => renderField(field, layoutRow.fullWidth))}
+                        {rowFields.map((field) =>
+                          renderField(field, layoutRow.fullWidth, layoutRow.fieldBalance)
+                        )}
                       </div>
                     </div>
                   );
