@@ -256,14 +256,15 @@ export default function EmpLayoutConfiguratorDialog({
         fieldIds: [...(row.fieldIds || [])],
       })),
       colSpan,
-      activeCard.id
+      activeCard.id,
+      { keepEmptyRows: true }
     );
     const fieldIds = flattenRowsToFieldIds({ rows: enforcedRows });
     const normalizedRows = enforcedRows;
     const nextCardsByPanel = { ...draftCardsByPanel };
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id
-        ? normalizeLayoutCardV3({ ...card, rows: normalizedRows, fieldIds })
+        ? { ...card, rows: normalizedRows, fieldIds }
         : normalizeLayoutCardV3(card)
     );
     nextCardsByPanel[activePanel.id] = { cards };

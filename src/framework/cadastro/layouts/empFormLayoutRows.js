@@ -170,14 +170,30 @@ export const balanceConfiguredRows = (
  */
 /**
  * Garante no máximo 6 campos (card inteiro) ou 4 (card meio) por linha.
+ * @param {{ keepEmptyRows?: boolean }} [options] — true no configurador (linhas vazias para arrastar campos)
  */
-export const enforceMaxFieldsPerCardRows = (rows = [], colSpan = 12, cardId = "card") => {
+export const enforceMaxFieldsPerCardRows = (
+  rows = [],
+  colSpan = 12,
+  cardId = "card",
+  { keepEmptyRows = false } = {}
+) => {
   const max = getMaxFieldsPerRow(colSpan);
   const next = [];
 
   rows.forEach((row, rowIndex) => {
     const ids = (row.fieldIds || []).filter(Boolean);
-    if (!ids.length) return;
+    if (!ids.length) {
+      if (keepEmptyRows) {
+        next.push({
+          ...row,
+          id: row.id || createRowId(cardId, rowIndex + 1),
+          order: next.length + 1,
+          fieldIds: [],
+        });
+      }
+      return;
+    }
 
     if (ids.length <= max) {
       next.push({
