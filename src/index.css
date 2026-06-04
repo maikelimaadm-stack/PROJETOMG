@@ -3569,9 +3569,10 @@ select.erp-field-invalid {
 }
 
 .erp-float-select-chevron {
-  width: 16px;
-  height: 16px;
-  opacity: 0.5;
+  width: 14px;
+  height: 14px;
+  color: #64748b;
+  opacity: 1;
 }
 
 .erp-float-select-content {
