@@ -15,7 +15,9 @@
     "personalizacoes:import": "node scripts/personalizacoes/emp-personalizacoes.mjs import",
     "personalizacoes:apply-form-layout": "node scripts/personalizacoes/emp-personalizacoes.mjs apply-form-layout",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:empresas-novo": "playwright test --config=playwright.mock.config.js",
+    "test:emp-form-layout": "node scripts/verify-emp-form-layout.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",
