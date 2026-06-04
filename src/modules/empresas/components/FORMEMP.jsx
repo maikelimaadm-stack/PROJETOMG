@@ -13,8 +13,9 @@ import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarL
 import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpLayoutConfiguratorDialog";
 import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
+  countLayoutFields,
+  ensureLayoutFields,
   getLayoutStorageKeys,
-  mergeSavedFormLayout,
   normalizeLayoutConfig,
   readStoredLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
@@ -63,6 +64,7 @@ export default function FORMEMP({
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
   const [formLayoutConfig, setFormLayoutConfig] = useState(null);
+  const layoutPersistedRef = useRef(false);
 
   useEffect(() => {
     if (!user?.id) {
@@ -75,11 +77,17 @@ export default function FORMEMP({
     syncEmpresasFormLayoutRemote(user.id);
 
     const handleRemoteLayout = () => {
-      setFormLayoutConfig(readStoredLayoutConfig());
+      const stored = readStoredLayoutConfig();
+      if (stored) setFormLayoutConfig(stored);
     };
 
-    window.addEventListener("emp-layout-hydrated", handleRemoteLayout);
-    return () => window.removeEventListener("emp-layout-hydrated", handleRemoteLayout);
+    const handleLayoutHydrated = () => {
+      layoutPersistedRef.current = false;
+      handleRemoteLayout();
+    };
+
+    window.addEventListener("emp-layout-hydrated", handleLayoutHydrated);
+    return () => window.removeEventListener("emp-layout-hydrated", handleLayoutHydrated);
   }, [user?.id]);
 
   const buildFormData = (data) =>
@@ -300,7 +308,7 @@ export default function FORMEMP({
   const defaultConfigFull = useMemo(() => buildEmpFormDefaultConfig(), []);
 
   const activeLayoutConfig = useMemo(() => {
-    const source = mergeSavedFormLayout(formLayoutConfig, defaultConfigFull);
+    const source = ensureLayoutFields(formLayoutConfig, defaultConfigFull) || defaultConfigFull;
     return normalizeLayoutConfig(source, {
       basePanels,
       defaultLayout,
@@ -317,12 +325,18 @@ export default function FORMEMP({
     [activeLayoutConfig.panels]
   );
 
-  const tabs = activeLayoutConfig.panels.filter((panel) => {
-    if (panel.id === "principal") return false;
-    if (panel.hidden) return false;
-    if (panel.id === "campos_personalizados" && camposPersonalizadosForm.length === 0) return false;
-    return (activeLayoutConfig.layout?.[panel.id] || []).length > 0;
-  });
+  const tabs = useMemo(
+    () =>
+      activeLayoutConfig.panels.filter((panel) => {
+        if (panel.id === "principal") return false;
+        if (panel.hidden) return false;
+        if (panel.id === "campos_personalizados" && camposPersonalizadosForm.length === 0) return false;
+        const panelFields = activeLayoutConfig.layout?.[panel.id] || [];
+        const fallbackFields = defaultLayout?.[panel.id] || [];
+        return panelFields.length > 0 || fallbackFields.length > 0;
+      }),
+    [activeLayoutConfig.panels, activeLayoutConfig.layout, camposPersonalizadosForm.length, defaultLayout]
+  );
   const principalLayoutFields = activeLayoutConfig.layout?.principal || [];
   const principalInUse = principalLayoutFields.length > 0;
   const fieldLayoutConfig = activeLayoutConfig.fieldLayoutConfig;
@@ -333,7 +347,6 @@ export default function FORMEMP({
     ...tabs,
   ];
   const [collapsedDetailPanelIds, setCollapsedDetailPanelIds] = useState([]);
-  const layoutRepairRef = useRef(false);
   const toggleDetailPanel = (panelId) => {
     setCollapsedDetailPanelIds((prev) =>
       prev.includes(panelId) ? prev.filter((id) => id !== panelId) : [...prev, panelId]
@@ -382,31 +395,7 @@ export default function FORMEMP({
     return normalized;
   };
 
-  useEffect(() => {
-    if (!user?.id || !formLayoutConfig) return;
-
-    const placedIds = Object.values(activeLayoutConfig.layout || {}).flat().filter(Boolean);
-    if (placedIds.length === 0) {
-      applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
-      return;
-    }
-
-    const hasPendingCustomFields = placedIds.some((fieldId) => String(fieldId).startsWith("custom:"));
-    if (hasPendingCustomFields && !camposPersonalizadosReady) return;
-
-    const knownFieldIds = new Set(dynamicFields.map((field) => field.id));
-    const validPlacedIds = placedIds.filter((fieldId) => knownFieldIds.has(fieldId));
-    if (validPlacedIds.length === 0) {
-      applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
-    }
-  }, [
-    user?.id,
-    formLayoutConfig,
-    activeLayoutConfig.layout,
-    defaultConfigFull,
-    dynamicFields,
-    camposPersonalizadosReady,
-  ]);
+  const tabIdsKey = useMemo(() => tabs.map((panel) => panel.id).join("|"), [tabs]);
 
   useEffect(() => {
     if (!formLayoutConfig || layoutConfigOpen) return;
@@ -417,18 +406,26 @@ export default function FORMEMP({
       const nextTab = tabs[0]?.id || formPanels[0]?.id || "geral";
       if (nextTab !== activeTab) setActiveTab(nextTab);
     }
-  }, [formLayoutConfig, tabs, formPanels, activeTab, layoutConfigOpen]);
+  }, [formLayoutConfig, tabIdsKey, formPanels, activeTab, layoutConfigOpen]);
 
   useEffect(() => {
-    if (!formLayoutConfig || layoutConfigOpen) return;
-    if (tabs.length > 0) {
-      layoutRepairRef.current = false;
-      return;
+    if (!user?.id || !formLayoutConfig || layoutConfigOpen || layoutPersistedRef.current) return;
+
+    const repaired = ensureLayoutFields(formLayoutConfig, defaultConfigFull);
+    const storedFieldCount = countLayoutFields(formLayoutConfig?.layout);
+    const repairedFieldCount = countLayoutFields(repaired?.layout);
+    const hasHiddenSystemPanels = (formLayoutConfig?.panels || []).some(
+      (panel) =>
+        ["geral", "endereco", "observacoes"].includes(panel.id) &&
+        panel.hidden &&
+        (formLayoutConfig?.layout?.[panel.id] || []).length > 0
+    );
+
+    if (storedFieldCount === 0 || repairedFieldCount > storedFieldCount || hasHiddenSystemPanels) {
+      layoutPersistedRef.current = true;
+      applyLayoutConfig(repaired || defaultConfigFull, { updateActiveTab: true });
     }
-    if (layoutRepairRef.current) return;
-    layoutRepairRef.current = true;
-    applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
-  }, [formLayoutConfig, tabs.length, layoutConfigOpen, defaultConfigFull]);
+  }, [user?.id, formLayoutConfig, layoutConfigOpen, defaultConfigFull]);
 
   const handleDynamicFieldChange = (fieldName, value) => {
     const field = dynamicFields.find((item) => item.name === fieldName);
