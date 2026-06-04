@@ -1173,6 +1173,27 @@ input[type="number"] {
   padding: 0 8px;
 }
 
+.cadastro-emp-scope .emp-form-fields .erp-field-select .erp-field-select-input {
+  padding-right: 28px !important;
+}
+
+.cadastro-emp-scope .emp-form-fields .erp-field-lookup .erp-field-lookup-input {
+  padding-left: 28px !important;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .erp-field-select .erp-field-select-input {
+  padding-right: 28px !important;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .erp-field-lookup .erp-field-lookup-input {
+  padding-left: 28px !important;
+}
+
+.cadastro-emp-scope .erp-field-select-chevron-btn,
+.cadastro-emp-scope .erp-field-lookup-inline-icon {
+  z-index: 3;
+}
+
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input:read-only,
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input[readonly],
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea:read-only,

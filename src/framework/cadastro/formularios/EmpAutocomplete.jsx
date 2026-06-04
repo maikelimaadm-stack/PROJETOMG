@@ -58,14 +58,15 @@ export default function EmpAutocomplete({
   const interactingWithDropdownRef = useRef(false);
   const portalContainerRef = useRef(null);
 
-  const resolvedItems = useMemo(() => {
-    if (isLookup) return items;
-    const hasEmpty = items.some((item) => String(item?.id ?? "") === "");
-    if (hasEmpty) return items;
-    return [{ id: "", nome: "SELECIONE" }, ...items];
-  }, [items, isLookup]);
+  const menuItems = useMemo(
+    () => items.filter((item) => isLookup || String(item?.id ?? "") !== ""),
+    [items, isLookup]
+  );
 
-  const selectedItem = resolvedItems.find((item) => item.id === value);
+  const selectedItem = useMemo(() => {
+    if (value === "" || value == null) return undefined;
+    return items.find((item) => item.id === value) ?? menuItems.find((item) => item.id === value);
+  }, [items, menuItems, value]);
   const filterText = isSelect ? menuFilter : searchTerm;
 
   useEffect(() => {
@@ -131,7 +132,7 @@ export default function EmpAutocomplete({
 
   const filteredItems = useMemo(
     () =>
-      [...resolvedItems]
+      [...menuItems]
         .sort((a, b) =>
           String(a?.[displayField] || "").localeCompare(String(b?.[displayField] || ""), "pt-BR", {
             numeric: true,
@@ -145,7 +146,7 @@ export default function EmpAutocomplete({
               .includes(String(filterText || "").toLowerCase())
           )
         ),
-    [resolvedItems, displayField, searchFields, filterText]
+    [menuItems, displayField, searchFields, filterText]
   );
 
   useEffect(() => {
@@ -239,7 +240,7 @@ export default function EmpAutocomplete({
       const subtext = renderSubtext ? renderSubtext(item) : isLookup ? defaultSubtext(item) : "";
       return (
         <div
-          key={item.id}
+          key={String(item.id ?? index)}
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
           onClick={(e) => {
@@ -374,7 +375,7 @@ export default function EmpAutocomplete({
       <div className="relative min-w-0 flex-1">
         {isLookup ? (
           <Search
-            className="erp-field-lookup-inline-icon pointer-events-none absolute left-2 top-1/2 z-[1] h-3.5 w-3.5 -translate-y-1/2"
+            className="erp-field-lookup-inline-icon pointer-events-none absolute left-2 top-1/2 z-[2] h-3.5 w-3.5 -translate-y-1/2 text-[#64748b]"
             aria-hidden
           />
         ) : null}
@@ -395,9 +396,9 @@ export default function EmpAutocomplete({
           placeholder={resolvedPlaceholder}
           className={cn(
             "emp-form-input h-full min-h-0 border-0 text-xs shadow-none focus-visible:ring-0",
-            isLookup ? "erp-field-lookup-input pl-7 pr-2" : "erp-field-select-input pr-7",
-            !isLookup && uppercaseDisplay && "uppercase",
-            inputClassName
+            inputClassName,
+            isLookup ? "erp-field-lookup-input !pl-7 !pr-2" : "erp-field-select-input !pr-7 !pl-2.5",
+            !isLookup && uppercaseDisplay && "uppercase"
           )}
           style={!isLookup && uppercaseDisplay ? { textTransform: "uppercase" } : undefined}
         />
@@ -408,7 +409,7 @@ export default function EmpAutocomplete({
             disabled={disabled || readOnly}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => (open ? setOpen(false) : openPanel())}
-            className="erp-field-select-chevron-btn absolute right-1 top-1/2 z-[1] flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-[#64748b] hover:bg-[#f3f6fb]"
+            className="erp-field-select-chevron-btn absolute right-1 top-1/2 z-[3] flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-[#64748b] hover:bg-[#f3f6fb]"
             aria-label={open ? "Fechar lista" : "Abrir lista"}
           >
             <ChevronDown

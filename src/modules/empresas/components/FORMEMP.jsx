@@ -215,7 +215,6 @@ export default function FORMEMP({
 
   const opcoesTipoVinculo = useMemo(
     () => [
-      { id: "", nome: "SELECIONE" },
       { id: "proprietario", nome: "PROPRIETÁRIO" },
       { id: "arrendatario", nome: "ARRENDATÁRIO" },
     ],

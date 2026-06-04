@@ -25,6 +25,19 @@
   --erp-color-text-muted: #64748b;
   --erp-radius-control: 8px;
   --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.erp-shell .erp-shell-company-select,
+.erp-shell select.erp-select-closed {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px !important;
+  background-color: #ffffff !important;
+  background-image: var(--erp-select-chevron-icon);
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px 14px;
 }
 
 .cadastro-scope,
@@ -353,6 +366,15 @@
   border: 0;
   background: transparent;
   cursor: pointer;
+  z-index: 3;
+}
+
+.cadastro-emp-scope .erp-select-control .erp-field-select-input {
+  padding-right: 28px !important;
+}
+
+.cadastro-emp-scope .erp-select-control .erp-field-lookup-input {
+  padding-left: 28px !important;
 }
 
 .cadastro-emp-scope .emp-form-field-control:has(.erp-field-open) {

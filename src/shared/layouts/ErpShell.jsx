@@ -72,7 +72,7 @@ function ErpTopHeader({
         <select
           value={selectorValue}
           onChange={(event) => onSelectEmpresa(event.target.value)}
-          className="erp-shell-company-select h-8 min-w-[220px] max-w-[320px] rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-700"
+          className="erp-shell-company-select erp-select-closed h-8 min-w-[220px] max-w-[320px] rounded-md border border-slate-300 bg-white px-2 pr-7 text-xs text-slate-700"
           title="Escolha ver todas as empresas ou focar em uma só"
         >
           <optgroup label="Visão geral">

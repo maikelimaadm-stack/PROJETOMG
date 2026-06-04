@@ -1,6 +1,5 @@
 import React from "react";
 import { Input } from "@/shared/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 
@@ -131,29 +130,28 @@ export default function EmpLayoutFieldDefaultValueEditor({
   }
 
   if (["select", "autocomplete", "option_list"].includes(field.type) && Array.isArray(field.options) && field.options.length > 0) {
-    const options = field.options.map((option) => ({
-      value: String(option?.id ?? option?.value ?? option?.label ?? option?.nome ?? ""),
-      label: String(option?.nome ?? option?.label ?? option?.value ?? option?.id ?? ""),
-    }));
+    const items = field.options
+      .map((option) => ({
+        id: String(option?.id ?? option?.value ?? option?.label ?? option?.nome ?? ""),
+        nome: String(option?.nome ?? option?.label ?? option?.value ?? option?.id ?? ""),
+      }))
+      .filter((option) => option.id !== "");
 
     return (
-      <Select
+      <EmpAutocomplete
+        variant="select"
+        items={items}
         value={value || ""}
-        onValueChange={(nextValue) => onChange?.(nextValue)}
+        onChange={(nextValue) => onChange?.(nextValue)}
         disabled={disabled}
-        onOpenChange={onSelectOpenChange}
-      >
-        <SelectTrigger className={`${controlClass} px-2`}>
-          <SelectValue placeholder="Selecione..." />
-        </SelectTrigger>
-        <SelectContent portalled={selectPortalled} className="z-[250]">
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value} className="text-xs">
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+        readOnly={disabled}
+        placeholder="SELECIONE"
+        displayField="nome"
+        searchFields={["nome"]}
+        className="h-full w-full"
+        inputClassName={`${controlClass} border-0 shadow-none focus-visible:ring-0 bg-white px-2`}
+        uppercaseDisplay={false}
+      />
     );
   }
 
