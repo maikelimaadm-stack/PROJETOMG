@@ -143,21 +143,17 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   const widthStyle = balanced
     ? {
         flex: balanced.flex,
-        flexGrow: balanced.flexGrow ?? 1,
-        flexShrink: balanced.flexShrink ?? 1,
-        flexBasis: balanced.flexBasis || balanced.minWidth,
-        minWidth: balanced.minWidth,
-        maxWidth: balanced.maxWidth ?? "none",
+        minWidth: balanced.minWidth ?? 0,
+        maxWidth: balanced.maxWidth,
         width: "auto",
+        overflow: "hidden",
       }
     : {
-        flex: `${preset.grow} 1 ${preset.min}px`,
-        flexGrow: preset.grow,
-        flexShrink: 1,
-        flexBasis: `${preset.min}px`,
-        minWidth: `${preset.min}px`,
-        maxWidth: "none",
+        flex: `${preset.grow} 1 0`,
+        minWidth: 0,
+        maxWidth: "100%",
         width: "auto",
+        overflow: "hidden",
       };
 
   return (

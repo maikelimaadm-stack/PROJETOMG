@@ -197,6 +197,16 @@ assert.equal(cardHasExplicitRows(emptyRowCard), true);
 assert.equal(resolveConfiguredCardRows(emptyRowCard).length, 2);
 assert.equal(resolveConfiguredCardRows(emptyRowCard)[1].fieldIds.length, 0);
 
+const halfRowBalance = computeRowFieldBalance(
+  ["a", "b", "c", "d"],
+  ["a", "b", "c", "d"].map((id) => ({ id, type: "text" })),
+  6,
+  {},
+  720
+);
+assert.equal(halfRowBalance.a.maxWidth, "calc((100% - 24px) / 4)");
+assert.equal(halfRowBalance.a.flex, "3 1 0");
+
 const textFields = Array.from({ length: 7 }, (_, i) => ({ id: `f${i + 1}`, type: "text" }));
 
 const fullCardPacked = normalizeCardRows(
@@ -336,8 +346,9 @@ widths.forEach((w) => assert.ok(Math.abs(w - widths[0]) <= 2, "distribuição ig
 
 Object.values(equalBalance).forEach((entry) => {
   assert.equal(entry.flexGrow, 3);
-  assert.ok(entry.maxWidth === "none" || entry.maxWidth === "100%");
-  assert.match(entry.flex, /^3 1 /);
+  assert.match(entry.maxWidth, /^calc\(\(100% - \d+px\) \/ \d+\)$/);
+  assert.equal(entry.flex, "3 1 0");
+  assert.equal(entry.minWidth, "0");
 });
 
 const growBalance = computeRowFieldBalance(

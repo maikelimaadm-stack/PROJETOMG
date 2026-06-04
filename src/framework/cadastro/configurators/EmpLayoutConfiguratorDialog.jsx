@@ -888,12 +888,10 @@ export default function EmpLayoutConfiguratorDialog({
     if (!balanced) return undefined;
     return {
       flex: balanced.flex,
-      flexGrow: balanced.flexGrow ?? 1,
-      flexShrink: balanced.flexShrink ?? 1,
-      flexBasis: balanced.flexBasis || balanced.minWidth,
       minWidth: balanced.minWidth ?? 0,
-      maxWidth: balanced.maxWidth ?? "100%",
+      maxWidth: balanced.maxWidth,
       width: "auto",
+      overflow: "hidden",
     };
   };
 

@@ -108,61 +108,38 @@ export function packFieldsByMaxCount(
 }
 
 /**
- * Balanceamento flex: flex-grow por categoria, flex-basis = min-width.
- * Se a soma dos mínimos exceder a linha, reduz proporcionalmente para evitar overflow.
+ * Balanceamento flex por linha: campos dividem 100% da largura útil (sem ultrapassar a borda).
+ * flex-grow segue o peso da categoria; max-width limita cada slot a 1/N da linha.
  */
 export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthTypes = {}, containerWidthPx) {
   if (!fieldIds.length) return {};
 
   const budgetPx = getRowBudgetPx(colSpan, containerWidthPx);
-  const gaps = Math.max(0, fieldIds.length - 1) * ROW_GAP_PX;
-  const availablePx = Math.max(budgetPx - gaps, 1);
+  const gapTotal = Math.max(0, fieldIds.length - 1) * ROW_GAP_PX;
+  const availablePx = Math.max(budgetPx - gapTotal, 1);
+  const count = fieldIds.length;
+  const maxWidth = `calc((100% - ${gapTotal}px) / ${count})`;
 
   const items = fieldIds.map((id) => {
     const field = fields.find((f) => f.id === id) || { id };
     const preset = resolveFieldWidthTypePreset(field, fieldWidthTypes);
-    return { fieldId: id, minPx: preset.min, growWeight: preset.grow };
+    return { fieldId: id, growWeight: preset.grow };
   });
 
-  const sumMin = items.reduce((s, item) => s + item.minPx, 0) || 1;
   const sumGrow = items.reduce((s, item) => s + item.growWeight, 0) || 1;
   const balance = {};
 
-  if (sumMin > availablePx) {
-    const scale = availablePx / sumMin;
-    items.forEach((item) => {
-      const scaledMin = Math.max(1, Math.floor(item.minPx * scale));
-      balance[item.fieldId] = {
-        growWeight: item.growWeight,
-        minWidth: `${scaledMin}px`,
-        flexBasis: `${scaledMin}px`,
-        flexGrow: item.growWeight,
-        flexShrink: 1,
-        flex: `${item.growWeight} 1 ${scaledMin}px`,
-        maxWidth: "100%",
-        targetWidthPx: scaledMin,
-      };
-    });
-    return balance;
-  }
-
-  const slack = Math.max(0, availablePx - sumMin);
-
   items.forEach((item) => {
-    const finalPx = Math.max(
-      item.minPx,
-      Math.round(item.minPx + (slack * item.growWeight) / sumGrow)
-    );
-
+    const targetWidthPx = Math.max(1, Math.round((availablePx * item.growWeight) / sumGrow));
     balance[item.fieldId] = {
       growWeight: item.growWeight,
-      minWidth: `${item.minPx}px`,
-      flexBasis: `${item.minPx}px`,
+      minWidth: "0",
+      flexBasis: "0",
       flexGrow: item.growWeight,
       flexShrink: 1,
-      flex: `${item.growWeight} 1 ${item.minPx}px`,
-      maxWidth: "100%",
-      targetWidthPx: finalPx,
+      flex: `${item.growWeight} 1 0`,
+      maxWidth,
+      targetWidthPx,
     };
   });
 
