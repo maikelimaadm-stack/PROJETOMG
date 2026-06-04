@@ -30,6 +30,7 @@ import {
 } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { usePanelTabsScroll } from "@/framework/cadastro/toolbars/usePanelTabsScroll";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
+import { cn } from "@/shared/utils/utils";
 import EmpLayoutConfiguratorPreview from "@/framework/cadastro/configurators/EmpLayoutConfiguratorPreview";
 import {
   initCardsByPanel,
@@ -176,8 +177,9 @@ export default function EmpLayoutConfiguratorDialog({
   const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
   const activeCard = activePanelCards.find((card) => card.id === activeCardId) || activePanelCards[0];
   const activeCardNormalized = activeCard
-    ? normalizeCardRows(activeCard, draftFieldSizes)
+    ? normalizeCardRows(activeCard, draftFieldSizes, fields)
     : null;
+  const activeCardRows = activeCardNormalized?.rows || [];
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
   const panelFieldIds =
     flattenRowsToFieldIds(activeCardNormalized || {}) || draftLayout[activePanel?.id] || [];
@@ -216,10 +218,15 @@ export default function EmpLayoutConfiguratorDialog({
   };
 
   const updateActiveCardFieldIds = (fieldIds) => {
-    const packed = packFieldIdsIntoRows(fieldIds, draftFieldSizes, fields).map((row, index) => ({
+    const packed = packFieldIdsIntoRows(fieldIds, {
+      fieldSizes: draftFieldSizes,
+      fields,
+      card: activeCard,
+    }).map((row, index) => ({
       id: createRowId(activeCard?.id || "card", index + 1),
       order: index + 1,
       fieldIds: row.fieldIds,
+      fullWidth: row.fullWidth,
     }));
     updateActiveCardRows(packed.length ? packed : [createEmptyLayoutRow(activeCard?.id || "card")]);
   };
@@ -362,13 +369,16 @@ export default function EmpLayoutConfiguratorDialog({
     });
     const active = stripped[activePanel.id]?.cards?.find((c) => c.id === activeCard.id);
     const currentIds = flattenRowsToFieldIds(active || {});
-    const packed = packFieldIdsIntoRows([...new Set([...currentIds, ...ids])], draftFieldSizes).map(
-      (row, index) => ({
-        id: createRowId(activeCard.id, index + 1),
-        order: index + 1,
-        fieldIds: row.fieldIds,
-      })
-    );
+    const packed = packFieldIdsIntoRows([...new Set([...currentIds, ...ids])], {
+      fieldSizes: draftFieldSizes,
+      fields,
+      card: active,
+    }).map((row, index) => ({
+      id: createRowId(activeCard.id, index + 1),
+      order: index + 1,
+      fieldIds: row.fieldIds,
+      fullWidth: row.fullWidth,
+    }));
     const cards = (stripped[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id
         ? normalizeLayoutCardV3({ ...card, rows: packed })
@@ -1139,17 +1149,38 @@ export default function EmpLayoutConfiguratorDialog({
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
                 <p className="mb-2 text-[10px] text-[#64748b]">
-                  Arraste campos para reordenar. Solte sobre outra aba de card para mover entre cards. Largura na grade:
-                  XS–FULL. Cards: meia tela (½) ou tela inteira.
+                  Card → Linha → Campo (linhas geradas por largura padrão). Arraste para reordenar; solte na aba
+                  do card para mover. Textarea sempre na última linha, largura total.
                 </p>
-                <div
-                  className="emp-layout-config-panel-fields flex min-h-[160px] flex-wrap content-start gap-2"
-                  onDragOver={(event) => event.preventDefault()}
-                >
-                  {panelFields.length === 0 ? (
+                <div className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2">
+                  {activeCardRows.length === 0 ? (
                     <div className="p-4 text-xs text-slate-400">Card vazio. Arraste campos ou use os botões de transferência.</div>
                   ) : (
-                    panelFields.map(renderPanelField)
+                    activeCardRows.map((layoutRow) => {
+                      const rowFields = (layoutRow.fieldIds || [])
+                        .map((id) => fields.find((field) => field.id === id))
+                        .filter(Boolean);
+                      return (
+                        <div
+                          key={layoutRow.id}
+                          className={cn(
+                            "emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2",
+                            layoutRow.fullWidth && "emp-layout-config-row--full"
+                          )}
+                        >
+                          <div className="mb-2 text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
+                            Linha {layoutRow.order}
+                            {layoutRow.fullWidth ? " · largura total" : ""}
+                          </div>
+                          <div
+                            className="emp-layout-config-panel-fields flex min-h-[40px] flex-wrap content-start gap-2"
+                            onDragOver={(event) => event.preventDefault()}
+                          >
+                            {rowFields.map(renderPanelField)}
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
                 {isEditing && selectedPanelFieldIds.length === 1 && (

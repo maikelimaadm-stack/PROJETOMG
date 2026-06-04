@@ -2780,6 +2780,33 @@ select.erp-field-invalid {
   width: 100%;
 }
 
+.cadastro-emp-scope .emp-form-card-row-grid--flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 8px;
+  align-items: flex-end;
+  justify-content: flex-start;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.cadastro-emp-scope .emp-form-card-row--full .emp-form-card-row-grid--flex {
+  flex-wrap: wrap;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--full-row {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp:not(.emp-form-field-corp--full-row) {
+  flex-grow: 0;
+  flex-shrink: 1;
+}
+
 .cadastro-emp-scope .emp-form-card-rows {
   display: flex;
   flex-direction: column;
@@ -2860,6 +2887,12 @@ select.erp-field-invalid {
   flex: 1 1 auto;
   min-width: 0;
   min-height: 0;
+  max-width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp:not(.emp-form-field-corp--full-row) .emp-form-field-control {
+  width: 100%;
+  max-width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control input,
@@ -2946,11 +2979,12 @@ select.erp-field-invalid {
   align-self: end;
 }
 
-.cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-field-control {
+.cadastro-emp-scope .emp-form-field-corp--textarea.emp-form-field-corp--full-row .emp-form-field-control {
   height: auto;
   min-height: var(--emp-form-textarea-corp-height, 40px);
   max-height: var(--emp-form-textarea-corp-max-height, 120px);
   align-items: stretch;
+  width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-textarea-corp {

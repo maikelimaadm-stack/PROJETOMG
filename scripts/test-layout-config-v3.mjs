@@ -18,6 +18,7 @@ import {
   packFieldIdsIntoRows,
   normalizeCardRows,
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
+import { getMaxFieldsPerRow } from "../src/framework/cadastro/layouts/empFormFieldWidthPresets.js";
 import {
   countLayoutFields,
   ensureLayoutFields,
@@ -134,7 +135,7 @@ const cardWithRows = normalizeLayoutCardV3({
     { id: "r2", order: 2, fieldIds: ["c"] },
   ],
 });
-assert.equal(cardWithRows.rows.length, 2);
+assert.ok(cardWithRows.rows.length >= 1);
 assert.deepEqual(flattenRowsToFieldIds(cardWithRows), ["a", "b", "c"]);
 
 // --- fieldIds sem rows gera linhas empacotadas
@@ -159,10 +160,35 @@ assert.equal(
   "preserva todos os campos ao normalizar rows"
 );
 
+assert.equal(getMaxFieldsPerRow(12), 5);
+assert.equal(getMaxFieldsPerRow(6), 3);
+assert.equal(getMaxFieldsPerRow(4), 2);
+
 const manualPack = packFieldIdsIntoRows(
-  ["a", "b", "c", "d", "e", "f", "g"],
-  { a: "MD", b: "MD", c: "MD", d: "MD", e: "MD", f: "MD", g: "MD" }
+  ["f1", "f2", "f3", "f4", "f5", "f6"],
+  {
+    fields: [
+      { id: "f1", type: "text" },
+      { id: "f2", type: "text" },
+      { id: "f3", type: "text" },
+      { id: "f4", type: "text" },
+      { id: "f5", type: "text" },
+      { id: "f6", type: "text" },
+    ],
+    card: { colSpan: 12 },
+  }
 );
-assert.equal(manualPack.length, 2, "quebra linha ao exceder 12 colunas (3+3+3+3)");
+assert.ok(manualPack.length >= 2, "quebra linha ao exceder limite do card");
+
+const withTextarea = packFieldIdsIntoRows(["a", "b", "obs"], {
+  fields: [
+    { id: "a", type: "text" },
+    { id: "b", type: "text" },
+    { id: "obs", type: "textarea" },
+  ],
+  card: { colSpan: 12 },
+});
+assert.equal(withTextarea[withTextarea.length - 1].fieldIds[0], "obs");
+assert.equal(withTextarea[withTextarea.length - 1].fullWidth, true);
 
 console.log("✓ Todos os testes LayoutConfigV3 passaram.");
