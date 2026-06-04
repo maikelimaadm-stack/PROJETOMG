@@ -1,4 +1,8 @@
-import { buildBalancedRows, computeRowFieldBalance } from "./empFormRowBalance.js";
+import {
+  buildBalancedRows,
+  computeRowFieldBalance,
+  packFieldsByRowBudget,
+} from "./empFormRowBalance.js";
 import {
   normalizeFieldWidthTypes,
   resolveFieldWidthTypePreset,
@@ -70,7 +74,7 @@ export const normalizeLayoutRowV3 = (source = {}, index = 0, cardId = "card") =>
 };
 
 /**
- * Empacota campos na ordem configurada (quebra só por limite 6/4).
+ * Empacota campos na ordem configurada (quebra por largura útil do card; teto 6/4).
  * @param {string[]} fieldIds
  * @param {{ fieldSizes?: Record<string, string>, fields?: object[], card?: object, containerWidthPx?: number }} [options]
  */
@@ -127,22 +131,32 @@ export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = [], 
   let packed;
 
   if (cardHasExplicitRows(card)) {
-    packed = [...card.rows]
+    packed = [];
+    [...card.rows]
       .sort((a, b) => (a.order || 0) - (b.order || 0))
-      .map((row) => {
+      .forEach((row) => {
         const fieldIds = (row.fieldIds || []).filter(Boolean);
-        return {
+        if (!fieldIds.length) return;
+        const rowLists = packFieldsByRowBudget(
           fieldIds,
-          fieldBalance: computeRowFieldBalance(
-            fieldIds,
-            fields,
-            colSpan,
-            normalizedSizes,
-            containerWidthPx
-          ),
-        };
-      })
-      .filter((row) => row.fieldIds.length);
+          fields,
+          { colSpan },
+          normalizedSizes,
+          containerWidthPx
+        );
+        rowLists.forEach((ids) => {
+          packed.push({
+            fieldIds: ids,
+            fieldBalance: computeRowFieldBalance(
+              ids,
+              fields,
+              colSpan,
+              normalizedSizes,
+              containerWidthPx
+            ),
+          });
+        });
+      });
   } else {
     const fieldIds = flattenRowsToFieldIds(card);
     packed = packFieldIdsIntoRows(fieldIds, {

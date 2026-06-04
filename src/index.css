@@ -2790,6 +2790,9 @@ select.erp-field-invalid {
   justify-content: stretch;
   width: 100%;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-form-field-corp--balanced-grow {
@@ -2809,6 +2812,9 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-card-row {
   width: 100%;
   min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {

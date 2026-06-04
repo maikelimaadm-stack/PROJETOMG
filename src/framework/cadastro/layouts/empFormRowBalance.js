@@ -1,6 +1,6 @@
 /**
  * Motor de linha corporativo V3 — ordem do usuário, min-width e flex-grow.
- * Quebra de linha somente pelo limite de campos (6 inteiro / 4 meio).
+ * Quebra de linha por largura útil do card (teto 6/4 campos apenas como máximo).
  * @module empFormRowBalance
  */
 
@@ -8,10 +8,14 @@ import { getMaxFieldsPerRow, resolveFieldWidthTypePreset } from "./empFormFieldW
 
 export const ROW_GAP_PX = 8;
 
+/** padding horizontal do .emp-form-card-body (8px + 8px) */
+export const CARD_BODY_PADDING_X_PX = 16;
+
 const MIN_ROW_BUDGET_PX = 160;
 const DEFAULT_CONTAINER_WIDTH_PX = 360;
 
 /**
+ * Largura útil para campos dentro do card (sem padding interno do card-body).
  * @param {number} colSpan
  * @param {number} [containerWidthPx]
  */
@@ -21,7 +25,7 @@ export function getRowBudgetPx(colSpan = 12, containerWidthPx) {
   const baseWidth =
     Number.isFinite(container) && container > 0 ? container : DEFAULT_CONTAINER_WIDTH_PX;
   const cardWidth = (baseWidth * span) / 12;
-  return Math.max(MIN_ROW_BUDGET_PX, Math.floor(cardWidth - ROW_GAP_PX));
+  return Math.max(MIN_ROW_BUDGET_PX, Math.floor(cardWidth - CARD_BODY_PADDING_X_PX));
 }
 
 export function getFieldMinWidthPx(field, fieldWidthTypes = {}) {
@@ -32,6 +36,9 @@ export function getFieldGrowWeight(field, fieldWidthTypes = {}) {
   return resolveFieldWidthTypePreset(field, fieldWidthTypes).grow ?? 1;
 }
 
+/**
+ * Soma min-widths + gaps de uma linha candidata.
+ */
 export function rowContentWidthPx(fieldIds, fields, fieldWidthTypes) {
   if (!fieldIds.length) return 0;
   const gaps = Math.max(0, fieldIds.length - 1) * ROW_GAP_PX;
@@ -43,23 +50,40 @@ export function rowContentWidthPx(fieldIds, fields, fieldWidthTypes) {
 }
 
 /**
- * Empacota campos na ordem recebida; quebra só ao atingir o máximo por linha.
+ * Empacota campos na ordem recebida respeitando largura útil e teto de contagem.
  * @param {string[]} fieldIds
+ * @param {object[]} [fields]
  * @param {{ colSpan?: number }} [card]
+ * @param {Record<string, string>} [fieldWidthTypes]
+ * @param {number} [containerWidthPx]
  */
-export function packFieldsByMaxCount(fieldIds = [], card = {}) {
+export function packFieldsByRowBudget(
+  fieldIds = [],
+  fields = [],
+  card = {},
+  fieldWidthTypes = {},
+  containerWidthPx
+) {
   const colSpan = Number(card.colSpan) || 12;
+  const budgetPx = getRowBudgetPx(colSpan, containerWidthPx);
   const maxPerRow = getMaxFieldsPerRow(colSpan);
+
   const rows = [];
   let current = [];
 
   fieldIds.forEach((fieldId) => {
     if (!fieldId) return;
-    if (current.length >= maxPerRow) {
-      rows.push([...current]);
-      current = [];
+
+    const candidate = [...current, fieldId];
+    const widthFits = rowContentWidthPx(candidate, fields, fieldWidthTypes) <= budgetPx;
+    const countFits = candidate.length <= maxPerRow;
+
+    if (current.length > 0 && (!widthFits || !countFits)) {
+      rows.push(current);
+      current = [fieldId];
+    } else {
+      current = candidate;
     }
-    current.push(fieldId);
   });
 
   if (current.length) rows.push(current);
@@ -67,8 +91,21 @@ export function packFieldsByMaxCount(fieldIds = [], card = {}) {
 }
 
 /**
+ * @deprecated Use packFieldsByRowBudget — mantido como alias.
+ */
+export function packFieldsByMaxCount(
+  fieldIds = [],
+  card = {},
+  fields = [],
+  fieldWidthTypes = {},
+  containerWidthPx
+) {
+  return packFieldsByRowBudget(fieldIds, fields, card, fieldWidthTypes, containerWidthPx);
+}
+
+/**
  * Balanceamento flex: flex-grow por categoria, flex-basis = min-width.
- * O espaço extra é distribuído proporcionalmente ao peso de crescimento (grow).
+ * Se a soma dos mínimos exceder a linha, reduz proporcionalmente para evitar overflow.
  */
 export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthTypes = {}, containerWidthPx) {
   if (!fieldIds.length) return {};
@@ -85,8 +122,27 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
 
   const sumMin = items.reduce((s, item) => s + item.minPx, 0) || 1;
   const sumGrow = items.reduce((s, item) => s + item.growWeight, 0) || 1;
-  const slack = Math.max(0, availablePx - sumMin);
   const balance = {};
+
+  if (sumMin > availablePx) {
+    const scale = availablePx / sumMin;
+    items.forEach((item) => {
+      const scaledMin = Math.max(1, Math.floor(item.minPx * scale));
+      balance[item.fieldId] = {
+        growWeight: item.growWeight,
+        minWidth: `${scaledMin}px`,
+        flexBasis: `${scaledMin}px`,
+        flexGrow: item.growWeight,
+        flexShrink: 1,
+        flex: `${item.growWeight} 1 ${scaledMin}px`,
+        maxWidth: "100%",
+        targetWidthPx: scaledMin,
+      };
+    });
+    return balance;
+  }
+
+  const slack = Math.max(0, availablePx - sumMin);
 
   items.forEach((item) => {
     const finalPx = Math.max(
@@ -101,7 +157,7 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
       flexGrow: item.growWeight,
       flexShrink: 1,
       flex: `${item.growWeight} 1 ${item.minPx}px`,
-      maxWidth: "none",
+      maxWidth: "100%",
       targetWidthPx: finalPx,
     };
   });
@@ -117,7 +173,7 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
 export function buildBalancedRows(fieldIds = [], options = {}) {
   const { fields = [], card = {}, fieldSizes = {}, containerWidthPx } = options;
   const colSpan = Number(card.colSpan) || 12;
-  const rowIdLists = packFieldsByMaxCount(fieldIds, card);
+  const rowIdLists = packFieldsByRowBudget(fieldIds, fields, card, fieldSizes, containerWidthPx);
 
   return rowIdLists.map((ids) => ({
     fieldIds: ids,
@@ -126,12 +182,9 @@ export function buildBalancedRows(fieldIds = [], options = {}) {
   }));
 }
 
-/** @deprecated Mantido para compatibilidade de import — delega ao empacotamento por contagem. */
+/** @deprecated */
 export function packCompactRows(fieldIds, fields, card, fieldWidthTypes = {}, containerWidthPx) {
-  void fields;
-  void fieldWidthTypes;
-  void containerWidthPx;
-  return packFieldsByMaxCount(fieldIds, card);
+  return packFieldsByRowBudget(fieldIds, fields, card, fieldWidthTypes, containerWidthPx);
 }
 
 /** @deprecated Sem reorganização de órfãos. */
