@@ -141,9 +141,60 @@
   background: transparent !important;
 }
 
+/* form-scroll-container — camada fantasma: só rolagem, sem caixa visível */
+.cadastro-emp-scope .form-scroll-container,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  scrollbar-gutter: auto;
+}
+
 .cadastro-emp-scope .emp-content-card > .form-scroll-container,
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
   background: transparent !important;
+}
+
+/* Com formulário dentro, o content-card não desenha moldura (fica no painel) */
+.cadastro-emp-scope .emp-content-card:has(> .form-scroll-container) {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
 }
 
 /* —— Toolbar (faixa sem fundo nem bordas — botões flutuam no fundo da página) —— */
@@ -278,7 +329,7 @@
   flex: 1 1 auto;
   min-height: 0;
   margin: 0 !important;
-  padding: 12px 14px 14px !important;
+  padding: 12px 10px 14px !important;
   background: var(--erp-color-card) !important;
   border: none !important;
   border-radius: 0 !important;
@@ -294,6 +345,14 @@
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
   padding: 0 0 12px;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card:not(.emp-form-card--virtual) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* —— Labels e obrigatório —— */

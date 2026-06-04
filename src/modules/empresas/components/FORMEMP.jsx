@@ -511,17 +511,19 @@ export default function FORMEMP({
         <style>{`
           .form-scroll-container {
             scrollbar-width: thin;
-            scrollbar-color: #94a3b8 #ffffff;
-            overflow: scroll;
-            scrollbar-gutter: stable both-edges;
-            background: #ffffff;
+            scrollbar-color: #94a3b8 transparent;
+            overflow: auto;
+            scrollbar-gutter: auto;
+            background: transparent;
+            border: none;
+            box-shadow: none;
           }
           .form-scroll-container::-webkit-scrollbar {
             height: 8px;
             width: 8px;
           }
           .form-scroll-container::-webkit-scrollbar-track {
-            background: #ffffff;
+            background: transparent;
           }
           .form-scroll-container::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;
