@@ -28,6 +28,10 @@ export function getFieldMinWidthPx(field, fieldWidthTypes = {}) {
   return resolveFieldWidthTypePreset(field, fieldWidthTypes).min || 140;
 }
 
+export function getFieldGrowWeight(field, fieldWidthTypes = {}) {
+  return resolveFieldWidthTypePreset(field, fieldWidthTypes).grow ?? 1;
+}
+
 export function rowContentWidthPx(fieldIds, fields, fieldWidthTypes) {
   if (!fieldIds.length) return 0;
   const gaps = Math.max(0, fieldIds.length - 1) * ROW_GAP_PX;
@@ -63,8 +67,8 @@ export function packFieldsByMaxCount(fieldIds = [], card = {}) {
 }
 
 /**
- * Balanceamento flex: flex-grow 1, flex-basis = min-width, max-width none.
- * O espaço extra é distribuído proporcionalmente ao min-width de cada campo.
+ * Balanceamento flex: flex-grow por categoria, flex-basis = min-width.
+ * O espaço extra é distribuído proporcionalmente ao peso de crescimento (grow).
  */
 export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthTypes = {}, containerWidthPx) {
   if (!fieldIds.length) return {};
@@ -75,25 +79,28 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
 
   const items = fieldIds.map((id) => {
     const field = fields.find((f) => f.id === id) || { id };
-    const minPx = getFieldMinWidthPx(field, fieldWidthTypes);
-    return { fieldId: id, minPx };
+    const preset = resolveFieldWidthTypePreset(field, fieldWidthTypes);
+    return { fieldId: id, minPx: preset.min, growWeight: preset.grow };
   });
 
   const sumMin = items.reduce((s, item) => s + item.minPx, 0) || 1;
+  const sumGrow = items.reduce((s, item) => s + item.growWeight, 0) || 1;
   const slack = Math.max(0, availablePx - sumMin);
   const balance = {};
 
   items.forEach((item) => {
-    const growWeight = item.minPx;
-    const finalPx = Math.max(item.minPx, Math.round(item.minPx + (slack * item.minPx) / sumMin));
+    const finalPx = Math.max(
+      item.minPx,
+      Math.round(item.minPx + (slack * item.growWeight) / sumGrow)
+    );
 
     balance[item.fieldId] = {
-      growWeight,
+      growWeight: item.growWeight,
       minWidth: `${item.minPx}px`,
       flexBasis: `${item.minPx}px`,
-      flexGrow: 1,
+      flexGrow: item.growWeight,
       flexShrink: 1,
-      flex: `1 1 ${item.minPx}px`,
+      flex: `${item.growWeight} 1 ${item.minPx}px`,
       maxWidth: "none",
       targetWidthPx: finalPx,
     };

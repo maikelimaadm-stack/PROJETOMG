@@ -152,8 +152,8 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
         width: "auto",
       }
     : {
-        flex: `1 1 ${preset.min}px`,
-        flexGrow: 1,
+        flex: `${preset.grow} 1 ${preset.min}px`,
+        flexGrow: preset.grow,
         flexShrink: 1,
         flexBasis: `${preset.min}px`,
         minWidth: `${preset.min}px`,
