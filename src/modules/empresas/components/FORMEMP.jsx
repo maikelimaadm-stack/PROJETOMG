@@ -13,11 +13,13 @@ import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarL
 import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpLayoutConfiguratorDialog";
 import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
-  countLayoutFields,
+  countKnownLayoutFields,
   ensureLayoutFields,
   getLayoutStorageKeys,
   normalizeLayoutConfig,
+  pickLayoutConfig,
   readStoredLayoutConfig,
+  writeStoredLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import {
   initEmpresasFormLayoutLocal,
@@ -69,21 +71,27 @@ export default function FORMEMP({
   useEffect(() => {
     if (!user?.id) {
       setFormLayoutConfig(null);
+      layoutPersistedRef.current = false;
       return undefined;
     }
 
+    const defaults = buildEmpFormDefaultConfig();
+    const nativeIds = new Set(Object.values(EMP_FORM_DEFAULT_LAYOUT).flat().filter(Boolean));
     const localConfig = initEmpresasFormLayoutLocal(user.id);
-    setFormLayoutConfig(localConfig);
+    const repaired = ensureLayoutFields(localConfig, defaults, { knownFieldIds: nativeIds }) || defaults;
+    if (JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(localConfig || {}))) {
+      writeStoredLayoutConfig(repaired);
+    }
+    layoutPersistedRef.current = true;
+    setFormLayoutConfig(repaired);
     syncEmpresasFormLayoutRemote(user.id);
 
-    const handleRemoteLayout = () => {
-      const stored = readStoredLayoutConfig();
-      if (stored) setFormLayoutConfig(stored);
-    };
-
     const handleLayoutHydrated = () => {
+      const stored = readStoredLayoutConfig();
+      if (!stored) return;
       layoutPersistedRef.current = false;
-      handleRemoteLayout();
+      const next = ensureLayoutFields(stored, defaults, { knownFieldIds: nativeIds }) || defaults;
+      setFormLayoutConfig(next);
     };
 
     window.addEventListener("emp-layout-hydrated", handleLayoutHydrated);
@@ -307,15 +315,29 @@ export default function FORMEMP({
 
   const defaultConfigFull = useMemo(() => buildEmpFormDefaultConfig(), []);
 
+  const nativeLayoutFieldIds = useMemo(
+    () => new Set(Object.values(defaultLayout).flat().filter(Boolean)),
+    [defaultLayout]
+  );
+
+  const knownLayoutFieldIds = useMemo(() => {
+    const ids = new Set(nativeLayoutFieldIds);
+    dynamicFields.forEach((field) => ids.add(field.id));
+    return ids;
+  }, [dynamicFields, nativeLayoutFieldIds]);
+
   const activeLayoutConfig = useMemo(() => {
-    const source = ensureLayoutFields(formLayoutConfig, defaultConfigFull) || defaultConfigFull;
+    const source =
+      ensureLayoutFields(formLayoutConfig, defaultConfigFull, {
+        knownFieldIds: knownLayoutFieldIds,
+      }) || defaultConfigFull;
     return normalizeLayoutConfig(source, {
       basePanels,
       defaultLayout,
       camposPersonalizadosCount: 0,
       mergeNewCustomFields: false,
     });
-  }, [formLayoutConfig, basePanels, defaultLayout, defaultConfigFull]);
+  }, [formLayoutConfig, basePanels, defaultLayout, defaultConfigFull, knownLayoutFieldIds]);
 
   const formPanels = useMemo(
     () =>
@@ -373,15 +395,18 @@ export default function FORMEMP({
       : "incomplete";
 
   const applyLayoutConfig = (source, { updateActiveTab = true } = {}) => {
-    const normalized = normalizeLayoutConfig(source, {
+    const ensured =
+      ensureLayoutFields(source, defaultConfigFull, { knownFieldIds: knownLayoutFieldIds }) ||
+      defaultConfigFull;
+    const normalized = normalizeLayoutConfig(ensured, {
       basePanels,
       defaultLayout,
       camposPersonalizadosCount: 0,
       mergeNewCustomFields: false,
     });
-    const { legacyKey, aggregationKey } = getLayoutStorageKeys(user?.id);
+    const { aggregationKey } = getLayoutStorageKeys(user?.id);
     setFormLayoutConfig(normalized);
-    localStorage.setItem(legacyKey, JSON.stringify(normalized));
+    writeStoredLayoutConfig(normalized);
     localStorage.setItem(aggregationKey, JSON.stringify(normalized.aggregationConfig || {}));
     window.dispatchEvent(new Event("emp-layout-updated"));
     empFormLayoutStore.persistActiveConfig(normalized);
@@ -411,21 +436,31 @@ export default function FORMEMP({
   useEffect(() => {
     if (!user?.id || !formLayoutConfig || layoutConfigOpen || layoutPersistedRef.current) return;
 
-    const repaired = ensureLayoutFields(formLayoutConfig, defaultConfigFull);
-    const storedFieldCount = countLayoutFields(formLayoutConfig?.layout);
-    const repairedFieldCount = countLayoutFields(repaired?.layout);
+    const repaired =
+      ensureLayoutFields(formLayoutConfig, defaultConfigFull, {
+        knownFieldIds: knownLayoutFieldIds,
+      }) || defaultConfigFull;
+    const storedKnownCount = countKnownLayoutFields(formLayoutConfig?.layout, knownLayoutFieldIds);
+    const repairedKnownCount = countKnownLayoutFields(repaired?.layout, knownLayoutFieldIds);
     const hasHiddenSystemPanels = (formLayoutConfig?.panels || []).some(
       (panel) =>
-        ["geral", "endereco", "observacoes"].includes(panel.id) &&
+        ["geral", "endereco", "observacoes", "principal"].includes(panel.id) &&
         panel.hidden &&
         (formLayoutConfig?.layout?.[panel.id] || []).length > 0
     );
+    const layoutDiffers =
+      JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(formLayoutConfig));
 
-    if (storedFieldCount === 0 || repairedFieldCount > storedFieldCount || hasHiddenSystemPanels) {
+    if (
+      storedKnownCount === 0 ||
+      repairedKnownCount > storedKnownCount ||
+      hasHiddenSystemPanels ||
+      layoutDiffers
+    ) {
       layoutPersistedRef.current = true;
-      applyLayoutConfig(repaired || defaultConfigFull, { updateActiveTab: true });
+      applyLayoutConfig(repaired, { updateActiveTab: true });
     }
-  }, [user?.id, formLayoutConfig, layoutConfigOpen, defaultConfigFull]);
+  }, [user?.id, formLayoutConfig, layoutConfigOpen, defaultConfigFull, knownLayoutFieldIds]);
 
   const handleDynamicFieldChange = (fieldName, value) => {
     const field = dynamicFields.find((item) => item.name === fieldName);

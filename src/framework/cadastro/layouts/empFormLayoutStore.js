@@ -181,21 +181,45 @@ const SYSTEM_PANEL_IDS = new Set(["principal", "geral", "endereco", "observacoes
 const isPlainLayoutConfig = (value) =>
   value && typeof value === "object" && !Array.isArray(value);
 
+/** Remove IDs de campos inexistentes (ex.: custom fields excluídos). */
+export const pruneLayoutToKnownFields = (layout = {}, knownFieldIds = []) => {
+  const known = knownFieldIds instanceof Set ? knownFieldIds : new Set(knownFieldIds);
+  const next = {};
+  Object.entries(layout || {}).forEach(([panelId, fieldIds]) => {
+    next[panelId] = (fieldIds || []).filter((fieldId) => known.has(fieldId));
+  });
+  return next;
+};
+
+const fillEmptyPanelsFromDefaults = (layout, defaultLayout) => {
+  const next = { ...layout };
+  Object.entries(defaultLayout || {}).forEach(([panelId, fieldIds]) => {
+    if (!Array.isArray(fieldIds) || fieldIds.length === 0) return;
+    if (!Array.isArray(next[panelId]) || next[panelId].length === 0) {
+      next[panelId] = [...fieldIds];
+    }
+  });
+  return next;
+};
+
 /** Garante layout utilizável: painéis do sistema visíveis e campos padrão nos painéis vazios. */
-export const ensureLayoutFields = (saved, defaults) => {
+export const ensureLayoutFields = (saved, defaults, { knownFieldIds } = {}) => {
   if (!isPlainLayoutConfig(defaults)) return null;
   if (!isPlainLayoutConfig(saved)) return pickLayoutConfig(defaults);
 
   const merged = mergeSavedFormLayout(saved, defaults);
   const defaultLayout = defaults?.layout || {};
-  const layout = { ...(merged.layout || {}) };
+  const knownIds =
+    knownFieldIds instanceof Set
+      ? knownFieldIds
+      : new Set([
+          ...Object.values(defaultLayout).flat().filter(Boolean),
+          ...(Array.isArray(knownFieldIds) ? knownFieldIds : []),
+        ]);
 
-  Object.entries(defaultLayout).forEach(([panelId, fieldIds]) => {
-    if (!Array.isArray(fieldIds) || fieldIds.length === 0) return;
-    if (!Array.isArray(layout[panelId]) || layout[panelId].length === 0) {
-      layout[panelId] = [...fieldIds];
-    }
-  });
+  let layout = { ...(merged.layout || {}) };
+  layout = pruneLayoutToKnownFields(layout, knownIds);
+  layout = fillEmptyPanelsFromDefaults(layout, defaultLayout);
 
   const panels = (merged.panels || defaults.panels || []).map((panel) =>
     SYSTEM_PANEL_IDS.has(panel.id) ? { ...panel, hidden: false } : panel
@@ -210,6 +234,9 @@ export const ensureLayoutFields = (saved, defaults) => {
 
   return countLayoutFields(next.layout) > 0 ? next : pickLayoutConfig(defaults);
 };
+
+export const countKnownLayoutFields = (layout = {}, knownFieldIds = []) =>
+  Object.values(pruneLayoutToKnownFields(layout, knownFieldIds)).flat().filter(Boolean).length;
 
 export const mergeSavedFormLayout = (saved, defaults) => {
   if (!isPlainLayoutConfig(defaults)) return pickLayoutConfig(defaults || {});
