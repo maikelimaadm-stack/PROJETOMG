@@ -234,14 +234,16 @@ const imageCompactRow = buildBalancedRows(["logo"], {
 assert.equal(imageCompactRow[0].fullWidth, false, "imagem padrão não vira linha exclusiva");
 
 // --- Redistribuição igual (6 × 140px)
+const fullCardWidthPx = 920;
 const sixFields = ["a", "b", "c", "d", "e", "f"].map((id) => ({ id, type: "text" }));
 const equalBalance = computeRowFieldBalance(
   sixFields.map((f) => f.id),
   sixFields,
   12,
-  {}
+  {},
+  fullCardWidthPx
 );
-const budget = getRowBudgetPx(12) - 5 * 8;
+const budget = getRowBudgetPx(12, fullCardWidthPx) - 5 * 8;
 const widths = Object.values(equalBalance).map((b) => b.targetWidthPx);
 const sumWidths = widths.reduce((s, w) => s + w, 0);
 assert.ok(Math.abs(sumWidths - budget) <= 12, "6 campos iguais preenchem a linha");
@@ -256,13 +258,14 @@ const propBalance = computeRowFieldBalance(
     { id: "c", type: "text" },
   ],
   12,
-  {}
+  {},
+  fullCardWidthPx
 );
 assert.ok(propBalance.a.targetWidthPx > propBalance.c.targetWidthPx);
 assert.ok(propBalance.b.targetWidthPx > propBalance.c.targetWidthPx);
 const propSum =
   propBalance.a.targetWidthPx + propBalance.b.targetWidthPx + propBalance.c.targetWidthPx;
-assert.ok(Math.abs(propSum - (getRowBudgetPx(12) - 16)) <= 4, "proporcional preenche 100%");
+assert.ok(Math.abs(propSum - (getRowBudgetPx(12, fullCardWidthPx) - 16)) <= 4, "proporcional preenche 100%");
 
 // --- Nenhum compacto com flex fixo 0 0
 Object.values(propBalance).forEach((entry) => {

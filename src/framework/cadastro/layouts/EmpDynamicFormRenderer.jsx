@@ -9,7 +9,8 @@ import { cn } from "@/shared/utils/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
-import { getCardRowsForRender } from "@/framework/cadastro/layouts/empFormLayoutRows";
+import { getCachedCardRows } from "@/framework/cadastro-engine/layout/layoutCache.js";
+import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 import {
   isExpansiveLayoutField,
@@ -262,7 +263,7 @@ export default function EmpDynamicFormRenderer({
 }) {
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
-  const gridColumns = normalizedFieldLayout.columns || 12;
+  const { ref: containerRef, width: containerWidthPx } = useContainerWidth();
 
   const cards = useMemo(
     () =>
@@ -347,7 +348,7 @@ export default function EmpDynamicFormRenderer({
   };
 
   const cardHasCustomField = (card) =>
-    getCardRowsForRender(card, fieldSizes, fields)
+    getCachedCardRows(card, fieldSizes, fields, containerWidthPx)
       .flatMap((row) => row.fieldIds || [])
       .some((fieldId) => {
         const field = fields.find((item) => item.id === fieldId);
@@ -360,7 +361,7 @@ export default function EmpDynamicFormRenderer({
   const cardSections = cardRows.map((row, rowIndex) => (
     <div key={`row-${rowIndex}`} className="emp-form-cards-row">
       {row.map((card) => {
-        const layoutRows = getCardRowsForRender(card, fieldSizes, fields);
+        const layoutRows = getCachedCardRows(card, fieldSizes, fields, containerWidthPx);
         const hasVisibleInCard = layoutRows.some((layoutRow) =>
           (layoutRow.fieldIds || []).some((fieldId) => {
             const field = fields.find((item) => item.id === fieldId);
@@ -408,7 +409,7 @@ export default function EmpDynamicFormRenderer({
   ));
 
   const hasVisibleFields = cards.some((card) =>
-    getCardRowsForRender(card, fieldSizes, fields).some((layoutRow) =>
+    getCachedCardRows(card, fieldSizes, fields, containerWidthPx).some((layoutRow) =>
       (layoutRow.fieldIds || []).some((fieldId) => {
         const field = fields.find((item) => item.id === fieldId);
         return field && isFieldVisible(field);
@@ -425,8 +426,15 @@ export default function EmpDynamicFormRenderer({
   }
 
   return (
-    <div className={cn("emp-form-fields emp-form-fields-corp", hasCustomFields && "emp-form-fields-custom")}>
-      <div className="emp-form-cards-layout">{cardSections}</div>
+    <div
+      ref={containerRef}
+      className={cn(
+        "emp-form-fields emp-form-fields-corp cad-form-fields cad-form-fields-corp",
+        hasCustomFields && "emp-form-fields-custom cad-form-fields-custom"
+      )}
+      style={{ containerType: "inline-size" }}
+    >
+      <div className="emp-form-cards-layout cad-form-cards-layout">{cardSections}</div>
     </div>
   );
 }
