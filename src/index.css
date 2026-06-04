@@ -2869,7 +2869,7 @@ select.erp-field-invalid {
 
 .cadastro-emp-scope .emp-form-card {
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  border-radius: 0;
   background: #ffffff;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
@@ -2884,33 +2884,20 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-card-title {
   display: flex;
   align-items: center;
-  gap: 6px;
   width: 100%;
-  min-height: 32px;
-  padding: 8px 14px;
+  min-height: 24px;
+  padding: 4px 12px;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0;
-  color: #2563eb;
-  background: #f1f5f9;
+  color: #000000;
+  background: var(--emp-surface-bg, #f5f5f5);
   border: 0;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 2px solid var(--emp-accent-primary, #4fafff);
+  border-radius: 0;
   text-align: left;
-  cursor: pointer;
-  transition: background-color 0.15s ease;
 }
 
-.cadastro-emp-scope .emp-form-card-title:hover:not(:disabled) {
-  background: #e8eef4;
-}
-
-.cadastro-emp-scope .emp-form-card-title svg {
-  color: #2563eb;
-  stroke: #2563eb;
-}
-
-.cadastro-emp-scope button.emp-form-card-title,
-.cadastro-emp-scope button.emp-form-card-title span,
 .cadastro-emp-scope button.emp-form-detail-panel-title,
 .cadastro-emp-scope button.emp-form-detail-panel-title span {
   color: #2563eb !important;
