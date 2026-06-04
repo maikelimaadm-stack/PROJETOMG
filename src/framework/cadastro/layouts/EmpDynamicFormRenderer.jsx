@@ -11,6 +11,10 @@ import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/frame
 import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { getCardRowsForRender } from "@/framework/cadastro/layouts/empFormLayoutRows";
 import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
+import {
+  isExpansiveLayoutField,
+  isInlineMediaField,
+} from "@/framework/cadastro/layouts/empFormFieldLayoutGroups";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
@@ -146,8 +150,10 @@ function FieldFrameCorp({
   const preset = resolveFieldWidthTypePreset(field, fieldSizes);
   const typeClass = `emp-form-field-corp--type-${preset.type.toLowerCase().replace(/_/g, "-")}`;
   const balanced = rowBalance?.[field.id];
+  const expansive = isExpansiveLayoutField(field, fieldSizes);
+  const mediaInline = isInlineMediaField(field, fieldSizes);
 
-  const isFull = fullRow || preset.fullRow;
+  const isFull = Boolean(fullRow) && expansive;
   const widthStyle = isFull
     ? {
         flex: "1 1 100%",
@@ -165,10 +171,10 @@ function FieldFrameCorp({
       ? {
           flex: balanced.flex,
           minWidth: balanced.minWidth,
-          maxWidth: balanced.lineFill ? "100%" : "none",
-          width: balanced.lineFill ? "100%" : "auto",
-          flexGrow: balanced.growWeight ?? 1,
-          flexShrink: balanced.lineFill ? 1 : 1,
+          maxWidth: "none",
+          width: "auto",
+          flexGrow: 1,
+          flexShrink: 1,
         }
       : {
           flex: "1 1 140px",
@@ -185,9 +191,10 @@ function FieldFrameCorp({
         "emp-form-field-corp",
         typeClass,
         isFull && "emp-form-field-corp--full-row",
-        balanced?.lineFill && "emp-form-field-corp--line-fill",
-        balanced && !balanced.lineFill && "emp-form-field-corp--balanced-grow",
-        imageField && "emp-form-field-corp--image",
+        expansive && "emp-form-field-corp--line-fill",
+        !expansive && balanced && "emp-form-field-corp--balanced-grow",
+        mediaInline && "emp-form-field-corp--media-inline",
+        imageField && expansive && "emp-form-field-corp--image-expanded",
         textareaField && "emp-form-field-corp--textarea",
         bare && "emp-form-field-corp--bare",
         className

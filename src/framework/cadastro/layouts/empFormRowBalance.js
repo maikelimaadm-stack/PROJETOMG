@@ -1,21 +1,14 @@
 /**
- * Motor de balanceamento de linhas — grade 12 colunas, máx. 6 campos, grupos compacto/linha cheia.
+ * Motor de balanceamento — px mínimos, máx. campos/linha, redistribuição proporcional.
  * @module empFormRowBalance
  */
 
+import { getMaxFieldsPerRow, resolveFieldWidthTypePreset } from "./empFormFieldWidthPresets.js";
 import {
-  getMaxFieldsPerRow,
-  resolveFieldWidthTypePreset,
-} from "./empFormFieldWidthPresets.js";
-import {
-  getFieldColumnWeight,
-  getRowColumnBudget,
   isCompactLayoutField,
-  isLineFillLayoutField,
-  ROW_GRID_COLUMNS,
+  isExpansiveLayoutField,
 } from "./empFormFieldLayoutGroups.js";
 
-/** Largura de referência (px) para cálculo de ocupação da linha. */
 export const CARD_ROW_REFERENCE_WIDTH = {
   full: 920,
   half: 450,
@@ -40,40 +33,33 @@ export function getRowBudgetPx(colSpan = 12) {
  */
 export function getFieldRowMetrics(field, fieldWidthTypes = {}) {
   const preset = resolveFieldWidthTypePreset(field, fieldWidthTypes);
-  const lineFill = isLineFillLayoutField(field, fieldWidthTypes);
-  const colWeight = lineFill ? ROW_GRID_COLUMNS : getFieldColumnWeight(field, fieldWidthTypes);
+  const expansive = isExpansiveLayoutField(field, fieldWidthTypes);
 
   return {
     fieldId: field.id,
     type: preset.type,
-    minPx: preset.min || 140,
-    colWeight,
-    lineFill,
-    compact: !lineFill,
-    fullRow: Boolean(preset.fullRow) || lineFill,
+    minPx: expansive ? 0 : preset.min || 140,
+    expansive,
+    compact: !expansive,
+    fullRow: expansive,
   };
 }
 
 /**
- * Soma de colunas ocupadas na linha.
  * @param {string[]} fieldIds
  * @param {object[]} fields
  * @param {Record<string, string>} fieldWidthTypes
  */
-function rowContentColumns(fieldIds, fields, fieldWidthTypes) {
-  return fieldIds.reduce((sum, id) => {
+export function rowContentWidthPx(fieldIds, fields, fieldWidthTypes) {
+  if (!fieldIds.length) return 0;
+  const gaps = Math.max(0, fieldIds.length - 1) * ROW_GAP_PX;
+  const mins = fieldIds.reduce((sum, id) => {
     const field = fields.find((f) => f.id === id) || { id };
-    return sum + getFieldRowMetrics(field, fieldWidthTypes).colWeight;
+    return sum + getFieldRowMetrics(field, fieldWidthTypes).minPx;
   }, 0);
+  return mins + gaps;
 }
 
-/**
- * Evita linha com um único campo **compacto** (Grupo 1).
- * Campos de linha cheia (Grupo 2) podem permanecer sozinhos.
- * @param {string[][]} rows
- * @param {object[]} fields
- * @param {Record<string, string>} fieldWidthTypes
- */
 /**
  * @param {string[]} rowIds
  * @param {string} fieldId
@@ -83,14 +69,16 @@ function rowContentColumns(fieldIds, fields, fieldWidthTypes) {
  */
 function canFitFieldInRow(rowIds, fieldId, fields, fieldWidthTypes, colSpan) {
   const maxPerRow = getMaxFieldsPerRow(colSpan);
-  const columnBudget = getRowColumnBudget(colSpan);
+  const budgetPx = getRowBudgetPx(colSpan);
   const nextIds = [...rowIds, fieldId];
   return (
-    nextIds.length <= maxPerRow &&
-    rowContentColumns(nextIds, fields, fieldWidthTypes) <= columnBudget
+    nextIds.length <= maxPerRow && rowContentWidthPx(nextIds, fields, fieldWidthTypes) <= budgetPx
   );
 }
 
+/**
+ * Compactos não permanecem sozinhos na linha.
+ */
 export function fixOrphanCompactRows(rows, fields = [], fieldWidthTypes = {}, card = {}) {
   if (rows.length < 2) return rows;
   const colSpan = Number(card.colSpan) || 12;
@@ -148,23 +136,18 @@ export function fixOrphanCompactRows(rows, fields = [], fieldWidthTypes = {}, ca
   return rows;
 }
 
-/** @deprecated Use fixOrphanCompactRows */
+/** @deprecated */
 export function fixOrphanRows(rows, fields = [], fieldWidthTypes = {}, card = {}) {
   return fixOrphanCompactRows(rows, fields, fieldWidthTypes, card);
 }
 
 /**
- * Empacota campos compactos (Grupo 1) por colunas + máximo de campos por linha.
- * @param {string[]} compactFieldIds
- * @param {object[]} fields
- * @param {object} card
- * @param {Record<string, string>} fieldWidthTypes
- * @returns {string[][]}
+ * Empacota compactos por largura mínima (px) + limite de quantidade.
  */
-export function packCompactRowsByColumns(compactFieldIds, fields, card, fieldWidthTypes = {}) {
+export function packCompactRows(compactFieldIds, fields, card, fieldWidthTypes = {}) {
   const colSpan = Number(card.colSpan) || 12;
   const maxPerRow = getMaxFieldsPerRow(colSpan);
-  const columnBudget = getRowColumnBudget(colSpan);
+  const budgetPx = getRowBudgetPx(colSpan);
 
   const rows = [];
   let current = [];
@@ -177,13 +160,12 @@ export function packCompactRowsByColumns(compactFieldIds, fields, card, fieldWid
   };
 
   compactFieldIds.forEach((fieldId) => {
-    const field = fields.find((f) => f.id === fieldId) || { id: fieldId };
     const nextIds = [...current, fieldId];
-    const nextCols = rowContentColumns(nextIds, fields, fieldWidthTypes);
-    const exceedsCols = current.length > 0 && nextCols > columnBudget;
+    const nextWidth = rowContentWidthPx(nextIds, fields, fieldWidthTypes);
+    const exceedsWidth = current.length > 0 && nextWidth > budgetPx;
     const exceedsCount = current.length >= maxPerRow;
 
-    if (exceedsCols || exceedsCount) flush();
+    if (exceedsWidth || exceedsCount) flush();
 
     current.push(fieldId);
     if (current.length >= maxPerRow) flush();
@@ -194,22 +176,23 @@ export function packCompactRowsByColumns(compactFieldIds, fields, card, fieldWid
   return fixOrphanCompactRows(rows, fields, fieldWidthTypes, card);
 }
 
-/** @deprecated Use packCompactRowsByColumns */
-export function packRowsByWidth(regularFieldIds, fields, card, fieldWidthTypes = {}) {
-  return packCompactRowsByColumns(regularFieldIds, fields, card, fieldWidthTypes);
+/** @deprecated */
+export function packCompactRowsByColumns(...args) {
+  return packCompactRows(...args);
+}
+
+/** @deprecated */
+export function packRowsByWidth(...args) {
+  return packCompactRows(...args);
 }
 
 /**
- * Redistribui colunas restantes proporcionalmente (ex.: 8/12 → 12/12).
- * @param {string[]} fieldIds
- * @param {object[]} fields
- * @param {number} colSpan
- * @param {Record<string, string>} fieldWidthTypes
+ * Redistribui sobra proporcionalmente aos mínimos (preenche 100% da linha).
+ * Ex.: 6×140px → partes iguais; 200+220+140 → 380+400+260 em ~1040px.
  */
 export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthTypes = {}) {
   if (!fieldIds.length) return {};
 
-  const columnBudget = getRowColumnBudget(colSpan);
   const budgetPx = getRowBudgetPx(colSpan);
   const gaps = Math.max(0, fieldIds.length - 1) * ROW_GAP_PX;
   const availablePx = Math.max(budgetPx - gaps, 1);
@@ -217,60 +200,47 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
   const items = fieldIds.map((id) => {
     const field = fields.find((f) => f.id === id) || { id };
     const metrics = getFieldRowMetrics(field, fieldWidthTypes);
-    return {
-      fieldId: id,
-      colWeight: metrics.colWeight,
-      minPx: metrics.minPx,
-    };
+    return { fieldId: id, minPx: metrics.minPx };
   });
 
-  const sumWeight = items.reduce((s, item) => s + item.colWeight, 0) || 1;
-  const slackCols = Math.max(0, columnBudget - sumWeight);
+  const sumMin = items.reduce((s, item) => s + item.minPx, 0) || 1;
+  const slack = Math.max(0, availablePx - sumMin);
 
   const balance = {};
 
   items.forEach((item) => {
-    const finalCols = item.colWeight + (slackCols * item.colWeight) / sumWeight;
-    const share = finalCols / columnBudget;
-    const basisPx = Math.max(item.minPx, Math.round(share * availablePx));
+    const finalPx = Math.max(item.minPx, Math.round(item.minPx + (slack * item.minPx) / sumMin));
 
     balance[item.fieldId] = {
-      expandable: true,
-      growWeight: item.colWeight,
-      colSpan: finalCols,
+      compact: true,
+      growWeight: item.minPx,
       minWidth: `${item.minPx}px`,
-      flex: `${item.colWeight} 1 ${basisPx}px`,
-      flexBasis: `${basisPx}px`,
+      flex: `1 1 ${finalPx}px`,
+      flexBasis: `${finalPx}px`,
+      targetWidthPx: finalPx,
     };
   });
 
   return balance;
 }
 
-/**
- * Balanceamento para campo sozinho em linha cheia (Grupo 2).
- * @param {string} fieldId
- * @param {object[]} fields
- * @param {Record<string, string>} fieldWidthTypes
- */
 export function computeLineFillFieldBalance(fieldId, fields, fieldWidthTypes = {}) {
   const field = fields.find((f) => f.id === fieldId) || { id: fieldId };
   const metrics = getFieldRowMetrics(field, fieldWidthTypes);
   return {
     [fieldId]: {
-      expandable: true,
-      growWeight: ROW_GRID_COLUMNS,
-      colSpan: ROW_GRID_COLUMNS,
-      minWidth: metrics.lineFill ? "100%" : `${metrics.minPx}px`,
+      expansive: true,
+      growWeight: 1,
+      minWidth: "0",
       flex: "1 1 100%",
       flexBasis: "100%",
       lineFill: true,
+      targetWidthPx: metrics.minPx,
     },
   };
 }
 
 /**
- * Pipeline: ordem preservada, compactos empacotados (máx. 6), linha cheia isolada.
  * @param {string[]} fieldIds
  * @param {{ fields?: object[], card?: object, fieldSizes?: Record<string, string> }} [options]
  */
@@ -283,8 +253,7 @@ export function buildBalancedRows(fieldIds = [], options = {}) {
 
   const flushCompact = () => {
     if (!compactBuffer.length) return;
-    const packed = packCompactRowsByColumns(compactBuffer, fields, card, fieldSizes);
-    packed.forEach((ids) => {
+    packCompactRows(compactBuffer, fields, card, fieldSizes).forEach((ids) => {
       rows.push({
         fieldIds: ids,
         fullWidth: false,
@@ -298,7 +267,7 @@ export function buildBalancedRows(fieldIds = [], options = {}) {
     if (!fieldId) return;
     const field = fields.find((f) => f.id === fieldId) || { id: fieldId };
 
-    if (isLineFillLayoutField(field, fieldSizes)) {
+    if (isExpansiveLayoutField(field, fieldSizes)) {
       flushCompact();
       rows.push({
         fieldIds: [fieldId],
@@ -314,17 +283,6 @@ export function buildBalancedRows(fieldIds = [], options = {}) {
   flushCompact();
 
   if (!rows.length && fieldIds.length) {
-    const onlyLineFill = fieldIds.every((id) => {
-      const field = fields.find((f) => f.id === id) || { id };
-      return isLineFillLayoutField(field, fieldSizes);
-    });
-    if (onlyLineFill) {
-      return fieldIds.map((fieldId) => ({
-        fieldIds: [fieldId],
-        fullWidth: true,
-        fieldBalance: computeLineFillFieldBalance(fieldId, fields, fieldSizes),
-      }));
-    }
     return [
       {
         fieldIds: [...fieldIds],
@@ -336,6 +294,3 @@ export function buildBalancedRows(fieldIds = [], options = {}) {
 
   return rows;
 }
-
-/** @deprecated Grupo 2 usa linha cheia; compactos sempre participam da redistribuição */
-export const isExpandableWidthType = () => true;

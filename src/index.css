@@ -2953,27 +2953,32 @@ select.erp-field-invalid {
   flex-shrink: 0;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--image .emp-form-field-control {
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--media-inline .emp-form-field-control {
   height: var(--emp-form-control-height, 26px);
   min-height: var(--emp-form-control-height, 26px);
   max-height: var(--emp-form-control-height, 26px);
+  padding: 0 4px;
   justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--image .emp-form-image-field {
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--media-inline .emp-form-image-field {
   height: 100%;
   min-height: 0;
   width: 100%;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-thumb {
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--media-inline .emp-form-image-thumb {
   height: 100%;
   max-height: calc(var(--emp-form-control-height, 26px) - 4px);
-  width: auto;
+  width: 100%;
   max-width: 100%;
+  border: 0;
+  border-radius: var(--emp-control-radius, 4px);
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-thumb img {
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--media-inline .emp-form-image-thumb img {
   max-height: calc(var(--emp-form-control-height, 26px) - 6px);
   max-width: 100%;
   width: auto;
@@ -2981,13 +2986,16 @@ select.erp-field-invalid {
   object-fit: contain;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-empty-icon {
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--media-inline .emp-form-image-empty-icon {
   width: 18px;
   height: 18px;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-image-field {
-  min-height: 0;
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--image-expanded .emp-form-field-control {
+  height: auto;
+  min-height: 120px;
+  max-height: none;
+  padding: 4px;
 }
 
 .cadastro-emp-scope .emp-form-field-corp--textarea {

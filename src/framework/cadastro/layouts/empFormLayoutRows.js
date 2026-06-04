@@ -1,5 +1,6 @@
 import { resolveFieldGridSpan } from "./empFormFieldGrid.js";
 import { buildBalancedRows } from "./empFormRowBalance.js";
+import { normalizeFieldWidthTypes } from "./empFormFieldWidthPresets.js";
 
 /**
  * @typedef {Object} LayoutRowV3
@@ -70,7 +71,8 @@ export const normalizeLayoutRowV3 = (source = {}, index = 0, cardId = "card") =>
  */
 export const packFieldIdsIntoRows = (fieldIds = [], options = {}) => {
   const { fieldSizes = {}, fields = [], card = {} } = options;
-  return buildBalancedRows(fieldIds, { fields, card, fieldSizes });
+  const normalizedSizes = normalizeFieldWidthTypes(fieldSizes);
+  return buildBalancedRows(fieldIds, { fields, card, fieldSizes: normalizedSizes });
 };
 
 /** @deprecated Empacotamento legado por grid 12 */
@@ -132,7 +134,7 @@ export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = []) 
 };
 
 export const getCardRowsForRender = (card, fieldWidthTypes = {}, fields = []) => {
-  const normalized = normalizeCardRows(card, fieldWidthTypes, fields);
+  const normalized = normalizeCardRows(card, normalizeFieldWidthTypes(fieldWidthTypes), fields);
   return normalized.rows || [];
 };
 

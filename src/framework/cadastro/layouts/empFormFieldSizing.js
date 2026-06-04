@@ -8,7 +8,7 @@ export function resolveFieldWidthToken(field) {
 
   const type = String(field.type || "text").toLowerCase();
 
-  if (type === "textarea" || type === "option_list") return "full";
+  if (type === "textarea") return "full";
   if (field.wide) return "lg";
   if (type === "checkbox" || type === "switch") return "toggle";
   if (type === "image" || type === "file" || type === "imagem") return "xs";
@@ -23,5 +23,5 @@ export function resolveFieldWidthToken(field) {
 
 export function shouldFieldSpanFullRow(field) {
   const type = String(field?.type || "").toLowerCase();
-  return type === "textarea" || type === "option_list";
+  return type === "textarea";
 }
