@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { AuthApi } from "@/apis/auth/AuthApi";
-import { resetEmpresasFormLayoutSync } from "@/framework/cadastro/layouts/userLayoutPreferencesSync";
+import { resetAllLayoutPreferencesSync } from "@/framework/cadastro-engine/preferences/LayoutPreferencesEngine.js";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 
@@ -176,7 +176,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await AuthApi.logout().catch(() => null);
-    resetEmpresasFormLayoutSync();
+    resetAllLayoutPreferencesSync();
     setUser(null);
     setCliente(null);
     setEmpresas([]);

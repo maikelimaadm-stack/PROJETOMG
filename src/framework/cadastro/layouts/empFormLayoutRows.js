@@ -112,10 +112,15 @@ export const packFieldIdsIntoGridRows = (fieldIds = [], fieldSizes = {}, fields 
  * @param {Record<string, string>} [fieldWidthTypes]
  * @param {object[]} [fields]
  */
-export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = []) => {
+export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = [], containerWidthPx) => {
   const cardId = card.id || "card";
   const fieldIds = flattenRowsToFieldIds(card);
-  const packed = packFieldIdsIntoRows(fieldIds, { fields, card, fieldSizes: fieldWidthTypes });
+  const packed = packFieldIdsIntoRows(fieldIds, {
+    fields,
+    card,
+    fieldSizes: fieldWidthTypes,
+    containerWidthPx,
+  });
 
   const rows = packed.map((row, index) =>
     normalizeLayoutRowV3(

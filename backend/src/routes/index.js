@@ -6,6 +6,7 @@ import { registerEmpresasRoutes } from "../modules/empresas/routes.js";
 import { registerAnexosRoutes } from "../modules/anexos/routes.js";
 import { registerPreferencesRoutes } from "../modules/preferences/routes.js";
 import { registerCadcpsRoutes } from "../modules/cadcps/routes.js";
+import { registerCadastroRoutes } from "../modules/cadastro/routes.js";
 import { verifyDatabaseConnection } from "../database/prismaClient.js";
 import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "../integrations/supabase/adminClient.js";
 
