@@ -2141,20 +2141,12 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
-.cadastro-emp-scope .emp-layout-configurator[data-active-card-span="6"] .emp-layout-config-panel-fields,
-.cadastro-emp-scope .emp-layout-config-main[data-active-card-span="6"] .emp-layout-config-panel-fields {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 6px;
-  align-items: stretch;
-}
-
 .cadastro-emp-scope .emp-layout-configurator[data-active-card-span="6"] .emp-layout-config-field.emp-layout-config-field-panel,
 .cadastro-emp-scope .emp-layout-config-main[data-active-card-span="6"] .emp-layout-config-field.emp-layout-config-field-panel {
-  min-width: 0;
-  max-width: none;
-  width: auto;
-  flex-shrink: 1;
+  flex: 1 1 calc(25% - 9px);
+  flex-shrink: 1 !important;
+  min-width: 0 !important;
+  max-width: calc(25% - 6px);
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {

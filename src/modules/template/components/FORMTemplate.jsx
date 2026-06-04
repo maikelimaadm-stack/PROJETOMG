@@ -64,7 +64,6 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
           layout={layoutConfig.layout}
           fieldSizes={layoutConfig.fieldSizes || {}}
           fieldLayoutConfig={layoutConfig.fieldLayoutConfig}
-          previewValues={state}
           defaultConfig={defaultConfigFull}
           onSave={saveLayoutConfig}
         />

@@ -471,7 +471,6 @@ export default function FORMEMP({
           aggregationConfig={activeLayoutConfig.aggregationConfig || {}}
           visibilityRules={activeLayoutConfig.visibilityRules || {}}
           defaultConfig={defaultConfigFull}
-          previewValues={formData}
           systemPanelIds={["principais", "endereco", "observacoes", "campos_personalizados"]}
           fixedPanelIds={[]}
           fixedVisibleFieldIds={[]}

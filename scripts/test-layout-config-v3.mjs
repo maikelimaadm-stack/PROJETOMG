@@ -21,6 +21,8 @@ import {
   reorderFieldWithinRows,
   placeFieldInCardRows,
   createEmptyLayoutRow,
+  resolveConfiguredCardRows,
+  cardHasExplicitRows,
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
   getMaxFieldsPerRow,
@@ -36,7 +38,6 @@ import {
   getRowBudgetPx,
   fixOrphanCompactRows,
 } from "../src/framework/cadastro/layouts/empFormRowBalance.js";
-import { resolveConfiguredCardRows } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
   isExpansiveLayoutField,
   isInlineMediaField,
@@ -182,6 +183,19 @@ assert.equal(
 const fifthHalf = placeFieldInCardRows(halfRowPlacement, "e", { cardId: "half", colSpan: 6 });
 assert.equal(fifthHalf.rows.length, 2, "quinto campo abre nova linha no card meio");
 assert.equal(fifthHalf.rows[0].fieldIds.length, 4);
+
+const emptyRowCard = {
+  id: "card_empty",
+  colSpan: 12,
+  fieldIds: ["a"],
+  rows: [
+    { id: "r1", order: 1, fieldIds: ["a"] },
+    { id: "r2", order: 2, fieldIds: [] },
+  ],
+};
+assert.equal(cardHasExplicitRows(emptyRowCard), true);
+assert.equal(resolveConfiguredCardRows(emptyRowCard).length, 2);
+assert.equal(resolveConfiguredCardRows(emptyRowCard)[1].fieldIds.length, 0);
 
 const textFields = Array.from({ length: 7 }, (_, i) => ({ id: `f${i + 1}`, type: "text" }));
 

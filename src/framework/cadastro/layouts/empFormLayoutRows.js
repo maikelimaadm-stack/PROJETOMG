@@ -43,10 +43,9 @@ export const flattenRowsToFieldIds = (card) => {
   return Array.isArray(card?.fieldIds) ? [...card.fieldIds] : [];
 };
 
+/** Card com estrutura de linhas definida pelo usuário (inclui linhas vazias para arrastar campos). */
 export const cardHasExplicitRows = (card) =>
-  Array.isArray(card?.rows) &&
-  card.rows.length > 0 &&
-  card.rows.some((row) => (row.fieldIds || []).filter(Boolean).length > 0);
+  Array.isArray(card?.rows) && card.rows.length > 0;
 
 /** Mantém `rows` no card quando o usuário configurou mais de uma linha. */
 export const shouldPreserveCardRows = (card, rows = []) =>
