@@ -199,7 +199,16 @@ export default function EmpLayoutConfiguratorDialog({
     return rows.length ? rows : [createEmptyLayoutRow(card?.id || "card")];
   };
 
-  const getActiveCardColSpan = (card = activeCard) => Number(card?.colSpan) || 12;
+  const getActiveCardColSpan = (card = activeCard) => {
+    const span = Number(card?.colSpan);
+    return Number.isFinite(span) && span > 0 ? (span <= 6 ? 6 : 12) : 12;
+  };
+
+  const activeCardSpan = getActiveCardColSpan();
+  const isHalfWidthCard = activeCardSpan <= 6;
+  const panelFieldMinWidthClass = isHalfWidthCard
+    ? "min-w-0 flex-[1_1_calc(25%-9px)] max-w-[calc(25%-6px)]"
+    : "min-w-[210px]";
 
   const resolveTargetRowId = (rows, colSpan = getActiveCardColSpan()) => {
     if (selectedPanelFieldIds.length) {
@@ -882,7 +891,7 @@ export default function EmpLayoutConfiguratorDialog({
       }}
       onDrop={() => setDraggedFieldId(null)}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel min-w-[210px] cursor-pointer`}
+      className={`${fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel ${panelFieldMinWidthClass} cursor-pointer`}
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <span className="min-w-0 flex-1 truncate text-xs font-semibold text-white">{field.label}</span>
@@ -892,7 +901,10 @@ export default function EmpLayoutConfiguratorDialog({
   );
 
   const content = (
-    <div className={`cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}`}>
+    <div
+      className={`cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}`}
+      data-active-card-span={String(activeCardSpan)}
+    >
       {!inline && (
         <DialogHeader className="sr-only">
           <DialogTitle>Configuração de layout do formulário</DialogTitle>
@@ -1013,7 +1025,10 @@ export default function EmpLayoutConfiguratorDialog({
             </ToolbarBtn>
           </section>
 
-          <main className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white">
+          <main
+            className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white"
+            data-active-card-span={String(activeCardSpan)}
+          >
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
               <div className="emp-form-tabs emp-form-tabs-launch relative flex min-h-[34px] items-end justify-start pl-2 pr-2">
                 <div className="emp-form-tab-nav-group emp-layout-config-panel-actions relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5 self-center">

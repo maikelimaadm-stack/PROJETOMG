@@ -2141,6 +2141,18 @@ input[type="number"] {
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope .emp-layout-configurator[data-active-card-span="6"] .emp-layout-config-panel-fields,
+.cadastro-emp-scope .emp-layout-config-main[data-active-card-span="6"] .emp-layout-config-panel-fields {
+  gap: 6px;
+}
+
+.cadastro-emp-scope .emp-layout-configurator[data-active-card-span="6"] .emp-layout-config-field-panel,
+.cadastro-emp-scope .emp-layout-config-main[data-active-card-span="6"] .emp-layout-config-field-panel {
+  min-width: 0;
+  flex: 1 1 calc(25% - 9px);
+  max-width: calc(25% - 6px);
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {
   flex: 1;
   min-height: 0;

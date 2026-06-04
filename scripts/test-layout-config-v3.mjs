@@ -19,6 +19,8 @@ import {
   packFieldIdsIntoRows,
   normalizeCardRows,
   reorderFieldWithinRows,
+  placeFieldInCardRows,
+  createEmptyLayoutRow,
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
   getMaxFieldsPerRow,
@@ -156,6 +158,24 @@ assert.deepEqual(flattenRowsToFieldIds(cardWithRows), ["a", "b", "c"]);
 // --- Limites por card
 assert.equal(getMaxFieldsPerRow(12), 6);
 assert.equal(getMaxFieldsPerRow(6), 4);
+
+let halfRowPlacement = [createEmptyLayoutRow("half", 0)];
+["a", "b", "c", "d"].forEach((fieldId) => {
+  const result = placeFieldInCardRows(halfRowPlacement, fieldId, {
+    cardId: "half",
+    colSpan: 6,
+  });
+  assert.equal(result.placed, true, `campo ${fieldId} deve caber na linha do card meio`);
+  halfRowPlacement = result.rows;
+});
+assert.equal(
+  halfRowPlacement[0].fieldIds.length,
+  4,
+  "card meio: quatro campos na mesma linha"
+);
+const fifthHalf = placeFieldInCardRows(halfRowPlacement, "e", { cardId: "half", colSpan: 6 });
+assert.equal(fifthHalf.rows.length, 2, "quinto campo abre nova linha no card meio");
+assert.equal(fifthHalf.rows[0].fieldIds.length, 4);
 
 const textFields = Array.from({ length: 7 }, (_, i) => ({ id: `f${i + 1}`, type: "text" }));
 
