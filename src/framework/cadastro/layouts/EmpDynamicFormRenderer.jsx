@@ -173,7 +173,7 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
     >
       <label className="emp-form-field-label-top">
         {field.label}
-        {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}
+        {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
       </label>
       <div className={cn("emp-form-field-control", error && "erp-field-invalid")}>
         {loteStyle && !bare && <EmpCustomMarker variant="lote" />}

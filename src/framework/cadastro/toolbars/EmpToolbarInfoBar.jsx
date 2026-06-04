@@ -16,7 +16,7 @@ export default function EmpToolbarInfoBar({
   const { Icon, label } = getOperationBadge(operationLabel);
 
   return (
-    <div className={`emp-toolbar-info-bar flex h-6 items-center gap-2 border-b border-[#dce3eb] px-2 ${className}`.trim()}>
+    <div className={`emp-toolbar-info-bar flex h-6 items-center gap-2 border-b border-[#e4eaf2] px-2 ${className}`.trim()}>
       <div className="flex min-w-0 flex-1 items-center gap-1.5">
         <span className="shrink-0 text-xs font-semibold text-[#1a1f26]">{titleCase(badgeLabel)}</span>
         <ChevronRight className="h-3 w-3 shrink-0 text-slate-400" strokeWidth={2} aria-hidden="true" />
