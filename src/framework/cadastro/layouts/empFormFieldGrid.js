@@ -6,17 +6,23 @@ export const FIELD_SIZE_COLUMNS = {
   SM: 2,
   MD: 3,
   LG: 4,
-  XL: 12,
+  XL: 6,
+  FULL: 12,
 };
 
-export const FIELD_SIZE_OPTIONS = ["XS", "SM", "MD", "LG", "XL"];
+export const FIELD_SIZE_OPTIONS = ["XS", "SM", "MD", "LG", "XL", "FULL"];
+
+export const CARD_COL_SPAN_OPTIONS = [
+  { value: 12, label: "Tela inteira" },
+  { value: 6, label: "Meia tela" },
+];
 
 const normalizeSizeKey = (value) => String(value || "").trim().toUpperCase();
 
 /** Heurística padrão quando não há fieldSize persistido. */
 export function inferFieldSizeFromField(field) {
   const token = resolveFieldWidthToken(field);
-  if (token === "full") return "XL";
+  if (token === "full") return "FULL";
   if (token === "xs" || token === "toggle") return "XS";
   if (token === "sm" || token === "sm-date") return "SM";
   if (token === "md" || token === "lookup") return "MD";

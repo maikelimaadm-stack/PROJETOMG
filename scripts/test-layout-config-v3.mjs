@@ -139,20 +139,30 @@ assert.deepEqual(flattenRowsToFieldIds(cardWithRows), ["a", "b", "c"]);
 
 // --- fieldIds sem rows gera linhas empacotadas
 const packed = normalizeCardRows(
-  { id: "c1", fieldIds: ["tipo_pessoa", "codempresa", "razao_social"] },
-  { tipo_pessoa: "SM", codempresa: "XS", razao_social: "XL" }
+  {
+    id: "c1",
+    fieldIds: ["tipo_pessoa", "tipo_vinculo", "codempresa", "status", "razao_social", "nome_fantasia"],
+  },
+  {
+    tipo_pessoa: "SM",
+    tipo_vinculo: "SM",
+    codempresa: "XS",
+    status: "SM",
+    razao_social: "LG",
+    nome_fantasia: "LG",
+  }
 );
 assert.ok(packed.rows.length >= 2, "empacota em múltiplas linhas conforme grid 12");
 assert.equal(
   flattenRowsToFieldIds(packed).length,
-  3,
+  6,
   "preserva todos os campos ao normalizar rows"
 );
 
 const manualPack = packFieldIdsIntoRows(
-  ["xs", "xs", "xs", "xs", "xl"],
-  { xs: "XS", xl: "XL" }
+  ["a", "b", "c", "d", "e", "f", "g"],
+  { a: "MD", b: "MD", c: "MD", d: "MD", e: "MD", f: "MD", g: "MD" }
 );
-assert.equal(manualPack.length, 2, "quebra linha ao exceder 12 colunas");
+assert.equal(manualPack.length, 2, "quebra linha ao exceder 12 colunas (3+3+3+3)");
 
 console.log("✓ Todos os testes LayoutConfigV3 passaram.");

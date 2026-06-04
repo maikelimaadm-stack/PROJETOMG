@@ -120,7 +120,7 @@ export const normalizeLayoutCardV3 = (source = {}, index = 0) => {
   const columns = Math.min(12, Math.max(1, Number(source.columns) || DEFAULT_CARD_COLUMNS));
   let colSpan = Number(source.colSpan);
   if (!Number.isFinite(colSpan) || colSpan < 1) colSpan = 12;
-  colSpan = Math.min(12, Math.max(1, colSpan));
+  colSpan = colSpan <= 6 ? 6 : 12;
   const normalized = normalizeCardRows(
     {
       ...source,

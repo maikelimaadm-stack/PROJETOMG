@@ -56,14 +56,19 @@ export const normalizeLayoutRowV3 = (source = {}, index = 0, cardId = "card") =>
  * @param {string[]} fieldIds
  * @param {Record<string, string>} [fieldSizes]
  */
-export const packFieldIdsIntoRows = (fieldIds = [], fieldSizes = {}) => {
+export const packFieldIdsIntoRows = (fieldIds = [], fieldSizes = {}, fields = []) => {
   const rows = [];
   let current = { fieldIds: [] };
   let used = 0;
 
-  fieldIds.forEach((fieldId, index) => {
+  const resolveSpan = (fieldId) => {
+    const field = fields.find((item) => item.id === fieldId);
+    return resolveFieldGridSpan(field || { id: fieldId }, fieldSizes);
+  };
+
+  fieldIds.forEach((fieldId) => {
     if (!fieldId) return;
-    const span = resolveFieldGridSpan({ id: fieldId }, fieldSizes);
+    const span = resolveSpan(fieldId);
     if (used > 0 && used + span > GRID_COLUMNS) {
       rows.push(current);
       current = { fieldIds: [] };
@@ -117,7 +122,22 @@ export const normalizeCardRows = (card = {}, fieldSizes = {}) => {
 /**
  * @param {import('./layoutConfigV3.js').LayoutCardV3} card
  */
-export const getCardRowsForRender = (card, fieldSizes = {}) => normalizeCardRows(card, fieldSizes).rows || [];
+/**
+ * Linhas visuais auto-empacotadas pela largura padrão (ordem de fieldIds).
+ * @param {import('./layoutConfigV3.js').LayoutCardV3 | object} card
+ * @param {Record<string, string>} [fieldSizes]
+ * @param {object[]} [fields]
+ */
+export const getCardRowsForRender = (card, fieldSizes = {}, fields = []) => {
+  const normalized = normalizeCardRows(card, fieldSizes);
+  const fieldIds = flattenRowsToFieldIds(normalized);
+  const cardId = normalized.id || "card";
+  return packFieldIdsIntoRows(fieldIds, fieldSizes, fields).map((row, index) => ({
+    id: createRowId(cardId, index + 1),
+    order: index + 1,
+    fieldIds: row.fieldIds,
+  }));
+};
 
 /**
  * @param {LayoutRowV3[]} rows

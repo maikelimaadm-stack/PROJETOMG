@@ -295,7 +295,7 @@ export default function EmpDynamicFormRenderer({
   };
 
   const cardHasCustomField = (card) =>
-    getCardRowsForRender(card, fieldSizes)
+    getCardRowsForRender(card, fieldSizes, fields)
       .flatMap((row) => row.fieldIds || [])
       .some((fieldId) => {
         const field = fields.find((item) => item.id === fieldId);
@@ -308,7 +308,7 @@ export default function EmpDynamicFormRenderer({
   const cardSections = cardRows.map((row, rowIndex) => (
     <div key={`row-${rowIndex}`} className="emp-form-cards-row">
       {row.map((card) => {
-        const layoutRows = getCardRowsForRender(card, fieldSizes);
+        const layoutRows = getCardRowsForRender(card, fieldSizes, fields);
         const hasVisibleInCard = layoutRows.some((layoutRow) =>
           (layoutRow.fieldIds || []).some((fieldId) => {
             const field = fields.find((item) => item.id === fieldId);
@@ -356,7 +356,7 @@ export default function EmpDynamicFormRenderer({
   ));
 
   const hasVisibleFields = cards.some((card) =>
-    getCardRowsForRender(card, fieldSizes).some((layoutRow) =>
+    getCardRowsForRender(card, fieldSizes, fields).some((layoutRow) =>
       (layoutRow.fieldIds || []).some((fieldId) => {
         const field = fields.find((item) => item.id === fieldId);
         return field && isFieldVisible(field);

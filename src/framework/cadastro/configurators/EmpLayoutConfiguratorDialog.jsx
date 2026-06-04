@@ -39,17 +39,14 @@ import {
 } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { DEFAULT_VIRTUAL_CARD_ID, normalizeLayoutCardV3 } from "@/framework/cadastro/layouts/layoutConfigV3";
 import { DEFAULT_FIELD_LAYOUT_CONFIG } from "@/framework/cadastro/layouts/empFormLayoutStore";
-import { FIELD_SIZE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
+import { CARD_COL_SPAN_OPTIONS, FIELD_SIZE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
 import {
   addFieldToRow,
   createEmptyLayoutRow,
-  deleteLayoutRow,
   flattenRowsToFieldIds,
-  moveLayoutRow,
   normalizeCardRows,
   packFieldIdsIntoRows,
   removeFieldFromRows,
-  reorderFieldWithinRows,
   createRowId,
 } from "@/framework/cadastro/layouts/empFormLayoutRows";
 
@@ -110,7 +107,6 @@ export default function EmpLayoutConfiguratorDialog({
   );
   const [draftFieldSizes, setDraftFieldSizes] = useState(fieldSizes);
   const [activeCardId, setActiveCardId] = useState("");
-  const [activeRowId, setActiveRowId] = useState("");
   const [editingCardId, setEditingCardId] = useState(null);
   const [draftHiddenFieldIds, setDraftHiddenFieldIds] = useState(hiddenFieldIds);
   const [draftLockedFieldIds, setDraftLockedFieldIds] = useState(lockedFieldIds);
@@ -182,7 +178,6 @@ export default function EmpLayoutConfiguratorDialog({
   const activeCardNormalized = activeCard
     ? normalizeCardRows(activeCard, draftFieldSizes)
     : null;
-  const activeCardRows = activeCardNormalized?.rows || [];
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
   const panelFieldIds =
     flattenRowsToFieldIds(activeCardNormalized || {}) || draftLayout[activePanel?.id] || [];
@@ -194,12 +189,7 @@ export default function EmpLayoutConfiguratorDialog({
     if (!cards.some((card) => card.id === activeCardId)) {
       setActiveCardId(cards[0].id);
     }
-    const card = cards.find((item) => item.id === activeCardId) || cards[0];
-    const rows = normalizeCardRows(card, draftFieldSizes).rows || [];
-    if (rows.length && !rows.some((row) => row.id === activeRowId)) {
-      setActiveRowId(rows[0].id);
-    }
-  }, [activePanel?.id, draftCardsByPanel, activeCardId, activeRowId, draftFieldSizes]);
+  }, [activePanel?.id, draftCardsByPanel, activeCardId]);
 
   const applyCardsState = (nextCardsByPanel) => {
     setDraftCardsByPanel(nextCardsByPanel);
@@ -226,12 +216,39 @@ export default function EmpLayoutConfiguratorDialog({
   };
 
   const updateActiveCardFieldIds = (fieldIds) => {
-    const packed = packFieldIdsIntoRows(fieldIds, draftFieldSizes).map((row, index) => ({
+    const packed = packFieldIdsIntoRows(fieldIds, draftFieldSizes, fields).map((row, index) => ({
       id: createRowId(activeCard?.id || "card", index + 1),
       order: index + 1,
       fieldIds: row.fieldIds,
     }));
     updateActiveCardRows(packed.length ? packed : [createEmptyLayoutRow(activeCard?.id || "card")]);
+  };
+
+  const moveFieldToCard = (fieldId, targetCardId) => {
+    if (!activePanel || !fieldId || !targetCardId || !isEditing) return;
+    let nextCardsByPanel = stripFieldFromAllCards(draftCardsByPanel, fieldId);
+    const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) => {
+      if (card.id !== targetCardId) return normalizeLayoutCardV3(card);
+      const ids = [...flattenRowsToFieldIds(normalizeCardRows(card, draftFieldSizes)), fieldId];
+      return normalizeLayoutCardV3({ ...card, fieldIds: ids, rows: [] });
+    });
+    nextCardsByPanel[activePanel.id] = { cards };
+    applyCardsState(nextCardsByPanel);
+    setActiveCardId(targetCardId);
+    setSelectedPanelFieldIds([fieldId]);
+  };
+
+  const toggleCardColSpan = (cardId) => {
+    if (!activePanel || !isEditing) return;
+    const nextCardsByPanel = { ...draftCardsByPanel };
+    nextCardsByPanel[activePanel.id] = {
+      cards: (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
+        card.id === cardId
+          ? normalizeLayoutCardV3({ ...card, colSpan: Number(card.colSpan) <= 6 ? 12 : 6 })
+          : card
+      ),
+    };
+    applyCardsState(nextCardsByPanel);
   };
   const panelFields = panelFieldIds.map((id) => fields.find((field) => field.id === id)).filter(Boolean);
   const activePanelIsSystem = systemPanelIds.includes(activePanel?.id);
@@ -326,13 +343,9 @@ export default function EmpLayoutConfiguratorDialog({
   const addFieldById = (fieldId) => {
     if (!fieldId || !activePanel || !activeCard || !isEditing) return;
     let nextCardsByPanel = stripFieldFromAllCards(draftCardsByPanel, fieldId);
-    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
-    const targetRowId = activeRowId || rows[rows.length - 1]?.id || createRowId(activeCard.id, 1);
-    const nextRows = rows.length
-      ? addFieldToRow(rows, targetRowId, fieldId)
-      : [createEmptyLayoutRow(activeCard.id)];
+    const ids = [...flattenRowsToFieldIds(normalizeCardRows(activeCard, draftFieldSizes)), fieldId];
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
-      card.id === activeCard.id ? normalizeLayoutCardV3({ ...card, rows: nextRows }) : card
+      card.id === activeCard.id ? normalizeLayoutCardV3({ ...card, fieldIds: ids, rows: [] }) : card
     );
     nextCardsByPanel[activePanel.id] = { cards };
     applyCardsState(nextCardsByPanel);
@@ -430,30 +443,13 @@ export default function EmpLayoutConfiguratorDialog({
   };
   const reorderField = (targetFieldId) => {
     if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel || !activeCard) return;
-    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
-    updateActiveCardRows(reorderFieldWithinRows(rows, draggedFieldId, targetFieldId));
-  };
-
-  const createRow = () => {
-    if (!activePanel || !activeCard || !isEditing) return;
-    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
-    const nextRow = createEmptyLayoutRow(activeCard.id, rows);
-    updateActiveCardRows([...rows, nextRow]);
-    setActiveRowId(nextRow.id);
-  };
-
-  const deleteRow = (rowId) => {
-    if (!activePanel || !activeCard || !isEditing) return;
-    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
-    const nextRows = deleteLayoutRow(rows, rowId);
-    updateActiveCardRows(nextRows);
-    setActiveRowId(nextRows[0]?.id || "");
-  };
-
-  const moveRow = (rowId, direction) => {
-    if (!activePanel || !activeCard) return;
-    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
-    updateActiveCardRows(moveLayoutRow(rows, rowId, direction));
+    const list = [...panelFieldIds];
+    const from = list.indexOf(draggedFieldId);
+    const to = list.indexOf(targetFieldId);
+    if (from < 0 || to < 0) return;
+    list.splice(from, 1);
+    list.splice(to, 0, draggedFieldId);
+    updateActiveCardFieldIds(list);
   };
 
   const createCard = () => {
@@ -1093,9 +1089,22 @@ export default function EmpLayoutConfiguratorDialog({
                             setSelectedPanelFieldIds([]);
                           }}
                           onDoubleClick={() => isEditing && setEditingCardId(card.id)}
+                          onDragOver={(event) => {
+                            if (!draggedFieldId || !isEditing) return;
+                            event.preventDefault();
+                            event.dataTransfer.dropEffect = "move";
+                          }}
+                          onDrop={(event) => {
+                            event.preventDefault();
+                            if (draggedFieldId) moveFieldToCard(draggedFieldId, card.id);
+                            setDraggedFieldId(null);
+                          }}
                           className={`emp-layout-config-card-tab ${active ? "emp-layout-config-card-tab-active" : ""}`}
                         >
                           {card.label}
+                          <span className="ml-1 text-[9px] opacity-70">
+                            {(Number(card.colSpan) || 12) <= 6 ? "½" : "⬛"}
+                          </span>
                         </button>
                       )}
                       {isEditing && active && activePanelCards.length > 1 && (
@@ -1105,6 +1114,16 @@ export default function EmpLayoutConfiguratorDialog({
                       )}
                       {isEditing && active && (
                         <>
+                          <ToolbarBtn
+                            onClick={() => toggleCardColSpan(card.id)}
+                            className="h-6 px-1.5 text-[9px]"
+                            title={
+                              CARD_COL_SPAN_OPTIONS.find((o) => o.value === (Number(card.colSpan) <= 6 ? 12 : 6))
+                                ?.label || "Alternar largura do card"
+                            }
+                          >
+                            {(Number(card.colSpan) || 12) <= 6 ? "½→⬛" : "⬛→½"}
+                          </ToolbarBtn>
                           <ToolbarBtn onClick={() => moveCard(card.id, -1)} className="h-6 w-6" title="Mover card">
                             <EmpToolbarIcon icon={ChevronLeft} />
                           </ToolbarBtn>
@@ -1119,61 +1138,18 @@ export default function EmpLayoutConfiguratorDialog({
               </div>
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
-                <div className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2">
-                  {isEditing && (
-                    <ToolbarBtn onClick={createRow} className="emp-toolbar-btn-new h-7 w-fit px-2 text-[11px]" title="Nova linha">
-                      <EmpToolbarIcon icon={Plus} />
-                      <span>Linha</span>
-                    </ToolbarBtn>
-                  )}
-                  {activeCardRows.length === 0 ? (
+                <p className="mb-2 text-[10px] text-[#64748b]">
+                  Arraste campos para reordenar. Solte sobre outra aba de card para mover entre cards. Largura na grade:
+                  XS–FULL. Cards: meia tela (½) ou tela inteira.
+                </p>
+                <div
+                  className="emp-layout-config-panel-fields flex min-h-[160px] flex-wrap content-start gap-2"
+                  onDragOver={(event) => event.preventDefault()}
+                >
+                  {panelFields.length === 0 ? (
                     <div className="p-4 text-xs text-slate-400">Card vazio. Arraste campos ou use os botões de transferência.</div>
                   ) : (
-                    activeCardRows.map((layoutRow) => {
-                      const rowFields = (layoutRow.fieldIds || [])
-                        .map((id) => fields.find((field) => field.id === id))
-                        .filter(Boolean);
-                      return (
-                        <div
-                          key={layoutRow.id}
-                          className={`emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2 ${
-                            activeRowId === layoutRow.id ? "ring-1 ring-[#4fafff]" : ""
-                          }`}
-                          onClick={() => setActiveRowId(layoutRow.id)}
-                        >
-                          <div className="mb-2 flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
-                              Linha {layoutRow.order}
-                            </span>
-                            {isEditing && (
-                              <span className="flex items-center gap-0.5">
-                                <ToolbarBtn onClick={() => moveRow(layoutRow.id, -1)} className="h-6 w-6" title="Subir linha">
-                                  <EmpToolbarIcon icon={ChevronLeft} />
-                                </ToolbarBtn>
-                                <ToolbarBtn onClick={() => moveRow(layoutRow.id, 1)} className="h-6 w-6" title="Descer linha">
-                                  <EmpToolbarIcon icon={ChevronRight} />
-                                </ToolbarBtn>
-                                {activeCardRows.length > 1 && (
-                                  <ToolbarBtn onClick={() => deleteRow(layoutRow.id)} className="h-6 w-6" title="Excluir linha">
-                                    <EmpToolbarIcon icon={Trash2} />
-                                  </ToolbarBtn>
-                                )}
-                              </span>
-                            )}
-                          </div>
-                          <div
-                            className="emp-layout-config-panel-fields flex min-h-[40px] flex-wrap content-start gap-2"
-                            onDragOver={(event) => event.preventDefault()}
-                          >
-                            {rowFields.length === 0 ? (
-                              <span className="text-[10px] text-slate-400">Sem campos nesta linha</span>
-                            ) : (
-                              rowFields.map(renderPanelField)
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })
+                    panelFields.map(renderPanelField)
                   )}
                 </div>
                 {isEditing && selectedPanelFieldIds.length === 1 && (

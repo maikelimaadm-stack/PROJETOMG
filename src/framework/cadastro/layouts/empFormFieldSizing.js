@@ -14,7 +14,8 @@ export function resolveFieldWidthToken(field) {
   const type = String(field.type || "text").toLowerCase();
   const name = String(field.name || field.field_name || field.dataField || "").toLowerCase();
 
-  if (type === "textarea" || type === "option_list" || field.wide) return "full";
+  if (type === "textarea" || type === "option_list") return field.wide ? "full" : "xl";
+  if (field.wide) return "lg";
   if (type === "checkbox" || type === "switch") return "toggle";
   if (type === "image" || type === "file" || type === "imagem") return "xs";
   if (LOOKUP_TYPES.has(type)) return "lookup";
