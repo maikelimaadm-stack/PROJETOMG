@@ -21,10 +21,13 @@ import {
 import { getMaxFieldsPerRow } from "../src/framework/cadastro/layouts/empFormFieldWidthPresets.js";
 import {
   buildBalancedRows,
-  fixOrphanRows,
+  fixOrphanCompactRows,
   computeRowFieldBalance,
-  isExpandableWidthType,
 } from "../src/framework/cadastro/layouts/empFormRowBalance.js";
+import {
+  isCompactLayoutField,
+  isLineFillLayoutField,
+} from "../src/framework/cadastro/layouts/empFormFieldLayoutGroups.js";
 import {
   countLayoutFields,
   ensureLayoutFields,
@@ -201,10 +204,37 @@ const withTextarea = packFieldIdsIntoRows(["a", "b", "obs"], {
 assert.equal(withTextarea[withTextarea.length - 1].fieldIds[0], "obs");
 assert.equal(withTextarea[withTextarea.length - 1].fullWidth, true);
 
-// --- Motor de balanceamento: sem linha órfã (1 campo sozinho)
-const orphanFixed = fixOrphanRows([["a", "b", "c", "d", "e"], ["f"]]);
+// --- Grupo 1: compacto órfão é reorganizado; Grupo 2 pode ficar sozinho
+const orphanFixed = fixOrphanCompactRows(
+  [["a", "b", "c", "d", "e"], ["f"]],
+  [
+    { id: "a", type: "text" },
+    { id: "b", type: "text" },
+    { id: "c", type: "text" },
+    { id: "d", type: "text" },
+    { id: "e", type: "text" },
+    { id: "f", type: "text" },
+  ],
+  {},
+  { colSpan: 12 }
+);
 assert.equal(orphanFixed.length, 2);
-assert.ok(orphanFixed.every((row) => row.length !== 1), "nenhuma linha com campo único");
+assert.ok(
+  orphanFixed.every((row) => row.length !== 1 || !isCompactLayoutField({ id: row[0], type: "text" })),
+  "compacto não permanece sozinho"
+);
+
+assert.equal(isLineFillLayoutField({ type: "textarea" }), true);
+assert.equal(isCompactLayoutField({ type: "number" }), true);
+assert.equal(isCompactLayoutField({ type: "option_list" }), true);
+
+const lineFillAlone = buildBalancedRows(["obs"], {
+  fields: [{ id: "obs", type: "textarea" }],
+  card: { colSpan: 12 },
+});
+assert.equal(lineFillAlone.length, 1);
+assert.equal(lineFillAlone[0].fullWidth, true);
+assert.equal(lineFillAlone[0].fieldIds.length, 1);
 
 const sevenBalanced = buildBalancedRows(
   ["f1", "f2", "f3", "f4", "f5", "f6", "f7"],
@@ -217,26 +247,27 @@ assert.ok(sevenBalanced.length >= 2);
 sevenBalanced
   .filter((row) => !row.fullWidth)
   .forEach((row) => {
-    assert.ok(row.fieldIds.length >= 2, "linha regular não deve ter órfão");
+    assert.ok(row.fieldIds.length >= 2, "linha compacta não deve ter órfão");
     assert.ok(row.fieldBalance && Object.keys(row.fieldBalance).length > 0, "fieldBalance por linha");
   });
 
-// --- Tipos fixos (número/data) não absorvem sobra
-assert.equal(isExpandableWidthType("NUMBER"), false);
-assert.equal(isExpandableWidthType("SHORT_TEXT"), true);
+// --- Redistribuição proporcional (8/12 → 12/12)
 const mixedBalance = computeRowFieldBalance(
-  ["nome", "qtd", "dt"],
+  ["nome", "qtd", "desc"],
   [
     { id: "nome", type: "text" },
     { id: "qtd", type: "number" },
-    { id: "dt", type: "date" },
+    { id: "desc", type: "text", medium: true },
   ],
   12,
   {}
 );
-assert.match(mixedBalance.qtd.flex, /^0 0 /);
-assert.match(mixedBalance.dt.flex, /^0 0 /);
-assert.ok(mixedBalance.nome.expandable);
+assert.ok(mixedBalance.nome.colSpan > 2);
+assert.ok(mixedBalance.qtd.colSpan > 2);
+assert.ok(mixedBalance.desc.colSpan > 4);
+const colSum =
+  mixedBalance.nome.colSpan + mixedBalance.qtd.colSpan + mixedBalance.desc.colSpan;
+assert.ok(Math.abs(colSum - 12) < 0.01, "linha deve ocupar 12 colunas");
 
 // --- fieldBalance persiste na normalização
 const normalizedWithBalance = normalizeCardRows(

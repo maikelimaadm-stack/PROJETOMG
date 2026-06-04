@@ -165,10 +165,10 @@ function FieldFrameCorp({
       ? {
           flex: balanced.flex,
           minWidth: balanced.minWidth,
-          maxWidth: "none",
-          width: "auto",
-          flexGrow: balanced.expandable ? balanced.growWeight : 0,
-          flexShrink: 0,
+          maxWidth: balanced.lineFill ? "100%" : "none",
+          width: balanced.lineFill ? "100%" : "auto",
+          flexGrow: balanced.growWeight ?? 1,
+          flexShrink: balanced.lineFill ? 1 : 1,
         }
       : {
           flex: "1 1 140px",
@@ -185,8 +185,8 @@ function FieldFrameCorp({
         "emp-form-field-corp",
         typeClass,
         isFull && "emp-form-field-corp--full-row",
-        balanced && !balanced.expandable && "emp-form-field-corp--fixed-width",
-        balanced && balanced.expandable && "emp-form-field-corp--balanced-grow",
+        balanced?.lineFill && "emp-form-field-corp--line-fill",
+        balanced && !balanced.lineFill && "emp-form-field-corp--balanced-grow",
         imageField && "emp-form-field-corp--image",
         textareaField && "emp-form-field-corp--textarea",
         bare && "emp-form-field-corp--bare",

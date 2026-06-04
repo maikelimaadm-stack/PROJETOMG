@@ -2802,16 +2802,10 @@ select.erp-field-invalid {
   max-width: 100% !important;
 }
 
-.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp:not(.emp-form-field-corp--full-row):not(.emp-form-field-corp--fixed-width):not(.emp-form-field-corp--balanced-grow) {
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp:not(.emp-form-field-corp--full-row):not(.emp-form-field-corp--balanced-grow):not(.emp-form-field-corp--line-fill) {
   flex-grow: 1;
   flex-shrink: 1;
   flex-basis: 0;
-  max-width: none;
-}
-
-.cadastro-emp-scope .emp-form-field-corp--fixed-width {
-  flex-grow: 0 !important;
-  flex-shrink: 0;
   max-width: none;
 }
 
@@ -2819,6 +2813,13 @@ select.erp-field-invalid {
   flex-shrink: 1;
   min-width: 0;
   max-width: none;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--line-fill {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  min-width: 100% !important;
+  max-width: 100% !important;
 }
 
 .cadastro-emp-scope .emp-form-card-rows {

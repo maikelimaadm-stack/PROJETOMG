@@ -57,7 +57,8 @@ const SELECT_TYPES = new Set(["select"]);
 const DATE_TYPES = new Set(["date"]);
 const DATETIME_TYPES = new Set(["datetime", "datetime-local"]);
 const NUMBER_TYPES = new Set(["number", "decimal", "moeda", "percentual", "integer"]);
-const MULTILINE_TYPES = new Set(["textarea", "option_list"]);
+const MULTILINE_TYPES = new Set(["textarea"]);
+const MULTISELECT_TYPES = new Set(["option_list", "multiselect", "multi_select"]);
 const IMAGE_TYPES = new Set(["image", "imagem"]);
 const ATTACHMENT_TYPES = new Set(["file"]);
 
@@ -80,6 +81,7 @@ export function inferFieldWidthType(field) {
   const type = String(field.type || "text").toLowerCase();
 
   if (MULTILINE_TYPES.has(type)) return "MULTILINE";
+  if (MULTISELECT_TYPES.has(type)) return "SELECT";
   if (IMAGE_TYPES.has(type)) return "IMAGE";
   if (ATTACHMENT_TYPES.has(type)) return "ATTACHMENT";
   if (NUMBER_TYPES.has(type)) return "NUMBER";
