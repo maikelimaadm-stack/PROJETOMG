@@ -304,25 +304,40 @@
   align-items: stretch;
 }
 
-.cadastro-emp-scope .emp-form-autocomplete-wrap.erp-select-control:not(.emp-form-autocomplete-wrap--with-btn) .relative::after {
-  content: "";
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  transform: translateY(-50%);
-  pointer-events: none;
-  background-image: var(--erp-select-chevron-icon);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 14px 14px;
-  z-index: 2;
+/* Campo SELECT — chevron, menu com busca interna */
+.cadastro-emp-scope .erp-field-select .erp-field-select-input {
+  cursor: pointer;
+  background-color: #ffffff !important;
 }
 
-.cadastro-emp-scope .emp-form-autocomplete-wrap--with-btn:focus-within .emp-form-input,
-.cadastro-emp-scope .emp-form-autocomplete-wrap.erp-select-control:focus-within .emp-form-input {
-  background-color: var(--erp-color-card-header) !important;
+.cadastro-emp-scope .erp-field-select-chevron-btn {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cadastro-emp-scope .emp-form-field-control:has(.erp-field-open) {
+  border-color: var(--erp-color-primary) !important;
+  box-shadow: var(--erp-shadow-focus) !important;
+}
+
+/* Campo LOOKUP / pesquisa — ícone, divisor, botão lateral */
+.cadastro-emp-scope .erp-field-lookup .erp-field-lookup-input {
+  background-color: #ffffff !important;
+}
+
+.cadastro-emp-scope .erp-field-lookup-inline-icon {
+  color: var(--erp-color-text-muted);
+  stroke: var(--erp-color-text-muted);
+}
+
+.cadastro-emp-scope .erp-lookup-inline-divider {
+  display: block;
+  width: 1px;
+  align-self: stretch;
+  flex-shrink: 0;
+  background: var(--erp-color-border);
+  margin: 4px 0;
 }
 
 .cadastro-emp-scope .emp-form-lookup-btn svg {
@@ -578,18 +593,18 @@
 }
 
 /* Campo de pesquisa dentro do menu */
-.erp-menu-search-field,
-.erp-search-panel__query-bar .erp-menu-search-field {
+.erp-menu-search-field {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  height: var(--erp-menu-search-height);
-  min-height: var(--erp-menu-search-height);
+  height: 28px;
+  min-height: 28px;
+  margin-bottom: 6px;
   padding: 0 10px;
   box-sizing: border-box;
-  background: var(--erp-menu-search-bg) !important;
-  border: 1px solid var(--erp-menu-search-border) !important;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
   border-radius: var(--erp-radius-control) !important;
 }
 
@@ -601,25 +616,103 @@
   stroke: var(--erp-color-text-muted);
 }
 
-.erp-menu-search-field__text,
-.erp-search-panel__query-text {
+.erp-menu-search-field__input {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
   font-size: 12px;
   font-weight: 400;
   color: var(--erp-color-text);
 }
 
-.erp-search-panel__query-bar {
-  margin-bottom: 6px;
-  padding: 0;
-  border: none;
+.erp-menu-search-field__input::placeholder {
+  color: var(--erp-color-text-muted);
+}
+
+.erp-select-menu__list,
+.erp-search-panel__results {
+  max-height: 240px;
+  overflow: auto;
+  overscroll-behavior: contain;
+}
+
+/* Itens lookup — duas linhas (modelo Cliente) */
+.erp-menu-item--lookup {
+  height: auto !important;
+  min-height: 44px !important;
+  align-items: flex-start !important;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 10px !important;
+}
+
+.erp-menu-item__primary {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--erp-color-text);
+  line-height: 1.25;
+}
+
+.erp-menu-item--lookup .erp-menu-item__primary {
+  font-weight: 600;
+}
+
+.erp-menu-item__secondary {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--erp-color-text-muted);
+  line-height: 1.2;
+}
+
+.erp-select-menu .erp-menu-item:not(.erp-menu-item--lookup) .erp-menu-item__primary {
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+/* Rodapé pesquisa (ex.: Novo Cliente) */
+.erp-search-panel__footer {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--erp-menu-separator);
+}
+
+.erp-search-panel__footer-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--erp-menu-item-radius);
   background: transparent;
-  height: auto;
-  min-height: 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--erp-color-primary);
+  cursor: pointer;
+  transition: background var(--erp-ds-transition);
+}
+
+.erp-search-panel__footer-action:hover:not(:disabled) {
+  background: var(--erp-menu-item-hover);
+}
+
+.erp-search-panel__footer-action:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.erp-search-panel__footer-action svg {
+  width: 14px;
+  height: 14px;
+  color: var(--erp-color-primary);
+  stroke: var(--erp-color-primary);
 }
 
 .erp-search-panel__results,
