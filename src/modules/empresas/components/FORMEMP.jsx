@@ -491,14 +491,14 @@ export default function FORMEMP({
             scrollbar-color: #94a3b8 #ffffff;
             overflow: scroll;
             scrollbar-gutter: stable both-edges;
-            background: #fafafa;
+            background: #ffffff;
           }
           .form-scroll-container::-webkit-scrollbar {
             height: 8px;
             width: 8px;
           }
           .form-scroll-container::-webkit-scrollbar-track {
-            background: #fafafa;
+            background: #ffffff;
           }
           .form-scroll-container::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;
@@ -545,7 +545,7 @@ export default function FORMEMP({
             />
           }
         >
-        <div className="form-scroll-container min-h-0 flex-1 overflow-auto pb-6 pr-2">
+        <div className="form-scroll-container min-h-0 flex-1 overflow-auto">
           <div className="emp-form-body flex min-h-0 flex-1 flex-col">
             <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
               <CadTabs
@@ -563,7 +563,7 @@ export default function FORMEMP({
                 }
               />
 
-              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp min-h-[380px] w-full min-w-0 w-full max-w-full max-w-none pl-2 pr-4">
+              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp min-h-[380px] w-full min-w-0 w-full max-w-full max-w-none">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <RenderEngine
                     panels={tabs}

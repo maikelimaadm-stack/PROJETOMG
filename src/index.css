@@ -325,16 +325,16 @@ input[type="number"] {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action) svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action) svg {
   color: var(--emp-text-strong) !important;
   stroke: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action):hover {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):hover {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action):hover svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):hover svg {
   color: var(--emp-text-strong) !important;
 }
 
@@ -693,6 +693,33 @@ input[type="number"] {
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
   background: #ffffff;
+  padding: 0 !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
+  gap: 0;
+  min-height: 0;
+  padding: 0;
+  background: #ffffff;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone {
+  margin-top: 0;
+  background: #ffffff;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-tabs.emp-form-tabs-launch {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-tabs-launch .emp-form-tab-list {
+  padding-left: 0;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp {
+  margin-top: 0;
+  padding: 0;
 }
 
 .cadastro-emp-scope .emp-form-body {
@@ -2951,12 +2978,15 @@ select.erp-field-invalid {
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
   margin-top: 0;
-  padding-top: 8px;
-  padding-bottom: 12px;
+  padding: 0;
   background: transparent;
   border: 0;
   border-radius: 0;
   box-shadow: none;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
+  padding: 0 0 12px;
 }
 
 .cadastro-emp-scope .emp-form-field-corp {

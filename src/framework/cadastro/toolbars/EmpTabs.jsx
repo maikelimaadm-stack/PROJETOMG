@@ -27,7 +27,7 @@ export default function EmpTabs({
   if (!tabs.length) return null;
 
   return (
-    <div className="emp-form-tabs emp-form-tabs-launch relative flex min-h-[34px] items-end justify-start pl-2 pr-2">
+    <div className="emp-form-tabs emp-form-tabs-launch relative flex min-h-[34px] items-end justify-start px-0">
       <div className="emp-form-tab-list flex min-h-[32px] min-w-0 flex-1 flex-wrap items-end gap-0">
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
