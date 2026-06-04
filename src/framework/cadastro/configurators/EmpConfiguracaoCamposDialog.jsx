@@ -526,7 +526,7 @@ export default function EmpConfiguracaoCamposDialog({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover absolute p-0 z-[9999]"
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
       >
         <div className="emp-filter-sort-section">

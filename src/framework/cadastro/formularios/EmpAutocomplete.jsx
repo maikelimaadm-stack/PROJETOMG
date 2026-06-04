@@ -121,7 +121,7 @@ export default function EmpAutocomplete({
       ? { position: "absolute", top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 999999, pointerEvents: "auto" }
       : { position: "fixed", top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 999999, pointerEvents: "auto" };
 
-    const panelClass = showSearchButton ? "erp-search-panel" : "erp-select-menu";
+    const panelClass = cn("erp-menu-panel", showSearchButton ? "erp-search-panel" : "erp-select-menu");
     const renderResultList = () =>
       filteredItems.map((item, index) => (
         <div
@@ -135,16 +135,16 @@ export default function EmpAutocomplete({
           onWheel={(e) => e.stopPropagation()}
           onMouseEnter={() => setActiveIndex(index)}
           className={cn(
-            "erp-select-item",
+            "erp-menu-item erp-select-item",
             activeIndex === index && "erp-dropdown-item--active",
-            value === item.id && "erp-select-item--selected erp-dropdown-item--selected"
+            value === item.id && "erp-menu-item--selected erp-select-item--selected"
           )}
         >
           {renderItem ? (
             renderItem(item)
           ) : (
             <>
-              <div className="text-xs font-medium text-[#334155]">{item[displayField]}</div>
+              <div className="text-xs font-medium text-[#1e293b]">{item[displayField]}</div>
               {renderSubtext ? <div className="text-[10px] text-[#64748b]">{renderSubtext(item)}</div> : null}
             </>
           )}
@@ -168,8 +168,10 @@ export default function EmpAutocomplete({
       >
         {showSearchButton ? (
           <div className="erp-search-panel__query-bar" aria-hidden="true">
-            <Search className="shrink-0" />
-            <span className="erp-search-panel__query-text">{searchTerm || placeholder}</span>
+            <div className="erp-menu-search-field">
+              <Search className="shrink-0" />
+              <span className="erp-menu-search-field__text">{searchTerm || placeholder}</span>
+            </div>
           </div>
         ) : null}
         <div className={showSearchButton ? "erp-search-panel__results" : undefined}>{renderResultList()}</div>
@@ -178,8 +180,10 @@ export default function EmpAutocomplete({
       <div ref={dropdownRef} style={style} className={panelClass}>
         {showSearchButton ? (
           <div className="erp-search-panel__query-bar" aria-hidden="true">
-            <Search className="shrink-0" />
-            <span className="erp-search-panel__query-text">{searchTerm || placeholder}</span>
+            <div className="erp-menu-search-field">
+              <Search className="shrink-0" />
+              <span className="erp-menu-search-field__text">{searchTerm || placeholder}</span>
+            </div>
           </div>
         ) : null}
         <div className="erp-dropdown-empty">Nenhum item encontrado</div>
