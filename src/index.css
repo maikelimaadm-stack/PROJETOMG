@@ -2868,8 +2868,8 @@ select.erp-field-invalid {
 }
 
 .cadastro-emp-scope .emp-form-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 0;
+  border: 1px solid var(--emp-form-border-color, #e2e8f0);
+  border-radius: var(--emp-control-radius, 6px);
   background: #ffffff;
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
