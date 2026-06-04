@@ -7,8 +7,6 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Eye,
-  EyeOff,
   Pencil,
   Plus,
   Reply,
@@ -28,7 +26,6 @@ import {
   EMP_TOOLBAR_SEARCH_INPUT,
   EMP_TOOLBAR_SEARCH_WRAP,
 } from "@/framework/cadastro/toolbars/empToolbarStyles";
-import { usePanelTabsScroll } from "@/framework/cadastro/toolbars/usePanelTabsScroll";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { cn } from "@/shared/utils/utils";
 import EmpLayoutConfiguratorPreview from "@/framework/cadastro/configurators/EmpLayoutConfiguratorPreview";
@@ -140,9 +137,7 @@ export default function EmpLayoutConfiguratorDialog({
   const [fieldLastPanelId, setFieldLastPanelId] = useState({});
   const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
   const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
-  const panelsScrollRef = useRef(null);
   const wasOpenRef = useRef(false);
-  const { canScrollLeft, canScrollRight } = usePanelTabsScroll(panelsScrollRef, [draftPanels, activePanelId, editingPanelId, isEditing]);
 
   React.useEffect(() => {
     if (!open) {
@@ -491,14 +486,6 @@ export default function EmpLayoutConfiguratorDialog({
     setActivePanelId(nextPanelId);
     setActiveCardId(nextCards[nextPanelId]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
   };
-  const toggleActivePanelHidden = () => {
-    if (!activePanel || !isEditing || activePanelIsFixed) return;
-    setDraftPanels((prev) =>
-      prev.map((panel) =>
-        panel.id === activePanel.id ? { ...panel, hidden: !panel.hidden } : panel
-      )
-    );
-  };
   const reorderField = (targetFieldId) => {
     if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel || !activeCard) return;
     const rows = reorderFieldWithinRows(ensureCardRows(activeCard), draggedFieldId, targetFieldId);
@@ -704,9 +691,6 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftVisibilityRules(visibilityRules);
     setIsEditing(false);
   };
-  const scrollPanels = (direction) =>
-    panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
-
   const openFieldSettings = (field, event) => {
     if (!isEditing) return;
     event?.stopPropagation?.();
@@ -1031,7 +1015,7 @@ export default function EmpLayoutConfiguratorDialog({
 
           <main className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white">
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
-              <div className="emp-form-tabs emp-form-tabs-launch relative flex h-[30px] items-end justify-start bg-white pl-2 pr-2">
+              <div className="emp-form-tabs emp-form-tabs-launch relative flex min-h-[34px] items-end justify-start pl-2 pr-2">
                 <div className="emp-form-tab-nav-group emp-layout-config-panel-actions relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5 self-center">
                   {isEditing && (
                     <ToolbarBtn onClick={createPanel} className="emp-toolbar-btn-new" title="Novo painel">
@@ -1048,31 +1032,8 @@ export default function EmpLayoutConfiguratorDialog({
                       <EmpToolbarIcon icon={Trash2} />
                     </ToolbarBtn>
                   )}
-                  {isEditing && (
-                    <ToolbarBtn
-                      disabled={!activePanel || activePanelIsFixed}
-                      onClick={toggleActivePanelHidden}
-                      title={activePanel?.hidden ? "Exibir painel" : "Ocultar painel"}
-                    >
-                      <EmpToolbarIcon icon={activePanel?.hidden ? EyeOff : Eye} />
-                    </ToolbarBtn>
-                  )}
                 </div>
-                {canScrollLeft ? (
-                  <button
-                    type="button"
-                    onClick={() => scrollPanels(-1)}
-                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 mr-1.5 shrink-0 self-center`}
-                    title="Rolar painéis"
-                    aria-label="Rolar painéis para a esquerda"
-                  >
-                    <EmpToolbarIcon icon={ChevronLeft} nav />
-                  </button>
-                ) : null}
-                <div
-                  ref={panelsScrollRef}
-                  className="emp-form-tab-list flex h-[30px] min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-                >
+                <div className="emp-form-tab-list flex min-h-[32px] min-w-0 flex-1 flex-wrap items-end gap-0">
                   {draftPanels.map((panel) => {
                     const active = activePanel?.id === panel.id;
                     return (
@@ -1122,31 +1083,12 @@ export default function EmpLayoutConfiguratorDialog({
                             className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
                           />
                         ) : (
-                          <span className="inline-flex items-center gap-1.5">
-                            {panel.hidden ? (
-                              <EyeOff
-                                className="emp-form-tab-hidden-icon h-3.5 w-3.5 shrink-0 stroke-white text-white"
-                                aria-hidden="true"
-                              />
-                            ) : null}
-                            {formatPanelLabel(panel.label)}
-                          </span>
+                          <span>{formatPanelLabel(panel.label)}</span>
                         )}
                       </button>
                     );
                   })}
                 </div>
-                {canScrollRight ? (
-                  <button
-                    type="button"
-                    onClick={() => scrollPanels(1)}
-                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 ml-1.5 shrink-0 self-center`}
-                    title="Rolar painéis"
-                    aria-label="Rolar painéis para a direita"
-                  >
-                    <EmpToolbarIcon icon={ChevronRight} nav />
-                  </button>
-                ) : null}
               </div>
 
               <div className="emp-layout-config-cards-bar">

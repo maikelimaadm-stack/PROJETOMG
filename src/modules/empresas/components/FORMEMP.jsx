@@ -552,6 +552,7 @@ export default function FORMEMP({
                 tabs={tabs}
                 activeTab={activeTab}
                 onChange={setActiveTab}
+                systemPanelIds={empresasCadastroConfig.systemPanelIds}
                 trailing={
                   <EmpBubbleCounter
                     value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}

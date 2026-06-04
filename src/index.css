@@ -594,6 +594,7 @@ input[type="number"] {
   min-height: 34px;
   height: auto;
   padding-top: 2px;
+  border-radius: 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch::after {
@@ -623,12 +624,14 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active,
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active:hover {
-  color: #2563eb !important;
-  -webkit-text-fill-color: #2563eb !important;
+.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active:hover,
+.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-active,
+.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-active:hover {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
   border: none !important;
-  border-bottom: 2px solid #2563eb !important;
+  border-bottom: 2px solid #000000 !important;
   border-radius: 0 !important;
   font-weight: 700 !important;
   z-index: 3 !important;
@@ -638,26 +641,34 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive:hover,
 .cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-inactive,
 .cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-inactive:hover {
-  color: #64748b !important;
-  -webkit-text-fill-color: #64748b !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
   border: none !important;
   border-bottom: 2px solid transparent !important;
   border-radius: 0 !important;
-  font-weight: 600 !important;
+  font-weight: 400 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive:hover {
-  color: #334155 !important;
-  -webkit-text-fill-color: #334155 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 400 !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive.emp-form-tab-hidden-panel,
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive.emp-form-tab-hidden-panel:hover {
-  color: #94a3b8 !important;
-  -webkit-text-fill-color: #94a3b8 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
-  opacity: 1 !important;
+  opacity: 0.55 !important;
+  font-weight: 400 !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-active span,
+.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-inactive span {
+  color: inherit !important;
+  -webkit-text-fill-color: inherit !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-inactive.emp-form-tab-hidden-panel {
@@ -2047,9 +2058,18 @@ input[type="number"] {
   stroke: #ffffff !important;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-inactive,
-.cadastro-emp-scope .emp-layout-configurator .emp-form-tab-inactive:hover {
-  color: #ffffff !important;
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-inactive,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-inactive:hover,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-inactive,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-inactive:hover,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-active,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-active:hover,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-active,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-active:hover {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs {
@@ -2063,6 +2083,10 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs.emp-form-tabs-launch {
   position: relative;
   z-index: 8;
+  min-height: 34px;
+  height: auto;
+  max-height: none;
+  border-radius: 0 !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tab-nav-group,
