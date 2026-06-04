@@ -92,33 +92,56 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
     return () => window.removeEventListener(engine.preferences.hydratedEvent, onHydrated);
   }, [userId, moduleConfig.moduleId, defaultConfigFull, knownLayoutFieldIds, engine]);
 
-  const activeLayoutConfig = useMemo(() => {
-    if (!formLayoutConfig) return defaultConfigFull;
-    return (
-      engine.layout.ensureFields(formLayoutConfig, defaultConfigFull, {
-        knownFieldIds: knownLayoutFieldIds,
-      }) || defaultConfigFull
-    );
-  }, [formLayoutConfig, defaultConfigFull, knownLayoutFieldIds, engine]);
+  const resolveActiveLayoutConfig = useCallback(
+    (source) => {
+      const base = source || defaultConfigFull;
+      const ensured =
+        engine.layout.ensureFields(base, { knownFieldIds: knownLayoutFieldIds }) ||
+        defaultConfigFull;
+      return (
+        engine.layout.normalize(ensured, {
+          basePanels,
+          defaultLayout,
+          mergeNewCustomFields: false,
+        }) || ensured
+      );
+    },
+    [engine, defaultConfigFull, knownLayoutFieldIds, basePanels, defaultLayout]
+  );
+
+  const activeLayoutConfig = useMemo(
+    () => resolveActiveLayoutConfig(formLayoutConfig),
+    [formLayoutConfig, resolveActiveLayoutConfig]
+  );
 
   const tabs = useMemo(() => {
-    return activeLayoutConfig.panels.filter((panel) => {
+    const panels = activeLayoutConfig?.panels || [];
+    return panels.filter((panel) => {
       if (panel.hidden) return false;
       if (panel.id === "principal") return false;
-      const panelFields = activeLayoutConfig.layout?.[panel.id] || [];
-      if (panel.id === "campos_personalizados" && !panelFields.length && !camposPersonalizadosForm.length) {
+      const panelFields = activeLayoutConfig.layout?.[panel.id];
+      const hasLayoutFields = Array.isArray(panelFields)
+        ? panelFields.length > 0
+        : false;
+      const fallbackFields = defaultLayout?.[panel.id] || [];
+      const hasFallbackFields = Array.isArray(fallbackFields) && fallbackFields.length > 0;
+      if (
+        panel.id === "campos_personalizados" &&
+        !hasLayoutFields &&
+        !hasFallbackFields &&
+        !camposPersonalizadosForm.length
+      ) {
         return false;
       }
-      return true;
+      return hasLayoutFields || hasFallbackFields || panel.id !== "campos_personalizados";
     });
-  }, [activeLayoutConfig, camposPersonalizadosForm.length]);
+  }, [activeLayoutConfig, camposPersonalizadosForm.length, defaultLayout]);
 
   const applyLayoutConfig = useCallback(
     (source, { updateActiveTab = true } = {}) => {
       const ensured =
-        engine.layout.ensureFields(source, defaultConfigFull, {
-          knownFieldIds: knownLayoutFieldIds,
-        }) || defaultConfigFull;
+        engine.layout.ensureFields(source, { knownFieldIds: knownLayoutFieldIds }) ||
+        defaultConfigFull;
       const normalized = engine.layout.normalize(ensured, {
         basePanels,
         defaultLayout,
