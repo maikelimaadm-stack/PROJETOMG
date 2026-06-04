@@ -34,9 +34,9 @@ export function Combobox({ options = [], value, onValueChange, placeholder = "Se
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="p-0" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
-        <Command>
-          <CommandInput placeholder={searchPlaceholder} className="h-9" />
+      <PopoverContent className="erp-menu-panel p-0" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
+        <Command className="erp-menu-panel-inner">
+          <CommandInput placeholder={searchPlaceholder} className="erp-menu-search-input h-7" />
           <CommandEmpty>Nenhum item encontrado.</CommandEmpty>
           <CommandGroup className="max-h-[300px] overflow-auto">
             {options.map((option) => (

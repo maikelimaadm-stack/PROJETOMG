@@ -4,6 +4,42 @@
  * Consumir variáveis; evitar valores soltos nos módulos.
  */
 
+/* Menus em portal (document.body) — tokens no :root para não perder estilo */
+:root {
+  --erp-menu-bg: #ffffff;
+  --erp-menu-border: #d8dee9;
+  --erp-menu-radius: 12px;
+  --erp-menu-padding: 6px;
+  --erp-menu-shadow:
+    0 8px 24px rgba(16, 24, 40, 0.08),
+    0 2px 8px rgba(16, 24, 40, 0.06);
+  --erp-menu-item-height: 30px;
+  --erp-menu-item-radius: 8px;
+  --erp-menu-item-hover: #f3f6fb;
+  --erp-menu-item-selected-bg: #eef6ff;
+  --erp-menu-separator: #e5eaf2;
+  --erp-menu-search-bg: #f8fafc;
+  --erp-menu-search-border: #e2e8f0;
+  --erp-color-primary: #2563eb;
+  --erp-color-text: #1e293b;
+  --erp-color-text-muted: #64748b;
+  --erp-radius-control: 8px;
+  --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+.erp-shell .erp-shell-company-select,
+.erp-shell select.erp-select-closed {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px !important;
+  background-color: #ffffff !important;
+  background-image: var(--erp-select-chevron-icon);
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 14px 14px;
+}
+
 .cadastro-scope,
 .cadastro-emp-scope {
   --erp-ds-transition: 150ms ease;
@@ -25,24 +61,41 @@
   --erp-color-card: #ffffff;
   --erp-color-card-header: #fafcff;
   --erp-color-card-header-border: #edf2f7;
-  --erp-color-row-hover: #f8fbff;
+  --erp-color-row-hover: #f3f6fb;
   --erp-color-row-selected: #eef6ff;
   --erp-color-lookup-bg: #f8fbff;
-  --erp-color-lookup-hover: #eef6ff;
+  --erp-color-lookup-hover: #f3f6fb;
+
+  /* Menu estilo GitHub */
+  --erp-menu-bg: #ffffff;
+  --erp-menu-border: #d8dee9;
+  --erp-menu-radius: 12px;
+  --erp-menu-padding: 6px;
+  --erp-menu-shadow:
+    0 8px 24px rgba(16, 24, 40, 0.08),
+    0 2px 8px rgba(16, 24, 40, 0.06);
+  --erp-menu-item-height: 30px;
+  --erp-menu-item-radius: 8px;
+  --erp-menu-item-hover: #f3f6fb;
+  --erp-menu-item-selected-bg: #eef6ff;
+  --erp-menu-separator: #e5eaf2;
+  --erp-menu-search-height: 28px;
+  --erp-menu-search-bg: #f8fafc;
+  --erp-menu-search-border: #e2e8f0;
 
   --erp-radius-control: 8px;
   --erp-radius-card: 12px;
   --erp-radius-toolbar-btn: 10px;
   --erp-radius-modal: 16px;
   --erp-radius-dropdown: 12px;
-  --erp-radius-select-menu: 10px;
+  --erp-radius-select-menu: 12px;
   --erp-radius-toast: 12px;
 
   --erp-shadow-card:
     0 1px 2px rgba(16, 24, 40, 0.04),
     0 2px 8px rgba(16, 24, 40, 0.05);
-  --erp-shadow-dropdown: 0 8px 24px rgba(15, 23, 42, 0.08);
-  --erp-shadow-search-panel: 0 10px 30px rgba(15, 23, 42, 0.1);
+  --erp-shadow-dropdown: var(--erp-menu-shadow);
+  --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --erp-shadow-modal: 0 10px 40px rgba(15, 23, 42, 0.12);
   --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
@@ -287,25 +340,65 @@
   align-items: stretch;
 }
 
-.cadastro-emp-scope .emp-form-autocomplete-wrap.erp-select-control:not(.emp-form-autocomplete-wrap--with-btn) .relative::after {
-  content: "";
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  width: 14px;
-  height: 14px;
-  transform: translateY(-50%);
-  pointer-events: none;
-  background-image: var(--erp-select-chevron-icon);
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 14px 14px;
-  z-index: 2;
+/* Campo SELECT — chevron, menu com busca interna */
+.cadastro-emp-scope .erp-field-select .erp-field-select-input {
+  cursor: pointer;
+  text-align: left !important;
+  padding-left: 10px !important;
+  padding-right: 28px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: #1e293b !important;
+  background-color: #ffffff !important;
 }
 
-.cadastro-emp-scope .emp-form-autocomplete-wrap--with-btn:focus-within .emp-form-input,
-.cadastro-emp-scope .emp-form-autocomplete-wrap.erp-select-control:focus-within .emp-form-input {
-  background-color: var(--erp-color-card-header) !important;
+.cadastro-emp-scope .erp-field-select .erp-field-select-input::placeholder {
+  color: #64748b !important;
+  text-transform: uppercase;
+  opacity: 1;
+}
+
+.cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
+  right: 6px !important;
+}
+
+.cadastro-emp-scope .erp-field-select-chevron-btn {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.cadastro-emp-scope .erp-select-control .erp-field-select-input {
+  padding-right: 28px !important;
+}
+
+.cadastro-emp-scope .erp-select-control .erp-field-lookup-input {
+  padding-left: 28px !important;
+}
+
+.cadastro-emp-scope .emp-form-field-control:has(.erp-field-open) {
+  border-color: var(--erp-color-primary) !important;
+  box-shadow: var(--erp-shadow-focus) !important;
+}
+
+/* Campo LOOKUP / pesquisa — ícone, divisor, botão lateral */
+.cadastro-emp-scope .erp-field-lookup .erp-field-lookup-input {
+  background-color: #ffffff !important;
+}
+
+.cadastro-emp-scope .erp-field-lookup-inline-icon {
+  color: var(--erp-color-text-muted);
+  stroke: var(--erp-color-text-muted);
+}
+
+.cadastro-emp-scope .erp-lookup-inline-divider {
+  display: block;
+  width: 1px;
+  align-self: stretch;
+  flex-shrink: 0;
+  background: var(--erp-color-border);
+  margin: 4px 0;
 }
 
 .cadastro-emp-scope .emp-form-lookup-btn svg {
@@ -443,76 +536,151 @@
   accent-color: var(--erp-color-primary);
 }
 
-/* —— Menu dropdown do select (10px, borda #d9e2ef) —— */
+/* —— Menus abertos (padrão GitHub — referência select) —— */
+.erp-menu-panel,
+.erp-menu-panel.erp-select-menu,
+.erp-menu-panel.erp-search-panel,
 .erp-select-menu,
-.erp-dropdown-panel.erp-select-menu {
+.erp-search-panel,
+.emp-filter-popover.erp-menu-panel,
+[data-radix-select-content].erp-menu-panel,
+[data-radix-menu-content].erp-menu-panel,
+[data-radix-popover-content].erp-menu-panel {
+  box-sizing: border-box;
   background: #ffffff !important;
-  border: 1px solid var(--erp-color-input-border) !important;
-  border-radius: var(--erp-radius-select-menu) !important;
-  box-shadow: var(--erp-shadow-dropdown) !important;
-  overflow: hidden;
-  transition: box-shadow var(--erp-ds-transition-slow);
+  background-color: #ffffff !important;
+  border: 1px solid #d8dee9 !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  box-shadow:
+    0 8px 24px rgba(16, 24, 40, 0.08),
+    0 2px 8px rgba(16, 24, 40, 0.06) !important;
+  overflow: visible !important;
+  font-family: inherit;
+  transition: box-shadow 150ms ease;
 }
 
+[data-radix-select-content].erp-menu-panel {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  padding: 6px !important;
+}
+
+.erp-menu-item,
 .erp-select-item,
-.erp-dropdown-item {
+.erp-dropdown-item,
+[data-radix-select-content] [role="option"],
+[data-radix-menu-content] [role="menuitem"],
+[data-radix-menu-content] [role="menuitemcheckbox"],
+[data-radix-menu-content] [role="menuitemradio"],
+.erp-menu-panel [cmdk-item],
+.emp-filter-value-list-item {
   display: flex;
   align-items: center;
-  min-height: var(--erp-control-height);
-  height: var(--erp-control-height);
-  padding: 0 10px;
-  cursor: pointer;
-  color: var(--erp-color-label);
-  font-size: 12px;
+  min-height: var(--erp-menu-item-height) !important;
+  height: var(--erp-menu-item-height) !important;
+  padding: 0 10px !important;
+  margin: 0;
+  border-radius: var(--erp-menu-item-radius) !important;
+  border: none !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: var(--erp-color-text) !important;
   line-height: 1.2;
-  transition: background var(--erp-ds-transition), color var(--erp-ds-transition);
+  cursor: pointer;
+  box-sizing: border-box;
+  transition:
+    background var(--erp-ds-transition),
+    color var(--erp-ds-transition);
 }
 
+.erp-menu-item:hover,
 .erp-select-item:hover,
 .erp-dropdown-item:hover,
-.erp-dropdown-item--active {
-  background: var(--erp-color-row-hover) !important;
-  color: var(--erp-color-label) !important;
+.erp-dropdown-item--active,
+[data-radix-select-content] [role="option"][data-highlighted],
+[data-radix-menu-content] [role="menuitem"][data-highlighted],
+[data-radix-menu-content] [role="menuitemcheckbox"][data-highlighted],
+[data-radix-menu-content] [role="menuitemradio"][data-highlighted],
+.erp-menu-panel [cmdk-item][data-selected="true"],
+.erp-menu-panel [cmdk-item]:hover,
+.emp-filter-value-list-item:hover {
+  background: var(--erp-menu-item-hover) !important;
+  color: var(--erp-color-text) !important;
 }
 
+.erp-menu-item--selected,
 .erp-select-item--selected,
-.erp-dropdown-item--selected {
-  background: var(--erp-color-row-selected) !important;
+.erp-dropdown-item--selected,
+[data-radix-select-content] [role="option"][data-state="checked"],
+.erp-menu-panel [cmdk-item][aria-selected="true"] {
+  background: var(--erp-menu-item-selected-bg) !important;
   color: var(--erp-color-primary) !important;
-  font-weight: 500;
-  border-left: 3px solid var(--erp-color-primary);
-  padding-left: 7px;
+  font-weight: 500 !important;
 }
 
-.erp-dropdown-empty {
-  padding: 12px 10px;
+/* Sem faixa azul / indicador lateral legado */
+[data-radix-select-content] [role="option"][data-state="checked"]::before,
+.erp-select-item--selected::before,
+.erp-dropdown-item--selected::before {
+  display: none !important;
+}
+
+[data-radix-select-content] [role="option"] > span:has(svg) {
+  display: none !important;
+}
+
+.erp-menu-panel [cmdk-item] svg.lucide-check {
+  opacity: 0;
+  width: 0;
+  margin: 0;
+}
+
+.erp-menu-panel [cmdk-item][aria-selected="true"] svg.lucide-check {
+  opacity: 0;
+}
+
+.erp-menu-separator,
+[data-radix-select-separator],
+[data-radix-dropdown-menu-separator],
+.erp-menu-panel [cmdk-group]:not(:first-child)::before {
+  display: block;
+  height: 1px;
+  background: var(--erp-menu-separator);
+  margin: 4px 0;
+  border: 0;
+}
+
+.erp-menu-panel [cmdk-group]:not(:first-child)::before {
+  content: "";
+}
+
+.erp-dropdown-empty,
+.erp-menu-panel [cmdk-empty] {
+  padding: 8px 10px;
   text-align: center;
   font-size: 12px;
   color: var(--erp-color-text-muted);
+  border-radius: var(--erp-menu-item-radius);
 }
 
-/* —— Janela de pesquisa (lookup / autocomplete com botão) —— */
-.erp-search-panel {
-  background: #ffffff !important;
-  border: 1px solid var(--erp-color-border) !important;
-  border-radius: var(--erp-radius-dropdown) !important;
-  box-shadow: var(--erp-shadow-search-panel) !important;
-  overflow: hidden;
-}
-
-.erp-search-panel__query-bar {
+/* Campo de pesquisa dentro do menu */
+.erp-menu-panel .erp-menu-search-field {
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: var(--erp-control-height);
-  height: var(--erp-control-height);
+  width: 100%;
+  height: 28px;
+  min-height: 28px;
+  margin: 0 0 6px;
   padding: 0 10px;
-  border-bottom: 1px solid var(--erp-color-border);
-  background: var(--erp-color-card-header);
   box-sizing: border-box;
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
 }
 
-.erp-search-panel__query-bar svg {
+.erp-menu-search-field svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
@@ -520,26 +688,155 @@
   stroke: var(--erp-color-text-muted);
 }
 
-.erp-search-panel__query-text {
+.erp-menu-search-field__input {
   flex: 1;
   min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  height: 100%;
+  border: 0;
+  outline: none;
+  background: transparent;
   font-size: 12px;
-  color: var(--erp-color-label);
+  font-weight: 400;
+  color: var(--erp-color-text);
 }
 
+.erp-menu-search-field__input::placeholder {
+  color: var(--erp-color-text-muted);
+}
+
+.erp-select-menu__list,
 .erp-search-panel__results {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.erp-menu-panel .erp-menu-item {
+  width: 100%;
+  margin: 0;
+}
+
+/* Itens lookup — duas linhas (modelo Cliente) */
+.erp-menu-item--lookup {
+  height: auto !important;
+  min-height: 44px !important;
+  align-items: flex-start !important;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 10px !important;
+}
+
+.erp-menu-item__primary {
+  width: 100%;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--erp-color-text);
+  line-height: 1.25;
+}
+
+.erp-menu-item--lookup .erp-menu-item__primary {
+  font-weight: 600;
+}
+
+.erp-menu-item__secondary {
+  width: 100%;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--erp-color-text-muted);
+  line-height: 1.2;
+}
+
+.erp-select-menu .erp-menu-item:not(.erp-menu-item--lookup) .erp-menu-item__primary {
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.erp-select-menu .erp-menu-item--selected .erp-menu-item__primary {
+  color: #2563eb;
+  font-weight: 500;
+}
+
+/* Rodapé pesquisa (ex.: Novo Cliente) */
+.erp-search-panel__footer {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--erp-menu-separator);
+}
+
+.erp-search-panel__footer-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: var(--erp-menu-item-radius);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--erp-color-primary);
+  cursor: pointer;
+  transition: background var(--erp-ds-transition);
+}
+
+.erp-search-panel__footer-action:hover:not(:disabled) {
+  background: var(--erp-menu-item-hover);
+}
+
+.erp-search-panel__footer-action:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.erp-search-panel__footer-action svg {
+  width: 14px;
+  height: 14px;
+  color: var(--erp-color-primary);
+  stroke: var(--erp-color-primary);
+}
+
+.erp-search-panel__results,
+.erp-menu-panel [cmdk-list] {
   max-height: 240px;
   overflow: auto;
   overscroll-behavior: contain;
 }
 
-.erp-search-panel .erp-select-item--selected,
-.erp-search-panel .erp-dropdown-item--selected {
-  border-left: 3px solid var(--erp-color-primary);
-  padding-left: 7px;
+.erp-menu-panel [cmdk-input-wrapper] {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+.erp-menu-panel [cmdk-input] {
+  flex: 1;
+  height: var(--erp-menu-search-height) !important;
+  min-height: var(--erp-menu-search-height) !important;
+  padding: 0 10px !important;
+  font-size: 12px !important;
+  color: var(--erp-color-text) !important;
+  background: var(--erp-menu-search-bg) !important;
+  border: 1px solid var(--erp-menu-search-border) !important;
+  border-radius: var(--erp-radius-control) !important;
+  outline: none;
+}
+
+.erp-menu-panel [cmdk-input-wrapper] svg {
+  display: none;
 }
 
 /* —— Radix Select / shadcn —— */
@@ -590,84 +887,68 @@
   margin-left: 4px;
 }
 
-[data-radix-select-content].erp-select-menu,
-.erp-select-menu[data-radix-select-content] {
-  border-radius: var(--erp-radius-select-menu) !important;
-  border: 1px solid var(--erp-color-input-border) !important;
-  box-shadow: var(--erp-shadow-dropdown) !important;
-  overflow: hidden !important;
+[data-radix-select-content] [data-radix-select-viewport],
+[data-radix-select-content].erp-menu-panel [data-radix-select-viewport] {
   padding: 0 !important;
 }
 
-[data-radix-select-content].erp-select-menu [data-radix-select-viewport] {
-  padding: 0 !important;
+[data-radix-select-label] {
+  padding: 4px 10px 2px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--erp-color-text-muted);
 }
 
-[data-radix-select-content] .erp-select-item,
-[data-radix-select-content] [role="option"] {
-  position: relative;
-  min-height: var(--erp-control-height) !important;
-  height: var(--erp-control-height) !important;
-  padding: 0 28px 0 10px !important;
-  font-size: 12px !important;
-  color: var(--erp-color-label) !important;
-  border-radius: 0 !important;
+/* Popover combobox — Command preenche o painel */
+[data-radix-popover-content].erp-menu-panel > [cmdk-root] {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
-[data-radix-select-content] [role="option"][data-highlighted] {
-  background: var(--erp-color-row-hover) !important;
-  color: var(--erp-color-label) !important;
+/* Filtros de tabela (popover portal) */
+.emp-filter-popover .emp-filter-sort-section {
+  padding: 0;
+  border-bottom: none;
+  margin-bottom: 4px;
 }
 
-[data-radix-select-content] [role="option"][data-state="checked"] {
-  background: var(--erp-color-row-selected) !important;
-  color: var(--erp-color-primary) !important;
-  font-weight: 500 !important;
-}
-
-[data-radix-select-content] [role="option"][data-state="checked"]::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--erp-color-primary);
-}
-
-/* Radix menu / popover genérico */
-[data-radix-popper-content-wrapper] [role="menu"] {
-  border-radius: var(--erp-radius-select-menu) !important;
-  border: 1px solid var(--erp-color-input-border) !important;
-  box-shadow: var(--erp-shadow-dropdown) !important;
-  overflow: hidden;
-}
-
-[data-radix-menu-content] [role="menuitem"] {
-  min-height: var(--erp-control-height);
+.emp-filter-popover .emp-filter-sort-btn {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: var(--erp-menu-item-height);
+  padding: 0 10px;
   font-size: 12px;
-  color: var(--erp-color-label);
+  font-weight: 400;
+  color: var(--erp-color-text);
+  text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: var(--erp-menu-item-radius);
+  cursor: pointer;
   transition: background var(--erp-ds-transition);
 }
 
-[data-radix-menu-content] [role="menuitem"][data-highlighted] {
-  background: var(--erp-color-row-hover) !important;
+.emp-filter-popover .emp-filter-sort-btn:hover:not(:disabled) {
+  background: var(--erp-menu-item-hover) !important;
+  color: var(--erp-color-text) !important;
 }
 
-/* Filtro popover */
-.emp-filter-popover {
-  border: 1px solid var(--erp-color-border) !important;
-  border-radius: var(--erp-radius-dropdown) !important;
-  box-shadow: var(--erp-shadow-dropdown) !important;
+.emp-filter-popover .emp-filter-sort-btn svg {
+  color: var(--erp-color-text-muted);
+  stroke: var(--erp-color-text-muted);
 }
 
-.emp-filter-value-list-item {
-  min-height: var(--erp-control-height);
-  transition: background var(--erp-ds-transition);
+.emp-filter-popover .emp-filter-value-list {
+  padding: 0;
 }
 
-.emp-filter-value-list-item:hover {
-  background: var(--erp-color-row-hover) !important;
+.emp-filter-popover .emp-filter-actions {
+  border-top: 1px solid var(--erp-menu-separator);
+  margin-top: 4px;
+  padding-top: 8px;
 }
 
 /* —— Modais —— */

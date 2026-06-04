@@ -526,7 +526,7 @@ export default function EmpConfiguracaoCamposDialog({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover absolute p-0 z-[9999]"
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
       >
         <div className="emp-filter-sort-section">
@@ -638,7 +638,7 @@ export default function EmpConfiguracaoCamposDialog({
           <fieldset className={`form-scroll-container min-h-0 flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
             <div className="px-4 md:px-8 py-2 space-y-1 max-w-[780px]">
               <Field label="Nome do campo" required><Input value={form.label} onChange={(e) => updateForm("label", e.target.value)} readOnly={isNativeSelect} placeholder="EX: CONTATO RESPONSÁVEL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
-              <Field label="Tipo"><EmpAutocomplete items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="BUSCAR TIPO..." displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs px-1 uppercase" /></Field>
+              <Field label="Tipo"><EmpAutocomplete variant="select" items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="SELECIONE" displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full h-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs uppercase" uppercaseDisplay={false} /></Field>
               <Field label="Texto de ajuda"><Input value={form.placeholder} onChange={(e) => updateForm("placeholder", e.target.value)} placeholder="TEXTO MOSTRADO NO CAMPO" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
               <Field label="Descrição"><Input value={form.descricao} onChange={(e) => updateForm("descricao", e.target.value)} placeholder="EXPLICAÇÃO OPCIONAL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
               <div className="grid grid-cols-[190px_minmax(0,1fr)] items-start gap-1">
@@ -653,19 +653,25 @@ export default function EmpConfiguracaoCamposDialog({
                     Empresa Específica
                   </label>
                   {form.aplicacao_modo === "empresa" ? (
-                    <select
-                      className="h-7 w-full max-w-md border border-slate-300 px-2 text-xs"
-                      value={form.empresa_id || ""}
-                      disabled={isReadOnly}
-                      onChange={(event) => updateForm("empresa_id", event.target.value || null)}
-                    >
-                      <option value="">Selecionar Empresa</option>
-                      {empresas.map((empresa) => (
-                        <option key={empresa.id} value={empresa.id}>
-                          {empresa.codempresa} - {empresa.nome_empresa || empresa.razao_social}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="h-7 w-full max-w-md border border-slate-300 rounded-[2px] bg-white focus-within:border-[#4fafff]">
+                      <EmpAutocomplete
+                        variant="select"
+                        items={empresas.map((empresa) => ({
+                          id: String(empresa.id),
+                          nome: `${empresa.codempresa} - ${empresa.nome_empresa || empresa.razao_social}`,
+                        }))}
+                        value={form.empresa_id ? String(form.empresa_id) : ""}
+                        onChange={(next) => updateForm("empresa_id", next || null)}
+                        placeholder="SELECIONE"
+                        displayField="nome"
+                        searchFields={["nome"]}
+                        disabled={isReadOnly}
+                        readOnly={isReadOnly}
+                        className="h-full w-full"
+                        inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-full text-xs uppercase"
+                        uppercaseDisplay={false}
+                      />
+                    </div>
                   ) : null}
                 </div>
               </div>

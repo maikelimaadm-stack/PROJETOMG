@@ -1173,6 +1173,27 @@ input[type="number"] {
   padding: 0 8px;
 }
 
+.cadastro-emp-scope .emp-form-fields .erp-field-select .erp-field-select-input {
+  padding-right: 28px !important;
+}
+
+.cadastro-emp-scope .emp-form-fields .erp-field-lookup .erp-field-lookup-input {
+  padding-left: 28px !important;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .erp-field-select .erp-field-select-input {
+  padding-right: 28px !important;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .erp-field-lookup .erp-field-lookup-input {
+  padding-left: 28px !important;
+}
+
+.cadastro-emp-scope .erp-field-select-chevron-btn,
+.cadastro-emp-scope .erp-field-lookup-inline-icon {
+  z-index: 3;
+}
+
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input:read-only,
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control input[readonly],
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea:read-only,
@@ -1463,16 +1484,10 @@ input[type="number"] {
   background: rgba(56, 189, 248, 0.35);
 }
 
-/* Painel de filtro — visual alinhado ao sistema (portal fora do scope) */
+/* Painel de filtro — container via erp-design-system (.erp-menu-panel / .emp-filter-popover) */
 .emp-filter-popover {
   width: 272px !important;
   max-width: 272px !important;
-  padding: 0 !important;
-  border: 1px solid #bae6fd !important;
-  border-radius: 5px !important;
-  background: #ffffff !important;
-  box-shadow: 0 4px 12px rgba(8, 46, 84, 0.1) !important;
-  overflow: hidden;
   animation: none !important;
   transform: none !important;
 }
