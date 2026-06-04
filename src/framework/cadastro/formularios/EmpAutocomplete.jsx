@@ -121,16 +121,69 @@ export default function EmpAutocomplete({
       ? { position: "absolute", top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 999999, pointerEvents: "auto" }
       : { position: "fixed", top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width, zIndex: 999999, pointerEvents: "auto" };
 
+    const panelClass = showSearchButton ? "erp-search-panel" : "erp-select-menu";
+    const renderResultList = () =>
+      filteredItems.map((item, index) => (
+        <div
+          key={item.id}
+          onPointerDown={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSelect(item);
+          }}
+          onWheel={(e) => e.stopPropagation()}
+          onMouseEnter={() => setActiveIndex(index)}
+          className={cn(
+            "erp-select-item",
+            activeIndex === index && "erp-dropdown-item--active",
+            value === item.id && "erp-select-item--selected erp-dropdown-item--selected"
+          )}
+        >
+          {renderItem ? (
+            renderItem(item)
+          ) : (
+            <>
+              <div className="text-xs font-medium text-[#334155]">{item[displayField]}</div>
+              {renderSubtext ? <div className="text-[10px] text-[#64748b]">{renderSubtext(item)}</div> : null}
+            </>
+          )}
+        </div>
+      ));
+
     const content = filteredItems.length > 0 ? (
-      <div ref={dropdownRef} style={style} onPointerDownCapture={() => { interactingWithDropdownRef.current = true; }} onPointerUpCapture={() => setTimeout(() => { interactingWithDropdownRef.current = false; }, 300)} onWheel={(e) => e.stopPropagation()} className="bg-white border border-slate-200 rounded-none shadow-lg max-h-60 overflow-auto overscroll-contain">
-        {filteredItems.map((item, index) => (
-          <div key={item.id} onPointerDown={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => { e.stopPropagation(); handleSelect(item); }} onWheel={(e) => e.stopPropagation()} onMouseEnter={() => setActiveIndex(index)} className={`px-3 py-2 cursor-pointer hover:bg-slate-100 border-b border-slate-100 last:border-b-0 ${activeIndex === index ? "bg-slate-100" : value === item.id ? "bg-emerald-50" : ""}`}>
-            {renderItem ? renderItem(item) : <><div className="text-xs font-medium text-slate-600">{item[displayField]}</div>{renderSubtext && <div className="text-[10px] text-slate-500">{renderSubtext(item)}</div>}</>}
+      <div
+        ref={dropdownRef}
+        style={style}
+        onPointerDownCapture={() => {
+          interactingWithDropdownRef.current = true;
+        }}
+        onPointerUpCapture={() => {
+          setTimeout(() => {
+            interactingWithDropdownRef.current = false;
+          }, 300);
+        }}
+        onWheel={(e) => e.stopPropagation()}
+        className={panelClass}
+      >
+        {showSearchButton ? (
+          <div className="erp-search-panel__query-bar" aria-hidden="true">
+            <Search className="shrink-0" />
+            <span className="erp-search-panel__query-text">{searchTerm || placeholder}</span>
           </div>
-        ))}
+        ) : null}
+        <div className={showSearchButton ? "erp-search-panel__results" : undefined}>{renderResultList()}</div>
       </div>
     ) : searchTerm ? (
-      <div ref={dropdownRef} style={style} className="bg-white border border-slate-200 rounded-none shadow-lg"><div className="px-3 py-6 text-center text-xs text-slate-500">Nenhum item encontrado</div></div>
+      <div ref={dropdownRef} style={style} className={panelClass}>
+        {showSearchButton ? (
+          <div className="erp-search-panel__query-bar" aria-hidden="true">
+            <Search className="shrink-0" />
+            <span className="erp-search-panel__query-text">{searchTerm || placeholder}</span>
+          </div>
+        ) : null}
+        <div className="erp-dropdown-empty">Nenhum item encontrado</div>
+      </div>
     ) : null;
 
     return content ? ReactDOM.createPortal(content, portalContainerRef.current || document.body) : null;
@@ -144,7 +197,14 @@ export default function EmpAutocomplete({
   };
 
   return (
-    <div ref={wrapperRef} className={cn("emp-form-autocomplete-wrap", showSearchButton && "emp-form-autocomplete-wrap--with-btn", className)}>
+    <div
+      ref={wrapperRef}
+      className={cn(
+        "emp-form-autocomplete-wrap erp-select-control",
+        showSearchButton && "emp-form-autocomplete-wrap--with-btn",
+        className
+      )}
+    >
       <div className="relative min-w-0 flex-1">
         <Input
           ref={inputRef}
