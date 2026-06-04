@@ -2703,12 +2703,36 @@ select.erp-field-invalid {
   box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35);
 }
 
-/* Layout corporativo V3 — cards, labels acima, grid 12 colunas */
+/* Layout corporativo V3 — cards, labels acima, grid 12 colunas (referência cadastro denso) */
+.cadastro-emp-scope .emp-form-section-panel,
+.cadastro-emp-scope .emp-form-section-principal {
+  background: #eef1f6;
+}
+
 .cadastro-emp-scope .emp-form-fields-corp {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-cards-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-cards-row {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 8px 10px;
+  width: 100%;
+  align-items: start;
+}
+
+.cadastro-emp-scope .emp-form-card-slot {
+  min-width: 0;
 }
 
 .cadastro-emp-scope .emp-form-card {
@@ -2716,6 +2740,7 @@ select.erp-field-invalid {
   border-radius: var(--emp-control-radius, 6px);
   background: #ffffff;
   overflow: hidden;
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
 }
 
 .cadastro-emp-scope .emp-form-card--virtual {
@@ -2729,11 +2754,12 @@ select.erp-field-invalid {
   align-items: center;
   gap: 6px;
   width: 100%;
-  padding: 6px 10px;
-  font-size: 12px;
+  padding: 5px 10px;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--emp-accent-primary, #2563eb);
-  background: #f8fafc;
+  letter-spacing: 0.01em;
+  color: var(--emp-accent-primary, #4fafff);
+  background: #e8f4fc;
   border: 0;
   border-bottom: 1px solid var(--emp-form-border-color, #c5ced8);
   text-align: left;
@@ -2741,12 +2767,12 @@ select.erp-field-invalid {
 }
 
 .cadastro-emp-scope .emp-form-card-body {
-  padding: 8px 10px 10px;
+  padding: 6px 8px 8px;
 }
 
 .cadastro-emp-scope .emp-form-card-grid {
   display: grid;
-  gap: 6px 10px;
+  gap: 4px 8px;
   align-items: start;
   width: 100%;
 }
@@ -2759,14 +2785,15 @@ select.erp-field-invalid {
 }
 
 .cadastro-emp-scope .emp-form-field-label-top {
-  font-size: var(--emp-form-font-size, 11px);
+  font-size: 10px;
   font-weight: 600;
-  line-height: 1.2;
-  color: var(--emp-text, #1a1f26);
+  line-height: 1.15;
+  color: var(--emp-text, #334155);
+  margin-bottom: 1px;
 }
 
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control {
-  min-height: var(--emp-form-control-height, 34px);
+  min-height: var(--emp-form-control-height, 26px);
   border: 1px solid var(--emp-form-border-color, #c5ced8);
   border-radius: var(--emp-control-radius, 6px);
   background: #ffffff;

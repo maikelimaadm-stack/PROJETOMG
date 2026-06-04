@@ -186,7 +186,10 @@ export const normalizeLayoutConfig = (
     hiddenFieldIds: merged.hiddenFieldIds || [],
     visibilityRules: merged.visibilityRules || {},
     fieldLayoutConfig: normalizeFieldLayoutConfig(merged.fieldLayoutConfig),
-    fieldSizes: normalizeFieldSizes(merged.fieldSizes),
+    fieldSizes: normalizeFieldSizes({
+      ...(fallback.fieldSizes || {}),
+      ...(merged.fieldSizes || {}),
+    }),
   };
 };
 

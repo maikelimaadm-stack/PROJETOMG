@@ -384,7 +384,7 @@ export default function EmpLayoutConfiguratorDialog({
     nextCardsByPanel[activePanel.id] = {
       cards: [
         ...existing,
-        { id, label, order: existing.length + 1, collapsible: true, columns: 12, fieldIds: [] },
+        { id, label, order: existing.length + 1, colSpan: 6, collapsible: true, columns: 12, fieldIds: [] },
       ],
     };
     applyCardsState(nextCardsByPanel);

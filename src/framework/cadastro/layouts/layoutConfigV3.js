@@ -20,7 +20,8 @@ const cloneValue = (value) => JSON.parse(JSON.stringify(value));
  * @property {string} label
  * @property {number} [order]
  * @property {boolean} [collapsible]
- * @property {number} [columns]
+ * @property {number} [columns] — colunas internas do grid de campos (12)
+ * @property {number} [colSpan] — largura do card na linha (6 = metade, 12 = inteira)
  * @property {string[]} fieldIds
  */
 
@@ -114,6 +115,9 @@ export const normalizeLayoutCardV3 = (source = {}, index = 0) => {
       : DEFAULT_VIRTUAL_CARD_LABEL;
   const order = Number.isFinite(Number(source.order)) ? Number(source.order) : index + 1;
   const columns = Math.min(12, Math.max(1, Number(source.columns) || DEFAULT_CARD_COLUMNS));
+  let colSpan = Number(source.colSpan);
+  if (!Number.isFinite(colSpan) || colSpan < 1) colSpan = 12;
+  colSpan = Math.min(12, Math.max(1, colSpan));
   const fieldIds = Array.isArray(source.fieldIds)
     ? source.fieldIds.filter((fieldId) => typeof fieldId === "string" && fieldId)
     : [];
@@ -124,6 +128,7 @@ export const normalizeLayoutCardV3 = (source = {}, index = 0) => {
     order,
     collapsible: source.collapsible !== false,
     columns,
+    colSpan,
     fieldIds,
   };
 };

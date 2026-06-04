@@ -35,6 +35,36 @@ export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, de
 }
 
 /**
+ * Agrupa cards em linhas conforme colSpan (12 = linha inteira, 6 = metade).
+ * @param {import('./layoutConfigV3.js').LayoutCardV3[]} cards
+ */
+export function groupCardsIntoRows(cards = []) {
+  const sorted = [...cards].sort((a, b) => a.order - b.order);
+  const rows = [];
+  let currentRow = [];
+  let used = 0;
+
+  sorted.forEach((card) => {
+    const span = Math.min(12, Math.max(1, Number(card.colSpan) || 12));
+    if (used > 0 && used + span > 12) {
+      rows.push(currentRow);
+      currentRow = [];
+      used = 0;
+    }
+    currentRow.push({ ...card, colSpan: span });
+    used += span;
+    if (used >= 12) {
+      rows.push(currentRow);
+      currentRow = [];
+      used = 0;
+    }
+  });
+
+  if (currentRow.length) rows.push(currentRow);
+  return rows;
+}
+
+/**
  * Monta layout V3 a partir de cards por painel.
  * @param {Record<string, { cards: import('./layoutConfigV3.js').LayoutCardV3[] }>} cardsByPanel
  */
