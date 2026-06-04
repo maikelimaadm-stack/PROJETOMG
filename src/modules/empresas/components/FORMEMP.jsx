@@ -86,7 +86,9 @@ export default function FORMEMP({
   useEffect(() => {
     let next = buildFormData(initialData);
     if (initialData?._isDuplicate) {
-      const layoutKey = user?.id ? getLayoutStorageKeys(user.id).legacyKey : null;
+      const layoutKey = user?.id
+        ? getLayoutStorageKeysForModule(empresasCadastroConfig, user.id).layoutKey
+        : null;
       const saved = layoutKey ? localStorage.getItem(layoutKey) : null;
       let clearIds = formLayoutConfig?.clearOnDuplicateFieldIds || [];
       if (!clearIds.length && saved) {
@@ -111,7 +113,7 @@ export default function FORMEMP({
     setErrors({});
     setEditMode(!isEditing || !!initialData?._isDuplicate);
     if (!isRecordNavigation) {
-      setActiveTab("geral");
+      setActiveTab(LAYOUT_MAIN_TAB_ID);
     }
   }, [
     recordKey,
