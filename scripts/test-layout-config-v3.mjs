@@ -6,7 +6,6 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_VIRTUAL_CARD_ID,
   flattenV3LayoutToV2,
-  getPanelFieldIdsFromLayout,
   isLayoutConfigV2,
   isLayoutConfigV3,
   migrateV2ToV3,
