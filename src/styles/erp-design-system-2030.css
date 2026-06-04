@@ -137,13 +137,12 @@
 }
 
 .cadastro-emp-scope .form-scroll-container,
-.cadastro-emp-scope .emp-form-body,
-.cadastro-emp-scope .emp-form-panels-zone,
-.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
+.cadastro-emp-scope .emp-form-body {
   background: transparent !important;
 }
 
-.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone {
+.cadastro-emp-scope .emp-content-card > .form-scroll-container,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
   background: transparent !important;
 }
 
@@ -238,6 +237,63 @@
   width: var(--erp-card-accent-width);
   background: var(--erp-color-primary);
   border-radius: 0 4px 4px 0;
+}
+
+.cadastro-emp-scope .emp-form-card--virtual {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* —— Content card, painéis e cards internos (mesma moldura) —— */
+.cadastro-emp-scope .emp-content-card,
+.cadastro-emp-scope .emp-table-card {
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  flex-shrink: 0;
+  background: var(--erp-color-card-header) !important;
+  border-bottom: 1px solid var(--erp-color-card-header-border) !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 !important;
+  padding: 12px 14px 14px !important;
+  background: var(--erp-color-card) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel-detail {
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
+  padding: 0 0 12px;
 }
 
 /* —— Labels e obrigatório —— */
