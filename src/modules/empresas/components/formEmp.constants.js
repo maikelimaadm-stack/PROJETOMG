@@ -141,27 +141,8 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
   },
 };
 
-export const EMP_FORM_DEFAULT_FIELD_SIZES = {
-  tipo_pessoa: "SM",
-  tipo_vinculo: "SM",
-  codempresa: "XS",
-  status: "SM",
-  razao_social: "LG",
-  nome_fantasia: "LG",
-  cpf_cnpj: "MD",
-  inscricao_estadual: "MD",
-  telefone: "SM",
-  whatsapp: "SM",
-  email: "LG",
-  logo_url: "MD",
-  cep: "XS",
-  numero: "XS",
-  estado: "XS",
-  bairro: "MD",
-  cidade: "MD",
-  endereco: "LG",
-  observacoes: "FULL",
-};
+/** Override opcional de tipo de largura por campo (vazio = inferência automática por tipo). */
+export const EMP_FORM_DEFAULT_FIELD_SIZES = {};
 
 export const buildEmpFormDefaultConfig = () => ({
   version: 3,

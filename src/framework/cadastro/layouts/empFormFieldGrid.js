@@ -1,6 +1,7 @@
 import { resolveFieldWidthToken } from "./empFormFieldSizing.js";
+import { FIELD_WIDTH_TYPE_OPTIONS } from "./empFormFieldWidthPresets.js";
 
-/** Colunas ocupadas no grid de 12 (layout corporativo). */
+/** @deprecated Layout corporativo não usa grid 12 — apenas layout SGG legado. */
 export const FIELD_SIZE_COLUMNS = {
   XS: 1,
   SM: 2,
@@ -10,7 +11,10 @@ export const FIELD_SIZE_COLUMNS = {
   FULL: 12,
 };
 
+/** @deprecated Use FIELD_WIDTH_TYPE_OPTIONS */
 export const FIELD_SIZE_OPTIONS = ["XS", "SM", "MD", "LG", "XL", "FULL"];
+
+export { FIELD_WIDTH_TYPE_OPTIONS };
 
 export const CARD_COL_SPAN_OPTIONS = [
   { value: 12, label: "Tela inteira" },

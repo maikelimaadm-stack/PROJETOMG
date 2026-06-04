@@ -2788,7 +2788,7 @@ select.erp-field-invalid {
   align-items: flex-end;
   justify-content: flex-start;
   width: 100%;
-  overflow-x: auto;
+  min-width: 0;
 }
 
 .cadastro-emp-scope .emp-form-card-row--full .emp-form-card-row-grid--flex {
@@ -2803,8 +2803,10 @@ select.erp-field-invalid {
 }
 
 .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp:not(.emp-form-field-corp--full-row) {
-  flex-grow: 0;
+  flex-grow: 1;
   flex-shrink: 1;
+  flex-basis: 0;
+  max-width: none;
 }
 
 .cadastro-emp-scope .emp-form-card-rows {
@@ -2981,10 +2983,16 @@ select.erp-field-invalid {
 
 .cadastro-emp-scope .emp-form-field-corp--textarea.emp-form-field-corp--full-row .emp-form-field-control {
   height: auto;
-  min-height: var(--emp-form-textarea-corp-height, 40px);
-  max-height: var(--emp-form-textarea-corp-max-height, 120px);
+  min-height: var(--emp-field-textarea-min, var(--emp-form-textarea-corp-height, 80px));
+  max-height: var(--emp-field-textarea-max, var(--emp-form-textarea-corp-max-height, 200px));
   align-items: stretch;
   width: 100%;
+}
+
+.cadastro-emp-scope .emp-form-field-corp--textarea.emp-form-field-corp--full-row .emp-form-textarea-corp {
+  height: var(--emp-field-textarea-min, 80px) !important;
+  min-height: var(--emp-field-textarea-min, 80px) !important;
+  max-height: var(--emp-field-textarea-max, 200px) !important;
 }
 
 .cadastro-emp-scope .emp-form-field-corp--textarea .emp-form-textarea-corp {

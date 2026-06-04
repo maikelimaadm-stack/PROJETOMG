@@ -10,7 +10,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { getCardRowsForRender } from "@/framework/cadastro/layouts/empFormLayoutRows";
-import { resolveFieldWidthPreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
+import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
@@ -46,7 +46,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
         onChange={(e) => onChange(field.name, e.target.value)}
         readOnly={readOnly || field.readOnly}
         className="emp-form-input emp-form-textarea-corp w-full min-h-0 border-0 bg-white uppercase"
-        rows={field.rows || 2}
+        rows={field.rows || 3}
       />
     );
   }
@@ -129,32 +129,44 @@ const conditionMatches = (current, expected, sourceField) => {
   return currentValues.has(expectedText);
 };
 
-/** Layout corporativo: label acima, largura min/ideal/max por preset. */
+/** Layout corporativo: min-width por tipo + flex-grow (preenche a linha). */
 function FieldFrameCorp({ field, error, children, fieldSizes = {}, fullRow = false, className = "" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
   const textareaField = field?.type === "textarea";
   const loteStyle = isCustomField(field);
-  const preset = resolveFieldWidthPreset(field, fieldSizes);
-  const presetClass = `emp-form-field-corp--w-${preset.key.toLowerCase().replace(/_/g, "-")}`;
+  const preset = resolveFieldWidthTypePreset(field, fieldSizes);
+  const typeClass = `emp-form-field-corp--type-${preset.type.toLowerCase().replace(/_/g, "-")}`;
 
-  const widthStyle = fullRow || preset.fullRow
-    ? { flex: "1 1 100%", width: "100%", minWidth: "100%", maxWidth: "100%" }
+  const isFull = fullRow || preset.fullRow;
+  const widthStyle = isFull
+    ? {
+        flex: "1 1 100%",
+        minWidth: "100%",
+        maxWidth: "none",
+        width: "100%",
+        ...(preset.textareaMinHeight
+          ? {
+              "--emp-field-textarea-min": `${preset.textareaMinHeight}px`,
+              "--emp-field-textarea-max": `${preset.textareaMaxHeight}px`,
+            }
+          : {}),
+      }
     : {
-        flex: `0 1 ${preset.ideal}px`,
-        width: `${preset.ideal}px`,
+        flex: `${preset.flexGrow ?? 1} 1 ${typeof preset.flexBasis === "string" ? preset.flexBasis : `${preset.flexBasis ?? 0}px`}`,
         minWidth: `${preset.min}px`,
-        maxWidth: `${preset.max}px`,
+        maxWidth: "none",
+        width: "auto",
       };
 
   return (
     <div
       data-field={field.dataField || field.name}
-      data-width-preset={preset.key}
+      data-width-type={preset.type}
       className={cn(
         "emp-form-field-corp",
-        presetClass,
-        fullRow && "emp-form-field-corp--full-row",
+        typeClass,
+        isFull && "emp-form-field-corp--full-row",
         imageField && "emp-form-field-corp--image",
         textareaField && "emp-form-field-corp--textarea",
         bare && "emp-form-field-corp--bare",

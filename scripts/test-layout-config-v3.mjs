@@ -142,30 +142,33 @@ assert.deepEqual(flattenRowsToFieldIds(cardWithRows), ["a", "b", "c"]);
 const packed = normalizeCardRows(
   {
     id: "c1",
-    fieldIds: ["tipo_pessoa", "tipo_vinculo", "codempresa", "status", "razao_social", "nome_fantasia"],
+    colSpan: 12,
+    fieldIds: ["a", "b", "c", "d", "e", "f", "g"],
   },
-  {
-    tipo_pessoa: "SM",
-    tipo_vinculo: "SM",
-    codempresa: "XS",
-    status: "SM",
-    razao_social: "LG",
-    nome_fantasia: "LG",
-  }
+  {},
+  [
+    { id: "a", type: "text" },
+    { id: "b", type: "text" },
+    { id: "c", type: "text" },
+    { id: "d", type: "text" },
+    { id: "e", type: "text" },
+    { id: "f", type: "text" },
+    { id: "g", type: "text" },
+  ]
 );
-assert.ok(packed.rows.length >= 2, "empacota em múltiplas linhas conforme grid 12");
+assert.ok(packed.rows.length >= 2, "quebra linha após 6 campos no card inteiro");
 assert.equal(
   flattenRowsToFieldIds(packed).length,
-  6,
+  7,
   "preserva todos os campos ao normalizar rows"
 );
 
-assert.equal(getMaxFieldsPerRow(12), 5);
+assert.equal(getMaxFieldsPerRow(12), 6);
 assert.equal(getMaxFieldsPerRow(6), 3);
 assert.equal(getMaxFieldsPerRow(4), 2);
 
 const manualPack = packFieldIdsIntoRows(
-  ["f1", "f2", "f3", "f4", "f5", "f6"],
+  ["f1", "f2", "f3", "f4", "f5", "f6", "f7"],
   {
     fields: [
       { id: "f1", type: "text" },
@@ -174,11 +177,12 @@ const manualPack = packFieldIdsIntoRows(
       { id: "f4", type: "text" },
       { id: "f5", type: "text" },
       { id: "f6", type: "text" },
+      { id: "f7", type: "text" },
     ],
     card: { colSpan: 12 },
   }
 );
-assert.ok(manualPack.length >= 2, "quebra linha ao exceder limite do card");
+assert.ok(manualPack.length >= 2, "quebra linha ao exceder 6 campos no card inteiro");
 
 const withTextarea = packFieldIdsIntoRows(["a", "b", "obs"], {
   fields: [

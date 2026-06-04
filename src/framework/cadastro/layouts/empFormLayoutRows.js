@@ -1,10 +1,5 @@
 import { resolveFieldGridSpan } from "./empFormFieldGrid.js";
-import {
-  getCardRowWidthBudget,
-  getFieldPackWidth,
-  getMaxFieldsPerRow,
-  isTextareaField,
-} from "./empFormFieldWidthPresets.js";
+import { getMaxFieldsPerRow, isTextareaField } from "./empFormFieldWidthPresets.js";
 
 /**
  * @typedef {Object} LayoutRowV3
@@ -64,15 +59,15 @@ export const normalizeLayoutRowV3 = (source = {}, index = 0, cardId = "card") =>
 };
 
 /**
- * Empacota campos em linhas: largura ideal/max, limite por card, textarea por último.
+ * Empacota campos em linhas: limite por card, textarea isolada no final.
+ * Largura na linha é flex-grow (preenchimento automático).
  * @param {string[]} fieldIds
  * @param {{ fieldSizes?: Record<string, string>, fields?: object[], card?: object }} [options]
  */
 export const packFieldIdsIntoRows = (fieldIds = [], options = {}) => {
-  const { fieldSizes = {}, fields = [], card = {} } = options;
+  const { fields = [], card = {} } = options;
   const colSpan = Number(card.colSpan) || 12;
   const maxPerRow = getMaxFieldsPerRow(colSpan);
-  const budget = getCardRowWidthBudget(colSpan);
 
   const regular = [];
   const textareas = [];
@@ -86,27 +81,16 @@ export const packFieldIdsIntoRows = (fieldIds = [], options = {}) => {
 
   const rows = [];
   let current = [];
-  let usedWidth = 0;
 
   const flush = () => {
     if (!current.length) return;
     rows.push({ fieldIds: [...current], fullWidth: false });
     current = [];
-    usedWidth = 0;
   };
 
   regular.forEach((fieldId) => {
-    const field = fields.find((item) => item.id === fieldId) || { id: fieldId };
-    const pack = getFieldPackWidth(field, fieldSizes);
-
-    const exceedsCount = current.length >= maxPerRow;
-    const exceedsWidth = current.length > 0 && usedWidth + pack > budget;
-
-    if (exceedsCount || exceedsWidth) flush();
-
+    if (current.length >= maxPerRow) flush();
     current.push(fieldId);
-    usedWidth += pack;
-
     if (current.length >= maxPerRow) flush();
   });
 
@@ -123,7 +107,7 @@ export const packFieldIdsIntoRows = (fieldIds = [], options = {}) => {
   return rows.filter((row) => row.fieldIds.length);
 };
 
-/** @deprecated Empacotamento legado por grid 12 — preferir packFieldIdsIntoRows com card. */
+/** @deprecated Empacotamento legado por grid 12 */
 export const packFieldIdsIntoGridRows = (fieldIds = [], fieldSizes = {}, fields = []) => {
   const rows = [];
   let current = { fieldIds: [] };
@@ -157,13 +141,13 @@ export const packFieldIdsIntoGridRows = (fieldIds = [], fieldSizes = {}, fields 
 
 /**
  * @param {import('./layoutConfigV3.js').LayoutCardV3} card
- * @param {Record<string, string>} [fieldSizes]
+ * @param {Record<string, string>} [fieldWidthTypes]
  * @param {object[]} [fields]
  */
-export const normalizeCardRows = (card = {}, fieldSizes = {}, fields = []) => {
+export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = []) => {
   const cardId = card.id || "card";
   const fieldIds = flattenRowsToFieldIds(card);
-  const packed = packFieldIdsIntoRows(fieldIds, { fieldSizes, fields, card });
+  const packed = packFieldIdsIntoRows(fieldIds, { fields, card });
 
   const rows = packed.map((row, index) =>
     normalizeLayoutRowV3(
@@ -180,29 +164,17 @@ export const normalizeCardRows = (card = {}, fieldSizes = {}, fields = []) => {
   return { ...card, rows, fieldIds };
 };
 
-/**
- * Linhas do card para render (Card → Linha → Campo).
- */
-export const getCardRowsForRender = (card, fieldSizes = {}, fields = []) => {
-  const normalized = normalizeCardRows(card, fieldSizes, fields);
+export const getCardRowsForRender = (card, fieldWidthTypes = {}, fields = []) => {
+  const normalized = normalizeCardRows(card, fieldWidthTypes, fields);
   return normalized.rows || [];
 };
 
-/**
- * @param {LayoutRowV3[]} rows
- * @param {string} fieldId
- */
 export const removeFieldFromRows = (rows = [], fieldId) =>
   rows.map((row) => ({
     ...row,
     fieldIds: (row.fieldIds || []).filter((id) => id !== fieldId),
   }));
 
-/**
- * @param {LayoutRowV3[]} rows
- * @param {string} fieldId
- * @param {string} rowId
- */
 export const addFieldToRow = (rows = [], rowId, fieldId) => {
   const cleaned = removeFieldFromRows(rows, fieldId);
   return cleaned.map((row) =>
@@ -210,11 +182,6 @@ export const addFieldToRow = (rows = [], rowId, fieldId) => {
   );
 };
 
-/**
- * @param {LayoutRowV3[]} rows
- * @param {string} draggedFieldId
- * @param {string} targetFieldId
- */
 export const reorderFieldWithinRows = (rows = [], draggedFieldId, targetFieldId) => {
   if (!draggedFieldId || draggedFieldId === targetFieldId) return rows;
   let sourceRowIndex = -1;
@@ -236,11 +203,6 @@ export const reorderFieldWithinRows = (rows = [], draggedFieldId, targetFieldId)
   return next;
 };
 
-/**
- * @param {LayoutRowV3[]} rows
- * @param {string} rowId
- * @param {number} direction
- */
 export const moveLayoutRow = (rows = [], rowId, direction) => {
   const list = [...rows].sort((a, b) => a.order - b.order);
   const index = list.findIndex((row) => row.id === rowId);
@@ -251,10 +213,6 @@ export const moveLayoutRow = (rows = [], rowId, direction) => {
   return list.map((row, orderIndex) => ({ ...row, order: orderIndex + 1 }));
 };
 
-/**
- * @param {string} cardId
- * @param {LayoutRowV3[]} [existingRows]
- */
 export const createEmptyLayoutRow = (cardId, existingRows = []) => ({
   id: createRowId(cardId, existingRows.length + 1),
   order: existingRows.length + 1,
@@ -262,10 +220,6 @@ export const createEmptyLayoutRow = (cardId, existingRows = []) => ({
   fullWidth: false,
 });
 
-/**
- * @param {LayoutRowV3[]} rows
- * @param {string} rowId
- */
 export const deleteLayoutRow = (rows = [], rowId) => {
   const sorted = [...rows].sort((a, b) => a.order - b.order);
   if (sorted.length <= 1) return sorted;

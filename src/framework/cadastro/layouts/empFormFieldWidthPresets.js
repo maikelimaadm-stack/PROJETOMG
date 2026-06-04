@@ -1,129 +1,142 @@
 /**
- * Presets corporativos de largura (min / ideal / max em px).
- * Genérico para qualquer módulo — inferência por tipo e nome do campo.
+ * Larguras corporativas por TIPO DE CAMPO (min-width + flex-grow).
+ * Sem regras por nome de campo (CPF, CEP, etc.).
  * @module empFormFieldWidthPresets
  */
 
-/** @typedef {{ min: number, ideal: number, max: number, fullRow?: boolean }} FieldWidthPreset */
+/** @typedef {'SHORT_TEXT'|'NUMBER'|'DATE'|'DATETIME'|'SELECT'|'LOOKUP'|'MEDIUM_TEXT'|'LONG_TEXT'|'IMAGE'|'ATTACHMENT'|'MULTILINE'} FieldWidthType */
 
-/** @type {Record<string, FieldWidthPreset>} */
-export const FIELD_WIDTH_PRESETS = {
-  UF: { min: 60, ideal: 70, max: 90 },
-  CEP: { min: 90, ideal: 110, max: 130 },
-  DATE: { min: 110, ideal: 130, max: 150 },
-  CODE: { min: 70, ideal: 90, max: 120 },
-  PHONE: { min: 130, ideal: 160, max: 200 },
-  CPF: { min: 180, ideal: 220, max: 260 },
-  CNPJ: { min: 220, ideal: 260, max: 320 },
-  NUMBER: { min: 70, ideal: 90, max: 120 },
-  SELECT: { min: 140, ideal: 180, max: 240 },
-  IMAGE: { min: 70, ideal: 90, max: 120 },
-  EMAIL: { min: 280, ideal: 350, max: 500 },
-  NAME: { min: 300, ideal: 450, max: 700 },
-  ADDRESS: { min: 400, ideal: 600, max: 1000 },
-  TEXT: { min: 200, ideal: 280, max: 400 },
-  OBSERVATION: { min: 0, ideal: 0, max: 0, fullRow: true },
+/**
+ * @typedef {Object} FieldWidthTypePreset
+ * @property {number} [min] — px; MULTILINE usa 100%
+ * @property {number} [flexGrow]
+ * @property {number} [flexBasis]
+ * @property {boolean} [fullRow]
+ * @property {number} [textareaMinHeight]
+ * @property {number} [textareaMaxHeight]
+ */
+
+/** @type {Record<FieldWidthType, FieldWidthTypePreset>} */
+export const FIELD_WIDTH_TYPE_PRESETS = {
+  SHORT_TEXT: { min: 140, flexGrow: 1, flexBasis: 0 },
+  NUMBER: { min: 140, flexGrow: 1, flexBasis: 0 },
+  DATE: { min: 150, flexGrow: 1, flexBasis: 0 },
+  DATETIME: { min: 190, flexGrow: 1, flexBasis: 0 },
+  SELECT: { min: 180, flexGrow: 1, flexBasis: 0 },
+  LOOKUP: { min: 280, flexGrow: 1, flexBasis: 0 },
+  MEDIUM_TEXT: { min: 280, flexGrow: 1, flexBasis: 0 },
+  LONG_TEXT: { min: 420, flexGrow: 1, flexBasis: 0 },
+  IMAGE: { min: 220, flexGrow: 1, flexBasis: 0 },
+  ATTACHMENT: { min: 320, flexGrow: 1, flexBasis: 0 },
+  MULTILINE: {
+    min: 0,
+    flexGrow: 1,
+    flexBasis: "100%",
+    fullRow: true,
+    textareaMinHeight: 80,
+    textareaMaxHeight: 200,
+  },
 };
 
-export const FIELD_WIDTH_PRESET_KEYS = Object.keys(FIELD_WIDTH_PRESETS);
+export const FIELD_WIDTH_TYPE_OPTIONS = [
+  { value: "SHORT_TEXT", label: "Texto curto" },
+  { value: "NUMBER", label: "Número" },
+  { value: "DATE", label: "Data" },
+  { value: "DATETIME", label: "Data e hora" },
+  { value: "SELECT", label: "Seleção" },
+  { value: "LOOKUP", label: "Lookup / pesquisa" },
+  { value: "MEDIUM_TEXT", label: "Texto médio" },
+  { value: "LONG_TEXT", label: "Texto longo" },
+  { value: "IMAGE", label: "Imagem" },
+  { value: "ATTACHMENT", label: "Anexos" },
+  { value: "MULTILINE", label: "Texto multilinha" },
+];
 
-/** Orçamento de largura (px) para empacotar linhas dentro do card. */
-export const CARD_ROW_WIDTH_BUDGET = {
-  full: 2400,
-  half: 1200,
-  small: 800,
+const LOOKUP_TYPES = new Set(["autocomplete", "relation"]);
+const SELECT_TYPES = new Set(["select"]);
+const DATE_TYPES = new Set(["date"]);
+const DATETIME_TYPES = new Set(["datetime", "datetime-local"]);
+const NUMBER_TYPES = new Set(["number", "decimal", "moeda", "percentual", "integer"]);
+const MULTILINE_TYPES = new Set(["textarea", "option_list"]);
+const IMAGE_TYPES = new Set(["image", "imagem"]);
+const ATTACHMENT_TYPES = new Set(["file"]);
+
+export const isTextareaField = (field) => {
+  const type = String(field?.type || "").toLowerCase();
+  return MULTILINE_TYPES.has(type);
 };
+
+/**
+ * Inferência apenas por tipo e flags do campo (compact / medium / wide / widthType).
+ * @param {object} field
+ * @returns {FieldWidthType}
+ */
+export function inferFieldWidthType(field) {
+  if (!field) return "SHORT_TEXT";
+
+  const override = String(field.widthType || "").trim().toUpperCase();
+  if (override && FIELD_WIDTH_TYPE_PRESETS[override]) return /** @type {FieldWidthType} */ (override);
+
+  const type = String(field.type || "text").toLowerCase();
+
+  if (MULTILINE_TYPES.has(type)) return "MULTILINE";
+  if (IMAGE_TYPES.has(type)) return "IMAGE";
+  if (ATTACHMENT_TYPES.has(type)) return "ATTACHMENT";
+  if (NUMBER_TYPES.has(type)) return "NUMBER";
+  if (DATETIME_TYPES.has(type)) return "DATETIME";
+  if (DATE_TYPES.has(type)) return "DATE";
+  if (SELECT_TYPES.has(type)) return "SELECT";
+  if (LOOKUP_TYPES.has(type) || field.lookup === true) return "LOOKUP";
+  if (type === "checkbox" || type === "switch") return "SHORT_TEXT";
+
+  if (field.wide) return "LONG_TEXT";
+  if (field.medium) return "MEDIUM_TEXT";
+  if (field.compact) return "SHORT_TEXT";
+
+  return "SHORT_TEXT";
+}
+
+/**
+ * @param {object} field
+ * @param {Record<string, string>} [fieldWidthTypes] — override por id (ex-fieldSizes)
+ */
+export function resolveFieldWidthTypePreset(field, fieldWidthTypes = {}) {
+  const stored = String(fieldWidthTypes?.[field?.id] || field?.fieldWidthType || "")
+    .trim()
+    .toUpperCase();
+
+  const typeKey = stored && FIELD_WIDTH_TYPE_PRESETS[stored] ? stored : inferFieldWidthType(field);
+  const preset = FIELD_WIDTH_TYPE_PRESETS[typeKey] || FIELD_WIDTH_TYPE_PRESETS.SHORT_TEXT;
+
+  return {
+    type: /** @type {FieldWidthType} */ (typeKey),
+    ...preset,
+  };
+}
 
 /** Máximo de campos por linha conforme largura do card (colSpan). */
 export function getMaxFieldsPerRow(colSpan = 12) {
   const span = Number(colSpan) || 12;
-  if (span >= 12) return 5;
+  if (span >= 12) return 6;
   if (span >= 6) return 3;
   return 2;
 }
 
-export function getCardRowWidthBudget(colSpan = 12) {
-  const span = Number(colSpan) || 12;
-  if (span >= 12) return CARD_ROW_WIDTH_BUDGET.full;
-  if (span >= 6) return CARD_ROW_WIDTH_BUDGET.half;
-  return CARD_ROW_WIDTH_BUDGET.small;
-}
-
-const UF_NAMES = new Set(["uf", "estado", "sigla_uf", "uf_emissor"]);
-const CODE_NAMES = /^(cod|codigo|id_|nr_|numero_documento)/;
-const NAME_NAMES = /(razao|nome|fantasia|social|titulo|descricao_curta)/;
-const ADDRESS_NAMES = /(endereco|logradouro|rua|avenida|complemento)/;
-
-const isTextareaField = (field) => {
-  const type = String(field?.type || "").toLowerCase();
-  return type === "textarea" || type === "option_list";
-};
-
-/**
- * @param {object} field
- * @returns {string}
- */
-export function inferFieldWidthPresetKey(field) {
-  if (!field) return "TEXT";
-  if (field.widthPreset && FIELD_WIDTH_PRESETS[field.widthPreset]) {
-    return String(field.widthPreset).toUpperCase();
-  }
-
-  const type = String(field.type || "text").toLowerCase();
-  const name = String(field.name || field.field_name || field.dataField || field.id || "").toLowerCase();
-
-  if (isTextareaField(field) || field.wide && type === "textarea") return "OBSERVATION";
-  if (type === "textarea" || type === "option_list") return "OBSERVATION";
-
-  if (type === "image" || type === "file" || type === "imagem") return "IMAGE";
-  if (["select", "autocomplete", "relation"].includes(type)) return "SELECT";
-  if (["date", "datetime", "datetime-local"].includes(type) || name.includes("data")) return "DATE";
-  if (UF_NAMES.has(name) || name === "uf" || name.endsWith("_uf")) return "UF";
-  if (name.includes("cep")) return "CEP";
-  if (name.includes("cnpj")) return "CNPJ";
-  if (name.includes("cpf")) return "CPF";
-  if (name.includes("email") || name.includes("e_mail")) return "EMAIL";
-  if (name.includes("telefone") || name.includes("whatsapp") || name.includes("celular") || name.includes("fone")) {
-    return "PHONE";
-  }
-  if (CODE_NAMES.test(name) || name.includes("codempresa") || name === "codigo") return "CODE";
-  if (ADDRESS_NAMES.test(name)) return "ADDRESS";
-  if (NAME_NAMES.test(name)) return "NAME";
-  if (type === "number" || type === "decimal" || type === "moeda" || type === "percentual") return "NUMBER";
-  if (field.compact) return "CODE";
-  if (field.medium) return "SELECT";
-
-  return "TEXT";
-}
-
-/**
- * @param {object} field
- * @param {Record<string, string>} [fieldSizes]
- */
+/** @deprecated Use resolveFieldWidthTypePreset */
 export function resolveFieldWidthPreset(field, fieldSizes = {}) {
-  const sizeKey = String(fieldSizes?.[field?.id] || field?.fieldSize || "")
-    .trim()
-    .toUpperCase();
-
-  const SIZE_TO_PRESET = {
-    XS: "UF",
-    SM: "CODE",
-    MD: "CPF",
-    LG: "NAME",
-    XL: "EMAIL",
-    FULL: "OBSERVATION",
+  const preset = resolveFieldWidthTypePreset(field, fieldSizes);
+  return {
+    key: preset.type,
+    min: preset.min,
+    ideal: preset.min,
+    max: Number.MAX_SAFE_INTEGER,
+    fullRow: preset.fullRow,
   };
-
-  const presetKey = SIZE_TO_PRESET[sizeKey] || inferFieldWidthPresetKey(field);
-  const preset = FIELD_WIDTH_PRESETS[presetKey] || FIELD_WIDTH_PRESETS.TEXT;
-  return { key: presetKey, ...preset };
 }
 
-/** Unidade de empacotamento (largura ideal em px). */
+/** @deprecated Empacotamento por contagem apenas — não usa largura acumulada */
 export function getFieldPackWidth(field, fieldSizes = {}) {
-  const preset = resolveFieldWidthPreset(field, fieldSizes);
-  if (preset.fullRow) return CARD_ROW_WIDTH_BUDGET.full;
-  return preset.ideal;
+  const preset = resolveFieldWidthTypePreset(field, fieldSizes);
+  if (preset.fullRow) return 9999;
+  return preset.min || 140;
 }
-
-export { isTextareaField };

@@ -40,7 +40,7 @@ import {
 } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { DEFAULT_VIRTUAL_CARD_ID, normalizeLayoutCardV3 } from "@/framework/cadastro/layouts/layoutConfigV3";
 import { DEFAULT_FIELD_LAYOUT_CONFIG } from "@/framework/cadastro/layouts/empFormLayoutStore";
-import { CARD_COL_SPAN_OPTIONS, FIELD_SIZE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
+import { CARD_COL_SPAN_OPTIONS, FIELD_WIDTH_TYPE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
 import {
   addFieldToRow,
   createEmptyLayoutRow,
@@ -530,11 +530,11 @@ export default function EmpLayoutConfiguratorDialog({
     applyCardsState({ ...draftCardsByPanel, [activePanel.id]: { cards: normalized } });
   };
 
-  const setFieldSize = (fieldId, size) => {
+  const setFieldWidthType = (fieldId, widthType) => {
     setDraftFieldSizes((prev) => {
       const next = { ...prev };
-      if (!size) delete next[fieldId];
-      else next[fieldId] = size;
+      if (!widthType) delete next[fieldId];
+      else next[fieldId] = widthType;
       return next;
     });
   };
@@ -1185,21 +1185,28 @@ export default function EmpLayoutConfiguratorDialog({
                 </div>
                 {isEditing && selectedPanelFieldIds.length === 1 && (
                   <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#e2e8f0] pt-2">
-                    <span className="text-[11px] font-semibold text-[#5b6b80]">Largura no grid:</span>
-                    {FIELD_SIZE_OPTIONS.map((size) => (
+                    <span className="text-[11px] font-semibold text-[#5b6b80]">Tipo de largura:</span>
+                    {FIELD_WIDTH_TYPE_OPTIONS.map(({ value, label }) => (
                       <button
-                        key={size}
+                        key={value}
                         type="button"
-                        onClick={() => setFieldSize(selectedPanelFieldIds[0], size)}
+                        onClick={() => setFieldWidthType(selectedPanelFieldIds[0], value)}
                         className={`h-6 rounded px-2 text-[10px] font-semibold ${
-                          draftFieldSizes[selectedPanelFieldIds[0]] === size
+                          draftFieldSizes[selectedPanelFieldIds[0]] === value
                             ? "bg-[#eaf2ff] text-[#2563eb]"
                             : "bg-[#f1f5f9] text-[#64748b]"
                         }`}
                       >
-                        {size}
+                        {label}
                       </button>
                     ))}
+                    <button
+                      type="button"
+                      onClick={() => setFieldWidthType(selectedPanelFieldIds[0], "")}
+                      className="h-6 rounded px-2 text-[10px] font-semibold bg-[#f1f5f9] text-[#64748b]"
+                    >
+                      Automático
+                    </button>
                   </div>
                 )}
               </div>
