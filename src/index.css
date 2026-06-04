@@ -631,7 +631,7 @@ input[type="number"] {
   -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
   border: none !important;
-  border-bottom: 2px solid #000000 !important;
+  border-bottom: 2px solid var(--emp-accent-primary, #4fafff) !important;
   border-radius: 0 !important;
   font-weight: 700 !important;
   z-index: 3 !important;
@@ -2061,7 +2061,13 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-inactive,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-inactive:hover,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-inactive,
-.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-inactive:hover,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-inactive:hover {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-active,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-active:hover,
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch button.emp-form-tab-active,
@@ -2069,7 +2075,10 @@ input[type="number"] {
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid var(--emp-accent-primary, #4fafff) !important;
   border-radius: 0 !important;
+  font-weight: 700 !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs {
