@@ -706,6 +706,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone {
   margin-top: 0;
   background: #ffffff;
+  gap: 10px;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-tabs.emp-form-tabs-launch {
