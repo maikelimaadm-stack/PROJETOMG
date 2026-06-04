@@ -33,6 +33,21 @@ export default function EmpLayoutFieldDefaultValueEditor({
   const controlClass =
     "emp-layout-config-select h-7 w-full min-w-0 text-xs border border-[#cfd8e3] bg-white";
 
+  if (field.id === "status" || field.name === "status") {
+    const isActive = value !== "Inativa" && value !== false && value !== "false" && value !== 0 && value !== "0";
+    return (
+      <div className="flex h-7 items-center px-1">
+        <ToggleSwitch
+          checked={isActive}
+          disabled={disabled}
+          onChange={(checked) => onChange?.(checked ? "Ativa" : "Inativa")}
+          className="emp-form-toggle-switch shrink-0"
+          checkedClassName="emp-form-toggle-switch-on"
+        />
+      </div>
+    );
+  }
+
   if (field.type === "switch" || field.type === "checkbox") {
     return (
       <ToggleSwitch

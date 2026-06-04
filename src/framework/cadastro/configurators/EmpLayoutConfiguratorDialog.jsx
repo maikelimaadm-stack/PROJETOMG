@@ -1226,8 +1226,9 @@ export default function EmpLayoutConfiguratorDialog({
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
                 <p className="mb-2 text-[10px] text-[#64748b]">
-                  Aba → Card → Linha → Campo. Você controla linhas e posições; o motor só distribui o espaço
-                  dentro de cada linha (sem mover campos automaticamente).
+                  Aba → Card → Linha → Campo. Card inteiro: até <strong>6</strong> campos por linha. Card meio
+                  (½): até <strong>4</strong>. O motor distribui o espaço dentro de cada linha sem mover campos
+                  automaticamente.
                 </p>
                 {isEditing && (
                   <div className="mb-2 flex flex-wrap gap-1">
@@ -1245,14 +1246,23 @@ export default function EmpLayoutConfiguratorDialog({
                       const rowFields = (layoutRow.fieldIds || [])
                         .map((id) => fields.find((field) => field.id === id))
                         .filter(Boolean);
+                      const rowCount = (layoutRow.fieldIds || []).filter(Boolean).length;
+                      const rowMax = getMaxFieldsPerRow(getActiveCardColSpan());
+                      const rowFull = rowCount >= rowMax;
                       return (
                         <div
                           key={layoutRow.id}
-                          className="emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2"
+                          className={cn(
+                            "emp-layout-config-row rounded border bg-[#f8fafc] p-2",
+                            rowFull ? "border-amber-400/80" : "border-[#dce3eb]"
+                          )}
                         >
                           <div className="mb-2 flex items-center justify-between gap-2">
                             <span className="text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
                               Linha {layoutRow.order}
+                              <span className={cn("ml-1 font-semibold", rowFull && "text-amber-700")}>
+                                ({rowCount}/{rowMax})
+                              </span>
                             </span>
                             {isEditing && activeCardRows.length > 1 && (
                               <ToolbarBtn
@@ -1269,7 +1279,11 @@ export default function EmpLayoutConfiguratorDialog({
                             onDragOver={(event) => {
                               if (!isEditing) return;
                               event.preventDefault();
-                              event.dataTransfer.dropEffect = "move";
+                              const fieldId = draggedFieldId || selectedAvailableIds[0];
+                              const canDrop =
+                                !fieldId ||
+                                rowHasRoomForField(layoutRow, getActiveCardColSpan(), fieldId);
+                              event.dataTransfer.dropEffect = canDrop ? "move" : "none";
                             }}
                             onDrop={(event) => {
                               event.preventDefault();
