@@ -47,17 +47,18 @@ import {
 import { DEFAULT_FIELD_LAYOUT_CONFIG } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { CARD_COL_SPAN_OPTIONS, FIELD_WIDTH_TYPE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
 import {
-  addFieldToRow,
   balanceConfiguredRows,
   createEmptyLayoutRow,
   deleteLayoutRow,
   flattenRowsToFieldIds,
-  moveFieldBetweenRows,
+  placeFieldInCardRows,
   removeFieldFromRows,
   reorderFieldWithinRows,
   resolveConfiguredCardRows,
+  rowHasRoomForField,
   createRowId,
 } from "@/framework/cadastro/layouts/empFormLayoutRows";
+import { getMaxFieldsPerRow } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 
 const DEFAULT_SYSTEM_PANEL_IDS = ["principais", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = [];
@@ -202,12 +203,32 @@ export default function EmpLayoutConfiguratorDialog({
     return rows.length ? rows : [createEmptyLayoutRow(card?.id || "card")];
   };
 
-  const resolveTargetRowId = (rows) => {
+  const getActiveCardColSpan = (card = activeCard) => Number(card?.colSpan) || 12;
+
+  const resolveTargetRowId = (rows, colSpan = getActiveCardColSpan()) => {
     if (selectedPanelFieldIds.length) {
       const hit = rows.find((row) => (row.fieldIds || []).includes(selectedPanelFieldIds[0]));
-      if (hit?.id) return hit.id;
+      if (hit?.id && rowHasRoomForField(hit, colSpan)) return hit.id;
     }
+    const withRoom = rows.find((row) => rowHasRoomForField(row, colSpan));
+    if (withRoom?.id) return withRoom.id;
     return rows[rows.length - 1]?.id || rows[0]?.id;
+  };
+
+  const placeFieldOnCardRows = (rows, fieldId, { preferredRowId = null, card = activeCard } = {}) => {
+    const colSpan = getActiveCardColSpan(card);
+    const { rows: nextRows, placed } = placeFieldInCardRows(rows, fieldId, {
+      cardId: card?.id || "card",
+      colSpan,
+      preferredRowId,
+    });
+    if (!placed) {
+      showWarning(
+        `Linha cheia (máximo ${getMaxFieldsPerRow(colSpan)} campos neste card). Use outra linha ou crie uma nova.`
+      );
+      return rows;
+    }
+    return nextRows;
   };
 
   React.useEffect(() => {
@@ -260,7 +281,7 @@ export default function EmpLayoutConfiguratorDialog({
       if (card.id !== targetCardId) return normalizeLayoutCardV3(card);
       let rows = removeFieldFromRows(ensureCardRows(card), fieldId);
       const targetRowId = rows[rows.length - 1]?.id || createEmptyLayoutRow(card.id).id;
-      rows = addFieldToRow(rows, targetRowId, fieldId);
+      rows = placeFieldOnCardRows(rows, fieldId, { preferredRowId: targetRowId, card });
       return normalizeLayoutCardV3({ ...card, rows });
     });
     nextCardsByPanel[activePanel.id] = { cards };
@@ -375,7 +396,7 @@ export default function EmpLayoutConfiguratorDialog({
     const nextCardsByPanel = stripFieldFromAllCards(draftCardsByPanel, fieldId);
     let rows = removeFieldFromRows(ensureCardRows(activeCard), fieldId);
     const rowId = targetRowId || resolveTargetRowId(rows);
-    rows = addFieldToRow(rows, rowId, fieldId);
+    rows = placeFieldOnCardRows(rows, fieldId, { preferredRowId: rowId });
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id ? normalizeLayoutCardV3({ ...card, rows }) : normalizeLayoutCardV3(card)
     );
@@ -396,7 +417,9 @@ export default function EmpLayoutConfiguratorDialog({
     let rows = ensureCardRows(active);
     ids.forEach((fieldId) => {
       rows = removeFieldFromRows(rows, fieldId);
-      rows = addFieldToRow(rows, resolveTargetRowId(rows), fieldId);
+      rows = placeFieldOnCardRows(rows, fieldId, {
+        preferredRowId: resolveTargetRowId(rows),
+      });
     });
     const cards = (stripped[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id ? normalizeLayoutCardV3({ ...card, rows }) : normalizeLayoutCardV3(card)
@@ -493,8 +516,17 @@ export default function EmpLayoutConfiguratorDialog({
 
   const moveFieldToLayoutRow = (fieldId, targetRowId) => {
     if (!fieldId || !targetRowId || !activePanel || !activeCard || !isEditing) return;
+    const colSpan = getActiveCardColSpan();
+    const targetRow = ensureCardRows(activeCard).find((row) => row.id === targetRowId);
+    const alreadyOnRow = (targetRow?.fieldIds || []).includes(fieldId);
+    if (targetRow && !alreadyOnRow && !rowHasRoomForField(targetRow, colSpan, fieldId)) {
+      showWarning(
+        `Esta linha já tem o máximo de ${getMaxFieldsPerRow(colSpan)} campos. Escolha outra linha ou crie uma nova.`
+      );
+      return;
+    }
     const nextCardsByPanel = stripFieldFromAllCards(draftCardsByPanel, fieldId);
-    let rows = moveFieldBetweenRows(ensureCardRows(activeCard), fieldId, targetRowId);
+    let rows = placeFieldOnCardRows(ensureCardRows(activeCard), fieldId, { preferredRowId: targetRowId });
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id ? normalizeLayoutCardV3({ ...card, rows }) : normalizeLayoutCardV3(card)
     );
@@ -549,7 +581,7 @@ export default function EmpLayoutConfiguratorDialog({
     if (removed && nextCards[0]) {
       let mergedRows = ensureCardRows(nextCards[0]);
       flattenRowsToFieldIds(removed).forEach((fieldId) => {
-        mergedRows = addFieldToRow(mergedRows, mergedRows[0]?.id, fieldId);
+        mergedRows = placeFieldOnCardRows(mergedRows, fieldId, { card: nextCards[0] });
       });
       nextCards[0] = normalizeLayoutCardV3({ ...nextCards[0], rows: mergedRows });
     }

@@ -2,6 +2,7 @@ import {
   computeRowFieldBalance,
 } from "./empFormRowBalance.js";
 import {
+  getMaxFieldsPerRow,
   normalizeFieldWidthTypes,
   resolveFieldWidthTypePreset,
 } from "./empFormFieldWidthPresets.js";
@@ -45,6 +46,45 @@ export const cardHasExplicitRows = (card) =>
   Array.isArray(card?.rows) &&
   card.rows.length > 0 &&
   card.rows.some((row) => (row.fieldIds || []).filter(Boolean).length > 0);
+
+/** Mantém `rows` no card quando o usuário configurou mais de uma linha. */
+export const shouldPreserveCardRows = (card, rows = []) =>
+  cardHasExplicitRows(card) || (rows || []).length > 1;
+
+/**
+ * Filtra linhas do card pelos IDs permitidos, preservando a estrutura configurada.
+ * @param {import('./layoutConfigV3.js').LayoutCardV3 | object} card
+ * @param {Iterable<string>} allowedFieldIds
+ * @param {{ globalSeen?: Set<string> }} [options]
+ */
+export const filterCardRowsByAllowedFieldIds = (
+  card = {},
+  allowedFieldIds = [],
+  { globalSeen = null } = {}
+) => {
+  const allowed =
+    allowedFieldIds instanceof Set ? allowedFieldIds : new Set(allowedFieldIds);
+  const rows = [];
+
+  resolveConfiguredCardRows(card).forEach((row, rowIndex) => {
+    const fieldIds = [];
+    (row.fieldIds || []).forEach((fieldId) => {
+      if (!fieldId || !allowed.has(fieldId)) return;
+      if (globalSeen?.has(fieldId)) return;
+      if (globalSeen) globalSeen.add(fieldId);
+      fieldIds.push(fieldId);
+    });
+    if (fieldIds.length) {
+      rows.push({
+        id: row.id,
+        order: row.order || rowIndex + 1,
+        fieldIds,
+      });
+    }
+  });
+
+  return rows;
+};
 
 /**
  * Linhas configuradas pelo usuário — sem reempacotar.
@@ -260,6 +300,75 @@ export const createEmptyLayoutRow = (cardId, existingRows = []) => ({
   order: existingRows.length + 1,
   fieldIds: [],
 });
+
+export const rowHasRoomForField = (row, colSpan = 12, fieldId = null) => {
+  const ids = row?.fieldIds || [];
+  if (fieldId && ids.includes(fieldId)) return true;
+  return ids.length < getMaxFieldsPerRow(colSpan);
+};
+
+/**
+ * Insere campos nas linhas existentes; cria nova linha quando a atual atinge o máximo (6/4).
+ */
+export const appendFieldIdsToCardRows = (rows = [], fieldIds = [], cardId = "card", colSpan = 12) => {
+  const max = getMaxFieldsPerRow(colSpan);
+  const list = [...fieldIds].filter(Boolean);
+  let nextRows = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
+
+  list.forEach((fieldId) => {
+    nextRows = removeFieldFromRows(nextRows, fieldId);
+    let placed = false;
+    for (const row of nextRows) {
+      if ((row.fieldIds || []).length < max) {
+        nextRows = addFieldToRow(nextRows, row.id, fieldId);
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      const newRow = createEmptyLayoutRow(cardId, nextRows);
+      nextRows = addFieldToRow([...nextRows, newRow], newRow.id, fieldId);
+    }
+  });
+
+  return nextRows;
+};
+
+/**
+ * Coloca um campo nas linhas do card (respeita linha preferida e limite por colSpan).
+ */
+export const placeFieldInCardRows = (
+  rows = [],
+  fieldId,
+  { cardId = "card", colSpan = 12, preferredRowId = null } = {}
+) => {
+  if (!fieldId) return { rows, placed: false };
+  const cleaned = removeFieldFromRows(rows, fieldId);
+  const max = getMaxFieldsPerRow(colSpan);
+
+  const tryRow = (rowId) => {
+    const row = cleaned.find((item) => item.id === rowId);
+    if (!row || (row.fieldIds || []).length >= max) return null;
+    return addFieldToRow(cleaned, rowId, fieldId);
+  };
+
+  if (preferredRowId) {
+    const preferred = tryRow(preferredRowId);
+    if (preferred) return { rows: preferred, placed: true };
+  }
+
+  for (const row of cleaned) {
+    if ((row.fieldIds || []).length < max) {
+      return { rows: addFieldToRow(cleaned, row.id, fieldId), placed: true };
+    }
+  }
+
+  const newRow = createEmptyLayoutRow(cardId, cleaned);
+  return {
+    rows: addFieldToRow([...cleaned, newRow], newRow.id, fieldId),
+    placed: true,
+  };
+};
 
 export const deleteLayoutRow = (rows = [], rowId) => {
   const sorted = [...rows].sort((a, b) => a.order - b.order);

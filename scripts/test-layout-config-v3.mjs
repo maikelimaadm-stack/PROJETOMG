@@ -12,6 +12,7 @@ import {
   resolveLayoutConfig,
   countLayoutFieldsV3,
   normalizeLayoutCardV3,
+  sanitizeLayoutV3,
 } from "../src/framework/cadastro/layouts/layoutConfigV3.js";
 import {
   flattenRowsToFieldIds,
@@ -440,5 +441,37 @@ const widthPacked = packFieldsByRowBudget(
 );
 assert.deepEqual(widthPacked[0], ["a", "b", "c", "d", "e"]);
 assert.deepEqual(widthPacked[1], ["f"]);
+
+// --- sanitizeLayoutV3 / pickLayoutConfig preservam múltiplas linhas configuradas
+const multiRowLayout = {
+  principal: {
+    cards: [
+      {
+        id: "geral",
+        label: "Geral",
+        order: 1,
+        colSpan: 12,
+        fieldIds: ["a", "b", "c", "d"],
+        rows: [
+          { id: "l1", order: 1, fieldIds: ["a", "b"] },
+          { id: "l2", order: 2, fieldIds: ["c", "d"] },
+        ],
+      },
+    ],
+  },
+};
+const multiRowSanitized = sanitizeLayoutV3(multiRowLayout);
+assert.equal(multiRowSanitized.principal.cards[0].rows.length, 2, "sanitize mantém 2 linhas");
+assert.deepEqual(multiRowSanitized.principal.cards[0].rows[0].fieldIds, ["a", "b"]);
+assert.deepEqual(multiRowSanitized.principal.cards[0].rows[1].fieldIds, ["c", "d"]);
+
+const persisted = pickLayoutConfig({
+  version: 3,
+  panels: [{ id: "principal", label: "Principal" }],
+  layout: multiRowLayout,
+});
+const persistedCard = persisted.layout.principal.cards[0];
+assert.equal(persistedCard.rows.length, 2, "pickLayoutConfig mantém linhas ao persistir");
+assert.deepEqual(persistedCard.rows[1].fieldIds, ["c", "d"]);
 
 console.log("✓ Todos os testes LayoutConfigV3 passaram.");

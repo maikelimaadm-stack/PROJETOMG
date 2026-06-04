@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Input } from "@/shared/ui/input";
+import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
@@ -228,16 +229,16 @@ export default function FORMEMP({
     </select>
   );
 
-  const renderStatusSelect = () => (
-    <select
-      value={formData.status === "Inativa" ? "Inativa" : "Ativa"}
-      onChange={(event) => handleChange("status", event.target.value)}
-      disabled={isReadOnly}
-      className={`${inputClass} w-full`}
-    >
-      <option value="Ativa">SIM</option>
-      <option value="Inativa">NÃO</option>
-    </select>
+  const renderStatusToggle = () => (
+    <div className="h-full w-full flex items-center px-1">
+      <ToggleSwitch
+        className="emp-form-toggle-switch shrink-0"
+        checkedClassName="emp-form-toggle-switch-on"
+        checked={formData.status !== "Inativa"}
+        onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")}
+        disabled={isReadOnly}
+      />
+    </div>
   );
 
   const { renderCampoPersonalizado } = useFormEmpCustomFields({
@@ -253,7 +254,7 @@ export default function FORMEMP({
     { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
     { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", widthType: "CODIGO", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
     { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
-    { id: "status", name: "status", label: "Ativa", type: "select", widthType: "SIM_NAO", compact: true, render: renderStatusSelect },
+    { id: "status", name: "status", label: "Ativa", type: "text", widthType: "SIM_NAO", compact: true, render: renderStatusToggle },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", medium: true, uppercase: true, placeholder: "NOME FANTASIA" },
     { id: "cpf_cnpj", name: "cpf_cnpj", label: formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ", type: "cpf_cnpj", compact: true, placeholder: formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00" },
     { id: "inscricao_estadual", name: "inscricao_estadual", label: "Inscrição Estadual", type: "text", placeholder: "INSCRIÇÃO ESTADUAL" },

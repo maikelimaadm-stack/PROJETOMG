@@ -187,6 +187,40 @@ const configuratorCards = initCardsByPanel({
 });
 assert.ok(configuratorCards.principal?.cards?.length > 0, "configurador lê layout V3");
 
+// --- Múltiplas linhas no card sobrevivem ao ciclo salvar/reabrir
+const multiRowCards = initCardsByPanel({
+  panels: TEST_PANELS,
+  layout: {
+    principal: {
+      cards: [
+        {
+          id: "geral",
+          label: "Geral",
+          order: 1,
+          colSpan: 12,
+          fieldIds: ["a", "b", "c"],
+          rows: [
+            { id: "l1", order: 1, fieldIds: ["a", "b"] },
+            { id: "l2", order: 2, fieldIds: ["c"] },
+          ],
+        },
+      ],
+    },
+  },
+});
+const multiSaved = simulateConfiguratorSave(multiRowCards, TEST_DEFAULTS);
+const multiCardSaved = multiSaved.layout.principal.cards[0];
+assert.equal(multiCardSaved.rows.length, 2, "salvar configurator mantém 2 linhas");
+assert.deepEqual(multiCardSaved.rows[0].fieldIds, ["a", "b"]);
+assert.deepEqual(multiCardSaved.rows[1].fieldIds, ["c"]);
+
+bindLayoutStoreUser(userA);
+writeStoredLayoutConfig(multiSaved);
+const multiRawStored = JSON.parse(store.get(keysA.legacyKey));
+const multiCardStored = multiRawStored.layout.principal.cards[0];
+assert.equal(multiCardStored.rows.length, 2, "localStorage mantém 2 linhas");
+assert.deepEqual(multiCardStored.rows[1].fieldIds, ["c"]);
+
 // --- Configurador empresas: default V3 não quebra lookup de painel (flat derivado)
 const empDefault = buildEmpFormDefaultConfig();
 const empFlat = getDefaultFlatLayoutFromConfig(empDefault);

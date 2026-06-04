@@ -3,7 +3,14 @@
  * @module layoutConfigV3
  */
 
-import { flattenRowsToFieldIds, normalizeCardRows } from "./empFormLayoutRows.js";
+import {
+  appendFieldIdsToCardRows,
+  filterCardRowsByAllowedFieldIds,
+  flattenRowsToFieldIds,
+  normalizeCardRows,
+  resolveConfiguredCardRows,
+  shouldPreserveCardRows,
+} from "./empFormLayoutRows.js";
 
 export const LAYOUT_CONFIG_VERSION_V2 = 2;
 export const LAYOUT_CONFIG_VERSION_V3 = 3;
@@ -213,18 +220,44 @@ export const rebuildV3LayoutFromFlat = (flatLayout = {}, existingV3 = {}) => {
   const next = {};
   Object.entries(flatLayout).forEach(([panelId, fieldIds]) => {
     const ids = Array.isArray(fieldIds) ? fieldIds.filter(Boolean) : [];
+    const allowed = new Set(ids);
     const existingPanel = existingV3[panelId];
-    if (isPanelLayoutV3(existingPanel) && (existingPanel.cards || []).length > 1) {
-      const primaryCardId = existingPanel.cards[0]?.id;
-      next[panelId] = {
-        cards: existingPanel.cards.map((card, index) =>
-          card.id === primaryCardId || index === 0
-            ? { ...normalizeLayoutCardV3(card, index), fieldIds: [...ids] }
-            : normalizeLayoutCardV3(card, index)
-        ),
-      };
+
+    if (isPanelLayoutV3(existingPanel) && (existingPanel.cards || []).length >= 1) {
+      const placed = new Set();
+      let cards = (existingPanel.cards || []).map((card, index) => {
+        const rows = filterCardRowsByAllowedFieldIds(card, allowed);
+        rows.forEach((row) => (row.fieldIds || []).forEach((fieldId) => placed.add(fieldId)));
+        const payload = {
+          ...card,
+          fieldIds: flattenRowsToFieldIds({ rows }),
+        };
+        if (shouldPreserveCardRows(card, rows)) {
+          payload.rows = rows;
+        }
+        return normalizeLayoutCardV3(payload, index);
+      });
+
+      const orphans = ids.filter((fieldId) => !placed.has(fieldId));
+      if (orphans.length && cards[0]) {
+        const primary = cards[0];
+        const colSpan = Number(primary.colSpan) || 12;
+        const baseRows = resolveConfiguredCardRows(primary);
+        const mergedRows = appendFieldIdsToCardRows(baseRows, orphans, primary.id, colSpan);
+        cards = [
+          normalizeLayoutCardV3({
+            ...primary,
+            rows: mergedRows,
+            fieldIds: flattenRowsToFieldIds({ rows: mergedRows }),
+          }),
+          ...cards.slice(1),
+        ];
+      }
+
+      next[panelId] = { cards };
       return;
     }
+
     next[panelId] = normalizePanelLayoutV3(ids, { panelId, defaultFieldIds: ids });
   });
   return next;
@@ -250,11 +283,25 @@ export const sanitizeLayoutV3 = (layoutV3 = {}) => {
         globalSeen.add(fieldId);
         uniqueFieldIds.push(fieldId);
       });
-      const normalized = normalizeLayoutCardV3({
+
+      const uniqueSet = new Set(uniqueFieldIds);
+      const rows = resolveConfiguredCardRows(card)
+        .map((row, rowIndex) => ({
+          id: row.id,
+          order: row.order || rowIndex + 1,
+          fieldIds: (row.fieldIds || []).filter((fieldId) => uniqueSet.has(fieldId)),
+        }))
+        .filter((row) => row.fieldIds.length);
+
+      const payload = {
         ...card,
-        fieldIds: uniqueFieldIds,
-        rows: [],
-      });
+        fieldIds: flattenRowsToFieldIds({ rows }),
+      };
+      if (shouldPreserveCardRows(card, rows)) {
+        payload.rows = rows;
+      }
+
+      const normalized = normalizeLayoutCardV3(payload, index);
       return { ...normalized, order: index + 1 };
     });
     next[panelId] = { cards };
