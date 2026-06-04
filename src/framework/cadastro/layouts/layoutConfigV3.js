@@ -347,7 +347,8 @@ export const migrateV2ToV3 = (config = {}, { defaultLayout = {} } = {}) => {
     flatLayout[panelId] = [...fieldIds];
   });
 
-  const layoutV3 = sanitizeLayoutV3(rebuildV3LayoutFromFlat(flatLayout));
+  const existingV3 = isLayoutStructureV3(source.layout) ? source.layout : {};
+  const layoutV3 = sanitizeLayoutV3(rebuildV3LayoutFromFlat(flatLayout, existingV3));
 
   return {
     ...source,

@@ -164,9 +164,23 @@ const fullCardPacked = normalizeCardRows(
   {},
   textFields
 );
-assert.equal(fullCardPacked.rows.length, 1, "sem linhas explícitas: um único row com todos os campos");
-assert.equal(fullCardPacked.rows[0].fieldIds.length, 7);
+assert.equal(fullCardPacked.rows.length, 2, "card inteiro: máximo 6 campos por linha (7 → 6+1)");
+assert.equal(fullCardPacked.rows[0].fieldIds.length, 6);
+assert.equal(fullCardPacked.rows[1].fieldIds.length, 1);
 assert.equal(flattenRowsToFieldIds(fullCardPacked).length, 7);
+
+const halfCardOverflow = normalizeCardRows(
+  {
+    id: "c_half",
+    colSpan: 6,
+    rows: [{ id: "r1", order: 1, fieldIds: ["a", "b", "c", "d", "e"] }],
+  },
+  {},
+  ["a", "b", "c", "d", "e"].map((id) => ({ id, type: "text" }))
+);
+assert.equal(halfCardOverflow.rows.length, 2, "card meio: máximo 4 por linha (5 → 4+1)");
+assert.deepEqual(halfCardOverflow.rows[0].fieldIds, ["a", "b", "c", "d"]);
+assert.deepEqual(halfCardOverflow.rows[1].fieldIds, ["e"]);
 
 const halfCardPacked = normalizeCardRows(
   {

@@ -50,6 +50,7 @@ import {
   balanceConfiguredRows,
   createEmptyLayoutRow,
   deleteLayoutRow,
+  enforceMaxFieldsPerCardRows,
   flattenRowsToFieldIds,
   placeFieldInCardRows,
   removeFieldFromRows,
@@ -246,13 +247,19 @@ export default function EmpLayoutConfiguratorDialog({
 
   const updateActiveCardRows = (rows) => {
     if (!activePanel || !activeCard) return;
-    const fieldIds = flattenRowsToFieldIds({ rows });
-    const normalizedRows = rows.map((row, index) => ({
-      ...row,
-      id: row.id || createRowId(activeCard.id, index + 1),
-      order: index + 1,
-      fieldIds: [...(row.fieldIds || [])],
-    }));
+    const colSpan = getActiveCardColSpan();
+    const enforcedRows = enforceMaxFieldsPerCardRows(
+      rows.map((row, index) => ({
+        ...row,
+        id: row.id || createRowId(activeCard.id, index + 1),
+        order: index + 1,
+        fieldIds: [...(row.fieldIds || [])],
+      })),
+      colSpan,
+      activeCard.id
+    );
+    const fieldIds = flattenRowsToFieldIds({ rows: enforcedRows });
+    const normalizedRows = enforcedRows;
     const nextCardsByPanel = { ...draftCardsByPanel };
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id
