@@ -27,6 +27,7 @@ import {
   EMP_TOOLBAR_SEARCH_WRAP,
 } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
+import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { cn } from "@/shared/utils/utils";
 import {
   initCardsByPanel,
@@ -179,17 +180,26 @@ export default function EmpLayoutConfiguratorDialog({
     wasOpenRef.current = true;
   }, [open, panels, layout, fieldSizes, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules, defaultFlatLayout]);
 
+  const { ref: layoutPanelRef, width: layoutPanelWidthPx } = useContainerWidth(720);
+
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
   const activeCard = activePanelCards.find((card) => card.id === activeCardId) || activePanelCards[0];
+  const activeCardSpan = activeCard ? resolveCardColSpan(activeCard.colSpan) : 12;
+  const layoutBalanceWidthPx = Math.max(
+    200,
+    Math.round((layoutPanelWidthPx || 720) * (activeCardSpan / 12))
+  );
+
   const activeCardRows = useMemo(() => {
     if (!activeCard) return [];
     return balanceConfiguredRows(resolveConfiguredCardRows(activeCard), {
       card: activeCard,
       fieldSizes: draftFieldSizes,
       fields,
+      containerWidthPx: layoutBalanceWidthPx,
     });
-  }, [activeCard, draftFieldSizes, fields]);
+  }, [activeCard, draftFieldSizes, fields, layoutBalanceWidthPx]);
 
   const draftLayoutFlat = useMemo(() => flattenLayoutFromCards(draftCardsByPanel), [draftCardsByPanel]);
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayoutFlat).flat()), [draftLayoutFlat]);
@@ -201,10 +211,6 @@ export default function EmpLayoutConfiguratorDialog({
   };
 
   const getActiveCardColSpan = (card = activeCard) => resolveCardColSpan(card?.colSpan);
-
-  const activeCardSpan = getActiveCardColSpan();
-  const isHalfWidthCard = activeCardSpan === 6;
-  const panelFieldMinWidthClass = isHalfWidthCard ? "min-w-0 w-full" : "min-w-[210px]";
 
   const resolveTargetRowId = (rows, colSpan = getActiveCardColSpan()) => {
     if (selectedPanelFieldIds.length) {
@@ -877,7 +883,21 @@ export default function EmpLayoutConfiguratorDialog({
     </div>
   );
 
-  const renderPanelField = (field) => (
+  const getPanelFieldBalanceStyle = (fieldId, layoutRow) => {
+    const balanced = layoutRow?.fieldBalance?.[fieldId];
+    if (!balanced) return undefined;
+    return {
+      flex: balanced.flex,
+      flexGrow: balanced.flexGrow ?? 1,
+      flexShrink: balanced.flexShrink ?? 1,
+      flexBasis: balanced.flexBasis || balanced.minWidth,
+      minWidth: balanced.minWidth ?? 0,
+      maxWidth: balanced.maxWidth ?? "100%",
+      width: "auto",
+    };
+  };
+
+  const renderPanelField = (field, layoutRow) => (
     <div
       key={field.id}
       role="button"
@@ -913,7 +933,8 @@ export default function EmpLayoutConfiguratorDialog({
         setDraggedFieldId(null);
       }}
       onDragEnd={() => setDraggedFieldId(null)}
-      className={`${fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel ${panelFieldMinWidthClass} cursor-pointer`}
+      style={getPanelFieldBalanceStyle(field.id, layoutRow)}
+      className={`${fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing)} emp-layout-config-field-panel emp-layout-config-field-panel-balanced min-w-0 cursor-pointer`}
     >
       {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <span className="min-w-0 flex-1 truncate text-xs font-semibold text-white">{field.label}</span>
@@ -1203,11 +1224,14 @@ export default function EmpLayoutConfiguratorDialog({
                 })}
               </div>
 
-              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
+              <div
+                ref={layoutPanelRef}
+                className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4"
+              >
                 <p className="mb-2 text-[10px] text-[#64748b]">
-                  Aba → Card → Linha → Campo. Card inteiro: até <strong>6</strong> campos por linha. Card meio
-                  (½): até <strong>4</strong>. O motor distribui o espaço dentro de cada linha sem mover campos
-                  automaticamente.
+                  Aba → Card → Linha → Campo. Card inteiro: até <strong>6</strong> por linha; card meio (½): até{" "}
+                  <strong>4</strong>. Os campos da mesma linha ficam lado a lado e o espaço é redistribuído
+                  automaticamente (como no formulário).
                 </p>
                 {isEditing && (
                   <div className="mb-2 flex flex-wrap gap-1">
@@ -1254,7 +1278,8 @@ export default function EmpLayoutConfiguratorDialog({
                             )}
                           </div>
                           <div
-                            className="emp-layout-config-panel-fields flex min-h-[48px] flex-1 flex-wrap content-start gap-2"
+                            className="emp-layout-config-panel-fields flex min-h-[48px] w-full min-w-0 flex-nowrap items-stretch gap-2"
+                            data-row-max={rowMax}
                             onDragOver={(event) => {
                               if (!isEditing) return;
                               event.preventDefault();
@@ -1276,7 +1301,18 @@ export default function EmpLayoutConfiguratorDialog({
                                 Arraste campos para esta linha
                               </span>
                             ) : null}
-                            {rowFields.map(renderPanelField)}
+                            {rowFields.map((field) => renderPanelField(field, layoutRow))}
+                            {(layoutRow.fieldIds || [])
+                              .filter((id) => id && !fields.find((f) => f.id === id))
+                              .map((orphanId) => (
+                                <div
+                                  key={orphanId}
+                                  className="emp-layout-config-field emp-layout-config-field-panel emp-layout-config-field-optional flex min-w-0 flex-1 items-center px-2 text-[10px] text-white opacity-80"
+                                  title="Campo não encontrado no catálogo"
+                                >
+                                  {orphanId}
+                                </div>
+                              ))}
                           </div>
                         </div>
                       );
