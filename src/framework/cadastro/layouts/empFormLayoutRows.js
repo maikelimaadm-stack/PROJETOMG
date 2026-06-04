@@ -4,6 +4,7 @@ import {
 import {
   getMaxFieldsPerRow,
   normalizeFieldWidthTypes,
+  resolveCardColSpan,
   resolveFieldWidthTypePreset,
 } from "./empFormFieldWidthPresets.js";
 
@@ -142,7 +143,7 @@ export const balanceConfiguredRows = (
   rows = [],
   { card = {}, fieldSizes = {}, fields = [], containerWidthPx } = {}
 ) => {
-  const colSpan = Number(card.colSpan) || 12;
+  const colSpan = resolveCardColSpan(card.colSpan);
   const normalizedSizes = normalizeFieldWidthTypes(fieldSizes);
 
   return rows.map((row, index) => {
@@ -178,7 +179,7 @@ export const enforceMaxFieldsPerCardRows = (
   cardId = "card",
   { keepEmptyRows = false } = {}
 ) => {
-  const max = getMaxFieldsPerRow(colSpan);
+  const max = getMaxFieldsPerRow(resolveCardColSpan(colSpan));
   const next = [];
 
   rows.forEach((row, rowIndex) => {
@@ -219,7 +220,7 @@ export const enforceMaxFieldsPerCardRows = (
 };
 
 export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = [], containerWidthPx) => {
-  const colSpan = Number(card.colSpan) || 12;
+  const colSpan = resolveCardColSpan(card.colSpan);
   const configured = enforceMaxFieldsPerCardRows(
     resolveConfiguredCardRows(card),
     colSpan,
@@ -359,14 +360,14 @@ export const createEmptyLayoutRow = (cardId, existingRows = []) => ({
 export const rowHasRoomForField = (row, colSpan = 12, fieldId = null) => {
   const ids = row?.fieldIds || [];
   if (fieldId && ids.includes(fieldId)) return true;
-  return ids.length < getMaxFieldsPerRow(colSpan);
+  return ids.length < getMaxFieldsPerRow(resolveCardColSpan(colSpan));
 };
 
 /**
  * Insere campos nas linhas existentes; cria nova linha quando a atual atinge o máximo (6/4).
  */
 export const appendFieldIdsToCardRows = (rows = [], fieldIds = [], cardId = "card", colSpan = 12) => {
-  const max = getMaxFieldsPerRow(colSpan);
+  const max = getMaxFieldsPerRow(resolveCardColSpan(colSpan));
   const list = [...fieldIds].filter(Boolean);
   let nextRows = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
 
@@ -399,7 +400,7 @@ export const placeFieldInCardRows = (
 ) => {
   if (!fieldId) return { rows, placed: false };
   const cleaned = removeFieldFromRows(rows, fieldId);
-  const max = getMaxFieldsPerRow(colSpan);
+  const max = getMaxFieldsPerRow(resolveCardColSpan(colSpan));
 
   const tryRow = (rowId) => {
     const row = cleaned.find((item) => item.id === rowId);

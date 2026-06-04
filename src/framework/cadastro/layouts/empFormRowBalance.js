@@ -4,7 +4,11 @@
  * @module empFormRowBalance
  */
 
-import { getMaxFieldsPerRow, resolveFieldWidthTypePreset } from "./empFormFieldWidthPresets.js";
+import {
+  getMaxFieldsPerRow,
+  resolveCardColSpan,
+  resolveFieldWidthTypePreset,
+} from "./empFormFieldWidthPresets.js";
 
 export const ROW_GAP_PX = 8;
 
@@ -64,7 +68,7 @@ export function packFieldsByRowBudget(
   fieldWidthTypes = {},
   containerWidthPx
 ) {
-  const colSpan = Number(card.colSpan) || 12;
+  const colSpan = resolveCardColSpan(card.colSpan);
   const budgetPx = getRowBudgetPx(colSpan, containerWidthPx);
   const maxPerRow = getMaxFieldsPerRow(colSpan);
 
@@ -172,7 +176,7 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
  */
 export function buildBalancedRows(fieldIds = [], options = {}) {
   const { fields = [], card = {}, fieldSizes = {}, containerWidthPx } = options;
-  const colSpan = Number(card.colSpan) || 12;
+  const colSpan = resolveCardColSpan(card.colSpan);
   const ids = fieldIds.filter(Boolean);
   if (!ids.length) return [];
 

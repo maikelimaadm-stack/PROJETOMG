@@ -3,6 +3,7 @@
  * @module layoutConfigV3
  */
 
+import { resolveCardColSpan } from "./empFormFieldWidthPresets.js";
 import {
   appendFieldIdsToCardRows,
   filterCardRowsByAllowedFieldIds,
@@ -125,9 +126,7 @@ export const normalizeLayoutCardV3 = (source = {}, index = 0) => {
       : DEFAULT_VIRTUAL_CARD_LABEL;
   const order = Number.isFinite(Number(source.order)) ? Number(source.order) : index + 1;
   const columns = Math.min(12, Math.max(1, Number(source.columns) || DEFAULT_CARD_COLUMNS));
-  let colSpan = Number(source.colSpan);
-  if (!Number.isFinite(colSpan) || colSpan < 1) colSpan = 12;
-  colSpan = colSpan <= 6 ? 6 : 12;
+  const colSpan = resolveCardColSpan(source.colSpan);
   const normalized = normalizeCardRows(
     {
       ...source,
@@ -241,7 +240,7 @@ export const rebuildV3LayoutFromFlat = (flatLayout = {}, existingV3 = {}) => {
       const orphans = ids.filter((fieldId) => !placed.has(fieldId));
       if (orphans.length && cards[0]) {
         const primary = cards[0];
-        const colSpan = Number(primary.colSpan) || 12;
+        const colSpan = resolveCardColSpan(primary.colSpan);
         const baseRows = resolveConfiguredCardRows(primary);
         const mergedRows = appendFieldIdsToCardRows(baseRows, orphans, primary.id, colSpan);
         cards = [

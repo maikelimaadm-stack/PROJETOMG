@@ -6,7 +6,6 @@ import EmpFormDateControl from "@/framework/cadastro/formularios/EmpFormDateCont
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import { cn } from "@/shared/utils/utils";
-import { ChevronDown, ChevronRight } from "lucide-react";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { getCachedCardRows } from "@/framework/cadastro-engine/layout/layoutCache.js";
@@ -188,8 +187,7 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   );
 }
 
-function FormCardSection({ card, children, defaultCollapsed = false }) {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+function FormCardSection({ card, children }) {
   const showHeader = Boolean(card.label?.trim());
 
   if (!showHeader) {
@@ -197,20 +195,9 @@ function FormCardSection({ card, children, defaultCollapsed = false }) {
   }
 
   return (
-    <section className={cn("emp-form-card", collapsed && "emp-form-card--collapsed")}>
-      <button
-        type="button"
-        className="emp-form-card-title"
-        onClick={() => card.collapsible !== false && setCollapsed((prev) => !prev)}
-        aria-expanded={!collapsed}
-        disabled={card.collapsible === false}
-      >
-        {card.collapsible !== false ? (
-          collapsed ? <ChevronRight className="h-3.5 w-3.5 shrink-0" /> : <ChevronDown className="h-3.5 w-3.5 shrink-0" />
-        ) : null}
-        <span>{card.label}</span>
-      </button>
-      {!collapsed && <div className="emp-form-card-body">{children}</div>}
+    <section className="emp-form-card">
+      <div className="emp-form-card-title">{card.label}</div>
+      <div className="emp-form-card-body">{children}</div>
     </section>
   );
 }
