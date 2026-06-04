@@ -317,11 +317,11 @@ input[type="number"] {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action) {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action) {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-layout-config-field-action) span {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action) span {
   color: var(--emp-text-strong) !important;
 }
 
@@ -540,8 +540,8 @@ input[type="number"] {
   background: var(--emp-accent-primary-hover);
 }
 
-.cadastro-emp-scope .emp-form-tabs .emp-form-tab-active,
-.cadastro-emp-scope .emp-form-tabs .emp-form-tab-active:hover {
+.cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) .emp-form-tab-active,
+.cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) .emp-form-tab-active:hover {
   margin-bottom: -1px !important;
   color: #000000 !important;
   font-weight: 700 !important;
@@ -558,12 +558,7 @@ input[type="number"] {
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive,
-.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover {
-  border-bottom-color: #d6dce8 !important;
-}
-
-.cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive {
+.cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) .emp-form-tab-inactive {
   color: #ffffff !important;
   font-weight: 700 !important;
   background: var(--emp-accent-primary) !important;
@@ -576,16 +571,14 @@ input[type="number"] {
   border-radius: var(--emp-control-radius) var(--emp-control-radius) 0 0 !important;
 }
 
-.cadastro-emp-scope .emp-form-tab-inactive,
-.cadastro-emp-scope .emp-form-tab-inactive:hover,
-.cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive,
-.cadastro-emp-scope .emp-form-tabs .emp-form-tab-inactive:hover,
-.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive,
-.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover,
-.cadastro-emp-scope button.emp-form-tab-inactive,
-.cadastro-emp-scope button.emp-form-tab-inactive:hover,
-.cadastro-emp-scope .emp-layout-configurator button.emp-form-tab-inactive,
-.cadastro-emp-scope .emp-layout-configurator button.emp-form-tab-inactive:hover {
+.cadastro-emp-scope .emp-form-tab-inactive:not(.emp-form-tab-active),
+.cadastro-emp-scope .emp-form-tab-inactive:not(.emp-form-tab-active):hover,
+.cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) .emp-form-tab-inactive,
+.cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) .emp-form-tab-inactive:hover,
+.cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) button.emp-form-tab-inactive,
+.cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) button.emp-form-tab-inactive:hover,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs:not(.emp-form-tabs-launch) button.emp-form-tab-inactive,
+.cadastro-emp-scope .emp-layout-configurator .emp-form-tabs:not(.emp-form-tabs-launch) button.emp-form-tab-inactive:hover {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
 }
@@ -625,10 +618,10 @@ input[type="number"] {
   z-index: 2;
 }
 
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active,
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-active:hover,
-.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-active,
-.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-active:hover {
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover {
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
@@ -639,10 +632,10 @@ input[type="number"] {
   z-index: 3 !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive,
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive:hover,
-.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-inactive,
-.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-inactive:hover {
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive:hover {
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
@@ -652,14 +645,14 @@ input[type="number"] {
   font-weight: 400 !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive:hover {
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover {
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
   font-weight: 400 !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive.emp-form-tab-hidden-panel,
-.cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-inactive.emp-form-tab-hidden-panel:hover {
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive.emp-form-tab-hidden-panel,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive.emp-form-tab-hidden-panel:hover {
   color: #000000 !important;
   -webkit-text-fill-color: #000000 !important;
   background: transparent !important;
@@ -667,8 +660,10 @@ input[type="number"] {
   font-weight: 400 !important;
 }
 
-.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-active span,
-.cadastro-emp-scope .emp-form-tabs-launch button.emp-form-tab-inactive span {
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active span,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive span {
   color: inherit !important;
   -webkit-text-fill-color: inherit !important;
 }
