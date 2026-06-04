@@ -5,12 +5,14 @@
 ```
 Aba (Painel)
   └── Card
-        └── Campo
+        └── Linha
+              └── Campo
 ```
 
 ## Schema (`version: 3`)
 
-- `layout[panelId].cards[]`: `{ id, label, order, collapsible, columns, fieldIds[] }`
+- `layout[panelId].cards[]`: `{ id, label, order, collapsible, columns, colSpan, rows[], fieldIds[] }`
+- `rows[]`: `{ id, order, fieldIds[] }` — quebra explícita; o grid não decide sozinho
 - `fieldSizes[fieldId]`: `XS | SM | MD | LG | XL` (grid de 12 colunas)
 - `fieldLayoutConfig`: `{ mode: "corporate", columns: 12 }`
 
@@ -32,7 +34,8 @@ Aba (Painel)
 | `empFormLayoutStore.js` | Persistência e API de layout |
 | `empFormLayoutCards.js` | Cards para render e configurador |
 | `empFormFieldGrid.js` | `fieldSize` e spans do grid |
-| `EmpDynamicFormRenderer.jsx` | Render Painel → Card → Campo |
+| `empFormLayoutRows.js` | Linhas, empacotamento e CRUD de rows |
+| `EmpDynamicFormRenderer.jsx` | Render Painel → Card → Linha → Campo |
 | `EmpLayoutConfiguratorDialog.jsx` | Gestão de cards + preview real |
 
 ## Compatibilidade

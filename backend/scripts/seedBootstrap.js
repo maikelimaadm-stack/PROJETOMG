@@ -5,8 +5,8 @@ import { pathToFileURL } from "node:url";
 
 dotenv.config();
 
-const CLIENTE_CODIGO = String(process.env.SEED_CLIENTE_CODIGO || "kaiman").trim().toLowerCase();
-const CLIENTE_NOME = String(process.env.SEED_CLIENTE_NOME || "Kaiman").trim();
+const CLIENTE_CODIGO = String(process.env.SEED_CLIENTE_CODIGO || "maike").trim().toLowerCase();
+const CLIENTE_NOME = String(process.env.SEED_CLIENTE_NOME || "Maike").trim();
 const USUARIO_LOGIN = String(process.env.SEED_USUARIO_LOGIN || "maike").trim().toLowerCase();
 const USUARIO_SENHA = String(process.env.SEED_USUARIO_SENHA || "123");
 

@@ -8,6 +8,7 @@ import {
   readStoredLayoutConfig,
   writeStoredLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
+import { upgradeStoredLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutUpgrade";
 
 const LEGACY_CONFIG_KEY = "cadastro_emp_form_layout_config";
 const LOCAL_PERSONALIZACOES_ROOT = ".local/personalizacoes/empresas";
@@ -53,12 +54,15 @@ export const syncEmpresasFormLayoutRemote = (userId = boundUserId) => {
       const activeConfig = remote?.config?.activeConfig;
       if (!activeConfig) return;
 
+      const upgraded = upgradeStoredLayoutConfig(activeConfig);
+      if (!upgraded) return;
+
       const localUpdatedAt = readJson(`${getLayoutStorageKeys(userId).legacyKey}__updatedAt`);
       const remoteUpdatedAt = remote?.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
       const localTime = localUpdatedAt ? new Date(localUpdatedAt).getTime() : 0;
 
       if (remoteUpdatedAt >= localTime) {
-        writeStoredLayoutConfig(activeConfig);
+        writeStoredLayoutConfig(upgraded);
         window.dispatchEvent(new CustomEvent("emp-layout-hydrated", { detail: { userId } }));
       } else if (readStoredLayoutConfig()) {
         scheduleEmpresasFormLayoutSync(userId);
@@ -84,7 +88,7 @@ export const scheduleEmpresasFormLayoutSync = (userId = boundUserId) => {
 
     try {
       await userPreferencesApi.save(USER_PREFERENCE_SCREENS.empresasFormLayout, {
-        version: 2,
+        version: 3,
         activeConfig,
       });
     } catch (error) {

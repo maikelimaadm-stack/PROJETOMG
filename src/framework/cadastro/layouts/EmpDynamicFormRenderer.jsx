@@ -8,7 +8,8 @@ import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import { cn } from "@/shared/utils/utils";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
-import { getPanelCardsForRender } from "@/framework/cadastro/layouts/empFormLayoutCards";
+import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
+import { getCardRowsForRender } from "@/framework/cadastro/layouts/empFormLayoutRows";
 import { resolveFieldGridSpan } from "@/framework/cadastro/layouts/empFormFieldGrid";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
@@ -160,7 +161,7 @@ function FieldFrameCorp({ field, error, children, gridSpan = 4, className = "" }
 
 function FormCardSection({ card, children, defaultCollapsed = false }) {
   const [collapsed, setCollapsed] = useState(defaultCollapsed);
-  const showHeader = card.label && card.id !== "geral";
+  const showHeader = Boolean(card.label?.trim());
 
   if (!showHeader) {
     return <div className="emp-form-card emp-form-card--virtual">{children}</div>;
@@ -291,34 +292,75 @@ export default function EmpDynamicFormRenderer({
     );
   };
 
-  const hasCustomFields = cards.some((card) =>
-    (card.fieldIds || []).some((fieldId) => {
-      const field = fields.find((item) => item.id === fieldId);
-      return field && isCustomField(field);
-    })
+  const cardHasCustomField = (card) =>
+    getCardRowsForRender(card, fieldSizes)
+      .flatMap((row) => row.fieldIds || [])
+      .some((fieldId) => {
+        const field = fields.find((item) => item.id === fieldId);
+        return field && isCustomField(field);
+      });
+
+  const hasCustomFields = cards.some(cardHasCustomField);
+
+  const cardRows = groupCardsIntoRows(cards);
+  const cardSections = cardRows.map((row, rowIndex) => (
+    <div key={`row-${rowIndex}`} className="emp-form-cards-row">
+      {row.map((card) => {
+        const layoutRows = getCardRowsForRender(card, fieldSizes);
+        const hasVisibleInCard = layoutRows.some((layoutRow) =>
+          (layoutRow.fieldIds || []).some((fieldId) => {
+            const field = fields.find((item) => item.id === fieldId);
+            return field && isFieldVisible(field);
+          })
+        );
+        if (!hasVisibleInCard) return null;
+
+        return (
+          <div
+            key={card.id}
+            className="emp-form-card-slot"
+            style={{ gridColumn: `span ${card.colSpan || 12} / span ${card.colSpan || 12}` }}
+          >
+            <FormCardSection card={card}>
+              <div className="emp-form-card-rows">
+                {layoutRows.map((layoutRow) => {
+                  const rowFields = (layoutRow.fieldIds || [])
+                    .map((fieldId) => fields.find((field) => field.id === fieldId))
+                    .filter(Boolean)
+                    .filter(isFieldVisible);
+                  if (rowFields.length === 0) return null;
+                  return (
+                    <div key={layoutRow.id} className="emp-form-card-row">
+                      <div
+                        className="emp-form-card-row-grid"
+                        style={{
+                          gridTemplateColumns: `repeat(${Math.min(
+                            gridColumns,
+                            card.columns || gridColumns
+                          )}, minmax(0, 1fr))`,
+                        }}
+                      >
+                        {rowFields.map(renderField)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </FormCardSection>
+          </div>
+        );
+      })}
+    </div>
+  ));
+
+  const hasVisibleFields = cards.some((card) =>
+    getCardRowsForRender(card, fieldSizes).some((layoutRow) =>
+      (layoutRow.fieldIds || []).some((fieldId) => {
+        const field = fields.find((item) => item.id === fieldId);
+        return field && isFieldVisible(field);
+      })
+    )
   );
-
-  const cardSections = cards.map((card) => {
-    const visibleFields = (card.fieldIds || [])
-      .map((fieldId) => fields.find((field) => field.id === fieldId))
-      .filter(Boolean)
-      .filter(isFieldVisible);
-
-    if (visibleFields.length === 0) return null;
-
-    return (
-      <FormCardSection key={card.id} card={card}>
-        <div
-          className="emp-form-card-grid"
-          style={{ gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))` }}
-        >
-          {visibleFields.map(renderField)}
-        </div>
-      </FormCardSection>
-    );
-  });
-
-  const hasVisibleFields = cardSections.some(Boolean);
 
   if (!hasVisibleFields) {
     return (
@@ -330,7 +372,7 @@ export default function EmpDynamicFormRenderer({
 
   return (
     <div className={cn("emp-form-fields emp-form-fields-corp", hasCustomFields && "emp-form-fields-custom")}>
-      {cardSections}
+      <div className="emp-form-cards-layout">{cardSections}</div>
     </div>
   );
 }

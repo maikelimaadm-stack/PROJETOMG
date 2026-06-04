@@ -47,28 +47,135 @@ export const REQUIRED_FIELDS = ["razao_social", "tipo_pessoa"];
 export const FORM_LAYOUT_KEY = "cadastro_emp_form_layout_config";
 export const TABLE_AGGREGATION_KEY = "emp_table_aggregation_config";
 
+/** Abas do formulário (sem painel principal de campos — só seleção por aba). */
 export const EMP_FORM_BASE_PANELS = [
-  { id: "principal", label: "Principal" },
-  { id: "geral", label: "Geral" },
+  { id: "principais", label: "Principais" },
   { id: "endereco", label: "Endereço" },
   { id: "observacoes", label: "Observações" },
 ];
 
 export const EMP_FORM_DEFAULT_LAYOUT = {
-  principal: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
-  geral: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
+  principais: [
+    "tipo_pessoa",
+    "tipo_vinculo",
+    "codempresa",
+    "razao_social",
+    "status",
+    "nome_fantasia",
+    "cpf_cnpj",
+    "inscricao_estadual",
+    "telefone",
+    "whatsapp",
+    "email",
+    "logo_url",
+  ],
   endereco: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
   observacoes: ["observacoes"],
 };
 
-export const buildEmpFormDefaultConfig = () => ({
-  panels: EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
-  layout: {
-    principal: [...EMP_FORM_DEFAULT_LAYOUT.principal],
-    geral: [...EMP_FORM_DEFAULT_LAYOUT.geral],
-    endereco: [...EMP_FORM_DEFAULT_LAYOUT.endereco],
-    observacoes: [...EMP_FORM_DEFAULT_LAYOUT.observacoes],
+/** Layout V3 — estrutura igual referência (cards + metade/inteira). */
+export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
+  principais: {
+    cards: [
+      {
+        id: "dados_pessoais",
+        label: "Dados principais",
+        order: 1,
+        colSpan: 12,
+        columns: 12,
+        collapsible: true,
+        rows: [
+          { id: "row_dados_1", order: 1, fieldIds: ["tipo_pessoa", "tipo_vinculo", "codempresa", "status"] },
+          { id: "row_dados_2", order: 2, fieldIds: ["razao_social"] },
+        ],
+        fieldIds: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
+      },
+      {
+        id: "informacoes_funcionais",
+        label: "Informações adicionais",
+        order: 2,
+        colSpan: 6,
+        columns: 12,
+        collapsible: true,
+        rows: [
+          { id: "row_info_1", order: 1, fieldIds: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual"] },
+        ],
+        fieldIds: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual"],
+      },
+      {
+        id: "informacoes_contato",
+        label: "Contato",
+        order: 3,
+        colSpan: 6,
+        columns: 12,
+        collapsible: true,
+        rows: [
+          { id: "row_contato_1", order: 1, fieldIds: ["telefone", "whatsapp", "email"] },
+          { id: "row_contato_2", order: 2, fieldIds: ["logo_url"] },
+        ],
+        fieldIds: ["telefone", "whatsapp", "email", "logo_url"],
+      },
+    ],
   },
+  endereco: {
+    cards: [
+      {
+        id: "endereco_completo",
+        label: "Endereço",
+        order: 1,
+        colSpan: 12,
+        columns: 12,
+        collapsible: true,
+        rows: [
+          { id: "row_end_1", order: 1, fieldIds: ["cep", "endereco", "numero"] },
+          { id: "row_end_2", order: 2, fieldIds: ["bairro", "cidade", "estado"] },
+        ],
+        fieldIds: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
+      },
+    ],
+  },
+  observacoes: {
+    cards: [
+      {
+        id: "observacoes_card",
+        label: "Observações",
+        order: 1,
+        colSpan: 12,
+        columns: 12,
+        collapsible: true,
+        rows: [{ id: "row_obs_1", order: 1, fieldIds: ["observacoes"] }],
+        fieldIds: ["observacoes"],
+      },
+    ],
+  },
+};
+
+export const EMP_FORM_DEFAULT_FIELD_SIZES = {
+  tipo_pessoa: "SM",
+  tipo_vinculo: "SM",
+  codempresa: "XS",
+  status: "XS",
+  razao_social: "XL",
+  nome_fantasia: "LG",
+  cpf_cnpj: "MD",
+  inscricao_estadual: "MD",
+  telefone: "SM",
+  whatsapp: "SM",
+  email: "LG",
+  logo_url: "MD",
+  cep: "XS",
+  numero: "XS",
+  estado: "XS",
+  bairro: "MD",
+  cidade: "MD",
+  endereco: "XL",
+  observacoes: "XL",
+};
+
+export const buildEmpFormDefaultConfig = () => ({
+  version: 3,
+  panels: EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
+  layout: { ...EMP_FORM_DEFAULT_LAYOUT_V3 },
   hiddenFieldIds: [],
   lockedFieldIds: [],
   requiredFieldIds: [],
@@ -77,8 +184,9 @@ export const buildEmpFormDefaultConfig = () => ({
   aggregationConfig: {},
   visibilityRules: {},
   fieldLayoutConfig: { mode: "corporate", columns: 12 },
-  fieldSizes: {},
+  fieldSizes: { ...EMP_FORM_DEFAULT_FIELD_SIZES },
 });
+
 export const inputClass = "emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase w-full";
 
 export const buildEmptyEmpresaForm = () => ({
@@ -174,4 +282,3 @@ export const formatMaskedNumber = (value, campo) => {
   const digits = onlyDigits(value).slice(0, maxDigits || undefined);
   return applyNumberMask(digits, getBestMask(digits, masks));
 };
-

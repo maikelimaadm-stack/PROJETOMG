@@ -37,12 +37,24 @@ import {
   buildLayoutV3FromCards,
   createNewCardId,
 } from "@/framework/cadastro/layouts/empFormLayoutCards";
-import { DEFAULT_VIRTUAL_CARD_ID } from "@/framework/cadastro/layouts/layoutConfigV3";
+import { DEFAULT_VIRTUAL_CARD_ID, normalizeLayoutCardV3 } from "@/framework/cadastro/layouts/layoutConfigV3";
 import { DEFAULT_FIELD_LAYOUT_CONFIG } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { FIELD_SIZE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
+import {
+  addFieldToRow,
+  createEmptyLayoutRow,
+  deleteLayoutRow,
+  flattenRowsToFieldIds,
+  moveLayoutRow,
+  normalizeCardRows,
+  packFieldIdsIntoRows,
+  removeFieldFromRows,
+  reorderFieldWithinRows,
+  createRowId,
+} from "@/framework/cadastro/layouts/empFormLayoutRows";
 
-const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
-const DEFAULT_FIXED_PANEL_IDS = ["principal"];
+const DEFAULT_SYSTEM_PANEL_IDS = ["principais", "endereco", "observacoes", "campos_personalizados"];
+const DEFAULT_FIXED_PANEL_IDS = [];
 const DEFAULT_FIXED_VISIBLE_FIELD_IDS = [];
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
@@ -98,6 +110,7 @@ export default function EmpLayoutConfiguratorDialog({
   );
   const [draftFieldSizes, setDraftFieldSizes] = useState(fieldSizes);
   const [activeCardId, setActiveCardId] = useState("");
+  const [activeRowId, setActiveRowId] = useState("");
   const [editingCardId, setEditingCardId] = useState(null);
   const [draftHiddenFieldIds, setDraftHiddenFieldIds] = useState(hiddenFieldIds);
   const [draftLockedFieldIds, setDraftLockedFieldIds] = useState(lockedFieldIds);
@@ -166,8 +179,13 @@ export default function EmpLayoutConfiguratorDialog({
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
   const activeCard = activePanelCards.find((card) => card.id === activeCardId) || activePanelCards[0];
+  const activeCardNormalized = activeCard
+    ? normalizeCardRows(activeCard, draftFieldSizes)
+    : null;
+  const activeCardRows = activeCardNormalized?.rows || [];
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayout || {}).flat()), [draftLayout]);
-  const panelFieldIds = activeCard?.fieldIds || draftLayout[activePanel?.id] || [];
+  const panelFieldIds =
+    flattenRowsToFieldIds(activeCardNormalized || {}) || draftLayout[activePanel?.id] || [];
 
   React.useEffect(() => {
     if (!activePanel) return;
@@ -176,21 +194,44 @@ export default function EmpLayoutConfiguratorDialog({
     if (!cards.some((card) => card.id === activeCardId)) {
       setActiveCardId(cards[0].id);
     }
-  }, [activePanel?.id, draftCardsByPanel, activeCardId]);
+    const card = cards.find((item) => item.id === activeCardId) || cards[0];
+    const rows = normalizeCardRows(card, draftFieldSizes).rows || [];
+    if (rows.length && !rows.some((row) => row.id === activeRowId)) {
+      setActiveRowId(rows[0].id);
+    }
+  }, [activePanel?.id, draftCardsByPanel, activeCardId, activeRowId, draftFieldSizes]);
 
   const applyCardsState = (nextCardsByPanel) => {
     setDraftCardsByPanel(nextCardsByPanel);
     setDraftLayout(flattenLayoutFromCards(nextCardsByPanel));
   };
 
-  const updateActiveCardFieldIds = (fieldIds) => {
+  const updateActiveCardRows = (rows) => {
     if (!activePanel || !activeCard) return;
+    const fieldIds = flattenRowsToFieldIds({ rows });
+    const normalizedRows = rows.map((row, index) => ({
+      ...row,
+      id: row.id || createRowId(activeCard.id, index + 1),
+      order: index + 1,
+      fieldIds: [...(row.fieldIds || [])],
+    }));
     const nextCardsByPanel = { ...draftCardsByPanel };
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
-      card.id === activeCard.id ? { ...card, fieldIds: [...fieldIds] } : card
+      card.id === activeCard.id
+        ? normalizeLayoutCardV3({ ...card, rows: normalizedRows, fieldIds })
+        : normalizeLayoutCardV3(card)
     );
     nextCardsByPanel[activePanel.id] = { cards };
     applyCardsState(nextCardsByPanel);
+  };
+
+  const updateActiveCardFieldIds = (fieldIds) => {
+    const packed = packFieldIdsIntoRows(fieldIds, draftFieldSizes).map((row, index) => ({
+      id: createRowId(activeCard?.id || "card", index + 1),
+      order: index + 1,
+      fieldIds: row.fieldIds,
+    }));
+    updateActiveCardRows(packed.length ? packed : [createEmptyLayoutRow(activeCard?.id || "card")]);
   };
   const panelFields = panelFieldIds.map((id) => fields.find((field) => field.id === id)).filter(Boolean);
   const activePanelIsSystem = systemPanelIds.includes(activePanel?.id);
@@ -269,20 +310,29 @@ export default function EmpLayoutConfiguratorDialog({
     getPanelLabelById(fieldLastPanelId[fieldId] || findDefaultPanelForField(fieldId, defaultConfig?.layout));
 
   const showRequiredPopup = (message) => showWarning(message);
+  const stripFieldFromAllCards = (cardsByPanel, fieldId) => {
+    const next = { ...cardsByPanel };
+    Object.keys(next).forEach((panelId) => {
+      next[panelId] = {
+        cards: (next[panelId]?.cards || []).map((card) => {
+          const rows = removeFieldFromRows(normalizeCardRows(card, draftFieldSizes).rows, fieldId);
+          return normalizeLayoutCardV3({ ...card, rows });
+        }),
+      };
+    });
+    return next;
+  };
+
   const addFieldById = (fieldId) => {
     if (!fieldId || !activePanel || !activeCard || !isEditing) return;
-    const nextCardsByPanel = { ...draftCardsByPanel };
-    Object.keys(nextCardsByPanel).forEach((panelId) => {
-      const cards = (nextCardsByPanel[panelId]?.cards || []).map((card) => ({
-        ...card,
-        fieldIds: (card.fieldIds || []).filter((id) => id !== fieldId),
-      }));
-      nextCardsByPanel[panelId] = { cards };
-    });
+    let nextCardsByPanel = stripFieldFromAllCards(draftCardsByPanel, fieldId);
+    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
+    const targetRowId = activeRowId || rows[rows.length - 1]?.id || createRowId(activeCard.id, 1);
+    const nextRows = rows.length
+      ? addFieldToRow(rows, targetRowId, fieldId)
+      : [createEmptyLayoutRow(activeCard.id)];
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
-      card.id === activeCard.id
-        ? { ...card, fieldIds: [...(card.fieldIds || []), fieldId] }
-        : card
+      card.id === activeCard.id ? normalizeLayoutCardV3({ ...card, rows: nextRows }) : card
     );
     nextCardsByPanel[activePanel.id] = { cards };
     applyCardsState(nextCardsByPanel);
@@ -292,24 +342,26 @@ export default function EmpLayoutConfiguratorDialog({
   const addAllFields = () => {
     if (!activePanel || !activeCard) return;
     const ids = availableFields.map((field) => field.id);
-    const nextCardsByPanel = { ...draftCardsByPanel };
-    Object.keys(nextCardsByPanel).forEach((panelId) => {
-      const cards = (nextCardsByPanel[panelId]?.cards || []).map((card) => ({
-        ...card,
-        fieldIds: (card.fieldIds || []).filter((id) => !ids.includes(id)),
-      }));
-      nextCardsByPanel[panelId] = { cards };
+    const nextCardsByPanel = stripFieldFromAllCards(draftCardsByPanel, ids[0]);
+    let stripped = nextCardsByPanel;
+    ids.slice(1).forEach((fieldId) => {
+      stripped = stripFieldFromAllCards(stripped, fieldId);
     });
-    const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
+    const active = stripped[activePanel.id]?.cards?.find((c) => c.id === activeCard.id);
+    const currentIds = flattenRowsToFieldIds(active || {});
+    const packed = packFieldIdsIntoRows([...new Set([...currentIds, ...ids])], draftFieldSizes).map(
+      (row, index) => ({
+        id: createRowId(activeCard.id, index + 1),
+        order: index + 1,
+        fieldIds: row.fieldIds,
+      })
+    );
+    const cards = (stripped[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id
-        ? {
-            ...card,
-            fieldIds: [...new Set([...(card.fieldIds || []), ...ids])],
-          }
+        ? normalizeLayoutCardV3({ ...card, rows: packed })
         : card
     );
-    nextCardsByPanel[activePanel.id] = { cards };
-    applyCardsState(nextCardsByPanel);
+    applyCardsState({ ...stripped, [activePanel.id]: { cards } });
     setSelectedAvailableIds([]);
   };
   const removeFieldById = (fieldId) => {
@@ -339,7 +391,19 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftPanels((prev) => [...prev, next]);
     applyCardsState({
       ...draftCardsByPanel,
-      [id]: { cards: [{ id: DEFAULT_VIRTUAL_CARD_ID, label: "Geral", order: 1, collapsible: true, columns: 12, fieldIds: [] }] },
+      [id]: {
+        cards: [
+          normalizeLayoutCardV3({
+            id: DEFAULT_VIRTUAL_CARD_ID,
+            label: "Geral",
+            order: 1,
+            collapsible: true,
+            columns: 12,
+            rows: [createEmptyLayoutRow(DEFAULT_VIRTUAL_CARD_ID)],
+            fieldIds: [],
+          }),
+        ],
+      },
     });
     setActivePanelId(id);
     setActiveCardId(DEFAULT_VIRTUAL_CARD_ID);
@@ -365,14 +429,31 @@ export default function EmpLayoutConfiguratorDialog({
     );
   };
   const reorderField = (targetFieldId) => {
-    if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel) return;
-    const list = [...panelFieldIds];
-    const from = list.indexOf(draggedFieldId);
-    const to = list.indexOf(targetFieldId);
-    if (from < 0 || to < 0) return;
-    list.splice(from, 1);
-    list.splice(to, 0, draggedFieldId);
-    updateActiveCardFieldIds(list);
+    if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel || !activeCard) return;
+    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
+    updateActiveCardRows(reorderFieldWithinRows(rows, draggedFieldId, targetFieldId));
+  };
+
+  const createRow = () => {
+    if (!activePanel || !activeCard || !isEditing) return;
+    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
+    const nextRow = createEmptyLayoutRow(activeCard.id, rows);
+    updateActiveCardRows([...rows, nextRow]);
+    setActiveRowId(nextRow.id);
+  };
+
+  const deleteRow = (rowId) => {
+    if (!activePanel || !activeCard || !isEditing) return;
+    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
+    const nextRows = deleteLayoutRow(rows, rowId);
+    updateActiveCardRows(nextRows);
+    setActiveRowId(nextRows[0]?.id || "");
+  };
+
+  const moveRow = (rowId, direction) => {
+    if (!activePanel || !activeCard) return;
+    const rows = normalizeCardRows(activeCard, draftFieldSizes).rows || [];
+    updateActiveCardRows(moveLayoutRow(rows, rowId, direction));
   };
 
   const createCard = () => {
@@ -384,7 +465,16 @@ export default function EmpLayoutConfiguratorDialog({
     nextCardsByPanel[activePanel.id] = {
       cards: [
         ...existing,
-        { id, label, order: existing.length + 1, collapsible: true, columns: 12, fieldIds: [] },
+        normalizeLayoutCardV3({
+          id,
+          label,
+          order: existing.length + 1,
+          colSpan: 6,
+          collapsible: true,
+          columns: 12,
+          rows: [createEmptyLayoutRow(id)],
+          fieldIds: [],
+        }),
       ],
     };
     applyCardsState(nextCardsByPanel);
@@ -409,12 +499,13 @@ export default function EmpLayoutConfiguratorDialog({
     if (existing.length <= 1) return;
     const removed = existing.find((card) => card.id === cardId);
     let nextCards = existing.filter((card) => card.id !== cardId);
-    if (removed?.fieldIds?.length && nextCards[0]) {
-      nextCards = nextCards.map((card, index) =>
-        index === 0
-          ? { ...card, fieldIds: [...new Set([...(card.fieldIds || []), ...removed.fieldIds])] }
-          : card
-      );
+    if (removed && nextCards[0]) {
+      const primary = normalizeCardRows(nextCards[0], draftFieldSizes);
+      let mergedRows = primary.rows;
+      flattenRowsToFieldIds(removed).forEach((fieldId) => {
+        mergedRows = addFieldToRow(mergedRows, primary.rows[0]?.id, fieldId);
+      });
+      nextCards[0] = normalizeLayoutCardV3({ ...nextCards[0], rows: mergedRows });
     }
     const nextCardsByPanel = { ...draftCardsByPanel, [activePanel.id]: { cards: nextCards } };
     applyCardsState(nextCardsByPanel);
@@ -1027,15 +1118,62 @@ export default function EmpLayoutConfiguratorDialog({
                 })}
               </div>
 
-              <div className="emp-form-section emp-form-section-panel emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
-                <div
-                  className="emp-layout-config-panel-fields flex min-h-[160px] flex-wrap content-start gap-2"
-                  onDragOver={(event) => event.preventDefault()}
-                >
-                  {panelFields.length === 0 ? (
+              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
+                <div className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2">
+                  {isEditing && (
+                    <ToolbarBtn onClick={createRow} className="emp-toolbar-btn-new h-7 w-fit px-2 text-[11px]" title="Nova linha">
+                      <EmpToolbarIcon icon={Plus} />
+                      <span>Linha</span>
+                    </ToolbarBtn>
+                  )}
+                  {activeCardRows.length === 0 ? (
                     <div className="p-4 text-xs text-slate-400">Card vazio. Arraste campos ou use os botões de transferência.</div>
                   ) : (
-                    panelFields.map(renderPanelField)
+                    activeCardRows.map((layoutRow) => {
+                      const rowFields = (layoutRow.fieldIds || [])
+                        .map((id) => fields.find((field) => field.id === id))
+                        .filter(Boolean);
+                      return (
+                        <div
+                          key={layoutRow.id}
+                          className={`emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2 ${
+                            activeRowId === layoutRow.id ? "ring-1 ring-[#4fafff]" : ""
+                          }`}
+                          onClick={() => setActiveRowId(layoutRow.id)}
+                        >
+                          <div className="mb-2 flex items-center justify-between gap-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
+                              Linha {layoutRow.order}
+                            </span>
+                            {isEditing && (
+                              <span className="flex items-center gap-0.5">
+                                <ToolbarBtn onClick={() => moveRow(layoutRow.id, -1)} className="h-6 w-6" title="Subir linha">
+                                  <EmpToolbarIcon icon={ChevronLeft} />
+                                </ToolbarBtn>
+                                <ToolbarBtn onClick={() => moveRow(layoutRow.id, 1)} className="h-6 w-6" title="Descer linha">
+                                  <EmpToolbarIcon icon={ChevronRight} />
+                                </ToolbarBtn>
+                                {activeCardRows.length > 1 && (
+                                  <ToolbarBtn onClick={() => deleteRow(layoutRow.id)} className="h-6 w-6" title="Excluir linha">
+                                    <EmpToolbarIcon icon={Trash2} />
+                                  </ToolbarBtn>
+                                )}
+                              </span>
+                            )}
+                          </div>
+                          <div
+                            className="emp-layout-config-panel-fields flex min-h-[40px] flex-wrap content-start gap-2"
+                            onDragOver={(event) => event.preventDefault()}
+                          >
+                            {rowFields.length === 0 ? (
+                              <span className="text-[10px] text-slate-400">Sem campos nesta linha</span>
+                            ) : (
+                              rowFields.map(renderPanelField)
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
                 {isEditing && selectedPanelFieldIds.length === 1 && (

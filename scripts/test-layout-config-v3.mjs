@@ -11,7 +11,13 @@ import {
   migrateV2ToV3,
   resolveLayoutConfig,
   countLayoutFieldsV3,
+  normalizeLayoutCardV3,
 } from "../src/framework/cadastro/layouts/layoutConfigV3.js";
+import {
+  flattenRowsToFieldIds,
+  packFieldIdsIntoRows,
+  normalizeCardRows,
+} from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
   countLayoutFields,
   ensureLayoutFields,
@@ -119,4 +125,34 @@ assert.deepEqual(dupFlat.geral, ["cpf_cnpj"]);
 const allFieldIds = [...dupFlat.principal, ...dupFlat.geral];
 assert.equal(new Set(allFieldIds).size, allFieldIds.length, "sem duplicata global");
 
-console.log("✓ Todos os testes LayoutConfigV3 (Etapa 1) passaram.");
+// --- Card com linhas explícitas
+const cardWithRows = normalizeLayoutCardV3({
+  id: "test_card",
+  label: "Teste",
+  rows: [
+    { id: "r1", order: 1, fieldIds: ["a", "b"] },
+    { id: "r2", order: 2, fieldIds: ["c"] },
+  ],
+});
+assert.equal(cardWithRows.rows.length, 2);
+assert.deepEqual(flattenRowsToFieldIds(cardWithRows), ["a", "b", "c"]);
+
+// --- fieldIds sem rows gera linhas empacotadas
+const packed = normalizeCardRows(
+  { id: "c1", fieldIds: ["tipo_pessoa", "codempresa", "razao_social"] },
+  { tipo_pessoa: "SM", codempresa: "XS", razao_social: "XL" }
+);
+assert.ok(packed.rows.length >= 2, "empacota em múltiplas linhas conforme grid 12");
+assert.equal(
+  flattenRowsToFieldIds(packed).length,
+  3,
+  "preserva todos os campos ao normalizar rows"
+);
+
+const manualPack = packFieldIdsIntoRows(
+  ["xs", "xs", "xs", "xs", "xl"],
+  { xs: "XS", xl: "XL" }
+);
+assert.equal(manualPack.length, 2, "quebra linha ao exceder 12 colunas");
+
+console.log("✓ Todos os testes LayoutConfigV3 passaram.");

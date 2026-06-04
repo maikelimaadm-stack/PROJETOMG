@@ -1,6 +1,7 @@
 import {
   DEFAULT_VIRTUAL_CARD_ID,
   normalizePanelLayoutV3,
+  normalizeLayoutCardV3,
   isPanelLayoutV3,
   flattenV3LayoutToV2,
   isLayoutStructureV2,
@@ -16,7 +17,7 @@ export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, de
     return normalizePanelLayoutV3(panelV3, {
       panelId,
       defaultFieldIds: defaultLayout[panelId] || [],
-    }).cards;
+    }).cards.map((card) => normalizeLayoutCardV3(card));
   }
 
   const panelLayout = layout?.[panelId];
@@ -24,7 +25,7 @@ export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, de
     return normalizePanelLayoutV3(panelLayout, {
       panelId,
       defaultFieldIds: defaultLayout[panelId] || [],
-    }).cards;
+    }).cards.map((card) => normalizeLayoutCardV3(card));
   }
 
   const fieldIds = Array.isArray(panelLayout)
@@ -32,6 +33,36 @@ export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, de
     : defaultLayout[panelId] || [];
 
   return normalizePanelLayoutV3(fieldIds, { panelId, defaultFieldIds: fieldIds }).cards;
+}
+
+/**
+ * Agrupa cards em linhas conforme colSpan (12 = linha inteira, 6 = metade).
+ * @param {import('./layoutConfigV3.js').LayoutCardV3[]} cards
+ */
+export function groupCardsIntoRows(cards = []) {
+  const sorted = [...cards].sort((a, b) => a.order - b.order);
+  const rows = [];
+  let currentRow = [];
+  let used = 0;
+
+  sorted.forEach((card) => {
+    const span = Math.min(12, Math.max(1, Number(card.colSpan) || 12));
+    if (used > 0 && used + span > 12) {
+      rows.push(currentRow);
+      currentRow = [];
+      used = 0;
+    }
+    currentRow.push({ ...card, colSpan: span });
+    used += span;
+    if (used >= 12) {
+      rows.push(currentRow);
+      currentRow = [];
+      used = 0;
+    }
+  });
+
+  if (currentRow.length) rows.push(currentRow);
+  return rows;
 }
 
 /**
