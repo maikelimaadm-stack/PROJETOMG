@@ -1,6 +1,6 @@
 /**
- * Motor de linha corporativo V3 — ordem do usuário, min-width e flex-grow.
- * Quebra de linha por largura útil do card (teto 6/4 campos apenas como máximo).
+ * Motor de linha corporativo V3 — distribui espaço nas linhas configuradas pelo usuário.
+ * Não cria nem move linhas/campos; estrutura vem do configurador (Aba → Card → Linha → Campo).
  * @module empFormRowBalance
  */
 
@@ -166,20 +166,23 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
 }
 
 /**
- * Monta linhas balanceadas a partir da ordem dos campos.
+ * Balanceia uma única linha configurada (sem alterar fieldIds).
  * @param {string[]} fieldIds
  * @param {{ fields?: object[], card?: object, fieldSizes?: Record<string, string>, containerWidthPx?: number }} [options]
  */
 export function buildBalancedRows(fieldIds = [], options = {}) {
   const { fields = [], card = {}, fieldSizes = {}, containerWidthPx } = options;
   const colSpan = Number(card.colSpan) || 12;
-  const rowIdLists = packFieldsByRowBudget(fieldIds, fields, card, fieldSizes, containerWidthPx);
+  const ids = fieldIds.filter(Boolean);
+  if (!ids.length) return [];
 
-  return rowIdLists.map((ids) => ({
-    fieldIds: ids,
-    fullWidth: false,
-    fieldBalance: computeRowFieldBalance(ids, fields, colSpan, fieldSizes, containerWidthPx),
-  }));
+  return [
+    {
+      fieldIds: ids,
+      fullWidth: false,
+      fieldBalance: computeRowFieldBalance(ids, fields, colSpan, fieldSizes, containerWidthPx),
+    },
+  ];
 }
 
 /** @deprecated */

@@ -27,13 +27,12 @@ import {
 } from "../src/framework/cadastro/layouts/empFormFieldWidthPresets.js";
 import {
   buildBalancedRows,
-  packFieldsByMaxCount,
   packFieldsByRowBudget,
   computeRowFieldBalance,
   getRowBudgetPx,
-  rowContentWidthPx,
   fixOrphanCompactRows,
 } from "../src/framework/cadastro/layouts/empFormRowBalance.js";
+import { resolveConfiguredCardRows } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
   isExpansiveLayoutField,
   isInlineMediaField,
@@ -164,40 +163,25 @@ const fullCardPacked = normalizeCardRows(
   {},
   textFields
 );
-assert.ok(
-  fullCardPacked.rows.length >= 2,
-  "card inteiro: campos principais quebram por largura mínima no container padrão"
-);
-fullCardPacked.rows.forEach((row) => {
-  assert.ok(
-    rowContentWidthPx(row.fieldIds, textFields, {}) <= getRowBudgetPx(12),
-    "cada linha cabe no budget do card inteiro"
-  );
-});
+assert.equal(fullCardPacked.rows.length, 1, "sem linhas explícitas: um único row com todos os campos");
+assert.equal(fullCardPacked.rows[0].fieldIds.length, 7);
 assert.equal(flattenRowsToFieldIds(fullCardPacked).length, 7);
 
 const halfCardPacked = normalizeCardRows(
-  { id: "c2", colSpan: 6, fieldIds: ["a", "b", "c", "d", "e"] },
+  {
+    id: "c2",
+    colSpan: 6,
+    rows: [
+      { id: "r1", order: 1, fieldIds: ["a", "b", "c"] },
+      { id: "r2", order: 2, fieldIds: ["d", "e"] },
+    ],
+  },
   {},
   ["a", "b", "c", "d", "e"].map((id) => ({ id, type: "text" }))
 );
-const halfFields = ["a", "b", "c", "d", "e"].map((id) => ({ id, type: "text" }));
-const halfBudget = getRowBudgetPx(6);
-halfCardPacked.rows.forEach((row) => {
-  if (row.fieldIds.length > 1) {
-    assert.ok(
-      rowContentWidthPx(row.fieldIds, halfFields, {}) <= halfBudget + 1,
-      "card meio: linha com vários campos dentro do budget"
-    );
-    return;
-  }
-  const target = Object.values(row.fieldBalance || {})[0]?.targetWidthPx;
-  assert.ok(
-    target <= halfBudget + 1,
-    "card meio: campo isolado escalado para caber no budget"
-  );
-});
-assert.equal(flattenRowsToFieldIds(halfCardPacked).length, 5);
+assert.equal(halfCardPacked.rows.length, 2, "linhas explícitas preservadas");
+assert.deepEqual(halfCardPacked.rows[0].fieldIds, ["a", "b", "c"]);
+assert.deepEqual(halfCardPacked.rows[1].fieldIds, ["d", "e"]);
 
 // --- Campo principal unificado (texto, select, lookup, e-mail, textarea)
 const MAIN_PRESET = { min: 260, grow: 3, type: "CAMPO_PRINCIPAL" };
@@ -393,9 +377,52 @@ const reordered = reorderFieldWithinRows(
 );
 assert.deepEqual(reordered[0].fieldIds, ["c", "a", "b"]);
 
-// --- Empacotamento por largura (exemplo 1200px)
+// --- Linha configurada com 5 campos permanece uma linha (não desmonta)
 const wideContainerPx = 1200;
-const wideBudget = getRowBudgetPx(12, wideContainerPx);
+const fiveFieldRow = normalizeCardRows(
+  {
+    id: "dense",
+    colSpan: 12,
+    rows: [{ id: "r1", order: 1, fieldIds: ["a", "b", "c", "d", "e"] }],
+  },
+  {},
+  [
+    { id: "a", type: "text" },
+    { id: "b", type: "text" },
+    { id: "c", type: "text" },
+    { id: "d", type: "text", widthType: "CODIGO" },
+    { id: "e", type: "text", widthType: "CODIGO" },
+  ],
+  wideContainerPx
+);
+assert.equal(fiveFieldRow.rows.length, 1, "5 campos na mesma linha configurada");
+assert.equal(fiveFieldRow.rows[0].fieldIds.length, 5);
+assert.ok(
+  Object.keys(fiveFieldRow.rows[0].fieldBalance || {}).length === 5,
+  "balanceamento aplicado sem dividir estrutura"
+);
+
+// --- Card Geral: 3 linhas com 5+3+2 campos
+const geralCard = normalizeCardRows(
+  {
+    id: "geral",
+    colSpan: 12,
+    rows: [
+      { id: "l1", order: 1, fieldIds: ["f1", "f2", "f3", "f4", "f5"] },
+      { id: "l2", order: 2, fieldIds: ["f6", "f7", "f8"] },
+      { id: "l3", order: 3, fieldIds: ["f9", "f10"] },
+    ],
+  },
+  {},
+  Array.from({ length: 10 }, (_, i) => ({ id: `f${i + 1}`, type: "text" })),
+  wideContainerPx
+);
+assert.equal(geralCard.rows.length, 3);
+assert.equal(geralCard.rows[0].fieldIds.length, 5);
+assert.equal(geralCard.rows[1].fieldIds.length, 3);
+assert.equal(geralCard.rows[2].fieldIds.length, 2);
+
+// --- packFieldsByRowBudget só para testes de utilitário (não usado no render)
 const mixedFields = [
   { id: "a", type: "text" },
   { id: "b", type: "text" },
@@ -404,74 +431,14 @@ const mixedFields = [
   { id: "e", type: "text", widthType: "CODIGO" },
   { id: "f", type: "text" },
 ];
-const mixedIds = ["a", "b", "c", "d", "e", "f"];
 const widthPacked = packFieldsByRowBudget(
-  mixedIds,
+  ["a", "b", "c", "d", "e", "f"],
   mixedFields,
   { colSpan: 12 },
   {},
   wideContainerPx
 );
-assert.deepEqual(widthPacked[0], ["a", "b", "c", "d", "e"], "5 campos cabem na primeira linha");
-assert.deepEqual(widthPacked[1], ["f"], "sexto campo na linha seguinte");
-widthPacked.forEach((row) => {
-  assert.ok(rowContentWidthPx(row, mixedFields, {}) <= wideBudget, "linha não ultrapassa budget");
-});
-
-// --- Linha empresas (tipo pessoa, razão social, vínculo, código, ativa)
-const empLineFields = [
-  { id: "tipo_pessoa", type: "select" },
-  { id: "razao_social", type: "text" },
-  { id: "tipo_vinculo", type: "select" },
-  { id: "codempresa", type: "text", widthType: "CODIGO" },
-  { id: "status", type: "select", widthType: "SIM_NAO" },
-];
-const empLineIds = empLineFields.map((f) => f.id);
-const empPacked = packFieldsByRowBudget(
-  empLineIds,
-  empLineFields,
-  { colSpan: 12 },
-  {},
-  wideContainerPx
-);
-empPacked.forEach((row) => {
-  assert.ok(rowContentWidthPx(row, empLineFields, {}) <= wideBudget);
-});
-assert.equal(empPacked.flat().length, 5);
-
-// --- Teto 6 campos quando a largura permite (campos compactos)
-const compactFields = ["1", "2", "3", "4", "5", "6", "7"].map((id) => ({
-  id,
-  type: "text",
-  widthType: "CODIGO",
-}));
-const maxPack = packFieldsByMaxCount(
-  compactFields.map((f) => f.id),
-  { colSpan: 12 },
-  compactFields,
-  {},
-  2400
-);
-assert.deepEqual(maxPack[0], ["1", "2", "3", "4", "5", "6"]);
-assert.deepEqual(maxPack[1], ["7"]);
-
-// --- Cada linha gerada respeita budget (card 920px)
-for (const count of [3, 4, 5, 6]) {
-  const ids = Array.from({ length: count }, (_, i) => `f${i}`);
-  const fieldsForRow = ids.map((id) => ({ id, type: "text" }));
-  const rows = buildBalancedRows(ids, {
-    fields: fieldsForRow,
-    card: { colSpan: 12 },
-    containerWidthPx: fullCardWidthPx,
-  });
-  const lineBudget = getRowBudgetPx(12, fullCardWidthPx);
-  rows.forEach((row) => {
-    assert.ok(
-      rowContentWidthPx(row.fieldIds, fieldsForRow, {}) <= lineBudget + 1,
-      `${count} campos: linha dentro do budget`
-    );
-  });
-  assert.equal(rows.flatMap((r) => r.fieldIds).join(","), ids.join(","), "ordem preservada");
-}
+assert.deepEqual(widthPacked[0], ["a", "b", "c", "d", "e"]);
+assert.deepEqual(widthPacked[1], ["f"]);
 
 console.log("✓ Todos os testes LayoutConfigV3 passaram.");

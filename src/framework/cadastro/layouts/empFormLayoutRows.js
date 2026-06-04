@@ -1,7 +1,5 @@
 import {
-  buildBalancedRows,
   computeRowFieldBalance,
-  packFieldsByRowBudget,
 } from "./empFormRowBalance.js";
 import {
   normalizeFieldWidthTypes,
@@ -43,10 +41,37 @@ export const flattenRowsToFieldIds = (card) => {
   return Array.isArray(card?.fieldIds) ? [...card.fieldIds] : [];
 };
 
-const cardHasExplicitRows = (card) =>
+export const cardHasExplicitRows = (card) =>
   Array.isArray(card?.rows) &&
   card.rows.length > 0 &&
   card.rows.some((row) => (row.fieldIds || []).filter(Boolean).length > 0);
+
+/**
+ * Linhas configuradas pelo usuário — sem reempacotar.
+ * @param {import('./layoutConfigV3.js').LayoutCardV3 | object} card
+ */
+export const resolveConfiguredCardRows = (card = {}) => {
+  if (cardHasExplicitRows(card)) {
+    return [...card.rows]
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .map((row, index) => ({
+        id: row.id,
+        order: Number.isFinite(Number(row.order)) ? Number(row.order) : index + 1,
+        fieldIds: (row.fieldIds || []).filter(Boolean),
+      }));
+  }
+
+  const fieldIds = Array.isArray(card?.fieldIds) ? card.fieldIds.filter(Boolean) : [];
+  if (!fieldIds.length) return [];
+
+  return [
+    {
+      id: createRowId(card.id || "card", 1),
+      order: 1,
+      fieldIds: [...fieldIds],
+    },
+  ];
+};
 
 /**
  * @param {LayoutRowV3} source
@@ -62,26 +87,79 @@ export const normalizeLayoutRowV3 = (source = {}, index = 0, cardId = "card") =>
   const fieldIds = Array.isArray(source.fieldIds)
     ? source.fieldIds.filter((fieldId) => typeof fieldId === "string" && fieldId)
     : [];
-  const fieldBalance =
-    source.fieldBalance && typeof source.fieldBalance === "object" ? { ...source.fieldBalance } : undefined;
 
   return {
     id,
     order,
     fieldIds,
-    ...(fieldBalance ? { fieldBalance } : {}),
   };
 };
 
 /**
- * Empacota campos na ordem configurada (quebra por largura útil do card; teto 6/4).
- * @param {string[]} fieldIds
- * @param {{ fieldSizes?: Record<string, string>, fields?: object[], card?: object, containerWidthPx?: number }} [options]
+ * Aplica balanceamento flex às linhas existentes (estrutura intacta).
+ */
+export const balanceConfiguredRows = (
+  rows = [],
+  { card = {}, fieldSizes = {}, fields = [], containerWidthPx } = {}
+) => {
+  const colSpan = Number(card.colSpan) || 12;
+  const normalizedSizes = normalizeFieldWidthTypes(fieldSizes);
+
+  return rows.map((row, index) => {
+    const fieldIds = (row.fieldIds || []).filter(Boolean);
+    const normalized = normalizeLayoutRowV3(row, index, card.id || "card");
+    return {
+      ...normalized,
+      fullWidth: false,
+      fieldBalance: computeRowFieldBalance(
+        fieldIds,
+        fields,
+        colSpan,
+        normalizedSizes,
+        containerWidthPx
+      ),
+    };
+  });
+};
+
+/**
+ * @param {import('./layoutConfigV3.js').LayoutCardV3} card
+ * @param {Record<string, string>} [fieldWidthTypes]
+ * @param {object[]} [fields]
+ * @param {number} [containerWidthPx]
+ */
+export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = [], containerWidthPx) => {
+  const configured = resolveConfiguredCardRows(card);
+  const balanced = balanceConfiguredRows(configured, {
+    card,
+    fieldSizes: fieldWidthTypes,
+    fields,
+    containerWidthPx,
+  });
+
+  return {
+    ...card,
+    rows: balanced,
+    fieldIds: flattenRowsToFieldIds({ rows: balanced }),
+  };
+};
+
+/**
+ * Mantém as linhas do card; apenas recalcula balanceamento (alias legado).
  */
 export const packFieldIdsIntoRows = (fieldIds = [], options = {}) => {
   const { fieldSizes = {}, fields = [], card = {}, containerWidthPx } = options;
-  const normalizedSizes = normalizeFieldWidthTypes(fieldSizes);
-  return buildBalancedRows(fieldIds, { fields, card, fieldSizes: normalizedSizes, containerWidthPx });
+  const configured = resolveConfiguredCardRows({
+    ...card,
+    fieldIds: fieldIds.filter(Boolean),
+    rows: card.rows,
+  });
+  return balanceConfiguredRows(configured, {
+    card,
+    fieldSizes,
+    fields,
+    containerWidthPx,
+  });
 };
 
 /** @deprecated Empacotamento legado por grid 12 */
@@ -115,71 +193,6 @@ export const packFieldIdsIntoGridRows = (fieldIds = [], fieldSizes = {}, fields 
 
   if (current.fieldIds.length) rows.push(current);
   return rows.filter((row) => row.fieldIds.length);
-};
-
-/**
- * @param {import('./layoutConfigV3.js').LayoutCardV3} card
- * @param {Record<string, string>} [fieldWidthTypes]
- * @param {object[]} [fields]
- * @param {number} [containerWidthPx]
- */
-export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = [], containerWidthPx) => {
-  const cardId = card.id || "card";
-  const colSpan = Number(card.colSpan) || 12;
-  const normalizedSizes = normalizeFieldWidthTypes(fieldWidthTypes);
-
-  let packed;
-
-  if (cardHasExplicitRows(card)) {
-    packed = [];
-    [...card.rows]
-      .sort((a, b) => (a.order || 0) - (b.order || 0))
-      .forEach((row) => {
-        const fieldIds = (row.fieldIds || []).filter(Boolean);
-        if (!fieldIds.length) return;
-        const rowLists = packFieldsByRowBudget(
-          fieldIds,
-          fields,
-          { colSpan },
-          normalizedSizes,
-          containerWidthPx
-        );
-        rowLists.forEach((ids) => {
-          packed.push({
-            fieldIds: ids,
-            fieldBalance: computeRowFieldBalance(
-              ids,
-              fields,
-              colSpan,
-              normalizedSizes,
-              containerWidthPx
-            ),
-          });
-        });
-      });
-  } else {
-    const fieldIds = flattenRowsToFieldIds(card);
-    packed = packFieldIdsIntoRows(fieldIds, {
-      fields,
-      card,
-      fieldSizes: normalizedSizes,
-      containerWidthPx,
-    });
-  }
-
-  const rows = packed.map((row, index) =>
-    normalizeLayoutRowV3(
-      {
-        id: createRowId(cardId, index + 1),
-        fieldIds: row.fieldIds,
-        fieldBalance: row.fieldBalance,
-      },
-      index,
-      cardId
-    )
-  );
-
-  return { ...card, rows, fieldIds: flattenRowsToFieldIds({ rows }) };
 };
 
 export const getCardRowsForRender = (card, fieldWidthTypes = {}, fields = [], containerWidthPx) => {
@@ -224,6 +237,12 @@ export const reorderFieldWithinRows = (rows = [], draggedFieldId, targetFieldId)
   const to = next[targetRowIndex].fieldIds.indexOf(targetFieldId);
   next[targetRowIndex].fieldIds.splice(to >= 0 ? to : next[targetRowIndex].fieldIds.length, 0, draggedFieldId);
   return next;
+};
+
+export const moveFieldBetweenRows = (rows = [], fieldId, targetRowId) => {
+  if (!fieldId || !targetRowId) return rows;
+  const cleaned = removeFieldFromRows(rows, fieldId);
+  return addFieldToRow(cleaned, targetRowId, fieldId);
 };
 
 export const moveLayoutRow = (rows = [], rowId, direction) => {
