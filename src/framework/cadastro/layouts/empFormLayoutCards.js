@@ -4,15 +4,17 @@ import {
   normalizeLayoutCardV3,
   isPanelLayoutV3,
   flattenV3LayoutToV2,
-  isLayoutStructureV2,
+  coerceLayoutToV3,
 } from "./layoutConfigV3.js";
 
 /**
- * Cards do painel para renderização (com card virtual "Geral" quando necessário).
- * @param {{ layout?: Record<string, unknown>, layoutV3?: Record<string, unknown>, panelId: string, defaultLayout?: Record<string, string[]> }} params
+ * Cards do painel para renderização (layout canônico V3).
+ * @param {{ layout?: Record<string, unknown>, panelId: string, defaultLayout?: Record<string, string[]> }} params
  */
-export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, defaultLayout = {} }) {
-  const panelV3 = layoutV3?.[panelId];
+export function getPanelCardsForRender({ layout = {}, panelId, defaultLayout = {} }) {
+  const layoutV3 = coerceLayoutToV3(layout);
+  const panelV3 = layoutV3[panelId];
+
   if (panelV3 && isPanelLayoutV3(panelV3)) {
     return normalizePanelLayoutV3(panelV3, {
       panelId,
@@ -20,18 +22,7 @@ export function getPanelCardsForRender({ layout = {}, layoutV3 = {}, panelId, de
     }).cards.map((card) => normalizeLayoutCardV3(card));
   }
 
-  const panelLayout = layout?.[panelId];
-  if (isPanelLayoutV3(panelLayout)) {
-    return normalizePanelLayoutV3(panelLayout, {
-      panelId,
-      defaultFieldIds: defaultLayout[panelId] || [],
-    }).cards.map((card) => normalizeLayoutCardV3(card));
-  }
-
-  const fieldIds = Array.isArray(panelLayout)
-    ? panelLayout
-    : defaultLayout[panelId] || [];
-
+  const fieldIds = defaultLayout[panelId] || [];
   return normalizePanelLayoutV3(fieldIds, { panelId, defaultFieldIds: fieldIds }).cards;
 }
 
@@ -72,7 +63,9 @@ export function groupCardsIntoRows(cards = []) {
 export function buildLayoutV3FromCards(cardsByPanel = {}) {
   const layoutV3 = {};
   Object.entries(cardsByPanel).forEach(([panelId, panel]) => {
-    layoutV3[panelId] = { cards: panel.cards || [] };
+    layoutV3[panelId] = {
+      cards: (panel.cards || []).map((card, index) => normalizeLayoutCardV3(card, index)),
+    };
   });
   return layoutV3;
 }
@@ -85,20 +78,20 @@ export function flattenLayoutFromCards(cardsByPanel = {}) {
 }
 
 /**
- * Inicializa cards por painel a partir de layout flat ou V3.
+ * Inicializa cards por painel a partir do layout V3 canônico.
  */
-export function initCardsByPanel({ panels = [], layout = {}, layoutV3 = {}, defaultLayout = {} }) {
+export function initCardsByPanel({ panels = [], layout = {}, defaultLayout = {} }) {
+  const layoutV3 = coerceLayoutToV3(layout);
   const cardsByPanel = {};
   const panelIds = new Set([
     ...panels.map((p) => p.id),
-    ...Object.keys(layout || {}),
     ...Object.keys(layoutV3 || {}),
     ...Object.keys(defaultLayout || {}),
   ]);
 
   panelIds.forEach((panelId) => {
     cardsByPanel[panelId] = {
-      cards: getPanelCardsForRender({ layout, layoutV3, panelId, defaultLayout }),
+      cards: getPanelCardsForRender({ layout: layoutV3, panelId, defaultLayout }),
     };
   });
 

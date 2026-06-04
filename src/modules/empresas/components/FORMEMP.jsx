@@ -14,7 +14,12 @@ import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
-import { countKnownLayoutFields, ensureLayoutFields, pickLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
+import {
+  countKnownLayoutFields,
+  ensureLayoutFields,
+  getPanelFieldIdsFromLayout,
+  pickLayoutConfig,
+} from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
@@ -345,7 +350,7 @@ export default function FORMEMP({
       (panel) =>
         [LAYOUT_MAIN_TAB_ID, "endereco", "observacoes", "geral", "principal"].includes(panel.id) &&
         panel.hidden &&
-        (formLayoutConfig?.layout?.[panel.id] || []).length > 0
+        getPanelFieldIdsFromLayout(formLayoutConfig?.layout, panel.id).length > 0
     );
     const layoutDiffers =
       JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(formLayoutConfig));
@@ -454,7 +459,6 @@ export default function FORMEMP({
           panels={activeLayoutConfig.panels}
           fields={dynamicFields}
           layout={activeLayoutConfig.layout}
-          layoutV3={activeLayoutConfig.layoutV3}
           fieldSizes={activeLayoutConfig.fieldSizes || {}}
           fieldLayoutConfig={fieldLayoutConfig}
           hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
@@ -562,7 +566,6 @@ export default function FORMEMP({
                     panels={tabs}
                     fields={dynamicFields}
                     layout={activeLayoutConfig.layout}
-                    layoutV3={activeLayoutConfig.layoutV3}
                     defaultLayout={defaultLayout}
                     hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
                     lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}

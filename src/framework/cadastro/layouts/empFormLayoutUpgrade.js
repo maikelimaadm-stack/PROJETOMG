@@ -88,7 +88,7 @@ export const upgradeStoredLayoutConfig = (saved, defaults) => {
       panels,
       layout: layoutSource,
       fieldLayoutConfig: { mode: "corporate", columns: 12 },
-      fieldSizes: { ...(defaults.fieldSizes || {}), ...(saved.fieldSizes || {}) },
+      fieldSizes: { ...(defaults?.fieldSizes || {}), ...(saved.fieldSizes || {}) },
       version: LAYOUT_CONFIG_VERSION_V3,
     },
     { defaultLayout: defaultFlat }

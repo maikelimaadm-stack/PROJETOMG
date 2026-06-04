@@ -6,6 +6,7 @@ import assert from "node:assert/strict";
 import {
   DEFAULT_VIRTUAL_CARD_ID,
   flattenV3LayoutToV2,
+  getPanelFieldIdsFromLayout,
   isLayoutConfigV2,
   isLayoutConfigV3,
   migrateV2ToV3,
@@ -91,37 +92,44 @@ assert.deepEqual(principalCard.fieldIds, legacyV2.layout.principal);
 
 const emptyResolved = resolveLayoutConfig(null, { defaultLayout: EMP_DEFAULT.layout, defaults: EMP_DEFAULT });
 assert.equal(emptyResolved.config.version, 3);
-assert.ok(emptyResolved.layoutFlat.principal.length > 0, "fallback deve preencher painel principal");
+assert.ok(
+  emptyResolved.layoutV3?.principal?.cards?.length > 0 ||
+    emptyResolved.config?.layout?.principal?.cards?.length > 0,
+  "fallback deve preencher painel principal"
+);
 assert.equal(emptyResolved.migrated, true);
 
 const normalized = normalizeLayoutConfig(legacyV2, {
   basePanels: EMP_DEFAULT.panels,
   defaultLayout: EMP_DEFAULT.layout,
 });
-assert.ok(Array.isArray(normalized.layout.principal), "consumidor V2: layout.principal é array");
-assert.deepEqual(normalized.layout.principal, legacyV2.layout.principal);
-assert.ok(normalized.layoutV3?.principal?.cards?.length > 0, "layoutV3 disponível");
+assert.ok(normalized.layout.principal?.cards?.length > 0, "layout canônico V3 em layout.principal");
 assert.equal(normalized.version, 3);
+assert.equal(normalized.layoutV3, undefined, "sem alias layoutV3 em runtime");
 assert.equal(normalized.fieldLayoutConfig.mode, "corporate");
+const principalIds = normalized.layout.principal.cards.flatMap((c) => c.fieldIds || []);
+assert.ok(principalIds.includes("tipo_pessoa"), "campos migrados para cards V3");
 
 const sanitized = sanitizeLayoutFieldPlacements(normalized.layout);
 assert.equal(countLayoutFields(sanitized), totalV2);
 
 const repaired = ensureLayoutFields({ panels: EMP_DEFAULT.panels, layout: { principal: [] } }, EMP_DEFAULT);
-assert.ok(repaired.layout.principal.includes("razao_social") || repaired.layout.principal.includes("tipo_pessoa"));
+const repairedPrincipalIds = flattenV3LayoutToV2(repaired.layout).principal || [];
+assert.ok(
+  repairedPrincipalIds.includes("razao_social") || repairedPrincipalIds.includes("tipo_pessoa")
+);
 
 const merged = mergeSavedFormLayout(
   { panels: EMP_DEFAULT.panels, layout: { principal: ["razao_social"] } },
   EMP_DEFAULT
 );
-assert.ok(Array.isArray(merged.layout.principal));
-assert.ok(merged.layoutV3);
+assert.ok(merged.layout?.principal?.cards?.length > 0, "mergeSavedFormLayout retorna V3");
 
 const picked = pickLayoutConfig(normalized);
 assert.equal(picked.version, 3);
 assert.ok(picked.layout.principal.cards, "persistência: layout em V3 (cards)");
-const persistedFlat = flattenV3LayoutToV2(picked.layout);
-assert.equal(countLayoutFields(persistedFlat), totalV2);
+assert.equal(picked.layoutV3, undefined, "pickLayoutConfig não persiste layoutV3 duplicado");
+assert.equal(countLayoutFields(picked.layout), totalV2);
 
 const dupConfig = migrateV2ToV3({
   panels: EMP_DEFAULT.panels,

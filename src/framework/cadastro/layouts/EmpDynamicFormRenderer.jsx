@@ -219,7 +219,6 @@ export default function EmpDynamicFormRenderer({
   panels = [],
   fields = [],
   layout = {},
-  layoutV3 = {},
   defaultLayout = {},
   hiddenFieldIds = [],
   lockedFieldIds = [],
@@ -244,12 +243,11 @@ export default function EmpDynamicFormRenderer({
       activePanel
         ? getPanelCardsForRender({
             layout,
-            layoutV3,
             panelId: activePanel.id,
             defaultLayout,
           })
         : [],
-    [activePanel, layout, layoutV3, defaultLayout]
+    [activePanel, layout, defaultLayout]
   );
 
   const isFieldVisible = (field) => {

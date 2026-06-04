@@ -1,3 +1,5 @@
+import { flattenV3LayoutToV2, coerceLayoutToV3 } from "./layoutConfigV3.js";
+
 const normalizeConditionText = (value) =>
   String(value ?? "")
     .trim()
@@ -75,8 +77,10 @@ export function countRequiredFormFields({
   let total = 0;
   let filled = 0;
 
+  const flatLayout = flattenV3LayoutToV2(coerceLayoutToV3(layout));
+
   panelIds.forEach((panelId) => {
-    (layout?.[panelId] || []).forEach((fieldId) => {
+    (flatLayout[panelId] || []).forEach((fieldId) => {
       if (seen.has(fieldId)) return;
       seen.add(fieldId);
 
