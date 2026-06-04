@@ -38,7 +38,12 @@ import {
   buildLayoutV3FromCards,
   createNewCardId,
 } from "@/framework/cadastro/layouts/empFormLayoutCards";
-import { DEFAULT_VIRTUAL_CARD_ID, normalizeLayoutCardV3 } from "@/framework/cadastro/layouts/layoutConfigV3";
+import {
+  DEFAULT_VIRTUAL_CARD_ID,
+  getDefaultFlatLayoutFromConfig,
+  getPanelFieldIdsFromLayout,
+  normalizeLayoutCardV3,
+} from "@/framework/cadastro/layouts/layoutConfigV3";
 import { DEFAULT_FIELD_LAYOUT_CONFIG } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { CARD_COL_SPAN_OPTIONS, FIELD_WIDTH_TYPE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
 import {
@@ -72,8 +77,8 @@ const formatPanelLabel = (value) =>
     .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
 
 const findDefaultPanelForField = (fieldId, layout = {}) => {
-  for (const [panelId, ids] of Object.entries(layout || {})) {
-    if ((ids || []).includes(fieldId)) return panelId;
+  for (const panelId of Object.keys(layout || {})) {
+    if (getPanelFieldIdsFromLayout(layout, panelId).includes(fieldId)) return panelId;
   }
   return "";
 };
@@ -102,8 +107,12 @@ export default function EmpLayoutConfiguratorDialog({
   fixedVisibleFieldIds = DEFAULT_FIXED_VISIBLE_FIELD_IDS,
 }) {
   const [draftPanels, setDraftPanels] = useState(panels);
+  const defaultFlatLayout = useMemo(
+    () => getDefaultFlatLayoutFromConfig(defaultConfig),
+    [defaultConfig]
+  );
   const [draftCardsByPanel, setDraftCardsByPanel] = useState(() =>
-    initCardsByPanel({ panels, layout, defaultLayout: defaultConfig?.layout })
+    initCardsByPanel({ panels, layout, defaultLayout: defaultFlatLayout })
   );
   const [draftFieldSizes, setDraftFieldSizes] = useState(fieldSizes);
   const [activeCardId, setActiveCardId] = useState("");
@@ -142,7 +151,7 @@ export default function EmpLayoutConfiguratorDialog({
     const cards = initCardsByPanel({
       panels,
       layout,
-      defaultLayout: defaultConfig?.layout,
+      defaultLayout: defaultFlatLayout,
     });
     setDraftPanels(panels);
     setDraftCardsByPanel(cards);
@@ -168,7 +177,7 @@ export default function EmpLayoutConfiguratorDialog({
     setFieldSettingsTarget(null);
     setFieldSettingsAnchor(null);
     wasOpenRef.current = true;
-  }, [open, panels, layout, fieldSizes, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules, defaultConfig]);
+  }, [open, panels, layout, fieldSizes, hiddenFieldIds, lockedFieldIds, requiredFieldIds, clearOnDuplicateFieldIds, fieldDefaultValues, aggregationConfig, visibilityRules, defaultFlatLayout]);
 
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
@@ -326,7 +335,7 @@ export default function EmpLayoutConfiguratorDialog({
 
   const isFieldRequired = (field) => !!field?.required || draftRequiredFieldIds.includes(field?.id);
   const getAvailableFieldOriginLabel = (fieldId) =>
-    getPanelLabelById(fieldLastPanelId[fieldId] || findDefaultPanelForField(fieldId, defaultConfig?.layout));
+    getPanelLabelById(fieldLastPanelId[fieldId] || findDefaultPanelForField(fieldId, defaultFlatLayout));
 
   const showRequiredPopup = (message) => showWarning(message);
   const stripFieldFromAllCards = (cardsByPanel, fieldId) => {
@@ -590,7 +599,7 @@ export default function EmpLayoutConfiguratorDialog({
     const cards = initCardsByPanel({
       panels: defaultConfig.panels || [],
       layout: defaultConfig.layout || {},
-      defaultLayout: defaultConfig.layout,
+      defaultLayout: defaultFlatLayout,
     });
     setDraftPanels(defaultConfig.panels || []);
     setDraftCardsByPanel(cards);
@@ -606,7 +615,7 @@ export default function EmpLayoutConfiguratorDialog({
     setActivePanelId(defaultConfig.panels?.[0]?.id || "");
   };
   const discardChanges = () => {
-    const cards = initCardsByPanel({ panels, layout, defaultLayout: defaultConfig?.layout });
+    const cards = initCardsByPanel({ panels, layout, defaultLayout: defaultFlatLayout });
     setDraftPanels(panels);
     setDraftCardsByPanel(cards);
     setDraftFieldSizes(fieldSizes || {});

@@ -145,7 +145,10 @@ export const mergeNewCustomFieldsIntoLayout = (layout = {}, defaultLayout = {}) 
   const flat = flattenV3LayoutToV2(coerceLayoutToV3(layout));
   const nextFlat = { ...flat };
   const usedFieldIds = new Set(Object.values(nextFlat).flat());
-  const defaultCustomIds = defaultLayout.campos_personalizados || [];
+  const defaultFlat = isLayoutStructureV2(defaultLayout)
+    ? defaultLayout
+    : flattenV3LayoutToV2(coerceLayoutToV3(defaultLayout));
+  const defaultCustomIds = defaultFlat.campos_personalizados || [];
   const currentCustomIds = nextFlat.campos_personalizados || [];
   const newCustomIds = defaultCustomIds.filter(
     (fieldId) => !usedFieldIds.has(fieldId) && !currentCustomIds.includes(fieldId)
@@ -192,10 +195,11 @@ export const normalizeLayoutConfig = (
     layoutV3 = sanitizeLayoutFieldPlacements(layoutV3);
   }
 
+  const basePanelSeed = basePanels[0] ? [basePanels[0]] : [];
   const panels = [
     ...(merged.panels?.some((panel) => panel.id === LAYOUT_MAIN_TAB_ID)
       ? merged.panels
-      : [basePanels[0], ...(merged.panels || basePanels)]),
+      : [...basePanelSeed, ...(merged.panels || basePanels)]),
     ...basePanels.filter((basePanel) => !(merged.panels || []).some((panel) => panel.id === basePanel.id)),
   ].filter(
     (panel) =>

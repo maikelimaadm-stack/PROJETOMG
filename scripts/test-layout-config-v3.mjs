@@ -174,15 +174,26 @@ const halfCardPacked = normalizeCardRows(
 assert.equal(halfCardPacked.rows[0].fieldIds.length, 4, "card meio: máx. 4 na primeira linha");
 assert.equal(halfCardPacked.rows[1].fieldIds.length, 1);
 
-// --- Larguras mínimas por categoria técnica
+// --- Larguras mínimas e pesos de crescimento por categoria técnica
 assert.equal(resolveFieldWidthTypePreset({ type: "number" }).min, 120);
+assert.equal(resolveFieldWidthTypePreset({ type: "number" }).grow, 1);
 assert.equal(resolveFieldWidthTypePreset({ type: "date" }).min, 140);
 assert.equal(resolveFieldWidthTypePreset({ type: "datetime" }).min, 180);
 assert.equal(resolveFieldWidthTypePreset({ type: "email" }).min, 260);
+assert.equal(resolveFieldWidthTypePreset({ type: "email" }).grow, 3);
 assert.equal(resolveFieldWidthTypePreset({ type: "textarea" }).min, 320);
+assert.equal(resolveFieldWidthTypePreset({ type: "textarea" }).grow, 4);
 assert.equal(resolveFieldWidthTypePreset({ type: "image" }).min, 180);
 assert.equal(resolveFieldWidthTypePreset({ type: "file" }).min, 220);
 assert.equal(resolveFieldWidthTypePreset({ type: "autocomplete" }).min, 260);
+assert.equal(resolveFieldWidthTypePreset({ type: "autocomplete" }).grow, 2);
+assert.equal(resolveFieldWidthTypePreset({ id: "codempresa", type: "text" }).grow, 0.5);
+assert.equal(resolveFieldWidthTypePreset({ id: "status", type: "select" }).grow, 0.5);
+assert.equal(resolveFieldWidthTypePreset({ type: "checkbox" }).grow, 0.5);
+assert.equal(
+  resolveFieldWidthTypePreset({ id: "razao_social", type: "text", widthType: "TEXTO_LONGO" }).grow,
+  4
+);
 
 assert.deepEqual(normalizeFieldWidthTypes({ f1: "XS", f2: "MD" }), {
   f1: "TEXTO_CURTO",
@@ -250,6 +261,22 @@ Object.values(equalBalance).forEach((entry) => {
   assert.match(entry.flex, /^1 1 /);
 });
 
+const growBalance = computeRowFieldBalance(
+  ["codempresa", "razao_social", "email"],
+  [
+    { id: "codempresa", type: "text" },
+    { id: "razao_social", type: "text" },
+    { id: "email", type: "email" },
+  ],
+  12,
+  {},
+  fullCardWidthPx
+);
+assert.equal(growBalance.codempresa.flexGrow, 0.5);
+assert.equal(growBalance.email.flexGrow, 3);
+assert.ok(growBalance.email.targetWidthPx > growBalance.codempresa.targetWidthPx);
+assert.ok(growBalance.razao_social.targetWidthPx > growBalance.codempresa.targetWidthPx);
+
 const propBalance = computeRowFieldBalance(
   ["a", "b", "c"],
   [
@@ -261,7 +288,9 @@ const propBalance = computeRowFieldBalance(
   { a: "TEXTO_MEDIO" },
   fullCardWidthPx
 );
-assert.ok(propBalance.a.targetWidthPx > propBalance.c.targetWidthPx);
+assert.equal(propBalance.a.flexGrow, 2);
+assert.equal(propBalance.b.flexGrow, 2);
+assert.ok(propBalance.a.targetWidthPx >= propBalance.c.targetWidthPx);
 const propSum =
   propBalance.a.targetWidthPx + propBalance.b.targetWidthPx + propBalance.c.targetWidthPx;
 assert.ok(Math.abs(propSum - (getRowBudgetPx(12, fullCardWidthPx) - 16)) <= 4);

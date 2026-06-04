@@ -1,32 +1,37 @@
 /**
- * Larguras corporativas — apenas min-width por categoria técnica.
+ * Larguras corporativas — min-width e flex-grow por categoria técnica.
  * O motor não decide layout; só aplica min-width + flex-grow na linha.
  * @module empFormFieldWidthPresets
  */
 
-/** @typedef {'TEXTO_CURTO'|'NUMERO'|'DATA'|'DATA_HORA'|'TEXTO_MEDIO'|'TEXTO_LONGO'|'EMAIL'|'LOOKUP_RELACAO'|'IMAGEM'|'ANEXO'|'TEXTAREA'} FieldWidthType */
+/** @typedef {'CODIGO'|'SIM_NAO'|'TEXTO_CURTO'|'NUMERO'|'DATA'|'DATA_HORA'|'TEXTO_MEDIO'|'TEXTO_LONGO'|'EMAIL'|'LOOKUP_RELACAO'|'IMAGEM'|'ANEXO'|'TEXTAREA'} FieldWidthType */
 
 /**
  * @typedef {Object} FieldWidthTypePreset
  * @property {number} min
+ * @property {number} grow
  */
 
 /** @type {Record<string, FieldWidthTypePreset>} */
 export const FIELD_WIDTH_TYPE_PRESETS = {
-  TEXTO_CURTO: { min: 140 },
-  NUMERO: { min: 120 },
-  DATA: { min: 140 },
-  DATA_HORA: { min: 180 },
-  TEXTO_MEDIO: { min: 220 },
-  TEXTO_LONGO: { min: 320 },
-  EMAIL: { min: 260 },
-  LOOKUP_RELACAO: { min: 260 },
-  IMAGEM: { min: 180 },
-  ANEXO: { min: 220 },
-  TEXTAREA: { min: 320 },
+  CODIGO: { min: 120, grow: 0.5 },
+  SIM_NAO: { min: 120, grow: 0.5 },
+  TEXTO_CURTO: { min: 140, grow: 1 },
+  NUMERO: { min: 120, grow: 1 },
+  DATA: { min: 140, grow: 1 },
+  DATA_HORA: { min: 180, grow: 1 },
+  TEXTO_MEDIO: { min: 220, grow: 2 },
+  TEXTO_LONGO: { min: 320, grow: 4 },
+  EMAIL: { min: 260, grow: 3 },
+  LOOKUP_RELACAO: { min: 260, grow: 2 },
+  IMAGEM: { min: 180, grow: 1 },
+  ANEXO: { min: 220, grow: 1 },
+  TEXTAREA: { min: 320, grow: 4 },
 };
 
 export const FIELD_WIDTH_TYPE_OPTIONS = [
+  { value: "CODIGO", label: "Código" },
+  { value: "SIM_NAO", label: "Sim/Não" },
   { value: "TEXTO_CURTO", label: "Texto curto" },
   { value: "NUMERO", label: "Número" },
   { value: "DATA", label: "Data" },
@@ -67,6 +72,9 @@ const LEGACY_WIDTH_TYPE_ALIASES = {
   ATTACHMENT: "ANEXO",
   IMAGE_EXPAND: "IMAGEM",
   ATTACHMENT_EXPAND: "ANEXO",
+  CODE: "CODIGO",
+  BOOLEAN: "SIM_NAO",
+  YES_NO: "SIM_NAO",
 };
 
 const LOOKUP_TYPES = new Set(["autocomplete", "relation"]);
@@ -79,6 +87,26 @@ const MULTILINE_TYPES = new Set(["textarea", "html", "richtext", "rich_text", "m
 const IMAGE_TYPES = new Set(["image", "imagem"]);
 const ATTACHMENT_TYPES = new Set(["file", "attachment", "attachments", "document", "documents"]);
 const EMAIL_TYPES = new Set(["email", "e-mail", "mail"]);
+const CODE_FIELD_IDS = new Set(["codempresa", "codigo", "code", "id"]);
+const YES_NO_FIELD_IDS = new Set(["status", "ativo", "active", "habilitado"]);
+
+/**
+ * @param {object} field
+ */
+function isCodeField(field) {
+  const id = String(field?.id || field?.name || "").toLowerCase();
+  return CODE_FIELD_IDS.has(id) || id.endsWith("_codigo") || id.startsWith("cod_");
+}
+
+/**
+ * @param {object} field
+ */
+function isYesNoField(field) {
+  const id = String(field?.id || field?.name || "").toLowerCase();
+  if (YES_NO_FIELD_IDS.has(id)) return true;
+  const type = String(field?.type || "").toLowerCase();
+  return type === "checkbox" || type === "switch";
+}
 
 /**
  * @param {object} field
@@ -103,6 +131,9 @@ export function resolveStoredWidthType(field, fieldWidthTypes = {}) {
 export function inferFieldWidthType(field) {
   if (!field) return "TEXTO_CURTO";
 
+  if (isCodeField(field)) return "CODIGO";
+  if (isYesNoField(field)) return "SIM_NAO";
+
   const type = String(field.type || "text").toLowerCase();
 
   if (MULTILINE_TYPES.has(type)) return "TEXTAREA";
@@ -115,7 +146,7 @@ export function inferFieldWidthType(field) {
   if (EMAIL_TYPES.has(type)) return "EMAIL";
   if (SELECT_TYPES.has(type)) return "TEXTO_MEDIO";
   if (LOOKUP_TYPES.has(type) || field.lookup === true) return "LOOKUP_RELACAO";
-  if (type === "checkbox" || type === "switch") return "TEXTO_CURTO";
+  if (type === "checkbox" || type === "switch") return "SIM_NAO";
 
   return "TEXTO_CURTO";
 }
@@ -132,6 +163,7 @@ export function resolveFieldWidthTypePreset(field, fieldWidthTypes = {}) {
   return {
     type: /** @type {FieldWidthType} */ (typeKey),
     min: preset.min,
+    grow: preset.grow,
   };
 }
 

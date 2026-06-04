@@ -4,7 +4,11 @@ import { CadastroEngine } from "../core/CadastroEngine.js";
 import { registerCadastroModule } from "../core/ModuleRegistry.js";
 import { LAYOUT_MAIN_TAB_ID } from "../preferences/layoutMigration.js";
 import { ensureBuiltinFieldTypes } from "../field/registerBuiltinFieldTypes.js";
-import { getPanelFieldIdsFromLayout, pickLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
+import { pickLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
+import {
+  getDefaultFlatLayoutFromConfig,
+  getPanelFieldIdsFromLayout,
+} from "@/framework/cadastro/layouts/layoutConfigV3.js";
 
 ensureBuiltinFieldTypes();
 
@@ -24,10 +28,10 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
 
   const defaultConfigFull = useMemo(() => moduleConfig.getDefaultLayoutConfig(), [moduleConfig]);
   const basePanels = useMemo(() => moduleConfig.basePanels || defaultConfigFull.panels || [], [moduleConfig, defaultConfigFull]);
-  const defaultLayout = useMemo(
-    () => moduleConfig.defaultFlatLayout || defaultConfigFull.layout || {},
-    [moduleConfig, defaultConfigFull]
-  );
+  const defaultLayout = useMemo(() => {
+    if (moduleConfig.defaultFlatLayout) return moduleConfig.defaultFlatLayout;
+    return getDefaultFlatLayoutFromConfig(defaultConfigFull);
+  }, [moduleConfig, defaultConfigFull]);
 
   const nativeLayoutFieldIds = useMemo(() => {
     if (nativeIdsInput instanceof Set) return nativeIdsInput;

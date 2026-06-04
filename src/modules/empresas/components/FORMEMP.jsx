@@ -306,6 +306,7 @@ export default function FORMEMP({
 
 
   const requiredFieldStats = useMemo(() => {
+    if (!activeLayoutConfig?.layout) return { total: 0, filled: 0, pending: 0 };
     const panelIds = tabs.map((panel) => panel.id);
     return countRequiredFormFields({
       panelIds,

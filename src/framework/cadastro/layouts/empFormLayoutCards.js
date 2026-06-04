@@ -5,25 +5,32 @@ import {
   isPanelLayoutV3,
   flattenV3LayoutToV2,
   coerceLayoutToV3,
+  getPanelFieldIdsFromLayout,
 } from "./layoutConfigV3.js";
 
 /**
  * Cards do painel para renderização (layout canônico V3).
  * @param {{ layout?: Record<string, unknown>, panelId: string, defaultLayout?: Record<string, string[]> }} params
  */
+const resolveDefaultFieldIds = (defaultLayout, panelId) => {
+  const raw = defaultLayout?.[panelId];
+  if (Array.isArray(raw)) return raw;
+  return getPanelFieldIdsFromLayout(defaultLayout, panelId);
+};
+
 export function getPanelCardsForRender({ layout = {}, panelId, defaultLayout = {} }) {
   const layoutV3 = coerceLayoutToV3(layout);
   const panelV3 = layoutV3[panelId];
+  const defaultFieldIds = resolveDefaultFieldIds(defaultLayout, panelId);
 
   if (panelV3 && isPanelLayoutV3(panelV3)) {
     return normalizePanelLayoutV3(panelV3, {
       panelId,
-      defaultFieldIds: defaultLayout[panelId] || [],
+      defaultFieldIds,
     }).cards.map((card) => normalizeLayoutCardV3(card));
   }
 
-  const fieldIds = defaultLayout[panelId] || [];
-  return normalizePanelLayoutV3(fieldIds, { panelId, defaultFieldIds: fieldIds }).cards;
+  return normalizePanelLayoutV3(defaultFieldIds, { panelId, defaultFieldIds }).cards;
 }
 
 /**

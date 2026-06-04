@@ -457,3 +457,20 @@ export const getPanelFieldIdsFromLayout = (layout, panelId) => {
   const v3 = isLayoutStructureV3(layout) ? layout : coerceLayoutToV3(layout);
   return flattenV3LayoutToV2(v3)[panelId] || [];
 };
+
+/**
+ * Layout flat (painel → ids) a partir de config padrão em V2 ou V3.
+ * @param {{ layout?: unknown }|null|undefined} config
+ * @returns {Record<string, string[]>}
+ */
+export const getDefaultFlatLayoutFromConfig = (config) => {
+  const layout = config?.layout ?? {};
+  if (isLayoutStructureV2(layout)) {
+    const flat = {};
+    Object.entries(layout).forEach(([panelId, fieldIds]) => {
+      if (Array.isArray(fieldIds)) flat[panelId] = [...fieldIds];
+    });
+    return flat;
+  }
+  return flattenV3LayoutToV2(coerceLayoutToV3(layout));
+};

@@ -17,7 +17,10 @@ import {
   isLayoutStructureV2,
   isLayoutStructureV3,
   flattenV3LayoutToV2,
+  getDefaultFlatLayoutFromConfig,
+  getPanelFieldIdsFromLayout,
 } from "../src/framework/cadastro/layouts/layoutConfigV3.js";
+import { buildEmpFormDefaultConfig } from "../src/modules/empresas/components/formEmp.constants.js";
 import {
   buildLayoutV3FromCards,
   getPanelCardsForRender,
@@ -183,5 +186,44 @@ const configuratorCards = initCardsByPanel({
   layout: afterEdit.layout,
 });
 assert.ok(configuratorCards.principal?.cards?.length > 0, "configurador lê layout V3");
+
+// --- Configurador empresas: default V3 não quebra lookup de painel (flat derivado)
+const empDefault = buildEmpFormDefaultConfig();
+const empFlat = getDefaultFlatLayoutFromConfig(empDefault);
+assert.ok(Array.isArray(empFlat.principais), "flat principais");
+assert.ok(empFlat.principais.includes("razao_social"), "razão social no flat");
+assert.equal(
+  getPanelFieldIdsFromLayout(empDefault.layout, "principais").includes("razao_social"),
+  true,
+  "getPanelFieldIdsFromLayout em layout V3"
+);
+const empConfiguratorCards = initCardsByPanel({
+  panels: empDefault.panels,
+  layout: empDefault.layout,
+  defaultLayout: empFlat,
+});
+assert.ok(empConfiguratorCards.principais?.cards?.length > 0, "configurador empresas abre cards");
+
+// --- Limpar localStorage e reabrir
+store.clear();
+bindLayoutStoreUser(userA);
+const afterClear = readStoredLayoutConfig();
+assert.equal(afterClear, null, "localStorage limpo");
+writeStoredLayoutConfig(savedConfig);
+assert.ok(readStoredLayoutConfig(), "regrava após limpar");
+
+// --- Hidratação remota simulada (payload = pickLayoutConfig)
+bindLayoutStoreUser(userB);
+const remoteSim = pickLayoutConfig({
+  ...TEST_DEFAULTS,
+  layout: afterEdit.layout,
+  fieldSizes: { email: "EMAIL" },
+});
+writeStoredLayoutConfig(remoteSim);
+const hydrated = ensureLayoutFields(readStoredLayoutConfig(), TEST_DEFAULTS, {
+  knownFieldIds: ["a", "b", "c", "d", "email"],
+});
+assertCanonicalConfig(hydrated, "layout remoto simulado");
+assert.equal(hydrated.fieldSizes?.email, "EMAIL");
 
 console.log("✓ Todos os testes de persistência Layout V3 passaram.");
