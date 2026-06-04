@@ -10,15 +10,25 @@ const getApiBaseUrl = () => {
 };
 
 const request = async (path, { method = "GET", body, token, headers: extraHeaders } = {}) => {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    method,
-    headers: {
-      ...(body ? { "Content-Type": "application/json" } : {}),
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...(extraHeaders || {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let response;
+  try {
+    response = await fetch(`${getApiBaseUrl()}${path}`, {
+      method,
+      headers: {
+        ...(body ? { "Content-Type": "application/json" } : {}),
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...(extraHeaders || {}),
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    if (import.meta.env.DEV) {
+      throw new Error(
+        "API indisponível. Inicie o backend local: cd backend && cp .env.example .env (preencha DATABASE_URL) && npm install && npm run dev — porta 3001."
+      );
+    }
+    throw new Error(`Falha em ${method} ${path}`);
+  }
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
