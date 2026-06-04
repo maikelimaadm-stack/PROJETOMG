@@ -9,6 +9,11 @@ import {
   syncLayoutV3FromFlat,
 } from "./layoutConfigV3.js";
 import { normalizeFieldSizes } from "./empFormFieldGrid.js";
+import {
+  LAYOUT_MAIN_TAB_ID,
+  LAYOUT_SELECTOR_PANEL_ID,
+  upgradeStoredLayoutConfig,
+} from "./empFormLayoutUpgrade.js";
 
 const LEGACY_CONFIG_KEY = "cadastro_emp_form_layout_config";
 
@@ -76,8 +81,12 @@ export const createEmptyLayoutConfig = (defaultConfig = {}) => {
   const panels = cloneValue(defaultConfig.panels || []);
   const flatLayout = {};
   panels.forEach((panel) => {
-    if (panel.id === "principal") {
-      flatLayout.principal = cloneValue(defaultConfig.layout?.principal || ["razao_social"]);
+    if (panel.id === LAYOUT_MAIN_TAB_ID) {
+      flatLayout[LAYOUT_MAIN_TAB_ID] = cloneValue(
+        defaultConfig.layout?.[LAYOUT_MAIN_TAB_ID]?.cards?.[0]?.fieldIds ||
+          defaultConfig.layout?.principais?.cards?.[0]?.fieldIds ||
+          ["razao_social"]
+      );
     } else {
       flatLayout[panel.id] = [];
     }
@@ -152,7 +161,7 @@ export const normalizeLayoutConfig = (
     fieldSizes: {},
   };
   const merged = { ...fallback, ...(source || {}) };
-  const panelsSource = merged.panels?.some((panel) => panel.id === "principal")
+  const panelsSource = merged.panels?.some((panel) => panel.id === LAYOUT_MAIN_TAB_ID)
     ? merged.panels
     : [basePanels[0], ...(merged.panels || basePanels)];
   const panels = [
@@ -165,8 +174,8 @@ export const normalizeLayoutConfig = (
     defaults: fallback,
   });
   let layoutFlat = sanitizeLayoutFieldPlacements(resolved.layoutFlat);
-  if (!Array.isArray(layoutFlat.principal)) {
-    layoutFlat.principal = [];
+  if (!Array.isArray(layoutFlat[LAYOUT_MAIN_TAB_ID])) {
+    layoutFlat[LAYOUT_MAIN_TAB_ID] = [];
   }
   if (mergeNewCustomFields && camposPersonalizadosCount > 0) {
     layoutFlat = mergeNewCustomFieldsIntoLayout(layoutFlat, defaultLayout);
@@ -198,7 +207,9 @@ export const readStoredLayoutConfig = () => {
     const raw = localStorage.getItem(getLegacyKey());
     const parsed = raw ? JSON.parse(raw) : null;
     if (!isPlainLayoutConfig(parsed)) return null;
-    const { config } = resolveLayoutConfig(parsed);
+    const upgraded = upgradeStoredLayoutConfig(parsed);
+    const source = upgraded || parsed;
+    const { config } = resolveLayoutConfig(source);
     return {
       ...pickLayoutConfig(config),
       layout: config.layoutFlat,
@@ -214,7 +225,7 @@ export const writeStoredLayoutConfig = (config) => {
   localStorage.setItem(getLegacyKey(), JSON.stringify(pickLayoutConfig(config)));
 };
 
-const SYSTEM_PANEL_IDS = new Set(["principal", "geral", "endereco", "observacoes"]);
+const SYSTEM_PANEL_IDS = new Set([LAYOUT_MAIN_TAB_ID, LAYOUT_SELECTOR_PANEL_ID, "geral", "endereco", "observacoes"]);
 
 const isPlainLayoutConfig = (value) =>
   value && typeof value === "object" && !Array.isArray(value);
@@ -246,7 +257,8 @@ export const ensureLayoutFields = (saved, defaults, { knownFieldIds } = {}) => {
   if (!isPlainLayoutConfig(defaults)) return null;
   if (!isPlainLayoutConfig(saved)) return pickLayoutConfig(defaults);
 
-  const merged = mergeSavedFormLayout(saved, defaults);
+  const upgraded = upgradeStoredLayoutConfig(saved, defaults) || saved;
+  const merged = mergeSavedFormLayout(upgraded, defaults);
   const defaultLayout = defaults?.layout || {};
   const layoutInput = merged.layout || {};
   let layoutFlat = sanitizeLayoutFieldPlacements(

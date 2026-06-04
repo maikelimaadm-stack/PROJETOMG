@@ -156,7 +156,7 @@ export const normalizePanelLayoutV3 = (panelLayout, { panelId = "panel", default
  * @returns {LayoutCardV3}
  */
 export const createDefaultCardV3 = (fieldIds = [], panelId = "panel") => ({
-  id: panelId === "principal" ? DEFAULT_VIRTUAL_CARD_ID : `${panelId}_${DEFAULT_VIRTUAL_CARD_ID}`,
+  id: panelId === "principais" || panelId === "principal" ? DEFAULT_VIRTUAL_CARD_ID : `${panelId}_${DEFAULT_VIRTUAL_CARD_ID}`,
   label: DEFAULT_VIRTUAL_CARD_LABEL,
   order: 1,
   collapsible: true,

@@ -11,7 +11,6 @@ import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpLayoutConfiguratorDialog";
-import EmpFieldLayoutConfigDialog from "@/framework/cadastro/configurators/EmpFieldLayoutConfigDialog";
 import empFormLayoutStore, {
   countKnownLayoutFields,
   ensureLayoutFields,
@@ -26,6 +25,11 @@ import {
   scheduleEmpresasFormLayoutSync,
   syncEmpresasFormLayoutRemote,
 } from "@/framework/cadastro/layouts/userLayoutPreferencesSync";
+import {
+  clearLegacyLayoutStorageForUser,
+  LAYOUT_MAIN_TAB_ID,
+  upgradeStoredLayoutConfig,
+} from "@/framework/cadastro/layouts/empFormLayoutUpgrade";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
@@ -59,9 +63,8 @@ export default function FORMEMP({
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
   const [errors, setErrors] = useState({});
-  const [activeTab, setActiveTab] = useState("geral");
+  const [activeTab, setActiveTab] = useState(LAYOUT_MAIN_TAB_ID);
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
-  const [fieldLayoutConfigOpen, setFieldLayoutConfigOpen] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
   const [formLayoutConfig, setFormLayoutConfig] = useState(null);
@@ -77,7 +80,12 @@ export default function FORMEMP({
     const defaults = buildEmpFormDefaultConfig();
     const nativeIds = new Set(Object.values(EMP_FORM_DEFAULT_LAYOUT).flat().filter(Boolean));
     const localConfig = initEmpresasFormLayoutLocal(user.id);
-    const repaired = ensureLayoutFields(localConfig, defaults, { knownFieldIds: nativeIds }) || defaults;
+    const upgraded = upgradeStoredLayoutConfig(localConfig, defaults);
+    if (!upgraded) {
+      clearLegacyLayoutStorageForUser(user.id);
+      writeStoredLayoutConfig(defaults);
+    }
+    const repaired = ensureLayoutFields(upgraded || defaults, defaults, { knownFieldIds: nativeIds }) || defaults;
     if (JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(localConfig || {}))) {
       writeStoredLayoutConfig(repaired);
     }
@@ -303,8 +311,7 @@ export default function FORMEMP({
 
   const defaultLayout = useMemo(
     () => ({
-      principal: [...EMP_FORM_DEFAULT_LAYOUT.principal],
-      geral: [...EMP_FORM_DEFAULT_LAYOUT.geral],
+      principais: [...EMP_FORM_DEFAULT_LAYOUT.principais],
       endereco: [...EMP_FORM_DEFAULT_LAYOUT.endereco],
       observacoes: [...EMP_FORM_DEFAULT_LAYOUT.observacoes],
     }),
@@ -337,14 +344,6 @@ export default function FORMEMP({
     });
   }, [formLayoutConfig, basePanels, defaultLayout, defaultConfigFull, knownLayoutFieldIds]);
 
-  const formPanels = useMemo(
-    () =>
-      activeLayoutConfig.panels.filter(
-        (panel) => panel.id !== "principal" && !panel.hidden
-      ),
-    [activeLayoutConfig.panels]
-  );
-
   const tabs = useMemo(
     () =>
       activeLayoutConfig.panels.filter((panel) => {
@@ -357,12 +356,11 @@ export default function FORMEMP({
       }),
     [activeLayoutConfig.panels, activeLayoutConfig.layout, camposPersonalizadosForm.length, defaultLayout]
   );
-  const principalLayoutFields = activeLayoutConfig.layout?.principal || [];
-  const principalInUse = principalLayoutFields.length > 0;
+
   const fieldLayoutConfig = activeLayoutConfig.fieldLayoutConfig;
-  const standalonePrincipalInUse = principalInUse;
+
   const requiredFieldStats = useMemo(() => {
-    const panelIds = ["principal", ...tabs.map((panel) => panel.id)];
+    const panelIds = tabs.map((panel) => panel.id);
     return countRequiredFormFields({
       panelIds,
       layout: activeLayoutConfig.layout,
@@ -400,7 +398,7 @@ export default function FORMEMP({
     if (updateActiveTab) {
       const visiblePanels = normalized.panels.filter((panel) => !panel.hidden && panel.id !== "principal");
       if (!visiblePanels.some((panel) => panel.id === activeTab)) {
-        setActiveTab(visiblePanels[0]?.id || "geral");
+        setActiveTab(visiblePanels[0]?.id || LAYOUT_MAIN_TAB_ID);
       }
     }
     return normalized;
@@ -410,14 +408,12 @@ export default function FORMEMP({
 
   useEffect(() => {
     if (!formLayoutConfig || layoutConfigOpen) return;
-    const activeTabValid =
-      tabs.some((panel) => panel.id === activeTab) ||
-      formPanels.some((panel) => panel.id === activeTab);
+    const activeTabValid = tabs.some((panel) => panel.id === activeTab);
     if (!activeTabValid) {
-      const nextTab = tabs[0]?.id || formPanels[0]?.id || "geral";
+      const nextTab = tabs[0]?.id || LAYOUT_MAIN_TAB_ID;
       if (nextTab !== activeTab) setActiveTab(nextTab);
     }
-  }, [formLayoutConfig, tabIdsKey, formPanels, activeTab, layoutConfigOpen]);
+  }, [formLayoutConfig, tabIdsKey, tabs, activeTab, layoutConfigOpen]);
 
   useEffect(() => {
     if (!user?.id || !formLayoutConfig || layoutConfigOpen || layoutPersistedRef.current) return;
@@ -430,7 +426,7 @@ export default function FORMEMP({
     const repairedKnownCount = countKnownLayoutFields(repaired?.layout, knownLayoutFieldIds);
     const hasHiddenSystemPanels = (formLayoutConfig?.panels || []).some(
       (panel) =>
-        ["geral", "endereco", "observacoes", "principal"].includes(panel.id) &&
+        [LAYOUT_MAIN_TAB_ID, "endereco", "observacoes", "geral", "principal"].includes(panel.id) &&
         panel.hidden &&
         (formLayoutConfig?.layout?.[panel.id] || []).length > 0
     );
@@ -461,13 +457,6 @@ export default function FORMEMP({
     applyLayoutConfig({
       ...activeLayoutConfig,
       ...nextConfig,
-    });
-  };
-
-  const saveFieldLayoutConfig = (nextFieldLayoutConfig) => {
-    applyLayoutConfig({
-      ...activeLayoutConfig,
-      fieldLayoutConfig: nextFieldLayoutConfig,
     });
   };
 
@@ -515,7 +504,7 @@ export default function FORMEMP({
   }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
 
   useEffect(() => {
-    if (layoutConfigOpen || fieldLayoutConfigOpen) {
+    if (layoutConfigOpen) {
       setPageHeader({
         recordTitle: null,
         operationLabel: "Configuração",
@@ -533,7 +522,6 @@ export default function FORMEMP({
     recordHeaderTitle,
     operationLabel,
     layoutConfigOpen,
-    fieldLayoutConfigOpen,
     setPageHeader,
   ]);
 
@@ -561,8 +549,8 @@ export default function FORMEMP({
           visibilityRules={activeLayoutConfig.visibilityRules || {}}
           defaultConfig={defaultConfigFull}
           previewValues={formData}
-          systemPanelIds={["principal", "geral", "endereco", "observacoes", "campos_personalizados"]}
-          fixedPanelIds={["principal"]}
+          systemPanelIds={["principais", "endereco", "observacoes", "campos_personalizados"]}
+          fixedPanelIds={[]}
           fixedVisibleFieldIds={[]}
           onSave={saveLayoutConfig}
           brandTheme
@@ -573,12 +561,6 @@ export default function FORMEMP({
 
   return (
     <div className="cadastro-emp-scope erp-ui flex h-full min-h-0 flex-col overflow-hidden">
-      <EmpFieldLayoutConfigDialog
-        open={fieldLayoutConfigOpen}
-        onOpenChange={setFieldLayoutConfigOpen}
-        fieldLayoutConfig={fieldLayoutConfig}
-        onSave={saveFieldLayoutConfig}
-      />
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <style>{`
           .form-scroll-container {
@@ -586,14 +568,14 @@ export default function FORMEMP({
             scrollbar-color: #94a3b8 #ffffff;
             overflow: scroll;
             scrollbar-gutter: stable both-edges;
-            background: #ffffff;
+            background: #eef1f6;
           }
           .form-scroll-container::-webkit-scrollbar {
             height: 8px;
             width: 8px;
           }
           .form-scroll-container::-webkit-scrollbar-track {
-            background: #ffffff;
+            background: #eef1f6;
           }
           .form-scroll-container::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;
@@ -617,7 +599,6 @@ export default function FORMEMP({
               onCancel={onCancel}
               onEditRecord={() => setEditMode(true)}
               onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
-              onFieldLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setFieldLayoutConfigOpen(true); }}
               onToggleView={onToggleView}
               total={total}
               currentIndex={currentIndex}
@@ -642,33 +623,8 @@ export default function FORMEMP({
           }
         >
         <div className="form-scroll-container min-h-0 flex-1 overflow-auto pb-6 pr-2">
-          <div className={`emp-form-body flex flex-col ${standalonePrincipalInUse ? "" : "emp-form-body-no-principal"}`}>
-            {standalonePrincipalInUse && (
-              <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">
-                <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
-                  <EmpDynamicFormRenderer
-                    panels={activeLayoutConfig.panels}
-                    fields={dynamicFields}
-                    layout={activeLayoutConfig.layout}
-                    layoutV3={activeLayoutConfig.layoutV3}
-                    defaultLayout={defaultLayout}
-                    hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                    lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                    requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                    visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                    fieldSizes={activeLayoutConfig.fieldSizes || {}}
-                    fieldLayoutConfig={fieldLayoutConfig}
-                    activePanelId="principal"
-                    values={formData}
-                    errors={errors}
-                    onChange={handleDynamicFieldChange}
-                    readOnly={isReadOnly}
-                  />
-                </fieldset>
-              </div>
-            )}
-
-            <div className={`emp-form-panels-zone flex min-h-0 flex-1 flex-col ${standalonePrincipalInUse ? "" : "emp-form-panels-zone-no-principal"}`}>
+          <div className="emp-form-body flex min-h-0 flex-1 flex-col">
+            <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
               <LegacyTabs
                 tabs={tabs}
                 activeTab={activeTab}
@@ -686,7 +642,7 @@ export default function FORMEMP({
               <div className="emp-form-section emp-form-section-panel min-h-[380px] w-full min-w-[920px] max-w-none pl-2 pr-4">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <EmpDynamicFormRenderer
-                    panels={formPanels}
+                    panels={tabs}
                     fields={dynamicFields}
                     layout={activeLayoutConfig.layout}
                     layoutV3={activeLayoutConfig.layoutV3}

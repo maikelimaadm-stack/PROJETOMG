@@ -47,26 +47,38 @@ export const REQUIRED_FIELDS = ["razao_social", "tipo_pessoa"];
 export const FORM_LAYOUT_KEY = "cadastro_emp_form_layout_config";
 export const TABLE_AGGREGATION_KEY = "emp_table_aggregation_config";
 
+/** Abas do formulário (sem painel principal de campos — só seleção por aba). */
 export const EMP_FORM_BASE_PANELS = [
-  { id: "principal", label: "Principal" },
-  { id: "geral", label: "Geral" },
+  { id: "principais", label: "Principais" },
   { id: "endereco", label: "Endereço" },
   { id: "observacoes", label: "Observações" },
 ];
 
 export const EMP_FORM_DEFAULT_LAYOUT = {
-  principal: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
-  geral: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp", "email", "logo_url"],
+  principais: [
+    "tipo_pessoa",
+    "tipo_vinculo",
+    "codempresa",
+    "razao_social",
+    "status",
+    "nome_fantasia",
+    "cpf_cnpj",
+    "inscricao_estadual",
+    "telefone",
+    "whatsapp",
+    "email",
+    "logo_url",
+  ],
   endereco: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
   observacoes: ["observacoes"],
 };
 
-/** Layout V3 padrão — espelha referência corporativa (cards + metade/inteira). */
+/** Layout V3 — estrutura igual referência (cards + metade/inteira). */
 export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
-  principal: {
+  principais: {
     cards: [
       {
-        id: "dados_principais",
+        id: "dados_pessoais",
         label: "Dados principais",
         order: 1,
         colSpan: 12,
@@ -74,23 +86,19 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
         collapsible: true,
         fieldIds: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
       },
-    ],
-  },
-  geral: {
-    cards: [
       {
-        id: "identificacao",
-        label: "Identificação",
-        order: 1,
+        id: "informacoes_funcionais",
+        label: "Informações adicionais",
+        order: 2,
         colSpan: 6,
         columns: 12,
         collapsible: true,
         fieldIds: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual"],
       },
       {
-        id: "contato",
+        id: "informacoes_contato",
         label: "Contato",
-        order: 2,
+        order: 3,
         colSpan: 6,
         columns: 12,
         collapsible: true,
@@ -126,7 +134,6 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
   },
 };
 
-/** Tamanhos de grid por campo (referência: CPF/UF/CEP XS, Nome/Obs XL). */
 export const EMP_FORM_DEFAULT_FIELD_SIZES = {
   tipo_pessoa: "SM",
   tipo_vinculo: "SM",

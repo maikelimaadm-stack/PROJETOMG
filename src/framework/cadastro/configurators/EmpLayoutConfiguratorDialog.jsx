@@ -41,8 +41,8 @@ import { DEFAULT_VIRTUAL_CARD_ID } from "@/framework/cadastro/layouts/layoutConf
 import { DEFAULT_FIELD_LAYOUT_CONFIG } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { FIELD_SIZE_OPTIONS } from "@/framework/cadastro/layouts/empFormFieldGrid";
 
-const DEFAULT_SYSTEM_PANEL_IDS = ["principal", "geral", "endereco", "observacoes", "campos_personalizados"];
-const DEFAULT_FIXED_PANEL_IDS = ["principal"];
+const DEFAULT_SYSTEM_PANEL_IDS = ["principais", "endereco", "observacoes", "campos_personalizados"];
+const DEFAULT_FIXED_PANEL_IDS = [];
 const DEFAULT_FIXED_VISIBLE_FIELD_IDS = [];
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
