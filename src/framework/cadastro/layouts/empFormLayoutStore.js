@@ -190,6 +190,13 @@ export const mergeSavedFormLayout = (saved, defaults) => {
   const totalPlaced = Object.values(layout).flat().filter(Boolean).length;
   if (totalPlaced === 0) return pickLayoutConfig(defaults);
 
+  Object.entries(defaultLayout).forEach(([panelId, fieldIds]) => {
+    if (!Array.isArray(fieldIds) || fieldIds.length === 0) return;
+    if (!Array.isArray(layout[panelId]) || layout[panelId].length === 0) {
+      layout[panelId] = [...fieldIds];
+    }
+  });
+
   const panels = Array.isArray(saved.panels) && saved.panels.length ? saved.panels : defaults.panels;
 
   return pickLayoutConfig({

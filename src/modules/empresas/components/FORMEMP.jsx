@@ -309,6 +309,14 @@ export default function FORMEMP({
     });
   }, [formLayoutConfig, basePanels, defaultLayout, defaultConfigFull]);
 
+  const formPanels = useMemo(
+    () =>
+      activeLayoutConfig.panels.filter(
+        (panel) => panel.id !== "principal" && !panel.hidden
+      ),
+    [activeLayoutConfig.panels]
+  );
+
   const tabs = activeLayoutConfig.panels.filter((panel) => {
     if (panel.id === "principal") return false;
     if (panel.hidden) return false;
@@ -325,6 +333,7 @@ export default function FORMEMP({
     ...tabs,
   ];
   const [collapsedDetailPanelIds, setCollapsedDetailPanelIds] = useState([]);
+  const layoutRepairRef = useRef(false);
   const toggleDetailPanel = (panelId) => {
     setCollapsedDetailPanelIds((prev) =>
       prev.includes(panelId) ? prev.filter((id) => id !== panelId) : [...prev, panelId]
@@ -401,7 +410,23 @@ export default function FORMEMP({
 
   useEffect(() => {
     if (!formLayoutConfig || layoutConfigOpen) return;
-    if (tabs.length > 0) return;
+    const activeTabValid =
+      tabs.some((panel) => panel.id === activeTab) ||
+      formPanels.some((panel) => panel.id === activeTab);
+    if (!activeTabValid) {
+      const nextTab = tabs[0]?.id || formPanels[0]?.id || "geral";
+      if (nextTab !== activeTab) setActiveTab(nextTab);
+    }
+  }, [formLayoutConfig, tabs, formPanels, activeTab, layoutConfigOpen]);
+
+  useEffect(() => {
+    if (!formLayoutConfig || layoutConfigOpen) return;
+    if (tabs.length > 0) {
+      layoutRepairRef.current = false;
+      return;
+    }
+    if (layoutRepairRef.current) return;
+    layoutRepairRef.current = true;
     applyLayoutConfig(defaultConfigFull, { updateActiveTab: true });
   }, [formLayoutConfig, tabs.length, layoutConfigOpen, defaultConfigFull]);
 
@@ -603,6 +628,7 @@ export default function FORMEMP({
                     panels={activeLayoutConfig.panels}
                     fields={dynamicFields}
                     layout={activeLayoutConfig.layout}
+                    defaultLayout={defaultLayout}
                     hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
                     lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
                     requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
@@ -638,9 +664,10 @@ export default function FORMEMP({
                   <div className="emp-form-section emp-form-section-panel min-h-[380px] w-full min-w-[920px] max-w-none pl-2 pr-4">
                     <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                       <EmpDynamicFormRenderer
-                        panels={tabs}
+                        panels={formPanels}
                         fields={dynamicFields}
                         layout={activeLayoutConfig.layout}
+                        defaultLayout={defaultLayout}
                         hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
                         lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
                         requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
@@ -682,6 +709,7 @@ export default function FORMEMP({
                             panels={detailPanels}
                             fields={dynamicFields}
                             layout={activeLayoutConfig.layout}
+                            defaultLayout={defaultLayout}
                             hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
                             lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
                             requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}

@@ -201,6 +201,7 @@ export default function EmpDynamicFormRenderer({
   panels = [],
   fields = [],
   layout = {},
+  defaultLayout = {},
   hiddenFieldIds = [],
   lockedFieldIds = [],
   requiredFieldIds = [],
@@ -215,7 +216,11 @@ export default function EmpDynamicFormRenderer({
   fieldClassName = "",
 }) {
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
-  const activeFieldIds = layout?.[activePanel?.id] || [];
+  const configuredFieldIds = layout?.[activePanel?.id] || [];
+  const activeFieldIds =
+    configuredFieldIds.length > 0
+      ? configuredFieldIds
+      : defaultLayout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
   const useCompactMode = ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode);
 
