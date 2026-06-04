@@ -17,8 +17,8 @@ export function resolveFieldWidthToken(field) {
   if (type === "textarea" || type === "option_list" || field.wide) return "full";
   if (type === "checkbox" || type === "switch") return "toggle";
   if (type === "image" || type === "file" || type === "imagem") return "xs";
-  if (LOOKUP_TYPES.includes(type)) return "lookup";
-  if (DATE_TYPES.includes(type) || name.includes("data")) return "sm-date";
+  if (LOOKUP_TYPES.has(type)) return "lookup";
+  if (DATE_TYPES.has(type) || name.includes("data")) return "sm-date";
   if (UF_NAMES.has(name) || name === "uf" || name.endsWith("_uf")) return "xs";
   if (name.includes("cep") || name.includes("cpf") || name.includes("cnpj")) return "md";
   if (SHORT_NAMES.has(name) || field.compact) return "sm";
