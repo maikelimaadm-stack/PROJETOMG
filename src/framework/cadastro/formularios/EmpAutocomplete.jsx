@@ -58,7 +58,14 @@ export default function EmpAutocomplete({
   const interactingWithDropdownRef = useRef(false);
   const portalContainerRef = useRef(null);
 
-  const selectedItem = items.find((item) => item.id === value);
+  const resolvedItems = useMemo(() => {
+    if (isLookup) return items;
+    const hasEmpty = items.some((item) => String(item?.id ?? "") === "");
+    if (hasEmpty) return items;
+    return [{ id: "", nome: "SELECIONE" }, ...items];
+  }, [items, isLookup]);
+
+  const selectedItem = resolvedItems.find((item) => item.id === value);
   const filterText = isSelect ? menuFilter : searchTerm;
 
   useEffect(() => {
@@ -76,10 +83,11 @@ export default function EmpAutocomplete({
     const dialogEl = wrapperRef.current?.closest('[role="dialog"]');
     const dialogRect = dialogEl?.getBoundingClientRect();
     portalContainerRef.current = dialogEl || null;
+    const panelWidth = Math.max(Math.round(rect.width), 200);
     setDropdownPos({
       top: dialogRect ? rect.bottom - dialogRect.top + 4 : rect.bottom + 4,
       left: dialogRect ? rect.left - dialogRect.left : rect.left,
-      width: rect.width,
+      width: panelWidth,
       inDialog: !!dialogRect,
     });
   }, []);
@@ -123,7 +131,7 @@ export default function EmpAutocomplete({
 
   const filteredItems = useMemo(
     () =>
-      [...items]
+      [...resolvedItems]
         .sort((a, b) =>
           String(a?.[displayField] || "").localeCompare(String(b?.[displayField] || ""), "pt-BR", {
             numeric: true,
@@ -137,7 +145,7 @@ export default function EmpAutocomplete({
               .includes(String(filterText || "").toLowerCase())
           )
         ),
-    [items, displayField, searchFields, filterText]
+    [resolvedItems, displayField, searchFields, filterText]
   );
 
   useEffect(() => {
@@ -295,6 +303,7 @@ export default function EmpAutocomplete({
           top: dropdownPos.top,
           left: dropdownPos.left,
           width: dropdownPos.width,
+          minWidth: 200,
           zIndex: 999999,
           pointerEvents: "auto",
         }
@@ -303,6 +312,7 @@ export default function EmpAutocomplete({
           top: dropdownPos.top,
           left: dropdownPos.left,
           width: dropdownPos.width,
+          minWidth: 200,
           zIndex: 999999,
           pointerEvents: "auto",
         };

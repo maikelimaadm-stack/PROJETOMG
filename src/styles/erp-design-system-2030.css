@@ -4,6 +4,29 @@
  * Consumir variáveis; evitar valores soltos nos módulos.
  */
 
+/* Menus em portal (document.body) — tokens no :root para não perder estilo */
+:root {
+  --erp-menu-bg: #ffffff;
+  --erp-menu-border: #d8dee9;
+  --erp-menu-radius: 12px;
+  --erp-menu-padding: 6px;
+  --erp-menu-shadow:
+    0 8px 24px rgba(16, 24, 40, 0.08),
+    0 2px 8px rgba(16, 24, 40, 0.06);
+  --erp-menu-item-height: 30px;
+  --erp-menu-item-radius: 8px;
+  --erp-menu-item-hover: #f3f6fb;
+  --erp-menu-item-selected-bg: #eef6ff;
+  --erp-menu-separator: #e5eaf2;
+  --erp-menu-search-bg: #f8fafc;
+  --erp-menu-search-border: #e2e8f0;
+  --erp-color-primary: #2563eb;
+  --erp-color-text: #1e293b;
+  --erp-color-text-muted: #64748b;
+  --erp-radius-control: 8px;
+  --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
 .cadastro-scope,
 .cadastro-emp-scope {
   --erp-ds-transition: 150ms ease;
@@ -307,7 +330,23 @@
 /* Campo SELECT — chevron, menu com busca interna */
 .cadastro-emp-scope .erp-field-select .erp-field-select-input {
   cursor: pointer;
+  text-align: left !important;
+  padding-left: 10px !important;
+  padding-right: 28px !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: #1e293b !important;
   background-color: #ffffff !important;
+}
+
+.cadastro-emp-scope .erp-field-select .erp-field-select-input::placeholder {
+  color: #64748b !important;
+  text-transform: uppercase;
+  opacity: 1;
+}
+
+.cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
+  right: 6px !important;
 }
 
 .cadastro-emp-scope .erp-field-select-chevron-btn {
@@ -475,23 +514,34 @@
   accent-color: var(--erp-color-primary);
 }
 
-/* —— Menus abertos (padrão GitHub) —— */
+/* —— Menus abertos (padrão GitHub — referência select) —— */
 .erp-menu-panel,
+.erp-menu-panel.erp-select-menu,
+.erp-menu-panel.erp-search-panel,
 .erp-select-menu,
 .erp-search-panel,
-.erp-dropdown-panel,
-.emp-filter-popover,
-[data-radix-select-content],
-[data-radix-menu-content],
-[data-radix-popover-content].erp-menu-panel,
-[data-radix-popover-content]:has([cmdk-root]) {
-  background: var(--erp-menu-bg) !important;
-  border: 1px solid var(--erp-menu-border) !important;
-  border-radius: var(--erp-menu-radius) !important;
-  padding: var(--erp-menu-padding) !important;
-  box-shadow: var(--erp-menu-shadow) !important;
-  overflow: hidden;
-  transition: box-shadow var(--erp-ds-transition-slow);
+.emp-filter-popover.erp-menu-panel,
+[data-radix-select-content].erp-menu-panel,
+[data-radix-menu-content].erp-menu-panel,
+[data-radix-popover-content].erp-menu-panel {
+  box-sizing: border-box;
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #d8dee9 !important;
+  border-radius: 12px !important;
+  padding: 6px !important;
+  box-shadow:
+    0 8px 24px rgba(16, 24, 40, 0.08),
+    0 2px 8px rgba(16, 24, 40, 0.06) !important;
+  overflow: visible !important;
+  font-family: inherit;
+  transition: box-shadow 150ms ease;
+}
+
+[data-radix-select-content].erp-menu-panel {
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  padding: 6px !important;
 }
 
 .erp-menu-item,
@@ -593,19 +643,19 @@
 }
 
 /* Campo de pesquisa dentro do menu */
-.erp-menu-search-field {
+.erp-menu-panel .erp-menu-search-field {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
   height: 28px;
   min-height: 28px;
-  margin-bottom: 6px;
+  margin: 0 0 6px;
   padding: 0 10px;
   box-sizing: border-box;
   background: #f8fafc !important;
   border: 1px solid #e2e8f0 !important;
-  border-radius: var(--erp-radius-control) !important;
+  border-radius: 8px !important;
 }
 
 .erp-menu-search-field svg {
@@ -634,9 +684,21 @@
 
 .erp-select-menu__list,
 .erp-search-panel__results {
-  max-height: 240px;
-  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  overflow-x: hidden;
+  overflow-y: auto;
   overscroll-behavior: contain;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.erp-menu-panel .erp-menu-item {
+  width: 100%;
+  margin: 0;
 }
 
 /* Itens lookup — duas linhas (modelo Cliente) */
@@ -673,6 +735,12 @@
 .erp-select-menu .erp-menu-item:not(.erp-menu-item--lookup) .erp-menu-item__primary {
   font-weight: 400;
   text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.erp-select-menu .erp-menu-item--selected .erp-menu-item__primary {
+  color: #2563eb;
+  font-weight: 500;
 }
 
 /* Rodapé pesquisa (ex.: Novo Cliente) */
