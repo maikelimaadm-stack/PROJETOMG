@@ -295,6 +295,7 @@ export default function PAGEMP() {
 
   const handleNew = () => {
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
+    setSelectedTableItems([]);
     setEditingEmp(null);
     setShowForm(true);
     setViewMode("record");

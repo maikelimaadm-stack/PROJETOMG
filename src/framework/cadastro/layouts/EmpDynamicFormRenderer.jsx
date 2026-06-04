@@ -250,16 +250,37 @@ export default function EmpDynamicFormRenderer({
     );
   }
 
+  const renderFieldControl = (field, configuredField, value, fieldReadOnly) => {
+    if (typeof field.render !== "function") {
+      return (
+        <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />
+      );
+    }
+    try {
+      const rendered = field.render({
+        field: configuredField,
+        value,
+        values,
+        errors,
+        onChange,
+        readOnly: fieldReadOnly,
+        context,
+      });
+      if (rendered !== null && rendered !== undefined) return rendered;
+    } catch (error) {
+      console.error("[EmpDynamicFormRenderer] Erro ao renderizar campo", field.id, error);
+    }
+    return (
+      <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />
+    );
+  };
+
   const renderField = (field) => {
     const value = field.getValue ? field.getValue(values, context) : values[field.name];
     const error = errors[field.errorKey || field.name];
     const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
     const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
-    const control = field.render
-      ? field.render({ field: configuredField, value, values, errors, onChange, readOnly: fieldReadOnly, context })
-      : (
-        <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />
-      );
+    const control = renderFieldControl(field, configuredField, value, fieldReadOnly);
 
     return (
       <FieldFrameSgg

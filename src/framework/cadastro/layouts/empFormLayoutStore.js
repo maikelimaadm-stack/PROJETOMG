@@ -164,18 +164,56 @@ export const normalizeLayoutConfig = (
 export const readStoredLayoutConfig = () => {
   try {
     const raw = localStorage.getItem(getLegacyKey());
-    return raw ? JSON.parse(raw) : null;
+    const parsed = raw ? JSON.parse(raw) : null;
+    return isPlainLayoutConfig(parsed) ? parsed : null;
   } catch {
     return null;
   }
 };
 
 export const writeStoredLayoutConfig = (config) => {
+  if (!isPlainLayoutConfig(config)) return;
   localStorage.setItem(getLegacyKey(), JSON.stringify(pickLayoutConfig(config)));
 };
 
+const SYSTEM_PANEL_IDS = new Set(["principal", "geral", "endereco", "observacoes"]);
+
+const isPlainLayoutConfig = (value) =>
+  value && typeof value === "object" && !Array.isArray(value);
+
+/** Garante layout utilizável: painéis do sistema visíveis e campos padrão nos painéis vazios. */
+export const ensureLayoutFields = (saved, defaults) => {
+  if (!isPlainLayoutConfig(defaults)) return null;
+  if (!isPlainLayoutConfig(saved)) return pickLayoutConfig(defaults);
+
+  const merged = mergeSavedFormLayout(saved, defaults);
+  const defaultLayout = defaults?.layout || {};
+  const layout = { ...(merged.layout || {}) };
+
+  Object.entries(defaultLayout).forEach(([panelId, fieldIds]) => {
+    if (!Array.isArray(fieldIds) || fieldIds.length === 0) return;
+    if (!Array.isArray(layout[panelId]) || layout[panelId].length === 0) {
+      layout[panelId] = [...fieldIds];
+    }
+  });
+
+  const panels = (merged.panels || defaults.panels || []).map((panel) =>
+    SYSTEM_PANEL_IDS.has(panel.id) ? { ...panel, hidden: false } : panel
+  );
+
+  const next = pickLayoutConfig({
+    ...merged,
+    panels: panels.length ? panels : defaults.panels,
+    layout: sanitizeLayoutFieldPlacements(layout),
+    fieldLayoutConfig: merged.fieldLayoutConfig || defaults.fieldLayoutConfig,
+  });
+
+  return countLayoutFields(next.layout) > 0 ? next : pickLayoutConfig(defaults);
+};
+
 export const mergeSavedFormLayout = (saved, defaults) => {
-  if (!saved || typeof saved !== "object") return pickLayoutConfig(defaults);
+  if (!isPlainLayoutConfig(defaults)) return pickLayoutConfig(defaults || {});
+  if (!isPlainLayoutConfig(saved)) return pickLayoutConfig(defaults);
 
   const defaultLayout = defaults?.layout || {};
   const savedLayout = saved.layout || {};
