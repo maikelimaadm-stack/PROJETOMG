@@ -7,7 +7,6 @@ import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
-import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import EmpLayoutConfiguratorDialog from "@/framework/cadastro/configurators/EmpLayoutConfiguratorDialog";
@@ -249,6 +248,18 @@ export default function FORMEMP({
     </select>
   );
 
+  const renderStatusSelect = () => (
+    <select
+      value={formData.status === "Inativa" ? "Inativa" : "Ativa"}
+      onChange={(event) => handleChange("status", event.target.value)}
+      disabled={isReadOnly}
+      className={`${inputClass} w-full`}
+    >
+      <option value="Ativa">SIM</option>
+      <option value="Inativa">NÃO</option>
+    </select>
+  );
+
   const { renderCampoPersonalizado } = useFormEmpCustomFields({
     formData,
     isReadOnly,
@@ -262,16 +273,16 @@ export default function FORMEMP({
     { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
     { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
     { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
-    { id: "status", name: "status", label: "Ativa", type: "switch", compact: true, render: () => <ToggleSwitch checked={formData.status !== "Inativa"} onChange={(checked) => handleChange("status", checked ? "Ativa" : "Inativa")} disabled={isReadOnly} className="emp-form-toggle-switch" checkedClassName="emp-form-toggle-switch-on" /> },
-    { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", wide: true, uppercase: true, placeholder: "NOME FANTASIA" },
+    { id: "status", name: "status", label: "Ativa", type: "select", compact: true, render: renderStatusSelect },
+    { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", medium: true, uppercase: true, placeholder: "NOME FANTASIA" },
     { id: "cpf_cnpj", name: "cpf_cnpj", label: formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ", type: "text", compact: true, placeholder: formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00" },
     { id: "inscricao_estadual", name: "inscricao_estadual", label: "Inscrição Estadual", type: "text", compact: true, placeholder: "INSCRIÇÃO ESTADUAL" },
-    { id: "telefone", name: "telefone", label: "Telefone", type: "text", compact: true, placeholder: "(00) 0000-0000" },
-    { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "text", compact: true, placeholder: "(00) 00000-0000" },
-    { id: "email", name: "email", label: "E-mail", type: "text", placeholder: "EMAIL@EMPRESA.COM.BR" },
+    { id: "telefone", name: "telefone", label: "Telefone", type: "text", widthType: "PHONE", compact: true, placeholder: "(00) 0000-0000" },
+    { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "text", widthType: "PHONE", compact: true, placeholder: "(00) 00000-0000" },
+    { id: "email", name: "email", label: "E-mail", type: "text", widthType: "EMAIL", placeholder: "EMAIL@EMPRESA.COM.BR" },
     { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "image", compact: true, render: () => <EmpFormImageField value={formData.logo_url} readOnly={isReadOnly} uploading={uploadingLogo} onUpload={handleLogoUpload} onClear={() => handleChange("logo_url", "")} alt="Logo da empresa" /> },
     { id: "cep", name: "cep", label: "CEP", type: "text", compact: true, placeholder: "00000-000" },
-    { id: "endereco", name: "endereco", label: "Endereço", type: "text", wide: true, uppercase: true, placeholder: "RUA, AVENIDA..." },
+    { id: "endereco", name: "endereco", label: "Endereço", type: "text", medium: true, uppercase: true, placeholder: "RUA, AVENIDA..." },
     { id: "numero", name: "numero", label: "Número", type: "text", compact: true, placeholder: "Nº" },
     { id: "bairro", name: "bairro", label: "Bairro", type: "text", uppercase: true, placeholder: "BAIRRO" },
     { id: "cidade", name: "cidade", label: "Cidade", type: "text", uppercase: true, placeholder: "CIDADE" },
@@ -288,7 +299,7 @@ export default function FORMEMP({
       optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "",
       required: campo.obrigatorio,
       errorKey: `campos_personalizados.${campo.field_name}`,
-      wide: ["textarea", "option_list"].includes(campo.tipo),
+      wide: campo.tipo === "textarea",
       medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo),
       compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo),
       totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara,

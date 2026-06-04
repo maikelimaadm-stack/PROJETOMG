@@ -59,8 +59,8 @@ export const EMP_FORM_DEFAULT_LAYOUT = {
     "tipo_pessoa",
     "tipo_vinculo",
     "codempresa",
-    "razao_social",
     "status",
+    "razao_social",
     "nome_fantasia",
     "cpf_cnpj",
     "inscricao_estadual",
@@ -73,7 +73,7 @@ export const EMP_FORM_DEFAULT_LAYOUT = {
   observacoes: ["observacoes"],
 };
 
-/** Layout V3 — estrutura igual referência (cards + metade/inteira). */
+/** Layout V3 — cards (tela inteira / meia tela); linhas visuais auto-empacotadas por largura. */
 export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
   principais: {
     cards: [
@@ -84,11 +84,14 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
         colSpan: 12,
         columns: 12,
         collapsible: true,
-        rows: [
-          { id: "row_dados_1", order: 1, fieldIds: ["tipo_pessoa", "tipo_vinculo", "codempresa", "status"] },
-          { id: "row_dados_2", order: 2, fieldIds: ["razao_social"] },
+        fieldIds: [
+          "tipo_pessoa",
+          "tipo_vinculo",
+          "codempresa",
+          "status",
+          "razao_social",
+          "nome_fantasia",
         ],
-        fieldIds: ["tipo_pessoa", "tipo_vinculo", "codempresa", "razao_social", "status"],
       },
       {
         id: "informacoes_funcionais",
@@ -97,10 +100,7 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
         colSpan: 6,
         columns: 12,
         collapsible: true,
-        rows: [
-          { id: "row_info_1", order: 1, fieldIds: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual"] },
-        ],
-        fieldIds: ["nome_fantasia", "cpf_cnpj", "inscricao_estadual"],
+        fieldIds: ["cpf_cnpj", "inscricao_estadual", "telefone", "whatsapp"],
       },
       {
         id: "informacoes_contato",
@@ -109,11 +109,7 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
         colSpan: 6,
         columns: 12,
         collapsible: true,
-        rows: [
-          { id: "row_contato_1", order: 1, fieldIds: ["telefone", "whatsapp", "email"] },
-          { id: "row_contato_2", order: 2, fieldIds: ["logo_url"] },
-        ],
-        fieldIds: ["telefone", "whatsapp", "email", "logo_url"],
+        fieldIds: ["email", "logo_url"],
       },
     ],
   },
@@ -126,10 +122,6 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
         colSpan: 12,
         columns: 12,
         collapsible: true,
-        rows: [
-          { id: "row_end_1", order: 1, fieldIds: ["cep", "endereco", "numero"] },
-          { id: "row_end_2", order: 2, fieldIds: ["bairro", "cidade", "estado"] },
-        ],
         fieldIds: ["cep", "endereco", "numero", "bairro", "cidade", "estado"],
       },
     ],
@@ -143,34 +135,14 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
         colSpan: 12,
         columns: 12,
         collapsible: true,
-        rows: [{ id: "row_obs_1", order: 1, fieldIds: ["observacoes"] }],
         fieldIds: ["observacoes"],
       },
     ],
   },
 };
 
-export const EMP_FORM_DEFAULT_FIELD_SIZES = {
-  tipo_pessoa: "SM",
-  tipo_vinculo: "SM",
-  codempresa: "XS",
-  status: "XS",
-  razao_social: "XL",
-  nome_fantasia: "LG",
-  cpf_cnpj: "MD",
-  inscricao_estadual: "MD",
-  telefone: "SM",
-  whatsapp: "SM",
-  email: "LG",
-  logo_url: "MD",
-  cep: "XS",
-  numero: "XS",
-  estado: "XS",
-  bairro: "MD",
-  cidade: "MD",
-  endereco: "XL",
-  observacoes: "XL",
-};
+/** Override opcional de tipo de largura por campo (vazio = inferência automática por tipo). */
+export const EMP_FORM_DEFAULT_FIELD_SIZES = {};
 
 export const buildEmpFormDefaultConfig = () => ({
   version: 3,

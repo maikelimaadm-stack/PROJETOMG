@@ -10,7 +10,11 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { getCardRowsForRender } from "@/framework/cadastro/layouts/empFormLayoutRows";
-import { resolveFieldGridSpan } from "@/framework/cadastro/layouts/empFormFieldGrid";
+import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
+import {
+  isExpansiveLayoutField,
+  isInlineMediaField,
+} from "@/framework/cadastro/layouts/empFormFieldLayoutGroups";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
@@ -45,8 +49,8 @@ function DefaultControl({ field, value, onChange, readOnly }) {
         value={value || ""}
         onChange={(e) => onChange(field.name, e.target.value)}
         readOnly={readOnly || field.readOnly}
-        className="emp-form-input w-full min-h-[var(--emp-form-textarea-min-height)] border-0 bg-white px-2 uppercase"
-        rows={field.rows || 2}
+        className="emp-form-input emp-form-textarea-corp w-full min-h-0 border-0 bg-white uppercase"
+        rows={field.rows || 3}
       />
     );
   }
@@ -129,23 +133,73 @@ const conditionMatches = (current, expected, sourceField) => {
   return currentValues.has(expectedText);
 };
 
-/** Layout corporativo: label acima do campo, grid 12 colunas. */
-function FieldFrameCorp({ field, error, children, gridSpan = 4, className = "" }) {
+/** Layout corporativo: min-width por tipo + flex-grow (preenche a linha). */
+function FieldFrameCorp({
+  field,
+  error,
+  children,
+  fieldSizes = {},
+  fullRow = false,
+  rowBalance = null,
+  className = "",
+}) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
+  const textareaField = field?.type === "textarea";
   const loteStyle = isCustomField(field);
+  const preset = resolveFieldWidthTypePreset(field, fieldSizes);
+  const typeClass = `emp-form-field-corp--type-${preset.type.toLowerCase().replace(/_/g, "-")}`;
+  const balanced = rowBalance?.[field.id];
+  const expansive = isExpansiveLayoutField(field, fieldSizes);
+  const mediaInline = isInlineMediaField(field, fieldSizes);
+
+  const isFull = Boolean(fullRow) && expansive;
+  const widthStyle = isFull
+    ? {
+        flex: "1 1 100%",
+        minWidth: "100%",
+        maxWidth: "none",
+        width: "100%",
+        ...(preset.textareaMinHeight
+          ? {
+              "--emp-field-textarea-min": `${preset.textareaMinHeight}px`,
+              "--emp-field-textarea-max": `${preset.textareaMaxHeight}px`,
+            }
+          : {}),
+      }
+    : balanced
+      ? {
+          flex: balanced.flex,
+          minWidth: balanced.minWidth,
+          maxWidth: "none",
+          width: "auto",
+          flexGrow: 1,
+          flexShrink: 1,
+        }
+      : {
+          flex: "1 1 140px",
+          minWidth: `${preset.min}px`,
+          maxWidth: "none",
+          width: "auto",
+        };
 
   return (
     <div
       data-field={field.dataField || field.name}
+      data-width-type={preset.type}
       className={cn(
         "emp-form-field-corp",
-        `emp-form-field-corp--span-${gridSpan}`,
-        imageField && "emp-form-field-corp--image",
+        typeClass,
+        isFull && "emp-form-field-corp--full-row",
+        expansive && "emp-form-field-corp--line-fill",
+        !expansive && balanced && "emp-form-field-corp--balanced-grow",
+        mediaInline && "emp-form-field-corp--media-inline",
+        imageField && expansive && "emp-form-field-corp--image-expanded",
+        textareaField && "emp-form-field-corp--textarea",
         bare && "emp-form-field-corp--bare",
         className
       )}
-      style={{ gridColumn: `span ${gridSpan} / span ${gridSpan}` }}
+      style={widthStyle}
     >
       <label className="emp-form-field-label-top">
         {field.label}
@@ -271,20 +325,20 @@ export default function EmpDynamicFormRenderer({
     );
   };
 
-  const renderField = (field) => {
+  const renderField = (field, fullRow = false, rowBalance = null) => {
     const value = field.getValue ? field.getValue(values, context) : values[field.name];
     const error = errors[field.errorKey || field.name];
     const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
     const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
     const control = renderFieldControl(field, configuredField, value, fieldReadOnly);
-    const gridSpan = resolveFieldGridSpan(configuredField, fieldSizes);
-
     return (
       <FieldFrameCorp
         key={field.id}
         field={configuredField}
         error={error}
-        gridSpan={gridSpan}
+        fieldSizes={fieldSizes}
+        fullRow={fullRow}
+        rowBalance={rowBalance}
         className={fieldClassName}
       >
         {control}
@@ -293,7 +347,7 @@ export default function EmpDynamicFormRenderer({
   };
 
   const cardHasCustomField = (card) =>
-    getCardRowsForRender(card, fieldSizes)
+    getCardRowsForRender(card, fieldSizes, fields)
       .flatMap((row) => row.fieldIds || [])
       .some((fieldId) => {
         const field = fields.find((item) => item.id === fieldId);
@@ -306,7 +360,7 @@ export default function EmpDynamicFormRenderer({
   const cardSections = cardRows.map((row, rowIndex) => (
     <div key={`row-${rowIndex}`} className="emp-form-cards-row">
       {row.map((card) => {
-        const layoutRows = getCardRowsForRender(card, fieldSizes);
+        const layoutRows = getCardRowsForRender(card, fieldSizes, fields);
         const hasVisibleInCard = layoutRows.some((layoutRow) =>
           (layoutRow.fieldIds || []).some((fieldId) => {
             const field = fields.find((item) => item.id === fieldId);
@@ -330,17 +384,17 @@ export default function EmpDynamicFormRenderer({
                     .filter(isFieldVisible);
                   if (rowFields.length === 0) return null;
                   return (
-                    <div key={layoutRow.id} className="emp-form-card-row">
-                      <div
-                        className="emp-form-card-row-grid"
-                        style={{
-                          gridTemplateColumns: `repeat(${Math.min(
-                            gridColumns,
-                            card.columns || gridColumns
-                          )}, minmax(0, 1fr))`,
-                        }}
-                      >
-                        {rowFields.map(renderField)}
+                    <div
+                      key={layoutRow.id}
+                      className={cn(
+                        "emp-form-card-row",
+                        layoutRow.fullWidth && "emp-form-card-row--full"
+                      )}
+                    >
+                      <div className="emp-form-card-row-grid emp-form-card-row-grid--flex">
+                        {rowFields.map((field) =>
+                          renderField(field, layoutRow.fullWidth, layoutRow.fieldBalance)
+                        )}
                       </div>
                     </div>
                   );
@@ -354,7 +408,7 @@ export default function EmpDynamicFormRenderer({
   ));
 
   const hasVisibleFields = cards.some((card) =>
-    getCardRowsForRender(card, fieldSizes).some((layoutRow) =>
+    getCardRowsForRender(card, fieldSizes, fields).some((layoutRow) =>
       (layoutRow.fieldIds || []).some((fieldId) => {
         const field = fields.find((item) => item.id === fieldId);
         return field && isFieldVisible(field);
