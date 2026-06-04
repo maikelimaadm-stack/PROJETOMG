@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:backend": "npm --prefix backend run dev",
+    "check:api": "node scripts/check-local-api.mjs",
     "build": "vite build",
     "lint": "eslint src",
     "typecheck": "tsc -p ./jsconfig.json",

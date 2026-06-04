@@ -168,8 +168,63 @@ export const balanceConfiguredRows = (
  * @param {object[]} [fields]
  * @param {number} [containerWidthPx]
  */
+/**
+ * Garante no máximo 6 campos (card inteiro) ou 4 (card meio) por linha.
+ * @param {{ keepEmptyRows?: boolean }} [options] — true no configurador (linhas vazias para arrastar campos)
+ */
+export const enforceMaxFieldsPerCardRows = (
+  rows = [],
+  colSpan = 12,
+  cardId = "card",
+  { keepEmptyRows = false } = {}
+) => {
+  const max = getMaxFieldsPerRow(colSpan);
+  const next = [];
+
+  rows.forEach((row, rowIndex) => {
+    const ids = (row.fieldIds || []).filter(Boolean);
+    if (!ids.length) {
+      if (keepEmptyRows) {
+        next.push({
+          ...row,
+          id: row.id || createRowId(cardId, rowIndex + 1),
+          order: next.length + 1,
+          fieldIds: [],
+        });
+      }
+      return;
+    }
+
+    if (ids.length <= max) {
+      next.push({
+        ...row,
+        id: row.id || createRowId(cardId, rowIndex + 1),
+        order: next.length + 1,
+        fieldIds: ids,
+      });
+      return;
+    }
+
+    for (let offset = 0; offset < ids.length; offset += max) {
+      const chunk = ids.slice(offset, offset + max);
+      next.push({
+        id: offset === 0 && row.id ? row.id : createRowId(cardId, next.length + 1),
+        order: next.length + 1,
+        fieldIds: chunk,
+      });
+    }
+  });
+
+  return next.length ? next : [createEmptyLayoutRow(cardId)];
+};
+
 export const normalizeCardRows = (card = {}, fieldWidthTypes = {}, fields = [], containerWidthPx) => {
-  const configured = resolveConfiguredCardRows(card);
+  const colSpan = Number(card.colSpan) || 12;
+  const configured = enforceMaxFieldsPerCardRows(
+    resolveConfiguredCardRows(card),
+    colSpan,
+    card.id || "card"
+  );
   const balanced = balanceConfiguredRows(configured, {
     card,
     fieldSizes: fieldWidthTypes,

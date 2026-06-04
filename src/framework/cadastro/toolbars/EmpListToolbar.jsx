@@ -56,7 +56,7 @@ export default function EmpListToolbar({
   const showDuplicateSelectionAction = viewMode === "table" && selectedCount === 1 && !!onDuplicate;
 
   return (
-    <div className="bg-white emp-toolbar px-2 py-1.5">
+    <div className="emp-toolbar px-2 py-1.5">
       <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
         <div className="flex items-center gap-1.5 shrink-0">
           {onBack && (

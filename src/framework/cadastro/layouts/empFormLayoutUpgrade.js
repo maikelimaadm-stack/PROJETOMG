@@ -1,7 +1,10 @@
 import {
   LAYOUT_CONFIG_VERSION_V3,
+  coerceLayoutToV3,
+  isLayoutStructureV3,
   migrateV2ToV3,
   flattenV3LayoutToV2,
+  sanitizeLayoutV3,
 } from "./layoutConfigV3.js";
 
 const LEGACY_LAYOUT_MODES = new Set(["vertical", "compact", "details", "detailsCompact", "details_compact", "columns", "stacked"]);
@@ -78,6 +81,20 @@ export const upgradeStoredLayoutConfig = (saved, defaults) => {
       panels: defaultPanels.map((p) => ({ ...p })),
       fieldSizes: { ...(defaults.fieldSizes || {}) },
       fieldLayoutConfig: { mode: "corporate", columns: 12 },
+      version: LAYOUT_CONFIG_VERSION_V3,
+    };
+  }
+
+  const alreadyV3 =
+    version >= LAYOUT_CONFIG_VERSION_V3 && isLayoutStructureV3(layoutSource);
+
+  if (alreadyV3) {
+    return {
+      ...saved,
+      panels,
+      layout: sanitizeLayoutV3(coerceLayoutToV3(layoutSource)),
+      fieldLayoutConfig: { mode: "corporate", columns: 12, ...(saved.fieldLayoutConfig || {}) },
+      fieldSizes: { ...(defaults?.fieldSizes || {}), ...(saved.fieldSizes || {}) },
       version: LAYOUT_CONFIG_VERSION_V3,
     };
   }

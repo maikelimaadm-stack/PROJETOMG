@@ -7,8 +7,6 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  Eye,
-  EyeOff,
   Pencil,
   Plus,
   Reply,
@@ -28,7 +26,6 @@ import {
   EMP_TOOLBAR_SEARCH_INPUT,
   EMP_TOOLBAR_SEARCH_WRAP,
 } from "@/framework/cadastro/toolbars/empToolbarStyles";
-import { usePanelTabsScroll } from "@/framework/cadastro/toolbars/usePanelTabsScroll";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { cn } from "@/shared/utils/utils";
 import EmpLayoutConfiguratorPreview from "@/framework/cadastro/configurators/EmpLayoutConfiguratorPreview";
@@ -50,6 +47,7 @@ import {
   balanceConfiguredRows,
   createEmptyLayoutRow,
   deleteLayoutRow,
+  enforceMaxFieldsPerCardRows,
   flattenRowsToFieldIds,
   placeFieldInCardRows,
   removeFieldFromRows,
@@ -139,9 +137,7 @@ export default function EmpLayoutConfiguratorDialog({
   const [fieldLastPanelId, setFieldLastPanelId] = useState({});
   const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
   const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
-  const panelsScrollRef = useRef(null);
   const wasOpenRef = useRef(false);
-  const { canScrollLeft, canScrollRight } = usePanelTabsScroll(panelsScrollRef, [draftPanels, activePanelId, editingPanelId, isEditing]);
 
   React.useEffect(() => {
     if (!open) {
@@ -246,17 +242,24 @@ export default function EmpLayoutConfiguratorDialog({
 
   const updateActiveCardRows = (rows) => {
     if (!activePanel || !activeCard) return;
-    const fieldIds = flattenRowsToFieldIds({ rows });
-    const normalizedRows = rows.map((row, index) => ({
-      ...row,
-      id: row.id || createRowId(activeCard.id, index + 1),
-      order: index + 1,
-      fieldIds: [...(row.fieldIds || [])],
-    }));
+    const colSpan = getActiveCardColSpan();
+    const enforcedRows = enforceMaxFieldsPerCardRows(
+      rows.map((row, index) => ({
+        ...row,
+        id: row.id || createRowId(activeCard.id, index + 1),
+        order: index + 1,
+        fieldIds: [...(row.fieldIds || [])],
+      })),
+      colSpan,
+      activeCard.id,
+      { keepEmptyRows: true }
+    );
+    const fieldIds = flattenRowsToFieldIds({ rows: enforcedRows });
+    const normalizedRows = enforcedRows;
     const nextCardsByPanel = { ...draftCardsByPanel };
     const cards = (nextCardsByPanel[activePanel.id]?.cards || []).map((card) =>
       card.id === activeCard.id
-        ? normalizeLayoutCardV3({ ...card, rows: normalizedRows, fieldIds })
+        ? { ...card, rows: normalizedRows, fieldIds }
         : normalizeLayoutCardV3(card)
     );
     nextCardsByPanel[activePanel.id] = { cards };
@@ -483,14 +486,6 @@ export default function EmpLayoutConfiguratorDialog({
     setActivePanelId(nextPanelId);
     setActiveCardId(nextCards[nextPanelId]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
   };
-  const toggleActivePanelHidden = () => {
-    if (!activePanel || !isEditing || activePanelIsFixed) return;
-    setDraftPanels((prev) =>
-      prev.map((panel) =>
-        panel.id === activePanel.id ? { ...panel, hidden: !panel.hidden } : panel
-      )
-    );
-  };
   const reorderField = (targetFieldId) => {
     if (!draggedFieldId || draggedFieldId === targetFieldId || !activePanel || !activeCard) return;
     const rows = reorderFieldWithinRows(ensureCardRows(activeCard), draggedFieldId, targetFieldId);
@@ -696,9 +691,6 @@ export default function EmpLayoutConfiguratorDialog({
     setDraftVisibilityRules(visibilityRules);
     setIsEditing(false);
   };
-  const scrollPanels = (direction) =>
-    panelsScrollRef.current?.scrollBy({ left: direction * 260, behavior: "smooth" });
-
   const openFieldSettings = (field, event) => {
     if (!isEditing) return;
     event?.stopPropagation?.();
@@ -1023,7 +1015,7 @@ export default function EmpLayoutConfiguratorDialog({
 
           <main className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white">
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
-              <div className="emp-form-tabs emp-form-tabs-launch relative flex h-[30px] items-end justify-start bg-white pl-2 pr-2">
+              <div className="emp-form-tabs emp-form-tabs-launch relative flex min-h-[34px] items-end justify-start pl-2 pr-2">
                 <div className="emp-form-tab-nav-group emp-layout-config-panel-actions relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5 self-center">
                   {isEditing && (
                     <ToolbarBtn onClick={createPanel} className="emp-toolbar-btn-new" title="Novo painel">
@@ -1040,31 +1032,8 @@ export default function EmpLayoutConfiguratorDialog({
                       <EmpToolbarIcon icon={Trash2} />
                     </ToolbarBtn>
                   )}
-                  {isEditing && (
-                    <ToolbarBtn
-                      disabled={!activePanel || activePanelIsFixed}
-                      onClick={toggleActivePanelHidden}
-                      title={activePanel?.hidden ? "Exibir painel" : "Ocultar painel"}
-                    >
-                      <EmpToolbarIcon icon={activePanel?.hidden ? EyeOff : Eye} />
-                    </ToolbarBtn>
-                  )}
                 </div>
-                {canScrollLeft ? (
-                  <button
-                    type="button"
-                    onClick={() => scrollPanels(-1)}
-                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 mr-1.5 shrink-0 self-center`}
-                    title="Rolar painéis"
-                    aria-label="Rolar painéis para a esquerda"
-                  >
-                    <EmpToolbarIcon icon={ChevronLeft} nav />
-                  </button>
-                ) : null}
-                <div
-                  ref={panelsScrollRef}
-                  className="emp-form-tab-list flex h-[30px] min-w-0 flex-1 items-end overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-                >
+                <div className="emp-form-tab-list flex min-h-[32px] min-w-0 flex-1 flex-wrap items-end gap-0">
                   {draftPanels.map((panel) => {
                     const active = activePanel?.id === panel.id;
                     return (
@@ -1114,31 +1083,12 @@ export default function EmpLayoutConfiguratorDialog({
                             className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
                           />
                         ) : (
-                          <span className="inline-flex items-center gap-1.5">
-                            {panel.hidden ? (
-                              <EyeOff
-                                className="emp-form-tab-hidden-icon h-3.5 w-3.5 shrink-0 stroke-white text-white"
-                                aria-hidden="true"
-                              />
-                            ) : null}
-                            {formatPanelLabel(panel.label)}
-                          </span>
+                          <span>{formatPanelLabel(panel.label)}</span>
                         )}
                       </button>
                     );
                   })}
                 </div>
-                {canScrollRight ? (
-                  <button
-                    type="button"
-                    onClick={() => scrollPanels(1)}
-                    className={`${EMP_TOOLBAR_BTN} emp-form-tab-nav-btn relative z-20 ml-1.5 shrink-0 self-center`}
-                    title="Rolar painéis"
-                    aria-label="Rolar painéis para a direita"
-                  >
-                    <EmpToolbarIcon icon={ChevronRight} nav />
-                  </button>
-                ) : null}
               </div>
 
               <div className="emp-layout-config-cards-bar">
@@ -1218,8 +1168,9 @@ export default function EmpLayoutConfiguratorDialog({
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4">
                 <p className="mb-2 text-[10px] text-[#64748b]">
-                  Aba → Card → Linha → Campo. Você controla linhas e posições; o motor só distribui o espaço
-                  dentro de cada linha (sem mover campos automaticamente).
+                  Aba → Card → Linha → Campo. Card inteiro: até <strong>6</strong> campos por linha. Card meio
+                  (½): até <strong>4</strong>. O motor distribui o espaço dentro de cada linha sem mover campos
+                  automaticamente.
                 </p>
                 {isEditing && (
                   <div className="mb-2 flex flex-wrap gap-1">
@@ -1237,14 +1188,23 @@ export default function EmpLayoutConfiguratorDialog({
                       const rowFields = (layoutRow.fieldIds || [])
                         .map((id) => fields.find((field) => field.id === id))
                         .filter(Boolean);
+                      const rowCount = (layoutRow.fieldIds || []).filter(Boolean).length;
+                      const rowMax = getMaxFieldsPerRow(getActiveCardColSpan());
+                      const rowFull = rowCount >= rowMax;
                       return (
                         <div
                           key={layoutRow.id}
-                          className="emp-layout-config-row rounded border border-[#dce3eb] bg-[#f8fafc] p-2"
+                          className={cn(
+                            "emp-layout-config-row rounded border bg-[#f8fafc] p-2",
+                            rowFull ? "border-amber-400/80" : "border-[#dce3eb]"
+                          )}
                         >
                           <div className="mb-2 flex items-center justify-between gap-2">
                             <span className="text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
                               Linha {layoutRow.order}
+                              <span className={cn("ml-1 font-semibold", rowFull && "text-amber-700")}>
+                                ({rowCount}/{rowMax})
+                              </span>
                             </span>
                             {isEditing && activeCardRows.length > 1 && (
                               <ToolbarBtn
@@ -1261,7 +1221,11 @@ export default function EmpLayoutConfiguratorDialog({
                             onDragOver={(event) => {
                               if (!isEditing) return;
                               event.preventDefault();
-                              event.dataTransfer.dropEffect = "move";
+                              const fieldId = draggedFieldId || selectedAvailableIds[0];
+                              const canDrop =
+                                !fieldId ||
+                                rowHasRoomForField(layoutRow, getActiveCardColSpan(), fieldId);
+                              event.dataTransfer.dropEffect = canDrop ? "move" : "none";
                             }}
                             onDrop={(event) => {
                               event.preventDefault();
@@ -1278,17 +1242,17 @@ export default function EmpLayoutConfiguratorDialog({
                   )}
                 </div>
                 {isEditing && selectedPanelFieldIds.length === 1 && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-[#e2e8f0] pt-2">
+                  <div className="emp-layout-config-footer mt-3 flex flex-wrap items-center gap-2 pt-2">
                     <span className="text-[11px] font-semibold text-[#5b6b80]">Tipo de largura:</span>
                     {FIELD_WIDTH_TYPE_OPTIONS.map(({ value, label }) => (
                       <button
                         key={value}
                         type="button"
                         onClick={() => setFieldWidthType(selectedPanelFieldIds[0], value)}
-                        className={`h-6 rounded px-2 text-[10px] font-semibold ${
+                        className={`emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold ${
                           draftFieldSizes[selectedPanelFieldIds[0]] === value
-                            ? "bg-[#eaf2ff] text-[#2563eb]"
-                            : "bg-[#f1f5f9] text-[#64748b]"
+                            ? "text-[#2563eb] underline underline-offset-2"
+                            : "text-[#64748b]"
                         }`}
                       >
                         {label}
@@ -1297,7 +1261,7 @@ export default function EmpLayoutConfiguratorDialog({
                     <button
                       type="button"
                       onClick={() => setFieldWidthType(selectedPanelFieldIds[0], "")}
-                      className="h-6 rounded px-2 text-[10px] font-semibold bg-[#f1f5f9] text-[#64748b]"
+                      className="emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold text-[#64748b]"
                     >
                       Padrão do tipo
                     </button>
