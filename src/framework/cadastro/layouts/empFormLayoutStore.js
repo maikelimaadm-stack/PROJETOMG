@@ -1,3 +1,15 @@
+import {
+  LAYOUT_CONFIG_VERSION_V3,
+  countLayoutFieldsV3,
+  flattenV3LayoutToV2,
+  isLayoutConfigV3,
+  isLayoutStructureV2,
+  migrateV2ToV3,
+  resolveLayoutConfig,
+  syncLayoutV3FromFlat,
+} from "./layoutConfigV3.js";
+import { normalizeFieldSizes } from "./empFormFieldGrid.js";
+
 const LEGACY_CONFIG_KEY = "cadastro_emp_form_layout_config";
 
 let boundUserId = null;
@@ -24,21 +36,17 @@ const getLegacyKey = () => getLayoutStorageKeys().legacyKey;
 const cloneValue = (value) => JSON.parse(JSON.stringify(value));
 
 export const DEFAULT_FIELD_LAYOUT_CONFIG = {
-  mode: "vertical",
-  columns: 1,
+  mode: "corporate",
+  columns: 12,
 };
 
 export const normalizeFieldLayoutConfig = (source = {}) => {
-  let mode = "vertical";
-  if (source?.mode === "details") mode = "details";
-  if (source?.mode === "detailsCompact" || source?.mode === "details_compact") mode = "detailsCompact";
-  if (source?.mode === "vertical" || source?.mode === "stacked") mode = "vertical";
-  if (source?.mode === "compact" || source?.mode === "columns") mode = "compact";
-  const columns = Math.min(6, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
-  return { mode, columns };
+  const columns = Math.min(12, Math.max(1, Number(source?.columns) || DEFAULT_FIELD_LAYOUT_CONFIG.columns));
+  return { mode: "corporate", columns };
 };
 
 export const layoutConfigFields = [
+  "version",
   "panels",
   "layout",
   "hiddenFieldIds",
@@ -49,29 +57,38 @@ export const layoutConfigFields = [
   "aggregationConfig",
   "visibilityRules",
   "fieldLayoutConfig",
+  "fieldSizes",
 ];
 
 export const pickLayoutConfig = (source = {}) => {
+  const { config: resolved } = resolveLayoutConfig(source);
   const next = {};
   layoutConfigFields.forEach((field) => {
-    if (source[field] !== undefined) next[field] = cloneValue(source[field]);
+    if (field === "layout") return;
+    if (resolved[field] !== undefined) next[field] = cloneValue(resolved[field]);
   });
+  next.version = LAYOUT_CONFIG_VERSION_V3;
+  next.layout = cloneValue(resolved.layoutV3 || resolved.layout);
   return next;
 };
 
 export const createEmptyLayoutConfig = (defaultConfig = {}) => {
   const panels = cloneValue(defaultConfig.panels || []);
-  const layout = {};
+  const flatLayout = {};
   panels.forEach((panel) => {
     if (panel.id === "principal") {
-      layout.principal = cloneValue(defaultConfig.layout?.principal || ["razao_social"]);
+      flatLayout.principal = cloneValue(defaultConfig.layout?.principal || ["razao_social"]);
     } else {
-      layout[panel.id] = [];
+      flatLayout[panel.id] = [];
     }
   });
-  return pickLayoutConfig({
+  const migrated = migrateV2ToV3({
     panels,
-    layout,
+    layout: flatLayout,
+  });
+  return pickLayoutConfig({
+    panels: migrated.panels,
+    layout: migrated.layout,
     hiddenFieldIds: [],
     lockedFieldIds: [],
     requiredFieldIds: [],
@@ -80,13 +97,15 @@ export const createEmptyLayoutConfig = (defaultConfig = {}) => {
     aggregationConfig: {},
     visibilityRules: {},
     fieldLayoutConfig: { ...DEFAULT_FIELD_LAYOUT_CONFIG },
+    fieldSizes: {},
   });
 };
 
 export const sanitizeLayoutFieldPlacements = (layout = {}) => {
+  const flatLayout = isLayoutStructureV2(layout) ? layout : flattenV3LayoutToV2(layout);
   const seen = new Set();
   const next = {};
-  Object.entries(layout || {}).forEach(([panelId, fieldIds]) => {
+  Object.entries(flatLayout || {}).forEach(([panelId, fieldIds]) => {
     const unique = [];
     (fieldIds || []).forEach((fieldId) => {
       if (!fieldId || seen.has(fieldId)) return;
@@ -130,6 +149,7 @@ export const normalizeLayoutConfig = (
     aggregationConfig: {},
     visibilityRules: {},
     fieldLayoutConfig: { ...DEFAULT_FIELD_LAYOUT_CONFIG },
+    fieldSizes: {},
   };
   const merged = { ...fallback, ...(source || {}) };
   const panelsSource = merged.panels?.some((panel) => panel.id === "principal")
@@ -140,24 +160,33 @@ export const normalizeLayoutConfig = (
     ...basePanels.filter((basePanel) => !panelsSource.some((panel) => panel.id === basePanel.id)),
   ];
 
-  let layout = sanitizeLayoutFieldPlacements(merged.layout || {});
-  if (!Array.isArray(layout.principal)) {
-    layout.principal = [];
+  const resolved = resolveLayoutConfig(merged, {
+    defaultLayout,
+    defaults: fallback,
+  });
+  let layoutFlat = sanitizeLayoutFieldPlacements(resolved.layoutFlat);
+  if (!Array.isArray(layoutFlat.principal)) {
+    layoutFlat.principal = [];
   }
   if (mergeNewCustomFields && camposPersonalizadosCount > 0) {
-    layout = mergeNewCustomFieldsIntoLayout(layout, defaultLayout);
-    layout = sanitizeLayoutFieldPlacements(layout);
+    layoutFlat = mergeNewCustomFieldsIntoLayout(layoutFlat, defaultLayout);
+    layoutFlat = sanitizeLayoutFieldPlacements(layoutFlat);
   }
+
+  const synced = syncLayoutV3FromFlat(resolved.config, layoutFlat);
 
   return {
     ...merged,
+    version: LAYOUT_CONFIG_VERSION_V3,
     panels: panels.filter(
-      (panel) => panel.id !== "campos_personalizados" || (layout.campos_personalizados || []).length > 0
+      (panel) => panel.id !== "campos_personalizados" || (layoutFlat.campos_personalizados || []).length > 0
     ),
-    layout,
+    layout: layoutFlat,
+    layoutV3: synced.layoutV3,
     hiddenFieldIds: merged.hiddenFieldIds || [],
     visibilityRules: merged.visibilityRules || {},
     fieldLayoutConfig: normalizeFieldLayoutConfig(merged.fieldLayoutConfig),
+    fieldSizes: normalizeFieldSizes(merged.fieldSizes),
   };
 };
 
@@ -165,7 +194,13 @@ export const readStoredLayoutConfig = () => {
   try {
     const raw = localStorage.getItem(getLegacyKey());
     const parsed = raw ? JSON.parse(raw) : null;
-    return isPlainLayoutConfig(parsed) ? parsed : null;
+    if (!isPlainLayoutConfig(parsed)) return null;
+    const { config } = resolveLayoutConfig(parsed);
+    return {
+      ...pickLayoutConfig(config),
+      layout: config.layoutFlat,
+      layoutV3: config.layoutV3,
+    };
   } catch {
     return null;
   }
@@ -184,8 +219,9 @@ const isPlainLayoutConfig = (value) =>
 /** Remove IDs de campos inexistentes (ex.: custom fields excluídos). */
 export const pruneLayoutToKnownFields = (layout = {}, knownFieldIds = []) => {
   const known = knownFieldIds instanceof Set ? knownFieldIds : new Set(knownFieldIds);
+  const flatLayout = isLayoutStructureV2(layout) ? layout : flattenV3LayoutToV2(layout);
   const next = {};
-  Object.entries(layout || {}).forEach(([panelId, fieldIds]) => {
+  Object.entries(flatLayout || {}).forEach(([panelId, fieldIds]) => {
     next[panelId] = (fieldIds || []).filter((fieldId) => known.has(fieldId));
   });
   return next;
@@ -209,6 +245,11 @@ export const ensureLayoutFields = (saved, defaults, { knownFieldIds } = {}) => {
 
   const merged = mergeSavedFormLayout(saved, defaults);
   const defaultLayout = defaults?.layout || {};
+  const layoutInput = merged.layout || {};
+  let layoutFlat = sanitizeLayoutFieldPlacements(
+    isLayoutStructureV2(layoutInput) ? layoutInput : flattenV3LayoutToV2(layoutInput)
+  );
+
   const knownIds =
     knownFieldIds instanceof Set
       ? knownFieldIds
@@ -217,26 +258,34 @@ export const ensureLayoutFields = (saved, defaults, { knownFieldIds } = {}) => {
           ...(Array.isArray(knownFieldIds) ? knownFieldIds : []),
         ]);
 
-  let layout = { ...(merged.layout || {}) };
-  layout = pruneLayoutToKnownFields(layout, knownIds);
-  layout = fillEmptyPanelsFromDefaults(layout, defaultLayout);
+  layoutFlat = pruneLayoutToKnownFields(layoutFlat, knownIds);
+  layoutFlat = fillEmptyPanelsFromDefaults(layoutFlat, defaultLayout);
 
   const panels = (merged.panels || defaults.panels || []).map((panel) =>
     SYSTEM_PANEL_IDS.has(panel.id) ? { ...panel, hidden: false } : panel
   );
 
+  const synced = syncLayoutV3FromFlat(merged, layoutFlat);
   const next = pickLayoutConfig({
     ...merged,
     panels: panels.length ? panels : defaults.panels,
-    layout: sanitizeLayoutFieldPlacements(layout),
+    layout: synced.layoutV3,
     fieldLayoutConfig: merged.fieldLayoutConfig || defaults.fieldLayoutConfig,
   });
 
-  return countLayoutFields(next.layout) > 0 ? next : pickLayoutConfig(defaults);
+  const runtime = {
+    ...next,
+    layout: layoutFlat,
+    layoutV3: synced.layoutV3,
+  };
+
+  return countLayoutFields(runtime.layout) > 0 ? runtime : pickLayoutConfig(defaults);
 };
 
-export const countKnownLayoutFields = (layout = {}, knownFieldIds = []) =>
-  Object.values(pruneLayoutToKnownFields(layout, knownFieldIds)).flat().filter(Boolean).length;
+export const countKnownLayoutFields = (layout = {}, knownFieldIds = []) => {
+  const flat = isLayoutStructureV2(layout) ? layout : flattenV3LayoutToV2(layout);
+  return Object.values(pruneLayoutToKnownFields(flat, knownFieldIds)).flat().filter(Boolean).length;
+};
 
 export const mergeSavedFormLayout = (saved, defaults) => {
   if (!isPlainLayoutConfig(defaults)) return pickLayoutConfig(defaults || {});
@@ -244,9 +293,12 @@ export const mergeSavedFormLayout = (saved, defaults) => {
 
   const defaultLayout = defaults?.layout || {};
   const savedLayout = saved.layout || {};
+  const savedFlat = isLayoutConfigV3(saved)
+    ? flattenV3LayoutToV2(savedLayout)
+    : sanitizeLayoutFieldPlacements(savedLayout);
   const layout = { ...defaultLayout };
 
-  Object.entries(savedLayout).forEach(([panelId, fieldIds]) => {
+  Object.entries(savedFlat).forEach(([panelId, fieldIds]) => {
     if (Array.isArray(fieldIds)) {
       layout[panelId] = fieldIds;
     }
@@ -263,18 +315,31 @@ export const mergeSavedFormLayout = (saved, defaults) => {
   });
 
   const panels = Array.isArray(saved.panels) && saved.panels.length ? saved.panels : defaults.panels;
+  const synced = syncLayoutV3FromFlat(saved, layout);
 
-  return pickLayoutConfig({
+  const persisted = pickLayoutConfig({
     ...defaults,
     ...saved,
     panels,
-    layout,
+    layout: synced.layoutV3,
     fieldLayoutConfig: saved.fieldLayoutConfig || defaults.fieldLayoutConfig,
   });
+
+  return {
+    ...persisted,
+    layout,
+    layoutV3: synced.layoutV3,
+  };
 };
 
-export const countLayoutFields = (layout = {}) =>
-  Object.values(layout).flat().filter(Boolean).length;
+export const countLayoutFields = (layout = {}) => {
+  if (isLayoutStructureV2(layout)) {
+    return Object.values(layout).flat().filter(Boolean).length;
+  }
+  return countLayoutFieldsV3(layout);
+};
+
+export { LAYOUT_CONFIG_VERSION_V3, migrateV2ToV3, resolveLayoutConfig } from "./layoutConfigV3.js";
 
 export const empFormLayoutStore = {
   persistActiveConfig(config) {

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
 import { Input } from "@/shared/ui/input";
 import { Textarea } from "@/shared/ui/textarea";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -6,8 +6,10 @@ import EmpFormDateControl from "@/framework/cadastro/formularios/EmpFormDateCont
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import { cn } from "@/shared/utils/utils";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore";
-import { resolveFieldWidthToken, shouldFieldSpanFullRow } from "@/framework/cadastro/layouts/empFormFieldSizing";
+import { getPanelCardsForRender } from "@/framework/cadastro/layouts/empFormLayoutCards";
+import { resolveFieldGridSpan } from "@/framework/cadastro/layouts/empFormFieldGrid";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
 
@@ -126,74 +128,60 @@ const conditionMatches = (current, expected, sourceField) => {
   return currentValues.has(expectedText);
 };
 
-/** Layout SGG: label externa à esquerda, largura do controle conforme o tipo. */
-function FieldFrameSgg({ field, error, children, spanFull = false, className = "" }) {
+/** Layout corporativo: label acima do campo, grid 12 colunas. */
+function FieldFrameCorp({ field, error, children, gridSpan = 4, className = "" }) {
   const bare = isBareControlField(field);
   const imageField = isImageField(field);
   const loteStyle = isCustomField(field);
-  const widthToken = resolveFieldWidthToken(field);
-  const fullRow = spanFull || shouldFieldSpanFullRow(field);
-
-  if (imageField) {
-    return (
-      <div
-        data-field={field.dataField || field.name}
-        className={cn("emp-form-field-inline emp-form-field--image", fullRow && "emp-form-field--full")}
-      >
-        <label className="emp-form-field-label-inline">
-          {field.label}
-          {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}:
-        </label>
-        <div
-          className={cn(
-            "emp-form-field-control emp-form-image-control",
-            error && "erp-field-invalid"
-          )}
-        >
-          {loteStyle && <EmpCustomMarker variant="lote" />}
-          {children}
-        </div>
-      </div>
-    );
-  }
-
-  if (bare) {
-    return (
-      <div
-        data-field={field.dataField || field.name}
-        className={cn("emp-form-field-inline emp-form-field--toggle", `emp-form-field--${widthToken}`)}
-      >
-        <label className="emp-form-field-label-inline">
-          {field.label}
-          {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}:
-        </label>
-        <div className="emp-form-field-bare flex min-h-[var(--emp-form-control-height)] items-center">
-          {children}
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div
       data-field={field.dataField || field.name}
-        className={cn(
-        "emp-form-field-inline",
-        `emp-form-field--${widthToken}`,
-        fullRow && "emp-form-field--full",
-        field.type === "textarea" && "emp-form-field--textarea-row",
+      className={cn(
+        "emp-form-field-corp",
+        `emp-form-field-corp--span-${gridSpan}`,
+        imageField && "emp-form-field-corp--image",
+        bare && "emp-form-field-corp--bare",
         className
       )}
+      style={{ gridColumn: `span ${gridSpan} / span ${gridSpan}` }}
     >
-      <label className="emp-form-field-label-inline">
+      <label className="emp-form-field-label-top">
         {field.label}
-        {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}:
+        {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}
       </label>
       <div className={cn("emp-form-field-control", error && "erp-field-invalid")}>
-        {loteStyle && <EmpCustomMarker variant="lote" />}
+        {loteStyle && !bare && <EmpCustomMarker variant="lote" />}
         {children}
       </div>
     </div>
+  );
+}
+
+function FormCardSection({ card, children, defaultCollapsed = false }) {
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const showHeader = card.label && card.id !== "geral";
+
+  if (!showHeader) {
+    return <div className="emp-form-card emp-form-card--virtual">{children}</div>;
+  }
+
+  return (
+    <section className={cn("emp-form-card", collapsed && "emp-form-card--collapsed")}>
+      <button
+        type="button"
+        className="emp-form-card-title"
+        onClick={() => card.collapsible !== false && setCollapsed((prev) => !prev)}
+        aria-expanded={!collapsed}
+        disabled={card.collapsible === false}
+      >
+        {card.collapsible !== false ? (
+          collapsed ? <ChevronRight className="h-3.5 w-3.5 shrink-0" /> : <ChevronDown className="h-3.5 w-3.5 shrink-0" />
+        ) : null}
+        <span>{card.label}</span>
+      </button>
+      {!collapsed && <div className="emp-form-card-body">{children}</div>}
+    </section>
   );
 }
 
@@ -201,11 +189,13 @@ export default function EmpDynamicFormRenderer({
   panels = [],
   fields = [],
   layout = {},
+  layoutV3 = {},
   defaultLayout = {},
   hiddenFieldIds = [],
   lockedFieldIds = [],
   requiredFieldIds = [],
   visibilityRules = {},
+  fieldSizes = {},
   fieldLayoutConfig = DEFAULT_FIELD_LAYOUT_CONFIG,
   activePanelId,
   values = {},
@@ -216,35 +206,40 @@ export default function EmpDynamicFormRenderer({
   fieldClassName = "",
 }) {
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
-  const configuredFieldIds = layout?.[activePanel?.id] || [];
-  const activeFieldIds =
-    configuredFieldIds.length > 0
-      ? configuredFieldIds
-      : defaultLayout?.[activePanel?.id] || [];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
-  const useCompactMode = ["compact", "detailsCompact"].includes(normalizedFieldLayout.mode);
+  const gridColumns = normalizedFieldLayout.columns || 12;
 
-  const visibleFields = activeFieldIds
-    .map((fieldId) => fields.find((field) => field.id === fieldId))
-    .filter(Boolean)
-    .filter((field) => field.visible !== false && !hiddenFieldIds.includes(field.id))
-    .filter((field) => {
-      const rule = visibilityRules[field.id] || field.defaultVisibilityRule;
-      if (rule?.always) return true;
-      if (rule?.sourceFieldName) {
-        const sourceField = fields.find((item) => item.id === rule.sourceFieldId);
-        if (sourceField?.type !== "select" || !["manual", "native"].includes(sourceField?.optionsMode)) {
-          return true;
-        }
-        const current = values[rule.sourceFieldName] ?? values.campos_personalizados?.[rule.sourceFieldName];
-        return conditionMatches(current, rule.value, sourceField);
+  const cards = useMemo(
+    () =>
+      activePanel
+        ? getPanelCardsForRender({
+            layout,
+            layoutV3,
+            panelId: activePanel.id,
+            defaultLayout,
+          })
+        : [],
+    [activePanel, layout, layoutV3, defaultLayout]
+  );
+
+  const isFieldVisible = (field) => {
+    if (!field || field.visible === false || hiddenFieldIds.includes(field.id)) return false;
+    const rule = visibilityRules[field.id] || field.defaultVisibilityRule;
+    if (rule?.always) return true;
+    if (rule?.sourceFieldName) {
+      const sourceField = fields.find((item) => item.id === rule.sourceFieldId);
+      if (sourceField?.type !== "select" || !["manual", "native"].includes(sourceField?.optionsMode)) {
+        return true;
       }
-      return typeof field.showWhen === "function" ? field.showWhen(values, context) : true;
-    });
+      const current = values[rule.sourceFieldName] ?? values.campos_personalizados?.[rule.sourceFieldName];
+      return conditionMatches(current, rule.value, sourceField);
+    }
+    return typeof field.showWhen === "function" ? field.showWhen(values, context) : true;
+  };
 
   if (!activePanel) {
     return (
-      <div className="emp-form-fields emp-form-fields-sgg emp-form-fields-empty px-2 py-3 text-xs text-slate-500">
+      <div className="emp-form-fields emp-form-fields-corp emp-form-fields-empty px-2 py-3 text-xs text-slate-500">
         Aba de formulário indisponível. Verifique a configuração de layout.
       </div>
     );
@@ -281,39 +276,61 @@ export default function EmpDynamicFormRenderer({
     const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
     const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
     const control = renderFieldControl(field, configuredField, value, fieldReadOnly);
+    const gridSpan = resolveFieldGridSpan(configuredField, fieldSizes);
 
     return (
-      <FieldFrameSgg
+      <FieldFrameCorp
         key={field.id}
         field={configuredField}
         error={error}
-        spanFull={useCompactMode && shouldFieldSpanFullRow(configuredField)}
+        gridSpan={gridSpan}
         className={fieldClassName}
       >
         {control}
-      </FieldFrameSgg>
+      </FieldFrameCorp>
     );
   };
 
-  const hasCustomFields = visibleFields.some(isCustomField);
+  const hasCustomFields = cards.some((card) =>
+    (card.fieldIds || []).some((fieldId) => {
+      const field = fields.find((item) => item.id === fieldId);
+      return field && isCustomField(field);
+    })
+  );
 
-  if (visibleFields.length === 0) {
+  const cardSections = cards.map((card) => {
+    const visibleFields = (card.fieldIds || [])
+      .map((fieldId) => fields.find((field) => field.id === fieldId))
+      .filter(Boolean)
+      .filter(isFieldVisible);
+
+    if (visibleFields.length === 0) return null;
+
     return (
-      <div className="emp-form-fields emp-form-fields-sgg emp-form-fields-empty px-2 py-3 text-xs text-slate-500">
+      <FormCardSection key={card.id} card={card}>
+        <div
+          className="emp-form-card-grid"
+          style={{ gridTemplateColumns: `repeat(${gridColumns}, minmax(0, 1fr))` }}
+        >
+          {visibleFields.map(renderField)}
+        </div>
+      </FormCardSection>
+    );
+  });
+
+  const hasVisibleFields = cardSections.some(Boolean);
+
+  if (!hasVisibleFields) {
+    return (
+      <div className="emp-form-fields emp-form-fields-corp emp-form-fields-empty px-2 py-3 text-xs text-slate-500">
         Nenhum campo visível nesta aba. Ajuste o layout em Configuração de layout.
       </div>
     );
   }
 
   return (
-    <div
-      className={cn(
-        "emp-form-fields emp-form-fields-sgg",
-        useCompactMode && "emp-form-fields-compact",
-        hasCustomFields && "emp-form-fields-custom"
-      )}
-    >
-      {visibleFields.map(renderField)}
+    <div className={cn("emp-form-fields emp-form-fields-corp", hasCustomFields && "emp-form-fields-custom")}>
+      {cardSections}
     </div>
   );
 }

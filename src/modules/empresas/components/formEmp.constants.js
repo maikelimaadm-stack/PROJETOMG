@@ -76,7 +76,8 @@ export const buildEmpFormDefaultConfig = () => ({
   fieldDefaultValues: {},
   aggregationConfig: {},
   visibilityRules: {},
-  fieldLayoutConfig: { mode: "vertical", columns: 1 },
+  fieldLayoutConfig: { mode: "corporate", columns: 12 },
+  fieldSizes: {},
 });
 export const inputClass = "emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase w-full";
 
