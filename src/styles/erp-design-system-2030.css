@@ -25,10 +25,13 @@
   --erp-color-text-secondary: #475569;
   --erp-color-text-muted: #64748b;
   --erp-color-label: #334155;
+  --erp-color-surface: #f8f9fd;
   --erp-color-card: #ffffff;
   --erp-color-card-border: rgba(255, 255, 255, 0);
   --erp-radius-card: 18px;
   --erp-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04);
+  --erp-spacing: 8px;
+  --erp-layout-gap: 32px;
   --erp-state-success: #22c55e;
   --erp-state-warning: #f59e0b;
   --erp-state-error: #ef4444;
@@ -84,11 +87,11 @@
   --erp-color-surface: #f8f9fd;
   --erp-color-surface-gradient: #f8f9fd;
   --erp-color-card: #ffffff;
-  --erp-color-card-header: #fafcff;
+  --erp-color-card-header: #ffffff;
   --erp-color-card-header-border: #edf2f7;
   --erp-color-row-hover: #f3f6fb;
   --erp-color-row-selected: #eef8ff;
-  --erp-color-lookup-bg: #f8fbff;
+  --erp-color-lookup-bg: #ffffff;
   --erp-color-lookup-hover: #f3f6fb;
 
   /* Menu estilo GitHub */
@@ -119,8 +122,9 @@
 
   --erp-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04);
   --erp-shadow-control: 0 2px 6px rgba(15, 23, 42, 0.04);
-  --erp-layout-gap: 24px;
-  --erp-card-padding: 24px;
+  --erp-spacing: 8px;
+  --erp-layout-gap: 32px;
+  --erp-card-padding: 16px;
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -213,7 +217,7 @@
   margin: 0 !important;
   flex: 1 1 auto;
   min-width: 0;
-  gap: 6px !important;
+  gap: var(--erp-spacing, 8px) !important;
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
@@ -276,11 +280,11 @@
 /* —— Toolbar —— */
 /* Faixa de fundo dos botões — modelo card (mesma moldura dos painéis) */
 .cadastro-emp-scope .emp-toolbar-card {
-  background: var(--erp-color-card) !important;
+  background: #ffffff !important;
   border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
-  padding: 10px 16px !important;
+  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 16px) !important;
   overflow: hidden;
 }
 
@@ -363,9 +367,9 @@
 
 /* —— Cards V3 —— */
 .cadastro-emp-scope .emp-form-card {
-  border: 1px solid var(--erp-color-card-border) !important;
+  border: none !important;
   border-radius: var(--erp-radius-card) !important;
-  background: var(--erp-color-card) !important;
+  background: #ffffff !important;
   box-shadow: var(--erp-shadow-card) !important;
   transition: box-shadow var(--erp-ds-transition-slow), border-color var(--erp-ds-transition);
 }
@@ -406,7 +410,7 @@
 /* —— Content card, painéis e cards internos (mesma moldura) —— */
 .cadastro-emp-scope .emp-content-card,
 .cadastro-emp-scope .emp-table-card {
-  background: var(--erp-color-card) !important;
+  background: #ffffff !important;
   border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
@@ -417,8 +421,8 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-card-border) !important;
+  background: #ffffff !important;
+  border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
   overflow: hidden;
@@ -457,13 +461,13 @@
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
-  padding: 0 0 6px;
-  gap: 6px !important;
+  padding: 0 0 var(--erp-spacing, 8px);
+  gap: var(--erp-layout-gap, 32px) !important;
   box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
-  gap: 6px !important;
+  gap: var(--erp-layout-gap, 32px) !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,

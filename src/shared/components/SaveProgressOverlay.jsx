@@ -51,7 +51,7 @@ export default function SaveProgressOverlay({
 
   return createPortal(
     <div
-      className="erp-save-progress-overlay fixed inset-0 z-[10000] flex items-center justify-center bg-[var(--erp-color-surface,#fafafa)]/80 backdrop-blur-[2px]"
+      className="erp-save-progress-overlay fixed inset-0 z-[10000] flex items-center justify-center bg-[var(--erp-color-surface,#f8f9fd)]/80 backdrop-blur-[2px]"
       role="status"
       aria-live="polite"
       aria-busy="true"

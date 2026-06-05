@@ -200,7 +200,7 @@ function ErpShellBody({
           onLogout={onLogout}
         />
 
-        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-6 pb-6 pt-2">
+        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col gap-8 overflow-hidden px-8 pb-8 pt-2">
           <ErpBreadcrumbs pathname={pathname} />
           <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}
