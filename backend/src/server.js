@@ -193,14 +193,12 @@ const start = async () => {
   }
 
   if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
-    if (String(process.env.BOOT_SKIP_MIGRATIONS || "").toLowerCase() !== "true") {
-      setTimeout(() => {
-        import("../scripts/ensureErpRestructure.js")
-          .then(({ runErpRestructure }) => runErpRestructure({ exitOnError: false }))
-          .then(() => app.log.info("[migration] Reestruturação ERP concluída."))
-          .catch((error) => app.log.error(`[migration] Falha: ${error.message}`));
-      }, 5000);
-    }
+    setTimeout(() => {
+      import("../scripts/productionBootTasks.js")
+        .then(({ runProductionBootTasks }) => runProductionBootTasks(app.log))
+        .then(() => app.log.info("[boot] Tarefas de produção concluídas."))
+        .catch((error) => app.log.error(`[boot] Falha nas tarefas de produção: ${error.message}`));
+    }, 3000);
   }
 
   const shutdown = async () => {
