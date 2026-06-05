@@ -123,8 +123,11 @@ export const registerRoutes = async (app) => {
       }
     }
 
+    // Railway healthcheck: sempre HTTP 200 se o processo está vivo
     return {
-      ok: status.db.connected,
+      ok: true,
+      alive: true,
+      ready: status.db.connected,
       ...status,
     };
   });

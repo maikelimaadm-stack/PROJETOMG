@@ -22,8 +22,12 @@ export const createMigrationPrisma = () => {
     );
   }
 
+  const timeoutMs = Number(process.env.MIGRATION_CONNECT_TIMEOUT_MS || 15_000);
+  const sep = url.includes("?") ? "&" : "?";
+  const urlWithTimeout = `${url}${sep}connect_timeout=${Math.ceil(timeoutMs / 1000)}`;
+
   return new PrismaClient({
-    datasources: { db: { url } },
+    datasources: { db: { url: urlWithTimeout } },
   });
 };
 
