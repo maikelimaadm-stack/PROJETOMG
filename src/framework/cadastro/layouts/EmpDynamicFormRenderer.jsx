@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Input } from "@/shared/ui/input";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui/collapsible";
 import { Textarea } from "@/shared/ui/textarea";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import EmpFormDateControl from "@/framework/cadastro/formularios/EmpFormDateControl";
@@ -206,18 +208,67 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   );
 }
 
-function FormCardSection({ card, children }) {
+function useCardCollapseState(storageKey, defaultOpen = true) {
+  const [open, setOpen] = useState(() => {
+    try {
+      const stored = sessionStorage.getItem(storageKey);
+      if (stored === null) return defaultOpen;
+      return stored === "1";
+    } catch {
+      return defaultOpen;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(storageKey, open ? "1" : "0");
+    } catch {
+      // ignore storage failures
+    }
+  }, [open, storageKey]);
+
+  return [open, setOpen];
+}
+
+function FormCardSection({ card, panelId, children }) {
   const showHeader = Boolean(card.label?.trim());
+  const collapsible = card.collapsible !== false && showHeader;
+  const storageKey = `erp-card-collapse:${panelId || "panel"}:${card.id}`;
+  const [open, setOpen] = useCardCollapseState(storageKey, true);
 
   if (!showHeader) {
     return <div className="emp-form-card emp-form-card--virtual">{children}</div>;
   }
 
+  if (!collapsible) {
+    return (
+      <section className="emp-form-card">
+        <div className="emp-form-card-title">{card.label}</div>
+        <div className="emp-form-card-body">{children}</div>
+      </section>
+    );
+  }
+
   return (
-    <section className="emp-form-card">
-      <div className="emp-form-card-title">{card.label}</div>
-      <div className="emp-form-card-body">{children}</div>
-    </section>
+    <Collapsible open={open} onOpenChange={setOpen} className="emp-form-card emp-form-card--collapsible">
+      <section>
+        <CollapsibleTrigger asChild>
+          <button
+            type="button"
+            className="emp-form-card-title emp-form-card-title--collapsible flex w-full items-center gap-2 border-0 bg-transparent p-0 text-left"
+          >
+            <ChevronDown
+              className={cn("emp-form-card-chevron h-4 w-4 shrink-0 text-[#64748b] transition-transform duration-150", !open && "-rotate-90")}
+              aria-hidden="true"
+            />
+            <span className="min-w-0 flex-1 truncate">{card.label}</span>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent forceMount={false}>
+          {open ? <div className="emp-form-card-body">{children}</div> : null}
+        </CollapsibleContent>
+      </section>
+    </Collapsible>
   );
 }
 
@@ -353,7 +404,7 @@ export default function EmpDynamicFormRenderer({
             className="emp-form-card-slot"
             style={{ gridColumn: `span ${card.colSpan || 12} / span ${card.colSpan || 12}` }}
           >
-            <FormCardSection card={card}>
+            <FormCardSection card={card} panelId={activePanel?.id}>
               <div className="emp-form-card-rows">
                 {layoutRows.map((layoutRow) => {
                   const rowFields = (layoutRow.fieldIds || [])

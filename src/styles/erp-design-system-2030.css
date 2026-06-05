@@ -1630,6 +1630,30 @@
   color: #94a3b8 !important;
 }
 
+.erp-shell-breadcrumb-pill--page-title {
+  max-width: min(100%, 320px);
+}
+
+.erp-record-details {
+  min-height: 20px;
+}
+
+.erp-record-details__item {
+  display: inline-flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.cadastro-emp-scope .emp-form-card-title--collapsible {
+  cursor: pointer;
+  user-select: none;
+}
+
+.cadastro-emp-scope .emp-form-card-title--collapsible:hover {
+  color: #334155;
+}
+
 .erp-shell-breadcrumb-pill {
   max-width: min(100%, 280px);
 }
@@ -1694,12 +1718,21 @@
   background: var(--erp-color-primary);
 }
 
+.cadastro-emp-scope .form-validation-status--pending .form-validation-status__text,
+.erp-shell .form-validation-status--pending .form-validation-status__text {
+  color: #dc2626 !important;
+}
+
+.cadastro-emp-scope .form-validation-status--complete .form-validation-status__text,
+.erp-shell .form-validation-status--complete .form-validation-status__text {
+  color: var(--erp-color-primary) !important;
+}
+
 .cadastro-emp-scope .form-validation-status__text,
 .erp-shell .form-validation-status__text {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: var(--erp-color-primary) !important;
 }
 
 .cadastro-emp-scope .form-validation-status__counter,

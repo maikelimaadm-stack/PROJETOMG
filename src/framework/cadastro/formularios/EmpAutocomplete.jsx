@@ -206,9 +206,14 @@ export default function EmpAutocomplete({
       event.preventDefault();
       setActiveIndex((prev) => Math.max(prev - 1, 0));
     }
-    if (event.key === "Enter" && open && filteredItems[activeIndex]) {
-      event.preventDefault();
-      handleSelect(filteredItems[activeIndex]);
+    if (event.key === "Enter") {
+      if (open) {
+        event.preventDefault();
+        if (filteredItems[activeIndex]) {
+          handleSelect(filteredItems[activeIndex]);
+        }
+        return;
+      }
     }
   };
 
@@ -387,6 +392,7 @@ export default function EmpAutocomplete({
   return (
     <div
       ref={wrapperRef}
+      data-autocomplete-open={open ? "true" : "false"}
       className={cn(
         "emp-form-autocomplete-wrap erp-select-control",
         isLookup ? "erp-field-lookup" : "erp-field-select",
