@@ -279,8 +279,41 @@
   box-sizing: border-box;
 }
 
+/* —— Toolbar + painéis (abas): um bloco só — formulário com abas —— */
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) {
+  gap: 0 !important;
+  background: #ffffff !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-toolbar-card {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--erp-color-border) !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card > .form-scroll-container {
+  background: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--erp-color-border) !important;
+  margin-bottom: 0 !important;
+}
+
 /* —— Toolbar —— */
-/* Faixa de fundo dos botões — modelo card (mesma moldura dos painéis) */
 .cadastro-emp-scope .emp-toolbar-card {
   background: #ffffff !important;
   border: none !important;

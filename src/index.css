@@ -2867,6 +2867,27 @@ input[type="number"] {
   background: var(--emp-table-bg, #ffffff) !important;
 }
 
+.erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) {
+  background: #ffffff !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-toolbar-card {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid var(--erp-color-border, #e4eaf2) !important;
+  box-shadow: none !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
 .erp-shell .cadastro-emp-scope .emp-table-card,
 .erp-shell .cadastro-emp-scope .emp-content-card {
   background: var(--emp-table-bg, #ffffff) !important;
