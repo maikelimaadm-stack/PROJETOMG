@@ -1,5 +1,5 @@
 import dotenv from "dotenv";
-import { PrismaClient } from "@prisma/client";
+import { createMigrationPrisma } from "./migrationPrisma.js";
 import { spawn } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -36,18 +36,13 @@ const printManualSteps = () => {
   console.log("\n══════════════════════════════════════════════════════════════\n");
 };
 
-const runEnsure = () =>
-  new Promise((resolve, reject) => {
-    const child = spawn("node", ["scripts/ensureErpRestructure.js"], {
-      stdio: "inherit",
-      cwd: path.resolve(__dirname, ".."),
-      env: process.env,
-    });
-    child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`ensure falhou (${code})`))));
-  });
+const runEnsure = async () => {
+  const { runErpRestructure } = await import("./ensureErpRestructure.js");
+  await runErpRestructure({ exitOnError: true });
+};
 
 const verify = async () => {
-  const prisma = new PrismaClient();
+  const prisma = createMigrationPrisma();
   try {
     const checks = await prisma.$queryRaw`
       SELECT 'Cliente.next_id_global' AS item,

@@ -73,6 +73,7 @@ export const registerRoutes = async (app) => {
     const status = {
       service: "erp-backend",
       db: { configured: Boolean(process.env.DATABASE_URL), connected: false, error: null },
+      migration: { restructureApplied: null, directUrlConfigured: Boolean(process.env.DIRECT_URL) },
       auth: {
         jwtConfigured: Boolean(process.env.JWT_SECRET),
       },
@@ -91,6 +92,18 @@ export const registerRoutes = async (app) => {
         "Timeout ao verificar conexão com PostgreSQL"
       );
       status.db.connected = true;
+      try {
+        const client = (await import("../database/prismaClient.js")).getPrismaClient();
+        const rows = await client.$queryRaw`
+          SELECT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = 'Cliente' AND column_name = 'next_id_global'
+          ) AS ok
+        `;
+        status.migration.restructureApplied = Boolean(rows[0]?.ok);
+      } catch {
+        status.migration.restructureApplied = false;
+      }
     } catch (error) {
       status.db.error = error.message || "Falha na conexão com PostgreSQL";
     }

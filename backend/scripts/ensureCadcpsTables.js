@@ -1,11 +1,8 @@
-import dotenv from "dotenv";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PrismaClient } from "@prisma/client";
-import { runSqlFile } from "./sqlRunner.js";
 import fs from "node:fs";
-
-dotenv.config();
+import { createMigrationPrisma } from "./migrationPrisma.js";
+import { runSqlFile } from "./sqlRunner.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const migrationPath = path.resolve(
@@ -13,7 +10,7 @@ const migrationPath = path.resolve(
   "../prisma/migrations/20260603010000_cadcps_module/migration.sql"
 );
 
-const prisma = new PrismaClient();
+const prisma = createMigrationPrisma();
 
 const run = async () => {
   const count = await runSqlFile(prisma, migrationPath, fs);
