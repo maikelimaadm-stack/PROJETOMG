@@ -5,7 +5,6 @@ import FORMEMP from "@/modules/empresas/components/FORMEMP";
 import TBLEMP from "@/modules/empresas/components/TBLEMP";
 import EmpConfiguracaoExportacaoDialog from "@/framework/cadastro/configurators/EmpConfiguracaoExportacaoDialog";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
-import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexosDialog";
 
 class EmpresasFormErrorBoundary extends React.Component {
@@ -45,11 +44,10 @@ class EmpresasFormErrorBoundary extends React.Component {
   }
 }
 
-export const EmpresasFormPanel = ({ showForm, formProps, saveProgress }) => {
+export const EmpresasFormPanel = ({ showForm, formProps }) => {
   if (!showForm) return null;
   return (
     <div className="relative z-10 flex h-full min-h-0 w-full flex-1 overflow-hidden">
-      <SaveProgressOverlay active={saveProgress?.active} message={saveProgress?.message} />
       <div className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
         <EmpresasFormErrorBoundary key={formProps.key}>
           <FORMEMP {...formProps} />

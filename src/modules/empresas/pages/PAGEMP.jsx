@@ -21,6 +21,7 @@ import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache"
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
+import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -190,7 +191,7 @@ export default function PAGEMP() {
 
     try {
       const validatedData = empresasModuleDefinition.schema.parse(data);
-      saveCycle.begin(isUpdate ? "Salvando alterações..." : "Salvando registro...");
+      saveCycle.beginSave();
 
       if (isUpdate) {
         const optimistic = normalizeEmpresaRecord({ ...editingEmp, ...validatedData });
@@ -440,6 +441,8 @@ export default function PAGEMP() {
       throw new Error("Nenhum registro selecionado para exclusão.");
     }
 
+    saveCycle.beginDelete();
+
     const wasOnForm = showForm && viewMode === "record";
     const deletedCurrentFromForm = wasOnForm && editingEmp?.id && ids.includes(editingEmp.id);
     const navListBeforeDelete = empresasNavegacao;
@@ -562,6 +565,8 @@ export default function PAGEMP() {
         )
       );
       throw error;
+    } finally {
+      saveCycle.end();
     }
   };
 
@@ -589,10 +594,10 @@ export default function PAGEMP() {
   };
 
   return (
-    <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <SaveProgressOverlay active={saveCycle.isSaving} message={saveCycle.saveMessage} />
       <EmpresasFormPanel
         showForm={showForm}
-        saveProgress={{ active: saveCycle.isSaving, message: saveCycle.saveMessage }}
         formProps={{
           key: `form-${formVersion}`,
           initialData: editingEmp,

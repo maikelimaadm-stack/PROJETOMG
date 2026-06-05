@@ -13,6 +13,7 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
+import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
 const DEFAULT_RESPONSE = {
   items: [],
@@ -178,7 +179,7 @@ export default function PAGCPS() {
 
       try {
         const validatedData = cadcpsModuleDefinition.schema.parse(data);
-        saveCycle.begin(isUpdate ? "Salvando alterações..." : "Salvando registro...");
+        saveCycle.beginSave();
 
         if (isUpdate) {
           const optimistic = { ...editingItem, ...validatedData };
@@ -397,6 +398,7 @@ export default function PAGCPS() {
   );
 
   const handleToggleView = () => {
+    if (!saveCycle.guardAction()) return;
     if (showForm) {
       setShowForm(false);
       setEditingItem(null);
@@ -415,7 +417,7 @@ export default function PAGCPS() {
   };
 
   const navigateRecord = (index) => {
-    if (!showForm) return;
+    if (!showForm || !saveCycle.guardAction()) return;
     const nextIndex = Math.min(Math.max(index, 0), Math.max(camposNavegacao.length - 1, 0));
     setSelectedIndex(nextIndex);
     if (camposNavegacao[nextIndex]) {
@@ -431,6 +433,8 @@ export default function PAGCPS() {
       showError("Nenhum registro selecionado para exclusão.");
       throw new Error("Nenhum registro selecionado para exclusão.");
     }
+
+    saveCycle.beginDelete();
 
     const deletedCurrentFromForm =
       showForm && viewMode === "record" && editingItem?.id && ids.includes(editingItem.id);
@@ -528,6 +532,7 @@ export default function PAGCPS() {
     <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <CamposFormPanel
         showForm={showForm}
+        saveProgress={{ active: saveCycle.isSaving, message: saveCycle.saveMessage }}
         formProps={{
           key: `form-${formVersion}`,
           initialData: editingItem,
@@ -567,12 +572,14 @@ export default function PAGCPS() {
           onDuplicate: () => editingItem && handleDuplicate(editingItem),
           searchValue: searchTerm,
           onSearchChange: handleSearchChange,
+          actionsLocked: saveCycle.isSaving,
         }}
       />
 
       <CamposTablePanel
         hidden={showForm}
         toolbarProps={{
+          actionsLocked: saveCycle.isSaving,
           viewMode,
           total: totalCampos,
           currentIndex: selectedIndex,
