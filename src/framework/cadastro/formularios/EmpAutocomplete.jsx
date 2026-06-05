@@ -424,7 +424,7 @@ export default function EmpAutocomplete({
           readOnly={readOnly || isSelect}
           placeholder={resolvedPlaceholder}
           className={cn(
-            "emp-form-input h-full min-h-0 border-0 text-xs shadow-none focus-visible:ring-0",
+            "emp-form-input emp-form-input-no-zoom h-full min-h-0 border-0 text-xs shadow-none focus-visible:ring-0",
             inputClassName,
             isLookup ? "erp-field-lookup-input !pl-7 !pr-2" : "erp-field-select-input !pr-2 !pl-2.5",
             !isLookup && uppercaseDisplay && "uppercase"

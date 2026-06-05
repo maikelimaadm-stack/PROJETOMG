@@ -176,6 +176,7 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
         typeClass,
         mediaInline && "emp-form-field-corp--media-inline",
         textareaField && "emp-form-field-corp--textarea",
+        field?.wide && "emp-form-field-corp--wide",
         bare && "emp-form-field-corp--bare",
         className
       )}
@@ -255,13 +256,14 @@ function FormCardSection({ card, panelId, children }) {
         <CollapsibleTrigger asChild>
           <button
             type="button"
-            className="emp-form-card-title emp-form-card-title--collapsible flex w-full items-center gap-2 border-0 bg-transparent p-0 text-left"
+            className="emp-form-card-title emp-form-card-title--collapsible flex w-full items-center justify-between gap-2 border-0 p-0 text-left"
           >
-            <ChevronDown
-              className={cn("emp-form-card-chevron h-4 w-4 shrink-0 text-[#64748b] transition-transform duration-150", !open && "-rotate-90")}
-              aria-hidden="true"
-            />
             <span className="min-w-0 flex-1 truncate">{card.label}</span>
+            <span className="emp-form-card-collapse-btn erp-field-select-chevron-btn shrink-0" aria-hidden="true">
+              <ChevronDown
+                className={cn("emp-form-card-chevron h-[14px] w-[14px] text-[#1a1f26] transition-transform duration-150", !open && "-rotate-90")}
+              />
+            </span>
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent forceMount={false}>

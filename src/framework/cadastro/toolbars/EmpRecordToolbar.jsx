@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
-import { formatCadastroRecordCount } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
+import { formatCadastroRecordPosition } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -37,8 +37,6 @@ export default function EmpRecordToolbar({
   onToggleView,
   onBack,
   total = 0,
-  recordCountLabel = "Registros",
-  recordCountTotal = 0,
   currentIndex = 0,
   onNew,
   onFirst,
@@ -59,8 +57,8 @@ export default function EmpRecordToolbar({
   const canNavigate = total > 0 && !actionsLocked;
   const isFirst = currentIndex <= 0;
   const isLast = currentIndex >= total - 1;
-  const counterValue = formatCadastroRecordCount(recordCountTotal || total);
-  const counterTitle = `${recordCountLabel}: ${counterValue}`;
+  const counterValue = formatCadastroRecordPosition(currentIndex, total);
+  const counterTitle = `Registros: ${counterValue}`;
 
   const moreMenuItems = (
     <>
@@ -191,7 +189,7 @@ export default function EmpRecordToolbar({
               <ToolbarBtn
                 onClick={onSave}
                 disabled={actionsLocked}
-                className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new ${MOBILE_PRIMARY_CLASS}`}
+                className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new hidden md:inline-flex`}
                 title="Salvar"
               >
                 <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
@@ -288,7 +286,6 @@ export default function EmpRecordToolbar({
           <ToolbarSeparator />
           <EmpBubbleCounter
             value={counterValue}
-            label={recordCountLabel}
             title={counterTitle}
             className="emp-toolbar-bubble-counter"
           />

@@ -24,7 +24,6 @@ import {
 } from "@/shared/layouts/ErpTableFullscreenContext";
 import { EmpFullscreenEnterIcon } from "@/framework/cadastro/pagination/EmpTableFullscreenIcon";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
-import ErpOperationBadge from "@/shared/layouts/ErpOperationBadge";
 import ErpRecordDetails from "@/shared/layouts/ErpRecordDetails";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
@@ -173,36 +172,38 @@ function ErpBreadcrumbs({ pathname }) {
             })}
           </BreadcrumbList>
         </Breadcrumb>
-        {operationLabel ? (
-          <ErpOperationBadge
-            operationLabel={operationLabel}
-            className="erp-shell-operation-badge erp-shell-operation-badge--desktop ml-auto shrink-0"
-          />
-        ) : null}
       </div>
 
-      {showRecordDetails || operationLabel || showRequiredCounter ? (
-        <div className="erp-shell-breadcrumbs__meta flex w-full min-w-0 items-center gap-2">
-          {showRecordDetails ? (
-            <ErpRecordDetails
-              codigo={recordDetails?.codigo}
-              nome={recordDetails?.nome}
-              className="min-w-0 flex-1"
-            />
-          ) : null}
+      {showRecordDetails ? (
+        <div className="erp-shell-breadcrumbs__details flex w-full min-w-0 items-center">
+          <ErpRecordDetails
+            codigo={recordDetails?.codigo}
+            nome={recordDetails?.nome}
+            className="min-w-0 flex-1"
+          />
+        </div>
+      ) : null}
+
+      {operationLabel || showRequiredCounter ? (
+        <div className="erp-shell-breadcrumbs__meta flex w-full min-w-0 items-center gap-1.5">
           {operationLabel ? (
-            <ErpOperationBadge
-              operationLabel={operationLabel}
-              className="erp-shell-operation-badge erp-shell-operation-badge--mobile shrink-0"
-            />
+            <ErpInfoPill className="erp-shell-status-operation shrink-0">
+              {operationLabel}
+            </ErpInfoPill>
+          ) : null}
+          {operationLabel && showRequiredCounter ? (
+            <span className="erp-shell-status-separator shrink-0 text-xs font-semibold text-[#94a3b8]" aria-hidden="true">
+              &gt;
+            </span>
           ) : null}
           {showRequiredCounter ? (
             <FormValidationStatus
               visible
+              variant="inline"
               filled={requiredStatus.filled}
               total={requiredStatus.total}
               pendingFields={requiredStatus.pendingFields}
-              className="erp-shell-required-status ml-auto shrink-0"
+              className="erp-shell-required-status shrink-0"
             />
           ) : null}
         </div>

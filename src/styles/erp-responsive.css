@@ -319,7 +319,7 @@
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-save-mobile {
-    display: flex !important;
+    display: none !important;
   }
 
   .cadastro-emp-scope .emp-toolbar-btn--mobile-more,
@@ -332,10 +332,6 @@
     display: none;
   }
 
-  .cadastro-emp-scope .emp-toolbar-btn--mobile-primary.emp-toolbar-btn-labeled span {
-    display: inline;
-  }
-
   .cadastro-emp-scope .emp-toolbar-btn-labeled {
     width: var(--erp-toolbar-btn-size, 36px) !important;
     min-width: var(--erp-toolbar-btn-size, 36px) !important;
@@ -343,14 +339,6 @@
     padding-right: 0 !important;
     gap: 0 !important;
     justify-content: center;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-btn--mobile-primary.emp-toolbar-btn-labeled {
-    width: auto !important;
-    min-width: var(--erp-toolbar-btn-size, 36px) !important;
-    padding-left: 6px !important;
-    padding-right: 6px !important;
-    gap: 4px !important;
   }
 
   /* Busca: sempre visível, sem quebra de linha ao focar */
@@ -402,7 +390,9 @@
   .cadastro-emp-scope .emp-form-field-corp--media-inline,
   .cadastro-emp-scope .emp-form-field-corp[class*="--type-textarea"],
   .cadastro-emp-scope .emp-form-field-corp[class*="--type-image"],
-  .cadastro-emp-scope .emp-form-field-corp[class*="--type-file"] {
+  .cadastro-emp-scope .emp-form-field-corp[class*="--type-file"],
+  .cadastro-emp-scope .emp-form-field-corp[data-width-type="CAMPO_PRINCIPAL"]:has(.emp-form-textarea-corp),
+  .cadastro-emp-scope .emp-form-field-corp--wide {
     grid-column: 1 / -1 !important;
   }
 
@@ -479,7 +469,11 @@
   .cadastro-emp-scope .emp-form-input,
   .cadastro-emp-scope .emp-autocomplete input,
   .cadastro-emp-scope .erp-field-select-input,
-  .cadastro-emp-scope .erp-field-lookup-input {
+  .cadastro-emp-scope .erp-field-lookup-input,
+  .cadastro-emp-scope .erp-field-select .erp-field-select-input,
+  .cadastro-emp-scope .erp-select-control input,
+  .cadastro-emp-scope .erp-menu-search-field__input,
+  .cadastro-emp-scope .emp-form-input-no-zoom {
     font-size: 16px !important;
   }
 
