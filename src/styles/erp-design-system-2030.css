@@ -293,18 +293,6 @@
   border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
   box-shadow: none !important;
   border-bottom: 1px solid var(--erp-color-border) !important;
-  padding: 2px var(--erp-card-padding, 16px) !important;
-  min-height: 34px !important;
-  display: flex !important;
-  align-items: center !important;
-}
-
-.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-toolbar-card .emp-toolbar,
-.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-toolbar-card .emp-toolbar > div {
-  min-height: 32px !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  align-items: center !important;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card {
@@ -315,6 +303,7 @@
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card > .form-scroll-container {
   background: var(--erp-color-surface, #f8f9fd) !important;
+  border-radius: 0 0 var(--erp-radius-card) var(--erp-radius-card) !important;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
@@ -324,6 +313,9 @@
   box-shadow: none !important;
   border-bottom: 1px solid var(--erp-color-border) !important;
   margin-bottom: 0 !important;
+  min-height: 34px !important;
+  padding-top: 2px !important;
+  padding-bottom: 0 !important;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-section-panel.emp-form-section-panel--corp {
