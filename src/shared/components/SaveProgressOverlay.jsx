@@ -2,18 +2,12 @@ import React from "react";
 import { createPortal } from "react-dom";
 
 const VARIANT_STYLES = {
-  save: {
-    color: "var(--erp-color-primary)",
-    track: "color-mix(in srgb, var(--erp-color-primary) 18%, transparent)",
-  },
-  delete: {
-    color: "var(--erp-state-error)",
-    track: "color-mix(in srgb, var(--erp-state-error) 18%, transparent)",
-  },
+  save: { color: "var(--erp-color-primary)" },
+  delete: { color: "var(--erp-state-error)" },
 };
 
 const ProgressSpinner = ({ variant = "save" }) => {
-  const { color, track } = VARIANT_STYLES[variant] || VARIANT_STYLES.save;
+  const { color } = VARIANT_STYLES[variant] || VARIANT_STYLES.save;
 
   return (
     <svg
@@ -22,7 +16,15 @@ const ProgressSpinner = ({ variant = "save" }) => {
       fill="none"
       aria-hidden="true"
     >
-      <circle cx="32" cy="32" r="24" stroke={track} strokeWidth="5" fill="none" />
+      <circle
+        cx="32"
+        cy="32"
+        r="24"
+        stroke={color}
+        strokeOpacity="0.2"
+        strokeWidth="5"
+        fill="none"
+      />
       <circle
         cx="32"
         cy="32"

@@ -264,33 +264,22 @@ export default function FORMCPS({
     setEditMode(false);
   };
 
-  const operationLabel = isDuplicating
-    ? "NOVO REGISTRO DUPLICADO"
-    : isEditing
-      ? editMode
-        ? "EDIÇÃO DE REGISTRO"
-        : "VISUALIZAÇÃO DE REGISTRO"
-      : "NOVO REGISTRO";
-
   const recordMeta = useMemo(() => {
-    const codesPending = Boolean(initialData?._isPersisting);
     const codigo = initialData?.codigo != null ? initialData.codigo : null;
     const nome = String(form.nome || "").trim() || null;
-    const idGlobal = initialData?.id_global != null && Number(initialData.id_global) > 0
-      ? initialData.id_global
-      : null;
-    if (codesPending) {
-      return { idGlobal: null, codigo: null, nome: nome || "Novo campo personalizado", codesPending: true };
-    }
-    if (idGlobal || codigo || nome) return { idGlobal, codigo, nome };
-    if (!isEditing) return { idGlobal: null, codigo: null, nome: "Novo campo personalizado" };
+
+    if (codigo && nome) return { codigo, nome };
+    if (isDuplicating && nome) return { codigo: null, nome };
+    if (isDuplicating) return { codigo: null, nome: "Duplicar campo" };
+    if (!isEditing) return { codigo: null, nome: "Novo campo" };
+    if (nome) return { codigo, nome };
     return null;
-  }, [initialData?._isPersisting, initialData?.id_global, initialData?.codigo, form.nome, isEditing]);
+  }, [initialData?.codigo, form.nome, isDuplicating, isEditing]);
 
   useEffect(() => {
-    setPageHeader({ recordMeta, recordTitle: null, operationLabel, contextSuffix: null });
+    setPageHeader({ recordMeta, recordTitle: null, operationLabel: null, contextSuffix: null });
     return () => clearPageHeader();
-  }, [recordMeta, operationLabel, setPageHeader, clearPageHeader]);
+  }, [recordMeta, setPageHeader, clearPageHeader]);
 
   const renderPrincipal = () => (
     <fieldset

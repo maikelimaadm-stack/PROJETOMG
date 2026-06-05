@@ -27,7 +27,7 @@ export const ERP_MENU_SECTIONS = [
   {
     id: "cadastros",
     type: "group",
-    label: "Cadastros",
+    label: "Cadastro",
     icon: "folder-open",
     defaultOpen: true,
     items: [

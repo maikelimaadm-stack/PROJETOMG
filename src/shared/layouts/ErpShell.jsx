@@ -23,7 +23,6 @@ import {
   useErpTableFullscreen,
 } from "@/shared/layouts/ErpTableFullscreenContext";
 import { EmpFullscreenEnterIcon } from "@/framework/cadastro/pagination/EmpTableFullscreenIcon";
-import { getOperationBadge } from "@/shared/layouts/erpOperationBadge";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 import ErpRecordMeta from "@/shared/layouts/ErpRecordMeta";
 
@@ -123,18 +122,6 @@ function ErpTopHeader({
   );
 }
 
-function ErpOperationBadge({ operationLabel }) {
-  if (!operationLabel) return null;
-  const { Icon, label } = getOperationBadge(operationLabel);
-
-  return (
-    <span className="erp-shell-operation-badge inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-[#1a1f26] whitespace-nowrap">
-      <Icon className="h-3.5 w-3.5 shrink-0 text-[#1a1f26]" strokeWidth={2} aria-hidden="true" />
-      {label}
-    </span>
-  );
-}
-
 function ErpBreadcrumbs({ pathname }) {
   const { header } = useErpPageHeader();
   const crumbs = buildErpBreadcrumbs(pathname);
@@ -143,12 +130,7 @@ function ErpBreadcrumbs({ pathname }) {
   if (header.recordMeta) {
     trail.push({
       label: (
-        <ErpRecordMeta
-          idGlobal={header.recordMeta.idGlobal}
-          codigo={header.recordMeta.codigo}
-          nome={header.recordMeta.nome}
-          codesPending={header.recordMeta.codesPending}
-        />
+        <ErpRecordMeta codigo={header.recordMeta.codigo} nome={header.recordMeta.nome} />
       ),
       isRecord: true,
       isNode: true,
@@ -157,12 +139,8 @@ function ErpBreadcrumbs({ pathname }) {
     trail.push({ label: String(header.recordTitle), isRecord: true });
   }
 
-  if (header.contextSuffix) {
-    trail.push({ label: header.contextSuffix });
-  }
-
   return (
-    <div className="erp-shell-breadcrumbs flex shrink-0 items-center justify-between gap-2 px-1 py-1.5">
+    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5">
       <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="text-xs font-semibold text-[#1a1f26]">
           {trail.map((crumb, index) => {
@@ -188,7 +166,6 @@ function ErpBreadcrumbs({ pathname }) {
           })}
         </BreadcrumbList>
       </Breadcrumb>
-      <ErpOperationBadge operationLabel={header.operationLabel} />
     </div>
   );
 }

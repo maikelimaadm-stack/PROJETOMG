@@ -16,9 +16,7 @@ import {
   EmpresasFormPanel,
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
-import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
-import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
@@ -114,15 +112,6 @@ export default function PAGEMP() {
   const empresas = empresasResponse.items || [];
   const totalEmpresas = empresasResponse.total || 0;
 
-  const { data: contadores = { empresas: totalEmpresas, registrosGlobais: 0 } } = useQuery({
-    queryKey: ["metrics-contadores"],
-    queryFn: () => MetricsApi.getContadores(),
-    staleTime: Number.POSITIVE_INFINITY,
-    gcTime: 30 * 60_000,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    placeholderData: { empresas: totalEmpresas, registrosGlobais: 0 },
-  });
   const empresasLoading = isLoading && empresas.length === 0;
   const empresasFiltradasPainel = empresas;
 
@@ -642,9 +631,6 @@ export default function PAGEMP() {
           onSearchChange: handleSearchChange,
           onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
           attachDisabled: false,
-          showCorporateCounters: true,
-          empresasTotal: contadores.empresas ?? totalEmpresas,
-          registrosGlobaisTotal: formatIdGlobal(contadores.registrosGlobais ?? 0) || "0",
           actionsLocked: saveCycle.isSaving,
         }}
       />
@@ -674,9 +660,6 @@ export default function PAGEMP() {
           selectedCount: selectedTableItems.length,
           title: moduleLabels.title,
           recordLabel: "",
-          showCorporateCounters: true,
-          empresasTotal: contadores.empresas ?? totalEmpresas,
-          registrosGlobaisTotal: formatIdGlobal(contadores.registrosGlobais ?? 0) || "0",
         }}
         tableProps={{
           key: "tbl-emp",

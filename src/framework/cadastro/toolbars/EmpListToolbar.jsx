@@ -44,9 +44,6 @@ export default function EmpListToolbar({
   onConfigExportExcel,
   onConfigColumns,
   selectedCount = 0,
-  empresasTotal,
-  registrosGlobaisTotal,
-  showCorporateCounters = false,
   title = "REGISTROS",
   recordLabel = "",
   operationLabel,
@@ -56,6 +53,8 @@ export default function EmpListToolbar({
 }) {
   const canNavigate = viewMode === "record" && total > 0 && !actionsLocked;
   const showRecordNavigation = viewMode === "record";
+  const recordCounter =
+    total > 0 ? `${Math.min(Math.max(currentIndex + 1, 1), total)}/${total}` : "0/0";
   const showDeleteSelectionAction = viewMode === "table" && selectedCount > 0 && !!onDelete;
   const showDuplicateSelectionAction = viewMode === "table" && selectedCount === 1 && !!onDuplicate;
 
@@ -151,34 +150,11 @@ export default function EmpListToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          {showCorporateCounters ? (
-            <>
-              <EmpBubbleCounter
-                label="Empresas"
-                value={String(empresasTotal ?? total)}
-                title="Empresas"
-                className="emp-toolbar-bubble-counter"
-              />
-              <EmpBubbleCounter
-                label="Registros Globais"
-                value={String(registrosGlobaisTotal ?? 0)}
-                title="Registros Globais"
-                className="emp-toolbar-bubble-counter"
-              />
-            </>
-          ) : (
-            <EmpBubbleCounter
-              value={
-                viewMode === "record" && total > 0
-                  ? `${currentIndex + 1}/${total}`
-                  : selectedCount > 0
-                    ? `${selectedCount}/${total}`
-                    : String(total)
-              }
-              title="Registros"
-              className="emp-toolbar-bubble-counter"
-            />
-          )}
+          <EmpBubbleCounter
+            value={recordCounter}
+            title="Registros"
+            className="emp-toolbar-bubble-counter"
+          />
         </div>
       </div>
     </div>

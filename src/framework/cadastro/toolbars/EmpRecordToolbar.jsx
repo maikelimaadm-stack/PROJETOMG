@@ -49,14 +49,13 @@ export default function EmpRecordToolbar({
   onSearchChange,
   showSearch = false,
   showRecordNavigation = true,
-  empresasTotal,
-  registrosGlobaisTotal,
-  showCorporateCounters = false,
   actionsLocked = false,
 }) {
   const canNavigate = total > 0 && !actionsLocked;
   const isFirst = currentIndex <= 0;
   const isLast = currentIndex >= total - 1;
+  const recordCounter =
+    total > 0 ? `${Math.min(Math.max(currentIndex + 1, 1), total)}/${total}` : "0/0";
 
   return (
     <div className="emp-toolbar shadow-none overflow-hidden">
@@ -144,28 +143,11 @@ export default function EmpRecordToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          {showCorporateCounters ? (
-            <>
-              <EmpBubbleCounter
-                label="Empresas"
-                value={String(empresasTotal ?? total)}
-                title="Empresas"
-                className="emp-toolbar-bubble-counter"
-              />
-              <EmpBubbleCounter
-                label="Registros Globais"
-                value={String(registrosGlobaisTotal ?? 0)}
-                title="Registros Globais"
-                className="emp-toolbar-bubble-counter"
-              />
-            </>
-          ) : (
-            <EmpBubbleCounter
-              value={total > 0 ? `${currentIndex + 1}/${total}` : String(total)}
-              title="Registros"
-              className="emp-toolbar-bubble-counter"
-            />
-          )}
+          <EmpBubbleCounter
+            value={recordCounter}
+            title="Registros"
+            className="emp-toolbar-bubble-counter"
+          />
         </div>
       </div>
     </div>

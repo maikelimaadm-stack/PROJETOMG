@@ -52,9 +52,6 @@ export default function FORMEMP({
   onDelete, onDuplicate, onRefresh,
   filterOpen = false, filterActive = false, onToggleFilter, onClearFilter,
   searchValue = "", onSearchChange,
-  showCorporateCounters = false,
-  empresasTotal,
-  registrosGlobaisTotal,
   initialData,
   isEditing,
   recordKey,
@@ -466,36 +463,22 @@ export default function FORMEMP({
     onSubmit(clean);
   };
 
-  const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
   const recordMeta = useMemo(() => {
-    const codesPending = Boolean(formData._isPersisting);
-    const codigo = formData.codempresa != null && String(formData.codempresa).trim() !== ""
-      ? formData.codempresa
-      : null;
+    const codigo =
+      formData.codempresa != null && String(formData.codempresa).trim() !== ""
+        ? formData.codempresa
+        : null;
     const nome = String(formData.razao_social || "").trim() || null;
-    const idGlobal = formData.id_global != null && Number(formData.id_global) > 0
-      ? formData.id_global
-      : null;
 
-    if (codesPending) {
-      return { idGlobal: null, codigo: null, nome: nome || "Nova empresa", codesPending: true };
-    }
-    if (idGlobal || codigo || nome) {
-      return { idGlobal, codigo, nome };
-    }
-    if (isDuplicating) return { idGlobal: null, codigo: null, nome: "Duplicar empresa" };
-    if (!isEditing) return { idGlobal: null, codigo: null, nome: "Nova empresa" };
+    if (codigo && nome) return { codigo, nome };
+    if (isDuplicating && nome) return { codigo: null, nome };
+    if (isDuplicating) return { codigo: null, nome: "Duplicar empresa" };
+    if (!isEditing) return { codigo: null, nome: "Nova empresa" };
+    if (nome) return { codigo, nome };
     return null;
-  }, [
-    formData._isPersisting,
-    formData.id_global,
-    formData.codempresa,
-    formData.razao_social,
-    isDuplicating,
-    isEditing,
-  ]);
+  }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
 
   useEffect(() => {
     if (layoutConfigOpen) {
@@ -511,15 +494,10 @@ export default function FORMEMP({
     setPageHeader({
       recordMeta,
       recordTitle: null,
-      operationLabel,
+      operationLabel: null,
       contextSuffix: null,
     });
-  }, [
-    recordMeta,
-    operationLabel,
-    layoutConfigOpen,
-    setPageHeader,
-  ]);
+  }, [recordMeta, layoutConfigOpen, setPageHeader]);
 
   useEffect(() => () => clearPageHeader(), [clearPageHeader]);
 
@@ -616,9 +594,6 @@ export default function FORMEMP({
               searchValue={searchValue}
               onSearchChange={onSearchChange}
               showSearch
-              showCorporateCounters={showCorporateCounters}
-              empresasTotal={empresasTotal}
-              registrosGlobaisTotal={registrosGlobaisTotal}
             />
           }
         >
