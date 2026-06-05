@@ -276,9 +276,18 @@
   box-sizing: border-box;
 }
 
-/* —— Toolbar (faixa sem fundo nem bordas — botões flutuam no fundo da página) —— */
-.cadastro-emp-scope .emp-toolbar,
+/* —— Toolbar —— */
+/* Faixa de fundo dos botões — modelo card (mesma moldura dos painéis) */
 .cadastro-emp-scope .emp-toolbar-card {
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  padding: 4px 8px !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-toolbar {
   background: transparent !important;
   border: none !important;
   border-top: none !important;
