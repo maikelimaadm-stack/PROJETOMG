@@ -1,37 +1,51 @@
 import React from "react";
 import { createPortal } from "react-dom";
 
-const GradientSpinner = () => (
-  <svg
-    className="h-16 w-16 animate-spin"
-    viewBox="0 0 64 64"
-    fill="none"
-    aria-hidden="true"
-  >
-    <defs>
-      <linearGradient id="erp-save-progress-gradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="var(--erp-color-primary)" stopOpacity="1" />
-        <stop offset="55%" stopColor="var(--erp-color-primary-hover)" stopOpacity="0.65" />
-        <stop offset="100%" stopColor="var(--erp-color-primary)" stopOpacity="0.12" />
-      </linearGradient>
-    </defs>
-    <circle
-      cx="32"
-      cy="32"
-      r="24"
-      stroke="url(#erp-save-progress-gradient)"
-      strokeWidth="5"
-      strokeLinecap="round"
-      strokeDasharray="110 40"
-    />
-  </svg>
-);
+const VARIANT_STYLES = {
+  save: {
+    color: "var(--erp-color-primary)",
+    track: "color-mix(in srgb, var(--erp-color-primary) 18%, transparent)",
+  },
+  delete: {
+    color: "var(--erp-state-error)",
+    track: "color-mix(in srgb, var(--erp-state-error) 18%, transparent)",
+  },
+};
+
+const ProgressSpinner = ({ variant = "save" }) => {
+  const { color, track } = VARIANT_STYLES[variant] || VARIANT_STYLES.save;
+
+  return (
+    <svg
+      className="h-16 w-16 animate-spin"
+      viewBox="0 0 64 64"
+      fill="none"
+      aria-hidden="true"
+    >
+      <circle cx="32" cy="32" r="24" stroke={track} strokeWidth="5" fill="none" />
+      <circle
+        cx="32"
+        cy="32"
+        r="24"
+        stroke={color}
+        strokeWidth="5"
+        fill="none"
+        strokeLinecap="round"
+        strokeDasharray="110 40"
+      />
+    </svg>
+  );
+};
 
 export default function SaveProgressOverlay({
   active = false,
   message = "Salvando registros...",
+  variant = "save",
 }) {
   if (!active || typeof document === "undefined") return null;
+
+  const textColor =
+    variant === "delete" ? "text-[var(--erp-state-error)]" : "text-[var(--erp-color-primary)]";
 
   return createPortal(
     <div
@@ -42,8 +56,8 @@ export default function SaveProgressOverlay({
       aria-label={message}
     >
       <div className="flex flex-col items-center gap-4">
-        <GradientSpinner />
-        <p className="text-center text-sm font-semibold text-[var(--erp-color-primary)]">{message}</p>
+        <ProgressSpinner variant={variant} />
+        <p className={`text-center text-sm font-semibold ${textColor}`}>{message}</p>
       </div>
     </div>,
     document.body

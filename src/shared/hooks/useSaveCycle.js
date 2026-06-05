@@ -8,22 +8,23 @@ export function useSaveCycle() {
   const [state, setState] = useState({
     active: false,
     message: SAVE_PROGRESS_MESSAGE,
+    variant: "save",
   });
 
-  const begin = useCallback((message = SAVE_PROGRESS_MESSAGE) => {
-    setState({ active: true, message });
+  const begin = useCallback((message = SAVE_PROGRESS_MESSAGE, variant = "save") => {
+    setState({ active: true, message, variant });
   }, []);
 
   const beginSave = useCallback(() => {
-    begin(SAVE_PROGRESS_MESSAGE);
+    begin(SAVE_PROGRESS_MESSAGE, "save");
   }, [begin]);
 
   const beginDelete = useCallback(() => {
-    begin(DELETE_PROGRESS_MESSAGE);
+    begin(DELETE_PROGRESS_MESSAGE, "delete");
   }, [begin]);
 
   const end = useCallback(() => {
-    setState({ active: false, message: SAVE_PROGRESS_MESSAGE });
+    setState({ active: false, message: SAVE_PROGRESS_MESSAGE, variant: "save" });
   }, []);
 
   const guardAction = useCallback(
@@ -38,6 +39,7 @@ export function useSaveCycle() {
   return {
     isSaving: state.active,
     saveMessage: state.message,
+    variant: state.variant,
     begin,
     beginSave,
     beginDelete,

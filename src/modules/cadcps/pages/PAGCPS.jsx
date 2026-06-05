@@ -532,7 +532,11 @@ export default function PAGCPS() {
 
   return (
     <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-      <SaveProgressOverlay active={saveCycle.isSaving} message={saveCycle.saveMessage} />
+      <SaveProgressOverlay
+        active={saveCycle.isSaving}
+        message={saveCycle.saveMessage}
+        variant={saveCycle.variant}
+      />
       <CamposFormPanel
         showForm={showForm}
         formProps={{
