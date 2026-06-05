@@ -15,6 +15,7 @@ import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
+import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
 import {
   countKnownLayoutFields,
   ensureLayoutFields,
@@ -480,6 +481,19 @@ export default function FORMEMP({
     return null;
   }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
 
+  const operationLabel = useMemo(
+    () =>
+      resolveRecordOperationLabel({
+        isEditing,
+        editMode,
+        isDuplicating,
+        isSaving: actionsLocked,
+      }),
+    [isEditing, editMode, isDuplicating, actionsLocked]
+  );
+
+  const showRequiredCounter = !isReadOnly;
+
   useEffect(() => {
     if (layoutConfigOpen) {
       setPageHeader({
@@ -494,10 +508,10 @@ export default function FORMEMP({
     setPageHeader({
       recordMeta,
       recordTitle: null,
-      operationLabel: null,
+      operationLabel,
       contextSuffix: null,
     });
-  }, [recordMeta, layoutConfigOpen, setPageHeader]);
+  }, [recordMeta, layoutConfigOpen, operationLabel, setPageHeader]);
 
   useEffect(() => () => clearPageHeader(), [clearPageHeader]);
 
@@ -607,6 +621,7 @@ export default function FORMEMP({
                 systemPanelIds={empresasCadastroConfig.systemPanelIds}
                 trailing={
                   <FormValidationStatus
+                    visible={showRequiredCounter}
                     filled={requiredFieldStats.filled}
                     total={requiredFieldStats.total}
                     pendingFields={requiredFieldStats.pendingFields}

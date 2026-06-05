@@ -25,6 +25,8 @@ import {
 import { EmpFullscreenEnterIcon } from "@/framework/cadastro/pagination/EmpTableFullscreenIcon";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 import ErpRecordMeta from "@/shared/layouts/ErpRecordMeta";
+import ErpOperationBadge from "@/shared/layouts/ErpOperationBadge";
+import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
@@ -139,26 +141,31 @@ function ErpBreadcrumbs({ pathname }) {
     trail.push({ label: String(header.recordTitle), isRecord: true });
   }
 
+  const operationLabel = header.operationLabel || header.contextSuffix;
+
   return (
     <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2">
       <Breadcrumb className="min-w-0 flex-1">
-        <BreadcrumbList className="text-xs font-semibold text-[#1a1f26]">
+        <BreadcrumbList className="erp-shell-breadcrumb-list flex flex-wrap items-center gap-1.5 text-xs font-semibold">
           {trail.map((crumb, index) => {
             const isLast = index === trail.length - 1;
+            const crumbKey = `${typeof crumb.label === "string" ? crumb.label : "node"}-${index}`;
             return (
-              <React.Fragment key={`${crumb.label}-${index}`}>
-                {index > 0 ? <BreadcrumbSeparator /> : null}
-                <BreadcrumbItem>
+              <React.Fragment key={crumbKey}>
+                {index > 0 ? (
+                  <BreadcrumbSeparator className="erp-shell-breadcrumb-separator text-[#94a3b8]" />
+                ) : null}
+                <BreadcrumbItem className="inline-flex min-w-0 items-center">
                   {isLast ? (
-                    <BreadcrumbPage
-                      className={`text-xs font-semibold text-[#1a1f26] ${crumb.isRecord ? "truncate max-w-[min(100%,520px)]" : ""}`}
-                    >
-                      {crumb.isNode ? crumb.label : crumb.label}
+                    <BreadcrumbPage className="inline-flex min-w-0 items-center p-0">
+                      {crumb.isNode ? (
+                        crumb.label
+                      ) : (
+                        <ErpInfoPill className="erp-shell-breadcrumb-pill">{crumb.label}</ErpInfoPill>
+                      )}
                     </BreadcrumbPage>
                   ) : (
-                    <span className="text-xs font-semibold text-[#1a1f26]">
-                      {crumb.isNode ? crumb.label : crumb.label}
-                    </span>
+                    <ErpInfoPill className="erp-shell-breadcrumb-pill">{crumb.label}</ErpInfoPill>
                   )}
                 </BreadcrumbItem>
               </React.Fragment>
@@ -166,6 +173,9 @@ function ErpBreadcrumbs({ pathname }) {
           })}
         </BreadcrumbList>
       </Breadcrumb>
+      {operationLabel ? (
+        <ErpOperationBadge operationLabel={operationLabel} className="ml-auto shrink-0" />
+      ) : null}
     </div>
   );
 }

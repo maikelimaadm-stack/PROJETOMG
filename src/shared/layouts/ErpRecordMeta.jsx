@@ -1,4 +1,6 @@
 import React from "react";
+import ErpInfoPill from "@/shared/ui/ErpInfoPill";
+import { Hash } from "lucide-react";
 
 const buildRecordLabel = (codigo, nome) => {
   const codigoText =
@@ -16,8 +18,8 @@ export default function ErpRecordMeta({ codigo, nome }) {
   if (!label) return null;
 
   return (
-    <span className="erp-record-meta min-w-0 truncate text-xs font-semibold text-[#1a1f26]">
+    <ErpInfoPill icon={Hash} className="erp-record-meta max-w-[min(100%,520px)]" title={label}>
       {label}
-    </span>
+    </ErpInfoPill>
   );
 }

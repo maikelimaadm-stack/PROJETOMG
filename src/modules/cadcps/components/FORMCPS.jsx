@@ -11,6 +11,7 @@ import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarL
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
 import { reportRequiredFieldErrors, clearRequiredFieldErrors } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
+import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
 import { CADCPS_APLICACAO, CADCPS_TIPOS } from "@/modules/cadcps/config/cadcpsConstants";
 import { CPS_FORM_PANELS, CPS_INPUT_CLASS } from "@/modules/cadcps/config/formCps.constants";
 import repCps from "@/modules/cadcps/repositories/repCps";
@@ -276,10 +277,21 @@ export default function FORMCPS({
     return null;
   }, [initialData?.codigo, form.nome, isDuplicating, isEditing]);
 
+  const operationLabel = useMemo(
+    () =>
+      resolveRecordOperationLabel({
+        isEditing,
+        editMode,
+        isDuplicating,
+        isSaving: actionsLocked,
+      }),
+    [isEditing, editMode, isDuplicating, actionsLocked]
+  );
+
   useEffect(() => {
-    setPageHeader({ recordMeta, recordTitle: null, operationLabel: null, contextSuffix: null });
+    setPageHeader({ recordMeta, recordTitle: null, operationLabel, contextSuffix: null });
     return () => clearPageHeader();
-  }, [recordMeta, setPageHeader, clearPageHeader]);
+  }, [recordMeta, operationLabel, setPageHeader, clearPageHeader]);
 
   const renderPrincipal = () => (
     <fieldset
