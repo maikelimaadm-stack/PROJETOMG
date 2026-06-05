@@ -132,6 +132,7 @@ export default function FORMEMP({
     recordKey,
     initialData?.id,
     initialData?.codempresa,
+    initialData?.id_global,
     initialData?.updatedAt,
     initialData?._isDuplicate,
     isEditing,

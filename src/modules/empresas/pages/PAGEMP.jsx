@@ -19,6 +19,7 @@ import {
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -40,6 +41,21 @@ const patchEmpresasCache = (queryClient, updater) => {
     if (!previous?.items) return previous;
     return updater(previous);
   });
+};
+
+const reserveOptimisticEmpresaCodes = (queryClient, empresasList = []) => {
+  const contadores = queryClient.getQueryData(["metrics-contadores"]) || {
+    empresas: 0,
+    registrosGlobais: 0,
+  };
+  const maxCodempresa = empresasList.reduce(
+    (max, item) => Math.max(max, Number(item.codempresa) || 0),
+    0
+  );
+  return {
+    codempresa: maxCodempresa + 1,
+    id_global: Number(contadores.registrosGlobais || 0) + 1,
+  };
 };
 
 export default function PAGEMP() {
@@ -76,6 +92,7 @@ export default function PAGEMP() {
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const pendingDeleteIdsRef = useRef([]);
+  const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
   const queryClient = useQueryClient();
 
@@ -178,7 +195,9 @@ export default function PAGEMP() {
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
   const handleSubmit = useCallback((data) => {
-    const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
+    const isUpdate = Boolean(
+      editingEmp?.id && !isPendingRecordId(editingEmp.id) && !editingEmp._isDuplicate
+    );
 
     try {
       const validatedData = empresasModuleDefinition.schema.parse(data);
@@ -229,8 +248,17 @@ export default function PAGEMP() {
 
       const { _isDuplicate, ...clean } = validatedData;
       const pendingId = `pending-${crypto.randomUUID()}`;
-      const optimistic = normalizeEmpresaRecord({ ...clean, id: pendingId });
+      const reservedCodes = reserveOptimisticEmpresaCodes(queryClient, empresas);
+      const optimistic = normalizeEmpresaRecord({
+        ...clean,
+        id: pendingId,
+        codempresa: reservedCodes.codempresa,
+        id_global: reservedCodes.id_global,
+        _isPersisting: true,
+      });
       const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
+      const createEntry = { cancelled: false };
+      pendingCreatesRef.current.set(pendingId, createEntry);
 
       patchEmpresasCache(queryClient, (previous) => ({
         ...previous,
@@ -244,8 +272,22 @@ export default function PAGEMP() {
 
       void moduleRepository
         .create(clean)
-        .then((response) => {
+        .then(async (response) => {
           const normalized = normalizeEmpresaRecord(response?.item);
+          pendingCreatesRef.current.delete(pendingId);
+
+          if (createEntry.cancelled) {
+            try {
+              const deleteResponse = await moduleRepository.delete(normalized.id);
+              if (deleteResponse?.contadores) {
+                setMetricsCache(queryClient, deleteResponse.contadores);
+              }
+            } catch {
+              // UI já removeu; servidor pode ter excluído ou falhado silenciosamente
+            }
+            return;
+          }
+
           patchEmpresasCache(queryClient, (previous) => ({
             ...previous,
             items: previous.items.map((item) =>
@@ -262,16 +304,19 @@ export default function PAGEMP() {
           setMetricsCache(queryClient, response?.contadores);
         })
         .catch((error) => {
-          patchMetricsCache(queryClient, { empresas: -1, registrosGlobais: -1 });
-          cacheSnapshot.forEach(([key, value]) => {
-            queryClient.setQueryData(key, value);
-          });
-          patchEmpresasCache(queryClient, (previous) => ({
-            ...previous,
-            items: previous.items.filter((item) => item.id !== pendingId),
-            total: Math.max(0, previous.total - 1),
-          }));
-          removeEmpresasFromSelector([pendingId]);
+          pendingCreatesRef.current.delete(pendingId);
+          if (!createEntry.cancelled) {
+            patchMetricsCache(queryClient, { empresas: -1, registrosGlobais: -1 });
+            cacheSnapshot.forEach(([key, value]) => {
+              queryClient.setQueryData(key, value);
+            });
+            patchEmpresasCache(queryClient, (previous) => ({
+              ...previous,
+              items: previous.items.filter((item) => item.id !== pendingId),
+              total: Math.max(0, previous.total - 1),
+            }));
+            removeEmpresasFromSelector([pendingId]);
+          }
           showError(
             resolveErrorMessage(
               error,
@@ -295,6 +340,7 @@ export default function PAGEMP() {
     queryClient,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
+    empresas,
     stayOnRecordAfterSave,
     upsertEmpresaInSelector,
   ]);
@@ -320,7 +366,7 @@ export default function PAGEMP() {
 
   const handleDuplicate = (emp) => {
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
-    const { id, created_date, updated_date, created_by, codempresa, ...dup } = emp;
+    const { id, created_date, updated_date, created_by, codempresa, id_global, _isPersisting, ...dup } = emp;
     setEditingEmp({ ...dup, _isDuplicate: true });
     setShowForm(true);
     setViewMode("record");
@@ -480,8 +526,25 @@ export default function PAGEMP() {
     pendingDeleteIdsRef.current = [];
     setDeleteState({ open: false, ids: [] });
 
+    const pendingIds = ids.filter((id) => isPendingRecordId(id));
+    const persistedIds = ids.filter((id) => !isPendingRecordId(id));
+
+    pendingIds.forEach((pendingId) => {
+      const entry = pendingCreatesRef.current.get(pendingId);
+      if (entry) entry.cancelled = true;
+    });
+
     try {
-      const results = await Promise.all(ids.map((id) => moduleRepository.delete(id)));
+      if (persistedIds.length === 0) {
+        showSuccess(
+          ids.length === 1
+            ? `${moduleLabels.singular} excluída!`
+            : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
+        );
+        return;
+      }
+
+      const results = await Promise.all(persistedIds.map((id) => moduleRepository.delete(id)));
       const lastContadores = results.filter((r) => r?.contadores).at(-1)?.contadores;
       if (lastContadores) setMetricsCache(queryClient, lastContadores);
       showSuccess(
