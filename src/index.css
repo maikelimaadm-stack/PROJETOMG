@@ -2795,7 +2795,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-view,
 .cadastro-emp-scope .emp-split-view {
-  gap: 8px;
+  gap: 4px;
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
@@ -2891,7 +2891,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-split-view {
-  gap: 8px;
+  gap: 4px;
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-toolbar-card,
