@@ -100,6 +100,24 @@ export const registerRoutes = async (app) => {
         if (missing.length > 0) {
           status.migration.missingSchema = missing;
         }
+
+        const [clientes, empresas, sequencias] = await Promise.all([
+          client.cliente.count(),
+          client.empresa.count(),
+          client.entidadeCodigoSequencia.findMany({
+            select: { cliente_id: true, entity_name: true, next_codigo: true },
+            take: 20,
+          }),
+        ]);
+        status.data = {
+          clientes,
+          empresas,
+          sequencias,
+          resetHint:
+            clientes > 1 || empresas > 0
+              ? "Dados antigos detectados. Rode resetAndSeedMaike.sql no Supabase OU defina BOOT_RESET_MAIKE=true no Railway (um deploy) e remova depois."
+              : null,
+        };
       } catch {
         status.migration.restructureApplied = false;
       }

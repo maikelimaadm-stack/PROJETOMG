@@ -68,6 +68,10 @@ export const resetAndSeedMaike = async (prisma) => {
   console.log("Garantindo telas CADCPS...");
   await repCps.ensureTelasSeed();
 
+  const { syncAllCodigoSequencias } = await import("../src/modules/sequencias/entidadeCodigoService.js");
+  await syncAllCodigoSequencias(prisma);
+  console.log("Sequências de código reiniciadas.");
+
   return { cliente, usuario };
 };
 
