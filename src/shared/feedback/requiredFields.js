@@ -27,10 +27,12 @@ export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   const first = root.querySelector(`[data-field="${keys[0]}"]`);
   if (first) {
     first.scrollIntoView({ behavior: "smooth", block: "center" });
-    const focusable = first.querySelector(
-      "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button:not([disabled])"
-    );
-    focusable?.focus?.({ preventScroll: true });
+    if (options.focus !== false) {
+      const focusable = first.querySelector(
+        "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button:not([disabled])"
+      );
+      focusable?.focus?.({ preventScroll: true });
+    }
   }
 
   return false;

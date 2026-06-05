@@ -450,7 +450,9 @@ export default function FORMEMP({
     setErrors(nextErrors);
     clearRequiredFieldErrors();
     if (Object.keys(nextErrors).length === 0) return true;
-    reportRequiredFieldErrors(nextErrors);
+    const isMobileViewport =
+      typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+    reportRequiredFieldErrors(nextErrors, { focus: !isMobileViewport });
     return false;
   };
 
