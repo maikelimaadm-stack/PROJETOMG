@@ -14,7 +14,7 @@ export default function FormValidationStatus({
 }) {
   const isComplete = total > 0 && filled >= total;
 
-  const label = "Obrigatórios";
+  const counter = `${filled}/${total}`;
 
   const ariaLabel = useMemo(() => {
     if (total <= 0) return "";
@@ -62,7 +62,10 @@ export default function FormValidationStatus({
                 />
               </span>
             </span>
-            <span className="form-validation-status__label">{label}</span>
+            <span className="form-validation-status__text">
+              <span className="form-validation-status__counter tabular-nums">{counter}</span>
+              <span className="form-validation-status__label">Obrigatórios</span>
+            </span>
           </div>
         </TooltipTrigger>
         {tooltipContent ? (

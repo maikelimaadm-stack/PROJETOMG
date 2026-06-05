@@ -1518,7 +1518,17 @@
   background: var(--erp-color-primary);
 }
 
-.cadastro-emp-scope .form-validation-status__label,
-.erp-shell .form-validation-status__label {
+.cadastro-emp-scope .form-validation-status__text,
+.erp-shell .form-validation-status__text {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: var(--erp-color-primary) !important;
+}
+
+.cadastro-emp-scope .form-validation-status__counter,
+.cadastro-emp-scope .form-validation-status__label,
+.erp-shell .form-validation-status__counter,
+.erp-shell .form-validation-status__label {
+  color: inherit;
 }
