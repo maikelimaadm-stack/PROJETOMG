@@ -235,12 +235,12 @@ input[type="number"] {
   --emp-form-textarea-corp-height: 40px;
   --emp-form-textarea-corp-max-height: 120px;
   --emp-form-field-column-width: 200px;
-  --emp-accent-green: #2563eb;
-  --emp-accent-primary: #2563eb;
-  --emp-accent-primary-hover: #1d4ed8;
-  --emp-accent-primary-light: #93c5fd;
-  --emp-accent-primary-light-hover: #60a5fa;
-  --emp-accent-primary-muted: #dbeafe;
+  --emp-accent-green: #4fafff;
+  --emp-accent-primary: #4fafff;
+  --emp-accent-primary-hover: #4fafff;
+  --emp-accent-primary-light: #4fafff;
+  --emp-accent-primary-light-hover: #4fafff;
+  --emp-accent-primary-muted: #e8f7ff;
   --emp-accent-danger: #ef4444;
   --emp-accent-danger-hover: #dc2626;
   --emp-accent-danger-foreground: #ffffff;
@@ -256,7 +256,7 @@ input[type="number"] {
   --emp-card-header-bg: #fafcff;
   --emp-table-bg: #ffffff;
   --emp-table-band-bg: #f8fbff;
-  --emp-table-row-selected-bg: #eef6ff;
+  --emp-table-row-selected-bg: #eef8ff;
   --emp-table-row-alt-bg: #ffffff;
   --emp-table-line: #e4eaf2;
   --emp-table-band-edge: #e4eaf2;
@@ -836,7 +836,7 @@ input[type="number"] {
   margin: 0;
   padding: 8px 14px;
   border-bottom: 1px solid #e2e8f0;
-  color: #2563eb;
+  color: var(--emp-accent-primary);
   font-size: 12px;
   font-weight: 700;
   text-align: left;
@@ -852,8 +852,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-detail-panel-title svg {
-  color: #2563eb;
-  stroke: #2563eb;
+  color: var(--emp-accent-primary);
+  stroke: var(--emp-accent-primary);
   flex: 0 0 auto;
 }
 
@@ -1613,12 +1613,12 @@ input[type="number"] {
 }
 
 .emp-filter-sort-btn svg {
-  color: #082e54;
+  color: var(--emp-accent-primary);
 }
 
 .emp-filter-sort-btn:hover:not(:disabled) {
   background: #f0f9ff;
-  color: #082e54;
+  color: var(--emp-accent-primary);
 }
 
 .emp-filter-sort-btn:disabled {
@@ -1761,7 +1761,7 @@ input[type="number"] {
 }
 
 .emp-filter-actions .emp-toolbar-btn svg {
-  color: #082e54;
+  color: var(--emp-accent-primary);
 }
 
 .cadastro-emp-scope .emp-toolbar-info-bar {
@@ -2659,6 +2659,9 @@ input[type="number"] {
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  --erp-color-primary: #4fafff;
+  --emp-accent-primary: #4fafff;
+  --emp-accent-primary-hover: #4fafff;
   --erp-nav-active-bg: #4fafff;
   --erp-nav-active-fg: #ffffff;
   --erp-surface-bg: #fafafa;
@@ -3042,8 +3045,8 @@ select.erp-field-invalid {
 
 .cadastro-emp-scope button.emp-form-detail-panel-title,
 .cadastro-emp-scope button.emp-form-detail-panel-title span {
-  color: #2563eb !important;
-  -webkit-text-fill-color: #2563eb !important;
+  color: var(--emp-accent-primary) !important;
+  -webkit-text-fill-color: var(--emp-accent-primary) !important;
 }
 
 .cadastro-emp-scope .emp-form-card-body {
@@ -3336,8 +3339,8 @@ select.erp-field-invalid {
 }
 
 .cadastro-emp-scope .emp-layout-config-card-tab-active {
-  border-color: var(--emp-accent-primary, #2563eb);
-  color: var(--emp-accent-primary, #2563eb);
+  border-color: var(--emp-accent-primary, #4fafff);
+  color: var(--emp-accent-primary, #4fafff);
   background: #eaf2ff;
 }
 
@@ -3458,7 +3461,7 @@ select.erp-field-invalid {
   border: 0;
   border-left: 1px solid var(--emp-form-border-color, #c5ced8);
   background: #f0f7ff;
-  color: #2563eb;
+  color: var(--emp-accent-primary);
   cursor: pointer;
 }
 
@@ -3512,15 +3515,15 @@ select.erp-field-invalid {
   --erp-float-height: var(--emp-form-control-height, 40px);
   --erp-float-radius: var(--emp-control-radius, 8px);
   --erp-float-border: var(--emp-form-border-color, #cbd5e1);
-  --erp-float-border-focus: var(--emp-accent-primary, #2d8a4e);
+  --erp-float-border-focus: var(--emp-accent-primary, #4fafff);
   --erp-float-label: #64748b;
-  --erp-float-label-active: var(--emp-accent-primary, #2d8a4e);
+  --erp-float-label-active: var(--emp-accent-primary, #4fafff);
   --erp-float-bg: #ffffff;
   --erp-float-error: #dc2626;
   --erp-state-success: #16a34a;
   --erp-state-warning: #d97706;
   --erp-state-error: #dc2626;
-  --erp-state-info: #2563eb;
+  --erp-state-info: #4fafff;
 }
 
 .erp-float-field {
@@ -3925,7 +3928,7 @@ select.erp-field-invalid {
 
 .erp-toast-panel__progress-bar {
   height: 100%;
-  background: var(--emp-accent-primary, #2d8a4e);
+  background: var(--emp-accent-primary, #4fafff);
   transition: width 0.05s linear;
 }
 
@@ -3941,7 +3944,7 @@ select.erp-field-invalid {
   height: 40px;
   border-radius: 10px;
   background: #ecfdf5;
-  color: var(--emp-accent-primary, #2d8a4e);
+  color: var(--emp-accent-primary, #4fafff);
   flex-shrink: 0;
 }
 

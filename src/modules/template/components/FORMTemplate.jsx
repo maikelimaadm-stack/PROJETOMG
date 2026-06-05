@@ -95,7 +95,7 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
                 type="button"
                 onClick={() => setActiveTab(panel.id)}
                 className={`rounded px-3 py-1 text-xs font-semibold ${
-                  activeTab === panel.id ? "bg-[#eaf2ff] text-[#2563eb]" : "bg-[#f1f5f9] text-[#64748b]"
+                  activeTab === panel.id ? "bg-[#e8f7ff] text-[#4fafff]" : "bg-[#f1f5f9] text-[#64748b]"
                 }`}
               >
                 {panel.label}

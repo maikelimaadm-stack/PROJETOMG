@@ -16,11 +16,11 @@
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
   --erp-menu-item-hover: #f3f6fb;
-  --erp-menu-item-selected-bg: #eef6ff;
+  --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
   --erp-menu-search-bg: #f8fafc;
   --erp-menu-search-border: #e2e8f0;
-  --erp-color-primary: #2563eb;
+  --erp-color-primary: #4fafff;
   --erp-color-text: #1e293b;
   --erp-color-text-muted: #64748b;
   --erp-radius-control: 8px;
@@ -51,20 +51,20 @@
   --erp-color-text-disabled: #94a3b8;
   --erp-color-label: #334155;
   --erp-color-required: #ef4444;
-  --erp-color-primary: #2563eb;
-  --erp-color-primary-hover: #1d4ed8;
+  --erp-color-primary: #4fafff;
+  --erp-color-primary-hover: #4fafff;
   --erp-color-border: #e4eaf2;
   --erp-color-border-soft: #edf1f6;
   --erp-color-card-border: #edf1f6;
   --erp-color-input-border: #d9e2ef;
-  --erp-color-input-hover: #93c5fd;
+  --erp-color-input-hover: #4fafff;
   --erp-color-surface: #f7f9fc;
   --erp-color-surface-gradient: linear-gradient(180deg, #fafbfd 0%, #f5f7fb 100%);
   --erp-color-card: #ffffff;
   --erp-color-card-header: #fafcff;
   --erp-color-card-header-border: #edf2f7;
   --erp-color-row-hover: #f3f6fb;
-  --erp-color-row-selected: #eef6ff;
+  --erp-color-row-selected: #eef8ff;
   --erp-color-lookup-bg: #f8fbff;
   --erp-color-lookup-hover: #f3f6fb;
 
@@ -79,7 +79,7 @@
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
   --erp-menu-item-hover: #f3f6fb;
-  --erp-menu-item-selected-bg: #eef6ff;
+  --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
   --erp-menu-search-height: 28px;
   --erp-menu-search-bg: #f8fafc;
@@ -112,7 +112,7 @@
   --erp-tab-indicator-height: 3px;
   --erp-tab-indicator-radius: 999px;
   --erp-tab-indicator-inset: 12px;
-  --erp-tab-indicator-glow: 0 1px 5px rgba(37, 99, 235, 0.28);
+  --erp-tab-indicator-glow: 0 1px 5px rgba(79, 175, 255, 0.28);
 
   /* Aliases legados — módulos existentes */
   --emp-text: var(--erp-color-text);
@@ -339,12 +339,7 @@
   bottom: 0;
   width: var(--erp-card-accent-width);
   border-radius: var(--erp-radius-card) var(--erp-tab-indicator-radius) var(--erp-tab-indicator-radius) 0;
-  background: linear-gradient(
-    180deg,
-    #60a5fa 0%,
-    var(--erp-color-primary) 48%,
-    #1d4ed8 100%
-  );
+  background: var(--erp-color-primary);
   box-shadow: var(--erp-tab-indicator-glow);
   pointer-events: none;
 }
@@ -712,12 +707,7 @@
   min-width: 22px !important;
   height: var(--erp-tab-indicator-height) !important;
   border-radius: var(--erp-tab-indicator-radius) !important;
-  background: linear-gradient(
-    90deg,
-    #60a5fa 0%,
-    var(--erp-color-primary) 48%,
-    #1d4ed8 100%
-  ) !important;
+  background: var(--erp-color-primary) !important;
   box-shadow: var(--erp-tab-indicator-glow) !important;
   pointer-events: none !important;
   transition:
@@ -1056,7 +1046,7 @@
 }
 
 .erp-select-menu .erp-menu-item--selected .erp-menu-item__primary {
-  color: #2563eb;
+  color: var(--erp-color-primary);
   font-weight: 500;
 }
 

@@ -1327,7 +1327,7 @@ export default function EmpLayoutConfiguratorDialog({
                         onClick={() => setFieldWidthType(selectedPanelFieldIds[0], value)}
                         className={`emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold ${
                           draftFieldSizes[selectedPanelFieldIds[0]] === value
-                            ? "text-[#2563eb] underline underline-offset-2"
+                            ? "text-[#4fafff] underline underline-offset-2"
                             : "text-[#64748b]"
                         }`}
                       >
