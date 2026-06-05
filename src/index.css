@@ -698,13 +698,19 @@ input[type="number"] {
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone,
 .cadastro-emp-scope .form-scroll-container .emp-form-panels-zone {
   margin-top: 0 !important;
-  gap: 0;
+  gap: 8px !important;
   width: 100%;
   max-width: 100%;
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
   overflow: visible !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-tabs.emp-form-tabs-launch,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-tabs.emp-form-tabs-launch {
+  background: transparent !important;
+  border-bottom: 1px solid var(--erp-color-card-border, #edf1f6) !important;
 }
 
 .cadastro-emp-scope .form-scroll-container .emp-form-section-panel .emp-form-fields,
@@ -1258,6 +1264,11 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
   border-bottom: none !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  border-bottom: 1px solid var(--erp-color-card-border, #edf1f6) !important;
 }
 
 .cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch::after {
