@@ -2879,6 +2879,8 @@ input[type="number"] {
   border-radius: var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) 0 0 !important;
   border-bottom: 1px solid var(--erp-color-border, #e4eaf2) !important;
   box-shadow: none !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
 }
 
 .erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card > .form-scroll-container {

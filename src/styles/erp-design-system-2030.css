@@ -293,6 +293,15 @@
   border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
   box-shadow: none !important;
   border-bottom: 1px solid var(--erp-color-border) !important;
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
+  padding-left: var(--erp-card-padding, 16px) !important;
+  padding-right: var(--erp-card-padding, 16px) !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-toolbar-card .emp-toolbar > div {
+  padding-top: 4px !important;
+  padding-bottom: 4px !important;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card {
@@ -313,9 +322,6 @@
   box-shadow: none !important;
   border-bottom: 1px solid var(--erp-color-border) !important;
   margin-bottom: 0 !important;
-  min-height: 34px !important;
-  padding-top: 2px !important;
-  padding-bottom: 0 !important;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-section-panel.emp-form-section-panel--corp {
