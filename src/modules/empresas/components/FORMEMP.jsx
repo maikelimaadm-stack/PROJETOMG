@@ -654,6 +654,25 @@ export default function FORMEMP({
           </div>
         </div>
         </CadSplitLayout>
+        {editMode ? (
+          <div className="emp-form-mobile-footer" role="toolbar" aria-label="Ações do formulário">
+            <button
+              type="button"
+              className="emp-form-mobile-footer__btn"
+              onClick={onCancel}
+              disabled={actionsLocked}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="emp-form-mobile-footer__btn emp-form-mobile-footer__btn--primary"
+              disabled={actionsLocked}
+            >
+              Salvar
+            </button>
+          </div>
+        ) : null}
       </form>
     </div>
   );
