@@ -15,7 +15,6 @@ import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
-import { resolveCadastroPageTitle } from "@/shared/layouts/cadastroPageTitles";
 import { useCadastroPageHeader } from "@/framework/cadastro-engine/hooks/useCadastroPageHeader.js";
 import { useCadastroEnterNavigation } from "@/framework/cadastro-engine/keyboard/useCadastroEnterNavigation.js";
 import {
@@ -470,28 +469,21 @@ export default function FORMEMP({
 
   const formRef = useCadastroEnterNavigation(!isReadOnly && editMode);
 
-  const pageTitle = useMemo(
-    () =>
-      layoutConfigOpen
-        ? "Configuração de Layout"
-        : resolveCadastroPageTitle({
-            moduleLabel: "Empresa",
-            isEditing,
-            editMode,
-            isDuplicating,
-          }),
-    [editMode, isDuplicating, isEditing, layoutConfigOpen]
-  );
+  const recordMeta = useMemo(() => {
+    if (layoutConfigOpen) return null;
 
-  const recordDetails = useMemo(() => {
-    if (layoutConfigOpen || !isEditing || isDuplicating) return null;
     const codigo =
       formData.codempresa != null && String(formData.codempresa).trim() !== ""
         ? formData.codempresa
         : null;
     const nome = String(formData.razao_social || formData.nome_empresa || "").trim() || null;
-    if (!codigo && !nome) return null;
-    return { codigo, nome };
+
+    if (!isEditing) return { codigo: null, nome: "Nova Empresa" };
+    if (isDuplicating && nome) return { codigo: null, nome };
+    if (isDuplicating) return { codigo: null, nome: "Duplicar empresa" };
+    if (codigo && nome) return { codigo, nome };
+    if (nome) return { codigo, nome };
+    return null;
   }, [
     formData.codempresa,
     formData.nome_empresa,
@@ -518,8 +510,7 @@ export default function FORMEMP({
 
   useCadastroPageHeader({
     enabled: true,
-    pageTitle,
-    recordDetails,
+    recordMeta,
     operationLabel,
     requiredStatus: showRequiredCounter
       ? {
@@ -649,6 +640,7 @@ export default function FORMEMP({
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <RenderEngine
+                    recordKey={recordKey}
                     panels={tabs}
                     fields={dynamicFields}
                     layout={activeLayoutConfig.layout}

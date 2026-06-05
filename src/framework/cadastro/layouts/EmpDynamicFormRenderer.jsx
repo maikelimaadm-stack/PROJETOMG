@@ -12,6 +12,7 @@ import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/frame
 import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { getCachedCardRows } from "@/framework/cadastro-engine/layout/layoutCache.js";
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
+import { useCardCollapsibleEnabled } from "@/framework/cadastro-engine/render/useCardCollapsibleEnabled.js";
 import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 import { isInlineMediaField } from "@/framework/cadastro/layouts/empFormFieldLayoutGroups";
 
@@ -209,33 +210,14 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   );
 }
 
-function useCardCollapseState(storageKey, defaultOpen = true) {
-  const [open, setOpen] = useState(() => {
-    try {
-      const stored = sessionStorage.getItem(storageKey);
-      if (stored === null) return defaultOpen;
-      return stored === "1";
-    } catch {
-      return defaultOpen;
-    }
-  });
+function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, children }) {
+  const showHeader = Boolean(card.label?.trim());
+  const collapsible = collapsibleEnabled && card.collapsible !== false && showHeader;
+  const [open, setOpen] = useState(true);
 
   useEffect(() => {
-    try {
-      sessionStorage.setItem(storageKey, open ? "1" : "0");
-    } catch {
-      // ignore storage failures
-    }
-  }, [open, storageKey]);
-
-  return [open, setOpen];
-}
-
-function FormCardSection({ card, panelId, children }) {
-  const showHeader = Boolean(card.label?.trim());
-  const collapsible = card.collapsible !== false && showHeader;
-  const storageKey = `erp-card-collapse:${panelId || "panel"}:${card.id}`;
-  const [open, setOpen] = useCardCollapseState(storageKey, true);
+    setOpen(true);
+  }, [recordKey, card.id, panelId]);
 
   if (!showHeader) {
     return <div className="emp-form-card emp-form-card--virtual">{children}</div>;
@@ -286,6 +268,7 @@ export default function EmpDynamicFormRenderer({
   fieldSizes = {},
   fieldLayoutConfig = DEFAULT_FIELD_LAYOUT_CONFIG,
   activePanelId,
+  recordKey = null,
   values = {},
   errors = {},
   onChange,
@@ -296,6 +279,7 @@ export default function EmpDynamicFormRenderer({
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
   const { ref: containerRef, width: containerWidthPx } = useContainerWidth();
+  const collapsibleEnabled = useCardCollapsibleEnabled();
 
   const cards = useMemo(
     () =>
@@ -406,7 +390,12 @@ export default function EmpDynamicFormRenderer({
             className="emp-form-card-slot"
             style={{ gridColumn: `span ${card.colSpan || 12} / span ${card.colSpan || 12}` }}
           >
-            <FormCardSection card={card} panelId={activePanel?.id}>
+            <FormCardSection
+              card={card}
+              panelId={activePanel?.id}
+              recordKey={recordKey}
+              collapsibleEnabled={collapsibleEnabled}
+            >
               <div className="emp-form-card-rows">
                 {layoutRows.map((layoutRow) => {
                   const rowFields = (layoutRow.fieldIds || [])

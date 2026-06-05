@@ -272,19 +272,9 @@
   .erp-shell-breadcrumbs__meta {
     display: flex !important;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 6px;
     width: 100%;
-  }
-
-  .erp-record-details {
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: 11px;
-  }
-
-  .erp-record-details__item {
-    max-width: 100%;
   }
 
   .erp-shell-operation-badge--mobile {
@@ -322,8 +312,6 @@
     display: none !important;
   }
 
-  .cadastro-emp-scope .emp-toolbar-btn--mobile-more,
-  .cadastro-emp-scope .emp-toolbar-search.emp-toolbar-btn--mobile-more,
   .cadastro-emp-scope .emp-toolbar-separator {
     display: none !important;
   }
@@ -384,6 +372,10 @@
     min-width: 0 !important;
     grid-column: span 1 !important;
     scroll-margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--flex > .emp-form-field-corp:only-child {
+    grid-column: 1 / -1 !important;
   }
 
   .cadastro-emp-scope .emp-form-field-corp--textarea,

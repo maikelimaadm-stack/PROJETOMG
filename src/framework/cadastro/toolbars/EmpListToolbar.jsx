@@ -18,8 +18,6 @@ const ToolbarSeparator = () => (
 
 const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[12px] font-medium";
 const NAV_BTN_CLASS = "emp-toolbar-nav-btn";
-const MOBILE_PRIMARY_CLASS = "emp-toolbar-btn--mobile-primary";
-const MOBILE_MORE_CLASS = "emp-toolbar-btn--mobile-more";
 
 export default function EmpListToolbar({
   viewMode = "table",
@@ -64,86 +62,68 @@ export default function EmpListToolbar({
       <div className="emp-toolbar-row flex items-center gap-1.5 overflow-hidden whitespace-nowrap">
         <div className="emp-toolbar-actions-primary flex items-center gap-1.5 shrink-0">
           {onBack && (
-            <ToolbarBtn onClick={onBack} title="Voltar" className={`hidden md:inline-flex ${MOBILE_MORE_CLASS}`}>
+            <ToolbarBtn onClick={onBack} title="Voltar">
               <EmpToolbarIcon icon={ChevronLeft} nav />
             </ToolbarBtn>
           )}
           <ToolbarBtn
-            onClick={onNew}
-            disabled={actionsLocked}
-            className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new ${MOBILE_PRIMARY_CLASS}`}
-            title="Novo registro"
+            onClick={onToggleView}
+            disabled={actionsLocked || toggleViewDisabled}
+            title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
           >
+            {viewMode === "table" ? <EmpToolbarIcon icon={List} /> : <EmpToolbarIcon icon={Table} />}
+          </ToolbarBtn>
+          <ToolbarBtn onClick={onNew} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
             <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
             <span>Novo</span>
           </ToolbarBtn>
           {showDeleteSelectionAction && (
-            <ToolbarBtn
-              onClick={onDelete}
-              disabled={actionsLocked}
-              className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete hidden md:inline-flex ${MOBILE_MORE_CLASS}`}
-              title="Excluir selecionados"
-            >
+            <ToolbarBtn onClick={onDelete} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} title="Excluir selecionados">
               <EmpToolbarIcon icon={Trash2} />
               <span>Excluir</span>
             </ToolbarBtn>
           )}
           {showDuplicateSelectionAction && (
-            <ToolbarBtn
-              onClick={onDuplicate}
-              disabled={actionsLocked}
-              className={`${LABELED_BTN_CLASS} hidden md:inline-flex ${MOBILE_MORE_CLASS}`}
-              title="Duplicar"
-            >
+            <ToolbarBtn onClick={onDuplicate} disabled={actionsLocked} className={LABELED_BTN_CLASS} title="Duplicar">
               <EmpToolbarIcon icon={Copy} />
               <span>Duplicar</span>
             </ToolbarBtn>
           )}
-
-          <div className={`emp-toolbar-actions-secondary hidden md:flex items-center gap-1.5 shrink-0 ${MOBILE_MORE_CLASS}`}>
-            <ToolbarBtn
-              onClick={onToggleView}
-              disabled={actionsLocked || toggleViewDisabled}
-              title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
-            >
-              {viewMode === "table" ? <EmpToolbarIcon icon={List} /> : <EmpToolbarIcon icon={Table} />}
+          {onToggleFilter && (
+            <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
+              <EmpToolbarIcon icon={Filter} />
+              {filterActive && (
+                <span
+                  onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }}
+                  className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-white text-red-600 border border-red-500 text-[10px] leading-[12px] font-bold"
+                >
+                  ×
+                </span>
+              )}
             </ToolbarBtn>
-            {onToggleFilter && (
-              <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
-                <EmpToolbarIcon icon={Filter} />
-                {filterActive && (
-                  <span
-                    onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }}
-                    className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-white text-red-600 border border-red-500 text-[10px] leading-[12px] font-bold"
-                  >
-                    ×
-                  </span>
-                )}
+          )}
+          {showRecordNavigation && (
+            <div className="emp-toolbar-actions-nav flex items-center gap-1 shrink-0">
+              <ToolbarBtn onClick={onFirst} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Primeiro">
+                <EmpToolbarIcon icon={ChevronsLeft} nav />
               </ToolbarBtn>
-            )}
-            {showRecordNavigation && (
-              <div className="emp-toolbar-actions-nav flex items-center gap-1 shrink-0">
-                <ToolbarBtn onClick={onFirst} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Primeiro">
-                  <EmpToolbarIcon icon={ChevronsLeft} nav />
-                </ToolbarBtn>
-                <ToolbarBtn onClick={onPrevious} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Anterior">
-                  <EmpToolbarIcon icon={ChevronLeft} nav />
-                </ToolbarBtn>
-                <ToolbarBtn onClick={onNext} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Próximo">
-                  <EmpToolbarIcon icon={ChevronRight} nav />
-                </ToolbarBtn>
-                <ToolbarBtn onClick={onLast} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Último">
-                  <EmpToolbarIcon icon={ChevronsRight} nav />
-                </ToolbarBtn>
-              </div>
-            )}
-          </div>
+              <ToolbarBtn onClick={onPrevious} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Anterior">
+                <EmpToolbarIcon icon={ChevronLeft} nav />
+              </ToolbarBtn>
+              <ToolbarBtn onClick={onNext} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Próximo">
+                <EmpToolbarIcon icon={ChevronRight} nav />
+              </ToolbarBtn>
+              <ToolbarBtn onClick={onLast} disabled={!canNavigate} className={NAV_BTN_CLASS} title="Último">
+                <EmpToolbarIcon icon={ChevronsRight} nav />
+              </ToolbarBtn>
+            </div>
+          )}
         </div>
 
-        <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
+        <div className="emp-toolbar-actions-end ml-auto flex min-w-0 items-center gap-1.5 shrink-0">
           <ToolbarSeparator />
           {showSearch && (
-            <div className={`${EMP_TOOLBAR_SEARCH_WRAP} ${MOBILE_MORE_CLASS}`} role="search" title="Pesquisar registros">
+            <div className={EMP_TOOLBAR_SEARCH_WRAP} role="search" title="Pesquisar registros">
               <input
                 value={searchValue}
                 onChange={(e) => onSearchChange?.(e.target.value)}
@@ -159,51 +139,18 @@ export default function EmpListToolbar({
           )}
           <ToolbarSeparator />
           {showUtilityActions && (
-            <ToolbarBtn
-              onClick={onAttachClick}
-              disabled={attachDisabled}
-              className={MOBILE_MORE_CLASS}
-              title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}
-            >
+            <ToolbarBtn onClick={onAttachClick} disabled={attachDisabled} title={attachDisabled ? "Selecione apenas um registro" : "Anexos"}>
               <EmpToolbarIcon icon={Paperclip} />
             </ToolbarBtn>
           )}
           {showUtilityActions && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button type="button" className={`${EMP_TOOLBAR_BTN} emp-toolbar-btn--mobile-more-trigger`} title="Mais opções">
+                <button type="button" className={EMP_TOOLBAR_BTN} title="Mais opções">
                   <EmpToolbarIcon icon={MoreHorizontal} />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 rounded-md p-1">
-                {onBack ? (
-                  <DropdownMenuItem onClick={onBack} className="h-8 cursor-pointer gap-2 text-xs px-2 md:hidden">
-                    Voltar
-                  </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuItem
-                  onClick={onToggleView}
-                  disabled={actionsLocked || toggleViewDisabled}
-                  className={`h-8 cursor-pointer gap-2 text-xs px-2 md:hidden`}
-                >
-                  {viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
-                </DropdownMenuItem>
-                {onToggleFilter ? (
-                  <DropdownMenuItem onClick={onToggleFilter} className="h-8 cursor-pointer gap-2 text-xs px-2 md:hidden">
-                    Filtros
-                  </DropdownMenuItem>
-                ) : null}
-                {showDeleteSelectionAction ? (
-                  <DropdownMenuItem onClick={onDelete} disabled={actionsLocked} className="h-8 cursor-pointer gap-2 text-xs px-2 md:hidden">
-                    Excluir selecionados
-                  </DropdownMenuItem>
-                ) : null}
-                {showDuplicateSelectionAction ? (
-                  <DropdownMenuItem onClick={onDuplicate} disabled={actionsLocked} className="h-8 cursor-pointer gap-2 text-xs px-2 md:hidden">
-                    Duplicar
-                  </DropdownMenuItem>
-                ) : null}
-                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onConfigColumns} disabled={!onConfigColumns} className="h-8 cursor-pointer gap-2 text-xs px-2">
                   Configurar colunas
                 </DropdownMenuItem>
@@ -211,13 +158,7 @@ export default function EmpListToolbar({
                   <DropdownMenuItem onClick={onExportExcel} disabled={!onExportExcel} className="h-8 flex-1 cursor-pointer gap-2 text-xs px-2">
                     Exportar Excel
                   </DropdownMenuItem>
-                  <button
-                    type="button"
-                    onClick={onConfigExportExcel}
-                    disabled={!onConfigExportExcel}
-                    className="h-8 w-8 flex items-center justify-center text-[#2899f5] hover:bg-sky-50 rounded-md disabled:opacity-40"
-                    title="Configurar Excel"
-                  >
+                  <button type="button" onClick={onConfigExportExcel} disabled={!onConfigExportExcel} className="h-8 w-8 flex items-center justify-center text-[#2899f5] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar Excel">
                     <EmpToolbarIcon icon={MoreHorizontal} />
                   </button>
                 </div>
@@ -225,13 +166,7 @@ export default function EmpListToolbar({
                   <DropdownMenuItem onClick={onExportPdf} disabled={!onExportPdf} className="h-8 flex-1 cursor-pointer gap-2 text-xs px-2">
                     Exportar PDF
                   </DropdownMenuItem>
-                  <button
-                    type="button"
-                    onClick={onConfigExportPdf}
-                    disabled={!onConfigExportPdf}
-                    className="h-8 w-8 flex items-center justify-center text-[#2899f5] hover:bg-sky-50 rounded-md disabled:opacity-40"
-                    title="Configurar PDF"
-                  >
+                  <button type="button" onClick={onConfigExportPdf} disabled={!onConfigExportPdf} className="h-8 w-8 flex items-center justify-center text-[#2899f5] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar PDF">
                     <EmpToolbarIcon icon={MoreHorizontal} />
                   </button>
                 </div>
@@ -242,7 +177,7 @@ export default function EmpListToolbar({
           <EmpBubbleCounter
             value={counterValue}
             title={counterTitle}
-            className="emp-toolbar-bubble-counter"
+            className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
           />
         </div>
       </div>
