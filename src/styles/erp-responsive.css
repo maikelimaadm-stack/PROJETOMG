@@ -77,13 +77,18 @@
     display: none !important;
   }
 
-  .cadastro-emp-scope .emp-toolbar-record-counter.erp-info-pill {
+  .cadastro-emp-scope .emp-toolbar-record-counter.emp-bubble-counter {
     max-width: none !important;
-    min-width: 2.25rem !important;
+    min-width: 2.75rem !important;
     height: var(--erp-toolbar-height) !important;
     padding: 0 10px !important;
     box-sizing: border-box !important;
     align-self: center !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-record-counter .emp-bubble-counter__value {
+    overflow: visible !important;
+    text-overflow: clip !important;
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-end {
@@ -285,10 +290,22 @@
 
   .erp-shell-breadcrumb-pill,
   .erp-record-meta,
-  .erp-info-pill {
+  .erp-shell-breadcrumbs__trail .erp-info-pill {
     max-width: 34vw !important;
     min-width: 0;
     flex-shrink: 1;
+  }
+
+  .erp-shell-breadcrumbs__meta .erp-shell-operation-badge {
+    max-width: none !important;
+    flex-shrink: 0 !important;
+  }
+
+  .erp-shell-breadcrumbs__meta .erp-shell-operation-badge .erp-info-pill__text {
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    max-width: none !important;
   }
 
   .erp-shell-breadcrumb-list > li:last-child .erp-info-pill,

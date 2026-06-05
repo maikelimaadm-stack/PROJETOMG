@@ -1700,26 +1700,30 @@
 }
 
 .erp-shell-status-separator {
-  font-size: 12px;
-  font-weight: 600;
   line-height: 1;
-  padding: 0 2px;
 }
 
-.erp-toolbar-record-counter.erp-info-pill {
-  font-variant-numeric: tabular-nums;
-  min-width: 2.25rem;
+.cadastro-emp-scope .emp-toolbar-separator {
+  display: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-record-counter.emp-bubble-counter {
+  min-width: 2.75rem;
+  height: var(--erp-toolbar-height, 26px);
+  padding: 0 10px;
   flex-shrink: 0;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
+}
+
+.cadastro-emp-scope .emp-toolbar-record-counter .emp-bubble-counter__value {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
 }
 
 .cadastro-emp-scope .emp-toolbar-actions-end {
   min-width: 0;
-}
-
-.cadastro-emp-scope .emp-toolbar-record-counter .erp-info-pill__text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 @media (min-width: 1025px) {

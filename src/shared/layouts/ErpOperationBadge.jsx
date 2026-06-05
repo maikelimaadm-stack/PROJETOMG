@@ -15,6 +15,7 @@ export default function ErpOperationBadge({ operationLabel, className = "" }) {
   return (
     <ErpInfoPill
       icon={Icon}
+      truncateText={false}
       className={`erp-shell-operation-badge${isSaving ? " erp-info-pill--saving" : ""} ${className}`.trim()}
       title={label}
     >

@@ -12,10 +12,6 @@ const ToolbarBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
-const ToolbarSeparator = () => (
-  <span className="emp-toolbar-separator hidden h-5 w-px shrink-0 bg-[#e4eaf2] md:inline-block" aria-hidden="true" />
-);
-
 const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[12px] font-medium";
 const NAV_BTN_CLASS = "emp-toolbar-nav-btn";
 
@@ -138,7 +134,6 @@ export default function EmpRecordToolbar({
         </div>
 
         <div className="emp-toolbar-actions-end ml-auto flex min-w-0 items-center gap-1.5 shrink-0">
-          <ToolbarSeparator />
           {showSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP} role="search" title="Pesquisar registros">
               <input
@@ -154,7 +149,6 @@ export default function EmpRecordToolbar({
               />
             </div>
           )}
-          <ToolbarSeparator />
           {showUtilityActions && (
             <ToolbarBtn onClick={onAttachClick} disabled={attachDisabled} title={attachDisabled ? "Salve o registro antes de anexar" : "Anexos"}>
               <EmpToolbarIcon icon={Paperclip} />
@@ -182,10 +176,10 @@ export default function EmpRecordToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <ToolbarSeparator />
           <EmpBubbleCounter
             value={counterValue}
             title={counterTitle}
+            usePillStyle={false}
             className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
           />
         </div>

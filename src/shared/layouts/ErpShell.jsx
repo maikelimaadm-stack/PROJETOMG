@@ -199,12 +199,7 @@ function ErpBreadcrumbs({ pathname }) {
             />
           ) : null}
           {operationLabel && showRequiredCounter ? (
-            <span
-              className="erp-shell-status-separator shrink-0 text-[#94a3b8]"
-              aria-hidden="true"
-            >
-              &gt;
-            </span>
+            <BreadcrumbSeparator className="erp-shell-breadcrumb-separator erp-shell-status-separator shrink-0 text-[#94a3b8]" />
           ) : null}
           {showRequiredCounter ? (
             <FormValidationStatus
