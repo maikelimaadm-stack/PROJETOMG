@@ -59,7 +59,7 @@ export default function EmpRecordToolbar({
 
   return (
     <div className="emp-toolbar shadow-none overflow-hidden">
-      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5">
+      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
         {onBack && (
           <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}

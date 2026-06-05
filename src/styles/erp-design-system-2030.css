@@ -128,6 +128,8 @@
   --erp-shell-padding: 16px;
   --erp-card-padding: 10px;
   --erp-form-field-gap-x: 8px;
+  --erp-toolbar-inner-py: 6px;
+  --erp-toolbar-inner-px: 8px;
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -327,6 +329,27 @@
   padding-right: var(--erp-shell-padding) !important;
 }
 
+/* —— Tabela: toolbar + grid unidos (mesma posição/altura do registro) —— */
+.cadastro-emp-scope .emp-table-view {
+  gap: 0 !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-table-view > .emp-toolbar-card {
+  border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
+  border-bottom: 1px solid var(--erp-color-border) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-table-view > .emp-content-card {
+  border-radius: 0 0 var(--erp-radius-card) var(--erp-radius-card) !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
+
 /* —— Toolbar + painéis (abas): cabeçalho branco unido; área dos cards cinza —— */
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) {
   gap: 0 !important;
@@ -341,15 +364,6 @@
   border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
   box-shadow: none !important;
   border-bottom: 1px solid var(--erp-color-border) !important;
-  padding-top: 4px !important;
-  padding-bottom: 4px !important;
-  padding-left: var(--erp-card-padding, 16px) !important;
-  padding-right: var(--erp-card-padding, 16px) !important;
-}
-
-.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-toolbar-card .emp-toolbar > div {
-  padding-top: 4px !important;
-  padding-bottom: 4px !important;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card {
@@ -383,8 +397,22 @@
   border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
-  padding: var(--erp-spacing, 12px) var(--erp-card-padding, 16px) !important;
+  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) !important;
+  box-sizing: border-box;
+  min-height: calc(var(--erp-control-height, 26px) + (var(--erp-spacing, 8px) * 2) + (var(--erp-toolbar-inner-py, 6px) * 2));
   overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-toolbar-card .emp-toolbar {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
+.cadastro-emp-scope .emp-toolbar-card .emp-layout-config-toolbar {
+  padding: var(--erp-toolbar-inner-py, 6px) var(--erp-toolbar-inner-px, 8px) !important;
+  margin: 0 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar {
