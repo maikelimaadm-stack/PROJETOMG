@@ -2723,6 +2723,7 @@ input[type="number"] {
   --erp-sidebar-bg: #f8f9fd;
   --erp-sidebar-submenu-bg: #ffffff;
   --erp-border: #eef1f8;
+  --erp-color-border: #e4eaf2;
   --erp-spacing: 12px;
   --erp-layout-gap: 20px;
   --erp-shell-padding: 24px;
@@ -2983,7 +2984,6 @@ input[type="number"] {
   padding-right: var(--erp-shell-padding, 24px) !important;
   background: #ffffff !important;
   border: none !important;
-  border-bottom: 1px solid var(--erp-color-border, #e4eaf2) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
@@ -2996,7 +2996,7 @@ input[type="number"] {
   padding-right: var(--erp-shell-padding, 24px) !important;
   background: #ffffff !important;
   border: none !important;
-  border-top: none !important;
+  border-top: 1px solid var(--erp-color-border, #e4eaf2) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }

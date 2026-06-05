@@ -296,11 +296,11 @@
   padding-right: var(--erp-shell-padding) !important;
   background: #ffffff !important;
   border: none !important;
-  border-bottom: 1px solid var(--erp-color-border) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
 
+/* Linha divisória acima do breadcrumb — mesmo token dos painéis de lançamento (toolbar → abas) */
 .erp-shell-top-unified .erp-shell-breadcrumbs {
   padding-top: 8px !important;
   padding-bottom: 8px !important;
@@ -308,6 +308,7 @@
   padding-right: var(--erp-shell-padding) !important;
   background: #ffffff !important;
   border: none !important;
+  border-top: 1px solid var(--erp-color-border, #e4eaf2) !important;
   border-radius: 0 !important;
   box-shadow: none !important;
 }
