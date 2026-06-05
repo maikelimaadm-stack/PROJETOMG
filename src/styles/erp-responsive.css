@@ -71,9 +71,9 @@
     overflow: hidden !important;
   }
 
-  /* Desktop: contador à esquerda do grupo (busca/anexos/menu), não na borda */
+  /* Desktop: contador após "Mais opções", sem ultrapassar a borda */
   .cadastro-emp-scope .emp-toolbar-actions-end .emp-toolbar-record-counter {
-    order: -1 !important;
+    order: 0 !important;
     flex-shrink: 0 !important;
   }
 
