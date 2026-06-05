@@ -107,9 +107,7 @@
   --erp-toggle-width: 36px;
   --erp-toggle-height: 20px;
   --erp-checkbox-size: 14px;
-  --erp-card-accent-width: 3px;
-  --erp-card-accent-inset-y: 7px;
-  --erp-card-accent-inset-x: 8px;
+  --erp-card-accent-width: 4px;
   --erp-tab-indicator-height: 3px;
   --erp-tab-indicator-radius: 999px;
   --erp-tab-indicator-inset: 12px;
@@ -277,9 +275,7 @@
 .cadastro-emp-scope .emp-form-card-title {
   position: relative;
   min-height: 30px !important;
-  padding: 4px 12px 4px calc(
-    var(--erp-card-accent-inset-x) + var(--erp-card-accent-width) + 10px
-  ) !important;
+  padding: 4px 12px 4px calc(12px + var(--erp-card-accent-width)) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
   color: var(--erp-color-primary) !important;
@@ -289,16 +285,15 @@
   overflow: visible !important;
 }
 
+/* Faixa lateral: colada na borda, curva no canto do card + pontas arredondadas (estilo aba) */
 .cadastro-emp-scope .emp-form-card-title::before {
   content: "";
   position: absolute;
-  left: var(--erp-card-accent-inset-x);
-  top: 50%;
-  transform: translateY(-50%);
+  left: 0;
+  top: 0;
+  bottom: 0;
   width: var(--erp-card-accent-width);
-  height: calc(100% - (var(--erp-card-accent-inset-y) * 2));
-  min-height: 14px;
-  border-radius: var(--erp-tab-indicator-radius);
+  border-radius: var(--erp-radius-card) var(--erp-tab-indicator-radius) var(--erp-tab-indicator-radius) 0;
   background: linear-gradient(
     180deg,
     #60a5fa 0%,
