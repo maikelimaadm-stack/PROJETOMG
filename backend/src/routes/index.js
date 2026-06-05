@@ -15,7 +15,19 @@ import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "..
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const modulesDir = path.resolve(__dirname, "..", "modules");
-const coreModules = new Set(["auth", "empresas", "anexos", "audit", "cadcps"]);
+const coreModules = new Set([
+  "auth",
+  "empresas",
+  "anexos",
+  "audit",
+  "cadcps",
+  "cadastro",
+  "clienteModulo",
+  "metrics",
+  "preferences",
+  "idGlobal",
+  "sequencias",
+]);
 
 const withTimeout = async (operation, timeoutMs, timeoutMessage) => {
   const timeout = new Promise((_, reject) => {

@@ -19,22 +19,26 @@ const runStep = (label, command, args) =>
     });
   });
 
-const run = async () => {
-  await runStep("Garantir tabelas CADCPS", "node", ["scripts/ensureCadcpsTables.js"]);
-  await runStep("Garantir reestruturação ERP", "node", ["scripts/ensureErpRestructure.js"]);
+const runOptionalStep = async (label, command, args) => {
   try {
-    await runStep("Popular telas CADCPS", "node", ["scripts/seedCadcpsTelas.js"]);
+    await runStep(label, command, args);
   } catch (error) {
-    console.warn(`[boot] Popular telas CADCPS falhou (servidor sobe mesmo assim): ${error.message}`);
+    console.warn(`[boot] ${label} falhou (servidor sobe mesmo assim): ${error.message}`);
   }
+};
+
+const run = async () => {
+  await runOptionalStep("Garantir tabelas CADCPS", "node", ["scripts/ensureCadcpsTables.js"]);
+  await runStep("Garantir reestruturação ERP", "node", ["scripts/ensureErpRestructure.js"]);
+  await runOptionalStep("Popular telas CADCPS", "node", ["scripts/seedCadcpsTelas.js"]);
 
   if (String(process.env.SEED_SKIP || "").toLowerCase() !== "true") {
-    await runStep("Seed bootstrap", "node", ["scripts/seedBootstrap.js"]);
+    await runOptionalStep("Seed bootstrap", "node", ["scripts/seedBootstrap.js"]);
   } else {
     console.log("[boot] Seed bootstrap ignorado (SEED_SKIP=true).");
   }
 
-  await runStep("Tabela preferências", "node", ["scripts/ensureUsuarioPreferenciaTable.js"]);
+  await runOptionalStep("Tabela preferências", "node", ["scripts/ensureUsuarioPreferenciaTable.js"]);
 
   if (!String(process.env.JWT_SECRET || "").trim()) {
     console.warn(
