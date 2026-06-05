@@ -1533,11 +1533,21 @@
   color: inherit;
 }
 
-/* —— Aviso obrigatório abaixo do campo (altura reservada) —— */
+/* —— Aviso obrigatório abaixo do campo (altura reservada em todos os campos) —— */
+.cadastro-emp-scope .emp-form-field-corp {
+  position: relative;
+  padding-bottom: 14px;
+  box-sizing: border-box;
+}
+
 .cadastro-emp-scope .emp-form-field-message-slot {
-  min-height: 14px;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
   line-height: 14px;
-  flex-shrink: 0;
+  pointer-events: none;
 }
 
 .cadastro-emp-scope .emp-form-field-error-message {
