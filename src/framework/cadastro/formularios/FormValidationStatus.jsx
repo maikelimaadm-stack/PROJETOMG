@@ -14,7 +14,9 @@ export default function FormValidationStatus({
 }) {
   const isComplete = total > 0 && filled >= total;
 
-  const label = useMemo(() => {
+  const label = "Obrigatórios";
+
+  const ariaLabel = useMemo(() => {
     if (total <= 0) return "";
     return `${filled} de ${total} campos obrigatórios`;
   }, [filled, total]);
@@ -50,7 +52,7 @@ export default function FormValidationStatus({
             className={`form-validation-status ${isComplete ? "form-validation-status--complete" : "form-validation-status--pending"} ${className}`.trim()}
             role="status"
             aria-live="polite"
-            aria-label={label}
+            aria-label={ariaLabel}
           >
             <span className="form-validation-status__icon" aria-hidden="true">
               <span className="form-validation-status__dot-wrap">
