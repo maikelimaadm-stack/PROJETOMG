@@ -128,7 +128,8 @@
   --erp-shell-padding: 16px;
   --erp-card-padding: 10px;
   --erp-form-field-gap-x: 8px;
-  --erp-toolbar-inner-py: 6px;
+  --erp-toolbar-card-py: 4px;
+  --erp-toolbar-inner-py: 2px;
   --erp-toolbar-inner-px: 8px;
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
@@ -138,6 +139,7 @@
 
   --erp-control-height: 26px;
   --erp-toolbar-height: 26px;
+  --erp-toolbar-btn-size: 26px;
   --erp-toggle-width: 36px;
   --erp-toggle-height: 20px;
   --erp-checkbox-size: 14px;
@@ -397,9 +399,13 @@
   border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
-  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) !important;
+  padding: var(--erp-toolbar-card-py, 4px) var(--erp-card-padding, 10px) !important;
   box-sizing: border-box;
-  min-height: calc(var(--erp-control-height, 26px) + (var(--erp-spacing, 8px) * 2) + (var(--erp-toolbar-inner-py, 6px) * 2));
+  min-height: calc(
+    var(--erp-toolbar-height, 26px) +
+    (var(--erp-toolbar-card-py, 4px) * 2) +
+    (var(--erp-toolbar-inner-py, 2px) * 2)
+  );
   overflow: hidden;
 }
 
@@ -411,7 +417,7 @@
 
 .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
 .cadastro-emp-scope .emp-toolbar-card .emp-layout-config-toolbar {
-  padding: var(--erp-toolbar-inner-py, 6px) var(--erp-toolbar-inner-px, 8px) !important;
+  padding: var(--erp-toolbar-inner-py, 2px) var(--erp-toolbar-inner-px, 8px) !important;
   margin: 0 !important;
 }
 

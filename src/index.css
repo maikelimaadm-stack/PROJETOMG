@@ -267,8 +267,11 @@ input[type="number"] {
   --erp-layout-gap: 14px;
   --erp-shell-padding: 16px;
   --erp-form-field-gap-x: 8px;
-  --erp-toolbar-inner-py: 6px;
+  --erp-toolbar-card-py: 4px;
+  --erp-toolbar-inner-py: 2px;
   --erp-toolbar-inner-px: 8px;
+  --erp-toolbar-height: 26px;
+  --erp-toolbar-btn-size: 26px;
   color: var(--emp-text);
 }
 
@@ -1875,18 +1878,18 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
-  height: 28px !important;
-  min-height: 28px !important;
+  height: var(--erp-toolbar-btn-size, 26px) !important;
+  min-height: var(--erp-toolbar-btn-size, 26px) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-counter {
-  height: 28px !important;
-  min-height: 28px !important;
+  height: var(--erp-toolbar-btn-size, 26px) !important;
+  min-height: var(--erp-toolbar-btn-size, 26px) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto) {
-  width: 28px !important;
+  width: var(--erp-toolbar-btn-size, 26px) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto,
@@ -2848,9 +2851,13 @@ input[type="number"] {
   border: none !important;
   border-radius: var(--erp-radius-card, 18px) !important;
   box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
-  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) !important;
+  padding: var(--erp-toolbar-card-py, 4px) var(--erp-card-padding, 10px) !important;
   box-sizing: border-box;
-  min-height: calc(28px + (var(--erp-spacing, 8px) * 2) + (var(--erp-toolbar-inner-py, 6px) * 2));
+  min-height: calc(
+    var(--erp-toolbar-btn-size, 26px) +
+    (var(--erp-toolbar-card-py, 4px) * 2) +
+    (var(--erp-toolbar-inner-py, 2px) * 2)
+  );
   overflow: hidden;
 }
 
@@ -2862,7 +2869,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
 .cadastro-emp-scope .emp-toolbar-card .emp-layout-config-toolbar {
-  padding: var(--erp-toolbar-inner-py, 6px) var(--erp-toolbar-inner-px, 8px) !important;
+  padding: var(--erp-toolbar-inner-py, 2px) var(--erp-toolbar-inner-px, 8px) !important;
   margin: 0 !important;
 }
 
@@ -2964,7 +2971,7 @@ input[type="number"] {
   border-left: none !important;
   border-right: none !important;
   box-shadow: none !important;
-  padding: var(--erp-toolbar-inner-py, 6px) var(--erp-toolbar-inner-px, 8px) !important;
+  padding: var(--erp-toolbar-inner-py, 2px) var(--erp-toolbar-inner-px, 8px) !important;
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-split-view {
