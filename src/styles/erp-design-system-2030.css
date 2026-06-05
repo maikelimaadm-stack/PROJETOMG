@@ -135,7 +135,7 @@
   --erp-toggle-width: 36px;
   --erp-toggle-height: 20px;
   --erp-checkbox-size: 14px;
-  --erp-card-accent-width: 4px;
+  --erp-card-accent-width: 3px;
   --erp-tab-indicator-height: 3px;
   --erp-tab-indicator-radius: 999px;
   --erp-tab-indicator-inset: 12px;
@@ -376,7 +376,7 @@
 .cadastro-emp-scope .emp-form-card-title {
   position: relative;
   min-height: 30px !important;
-  padding: 4px 12px !important;
+  padding: 4px 12px 4px calc(12px + var(--erp-card-accent-width)) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
   color: var(--erp-color-primary) !important;
@@ -386,9 +386,18 @@
   overflow: visible !important;
 }
 
+/* Faixa lateral: colada na borda do card, curva no canto superior */
 .cadastro-emp-scope .emp-form-card-title::before {
-  display: none !important;
-  content: none !important;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--erp-card-accent-width);
+  border-radius: var(--erp-radius-card) var(--erp-tab-indicator-radius) var(--erp-tab-indicator-radius) 0;
+  background: var(--erp-color-primary);
+  box-shadow: var(--erp-tab-indicator-glow);
+  pointer-events: none;
 }
 
 .cadastro-emp-scope .emp-form-card--virtual {
