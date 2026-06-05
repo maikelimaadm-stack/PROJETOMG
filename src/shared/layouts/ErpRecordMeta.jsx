@@ -1,6 +1,5 @@
 import React from "react";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
-import { Hash } from "lucide-react";
 
 const buildRecordLabel = (codigo, nome) => {
   const codigoText =
