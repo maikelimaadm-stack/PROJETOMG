@@ -23,27 +23,14 @@
   display: inline-flex;
 }
 
-/* Busca desktop: ícone lupa posicionado à direita */
-@media (min-width: 641px) {
-  .cadastro-emp-scope .emp-toolbar-search-toggle {
-    display: none !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search-icon--desktop {
-    display: block !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search-icon--mobile {
-    display: none !important;
-  }
-}
-
-/* Toolbar desktop: sem barra de rolagem nos botões */
+/* Toolbar desktop: alinhamento e sem barra de rolagem */
 @media (min-width: 1025px) {
   .cadastro-emp-scope .emp-toolbar-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
     overflow: hidden !important;
     overflow-x: hidden !important;
-    flex-wrap: wrap;
     scrollbar-width: none;
   }
 
@@ -51,6 +38,26 @@
     display: none;
     width: 0;
     height: 0;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-actions-primary,
+  .cadastro-emp-scope .emp-toolbar-actions-end,
+  .cadastro-emp-scope .emp-toolbar-actions-nav,
+  .cadastro-emp-scope .emp-toolbar-actions-save-mobile {
+    display: flex !important;
+    align-items: center !important;
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
+    align-self: center;
+    flex-shrink: 0;
+    box-sizing: border-box !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-new {
+    border: 1px solid transparent !important;
   }
 
   .cadastro-emp-scope .emp-toolbar-card {
@@ -278,26 +285,23 @@
     display: none !important;
   }
 
-  /* Toolbar: uma linha + scroll horizontal (sem quebra) */
-  .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div:not(.emp-toolbar-row--search-expanded),
-  .cadastro-emp-scope .emp-toolbar-row:not(.emp-toolbar-row--search-expanded) {
+  /* Toolbar: uma linha + scroll horizontal (sem quebra, barra oculta) */
+  .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
+  .cadastro-emp-scope .emp-toolbar-row {
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: #cbd5e1 transparent;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
     align-items: center;
     row-gap: 0;
   }
 
-  .cadastro-emp-scope .emp-toolbar-row:not(.emp-toolbar-row--search-expanded)::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-row:not(.emp-toolbar-row--search-expanded)::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 4px;
+  .cadastro-emp-scope .emp-toolbar-row::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-end {
@@ -321,68 +325,16 @@
     justify-content: center;
   }
 
-  /* Busca: ícone → expande para pesquisar */
+  /* Busca: sempre visível, sem quebra de linha ao focar */
   .cadastro-emp-scope .emp-toolbar-search {
-    width: var(--erp-toolbar-btn-size, 36px) !important;
-    min-width: var(--erp-toolbar-btn-size, 36px) !important;
-    max-width: var(--erp-toolbar-btn-size, 36px) !important;
+    width: auto !important;
+    min-width: 7.5rem !important;
+    max-width: 9rem !important;
     flex: 0 0 auto !important;
-    justify-content: center;
-    cursor: pointer;
-    transition: width 0.2s ease, max-width 0.2s ease;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search-input {
-    position: absolute !important;
-    width: 1px !important;
-    height: 1px !important;
-    padding: 0 !important;
-    margin: -1px !important;
-    overflow: hidden !important;
-    clip: rect(0, 0, 0, 0) !important;
-    white-space: nowrap !important;
-    border: 0 !important;
-    font-size: 16px !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    border: 0;
-    background: transparent;
-    padding: 0;
-    cursor: pointer;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search-icon--desktop {
-    display: none !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search-icon--mobile {
-    position: static !important;
-    transform: none !important;
-    pointer-events: none;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-row--search-expanded {
-    flex-wrap: wrap !important;
-    row-gap: 6px;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search--expanded {
-    order: 20;
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: 100% !important;
-    flex: 1 1 100% !important;
-    margin-top: 2px;
     cursor: text;
   }
 
-  .cadastro-emp-scope .emp-toolbar-search--expanded .emp-toolbar-search-input {
+  .cadastro-emp-scope .emp-toolbar-search-input {
     position: static !important;
     width: 100% !important;
     height: 100% !important;
@@ -392,14 +344,6 @@
     opacity: 1 !important;
     padding-right: 2rem !important;
     font-size: 16px !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-search--expanded .emp-toolbar-search-toggle {
-    position: absolute;
-    right: 0;
-    top: 0;
-    width: 2rem;
-    height: 100%;
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-end {
