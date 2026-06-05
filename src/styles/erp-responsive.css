@@ -3,7 +3,7 @@
  *
  * DESKTOP  (>1024px): 4–6 campos/linha, cards lado a lado, toolbar completa
  * TABLET  (641–1024px): máx. 2 campos/linha, cards empilhados
- * MOBILE  (≤640px): 1 campo/linha (pares só para campos pequenos), rodapé fixo
+ * MOBILE  (≤640px): 1–2 campos/linha, rodapé fixo, toolbar responsiva
  */
 
 /* —— Breadcrumb: desktop = 1 linha; mobile = 2 linhas —— */
@@ -277,6 +277,16 @@
     width: 100%;
   }
 
+  .erp-record-details {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 11px;
+  }
+
+  .erp-record-details__item {
+    max-width: 100%;
+  }
+
   .erp-shell-operation-badge--mobile {
     display: inline-flex !important;
   }
@@ -309,11 +319,21 @@
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-save-mobile {
+    display: flex !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-btn--mobile-more,
+  .cadastro-emp-scope .emp-toolbar-search.emp-toolbar-btn--mobile-more,
+  .cadastro-emp-scope .emp-toolbar-separator {
     display: none !important;
   }
 
   .cadastro-emp-scope .emp-toolbar-btn-labeled span {
     display: none;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-btn--mobile-primary.emp-toolbar-btn-labeled span {
+    display: inline;
   }
 
   .cadastro-emp-scope .emp-toolbar-btn-labeled {
@@ -323,6 +343,14 @@
     padding-right: 0 !important;
     gap: 0 !important;
     justify-content: center;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-btn--mobile-primary.emp-toolbar-btn-labeled {
+    width: auto !important;
+    min-width: var(--erp-toolbar-btn-size, 36px) !important;
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+    gap: 4px !important;
   }
 
   /* Busca: sempre visível, sem quebra de linha ao focar */
@@ -353,10 +381,10 @@
     gap: 6px !important;
   }
 
-  /* 1 campo por linha (sem exceções) */
+  /* Até 2 campos por linha no mobile */
   .cadastro-emp-scope .emp-form-card-row-grid--flex {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 8px !important;
     flex-wrap: unset !important;
   }
@@ -366,8 +394,16 @@
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    grid-column: 1 / -1 !important;
+    grid-column: span 1 !important;
     scroll-margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cadastro-emp-scope .emp-form-field-corp--textarea,
+  .cadastro-emp-scope .emp-form-field-corp--media-inline,
+  .cadastro-emp-scope .emp-form-field-corp[class*="--type-textarea"],
+  .cadastro-emp-scope .emp-form-field-corp[class*="--type-image"],
+  .cadastro-emp-scope .emp-form-field-corp[class*="--type-file"] {
+    grid-column: 1 / -1 !important;
   }
 
   .cadastro-emp-scope .emp-form-fields.emp-form-fields-compact,
