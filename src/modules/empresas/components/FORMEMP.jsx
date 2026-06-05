@@ -15,6 +15,7 @@ import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
+import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
 import {
   countKnownLayoutFields,
   ensureLayoutFields,
@@ -52,12 +53,10 @@ export default function FORMEMP({
   onDelete, onDuplicate, onRefresh,
   filterOpen = false, filterActive = false, onToggleFilter, onClearFilter,
   searchValue = "", onSearchChange,
-  showCorporateCounters = false,
-  empresasTotal,
-  registrosGlobaisTotal,
   initialData,
   isEditing,
   recordKey,
+  actionsLocked = false,
 }) {
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
@@ -132,6 +131,8 @@ export default function FORMEMP({
     recordKey,
     initialData?.id,
     initialData?.codempresa,
+    initialData?.id_global,
+    initialData?._isPersisting,
     initialData?.updatedAt,
     initialData?._isDuplicate,
     isEditing,
@@ -284,7 +285,23 @@ export default function FORMEMP({
   const dynamicFields = useMemo(() => [
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "select", required: true, compact: true, errorKey: "tipo_pessoa", render: renderTipoPessoaSelect },
     { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
-    { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", widthType: "CODIGO", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
+    {
+      id: "codempresa",
+      name: "codempresa",
+      label: "Cód. Empresa",
+      type: "text",
+      widthType: "CODIGO",
+      compact: true,
+      readOnly: true,
+      render: () => (
+        <Input
+          value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
+          readOnly
+          className={inputClass}
+          placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
+        />
+      ),
+    },
     { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
     { id: "status", name: "status", label: "Ativa", type: "text", widthType: "SIM_NAO", compact: true, render: renderStatusToggle },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", medium: true, uppercase: true, placeholder: "NOME FANTASIA" },
@@ -439,7 +456,7 @@ export default function FORMEMP({
 
   const handleSubmit = (event) => {
     if (event?.preventDefault) event.preventDefault();
-    if (isReadOnly) return;
+    if (isReadOnly || actionsLocked) return;
     if (!validateForm()) return;
     const calculated = campoEngine.aplicarCamposCalculados ? campoEngine.aplicarCamposCalculados(formData, camposPersonalizadosForm) : formData;
     const { _isDuplicate, ...clean } = { ...formData, campos_personalizados: calculated.campos_personalizados || {} };
@@ -447,25 +464,35 @@ export default function FORMEMP({
     onSubmit(clean);
   };
 
-  const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
   const recordMeta = useMemo(() => {
-    const codigo = formData.codempresa != null && String(formData.codempresa).trim() !== ""
-      ? formData.codempresa
-      : null;
+    const codigo =
+      formData.codempresa != null && String(formData.codempresa).trim() !== ""
+        ? formData.codempresa
+        : null;
     const nome = String(formData.razao_social || "").trim() || null;
-    const idGlobal = formData.id_global != null && Number(formData.id_global) > 0
-      ? formData.id_global
-      : null;
 
-    if (idGlobal || codigo || nome) {
-      return { idGlobal, codigo, nome };
-    }
-    if (isDuplicating) return { idGlobal: null, codigo: null, nome: "Duplicar empresa" };
-    if (!isEditing) return { idGlobal: null, codigo: null, nome: "Nova empresa" };
+    if (codigo && nome) return { codigo, nome };
+    if (isDuplicating && nome) return { codigo: null, nome };
+    if (isDuplicating) return { codigo: null, nome: "Duplicar empresa" };
+    if (!isEditing) return { codigo: null, nome: "Nova empresa" };
+    if (nome) return { codigo, nome };
     return null;
-  }, [formData.id_global, formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+  }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+
+  const operationLabel = useMemo(
+    () =>
+      resolveRecordOperationLabel({
+        isEditing,
+        editMode,
+        isDuplicating,
+        isSaving: actionsLocked,
+      }),
+    [isEditing, editMode, isDuplicating, actionsLocked]
+  );
+
+  const showRequiredCounter = !isReadOnly;
 
   useEffect(() => {
     if (layoutConfigOpen) {
@@ -484,12 +511,7 @@ export default function FORMEMP({
       operationLabel,
       contextSuffix: null,
     });
-  }, [
-    recordMeta,
-    operationLabel,
-    layoutConfigOpen,
-    setPageHeader,
-  ]);
+  }, [recordMeta, layoutConfigOpen, operationLabel, setPageHeader]);
 
   useEffect(() => () => clearPageHeader(), [clearPageHeader]);
 
@@ -576,6 +598,7 @@ export default function FORMEMP({
               onDelete={onDelete}
               onDuplicate={onDuplicate}
               onRefresh={onRefresh}
+              actionsLocked={actionsLocked}
               filterOpen={filterOpen}
               filterActive={filterActive}
               onToggleFilter={onToggleFilter}
@@ -585,9 +608,6 @@ export default function FORMEMP({
               searchValue={searchValue}
               onSearchChange={onSearchChange}
               showSearch
-              showCorporateCounters={showCorporateCounters}
-              empresasTotal={empresasTotal}
-              registrosGlobaisTotal={registrosGlobaisTotal}
             />
           }
         >
@@ -601,6 +621,7 @@ export default function FORMEMP({
                 systemPanelIds={empresasCadastroConfig.systemPanelIds}
                 trailing={
                   <FormValidationStatus
+                    visible={showRequiredCounter}
                     filled={requiredFieldStats.filled}
                     total={requiredFieldStats.total}
                     pendingFields={requiredFieldStats.pendingFields}
@@ -608,7 +629,7 @@ export default function FORMEMP({
                 }
               />
 
-              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp min-h-[380px] w-full min-w-0 w-full max-w-full max-w-none">
+              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp w-full min-w-0 max-w-none">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <RenderEngine
                     panels={tabs}

@@ -15,22 +15,24 @@
     0 2px 8px rgba(16, 24, 40, 0.06);
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
-  --erp-menu-item-hover: #f3f6fb;
+  --erp-menu-item-hover: #f8f9fd;
   --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
-  --erp-menu-search-bg: #f8fafc;
+  --erp-menu-search-bg: #f8f9fd;
   --erp-menu-search-border: #e2e8f0;
   --erp-color-primary: #2899f5;
   --erp-color-text: #1e293b;
   --erp-color-text-secondary: #475569;
   --erp-color-text-muted: #64748b;
   --erp-color-label: #334155;
+  --erp-color-surface: #f8f9fd;
   --erp-color-card: #ffffff;
-  --erp-color-card-border: #edf1f6;
-  --erp-radius-card: 12px;
-  --erp-shadow-card:
-    0 1px 2px rgba(16, 24, 40, 0.025),
-    0 1px 4px rgba(16, 24, 40, 0.03);
+  --erp-color-card-border: rgba(255, 255, 255, 0);
+  --erp-radius-card: 18px;
+  --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --erp-spacing: 8px;
+  --erp-layout-gap: 14px;
+  --erp-shell-padding: 16px;
   --erp-state-success: #22c55e;
   --erp-state-warning: #f59e0b;
   --erp-state-error: #ef4444;
@@ -44,11 +46,9 @@
 [data-sonner-toaster],
 [data-sonner-toast] {
   --erp-color-card: #ffffff;
-  --erp-color-card-border: #edf1f6;
-  --erp-radius-card: 12px;
-  --erp-shadow-card:
-    0 1px 2px rgba(16, 24, 40, 0.025),
-    0 1px 4px rgba(16, 24, 40, 0.03);
+  --erp-color-card-border: rgba(255, 255, 255, 0);
+  --erp-radius-card: 18px;
+  --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
   --erp-color-label: #334155;
   --erp-color-text-secondary: #475569;
   --erp-color-primary: #2899f5;
@@ -85,15 +85,15 @@
   --erp-color-input-border: #d9e2ef;
   --erp-color-input-hover: #2899f5;
   --erp-color-input-focus: #2899f5;
-  --erp-color-surface: #f7f9fc;
-  --erp-color-surface-gradient: linear-gradient(180deg, #fafbfd 0%, #f5f7fb 100%);
+  --erp-color-surface: #f8f9fd;
+  --erp-color-surface-gradient: #f8f9fd;
   --erp-color-card: #ffffff;
-  --erp-color-card-header: #fafcff;
+  --erp-color-card-header: #ffffff;
   --erp-color-card-header-border: #edf2f7;
-  --erp-color-row-hover: #f3f6fb;
+  --erp-color-row-hover: #f8f9fd;
   --erp-color-row-selected: #eef8ff;
-  --erp-color-lookup-bg: #f8fbff;
-  --erp-color-lookup-hover: #f3f6fb;
+  --erp-color-lookup-bg: #ffffff;
+  --erp-color-lookup-hover: #f8f9fd;
 
   /* Menu estilo GitHub */
   --erp-menu-bg: #ffffff;
@@ -105,25 +105,32 @@
     0 2px 8px rgba(16, 24, 40, 0.06);
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
-  --erp-menu-item-hover: #f3f6fb;
+  --erp-menu-item-hover: #f8f9fd;
   --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
   --erp-menu-search-height: 28px;
-  --erp-menu-search-bg: #f8fafc;
+  --erp-menu-search-bg: #f8f9fd;
   --erp-menu-search-border: #e2e8f0;
 
   --erp-radius-control: 8px;
   --erp-radius-button: 5px;
-  --erp-radius-card: 12px;
-  --erp-radius-toolbar-btn: 5px;
-  --erp-radius-modal: 16px;
+  --erp-radius-card: 18px;
+  --erp-radius-toolbar-btn: 8px;
+  --erp-radius-modal: 18px;
   --erp-radius-dropdown: 12px;
   --erp-radius-select-menu: 12px;
   --erp-radius-toast: 12px;
 
-  --erp-shadow-card:
-    0 1px 2px rgba(16, 24, 40, 0.025),
-    0 1px 4px rgba(16, 24, 40, 0.03);
+  --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --erp-shadow-control: 0 1px 3px rgba(15, 23, 42, 0.03);
+  --erp-spacing: 8px;
+  --erp-layout-gap: 14px;
+  --erp-shell-padding: 16px;
+  --erp-card-padding: 10px;
+  --erp-form-field-gap-x: 8px;
+  --erp-toolbar-card-py: 4px;
+  --erp-toolbar-inner-py: 2px;
+  --erp-toolbar-inner-px: 8px;
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -132,6 +139,7 @@
 
   --erp-control-height: 26px;
   --erp-toolbar-height: 26px;
+  --erp-toolbar-btn-size: 26px;
   --erp-toggle-width: 36px;
   --erp-toggle-height: 20px;
   --erp-checkbox-size: 14px;
@@ -216,7 +224,7 @@
   margin: 0 !important;
   flex: 1 1 auto;
   min-width: 0;
-  gap: 6px !important;
+  gap: var(--erp-spacing, 12px) !important;
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
@@ -276,15 +284,141 @@
   box-sizing: border-box;
 }
 
-/* —— Toolbar —— */
-/* Faixa de fundo dos botões — modelo card (mesma moldura dos painéis) */
-.cadastro-emp-scope .emp-toolbar-card {
-  background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-card-border) !important;
+/* —— Shell: header + breadcrumb unificados (full width, linha divisória) —— */
+.erp-shell-top-unified {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  background: #ffffff !important;
+  border-radius: 0 !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  overflow: hidden;
+}
+
+.erp-shell-top-unified .erp-shell-header {
+  padding-left: var(--erp-shell-padding) !important;
+  padding-right: var(--erp-shell-padding) !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Linha divisória acima do breadcrumb — mesmo token dos painéis de lançamento (toolbar → abas) */
+.erp-shell-top-unified .erp-shell-breadcrumbs {
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  padding-left: var(--erp-shell-padding) !important;
+  padding-right: var(--erp-shell-padding) !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-top: 1px solid var(--erp-color-border, #e4eaf2) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.erp-shell-content-wrap {
+  padding-top: 0 !important;
+  padding-bottom: var(--erp-shell-padding) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  gap: var(--erp-layout-gap) !important;
+}
+
+.erp-shell-content-wrap > .erp-shell-content-area {
+  padding-left: var(--erp-shell-padding) !important;
+  padding-right: var(--erp-shell-padding) !important;
+}
+
+/* —— Tabela: toolbar + grid unidos (mesma posição/altura do registro) —— */
+.cadastro-emp-scope .emp-table-view {
+  gap: 0 !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
-  padding: 4px 8px !important;
   overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-table-view > .emp-toolbar-card {
+  border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
+  border-bottom: 1px solid var(--erp-color-border) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-table-view > .emp-content-card {
+  border-radius: 0 0 var(--erp-radius-card) var(--erp-radius-card) !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
+
+/* —— Toolbar + painéis (abas): cabeçalho branco unido; área dos cards cinza —— */
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) {
+  gap: 0 !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-toolbar-card {
+  background: #ffffff !important;
+  border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--erp-color-border) !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card > .form-scroll-container {
+  background: var(--erp-color-surface, #f8f9fd) !important;
+  border-radius: 0 0 var(--erp-radius-card) var(--erp-radius-card) !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 0 0 var(--erp-radius-card) var(--erp-radius-card) !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid var(--erp-color-border) !important;
+  margin-bottom: 0 !important;
+  overflow: hidden !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-section-panel.emp-form-section-panel--corp {
+  background: var(--erp-color-surface, #f8f9fd) !important;
+}
+
+/* —— Toolbar —— */
+.cadastro-emp-scope .emp-toolbar-card {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  padding: var(--erp-toolbar-card-py, 4px) var(--erp-card-padding, 10px) !important;
+  box-sizing: border-box;
+  min-height: calc(
+    var(--erp-toolbar-height, 26px) +
+    (var(--erp-toolbar-card-py, 4px) * 2) +
+    (var(--erp-toolbar-inner-py, 2px) * 2)
+  );
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-toolbar-card .emp-toolbar {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
+.cadastro-emp-scope .emp-toolbar-card .emp-layout-config-toolbar {
+  padding: var(--erp-toolbar-inner-py, 2px) var(--erp-toolbar-inner-px, 8px) !important;
+  margin: 0 !important;
 }
 
 .cadastro-emp-scope .emp-toolbar {
@@ -308,7 +442,7 @@
   border-radius: var(--erp-radius-toolbar-btn) !important;
   background: var(--erp-color-card) !important;
   border: 1px solid var(--erp-color-card-border) !important;
-  box-shadow: var(--erp-shadow-card) !important;
+  box-shadow: var(--erp-shadow-control) !important;
   transition:
     background var(--erp-ds-transition),
     border-color var(--erp-ds-transition),
@@ -321,14 +455,14 @@
 .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active):hover:not(:disabled) {
   background: var(--erp-color-card) !important;
   border-color: var(--erp-color-card-border) !important;
-  box-shadow: var(--erp-shadow-card) !important;
+  box-shadow: var(--erp-shadow-control) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar-counter {
   background: var(--erp-color-card) !important;
   border: 1px solid var(--erp-color-card-border) !important;
-  box-shadow: var(--erp-shadow-card) !important;
+  box-shadow: var(--erp-shadow-control) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
@@ -366,9 +500,9 @@
 
 /* —— Cards V3 —— */
 .cadastro-emp-scope .emp-form-card {
-  border: 1px solid var(--erp-color-card-border) !important;
+  border: none !important;
   border-radius: var(--erp-radius-card) !important;
-  background: var(--erp-color-card) !important;
+  background: #ffffff !important;
   box-shadow: var(--erp-shadow-card) !important;
   transition: box-shadow var(--erp-ds-transition-slow), border-color var(--erp-ds-transition);
 }
@@ -409,8 +543,8 @@
 /* —— Content card, painéis e cards internos (mesma moldura) —— */
 .cadastro-emp-scope .emp-content-card,
 .cadastro-emp-scope .emp-table-card {
-  background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-card-border) !important;
+  background: #ffffff !important;
+  border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
 }
@@ -420,8 +554,8 @@
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
-  background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-card-border) !important;
+  background: #ffffff !important;
+  border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
   overflow: hidden;
@@ -445,7 +579,7 @@
   flex: 1 1 auto;
   min-height: 0;
   margin: 0 !important;
-  padding: 12px 10px 14px !important;
+  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) calc(var(--erp-spacing, 8px) + 2px) !important;
   background: var(--erp-color-card) !important;
   border: none !important;
   border-radius: 0 !important;
@@ -460,13 +594,13 @@
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
-  padding: 0 0 6px;
-  gap: 6px !important;
+  padding: 0 0 var(--erp-spacing, 12px);
+  gap: var(--erp-layout-gap, 20px) !important;
   box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
-  gap: 6px !important;
+  gap: var(--erp-layout-gap, 20px) !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,
@@ -1017,7 +1151,7 @@
   margin: 0 0 6px;
   padding: 0 10px;
   box-sizing: border-box;
-  background: #f8fafc !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 8px !important;
 }
@@ -1458,6 +1592,8 @@
   }
 }
 
+/* —— Pills informativos (obrigatórios, status, breadcrumb, registro) —— */
+.erp-info-pill,
 .cadastro-emp-scope .form-validation-status,
 .erp-shell .form-validation-status {
   display: inline-flex;
@@ -1474,10 +1610,40 @@
   cursor: default;
   user-select: none;
   flex-shrink: 0;
-  background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-card-border) !important;
-  box-shadow: var(--erp-shadow-card) !important;
-  color: var(--erp-color-primary) !important;
+  background: var(--erp-color-card, #ffffff) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
+  color: var(--erp-color-primary, #2899f5) !important;
+}
+
+.erp-info-pill__icon,
+.erp-info-pill__text {
+  color: var(--erp-color-primary, #2899f5) !important;
+}
+
+.erp-shell-breadcrumb-list {
+  gap: 6px !important;
+}
+
+.erp-shell-breadcrumb-list [data-slot="breadcrumb-separator"] {
+  color: #94a3b8 !important;
+}
+
+.erp-shell-breadcrumb-pill {
+  max-width: min(100%, 280px);
+}
+
+.erp-info-pill--saving .erp-info-pill__icon {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .cadastro-emp-scope .form-validation-status__icon,

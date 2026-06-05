@@ -10,6 +10,7 @@ export default function FormValidationStatus({
   filled = 0,
   total = 0,
   pendingFields = [],
+  visible = true,
   className = "",
 }) {
   const isComplete = total > 0 && filled >= total;
@@ -42,7 +43,7 @@ export default function FormValidationStatus({
     );
   }, [isComplete, pendingFields, total]);
 
-  if (total <= 0) return null;
+  if (!visible || total <= 0) return null;
 
   return (
     <TooltipProvider delayDuration={200}>

@@ -16,9 +16,10 @@ import {
   EmpresasFormPanel,
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
-import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
-import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
+import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
+import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -76,8 +77,10 @@ export default function PAGEMP() {
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const pendingDeleteIdsRef = useRef([]);
+  const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
   const queryClient = useQueryClient();
+  const saveCycle = useSaveCycle();
 
   useEffect(() => {
     if (previousScopeEmpresaIdRef.current === selectedEmpresaId) return;
@@ -109,15 +112,6 @@ export default function PAGEMP() {
   const empresas = empresasResponse.items || [];
   const totalEmpresas = empresasResponse.total || 0;
 
-  const { data: contadores = { empresas: totalEmpresas, registrosGlobais: 0 } } = useQuery({
-    queryKey: ["metrics-contadores"],
-    queryFn: () => MetricsApi.getContadores(),
-    staleTime: Number.POSITIVE_INFINITY,
-    gcTime: 30 * 60_000,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    placeholderData: { empresas: totalEmpresas, registrosGlobais: 0 },
-  });
   const empresasLoading = isLoading && empresas.length === 0;
   const empresasFiltradasPainel = empresas;
 
@@ -178,10 +172,15 @@ export default function PAGEMP() {
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
   const handleSubmit = useCallback((data) => {
-    const isUpdate = Boolean(editingEmp && !editingEmp._isDuplicate);
+    if (saveCycle.isSaving) return;
+
+    const isUpdate = Boolean(
+      editingEmp?.id && !isPendingRecordId(editingEmp.id) && !editingEmp._isDuplicate
+    );
 
     try {
       const validatedData = empresasModuleDefinition.schema.parse(data);
+      saveCycle.beginSave();
 
       if (isUpdate) {
         const optimistic = normalizeEmpresaRecord({ ...editingEmp, ...validatedData });
@@ -197,7 +196,6 @@ export default function PAGEMP() {
         upsertEmpresaInSelector(optimistic);
         setEditingEmp(optimistic);
         stayOnRecordAfterSave(optimistic);
-        showSuccess(`${moduleLabels.singular} atualizada!`);
 
         void moduleRepository
           .update(editingEmp.id, validatedData)
@@ -211,6 +209,7 @@ export default function PAGEMP() {
             }));
             setEditingEmp(normalized);
             upsertEmpresaInSelector(normalized);
+            showSuccess(`${moduleLabels.singular} atualizada!`);
           })
           .catch((error) => {
             cacheSnapshot.forEach(([key, value]) => {
@@ -223,14 +222,21 @@ export default function PAGEMP() {
                 `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
               )
             );
-          });
+          })
+          .finally(() => saveCycle.end());
         return;
       }
 
       const { _isDuplicate, ...clean } = validatedData;
       const pendingId = `pending-${crypto.randomUUID()}`;
-      const optimistic = normalizeEmpresaRecord({ ...clean, id: pendingId });
+      const optimistic = normalizeEmpresaRecord({
+        ...clean,
+        id: pendingId,
+        _isPersisting: true,
+      });
       const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
+      const createEntry = { cancelled: false };
+      pendingCreatesRef.current.set(pendingId, createEntry);
 
       patchEmpresasCache(queryClient, (previous) => ({
         ...previous,
@@ -239,13 +245,26 @@ export default function PAGEMP() {
       }));
       patchMetricsCache(queryClient, { empresas: 1, registrosGlobais: 1 });
       stayOnRecordAfterSave(optimistic);
-      showSuccess(`${moduleLabels.singular} cadastrada!`);
       setFormVersion((version) => version + 1);
 
       void moduleRepository
         .create(clean)
-        .then((response) => {
+        .then(async (response) => {
           const normalized = normalizeEmpresaRecord(response?.item);
+          pendingCreatesRef.current.delete(pendingId);
+
+          if (createEntry.cancelled) {
+            try {
+              const deleteResponse = await moduleRepository.delete(normalized.id);
+              if (deleteResponse?.contadores) {
+                setMetricsCache(queryClient, deleteResponse.contadores);
+              }
+            } catch {
+              // UI já removeu; servidor pode ter excluído ou falhado silenciosamente
+            }
+            return;
+          }
+
           patchEmpresasCache(queryClient, (previous) => ({
             ...previous,
             items: previous.items.map((item) =>
@@ -260,26 +279,32 @@ export default function PAGEMP() {
           );
           upsertEmpresaInSelector(normalized);
           setMetricsCache(queryClient, response?.contadores);
+          showSuccess(`${moduleLabels.singular} cadastrada!`);
         })
         .catch((error) => {
-          patchMetricsCache(queryClient, { empresas: -1, registrosGlobais: -1 });
-          cacheSnapshot.forEach(([key, value]) => {
-            queryClient.setQueryData(key, value);
-          });
-          patchEmpresasCache(queryClient, (previous) => ({
-            ...previous,
-            items: previous.items.filter((item) => item.id !== pendingId),
-            total: Math.max(0, previous.total - 1),
-          }));
-          removeEmpresasFromSelector([pendingId]);
+          pendingCreatesRef.current.delete(pendingId);
+          if (!createEntry.cancelled) {
+            patchMetricsCache(queryClient, { empresas: -1, registrosGlobais: -1 });
+            cacheSnapshot.forEach(([key, value]) => {
+              queryClient.setQueryData(key, value);
+            });
+            patchEmpresasCache(queryClient, (previous) => ({
+              ...previous,
+              items: previous.items.filter((item) => item.id !== pendingId),
+              total: Math.max(0, previous.total - 1),
+            }));
+            removeEmpresasFromSelector([pendingId]);
+          }
           showError(
             resolveErrorMessage(
               error,
               `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
             )
           );
-        });
+        })
+        .finally(() => saveCycle.end());
     } catch (error) {
+      saveCycle.end();
       showError(
         resolveErrorMessage(
           error,
@@ -295,11 +320,13 @@ export default function PAGEMP() {
     queryClient,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
+    saveCycle,
     stayOnRecordAfterSave,
     upsertEmpresaInSelector,
   ]);
 
   const handleEdit = (emp) => {
+    if (!saveCycle.guardAction()) return;
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([emp.id]);
@@ -310,6 +337,7 @@ export default function PAGEMP() {
   };
 
   const handleNew = () => {
+    if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
     setSelectedTableItems([]);
     setEditingEmp(null);
@@ -319,8 +347,9 @@ export default function PAGEMP() {
   };
 
   const handleDuplicate = (emp) => {
+    if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
-    const { id, created_date, updated_date, created_by, codempresa, ...dup } = emp;
+    const { id, created_date, updated_date, created_by, codempresa, id_global, _isPersisting, ...dup } = emp;
     setEditingEmp({ ...dup, _isDuplicate: true });
     setShowForm(true);
     setViewMode("record");
@@ -328,6 +357,7 @@ export default function PAGEMP() {
   };
 
   const handleRequestDelete = (ids) => {
+    if (!saveCycle.guardAction()) return;
     const normalized = (Array.isArray(ids) ? ids : [ids]).filter(Boolean);
     pendingDeleteIdsRef.current = normalized;
     setDeleteState({ open: true, ids: normalized });
@@ -373,6 +403,7 @@ export default function PAGEMP() {
   }, [empresasNavegacao]);
 
   const handleToggleView = () => {
+    if (!saveCycle.guardAction()) return;
     if (showForm) { setShowForm(false); setEditingEmp(null); setViewMode("table"); return; }
     if (selectedTableItems.length > 1) return;
     const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
@@ -386,7 +417,7 @@ export default function PAGEMP() {
   };
 
   const navigateRecord = (index) => {
-    if (!showForm) return;
+    if (!showForm || !saveCycle.guardAction()) return;
     const ni = Math.min(Math.max(index, 0), Math.max(empresasNavegacao.length - 1, 0));
     setSelectedIndex(ni);
     if (empresasNavegacao[ni]) { setEditingEmp(empresasNavegacao[ni]); setSelectedTableItems([empresasNavegacao[ni].id]); }
@@ -398,6 +429,8 @@ export default function PAGEMP() {
       showError("Nenhum registro selecionado para exclusão.");
       throw new Error("Nenhum registro selecionado para exclusão.");
     }
+
+    saveCycle.beginDelete();
 
     const wasOnForm = showForm && viewMode === "record";
     const deletedCurrentFromForm = wasOnForm && editingEmp?.id && ids.includes(editingEmp.id);
@@ -480,8 +513,25 @@ export default function PAGEMP() {
     pendingDeleteIdsRef.current = [];
     setDeleteState({ open: false, ids: [] });
 
+    const pendingIds = ids.filter((id) => isPendingRecordId(id));
+    const persistedIds = ids.filter((id) => !isPendingRecordId(id));
+
+    pendingIds.forEach((pendingId) => {
+      const entry = pendingCreatesRef.current.get(pendingId);
+      if (entry) entry.cancelled = true;
+    });
+
     try {
-      const results = await Promise.all(ids.map((id) => moduleRepository.delete(id)));
+      if (persistedIds.length === 0) {
+        showSuccess(
+          ids.length === 1
+            ? `${moduleLabels.singular} excluída!`
+            : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
+        );
+        return;
+      }
+
+      const results = await Promise.all(persistedIds.map((id) => moduleRepository.delete(id)));
       const lastContadores = results.filter((r) => r?.contadores).at(-1)?.contadores;
       if (lastContadores) setMetricsCache(queryClient, lastContadores);
       showSuccess(
@@ -504,6 +554,8 @@ export default function PAGEMP() {
         )
       );
       throw error;
+    } finally {
+      saveCycle.end();
     }
   };
 
@@ -532,6 +584,11 @@ export default function PAGEMP() {
 
   return (
     <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <SaveProgressOverlay
+        active={saveCycle.isSaving}
+        message={saveCycle.saveMessage}
+        variant={saveCycle.variant}
+      />
       <EmpresasFormPanel
         showForm={showForm}
         formProps={{
@@ -574,15 +631,14 @@ export default function PAGEMP() {
           onSearchChange: handleSearchChange,
           onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
           attachDisabled: false,
-          showCorporateCounters: true,
-          empresasTotal: contadores.empresas ?? totalEmpresas,
-          registrosGlobaisTotal: formatIdGlobal(contadores.registrosGlobais ?? 0) || "0",
+          actionsLocked: saveCycle.isSaving,
         }}
       />
 
       <EmpresasTablePanel
         hidden={showForm}
         toolbarProps={{
+          actionsLocked: saveCycle.isSaving,
           viewMode,
           total: totalEmpresas,
           currentIndex: selectedIndex,
@@ -604,9 +660,6 @@ export default function PAGEMP() {
           selectedCount: selectedTableItems.length,
           title: moduleLabels.title,
           recordLabel: "",
-          showCorporateCounters: true,
-          empresasTotal: contadores.empresas ?? totalEmpresas,
-          registrosGlobaisTotal: formatIdGlobal(contadores.registrosGlobais ?? 0) || "0",
         }}
         tableProps={{
           key: "tbl-emp",

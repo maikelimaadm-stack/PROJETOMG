@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from '@/App.jsx'
 import '@/index.css'
 import '@/styles/erp-design-system-2030.css'
+import '@/styles/erp-responsive.css'
 import { registerEmpresasPersonalizacoesDevTools } from '@/framework/cadastro/layouts/userLayoutPreferencesSync'
 
 registerEmpresasPersonalizacoesDevTools()

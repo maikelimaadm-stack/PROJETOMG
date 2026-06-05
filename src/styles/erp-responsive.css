@@ -1,0 +1,275 @@
+/**
+ * ERP — responsivo (tablet + mobile)
+ * Painel de lançamentos, toolbar, abas, cards e shell.
+ */
+
+/* —— Tablet (≤1024px) —— */
+@media (max-width: 1024px) {
+  .erp-shell {
+    --erp-shell-padding: 12px;
+    --erp-layout-gap: 10px;
+    --erp-card-padding: 8px;
+    --erp-radius-card: 14px;
+  }
+
+  .cadastro-emp-scope {
+    --erp-layout-gap: 10px;
+    --erp-card-padding: 8px;
+    --erp-radius-card: 14px;
+  }
+
+  .cadastro-emp-scope .emp-form-section-principal,
+  .cadastro-emp-scope .emp-form-section-panel:not(.emp-form-section-panel--corp) {
+    min-width: 0 !important;
+    width: 100% !important;
+  }
+
+  .cadastro-emp-scope .emp-form-cards-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-slot {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .cadastro-emp-scope .emp-form-tab-list {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .cadastro-emp-scope .emp-form-tab-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch {
+    min-height: 32px;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search {
+    width: 9rem !important;
+    min-width: 7rem !important;
+  }
+
+  .erp-shell-breadcrumbs {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .erp-shell-operation-badge {
+    margin-left: 0 !important;
+  }
+}
+
+/* —— Mobile landscape / tablet estreito (≤768px) —— */
+@media (max-width: 768px) {
+  .erp-shell {
+    --erp-shell-padding: 10px;
+    --erp-toolbar-card-py: 3px;
+    --erp-toolbar-inner-py: 2px;
+  }
+
+  .cadastro-emp-scope {
+    --erp-toolbar-card-py: 3px;
+    --erp-toolbar-inner-py: 2px;
+    --erp-toolbar-inner-px: 6px;
+  }
+
+  .erp-shell-header {
+    flex-wrap: wrap;
+    height: auto !important;
+    min-height: 2.5rem;
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+    row-gap: 6px;
+  }
+
+  .erp-shell-header > div:first-child {
+    order: 1;
+  }
+
+  .erp-shell-header > div:nth-child(2) {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .erp-shell-header > div:last-child {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .erp-shell-company-select {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .erp-shell-header label {
+    display: none;
+  }
+
+  .erp-shell-breadcrumbs {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+
+  .erp-shell-breadcrumb-pill,
+  .erp-info-pill {
+    max-width: min(100%, 200px);
+    padding: 0 10px !important;
+    font-size: 11px !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
+  .cadastro-emp-scope .emp-toolbar-row {
+    flex-wrap: wrap;
+    row-gap: 6px;
+    align-items: center;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-actions-primary,
+  .cadastro-emp-scope .emp-toolbar-actions-nav {
+    flex-shrink: 0;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-actions-end {
+    margin-left: 0 !important;
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 6px !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-btn-labeled span {
+    display: none;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-btn-labeled {
+    width: var(--erp-toolbar-btn-size, 26px) !important;
+    min-width: var(--erp-toolbar-btn-size, 26px) !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    gap: 0 !important;
+    justify-content: center;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search {
+    flex: 1 1 auto;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: 100%;
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--flex {
+    flex-wrap: wrap !important;
+    overflow: visible !important;
+    gap: 8px !important;
+  }
+
+  .cadastro-emp-scope .emp-form-fields.emp-form-fields-compact,
+  .cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-compact {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-column {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
+    min-height: 0 !important;
+  }
+
+  .cadastro-emp-scope .emp-form-tab-nav-end {
+    margin-left: auto;
+    padding-left: 4px;
+  }
+
+  .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch {
+    align-items: center;
+    overflow: hidden;
+  }
+}
+
+/* —— Mobile (≤640px) —— */
+@media (max-width: 640px) {
+  .erp-shell {
+    --erp-shell-padding: 8px;
+    --erp-layout-gap: 8px;
+    --erp-radius-card: 12px;
+  }
+
+  .cadastro-emp-scope {
+    --erp-toolbar-btn-size: 32px;
+    --erp-layout-gap: 8px;
+    --erp-radius-card: 12px;
+  }
+
+  .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn,
+  .cadastro-emp-scope .emp-toolbar .emp-toolbar-search,
+  .cadastro-emp-scope .emp-toolbar .emp-toolbar-counter {
+    height: var(--erp-toolbar-btn-size, 32px) !important;
+    min-height: var(--erp-toolbar-btn-size, 32px) !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto):not(.emp-toolbar-btn-labeled) {
+    width: var(--erp-toolbar-btn-size, 32px) !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-btn-labeled {
+    width: var(--erp-toolbar-btn-size, 32px) !important;
+    min-width: var(--erp-toolbar-btn-size, 32px) !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-card {
+    min-height: calc(
+      var(--erp-toolbar-btn-size, 32px) +
+      (var(--erp-toolbar-card-py, 3px) * 2) +
+      (var(--erp-toolbar-inner-py, 2px) * 2)
+    );
+  }
+
+  .cadastro-emp-scope .emp-form-tab {
+    padding: 0 10px !important;
+    font-size: 11px !important;
+  }
+
+  .cadastro-emp-scope .form-validation-status,
+  .erp-info-pill {
+    height: 24px !important;
+    padding: 0 10px !important;
+    font-size: 11px !important;
+  }
+
+  .erp-shell-logout {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 11px !important;
+  }
+
+  .cadastro-emp-scope .emp-table-view,
+  .cadastro-emp-scope .emp-split-view {
+    border-radius: var(--erp-radius-card, 12px) !important;
+  }
+
+  .cadastro-emp-scope .emp-content-card > .form-scroll-container {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cadastro-emp-scope .emp-table-body-scroll,
+  .cadastro-emp-scope .emp-table-stage {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .cadastro-emp-scope .emp-table-panel {
+    min-width: 0;
+    overflow-x: auto;
+  }
+}

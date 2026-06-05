@@ -44,24 +44,24 @@ export default function EmpListToolbar({
   onConfigExportExcel,
   onConfigColumns,
   selectedCount = 0,
-  empresasTotal,
-  registrosGlobaisTotal,
-  showCorporateCounters = false,
   title = "REGISTROS",
   recordLabel = "",
   operationLabel,
   showUtilityActions = true,
-  showSearch = true
+  showSearch = true,
+  actionsLocked = false,
 }) {
-  const canNavigate = viewMode === "record" && total > 0;
+  const canNavigate = viewMode === "record" && total > 0 && !actionsLocked;
   const showRecordNavigation = viewMode === "record";
+  const recordCounter =
+    total > 0 ? `${Math.min(Math.max(currentIndex + 1, 1), total)}/${total}` : "0/0";
   const showDeleteSelectionAction = viewMode === "table" && selectedCount > 0 && !!onDelete;
   const showDuplicateSelectionAction = viewMode === "table" && selectedCount === 1 && !!onDuplicate;
 
   return (
-    <div className="emp-toolbar px-2 py-1.5">
-      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
-        <div className="flex items-center gap-1.5 shrink-0">
+    <div className="emp-toolbar">
+      <div className="emp-toolbar-row flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
+        <div className="emp-toolbar-actions-primary flex items-center gap-1.5 shrink-0">
           {onBack && (
             <ToolbarBtn onClick={onBack} title="Voltar">
               <EmpToolbarIcon icon={ChevronLeft} nav />
@@ -69,12 +69,12 @@ export default function EmpListToolbar({
           )}
           <ToolbarBtn
             onClick={onToggleView}
-            disabled={toggleViewDisabled}
+            disabled={actionsLocked || toggleViewDisabled}
             title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
           >
             {viewMode === "table" ? <EmpToolbarIcon icon={List} /> : <EmpToolbarIcon icon={Table} />}
           </ToolbarBtn>
-          <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
+          <ToolbarBtn onClick={onNew} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
             <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
             <span>Novo</span>
           </ToolbarBtn>
@@ -100,20 +100,20 @@ export default function EmpListToolbar({
             </div>
           )}
           {showDeleteSelectionAction && (
-            <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} title="Excluir selecionados">
+            <ToolbarBtn onClick={onDelete} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} title="Excluir selecionados">
               <EmpToolbarIcon icon={Trash2} />
               <span>Excluir</span>
             </ToolbarBtn>
           )}
           {showDuplicateSelectionAction && (
-            <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} title="Duplicar">
+            <ToolbarBtn onClick={onDuplicate} disabled={actionsLocked} className={LABELED_BTN_CLASS} title="Duplicar">
               <EmpToolbarIcon icon={Copy} />
               <span>Duplicar</span>
             </ToolbarBtn>
           )}
         </div>
 
-        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+        <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP}>
               <input
@@ -150,34 +150,11 @@ export default function EmpListToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          {showCorporateCounters ? (
-            <>
-              <EmpBubbleCounter
-                label="Empresas"
-                value={String(empresasTotal ?? total)}
-                title="Empresas"
-                className="emp-toolbar-bubble-counter"
-              />
-              <EmpBubbleCounter
-                label="Registros Globais"
-                value={String(registrosGlobaisTotal ?? 0)}
-                title="Registros Globais"
-                className="emp-toolbar-bubble-counter"
-              />
-            </>
-          ) : (
-            <EmpBubbleCounter
-              value={
-                viewMode === "record" && total > 0
-                  ? `${currentIndex + 1}/${total}`
-                  : selectedCount > 0
-                    ? `${selectedCount}/${total}`
-                    : String(total)
-              }
-              title="Registros"
-              className="emp-toolbar-bubble-counter"
-            />
-          )}
+          <EmpBubbleCounter
+            value={recordCounter}
+            title="Registros"
+            className="emp-toolbar-bubble-counter"
+          />
         </div>
       </div>
     </div>

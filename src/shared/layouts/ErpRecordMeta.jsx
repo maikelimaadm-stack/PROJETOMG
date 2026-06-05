@@ -1,30 +1,24 @@
 import React from "react";
-import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 
-export default function ErpRecordMeta({ idGlobal, codigo, nome }) {
-  const hasIdGlobal = idGlobal != null && Number(idGlobal) > 0;
-  const hasCodigo = codigo != null && String(codigo).trim() !== "";
-  const hasNome = nome != null && String(nome).trim() !== "";
+const buildRecordLabel = (codigo, nome) => {
+  const codigoText =
+    codigo != null && String(codigo).trim() !== "" ? String(codigo).trim() : null;
+  const nomeText = nome != null && String(nome).trim() !== "" ? String(nome).trim() : null;
 
-  if (!hasIdGlobal && !hasCodigo && !hasNome) return null;
+  if (codigoText && nomeText) return `${codigoText} - ${nomeText}`;
+  if (codigoText) return codigoText;
+  if (nomeText) return nomeText;
+  return null;
+};
+
+export default function ErpRecordMeta({ codigo, nome }) {
+  const label = buildRecordLabel(codigo, nome);
+  if (!label) return null;
 
   return (
-    <span className="erp-record-meta inline-flex min-w-0 max-w-full items-center gap-2 truncate text-xs font-semibold text-[#1a1f26]">
-      {hasIdGlobal ? (
-        <span className="erp-record-meta__id-global shrink-0 font-medium text-[#64748B]">
-          ID Global: {formatIdGlobal(idGlobal)}
-        </span>
-      ) : null}
-      {hasCodigo ? (
-        <span className="erp-record-meta__codigo shrink-0 text-[#64748B]">
-          Código: {codigo}
-        </span>
-      ) : null}
-      {hasNome ? (
-        <span className="erp-record-meta__nome min-w-0 truncate font-semibold text-[#1a1f26]">
-          {nome}
-        </span>
-      ) : null}
-    </span>
+    <ErpInfoPill icon={Hash} className="erp-record-meta max-w-[min(100%,520px)]" title={label}>
+      {label}
+    </ErpInfoPill>
   );
 }

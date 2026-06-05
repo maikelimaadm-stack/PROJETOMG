@@ -49,23 +49,23 @@ export default function EmpRecordToolbar({
   onSearchChange,
   showSearch = false,
   showRecordNavigation = true,
-  empresasTotal,
-  registrosGlobaisTotal,
-  showCorporateCounters = false,
+  actionsLocked = false,
 }) {
-  const canNavigate = total > 0;
+  const canNavigate = total > 0 && !actionsLocked;
   const isFirst = currentIndex <= 0;
   const isLast = currentIndex >= total - 1;
+  const recordCounter =
+    total > 0 ? `${Math.min(Math.max(currentIndex + 1, 1), total)}/${total}` : "0/0";
 
   return (
     <div className="emp-toolbar shadow-none overflow-hidden">
-      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5">
+      <div className="emp-toolbar-row flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
         {onBack && (
           <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}
-        <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
+        <ToolbarBtn onClick={onToggleView} disabled={actionsLocked} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
         {!showSaveActions && (
-          <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
+          <ToolbarBtn onClick={onNew} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
             <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
             <span>Novo</span>
           </ToolbarBtn>
@@ -97,7 +97,7 @@ export default function EmpRecordToolbar({
           </ToolbarBtn>
         )}
         {showRecordNavigation && (
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="emp-toolbar-actions-nav flex items-center gap-1 shrink-0">
             <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Primeiro"><EmpToolbarIcon icon={ChevronsLeft} nav /></ToolbarBtn>
             <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Anterior"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
             <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Próximo"><EmpToolbarIcon icon={ChevronRight} nav /></ToolbarBtn>
@@ -106,18 +106,18 @@ export default function EmpRecordToolbar({
         )}
         {showSaveActions && (
           <>
-            <ToolbarBtn onClick={onSave} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
+            <ToolbarBtn onClick={onSave} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
               <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
               <span>Salvar</span>
             </ToolbarBtn>
-            <ToolbarBtn onClick={onCancel} className={LABELED_BTN_CLASS} title="Descartar">
+            <ToolbarBtn onClick={onCancel} disabled={actionsLocked} className={LABELED_BTN_CLASS} title="Descartar">
               <EmpToolbarIcon icon={X} />
               <span>Cancelar</span>
             </ToolbarBtn>
           </>
         )}
 
-        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+        <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP}>
               <input value={searchValue} onChange={(e) => onSearchChange?.(e.target.value)} placeholder="Pesquisar registros..." className={EMP_TOOLBAR_SEARCH_INPUT} />
@@ -143,28 +143,11 @@ export default function EmpRecordToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          {showCorporateCounters ? (
-            <>
-              <EmpBubbleCounter
-                label="Empresas"
-                value={String(empresasTotal ?? total)}
-                title="Empresas"
-                className="emp-toolbar-bubble-counter"
-              />
-              <EmpBubbleCounter
-                label="Registros Globais"
-                value={String(registrosGlobaisTotal ?? 0)}
-                title="Registros Globais"
-                className="emp-toolbar-bubble-counter"
-              />
-            </>
-          ) : (
-            <EmpBubbleCounter
-              value={total > 0 ? `${currentIndex + 1}/${total}` : String(total)}
-              title="Registros"
-              className="emp-toolbar-bubble-counter"
-            />
-          )}
+          <EmpBubbleCounter
+            value={recordCounter}
+            title="Registros"
+            className="emp-toolbar-bubble-counter"
+          />
         </div>
       </div>
     </div>

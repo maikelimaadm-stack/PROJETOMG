@@ -29,7 +29,7 @@ const normalizeEmpresaPayload = (payload = {}, { isUpdate = false } = {}) => {
   };
 
   const parsedCodigo = toNumber(payload.codempresa, 0);
-  if (parsedCodigo > 0 && (!isUpdate || parsedCodigo > 0)) {
+  if (isUpdate && parsedCodigo > 0) {
     normalized.codempresa = parsedCodigo;
   }
 
