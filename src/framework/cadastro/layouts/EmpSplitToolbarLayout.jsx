@@ -8,7 +8,7 @@ export default function EmpSplitToolbarLayout({
   contentClassName = "",
 }) {
   return (
-    <div className={`emp-split-view flex h-full min-h-0 flex-1 flex-col gap-1 overflow-hidden ${className}`.trim()}>
+    <div className={`emp-split-view flex h-full min-h-0 flex-1 flex-col gap-[6px] overflow-hidden ${className}`.trim()}>
       {toolbar ? (
         <div
           className={`emp-toolbar-card shrink-0 overflow-hidden ${toolbarClassName}`.trim()}
