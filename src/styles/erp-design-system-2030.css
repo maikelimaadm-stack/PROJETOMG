@@ -180,12 +180,50 @@
   padding: 0 !important;
 }
 
-.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone {
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone,
+.cadastro-emp-scope .form-scroll-container .emp-form-panels-zone {
   width: 100% !important;
   max-width: 100% !important;
   margin: 0 !important;
   flex: 1 1 auto;
   min-width: 0;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+/* Painel, seção e campos — camada fantasma; só os cards individuais têm moldura */
+.cadastro-emp-scope .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  background: transparent !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-section-panel:not(.emp-form-section-panel-detail),
+.cadastro-emp-scope .form-scroll-container .emp-form-section-principal {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-fields,
+.cadastro-emp-scope .form-scroll-container .emp-form-fields-corp,
+.cadastro-emp-scope .form-scroll-container .emp-form-cards-layout,
+.cadastro-emp-scope .form-scroll-container .emp-form-fieldset {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp {
