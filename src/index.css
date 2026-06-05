@@ -607,6 +607,11 @@ input[type="number"] {
   border-radius: 0 !important;
 }
 
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+  overflow: hidden !important;
+}
+
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-list {
   gap: 2px;
   padding-left: 8px;
@@ -1306,6 +1311,13 @@ input[type="number"] {
     0 1px 2px rgba(16, 24, 40, 0.025),
     0 1px 4px rgba(16, 24, 40, 0.03)
   ) !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch,
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-content-card > .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  border: none !important;
+  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch::after {
