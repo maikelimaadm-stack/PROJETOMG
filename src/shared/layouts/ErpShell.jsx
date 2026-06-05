@@ -140,7 +140,7 @@ function ErpBreadcrumbs({ pathname }) {
   }
 
   return (
-    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 py-1.5">
+    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2 rounded-[18px] bg-white px-4 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
       <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="text-xs font-semibold text-[#1a1f26]">
           {trail.map((crumb, index) => {
@@ -180,8 +180,8 @@ function ErpShellBody({
   allowAllEmpresas,
 }) {
   return (
-    <div className="erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[#fafafa]">
-      <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[#e8ecef] bg-[#fafafa]">
+    <div className="erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[#f8f9fd]">
+      <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[#eef1f8] bg-[#f8f9fd]">
         <SidebarHeader className="border-b border-[#e8ecef] p-0">
           <Link to="/CadastroEmpresas" className="erp-sidebar-brand block hover:opacity-95">
             <ErpBrand />
@@ -191,7 +191,7 @@ function ErpShellBody({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#fafafa]">
+      <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#f8f9fd]">
         <ErpTopHeader
           empresas={empresas}
           selectedEmpresaId={selectedEmpresaId}
@@ -200,7 +200,7 @@ function ErpShellBody({
           onLogout={onLogout}
         />
 
-        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-3 pt-1">
+        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col gap-6 overflow-hidden px-6 pb-6 pt-2">
           <ErpBreadcrumbs pathname={pathname} />
           <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}

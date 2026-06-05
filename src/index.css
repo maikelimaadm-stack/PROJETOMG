@@ -2701,11 +2701,11 @@ input[type="number"] {
   --emp-accent-primary-hover: #1a8fe8;
   --erp-nav-active-bg: #2899f5;
   --erp-nav-active-fg: #ffffff;
-  --erp-surface-bg: #fafafa;
-  --erp-page-bg: #fafafa;
-  --erp-sidebar-bg: #fafafa;
-  --erp-sidebar-submenu-bg: #fafafa;
-  --erp-border: #e8ecef;
+  --erp-surface-bg: #f8f9fd;
+  --erp-page-bg: #f8f9fd;
+  --erp-sidebar-bg: #f8f9fd;
+  --erp-sidebar-submenu-bg: #ffffff;
+  --erp-border: #eef1f8;
 }
 
 .erp-shell .erp-sidebar,
@@ -2795,7 +2795,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-view,
 .cadastro-emp-scope .emp-split-view {
-  gap: 6px;
+  gap: var(--erp-layout-gap, 24px);
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
@@ -2819,14 +2819,10 @@ input[type="number"] {
 .cadastro-emp-scope .emp-toolbar-card {
   flex-shrink: 0;
   background: var(--erp-color-card, #ffffff) !important;
-  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
-  border-radius: var(--erp-radius-card, 12px) !important;
-  box-shadow: var(
-    --erp-shadow-card,
-    0 1px 2px rgba(16, 24, 40, 0.025),
-    0 1px 4px rgba(16, 24, 40, 0.03)
-  ) !important;
-  padding: 4px 8px !important;
+  border: none !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 10px 30px rgba(0, 0, 0, 0.04)) !important;
+  padding: 10px 16px !important;
   overflow: hidden;
 }
 
@@ -2855,7 +2851,7 @@ input[type="number"] {
 
 .erp-shell .cadastro-emp-scope {
   border-radius: inherit;
-  background: var(--emp-surface-bg, #fafafa) !important;
+  background: var(--emp-surface-bg, #f8f9fd) !important;
 }
 
 .erp-shell .cadastro-emp-scope .emp-table-shell,
@@ -2866,17 +2862,16 @@ input[type="number"] {
 .erp-shell .cadastro-emp-scope .emp-table-card,
 .erp-shell .cadastro-emp-scope .emp-content-card {
   background: var(--emp-table-bg, #ffffff) !important;
+  border: none !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 10px 30px rgba(0, 0, 0, 0.04)) !important;
 }
 
 .erp-shell .cadastro-emp-scope .emp-toolbar-card {
   background: var(--erp-color-card, #ffffff) !important;
-  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
-  border-radius: var(--erp-radius-card, 12px) !important;
-  box-shadow: var(
-    --erp-shadow-card,
-    0 1px 2px rgba(16, 24, 40, 0.025),
-    0 1px 4px rgba(16, 24, 40, 0.03)
-  ) !important;
+  border: none !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 10px 30px rgba(0, 0, 0, 0.04)) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
@@ -2924,9 +2919,12 @@ input[type="number"] {
 
 .erp-shell-breadcrumbs {
   min-height: 0;
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
   background: #ffffff !important;
+  border: none !important;
+  border-radius: 18px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
 }
 
 .erp-shell-header {
@@ -2937,10 +2935,11 @@ input[type="number"] {
 }
 
 .erp-shell-content-wrap {
-  padding-top: 0.25rem !important;
-  padding-bottom: 0.75rem !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
+  padding-top: 0.5rem !important;
+  padding-bottom: 1.5rem !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+  gap: 1.5rem !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-list"],
