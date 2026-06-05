@@ -20,7 +20,7 @@
   --erp-menu-separator: #e5eaf2;
   --erp-menu-search-bg: #f8fafc;
   --erp-menu-search-border: #e2e8f0;
-  --erp-color-primary: #4fafff;
+  --erp-color-primary: #2899f5;
   --erp-color-text: #1e293b;
   --erp-color-text-secondary: #475569;
   --erp-color-text-muted: #64748b;
@@ -34,7 +34,7 @@
   --erp-state-success: #22c55e;
   --erp-state-warning: #f59e0b;
   --erp-state-error: #ef4444;
-  --erp-state-info: #4fafff;
+  --erp-state-info: #2899f5;
   --erp-radius-control: 8px;
   --erp-shadow-focus: none;
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -51,7 +51,7 @@
     0 1px 4px rgba(16, 24, 40, 0.03);
   --erp-color-label: #334155;
   --erp-color-text-secondary: #475569;
-  --erp-color-primary: #4fafff;
+  --erp-color-primary: #2899f5;
 }
 
 .erp-shell .erp-shell-company-select,
@@ -77,14 +77,14 @@
   --erp-color-text-disabled: #94a3b8;
   --erp-color-label: #334155;
   --erp-color-required: #ef4444;
-  --erp-color-primary: #4fafff;
-  --erp-color-primary-hover: #4fafff;
+  --erp-color-primary: #2899f5;
+  --erp-color-primary-hover: #1a8fe8;
   --erp-color-border: #e4eaf2;
   --erp-color-border-soft: #edf1f6;
   --erp-color-card-border: #edf1f6;
   --erp-color-input-border: #d9e2ef;
-  --erp-color-input-hover: #4fafff;
-  --erp-color-input-focus: #4fafff;
+  --erp-color-input-hover: #2899f5;
+  --erp-color-input-focus: #2899f5;
   --erp-color-surface: #f7f9fc;
   --erp-color-surface-gradient: linear-gradient(180deg, #fafbfd 0%, #f5f7fb 100%);
   --erp-color-card: #ffffff;
@@ -139,7 +139,7 @@
   --erp-tab-indicator-height: 3px;
   --erp-tab-indicator-radius: 999px;
   --erp-tab-indicator-inset: 12px;
-  --erp-tab-indicator-glow: 0 1px 5px rgba(79, 175, 255, 0.28);
+  --erp-tab-indicator-glow: 0 1px 5px rgba(40, 153, 245, 0.32);
 
   /* Aliases legados — módulos existentes */
   --emp-text: var(--erp-color-text);
@@ -224,12 +224,14 @@
   overflow: visible !important;
 }
 
-/* Faixa de painéis — borda inferior suave; espaço antes dos cards */
+/* Faixa de painéis — modelo card (mesma moldura dos cards de lançamento) */
 .cadastro-emp-scope .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch,
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
-  background: transparent !important;
-  border-bottom: 1px solid var(--erp-color-card-border) !important;
-  padding-bottom: 2px !important;
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  padding: 4px 8px 2px !important;
   margin-bottom: 0 !important;
 }
 
@@ -295,11 +297,29 @@
 .cadastro-emp-scope .emp-header-ctrl,
 .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
   border-radius: var(--erp-radius-toolbar-btn) !important;
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
+  box-shadow: var(--erp-shadow-card) !important;
   transition:
     background var(--erp-ds-transition),
     border-color var(--erp-ds-transition),
     color var(--erp-ds-transition),
     box-shadow var(--erp-ds-transition);
+}
+
+.cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):hover:not(:disabled),
+.cadastro-emp-scope .emp-header-ctrl:hover:not(:disabled),
+.cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active):hover:not(:disabled) {
+  background: var(--erp-color-card) !important;
+  border-color: var(--erp-color-card-border) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search,
+.cadastro-emp-scope .emp-toolbar-counter {
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
+  box-shadow: var(--erp-shadow-card) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
@@ -347,28 +367,19 @@
 .cadastro-emp-scope .emp-form-card-title {
   position: relative;
   min-height: 30px !important;
-  padding: 4px 12px 4px calc(12px + var(--erp-card-accent-width)) !important;
+  padding: 4px 12px !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  color: var(--erp-color-label) !important;
-  background: var(--erp-color-card-header) !important;
+  color: var(--erp-color-primary) !important;
+  background: var(--erp-color-card) !important;
   border-bottom: none !important;
   border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
   overflow: visible !important;
 }
 
-/* Faixa lateral: colada na borda, curva no canto do card + pontas arredondadas (estilo aba) */
 .cadastro-emp-scope .emp-form-card-title::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: var(--erp-card-accent-width);
-  border-radius: var(--erp-radius-card) var(--erp-tab-indicator-radius) var(--erp-tab-indicator-radius) 0;
-  background: var(--erp-color-primary);
-  box-shadow: var(--erp-tab-indicator-glow);
-  pointer-events: none;
+  display: none !important;
+  content: none !important;
 }
 
 .cadastro-emp-scope .emp-form-card--virtual {
@@ -713,8 +724,8 @@
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover {
-  color: var(--erp-color-label) !important;
-  -webkit-text-fill-color: var(--erp-color-label) !important;
+  color: var(--erp-color-primary) !important;
+  -webkit-text-fill-color: var(--erp-color-primary) !important;
   background: transparent !important;
   font-weight: 600 !important;
   border: none !important;

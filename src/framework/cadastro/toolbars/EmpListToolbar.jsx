@@ -138,11 +138,11 @@ export default function EmpListToolbar({
                 <DropdownMenuItem onClick={onConfigColumns} disabled={!onConfigColumns} className="h-8 cursor-pointer gap-2 text-xs px-2">Configurar colunas</DropdownMenuItem>
                 <div className="flex items-center">
                   <DropdownMenuItem onClick={onExportExcel} disabled={!onExportExcel} className="h-8 flex-1 cursor-pointer gap-2 text-xs px-2">Exportar Excel</DropdownMenuItem>
-                  <button type="button" onClick={onConfigExportExcel} disabled={!onConfigExportExcel} className="h-8 w-8 flex items-center justify-center text-[#4fafff] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar Excel"><EmpToolbarIcon icon={MoreHorizontal} /></button>
+                  <button type="button" onClick={onConfigExportExcel} disabled={!onConfigExportExcel} className="h-8 w-8 flex items-center justify-center text-[#2899f5] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar Excel"><EmpToolbarIcon icon={MoreHorizontal} /></button>
                 </div>
                 <div className="flex items-center">
                   <DropdownMenuItem onClick={onExportPdf} disabled={!onExportPdf} className="h-8 flex-1 cursor-pointer gap-2 text-xs px-2">Exportar PDF</DropdownMenuItem>
-                  <button type="button" onClick={onConfigExportPdf} disabled={!onConfigExportPdf} className="h-8 w-8 flex items-center justify-center text-[#4fafff] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar PDF"><EmpToolbarIcon icon={MoreHorizontal} /></button>
+                  <button type="button" onClick={onConfigExportPdf} disabled={!onConfigExportPdf} className="h-8 w-8 flex items-center justify-center text-[#2899f5] hover:bg-sky-50 rounded-md disabled:opacity-40" title="Configurar PDF"><EmpToolbarIcon icon={MoreHorizontal} /></button>
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>

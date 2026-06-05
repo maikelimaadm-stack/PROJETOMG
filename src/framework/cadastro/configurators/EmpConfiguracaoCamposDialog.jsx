@@ -64,7 +64,7 @@ const FILTER_POPOVER_WIDTH = 272;
 const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 const CAMPO_CONFIG_FIELD_BOX =
-  "border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
+  "border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#2899f5] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none [&_textarea]:min-h-[48px] [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0";
 
 function Field({ label, children, required = false, wide = false, compact = false, medium = false }) {
   return (
@@ -653,7 +653,7 @@ export default function EmpConfiguracaoCamposDialog({
                     Empresa Específica
                   </label>
                   {form.aplicacao_modo === "empresa" ? (
-                    <div className="h-7 w-full max-w-md border border-slate-300 rounded-[2px] bg-white focus-within:border-[#4fafff]">
+                    <div className="h-7 w-full max-w-md border border-slate-300 rounded-[2px] bg-white focus-within:border-[#2899f5]">
                       <EmpAutocomplete
                         variant="select"
                         items={empresas.map((empresa) => ({
@@ -735,7 +735,7 @@ export default function EmpConfiguracaoCamposDialog({
                                 }}
                                 role="button"
                                 tabIndex={0}
-                                className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#4fafff] ${isColFiltered || isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"}`}
+                                className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#2899f5] ${isColFiltered || isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"}`}
                                 title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
                                 onClick={(event) => {
                                   event.stopPropagation();

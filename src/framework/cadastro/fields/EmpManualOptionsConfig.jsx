@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Badge } from "@/shared/ui/badge";
 
 function Field({ label, children }) {
-  return <div className="grid grid-cols-[190px_minmax(0,1fr)] items-start gap-1"><label className="text-[12px] text-[#1a1f26] text-right leading-none pt-1">{label}:</label><div className="min-h-[92px] border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff] transition-colors overflow-hidden [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0">{children}</div></div>;
+  return <div className="grid grid-cols-[190px_minmax(0,1fr)] items-start gap-1"><label className="text-[12px] text-[#1a1f26] text-right leading-none pt-1">{label}:</label><div className="min-h-[92px] border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#2899f5] transition-colors overflow-hidden [&_textarea]:rounded-none [&_textarea]:border-0 [&_textarea]:shadow-none [&_textarea]:focus-visible:ring-0">{children}</div></div>;
 }
 
 const normalizeOption = (value) => String(value || "").trim().toUpperCase();

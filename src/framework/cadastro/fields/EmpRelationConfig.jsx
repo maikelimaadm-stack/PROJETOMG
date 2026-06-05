@@ -3,7 +3,7 @@ import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { ENTIDADES_RELACIONAIS } from "./empFieldConfigOptions";
 
 function Field({ label, children }) {
-  return <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1"><label className="text-[12px] text-[#1a1f26] text-right leading-none">{label}:</label><div className="h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff] transition-colors overflow-visible [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_.erp-field-select-chevron-btn]:h-[22px] [&_.emp-form-lookup-btn]:min-h-[22px]">{children}</div></div>;
+  return <div className="grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1"><label className="text-[12px] text-[#1a1f26] text-right leading-none">{label}:</label><div className="h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#2899f5] transition-colors overflow-visible [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_.erp-field-select-chevron-btn]:h-[22px] [&_.emp-form-lookup-btn]:min-h-[22px]">{children}</div></div>;
 }
 
 export default function EmpRelationConfig({ form, updateForm, mode = "select" }) {
