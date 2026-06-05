@@ -17,8 +17,11 @@ const empRepository = {
 
   async create(data) {
     const payload = stripEmpresaPersistPayload(data);
-    const created = await EmpresaApi.createEmpresa(payload);
-    return normalizeEmpresaRecord(created, payload);
+    const response = await EmpresaApi.createEmpresa(payload);
+    return {
+      item: normalizeEmpresaRecord(response?.item, payload),
+      contadores: response?.contadores || null,
+    };
   },
 
   async update(id, data) {
@@ -28,7 +31,8 @@ const empRepository = {
   },
 
   async delete(id) {
-    return EmpresaApi.deleteEmpresa(id);
+    const response = await EmpresaApi.deleteEmpresa(id);
+    return { ok: true, contadores: response?.contadores || null };
   },
 
   async listCamposPersonalizados(mode = "aplicavel") {

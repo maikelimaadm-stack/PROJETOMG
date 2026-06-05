@@ -8,7 +8,7 @@ const EMPTY_ITEM = { field: "", operator: "*" };
 const fieldRow = "grid grid-cols-[190px_minmax(0,1fr)] items-center gap-1";
 const fieldLabel = "text-[12px] text-[#1a1f26] text-right leading-none";
 const fieldBox =
-  "h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff] transition-colors overflow-visible";
+  "h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#2899f5] transition-colors overflow-visible";
 const inputCls =
   "border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs uppercase";
 

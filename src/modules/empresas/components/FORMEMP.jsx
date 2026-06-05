@@ -15,6 +15,7 @@ import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
+import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
 import {
   countKnownLayoutFields,
   ensureLayoutFields,
@@ -22,8 +23,11 @@ import {
   pickLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
-import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
-import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
+import {
+  buildRequiredFormFieldErrors,
+  countRequiredFormFields,
+} from "@/framework/cadastro/layouts/empFormLayoutMetrics";
+import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
@@ -52,6 +56,7 @@ export default function FORMEMP({
   initialData,
   isEditing,
   recordKey,
+  actionsLocked = false,
 }) {
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
@@ -126,6 +131,8 @@ export default function FORMEMP({
     recordKey,
     initialData?.id,
     initialData?.codempresa,
+    initialData?.id_global,
+    initialData?._isPersisting,
     initialData?.updatedAt,
     initialData?._isDuplicate,
     isEditing,
@@ -171,12 +178,14 @@ export default function FORMEMP({
     if (isReadOnly) return;
     const normalized = UPPER_FIELDS.includes(field) && typeof value === "string" ? value.toUpperCase() : value;
     setErrors((prev) => ({ ...prev, [field]: false }));
+    clearRequiredFieldErrors();
     setFormData((prev) => ({ ...prev, [field]: normalized }));
   };
 
   const handleCustomChange = (fieldName, value) => {
     if (isReadOnly) return;
     setErrors((prev) => ({ ...prev, [`campos_personalizados.${fieldName}`]: false }));
+    clearRequiredFieldErrors();
     setFormData((prev) => {
       const next = {
         ...prev,
@@ -276,7 +285,23 @@ export default function FORMEMP({
   const dynamicFields = useMemo(() => [
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "select", required: true, compact: true, errorKey: "tipo_pessoa", render: renderTipoPessoaSelect },
     { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
-    { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", widthType: "CODIGO", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
+    {
+      id: "codempresa",
+      name: "codempresa",
+      label: "Cód. Empresa",
+      type: "text",
+      widthType: "CODIGO",
+      compact: true,
+      readOnly: true,
+      render: () => (
+        <Input
+          value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
+          readOnly
+          className={inputClass}
+          placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
+        />
+      ),
+    },
     { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
     { id: "status", name: "status", label: "Ativa", type: "text", widthType: "SIM_NAO", compact: true, render: renderStatusToggle },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", medium: true, uppercase: true, placeholder: "NOME FANTASIA" },
@@ -331,7 +356,7 @@ export default function FORMEMP({
 
 
   const requiredFieldStats = useMemo(() => {
-    if (!activeLayoutConfig?.layout) return { total: 0, filled: 0, pending: 0 };
+    if (!activeLayoutConfig?.layout) return { total: 0, filled: 0, pending: 0, pendingFields: [] };
     const panelIds = tabs.map((panel) => panel.id);
     return countRequiredFormFields({
       panelIds,
@@ -344,11 +369,6 @@ export default function FORMEMP({
       nativeRequiredFieldNames: REQUIRED_FIELDS,
     });
   }, [tabs, activeLayoutConfig, dynamicFields, formData]);
-
-  const requiredCounterTone =
-    requiredFieldStats.total > 0 && requiredFieldStats.filled >= requiredFieldStats.total
-      ? "complete"
-      : "incomplete";
 
   const applyLayoutConfig = (source, options) => applyLayoutConfigFromEngine(source, options);
 
@@ -409,9 +429,16 @@ export default function FORMEMP({
   };
 
   const validateForm = () => {
-    const nextErrors = {};
-    REQUIRED_FIELDS.forEach((field) => {
-      if (!String(formData?.[field] || "").trim()) nextErrors[field] = true;
+    const panelIds = tabs.map((panel) => panel.id);
+    const nextErrors = buildRequiredFormFieldErrors({
+      panelIds,
+      layout: activeLayoutConfig?.layout,
+      fields: dynamicFields,
+      hiddenFieldIds: activeLayoutConfig?.hiddenFieldIds || [],
+      requiredFieldIds: activeLayoutConfig?.requiredFieldIds || [],
+      visibilityRules: activeLayoutConfig?.visibilityRules || {},
+      values: formData,
+      nativeRequiredFieldNames: REQUIRED_FIELDS,
     });
     const customValidation = campoEngine.buildValidationSchema(camposPersonalizadosForm).safeParse(formData.campos_personalizados || {});
     if (!customValidation.success) {
@@ -423,13 +450,15 @@ export default function FORMEMP({
     setErrors(nextErrors);
     clearRequiredFieldErrors();
     if (Object.keys(nextErrors).length === 0) return true;
-    reportRequiredFieldErrors(nextErrors);
+    const isMobileViewport =
+      typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+    reportRequiredFieldErrors(nextErrors, { focus: !isMobileViewport });
     return false;
   };
 
   const handleSubmit = (event) => {
     if (event?.preventDefault) event.preventDefault();
-    if (isReadOnly) return;
+    if (isReadOnly || actionsLocked) return;
     if (!validateForm()) return;
     const calculated = campoEngine.aplicarCamposCalculados ? campoEngine.aplicarCamposCalculados(formData, camposPersonalizadosForm) : formData;
     const { _isDuplicate, ...clean } = { ...formData, campos_personalizados: calculated.campos_personalizados || {} };
@@ -437,39 +466,70 @@ export default function FORMEMP({
     onSubmit(clean);
   };
 
-  const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
-  const recordHeaderTitle = useMemo(() => {
-    const code = String(formData.codempresa || "").trim();
-    const name = String(formData.razao_social || "").trim();
-    if (code && name) return `${code} - ${name}`;
-    if (code) return code;
-    if (name) return name;
-    if (isDuplicating) return "Duplicar empresa";
-    if (!isEditing) return "Nova empresa";
+  const recordMeta = useMemo(() => {
+    const codigo =
+      formData.codempresa != null && String(formData.codempresa).trim() !== ""
+        ? formData.codempresa
+        : null;
+    const nome = String(formData.razao_social || "").trim() || null;
+
+    if (codigo && nome) return { codigo, nome };
+    if (isDuplicating && nome) return { codigo: null, nome };
+    if (isDuplicating) return { codigo: null, nome: "Duplicar empresa" };
+    if (!isEditing) return { codigo: null, nome: "Nova empresa" };
+    if (nome) return { codigo, nome };
     return null;
   }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+
+  const operationLabel = useMemo(
+    () =>
+      resolveRecordOperationLabel({
+        isEditing,
+        editMode,
+        isDuplicating,
+        isSaving: actionsLocked,
+      }),
+    [isEditing, editMode, isDuplicating, actionsLocked]
+  );
+
+  const showRequiredCounter = !isReadOnly;
 
   useEffect(() => {
     if (layoutConfigOpen) {
       setPageHeader({
+        recordMeta: null,
         recordTitle: null,
         operationLabel: "Configuração",
         contextSuffix: "Configuração de layout",
+        requiredStatus: null,
       });
       return;
     }
 
     setPageHeader({
-      recordTitle: recordHeaderTitle,
+      recordMeta,
+      recordTitle: null,
       operationLabel,
       contextSuffix: null,
+      requiredStatus: showRequiredCounter
+        ? {
+            visible: true,
+            filled: requiredFieldStats.filled,
+            total: requiredFieldStats.total,
+            pendingFields: requiredFieldStats.pendingFields,
+          }
+        : null,
     });
   }, [
-    recordHeaderTitle,
-    operationLabel,
+    recordMeta,
     layoutConfigOpen,
+    operationLabel,
+    showRequiredCounter,
+    requiredFieldStats.filled,
+    requiredFieldStats.total,
+    requiredFieldStats.pendingFields,
     setPageHeader,
   ]);
 
@@ -506,7 +566,7 @@ export default function FORMEMP({
   }
 
   return (
-    <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <style>{`
           .form-scroll-container {
@@ -558,6 +618,7 @@ export default function FORMEMP({
               onDelete={onDelete}
               onDuplicate={onDuplicate}
               onRefresh={onRefresh}
+              actionsLocked={actionsLocked}
               filterOpen={filterOpen}
               filterActive={filterActive}
               onToggleFilter={onToggleFilter}
@@ -579,16 +640,17 @@ export default function FORMEMP({
                 onChange={setActiveTab}
                 systemPanelIds={empresasCadastroConfig.systemPanelIds}
                 trailing={
-                  <EmpBubbleCounter
-                    value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
-                    title="Campos obrigatórios preenchidos"
-                    tone={requiredCounterTone}
-                    className="emp-toolbar-bubble-counter"
+                  <FormValidationStatus
+                    visible={showRequiredCounter}
+                    filled={requiredFieldStats.filled}
+                    total={requiredFieldStats.total}
+                    pendingFields={requiredFieldStats.pendingFields}
+                    className="emp-form-tabs-required-desktop"
                   />
                 }
               />
 
-              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp min-h-[380px] w-full min-w-0 w-full max-w-full max-w-none">
+              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <RenderEngine
                     panels={tabs}
@@ -613,6 +675,25 @@ export default function FORMEMP({
           </div>
         </div>
         </CadSplitLayout>
+        {editMode ? (
+          <div className="emp-form-mobile-footer" role="toolbar" aria-label="Ações do formulário">
+            <button
+              type="button"
+              className="emp-form-mobile-footer__btn emp-toolbar-btn emp-toolbar-btn-labeled"
+              onClick={onCancel}
+              disabled={actionsLocked}
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="emp-form-mobile-footer__btn emp-form-mobile-footer__btn--primary emp-toolbar-btn emp-toolbar-btn-labeled emp-toolbar-btn-new"
+              disabled={actionsLocked}
+            >
+              Salvar
+            </button>
+          </div>
+        ) : null}
       </form>
     </div>
   );

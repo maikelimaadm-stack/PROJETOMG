@@ -7,13 +7,27 @@ import { registerAnexosRoutes } from "../modules/anexos/routes.js";
 import { registerPreferencesRoutes } from "../modules/preferences/routes.js";
 import { registerCadcpsRoutes } from "../modules/cadcps/routes.js";
 import { registerCadastroRoutes } from "../modules/cadastro/routes.js";
+import { registerMetricsRoutes } from "../modules/metrics/routes.js";
+import { registerClienteModuloRoutes } from "../modules/clienteModulo/routes.js";
 import { verifyDatabaseConnection } from "../database/prismaClient.js";
 import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "../integrations/supabase/adminClient.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const modulesDir = path.resolve(__dirname, "..", "modules");
-const coreModules = new Set(["auth", "empresas", "anexos", "audit", "cadcps"]);
+const coreModules = new Set([
+  "auth",
+  "empresas",
+  "anexos",
+  "audit",
+  "cadcps",
+  "cadastro",
+  "clienteModulo",
+  "metrics",
+  "preferences",
+  "idGlobal",
+  "sequencias",
+]);
 
 const withTimeout = async (operation, timeoutMs, timeoutMessage) => {
   const timeout = new Promise((_, reject) => {
@@ -59,6 +73,7 @@ export const registerRoutes = async (app) => {
     const status = {
       service: "erp-backend",
       db: { configured: Boolean(process.env.DATABASE_URL), connected: false, error: null },
+      migration: { restructureApplied: null, directUrlConfigured: Boolean(process.env.DIRECT_URL) },
       auth: {
         jwtConfigured: Boolean(process.env.JWT_SECRET),
       },
@@ -77,6 +92,35 @@ export const registerRoutes = async (app) => {
         "Timeout ao verificar conexão com PostgreSQL"
       );
       status.db.connected = true;
+      try {
+        const { getMissingSchemaItems } = await import("../../scripts/ensureSchema.js");
+        const client = (await import("../database/prismaClient.js")).getPrismaClient();
+        const missing = await getMissingSchemaItems(client);
+        status.migration.restructureApplied = missing.length === 0;
+        if (missing.length > 0) {
+          status.migration.missingSchema = missing;
+        }
+
+        const [clientes, empresas, sequencias] = await Promise.all([
+          client.cliente.count(),
+          client.empresa.count(),
+          client.entidadeCodigoSequencia.findMany({
+            select: { cliente_id: true, entity_name: true, next_codigo: true },
+            take: 20,
+          }),
+        ]);
+        status.data = {
+          clientes,
+          empresas,
+          sequencias,
+          resetHint:
+            clientes > 1 || empresas > 0
+              ? "Dados antigos detectados. Rode resetAndSeedMaike.sql no Supabase OU defina BOOT_RESET_MAIKE=true no Railway (um deploy) e remova depois."
+              : null,
+        };
+      } catch {
+        status.migration.restructureApplied = false;
+      }
     } catch (error) {
       status.db.error = error.message || "Falha na conexão com PostgreSQL";
     }
@@ -96,8 +140,11 @@ export const registerRoutes = async (app) => {
       }
     }
 
+    // Railway healthcheck: sempre HTTP 200 se o processo está vivo
     return {
-      ok: status.db.connected,
+      ok: true,
+      alive: true,
+      ready: status.db.connected,
       ...status,
     };
   });
@@ -108,6 +155,9 @@ export const registerRoutes = async (app) => {
     registerCadcpsRoutes(app),
     registerEmpresasRoutes(app),
     registerAnexosRoutes(app),
+    registerMetricsRoutes(app),
+    registerClienteModuloRoutes(app),
+    registerCadastroRoutes(app),
   ]);
   await registerGeneratedModuleRoutes(app);
 };

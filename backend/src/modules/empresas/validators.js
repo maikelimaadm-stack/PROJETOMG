@@ -1,8 +1,4 @@
 import { z } from "zod";
-import {
-  campoPersonalizadoCreateSchema,
-  campoPersonalizadoUpdateSchema,
-} from "../campos/campoPersonalizadoValidators.js";
 
 const baseEmpresaSchema = z.object({
   codempresa: z.number().int().positive().optional(),
@@ -32,8 +28,6 @@ const baseEmpresaSchema = z.object({
 
 export const empresaCreateSchema = baseEmpresaSchema;
 export const empresaUpdateSchema = baseEmpresaSchema.partial();
-export const campoPersonalizadoSchema = campoPersonalizadoCreateSchema;
-export const campoUpdateSchema = campoPersonalizadoUpdateSchema;
 
 export const parseOrThrow = (schema, payload, fallbackMessage) => {
   const parsed = schema.safeParse(payload || {});

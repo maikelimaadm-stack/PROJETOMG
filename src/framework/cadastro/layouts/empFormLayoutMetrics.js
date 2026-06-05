@@ -62,7 +62,15 @@ const isFieldVisible = (field, { hiddenFieldIds = [], visibilityRules = {}, fiel
   return typeof field.showWhen === "function" ? field.showWhen(values, {}) : true;
 };
 
-export function countRequiredFormFields({
+const getFieldErrorKey = (field) => {
+  if (field?.errorKey) return field.errorKey;
+  if (String(field?.id || "").startsWith("custom:")) {
+    return `campos_personalizados.${field.name}`;
+  }
+  return field.name;
+};
+
+function iterateRequiredFormFields({
   panelIds = [],
   layout = {},
   fields = [],
@@ -71,12 +79,10 @@ export function countRequiredFormFields({
   visibilityRules = {},
   values = {},
   nativeRequiredFieldNames = [],
+  onRequiredField,
 }) {
   const fieldMap = new Map(fields.map((field) => [field.id, field]));
   const seen = new Set();
-  let total = 0;
-  let filled = 0;
-
   const flatLayout = flattenV3LayoutToV2(coerceLayoutToV3(layout));
 
   panelIds.forEach((panelId) => {
@@ -88,10 +94,66 @@ export function countRequiredFormFields({
       if (!isFieldVisible(field, { hiddenFieldIds, visibilityRules, fields, values })) return;
       if (!isFieldRequired(field, requiredFieldIds, nativeRequiredFieldNames)) return;
 
-      total += 1;
-      if (!isEmptyRequiredValue(getFieldValue(field, values), field)) filled += 1;
+      onRequiredField(field, getFieldValue(field, values));
     });
   });
+}
 
-  return { total, filled, pending: Math.max(0, total - filled) };
+export function buildRequiredFormFieldErrors(params) {
+  const errors = {};
+
+  iterateRequiredFormFields({
+    ...params,
+    onRequiredField: (field, value) => {
+      if (!isEmptyRequiredValue(value, field)) return;
+      errors[getFieldErrorKey(field)] = true;
+    },
+  });
+
+  return errors;
+}
+
+export function countRequiredFormFields({
+  panelIds = [],
+  layout = {},
+  fields = [],
+  hiddenFieldIds = [],
+  requiredFieldIds = [],
+  visibilityRules = {},
+  values = {},
+  nativeRequiredFieldNames = [],
+}) {
+  let total = 0;
+  let filled = 0;
+  const pendingFields = [];
+
+  iterateRequiredFormFields({
+    panelIds,
+    layout,
+    fields,
+    hiddenFieldIds,
+    requiredFieldIds,
+    visibilityRules,
+    values,
+    nativeRequiredFieldNames,
+    onRequiredField: (field, value) => {
+      total += 1;
+      if (!isEmptyRequiredValue(value, field)) {
+        filled += 1;
+        return;
+      }
+
+      pendingFields.push({
+        id: field.id,
+        label: String(field.label || field.name || field.id).trim(),
+      });
+    },
+  });
+
+  return {
+    total,
+    filled,
+    pending: Math.max(0, total - filled),
+    pendingFields,
+  };
 }

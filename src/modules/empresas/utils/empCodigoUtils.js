@@ -4,7 +4,8 @@ const SYSTEM_FIELDS = new Set([
   "created_date",
   "updated_date",
   "created_by",
-  "_isDuplicate"
+  "_isDuplicate",
+  "_isPersisting",
 ]);
 
 export const stripEmpresaPersistPayload = (data = {}) => {

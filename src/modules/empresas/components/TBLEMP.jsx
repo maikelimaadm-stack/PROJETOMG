@@ -9,6 +9,11 @@ import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import {
+  loadColumnOrder,
+  loadVisibleColumns,
+} from "@/framework/cadastro/tables/empColumnLayout";
 import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
@@ -68,26 +73,42 @@ export default function TBLEMP({
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
   const [frozenColumnCount, setFrozenColumnCount] = useState(() => { const s = Number(localStorage.getItem(FROZEN_KEY) || 0); return Number.isFinite(s) ? s : 0; });
-  const [colunasOrdem, setColunasOrdem] = useState(() => {
-    const saved = localStorage.getItem(ORDER_KEY);
-    if (!saved) return COLUNAS_BASE.map((c) => c.id);
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return COLUNAS_BASE.map((c) => c.id);
-    }
-  });
-  const [colunasVisiveis, setColunasVisiveis] = useState(() => {
-    const saved = localStorage.getItem(VISIBLE_KEY);
-    const defaultVisible = COLUNAS_BASE.filter((c) => c.default).map((c) => c.id);
-    if (!saved) return defaultVisible;
-    try {
-      return Array.from(new Set([...JSON.parse(saved), ...defaultVisible]));
-    } catch {
-      return defaultVisible;
-    }
-  });
+  const [colunasOrdem, setColunasOrdem] = useState(() => loadColumnOrder(ORDER_KEY, COLUNAS_BASE));
+  const [colunasVisiveis, setColunasVisiveis] = useState(() => loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE));
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
+
+  useEffect(() => {
+    const mergedOrder = loadColumnOrder(ORDER_KEY, COLUNAS_BASE);
+    const mergedVisible = loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE);
+    const savedOrder = localStorage.getItem(ORDER_KEY);
+    const savedVisible = localStorage.getItem(VISIBLE_KEY);
+    let shouldPersist = false;
+
+    if (savedOrder) {
+      try {
+        const parsed = JSON.parse(savedOrder);
+        if (!parsed.includes("id_global") || parsed[0] !== "id_global") shouldPersist = true;
+      } catch {
+        shouldPersist = true;
+      }
+    }
+
+    if (savedVisible) {
+      try {
+        const parsed = JSON.parse(savedVisible);
+        if (!parsed.includes("id_global")) shouldPersist = true;
+      } catch {
+        shouldPersist = true;
+      }
+    }
+
+    if (shouldPersist) {
+      localStorage.setItem(ORDER_KEY, JSON.stringify(mergedOrder));
+      localStorage.setItem(VISIBLE_KEY, JSON.stringify(mergedVisible));
+      setColunasOrdem(mergedOrder);
+      setColunasVisiveis(mergedVisible);
+    }
+  }, []);
 
   const lastRowClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const rowClickSuppressRef = useRef({ id: null, until: 0 });
@@ -187,6 +208,7 @@ export default function TBLEMP({
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
 
   const getFieldValue = (emp, colId) => {
+    if (colId === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "-";
     if (colId === "codempresa") return emp.codempresa ?? "-";
     if (colId === "razao_social") return emp.razao_social || "-";
     if (colId === "nome_fantasia") return emp.nome_fantasia || "-";
@@ -216,7 +238,7 @@ export default function TBLEMP({
 
   const resolveColumnAlign = (col) => {
     if (col?.tipo === "date") return "center";
-    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codempresa" || col?.id === "custom:valor") return "right";
+    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "id_global" || col?.id === "codempresa" || col?.id === "custom:valor") return "right";
     return "left";
   };
 
@@ -233,7 +255,11 @@ export default function TBLEMP({
     if (align === "center") return "justify-center";
     return "justify-start";
   };
-  const getComparableValue = (emp, col) => { if (col.id === "codempresa") return Number(emp.codempresa || 0); return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id); };
+  const getComparableValue = (emp, col) => {
+    if (col.id === "id_global") return Number(emp.id_global || 0);
+    if (col.id === "codempresa") return Number(emp.codempresa || 0);
+    return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id);
+  };
 
   const empresaPassaFiltros = (emp, excludeColId = null) => {
     const termo = String(searchTerm || "").toLowerCase().trim();
@@ -295,6 +321,7 @@ export default function TBLEMP({
   const empresasOrdenadas = useMemo(() => {
     const sorted = [...empresasFiltradas];
     sorted.sort((a, b) => {
+      if (sortConfig.key === "id_global") { const aV = Number(a.id_global || 0); const bV = Number(b.id_global || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
       if (sortConfig.key === "codempresa") { const aV = Number(a.codempresa || 0); const bV = Number(b.codempresa || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
       const aV = String(getFieldValue(a, sortConfig.key)).toLowerCase();
       const bV = String(getFieldValue(b, sortConfig.key)).toLowerCase();
@@ -726,7 +753,7 @@ export default function TBLEMP({
   };
 
   const formatTotalValue = (valor, col) => {
-    const isInt = col.id === "codempresa";
+    const isInt = col.id === "id_global" || col.id === "codempresa";
     const places = col.decimal_places ?? 2;
     return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
   };
@@ -800,7 +827,7 @@ export default function TBLEMP({
               }}
               role="button"
               tabIndex={0}
-              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#4fafff] ${
+              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#2899f5] ${
                 isColFiltered || isFilterOpen
                   ? "opacity-100 pointer-events-auto"
                   : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
@@ -920,7 +947,7 @@ export default function TBLEMP({
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
                           return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
+                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
                               {getFieldValue(emp, col.id)}
                             </TableCell>
                           );

@@ -2,6 +2,15 @@ import { getPrismaClient } from "../../../database/prismaClient.js";
 import { auditService } from "../../audit/auditService.js";
 import { svcCps } from "../../cadcps/svcCps.js";
 import { toLegacyCampoList } from "../../cadcps/campoLegacyAdapter.js";
+import { runTransactionWithRetry } from "../../../database/transactionRetry.js";
+import {
+  registerRegistroGlobal,
+  reserveNextIdGlobal,
+} from "../../idGlobal/idGlobalService.js";
+import {
+  ENTITY_CODIGO_EMPRESA,
+  reserveNextCodigo,
+} from "../../sequencias/entidadeCodigoService.js";
 
 const EMPRESAS_ENTITY_NAME = "EmpresaCadastro";
 
@@ -16,6 +25,7 @@ const MAX_PAGE_SIZE = 200;
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
+  id_global: { id_global: "asc" },
   codempresa: { codempresa: "asc" },
   razao_social: { razao_social: "asc" },
   nome_fantasia: { nome_fantasia: "asc" },
@@ -36,6 +46,18 @@ const buildSearchWhere = (search) => {
   const value = String(search || "").trim();
   if (!value) return null;
 
+  if (/^\d+$/.test(value)) {
+    const numericSearch = Number(value);
+    if (Number.isFinite(numericSearch)) {
+      return {
+        OR: [
+          { id_global: Math.floor(numericSearch) },
+          { codempresa: Math.floor(numericSearch) },
+        ],
+      };
+    }
+  }
+
   const numericSearch = Number(value);
   const or = [
     { razao_social: { contains: value, mode: "insensitive" } },
@@ -46,6 +68,7 @@ const buildSearchWhere = (search) => {
   ];
 
   if (Number.isFinite(numericSearch)) {
+    or.unshift({ id_global: Math.floor(numericSearch) });
     or.push({ codempresa: Math.floor(numericSearch) });
   }
 
@@ -98,25 +121,14 @@ const buildCadastroScopeWhere = (scope, extra = {}) => {
   return { AND: and };
 };
 
-const runSerializableWithRetry = async (prisma, operation, attempts = 3) => {
-  let currentAttempt = 0;
-  while (currentAttempt < attempts) {
-    try {
-      return await prisma.$transaction((tx) => operation(tx), {
-        isolationLevel: "Serializable",
-      });
-    } catch (error) {
-      currentAttempt += 1;
-      const isRetryable = String(error?.code || "") === "P2034";
-      if (!isRetryable || currentAttempt >= attempts) {
-        throw error;
-      }
-    }
-  }
-  throw new Error("Falha ao executar transação serializável.");
-};
-
 export const empresaRepository = {
+  async count(scope) {
+    const prisma = getPrismaClient();
+    return prisma.empresa.count({
+      where: buildCadastroScopeWhere(scope),
+    });
+  },
+
   async list({ scope, page = 1, pageSize = DEFAULT_PAGE_SIZE, search = "", sortBy, sortDir, filters = {} }) {
     const prisma = getPrismaClient();
     const safePage = toPositiveInt(page, 1);
@@ -164,65 +176,37 @@ export const empresaRepository = {
 
   async create(data, scope) {
     const prisma = getPrismaClient();
-    const created = await runSerializableWithRetry(prisma, async (tx) => {
-      let codigo = Number(data.codempresa || 0);
-      if (!Number.isFinite(codigo) || codigo <= 0) {
-        const sequence = await tx.empresaCodigoSequencia.findUnique({
-          where: { cliente_id: scope.clienteId },
-          select: { next_codigo: true },
-        });
-        if (!sequence) {
-          const maxCodigo = await tx.empresa.aggregate({
-            where: { tenant_id: scope.clienteId },
-            _max: { codempresa: true },
-          });
-          codigo = Number(maxCodigo._max.codempresa || 0) + 1;
-          await tx.empresaCodigoSequencia.create({
-            data: {
-              cliente_id: scope.clienteId,
-              next_codigo: codigo + 1,
-            },
-          });
-        } else {
-          const updatedSequence = await tx.empresaCodigoSequencia.update({
-            where: { cliente_id: scope.clienteId },
-            data: { next_codigo: { increment: 1 } },
-            select: { next_codigo: true },
-          });
-          codigo = Number(updatedSequence.next_codigo) - 1;
-        }
-      } else {
-        const existingCode = await tx.empresa.findFirst({
-          where: { tenant_id: scope.clienteId, codempresa: codigo },
-          select: { id: true },
-        });
-        if (existingCode) {
-          const conflictError = new Error(
-            `Código de empresa ${codigo} já existe para este cliente.`
-          );
-          conflictError.statusCode = 409;
-          throw conflictError;
-        }
-      }
-
-      return tx.empresa.create({
+    const created = await runTransactionWithRetry(prisma, async (tx) => {
+      // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
+      const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
+      const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
+      const record = await tx.empresa.create({
         data: {
           ...data,
+          id_global: idGlobal,
           codempresa: codigo,
           cliente_id: scope.clienteId,
-          tenant_id: scope.clienteId,
         },
       });
+      await registerRegistroGlobal(tx, {
+        clienteId: scope.clienteId,
+        idGlobal,
+        entityName: "Empresa",
+        registroId: record.id,
+      });
+      return record;
     });
     void auditService.log({
       scope,
       entityName: "Empresa",
       action: "CREATE",
       entityId: created.id,
+      idGlobal: created.id_global,
       empresaId: created.id,
       codigoEmpresa: created.codempresa,
       nomeEmpresa: created.razao_social,
       payload: {
+        id_global: created.id_global,
         codempresa: created.codempresa,
         razao_social: created.razao_social,
         status: created.status,

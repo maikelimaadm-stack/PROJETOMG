@@ -1,0 +1,9 @@
+export const MODULOS_PADRAO = [
+  "EMPRESAS",
+  "PRODUTOS",
+  "PECUARIA",
+  "FINANCEIRO",
+  "ESTOQUE",
+  "COMPRAS",
+  "VENDAS",
+];

@@ -48,77 +48,91 @@ export default function EmpRecordToolbar({
   searchValue = "",
   onSearchChange,
   showSearch = false,
-  showRecordNavigation = true
+  showRecordNavigation = true,
+  actionsLocked = false,
 }) {
-  const canNavigate = total > 0;
+  const canNavigate = total > 0 && !actionsLocked;
   const isFirst = currentIndex <= 0;
   const isLast = currentIndex >= total - 1;
+  const recordCounter =
+    total > 0 ? `${Math.min(Math.max(currentIndex + 1, 1), total)}/${total}` : "0/0";
 
   return (
     <div className="emp-toolbar shadow-none overflow-hidden">
-      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap px-2 py-1.5">
-        {onBack && (
-          <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
-        )}
-        <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
-        {!showSaveActions && (
-          <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
-            <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
-            <span>Novo</span>
-          </ToolbarBtn>
-        )}
-        {onToggleFilter && (
-          <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
-            <EmpToolbarIcon icon={Filter} />
-            {filterActive && (
-              <span onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }} className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-white text-red-600 border border-red-500 text-[10px] leading-[12px] font-bold">×</span>
-            )}
-          </ToolbarBtn>
-        )}
-        {showEditAction && (
-          <ToolbarBtn onClick={onEditRecord} className={LABELED_BTN_CLASS} title="Editar">
-            <EmpToolbarIcon icon={Pencil} />
-            <span>Editar</span>
-          </ToolbarBtn>
-        )}
-        {showDeleteDuplicateActions && (
-          <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} disabled={!canNavigate} title="Excluir">
-            <EmpToolbarIcon icon={Trash2} />
-            <span>Excluir</span>
-          </ToolbarBtn>
-        )}
-        {showDeleteDuplicateActions && (
-          <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} disabled={!canNavigate} title="Duplicar">
-            <EmpToolbarIcon icon={Copy} />
-            <span>Duplicar</span>
-          </ToolbarBtn>
-        )}
-        {showRecordNavigation && (
-          <div className="flex items-center gap-1 shrink-0">
-            <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Primeiro"><EmpToolbarIcon icon={ChevronsLeft} nav /></ToolbarBtn>
-            <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Anterior"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
-            <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Próximo"><EmpToolbarIcon icon={ChevronRight} nav /></ToolbarBtn>
-            <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Último"><EmpToolbarIcon icon={ChevronsRight} nav /></ToolbarBtn>
-          </div>
-        )}
-        {showSaveActions && (
-          <>
-            <ToolbarBtn onClick={onSave} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
-              <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
-              <span>Salvar</span>
+      <div className="emp-toolbar-row flex items-center gap-1.5 overflow-hidden whitespace-nowrap">
+        <div className="emp-toolbar-actions-primary flex items-center gap-1.5 shrink-0">
+          {onBack && (
+            <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
+          )}
+          <ToolbarBtn onClick={onToggleView} disabled={actionsLocked} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
+          {!showSaveActions && (
+            <ToolbarBtn onClick={onNew} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
+              <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
+              <span>Novo</span>
             </ToolbarBtn>
-            <ToolbarBtn onClick={onCancel} className={LABELED_BTN_CLASS} title="Descartar">
-              <EmpToolbarIcon icon={X} />
-              <span>Cancelar</span>
+          )}
+          {onToggleFilter && (
+            <ToolbarBtn onClick={onToggleFilter} className="relative w-9" title="Filtros">
+              <EmpToolbarIcon icon={Filter} />
+              {filterActive && (
+                <span onClick={(e) => { e.stopPropagation(); onClearFilter?.(); }} className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-white text-red-600 border border-red-500 text-[10px] leading-[12px] font-bold">×</span>
+              )}
             </ToolbarBtn>
-          </>
-        )}
+          )}
+          {showEditAction && (
+            <ToolbarBtn onClick={onEditRecord} className={LABELED_BTN_CLASS} title="Editar">
+              <EmpToolbarIcon icon={Pencil} />
+              <span>Editar</span>
+            </ToolbarBtn>
+          )}
+          {showDeleteDuplicateActions && (
+            <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} disabled={!canNavigate} title="Excluir">
+              <EmpToolbarIcon icon={Trash2} />
+              <span>Excluir</span>
+            </ToolbarBtn>
+          )}
+          {showDeleteDuplicateActions && (
+            <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} disabled={!canNavigate} title="Duplicar">
+              <EmpToolbarIcon icon={Copy} />
+              <span>Duplicar</span>
+            </ToolbarBtn>
+          )}
+          {showRecordNavigation && (
+            <div className="emp-toolbar-actions-nav flex items-center gap-1 shrink-0">
+              <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Primeiro"><EmpToolbarIcon icon={ChevronsLeft} nav /></ToolbarBtn>
+              <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Anterior"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
+              <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Próximo"><EmpToolbarIcon icon={ChevronRight} nav /></ToolbarBtn>
+              <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Último"><EmpToolbarIcon icon={ChevronsRight} nav /></ToolbarBtn>
+            </div>
+          )}
+          {showSaveActions && (
+            <div className="emp-toolbar-actions-save-mobile flex items-center gap-1.5 shrink-0">
+              <ToolbarBtn onClick={onSave} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
+                <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
+                <span>Salvar</span>
+              </ToolbarBtn>
+              <ToolbarBtn onClick={onCancel} disabled={actionsLocked} className={LABELED_BTN_CLASS} title="Descartar">
+                <EmpToolbarIcon icon={X} />
+                <span>Cancelar</span>
+              </ToolbarBtn>
+            </div>
+          )}
+        </div>
 
-        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+        <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
-            <div className={EMP_TOOLBAR_SEARCH_WRAP}>
-              <input value={searchValue} onChange={(e) => onSearchChange?.(e.target.value)} placeholder="Pesquisar registros..." className={EMP_TOOLBAR_SEARCH_INPUT} />
-              <Search className="emp-toolbar-search-icon absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
+            <div className={EMP_TOOLBAR_SEARCH_WRAP} role="search" title="Pesquisar registros">
+              <input
+                value={searchValue}
+                onChange={(e) => onSearchChange?.(e.target.value)}
+                placeholder="Pesquisar registros..."
+                className={EMP_TOOLBAR_SEARCH_INPUT}
+                aria-label="Pesquisar registros"
+              />
+              <Search
+                className="emp-toolbar-search-icon pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400"
+                aria-hidden="true"
+              />
             </div>
           )}
           {showUtilityActions && (
@@ -141,7 +155,7 @@ export default function EmpRecordToolbar({
             </DropdownMenu>
           )}
           <EmpBubbleCounter
-            value={total > 0 ? `${currentIndex + 1}/${total}` : String(total)}
+            value={recordCounter}
             title="Registros"
             className="emp-toolbar-bubble-counter"
           />

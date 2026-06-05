@@ -153,17 +153,15 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   const widthStyle = balanced
     ? {
         flex: balanced.flex,
-        minWidth: balanced.minWidth ?? 0,
+        minWidth: balanced.minWidth ?? `${preset.min}px`,
         maxWidth: balanced.maxWidth,
         width: "auto",
-        overflow: "hidden",
       }
     : {
-        flex: `${preset.grow} 1 0`,
-        minWidth: 0,
+        flex: `${preset.grow} 1 ${preset.min}px`,
+        minWidth: `${preset.min}px`,
         maxWidth: "100%",
         width: "auto",
-        overflow: "hidden",
       };
 
   return (
@@ -185,9 +183,24 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
         {field.label}
         {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
       </label>
-      <div className={cn("emp-form-field-control", error && "erp-field-invalid")}>
+      <div
+        className={cn(
+          "emp-form-field-control",
+          error && "erp-field-invalid emp-form-field-error"
+        )}
+      >
         {loteStyle && !bare && <EmpCustomMarker variant="lote" />}
         {children}
+      </div>
+      <div className="emp-form-field-message-slot" aria-hidden={!field.required || !error}>
+        <span
+          className={cn(
+            "emp-form-field-error-message",
+            (!field.required || !error) && "emp-form-field-error-message--hidden"
+          )}
+        >
+          Campo obrigatório
+        </span>
       </div>
     </div>
   );
@@ -388,7 +401,7 @@ export default function EmpDynamicFormRenderer({
         "emp-form-fields emp-form-fields-corp cad-form-fields cad-form-fields-corp",
         hasCustomFields && "emp-form-fields-custom cad-form-fields-custom"
       )}
-      style={{ containerType: "inline-size" }}
+      style={{ width: "100%" }}
     >
       <div className="emp-form-cards-layout cad-form-cards-layout">{cardSections}</div>
     </div>

@@ -130,14 +130,17 @@ export function computeRowFieldBalance(fieldIds, fields, colSpan, fieldWidthType
   const balance = {};
 
   items.forEach((item) => {
+    const field = fields.find((f) => f.id === item.fieldId) || { id: item.fieldId };
+    const preset = resolveFieldWidthTypePreset(field, fieldWidthTypes);
+    const slotMinPx = Math.max(72, Math.min(preset.min || 120, Math.floor(availablePx / count)));
     const targetWidthPx = Math.max(1, Math.round((availablePx * item.growWeight) / sumGrow));
     balance[item.fieldId] = {
       growWeight: item.growWeight,
-      minWidth: "0",
-      flexBasis: "0",
+      minWidth: `${slotMinPx}px`,
+      flexBasis: `${Math.max(slotMinPx, targetWidthPx)}px`,
       flexGrow: item.growWeight,
       flexShrink: 1,
-      flex: `${item.growWeight} 1 0`,
+      flex: `${item.growWeight} 1 ${slotMinPx}px`,
       maxWidth,
       targetWidthPx,
     };

@@ -192,6 +192,15 @@ const start = async () => {
     process.exit(1);
   }
 
+  if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
+    setTimeout(() => {
+      import("../scripts/productionBootTasks.js")
+        .then(({ runProductionBootTasks }) => runProductionBootTasks(app.log))
+        .then(() => app.log.info("[boot] Tarefas de produção concluídas."))
+        .catch((error) => app.log.error(`[boot] Falha nas tarefas de produção: ${error.message}`));
+    }, 3000);
+  }
+
   const shutdown = async () => {
     await closePrismaClient();
     await app.close();

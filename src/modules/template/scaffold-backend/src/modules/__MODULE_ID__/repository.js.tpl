@@ -1,6 +1,9 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
 import { auditService } from "../audit/auditService.js";
-import { createCampoPersonalizadoRepository } from "../campos/campoPersonalizadoRepository.js";
+import { svcCps } from "../cadcps/svcCps.js";
+import { toLegacyCampoList } from "../cadcps/campoLegacyAdapter.js";
+import { createWithIdGlobal } from "../idGlobal/idGlobalService.js";
+import { reserveNextCodigo } from "../sequencias/entidadeCodigoService.js";
 
 const toPositiveInt = (value, fallback) => {
   const parsed = Number(value);
@@ -10,7 +13,6 @@ const toPositiveInt = (value, fallback) => {
 
 const DEFAULT_PAGE_SIZE = 50;
 const ENTITY_NAME = "__ENTITY_NAME__";
-const camposRepository = createCampoPersonalizadoRepository(ENTITY_NAME);
 
 const getModel = (prisma) => prisma.cadastroRegistro;
 
@@ -37,12 +39,24 @@ export const __MODULE_ID__Repository = {
     const pageSize = Math.min(200, toPositiveInt(query.pageSize, DEFAULT_PAGE_SIZE));
     const skip = (page - 1) * pageSize;
     const searchValue = String(query.search || "").trim();
-    const where = buildScopeWhere(scope, searchValue ? {
-      OR: [
-        { nome: { contains: searchValue, mode: "insensitive" } },
-        { observacoes: { contains: searchValue, mode: "insensitive" } },
-      ],
-    } : {});
+    const searchWhere = (() => {
+      if (!searchValue) return {};
+      if (/^\d+$/.test(searchValue)) {
+        const asNumber = Number(searchValue);
+        if (Number.isFinite(asNumber)) {
+          return { OR: [{ id_global: asNumber }, { codigo: asNumber }] };
+        }
+      }
+      const asNumber = Number(searchValue);
+      return {
+        OR: [
+          { nome: { contains: searchValue, mode: "insensitive" } },
+          { observacoes: { contains: searchValue, mode: "insensitive" } },
+          ...(Number.isFinite(asNumber) ? [{ id_global: asNumber }, { codigo: asNumber }] : []),
+        ],
+      };
+    })();
+    const where = buildScopeWhere(scope, searchWhere);
 
     const [items, total] = await Promise.all([
       model.findMany({ where, skip, take: pageSize, orderBy: { createdAt: "desc" } }),
@@ -86,17 +100,26 @@ export const __MODULE_ID__Repository = {
       throw error;
     }
 
-    const item = await model.create({
-      data: {
-        nome: payload.nome,
-        status: payload.status || "Ativo",
-        observacoes: payload.observacoes || "",
-        campos_personalizados: payload.campos_personalizados || {},
-        empresa_id: empresa.id,
-        codempresa: empresa.codempresa,
-        nome_empresa: empresa.razao_social,
-        cliente_id: scope.clienteId,
-        entity_name: ENTITY_NAME,
+    const item = await createWithIdGlobal({
+      clienteId: scope.clienteId,
+      entityName: ENTITY_NAME,
+      createRecord: async (tx, idGlobal) => {
+        const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_NAME);
+        return tx.cadastroRegistro.create({
+          data: {
+            id_global: idGlobal,
+            codigo,
+            nome: payload.nome,
+            status: payload.status || "Ativo",
+            observacoes: payload.observacoes || "",
+            campos_personalizados: payload.campos_personalizados || {},
+            empresa_id: empresa.id,
+            codempresa: empresa.codempresa,
+            nome_empresa: empresa.razao_social,
+            cliente_id: scope.clienteId,
+            entity_name: ENTITY_NAME,
+          },
+        });
       },
     });
 
@@ -105,10 +128,11 @@ export const __MODULE_ID__Repository = {
       entityName: "__ENTITY_NAME__",
       action: "CREATE",
       entityId: item.id,
+      idGlobal: item.id_global,
       empresaId: empresa.id,
       codigoEmpresa: empresa.codempresa,
       nomeEmpresa: empresa.razao_social,
-      payload: { id: item.id },
+      payload: { id: item.id, id_global: item.id_global, codigo: item.codigo },
     });
     return item;
   },
@@ -165,19 +189,16 @@ export const __MODULE_ID__Repository = {
   },
 
   async listFields({ scope, mode = "aplicavel" }) {
-    return camposRepository.list({ scope, mode });
-  },
-
-  async createField({ scope, payload }) {
-    return camposRepository.create({ scope, payload });
-  },
-
-  async updateField({ scope, id, payload }) {
-    return camposRepository.update({ scope, id, payload });
-  },
-
-  async removeField({ scope, id }) {
-    return camposRepository.remove({ scope, id });
+    if (mode === "config") {
+      const result = await svcCps.list(scope, {
+        page: 1,
+        pageSize: 500,
+        sortBy: "codigo",
+        sortDir: "asc",
+      });
+      return toLegacyCampoList(result.items);
+    }
+    return svcCps.listApplicableLegacy(scope, ENTITY_NAME);
   },
 
   async listOptions({ sources = [] }) {
@@ -188,4 +209,3 @@ export const __MODULE_ID__Repository = {
     return result;
   },
 };
-

@@ -5,6 +5,11 @@ import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import {
+  loadColumnOrder,
+  loadVisibleColumns,
+} from "@/framework/cadastro/tables/empColumnLayout";
 import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
@@ -64,26 +69,42 @@ export default function TBLCPS({
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
   const [frozenColumnCount, setFrozenColumnCount] = useState(() => { const s = Number(localStorage.getItem(FROZEN_KEY) || 0); return Number.isFinite(s) ? s : 0; });
-  const [colunasOrdem, setColunasOrdem] = useState(() => {
-    const saved = localStorage.getItem(ORDER_KEY);
-    if (!saved) return COLUNAS_BASE.map((c) => c.id);
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return COLUNAS_BASE.map((c) => c.id);
-    }
-  });
-  const [colunasVisiveis, setColunasVisiveis] = useState(() => {
-    const saved = localStorage.getItem(VISIBLE_KEY);
-    const defaultVisible = COLUNAS_BASE.filter((c) => c.default).map((c) => c.id);
-    if (!saved) return defaultVisible;
-    try {
-      return Array.from(new Set([...JSON.parse(saved), ...defaultVisible]));
-    } catch {
-      return defaultVisible;
-    }
-  });
+  const [colunasOrdem, setColunasOrdem] = useState(() => loadColumnOrder(ORDER_KEY, COLUNAS_BASE));
+  const [colunasVisiveis, setColunasVisiveis] = useState(() => loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE));
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
+
+  useEffect(() => {
+    const mergedOrder = loadColumnOrder(ORDER_KEY, COLUNAS_BASE);
+    const mergedVisible = loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE);
+    const savedOrder = localStorage.getItem(ORDER_KEY);
+    const savedVisible = localStorage.getItem(VISIBLE_KEY);
+    let shouldPersist = false;
+
+    if (savedOrder) {
+      try {
+        const parsed = JSON.parse(savedOrder);
+        if (!parsed.includes("id_global") || parsed[0] !== "id_global") shouldPersist = true;
+      } catch {
+        shouldPersist = true;
+      }
+    }
+
+    if (savedVisible) {
+      try {
+        const parsed = JSON.parse(savedVisible);
+        if (!parsed.includes("id_global")) shouldPersist = true;
+      } catch {
+        shouldPersist = true;
+      }
+    }
+
+    if (shouldPersist) {
+      localStorage.setItem(ORDER_KEY, JSON.stringify(mergedOrder));
+      localStorage.setItem(VISIBLE_KEY, JSON.stringify(mergedVisible));
+      setColunasOrdem(mergedOrder);
+      setColunasVisiveis(mergedVisible);
+    }
+  }, []);
 
   const lastRowClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const rowClickSuppressRef = useRef({ id: null, until: 0 });
@@ -160,6 +181,7 @@ export default function TBLCPS({
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
 
   const getFieldValue = (item, colId) => {
+    if (colId === "id_global") return item.id_global ? formatIdGlobal(item.id_global) : "-";
     if (colId === "codigo") return item.codigo ?? "-";
     if (colId === "nome") return item.nome || "-";
     if (colId === "tipo") return tipoLabel(item.tipo) || "-";
@@ -178,7 +200,7 @@ export default function TBLCPS({
 
   const resolveColumnAlign = (col) => {
     if (col?.tipo === "date") return "center";
-    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codigo" || col?.id === "custom:valor") return "right";
+    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "id_global" || col?.id === "codigo" || col?.id === "custom:valor") return "right";
     return "left";
   };
 
@@ -196,6 +218,7 @@ export default function TBLCPS({
     return "justify-start";
   };
   const getComparableValue = (item, col) => {
+    if (col.id === "id_global") return Number(item.id_global || 0);
     if (col.id === "codigo") return Number(item.codigo || 0);
     if (col.id === "quantidade_empresas") return Number(item.quantidade_empresas || 0);
     return getFieldValue(item, col.id);
@@ -261,6 +284,7 @@ export default function TBLCPS({
   const camposOrdenados = useMemo(() => {
     const sorted = [...camposFiltrados];
     sorted.sort((a, b) => {
+      if (sortConfig.key === "id_global") { const aV = Number(a.id_global || 0); const bV = Number(b.id_global || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
       if (sortConfig.key === "codigo") { const aV = Number(a.codigo || 0); const bV = Number(b.codigo || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
       const aV = String(getFieldValue(a, sortConfig.key)).toLowerCase();
       const bV = String(getFieldValue(b, sortConfig.key)).toLowerCase();
@@ -692,7 +716,7 @@ export default function TBLCPS({
   };
 
   const formatTotalValue = (valor, col) => {
-    const isInt = col.id === "codigo";
+    const isInt = col.id === "id_global" || col.id === "codigo";
     const places = col.decimal_places ?? 2;
     return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
   };
@@ -766,7 +790,7 @@ export default function TBLCPS({
               }}
               role="button"
               tabIndex={0}
-              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#4fafff] ${
+              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#2899f5] ${
                 isColFiltered || isFilterOpen
                   ? "opacity-100 pointer-events-auto"
                   : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"

@@ -1,5 +1,6 @@
 import { empresaService } from "./services/empresaService.js";
 import { assertRole, loadAccessScope } from "../auth/accessScope.js";
+import { getContadores } from "../metrics/metricsService.js";
 import {
   empresaCreateSchema,
   empresaUpdateSchema,
@@ -55,7 +56,8 @@ export const registerEmpresasRoutes = async (app) => {
       "Payload inválido para cadastro de empresa."
     );
     const item = await empresaService.create(payload, scope);
-    return reply.status(201).send({ item });
+    const contadores = await getContadores(scope);
+    return reply.status(201).send({ item, contadores });
   });
 
   app.put("/api/empresas/:id", { preHandler: app.authenticate }, async (request, reply) => {
@@ -84,7 +86,8 @@ export const registerEmpresasRoutes = async (app) => {
     try {
       const ok = await empresaService.remove(request.params.id, scope);
       if (!ok) return reply.status(404).send({ message: "Empresa não encontrada para exclusão" });
-      return { ok: true };
+      const contadores = await getContadores(scope);
+      return { ok: true, contadores };
     } catch (error) {
       if (error?.statusCode && error.statusCode !== 404) {
         return reply.status(error.statusCode).send({ message: error.message });

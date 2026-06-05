@@ -235,33 +235,45 @@ input[type="number"] {
   --emp-form-textarea-corp-height: 40px;
   --emp-form-textarea-corp-max-height: 120px;
   --emp-form-field-column-width: 200px;
-  --emp-accent-green: #4fafff;
-  --emp-accent-primary: #4fafff;
-  --emp-accent-primary-hover: #4fafff;
-  --emp-accent-primary-light: #4fafff;
-  --emp-accent-primary-light-hover: #4fafff;
-  --emp-accent-primary-muted: #e8f7ff;
+  --emp-accent-green: #2899f5;
+  --emp-accent-primary: #2899f5;
+  --emp-accent-primary-hover: #1a8fe8;
+  --emp-accent-primary-light: #2899f5;
+  --emp-accent-primary-light-hover: #2899f5;
+  --emp-accent-primary-muted: #e3f4ff;
   --emp-accent-danger: #ef4444;
   --emp-accent-danger-hover: #dc2626;
   --emp-accent-danger-foreground: #ffffff;
   --emp-accent-primary-foreground: #ffffff;
   --emp-toolbar-btn-bg: #ffffff;
-  --emp-toolbar-btn-bg-hover: #f8fafc;
+  --emp-toolbar-btn-bg-hover: #f8f9fd;
   --emp-toolbar-btn-border: #e4eaf2;
   --emp-toolbar-btn-border-width: 1px;
   --emp-toolbar-btn-fg: #1e293b;
   --emp-table-frame-border: #e4eaf2;
-  --emp-surface-bg: #f7f9fc;
+  --emp-surface-bg: #f8f9fd;
   --emp-card-border-color: #edf1f6;
-  --emp-card-header-bg: #fafcff;
+  --emp-card-header-bg: #ffffff;
   --emp-table-bg: #ffffff;
-  --emp-table-band-bg: #f8fbff;
+  --emp-table-band-bg: #f8f9fd;
   --emp-table-row-selected-bg: #eef8ff;
   --emp-table-row-alt-bg: #ffffff;
   --emp-table-line: #e4eaf2;
   --emp-table-band-edge: #e4eaf2;
   --emp-table-data-height: 26px;
   --emp-table-header-height: 26px;
+  --erp-color-surface: #f8f9fd;
+  --erp-spacing: 8px;
+  --erp-layout-gap: 14px;
+  --erp-shell-padding: 16px;
+  --erp-form-field-gap-x: 8px;
+  --erp-toolbar-card-py: 4px;
+  --erp-toolbar-inner-py: 2px;
+  --erp-toolbar-inner-px: 8px;
+  --erp-toolbar-height: 26px;
+  --erp-toolbar-btn-size: 26px;
+  --erp-color-card: #ffffff;
+  --erp-color-card-border: #edf1f6;
   color: var(--emp-text);
 }
 
@@ -603,6 +615,11 @@ input[type="number"] {
   border-radius: 0 !important;
 }
 
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+  overflow: hidden !important;
+}
+
 .cadastro-emp-scope .emp-form-tabs-launch .emp-form-tab-list {
   gap: 2px;
   padding-left: 8px;
@@ -710,7 +727,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone,
 .cadastro-emp-scope .form-scroll-container .emp-form-panels-zone {
   margin-top: 0 !important;
-  gap: 8px !important;
+  gap: var(--erp-spacing, 12px) !important;
   width: 100%;
   max-width: 100%;
   background: transparent !important;
@@ -721,8 +738,15 @@ input[type="number"] {
 
 .cadastro-emp-scope .form-scroll-container .emp-form-tabs.emp-form-tabs-launch,
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-tabs.emp-form-tabs-launch {
-  background: transparent !important;
-  border-bottom: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  background: var(--erp-color-card, #ffffff) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  border-radius: var(--erp-radius-card, 12px) !important;
+  box-shadow: var(
+    --erp-shadow-card,
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03)
+  ) !important;
+  padding: 4px 8px 2px !important;
 }
 
 .cadastro-emp-scope .form-scroll-container .emp-form-section-panel .emp-form-fields,
@@ -766,7 +790,7 @@ input[type="number"] {
   min-width: 920px;
   box-sizing: border-box;
   padding-top: 0;
-  padding-bottom: 12px;
+  padding-bottom: var(--erp-spacing, 8px);
   background: #ffffff;
 }
 
@@ -776,13 +800,13 @@ input[type="number"] {
   box-sizing: border-box;
   width: 100%;
   min-width: 920px;
-  margin-top: 8px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  margin-top: var(--erp-spacing, 8px);
+  padding-top: var(--erp-spacing, 8px);
+  padding-bottom: var(--erp-spacing, 8px);
 }
 
 .cadastro-emp-scope .emp-form-panels-zone {
-  margin-top: 8px;
+  margin-top: var(--erp-spacing, 8px);
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone {
@@ -794,7 +818,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-panels-zone-details {
-  gap: 8px;
+  gap: 6px;
 }
 
 .cadastro-emp-scope .emp-form-details-panels {
@@ -836,11 +860,11 @@ input[type="number"] {
   margin: 0;
   padding: 8px 14px;
   border-bottom: 1px solid #e2e8f0;
-  color: var(--emp-form-label-color, var(--erp-color-label, #334155));
+  color: var(--emp-accent-primary, #2899f5);
   font-size: 12px;
   font-weight: 700;
   text-align: left;
-  background: #f1f5f9;
+  background: var(--erp-color-card, #ffffff);
   border-top: 0;
   border-left: 0;
   border-right: 0;
@@ -852,8 +876,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-detail-panel-title svg {
-  color: var(--emp-form-label-color, var(--erp-color-label, #334155));
-  stroke: var(--emp-form-label-color, var(--erp-color-label, #334155));
+  color: var(--emp-accent-primary, #2899f5);
+  stroke: var(--emp-accent-primary, #2899f5);
   flex: 0 0 auto;
 }
 
@@ -868,7 +892,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-form-section-panel .emp-form-fields:not(.emp-form-fields-sgg) {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--erp-spacing, 8px);
 }
 
 .cadastro-emp-scope .emp-form-section-panel .emp-form-fields {
@@ -882,7 +906,7 @@ input[type="number"] {
     var(--emp-form-field-columns, 3),
     minmax(0, var(--emp-form-field-column-width, 200px))
   );
-  gap: 8px 10px;
+  gap: var(--erp-spacing, 8px) var(--erp-form-field-gap-x, 8px);
   align-items: start;
   justify-content: start;
   width: fit-content;
@@ -959,7 +983,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-field-layout-preview {
   border: 1px solid #dbe3ec;
   border-radius: 6px;
-  background: #f8fafc;
+  background: var(--erp-color-surface, #f8f9fd);
   padding: 8px;
 }
 
@@ -1096,20 +1120,20 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:hover:not(.emp-form-field-error):not(:focus-within) {
-  border-color: var(--emp-accent-primary, #4fafff) !important;
+  border-color: var(--emp-accent-primary, #2899f5) !important;
 }
 
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:hover:not(.emp-form-field-error):not(:focus-within) {
-  border-color: var(--emp-accent-primary, #4fafff) !important;
+  border-color: var(--emp-accent-primary, #2899f5) !important;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
-  border-color: var(--emp-accent-primary, #4fafff) !important;
+  border-color: var(--emp-accent-primary, #2899f5) !important;
   box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:focus-within {
-  border-color: var(--emp-accent-primary, #4fafff) !important;
+  border-color: var(--emp-accent-primary, #2899f5) !important;
   box-shadow: none !important;
 }
 
@@ -1252,7 +1276,7 @@ input[type="number"] {
   border: 0 !important;
   border-left: 1px solid var(--emp-form-border-color, #c5ced8) !important;
   border-radius: 0 !important;
-  background: #f8fafc !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   box-shadow: none !important;
   color: #1a1f26 !important;
   cursor: pointer;
@@ -1288,7 +1312,20 @@ input[type="number"] {
 
 .cadastro-emp-scope .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch,
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
-  border-bottom: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  border-radius: var(--erp-radius-card, 12px) !important;
+  box-shadow: var(
+    --erp-shadow-card,
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03)
+  ) !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch,
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-content-card > .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  border: none !important;
+  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch::after {
@@ -1785,12 +1822,18 @@ input[type="number"] {
 .cadastro-emp-scope .emp-header-ctrl,
 .cadastro-emp-scope .emp-table-pagination-btn {
   border-radius: var(--emp-button-radius, 5px) !important;
-  box-shadow: none !important;
+  background: var(--erp-color-card, #ffffff) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  box-shadow: var(
+    --erp-shadow-card,
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03)
+  ) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete),
 .cadastro-emp-scope .emp-header-ctrl {
-  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
 }
 
 .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active) {
@@ -1801,8 +1844,14 @@ input[type="number"] {
 .cadastro-emp-scope .emp-toolbar-counter,
 .cadastro-emp-scope .emp-table-pagination-size,
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-size {
-  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
   border-radius: var(--emp-button-radius, 5px) !important;
+  background: var(--erp-color-card, #ffffff) !important;
+  box-shadow: var(
+    --erp-shadow-card,
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03)
+  ) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new) {
@@ -1831,18 +1880,18 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
-  height: 28px !important;
-  min-height: 28px !important;
+  height: var(--erp-toolbar-btn-size, 26px) !important;
+  min-height: var(--erp-toolbar-btn-size, 26px) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-counter {
-  height: 28px !important;
-  min-height: 28px !important;
+  height: var(--erp-toolbar-btn-size, 26px) !important;
+  min-height: var(--erp-toolbar-btn-size, 26px) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto) {
-  width: 28px !important;
+  width: var(--erp-toolbar-btn-size, 26px) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto,
@@ -2150,7 +2199,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pagination-size:hover {
-  background: #f8fafc !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   border-color: #dde4ec !important;
 }
 
@@ -2634,11 +2683,11 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-field-control-lote:hover:not(:focus-within) {
-  border-color: var(--emp-accent-primary, #4fafff) !important;
+  border-color: var(--emp-accent-primary, #2899f5) !important;
 }
 
 .cadastro-emp-scope .emp-form-field-control-lote:focus-within {
-  border-color: var(--emp-accent-primary, #4fafff) !important;
+  border-color: var(--emp-accent-primary, #2899f5) !important;
 }
 
 .cadastro-emp-scope .emp-form-field-control-lote.emp-form-field-error {
@@ -2671,16 +2720,25 @@ input[type="number"] {
   height: 100%;
   min-height: 0;
   overflow: hidden;
-  --erp-color-primary: #4fafff;
-  --emp-accent-primary: #4fafff;
-  --emp-accent-primary-hover: #4fafff;
-  --erp-nav-active-bg: #4fafff;
+  --erp-color-primary: #2899f5;
+  --emp-accent-primary: #2899f5;
+  --emp-accent-primary-hover: #1a8fe8;
+  --erp-nav-active-bg: #2899f5;
   --erp-nav-active-fg: #ffffff;
-  --erp-surface-bg: #fafafa;
-  --erp-page-bg: #fafafa;
-  --erp-sidebar-bg: #fafafa;
-  --erp-sidebar-submenu-bg: #fafafa;
-  --erp-border: #e8ecef;
+  --erp-color-surface: #f8f9fd;
+  --erp-surface-bg: #f8f9fd;
+  --erp-page-bg: #f8f9fd;
+  --erp-sidebar-bg: #f8f9fd;
+  --erp-sidebar-submenu-bg: #ffffff;
+  --erp-border: #eef1f8;
+  --erp-color-border: #e4eaf2;
+  --erp-spacing: 8px;
+  --erp-layout-gap: 14px;
+  --erp-shell-padding: 16px;
+  --erp-card-padding: 10px;
+  --erp-form-field-gap-x: 8px;
+  --erp-color-card: #ffffff;
+  --erp-color-card-border: #edf1f6;
 }
 
 .erp-shell .erp-sidebar,
@@ -2726,7 +2784,7 @@ input[type="number"] {
 .erp-shell .erp-sidebar-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-sub-link:not([data-active="true"]):hover,
 .erp-shell .erp-sidebar-group-trigger:hover {
-  background: #f7f7f7 !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   color: #0f172a !important;
 }
 
@@ -2770,7 +2828,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-view,
 .cadastro-emp-scope .emp-split-view {
-  gap: 8px;
+  gap: var(--erp-layout-gap, 20px);
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
@@ -2793,11 +2851,30 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-card {
   flex-shrink: 0;
-  background: transparent !important;
+  background: #ffffff !important;
   border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
-  overflow: visible;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
+  padding: var(--erp-toolbar-card-py, 4px) var(--erp-card-padding, 10px) !important;
+  box-sizing: border-box;
+  min-height: calc(
+    var(--erp-toolbar-btn-size, 26px) +
+    (var(--erp-toolbar-card-py, 4px) * 2) +
+    (var(--erp-toolbar-inner-py, 2px) * 2)
+  );
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-toolbar-card .emp-toolbar {
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100%;
+}
+
+.cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
+.cadastro-emp-scope .emp-toolbar-card .emp-layout-config-toolbar {
+  padding: var(--erp-toolbar-inner-py, 2px) var(--erp-toolbar-inner-px, 8px) !important;
+  margin: 0 !important;
 }
 
 .cadastro-emp-scope .emp-table-card,
@@ -2825,7 +2902,7 @@ input[type="number"] {
 
 .erp-shell .cadastro-emp-scope {
   border-radius: inherit;
-  background: var(--emp-surface-bg, #fafafa) !important;
+  background: var(--emp-surface-bg, #f8f9fd) !important;
 }
 
 .erp-shell .cadastro-emp-scope .emp-table-shell,
@@ -2833,15 +2910,60 @@ input[type="number"] {
   background: var(--emp-table-bg, #ffffff) !important;
 }
 
+.erp-shell .cadastro-emp-scope .emp-table-view,
+.erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) {
+  background: var(--erp-color-surface, #f8f9fd) !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-table-view > .emp-toolbar-card {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) 0 0 !important;
+  border-bottom: 1px solid var(--erp-color-border, #e4eaf2) !important;
+  box-shadow: none !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-table-view > .emp-content-card {
+  background: var(--emp-table-bg, #ffffff) !important;
+  border: none !important;
+  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+  box-shadow: none !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-toolbar-card {
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) 0 0 !important;
+  border-bottom: 1px solid var(--erp-color-border, #e4eaf2) !important;
+  box-shadow: none !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card > .form-scroll-container {
+  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+}
+
+.erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
 .erp-shell .cadastro-emp-scope .emp-table-card,
 .erp-shell .cadastro-emp-scope .emp-content-card {
   background: var(--emp-table-bg, #ffffff) !important;
+  border: none !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
 }
 
 .erp-shell .cadastro-emp-scope .emp-toolbar-card {
-  background: transparent !important;
+  background: #ffffff !important;
   border: none !important;
-  box-shadow: none !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
@@ -2853,10 +2975,11 @@ input[type="number"] {
   border-left: none !important;
   border-right: none !important;
   box-shadow: none !important;
+  padding: var(--erp-toolbar-inner-py, 2px) var(--erp-toolbar-inner-px, 8px) !important;
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-split-view {
-  gap: 8px;
+  gap: var(--erp-spacing, 12px);
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-toolbar-card,
@@ -2887,24 +3010,58 @@ input[type="number"] {
   color: #64748b;
 }
 
-.erp-shell-breadcrumbs {
+/* Topo unificado: header + breadcrumb — mesmo padrão toolbar+abas, full width */
+.erp-shell-top-unified {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  background: #ffffff !important;
+  border-radius: 0 !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
+  overflow: hidden;
+}
+
+.erp-shell-top-unified .erp-shell-header {
   min-height: 0;
-  padding-top: 6px !important;
-  padding-bottom: 6px !important;
+  height: 2.5rem !important;
+  padding-left: var(--erp-shell-padding, 24px) !important;
+  padding-right: var(--erp-shell-padding, 24px) !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.erp-shell-top-unified .erp-shell-breadcrumbs {
+  min-height: 0;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  padding-left: var(--erp-shell-padding, 24px) !important;
+  padding-right: var(--erp-shell-padding, 24px) !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-top: 1px solid var(--erp-color-border, #e4eaf2) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
 }
 
 .erp-shell-header {
   min-height: 0;
   height: 2.5rem !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
 }
 
 .erp-shell-content-wrap {
-  padding-top: 0.25rem !important;
-  padding-bottom: 0.75rem !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
+  padding-top: 0 !important;
+  padding-bottom: var(--erp-shell-padding, 24px) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  gap: var(--erp-layout-gap, 20px) !important;
+}
+
+.erp-shell-content-wrap > .erp-shell-content-area {
+  padding-left: var(--erp-shell-padding, 24px) !important;
+  padding-right: var(--erp-shell-padding, 24px) !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-list"],
@@ -2915,9 +3072,21 @@ input[type="number"] {
 }
 
 .erp-shell-operation-badge,
-.erp-shell-operation-badge svg {
-  color: #1a1f26 !important;
+.erp-shell-operation-badge svg,
+.erp-info-pill,
+.erp-info-pill__icon,
+.erp-info-pill__text,
+.erp-shell-breadcrumb-pill {
+  color: var(--erp-color-primary, #2899f5) !important;
   font-weight: 600 !important;
+}
+
+.erp-info-pill,
+.erp-shell-breadcrumb-pill,
+.erp-shell-operation-badge {
+  background: var(--erp-color-card, #ffffff) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
 }
 
 .erp-shell-trigger svg {
@@ -3010,30 +3179,30 @@ select.erp-field-invalid {
 /* Layout corporativo V3 — cards, labels acima, grid 12 colunas (referência cadastro ERP) */
 .cadastro-emp-scope .emp-form-section-panel:not(.emp-form-section-panel--corp):not(.emp-form-section-panel-detail),
 .cadastro-emp-scope .emp-form-section-principal {
-  background: var(--erp-color-card, #ffffff);
-  border: 1px solid var(--erp-color-card-border, var(--emp-card-border-color));
-  border-radius: var(--erp-radius-card, 12px);
-  box-shadow: var(--erp-shadow-card, 0 1px 2px rgba(15, 23, 42, 0.05));
+  background: #ffffff;
+  border: none;
+  border-radius: var(--erp-radius-card, 18px);
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04));
 }
 
 .cadastro-emp-scope .emp-form-fields-corp {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--erp-spacing, 12px);
   width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-cards-layout {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--erp-layout-gap, 20px);
   width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-cards-row {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 6px 16px;
+  gap: var(--erp-layout-gap, 20px);
   width: 100%;
   align-items: start;
 }
@@ -3055,18 +3224,18 @@ select.erp-field-invalid {
 
 .cadastro-emp-scope button.emp-form-detail-panel-title,
 .cadastro-emp-scope button.emp-form-detail-panel-title span {
-  color: var(--emp-form-label-color, var(--erp-color-label, #334155)) !important;
-  -webkit-text-fill-color: var(--emp-form-label-color, var(--erp-color-label, #334155)) !important;
+  color: var(--emp-accent-primary, #2899f5) !important;
+  -webkit-text-fill-color: var(--emp-accent-primary, #2899f5) !important;
 }
 
 .cadastro-emp-scope .emp-form-card-body {
-  padding: 12px 14px 14px;
+  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) calc(var(--erp-spacing, 8px) + 2px);
 }
 
 .cadastro-emp-scope .emp-form-card-grid,
 .cadastro-emp-scope .emp-form-card-row-grid {
   display: grid;
-  gap: 4px 8px;
+  gap: 4px var(--erp-spacing, 8px);
   align-items: start;
   width: 100%;
 }
@@ -3074,14 +3243,14 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-card-row-grid--flex {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
-  gap: 10px 12px;
+  flex-wrap: wrap;
+  gap: var(--erp-spacing, 8px) var(--erp-layout-gap, 14px);
   align-items: flex-end;
   justify-content: flex-start;
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -3095,7 +3264,7 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-card-rows {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: var(--erp-spacing, 12px);
   width: 100%;
 }
 
@@ -3103,7 +3272,7 @@ select.erp-field-invalid {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -3349,8 +3518,8 @@ select.erp-field-invalid {
 }
 
 .cadastro-emp-scope .emp-layout-config-card-tab-active {
-  border-color: var(--emp-accent-primary, #4fafff);
-  color: var(--emp-accent-primary, #4fafff);
+  border-color: var(--emp-accent-primary, #2899f5);
+  color: var(--emp-accent-primary, #2899f5);
   background: #eaf2ff;
 }
 
@@ -3493,7 +3662,7 @@ select.erp-field-invalid {
   min-height: calc(var(--emp-form-control-height, 38px) - 2px);
   border: 0;
   border-left: 1px solid var(--emp-form-border-color, #c5ced8);
-  background: #f8fafc;
+  background: var(--erp-color-surface, #f8f9fd);
   color: #475569;
   cursor: pointer;
 }
@@ -3525,15 +3694,15 @@ select.erp-field-invalid {
   --erp-float-height: var(--emp-form-control-height, 40px);
   --erp-float-radius: var(--emp-control-radius, 8px);
   --erp-float-border: var(--emp-form-border-color, #cbd5e1);
-  --erp-float-border-focus: #4fafff;
+  --erp-float-border-focus: #2899f5;
   --erp-float-label: #64748b;
-  --erp-float-label-active: #4fafff;
+  --erp-float-label-active: #2899f5;
   --erp-float-bg: #ffffff;
   --erp-float-error: #dc2626;
   --erp-state-success: #16a34a;
   --erp-state-warning: #d97706;
   --erp-state-error: #dc2626;
-  --erp-state-info: #4fafff;
+  --erp-state-info: #2899f5;
 }
 
 .erp-float-field {
@@ -3570,13 +3739,13 @@ select.erp-field-invalid {
 }
 
 .erp-float-field--disabled .erp-float-control-wrap {
-  background: #f8fafc;
+  background: var(--erp-color-surface, #f8f9fd);
   opacity: 0.72;
   cursor: not-allowed;
 }
 
 .erp-float-field--readonly .erp-float-control-wrap {
-  background: #f8fafc;
+  background: var(--erp-color-surface, #f8f9fd);
 }
 
 .erp-float-control,
@@ -3895,7 +4064,7 @@ select.erp-field-invalid {
 }
 
 .erp-toast-panel__icon-badge--info {
-  background: var(--erp-color-primary, #4fafff);
+  background: var(--erp-color-primary, #2899f5);
 }
 
 .erp-toast-panel__content {
@@ -3941,7 +4110,7 @@ select.erp-field-invalid {
 
 .erp-toast-panel__progress-bar {
   height: 100%;
-  background: var(--emp-accent-primary, #4fafff);
+  background: var(--emp-accent-primary, #2899f5);
   transition: width 0.05s linear;
 }
 
@@ -3957,7 +4126,7 @@ select.erp-field-invalid {
   height: 40px;
   border-radius: 10px;
   background: #ecfdf5;
-  color: var(--emp-accent-primary, #4fafff);
+  color: var(--emp-accent-primary, #2899f5);
   flex-shrink: 0;
 }
 

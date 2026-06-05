@@ -22,7 +22,10 @@ const repCps = {
 
   async create(data) {
     const payload = await apiCps.createCampo(data);
-    return payload?.item || payload;
+    return {
+      item: payload?.item || payload,
+      contadores: payload?.contadores || null,
+    };
   },
 
   async update(id, data) {
@@ -31,8 +34,8 @@ const repCps = {
   },
 
   async remove(id) {
-    await apiCps.deleteCampo(id);
-    return true;
+    const payload = await apiCps.deleteCampo(id);
+    return { ok: true, contadores: payload?.contadores || null };
   },
 };
 

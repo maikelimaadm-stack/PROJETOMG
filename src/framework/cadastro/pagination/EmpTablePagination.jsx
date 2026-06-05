@@ -6,7 +6,7 @@ import { EMP_TOOLBAR_BTN_SHAPE, EMP_TOOLBAR_FIELD_BORDER } from "@/framework/cad
 export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
 
 const PAGINATION_BTN_BASE =
-  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} bg-white text-[12px] font-normal shadow-none hover:bg-[#f8fafc] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
+  `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} bg-white text-[12px] font-normal shadow-none hover:bg-[#f8f9fd] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
 
 const getVisiblePages = (currentPage, totalPages) => {
   if (totalPages <= 0) return [];

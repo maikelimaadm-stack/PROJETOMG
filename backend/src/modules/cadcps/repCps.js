@@ -1,5 +1,14 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { runTransactionWithRetry } from "../../database/transactionRetry.js";
 import { auditService } from "../audit/auditService.js";
+import {
+  registerRegistroGlobal,
+  reserveNextIdGlobal,
+} from "../idGlobal/idGlobalService.js";
+import {
+  ENTITY_CODIGO_CADCPS,
+  reserveNextCodigo,
+} from "../sequencias/entidadeCodigoService.js";
 import { assertCampoNotInUse } from "./cadcpsFieldUsage.js";
 import { CADCPS_APLICACAO, normalizeCadcpsTipo } from "./cadcpsConstants.js";
 import { listCadastroModulesForCadcps } from "./cadastroModuleRegistry.js";
@@ -27,15 +36,6 @@ const mapCampoRow = (row) => {
         : (row.empresas || []).length,
     opcoes: row.opcoes || [],
   };
-};
-
-const nextCodigo = async (prisma, clienteId) => {
-  const seq = await prisma.cadCpsCodigoSequencia.upsert({
-    where: { cliente_id: clienteId },
-    create: { cliente_id: clienteId, next_codigo: 2 },
-    update: { next_codigo: { increment: 1 } },
-  });
-  return seq.next_codigo - 1;
 };
 
 const recordHistorico = async (prisma, { scope, campoId, acao, valorAnterior, valorNovo }) => {
@@ -103,14 +103,23 @@ const buildListWhere = (scope, query = {}) => {
 
   const search = String(query.search || "").trim();
   if (search) {
-    const asNumber = Number(search);
-    and.push({
-      OR: [
-        { nome: { contains: search, mode: "insensitive" } },
-        { field_name: { contains: search, mode: "insensitive" } },
-        ...(Number.isFinite(asNumber) ? [{ codigo: asNumber }] : []),
-      ],
-    });
+    if (/^\d+$/.test(search)) {
+      const asNumber = Number(search);
+      if (Number.isFinite(asNumber)) {
+        and.push({
+          OR: [{ id_global: asNumber }, { codigo: asNumber }],
+        });
+      }
+    } else {
+      const asNumber = Number(search);
+      and.push({
+        OR: [
+          { nome: { contains: search, mode: "insensitive" } },
+          { field_name: { contains: search, mode: "insensitive" } },
+          ...(Number.isFinite(asNumber) ? [{ id_global: asNumber }, { codigo: asNumber }] : []),
+        ],
+      });
+    }
   }
 
   return { AND: and };
@@ -266,11 +275,9 @@ export const repCps = {
       throw error;
     }
 
-    const codigo = await nextCodigo(prisma, scope.clienteId);
     const aplicacao_modo = payload.aplicacao_modo || CADCPS_APLICACAO.TODAS;
     const data = {
       cliente_id: scope.clienteId,
-      codigo,
       nome: payload.nome,
       field_name,
       descricao: payload.descricao,
@@ -304,12 +311,29 @@ export const repCps = {
       updated_by: scope.userId,
     };
 
-    const created = await prisma.cadCpsCampo.create({ data });
-    await syncRelations(prisma, created.id, {
-      tela_ids: resolveTelaIdsFromPayload(payload),
-      empresa_ids: payload.empresa_ids,
-      opcoes: payload.opcoes,
-      aplicacao_modo,
+    const created = await runTransactionWithRetry(prisma, async (tx) => {
+      const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_CADCPS);
+      const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
+      const record = await tx.cadCpsCampo.create({
+        data: {
+          ...data,
+          codigo,
+          id_global: idGlobal,
+        },
+      });
+      await registerRegistroGlobal(tx, {
+        clienteId: scope.clienteId,
+        idGlobal,
+        entityName: "CadCpsCampo",
+        registroId: record.id,
+      });
+      await syncRelations(tx, record.id, {
+        tela_ids: resolveTelaIdsFromPayload(payload),
+        empresa_ids: payload.empresa_ids,
+        opcoes: payload.opcoes,
+        aplicacao_modo,
+      });
+      return record;
     });
 
     const full = await this.getById(scope, created.id);
@@ -319,7 +343,13 @@ export const repCps = {
       entityName: "CadCpsCampo",
       action: "CREATE",
       entityId: created.id,
-      payload: { codigo, field_name, nome: payload.nome },
+      idGlobal: created.id_global,
+      payload: {
+        id_global: created.id_global,
+        codigo: created.codigo,
+        field_name,
+        nome: payload.nome,
+      },
     });
 
     return full;

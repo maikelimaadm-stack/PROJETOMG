@@ -9,6 +9,11 @@ import {
   CamposFormPanel,
   CamposTablePanel,
 } from "./PAGCPS.sections";
+import { MetricsApi } from "@/apis/metrics/MetricsApi";
+import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
+import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
+import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
+import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
 const DEFAULT_RESPONSE = {
   items: [],
@@ -38,6 +43,7 @@ const patchCamposCache = (queryClient, updater) => {
 export default function PAGCPS() {
   const { empresas: empresasSelector } = useAuth();
   const queryClient = useQueryClient();
+  const saveCycle = useSaveCycle();
 
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
@@ -60,6 +66,7 @@ export default function PAGCPS() {
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codigo", direction: "asc" });
   const pendingDeleteIdsRef = useRef([]);
+  const pendingCreatesRef = useRef(new Map());
 
   const { data: listResponse = DEFAULT_RESPONSE, isLoading, isFetching } = useQuery({
     queryKey: ["cadcps-campos", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
@@ -77,11 +84,14 @@ export default function PAGCPS() {
     refetchOnMount: false,
   });
 
-  const invalidateCamposQueries = useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: ["cadcps-campos"] });
-    void queryClient.invalidateQueries({ queryKey: ["cadcps-telas"] });
-    void queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
-  }, [queryClient]);
+  const { data: contadores = { empresas: 0, registrosGlobais: 0 } } = useQuery({
+    queryKey: ["metrics-contadores"],
+    queryFn: () => MetricsApi.getContadores(),
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: 30 * 60_000,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
   const { data: telas = [] } = useQuery({
     queryKey: ["cadcps-telas"],
@@ -161,10 +171,15 @@ export default function PAGCPS() {
 
   const handleSubmit = useCallback(
     (data) => {
-      const isUpdate = Boolean(editingItem && !editingItem._isDuplicate);
+      if (saveCycle.isSaving) return;
+
+      const isUpdate = Boolean(
+        editingItem?.id && !isPendingRecordId(editingItem.id) && !editingItem._isDuplicate
+      );
 
       try {
         const validatedData = cadcpsModuleDefinition.schema.parse(data);
+        saveCycle.beginSave();
 
         if (isUpdate) {
           const optimistic = { ...editingItem, ...validatedData };
@@ -178,7 +193,6 @@ export default function PAGCPS() {
           }));
           setEditingItem(optimistic);
           stayOnRecordAfterSave(optimistic);
-          showSuccess(`${moduleLabels.singular} atualizado!`);
 
           void moduleRepository
             .update(editingItem.id, validatedData)
@@ -190,7 +204,7 @@ export default function PAGCPS() {
                 ),
               }));
               setEditingItem(savedRecord);
-              invalidateCamposQueries();
+              showSuccess(`${moduleLabels.singular} atualizado!`);
             })
             .catch((error) => {
               cacheSnapshot.forEach(([key, value]) => {
@@ -202,27 +216,50 @@ export default function PAGCPS() {
                   `Não foi possível atualizar o ${moduleLabels.singular.toLowerCase()}.`
                 )
               );
-            });
+            })
+            .finally(() => saveCycle.end());
           return;
         }
 
         const { _isDuplicate, ...clean } = validatedData;
         const pendingId = `pending-${crypto.randomUUID()}`;
-        const optimistic = { ...clean, id: pendingId };
+        const optimistic = {
+          ...clean,
+          id: pendingId,
+          _isPersisting: true,
+        };
         const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["cadcps-campos"] });
+        const metricsSnapshot = queryClient.getQueryData(["metrics-contadores"]);
+        const createEntry = { cancelled: false };
+        pendingCreatesRef.current.set(pendingId, createEntry);
 
         patchCamposCache(queryClient, (previous) => ({
           ...previous,
           items: [optimistic, ...previous.items],
           total: previous.total + 1,
         }));
+        patchMetricsCache(queryClient, { registrosGlobais: 1 });
         stayOnRecordAfterSave(optimistic);
-        showSuccess(`${moduleLabels.singular} cadastrado!`);
         setFormVersion((version) => version + 1);
 
         void moduleRepository
           .create(clean)
-          .then((savedRecord) => {
+          .then(async (response) => {
+            const savedRecord = response?.item;
+            pendingCreatesRef.current.delete(pendingId);
+
+            if (createEntry.cancelled) {
+              try {
+                const deleteResponse = await moduleRepository.remove(savedRecord.id);
+                if (deleteResponse?.contadores) {
+                  setMetricsCache(queryClient, deleteResponse.contadores);
+                }
+              } catch {
+                // UI já removeu o registro pendente
+              }
+              return;
+            }
+
             patchCamposCache(queryClient, (previous) => ({
               ...previous,
               items: previous.items.map((item) =>
@@ -233,25 +270,36 @@ export default function PAGCPS() {
             setSelectedTableItems((current) =>
               current.includes(pendingId) ? [savedRecord.id] : current
             );
-            invalidateCamposQueries();
+            setMetricsCache(queryClient, response?.contadores);
+            showSuccess(`${moduleLabels.singular} cadastrado!`);
           })
           .catch((error) => {
-            cacheSnapshot.forEach(([key, value]) => {
-              queryClient.setQueryData(key, value);
-            });
-            patchCamposCache(queryClient, (previous) => ({
-              ...previous,
-              items: previous.items.filter((item) => item.id !== pendingId),
-              total: Math.max(0, previous.total - 1),
-            }));
+            pendingCreatesRef.current.delete(pendingId);
+            if (!createEntry.cancelled) {
+              if (metricsSnapshot) {
+                queryClient.setQueryData(["metrics-contadores"], metricsSnapshot);
+              } else {
+                patchMetricsCache(queryClient, { registrosGlobais: -1 });
+              }
+              cacheSnapshot.forEach(([key, value]) => {
+                queryClient.setQueryData(key, value);
+              });
+              patchCamposCache(queryClient, (previous) => ({
+                ...previous,
+                items: previous.items.filter((item) => item.id !== pendingId),
+                total: Math.max(0, previous.total - 1),
+              }));
+            }
             showError(
               resolveErrorMessage(
                 error,
                 `Não foi possível cadastrar o ${moduleLabels.singular.toLowerCase()}.`
               )
             );
-          });
+          })
+          .finally(() => saveCycle.end());
       } catch (error) {
+        saveCycle.end();
         showError(
           resolveErrorMessage(
             error,
@@ -262,10 +310,11 @@ export default function PAGCPS() {
         );
       }
     },
-    [editingItem, queryClient, stayOnRecordAfterSave, invalidateCamposQueries]
+    [editingItem, queryClient, saveCycle, stayOnRecordAfterSave]
   );
 
   const handleEdit = (item) => {
+    if (!saveCycle.guardAction()) return;
     const index = camposNavegacao.findIndex((entry) => entry.id === item.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([item.id]);
@@ -276,6 +325,7 @@ export default function PAGCPS() {
   };
 
   const handleNew = () => {
+    if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(
       showForm && viewMode === "record" ? editingItem || currentCampo : null
     );
@@ -286,8 +336,9 @@ export default function PAGCPS() {
   };
 
   const handleDuplicate = (item) => {
+    if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(showForm && viewMode === "record" ? item : null);
-    const { id, createdAt, updatedAt, codigo, ...dup } = item;
+    const { id, createdAt, updatedAt, codigo, id_global, _isPersisting, ...dup } = item;
     setEditingItem({ ...dup, _isDuplicate: true });
     setShowForm(true);
     setViewMode("record");
@@ -295,6 +346,7 @@ export default function PAGCPS() {
   };
 
   const handleRequestDelete = (ids) => {
+    if (!saveCycle.guardAction()) return;
     const normalized = (Array.isArray(ids) ? ids : [ids]).filter(Boolean);
     pendingDeleteIdsRef.current = normalized;
     setDeleteState({ open: true, ids: normalized });
@@ -346,6 +398,7 @@ export default function PAGCPS() {
   );
 
   const handleToggleView = () => {
+    if (!saveCycle.guardAction()) return;
     if (showForm) {
       setShowForm(false);
       setEditingItem(null);
@@ -364,7 +417,7 @@ export default function PAGCPS() {
   };
 
   const navigateRecord = (index) => {
-    if (!showForm) return;
+    if (!showForm || !saveCycle.guardAction()) return;
     const nextIndex = Math.min(Math.max(index, 0), Math.max(camposNavegacao.length - 1, 0));
     setSelectedIndex(nextIndex);
     if (camposNavegacao[nextIndex]) {
@@ -381,6 +434,8 @@ export default function PAGCPS() {
       throw new Error("Nenhum registro selecionado para exclusão.");
     }
 
+    saveCycle.beginDelete();
+
     const deletedCurrentFromForm =
       showForm && viewMode === "record" && editingItem?.id && ids.includes(editingItem.id);
     const navListBeforeDelete = camposNavegacao;
@@ -389,12 +444,14 @@ export default function PAGCPS() {
       : -1;
 
     const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["cadcps-campos"] });
+    const metricsSnapshot = queryClient.getQueryData(["metrics-contadores"]);
 
     patchCamposCache(queryClient, (previous) => ({
       ...previous,
       items: previous.items.filter((item) => !ids.includes(item.id)),
       total: Math.max(0, previous.total - ids.length),
     }));
+    patchMetricsCache(queryClient, { registrosGlobais: -ids.length });
 
     const list = navListBeforeDelete.filter((item) => !ids.includes(item.id));
 
@@ -428,18 +485,39 @@ export default function PAGCPS() {
     pendingDeleteIdsRef.current = [];
     setDeleteState({ open: false, ids: [] });
 
+    const pendingIds = ids.filter((id) => isPendingRecordId(id));
+    const persistedIds = ids.filter((id) => !isPendingRecordId(id));
+
+    pendingIds.forEach((pendingId) => {
+      const entry = pendingCreatesRef.current.get(pendingId);
+      if (entry) entry.cancelled = true;
+    });
+
     try {
-      await Promise.all(ids.map((id) => moduleRepository.remove(id)));
+      if (persistedIds.length === 0) {
+        showSuccess(
+          ids.length === 1
+            ? `${moduleLabels.singular} excluído!`
+            : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídos!`
+        );
+        return;
+      }
+
+      const results = await Promise.all(persistedIds.map((id) => moduleRepository.remove(id)));
+      const lastContadores = results.filter((r) => r?.contadores).at(-1)?.contadores;
+      if (lastContadores) setMetricsCache(queryClient, lastContadores);
       showSuccess(
         ids.length === 1
           ? `${moduleLabels.singular} excluído!`
           : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídos!`
       );
-      invalidateCamposQueries();
     } catch (error) {
       cacheSnapshot.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
+      if (metricsSnapshot) {
+        queryClient.setQueryData(["metrics-contadores"], metricsSnapshot);
+      }
       showError(
         resolveErrorMessage(
           error,
@@ -447,11 +525,18 @@ export default function PAGCPS() {
         )
       );
       throw error;
+    } finally {
+      saveCycle.end();
     }
   };
 
   return (
     <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <SaveProgressOverlay
+        active={saveCycle.isSaving}
+        message={saveCycle.saveMessage}
+        variant={saveCycle.variant}
+      />
       <CamposFormPanel
         showForm={showForm}
         formProps={{
@@ -493,12 +578,14 @@ export default function PAGCPS() {
           onDuplicate: () => editingItem && handleDuplicate(editingItem),
           searchValue: searchTerm,
           onSearchChange: handleSearchChange,
+          actionsLocked: saveCycle.isSaving,
         }}
       />
 
       <CamposTablePanel
         hidden={showForm}
         toolbarProps={{
+          actionsLocked: saveCycle.isSaving,
           viewMode,
           total: totalCampos,
           currentIndex: selectedIndex,
