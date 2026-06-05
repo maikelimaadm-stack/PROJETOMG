@@ -6,6 +6,10 @@
 -- 3) Cria cliente maike / usuário maike / senha 123
 --
 -- Cole TODO este conteúdo no SQL Editor e clique em Run.
+--
+-- ATENÇÃO: links raw.githubusercontent.com NÃO funcionam em repositório privado.
+-- Copie este arquivo pelo GitHub (logado) ou use o SQL completo abaixo.
+-- GitHub: github.com/maikelimaadm-stack/PROJETOMG/blob/main/backend/scripts/supabase/resetAndSeedMaike.sql
 -- =============================================================================
 
 -- ── PASSO 1: Garantir schema ────────────────────────────────────────────────
@@ -137,8 +141,8 @@ INSERT INTO "CadCpsTela" (
 
 INSERT INTO "EntidadeCodigoSequencia" ("id", "cliente_id", "entity_name", "next_codigo", "createdAt", "updatedAt")
 VALUES
-  ('seq_emp_maike', 'cl_maike_seed_001', 'Empresa', 1, NOW(), NOW()),
-  ('seq_cps_maike', 'cl_maike_seed_001', 'CadCpsCampo', 1, NOW(), NOW());
+  ('seq_emp_maike', 'cl_maike_seed_001', 'Empresa', 2, NOW(), NOW()),
+  ('seq_cps_maike', 'cl_maike_seed_001', 'CadCpsCampo', 2, NOW(), NOW());
 
 SELECT
   c.codigo AS cliente,
