@@ -17,7 +17,7 @@ export default function ErpRecordMeta({ codigo, nome }) {
   if (!label) return null;
 
   return (
-    <ErpInfoPill icon={Hash} className="erp-record-meta max-w-[min(100%,520px)]" title={label}>
+    <ErpInfoPill className="erp-record-meta max-w-[min(100%,520px)]" title={label}>
       {label}
     </ErpInfoPill>
   );
