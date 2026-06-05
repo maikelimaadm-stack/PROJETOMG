@@ -21,6 +21,7 @@ const runStep = (label, command, args) =>
 
 const run = async () => {
   await runStep("Garantir tabelas CADCPS", "node", ["scripts/ensureCadcpsTables.js"]);
+  await runStep("Garantir ID Global", "node", ["scripts/ensureIdGlobalTables.js"]);
   try {
     await runStep("Popular telas CADCPS", "node", ["scripts/seedCadcpsTelas.js"]);
   } catch (error) {

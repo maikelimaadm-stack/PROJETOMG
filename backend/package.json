@@ -24,6 +24,7 @@
     "migrate:cadcps": "node scripts/migrateCampoPersonalizadoToCadcps.js",
     "migrate:codempresa": "node scripts/renameCodempresaColumns.js",
     "backfill:id-global": "node scripts/backfillIdGlobal.js",
+    "ensure:id-global": "node scripts/ensureIdGlobalTables.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
     "ensure:usuario-preferencias": "node scripts/ensureUsuarioPreferenciaTable.js",
     "security:multiempresa": "node scripts/securityMultiempresaProbe.js",
