@@ -1,7 +1,13 @@
 -- =============================================================================
--- APLICAR REESTRUTURAÇÃO NO SUPABASE — execute no SQL Editor do painel
--- Projeto: https://supabase.com/dashboard/project/vjvayvvusubfwfofhnqy
--- Menu: SQL Editor → New query → cole este arquivo inteiro → Run
+-- APLICAR REESTRUTURAÇÃO NO SUPABASE
+--
+-- ATENÇÃO: NÃO cole o caminho do arquivo (ex: backend/scripts/...).
+-- Copie TODO o conteúdo SQL deste arquivo (a partir da linha CREATE TABLE abaixo).
+--
+-- Passos:
+-- 1. Abra: https://supabase.com/dashboard/project/vjvayvvusubfwfofhnqy/sql/new
+-- 2. No GitHub: abra este arquivo → botão "Copy raw file"
+-- 3. Cole no SQL Editor → Run
 -- =============================================================================
 
 -- ── 1) Sequência corporativa (criar antes de migrar legado) ─────────────────
