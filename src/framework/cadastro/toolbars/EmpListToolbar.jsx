@@ -116,6 +116,13 @@ export default function EmpListToolbar({
           )}
         </div>
 
+        <EmpBubbleCounter
+          value={counterValue}
+          title={counterTitle}
+          variant="toolbar"
+          className="emp-toolbar-bubble-counter emp-toolbar-record-counter emp-toolbar-record-counter--desktop"
+        />
+
         <div className="emp-toolbar-actions-end ml-auto flex min-w-0 items-center gap-1.5 shrink-0">
           {showSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP} role="search" title="Pesquisar registros">
@@ -171,7 +178,7 @@ export default function EmpListToolbar({
             value={counterValue}
             title={counterTitle}
             variant="toolbar"
-            className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
+            className="emp-toolbar-bubble-counter emp-toolbar-record-counter emp-toolbar-record-counter--mobile"
           />
         </div>
       </div>
