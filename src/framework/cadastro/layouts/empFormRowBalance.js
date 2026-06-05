@@ -17,6 +17,14 @@ export const CARD_BODY_PADDING_X_PX = 16;
 
 const MIN_ROW_BUDGET_PX = 160;
 const DEFAULT_CONTAINER_WIDTH_PX = 360;
+const MOBILE_PACK_MAX_WIDTH_PX = 640;
+const MOBILE_COMPACT_MIN_PX = 120;
+const MOBILE_PAIR_MIN_PX = 150;
+
+const isMobilePackWidth = (containerWidthPx) => {
+  const width = Number(containerWidthPx);
+  return Number.isFinite(width) && width > 0 && width <= MOBILE_PACK_MAX_WIDTH_PX;
+};
 
 /**
  * Largura útil para campos dentro do card (sem padding interno do card-body).
@@ -36,6 +44,26 @@ export function getFieldMinWidthPx(field, fieldWidthTypes = {}) {
   return resolveFieldWidthTypePreset(field, fieldWidthTypes).min || 140;
 }
 
+export function getFieldPackMinWidthPx(field, fieldWidthTypes = {}, containerWidthPx) {
+  if (!isMobilePackWidth(containerWidthPx)) {
+    return getFieldMinWidthPx(field, fieldWidthTypes);
+  }
+
+  const fieldType = String(field?.type || "").toLowerCase();
+  if (fieldType === "textarea" || field?.wide) return 9999;
+  if (field?.compact) return MOBILE_COMPACT_MIN_PX;
+
+  const preset = resolveFieldWidthTypePreset(field, fieldWidthTypes);
+  if (["TEXTO_CURTO", "CODIGO", "NUMERO", "SIM_NAO"].includes(preset.type)) {
+    return Math.min(preset.min, MOBILE_PAIR_MIN_PX);
+  }
+  if (preset.type === "CAMPO_PRINCIPAL") {
+    return MOBILE_PAIR_MIN_PX;
+  }
+
+  return Math.min(getFieldMinWidthPx(field, fieldWidthTypes), MOBILE_PAIR_MIN_PX);
+}
+
 export function getFieldGrowWeight(field, fieldWidthTypes = {}) {
   return resolveFieldWidthTypePreset(field, fieldWidthTypes).grow ?? 1;
 }
@@ -43,12 +71,12 @@ export function getFieldGrowWeight(field, fieldWidthTypes = {}) {
 /**
  * Soma min-widths + gaps de uma linha candidata.
  */
-export function rowContentWidthPx(fieldIds, fields, fieldWidthTypes) {
+export function rowContentWidthPx(fieldIds, fields, fieldWidthTypes, containerWidthPx) {
   if (!fieldIds.length) return 0;
   const gaps = Math.max(0, fieldIds.length - 1) * ROW_GAP_PX;
   const mins = fieldIds.reduce((sum, id) => {
     const field = fields.find((f) => f.id === id) || { id };
-    return sum + getFieldMinWidthPx(field, fieldWidthTypes);
+    return sum + getFieldPackMinWidthPx(field, fieldWidthTypes, containerWidthPx);
   }, 0);
   return mins + gaps;
 }
@@ -70,7 +98,9 @@ export function packFieldsByRowBudget(
 ) {
   const colSpan = resolveCardColSpan(card.colSpan);
   const budgetPx = getRowBudgetPx(colSpan, containerWidthPx);
-  const maxPerRow = getMaxFieldsPerRow(colSpan);
+  const maxPerRow = isMobilePackWidth(containerWidthPx)
+    ? Math.min(2, getMaxFieldsPerRow(colSpan))
+    : getMaxFieldsPerRow(colSpan);
 
   const rows = [];
   let current = [];
@@ -79,7 +109,7 @@ export function packFieldsByRowBudget(
     if (!fieldId) return;
 
     const candidate = [...current, fieldId];
-    const widthFits = rowContentWidthPx(candidate, fields, fieldWidthTypes) <= budgetPx;
+    const widthFits = rowContentWidthPx(candidate, fields, fieldWidthTypes, containerWidthPx) <= budgetPx;
     const countFits = candidate.length <= maxPerRow;
 
     if (current.length > 0 && (!widthFits || !countFits)) {

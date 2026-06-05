@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
-import { formatCadastroRecordCount } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
+import { formatCadastroRecordPosition } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
 
 const ToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
@@ -24,8 +24,6 @@ const MOBILE_MORE_CLASS = "emp-toolbar-btn--mobile-more";
 export default function EmpListToolbar({
   viewMode = "table",
   total = 0,
-  recordCountLabel = "Registros",
-  recordCountTotal = 0,
   currentIndex = 0,
   searchValue = "",
   onSearchChange,
@@ -58,8 +56,8 @@ export default function EmpListToolbar({
   const showRecordNavigation = viewMode === "record";
   const showDeleteSelectionAction = viewMode === "table" && selectedCount > 0 && !!onDelete;
   const showDuplicateSelectionAction = viewMode === "table" && selectedCount === 1 && !!onDuplicate;
-  const counterValue = formatCadastroRecordCount(recordCountTotal || total);
-  const counterTitle = `${recordCountLabel}: ${counterValue}`;
+  const counterValue = formatCadastroRecordPosition(currentIndex, total);
+  const counterTitle = `Registros: ${counterValue}`;
 
   return (
     <div className="emp-toolbar">
@@ -243,7 +241,6 @@ export default function EmpListToolbar({
           <ToolbarSeparator />
           <EmpBubbleCounter
             value={counterValue}
-            label={recordCountLabel}
             title={counterTitle}
             className="emp-toolbar-bubble-counter"
           />

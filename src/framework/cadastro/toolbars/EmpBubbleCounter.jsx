@@ -1,13 +1,25 @@
 import React from "react";
+import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 
 export default function EmpBubbleCounter({
   value,
   title,
   label,
   className = "",
-  tailClassName = "",
   tone = "neutral",
+  usePillStyle = true,
 }) {
+  if (usePillStyle) {
+    return (
+      <ErpInfoPill
+        className={`emp-toolbar-record-counter ${className}`.trim()}
+        title={title || (label ? `${label}: ${value}` : value)}
+      >
+        {value}
+      </ErpInfoPill>
+    );
+  }
+
   const toneClass =
     tone === "complete"
       ? "emp-bubble-counter--complete"
@@ -21,16 +33,8 @@ export default function EmpBubbleCounter({
       title={title}
       aria-label={title ? `${title}: ${value}` : undefined}
     >
-      <span className="emp-bubble-counter__value tabular-nums">
-        {label ? (
-          <>
-            <span className="font-medium">{label}:</span> {value}
-          </>
-        ) : (
-          value
-        )}
-      </span>
-      <span className={`emp-bubble-counter__tail ${tailClassName}`.trim()} aria-hidden="true" />
+      <span className="emp-bubble-counter__value tabular-nums">{value}</span>
+      <span className="emp-bubble-counter__tail" aria-hidden="true" />
     </div>
   );
 }

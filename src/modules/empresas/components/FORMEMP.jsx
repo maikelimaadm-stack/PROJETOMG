@@ -50,7 +50,7 @@ import { useFormEmpCustomFields } from "./formEmp.customFields";
 
 export default function FORMEMP({
   onSubmit, onCancel, onAttachClick, attachDisabled = false,
-  onToggleView, total = 0, recordCountTotal = 0, currentIndex = 0,
+  onToggleView, total = 0, currentIndex = 0,
   onNew, onFirst, onPrevious, onNext, onLast,
   onDelete, onDuplicate, onRefresh,
   filterOpen = false, filterActive = false, onToggleFilter, onClearFilter,
@@ -595,8 +595,6 @@ export default function FORMEMP({
           className="h-full min-h-0 flex-1"
           toolbar={
             <CadRecordToolbar
-              recordCountLabel="Empresas"
-              recordCountTotal={recordCountTotal || total}
               showSaveActions={editMode}
               showEditAction={isReadOnly}
               showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
