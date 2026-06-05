@@ -2,16 +2,15 @@ import { useEffect } from "react";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 
 export function useCadastroPageHeader({
-  pageTitle = null,
-  recordDetails = null,
+  recordMeta = null,
   operationLabel = null,
   requiredStatus = null,
   enabled = true,
 }) {
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
-  const recordDetailsKey = recordDetails
-    ? `${recordDetails.codigo ?? ""}|${recordDetails.nome ?? ""}`
+  const recordMetaKey = recordMeta
+    ? `${recordMeta.codigo ?? ""}|${recordMeta.nome ?? ""}`
     : "";
   const requiredStatusKey = requiredStatus
     ? `${requiredStatus.filled ?? 0}/${requiredStatus.total ?? 0}`
@@ -24,10 +23,10 @@ export function useCadastroPageHeader({
     }
 
     setPageHeader({
-      pageTitle,
-      recordMeta: null,
+      recordMeta,
+      pageTitle: null,
       recordTitle: null,
-      recordDetails,
+      recordDetails: null,
       operationLabel,
       contextSuffix: null,
       requiredStatus,
@@ -38,9 +37,8 @@ export function useCadastroPageHeader({
     clearPageHeader,
     enabled,
     operationLabel,
-    pageTitle,
-    recordDetails,
-    recordDetailsKey,
+    recordMeta,
+    recordMetaKey,
     requiredStatus,
     requiredStatusKey,
     setPageHeader,

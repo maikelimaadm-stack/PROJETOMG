@@ -12,6 +12,7 @@ import { DEFAULT_FIELD_LAYOUT_CONFIG, normalizeFieldLayoutConfig } from "@/frame
 import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro/layouts/empFormLayoutCards";
 import { getCachedCardRows } from "@/framework/cadastro-engine/layout/layoutCache.js";
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
+import { useCardCollapsibleEnabled } from "@/framework/cadastro-engine/render/useCardCollapsibleEnabled.js";
 import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 import { isInlineMediaField } from "@/framework/cadastro/layouts/empFormFieldLayoutGroups";
 
@@ -143,7 +144,15 @@ const conditionMatches = (current, expected, sourceField) => {
 };
 
 /** Layout corporativo: min-width por tipo + flex-grow (preenche a linha). */
-function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = null, className = "" }) {
+function FieldFrameCorp({
+  field,
+  error,
+  children,
+  fieldSizes = {},
+  rowBalance = null,
+  narrowLayout = false,
+  className = "",
+}) {
   const bare = isBareControlField(field);
   const textareaField = field?.type === "textarea";
   const loteStyle = isCustomField(field);
@@ -152,19 +161,21 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   const balanced = rowBalance?.[field.id];
   const mediaInline = isInlineMediaField(field);
 
-  const widthStyle = balanced
-    ? {
-        flex: balanced.flex,
-        minWidth: balanced.minWidth ?? `${preset.min}px`,
-        maxWidth: balanced.maxWidth,
-        width: "auto",
-      }
-    : {
-        flex: `${preset.grow} 1 ${preset.min}px`,
-        minWidth: `${preset.min}px`,
-        maxWidth: "100%",
-        width: "auto",
-      };
+  const widthStyle = narrowLayout
+    ? undefined
+    : balanced
+      ? {
+          flex: balanced.flex,
+          minWidth: balanced.minWidth ?? `${preset.min}px`,
+          maxWidth: balanced.maxWidth,
+          width: "auto",
+        }
+      : {
+          flex: `${preset.grow} 1 ${preset.min}px`,
+          minWidth: `${preset.min}px`,
+          maxWidth: "100%",
+          width: "auto",
+        };
 
   return (
     <div
@@ -176,6 +187,7 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
         typeClass,
         mediaInline && "emp-form-field-corp--media-inline",
         textareaField && "emp-form-field-corp--textarea",
+        field?.wide && "emp-form-field-corp--wide",
         bare && "emp-form-field-corp--bare",
         className
       )}
@@ -208,33 +220,14 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   );
 }
 
-function useCardCollapseState(storageKey, defaultOpen = true) {
-  const [open, setOpen] = useState(() => {
-    try {
-      const stored = sessionStorage.getItem(storageKey);
-      if (stored === null) return defaultOpen;
-      return stored === "1";
-    } catch {
-      return defaultOpen;
-    }
-  });
+function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, children }) {
+  const showHeader = Boolean(card.label?.trim());
+  const collapsible = collapsibleEnabled && card.collapsible !== false && showHeader;
+  const [open, setOpen] = useState(true);
 
   useEffect(() => {
-    try {
-      sessionStorage.setItem(storageKey, open ? "1" : "0");
-    } catch {
-      // ignore storage failures
-    }
-  }, [open, storageKey]);
-
-  return [open, setOpen];
-}
-
-function FormCardSection({ card, panelId, children }) {
-  const showHeader = Boolean(card.label?.trim());
-  const collapsible = card.collapsible !== false && showHeader;
-  const storageKey = `erp-card-collapse:${panelId || "panel"}:${card.id}`;
-  const [open, setOpen] = useCardCollapseState(storageKey, true);
+    setOpen(true);
+  }, [recordKey, card.id, panelId]);
 
   if (!showHeader) {
     return <div className="emp-form-card emp-form-card--virtual">{children}</div>;
@@ -255,13 +248,14 @@ function FormCardSection({ card, panelId, children }) {
         <CollapsibleTrigger asChild>
           <button
             type="button"
-            className="emp-form-card-title emp-form-card-title--collapsible flex w-full items-center gap-2 border-0 bg-transparent p-0 text-left"
+            className="emp-form-card-title emp-form-card-title--collapsible flex w-full items-center justify-between gap-2 border-0 p-0 text-left"
           >
-            <ChevronDown
-              className={cn("emp-form-card-chevron h-4 w-4 shrink-0 text-[#64748b] transition-transform duration-150", !open && "-rotate-90")}
-              aria-hidden="true"
-            />
             <span className="min-w-0 flex-1 truncate">{card.label}</span>
+            <span className="emp-form-card-collapse-btn erp-field-select-chevron-btn shrink-0" aria-hidden="true">
+              <ChevronDown
+                className={cn("emp-form-card-chevron h-[14px] w-[14px] text-[#1a1f26] transition-transform duration-150", !open && "-rotate-90")}
+              />
+            </span>
           </button>
         </CollapsibleTrigger>
         <CollapsibleContent forceMount={false}>
@@ -284,6 +278,7 @@ export default function EmpDynamicFormRenderer({
   fieldSizes = {},
   fieldLayoutConfig = DEFAULT_FIELD_LAYOUT_CONFIG,
   activePanelId,
+  recordKey = null,
   values = {},
   errors = {},
   onChange,
@@ -294,6 +289,8 @@ export default function EmpDynamicFormRenderer({
   const activePanel = panels.find((panel) => panel.id === activePanelId) || panels[0];
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
   const { ref: containerRef, width: containerWidthPx } = useContainerWidth();
+  const collapsibleEnabled = useCardCollapsibleEnabled();
+  const narrowLayout = containerWidthPx > 0 && containerWidthPx <= 1024;
 
   const cards = useMemo(
     () =>
@@ -368,6 +365,7 @@ export default function EmpDynamicFormRenderer({
         error={error}
         fieldSizes={fieldSizes}
         rowBalance={rowBalance}
+        narrowLayout={narrowLayout}
         className={fieldClassName}
       >
         {control}
@@ -404,7 +402,12 @@ export default function EmpDynamicFormRenderer({
             className="emp-form-card-slot"
             style={{ gridColumn: `span ${card.colSpan || 12} / span ${card.colSpan || 12}` }}
           >
-            <FormCardSection card={card} panelId={activePanel?.id}>
+            <FormCardSection
+              card={card}
+              panelId={activePanel?.id}
+              recordKey={recordKey}
+              collapsibleEnabled={collapsibleEnabled}
+            >
               <div className="emp-form-card-rows">
                 {layoutRows.map((layoutRow) => {
                   const rowFields = (layoutRow.fieldIds || [])
@@ -412,9 +415,19 @@ export default function EmpDynamicFormRenderer({
                     .filter(Boolean)
                     .filter(isFieldVisible);
                   if (rowFields.length === 0) return null;
+                  const rowDensityClass =
+                    rowFields.length <= 1
+                      ? "emp-form-card-row-grid--single"
+                      : "emp-form-card-row-grid--pair";
+
                   return (
                     <div key={layoutRow.id} className="emp-form-card-row">
-                      <div className="emp-form-card-row-grid emp-form-card-row-grid--flex">
+                      <div
+                        className={cn(
+                          "emp-form-card-row-grid emp-form-card-row-grid--flex",
+                          rowDensityClass
+                        )}
+                      >
                         {rowFields.map((field) => renderField(field, layoutRow.fieldBalance))}
                       </div>
                     </div>

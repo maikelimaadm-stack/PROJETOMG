@@ -1,5 +1,6 @@
 import {
   computeRowFieldBalance,
+  packFieldsByRowBudget,
 } from "./empFormRowBalance.js";
 import {
   getMaxFieldsPerRow,
@@ -17,6 +18,39 @@ import {
  */
 
 const GRID_COLUMNS = 12;
+const NARROW_LAYOUT_MAX_WIDTH_PX = 1024;
+
+const repackRowsForNarrowViewport = (
+  rows = [],
+  card = {},
+  fields = [],
+  fieldWidthTypes = {},
+  containerWidthPx
+) => {
+  const fieldIds = flattenRowsToFieldIds({ rows });
+  if (!fieldIds.length) return rows;
+
+  const packedIds = packFieldsByRowBudget(
+    fieldIds,
+    fields,
+    card,
+    fieldWidthTypes,
+    containerWidthPx
+  );
+
+  const packedRows = packedIds.map((ids, index) => ({
+    id: createRowId(card.id || "card", index + 1),
+    order: index + 1,
+    fieldIds: ids,
+  }));
+
+  return balanceConfiguredRows(packedRows, {
+    card,
+    fieldSizes: fieldWidthTypes,
+    fields,
+    containerWidthPx,
+  });
+};
 
 export const createRowId = (cardId = "card", index = 1) => {
   const base = `row_${String(cardId).replace(/[^a-zA-Z0-9_]/g, "_")}`;
@@ -291,13 +325,16 @@ export const packFieldIdsIntoGridRows = (fieldIds = [], fieldSizes = {}, fields 
 };
 
 export const getCardRowsForRender = (card, fieldWidthTypes = {}, fields = [], containerWidthPx) => {
-  const normalized = normalizeCardRows(
-    card,
-    normalizeFieldWidthTypes(fieldWidthTypes),
-    fields,
-    containerWidthPx
-  );
-  return normalized.rows || [];
+  const normalizedSizes = normalizeFieldWidthTypes(fieldWidthTypes);
+  const normalized = normalizeCardRows(card, normalizedSizes, fields, containerWidthPx);
+  const rows = normalized.rows || [];
+  const width = Number(containerWidthPx) || 0;
+
+  if (width > 0 && width <= NARROW_LAYOUT_MAX_WIDTH_PX) {
+    return repackRowsForNarrowViewport(rows, normalized, fields, normalizedSizes, width);
+  }
+
+  return rows;
 };
 
 export const removeFieldFromRows = (rows = [], fieldId) =>

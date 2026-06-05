@@ -5,6 +5,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/shared/ui/tooltip";
+import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 
 export default function FormValidationStatus({
   filled = 0,
@@ -12,9 +13,9 @@ export default function FormValidationStatus({
   pendingFields = [],
   visible = true,
   className = "",
+  variant = "default",
 }) {
   const isComplete = total > 0 && filled >= total;
-
   const counter = `${filled}/${total}`;
 
   const ariaLabel = useMemo(() => {
@@ -44,6 +45,43 @@ export default function FormValidationStatus({
   }, [isComplete, pendingFields, total]);
 
   if (!visible || total <= 0) return null;
+
+  if (variant === "inline") {
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <ErpInfoPill
+              className={`form-validation-status form-validation-status--inline ${isComplete ? "form-validation-status--complete" : "form-validation-status--pending"} ${className}`.trim()}
+              title={ariaLabel}
+            >
+              <span className="form-validation-status__icon" aria-hidden="true">
+                <span className="form-validation-status__dot-wrap">
+                  {!isComplete ? <span className="form-validation-status__dot-ring" /> : null}
+                  <span
+                    className={`form-validation-status__dot${!isComplete ? " form-validation-status__dot--pulse" : ""}`}
+                  />
+                </span>
+              </span>
+              <span className="form-validation-status__text">
+                <span className="form-validation-status__counter tabular-nums">{counter}</span>
+                <span className="form-validation-status__label">Obrigatórios</span>
+              </span>
+            </ErpInfoPill>
+          </TooltipTrigger>
+          {tooltipContent ? (
+            <TooltipContent
+              side="bottom"
+              align="end"
+              className="form-validation-status__tooltip max-w-[280px] border border-[#e2e8f0] bg-white px-3 py-2 text-xs font-normal text-[#334155] shadow-md"
+            >
+              {tooltipContent}
+            </TooltipContent>
+          ) : null}
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
 
   return (
     <TooltipProvider delayDuration={200}>

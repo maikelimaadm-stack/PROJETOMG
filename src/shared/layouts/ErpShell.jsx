@@ -24,8 +24,8 @@ import {
 } from "@/shared/layouts/ErpTableFullscreenContext";
 import { EmpFullscreenEnterIcon } from "@/framework/cadastro/pagination/EmpTableFullscreenIcon";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
+import ErpRecordMeta from "@/shared/layouts/ErpRecordMeta";
 import ErpOperationBadge from "@/shared/layouts/ErpOperationBadge";
-import ErpRecordDetails from "@/shared/layouts/ErpRecordDetails";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 
@@ -129,18 +129,23 @@ function ErpBreadcrumbs({ pathname }) {
   const { header } = useErpPageHeader();
   const crumbs = buildErpBreadcrumbs(pathname);
   const trail = [...crumbs];
-  const pageTitle = header.pageTitle || header.recordTitle || null;
 
-  if (pageTitle) {
-    trail.push({ label: String(pageTitle), isPageTitle: true });
+  if (header.recordMeta) {
+    trail.push({
+      label: (
+        <ErpRecordMeta codigo={header.recordMeta.codigo} nome={header.recordMeta.nome} />
+      ),
+      isRecord: true,
+      isNode: true,
+    });
+  } else if (header.pageTitle || header.recordTitle) {
+    trail.push({ label: String(header.pageTitle || header.recordTitle), isPageTitle: true });
   }
 
   const operationLabel = header.operationLabel || header.contextSuffix;
-  const recordDetails = header.recordDetails;
   const requiredStatus = header.requiredStatus;
   const showRequiredCounter =
     requiredStatus?.visible && Number(requiredStatus?.total) > 0;
-  const showRecordDetails = Boolean(recordDetails?.codigo || recordDetails?.nome);
 
   return (
     <div className="erp-shell-breadcrumbs flex shrink-0 flex-col gap-1.5">
@@ -158,11 +163,15 @@ function ErpBreadcrumbs({ pathname }) {
                   <BreadcrumbItem className="inline-flex min-w-0 items-center">
                     {isLast ? (
                       <BreadcrumbPage className="inline-flex min-w-0 items-center p-0">
-                        <ErpInfoPill
-                          className={`erp-shell-breadcrumb-pill ${crumb.isPageTitle ? "erp-shell-breadcrumb-pill--page-title" : ""}`.trim()}
-                        >
-                          {crumb.label}
-                        </ErpInfoPill>
+                        {crumb.isNode ? (
+                          crumb.label
+                        ) : (
+                          <ErpInfoPill
+                            className={`erp-shell-breadcrumb-pill ${crumb.isPageTitle ? "erp-shell-breadcrumb-pill--page-title" : ""}`.trim()}
+                          >
+                            {crumb.label}
+                          </ErpInfoPill>
+                        )}
                       </BreadcrumbPage>
                     ) : (
                       <ErpInfoPill className="erp-shell-breadcrumb-pill">{crumb.label}</ErpInfoPill>
@@ -181,28 +190,25 @@ function ErpBreadcrumbs({ pathname }) {
         ) : null}
       </div>
 
-      {showRecordDetails || operationLabel || showRequiredCounter ? (
-        <div className="erp-shell-breadcrumbs__meta flex w-full min-w-0 items-center gap-2">
-          {showRecordDetails ? (
-            <ErpRecordDetails
-              codigo={recordDetails?.codigo}
-              nome={recordDetails?.nome}
-              className="min-w-0 flex-1"
-            />
-          ) : null}
+      {operationLabel || showRequiredCounter ? (
+        <div className="erp-shell-breadcrumbs__meta flex w-full min-w-0 flex-wrap items-center gap-1.5">
           {operationLabel ? (
             <ErpOperationBadge
               operationLabel={operationLabel}
               className="erp-shell-operation-badge erp-shell-operation-badge--mobile shrink-0"
             />
           ) : null}
+          {operationLabel && showRequiredCounter ? (
+            <BreadcrumbSeparator className="erp-shell-breadcrumb-separator erp-shell-status-separator shrink-0 text-[#94a3b8]" />
+          ) : null}
           {showRequiredCounter ? (
             <FormValidationStatus
               visible
+              variant="inline"
               filled={requiredStatus.filled}
               total={requiredStatus.total}
               pendingFields={requiredStatus.pendingFields}
-              className="erp-shell-required-status ml-auto shrink-0"
+              className="erp-shell-required-status shrink-0"
             />
           ) : null}
         </div>

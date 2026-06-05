@@ -1648,10 +1648,119 @@
 .cadastro-emp-scope .emp-form-card-title--collapsible {
   cursor: pointer;
   user-select: none;
+  color: var(--erp-color-primary) !important;
+  background: var(--erp-color-card) !important;
 }
 
 .cadastro-emp-scope .emp-form-card-title--collapsible:hover {
-  color: #334155;
+  color: var(--erp-color-primary) !important;
+}
+
+.cadastro-emp-scope .emp-form-card-title--collapsible .emp-form-card-collapse-btn {
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  max-width: 24px !important;
+  height: 24px !important;
+  border: 0 !important;
+  background: transparent !important;
+  border-radius: var(--erp-radius-control) !important;
+  transition: background var(--erp-ds-transition);
+}
+
+.cadastro-emp-scope .emp-form-card-title--collapsible:hover .emp-form-card-collapse-btn,
+.cadastro-emp-scope .emp-form-card-title--collapsible .emp-form-card-collapse-btn:hover {
+  background: var(--erp-color-lookup-hover) !important;
+}
+
+.erp-shell-breadcrumbs__details {
+  min-height: 20px;
+}
+
+
+.form-validation-status--inline.erp-info-pill {
+  gap: 12px;
+}
+
+.form-validation-status--inline .form-validation-status__icon {
+  margin-right: 2px;
+}
+
+.form-validation-status--inline .form-validation-status__text {
+  gap: 6px;
+}
+
+.erp-shell-operation-badge .form-validation-status__dot,
+.erp-shell-operation-badge .form-validation-status__dot-wrap,
+.erp-shell-operation-badge .form-validation-status__dot-ring {
+  display: none !important;
+}
+
+.erp-shell-status-separator {
+  line-height: 1;
+}
+
+.cadastro-emp-scope .emp-toolbar-separator {
+  display: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-bubble-counter.emp-bubble-counter,
+.cadastro-emp-scope .emp-toolbar-record-counter.emp-bubble-counter {
+  min-width: 2rem;
+  width: auto;
+  max-width: none;
+  height: var(--erp-toolbar-height, 26px);
+  min-height: var(--erp-toolbar-height, 26px);
+  padding: 0 8px;
+  flex-shrink: 0;
+  align-self: center;
+  margin: 0;
+  box-sizing: border-box;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: #4b5563 !important;
+  border: 1px solid #d1d5db !important;
+  background: #ffffff !important;
+  font-weight: 400 !important;
+  border-radius: var(--emp-control-radius, 6px) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-bubble-counter .emp-bubble-counter__tail {
+  display: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-bubble-counter .emp-bubble-counter__value {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+  color: inherit !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-actions-end {
+  min-width: 0;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-toolbar-row {
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+@media (min-width: 1025px) {
+  .cadastro-emp-scope .emp-form-card--collapsible .emp-form-card-title--collapsible {
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .cadastro-emp-scope .emp-form-card-collapse-btn {
+    display: none !important;
+  }
 }
 
 .erp-shell-breadcrumb-pill {
