@@ -3844,31 +3844,30 @@ select.erp-field-invalid {
 
 /* Toast lateral — mesmo visual dos cards de lançamento */
 .erp-toast-panel {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 12px;
-  align-items: start;
-  min-width: 300px;
-  max-width: 420px;
-  padding: 12px 14px;
-  border-radius: var(--erp-radius-card, 12px);
-  border: 1px solid var(--erp-color-card-border, #edf1f6);
-  background: var(--erp-color-card, #ffffff);
-  box-shadow: var(
-    --erp-shadow-card,
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 12px !important;
+  align-items: start !important;
+  min-width: 300px !important;
+  max-width: 420px !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  border: 1px solid #edf1f6 !important;
+  background: #ffffff !important;
+  box-shadow:
     0 1px 2px rgba(16, 24, 40, 0.025),
-    0 1px 4px rgba(16, 24, 40, 0.03)
-  );
+    0 1px 4px rgba(16, 24, 40, 0.03) !important;
   position: relative;
   overflow: hidden;
+  box-sizing: border-box !important;
 }
 
 .erp-toast-panel--success,
 .erp-toast-panel--error,
 .erp-toast-panel--warning,
 .erp-toast-panel--info {
-  border-color: var(--erp-color-card-border, #edf1f6);
-  background: var(--erp-color-card, #ffffff);
+  border: 1px solid #edf1f6 !important;
+  background: #ffffff !important;
 }
 
 .erp-toast-panel__icon-badge {
