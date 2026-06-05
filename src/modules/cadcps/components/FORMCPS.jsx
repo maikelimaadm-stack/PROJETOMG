@@ -271,19 +271,21 @@ export default function FORMCPS({
         : "VISUALIZAÇÃO DE REGISTRO"
       : "NOVO REGISTRO";
 
-  const recordHeaderTitle = useMemo(() => {
-    const code = initialData?.codigo != null ? String(initialData.codigo) : "";
-    const name = String(form.nome || "").trim();
-    if (code && name) return `${code} - ${name}`;
-    if (name) return name;
-    if (!isEditing) return "Novo campo personalizado";
+  const recordMeta = useMemo(() => {
+    const codigo = initialData?.codigo != null ? initialData.codigo : null;
+    const nome = String(form.nome || "").trim() || null;
+    const idGlobal = initialData?.id_global != null && Number(initialData.id_global) > 0
+      ? initialData.id_global
+      : null;
+    if (idGlobal || codigo || nome) return { idGlobal, codigo, nome };
+    if (!isEditing) return { idGlobal: null, codigo: null, nome: "Novo campo personalizado" };
     return null;
-  }, [initialData?.codigo, form.nome, isEditing]);
+  }, [initialData?.id_global, initialData?.codigo, form.nome, isEditing]);
 
   useEffect(() => {
-    setPageHeader({ recordTitle: recordHeaderTitle, operationLabel, contextSuffix: null });
+    setPageHeader({ recordMeta, recordTitle: null, operationLabel, contextSuffix: null });
     return () => clearPageHeader();
-  }, [recordHeaderTitle, operationLabel, setPageHeader, clearPageHeader]);
+  }, [recordMeta, operationLabel, setPageHeader, clearPageHeader]);
 
   const renderPrincipal = () => (
     <fieldset

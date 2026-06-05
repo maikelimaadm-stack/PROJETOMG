@@ -135,7 +135,7 @@
   --erp-toggle-width: 36px;
   --erp-toggle-height: 20px;
   --erp-checkbox-size: 14px;
-  --erp-card-accent-width: 4px;
+  --erp-card-accent-width: 3px;
   --erp-tab-indicator-height: 3px;
   --erp-tab-indicator-radius: 999px;
   --erp-tab-indicator-inset: 12px;
@@ -216,7 +216,7 @@
   margin: 0 !important;
   flex: 1 1 auto;
   min-width: 0;
-  gap: 8px !important;
+  gap: 6px !important;
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
@@ -376,7 +376,7 @@
 .cadastro-emp-scope .emp-form-card-title {
   position: relative;
   min-height: 30px !important;
-  padding: 4px 12px !important;
+  padding: 4px 12px 4px calc(12px + var(--erp-card-accent-width)) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
   color: var(--erp-color-primary) !important;
@@ -386,9 +386,18 @@
   overflow: visible !important;
 }
 
+/* Faixa lateral: colada na borda do card, curva no canto superior */
 .cadastro-emp-scope .emp-form-card-title::before {
-  display: none !important;
-  content: none !important;
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--erp-card-accent-width);
+  border-radius: var(--erp-radius-card) var(--erp-tab-indicator-radius) var(--erp-tab-indicator-radius) 0;
+  background: var(--erp-color-primary);
+  box-shadow: var(--erp-tab-indicator-glow);
+  pointer-events: none;
 }
 
 .cadastro-emp-scope .emp-form-card--virtual {
@@ -457,7 +466,7 @@
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
-  gap: 6px 16px !important;
+  gap: 6px !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,
@@ -1531,4 +1540,48 @@
 .erp-shell .form-validation-status__counter,
 .erp-shell .form-validation-status__label {
   color: inherit;
+}
+
+/* —— Aviso obrigatório abaixo do campo (altura reservada em todos os campos) —— */
+.cadastro-emp-scope .emp-form-field-corp {
+  position: relative;
+  padding-bottom: 14px;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope .emp-form-field-message-slot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 14px;
+  line-height: 14px;
+  pointer-events: none;
+}
+
+.cadastro-emp-scope .emp-form-field-error-message {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: #dc2626;
+}
+
+.cadastro-emp-scope .emp-form-field-error-message--hidden {
+  visibility: hidden;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid {
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error input,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error textarea,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error select,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid input,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid textarea,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid select {
+  background: #fef2f2 !important;
 }

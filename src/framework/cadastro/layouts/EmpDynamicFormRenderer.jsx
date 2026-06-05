@@ -185,9 +185,24 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
         {field.label}
         {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
       </label>
-      <div className={cn("emp-form-field-control", error && "erp-field-invalid")}>
+      <div
+        className={cn(
+          "emp-form-field-control",
+          error && "erp-field-invalid emp-form-field-error"
+        )}
+      >
         {loteStyle && !bare && <EmpCustomMarker variant="lote" />}
         {children}
+      </div>
+      <div className="emp-form-field-message-slot" aria-hidden={!field.required || !error}>
+        <span
+          className={cn(
+            "emp-form-field-error-message",
+            (!field.required || !error) && "emp-form-field-error-message--hidden"
+          )}
+        >
+          Campo obrigatório
+        </span>
       </div>
     </div>
   );

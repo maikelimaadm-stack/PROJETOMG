@@ -710,7 +710,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone,
 .cadastro-emp-scope .form-scroll-container .emp-form-panels-zone {
   margin-top: 0 !important;
-  gap: 8px !important;
+  gap: 6px !important;
   width: 100%;
   max-width: 100%;
   background: transparent !important;
@@ -801,7 +801,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-panels-zone-details {
-  gap: 8px;
+  gap: 6px;
 }
 
 .cadastro-emp-scope .emp-form-details-panels {
@@ -2795,7 +2795,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-view,
 .cadastro-emp-scope .emp-split-view {
-  gap: 4px;
+  gap: 6px;
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
@@ -2891,7 +2891,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-split-view {
-  gap: 4px;
+  gap: 6px;
 }
 
 .cadastro-emp-scope .emp-config-dialog-shell .emp-toolbar-card,
@@ -3068,7 +3068,7 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-cards-row {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 6px 16px;
+  gap: 6px;
   width: 100%;
   align-items: start;
 }

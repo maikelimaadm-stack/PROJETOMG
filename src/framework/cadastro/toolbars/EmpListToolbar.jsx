@@ -44,6 +44,9 @@ export default function EmpListToolbar({
   onConfigExportExcel,
   onConfigColumns,
   selectedCount = 0,
+  empresasTotal,
+  registrosGlobaisTotal,
+  showCorporateCounters = false,
   title = "REGISTROS",
   recordLabel = "",
   operationLabel,
@@ -147,17 +150,34 @@ export default function EmpListToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <EmpBubbleCounter
-            value={
-              viewMode === "record" && total > 0
-                ? `${currentIndex + 1}/${total}`
-                : selectedCount > 0
-                  ? `${selectedCount}/${total}`
-                  : String(total)
-            }
-            title="Registros"
-            className="emp-toolbar-bubble-counter"
-          />
+          {showCorporateCounters ? (
+            <>
+              <EmpBubbleCounter
+                label="Empresas"
+                value={String(empresasTotal ?? total)}
+                title="Empresas"
+                className="emp-toolbar-bubble-counter"
+              />
+              <EmpBubbleCounter
+                label="Registros Globais"
+                value={String(registrosGlobaisTotal ?? 0)}
+                title="Registros Globais"
+                className="emp-toolbar-bubble-counter"
+              />
+            </>
+          ) : (
+            <EmpBubbleCounter
+              value={
+                viewMode === "record" && total > 0
+                  ? `${currentIndex + 1}/${total}`
+                  : selectedCount > 0
+                    ? `${selectedCount}/${total}`
+                    : String(total)
+              }
+              title="Registros"
+              className="emp-toolbar-bubble-counter"
+            />
+          )}
         </div>
       </div>
     </div>

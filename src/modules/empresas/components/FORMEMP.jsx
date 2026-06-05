@@ -22,7 +22,10 @@ import {
   pickLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
-import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
+import {
+  buildRequiredFormFieldErrors,
+  countRequiredFormFields,
+} from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -49,6 +52,9 @@ export default function FORMEMP({
   onDelete, onDuplicate, onRefresh,
   filterOpen = false, filterActive = false, onToggleFilter, onClearFilter,
   searchValue = "", onSearchChange,
+  showCorporateCounters = false,
+  empresasTotal,
+  registrosGlobaisTotal,
   initialData,
   isEditing,
   recordKey,
@@ -171,12 +177,14 @@ export default function FORMEMP({
     if (isReadOnly) return;
     const normalized = UPPER_FIELDS.includes(field) && typeof value === "string" ? value.toUpperCase() : value;
     setErrors((prev) => ({ ...prev, [field]: false }));
+    clearRequiredFieldErrors();
     setFormData((prev) => ({ ...prev, [field]: normalized }));
   };
 
   const handleCustomChange = (fieldName, value) => {
     if (isReadOnly) return;
     setErrors((prev) => ({ ...prev, [`campos_personalizados.${fieldName}`]: false }));
+    clearRequiredFieldErrors();
     setFormData((prev) => {
       const next = {
         ...prev,
@@ -404,9 +412,16 @@ export default function FORMEMP({
   };
 
   const validateForm = () => {
-    const nextErrors = {};
-    REQUIRED_FIELDS.forEach((field) => {
-      if (!String(formData?.[field] || "").trim()) nextErrors[field] = true;
+    const panelIds = tabs.map((panel) => panel.id);
+    const nextErrors = buildRequiredFormFieldErrors({
+      panelIds,
+      layout: activeLayoutConfig?.layout,
+      fields: dynamicFields,
+      hiddenFieldIds: activeLayoutConfig?.hiddenFieldIds || [],
+      requiredFieldIds: activeLayoutConfig?.requiredFieldIds || [],
+      visibilityRules: activeLayoutConfig?.visibilityRules || {},
+      values: formData,
+      nativeRequiredFieldNames: REQUIRED_FIELDS,
     });
     const customValidation = campoEngine.buildValidationSchema(camposPersonalizadosForm).safeParse(formData.campos_personalizados || {});
     if (!customValidation.success) {
@@ -435,20 +450,27 @@ export default function FORMEMP({
   const operationLabel = isDuplicating ? "NOVO REGISTRO DUPLICADO" : isEditing ? editMode ? "EDIÇÃO DE REGISTRO" : "VISUALIZAÇÃO DE REGISTRO" : "NOVO REGISTRO";
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
-  const recordHeaderTitle = useMemo(() => {
-    const code = String(formData.codempresa || "").trim();
-    const name = String(formData.razao_social || "").trim();
-    if (code && name) return `${code} - ${name}`;
-    if (code) return code;
-    if (name) return name;
-    if (isDuplicating) return "Duplicar empresa";
-    if (!isEditing) return "Nova empresa";
+  const recordMeta = useMemo(() => {
+    const codigo = formData.codempresa != null && String(formData.codempresa).trim() !== ""
+      ? formData.codempresa
+      : null;
+    const nome = String(formData.razao_social || "").trim() || null;
+    const idGlobal = formData.id_global != null && Number(formData.id_global) > 0
+      ? formData.id_global
+      : null;
+
+    if (idGlobal || codigo || nome) {
+      return { idGlobal, codigo, nome };
+    }
+    if (isDuplicating) return { idGlobal: null, codigo: null, nome: "Duplicar empresa" };
+    if (!isEditing) return { idGlobal: null, codigo: null, nome: "Nova empresa" };
     return null;
-  }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+  }, [formData.id_global, formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
 
   useEffect(() => {
     if (layoutConfigOpen) {
       setPageHeader({
+        recordMeta: null,
         recordTitle: null,
         operationLabel: "Configuração",
         contextSuffix: "Configuração de layout",
@@ -457,12 +479,13 @@ export default function FORMEMP({
     }
 
     setPageHeader({
-      recordTitle: recordHeaderTitle,
+      recordMeta,
+      recordTitle: null,
       operationLabel,
       contextSuffix: null,
     });
   }, [
-    recordHeaderTitle,
+    recordMeta,
     operationLabel,
     layoutConfigOpen,
     setPageHeader,
@@ -562,6 +585,9 @@ export default function FORMEMP({
               searchValue={searchValue}
               onSearchChange={onSearchChange}
               showSearch
+              showCorporateCounters={showCorporateCounters}
+              empresasTotal={empresasTotal}
+              registrosGlobaisTotal={registrosGlobaisTotal}
             />
           }
         >

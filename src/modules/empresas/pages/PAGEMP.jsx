@@ -16,6 +16,8 @@ import {
   EmpresasFormPanel,
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
+import { MetricsApi } from "@/apis/metrics/MetricsApi";
+import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -105,6 +107,13 @@ export default function PAGEMP() {
 
   const empresas = empresasResponse.items || [];
   const totalEmpresas = empresasResponse.total || 0;
+
+  const { data: contadores = { empresas: totalEmpresas, registrosGlobais: 0 } } = useQuery({
+    queryKey: ["metrics-contadores"],
+    queryFn: () => MetricsApi.getContadores(),
+    staleTime: 30_000,
+    placeholderData: { empresas: totalEmpresas, registrosGlobais: 0 },
+  });
   const empresasLoading = isLoading && empresas.length === 0;
   const empresasFiltradasPainel = empresas;
 
@@ -245,6 +254,7 @@ export default function PAGEMP() {
             current.includes(pendingId) ? [normalized.id] : current
           );
           upsertEmpresaInSelector(normalized);
+          queryClient.invalidateQueries({ queryKey: ["metrics-contadores"] });
         })
         .catch((error) => {
           cacheSnapshot.forEach(([key, value]) => {
@@ -551,6 +561,9 @@ export default function PAGEMP() {
           onSearchChange: handleSearchChange,
           onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
           attachDisabled: false,
+          showCorporateCounters: true,
+          empresasTotal: contadores.empresas ?? totalEmpresas,
+          registrosGlobaisTotal: formatIdGlobal(contadores.registrosGlobais ?? 0) || "0",
         }}
       />
 
@@ -578,6 +591,9 @@ export default function PAGEMP() {
           selectedCount: selectedTableItems.length,
           title: moduleLabels.title,
           recordLabel: "",
+          showCorporateCounters: true,
+          empresasTotal: contadores.empresas ?? totalEmpresas,
+          registrosGlobaisTotal: formatIdGlobal(contadores.registrosGlobais ?? 0) || "0",
         }}
         tableProps={{
           key: "tbl-emp",
