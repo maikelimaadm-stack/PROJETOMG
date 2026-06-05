@@ -41,7 +41,7 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
+  border-radius: 5px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
@@ -225,6 +225,7 @@ input[type="number"] {
   --emp-text: #1e293b;
   --emp-text-strong: #1e293b;
   --emp-control-radius: 8px;
+  --emp-button-radius: 5px;
   --emp-form-control-height: 26px;
   --emp-form-font-size: 12px;
   --emp-form-border-color: #d9e2ef;
@@ -264,8 +265,19 @@ input[type="number"] {
   color: var(--emp-text);
 }
 
-.cadastro-emp-scope :where(.border, input, textarea, button, [role="button"], [data-radix-select-trigger]) {
+.cadastro-emp-scope :where(.border, input, textarea, [data-radix-select-trigger]) {
   border-radius: var(--emp-control-radius) !important;
+}
+
+.cadastro-emp-scope :where(button, [role="button"]):not(
+  .emp-form-tab,
+  .emp-form-tab-active,
+  .emp-form-tab-inactive,
+  .emp-form-toggle-switch,
+  .rounded-full,
+  .rounded-none
+) {
+  border-radius: var(--emp-button-radius, 5px) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-td,
@@ -1764,7 +1776,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-toolbar-btn,
 .cadastro-emp-scope .emp-header-ctrl,
 .cadastro-emp-scope .emp-table-pagination-btn {
-  border-radius: 5px !important;
+  border-radius: var(--emp-button-radius, 5px) !important;
   box-shadow: none !important;
 }
 
@@ -1782,7 +1794,7 @@ input[type="number"] {
 .cadastro-emp-scope .emp-table-pagination-size,
 .cadastro-emp-scope .emp-table-pagination .emp-table-pagination-size {
   border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
-  border-radius: 5px !important;
+  border-radius: var(--emp-button-radius, 5px) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new) {

@@ -86,8 +86,9 @@
   --erp-menu-search-border: #e2e8f0;
 
   --erp-radius-control: 8px;
+  --erp-radius-button: 5px;
   --erp-radius-card: 12px;
-  --erp-radius-toolbar-btn: 10px;
+  --erp-radius-toolbar-btn: 5px;
   --erp-radius-modal: 16px;
   --erp-radius-dropdown: 12px;
   --erp-radius-select-menu: 12px;
@@ -118,6 +119,7 @@
   --emp-text-strong: var(--erp-color-text);
   --emp-form-control-height: var(--erp-control-height);
   --emp-control-radius: var(--erp-radius-control);
+  --emp-button-radius: var(--erp-radius-button);
   --emp-form-border-color: var(--erp-color-input-border);
   --emp-form-label-color: var(--erp-color-label);
   --emp-accent-primary: var(--erp-color-primary);
@@ -1301,4 +1303,49 @@
   height: 14px !important;
   color: var(--erp-color-text-muted) !important;
   opacity: 1 !important;
+}
+
+/* —— Botões — raio global mais contido —— */
+.erp-shell :is(
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"]
+):not(
+  .emp-form-tab,
+  .emp-form-tab-active,
+  .emp-form-tab-inactive,
+  .emp-form-toggle-switch,
+  .rounded-full,
+  .rounded-none,
+  [class*="rounded-full"],
+  [class*="rounded-none"]
+),
+.cadastro-emp-scope :is(
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"]
+):not(
+  .emp-form-tab,
+  .emp-form-tab-active,
+  .emp-form-tab-inactive,
+  .emp-form-toggle-switch,
+  .rounded-full,
+  .rounded-none,
+  [class*="rounded-full"],
+  [class*="rounded-none"]
+) {
+  border-radius: var(--erp-radius-button) !important;
+}
+
+/* Botões embutidos em campos seguem o raio do controle */
+.cadastro-emp-scope .emp-form-field-control :is(button, [role="button"]),
+.cadastro-emp-scope .emp-form-lookup-btn,
+.cadastro-emp-scope .emp-form-date-btn,
+.cadastro-emp-scope .emp-form-select-btn,
+.cadastro-emp-scope .erp-field-select-chevron-btn {
+  border-radius: var(--erp-radius-control) !important;
 }
