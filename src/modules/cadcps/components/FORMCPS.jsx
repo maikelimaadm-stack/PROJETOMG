@@ -25,7 +25,7 @@ const toSnake = (v) =>
     .toLowerCase();
 
 const CONTROL_CLASS =
-  "emp-form-field-control relative min-h-[var(--emp-form-control-height)] w-full max-w-[480px] border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff]";
+  "emp-form-field-control relative min-h-[var(--emp-form-control-height)] w-full max-w-[480px] border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#2899f5]";
 
 const emptyForm = () => ({
   nome: "",

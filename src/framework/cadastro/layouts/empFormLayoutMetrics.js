@@ -76,6 +76,7 @@ export function countRequiredFormFields({
   const seen = new Set();
   let total = 0;
   let filled = 0;
+  const pendingFields = [];
 
   const flatLayout = flattenV3LayoutToV2(coerceLayoutToV3(layout));
 
@@ -89,9 +90,23 @@ export function countRequiredFormFields({
       if (!isFieldRequired(field, requiredFieldIds, nativeRequiredFieldNames)) return;
 
       total += 1;
-      if (!isEmptyRequiredValue(getFieldValue(field, values), field)) filled += 1;
+      const value = getFieldValue(field, values);
+      if (!isEmptyRequiredValue(value, field)) {
+        filled += 1;
+        return;
+      }
+
+      pendingFields.push({
+        id: field.id,
+        label: String(field.label || field.name || field.id).trim(),
+      });
     });
   });
 
-  return { total, filled, pending: Math.max(0, total - filled) };
+  return {
+    total,
+    filled,
+    pending: Math.max(0, total - filled),
+    pendingFields,
+  };
 }

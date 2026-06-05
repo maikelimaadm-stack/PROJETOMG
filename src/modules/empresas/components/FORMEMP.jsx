@@ -23,7 +23,7 @@ import {
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
-import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
+import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
@@ -331,7 +331,7 @@ export default function FORMEMP({
 
 
   const requiredFieldStats = useMemo(() => {
-    if (!activeLayoutConfig?.layout) return { total: 0, filled: 0, pending: 0 };
+    if (!activeLayoutConfig?.layout) return { total: 0, filled: 0, pending: 0, pendingFields: [] };
     const panelIds = tabs.map((panel) => panel.id);
     return countRequiredFormFields({
       panelIds,
@@ -344,11 +344,6 @@ export default function FORMEMP({
       nativeRequiredFieldNames: REQUIRED_FIELDS,
     });
   }, [tabs, activeLayoutConfig, dynamicFields, formData]);
-
-  const requiredCounterTone =
-    requiredFieldStats.total > 0 && requiredFieldStats.filled >= requiredFieldStats.total
-      ? "complete"
-      : "incomplete";
 
   const applyLayoutConfig = (source, options) => applyLayoutConfigFromEngine(source, options);
 
@@ -579,11 +574,10 @@ export default function FORMEMP({
                 onChange={setActiveTab}
                 systemPanelIds={empresasCadastroConfig.systemPanelIds}
                 trailing={
-                  <EmpBubbleCounter
-                    value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
-                    title="Campos obrigatórios preenchidos"
-                    tone={requiredCounterTone}
-                    className="emp-toolbar-bubble-counter"
+                  <FormValidationStatus
+                    filled={requiredFieldStats.filled}
+                    total={requiredFieldStats.total}
+                    pendingFields={requiredFieldStats.pendingFields}
                   />
                 }
               />

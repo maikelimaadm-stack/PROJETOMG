@@ -2,7 +2,7 @@ import React from "react";
 import { Input } from "@/shared/ui/input";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 
-const fieldBoxCls = "h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#4fafff] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none";
+const fieldBoxCls = "h-6 border-[0.5px] border-[#c5ced8] rounded-[2px] bg-white focus-within:border-[#2899f5] transition-colors overflow-hidden [&_input]:h-[22px] [&_input]:border-0 [&_input]:rounded-none [&_input]:shadow-none [&_input]:focus-visible:ring-0 [&_button]:h-[22px] [&_button]:border-0 [&_button]:rounded-none [&_button]:shadow-none";
 
 export default function EmpDecimalConfig({ form, updateForm }) {
   if (!["number", "calculado"].includes(form.tipo)) return null;

@@ -9,7 +9,7 @@ export default function ToggleSwitch({
   variant = "default",
 }) {
   const loteVariant = variant === "lote";
-  const activeTrackClass = loteVariant ? "bg-[#4fafff] hover:bg-[#4fafff]" : checkedClassName;
+  const activeTrackClass = loteVariant ? "bg-[#2899f5] hover:bg-[#2899f5]" : checkedClassName;
   const inactiveTrackClass = loteVariant ? "bg-slate-300 hover:bg-slate-400" : "bg-white hover:bg-slate-50";
   const thumbClass = loteVariant
     ? `absolute top-0.5 w-3 h-3 rounded-full bg-white transition-all ${checked ? "right-0.5" : "left-0.5"}`

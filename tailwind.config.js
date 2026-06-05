@@ -16,7 +16,7 @@ module.exports = {
   				muted: '#64748b',
   				disabled: '#94a3b8',
   				label: '#334155',
-  				primary: '#4fafff',
+  				primary: '#2899f5',
   				border: '#e4eaf2',
   				'input-border': '#d9e2ef',
   				surface: '#f7f9fc',

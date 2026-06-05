@@ -48,7 +48,7 @@ export default function EmpRecordToolbar({
   searchValue = "",
   onSearchChange,
   showSearch = false,
-  showRecordNavigation = true
+  showRecordNavigation = true,
 }) {
   const canNavigate = total > 0;
   const isFirst = currentIndex <= 0;
