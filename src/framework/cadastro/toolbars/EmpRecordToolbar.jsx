@@ -52,8 +52,9 @@ export default function EmpRecordToolbar({
   empresasTotal,
   registrosGlobaisTotal,
   showCorporateCounters = false,
+  actionsLocked = false,
 }) {
-  const canNavigate = total > 0;
+  const canNavigate = total > 0 && !actionsLocked;
   const isFirst = currentIndex <= 0;
   const isLast = currentIndex >= total - 1;
 
@@ -63,9 +64,9 @@ export default function EmpRecordToolbar({
         {onBack && (
           <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}
-        <ToolbarBtn onClick={onToggleView} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
+        <ToolbarBtn onClick={onToggleView} disabled={actionsLocked} title="Visualizar tabela"><EmpToolbarIcon icon={List} /></ToolbarBtn>
         {!showSaveActions && (
-          <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
+          <ToolbarBtn onClick={onNew} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
             <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
             <span>Novo</span>
           </ToolbarBtn>
@@ -106,11 +107,11 @@ export default function EmpRecordToolbar({
         )}
         {showSaveActions && (
           <>
-            <ToolbarBtn onClick={onSave} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
+            <ToolbarBtn onClick={onSave} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
               <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
               <span>Salvar</span>
             </ToolbarBtn>
-            <ToolbarBtn onClick={onCancel} className={LABELED_BTN_CLASS} title="Descartar">
+            <ToolbarBtn onClick={onCancel} disabled={actionsLocked} className={LABELED_BTN_CLASS} title="Descartar">
               <EmpToolbarIcon icon={X} />
               <span>Cancelar</span>
             </ToolbarBtn>

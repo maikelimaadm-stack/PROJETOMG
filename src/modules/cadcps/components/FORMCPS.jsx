@@ -110,6 +110,7 @@ export default function FORMCPS({
   onDuplicate,
   searchValue = "",
   onSearchChange,
+  actionsLocked = false,
 }) {
   const isDuplicating = !!initialData?._isDuplicate;
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
@@ -257,7 +258,7 @@ export default function FORMCPS({
 
   const handleSubmit = (event) => {
     event?.preventDefault?.();
-    if (isReadOnly) return;
+    if (isReadOnly || actionsLocked) return;
     if (!validateForm()) return;
     onSubmit?.(buildPayload());
     setEditMode(false);
@@ -659,6 +660,7 @@ export default function FORMCPS({
               searchValue={searchValue}
               onSearchChange={onSearchChange}
               showSearch
+              actionsLocked={actionsLocked}
             />
           }
         >

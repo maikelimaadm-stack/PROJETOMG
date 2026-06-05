@@ -51,9 +51,10 @@ export default function EmpListToolbar({
   recordLabel = "",
   operationLabel,
   showUtilityActions = true,
-  showSearch = true
+  showSearch = true,
+  actionsLocked = false,
 }) {
-  const canNavigate = viewMode === "record" && total > 0;
+  const canNavigate = viewMode === "record" && total > 0 && !actionsLocked;
   const showRecordNavigation = viewMode === "record";
   const showDeleteSelectionAction = viewMode === "table" && selectedCount > 0 && !!onDelete;
   const showDuplicateSelectionAction = viewMode === "table" && selectedCount === 1 && !!onDuplicate;
@@ -69,12 +70,12 @@ export default function EmpListToolbar({
           )}
           <ToolbarBtn
             onClick={onToggleView}
-            disabled={toggleViewDisabled}
+            disabled={actionsLocked || toggleViewDisabled}
             title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
           >
             {viewMode === "table" ? <EmpToolbarIcon icon={List} /> : <EmpToolbarIcon icon={Table} />}
           </ToolbarBtn>
-          <ToolbarBtn onClick={onNew} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
+          <ToolbarBtn onClick={onNew} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
             <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
             <span>Novo</span>
           </ToolbarBtn>
@@ -100,13 +101,13 @@ export default function EmpListToolbar({
             </div>
           )}
           {showDeleteSelectionAction && (
-            <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} title="Excluir selecionados">
+            <ToolbarBtn onClick={onDelete} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} title="Excluir selecionados">
               <EmpToolbarIcon icon={Trash2} />
               <span>Excluir</span>
             </ToolbarBtn>
           )}
           {showDuplicateSelectionAction && (
-            <ToolbarBtn onClick={onDuplicate} className={LABELED_BTN_CLASS} title="Duplicar">
+            <ToolbarBtn onClick={onDuplicate} disabled={actionsLocked} className={LABELED_BTN_CLASS} title="Duplicar">
               <EmpToolbarIcon icon={Copy} />
               <span>Duplicar</span>
             </ToolbarBtn>

@@ -20,6 +20,7 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
+import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -80,6 +81,7 @@ export default function PAGEMP() {
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
   const queryClient = useQueryClient();
+  const saveCycle = useSaveCycle();
 
   useEffect(() => {
     if (previousScopeEmpresaIdRef.current === selectedEmpresaId) return;
@@ -180,12 +182,15 @@ export default function PAGEMP() {
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
   const handleSubmit = useCallback((data) => {
+    if (saveCycle.isSaving) return;
+
     const isUpdate = Boolean(
       editingEmp?.id && !isPendingRecordId(editingEmp.id) && !editingEmp._isDuplicate
     );
 
     try {
       const validatedData = empresasModuleDefinition.schema.parse(data);
+      saveCycle.begin(isUpdate ? "Salvando alterações..." : "Salvando registro...");
 
       if (isUpdate) {
         const optimistic = normalizeEmpresaRecord({ ...editingEmp, ...validatedData });
@@ -201,7 +206,6 @@ export default function PAGEMP() {
         upsertEmpresaInSelector(optimistic);
         setEditingEmp(optimistic);
         stayOnRecordAfterSave(optimistic);
-        showSuccess(`${moduleLabels.singular} atualizada!`);
 
         void moduleRepository
           .update(editingEmp.id, validatedData)
@@ -215,6 +219,7 @@ export default function PAGEMP() {
             }));
             setEditingEmp(normalized);
             upsertEmpresaInSelector(normalized);
+            showSuccess(`${moduleLabels.singular} atualizada!`);
           })
           .catch((error) => {
             cacheSnapshot.forEach(([key, value]) => {
@@ -227,7 +232,8 @@ export default function PAGEMP() {
                 `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
               )
             );
-          });
+          })
+          .finally(() => saveCycle.end());
         return;
       }
 
@@ -249,7 +255,6 @@ export default function PAGEMP() {
       }));
       patchMetricsCache(queryClient, { empresas: 1, registrosGlobais: 1 });
       stayOnRecordAfterSave(optimistic);
-      showSuccess(`${moduleLabels.singular} cadastrada!`);
       setFormVersion((version) => version + 1);
 
       void moduleRepository
@@ -284,6 +289,7 @@ export default function PAGEMP() {
           );
           upsertEmpresaInSelector(normalized);
           setMetricsCache(queryClient, response?.contadores);
+          showSuccess(`${moduleLabels.singular} cadastrada!`);
         })
         .catch((error) => {
           pendingCreatesRef.current.delete(pendingId);
@@ -305,8 +311,10 @@ export default function PAGEMP() {
               `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
             )
           );
-        });
+        })
+        .finally(() => saveCycle.end());
     } catch (error) {
+      saveCycle.end();
       showError(
         resolveErrorMessage(
           error,
@@ -322,11 +330,13 @@ export default function PAGEMP() {
     queryClient,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
+    saveCycle,
     stayOnRecordAfterSave,
     upsertEmpresaInSelector,
   ]);
 
   const handleEdit = (emp) => {
+    if (!saveCycle.guardAction()) return;
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([emp.id]);
@@ -337,6 +347,7 @@ export default function PAGEMP() {
   };
 
   const handleNew = () => {
+    if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
     setSelectedTableItems([]);
     setEditingEmp(null);
@@ -346,6 +357,7 @@ export default function PAGEMP() {
   };
 
   const handleDuplicate = (emp) => {
+    if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
     const { id, created_date, updated_date, created_by, codempresa, id_global, _isPersisting, ...dup } = emp;
     setEditingEmp({ ...dup, _isDuplicate: true });
@@ -355,6 +367,7 @@ export default function PAGEMP() {
   };
 
   const handleRequestDelete = (ids) => {
+    if (!saveCycle.guardAction()) return;
     const normalized = (Array.isArray(ids) ? ids : [ids]).filter(Boolean);
     pendingDeleteIdsRef.current = normalized;
     setDeleteState({ open: true, ids: normalized });
@@ -400,6 +413,7 @@ export default function PAGEMP() {
   }, [empresasNavegacao]);
 
   const handleToggleView = () => {
+    if (!saveCycle.guardAction()) return;
     if (showForm) { setShowForm(false); setEditingEmp(null); setViewMode("table"); return; }
     if (selectedTableItems.length > 1) return;
     const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
@@ -413,7 +427,7 @@ export default function PAGEMP() {
   };
 
   const navigateRecord = (index) => {
-    if (!showForm) return;
+    if (!showForm || !saveCycle.guardAction()) return;
     const ni = Math.min(Math.max(index, 0), Math.max(empresasNavegacao.length - 1, 0));
     setSelectedIndex(ni);
     if (empresasNavegacao[ni]) { setEditingEmp(empresasNavegacao[ni]); setSelectedTableItems([empresasNavegacao[ni].id]); }
@@ -578,6 +592,7 @@ export default function PAGEMP() {
     <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <EmpresasFormPanel
         showForm={showForm}
+        saveProgress={{ active: saveCycle.isSaving, message: saveCycle.saveMessage }}
         formProps={{
           key: `form-${formVersion}`,
           initialData: editingEmp,
@@ -621,12 +636,14 @@ export default function PAGEMP() {
           showCorporateCounters: true,
           empresasTotal: contadores.empresas ?? totalEmpresas,
           registrosGlobaisTotal: formatIdGlobal(contadores.registrosGlobais ?? 0) || "0",
+          actionsLocked: saveCycle.isSaving,
         }}
       />
 
       <EmpresasTablePanel
         hidden={showForm}
         toolbarProps={{
+          actionsLocked: saveCycle.isSaving,
           viewMode,
           total: totalEmpresas,
           currentIndex: selectedIndex,

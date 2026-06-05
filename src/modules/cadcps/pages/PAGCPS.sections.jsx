@@ -4,11 +4,13 @@ import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarL
 import FORMCPS from "@/modules/cadcps/components/FORMCPS";
 import TBLCPS from "@/modules/cadcps/components/TBLCPS";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
+import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
-export const CamposFormPanel = ({ showForm, formProps }) => {
+export const CamposFormPanel = ({ showForm, formProps, saveProgress }) => {
   if (!showForm) return null;
   return (
     <div className="relative flex h-full min-h-0 w-full flex-1 overflow-hidden">
+      <SaveProgressOverlay active={saveProgress?.active} message={saveProgress?.message} />
       <div className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
         <FORMCPS {...formProps} />
       </div>

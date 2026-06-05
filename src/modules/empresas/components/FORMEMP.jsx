@@ -58,6 +58,7 @@ export default function FORMEMP({
   initialData,
   isEditing,
   recordKey,
+  actionsLocked = false,
 }) {
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
@@ -457,7 +458,7 @@ export default function FORMEMP({
 
   const handleSubmit = (event) => {
     if (event?.preventDefault) event.preventDefault();
-    if (isReadOnly) return;
+    if (isReadOnly || actionsLocked) return;
     if (!validateForm()) return;
     const calculated = campoEngine.aplicarCamposCalculados ? campoEngine.aplicarCamposCalculados(formData, camposPersonalizadosForm) : formData;
     const { _isDuplicate, ...clean } = { ...formData, campos_personalizados: calculated.campos_personalizados || {} };
@@ -605,6 +606,7 @@ export default function FORMEMP({
               onDelete={onDelete}
               onDuplicate={onDuplicate}
               onRefresh={onRefresh}
+              actionsLocked={actionsLocked}
               filterOpen={filterOpen}
               filterActive={filterActive}
               onToggleFilter={onToggleFilter}
