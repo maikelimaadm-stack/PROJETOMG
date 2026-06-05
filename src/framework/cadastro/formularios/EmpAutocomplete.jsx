@@ -108,11 +108,24 @@ export default function EmpAutocomplete({
     };
   }, [open, calcPosition]);
 
-  useEffect(() => {
-    if (!open) return;
-    const timer = window.setTimeout(() => menuSearchRef.current?.focus(), 0);
-    return () => window.clearTimeout(timer);
-  }, [open, isSelect]);
+  const focusAdjacentField = useCallback((backward) => {
+    const current = inputRef.current;
+    if (!current) return;
+    const scope = current.closest("form, [role='dialog'], .cadastro-emp-scope") || document;
+    const candidates = Array.from(
+      scope.querySelectorAll(
+        "input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
+      )
+    ).filter((el) => {
+      if (el.tabIndex < 0) return false;
+      if (el.closest("[aria-hidden='true']")) return false;
+      return el.getClientRects().length > 0;
+    });
+    const index = candidates.indexOf(current);
+    if (index < 0) return;
+    const next = candidates[index + (backward ? -1 : 1)];
+    next?.focus();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -168,10 +181,20 @@ export default function EmpAutocomplete({
 
   const handleKeyDown = (event) => {
     if (disabled || readOnly) return;
-    if (event.key === "Tab" || event.key === "Escape") {
+    if (event.key === "Escape") {
       setOpen(false);
       if (isLookup) setSearchTerm(selectedItem?.[displayField] || "");
       setMenuFilter("");
+      return;
+    }
+    if (event.key === "Tab") {
+      if (open) {
+        event.preventDefault();
+        setOpen(false);
+        if (isLookup) setSearchTerm(selectedItem?.[displayField] || "");
+        setMenuFilter("");
+        window.requestAnimationFrame(() => focusAdjacentField(event.shiftKey));
+      }
       return;
     }
     if (event.key === "ArrowDown") {
@@ -367,7 +390,7 @@ export default function EmpAutocomplete({
       className={cn(
         "emp-form-autocomplete-wrap erp-select-control",
         isLookup ? "erp-field-lookup" : "erp-field-select",
-        isLookup && "emp-form-autocomplete-wrap--with-btn",
+        (isLookup || isSelect) && "emp-form-autocomplete-wrap--with-btn",
         open && "erp-field-open",
         className
       )}
@@ -375,7 +398,7 @@ export default function EmpAutocomplete({
       <div className="relative min-w-0 flex-1">
         {isLookup ? (
           <Search
-            className="erp-field-lookup-inline-icon pointer-events-none absolute left-2 top-1/2 z-[2] h-3.5 w-3.5 -translate-y-1/2 text-[#64748b]"
+            className="erp-field-lookup-inline-icon pointer-events-none absolute left-2 top-1/2 z-[2] h-[14px] w-[14px] -translate-y-1/2 text-[#1a1f26]"
             aria-hidden
           />
         ) : null}
@@ -397,28 +420,29 @@ export default function EmpAutocomplete({
           className={cn(
             "emp-form-input h-full min-h-0 border-0 text-xs shadow-none focus-visible:ring-0",
             inputClassName,
-            isLookup ? "erp-field-lookup-input !pl-7 !pr-2" : "erp-field-select-input !pr-7 !pl-2.5",
+            isLookup ? "erp-field-lookup-input !pl-7 !pr-2" : "erp-field-select-input !pr-2 !pl-2.5",
             !isLookup && uppercaseDisplay && "uppercase"
           )}
           style={!isLookup && uppercaseDisplay ? { textTransform: "uppercase" } : undefined}
         />
-        {isSelect ? (
+      </div>
+      {isSelect ? (
           <button
             type="button"
             tabIndex={-1}
             disabled={disabled || readOnly}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => (open ? setOpen(false) : openPanel())}
-            className="erp-field-select-chevron-btn absolute right-1 top-1/2 z-[3] flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-[#64748b] hover:bg-[#f3f6fb]"
+            className="erp-field-select-chevron-btn emp-form-select-btn shrink-0"
             aria-label={open ? "Fechar lista" : "Abrir lista"}
           >
             <ChevronDown
-              className={cn("h-3.5 w-3.5 transition-transform duration-150", open && "rotate-180")}
+              className={cn("h-[14px] w-[14px] shrink-0 text-[#1a1f26] transition-transform duration-150", open && "rotate-180")}
               strokeWidth={2}
+              color="#1a1f26"
             />
           </button>
-        ) : null}
-      </div>
+      ) : null}
       {isLookup ? (
         <>
           <span className="erp-lookup-inline-divider" aria-hidden />

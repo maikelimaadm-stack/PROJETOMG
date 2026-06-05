@@ -9,7 +9,7 @@ export function ErpToaster() {
       position="top-right"
       expand
       visibleToasts={5}
-      closeButton
+      closeButton={false}
       richColors={false}
       offset={16}
       gap={10}

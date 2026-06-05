@@ -16,16 +16,42 @@
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
   --erp-menu-item-hover: #f3f6fb;
-  --erp-menu-item-selected-bg: #eef6ff;
+  --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
   --erp-menu-search-bg: #f8fafc;
   --erp-menu-search-border: #e2e8f0;
-  --erp-color-primary: #2563eb;
+  --erp-color-primary: #4fafff;
   --erp-color-text: #1e293b;
+  --erp-color-text-secondary: #475569;
   --erp-color-text-muted: #64748b;
+  --erp-color-label: #334155;
+  --erp-color-card: #ffffff;
+  --erp-color-card-border: #edf1f6;
+  --erp-radius-card: 12px;
+  --erp-shadow-card:
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03);
+  --erp-state-success: #22c55e;
+  --erp-state-warning: #f59e0b;
+  --erp-state-error: #ef4444;
+  --erp-state-info: #4fafff;
   --erp-radius-control: 8px;
-  --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  --erp-shadow-focus: none;
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Portais (sonner, menus) — garante tokens dos cards */
+[data-sonner-toaster],
+[data-sonner-toast] {
+  --erp-color-card: #ffffff;
+  --erp-color-card-border: #edf1f6;
+  --erp-radius-card: 12px;
+  --erp-shadow-card:
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03);
+  --erp-color-label: #334155;
+  --erp-color-text-secondary: #475569;
+  --erp-color-primary: #4fafff;
 }
 
 .erp-shell .erp-shell-company-select,
@@ -51,18 +77,21 @@
   --erp-color-text-disabled: #94a3b8;
   --erp-color-label: #334155;
   --erp-color-required: #ef4444;
-  --erp-color-primary: #2563eb;
-  --erp-color-primary-hover: #1d4ed8;
+  --erp-color-primary: #4fafff;
+  --erp-color-primary-hover: #4fafff;
   --erp-color-border: #e4eaf2;
+  --erp-color-border-soft: #edf1f6;
+  --erp-color-card-border: #edf1f6;
   --erp-color-input-border: #d9e2ef;
-  --erp-color-input-hover: #93c5fd;
+  --erp-color-input-hover: #4fafff;
+  --erp-color-input-focus: #4fafff;
   --erp-color-surface: #f7f9fc;
   --erp-color-surface-gradient: linear-gradient(180deg, #fafbfd 0%, #f5f7fb 100%);
   --erp-color-card: #ffffff;
   --erp-color-card-header: #fafcff;
   --erp-color-card-header-border: #edf2f7;
   --erp-color-row-hover: #f3f6fb;
-  --erp-color-row-selected: #eef6ff;
+  --erp-color-row-selected: #eef8ff;
   --erp-color-lookup-bg: #f8fbff;
   --erp-color-lookup-hover: #f3f6fb;
 
@@ -77,28 +106,29 @@
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
   --erp-menu-item-hover: #f3f6fb;
-  --erp-menu-item-selected-bg: #eef6ff;
+  --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
   --erp-menu-search-height: 28px;
   --erp-menu-search-bg: #f8fafc;
   --erp-menu-search-border: #e2e8f0;
 
   --erp-radius-control: 8px;
+  --erp-radius-button: 5px;
   --erp-radius-card: 12px;
-  --erp-radius-toolbar-btn: 10px;
+  --erp-radius-toolbar-btn: 5px;
   --erp-radius-modal: 16px;
   --erp-radius-dropdown: 12px;
   --erp-radius-select-menu: 12px;
   --erp-radius-toast: 12px;
 
   --erp-shadow-card:
-    0 1px 2px rgba(16, 24, 40, 0.04),
-    0 2px 8px rgba(16, 24, 40, 0.05);
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03);
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --erp-shadow-modal: 0 10px 40px rgba(15, 23, 42, 0.12);
-  --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  --erp-shadow-focus: none;
 
   --erp-control-height: 26px;
   --erp-toolbar-height: 26px;
@@ -107,18 +137,22 @@
   --erp-checkbox-size: 14px;
   --erp-card-accent-width: 4px;
   --erp-tab-indicator-height: 3px;
+  --erp-tab-indicator-radius: 999px;
+  --erp-tab-indicator-inset: 12px;
+  --erp-tab-indicator-glow: 0 1px 5px rgba(79, 175, 255, 0.28);
 
   /* Aliases legados — módulos existentes */
   --emp-text: var(--erp-color-text);
   --emp-text-strong: var(--erp-color-text);
   --emp-form-control-height: var(--erp-control-height);
   --emp-control-radius: var(--erp-radius-control);
+  --emp-button-radius: var(--erp-radius-button);
   --emp-form-border-color: var(--erp-color-input-border);
   --emp-form-label-color: var(--erp-color-label);
   --emp-accent-primary: var(--erp-color-primary);
   --emp-accent-primary-hover: var(--erp-color-primary-hover);
   --emp-accent-primary-foreground: #ffffff;
-  --emp-card-border-color: var(--erp-color-border);
+  --emp-card-border-color: var(--erp-color-card-border);
   --emp-card-header-bg: var(--erp-color-card-header);
   --emp-surface-bg: var(--erp-color-surface);
   --emp-toolbar-btn-border: var(--erp-color-border);
@@ -137,22 +171,119 @@
 }
 
 .cadastro-emp-scope .form-scroll-container,
-.cadastro-emp-scope .emp-form-body,
-.cadastro-emp-scope .emp-form-panels-zone,
-.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
+.cadastro-emp-scope .emp-form-body {
   background: transparent !important;
 }
 
-.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone {
+/* form-scroll-container — camada fantasma: só rolagem, sem caixa visível */
+.cadastro-emp-scope .form-scroll-container,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  scrollbar-gutter: auto;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
   background: transparent !important;
 }
 
-/* —— Toolbar —— */
+/* Com formulário dentro, o content-card não desenha moldura (fica no painel) */
+.cadastro-emp-scope .emp-content-card:has(> .form-scroll-container) {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone,
+.cadastro-emp-scope .form-scroll-container .emp-form-panels-zone {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 8px !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+/* Faixa de painéis — borda inferior suave; espaço antes dos cards */
+.cadastro-emp-scope .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  background: transparent !important;
+  border-bottom: 1px solid var(--erp-color-card-border) !important;
+  padding-bottom: 2px !important;
+  margin-bottom: 0 !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-section-panel:not(.emp-form-section-panel-detail),
+.cadastro-emp-scope .form-scroll-container .emp-form-section-principal {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .form-scroll-container .emp-form-fields,
+.cadastro-emp-scope .form-scroll-container .emp-form-fields-corp,
+.cadastro-emp-scope .form-scroll-container .emp-form-cards-layout,
+.cadastro-emp-scope .form-scroll-container .emp-form-fieldset {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-section-panel.emp-form-section-panel--corp {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+/* —— Toolbar (faixa sem fundo nem bordas — botões flutuam no fundo da página) —— */
 .cadastro-emp-scope .emp-toolbar,
 .cadastro-emp-scope .emp-toolbar-card {
-  background: #ffffff !important;
-  border-bottom: 1px solid var(--erp-color-border) !important;
-  transition: background var(--erp-ds-transition), border-color var(--erp-ds-transition);
+  background: transparent !important;
+  border: none !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-info-bar {
@@ -206,7 +337,7 @@
 
 /* —— Cards V3 —— */
 .cadastro-emp-scope .emp-form-card {
-  border: 1px solid var(--erp-color-border) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
   border-radius: var(--erp-radius-card) !important;
   background: var(--erp-color-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
@@ -219,12 +350,14 @@
   padding: 4px 12px 4px calc(12px + var(--erp-card-accent-width)) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  color: var(--erp-color-primary) !important;
+  color: var(--erp-color-label) !important;
   background: var(--erp-color-card-header) !important;
-  border-bottom: 1px solid var(--erp-color-card-header-border) !important;
+  border-bottom: none !important;
   border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
+  overflow: visible !important;
 }
 
+/* Faixa lateral: colada na borda, curva no canto do card + pontas arredondadas (estilo aba) */
 .cadastro-emp-scope .emp-form-card-title::before {
   content: "";
   position: absolute;
@@ -232,8 +365,86 @@
   top: 0;
   bottom: 0;
   width: var(--erp-card-accent-width);
+  border-radius: var(--erp-radius-card) var(--erp-tab-indicator-radius) var(--erp-tab-indicator-radius) 0;
   background: var(--erp-color-primary);
-  border-radius: 0 4px 4px 0;
+  box-shadow: var(--erp-tab-indicator-glow);
+  pointer-events: none;
+}
+
+.cadastro-emp-scope .emp-form-card--virtual {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* —— Content card, painéis e cards internos (mesma moldura) —— */
+.cadastro-emp-scope .emp-content-card,
+.cadastro-emp-scope .emp-table-card {
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  flex-shrink: 0;
+  position: relative;
+  background: var(--erp-color-card-header) !important;
+  border-bottom: none !important;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch::after {
+  display: none !important;
+  content: none !important;
+}
+
+.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0 !important;
+  padding: 12px 10px 14px !important;
+  background: var(--erp-color-card) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel-detail {
+  background: var(--erp-color-card) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
+  border-radius: var(--erp-radius-card) !important;
+  box-shadow: var(--erp-shadow-card) !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
+  padding: 0 0 6px;
+  gap: 6px !important;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
+  gap: 6px 16px !important;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card:not(.emp-form-card--virtual) {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* —— Labels e obrigatório —— */
@@ -269,8 +480,8 @@
 
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:focus-within,
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
-  border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+  border-color: var(--erp-color-input-focus) !important;
+  box-shadow: none !important;
 }
 
 /* —— Select nativo (campo fechado + chevron 14px) —— */
@@ -305,8 +516,8 @@
 .cadastro-emp-scope select:focus,
 .cadastro-emp-scope select:focus-visible {
   outline: none;
-  border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+  border-color: var(--erp-color-input-focus) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control select,
@@ -338,6 +549,7 @@
   min-width: 0;
   display: flex;
   align-items: stretch;
+  overflow: hidden;
 }
 
 /* Campo SELECT — chevron, menu com busca interna */
@@ -345,10 +557,10 @@
   cursor: pointer;
   text-align: left !important;
   padding-left: 10px !important;
-  padding-right: 28px !important;
+  padding-right: 8px !important;
   font-size: 12px !important;
   font-weight: 400 !important;
-  color: #1e293b !important;
+  color: #1a1f26 !important;
   background-color: #ffffff !important;
 }
 
@@ -358,28 +570,91 @@
   opacity: 1;
 }
 
-.cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
-  right: 6px !important;
+.cadastro-emp-scope .emp-form-autocomplete-wrap.erp-field-select {
+  gap: 0 !important;
 }
 
+.cadastro-emp-scope .emp-form-select-btn,
 .cadastro-emp-scope .erp-field-select-chevron-btn {
-  border: 0;
-  background: transparent;
+  position: static !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  max-width: 24px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  align-self: stretch !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-left: 1px solid var(--erp-color-border) !important;
+  border-bottom: 0 !important;
+  border-radius: 0 !important;
+  background: var(--erp-color-lookup-bg) !important;
+  box-shadow: none !important;
   cursor: pointer;
-  z-index: 3;
+  z-index: 1;
+  color: #1a1f26 !important;
+  overflow: visible !important;
+}
+
+.cadastro-emp-scope .emp-form-select-btn:hover:not(:disabled),
+.cadastro-emp-scope .erp-field-select-chevron-btn:hover:not(:disabled) {
+  background: var(--erp-color-lookup-hover) !important;
+}
+
+.cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
+  border-top-right-radius: var(--erp-radius-control) !important;
+  border-bottom-right-radius: var(--erp-radius-control) !important;
+}
+
+.cadastro-emp-scope .erp-field-select-chevron-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: #1a1f26 !important;
+  stroke: #1a1f26 !important;
+  opacity: 1 !important;
 }
 
 .cadastro-emp-scope .erp-select-control .erp-field-select-input {
-  padding-right: 28px !important;
+  padding-right: 8px !important;
 }
 
 .cadastro-emp-scope .erp-select-control .erp-field-lookup-input {
   padding-left: 28px !important;
 }
 
-.cadastro-emp-scope .emp-form-field-control:has(.erp-field-open) {
-  border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+.cadastro-emp-scope .emp-form-field-control:has(.erp-field-open),
+.cadastro-emp-scope .emp-form-field-control:has(.erp-select-control:focus-within) {
+  border-color: var(--erp-color-input-focus) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-field-control:has(.erp-select-control),
+.cadastro-emp-scope .emp-form-field-control:has(.erp-field-select) {
+  overflow: hidden !important;
+  border-bottom: 1px solid var(--erp-color-input-border) !important;
+}
+
+.cadastro-emp-scope .erp-select-control input:focus,
+.cadastro-emp-scope .erp-select-control input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.cadastro-emp-scope .erp-field-lookup .erp-field-lookup-inline-icon,
+.cadastro-emp-scope .erp-field-lookup .emp-form-lookup-btn {
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* Campo LOOKUP / pesquisa — ícone, divisor, botão lateral */
@@ -424,19 +699,49 @@
 
 /* —— Abas (launch — registro) —— */
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch::after {
-  background: var(--erp-color-border) !important;
+  display: none !important;
+  content: none !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab {
+  position: relative !important;
+  overflow: visible !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover {
-  color: var(--erp-color-primary) !important;
-  -webkit-text-fill-color: var(--erp-color-primary) !important;
-  background: #ffffff !important;
+  color: var(--erp-color-label) !important;
+  -webkit-text-fill-color: var(--erp-color-label) !important;
+  background: transparent !important;
   font-weight: 600 !important;
-  border-bottom: var(--erp-tab-indicator-height) solid var(--erp-color-primary) !important;
+  border: none !important;
+  border-bottom: none !important;
   border-radius: 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - (var(--erp-tab-indicator-inset) * 2)) !important;
+  min-width: 22px !important;
+  height: var(--erp-tab-indicator-height) !important;
+  border-radius: var(--erp-tab-indicator-radius) !important;
+  background: var(--erp-color-primary) !important;
+  box-shadow: var(--erp-tab-indicator-glow) !important;
+  pointer-events: none !important;
+  transition:
+    width var(--erp-ds-transition),
+    opacity var(--erp-ds-transition),
+    box-shadow var(--erp-ds-transition);
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive,
@@ -446,11 +751,19 @@
   color: var(--erp-color-text-muted) !important;
   -webkit-text-fill-color: var(--erp-color-text-muted) !important;
   font-weight: 500 !important;
-  border-bottom: var(--erp-tab-indicator-height) solid transparent !important;
+  border: none !important;
+  border-bottom: none !important;
   transition:
     color var(--erp-ds-transition),
-    background var(--erp-ds-transition),
-    border-color var(--erp-ds-transition);
+    background var(--erp-ds-transition);
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive:hover::after {
+  display: none !important;
+  content: none !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover {
@@ -761,7 +1074,7 @@
 }
 
 .erp-select-menu .erp-menu-item--selected .erp-menu-item__primary {
-  color: #2563eb;
+  color: var(--erp-color-primary);
   font-weight: 500;
 }
 
@@ -866,8 +1179,8 @@
 
 .erp-select-trigger:focus,
 .erp-select-trigger[data-state="open"] {
-  border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+  border-color: var(--erp-color-input-focus) !important;
+  box-shadow: none !important;
   outline: none !important;
 }
 
@@ -957,13 +1270,46 @@
   box-shadow: var(--erp-shadow-modal) !important;
 }
 
-/* —— Toasts —— */
+/* —— Toasts (mesma moldura dos cards de lançamento) —— */
 [data-sonner-toast].erp-toast-base,
 [data-sonner-toast] {
-  border-radius: var(--erp-radius-toast) !important;
+  border-radius: var(--erp-radius-card, 12px) !important;
   padding: 12px 16px !important;
-  box-shadow: var(--erp-shadow-dropdown) !important;
-  transition: opacity var(--erp-ds-transition);
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  background: var(--erp-color-card, #ffffff) !important;
+  box-shadow: var(
+    --erp-shadow-card,
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03)
+  ) !important;
+  color: var(--erp-color-text, #1e293b) !important;
+  transition: opacity 150ms ease;
+}
+
+[data-sonner-toast]:has(.erp-toast-panel) {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.erp-toast-panel {
+  display: grid !important;
+  grid-template-columns: auto 1fr auto !important;
+  gap: 12px !important;
+  align-items: start !important;
+  min-width: 300px !important;
+  max-width: 420px !important;
+  padding: 12px 14px !important;
+  border-radius: var(--erp-radius-card, 12px) !important;
+  border: 1px solid var(--erp-color-card-border, #edf1f6) !important;
+  background: var(--erp-color-card, #ffffff) !important;
+  box-shadow: var(
+    --erp-shadow-card,
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03)
+  ) !important;
+  box-sizing: border-box !important;
 }
 
 /* Tipografia global no escopo */
@@ -1008,4 +1354,49 @@
   height: 14px !important;
   color: var(--erp-color-text-muted) !important;
   opacity: 1 !important;
+}
+
+/* —— Botões — raio global mais contido —— */
+.erp-shell :is(
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"]
+):not(
+  .emp-form-tab,
+  .emp-form-tab-active,
+  .emp-form-tab-inactive,
+  .emp-form-toggle-switch,
+  .rounded-full,
+  .rounded-none,
+  [class*="rounded-full"],
+  [class*="rounded-none"]
+),
+.cadastro-emp-scope :is(
+  button,
+  [role="button"],
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"]
+):not(
+  .emp-form-tab,
+  .emp-form-tab-active,
+  .emp-form-tab-inactive,
+  .emp-form-toggle-switch,
+  .rounded-full,
+  .rounded-none,
+  [class*="rounded-full"],
+  [class*="rounded-none"]
+) {
+  border-radius: var(--erp-radius-button) !important;
+}
+
+/* Botões embutidos em campos seguem o raio do controle */
+.cadastro-emp-scope .emp-form-field-control :is(button, [role="button"]),
+.cadastro-emp-scope .emp-form-lookup-btn,
+.cadastro-emp-scope .emp-form-date-btn,
+.cadastro-emp-scope .emp-form-select-btn,
+.cadastro-emp-scope .erp-field-select-chevron-btn {
+  border-radius: var(--erp-radius-control) !important;
 }
