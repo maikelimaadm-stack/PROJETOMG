@@ -34,11 +34,14 @@ export const runErpRestructure = async ({ exitOnError = false } = {}) => {
   const prisma = createMigrationPrisma();
 
   try {
+    const { ensureSchema } = await import("./ensureSchema.js");
+    await ensureSchema({ exitOnError: false });
+
     const alreadyApplied = await isRestructureApplied(prisma);
     if (alreadyApplied) {
-      console.log("[erp-restructure] Estrutura já aplicada — executando apenas verificações.");
+      console.log("[erp-restructure] Schema OK — executando backfill e verificações.");
     } else {
-      console.log("[erp-restructure] Aplicando reestruturação completa...");
+      console.log("[erp-restructure] Aplicando reestruturação completa (dados)...");
       const statementCount = await runSqlFile(prisma, applySqlPath, fs);
       console.log(`[erp-restructure] SQL aplicado (${statementCount} comando(s)).`);
     }

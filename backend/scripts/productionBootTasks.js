@@ -54,6 +54,15 @@ export const runProductionBootTasks = async (logger = console) => {
     return;
   }
 
+  try {
+    const { ensureSchema } = await import("./ensureSchema.js");
+    await ensureSchema({ exitOnError: false });
+    logger.info?.("[boot] Schema ERP: OK") ?? logger.log("[boot] Schema ERP: OK");
+  } catch (error) {
+    const msg = `[boot] Schema ERP falhou: ${error.message}`;
+    logger.error?.(msg) ?? logger.error(msg);
+  }
+
   await runScript("Garantir tabelas CADCPS", "scripts/ensureCadcpsTables.js", logger);
 
   if (String(process.env.SEED_SKIP || "").toLowerCase() !== "true") {
