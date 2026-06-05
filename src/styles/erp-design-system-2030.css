@@ -24,7 +24,7 @@
   --erp-color-text: #1e293b;
   --erp-color-text-muted: #64748b;
   --erp-radius-control: 8px;
-  --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  --erp-shadow-focus: none;
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
@@ -98,7 +98,7 @@
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   --erp-shadow-modal: 0 10px 40px rgba(15, 23, 42, 0.12);
-  --erp-shadow-focus: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  --erp-shadow-focus: none;
 
   --erp-control-height: 26px;
   --erp-toolbar-height: 26px;
@@ -389,7 +389,7 @@
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:focus-within,
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
   border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+  box-shadow: none !important;
 }
 
 /* —— Select nativo (campo fechado + chevron 14px) —— */
@@ -425,7 +425,7 @@
 .cadastro-emp-scope select:focus-visible {
   outline: none;
   border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control select,
@@ -498,7 +498,30 @@
 
 .cadastro-emp-scope .emp-form-field-control:has(.erp-field-open) {
   border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-field-control:has(.erp-select-control) {
+  overflow: visible !important;
+}
+
+.cadastro-emp-scope .erp-select-control input:focus,
+.cadastro-emp-scope .erp-select-control input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.cadastro-emp-scope .erp-field-lookup .erp-field-lookup-inline-icon,
+.cadastro-emp-scope .erp-field-lookup .emp-form-lookup-btn {
+  display: inline-flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 /* Campo LOOKUP / pesquisa — ícone, divisor, botão lateral */
@@ -986,7 +1009,7 @@
 .erp-select-trigger:focus,
 .erp-select-trigger[data-state="open"] {
   border-color: var(--erp-color-primary) !important;
-  box-shadow: var(--erp-shadow-focus) !important;
+  box-shadow: none !important;
   outline: none !important;
 }
 

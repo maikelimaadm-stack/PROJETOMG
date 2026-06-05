@@ -1082,6 +1082,22 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
   border-color: var(--emp-accent-primary);
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:focus-within {
+  border-color: var(--emp-accent-primary) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-field-control input:focus,
+.cadastro-emp-scope .emp-form-field-control input:focus-visible,
+.cadastro-emp-scope .emp-form-field-control textarea:focus,
+.cadastro-emp-scope .emp-form-field-control textarea:focus-visible,
+.cadastro-emp-scope .emp-form-field-control select:focus,
+.cadastro-emp-scope .emp-form-field-control select:focus-visible {
+  box-shadow: none !important;
+  outline: none !important;
 }
 
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control.emp-form-field-error {
@@ -3068,6 +3084,10 @@ select.erp-field-invalid {
   max-height: var(--emp-form-control-height, 26px);
   padding: 0;
   overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control:has(.erp-select-control) {
+  overflow: visible !important;
 }
 
 .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control > *:not(.emp-custom-marker) {

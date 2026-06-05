@@ -108,11 +108,24 @@ export default function EmpAutocomplete({
     };
   }, [open, calcPosition]);
 
-  useEffect(() => {
-    if (!open) return;
-    const timer = window.setTimeout(() => menuSearchRef.current?.focus(), 0);
-    return () => window.clearTimeout(timer);
-  }, [open, isSelect]);
+  const focusAdjacentField = useCallback((backward) => {
+    const current = inputRef.current;
+    if (!current) return;
+    const scope = current.closest("form, [role='dialog'], .cadastro-emp-scope") || document;
+    const candidates = Array.from(
+      scope.querySelectorAll(
+        "input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])"
+      )
+    ).filter((el) => {
+      if (el.tabIndex < 0) return false;
+      if (el.closest("[aria-hidden='true']")) return false;
+      return el.getClientRects().length > 0;
+    });
+    const index = candidates.indexOf(current);
+    if (index < 0) return;
+    const next = candidates[index + (backward ? -1 : 1)];
+    next?.focus();
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -168,10 +181,20 @@ export default function EmpAutocomplete({
 
   const handleKeyDown = (event) => {
     if (disabled || readOnly) return;
-    if (event.key === "Tab" || event.key === "Escape") {
+    if (event.key === "Escape") {
       setOpen(false);
       if (isLookup) setSearchTerm(selectedItem?.[displayField] || "");
       setMenuFilter("");
+      return;
+    }
+    if (event.key === "Tab") {
+      if (open) {
+        event.preventDefault();
+        setOpen(false);
+        if (isLookup) setSearchTerm(selectedItem?.[displayField] || "");
+        setMenuFilter("");
+        window.requestAnimationFrame(() => focusAdjacentField(event.shiftKey));
+      }
       return;
     }
     if (event.key === "ArrowDown") {
