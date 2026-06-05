@@ -54,6 +54,8 @@
   --erp-color-primary: #2563eb;
   --erp-color-primary-hover: #1d4ed8;
   --erp-color-border: #e4eaf2;
+  --erp-color-border-soft: #edf1f6;
+  --erp-color-card-border: #edf1f6;
   --erp-color-input-border: #d9e2ef;
   --erp-color-input-hover: #93c5fd;
   --erp-color-surface: #f7f9fc;
@@ -92,8 +94,8 @@
   --erp-radius-toast: 12px;
 
   --erp-shadow-card:
-    0 1px 2px rgba(16, 24, 40, 0.04),
-    0 2px 8px rgba(16, 24, 40, 0.05);
+    0 1px 2px rgba(16, 24, 40, 0.025),
+    0 1px 4px rgba(16, 24, 40, 0.03);
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -118,7 +120,7 @@
   --emp-accent-primary: var(--erp-color-primary);
   --emp-accent-primary-hover: var(--erp-color-primary-hover);
   --emp-accent-primary-foreground: #ffffff;
-  --emp-card-border-color: var(--erp-color-border);
+  --emp-card-border-color: var(--erp-color-card-border);
   --emp-card-header-bg: var(--erp-color-card-header);
   --emp-surface-bg: var(--erp-color-surface);
   --emp-toolbar-btn-border: var(--erp-color-border);
@@ -260,7 +262,7 @@
 
 /* —— Cards V3 —— */
 .cadastro-emp-scope .emp-form-card {
-  border: 1px solid var(--erp-color-border) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
   border-radius: var(--erp-radius-card) !important;
   background: var(--erp-color-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
@@ -275,7 +277,7 @@
   font-weight: 600 !important;
   color: var(--erp-color-primary) !important;
   background: var(--erp-color-card-header) !important;
-  border-bottom: 1px solid var(--erp-color-card-header-border) !important;
+  border-bottom: none !important;
   border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
 }
 
@@ -300,7 +302,7 @@
 .cadastro-emp-scope .emp-content-card,
 .cadastro-emp-scope .emp-table-card {
   background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-border) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
 }
@@ -311,7 +313,7 @@
   flex: 1 1 auto;
   min-height: 0;
   background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-border) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
   overflow: hidden;
@@ -321,23 +323,14 @@
   flex-shrink: 0;
   position: relative;
   background: var(--erp-color-card-header) !important;
-  border-bottom: 1px solid var(--erp-color-card-header-border) !important;
+  border-bottom: none !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
 }
 
 .cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch::after {
-  content: "" !important;
-  display: block !important;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 1px;
-  background: var(--erp-color-border) !important;
-  pointer-events: none;
-  z-index: 4;
-  transform: none;
+  display: none !important;
+  content: none !important;
 }
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
@@ -353,19 +346,19 @@
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel-detail {
   background: var(--erp-color-card) !important;
-  border: 1px solid var(--erp-color-border) !important;
+  border: 1px solid var(--erp-color-card-border) !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
-  padding: 0 0 8px;
-  gap: 8px !important;
+  padding: 0 0 6px;
+  gap: 6px !important;
   box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
-  gap: 8px 16px !important;
+  gap: 6px 16px !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,
@@ -626,7 +619,8 @@
 
 /* —— Abas (launch — registro) —— */
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch::after {
-  background: var(--erp-color-border) !important;
+  display: none !important;
+  content: none !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
