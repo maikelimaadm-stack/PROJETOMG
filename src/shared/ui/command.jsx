@@ -30,7 +30,7 @@ const CommandDialog = ({ children, ...props }) => {
 }
 
 const CommandInput = React.forwardRef(({ className, ...props }, ref) => (
-  <div className="flex items-center border-b px-3" cmdk-input-wrapper="">
+  <div className="erp-menu-search flex items-center border-b px-0" cmdk-input-wrapper="">
     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
     <CommandPrimitive.Input
       ref={ref}
@@ -81,7 +81,7 @@ CommandGroup.displayName = CommandPrimitive.Group.displayName
 const CommandSeparator = React.forwardRef(({ className, ...props }, ref) => (
   <CommandPrimitive.Separator
     ref={ref}
-    className={cn("-mx-1 h-px bg-slate-200", className)}
+    className={cn("erp-menu-separator -mx-1 h-px bg-slate-200", className)}
     {...props}
   />
 ))
@@ -91,7 +91,7 @@ const CommandItem = React.forwardRef(({ className, ...props }, ref) => (
   <CommandPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none aria-selected:bg-slate-100 aria-selected:text-slate-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "erp-menu-item relative flex cursor-default select-none items-center rounded-sm text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
       className
     )}
     {...props}

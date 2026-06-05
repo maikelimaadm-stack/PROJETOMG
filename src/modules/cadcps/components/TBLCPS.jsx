@@ -565,7 +565,7 @@ export default function TBLCPS({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover absolute p-0 z-[9999]"
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
       >
           <div className="emp-filter-sort-section">
@@ -766,7 +766,7 @@ export default function TBLCPS({
               }}
               role="button"
               tabIndex={0}
-              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#082e54] ${
+              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#4fafff] ${
                 isColFiltered || isFilterOpen
                   ? "opacity-100 pointer-events-auto"
                   : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"

@@ -25,6 +25,7 @@ import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layo
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
+import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
@@ -204,29 +205,52 @@ export default function FORMEMP({
 
   const opcoesEstado = useMemo(() => ESTADOS_BR.map((item) => ({ id: item, nome: item })), []);
 
+  const opcoesTipoPessoa = useMemo(
+    () => [
+      { id: "PJ", nome: "PESSOA JURÍDICA (PJ)" },
+      { id: "PF", nome: "PESSOA FÍSICA (PF)" },
+    ],
+    []
+  );
+
+  const opcoesTipoVinculo = useMemo(
+    () => [
+      { id: "proprietario", nome: "PROPRIETÁRIO" },
+      { id: "arrendatario", nome: "ARRENDATÁRIO" },
+    ],
+    []
+  );
+
   const renderTipoPessoaSelect = () => (
-    <select
+    <EmpAutocomplete
+      variant="select"
+      items={opcoesTipoPessoa}
       value={formData.tipo_pessoa || "PJ"}
-      onChange={(event) => handleChange("tipo_pessoa", event.target.value)}
+      onChange={(next) => handleChange("tipo_pessoa", next || "PJ")}
+      placeholder="SELECIONE"
+      displayField="nome"
+      searchFields={["nome"]}
       disabled={isReadOnly}
-      className={`${inputClass} w-full`}
-    >
-      <option value="PJ">PESSOA JURÍDICA (PJ)</option>
-      <option value="PF">PESSOA FÍSICA (PF)</option>
-    </select>
+      readOnly={isReadOnly}
+      className="w-full min-w-0"
+      inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+    />
   );
 
   const renderTipoVinculoSelect = () => (
-    <select
+    <EmpAutocomplete
+      variant="select"
+      items={opcoesTipoVinculo}
       value={formData.tipo_vinculo || ""}
-      onChange={(event) => handleChange("tipo_vinculo", event.target.value)}
+      onChange={(next) => handleChange("tipo_vinculo", next || "")}
+      placeholder="SELECIONE"
+      displayField="nome"
+      searchFields={["nome"]}
       disabled={isReadOnly}
-      className={`${inputClass} w-full`}
-    >
-      <option value="">SELECIONE</option>
-      <option value="proprietario">PROPRIETÁRIO</option>
-      <option value="arrendatario">ARRENDATÁRIO</option>
-    </select>
+      readOnly={isReadOnly}
+      className="w-full min-w-0"
+      inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+    />
   );
 
   const renderStatusToggle = () => (
@@ -487,17 +511,19 @@ export default function FORMEMP({
         <style>{`
           .form-scroll-container {
             scrollbar-width: thin;
-            scrollbar-color: #94a3b8 #ffffff;
-            overflow: scroll;
-            scrollbar-gutter: stable both-edges;
-            background: #ffffff;
+            scrollbar-color: #94a3b8 transparent;
+            overflow: auto;
+            scrollbar-gutter: auto;
+            background: transparent;
+            border: none;
+            box-shadow: none;
           }
           .form-scroll-container::-webkit-scrollbar {
             height: 8px;
             width: 8px;
           }
           .form-scroll-container::-webkit-scrollbar-track {
-            background: #ffffff;
+            background: transparent;
           }
           .form-scroll-container::-webkit-scrollbar-thumb {
             background-color: #cbd5e1;

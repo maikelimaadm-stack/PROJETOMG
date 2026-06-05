@@ -14,6 +14,7 @@ import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import { CADCPS_APLICACAO, CADCPS_TIPOS } from "@/modules/cadcps/config/cadcpsConstants";
 import { CPS_FORM_PANELS, CPS_INPUT_CLASS } from "@/modules/cadcps/config/formCps.constants";
 import repCps from "@/modules/cadcps/repositories/repCps";
+import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 
 const toSnake = (v) =>
   String(v || "")
@@ -309,19 +310,19 @@ export default function FORMCPS({
               </button>
             </div>
           ) : (
-            <select
-              value={form.tela_id}
-              onChange={(e) => update("tela_id", e.target.value)}
+            <EmpAutocomplete
+              variant="select"
+              items={telas.map((tela) => ({ id: String(tela.id), nome: String(tela.nome || "").toUpperCase() }))}
+              value={form.tela_id ? String(form.tela_id) : ""}
+              onChange={(next) => update("tela_id", next || "")}
+              placeholder="SELECIONE A TELA"
+              displayField="nome"
+              searchFields={["nome"]}
               disabled={isReadOnly || lockTela}
-              className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
-            >
-              <option value="">SELECIONE A TELA...</option>
-              {telas.map((tela) => (
-                <option key={tela.id} value={tela.id}>
-                  {tela.nome}
-                </option>
-              ))}
-            </select>
+              readOnly={isReadOnly || lockTela}
+              className="w-full h-full"
+              inputClassName={`${CPS_INPUT_CLASS} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+            />
           )}
           </div>
         </CpsFieldRow>
@@ -353,18 +354,22 @@ export default function FORMCPS({
         </CpsFieldRow>
 
         <CpsFieldRow label="Tipo do campo" required>
-          <select
-            value={form.tipo}
-            onChange={(e) => update("tipo", e.target.value)}
+          <EmpAutocomplete
+            variant="select"
+            items={CADCPS_TIPOS.map((t) => ({
+              id: t.value,
+              nome: String(t.label || "").toUpperCase(),
+            }))}
+            value={form.tipo || ""}
+            onChange={(next) => update("tipo", next || "texto")}
+            placeholder="SELECIONE"
+            displayField="nome"
+            searchFields={["nome"]}
             disabled={isReadOnly}
-            className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
-          >
-            {CADCPS_TIPOS.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
+            readOnly={isReadOnly}
+            className="w-full h-full"
+            inputClassName={`${CPS_INPUT_CLASS} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+          />
         </CpsFieldRow>
 
         <CpsToggleRow
@@ -573,19 +578,22 @@ export default function FORMCPS({
 
         {form.tipo === "relacao" ? (
           <CpsFieldRow label="Cadastro relacionado">
-            <select
-              value={form.relation_entity}
-              onChange={(e) => update("relation_entity", e.target.value)}
+            <EmpAutocomplete
+              variant="select"
+              items={telas.map((t) => ({
+                id: String(t.entity_name || ""),
+                nome: String(t.nome || "").toUpperCase(),
+              }))}
+              value={form.relation_entity || ""}
+              onChange={(next) => update("relation_entity", next || "")}
+              placeholder="SELECIONE"
+              displayField="nome"
+              searchFields={["nome"]}
               disabled={isReadOnly}
-              className={`${CPS_INPUT_CLASS} h-[var(--emp-form-control-height)] px-2 text-xs`}
-            >
-              <option value="">SELECIONE...</option>
-              {telas.map((t) => (
-                <option key={t.id} value={t.entity_name}>
-                  {t.nome}
-                </option>
-              ))}
-            </select>
+              readOnly={isReadOnly}
+              className="w-full h-full"
+              inputClassName={`${CPS_INPUT_CLASS} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+            />
           </CpsFieldRow>
         ) : null}
 

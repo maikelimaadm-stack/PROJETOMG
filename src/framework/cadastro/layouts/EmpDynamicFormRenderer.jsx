@@ -52,19 +52,29 @@ function DefaultControl({ field, value, onChange, readOnly }) {
     );
   }
 
-  if (["select", "autocomplete", "relation"].includes(field.type)) {
+  if (["select", "autocomplete", "relation", "lookup"].includes(field.type)) {
+    const isLookup =
+      field.type === "relation" ||
+      field.type === "lookup" ||
+      Boolean(field.relation_entity || field.options_source_entity);
     return (
       <EmpAutocomplete
+        variant={isLookup ? "lookup" : "select"}
         items={field.options || []}
         value={value || ""}
         onChange={(nextValue) => onChange(field.name, nextValue || "")}
         displayField={field.displayField || "nome"}
-        searchFields={field.searchFields || [field.displayField || "nome"]}
+        searchFields={field.searchFields || [field.displayField || "nome", "cnpj", "cpf", "codigo"]}
+        subtextField={field.subtextField || "subtext"}
+        renderSubtext={isLookup ? field.renderSubtext : undefined}
         disabled={readOnly || field.readOnly}
         readOnly={readOnly || field.readOnly}
         className="w-full min-w-0 emp-autocomplete"
-        inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase"
-        showSearchButton
+        inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white"
+        placeholder={isLookup ? field.placeholder || "Digite para pesquisar..." : field.placeholder || "SELECIONE"}
+        uppercaseDisplay={!isLookup}
+        createNewLabel={isLookup ? field.createNewLabel : undefined}
+        onCreateNew={isLookup ? field.onCreateNew : undefined}
       />
     );
   }
@@ -143,21 +153,17 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   const widthStyle = balanced
     ? {
         flex: balanced.flex,
-        flexGrow: balanced.flexGrow ?? 1,
-        flexShrink: balanced.flexShrink ?? 1,
-        flexBasis: balanced.flexBasis || balanced.minWidth,
-        minWidth: balanced.minWidth,
-        maxWidth: balanced.maxWidth ?? "none",
+        minWidth: balanced.minWidth ?? 0,
+        maxWidth: balanced.maxWidth,
         width: "auto",
+        overflow: "hidden",
       }
     : {
-        flex: `${preset.grow} 1 ${preset.min}px`,
-        flexGrow: preset.grow,
-        flexShrink: 1,
-        flexBasis: `${preset.min}px`,
-        minWidth: `${preset.min}px`,
-        maxWidth: "none",
+        flex: `${preset.grow} 1 0`,
+        minWidth: 0,
+        maxWidth: "100%",
         width: "auto",
+        overflow: "hidden",
       };
 
   return (
@@ -177,7 +183,7 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
     >
       <label className="emp-form-field-label-top">
         {field.label}
-        {field.required ? <span className="text-red-500 ml-0.5">*</span> : null}
+        {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
       </label>
       <div className={cn("emp-form-field-control", error && "erp-field-invalid")}>
         {loteStyle && !bare && <EmpCustomMarker variant="lote" />}

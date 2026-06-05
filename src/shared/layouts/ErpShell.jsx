@@ -64,7 +64,7 @@ function ErpTopHeader({
   return (
     <header className="erp-shell-header flex h-10 shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-4">
       <div className="flex min-w-0 items-center gap-2">
-        <SidebarTrigger className="erp-shell-trigger h-8 w-8 rounded-md border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" />
+        <SidebarTrigger className="erp-shell-trigger h-8 w-8 rounded-[5px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" />
       </div>
 
       <div className="flex items-center gap-2">
@@ -72,7 +72,7 @@ function ErpTopHeader({
         <select
           value={selectorValue}
           onChange={(event) => onSelectEmpresa(event.target.value)}
-          className="erp-shell-company-select h-8 min-w-[220px] max-w-[320px] rounded-md border border-slate-300 bg-white px-2 text-xs text-slate-700"
+          className="erp-shell-company-select erp-select-closed h-8 min-w-[220px] max-w-[320px] rounded-md border border-slate-300 bg-white px-2 pr-7 text-xs text-slate-700"
           title="Escolha ver todas as empresas ou focar em uma só"
         >
           <optgroup label="Visão geral">
@@ -98,7 +98,7 @@ function ErpTopHeader({
           <button
             type="button"
             onClick={onToggleTableFullscreen}
-            className="erp-shell-table-fullscreen inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+            className="erp-shell-table-fullscreen inline-flex h-8 w-8 items-center justify-center rounded-[5px] border border-slate-300 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-800"
             title={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
             aria-label={isFullscreen ? "Sair da tabela cheia" : "Visualizar tabela cheia"}
             aria-pressed={isFullscreen}
@@ -113,7 +113,7 @@ function ErpTopHeader({
         <button
           type="button"
           onClick={onLogout}
-          className="erp-shell-logout h-8 rounded-md border border-slate-300 bg-white px-3 text-xs text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+          className="erp-shell-logout h-8 rounded-[5px] border border-slate-300 bg-white px-3 text-xs text-slate-600 hover:bg-slate-50 hover:text-slate-800"
         >
           Sair
         </button>

@@ -124,22 +124,33 @@ export function useCustomFieldRenderer({
     }
 
     if (campo.tipo === "select" || campo.tipo === "relation" || ["lista", "relacao"].includes(tipoCanon)) {
+      const isLookup =
+        campo.tipo === "relation" ||
+        ["relacao"].includes(tipoCanon) ||
+        Boolean(campo.relation_entity || campo.options_source_entity);
       const options = campoOptions
         .map((option) => ({
           id: String(option.value || option.label || ""),
           nome: String(option.label || option.value || "").toUpperCase(),
+          subtext: option.subtext || option.description || "",
         }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
       return (
         <CadAutocomplete
+          variant={isLookup ? "lookup" : "select"}
           items={options}
           value={value}
           onChange={(nextValue) => onCustomChange(campo.field_name, nextValue || "")}
-          placeholder={(campo.placeholder || "BUSCAR OPÇÃO...").toUpperCase()}
+          placeholder={
+            isLookup
+              ? campo.placeholder || "Digite para pesquisar..."
+              : campo.placeholder || "SELECIONE"
+          }
           displayField="nome"
-          searchFields={["nome"]}
+          searchFields={["nome", "subtext"]}
           disabled={fieldReadOnly}
           readOnly={fieldReadOnly}
+          uppercaseDisplay={!isLookup}
           className="w-full"
           inputClassName={inputClassName}
         />

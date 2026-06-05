@@ -10,6 +10,20 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			erp: {
+  				text: '#1e293b',
+  				'text-secondary': '#475569',
+  				muted: '#64748b',
+  				disabled: '#94a3b8',
+  				label: '#334155',
+  				primary: '#4fafff',
+  				border: '#e4eaf2',
+  				'input-border': '#d9e2ef',
+  				surface: '#f7f9fc',
+  				card: '#ffffff',
+  				'row-hover': '#f8fbff',
+  				'row-selected': '#eef6ff',
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {
