@@ -192,6 +192,17 @@ const start = async () => {
     process.exit(1);
   }
 
+  if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
+    if (String(process.env.BOOT_SKIP_MIGRATIONS || "").toLowerCase() !== "true") {
+      setTimeout(() => {
+        import("../scripts/ensureErpRestructure.js")
+          .then(({ runErpRestructure }) => runErpRestructure({ exitOnError: false }))
+          .then(() => app.log.info("[migration] Reestruturação ERP concluída."))
+          .catch((error) => app.log.error(`[migration] Falha: ${error.message}`));
+      }, 5000);
+    }
+  }
+
   const shutdown = async () => {
     await closePrismaClient();
     await app.close();

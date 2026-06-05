@@ -168,7 +168,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "RegistroAnexo_cliente_id_id_global_key"
 CREATE UNIQUE INDEX IF NOT EXISTS "CadastroRegistro_cliente_id_entity_name_codigo_key"
   ON "CadastroRegistro"("cliente_id", "entity_name", "codigo") WHERE "codigo" IS NOT NULL;
 
--- ── Fase 10: Remover tabelas legadas ──────────────────────────────────────────
-DROP TABLE IF EXISTS "EmpresaCodigoSequencia";
-DROP TABLE IF EXISTS "CadCpsCodigoSequencia";
-DROP TABLE IF EXISTS "CampoPersonalizado";
+-- ── Fase 10: Remover tabelas legadas (CASCADE via ensureErpRestructure.js) ──
+DROP TABLE IF EXISTS "EmpresaCodigoSequencia" CASCADE;
+DROP TABLE IF EXISTS "CadCpsCodigoSequencia" CASCADE;
+DROP TABLE IF EXISTS "CampoPersonalizado" CASCADE;

@@ -15,7 +15,19 @@ import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "..
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const modulesDir = path.resolve(__dirname, "..", "modules");
-const coreModules = new Set(["auth", "empresas", "anexos", "audit", "cadcps"]);
+const coreModules = new Set([
+  "auth",
+  "empresas",
+  "anexos",
+  "audit",
+  "cadcps",
+  "cadastro",
+  "clienteModulo",
+  "metrics",
+  "preferences",
+  "idGlobal",
+  "sequencias",
+]);
 
 const withTimeout = async (operation, timeoutMs, timeoutMessage) => {
   const timeout = new Promise((_, reject) => {
@@ -61,6 +73,7 @@ export const registerRoutes = async (app) => {
     const status = {
       service: "erp-backend",
       db: { configured: Boolean(process.env.DATABASE_URL), connected: false, error: null },
+      migration: { restructureApplied: null, directUrlConfigured: Boolean(process.env.DIRECT_URL) },
       auth: {
         jwtConfigured: Boolean(process.env.JWT_SECRET),
       },
@@ -79,6 +92,18 @@ export const registerRoutes = async (app) => {
         "Timeout ao verificar conexão com PostgreSQL"
       );
       status.db.connected = true;
+      try {
+        const client = (await import("../database/prismaClient.js")).getPrismaClient();
+        const rows = await client.$queryRaw`
+          SELECT EXISTS (
+            SELECT 1 FROM information_schema.columns
+            WHERE table_schema = 'public' AND table_name = 'Cliente' AND column_name = 'next_id_global'
+          ) AS ok
+        `;
+        status.migration.restructureApplied = Boolean(rows[0]?.ok);
+      } catch {
+        status.migration.restructureApplied = false;
+      }
     } catch (error) {
       status.db.error = error.message || "Falha na conexão com PostgreSQL";
     }
@@ -98,8 +123,11 @@ export const registerRoutes = async (app) => {
       }
     }
 
+    // Railway healthcheck: sempre HTTP 200 se o processo está vivo
     return {
-      ok: status.db.connected,
+      ok: true,
+      alive: true,
+      ready: status.db.connected,
       ...status,
     };
   });
