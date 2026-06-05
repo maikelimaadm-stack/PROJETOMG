@@ -140,7 +140,7 @@ function ErpBreadcrumbs({ pathname }) {
   }
 
   return (
-    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2 rounded-[18px] bg-white px-4 py-2 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2 rounded-[18px] bg-white px-4 py-2">
       <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="text-xs font-semibold text-[#1a1f26]">
           {trail.map((crumb, index) => {
@@ -200,7 +200,7 @@ function ErpShellBody({
           onLogout={onLogout}
         />
 
-        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col gap-8 overflow-hidden px-8 pb-8 pt-2">
+        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col gap-[6px] overflow-hidden px-[6px] pb-[6px] pt-[6px]">
           <ErpBreadcrumbs pathname={pathname} />
           <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}

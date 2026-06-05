@@ -15,10 +15,10 @@
     0 2px 8px rgba(16, 24, 40, 0.06);
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
-  --erp-menu-item-hover: #f3f6fb;
+  --erp-menu-item-hover: #f8f9fd;
   --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
-  --erp-menu-search-bg: #f8fafc;
+  --erp-menu-search-bg: #f8f9fd;
   --erp-menu-search-border: #e2e8f0;
   --erp-color-primary: #2899f5;
   --erp-color-text: #1e293b;
@@ -29,9 +29,9 @@
   --erp-color-card: #ffffff;
   --erp-color-card-border: rgba(255, 255, 255, 0);
   --erp-radius-card: 18px;
-  --erp-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04);
-  --erp-spacing: 8px;
-  --erp-layout-gap: 32px;
+  --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --erp-spacing: 6px;
+  --erp-layout-gap: 6px;
   --erp-state-success: #22c55e;
   --erp-state-warning: #f59e0b;
   --erp-state-error: #ef4444;
@@ -47,7 +47,7 @@
   --erp-color-card: #ffffff;
   --erp-color-card-border: rgba(255, 255, 255, 0);
   --erp-radius-card: 18px;
-  --erp-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04);
+  --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
   --erp-color-label: #334155;
   --erp-color-text-secondary: #475569;
   --erp-color-primary: #2899f5;
@@ -89,10 +89,10 @@
   --erp-color-card: #ffffff;
   --erp-color-card-header: #ffffff;
   --erp-color-card-header-border: #edf2f7;
-  --erp-color-row-hover: #f3f6fb;
+  --erp-color-row-hover: #f8f9fd;
   --erp-color-row-selected: #eef8ff;
   --erp-color-lookup-bg: #ffffff;
-  --erp-color-lookup-hover: #f3f6fb;
+  --erp-color-lookup-hover: #f8f9fd;
 
   /* Menu estilo GitHub */
   --erp-menu-bg: #ffffff;
@@ -104,11 +104,11 @@
     0 2px 8px rgba(16, 24, 40, 0.06);
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
-  --erp-menu-item-hover: #f3f6fb;
+  --erp-menu-item-hover: #f8f9fd;
   --erp-menu-item-selected-bg: #eef8ff;
   --erp-menu-separator: #e5eaf2;
   --erp-menu-search-height: 28px;
-  --erp-menu-search-bg: #f8fafc;
+  --erp-menu-search-bg: #f8f9fd;
   --erp-menu-search-border: #e2e8f0;
 
   --erp-radius-control: 8px;
@@ -120,11 +120,11 @@
   --erp-radius-select-menu: 12px;
   --erp-radius-toast: 12px;
 
-  --erp-shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04);
-  --erp-shadow-control: 0 2px 6px rgba(15, 23, 42, 0.04);
-  --erp-spacing: 8px;
-  --erp-layout-gap: 32px;
-  --erp-card-padding: 16px;
+  --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --erp-shadow-control: 0 1px 3px rgba(15, 23, 42, 0.03);
+  --erp-spacing: 6px;
+  --erp-layout-gap: 6px;
+  --erp-card-padding: 12px;
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -217,7 +217,7 @@
   margin: 0 !important;
   flex: 1 1 auto;
   min-width: 0;
-  gap: var(--erp-spacing, 8px) !important;
+  gap: var(--erp-spacing, 6px) !important;
   background: transparent !important;
   border: none !important;
   border-radius: 0 !important;
@@ -284,7 +284,7 @@
   border: none !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
-  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 16px) !important;
+  padding: var(--erp-spacing, 6px) var(--erp-card-padding, 12px) !important;
   overflow: hidden;
 }
 
@@ -461,13 +461,13 @@
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
-  padding: 0 0 var(--erp-spacing, 8px);
-  gap: var(--erp-layout-gap, 32px) !important;
+  padding: 0 0 var(--erp-spacing, 6px);
+  gap: var(--erp-layout-gap, 6px) !important;
   box-sizing: border-box;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
-  gap: var(--erp-layout-gap, 32px) !important;
+  gap: var(--erp-layout-gap, 6px) !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,
@@ -1018,7 +1018,7 @@
   margin: 0 0 6px;
   padding: 0 10px;
   box-sizing: border-box;
-  background: #f8fafc !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   border: 1px solid #e2e8f0 !important;
   border-radius: 8px !important;
 }
