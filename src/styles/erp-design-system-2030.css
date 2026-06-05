@@ -319,10 +319,25 @@
 
 .cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
   flex-shrink: 0;
+  position: relative;
   background: var(--erp-color-card-header) !important;
   border-bottom: 1px solid var(--erp-color-card-header-border) !important;
   padding-left: 8px !important;
   padding-right: 8px !important;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch::after {
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--erp-color-border) !important;
+  pointer-events: none;
+  z-index: 4;
+  transform: none;
 }
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
@@ -457,6 +472,7 @@
   min-width: 0;
   display: flex;
   align-items: stretch;
+  overflow: visible !important;
 }
 
 /* Campo SELECT — chevron, menu com busca interna */
@@ -464,10 +480,10 @@
   cursor: pointer;
   text-align: left !important;
   padding-left: 10px !important;
-  padding-right: 28px !important;
+  padding-right: 30px !important;
   font-size: 12px !important;
   font-weight: 400 !important;
-  color: #1e293b !important;
+  color: #1a1f26 !important;
   background-color: #ffffff !important;
 }
 
@@ -478,14 +494,24 @@
 }
 
 .cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
-  right: 6px !important;
+  right: 2px !important;
+  color: #1a1f26 !important;
 }
 
 .cadastro-emp-scope .erp-field-select-chevron-btn {
   border: 0;
   background: transparent;
   cursor: pointer;
-  z-index: 3;
+  z-index: 5;
+  color: #1a1f26 !important;
+}
+
+.cadastro-emp-scope .erp-field-select-chevron-btn svg {
+  width: 14px !important;
+  height: 14px !important;
+  color: #1a1f26 !important;
+  stroke: #1a1f26 !important;
+  opacity: 1 !important;
 }
 
 .cadastro-emp-scope .erp-select-control .erp-field-select-input {

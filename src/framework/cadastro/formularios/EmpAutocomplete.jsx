@@ -398,7 +398,7 @@ export default function EmpAutocomplete({
       <div className="relative min-w-0 flex-1">
         {isLookup ? (
           <Search
-            className="erp-field-lookup-inline-icon pointer-events-none absolute left-2 top-1/2 z-[2] h-3.5 w-3.5 -translate-y-1/2 text-[#64748b]"
+            className="erp-field-lookup-inline-icon pointer-events-none absolute left-2 top-1/2 z-[2] h-[14px] w-[14px] -translate-y-1/2 text-[#1a1f26]"
             aria-hidden
           />
         ) : null}
@@ -432,12 +432,13 @@ export default function EmpAutocomplete({
             disabled={disabled || readOnly}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => (open ? setOpen(false) : openPanel())}
-            className="erp-field-select-chevron-btn absolute right-1 top-1/2 z-[3] flex h-5 w-5 -translate-y-1/2 items-center justify-center rounded-md text-[#64748b] hover:bg-[#f3f6fb]"
+            className="erp-field-select-chevron-btn absolute right-0.5 top-1/2 z-[5] flex h-[22px] w-[22px] -translate-y-1/2 items-center justify-center rounded-none border-0 bg-transparent p-0 text-[#1a1f26] shadow-none hover:bg-transparent"
             aria-label={open ? "Fechar lista" : "Abrir lista"}
           >
             <ChevronDown
-              className={cn("h-3.5 w-3.5 transition-transform duration-150", open && "rotate-180")}
+              className={cn("h-[14px] w-[14px] shrink-0 text-[#1a1f26] transition-transform duration-150", open && "rotate-180")}
               strokeWidth={2}
+              color="#1a1f26"
             />
           </button>
         ) : null}
