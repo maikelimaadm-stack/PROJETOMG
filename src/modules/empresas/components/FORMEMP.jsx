@@ -14,8 +14,10 @@ import { CadRecordToolbar } from "@/framework/cadastro-engine/design-system/CadT
 import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
-import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
+import { resolveCadastroPageTitle } from "@/shared/layouts/cadastroPageTitles";
+import { useCadastroPageHeader } from "@/framework/cadastro-engine/hooks/useCadastroPageHeader.js";
+import { useCadastroEnterNavigation } from "@/framework/cadastro-engine/keyboard/useCadastroEnterNavigation.js";
 import {
   countKnownLayoutFields,
   ensureLayoutFields,
@@ -48,7 +50,7 @@ import { useFormEmpCustomFields } from "./formEmp.customFields";
 
 export default function FORMEMP({
   onSubmit, onCancel, onAttachClick, attachDisabled = false,
-  onToggleView, total = 0, currentIndex = 0,
+  onToggleView, total = 0, recordCountTotal = 0, currentIndex = 0,
   onNew, onFirst, onPrevious, onNext, onLast,
   onDelete, onDuplicate, onRefresh,
   filterOpen = false, filterActive = false, onToggleFilter, onClearFilter,
@@ -466,74 +468,68 @@ export default function FORMEMP({
     onSubmit(clean);
   };
 
-  const { setPageHeader, clearPageHeader } = useErpPageHeader();
+  const formRef = useCadastroEnterNavigation(!isReadOnly && editMode);
 
-  const recordMeta = useMemo(() => {
+  const pageTitle = useMemo(
+    () =>
+      layoutConfigOpen
+        ? "Configuração de Layout"
+        : resolveCadastroPageTitle({
+            moduleLabel: "Empresa",
+            isEditing,
+            editMode,
+            isDuplicating,
+          }),
+    [editMode, isDuplicating, isEditing, layoutConfigOpen]
+  );
+
+  const recordDetails = useMemo(() => {
+    if (layoutConfigOpen || !isEditing || isDuplicating) return null;
     const codigo =
       formData.codempresa != null && String(formData.codempresa).trim() !== ""
         ? formData.codempresa
         : null;
-    const nome = String(formData.razao_social || "").trim() || null;
-
-    if (codigo && nome) return { codigo, nome };
-    if (isDuplicating && nome) return { codigo: null, nome };
-    if (isDuplicating) return { codigo: null, nome: "Duplicar empresa" };
-    if (!isEditing) return { codigo: null, nome: "Nova empresa" };
-    if (nome) return { codigo, nome };
-    return null;
-  }, [formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+    const nome = String(formData.razao_social || formData.nome_empresa || "").trim() || null;
+    if (!codigo && !nome) return null;
+    return { codigo, nome };
+  }, [
+    formData.codempresa,
+    formData.nome_empresa,
+    formData.razao_social,
+    isDuplicating,
+    isEditing,
+    layoutConfigOpen,
+  ]);
 
   const operationLabel = useMemo(
     () =>
-      resolveRecordOperationLabel({
-        isEditing,
-        editMode,
-        isDuplicating,
-        isSaving: actionsLocked,
-      }),
-    [isEditing, editMode, isDuplicating, actionsLocked]
+      layoutConfigOpen
+        ? "CONFIGURAÇÃO"
+        : resolveRecordOperationLabel({
+            isEditing,
+            editMode,
+            isDuplicating,
+            isSaving: actionsLocked,
+          }),
+    [isEditing, editMode, isDuplicating, actionsLocked, layoutConfigOpen]
   );
 
-  const showRequiredCounter = !isReadOnly;
+  const showRequiredCounter = !isReadOnly && !layoutConfigOpen;
 
-  useEffect(() => {
-    if (layoutConfigOpen) {
-      setPageHeader({
-        recordMeta: null,
-        recordTitle: null,
-        operationLabel: "Configuração",
-        contextSuffix: "Configuração de layout",
-        requiredStatus: null,
-      });
-      return;
-    }
-
-    setPageHeader({
-      recordMeta,
-      recordTitle: null,
-      operationLabel,
-      contextSuffix: null,
-      requiredStatus: showRequiredCounter
-        ? {
-            visible: true,
-            filled: requiredFieldStats.filled,
-            total: requiredFieldStats.total,
-            pendingFields: requiredFieldStats.pendingFields,
-          }
-        : null,
-    });
-  }, [
-    recordMeta,
-    layoutConfigOpen,
+  useCadastroPageHeader({
+    enabled: true,
+    pageTitle,
+    recordDetails,
     operationLabel,
-    showRequiredCounter,
-    requiredFieldStats.filled,
-    requiredFieldStats.total,
-    requiredFieldStats.pendingFields,
-    setPageHeader,
-  ]);
-
-  useEffect(() => () => clearPageHeader(), [clearPageHeader]);
+    requiredStatus: showRequiredCounter
+      ? {
+          visible: true,
+          filled: requiredFieldStats.filled,
+          total: requiredFieldStats.total,
+          pendingFields: requiredFieldStats.pendingFields,
+        }
+      : null,
+  });
 
   if (layoutConfigOpen) {
     return (
@@ -567,7 +563,7 @@ export default function FORMEMP({
 
   return (
     <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-      <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <form ref={formRef} onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <style>{`
           .form-scroll-container {
             scrollbar-width: thin;
@@ -599,6 +595,8 @@ export default function FORMEMP({
           className="h-full min-h-0 flex-1"
           toolbar={
             <CadRecordToolbar
+              recordCountLabel="Empresas"
+              recordCountTotal={recordCountTotal || total}
               showSaveActions={editMode}
               showEditAction={isReadOnly}
               showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
