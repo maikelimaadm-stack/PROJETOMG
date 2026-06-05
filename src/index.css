@@ -2964,6 +2964,41 @@ input[type="number"] {
   color: #64748b;
 }
 
+/* Topo unificado: header (Sair, empresa, tela cheia) + breadcrumb — mesmo padrão toolbar+abas */
+.erp-shell-top-unified {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: #ffffff !important;
+  border-radius: var(--erp-radius-card, 18px) !important;
+  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
+  overflow: hidden;
+}
+
+.erp-shell-top-unified .erp-shell-header {
+  min-height: 0;
+  height: 2.5rem !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-bottom: 1px solid var(--erp-color-border, #e4eaf2) !important;
+  border-radius: var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) 0 0 !important;
+  box-shadow: none !important;
+}
+
+.erp-shell-top-unified .erp-shell-breadcrumbs {
+  min-height: 0;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+  box-shadow: none !important;
+}
+
 .erp-shell-breadcrumbs {
   min-height: 0;
   padding-top: 8px !important;

@@ -62,7 +62,7 @@ function ErpTopHeader({
   const selectorValue = resolveCompanySelectorValue(selectedEmpresaId, allowAllEmpresas);
 
   return (
-    <header className="erp-shell-header flex h-10 shrink-0 items-center justify-between gap-2 border-b border-slate-200 bg-white px-4">
+    <header className="erp-shell-header flex h-10 shrink-0 items-center justify-between gap-2 bg-white px-4">
       <div className="flex min-w-0 items-center gap-2">
         <SidebarTrigger className="erp-shell-trigger h-8 w-8 rounded-[5px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" />
       </div>
@@ -140,7 +140,7 @@ function ErpBreadcrumbs({ pathname }) {
   }
 
   return (
-    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2 rounded-[18px] bg-white px-4 py-2">
+    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2 px-4 py-2">
       <Breadcrumb className="min-w-0 flex-1">
         <BreadcrumbList className="text-xs font-semibold text-[#1a1f26]">
           {trail.map((crumb, index) => {
@@ -192,16 +192,17 @@ function ErpShellBody({
       </Sidebar>
 
       <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#f8f9fd]">
-        <ErpTopHeader
-          empresas={empresas}
-          selectedEmpresaId={selectedEmpresaId}
-          onSelectEmpresa={onSelectEmpresa}
-          allowAllEmpresas={allowAllEmpresas}
-          onLogout={onLogout}
-        />
-
         <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden">
-          <ErpBreadcrumbs pathname={pathname} />
+          <div className="erp-shell-top-unified shrink-0">
+            <ErpTopHeader
+              empresas={empresas}
+              selectedEmpresaId={selectedEmpresaId}
+              onSelectEmpresa={onSelectEmpresa}
+              allowAllEmpresas={allowAllEmpresas}
+              onLogout={onLogout}
+            />
+            <ErpBreadcrumbs pathname={pathname} />
+          </div>
           <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}
           </div>
