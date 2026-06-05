@@ -58,6 +58,7 @@
   --erp-color-card-border: #edf1f6;
   --erp-color-input-border: #d9e2ef;
   --erp-color-input-hover: #4fafff;
+  --erp-color-input-focus: #4fafff;
   --erp-color-surface: #f7f9fc;
   --erp-color-surface-gradient: linear-gradient(180deg, #fafbfd 0%, #f5f7fb 100%);
   --erp-color-card: #ffffff;
@@ -323,7 +324,7 @@
   padding: 4px 12px 4px calc(12px + var(--erp-card-accent-width)) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  color: var(--erp-color-primary) !important;
+  color: var(--erp-color-label) !important;
   background: var(--erp-color-card-header) !important;
   border-bottom: none !important;
   border-radius: var(--erp-radius-card) var(--erp-radius-card) 0 0 !important;
@@ -453,7 +454,7 @@
 
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:focus-within,
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
-  border-color: var(--erp-color-primary) !important;
+  border-color: var(--erp-color-input-focus) !important;
   box-shadow: none !important;
 }
 
@@ -489,7 +490,7 @@
 .cadastro-emp-scope select:focus,
 .cadastro-emp-scope select:focus-visible {
   outline: none;
-  border-color: var(--erp-color-primary) !important;
+  border-color: var(--erp-color-input-focus) !important;
   box-shadow: none !important;
 }
 
@@ -599,8 +600,9 @@
   padding-left: 28px !important;
 }
 
-.cadastro-emp-scope .emp-form-field-control:has(.erp-field-open) {
-  border-color: var(--erp-color-primary) !important;
+.cadastro-emp-scope .emp-form-field-control:has(.erp-field-open),
+.cadastro-emp-scope .emp-form-field-control:has(.erp-select-control:focus-within) {
+  border-color: var(--erp-color-input-focus) !important;
   box-shadow: none !important;
 }
 
@@ -685,8 +687,8 @@
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover {
-  color: var(--erp-color-primary) !important;
-  -webkit-text-fill-color: var(--erp-color-primary) !important;
+  color: var(--erp-color-label) !important;
+  -webkit-text-fill-color: var(--erp-color-label) !important;
   background: transparent !important;
   font-weight: 600 !important;
   border: none !important;
@@ -1151,7 +1153,7 @@
 
 .erp-select-trigger:focus,
 .erp-select-trigger[data-state="open"] {
-  border-color: var(--erp-color-primary) !important;
+  border-color: var(--erp-color-input-focus) !important;
   box-shadow: none !important;
   outline: none !important;
 }

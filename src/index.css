@@ -836,7 +836,7 @@ input[type="number"] {
   margin: 0;
   padding: 8px 14px;
   border-bottom: 1px solid #e2e8f0;
-  color: var(--emp-accent-primary);
+  color: var(--emp-form-label-color, var(--erp-color-label, #334155));
   font-size: 12px;
   font-weight: 700;
   text-align: left;
@@ -852,8 +852,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-form-detail-panel-title svg {
-  color: var(--emp-accent-primary);
-  stroke: var(--emp-accent-primary);
+  color: var(--emp-form-label-color, var(--erp-color-label, #334155));
+  stroke: var(--emp-form-label-color, var(--erp-color-label, #334155));
   flex: 0 0 auto;
 }
 
@@ -1095,13 +1095,21 @@ input[type="number"] {
   transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control:hover:not(.emp-form-field-error):not(:focus-within) {
+  border-color: var(--emp-accent-primary, #4fafff) !important;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:hover:not(.emp-form-field-error):not(:focus-within) {
+  border-color: var(--emp-accent-primary, #4fafff) !important;
+}
+
 .cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
-  border-color: var(--emp-accent-primary);
+  border-color: var(--emp-accent-primary, #4fafff) !important;
   box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:focus-within {
-  border-color: var(--emp-accent-primary) !important;
+  border-color: var(--emp-accent-primary, #4fafff) !important;
   box-shadow: none !important;
 }
 
@@ -2625,8 +2633,12 @@ input[type="number"] {
   background: #ffffff !important;
 }
 
+.cadastro-emp-scope .emp-form-field-control-lote:hover:not(:focus-within) {
+  border-color: var(--emp-accent-primary, #4fafff) !important;
+}
+
 .cadastro-emp-scope .emp-form-field-control-lote:focus-within {
-  border-color: var(--emp-accent-primary) !important;
+  border-color: var(--emp-accent-primary, #4fafff) !important;
 }
 
 .cadastro-emp-scope .emp-form-field-control-lote.emp-form-field-error {
@@ -3045,8 +3057,8 @@ select.erp-field-invalid {
 
 .cadastro-emp-scope button.emp-form-detail-panel-title,
 .cadastro-emp-scope button.emp-form-detail-panel-title span {
-  color: var(--emp-accent-primary) !important;
-  -webkit-text-fill-color: var(--emp-accent-primary) !important;
+  color: var(--emp-form-label-color, var(--erp-color-label, #334155)) !important;
+  -webkit-text-fill-color: var(--emp-form-label-color, var(--erp-color-label, #334155)) !important;
 }
 
 .cadastro-emp-scope .emp-form-card-body {
@@ -3515,9 +3527,9 @@ select.erp-field-invalid {
   --erp-float-height: var(--emp-form-control-height, 40px);
   --erp-float-radius: var(--emp-control-radius, 8px);
   --erp-float-border: var(--emp-form-border-color, #cbd5e1);
-  --erp-float-border-focus: var(--emp-accent-primary, #4fafff);
+  --erp-float-border-focus: #4fafff;
   --erp-float-label: #64748b;
-  --erp-float-label-active: var(--emp-accent-primary, #4fafff);
+  --erp-float-label-active: #4fafff;
   --erp-float-bg: #ffffff;
   --erp-float-error: #dc2626;
   --erp-state-success: #16a34a;
