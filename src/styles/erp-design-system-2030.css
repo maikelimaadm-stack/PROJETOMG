@@ -109,6 +109,9 @@
   --erp-checkbox-size: 14px;
   --erp-card-accent-width: 4px;
   --erp-tab-indicator-height: 3px;
+  --erp-tab-indicator-radius: 999px;
+  --erp-tab-indicator-inset: 12px;
+  --erp-tab-indicator-glow: 0 1px 5px rgba(37, 99, 235, 0.28);
 
   /* Aliases legados — módulos existentes */
   --emp-text: var(--erp-color-text);
@@ -623,6 +626,12 @@
   content: none !important;
 }
 
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab {
+  position: relative !important;
+  overflow: visible !important;
+}
+
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover,
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
@@ -631,8 +640,36 @@
   -webkit-text-fill-color: var(--erp-color-primary) !important;
   background: #ffffff !important;
   font-weight: 600 !important;
-  border-bottom: var(--erp-tab-indicator-height) solid var(--erp-color-primary) !important;
+  border: none !important;
+  border-bottom: none !important;
   border-radius: 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover::after {
+  content: "" !important;
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 0 !important;
+  transform: translateX(-50%) !important;
+  width: calc(100% - (var(--erp-tab-indicator-inset) * 2)) !important;
+  min-width: 22px !important;
+  height: var(--erp-tab-indicator-height) !important;
+  border-radius: var(--erp-tab-indicator-radius) !important;
+  background: linear-gradient(
+    90deg,
+    #60a5fa 0%,
+    var(--erp-color-primary) 48%,
+    #1d4ed8 100%
+  ) !important;
+  box-shadow: var(--erp-tab-indicator-glow) !important;
+  pointer-events: none !important;
+  transition:
+    width var(--erp-ds-transition),
+    opacity var(--erp-ds-transition),
+    box-shadow var(--erp-ds-transition);
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive,
@@ -642,11 +679,19 @@
   color: var(--erp-color-text-muted) !important;
   -webkit-text-fill-color: var(--erp-color-text-muted) !important;
   font-weight: 500 !important;
-  border-bottom: var(--erp-tab-indicator-height) solid transparent !important;
+  border: none !important;
+  border-bottom: none !important;
   transition:
     color var(--erp-ds-transition),
-    background var(--erp-ds-transition),
-    border-color var(--erp-ds-transition);
+    background var(--erp-ds-transition);
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive:hover::after {
+  display: none !important;
+  content: none !important;
 }
 
 .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover {
