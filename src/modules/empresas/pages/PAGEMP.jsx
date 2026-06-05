@@ -594,7 +594,7 @@ export default function PAGEMP() {
   };
 
   return (
-    <div className="cadastro-emp-scope relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <SaveProgressOverlay active={saveCycle.isSaving} message={saveCycle.saveMessage} />
       <EmpresasFormPanel
         showForm={showForm}

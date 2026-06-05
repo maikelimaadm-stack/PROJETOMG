@@ -1,4 +1,5 @@
 import React from "react";
+import { createPortal } from "react-dom";
 
 const GradientSpinner = () => (
   <svg
@@ -8,17 +9,17 @@ const GradientSpinner = () => (
     aria-hidden="true"
   >
     <defs>
-      <linearGradient id="save-progress-gradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#2899f5" stopOpacity="1" />
-        <stop offset="55%" stopColor="#5eb3f8" stopOpacity="0.55" />
-        <stop offset="100%" stopColor="#d6ecfd" stopOpacity="0.15" />
+      <linearGradient id="erp-save-progress-gradient" x1="8" y1="8" x2="56" y2="56" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stopColor="var(--erp-color-primary)" stopOpacity="1" />
+        <stop offset="55%" stopColor="var(--erp-color-primary-hover)" stopOpacity="0.65" />
+        <stop offset="100%" stopColor="var(--erp-color-primary)" stopOpacity="0.12" />
       </linearGradient>
     </defs>
     <circle
       cx="32"
       cy="32"
       r="24"
-      stroke="url(#save-progress-gradient)"
+      stroke="url(#erp-save-progress-gradient)"
       strokeWidth="5"
       strokeLinecap="round"
       strokeDasharray="110 40"
@@ -30,11 +31,11 @@ export default function SaveProgressOverlay({
   active = false,
   message = "Salvando registros...",
 }) {
-  if (!active) return null;
+  if (!active || typeof document === "undefined") return null;
 
-  return (
+  return createPortal(
     <div
-      className="absolute inset-0 z-[60] flex items-center justify-center bg-white/75 backdrop-blur-[2px]"
+      className="erp-save-progress-overlay fixed inset-0 z-[10000] flex items-center justify-center bg-[var(--erp-color-surface,#fafafa)]/80 backdrop-blur-[2px]"
       role="status"
       aria-live="polite"
       aria-busy="true"
@@ -42,8 +43,9 @@ export default function SaveProgressOverlay({
     >
       <div className="flex flex-col items-center gap-4">
         <GradientSpinner />
-        <p className="text-center text-sm font-semibold text-[#2899f5]">{message}</p>
+        <p className="text-center text-sm font-semibold text-[var(--erp-color-primary)]">{message}</p>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

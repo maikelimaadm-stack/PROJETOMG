@@ -525,14 +525,16 @@ export default function PAGCPS() {
         )
       );
       throw error;
+    } finally {
+      saveCycle.end();
     }
   };
 
   return (
     <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <SaveProgressOverlay active={saveCycle.isSaving} message={saveCycle.saveMessage} />
       <CamposFormPanel
         showForm={showForm}
-        saveProgress={{ active: saveCycle.isSaving, message: saveCycle.saveMessage }}
         formProps={{
           key: `form-${formVersion}`,
           initialData: editingItem,
