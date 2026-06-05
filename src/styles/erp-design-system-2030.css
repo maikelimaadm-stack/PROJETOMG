@@ -30,9 +30,9 @@
   --erp-color-card-border: rgba(255, 255, 255, 0);
   --erp-radius-card: 18px;
   --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --erp-spacing: 12px;
-  --erp-layout-gap: 20px;
-  --erp-shell-padding: 24px;
+  --erp-spacing: 8px;
+  --erp-layout-gap: 14px;
+  --erp-shell-padding: 16px;
   --erp-state-success: #22c55e;
   --erp-state-warning: #f59e0b;
   --erp-state-error: #ef4444;
@@ -123,10 +123,11 @@
 
   --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
   --erp-shadow-control: 0 1px 3px rgba(15, 23, 42, 0.03);
-  --erp-spacing: 12px;
-  --erp-layout-gap: 20px;
-  --erp-shell-padding: 24px;
-  --erp-card-padding: 12px;
+  --erp-spacing: 8px;
+  --erp-layout-gap: 14px;
+  --erp-shell-padding: 16px;
+  --erp-card-padding: 10px;
+  --erp-form-field-gap-x: 8px;
   --erp-shadow-dropdown: var(--erp-menu-shadow);
   --erp-shadow-search-panel: var(--erp-menu-shadow);
   --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
@@ -544,7 +545,7 @@
   flex: 1 1 auto;
   min-height: 0;
   margin: 0 !important;
-  padding: 12px 10px 14px !important;
+  padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) calc(var(--erp-spacing, 8px) + 2px) !important;
   background: var(--erp-color-card) !important;
   border: none !important;
   border-radius: 0 !important;
