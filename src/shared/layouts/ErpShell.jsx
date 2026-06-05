@@ -27,6 +27,7 @@ import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 import ErpRecordMeta from "@/shared/layouts/ErpRecordMeta";
 import ErpOperationBadge from "@/shared/layouts/ErpOperationBadge";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
+import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
@@ -142,39 +143,67 @@ function ErpBreadcrumbs({ pathname }) {
   }
 
   const operationLabel = header.operationLabel || header.contextSuffix;
+  const requiredStatus = header.requiredStatus;
+  const showRequiredCounter =
+    requiredStatus?.visible && Number(requiredStatus?.total) > 0;
 
   return (
-    <div className="erp-shell-breadcrumbs flex shrink-0 items-center gap-2">
-      <Breadcrumb className="min-w-0 flex-1">
-        <BreadcrumbList className="erp-shell-breadcrumb-list flex flex-wrap items-center gap-1.5 text-xs font-semibold">
-          {trail.map((crumb, index) => {
-            const isLast = index === trail.length - 1;
-            const crumbKey = `${typeof crumb.label === "string" ? crumb.label : "node"}-${index}`;
-            return (
-              <React.Fragment key={crumbKey}>
-                {index > 0 ? (
-                  <BreadcrumbSeparator className="erp-shell-breadcrumb-separator text-[#94a3b8]" />
-                ) : null}
-                <BreadcrumbItem className="inline-flex min-w-0 items-center">
-                  {isLast ? (
-                    <BreadcrumbPage className="inline-flex min-w-0 items-center p-0">
-                      {crumb.isNode ? (
-                        crumb.label
-                      ) : (
-                        <ErpInfoPill className="erp-shell-breadcrumb-pill">{crumb.label}</ErpInfoPill>
-                      )}
-                    </BreadcrumbPage>
-                  ) : (
-                    <ErpInfoPill className="erp-shell-breadcrumb-pill">{crumb.label}</ErpInfoPill>
-                  )}
-                </BreadcrumbItem>
-              </React.Fragment>
-            );
-          })}
-        </BreadcrumbList>
-      </Breadcrumb>
-      {operationLabel ? (
-        <ErpOperationBadge operationLabel={operationLabel} className="ml-auto shrink-0" />
+    <div className="erp-shell-breadcrumbs flex shrink-0 flex-col gap-1.5">
+      <div className="erp-shell-breadcrumbs__trail flex min-w-0 w-full items-center gap-2">
+        <Breadcrumb className="min-w-0 flex-1">
+          <BreadcrumbList className="erp-shell-breadcrumb-list flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+            {trail.map((crumb, index) => {
+              const isLast = index === trail.length - 1;
+              const crumbKey = `${typeof crumb.label === "string" ? crumb.label : "node"}-${index}`;
+              return (
+                <React.Fragment key={crumbKey}>
+                  {index > 0 ? (
+                    <BreadcrumbSeparator className="erp-shell-breadcrumb-separator text-[#94a3b8]" />
+                  ) : null}
+                  <BreadcrumbItem className="inline-flex min-w-0 items-center">
+                    {isLast ? (
+                      <BreadcrumbPage className="inline-flex min-w-0 items-center p-0">
+                        {crumb.isNode ? (
+                          crumb.label
+                        ) : (
+                          <ErpInfoPill className="erp-shell-breadcrumb-pill">{crumb.label}</ErpInfoPill>
+                        )}
+                      </BreadcrumbPage>
+                    ) : (
+                      <ErpInfoPill className="erp-shell-breadcrumb-pill">{crumb.label}</ErpInfoPill>
+                    )}
+                  </BreadcrumbItem>
+                </React.Fragment>
+              );
+            })}
+          </BreadcrumbList>
+        </Breadcrumb>
+        {operationLabel ? (
+          <ErpOperationBadge
+            operationLabel={operationLabel}
+            className="erp-shell-operation-badge erp-shell-operation-badge--desktop ml-auto shrink-0"
+          />
+        ) : null}
+      </div>
+
+      {operationLabel || showRequiredCounter ? (
+        <div className="erp-shell-breadcrumbs__meta flex w-full min-w-0 items-center gap-2">
+          {operationLabel ? (
+            <ErpOperationBadge
+              operationLabel={operationLabel}
+              className="erp-shell-operation-badge erp-shell-operation-badge--mobile shrink-0"
+            />
+          ) : null}
+          {showRequiredCounter ? (
+            <FormValidationStatus
+              visible
+              filled={requiredStatus.filled}
+              total={requiredStatus.total}
+              pendingFields={requiredStatus.pendingFields}
+              className="erp-shell-required-status ml-auto shrink-0"
+            />
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

@@ -6,6 +6,47 @@
  * MOBILE  (≤640px): 1 campo/linha (pares só para campos pequenos), rodapé fixo
  */
 
+/* —— Breadcrumb: desktop = 1 linha; mobile = 2 linhas —— */
+.erp-shell-breadcrumbs__meta {
+  display: none;
+}
+
+.erp-shell-operation-badge--mobile {
+  display: none !important;
+}
+
+.erp-shell-operation-badge--desktop {
+  display: inline-flex;
+}
+
+.cadastro-emp-scope .emp-form-tabs-required-desktop {
+  display: inline-flex;
+}
+
+/* Toolbar desktop: sem barra de rolagem nos botões */
+@media (min-width: 1025px) {
+  .cadastro-emp-scope .emp-toolbar-row {
+    overflow: hidden !important;
+    overflow-x: hidden !important;
+    flex-wrap: wrap;
+    scrollbar-width: none;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-row::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-card {
+    overflow: visible !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar {
+    overflow: visible !important;
+  }
+}
+
 /* —— Desktop: largura total e campos legíveis —— */
 @media (min-width: 1025px) {
   .cadastro-emp-scope .emp-form-fields-corp,
@@ -175,6 +216,32 @@
     font-size: 11px !important;
   }
 
+  /* Linha 1: menu + submenu + registro */
+  .erp-shell-breadcrumbs__trail {
+    width: 100%;
+  }
+
+  .erp-shell-operation-badge--desktop {
+    display: none !important;
+  }
+
+  /* Linha 2: status (editando/novo) + obrigatórios */
+  .erp-shell-breadcrumbs__meta {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .erp-shell-operation-badge--mobile {
+    display: inline-flex !important;
+  }
+
+  .cadastro-emp-scope .emp-form-tabs-required-desktop {
+    display: none !important;
+  }
+
   /* Toolbar: ícones, sem Salvar/Cancelar (vão para o rodapé) */
   .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div,
   .cadastro-emp-scope .emp-toolbar-row {
@@ -200,7 +267,7 @@
     justify-content: center;
   }
 
-  /* Busca reduzida para ícone */
+  /* Busca: ícone → expande para pesquisar */
   .cadastro-emp-scope .emp-toolbar-search {
     width: var(--erp-toolbar-btn-size, 36px) !important;
     min-width: var(--erp-toolbar-btn-size, 36px) !important;
@@ -208,6 +275,7 @@
     flex: 0 0 auto !important;
     justify-content: center;
     cursor: pointer;
+    transition: width 0.2s ease, max-width 0.2s ease;
   }
 
   .cadastro-emp-scope .emp-toolbar-search-input {
@@ -220,12 +288,60 @@
     clip: rect(0, 0, 0, 0) !important;
     white-space: nowrap !important;
     border: 0 !important;
+    font-size: 16px !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
   }
 
   .cadastro-emp-scope .emp-toolbar-search-icon {
     position: static !important;
     transform: none !important;
     pointer-events: none;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-row--search-expanded {
+    flex-wrap: wrap !important;
+    row-gap: 6px;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search--expanded {
+    order: 20;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    flex: 1 1 100% !important;
+    margin-top: 2px;
+    cursor: text;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search--expanded .emp-toolbar-search-input {
+    position: static !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    clip: auto !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+    padding-right: 2rem !important;
+    font-size: 16px !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search--expanded .emp-toolbar-search-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 2rem;
+    height: 100%;
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-end {
@@ -297,13 +413,51 @@
     font-size: 11px !important;
   }
 
+  /* Cards sempre inteiros (nunca meio card na tela) */
+  .cadastro-emp-scope .emp-form-cards-row {
+    grid-template-columns: minmax(0, 1fr) !important;
+    overflow-x: visible !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-slot {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card,
+  .cadastro-emp-scope .emp-form-card--virtual {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .cadastro-emp-scope .form-scroll-container,
+  .cadastro-emp-scope .emp-form-fields-corp,
+  .cadastro-emp-scope .emp-form-cards-layout {
+    overflow-x: hidden !important;
+    max-width: 100% !important;
+  }
+
+  /* Evita zoom automático ao focar campos (iOS) */
+  .cadastro-emp-scope input,
+  .cadastro-emp-scope textarea,
+  .cadastro-emp-scope select,
+  .cadastro-emp-scope .emp-form-input,
+  .cadastro-emp-scope .emp-autocomplete input,
+  .cadastro-emp-scope .erp-field-select-input,
+  .cadastro-emp-scope .erp-field-lookup-input {
+    font-size: 16px !important;
+  }
+
   /* Espaço para rodapé fixo */
   .cadastro-emp-scope .form-scroll-container {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0px)) !important;
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Rodapé fixo Salvar / Cancelar */
+  /* Rodapé fixo Salvar / Cancelar — compacto, cores iguais ao desktop */
   .cadastro-emp-scope .emp-form-mobile-footer {
     position: fixed;
     left: 0;
@@ -311,11 +465,12 @@
     bottom: 0;
     z-index: 60;
     display: flex;
-    gap: 8px;
-    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0px));
-    background: #ffffff;
+    gap: 6px;
+    padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.96);
     border-top: 1px solid var(--erp-color-border, #e4eaf2);
-    box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.04);
+    backdrop-filter: blur(6px);
   }
 
   .cadastro-emp-scope .emp-form-mobile-footer__btn {
@@ -323,20 +478,16 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    height: 40px;
-    border-radius: 10px;
-    border: 1px solid var(--erp-color-border, #e4eaf2);
-    background: #ffffff;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1e293b;
-  }
-
-  .cadastro-emp-scope .emp-form-mobile-footer__btn--primary {
-    background: var(--erp-color-primary, #2899f5);
-    border-color: var(--erp-color-primary, #2899f5);
-    color: #ffffff;
+    gap: 4px;
+    height: 32px !important;
+    min-height: 32px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 12px !important;
+    border-radius: 10px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
   }
 
   .cadastro-emp-scope .emp-form-mobile-footer__btn:disabled {
