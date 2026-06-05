@@ -23,7 +23,6 @@ import {
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
-import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
@@ -345,11 +344,6 @@ export default function FORMEMP({
     });
   }, [tabs, activeLayoutConfig, dynamicFields, formData]);
 
-  const requiredCounterTone =
-    requiredFieldStats.total > 0 && requiredFieldStats.filled >= requiredFieldStats.total
-      ? "complete"
-      : "incomplete";
-
   const applyLayoutConfig = (source, options) => applyLayoutConfigFromEngine(source, options);
 
   const tabIdsKey = useMemo(() => tabs.map((panel) => panel.id).join("|"), [tabs]);
@@ -567,6 +561,7 @@ export default function FORMEMP({
               searchValue={searchValue}
               onSearchChange={onSearchChange}
               showSearch
+              validationStatus={requiredFieldStats}
             />
           }
         >
@@ -578,14 +573,6 @@ export default function FORMEMP({
                 activeTab={activeTab}
                 onChange={setActiveTab}
                 systemPanelIds={empresasCadastroConfig.systemPanelIds}
-                trailing={
-                  <EmpBubbleCounter
-                    value={`${requiredFieldStats.filled}/${requiredFieldStats.total}`}
-                    title="Campos obrigatórios preenchidos"
-                    tone={requiredCounterTone}
-                    className="emp-toolbar-bubble-counter"
-                  />
-                }
               />
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp min-h-[380px] w-full min-w-0 w-full max-w-full max-w-none">

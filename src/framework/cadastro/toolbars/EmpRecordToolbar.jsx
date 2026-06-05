@@ -2,6 +2,7 @@ import React from "react";
 import { Filter, List, Check, X, Paperclip, MoreHorizontal, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Pencil, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
 
@@ -48,7 +49,8 @@ export default function EmpRecordToolbar({
   searchValue = "",
   onSearchChange,
   showSearch = false,
-  showRecordNavigation = true
+  showRecordNavigation = true,
+  validationStatus = null,
 }) {
   const canNavigate = total > 0;
   const isFirst = currentIndex <= 0;
@@ -115,6 +117,13 @@ export default function EmpRecordToolbar({
         )}
 
         <div className="ml-auto flex items-center gap-1.5 shrink-0">
+          {validationStatus?.total > 0 ? (
+            <FormValidationStatus
+              filled={validationStatus.filled}
+              total={validationStatus.total}
+              pending={validationStatus.pending}
+            />
+          ) : null}
           {showSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP}>
               <input value={searchValue} onChange={(e) => onSearchChange?.(e.target.value)} placeholder="Pesquisar registros..." className={EMP_TOOLBAR_SEARCH_INPUT} />

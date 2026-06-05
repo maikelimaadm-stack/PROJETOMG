@@ -1420,3 +1420,87 @@
 .cadastro-emp-scope .erp-field-select-chevron-btn {
   border-radius: var(--erp-radius-control) !important;
 }
+
+/* —— FormValidationStatus —— */
+@keyframes validationPulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.cadastro-emp-scope .form-validation-status,
+.erp-shell .form-validation-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 26px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .form-validation-status__icon,
+.erp-shell .form-validation-status__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .form-validation-status__icon--pulse .form-validation-status__dot,
+.erp-shell .form-validation-status__icon--pulse .form-validation-status__dot {
+  animation: validationPulse 3s infinite ease-in-out;
+}
+
+.cadastro-emp-scope .form-validation-status__dot,
+.erp-shell .form-validation-status__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.cadastro-emp-scope .form-validation-status__check,
+.erp-shell .form-validation-status__check {
+  width: 12px;
+  height: 12px;
+}
+
+.cadastro-emp-scope .form-validation-status--pending,
+.erp-shell .form-validation-status--pending {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+}
+
+.cadastro-emp-scope .form-validation-status--partial,
+.erp-shell .form-validation-status--partial {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  color: #ea580c;
+}
+
+.cadastro-emp-scope .form-validation-status--complete,
+.erp-shell .form-validation-status--complete {
+  background: #effdf5;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
+.cadastro-emp-scope .form-validation-status__label,
+.erp-shell .form-validation-status__label {
+  color: inherit;
+}
