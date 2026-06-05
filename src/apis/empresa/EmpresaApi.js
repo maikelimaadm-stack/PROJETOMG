@@ -44,8 +44,7 @@ export const EmpresaApi = {
   },
 
   async createEmpresa(data) {
-    const payload = await apiClient.post(EMPRESAS_PATH, data, CADASTRO_LIST_SCOPE);
-    return payload?.item || payload;
+    return apiClient.post(EMPRESAS_PATH, data, CADASTRO_LIST_SCOPE);
   },
 
   async updateEmpresa(id, data) {
@@ -54,8 +53,7 @@ export const EmpresaApi = {
   },
 
   async deleteEmpresa(id) {
-    await apiClient.delete(`${EMPRESAS_PATH}/${id}`, recordScope(id));
-    return true;
+    return apiClient.delete(`${EMPRESAS_PATH}/${id}`, recordScope(id));
   },
 
   async listCamposPersonalizados({ mode = "aplicavel" } = {}) {

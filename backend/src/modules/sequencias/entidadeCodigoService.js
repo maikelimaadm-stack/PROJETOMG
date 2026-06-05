@@ -42,7 +42,11 @@ export const ensureCodigoSequenciaFloor = async (tx, clienteId, entityName) => {
 };
 
 export const reserveNextCodigo = async (tx, clienteId, entityName) => {
-  await ensureCodigoSequenciaFloor(tx, clienteId, entityName);
+  await tx.$executeRaw`
+    INSERT INTO "EntidadeCodigoSequencia" ("id", "cliente_id", "entity_name", "next_codigo", "createdAt", "updatedAt")
+    VALUES (replace(gen_random_uuid()::text, '-', ''), ${clienteId}, ${entityName}, 1, NOW(), NOW())
+    ON CONFLICT ("cliente_id", "entity_name") DO NOTHING
+  `;
 
   const rows = await tx.$queryRaw`
     UPDATE "EntidadeCodigoSequencia"

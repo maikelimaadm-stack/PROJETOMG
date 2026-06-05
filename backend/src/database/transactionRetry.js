@@ -32,7 +32,7 @@ export const runTransactionWithRetry = async (
       if (!isRetryableTransactionError(error) || attempt >= attempts - 1) {
         throw error;
       }
-      await new Promise((resolve) => setTimeout(resolve, 40 * (attempt + 1)));
+      await new Promise((resolve) => setTimeout(resolve, 15 * (attempt + 1)));
     }
   }
 

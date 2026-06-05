@@ -17,6 +17,7 @@ import {
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
+import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 
 const DEFAULT_EMPRESAS_RESPONSE = {
@@ -109,15 +110,12 @@ export default function PAGEMP() {
   const totalEmpresas = empresasResponse.total || 0;
 
   const { data: contadores = { empresas: totalEmpresas, registrosGlobais: 0 } } = useQuery({
-    queryKey: ["metrics-contadores", totalEmpresas],
-    queryFn: async () => {
-      try {
-        return await MetricsApi.getContadores();
-      } catch {
-        return { empresas: totalEmpresas, registrosGlobais: 0 };
-      }
-    },
-    staleTime: 30_000,
+    queryKey: ["metrics-contadores"],
+    queryFn: () => MetricsApi.getContadores(),
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: 30 * 60_000,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     placeholderData: { empresas: totalEmpresas, registrosGlobais: 0 },
   });
   const empresasLoading = isLoading && empresas.length === 0;
@@ -239,14 +237,15 @@ export default function PAGEMP() {
         items: [optimistic, ...previous.items],
         total: previous.total + 1,
       }));
+      patchMetricsCache(queryClient, { empresas: 1, registrosGlobais: 1 });
       stayOnRecordAfterSave(optimistic);
       showSuccess(`${moduleLabels.singular} cadastrada!`);
       setFormVersion((version) => version + 1);
 
       void moduleRepository
         .create(clean)
-        .then((savedRecord) => {
-          const normalized = normalizeEmpresaRecord(savedRecord);
+        .then((response) => {
+          const normalized = normalizeEmpresaRecord(response?.item);
           patchEmpresasCache(queryClient, (previous) => ({
             ...previous,
             items: previous.items.map((item) =>
@@ -260,9 +259,10 @@ export default function PAGEMP() {
             current.includes(pendingId) ? [normalized.id] : current
           );
           upsertEmpresaInSelector(normalized);
-          queryClient.invalidateQueries({ queryKey: ["metrics-contadores"] });
+          setMetricsCache(queryClient, response?.contadores);
         })
         .catch((error) => {
+          patchMetricsCache(queryClient, { empresas: -1, registrosGlobais: -1 });
           cacheSnapshot.forEach(([key, value]) => {
             queryClient.setQueryData(key, value);
           });
@@ -407,6 +407,7 @@ export default function PAGEMP() {
       : -1;
 
     const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
+    const metricsSnapshot = queryClient.getQueryData(["metrics-contadores"]);
     const selectorSnapshot = empresasSelector;
 
     patchEmpresasCache(queryClient, (previous) => ({
@@ -414,6 +415,7 @@ export default function PAGEMP() {
       items: previous.items.filter((item) => !ids.includes(item.id)),
       total: Math.max(0, previous.total - ids.length),
     }));
+    patchMetricsCache(queryClient, { empresas: -ids.length });
     removeEmpresasFromSelector(ids);
 
     const list = navListBeforeDelete.filter((item) => !ids.includes(item.id));
@@ -479,7 +481,9 @@ export default function PAGEMP() {
     setDeleteState({ open: false, ids: [] });
 
     try {
-      await Promise.all(ids.map((id) => moduleRepository.delete(id)));
+      const results = await Promise.all(ids.map((id) => moduleRepository.delete(id)));
+      const lastContadores = results.filter((r) => r?.contadores).at(-1)?.contadores;
+      if (lastContadores) setMetricsCache(queryClient, lastContadores);
       showSuccess(
         ids.length === 1
           ? `${moduleLabels.singular} excluída!`
@@ -489,6 +493,9 @@ export default function PAGEMP() {
       cacheSnapshot.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
+      if (metricsSnapshot) {
+        queryClient.setQueryData(["metrics-contadores"], metricsSnapshot);
+      }
       replaceEmpresasInSelector(selectorSnapshot);
       showError(
         resolveErrorMessage(

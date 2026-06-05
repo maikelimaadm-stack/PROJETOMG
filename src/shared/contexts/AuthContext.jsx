@@ -3,6 +3,8 @@ import { AuthApi } from "@/apis/auth/AuthApi";
 import { resetAllLayoutPreferencesSync } from "@/framework/cadastro-engine/preferences/LayoutPreferencesEngine.js";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
+import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
+import { MetricsApi } from "@/apis/metrics/MetricsApi";
 
 const prefetchEmpresasCadastro = () => {
   void queryClientInstance.prefetchQuery({
@@ -16,6 +18,28 @@ const prefetchEmpresasCadastro = () => {
         sortDir: "asc",
       }),
     staleTime: 60_000,
+  });
+  void queryClientInstance.prefetchQuery({
+    queryKey: ["metrics-contadores"],
+    queryFn: () => MetricsApi.getContadores(),
+    staleTime: Number.POSITIVE_INFINITY,
+  });
+  void queryClientInstance.prefetchQuery({
+    queryKey: ["cadcps-campos", 1, 50, "", "codigo", "asc"],
+    queryFn: () =>
+      cadcpsModuleDefinition.repository.listPage({
+        page: 1,
+        pageSize: 50,
+        search: "",
+        sortBy: "codigo",
+        sortDir: "asc",
+      }),
+    staleTime: 60_000,
+  });
+  void queryClientInstance.prefetchQuery({
+    queryKey: ["emp-campos-personalizados"],
+    queryFn: () => empresasModuleDefinition.repository.listCamposPersonalizados("aplicavel"),
+    staleTime: 5 * 60_000,
   });
 };
 
