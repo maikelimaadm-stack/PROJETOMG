@@ -59,7 +59,7 @@ export default function EmpRecordToolbar({
 
   return (
     <div className="emp-toolbar shadow-none overflow-hidden">
-      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
+      <div className="emp-toolbar-row flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
         {onBack && (
           <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}
@@ -97,7 +97,7 @@ export default function EmpRecordToolbar({
           </ToolbarBtn>
         )}
         {showRecordNavigation && (
-          <div className="flex items-center gap-1 shrink-0">
+          <div className="emp-toolbar-actions-nav flex items-center gap-1 shrink-0">
             <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Primeiro"><EmpToolbarIcon icon={ChevronsLeft} nav /></ToolbarBtn>
             <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Anterior"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
             <ToolbarBtn onClick={onNext} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Próximo"><EmpToolbarIcon icon={ChevronRight} nav /></ToolbarBtn>
@@ -117,7 +117,7 @@ export default function EmpRecordToolbar({
           </>
         )}
 
-        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+        <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP}>
               <input value={searchValue} onChange={(e) => onSearchChange?.(e.target.value)} placeholder="Pesquisar registros..." className={EMP_TOOLBAR_SEARCH_INPUT} />

@@ -60,8 +60,8 @@ export default function EmpListToolbar({
 
   return (
     <div className="emp-toolbar">
-      <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
-        <div className="flex items-center gap-1.5 shrink-0">
+      <div className="emp-toolbar-row flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
+        <div className="emp-toolbar-actions-primary flex items-center gap-1.5 shrink-0">
           {onBack && (
             <ToolbarBtn onClick={onBack} title="Voltar">
               <EmpToolbarIcon icon={ChevronLeft} nav />
@@ -113,7 +113,7 @@ export default function EmpListToolbar({
           )}
         </div>
 
-        <div className="ml-auto flex items-center gap-1.5 shrink-0">
+        <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP}>
               <input

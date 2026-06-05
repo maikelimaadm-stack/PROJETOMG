@@ -629,7 +629,7 @@ export default function FORMEMP({
                 }
               />
 
-              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp min-h-[380px] w-full min-w-0 w-full max-w-full max-w-none">
+              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp w-full min-w-0 max-w-none">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <RenderEngine
                     panels={tabs}
