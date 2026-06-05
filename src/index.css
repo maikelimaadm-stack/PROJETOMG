@@ -1219,9 +1219,9 @@ input[type="number"] {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 28px !important;
-  min-width: 28px !important;
-  max-width: 28px !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  max-width: 24px !important;
   height: auto !important;
   align-self: stretch !important;
   padding: 0 !important;

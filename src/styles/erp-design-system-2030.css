@@ -493,13 +493,8 @@
   opacity: 1;
 }
 
-.cadastro-emp-scope .erp-select-inline-divider {
-  display: block;
-  width: 1px;
-  align-self: stretch;
-  flex-shrink: 0;
-  background: var(--erp-color-border);
-  margin: 4px 0;
+.cadastro-emp-scope .emp-form-autocomplete-wrap.erp-field-select {
+  gap: 0 !important;
 }
 
 .cadastro-emp-scope .emp-form-select-btn,
@@ -508,9 +503,9 @@
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 28px !important;
-  min-width: 28px !important;
-  max-width: 28px !important;
+  width: 24px !important;
+  min-width: 24px !important;
+  max-width: 24px !important;
   height: auto !important;
   min-height: 0 !important;
   align-self: stretch !important;
@@ -531,6 +526,11 @@
 .cadastro-emp-scope .emp-form-select-btn:hover:not(:disabled),
 .cadastro-emp-scope .erp-field-select-chevron-btn:hover:not(:disabled) {
   background: var(--erp-color-lookup-hover) !important;
+}
+
+.cadastro-emp-scope .erp-field-select .erp-field-select-chevron-btn {
+  border-top-right-radius: var(--erp-radius-control) !important;
+  border-bottom-right-radius: var(--erp-radius-control) !important;
 }
 
 .cadastro-emp-scope .erp-field-select-chevron-btn svg {

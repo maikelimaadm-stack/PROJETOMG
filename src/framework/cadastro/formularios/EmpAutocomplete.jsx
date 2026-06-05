@@ -427,8 +427,6 @@ export default function EmpAutocomplete({
         />
       </div>
       {isSelect ? (
-        <>
-          <span className="erp-select-inline-divider" aria-hidden />
           <button
             type="button"
             tabIndex={-1}
@@ -444,7 +442,6 @@ export default function EmpAutocomplete({
               color="#1a1f26"
             />
           </button>
-        </>
       ) : null}
       {isLookup ? (
         <>
