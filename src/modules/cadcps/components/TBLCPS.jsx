@@ -7,6 +7,10 @@ import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react"
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
+  loadColumnOrder,
+  loadVisibleColumns,
+} from "@/framework/cadastro/tables/empColumnLayout";
+import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
   COLUNAS_BASE,
@@ -65,26 +69,42 @@ export default function TBLCPS({
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
   const [frozenColumnCount, setFrozenColumnCount] = useState(() => { const s = Number(localStorage.getItem(FROZEN_KEY) || 0); return Number.isFinite(s) ? s : 0; });
-  const [colunasOrdem, setColunasOrdem] = useState(() => {
-    const saved = localStorage.getItem(ORDER_KEY);
-    if (!saved) return COLUNAS_BASE.map((c) => c.id);
-    try {
-      return JSON.parse(saved);
-    } catch {
-      return COLUNAS_BASE.map((c) => c.id);
-    }
-  });
-  const [colunasVisiveis, setColunasVisiveis] = useState(() => {
-    const saved = localStorage.getItem(VISIBLE_KEY);
-    const defaultVisible = COLUNAS_BASE.filter((c) => c.default).map((c) => c.id);
-    if (!saved) return defaultVisible;
-    try {
-      return Array.from(new Set([...JSON.parse(saved), ...defaultVisible]));
-    } catch {
-      return defaultVisible;
-    }
-  });
+  const [colunasOrdem, setColunasOrdem] = useState(() => loadColumnOrder(ORDER_KEY, COLUNAS_BASE));
+  const [colunasVisiveis, setColunasVisiveis] = useState(() => loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE));
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
+
+  useEffect(() => {
+    const mergedOrder = loadColumnOrder(ORDER_KEY, COLUNAS_BASE);
+    const mergedVisible = loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE);
+    const savedOrder = localStorage.getItem(ORDER_KEY);
+    const savedVisible = localStorage.getItem(VISIBLE_KEY);
+    let shouldPersist = false;
+
+    if (savedOrder) {
+      try {
+        const parsed = JSON.parse(savedOrder);
+        if (!parsed.includes("id_global") || parsed[0] !== "id_global") shouldPersist = true;
+      } catch {
+        shouldPersist = true;
+      }
+    }
+
+    if (savedVisible) {
+      try {
+        const parsed = JSON.parse(savedVisible);
+        if (!parsed.includes("id_global")) shouldPersist = true;
+      } catch {
+        shouldPersist = true;
+      }
+    }
+
+    if (shouldPersist) {
+      localStorage.setItem(ORDER_KEY, JSON.stringify(mergedOrder));
+      localStorage.setItem(VISIBLE_KEY, JSON.stringify(mergedVisible));
+      setColunasOrdem(mergedOrder);
+      setColunasVisiveis(mergedVisible);
+    }
+  }, []);
 
   const lastRowClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const rowClickSuppressRef = useRef({ id: null, until: 0 });

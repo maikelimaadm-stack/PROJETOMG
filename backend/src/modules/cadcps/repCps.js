@@ -4,6 +4,10 @@ import {
   registerRegistroGlobal,
   reserveNextIdGlobal,
 } from "../idGlobal/idGlobalService.js";
+import {
+  ENTITY_CODIGO_CADCPS,
+  reserveNextCodigo,
+} from "../sequencias/entidadeCodigoService.js";
 import { assertCampoNotInUse } from "./cadcpsFieldUsage.js";
 import { CADCPS_APLICACAO, normalizeCadcpsTipo } from "./cadcpsConstants.js";
 import { listCadastroModulesForCadcps } from "./cadastroModuleRegistry.js";
@@ -31,15 +35,6 @@ const mapCampoRow = (row) => {
         : (row.empresas || []).length,
     opcoes: row.opcoes || [],
   };
-};
-
-const nextCodigo = async (prisma, clienteId) => {
-  const seq = await prisma.cadCpsCodigoSequencia.upsert({
-    where: { cliente_id: clienteId },
-    create: { cliente_id: clienteId, next_codigo: 2 },
-    update: { next_codigo: { increment: 1 } },
-  });
-  return seq.next_codigo - 1;
 };
 
 const recordHistorico = async (prisma, { scope, campoId, acao, valorAnterior, valorNovo }) => {
@@ -316,7 +311,7 @@ export const repCps = {
     };
 
     const created = await prisma.$transaction(async (tx) => {
-      const codigo = await nextCodigo(tx, scope.clienteId);
+      const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_CADCPS);
       const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
       const record = await tx.cadCpsCampo.create({
         data: {

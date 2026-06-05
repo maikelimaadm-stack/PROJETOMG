@@ -4,9 +4,28 @@ import { getPrismaClient } from "../../database/prismaClient.js";
 const sanitizeUser = (user) => ({
   id: user.id,
   cliente_id: user.cliente_id,
+  codigo: user.codigo ?? null,
+  nome: user.nome ?? null,
   login: user.login,
+  email: user.email ?? null,
+  telefone: user.telefone ?? null,
   perfil: user.perfil,
   acesso_global: user.acesso_global,
+  ultimo_acesso: user.ultimo_acesso ?? null,
+});
+
+const sanitizeCliente = (cliente) => ({
+  id: cliente.id,
+  codigo: cliente.codigo,
+  nome: cliente.nome,
+  cpf_cnpj: cliente.cpf_cnpj ?? null,
+  telefone: cliente.telefone ?? null,
+  email: cliente.email ?? null,
+  status: cliente.status ?? "Ativo",
+  plano: cliente.plano ?? null,
+  limite_usuarios: cliente.limite_usuarios ?? null,
+  limite_empresas: cliente.limite_empresas ?? null,
+  data_vencimento: cliente.data_vencimento ?? null,
 });
 
 const sanitizeEmpresa = (empresa) => ({
@@ -65,7 +84,6 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
       },
       ativo: true,
     },
-    select: { id: true, codigo: true, nome: true },
   });
   if (!clienteData) {
     throw new Error("Cliente inválido.");
@@ -91,6 +109,12 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
     throw new Error("Usuário ou senha inválidos.");
   }
 
+  await prisma.usuario.update({
+    where: { id: usuarioData.id },
+    data: { ultimo_acesso: new Date() },
+  });
+  usuarioData.ultimo_acesso = new Date();
+
   const empresas = await fetchEmpresasPermitidas(usuarioData);
   const selectedEmpresaId = usuarioData.acesso_global
     ? "all"
@@ -100,7 +124,7 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
   const allowAllEmpresas = Boolean(usuarioData.acesso_global);
 
   return {
-    cliente: clienteData,
+    cliente: sanitizeCliente(clienteData),
     user: sanitizeUser(usuarioData),
     empresas,
     selectedEmpresaId,

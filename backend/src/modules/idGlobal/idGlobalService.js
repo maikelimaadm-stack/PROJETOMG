@@ -19,13 +19,12 @@ const runSerializableWithRetry = async (prisma, operation, attempts = 3) => {
 };
 
 export const reserveNextIdGlobal = async (tx, clienteId) => {
-  const sequence = await tx.clienteIdGlobalSequencia.upsert({
-    where: { cliente_id: clienteId },
-    create: { cliente_id: clienteId, next_id_global: 2 },
-    update: { next_id_global: { increment: 1 } },
+  const updated = await tx.cliente.update({
+    where: { id: clienteId },
+    data: { next_id_global: { increment: 1 } },
     select: { next_id_global: true },
   });
-  return Number(sequence.next_id_global) - 1;
+  return Number(updated.next_id_global) - 1;
 };
 
 export const registerRegistroGlobal = async (
@@ -110,17 +109,6 @@ const OPERATIONAL_SOURCES = [
     update: (tx, id, idGlobal) =>
       tx.registroAnexo.update({ where: { id }, data: { id_global: idGlobal } }),
   },
-  {
-    entityName: "CampoPersonalizado",
-    fetch: (prisma, clienteId) =>
-      prisma.campoPersonalizado.findMany({
-        where: { cliente_id: clienteId },
-        select: { id: true, createdAt: true },
-        orderBy: { createdAt: "asc" },
-      }),
-    update: (tx, id, idGlobal) =>
-      tx.campoPersonalizado.update({ where: { id }, data: { id_global: idGlobal } }),
-  },
 ];
 
 export const backfillClienteIdGlobal = async (clienteId) => {
@@ -164,10 +152,9 @@ export const backfillClienteIdGlobal = async (clienteId) => {
       nextId += 1;
     }
 
-    await tx.clienteIdGlobalSequencia.upsert({
-      where: { cliente_id: clienteId },
-      create: { cliente_id: clienteId, next_id_global: nextId },
-      update: { next_id_global: nextId },
+    await tx.cliente.update({
+      where: { id: clienteId },
+      data: { next_id_global: nextId },
     });
   });
 

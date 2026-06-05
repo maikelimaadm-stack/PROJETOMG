@@ -109,8 +109,14 @@ export default function PAGEMP() {
   const totalEmpresas = empresasResponse.total || 0;
 
   const { data: contadores = { empresas: totalEmpresas, registrosGlobais: 0 } } = useQuery({
-    queryKey: ["metrics-contadores"],
-    queryFn: () => MetricsApi.getContadores(),
+    queryKey: ["metrics-contadores", totalEmpresas],
+    queryFn: async () => {
+      try {
+        return await MetricsApi.getContadores();
+      } catch {
+        return { empresas: totalEmpresas, registrosGlobais: 0 };
+      }
+    },
     staleTime: 30_000,
     placeholderData: { empresas: totalEmpresas, registrosGlobais: 0 },
   });
