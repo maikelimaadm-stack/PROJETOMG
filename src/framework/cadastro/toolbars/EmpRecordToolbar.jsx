@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Filter, List, Check, X, Paperclip, MoreHorizontal, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Pencil, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
@@ -52,20 +52,44 @@ export default function EmpRecordToolbar({
   actionsLocked = false,
 }) {
   const searchInputRef = useRef(null);
+  const searchWrapRef = useRef(null);
+  const [searchExpanded, setSearchExpanded] = useState(false);
   const canNavigate = total > 0 && !actionsLocked;
   const isFirst = currentIndex <= 0;
   const isLast = currentIndex >= total - 1;
   const recordCounter =
     total > 0 ? `${Math.min(Math.max(currentIndex + 1, 1), total)}/${total}` : "0/0";
 
-  const handleMobileSearchFocus = () => {
-    if (typeof window === "undefined" || window.innerWidth > 640) return;
-    searchInputRef.current?.focus();
+  const isMobileViewport = () =>
+    typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+
+  const handleSearchToggle = () => {
+    if (!isMobileViewport()) return;
+    setSearchExpanded((prev) => !prev);
   };
+
+  useEffect(() => {
+    if (!searchExpanded) return undefined;
+    const timer = window.setTimeout(() => searchInputRef.current?.focus(), 0);
+    return () => window.clearTimeout(timer);
+  }, [searchExpanded]);
+
+  useEffect(() => {
+    if (!searchExpanded) return undefined;
+    const handlePointerDown = (event) => {
+      if (!searchWrapRef.current?.contains(event.target)) {
+        setSearchExpanded(false);
+      }
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [searchExpanded]);
 
   return (
     <div className="emp-toolbar shadow-none overflow-hidden">
-      <div className="emp-toolbar-row flex items-center gap-1.5 overflow-x-auto whitespace-nowrap">
+      <div
+        className={`emp-toolbar-row flex items-center gap-1.5 overflow-hidden whitespace-nowrap ${searchExpanded ? "emp-toolbar-row--search-expanded" : ""}`.trim()}
+      >
         {onBack && (
           <ToolbarBtn onClick={onBack} title="Voltar"><EmpToolbarIcon icon={ChevronLeft} nav /></ToolbarBtn>
         )}
@@ -126,24 +150,40 @@ export default function EmpRecordToolbar({
         <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
             <div
-              className={EMP_TOOLBAR_SEARCH_WRAP}
-              onClick={handleMobileSearchFocus}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") handleMobileSearchFocus();
+              ref={searchWrapRef}
+              className={`${EMP_TOOLBAR_SEARCH_WRAP} ${searchExpanded ? "emp-toolbar-search--expanded" : ""}`.trim()}
+              onClick={() => {
+                if (isMobileViewport() && !searchExpanded) handleSearchToggle();
               }}
-              role="button"
-              tabIndex={0}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") handleSearchToggle();
+              }}
+              role="search"
               title="Pesquisar registros"
             >
               <input
                 ref={searchInputRef}
                 value={searchValue}
                 onChange={(e) => onSearchChange?.(e.target.value)}
+                onFocus={() => {
+                  if (isMobileViewport()) setSearchExpanded(true);
+                }}
                 placeholder="Pesquisar registros..."
                 className={EMP_TOOLBAR_SEARCH_INPUT}
                 aria-label="Pesquisar registros"
               />
-              <Search className="emp-toolbar-search-icon absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
+              <button
+                type="button"
+                className="emp-toolbar-search-toggle"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  handleSearchToggle();
+                }}
+                aria-label={searchExpanded ? "Fechar pesquisa" : "Abrir pesquisa"}
+                aria-expanded={searchExpanded}
+              >
+                <Search className="emp-toolbar-search-icon h-3 w-3 text-slate-400" />
+              </button>
             </div>
           )}
           {showUtilityActions && (

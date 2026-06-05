@@ -501,6 +501,7 @@ export default function FORMEMP({
         recordTitle: null,
         operationLabel: "Configuração",
         contextSuffix: "Configuração de layout",
+        requiredStatus: null,
       });
       return;
     }
@@ -510,8 +511,25 @@ export default function FORMEMP({
       recordTitle: null,
       operationLabel,
       contextSuffix: null,
+      requiredStatus: showRequiredCounter
+        ? {
+            visible: true,
+            filled: requiredFieldStats.filled,
+            total: requiredFieldStats.total,
+            pendingFields: requiredFieldStats.pendingFields,
+          }
+        : null,
     });
-  }, [recordMeta, layoutConfigOpen, operationLabel, setPageHeader]);
+  }, [
+    recordMeta,
+    layoutConfigOpen,
+    operationLabel,
+    showRequiredCounter,
+    requiredFieldStats.filled,
+    requiredFieldStats.total,
+    requiredFieldStats.pendingFields,
+    setPageHeader,
+  ]);
 
   useEffect(() => () => clearPageHeader(), [clearPageHeader]);
 
@@ -625,6 +643,7 @@ export default function FORMEMP({
                     filled={requiredFieldStats.filled}
                     total={requiredFieldStats.total}
                     pendingFields={requiredFieldStats.pendingFields}
+                    className="emp-form-tabs-required-desktop"
                   />
                 }
               />
@@ -658,7 +677,7 @@ export default function FORMEMP({
           <div className="emp-form-mobile-footer" role="toolbar" aria-label="Ações do formulário">
             <button
               type="button"
-              className="emp-form-mobile-footer__btn"
+              className="emp-form-mobile-footer__btn emp-toolbar-btn emp-toolbar-btn-labeled"
               onClick={onCancel}
               disabled={actionsLocked}
             >
@@ -666,7 +685,7 @@ export default function FORMEMP({
             </button>
             <button
               type="submit"
-              className="emp-form-mobile-footer__btn emp-form-mobile-footer__btn--primary"
+              className="emp-form-mobile-footer__btn emp-form-mobile-footer__btn--primary emp-toolbar-btn emp-toolbar-btn-labeled emp-toolbar-btn-new"
               disabled={actionsLocked}
             >
               Salvar
