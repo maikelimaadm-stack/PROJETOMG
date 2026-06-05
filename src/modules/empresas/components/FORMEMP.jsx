@@ -133,6 +133,7 @@ export default function FORMEMP({
     initialData?.id,
     initialData?.codempresa,
     initialData?.id_global,
+    initialData?._isPersisting,
     initialData?.updatedAt,
     initialData?._isDuplicate,
     isEditing,
@@ -285,7 +286,23 @@ export default function FORMEMP({
   const dynamicFields = useMemo(() => [
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "select", required: true, compact: true, errorKey: "tipo_pessoa", render: renderTipoPessoaSelect },
     { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
-    { id: "codempresa", name: "codempresa", label: "Cód. Empresa", type: "text", widthType: "CODIGO", compact: true, readOnly: true, render: () => <Input value={formData.codempresa || ""} readOnly className={inputClass} placeholder="AUTO" /> },
+    {
+      id: "codempresa",
+      name: "codempresa",
+      label: "Cód. Empresa",
+      type: "text",
+      widthType: "CODIGO",
+      compact: true,
+      readOnly: true,
+      render: () => (
+        <Input
+          value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
+          readOnly
+          className={inputClass}
+          placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
+        />
+      ),
+    },
     { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
     { id: "status", name: "status", label: "Ativa", type: "text", widthType: "SIM_NAO", compact: true, render: renderStatusToggle },
     { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", medium: true, uppercase: true, placeholder: "NOME FANTASIA" },
@@ -452,6 +469,7 @@ export default function FORMEMP({
   const { setPageHeader, clearPageHeader } = useErpPageHeader();
 
   const recordMeta = useMemo(() => {
+    const codesPending = Boolean(formData._isPersisting);
     const codigo = formData.codempresa != null && String(formData.codempresa).trim() !== ""
       ? formData.codempresa
       : null;
@@ -460,13 +478,23 @@ export default function FORMEMP({
       ? formData.id_global
       : null;
 
+    if (codesPending) {
+      return { idGlobal: null, codigo: null, nome: nome || "Nova empresa", codesPending: true };
+    }
     if (idGlobal || codigo || nome) {
       return { idGlobal, codigo, nome };
     }
     if (isDuplicating) return { idGlobal: null, codigo: null, nome: "Duplicar empresa" };
     if (!isEditing) return { idGlobal: null, codigo: null, nome: "Nova empresa" };
     return null;
-  }, [formData.id_global, formData.codempresa, formData.razao_social, isDuplicating, isEditing]);
+  }, [
+    formData._isPersisting,
+    formData.id_global,
+    formData.codempresa,
+    formData.razao_social,
+    isDuplicating,
+    isEditing,
+  ]);
 
   useEffect(() => {
     if (layoutConfigOpen) {

@@ -177,23 +177,8 @@ export const empresaRepository = {
   async create(data, scope) {
     const prisma = getPrismaClient();
     const created = await runTransactionWithRetry(prisma, async (tx) => {
-      let codigo = Number(data.codempresa || 0);
-      if (!Number.isFinite(codigo) || codigo <= 0) {
-        codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
-      } else {
-        const existingCode = await tx.empresa.findFirst({
-          where: { cliente_id: scope.clienteId, codempresa: codigo },
-          select: { id: true },
-        });
-        if (existingCode) {
-          const conflictError = new Error(
-            `Código de empresa ${codigo} já existe para este cliente.`
-          );
-          conflictError.statusCode = 409;
-          throw conflictError;
-        }
-      }
-
+      // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
+      const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
       const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
       const record = await tx.empresa.create({
         data: {

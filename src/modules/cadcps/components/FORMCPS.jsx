@@ -272,15 +272,19 @@ export default function FORMCPS({
       : "NOVO REGISTRO";
 
   const recordMeta = useMemo(() => {
+    const codesPending = Boolean(initialData?._isPersisting);
     const codigo = initialData?.codigo != null ? initialData.codigo : null;
     const nome = String(form.nome || "").trim() || null;
     const idGlobal = initialData?.id_global != null && Number(initialData.id_global) > 0
       ? initialData.id_global
       : null;
+    if (codesPending) {
+      return { idGlobal: null, codigo: null, nome: nome || "Novo campo personalizado", codesPending: true };
+    }
     if (idGlobal || codigo || nome) return { idGlobal, codigo, nome };
     if (!isEditing) return { idGlobal: null, codigo: null, nome: "Novo campo personalizado" };
     return null;
-  }, [initialData?.id_global, initialData?.codigo, form.nome, isEditing]);
+  }, [initialData?._isPersisting, initialData?.id_global, initialData?.codigo, form.nome, isEditing]);
 
   useEffect(() => {
     setPageHeader({ recordMeta, recordTitle: null, operationLabel, contextSuffix: null });
@@ -293,7 +297,11 @@ export default function FORMCPS({
     >
       <div className="emp-form-fields flex flex-col gap-2">
         <CpsFieldRow label="Código">
-          <Input value={initialData?.codigo ?? "Automático"} readOnly className={CPS_INPUT_CLASS} />
+          <Input
+            value={initialData?._isPersisting ? "Gerando..." : (initialData?.codigo ?? "Automático")}
+            readOnly
+            className={CPS_INPUT_CLASS}
+          />
         </CpsFieldRow>
 
         <CpsFieldRow label="Tela" required>

@@ -38,21 +38,6 @@ const patchCamposCache = (queryClient, updater) => {
   });
 };
 
-const reserveOptimisticCampoCodes = (queryClient, camposList = []) => {
-  const contadores = queryClient.getQueryData(["metrics-contadores"]) || {
-    empresas: 0,
-    registrosGlobais: 0,
-  };
-  const maxCodigo = camposList.reduce(
-    (max, item) => Math.max(max, Number(item.codigo) || 0),
-    0
-  );
-  return {
-    codigo: maxCodigo + 1,
-    id_global: Number(contadores.registrosGlobais || 0) + 1,
-  };
-};
-
 export default function PAGCPS() {
   const { empresas: empresasSelector } = useAuth();
   const queryClient = useQueryClient();
@@ -231,12 +216,9 @@ export default function PAGCPS() {
 
         const { _isDuplicate, ...clean } = validatedData;
         const pendingId = `pending-${crypto.randomUUID()}`;
-        const reservedCodes = reserveOptimisticCampoCodes(queryClient, campos);
         const optimistic = {
           ...clean,
           id: pendingId,
-          codigo: reservedCodes.codigo,
-          id_global: reservedCodes.id_global,
           _isPersisting: true,
         };
         const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["cadcps-campos"] });
@@ -319,7 +301,7 @@ export default function PAGCPS() {
         );
       }
     },
-    [campos, editingItem, queryClient, stayOnRecordAfterSave]
+    [editingItem, queryClient, stayOnRecordAfterSave]
   );
 
   const handleEdit = (item) => {

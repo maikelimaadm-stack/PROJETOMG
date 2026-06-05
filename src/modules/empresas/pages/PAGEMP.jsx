@@ -43,21 +43,6 @@ const patchEmpresasCache = (queryClient, updater) => {
   });
 };
 
-const reserveOptimisticEmpresaCodes = (queryClient, empresasList = []) => {
-  const contadores = queryClient.getQueryData(["metrics-contadores"]) || {
-    empresas: 0,
-    registrosGlobais: 0,
-  };
-  const maxCodempresa = empresasList.reduce(
-    (max, item) => Math.max(max, Number(item.codempresa) || 0),
-    0
-  );
-  return {
-    codempresa: maxCodempresa + 1,
-    id_global: Number(contadores.registrosGlobais || 0) + 1,
-  };
-};
-
 export default function PAGEMP() {
   const {
     empresas: empresasSelector,
@@ -248,12 +233,9 @@ export default function PAGEMP() {
 
       const { _isDuplicate, ...clean } = validatedData;
       const pendingId = `pending-${crypto.randomUUID()}`;
-      const reservedCodes = reserveOptimisticEmpresaCodes(queryClient, empresas);
       const optimistic = normalizeEmpresaRecord({
         ...clean,
         id: pendingId,
-        codempresa: reservedCodes.codempresa,
-        id_global: reservedCodes.id_global,
         _isPersisting: true,
       });
       const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
@@ -340,7 +322,6 @@ export default function PAGEMP() {
     queryClient,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
-    empresas,
     stayOnRecordAfterSave,
     upsertEmpresaInSelector,
   ]);

@@ -147,6 +147,7 @@ function ErpBreadcrumbs({ pathname }) {
           idGlobal={header.recordMeta.idGlobal}
           codigo={header.recordMeta.codigo}
           nome={header.recordMeta.nome}
+          codesPending={header.recordMeta.codesPending}
         />
       ),
       isRecord: true,
