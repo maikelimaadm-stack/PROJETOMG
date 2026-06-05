@@ -2868,7 +2868,7 @@ input[type="number"] {
 }
 
 .erp-shell .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) {
-  background: #ffffff !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   border-radius: var(--erp-radius-card, 18px) !important;
   box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
 }

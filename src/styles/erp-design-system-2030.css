@@ -279,16 +279,17 @@
   box-sizing: border-box;
 }
 
-/* —— Toolbar + painéis (abas): um bloco só — formulário com abas —— */
+/* —— Toolbar + painéis (abas): cabeçalho branco unido; área dos cards cinza —— */
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) {
   gap: 0 !important;
-  background: #ffffff !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
   border-radius: var(--erp-radius-card) !important;
   box-shadow: var(--erp-shadow-card) !important;
   overflow: hidden;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-toolbar-card {
+  background: #ffffff !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   border-bottom: 1px solid var(--erp-color-border) !important;
@@ -301,7 +302,7 @@
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) > .emp-content-card > .form-scroll-container {
-  background: #ffffff !important;
+  background: var(--erp-color-surface, #f8f9fd) !important;
 }
 
 .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
@@ -311,6 +312,10 @@
   box-shadow: none !important;
   border-bottom: 1px solid var(--erp-color-border) !important;
   margin-bottom: 0 !important;
+}
+
+.cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-section-panel.emp-form-section-panel--corp {
+  background: var(--erp-color-surface, #f8f9fd) !important;
 }
 
 /* —— Toolbar —— */
