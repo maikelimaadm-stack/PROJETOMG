@@ -68,33 +68,27 @@
     overflow: hidden !important;
   }
 
-  .cadastro-emp-scope .emp-toolbar-bubble-counter {
-    margin-bottom: 0 !important;
-    align-self: center !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-bubble-counter .emp-bubble-counter__tail {
-    display: none !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-record-counter.emp-bubble-counter {
+  .cadastro-emp-scope .emp-toolbar-record-counter.emp-toolbar-counter {
     max-width: none !important;
     min-width: 2.75rem !important;
     height: var(--erp-toolbar-height) !important;
+    min-height: var(--erp-toolbar-height) !important;
     padding: 0 10px !important;
     box-sizing: border-box !important;
     align-self: center !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-record-counter .emp-bubble-counter__value {
+    margin: 0 !important;
     overflow: visible !important;
-    text-overflow: clip !important;
+    white-space: nowrap !important;
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-end {
     flex-shrink: 0 !important;
     min-width: 0;
-    overflow: visible !important;
+    align-items: center !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div {
+    align-items: center !important;
   }
 }
 

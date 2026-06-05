@@ -1707,23 +1707,29 @@
   display: none !important;
 }
 
-.cadastro-emp-scope .emp-toolbar-record-counter.emp-bubble-counter {
+.cadastro-emp-scope .emp-toolbar-record-counter.emp-toolbar-counter {
   min-width: 2.75rem;
+  width: auto;
+  max-width: none;
   height: var(--erp-toolbar-height, 26px);
+  min-height: var(--erp-toolbar-height, 26px);
   padding: 0 10px;
   flex-shrink: 0;
+  align-self: center;
+  margin: 0;
   box-sizing: border-box;
   font-variant-numeric: tabular-nums;
-}
-
-.cadastro-emp-scope .emp-toolbar-record-counter .emp-bubble-counter__value {
   overflow: visible;
-  text-overflow: clip;
   white-space: nowrap;
 }
 
 .cadastro-emp-scope .emp-toolbar-actions-end {
   min-width: 0;
+  align-items: center;
+}
+
+.cadastro-emp-scope .emp-toolbar-row {
+  align-items: center;
 }
 
 @media (min-width: 1025px) {

@@ -179,8 +179,8 @@ export default function EmpRecordToolbar({
           <EmpBubbleCounter
             value={counterValue}
             title={counterTitle}
-            usePillStyle={false}
-            className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
+            variant="toolbar"
+            className="emp-toolbar-record-counter"
           />
         </div>
       </div>
