@@ -165,6 +165,10 @@ export default function EmpListToolbar({
                 className={EMP_TOOLBAR_SEARCH_INPUT}
                 aria-label="Pesquisar registros"
               />
+              <Search
+                className="emp-toolbar-search-icon emp-toolbar-search-icon--desktop pointer-events-none absolute right-1.5 top-1/2 h-3 w-3 -translate-y-1/2 text-slate-400"
+                aria-hidden="true"
+              />
               <button
                 type="button"
                 className="emp-toolbar-search-toggle"
@@ -175,7 +179,7 @@ export default function EmpListToolbar({
                 aria-label={searchExpanded ? "Fechar pesquisa" : "Abrir pesquisa"}
                 aria-expanded={searchExpanded}
               >
-                <Search className="emp-toolbar-search-icon h-3 w-3 text-slate-400" />
+                <Search className="emp-toolbar-search-icon emp-toolbar-search-icon--mobile h-3 w-3 text-slate-400" />
               </button>
             </div>
           )}
