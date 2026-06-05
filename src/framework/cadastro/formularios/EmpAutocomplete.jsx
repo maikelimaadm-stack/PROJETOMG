@@ -390,7 +390,7 @@ export default function EmpAutocomplete({
       className={cn(
         "emp-form-autocomplete-wrap erp-select-control",
         isLookup ? "erp-field-lookup" : "erp-field-select",
-        isLookup && "emp-form-autocomplete-wrap--with-btn",
+        (isLookup || isSelect) && "emp-form-autocomplete-wrap--with-btn",
         open && "erp-field-open",
         className
       )}
@@ -420,19 +420,22 @@ export default function EmpAutocomplete({
           className={cn(
             "emp-form-input h-full min-h-0 border-0 text-xs shadow-none focus-visible:ring-0",
             inputClassName,
-            isLookup ? "erp-field-lookup-input !pl-7 !pr-2" : "erp-field-select-input !pr-7 !pl-2.5",
+            isLookup ? "erp-field-lookup-input !pl-7 !pr-2" : "erp-field-select-input !pr-2 !pl-2.5",
             !isLookup && uppercaseDisplay && "uppercase"
           )}
           style={!isLookup && uppercaseDisplay ? { textTransform: "uppercase" } : undefined}
         />
-        {isSelect ? (
+      </div>
+      {isSelect ? (
+        <>
+          <span className="erp-select-inline-divider" aria-hidden />
           <button
             type="button"
             tabIndex={-1}
             disabled={disabled || readOnly}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => (open ? setOpen(false) : openPanel())}
-            className="erp-field-select-chevron-btn absolute right-0.5 top-1/2 z-[5] flex h-[22px] w-[22px] -translate-y-1/2 items-center justify-center rounded-none border-0 bg-transparent p-0 text-[#1a1f26] shadow-none hover:bg-transparent"
+            className="erp-field-select-chevron-btn emp-form-select-btn shrink-0"
             aria-label={open ? "Fechar lista" : "Abrir lista"}
           >
             <ChevronDown
@@ -441,8 +444,8 @@ export default function EmpAutocomplete({
               color="#1a1f26"
             />
           </button>
-        ) : null}
-      </div>
+        </>
+      ) : null}
       {isLookup ? (
         <>
           <span className="erp-lookup-inline-divider" aria-hidden />
