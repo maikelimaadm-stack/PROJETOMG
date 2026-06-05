@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Image, Loader2 } from "lucide-react";
 
 export default function EmpFormImageField({
@@ -11,6 +11,10 @@ export default function EmpFormImageField({
   alt = "Imagem",
 }) {
   const hasImage = Boolean(value);
+  const captureMode = useMemo(() => {
+    if (typeof window === "undefined") return undefined;
+    return window.matchMedia("(max-width: 640px)").matches ? "environment" : undefined;
+  }, []);
 
   return (
     <div className="emp-form-image-field emp-form-image-field-corp relative h-full w-full min-h-0">
@@ -50,7 +54,14 @@ export default function EmpFormImageField({
           className={`absolute inset-0 z-[1] ${uploading ? "cursor-wait pointer-events-none" : "cursor-pointer"}`}
           title={uploading ? "Enviando imagem..." : hasImage ? "Trocar imagem" : "Selecionar imagem"}
         >
-          <input type="file" accept={accept} className="hidden" onChange={onUpload} disabled={uploading} />
+          <input
+            type="file"
+            accept={accept}
+            capture={captureMode}
+            className="hidden"
+            onChange={onUpload}
+            disabled={uploading}
+          />
         </label>
       )}
 

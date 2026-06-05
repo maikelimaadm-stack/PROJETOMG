@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Filter, List, Check, X, Paperclip, MoreHorizontal, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Pencil, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
@@ -51,11 +51,17 @@ export default function EmpRecordToolbar({
   showRecordNavigation = true,
   actionsLocked = false,
 }) {
+  const searchInputRef = useRef(null);
   const canNavigate = total > 0 && !actionsLocked;
   const isFirst = currentIndex <= 0;
   const isLast = currentIndex >= total - 1;
   const recordCounter =
     total > 0 ? `${Math.min(Math.max(currentIndex + 1, 1), total)}/${total}` : "0/0";
+
+  const handleMobileSearchFocus = () => {
+    if (typeof window === "undefined" || window.innerWidth > 640) return;
+    searchInputRef.current?.focus();
+  };
 
   return (
     <div className="emp-toolbar shadow-none overflow-hidden">
@@ -105,7 +111,7 @@ export default function EmpRecordToolbar({
           </div>
         )}
         {showSaveActions && (
-          <>
+          <div className="emp-toolbar-actions-save-mobile flex items-center gap-1.5 shrink-0">
             <ToolbarBtn onClick={onSave} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
               <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
               <span>Salvar</span>
@@ -114,13 +120,29 @@ export default function EmpRecordToolbar({
               <EmpToolbarIcon icon={X} />
               <span>Cancelar</span>
             </ToolbarBtn>
-          </>
+          </div>
         )}
 
         <div className="emp-toolbar-actions-end ml-auto flex items-center gap-1.5 shrink-0">
           {showSearch && (
-            <div className={EMP_TOOLBAR_SEARCH_WRAP}>
-              <input value={searchValue} onChange={(e) => onSearchChange?.(e.target.value)} placeholder="Pesquisar registros..." className={EMP_TOOLBAR_SEARCH_INPUT} />
+            <div
+              className={EMP_TOOLBAR_SEARCH_WRAP}
+              onClick={handleMobileSearchFocus}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") handleMobileSearchFocus();
+              }}
+              role="button"
+              tabIndex={0}
+              title="Pesquisar registros"
+            >
+              <input
+                ref={searchInputRef}
+                value={searchValue}
+                onChange={(e) => onSearchChange?.(e.target.value)}
+                placeholder="Pesquisar registros..."
+                className={EMP_TOOLBAR_SEARCH_INPUT}
+                aria-label="Pesquisar registros"
+              />
               <Search className="emp-toolbar-search-icon absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400 pointer-events-none" />
             </div>
           )}

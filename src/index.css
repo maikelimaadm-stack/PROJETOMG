@@ -3243,14 +3243,14 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-card-row-grid--flex {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: var(--erp-spacing, 8px) var(--erp-layout-gap, 14px);
   align-items: flex-end;
   justify-content: flex-start;
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -3272,7 +3272,7 @@ select.erp-field-invalid {
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
