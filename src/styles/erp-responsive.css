@@ -61,10 +61,34 @@
   }
 
   .cadastro-emp-scope .emp-toolbar-card {
-    overflow: visible !important;
+    overflow: hidden !important;
   }
 
   .cadastro-emp-scope .emp-toolbar {
+    overflow: hidden !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-bubble-counter {
+    margin-bottom: 0 !important;
+    align-self: center !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-bubble-counter .emp-bubble-counter__tail {
+    display: none !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-record-counter.erp-info-pill {
+    max-width: none !important;
+    min-width: 2.25rem !important;
+    height: var(--erp-toolbar-height) !important;
+    padding: 0 10px !important;
+    box-sizing: border-box !important;
+    align-self: center !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-actions-end {
+    flex-shrink: 0 !important;
+    min-width: 0;
     overflow: visible !important;
   }
 }
@@ -136,6 +160,21 @@
     max-width: 100% !important;
     min-width: 0 !important;
     flex: unset !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--single {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--single > .emp-form-field-corp,
+  .cadastro-emp-scope .emp-form-card-row-grid--flex > .emp-form-field-corp:only-child {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 
   .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--textarea,
@@ -272,19 +311,13 @@
   .erp-shell-breadcrumbs__meta {
     display: flex !important;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 10px;
     width: 100%;
   }
 
-  .erp-record-details {
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: 11px;
-  }
-
-  .erp-record-details__item {
-    max-width: 100%;
+  .erp-shell .form-validation-status--inline.erp-info-pill {
+    gap: 12px !important;
   }
 
   .erp-shell-operation-badge--mobile {
@@ -322,8 +355,6 @@
     display: none !important;
   }
 
-  .cadastro-emp-scope .emp-toolbar-btn--mobile-more,
-  .cadastro-emp-scope .emp-toolbar-search.emp-toolbar-btn--mobile-more,
   .cadastro-emp-scope .emp-toolbar-separator {
     display: none !important;
   }
@@ -369,12 +400,19 @@
     gap: 6px !important;
   }
 
-  /* Até 2 campos por linha no mobile */
+  /* Até 2 campos por linha no mobile — nunca metade sozinho */
   .cadastro-emp-scope .emp-form-card-row-grid--flex {
     display: grid !important;
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 8px !important;
     flex-wrap: unset !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--single {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 
   .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp {
@@ -384,6 +422,13 @@
     min-width: 0 !important;
     grid-column: span 1 !important;
     scroll-margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--single > .emp-form-field-corp,
+  .cadastro-emp-scope .emp-form-card-row-grid--flex > .emp-form-field-corp:only-child {
+    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .cadastro-emp-scope .emp-form-field-corp--textarea,

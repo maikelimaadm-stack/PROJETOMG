@@ -57,8 +57,13 @@ export function getFieldPackMinWidthPx(field, fieldWidthTypes = {}, containerWid
   if (["TEXTO_CURTO", "CODIGO", "NUMERO", "SIM_NAO"].includes(preset.type)) {
     return Math.min(preset.min, MOBILE_PAIR_MIN_PX);
   }
-  if (preset.type === "CAMPO_PRINCIPAL") {
-    return MOBILE_PAIR_MIN_PX;
+  if (
+    preset.type === "CAMPO_PRINCIPAL" ||
+    preset.type === "DATA_HORA" ||
+    preset.type === "IMAGEM" ||
+    preset.type === "ANEXO"
+  ) {
+    return 9999;
   }
 
   return Math.min(getFieldMinWidthPx(field, fieldWidthTypes), MOBILE_PAIR_MIN_PX);
