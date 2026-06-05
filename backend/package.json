@@ -31,6 +31,7 @@
     "ensure:erp-restructure": "node scripts/ensureErpRestructure.js",
     "smoke:e2e": "node scripts/smokeFullE2E.js",
     "test:sequencias": "node scripts/testSequenciasStress.js",
+    "test:latency": "node scripts/testLatency.js",
     "apply:supabase": "node scripts/applyToSupabase.js",
     "audit:database": "node scripts/auditDatabaseStructure.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",

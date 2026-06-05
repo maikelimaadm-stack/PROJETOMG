@@ -1,4 +1,5 @@
 import { loadAccessScope, assertRole } from "../auth/accessScope.js";
+import { getContadores } from "../metrics/metricsService.js";
 import { svcCps } from "./svcCps.js";
 import {
   cadcpsCampoCreateSchema,
@@ -72,7 +73,8 @@ export const registerCadcpsRoutes = async (app) => {
       "Payload inválido para criação."
     );
     const item = await svcCps.create(scope, payload);
-    return reply.status(201).send({ item });
+    const contadores = await getContadores(scope);
+    return reply.status(201).send({ item, contadores });
   });
 
   app.put("/api/cadcps/campos/:id", { preHandler: app.authenticate }, async (request, reply) => {
@@ -94,7 +96,8 @@ export const registerCadcpsRoutes = async (app) => {
     ensureAdmin(scope);
     const ok = await svcCps.remove(scope, request.params.id);
     if (!ok) return reply.status(404).send({ message: "Campo não encontrado." });
-    return { ok: true };
+    const contadores = await getContadores(scope);
+    return { ok: true, contadores };
   });
 
   /** Listagem aplicável por entity_name (integração módulos de cadastro) */

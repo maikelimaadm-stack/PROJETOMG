@@ -19,6 +19,8 @@ const withStatus = (message, statusCode) => {
 };
 
 export const loadAccessScope = async (request) => {
+  if (request.accessScope) return request.accessScope;
+
   const prisma = getPrismaClient();
   const authUserId = getAuthUserId(request);
   if (!authUserId) {
@@ -62,7 +64,7 @@ export const loadAccessScope = async (request) => {
     selectedEmpresaId = requestedEmpresaId;
   }
 
-  return {
+  const scope = {
     userId: user.id,
     clienteId: user.cliente_id,
     perfil: user.perfil,
@@ -72,6 +74,9 @@ export const loadAccessScope = async (request) => {
     selectedEmpresaId,
     allowAllEmpresas: user.acesso_global && !selectedEmpresaId,
   };
+
+  request.accessScope = scope;
+  return scope;
 };
 
 export const assertRole = (scope, roles = []) => {

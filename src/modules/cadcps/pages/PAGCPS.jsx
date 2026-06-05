@@ -9,6 +9,8 @@ import {
   CamposFormPanel,
   CamposTablePanel,
 } from "./PAGCPS.sections";
+import { MetricsApi } from "@/apis/metrics/MetricsApi";
+import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 
 const DEFAULT_RESPONSE = {
   items: [],
@@ -77,11 +79,14 @@ export default function PAGCPS() {
     refetchOnMount: false,
   });
 
-  const invalidateCamposQueries = useCallback(() => {
-    void queryClient.invalidateQueries({ queryKey: ["cadcps-campos"] });
-    void queryClient.invalidateQueries({ queryKey: ["cadcps-telas"] });
-    void queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
-  }, [queryClient]);
+  const { data: contadores = { empresas: 0, registrosGlobais: 0 } } = useQuery({
+    queryKey: ["metrics-contadores"],
+    queryFn: () => MetricsApi.getContadores(),
+    staleTime: Number.POSITIVE_INFINITY,
+    gcTime: 30 * 60_000,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
   const { data: telas = [] } = useQuery({
     queryKey: ["cadcps-telas"],
@@ -190,7 +195,6 @@ export default function PAGCPS() {
                 ),
               }));
               setEditingItem(savedRecord);
-              invalidateCamposQueries();
             })
             .catch((error) => {
               cacheSnapshot.forEach(([key, value]) => {
@@ -210,19 +214,22 @@ export default function PAGCPS() {
         const pendingId = `pending-${crypto.randomUUID()}`;
         const optimistic = { ...clean, id: pendingId };
         const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["cadcps-campos"] });
+        const metricsSnapshot = queryClient.getQueryData(["metrics-contadores"]);
 
         patchCamposCache(queryClient, (previous) => ({
           ...previous,
           items: [optimistic, ...previous.items],
           total: previous.total + 1,
         }));
+        patchMetricsCache(queryClient, { registrosGlobais: 1 });
         stayOnRecordAfterSave(optimistic);
         showSuccess(`${moduleLabels.singular} cadastrado!`);
         setFormVersion((version) => version + 1);
 
         void moduleRepository
           .create(clean)
-          .then((savedRecord) => {
+          .then((response) => {
+            const savedRecord = response?.item;
             patchCamposCache(queryClient, (previous) => ({
               ...previous,
               items: previous.items.map((item) =>
@@ -233,9 +240,14 @@ export default function PAGCPS() {
             setSelectedTableItems((current) =>
               current.includes(pendingId) ? [savedRecord.id] : current
             );
-            invalidateCamposQueries();
+            setMetricsCache(queryClient, response?.contadores);
           })
           .catch((error) => {
+            if (metricsSnapshot) {
+              queryClient.setQueryData(["metrics-contadores"], metricsSnapshot);
+            } else {
+              patchMetricsCache(queryClient, { registrosGlobais: -1 });
+            }
             cacheSnapshot.forEach(([key, value]) => {
               queryClient.setQueryData(key, value);
             });
@@ -262,7 +274,7 @@ export default function PAGCPS() {
         );
       }
     },
-    [editingItem, queryClient, stayOnRecordAfterSave, invalidateCamposQueries]
+    [editingItem, queryClient, stayOnRecordAfterSave]
   );
 
   const handleEdit = (item) => {
@@ -389,12 +401,14 @@ export default function PAGCPS() {
       : -1;
 
     const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["cadcps-campos"] });
+    const metricsSnapshot = queryClient.getQueryData(["metrics-contadores"]);
 
     patchCamposCache(queryClient, (previous) => ({
       ...previous,
       items: previous.items.filter((item) => !ids.includes(item.id)),
       total: Math.max(0, previous.total - ids.length),
     }));
+    patchMetricsCache(queryClient, { registrosGlobais: -ids.length });
 
     const list = navListBeforeDelete.filter((item) => !ids.includes(item.id));
 
@@ -429,17 +443,21 @@ export default function PAGCPS() {
     setDeleteState({ open: false, ids: [] });
 
     try {
-      await Promise.all(ids.map((id) => moduleRepository.remove(id)));
+      const results = await Promise.all(ids.map((id) => moduleRepository.remove(id)));
+      const lastContadores = results.filter((r) => r?.contadores).at(-1)?.contadores;
+      if (lastContadores) setMetricsCache(queryClient, lastContadores);
       showSuccess(
         ids.length === 1
           ? `${moduleLabels.singular} excluído!`
           : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídos!`
       );
-      invalidateCamposQueries();
     } catch (error) {
       cacheSnapshot.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
+      if (metricsSnapshot) {
+        queryClient.setQueryData(["metrics-contadores"], metricsSnapshot);
+      }
       showError(
         resolveErrorMessage(
           error,
