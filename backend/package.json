@@ -26,14 +26,16 @@
     "migrate:codempresa": "node scripts/renameCodempresaColumns.js",
     "backfill:id-global": "node scripts/backfillIdGlobal.js",
     "ensure:id-global": "node scripts/ensureIdGlobalTables.js",
+    "ensure:schema": "node scripts/ensureSchema.js",
     "ensure:erp-restructure": "node scripts/ensureErpRestructure.js",
+    "smoke:e2e": "node scripts/smokeFullE2E.js",
     "apply:supabase": "node scripts/applyToSupabase.js",
     "audit:database": "node scripts/auditDatabaseStructure.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
     "ensure:usuario-preferencias": "node scripts/ensureUsuarioPreferenciaTable.js",
     "security:multiempresa": "node scripts/securityMultiempresaProbe.js",
     "check:deploy": "npm run prisma:validate && npm run prisma:generate",
-    "check:prod": "npm run check:deploy && npm run validate:connections && npm run seed && npm run ensure:erp-restructure && npm run smoke:empresas && npm run smoke:auth-permissoes && npm run smoke:cadcps && npm run smoke:campos && npm run smoke:campos-tipos && npm run security:multiempresa",
+    "check:prod": "npm run check:deploy && npm run validate:connections && npm run ensure:schema && npm run seed && npm run smoke:e2e && npm run smoke:auth-permissoes && npm run smoke:cadcps && npm run smoke:campos && npm run security:multiempresa",
     "docker:build": "docker build -t mak-gestao-backend ."
   },
   "dependencies": {

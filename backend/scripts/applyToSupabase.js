@@ -37,6 +37,8 @@ const printManualSteps = () => {
 };
 
 const runEnsure = async () => {
+  const { ensureSchema } = await import("./ensureSchema.js");
+  await ensureSchema({ exitOnError: true });
   const { runErpRestructure } = await import("./ensureErpRestructure.js");
   await runErpRestructure({ exitOnError: true });
 };

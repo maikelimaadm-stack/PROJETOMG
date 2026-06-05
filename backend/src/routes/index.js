@@ -93,14 +93,13 @@ export const registerRoutes = async (app) => {
       );
       status.db.connected = true;
       try {
+        const { getMissingSchemaItems } = await import("../../scripts/ensureSchema.js");
         const client = (await import("../database/prismaClient.js")).getPrismaClient();
-        const rows = await client.$queryRaw`
-          SELECT EXISTS (
-            SELECT 1 FROM information_schema.columns
-            WHERE table_schema = 'public' AND table_name = 'Cliente' AND column_name = 'next_id_global'
-          ) AS ok
-        `;
-        status.migration.restructureApplied = Boolean(rows[0]?.ok);
+        const missing = await getMissingSchemaItems(client);
+        status.migration.restructureApplied = missing.length === 0;
+        if (missing.length > 0) {
+          status.migration.missingSchema = missing;
+        }
       } catch {
         status.migration.restructureApplied = false;
       }

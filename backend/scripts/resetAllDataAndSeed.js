@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { pathToFileURL } from "node:url";
+import { ensureSchema } from "./ensureSchema.js";
 import { createMigrationPrisma } from "./migrationPrisma.js";
 import { seedBootstrap } from "./seedBootstrap.js";
 import { seedClienteModulos } from "../src/modules/clienteModulo/clienteModuloService.js";
@@ -50,6 +51,9 @@ export const resetAndSeedMaike = async (prisma) => {
   process.env.SEED_CLIENTE_NOME = CLIENTE_NOME;
   process.env.SEED_USUARIO_LOGIN = USUARIO_LOGIN;
   process.env.SEED_USUARIO_SENHA = USUARIO_SENHA;
+
+  console.log("Garantindo schema ERP...");
+  await ensureSchema({ exitOnError: true });
 
   console.log("Apagando todos os dados do banco...");
   await resetAllData(prisma);

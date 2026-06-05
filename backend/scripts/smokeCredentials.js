@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export const SMOKE_CLIENTE = String(
-  process.env.SMOKE_CLIENTE || process.env.SEED_CLIENTE_CODIGO || "kaiman"
+  process.env.SMOKE_CLIENTE || process.env.SEED_CLIENTE_CODIGO || "maike"
 )
   .trim()
   .toLowerCase();

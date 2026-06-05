@@ -33,15 +33,9 @@ export const createMigrationPrisma = () => {
 
 export const isRestructureApplied = async (prisma) => {
   try {
-    const rows = await prisma.$queryRaw`
-      SELECT EXISTS (
-        SELECT 1 FROM information_schema.columns
-        WHERE table_schema = 'public'
-          AND table_name = 'Cliente'
-          AND column_name = 'next_id_global'
-      ) AS ok
-    `;
-    return Boolean(rows[0]?.ok);
+    const { getMissingSchemaItems } = await import("./ensureSchema.js");
+    const missing = await getMissingSchemaItems(prisma);
+    return missing.length === 0;
   } catch {
     return false;
   }
