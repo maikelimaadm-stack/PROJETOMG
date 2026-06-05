@@ -3,7 +3,10 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const registryPath = path.resolve(__dirname, "../../../../config/cadastro-modules.registry.json");
+const registryCandidates = [
+  path.resolve(__dirname, "../../../config/cadastro-modules.registry.json"),
+  path.resolve(__dirname, "../../../../config/cadastro-modules.registry.json"),
+];
 
 const EXCLUDED_MODULE_IDS = new Set(["cadcps"]);
 
@@ -22,16 +25,20 @@ let cachedRegistry = null;
 
 const loadRegistryFile = () => {
   if (cachedRegistry) return cachedRegistry;
-  try {
-    const raw = fs.readFileSync(registryPath, "utf8");
-    const parsed = JSON.parse(raw);
-    cachedRegistry = Array.isArray(parsed) && parsed.length ? parsed : FALLBACK_REGISTRY;
-  } catch (error) {
-    console.warn(
-      `[cadcps] Registry não encontrado em ${registryPath} — usando fallback (${error.message}).`
-    );
-    cachedRegistry = FALLBACK_REGISTRY;
+  for (const registryPath of registryCandidates) {
+    try {
+      const raw = fs.readFileSync(registryPath, "utf8");
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) {
+        cachedRegistry = parsed;
+        return cachedRegistry;
+      }
+    } catch {
+      // tenta próximo caminho
+    }
   }
+  console.warn("[cadcps] Registry não encontrado — usando fallback embutido.");
+  cachedRegistry = FALLBACK_REGISTRY;
   return cachedRegistry;
 };
 

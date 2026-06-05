@@ -1,0 +1,10 @@
+[
+  {
+    "moduleId": "empresas",
+    "codigo": "EMPRESAS",
+    "nome": "Empresas",
+    "entityName": "EmpresaCadastro",
+    "ordem": 10,
+    "ativo": true
+  }
+]
