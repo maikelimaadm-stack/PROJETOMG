@@ -1,7 +1,5 @@
 import React from "react";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
-import { EMP_TOOLBAR_COUNTER } from "@/framework/cadastro/toolbars/empToolbarStyles";
-
 export default function EmpBubbleCounter({
   value,
   title,
@@ -20,11 +18,11 @@ export default function EmpBubbleCounter({
   if (isToolbarCounter) {
     return (
       <div
-        className={`${EMP_TOOLBAR_COUNTER} emp-toolbar-record-counter ${className}`.trim()}
+        className={`emp-bubble-counter emp-toolbar-bubble-counter emp-toolbar-record-counter ${className}`.trim()}
         title={resolvedTitle}
         aria-label={resolvedTitle || undefined}
       >
-        {value}
+        <span className="emp-bubble-counter__value tabular-nums">{value}</span>
       </div>
     );
   }

@@ -55,7 +55,7 @@ export default function EmpListToolbar({
 
   return (
     <div className="emp-toolbar">
-      <div className="emp-toolbar-row flex items-center gap-1.5 overflow-hidden whitespace-nowrap">
+      <div className="emp-toolbar-row flex items-center gap-1.5 whitespace-nowrap">
         <div className="emp-toolbar-actions-primary flex items-center gap-1.5 shrink-0">
           {onBack && (
             <ToolbarBtn onClick={onBack} title="Voltar">
@@ -171,7 +171,7 @@ export default function EmpListToolbar({
             value={counterValue}
             title={counterTitle}
             variant="toolbar"
-            className="emp-toolbar-record-counter"
+            className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
           />
         </div>
       </div>
