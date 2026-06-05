@@ -2964,13 +2964,14 @@ input[type="number"] {
   color: #64748b;
 }
 
-/* Topo unificado: header (Sair, empresa, tela cheia) + breadcrumb — mesmo padrão toolbar+abas */
+/* Topo unificado: header + breadcrumb — mesmo padrão toolbar+abas, full width */
 .erp-shell-top-unified {
   display: flex;
   flex-direction: column;
   gap: 0;
+  width: 100%;
   background: #ffffff !important;
-  border-radius: var(--erp-radius-card, 18px) !important;
+  border-radius: 0 !important;
   box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
   overflow: hidden;
 }
@@ -2978,12 +2979,12 @@ input[type="number"] {
 .erp-shell-top-unified .erp-shell-header {
   min-height: 0;
   height: 2.5rem !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
+  padding-left: var(--erp-shell-padding, 24px) !important;
+  padding-right: var(--erp-shell-padding, 24px) !important;
   background: #ffffff !important;
   border: none !important;
   border-bottom: 1px solid var(--erp-color-border, #e4eaf2) !important;
-  border-radius: var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) 0 0 !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
 }
 
@@ -2991,37 +2992,31 @@ input[type="number"] {
   min-height: 0;
   padding-top: 8px !important;
   padding-bottom: 8px !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
+  padding-left: var(--erp-shell-padding, 24px) !important;
+  padding-right: var(--erp-shell-padding, 24px) !important;
   background: #ffffff !important;
   border: none !important;
-  border-radius: 0 0 var(--erp-radius-card, 18px) var(--erp-radius-card, 18px) !important;
+  border-top: none !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
-}
-
-.erp-shell-breadcrumbs {
-  min-height: 0;
-  padding-top: 8px !important;
-  padding-bottom: 8px !important;
-  background: #ffffff !important;
-  border: none !important;
-  border-radius: 18px !important;
-  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
 }
 
 .erp-shell-header {
   min-height: 0;
   height: 2.5rem !important;
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
 }
 
 .erp-shell-content-wrap {
-  padding-top: var(--erp-spacing, 12px) !important;
+  padding-top: 0 !important;
   padding-bottom: var(--erp-shell-padding, 24px) !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  gap: var(--erp-layout-gap, 20px) !important;
+}
+
+.erp-shell-content-wrap > .erp-shell-content-area {
   padding-left: var(--erp-shell-padding, 24px) !important;
   padding-right: var(--erp-shell-padding, 24px) !important;
-  gap: var(--erp-layout-gap, 20px) !important;
 }
 
 .erp-shell-breadcrumbs [data-slot="breadcrumb-list"],
