@@ -45,6 +45,15 @@ const prefetchEmpresasCadastro = () => {
 
 const AuthContext = createContext();
 
+const isDevAutoLoginEnabled = () =>
+  import.meta.env.DEV && String(import.meta.env.VITE_DEV_AUTO_LOGIN || "").toLowerCase() === "true";
+
+const getDevAutoLoginCredentials = () => ({
+  cliente: String(import.meta.env.VITE_DEV_AUTO_LOGIN_CLIENTE || "maike").trim(),
+  usuario: String(import.meta.env.VITE_DEV_AUTO_LOGIN_USUARIO || "maike").trim(),
+  senha: String(import.meta.env.VITE_DEV_AUTO_LOGIN_SENHA || "123"),
+});
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [cliente, setCliente] = useState(null);
@@ -79,6 +88,9 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(true);
       setAuthError(null);
       setAppPublicSettings(null);
+      if (isDevAutoLoginEnabled() && !AuthApi.getToken()) {
+        await AuthApi.login(getDevAutoLoginCredentials());
+      }
       const session = await AuthApi.getSession();
       if (!session?.user) {
         setUser(null);
