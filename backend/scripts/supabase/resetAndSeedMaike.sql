@@ -135,6 +135,11 @@ INSERT INTO "CadCpsTela" (
   NOW()
 );
 
+INSERT INTO "EntidadeCodigoSequencia" ("id", "cliente_id", "entity_name", "next_codigo", "createdAt", "updatedAt")
+VALUES
+  ('seq_emp_maike', 'cl_maike_seed_001', 'Empresa', 1, NOW(), NOW()),
+  ('seq_cps_maike', 'cl_maike_seed_001', 'CadCpsCampo', 1, NOW(), NOW());
+
 SELECT
   c.codigo AS cliente,
   u.login AS usuario,

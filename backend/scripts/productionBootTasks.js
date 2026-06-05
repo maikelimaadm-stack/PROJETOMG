@@ -54,6 +54,15 @@ export const runProductionBootTasks = async (logger = console) => {
     return;
   }
 
+  if (String(process.env.BOOT_RESET_MAIKE || "").toLowerCase() === "true") {
+    logger.warn?.("[boot] BOOT_RESET_MAIKE=true — apagando todos os dados e recriando maike!") ??
+      logger.warn("[boot] BOOT_RESET_MAIKE=true — apagando todos os dados e recriando maike!");
+    await runScript("Reset banco + seed maike", "scripts/resetAllDataAndSeed.js", logger);
+    logger.warn?.("[boot] Remova BOOT_RESET_MAIKE das variáveis após este deploy.") ??
+      logger.warn("[boot] Remova BOOT_RESET_MAIKE das variáveis após este deploy.");
+    return;
+  }
+
   try {
     const { ensureSchema } = await import("./ensureSchema.js");
     await ensureSchema({ exitOnError: false });
@@ -61,6 +70,22 @@ export const runProductionBootTasks = async (logger = console) => {
   } catch (error) {
     const msg = `[boot] Schema ERP falhou: ${error.message}`;
     logger.error?.(msg) ?? logger.error(msg);
+  }
+
+  try {
+    const { syncAllCodigoSequencias } = await import("../src/modules/sequencias/entidadeCodigoService.js");
+    const { createMigrationPrisma } = await import("./migrationPrisma.js");
+    const prisma = createMigrationPrisma();
+    try {
+      const synced = await syncAllCodigoSequencias(prisma);
+      logger.info?.(`[boot] Sequências codempresa sincronizadas (${synced} cliente(s)).`) ??
+        logger.log(`[boot] Sequências codempresa sincronizadas (${synced} cliente(s)).`);
+    } finally {
+      await prisma.$disconnect();
+    }
+  } catch (error) {
+    const msg = `[boot] Sync sequências falhou: ${error.message}`;
+    logger.warn?.(msg) ?? logger.warn(msg);
   }
 
   await runScript("Garantir tabelas CADCPS", "scripts/ensureCadcpsTables.js", logger);
