@@ -553,7 +553,7 @@
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 280px;
   background: #ffffff !important;
   border: none !important;
   border-radius: var(--erp-radius-card) !important;
@@ -577,11 +577,12 @@
 
 .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
   flex: 1 1 auto;
-  min-height: 0;
+  min-height: 240px;
   margin: 0 !important;
   padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) calc(var(--erp-spacing, 8px) + 2px) !important;
   background: var(--erp-color-card) !important;
   border: none !important;
+  overflow-y: auto;
   border-radius: 0 !important;
   box-shadow: none !important;
 }

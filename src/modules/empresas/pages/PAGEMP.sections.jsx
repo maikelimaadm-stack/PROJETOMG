@@ -44,26 +44,20 @@ class EmpresasFormErrorBoundary extends React.Component {
   }
 }
 
-export const EmpresasFormPanel = ({ showForm, formProps }) => {
-  if (!showForm) return null;
-  return (
-    <div className="relative z-10 flex h-full min-h-0 w-full flex-1 overflow-hidden">
-      <div className="flex h-full min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden">
-        <EmpresasFormErrorBoundary key={formProps.key}>
-          <FORMEMP {...formProps} />
-        </EmpresasFormErrorBoundary>
-      </div>
-    </div>
-  );
-};
+export const EmpresasFormPanel = ({ formProps }) => (
+  <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
+    <EmpresasFormErrorBoundary key={formProps.key}>
+      <FORMEMP {...formProps} />
+    </EmpresasFormErrorBoundary>
+  </div>
+);
 
 export const EmpresasTablePanel = ({
-  hidden,
   toolbarProps,
   tableProps,
 }) => (
   <EmpSplitToolbarLayout
-    className={hidden ? "hidden" : "emp-table-view flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"}
+    className="emp-table-view flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
     contentClassName="emp-table-card"
     toolbar={<SankhyaListToolbar {...toolbarProps} />}
   >

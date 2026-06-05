@@ -2737,6 +2737,8 @@ input[type="number"] {
   --erp-shell-padding: 16px;
   --erp-card-padding: 10px;
   --erp-form-field-gap-x: 8px;
+  --erp-color-card: #ffffff;
+  --erp-color-card-border: #edf1f6;
 }
 
 .erp-shell .erp-sidebar,

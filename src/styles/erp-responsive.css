@@ -165,15 +165,36 @@
     max-width: 100%;
   }
 
-  .cadastro-emp-scope .emp-form-card-row-grid--flex {
-    flex-wrap: wrap !important;
+  .cadastro-emp-scope .emp-form-card-row {
     overflow: visible !important;
+  }
+
+  .cadastro-emp-scope .emp-form-card-row-grid--flex {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 8px !important;
+    overflow: visible !important;
+    flex-wrap: unset !important;
+    align-items: start !important;
+  }
+
+  .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: unset !important;
+  }
+
+  .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--textarea,
+  .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp--media-inline,
+  .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp[data-width-type="IMAGEM"],
+  .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp[data-width-type="ANEXO"] {
+    grid-column: 1 / -1 !important;
   }
 
   .cadastro-emp-scope .emp-form-fields.emp-form-fields-compact,
   .cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-compact {
-    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     width: 100% !important;
     max-width: 100% !important;
   }
@@ -183,8 +204,12 @@
     max-width: 100% !important;
   }
 
+  .cadastro-emp-scope .emp-form-fields-compact .emp-form-field-span-full {
+    grid-column: 1 / -1 !important;
+  }
+
   .cadastro-emp-scope .emp-form-section-panel.emp-form-section-panel--corp {
-    min-height: 0 !important;
+    min-height: 200px !important;
   }
 
   .cadastro-emp-scope .emp-form-tab-nav-end {

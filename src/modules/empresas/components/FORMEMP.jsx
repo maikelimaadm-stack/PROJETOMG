@@ -546,7 +546,7 @@ export default function FORMEMP({
   }
 
   return (
-    <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <form onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <style>{`
           .form-scroll-container {
@@ -629,7 +629,7 @@ export default function FORMEMP({
                 }
               />
 
-              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp w-full min-w-0 max-w-none">
+              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <RenderEngine
                     panels={tabs}

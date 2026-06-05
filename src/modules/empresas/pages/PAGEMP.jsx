@@ -589,55 +589,54 @@ export default function PAGEMP() {
         message={saveCycle.saveMessage}
         variant={saveCycle.variant}
       />
-      <EmpresasFormPanel
-        showForm={showForm}
-        formProps={{
-          key: `form-${formVersion}`,
-          initialData: editingEmp,
-          recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
-          isEditing: !!editingEmp,
-          onSubmit: handleSubmit,
-          onCancel: () => {
-            if (editingEmp && !editingEmp._isDuplicate) {
-              setFormVersion((p) => p + 1);
-              setViewMode("record");
-              return;
-            }
-            if ((editingEmp?._isDuplicate || !editingEmp) && returnRecordAfterNew) {
-              setEditingEmp(returnRecordAfterNew);
-              setShowForm(true);
-              setViewMode("record");
+      {showForm ? (
+        <EmpresasFormPanel
+          formProps={{
+            key: `form-${formVersion}`,
+            initialData: editingEmp,
+            recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
+            isEditing: !!editingEmp,
+            onSubmit: handleSubmit,
+            onCancel: () => {
+              if (editingEmp && !editingEmp._isDuplicate) {
+                setFormVersion((p) => p + 1);
+                setViewMode("record");
+                return;
+              }
+              if ((editingEmp?._isDuplicate || !editingEmp) && returnRecordAfterNew) {
+                setEditingEmp(returnRecordAfterNew);
+                setShowForm(true);
+                setViewMode("record");
+                setReturnRecordAfterNew(null);
+                return;
+              }
+              setShowForm(false);
+              setEditingEmp(null);
+              setViewMode("table");
               setReturnRecordAfterNew(null);
-              return;
-            }
-            setShowForm(false);
-            setEditingEmp(null);
-            setViewMode("table");
-            setReturnRecordAfterNew(null);
-          },
-          onToggleView: handleToggleView,
-          total: empresasNavegacao.length,
-          currentIndex: selectedIndex,
-          onNew: handleNew,
-          onFirst: () => navigateRecord(0),
-          onPrevious: () => navigateRecord(selectedIndex - 1),
-          onNext: () => navigateRecord(selectedIndex + 1),
-          onLast: () => navigateRecord(empresasNavegacao.length - 1),
-          onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
-          onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
-          filterOpen: false,
-          filterActive: false,
-          searchValue: searchTerm,
-          onSearchChange: handleSearchChange,
-          onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
-          attachDisabled: false,
-          actionsLocked: saveCycle.isSaving,
-        }}
-      />
-
-      <EmpresasTablePanel
-        hidden={showForm}
-        toolbarProps={{
+            },
+            onToggleView: handleToggleView,
+            total: empresasNavegacao.length,
+            currentIndex: selectedIndex,
+            onNew: handleNew,
+            onFirst: () => navigateRecord(0),
+            onPrevious: () => navigateRecord(selectedIndex - 1),
+            onNext: () => navigateRecord(selectedIndex + 1),
+            onLast: () => navigateRecord(empresasNavegacao.length - 1),
+            onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
+            onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
+            filterOpen: false,
+            filterActive: false,
+            searchValue: searchTerm,
+            onSearchChange: handleSearchChange,
+            onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
+            attachDisabled: false,
+            actionsLocked: saveCycle.isSaving,
+          }}
+        />
+      ) : (
+        <EmpresasTablePanel
+          toolbarProps={{
           actionsLocked: saveCycle.isSaving,
           viewMode,
           total: totalEmpresas,
@@ -687,7 +686,8 @@ export default function PAGEMP() {
           },
           moduleTitle: moduleLabels.title,
         }}
-      />
+        />
+      )}
 
       <EmpresasDialogs
         exportPdfProps={{
