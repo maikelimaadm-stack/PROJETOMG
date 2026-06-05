@@ -144,7 +144,15 @@ const conditionMatches = (current, expected, sourceField) => {
 };
 
 /** Layout corporativo: min-width por tipo + flex-grow (preenche a linha). */
-function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = null, className = "" }) {
+function FieldFrameCorp({
+  field,
+  error,
+  children,
+  fieldSizes = {},
+  rowBalance = null,
+  narrowLayout = false,
+  className = "",
+}) {
   const bare = isBareControlField(field);
   const textareaField = field?.type === "textarea";
   const loteStyle = isCustomField(field);
@@ -153,19 +161,21 @@ function FieldFrameCorp({ field, error, children, fieldSizes = {}, rowBalance = 
   const balanced = rowBalance?.[field.id];
   const mediaInline = isInlineMediaField(field);
 
-  const widthStyle = balanced
-    ? {
-        flex: balanced.flex,
-        minWidth: balanced.minWidth ?? `${preset.min}px`,
-        maxWidth: balanced.maxWidth,
-        width: "auto",
-      }
-    : {
-        flex: `${preset.grow} 1 ${preset.min}px`,
-        minWidth: `${preset.min}px`,
-        maxWidth: "100%",
-        width: "auto",
-      };
+  const widthStyle = narrowLayout
+    ? undefined
+    : balanced
+      ? {
+          flex: balanced.flex,
+          minWidth: balanced.minWidth ?? `${preset.min}px`,
+          maxWidth: balanced.maxWidth,
+          width: "auto",
+        }
+      : {
+          flex: `${preset.grow} 1 ${preset.min}px`,
+          minWidth: `${preset.min}px`,
+          maxWidth: "100%",
+          width: "auto",
+        };
 
   return (
     <div
@@ -280,6 +290,7 @@ export default function EmpDynamicFormRenderer({
   const normalizedFieldLayout = normalizeFieldLayoutConfig(fieldLayoutConfig);
   const { ref: containerRef, width: containerWidthPx } = useContainerWidth();
   const collapsibleEnabled = useCardCollapsibleEnabled();
+  const narrowLayout = containerWidthPx > 0 && containerWidthPx <= 1024;
 
   const cards = useMemo(
     () =>
@@ -354,6 +365,7 @@ export default function EmpDynamicFormRenderer({
         error={error}
         fieldSizes={fieldSizes}
         rowBalance={rowBalance}
+        narrowLayout={narrowLayout}
         className={fieldClassName}
       >
         {control}
@@ -403,9 +415,19 @@ export default function EmpDynamicFormRenderer({
                     .filter(Boolean)
                     .filter(isFieldVisible);
                   if (rowFields.length === 0) return null;
+                  const rowDensityClass =
+                    rowFields.length <= 1
+                      ? "emp-form-card-row-grid--single"
+                      : "emp-form-card-row-grid--pair";
+
                   return (
                     <div key={layoutRow.id} className="emp-form-card-row">
-                      <div className="emp-form-card-row-grid emp-form-card-row-grid--flex">
+                      <div
+                        className={cn(
+                          "emp-form-card-row-grid emp-form-card-row-grid--flex",
+                          rowDensityClass
+                        )}
+                      >
                         {rowFields.map((field) => renderField(field, layoutRow.fieldBalance))}
                       </div>
                     </div>

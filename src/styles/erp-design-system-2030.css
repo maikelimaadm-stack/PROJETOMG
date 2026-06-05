@@ -1680,22 +1680,35 @@
   min-height: 20px;
 }
 
-.erp-shell-status-separator {
-  line-height: 1;
-}
 
 .form-validation-status--inline.erp-info-pill {
-  gap: 6px;
+  gap: 12px;
+}
+
+.form-validation-status--inline .form-validation-status__icon {
+  margin-right: 2px;
 }
 
 .form-validation-status--inline .form-validation-status__text {
-  gap: 4px;
+  gap: 6px;
+}
+
+.erp-shell-operation-badge .form-validation-status__dot,
+.erp-shell-operation-badge .form-validation-status__dot-wrap,
+.erp-shell-operation-badge .form-validation-status__dot-ring {
+  display: none !important;
+}
+
+.erp-shell-status-separator {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 0 2px;
 }
 
 .erp-toolbar-record-counter.erp-info-pill {
   font-variant-numeric: tabular-nums;
-  max-width: 3.5rem;
-  min-width: 0;
+  min-width: 2.25rem;
   flex-shrink: 0;
 }
 

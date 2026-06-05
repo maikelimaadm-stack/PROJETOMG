@@ -437,7 +437,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-bubble-counter {
-  margin-bottom: 4px;
+  margin-bottom: 0;
+  align-self: center;
 }
 
 /* Abas dos painéis — formulário de registro */
