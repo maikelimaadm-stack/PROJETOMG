@@ -2,6 +2,10 @@ import { getPrismaClient } from "../../../database/prismaClient.js";
 import { auditService } from "../../audit/auditService.js";
 import { svcCps } from "../../cadcps/svcCps.js";
 import { toLegacyCampoList } from "../../cadcps/campoLegacyAdapter.js";
+import {
+  registerRegistroGlobal,
+  reserveNextIdGlobal,
+} from "../../idGlobal/idGlobalService.js";
 
 const EMPRESAS_ENTITY_NAME = "EmpresaCadastro";
 
@@ -16,6 +20,7 @@ const MAX_PAGE_SIZE = 200;
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
+  id_global: { id_global: "asc" },
   codempresa: { codempresa: "asc" },
   razao_social: { razao_social: "asc" },
   nome_fantasia: { nome_fantasia: "asc" },
@@ -36,6 +41,18 @@ const buildSearchWhere = (search) => {
   const value = String(search || "").trim();
   if (!value) return null;
 
+  if (/^\d+$/.test(value)) {
+    const numericSearch = Number(value);
+    if (Number.isFinite(numericSearch)) {
+      return {
+        OR: [
+          { id_global: Math.floor(numericSearch) },
+          { codempresa: Math.floor(numericSearch) },
+        ],
+      };
+    }
+  }
+
   const numericSearch = Number(value);
   const or = [
     { razao_social: { contains: value, mode: "insensitive" } },
@@ -46,6 +63,7 @@ const buildSearchWhere = (search) => {
   ];
 
   if (Number.isFinite(numericSearch)) {
+    or.unshift({ id_global: Math.floor(numericSearch) });
     or.push({ codempresa: Math.floor(numericSearch) });
   }
 
@@ -117,6 +135,13 @@ const runSerializableWithRetry = async (prisma, operation, attempts = 3) => {
 };
 
 export const empresaRepository = {
+  async count(scope) {
+    const prisma = getPrismaClient();
+    return prisma.empresa.count({
+      where: buildCadastroScopeWhere(scope),
+    });
+  },
+
   async list({ scope, page = 1, pageSize = DEFAULT_PAGE_SIZE, search = "", sortBy, sortDir, filters = {} }) {
     const prisma = getPrismaClient();
     const safePage = toPositiveInt(page, 1);
@@ -205,24 +230,35 @@ export const empresaRepository = {
         }
       }
 
-      return tx.empresa.create({
+      const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
+      const record = await tx.empresa.create({
         data: {
           ...data,
+          id_global: idGlobal,
           codempresa: codigo,
           cliente_id: scope.clienteId,
           tenant_id: scope.clienteId,
         },
       });
+      await registerRegistroGlobal(tx, {
+        clienteId: scope.clienteId,
+        idGlobal,
+        entityName: "Empresa",
+        registroId: record.id,
+      });
+      return record;
     });
     void auditService.log({
       scope,
       entityName: "Empresa",
       action: "CREATE",
       entityId: created.id,
+      idGlobal: created.id_global,
       empresaId: created.id,
       codigoEmpresa: created.codempresa,
       nomeEmpresa: created.razao_social,
       payload: {
+        id_global: created.id_global,
         codempresa: created.codempresa,
         razao_social: created.razao_social,
         status: created.status,

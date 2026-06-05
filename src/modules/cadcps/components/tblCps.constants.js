@@ -2,6 +2,7 @@ export const FILTER_POPOVER_WIDTH = 272;
 export const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 export const COLUNAS_BASE = [
+  { id: "id_global", label: "ID Global", default: true, sortable: true, align: "right", width: 90 },
   { id: "codigo", label: "Código", default: true, sortable: true, align: "right", width: 90 },
   { id: "nome", label: "Nome do Campo", default: true, sortable: true, align: "left", width: 260 },
   { id: "tipo", label: "Tipo", default: true, sortable: true, align: "left", width: 140 },

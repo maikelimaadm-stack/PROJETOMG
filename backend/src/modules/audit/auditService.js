@@ -6,6 +6,7 @@ export const auditService = {
     entityName,
     action,
     entityId = null,
+    idGlobal = null,
     empresaId = null,
     codigoEmpresa = null,
     nomeEmpresa = null,
@@ -24,8 +25,15 @@ export const auditService = {
           nome_empresa: nomeEmpresa,
           entity_name: entityName,
           entity_id: entityId,
+          id_global: idGlobal,
           action,
-          payload,
+          payload:
+            idGlobal != null
+              ? {
+                  ...(payload && typeof payload === "object" ? payload : {}),
+                  id_global: idGlobal,
+                }
+              : payload,
         },
       });
     } catch (error) {

@@ -29,6 +29,8 @@ model Cliente {
   logs      AuditLog[]
   cadcpsSequencia CadCpsCodigoSequencia?
   cadcpsCampos    CadCpsCampo[]
+  idGlobalSequencia ClienteIdGlobalSequencia?
+  registrosGlobais  RegistroGlobal[]
 }
 
 model Usuario {
@@ -54,6 +56,7 @@ model Empresa {
   id                   String   @id @default(cuid())
   tenant_id            String   @default("default") @db.VarChar(64) // legado (compatibilidade)
   cliente_id           String?  @db.VarChar(64)
+  id_global            Int?
   codempresa           Int      @default(0)
   razao_social         String   @db.VarChar(255)
   nome_fantasia        String?  @db.VarChar(255)
@@ -86,6 +89,7 @@ model Empresa {
 
   @@unique([cliente_id, codempresa])
   @@unique([tenant_id, codempresa])
+  @@index([cliente_id, id_global])
   @@index([cliente_id, codempresa])
   @@index([cliente_id, razao_social])
   @@index([cliente_id, status])
@@ -100,6 +104,7 @@ model CampoPersonalizado {
   id                    String   @id @default(cuid())
   tenant_id             String   @default("default") @db.VarChar(64) // legado (compatibilidade)
   cliente_id            String   @db.VarChar(64)
+  id_global             Int?
   empresa_id            String?  @db.VarChar(64)
   codempresa        Int?
   nome_empresa          String?  @db.VarChar(255)
@@ -131,6 +136,7 @@ model CampoPersonalizado {
 
   empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
 
+  @@index([cliente_id, id_global])
   @@index([cliente_id, entity_name, empresa_id])
   @@index([cliente_id, entity_name, ativo])
   @@index([cliente_id, entity_name, ordem_tabela])
@@ -160,6 +166,7 @@ model CadCpsTela {
 model CadCpsCampo {
   id                 String   @id @default(cuid())
   cliente_id         String   @db.VarChar(64)
+  id_global          Int?
   codigo             Int
   nome               String   @db.VarChar(255)
   field_name         String   @db.VarChar(128)
@@ -204,6 +211,7 @@ model CadCpsCampo {
 
   @@unique([cliente_id, codigo])
   @@unique([cliente_id, field_name])
+  @@index([cliente_id, id_global])
   @@index([cliente_id, ativo])
   @@index([cliente_id, tipo])
   @@index([cliente_id, aplicacao_modo])
@@ -276,6 +284,7 @@ model CadCpsCodigoSequencia {
 model CadastroRegistro {
   id                   String   @id @default(cuid())
   cliente_id           String   @db.VarChar(64)
+  id_global            Int?
   empresa_id           String   @db.VarChar(64)
   codempresa           Int
   nome_empresa         String   @db.VarChar(255)
@@ -290,6 +299,7 @@ model CadastroRegistro {
   cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
   empresa Empresa @relation(fields: [empresa_id], references: [id], onDelete: Restrict)
 
+  @@index([cliente_id, id_global])
   @@index([cliente_id, entity_name, createdAt])
   @@index([cliente_id, empresa_id, entity_name, createdAt])
   @@index([cliente_id, entity_name, nome])
@@ -300,6 +310,7 @@ model RegistroAnexo {
   id              String   @id @default(cuid())
   tenant_id       String   @default("default") @db.VarChar(64) // legado (compatibilidade)
   cliente_id      String   @db.VarChar(64)
+  id_global       Int?
   entity_name     String   @db.VarChar(128)
   record_id       String?  @db.VarChar(128)
   empresa_id      String?  @db.VarChar(64)
@@ -316,6 +327,7 @@ model RegistroAnexo {
 
   empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
 
+  @@index([cliente_id, id_global])
   @@index([cliente_id, entity_name, record_id])
   @@index([cliente_id, createdAt])
   @@index([entity_name, record_id])
@@ -336,6 +348,32 @@ model PermissaoEmpresa {
   @@index([empresa_id])
 }
 
+model ClienteIdGlobalSequencia {
+  id             String   @id @default(cuid())
+  cliente_id     String   @unique @db.VarChar(64)
+  next_id_global Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+}
+
+model RegistroGlobal {
+  id          String   @id @default(cuid())
+  cliente_id  String   @db.VarChar(64)
+  id_global   Int
+  entity_name String   @db.VarChar(128)
+  registro_id String   @db.VarChar(128)
+  createdAt   DateTime @default(now())
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cliente_id, id_global])
+  @@index([cliente_id, entity_name])
+  @@index([cliente_id, registro_id])
+  @@map("registro_global")
+}
+
 model EmpresaCodigoSequencia {
   id          String   @id @default(cuid())
   cliente_id  String   @db.VarChar(64)
@@ -351,6 +389,7 @@ model EmpresaCodigoSequencia {
 model AuditLog {
   id             String   @id @default(cuid())
   cliente_id     String?  @db.VarChar(64)
+  id_global      Int?
   usuario_id     String?  @db.VarChar(64)
   empresa_id     String?  @db.VarChar(64)
   codempresa     Int?
@@ -363,6 +402,7 @@ model AuditLog {
 
   cliente        Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
 
+  @@index([cliente_id, id_global])
   @@index([cliente_id, createdAt])
   @@index([usuario_id, createdAt])
   @@index([empresa_id, createdAt])

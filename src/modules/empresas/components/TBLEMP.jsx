@@ -9,6 +9,7 @@ import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
+import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
@@ -187,6 +188,7 @@ export default function TBLEMP({
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
 
   const getFieldValue = (emp, colId) => {
+    if (colId === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "-";
     if (colId === "codempresa") return emp.codempresa ?? "-";
     if (colId === "razao_social") return emp.razao_social || "-";
     if (colId === "nome_fantasia") return emp.nome_fantasia || "-";
@@ -216,7 +218,7 @@ export default function TBLEMP({
 
   const resolveColumnAlign = (col) => {
     if (col?.tipo === "date") return "center";
-    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "codempresa" || col?.id === "custom:valor") return "right";
+    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "id_global" || col?.id === "codempresa" || col?.id === "custom:valor") return "right";
     return "left";
   };
 
@@ -233,7 +235,11 @@ export default function TBLEMP({
     if (align === "center") return "justify-center";
     return "justify-start";
   };
-  const getComparableValue = (emp, col) => { if (col.id === "codempresa") return Number(emp.codempresa || 0); return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id); };
+  const getComparableValue = (emp, col) => {
+    if (col.id === "id_global") return Number(emp.id_global || 0);
+    if (col.id === "codempresa") return Number(emp.codempresa || 0);
+    return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id);
+  };
 
   const empresaPassaFiltros = (emp, excludeColId = null) => {
     const termo = String(searchTerm || "").toLowerCase().trim();
@@ -295,6 +301,7 @@ export default function TBLEMP({
   const empresasOrdenadas = useMemo(() => {
     const sorted = [...empresasFiltradas];
     sorted.sort((a, b) => {
+      if (sortConfig.key === "id_global") { const aV = Number(a.id_global || 0); const bV = Number(b.id_global || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
       if (sortConfig.key === "codempresa") { const aV = Number(a.codempresa || 0); const bV = Number(b.codempresa || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
       const aV = String(getFieldValue(a, sortConfig.key)).toLowerCase();
       const bV = String(getFieldValue(b, sortConfig.key)).toLowerCase();
@@ -726,7 +733,7 @@ export default function TBLEMP({
   };
 
   const formatTotalValue = (valor, col) => {
-    const isInt = col.id === "codempresa";
+    const isInt = col.id === "id_global" || col.id === "codempresa";
     const places = col.decimal_places ?? 2;
     return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
   };

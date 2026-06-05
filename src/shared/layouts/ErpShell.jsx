@@ -25,6 +25,7 @@ import {
 import { EmpFullscreenEnterIcon } from "@/framework/cadastro/pagination/EmpTableFullscreenIcon";
 import { getOperationBadge } from "@/shared/layouts/erpOperationBadge";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
+import ErpRecordMeta from "@/shared/layouts/ErpRecordMeta";
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
@@ -139,7 +140,19 @@ function ErpBreadcrumbs({ pathname }) {
   const crumbs = buildErpBreadcrumbs(pathname);
   const trail = [...crumbs];
 
-  if (header.recordTitle) {
+  if (header.recordMeta) {
+    trail.push({
+      label: (
+        <ErpRecordMeta
+          idGlobal={header.recordMeta.idGlobal}
+          codigo={header.recordMeta.codigo}
+          nome={header.recordMeta.nome}
+        />
+      ),
+      isRecord: true,
+      isNode: true,
+    });
+  } else if (header.recordTitle) {
     trail.push({ label: String(header.recordTitle), isRecord: true });
   }
 
@@ -159,12 +172,14 @@ function ErpBreadcrumbs({ pathname }) {
                 <BreadcrumbItem>
                   {isLast ? (
                     <BreadcrumbPage
-                      className={`text-xs font-semibold text-[#1a1f26] ${crumb.isRecord ? "truncate max-w-[min(100%,420px)]" : ""}`}
+                      className={`text-xs font-semibold text-[#1a1f26] ${crumb.isRecord ? "truncate max-w-[min(100%,520px)]" : ""}`}
                     >
-                      {crumb.label}
+                      {crumb.isNode ? crumb.label : crumb.label}
                     </BreadcrumbPage>
                   ) : (
-                    <span className="text-xs font-semibold text-[#1a1f26]">{crumb.label}</span>
+                    <span className="text-xs font-semibold text-[#1a1f26]">
+                      {crumb.isNode ? crumb.label : crumb.label}
+                    </span>
                   )}
                 </BreadcrumbItem>
               </React.Fragment>

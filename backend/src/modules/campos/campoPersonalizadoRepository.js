@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { createWithIdGlobal } from "../idGlobal/idGlobalService.js";
 import { auditService } from "../audit/auditService.js";
 
 const buildApplicableFieldsWhere = (scope, entityName) => {
@@ -184,14 +185,20 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       empresaId: empresaScope.empresa_id,
     });
 
-    const created = await prisma.campoPersonalizado.create({
-      data: {
-        ...data,
-        ...empresaScope,
-        cliente_id: scope.clienteId,
-        entity_name: entityName,
-        tenant_id: scope.clienteId,
-      },
+    const created = await createWithIdGlobal({
+      clienteId: scope.clienteId,
+      entityName: "CampoPersonalizado",
+      createRecord: (tx, idGlobal) =>
+        tx.campoPersonalizado.create({
+          data: {
+            ...data,
+            ...empresaScope,
+            id_global: idGlobal,
+            cliente_id: scope.clienteId,
+            entity_name: entityName,
+            tenant_id: scope.clienteId,
+          },
+        }),
     });
 
     void auditService.log({
@@ -199,10 +206,12 @@ export const createCampoPersonalizadoRepository = (entityName) => ({
       entityName: "CampoPersonalizado",
       action: "CREATE",
       entityId: created.id,
+      idGlobal: created.id_global,
       empresaId: created.empresa_id,
       codigoEmpresa: created.codempresa,
       nomeEmpresa: created.nome_empresa,
       payload: {
+        id_global: created.id_global,
         field_name: created.field_name,
         label: created.label,
         aplicacao: created.empresa_id ? "empresa" : "global",

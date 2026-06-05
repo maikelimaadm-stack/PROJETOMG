@@ -7,6 +7,7 @@ import { registerAnexosRoutes } from "../modules/anexos/routes.js";
 import { registerPreferencesRoutes } from "../modules/preferences/routes.js";
 import { registerCadcpsRoutes } from "../modules/cadcps/routes.js";
 import { registerCadastroRoutes } from "../modules/cadastro/routes.js";
+import { registerMetricsRoutes } from "../modules/metrics/routes.js";
 import { verifyDatabaseConnection } from "../database/prismaClient.js";
 import { isSupabaseStorageConfigured, verifySupabaseStorageConnection } from "../integrations/supabase/adminClient.js";
 
@@ -108,6 +109,7 @@ export const registerRoutes = async (app) => {
     registerCadcpsRoutes(app),
     registerEmpresasRoutes(app),
     registerAnexosRoutes(app),
+    registerMetricsRoutes(app),
   ]);
   await registerGeneratedModuleRoutes(app);
 };

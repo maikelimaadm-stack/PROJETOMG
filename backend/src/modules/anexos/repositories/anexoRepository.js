@@ -1,5 +1,6 @@
 import { getPrismaClient } from "../../../database/prismaClient.js";
 import { auditService } from "../../audit/auditService.js";
+import { createWithIdGlobal } from "../../idGlobal/idGlobalService.js";
 
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
@@ -67,32 +68,40 @@ export const anexoRepository = {
       throw error;
     }
 
-    const created = await prisma.registroAnexo.create({
-      data: {
-        entity_name: data.entity_name,
-        record_id: data.record_id || null,
-        attachment_name: data.attachment_name || null,
-        file_name: data.file_name,
-        file_url: data.file_url,
-        file_type: data.file_type || null,
-        file_size: data.file_size ?? null,
-        storage_path: data.storage_path || null,
-        empresa_id: empresaId,
-        codempresa: empresa.codempresa,
-        nome_empresa: empresa.razao_social,
-        cliente_id: scope.clienteId,
-        tenant_id: scope.clienteId,
-      },
+    const created = await createWithIdGlobal({
+      clienteId: scope.clienteId,
+      entityName: "RegistroAnexo",
+      createRecord: (tx, idGlobal) =>
+        tx.registroAnexo.create({
+          data: {
+            id_global: idGlobal,
+            entity_name: data.entity_name,
+            record_id: data.record_id || null,
+            attachment_name: data.attachment_name || null,
+            file_name: data.file_name,
+            file_url: data.file_url,
+            file_type: data.file_type || null,
+            file_size: data.file_size ?? null,
+            storage_path: data.storage_path || null,
+            empresa_id: empresaId,
+            codempresa: empresa.codempresa,
+            nome_empresa: empresa.razao_social,
+            cliente_id: scope.clienteId,
+            tenant_id: scope.clienteId,
+          },
+        }),
     });
     await auditService.log({
       scope,
       entityName: "RegistroAnexo",
       action: "CREATE",
       entityId: created.id,
+      idGlobal: created.id_global,
       empresaId: empresa.id,
       codigoEmpresa: empresa.codempresa,
       nomeEmpresa: empresa.razao_social,
       payload: {
+        id_global: created.id_global,
         entity_name: created.entity_name,
         record_id: created.record_id,
         file_name: created.file_name,
