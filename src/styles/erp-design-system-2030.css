@@ -359,8 +359,13 @@
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-layout {
-  padding: 0 0 12px;
+  padding: 0 0 8px;
+  gap: 8px !important;
   box-sizing: border-box;
+}
+
+.cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-cards-row {
+  gap: 8px 16px !important;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-card-slot,

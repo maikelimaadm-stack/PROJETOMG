@@ -3002,14 +3002,14 @@ select.erp-field-invalid {
 .cadastro-emp-scope .emp-form-cards-layout {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
   width: 100%;
 }
 
 .cadastro-emp-scope .emp-form-cards-row {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
-  gap: 12px 16px;
+  gap: 8px 16px;
   width: 100%;
   align-items: start;
 }
