@@ -13,6 +13,7 @@
     "prisma:normalize-codes": "node scripts/normalizeEmpresaCodes.js",
     "seed": "node scripts/seedBootstrap.js",
     "db:reset-all": "node scripts/resetAllDataAndSeed.js",
+    "db:reset-maike": "node scripts/resetAllDataAndSeed.js",
     "prisma:seed": "node scripts/seedBootstrap.js",
     "validate:connections": "node scripts/validateConnections.js",
     "smoke:empresas": "node scripts/smokeEmpresas.js",
