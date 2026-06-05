@@ -23,6 +23,7 @@ import {
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
 import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
+import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
@@ -330,7 +331,7 @@ export default function FORMEMP({
 
 
   const requiredFieldStats = useMemo(() => {
-    if (!activeLayoutConfig?.layout) return { total: 0, filled: 0, pending: 0 };
+    if (!activeLayoutConfig?.layout) return { total: 0, filled: 0, pending: 0, pendingFields: [] };
     const panelIds = tabs.map((panel) => panel.id);
     return countRequiredFormFields({
       panelIds,
@@ -561,7 +562,6 @@ export default function FORMEMP({
               searchValue={searchValue}
               onSearchChange={onSearchChange}
               showSearch
-              validationStatus={requiredFieldStats}
             />
           }
         >
@@ -573,6 +573,13 @@ export default function FORMEMP({
                 activeTab={activeTab}
                 onChange={setActiveTab}
                 systemPanelIds={empresasCadastroConfig.systemPanelIds}
+                trailing={
+                  <FormValidationStatus
+                    filled={requiredFieldStats.filled}
+                    total={requiredFieldStats.total}
+                    pendingFields={requiredFieldStats.pendingFields}
+                  />
+                }
               />
 
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp min-h-[380px] w-full min-w-0 w-full max-w-full max-w-none">

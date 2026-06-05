@@ -1422,15 +1422,30 @@
 }
 
 /* —— FormValidationStatus —— */
-@keyframes validationPulse {
+@keyframes validationDotPulse {
   0% {
     opacity: 1;
   }
   50% {
-    opacity: 0.75;
+    opacity: 0.45;
   }
   100% {
     opacity: 1;
+  }
+}
+
+@keyframes validationDotPing {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  70% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
   }
 }
 
@@ -1460,23 +1475,38 @@
   flex-shrink: 0;
 }
 
-.cadastro-emp-scope .form-validation-status__icon--pulse .form-validation-status__dot,
-.erp-shell .form-validation-status__icon--pulse .form-validation-status__dot {
-  animation: validationPulse 3s infinite ease-in-out;
+.cadastro-emp-scope .form-validation-status__dot-wrap,
+.erp-shell .form-validation-status__dot-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+}
+
+.cadastro-emp-scope .form-validation-status__dot-ring,
+.erp-shell .form-validation-status__dot-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: #dc2626;
+  animation: validationDotPing 2s infinite ease-out;
 }
 
 .cadastro-emp-scope .form-validation-status__dot,
 .erp-shell .form-validation-status__dot {
+  position: relative;
+  z-index: 1;
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: currentColor;
 }
 
-.cadastro-emp-scope .form-validation-status__check,
-.erp-shell .form-validation-status__check {
-  width: 12px;
-  height: 12px;
+.cadastro-emp-scope .form-validation-status__dot--pulse,
+.erp-shell .form-validation-status__dot--pulse {
+  animation: validationDotPulse 1.6s infinite ease-in-out;
 }
 
 .cadastro-emp-scope .form-validation-status--pending,
@@ -1484,13 +1514,6 @@
   background: #fef2f2;
   border: 1px solid #fecaca;
   color: #dc2626;
-}
-
-.cadastro-emp-scope .form-validation-status--partial,
-.erp-shell .form-validation-status--partial {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  color: #ea580c;
 }
 
 .cadastro-emp-scope .form-validation-status--complete,
