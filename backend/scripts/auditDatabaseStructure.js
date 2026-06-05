@@ -9,7 +9,25 @@ const EXPECTED_TABLES = {
   Cliente: {
     layer: "saas",
     operational: false,
-    columns: ["id", "codigo", "nome", "ativo", "createdAt", "updatedAt"],
+    columns: [
+      "id",
+      "codigo",
+      "nome",
+      "cpf_cnpj",
+      "telefone",
+      "email",
+      "status",
+      "plano",
+      "limite_usuarios",
+      "limite_empresas",
+      "data_vencimento",
+      "observacoes",
+      "next_id_global",
+      "ativo",
+      "createdAt",
+      "updatedAt",
+    ],
+    note: "Tenant principal — next_id_global é o contador corporativo de ID Global",
   },
   Usuario: {
     layer: "saas",
@@ -17,21 +35,30 @@ const EXPECTED_TABLES = {
     columns: [
       "id",
       "cliente_id",
+      "codigo",
+      "nome",
       "login",
+      "email",
+      "telefone",
       "senha_hash",
       "perfil",
       "acesso_global",
       "ativo",
+      "ultimo_acesso",
       "createdAt",
       "updatedAt",
     ],
+  },
+  ClienteModulo: {
+    layer: "saas",
+    operational: false,
+    columns: ["id", "cliente_id", "modulo", "ativo", "createdAt", "updatedAt"],
   },
   Empresa: {
     layer: "operacional",
     operational: true,
     columns: [
       "id",
-      "tenant_id",
       "cliente_id",
       "id_global",
       "codempresa",
@@ -54,44 +81,6 @@ const EXPECTED_TABLES = {
       "observacoes",
       "status",
       "campos_personalizados",
-      "createdAt",
-      "updatedAt",
-    ],
-  },
-  CampoPersonalizado: {
-    layer: "operacional-legado",
-    operational: true,
-    columns: [
-      "id",
-      "tenant_id",
-      "cliente_id",
-      "id_global",
-      "empresa_id",
-      "codempresa",
-      "nome_empresa",
-      "entity_name",
-      "field_name",
-      "label",
-      "placeholder",
-      "descricao",
-      "tipo",
-      "ordem_tabela",
-      "largura_coluna",
-      "obrigatorio",
-      "read_only",
-      "visivel_form",
-      "visivel_tabela",
-      "visivel_relatorio",
-      "ativo",
-      "opcoes",
-      "options_source",
-      "options_label_field",
-      "options_value_field",
-      "formula",
-      "usar_decimal",
-      "decimal_places",
-      "usar_mascara",
-      "mascaras_text",
       "createdAt",
       "updatedAt",
     ],
@@ -145,41 +134,6 @@ const EXPECTED_TABLES = {
       "updatedAt",
     ],
   },
-  CadCpsCampoTela: {
-    layer: "catalogo",
-    operational: false,
-    columns: ["campo_id", "tela_id"],
-  },
-  CadCpsCampoEmpresa: {
-    layer: "catalogo",
-    operational: false,
-    columns: ["campo_id", "empresa_id"],
-  },
-  CadCpsCampoOpcao: {
-    layer: "catalogo",
-    operational: false,
-    columns: ["id", "campo_id", "codigo", "descricao", "ordem", "ativo", "createdAt", "updatedAt"],
-  },
-  CadCpsHistorico: {
-    layer: "auditoria",
-    operational: false,
-    columns: [
-      "id",
-      "cliente_id",
-      "campo_id",
-      "usuario_id",
-      "acao",
-      "valor_anterior",
-      "valor_novo",
-      "createdAt",
-    ],
-  },
-  CadCpsCodigoSequencia: {
-    layer: "sequencia-codigo",
-    operational: false,
-    note: "Sequência do CÓDIGO do campo CADCPS (não é ID Global)",
-    columns: ["id", "cliente_id", "next_codigo", "createdAt", "updatedAt"],
-  },
   CadastroRegistro: {
     layer: "operacional",
     operational: true,
@@ -187,6 +141,7 @@ const EXPECTED_TABLES = {
       "id",
       "cliente_id",
       "id_global",
+      "codigo",
       "empresa_id",
       "codempresa",
       "nome_empresa",
@@ -204,7 +159,6 @@ const EXPECTED_TABLES = {
     operational: true,
     columns: [
       "id",
-      "tenant_id",
       "cliente_id",
       "id_global",
       "entity_name",
@@ -222,16 +176,11 @@ const EXPECTED_TABLES = {
       "updatedAt",
     ],
   },
-  PermissaoEmpresa: {
-    layer: "seguranca",
+  EntidadeCodigoSequencia: {
+    layer: "sequencia-codigo",
     operational: false,
-    columns: ["usuario_id", "empresa_id", "createdAt"],
-  },
-  ClienteIdGlobalSequencia: {
-    layer: "sequencia-id-global",
-    operational: false,
-    note: "ÚNICO contador corporativo de ID Global por cliente",
-    columns: ["id", "cliente_id", "next_id_global", "createdAt", "updatedAt"],
+    note: "Sequência corporativa única de códigos por entidade",
+    columns: ["id", "cliente_id", "entity_name", "next_codigo", "createdAt", "updatedAt"],
   },
   registro_global: {
     layer: "indice-id-global",
@@ -239,11 +188,10 @@ const EXPECTED_TABLES = {
     note: "Índice de todos os registros operacionais com ID Global",
     columns: ["id", "cliente_id", "id_global", "entity_name", "registro_id", "createdAt"],
   },
-  EmpresaCodigoSequencia: {
-    layer: "sequencia-codigo",
+  PermissaoEmpresa: {
+    layer: "seguranca",
     operational: false,
-    note: "Sequência do CÓDIGO da empresa (codempresa — não é ID Global)",
-    columns: ["id", "cliente_id", "next_codigo", "createdAt", "updatedAt"],
+    columns: ["usuario_id", "empresa_id", "createdAt"],
   },
   AuditLog: {
     layer: "auditoria",
@@ -271,14 +219,20 @@ const EXPECTED_TABLES = {
 };
 
 const ID_GLOBAL_CRITICAL = [
-  "ClienteIdGlobalSequencia",
+  "Cliente.next_id_global",
   "registro_global",
   "Empresa.id_global",
   "CadCpsCampo.id_global",
   "CadastroRegistro.id_global",
   "RegistroAnexo.id_global",
-  "CampoPersonalizado.id_global",
   "AuditLog.id_global",
+];
+
+const LEGACY_TABLES = [
+  "ClienteIdGlobalSequencia",
+  "EmpresaCodigoSequencia",
+  "CadCpsCodigoSequencia",
+  "CampoPersonalizado",
 ];
 
 const fetchTables = async () => {
@@ -333,7 +287,7 @@ const printSection = (title) => {
 };
 
 const run = async () => {
-  printSection("AUDITORIA DO BANCO — ERP PROJETOMG");
+  printSection("AUDITORIA DO BANCO — ERP PROJETOMG (pós-reestruturação)");
   console.log(`Data: ${new Date().toISOString()}`);
   console.log(`DATABASE_URL configurada: ${Boolean(process.env.DATABASE_URL)}`);
 
@@ -402,6 +356,12 @@ const run = async () => {
     console.log(`${exists ? "✅" : "❌"} ${item}`);
   }
 
+  printSection("5) TABELAS LEGADAS (devem estar ausentes)");
+  for (const legacy of LEGACY_TABLES) {
+    const exists = tables.includes(legacy);
+    console.log(`${exists ? "❌ AINDA EXISTE" : "✅ REMOVIDA"} ${legacy}`);
+  }
+
   if (tables.includes("Empresa")) {
     const rows = await prisma.$queryRaw`
       SELECT
@@ -421,39 +381,32 @@ const run = async () => {
     console.log(`registro_global: total=${rows[0].total}`);
   }
 
-  printSection("5) ESTRUTURA DETALHADA POR TABELA");
-  for (const tableName of Object.keys(EXPECTED_TABLES).sort()) {
-    if (!tables.includes(tableName)) continue;
-    const columns = await fetchColumns(tableName);
-    console.log(`\n[${tableName}]`);
-    for (const col of columns) {
-      console.log(
-        `  - ${col.column_name}: ${col.data_type} ${col.is_nullable === "YES" ? "NULL" : "NOT NULL"}${col.column_default ? ` default=${col.column_default}` : ""}`
-      );
-    }
+  if (tables.includes("Cliente")) {
+    const rows = await prisma.$queryRaw`
+      SELECT COUNT(*)::int AS total, MIN("next_id_global")::int AS min_next, MAX("next_id_global")::int AS max_next
+      FROM "Cliente"
+    `;
+    console.log(
+      `Cliente.next_id_global: clientes=${rows[0].total}, min=${rows[0].min_next}, max=${rows[0].max_next}`
+    );
   }
 
   printSection("6) DIAGNÓSTICO");
-  const idGlobalTableMissing = !tables.includes("ClienteIdGlobalSequencia");
-  const registroGlobalMissing = !tables.includes("registro_global");
-  const empresaIdGlobalMissing = tables.includes("Empresa")
-    ? !(await fetchColumns("Empresa")).some((col) => col.column_name === "id_global")
+  const nextIdGlobalMissing = tables.includes("Cliente")
+    ? !(await fetchColumns("Cliente")).some((col) => col.column_name === "next_id_global")
     : true;
+  const registroGlobalMissing = !tables.includes("registro_global");
+  const legacyPresent = LEGACY_TABLES.some((table) => tables.includes(table));
 
-  if (idGlobalTableMissing || registroGlobalMissing || empresaIdGlobalMissing) {
-    console.log("CAUSA PROVÁVEL DO ERRO:");
-    console.log(
-      "A migration 20260604120000_id_global_corporativo NÃO foi aplicada neste banco."
-    );
-    console.log("\nCORREÇÃO:");
+  if (nextIdGlobalMissing || registroGlobalMissing) {
+    console.log("Estrutura incompleta. Execute:");
     console.log("  cd backend");
-    console.log("  npm run ensure:id-global");
-    console.log("  # ou: npx prisma migrate deploy && npm run backfill:id-global");
+    console.log("  npm run ensure:erp-restructure");
+    console.log("  npm run prisma:generate");
+  } else if (legacyPresent) {
+    console.log("Tabelas legadas ainda presentes. Execute npm run ensure:erp-restructure novamente.");
   } else {
-    console.log("Estrutura ID Global presente. Se ainda há erro, verifique:");
-    console.log("- Backend reiniciado após migration");
-    console.log("- prisma generate executado");
-    console.log("- Backfill executado (registros com id_global NULL)");
+    console.log("Estrutura alvo presente. Verifique backfill se houver registros sem id_global.");
   }
 
   if (missingTables.length > 0) {

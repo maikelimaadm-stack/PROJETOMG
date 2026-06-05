@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { pathToFileURL } from "node:url";
+import { seedClienteModulos } from "../src/modules/clienteModulo/clienteModuloService.js";
 
 dotenv.config();
 
@@ -18,10 +19,14 @@ export const seedBootstrap = async (prisma = new PrismaClient()) => {
     create: {
       codigo: CLIENTE_CODIGO,
       nome: CLIENTE_NOME,
+      status: "Ativo",
+      plano: "DEMO",
       ativo: true,
+      next_id_global: 1,
     },
     update: {
       nome: CLIENTE_NOME,
+      status: "Ativo",
       ativo: true,
     },
   });
@@ -35,19 +40,25 @@ export const seedBootstrap = async (prisma = new PrismaClient()) => {
     },
     create: {
       cliente_id: cliente.id,
+      codigo: 1,
+      nome: CLIENTE_NOME,
       login: USUARIO_LOGIN,
+      email: `${USUARIO_LOGIN}@local.dev`,
       senha_hash: senhaHash,
       perfil: "ADMIN",
       acesso_global: true,
       ativo: true,
     },
     update: {
+      nome: CLIENTE_NOME,
       senha_hash: senhaHash,
       perfil: "ADMIN",
       acesso_global: true,
       ativo: true,
     },
   });
+
+  await seedClienteModulos(prisma);
 
   return { cliente, usuario };
 };

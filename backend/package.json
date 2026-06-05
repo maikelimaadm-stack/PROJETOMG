@@ -25,6 +25,7 @@
     "migrate:codempresa": "node scripts/renameCodempresaColumns.js",
     "backfill:id-global": "node scripts/backfillIdGlobal.js",
     "ensure:id-global": "node scripts/ensureIdGlobalTables.js",
+    "ensure:erp-restructure": "node scripts/ensureErpRestructure.js",
     "audit:database": "node scripts/auditDatabaseStructure.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
     "ensure:usuario-preferencias": "node scripts/ensureUsuarioPreferenciaTable.js",

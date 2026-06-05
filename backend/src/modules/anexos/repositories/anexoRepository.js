@@ -87,7 +87,6 @@ export const anexoRepository = {
             codempresa: empresa.codempresa,
             nome_empresa: empresa.razao_social,
             cliente_id: scope.clienteId,
-            tenant_id: scope.clienteId,
           },
         }),
     });

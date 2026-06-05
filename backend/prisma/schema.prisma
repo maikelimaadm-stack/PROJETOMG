@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -15,138 +15,114 @@ enum UsuarioPerfil {
 }
 
 model Cliente {
-  id        String    @id @default(cuid())
-  codigo    String    @unique @db.VarChar(64)
-  nome      String    @db.VarChar(255)
-  ativo     Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id                String    @id @default(cuid())
+  codigo            String    @unique @db.VarChar(64)
+  nome              String    @db.VarChar(255)
+  cpf_cnpj          String?   @db.VarChar(32)
+  telefone          String?   @db.VarChar(32)
+  email             String?   @db.VarChar(255)
+  status            String    @default("Ativo") @db.VarChar(32)
+  plano             String?   @db.VarChar(64)
+  limite_usuarios   Int?
+  limite_empresas   Int?
+  data_vencimento   DateTime?
+  observacoes       String?
+  next_id_global    Int       @default(1)
+  ativo             Boolean   @default(true)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  usuarios  Usuario[]
-  empresas  Empresa[]
-  sequencia EmpresaCodigoSequencia?
-  cadastros CadastroRegistro[]
-  logs      AuditLog[]
-  cadcpsSequencia CadCpsCodigoSequencia?
-  cadcpsCampos    CadCpsCampo[]
-  idGlobalSequencia ClienteIdGlobalSequencia?
-  registrosGlobais  RegistroGlobal[]
+  usuarios           Usuario[]
+  empresas           Empresa[]
+  cadastros          CadastroRegistro[]
+  logs               AuditLog[]
+  cadcpsCampos       CadCpsCampo[]
+  registrosGlobais   RegistroGlobal[]
+  codigoSequencias   EntidadeCodigoSequencia[]
+  modulos            ClienteModulo[]
 }
 
 model Usuario {
-  id             String             @id @default(cuid())
-  cliente_id     String             @db.VarChar(64)
-  login          String             @db.VarChar(120)
-  senha_hash     String             @db.VarChar(255)
-  perfil         UsuarioPerfil      @default(OPERADOR)
-  acesso_global  Boolean            @default(false)
-  ativo          Boolean            @default(true)
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @updatedAt
+  id             String        @id @default(cuid())
+  cliente_id     String        @db.VarChar(64)
+  codigo         Int?
+  nome           String?       @db.VarChar(255)
+  login          String        @db.VarChar(120)
+  email          String?       @db.VarChar(255)
+  telefone       String?       @db.VarChar(32)
+  senha_hash     String        @db.VarChar(255)
+  perfil         UsuarioPerfil @default(OPERADOR)
+  acesso_global  Boolean       @default(false)
+  ativo          Boolean       @default(true)
+  ultimo_acesso  DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
-  cliente        Cliente            @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
-  permissoes     PermissaoEmpresa[]
-  preferencias   UsuarioPreferencia[]
+  cliente      Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  permissoes   PermissaoEmpresa[]
+  preferencias UsuarioPreferencia[]
 
   @@unique([cliente_id, login])
+  @@index([cliente_id, ativo])
+  @@index([cliente_id, codigo])
+}
+
+model ClienteModulo {
+  id         String   @id @default(cuid())
+  cliente_id String   @db.VarChar(64)
+  modulo     String   @db.VarChar(64)
+  ativo      Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cliente_id, modulo])
   @@index([cliente_id, ativo])
 }
 
 model Empresa {
-  id                   String   @id @default(cuid())
-  tenant_id            String   @default("default") @db.VarChar(64) // legado (compatibilidade)
-  cliente_id           String?  @db.VarChar(64)
-  id_global            Int?
-  codempresa           Int      @default(0)
-  razao_social         String   @db.VarChar(255)
-  nome_fantasia        String?  @db.VarChar(255)
-  tipo_pessoa          String   @default("PJ") @db.VarChar(4)
-  tipo_vinculo         String?  @db.VarChar(32)
-  cpf_cnpj             String?  @db.VarChar(32)
-  inscricao_estadual   String?  @db.VarChar(64)
-  telefone             String?  @db.VarChar(32)
-  whatsapp             String?  @db.VarChar(32)
-  email                String?  @db.VarChar(255)
-  logo_url             String?  @db.VarChar(2048)
-  cep                  String?  @db.VarChar(16)
-  endereco             String?  @db.VarChar(255)
-  numero               String?  @db.VarChar(32)
-  bairro               String?  @db.VarChar(255)
-  cidade               String?  @db.VarChar(255)
-  estado               String?  @db.VarChar(8)
-  observacoes          String?
-  status               String   @default("Ativa") @db.VarChar(32)
+  id                    String   @id @default(cuid())
+  cliente_id            String   @db.VarChar(64)
+  id_global             Int
+  codempresa            Int      @default(0)
+  razao_social          String   @db.VarChar(255)
+  nome_fantasia         String?  @db.VarChar(255)
+  tipo_pessoa           String   @default("PJ") @db.VarChar(4)
+  tipo_vinculo          String?  @db.VarChar(32)
+  cpf_cnpj              String?  @db.VarChar(32)
+  inscricao_estadual    String?  @db.VarChar(64)
+  telefone              String?  @db.VarChar(32)
+  whatsapp              String?  @db.VarChar(32)
+  email                 String?  @db.VarChar(255)
+  logo_url              String?  @db.VarChar(2048)
+  cep                   String?  @db.VarChar(16)
+  endereco              String?  @db.VarChar(255)
+  numero                String?  @db.VarChar(32)
+  bairro                String?  @db.VarChar(255)
+  cidade                String?  @db.VarChar(255)
+  estado                String?  @db.VarChar(8)
+  observacoes           String?
+  status                String   @default("Ativa") @db.VarChar(32)
   campos_personalizados Json?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
-  cliente Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
-  anexos RegistroAnexo[]
-  permissoes PermissaoEmpresa[]
-  camposPersonalizados CampoPersonalizado[]
-  cadcpsEmpresas       CadCpsCampoEmpresa[]
-  cadastros CadastroRegistro[]
+  cliente        Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  anexos         RegistroAnexo[]
+  permissoes     PermissaoEmpresa[]
+  cadcpsEmpresas CadCpsCampoEmpresa[]
+  cadastros      CadastroRegistro[]
 
   @@unique([cliente_id, codempresa])
-  @@unique([tenant_id, codempresa])
-  @@index([cliente_id, id_global])
+  @@unique([cliente_id, id_global])
   @@index([cliente_id, codempresa])
   @@index([cliente_id, razao_social])
   @@index([cliente_id, status])
-  @@index([tenant_id, codempresa])
-  @@index([tenant_id, razao_social])
-  @@index([tenant_id, status])
   @@index([razao_social])
   @@index([cpf_cnpj])
 }
 
-model CampoPersonalizado {
-  id                    String   @id @default(cuid())
-  tenant_id             String   @default("default") @db.VarChar(64) // legado (compatibilidade)
-  cliente_id            String   @db.VarChar(64)
-  id_global             Int?
-  empresa_id            String?  @db.VarChar(64)
-  codempresa        Int?
-  nome_empresa          String?  @db.VarChar(255)
-  entity_name           String   @default("EmpresaCadastro") @db.VarChar(128)
-  field_name            String   @db.VarChar(128)
-  label                 String   @db.VarChar(255)
-  placeholder           String?  @db.VarChar(255)
-  descricao             String?
-  tipo                  String   @db.VarChar(64)
-  ordem_tabela          Int      @default(0)
-  largura_coluna        Int      @default(120)
-  obrigatorio           Boolean  @default(false)
-  read_only             Boolean  @default(false)
-  visivel_form          Boolean  @default(true)
-  visivel_tabela        Boolean  @default(false)
-  visivel_relatorio     Boolean  @default(false)
-  ativo                 Boolean  @default(true)
-  opcoes                Json?
-  options_source        String?  @db.VarChar(128)
-  options_label_field   String?  @db.VarChar(128)
-  options_value_field   String?  @db.VarChar(128)
-  formula               String?
-  usar_decimal          Boolean  @default(false)
-  decimal_places        Int      @default(2)
-  usar_mascara          Boolean  @default(false)
-  mascaras_text         String?
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
-
-  empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
-
-  @@index([cliente_id, id_global])
-  @@index([cliente_id, entity_name, empresa_id])
-  @@index([cliente_id, entity_name, ativo])
-  @@index([cliente_id, entity_name, ordem_tabela])
-  @@index([cliente_id, ativo])
-  @@index([tenant_id, ativo])
-  @@index([tenant_id, ordem_tabela])
-  @@index([ordem_tabela])
-}
-
-/// Catálogo global de telas/módulos do ERP (CADCPS)
 model CadCpsTela {
   id          String   @id @default(cuid())
   codigo      String   @unique @db.VarChar(64)
@@ -162,56 +138,55 @@ model CadCpsTela {
   @@index([ativo, ordem])
 }
 
-/// Definição de campo personalizado (pertence ao cliente)
 model CadCpsCampo {
-  id                 String   @id @default(cuid())
-  cliente_id         String   @db.VarChar(64)
-  id_global          Int?
-  codigo             Int
-  nome               String   @db.VarChar(255)
-  field_name         String   @db.VarChar(128)
-  descricao          String?
-  tipo               String   @db.VarChar(64)
-  ativo              Boolean  @default(true)
-  obrigatorio        Boolean  @default(false)
-  read_only          Boolean  @default(false)
-  visivel_form       Boolean  @default(true)
-  visivel_tabela     Boolean  @default(false)
-  visivel_relatorio  Boolean  @default(false)
-  pesquisavel        Boolean  @default(true)
-  filtravel          Boolean  @default(true)
-  exportavel         Boolean  @default(true)
-  auditavel          Boolean  @default(true)
-  aplicacao_modo     String   @default("todas") @db.VarChar(32)
-  placeholder        String?  @db.VarChar(255)
-  formula            String?
+  id                  String   @id @default(cuid())
+  cliente_id          String   @db.VarChar(64)
+  id_global           Int
+  codigo              Int
+  nome                String   @db.VarChar(255)
+  field_name          String   @db.VarChar(128)
+  descricao           String?
+  tipo                String   @db.VarChar(64)
+  ativo               Boolean  @default(true)
+  obrigatorio         Boolean  @default(false)
+  read_only           Boolean  @default(false)
+  visivel_form        Boolean  @default(true)
+  visivel_tabela      Boolean  @default(false)
+  visivel_relatorio   Boolean  @default(false)
+  pesquisavel         Boolean  @default(true)
+  filtravel           Boolean  @default(true)
+  exportavel          Boolean  @default(true)
+  auditavel           Boolean  @default(true)
+  aplicacao_modo      String   @default("todas") @db.VarChar(32)
+  placeholder         String?  @db.VarChar(255)
+  formula             String?
   calculation_builder Json?
-  usar_mascara       Boolean  @default(false)
-  mascaras_text      String?
-  usar_decimal       Boolean  @default(false)
-  decimal_places     Int      @default(2)
-  separador_decimal  String   @default(",") @db.VarChar(8)
-  separador_milhar   String   @default(".") @db.VarChar(8)
-  ordem_tabela       Int      @default(999)
-  largura_coluna     Int      @default(160)
-  relation_entity    String?  @db.VarChar(128)
-  options_label_field String? @db.VarChar(128)
-  options_value_field String? @db.VarChar(128)
-  legacy_campo_id    String?  @db.VarChar(64)
-  created_by         String?  @db.VarChar(64)
-  updated_by         String?  @db.VarChar(64)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  usar_mascara        Boolean  @default(false)
+  mascaras_text       String?
+  usar_decimal        Boolean  @default(false)
+  decimal_places      Int      @default(2)
+  separador_decimal   String   @default(",") @db.VarChar(8)
+  separador_milhar    String   @default(".") @db.VarChar(8)
+  ordem_tabela        Int      @default(999)
+  largura_coluna      Int      @default(160)
+  relation_entity     String?  @db.VarChar(128)
+  options_label_field String?  @db.VarChar(128)
+  options_value_field String?  @db.VarChar(128)
+  legacy_campo_id     String?  @db.VarChar(64)
+  created_by          String?  @db.VarChar(64)
+  updated_by          String?  @db.VarChar(64)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  cliente  Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
-  telas    CadCpsCampoTela[]
-  empresas CadCpsCampoEmpresa[]
-  opcoes   CadCpsCampoOpcao[]
+  cliente   Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  telas     CadCpsCampoTela[]
+  empresas  CadCpsCampoEmpresa[]
+  opcoes    CadCpsCampoOpcao[]
   historico CadCpsHistorico[]
 
   @@unique([cliente_id, codigo])
   @@unique([cliente_id, field_name])
-  @@index([cliente_id, id_global])
+  @@unique([cliente_id, id_global])
   @@index([cliente_id, ativo])
   @@index([cliente_id, tipo])
   @@index([cliente_id, aplicacao_modo])
@@ -256,14 +231,14 @@ model CadCpsCampoOpcao {
 }
 
 model CadCpsHistorico {
-  id          String   @id @default(cuid())
-  cliente_id  String   @db.VarChar(64)
-  campo_id    String   @db.VarChar(64)
-  usuario_id  String?  @db.VarChar(64)
-  acao        String   @db.VarChar(64)
+  id             String   @id @default(cuid())
+  cliente_id     String   @db.VarChar(64)
+  campo_id       String   @db.VarChar(64)
+  usuario_id     String?  @db.VarChar(64)
+  acao           String   @db.VarChar(64)
   valor_anterior Json?
   valor_novo     Json?
-  createdAt   DateTime @default(now())
+  createdAt      DateTime @default(now())
 
   campo CadCpsCampo @relation(fields: [campo_id], references: [id], onDelete: Cascade)
 
@@ -271,35 +246,41 @@ model CadCpsHistorico {
   @@index([usuario_id, createdAt])
 }
 
-model CadCpsCodigoSequencia {
+model EntidadeCodigoSequencia {
   id          String   @id @default(cuid())
-  cliente_id  String   @unique @db.VarChar(64)
+  cliente_id  String   @db.VarChar(64)
+  entity_name String   @db.VarChar(128)
   next_codigo Int      @default(1)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cliente_id, entity_name])
+  @@index([cliente_id])
 }
 
 model CadastroRegistro {
-  id                   String   @id @default(cuid())
-  cliente_id           String   @db.VarChar(64)
-  id_global            Int?
-  empresa_id           String   @db.VarChar(64)
-  codempresa           Int
-  nome_empresa         String   @db.VarChar(255)
-  entity_name          String   @db.VarChar(128)
-  nome                 String   @db.VarChar(255)
-  status               String   @default("Ativo") @db.VarChar(32)
-  observacoes          String?
+  id                    String   @id @default(cuid())
+  cliente_id            String   @db.VarChar(64)
+  id_global             Int
+  codigo                Int
+  empresa_id            String   @db.VarChar(64)
+  codempresa            Int
+  nome_empresa          String   @db.VarChar(255)
+  entity_name           String   @db.VarChar(128)
+  nome                  String   @db.VarChar(255)
+  status                String   @default("Ativo") @db.VarChar(32)
+  observacoes           String?
   campos_personalizados Json?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 
   cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
   empresa Empresa @relation(fields: [empresa_id], references: [id], onDelete: Restrict)
 
-  @@index([cliente_id, id_global])
+  @@unique([cliente_id, entity_name, codigo])
+  @@unique([cliente_id, id_global])
   @@index([cliente_id, entity_name, createdAt])
   @@index([cliente_id, empresa_id, entity_name, createdAt])
   @@index([cliente_id, entity_name, nome])
@@ -308,13 +289,12 @@ model CadastroRegistro {
 
 model RegistroAnexo {
   id              String   @id @default(cuid())
-  tenant_id       String   @default("default") @db.VarChar(64) // legado (compatibilidade)
   cliente_id      String   @db.VarChar(64)
-  id_global       Int?
+  id_global       Int
   entity_name     String   @db.VarChar(128)
   record_id       String?  @db.VarChar(128)
   empresa_id      String?  @db.VarChar(64)
-  codempresa  Int?
+  codempresa      Int?
   nome_empresa    String?  @db.VarChar(255)
   attachment_name String?  @db.VarChar(255)
   file_name       String   @db.VarChar(255)
@@ -327,35 +307,23 @@ model RegistroAnexo {
 
   empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
 
-  @@index([cliente_id, id_global])
+  @@unique([cliente_id, id_global])
   @@index([cliente_id, entity_name, record_id])
   @@index([cliente_id, createdAt])
   @@index([entity_name, record_id])
-  @@index([tenant_id, entity_name, record_id])
-  @@index([tenant_id, createdAt])
   @@index([empresa_id])
 }
 
 model PermissaoEmpresa {
-  usuario_id  String
-  empresa_id  String
-  createdAt   DateTime @default(now())
+  usuario_id String
+  empresa_id String
+  createdAt  DateTime @default(now())
 
-  usuario     Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
-  empresa     Empresa @relation(fields: [empresa_id], references: [id], onDelete: Cascade)
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  empresa Empresa @relation(fields: [empresa_id], references: [id], onDelete: Cascade)
 
   @@id([usuario_id, empresa_id])
   @@index([empresa_id])
-}
-
-model ClienteIdGlobalSequencia {
-  id             String   @id @default(cuid())
-  cliente_id     String   @unique @db.VarChar(64)
-  next_id_global Int      @default(1)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-
-  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
 }
 
 model RegistroGlobal {
@@ -374,33 +342,21 @@ model RegistroGlobal {
   @@map("registro_global")
 }
 
-model EmpresaCodigoSequencia {
-  id          String   @id @default(cuid())
-  cliente_id  String   @db.VarChar(64)
-  next_codigo Int      @default(1)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  cliente     Cliente  @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
-
-  @@unique([cliente_id])
-}
-
 model AuditLog {
-  id             String   @id @default(cuid())
-  cliente_id     String?  @db.VarChar(64)
-  id_global      Int?
-  usuario_id     String?  @db.VarChar(64)
-  empresa_id     String?  @db.VarChar(64)
-  codempresa     Int?
-  nome_empresa   String?  @db.VarChar(255)
-  entity_name    String   @db.VarChar(120)
-  entity_id      String?  @db.VarChar(120)
-  action         String   @db.VarChar(40)
-  payload        Json?
-  createdAt      DateTime @default(now())
+  id           String   @id @default(cuid())
+  cliente_id   String?  @db.VarChar(64)
+  id_global    Int?
+  usuario_id   String?  @db.VarChar(64)
+  empresa_id   String?  @db.VarChar(64)
+  codempresa   Int?
+  nome_empresa String?  @db.VarChar(255)
+  entity_name  String   @db.VarChar(120)
+  entity_id    String?  @db.VarChar(120)
+  action       String   @db.VarChar(40)
+  payload      Json?
+  createdAt    DateTime @default(now())
 
-  cliente        Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
+  cliente Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
 
   @@index([cliente_id, id_global])
   @@index([cliente_id, createdAt])
@@ -411,13 +367,13 @@ model AuditLog {
 }
 
 model UsuarioPreferencia {
-  id          String   @id @default(cuid())
-  usuario_id  String   @db.VarChar(64)
-  cliente_id  String   @db.VarChar(64)
-  screen_key  String   @db.VarChar(128)
-  config      Json
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  usuario_id String   @db.VarChar(64)
+  cliente_id String   @db.VarChar(64)
+  screen_key String   @db.VarChar(128)
+  config     Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
 

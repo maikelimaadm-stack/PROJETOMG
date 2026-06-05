@@ -6,6 +6,10 @@ import {
   registerRegistroGlobal,
   reserveNextIdGlobal,
 } from "../../idGlobal/idGlobalService.js";
+import {
+  ENTITY_CODIGO_EMPRESA,
+  reserveNextCodigo,
+} from "../../sequencias/entidadeCodigoService.js";
 
 const EMPRESAS_ENTITY_NAME = "EmpresaCadastro";
 
@@ -192,33 +196,10 @@ export const empresaRepository = {
     const created = await runSerializableWithRetry(prisma, async (tx) => {
       let codigo = Number(data.codempresa || 0);
       if (!Number.isFinite(codigo) || codigo <= 0) {
-        const sequence = await tx.empresaCodigoSequencia.findUnique({
-          where: { cliente_id: scope.clienteId },
-          select: { next_codigo: true },
-        });
-        if (!sequence) {
-          const maxCodigo = await tx.empresa.aggregate({
-            where: { tenant_id: scope.clienteId },
-            _max: { codempresa: true },
-          });
-          codigo = Number(maxCodigo._max.codempresa || 0) + 1;
-          await tx.empresaCodigoSequencia.create({
-            data: {
-              cliente_id: scope.clienteId,
-              next_codigo: codigo + 1,
-            },
-          });
-        } else {
-          const updatedSequence = await tx.empresaCodigoSequencia.update({
-            where: { cliente_id: scope.clienteId },
-            data: { next_codigo: { increment: 1 } },
-            select: { next_codigo: true },
-          });
-          codigo = Number(updatedSequence.next_codigo) - 1;
-        }
+        codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
       } else {
         const existingCode = await tx.empresa.findFirst({
-          where: { tenant_id: scope.clienteId, codempresa: codigo },
+          where: { cliente_id: scope.clienteId, codempresa: codigo },
           select: { id: true },
         });
         if (existingCode) {
@@ -237,7 +218,6 @@ export const empresaRepository = {
           id_global: idGlobal,
           codempresa: codigo,
           cliente_id: scope.clienteId,
-          tenant_id: scope.clienteId,
         },
       });
       await registerRegistroGlobal(tx, {
