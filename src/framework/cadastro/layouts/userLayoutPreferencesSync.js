@@ -3,6 +3,7 @@
  * Mantido para compatibilidade com imports existentes.
  */
 import { LayoutPreferencesEngine, resetAllLayoutPreferencesSync } from "@/framework/cadastro-engine/preferences/LayoutPreferencesEngine.js";
+import { clearLegacyLayoutStorageForUser } from "@/framework/cadastro/layouts/empFormLayoutUpgrade.js";
 import { empresasCadastroConfig } from "@/modules/empresas/config/empresasCadastroConfig.js";
 
 const engine = () => LayoutPreferencesEngine.for(empresasCadastroConfig);
@@ -37,11 +38,34 @@ export const exportEmpresasFormLayoutSnapshot = () => {
   };
 };
 
+const clearStoredPersonalizacoes = (userId) => {
+  if (typeof localStorage === "undefined") return [];
+  const removed = [];
+  const prefixes = ["emp_", "cadastro", "cadastro_"];
+  for (let i = localStorage.length - 1; i >= 0; i -= 1) {
+    const key = localStorage.key(i);
+    if (!key) continue;
+    if (prefixes.some((prefix) => key.startsWith(prefix))) {
+      localStorage.removeItem(key);
+      removed.push(key);
+    }
+  }
+  if (userId) clearLegacyLayoutStorageForUser(userId);
+  resetAllLayoutPreferencesSync();
+  return removed;
+};
+
 export const registerEmpresasPersonalizacoesDevTools = () => {
   if (!import.meta.env.DEV) return;
   window.__empPersonalizacoes = {
     mode: isLocalPersonalizacoesMode(),
     exportFormLayout: exportEmpresasFormLayoutSnapshot,
     readFormLayout: () => engine().readLocal(),
+    resetStoredLayouts: (userId) => {
+      const removed = clearStoredPersonalizacoes(userId);
+      console.info("[empPersonalizacoes] chaves removidas:", removed);
+      window.location.reload();
+      return removed;
+    },
   };
 };

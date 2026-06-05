@@ -29,12 +29,18 @@
     display: flex !important;
     flex-wrap: nowrap !important;
     align-items: center !important;
-    overflow: visible !important;
+    overflow: hidden !important;
     box-sizing: border-box !important;
     width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    scrollbar-width: none;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div {
     padding-left: var(--erp-toolbar-inner-px, 8px) !important;
     padding-right: var(--erp-toolbar-inner-px, 8px) !important;
-    scrollbar-width: none;
   }
 
   .cadastro-emp-scope .emp-toolbar-row::-webkit-scrollbar {
@@ -44,13 +50,31 @@
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-primary,
-  .cadastro-emp-scope .emp-toolbar-actions-end,
   .cadastro-emp-scope .emp-toolbar-actions-nav,
   .cadastro-emp-scope .emp-toolbar-actions-save-mobile {
     display: flex !important;
     align-items: center !important;
     flex-shrink: 0;
     gap: 6px;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-actions-end {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 auto !important;
+    flex-shrink: 1 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    justify-content: flex-end !important;
+    gap: 6px !important;
+    overflow: hidden !important;
+  }
+
+  /* Desktop: contador à esquerda do grupo (busca/anexos/menu), não na borda */
+  .cadastro-emp-scope .emp-toolbar-actions-end .emp-toolbar-record-counter {
+    order: -1 !important;
+    flex-shrink: 0 !important;
   }
 
   .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn {
@@ -69,7 +93,15 @@
   }
 
   .cadastro-emp-scope .emp-toolbar {
-    overflow: visible !important;
+    overflow: hidden !important;
+    max-width: 100% !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: 13rem !important;
+    width: auto !important;
   }
 
   .cadastro-emp-scope .emp-toolbar-bubble-counter.emp-bubble-counter,
@@ -91,13 +123,6 @@
 
   .cadastro-emp-scope .emp-toolbar-bubble-counter .emp-bubble-counter__tail {
     display: none !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-actions-end {
-    flex-shrink: 0 !important;
-    min-width: 0;
-    align-items: center !important;
-    margin-right: 0 !important;
   }
 
   .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div {
