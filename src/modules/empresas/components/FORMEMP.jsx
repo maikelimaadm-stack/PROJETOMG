@@ -22,7 +22,10 @@ import {
   pickLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
-import { countRequiredFormFields } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
+import {
+  buildRequiredFormFieldErrors,
+  countRequiredFormFields,
+} from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -171,12 +174,14 @@ export default function FORMEMP({
     if (isReadOnly) return;
     const normalized = UPPER_FIELDS.includes(field) && typeof value === "string" ? value.toUpperCase() : value;
     setErrors((prev) => ({ ...prev, [field]: false }));
+    clearRequiredFieldErrors();
     setFormData((prev) => ({ ...prev, [field]: normalized }));
   };
 
   const handleCustomChange = (fieldName, value) => {
     if (isReadOnly) return;
     setErrors((prev) => ({ ...prev, [`campos_personalizados.${fieldName}`]: false }));
+    clearRequiredFieldErrors();
     setFormData((prev) => {
       const next = {
         ...prev,
@@ -404,9 +409,16 @@ export default function FORMEMP({
   };
 
   const validateForm = () => {
-    const nextErrors = {};
-    REQUIRED_FIELDS.forEach((field) => {
-      if (!String(formData?.[field] || "").trim()) nextErrors[field] = true;
+    const panelIds = tabs.map((panel) => panel.id);
+    const nextErrors = buildRequiredFormFieldErrors({
+      panelIds,
+      layout: activeLayoutConfig?.layout,
+      fields: dynamicFields,
+      hiddenFieldIds: activeLayoutConfig?.hiddenFieldIds || [],
+      requiredFieldIds: activeLayoutConfig?.requiredFieldIds || [],
+      visibilityRules: activeLayoutConfig?.visibilityRules || {},
+      values: formData,
+      nativeRequiredFieldNames: REQUIRED_FIELDS,
     });
     const customValidation = campoEngine.buildValidationSchema(camposPersonalizadosForm).safeParse(formData.campos_personalizados || {});
     if (!customValidation.success) {

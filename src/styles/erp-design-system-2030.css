@@ -1532,3 +1532,37 @@
 .erp-shell .form-validation-status__label {
   color: inherit;
 }
+
+/* —— Aviso obrigatório abaixo do campo (altura reservada) —— */
+.cadastro-emp-scope .emp-form-field-message-slot {
+  min-height: 14px;
+  line-height: 14px;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-form-field-error-message {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  color: #dc2626;
+}
+
+.cadastro-emp-scope .emp-form-field-error-message--hidden {
+  visibility: hidden;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid {
+  border-color: #fecaca !important;
+  background: #fef2f2 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error input,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error textarea,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.emp-form-field-error select,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid input,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid textarea,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid select {
+  background: #fef2f2 !important;
+}
