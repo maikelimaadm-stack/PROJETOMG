@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { runTransactionWithRetry } from "../../database/transactionRetry.js";
 import { auditService } from "../audit/auditService.js";
 import {
   registerRegistroGlobal,
@@ -310,7 +311,7 @@ export const repCps = {
       updated_by: scope.userId,
     };
 
-    const created = await prisma.$transaction(async (tx) => {
+    const created = await runTransactionWithRetry(prisma, async (tx) => {
       const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_CADCPS);
       const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
       const record = await tx.cadCpsCampo.create({

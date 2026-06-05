@@ -23,77 +23,37 @@ const getMaxCodigoInUse = async (tx, clienteId, entityName) => {
   return 0;
 };
 
-const sequenceKey = (clienteId, entityName) => ({
-  cliente_id_entity_name: { cliente_id: clienteId, entity_name: entityName },
-});
-
-/** next_codigo armazenado = próximo código a gerar + 1 (primeiro registro usa 2 → retorna 1). */
+/** next_codigo armazenado = próximo número a atribuir (primeiro registro = 1). */
 export const ensureCodigoSequenciaFloor = async (tx, clienteId, entityName) => {
   const maxInUse = await getMaxCodigoInUse(tx, clienteId, entityName);
-  const floorStored = maxInUse + 2;
+  const nextAssign = maxInUse + 1;
 
-  const current = await tx.entidadeCodigoSequencia.findUnique({
-    where: sequenceKey(clienteId, entityName),
-    select: { next_codigo: true },
-  });
+  await tx.$executeRaw`
+    INSERT INTO "EntidadeCodigoSequencia" ("id", "cliente_id", "entity_name", "next_codigo", "createdAt", "updatedAt")
+    VALUES (replace(gen_random_uuid()::text, '-', ''), ${clienteId}, ${entityName}, ${nextAssign}, NOW(), NOW())
+    ON CONFLICT ("cliente_id", "entity_name") DO NOTHING
+  `;
 
-  if (!current) {
-    await tx.entidadeCodigoSequencia.create({
-      data: {
-        cliente_id: clienteId,
-        entity_name: entityName,
-        next_codigo: Math.max(2, floorStored),
-      },
-    });
-    return;
-  }
-
-  if (Number(current.next_codigo) < floorStored) {
-    await tx.entidadeCodigoSequencia.update({
-      where: sequenceKey(clienteId, entityName),
-      data: { next_codigo: floorStored },
-    });
-  }
+  await tx.$executeRaw`
+    UPDATE "EntidadeCodigoSequencia"
+    SET "next_codigo" = GREATEST("next_codigo", ${nextAssign}), "updatedAt" = NOW()
+    WHERE "cliente_id" = ${clienteId} AND "entity_name" = ${entityName}
+  `;
 };
 
 export const reserveNextCodigo = async (tx, clienteId, entityName) => {
   await ensureCodigoSequenciaFloor(tx, clienteId, entityName);
 
-  const sequence = await tx.entidadeCodigoSequencia.upsert({
-    where: sequenceKey(clienteId, entityName),
-    create: {
-      cliente_id: clienteId,
-      entity_name: entityName,
-      next_codigo: 2,
-    },
-    update: {
-      next_codigo: { increment: 1 },
-    },
-    select: { next_codigo: true },
-  });
+  const rows = await tx.$queryRaw`
+    UPDATE "EntidadeCodigoSequencia"
+    SET "next_codigo" = "next_codigo" + 1, "updatedAt" = NOW()
+    WHERE "cliente_id" = ${clienteId} AND "entity_name" = ${entityName}
+    RETURNING ("next_codigo" - 1) AS assigned
+  `;
 
-  const assigned = Number(sequence.next_codigo) - 1;
-
-  if (entityName === ENTITY_CODIGO_EMPRESA) {
-    const exists = await tx.empresa.findFirst({
-      where: { cliente_id: clienteId, codempresa: assigned },
-      select: { id: true },
-    });
-    if (exists) {
-      await ensureCodigoSequenciaFloor(tx, clienteId, entityName);
-      return reserveNextCodigo(tx, clienteId, entityName);
-    }
-  }
-
-  if (entityName === ENTITY_CODIGO_CADCPS) {
-    const exists = await tx.cadCpsCampo.findFirst({
-      where: { cliente_id: clienteId, codigo: assigned },
-      select: { id: true },
-    });
-    if (exists) {
-      await ensureCodigoSequenciaFloor(tx, clienteId, entityName);
-      return reserveNextCodigo(tx, clienteId, entityName);
-    }
+  const assigned = Number(rows[0]?.assigned);
+  if (!Number.isFinite(assigned) || assigned <= 0) {
+    throw new Error(`Falha ao reservar código para ${entityName}.`);
   }
 
   return assigned;
@@ -141,23 +101,14 @@ const migrateTableToEntidade = async (prisma, tableName, entityName) => {
 
   for (const row of legacyRows) {
     const clienteId = row.cliente_id;
-    const nextCodigo = Number(row.next_codigo) || 1;
-    const current = await prisma.entidadeCodigoSequencia.findUnique({
-      where: sequenceKey(clienteId, entityName),
-      select: { next_codigo: true },
-    });
-    const resolvedNext = Math.max(Number(current?.next_codigo) || 0, nextCodigo);
-    await prisma.entidadeCodigoSequencia.upsert({
-      where: sequenceKey(clienteId, entityName),
-      create: {
-        cliente_id: clienteId,
-        entity_name: entityName,
-        next_codigo: resolvedNext,
-      },
-      update: {
-        next_codigo: resolvedNext,
-      },
-    });
+    const legacyNext = Number(row.next_codigo) || 1;
+    await prisma.$executeRaw`
+      INSERT INTO "EntidadeCodigoSequencia" ("id", "cliente_id", "entity_name", "next_codigo", "createdAt", "updatedAt")
+      VALUES (replace(gen_random_uuid()::text, '-', ''), ${clienteId}, ${entityName}, ${legacyNext}, NOW(), NOW())
+      ON CONFLICT ("cliente_id", "entity_name") DO UPDATE
+        SET "next_codigo" = GREATEST("EntidadeCodigoSequencia"."next_codigo", EXCLUDED."next_codigo"),
+            "updatedAt" = NOW()
+    `;
     migrated += 1;
   }
 

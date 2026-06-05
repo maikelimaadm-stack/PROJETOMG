@@ -74,12 +74,16 @@ export const runProductionBootTasks = async (logger = console) => {
 
   try {
     const { syncAllCodigoSequencias } = await import("../src/modules/sequencias/entidadeCodigoService.js");
+    const { syncAllIdGlobalSequencias } = await import("../src/modules/idGlobal/idGlobalService.js");
     const { createMigrationPrisma } = await import("./migrationPrisma.js");
     const prisma = createMigrationPrisma();
     try {
-      const synced = await syncAllCodigoSequencias(prisma);
-      logger.info?.(`[boot] Sequências codempresa sincronizadas (${synced} cliente(s)).`) ??
-        logger.log(`[boot] Sequências codempresa sincronizadas (${synced} cliente(s)).`);
+      const [codigos, idGlobals] = await Promise.all([
+        syncAllCodigoSequencias(prisma),
+        syncAllIdGlobalSequencias(prisma),
+      ]);
+      logger.info?.(`[boot] Sequências sincronizadas — código: ${codigos}, id_global: ${idGlobals} cliente(s).`) ??
+        logger.log(`[boot] Sequências sincronizadas — código: ${codigos}, id_global: ${idGlobals} cliente(s).`);
     } finally {
       await prisma.$disconnect();
     }

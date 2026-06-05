@@ -2,6 +2,7 @@ import { getPrismaClient } from "../../../database/prismaClient.js";
 import { auditService } from "../../audit/auditService.js";
 import { svcCps } from "../../cadcps/svcCps.js";
 import { toLegacyCampoList } from "../../cadcps/campoLegacyAdapter.js";
+import { runTransactionWithRetry } from "../../../database/transactionRetry.js";
 import {
   registerRegistroGlobal,
   reserveNextIdGlobal,
@@ -120,24 +121,6 @@ const buildCadastroScopeWhere = (scope, extra = {}) => {
   return { AND: and };
 };
 
-const runSerializableWithRetry = async (prisma, operation, attempts = 3) => {
-  let currentAttempt = 0;
-  while (currentAttempt < attempts) {
-    try {
-      return await prisma.$transaction((tx) => operation(tx), {
-        isolationLevel: "Serializable",
-      });
-    } catch (error) {
-      currentAttempt += 1;
-      const isRetryable = String(error?.code || "") === "P2034";
-      if (!isRetryable || currentAttempt >= attempts) {
-        throw error;
-      }
-    }
-  }
-  throw new Error("Falha ao executar transação serializável.");
-};
-
 export const empresaRepository = {
   async count(scope) {
     const prisma = getPrismaClient();
@@ -193,7 +176,7 @@ export const empresaRepository = {
 
   async create(data, scope) {
     const prisma = getPrismaClient();
-    const created = await runSerializableWithRetry(prisma, async (tx) => {
+    const created = await runTransactionWithRetry(prisma, async (tx) => {
       let codigo = Number(data.codempresa || 0);
       if (!Number.isFinite(codigo) || codigo <= 0) {
         codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);

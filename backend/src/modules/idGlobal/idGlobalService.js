@@ -1,30 +1,34 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { runTransactionWithRetry } from "../../database/transactionRetry.js";
 
-const runSerializableWithRetry = async (prisma, operation, attempts = 3) => {
-  let currentAttempt = 0;
-  while (currentAttempt < attempts) {
-    try {
-      return await prisma.$transaction((tx) => operation(tx), {
-        isolationLevel: "Serializable",
-      });
-    } catch (error) {
-      currentAttempt += 1;
-      const isRetryable = String(error?.code || "") === "P2034";
-      if (!isRetryable || currentAttempt >= attempts) {
-        throw error;
-      }
-    }
-  }
-  throw new Error("Falha ao executar transação serializável para ID Global.");
+export const syncClienteIdGlobalFloor = async (tx, clienteId) => {
+  const agg = await tx.registroGlobal.aggregate({
+    where: { cliente_id: clienteId },
+    _max: { id_global: true },
+  });
+  const nextAssign = (Number(agg._max.id_global) || 0) + 1;
+
+  await tx.$executeRaw`
+    UPDATE "Cliente"
+    SET "next_id_global" = GREATEST("next_id_global", ${nextAssign}), "updatedAt" = NOW()
+    WHERE "id" = ${clienteId}
+  `;
 };
 
 export const reserveNextIdGlobal = async (tx, clienteId) => {
-  const updated = await tx.cliente.update({
-    where: { id: clienteId },
-    data: { next_id_global: { increment: 1 } },
-    select: { next_id_global: true },
-  });
-  return Number(updated.next_id_global) - 1;
+  const rows = await tx.$queryRaw`
+    UPDATE "Cliente"
+    SET "next_id_global" = "next_id_global" + 1, "updatedAt" = NOW()
+    WHERE "id" = ${clienteId}
+    RETURNING ("next_id_global" - 1) AS assigned
+  `;
+
+  const assigned = Number(rows[0]?.assigned);
+  if (!Number.isFinite(assigned) || assigned <= 0) {
+    throw new Error("Falha ao reservar ID Global.");
+  }
+
+  return assigned;
 };
 
 export const registerRegistroGlobal = async (
@@ -43,7 +47,7 @@ export const registerRegistroGlobal = async (
 
 export const createWithIdGlobal = async ({ clienteId, entityName, createRecord }) => {
   const prisma = getPrismaClient();
-  return runSerializableWithRetry(prisma, async (tx) => {
+  return runTransactionWithRetry(prisma, async (tx) => {
     const idGlobal = await reserveNextIdGlobal(tx, clienteId);
     const record = await createRecord(tx, idGlobal);
     await registerRegistroGlobal(tx, {
@@ -169,4 +173,12 @@ export const backfillAllClientesIdGlobal = async () => {
     results.push(await backfillClienteIdGlobal(cliente.id));
   }
   return results;
+};
+
+export const syncAllIdGlobalSequencias = async (prisma = getPrismaClient()) => {
+  const clientes = await prisma.cliente.findMany({ select: { id: true } });
+  for (const cliente of clientes) {
+    await prisma.$transaction((tx) => syncClienteIdGlobalFloor(tx, cliente.id));
+  }
+  return clientes.length;
 };
