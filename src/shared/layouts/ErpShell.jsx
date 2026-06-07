@@ -227,8 +227,8 @@ function ErpShellBody({
   allowAllEmpresas,
 }) {
   return (
-    <div className="erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[#f8f9fd]">
-      <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[#eef1f8] bg-[#f8f9fd]">
+    <div className="erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[var(--background-page)]">
+      <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[var(--border-color)] bg-[var(--background-page)]">
         <SidebarHeader className="border-b border-[#e8ecef] p-0">
           <Link to="/CadastroEmpresas" className="erp-sidebar-brand block hover:opacity-95">
             <ErpBrand />
@@ -238,7 +238,7 @@ function ErpShellBody({
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[#f8f9fd]">
+      <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[var(--background-page)]">
         <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden">
           <div className="erp-shell-top-unified shrink-0">
             <ErpTopHeader
