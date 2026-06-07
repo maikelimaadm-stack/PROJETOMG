@@ -6,8 +6,15 @@
 
 /* Menus em portal (document.body) — tokens no :root para não perder estilo */
 :root {
-  --erp-menu-bg: #ffffff;
-  --erp-menu-border: #d8dee9;
+  /* Paleta base do produto */
+  --background-page: #F5F6FA;
+  --background-card: #FFFFFF;
+  --border-color: #E5E7EB;
+  --text-primary: #374151;
+  --text-secondary: #6B7280;
+
+  --erp-menu-bg: var(--background-card);
+  --erp-menu-border: var(--border-color);
   --erp-menu-radius: 12px;
   --erp-menu-padding: 6px;
   --erp-menu-shadow:
@@ -15,19 +22,19 @@
     0 2px 8px rgba(16, 24, 40, 0.06);
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
-  --erp-menu-item-hover: #f8f9fd;
+  --erp-menu-item-hover: var(--background-page);
   --erp-menu-item-selected-bg: #eef8ff;
-  --erp-menu-separator: #e5eaf2;
-  --erp-menu-search-bg: #f8f9fd;
-  --erp-menu-search-border: #e2e8f0;
+  --erp-menu-separator: var(--border-color);
+  --erp-menu-search-bg: var(--background-page);
+  --erp-menu-search-border: var(--border-color);
   --erp-color-primary: #2899f5;
-  --erp-color-text: #1e293b;
-  --erp-color-text-secondary: #475569;
-  --erp-color-text-muted: #64748b;
-  --erp-color-label: #334155;
-  --erp-color-surface: #f8f9fd;
-  --erp-color-card: #ffffff;
-  --erp-color-card-border: rgba(255, 255, 255, 0);
+  --erp-color-text: var(--text-primary);
+  --erp-color-text-secondary: var(--text-secondary);
+  --erp-color-text-muted: var(--text-secondary);
+  --erp-color-label: var(--text-primary);
+  --erp-color-surface: var(--background-page);
+  --erp-color-card: var(--background-card);
+  --erp-color-card-border: var(--border-color);
   --erp-radius-card: 18px;
   --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
   --erp-spacing: 8px;
@@ -39,18 +46,18 @@
   --erp-state-info: #2899f5;
   --erp-radius-control: 8px;
   --erp-shadow-focus: none;
-  --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  --erp-select-chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
 }
 
 /* Portais (sonner, menus) — garante tokens dos cards */
 [data-sonner-toaster],
 [data-sonner-toast] {
-  --erp-color-card: #ffffff;
-  --erp-color-card-border: rgba(255, 255, 255, 0);
+  --erp-color-card: var(--background-card);
+  --erp-color-card-border: var(--border-color);
   --erp-radius-card: 18px;
   --erp-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --erp-color-label: #334155;
-  --erp-color-text-secondary: #475569;
+  --erp-color-label: var(--text-primary);
+  --erp-color-text-secondary: var(--text-secondary);
   --erp-color-primary: #2899f5;
 }
 
@@ -71,33 +78,33 @@
   --erp-ds-transition: 150ms ease;
   --erp-ds-transition-slow: 200ms ease;
 
-  --erp-color-text: #1e293b;
-  --erp-color-text-secondary: #475569;
-  --erp-color-text-muted: #64748b;
-  --erp-color-text-disabled: #94a3b8;
-  --erp-color-label: #334155;
+  --erp-color-text: var(--text-primary);
+  --erp-color-text-secondary: var(--text-secondary);
+  --erp-color-text-muted: var(--text-secondary);
+  --erp-color-text-disabled: #9ca3af;
+  --erp-color-label: var(--text-primary);
   --erp-color-required: #ef4444;
   --erp-color-primary: #2899f5;
   --erp-color-primary-hover: #1a8fe8;
-  --erp-color-border: #e4eaf2;
-  --erp-color-border-soft: #edf1f6;
-  --erp-color-card-border: #edf1f6;
-  --erp-color-input-border: #d9e2ef;
+  --erp-color-border: var(--border-color);
+  --erp-color-border-soft: var(--border-color);
+  --erp-color-card-border: var(--border-color);
+  --erp-color-input-border: var(--border-color);
   --erp-color-input-hover: #2899f5;
   --erp-color-input-focus: #2899f5;
-  --erp-color-surface: #f8f9fd;
-  --erp-color-surface-gradient: #f8f9fd;
-  --erp-color-card: #ffffff;
-  --erp-color-card-header: #ffffff;
-  --erp-color-card-header-border: #edf2f7;
-  --erp-color-row-hover: #f8f9fd;
+  --erp-color-surface: var(--background-page);
+  --erp-color-surface-gradient: var(--background-page);
+  --erp-color-card: var(--background-card);
+  --erp-color-card-header: var(--background-card);
+  --erp-color-card-header-border: var(--border-color);
+  --erp-color-row-hover: var(--background-page);
   --erp-color-row-selected: #eef8ff;
-  --erp-color-lookup-bg: #ffffff;
-  --erp-color-lookup-hover: #f8f9fd;
+  --erp-color-lookup-bg: var(--background-card);
+  --erp-color-lookup-hover: var(--background-page);
 
   /* Menu estilo GitHub */
-  --erp-menu-bg: #ffffff;
-  --erp-menu-border: #d8dee9;
+  --erp-menu-bg: var(--background-card);
+  --erp-menu-border: var(--border-color);
   --erp-menu-radius: 12px;
   --erp-menu-padding: 6px;
   --erp-menu-shadow:
@@ -105,12 +112,12 @@
     0 2px 8px rgba(16, 24, 40, 0.06);
   --erp-menu-item-height: 30px;
   --erp-menu-item-radius: 8px;
-  --erp-menu-item-hover: #f8f9fd;
+  --erp-menu-item-hover: var(--background-page);
   --erp-menu-item-selected-bg: #eef8ff;
-  --erp-menu-separator: #e5eaf2;
+  --erp-menu-separator: var(--border-color);
   --erp-menu-search-height: 28px;
-  --erp-menu-search-bg: #f8f9fd;
-  --erp-menu-search-border: #e2e8f0;
+  --erp-menu-search-bg: var(--background-page);
+  --erp-menu-search-border: var(--border-color);
 
   --erp-radius-control: 8px;
   --erp-radius-button: 5px;
@@ -1721,9 +1728,9 @@
   box-sizing: border-box;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  color: #4b5563 !important;
-  border: 1px solid #d1d5db !important;
-  background: #ffffff !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  background: var(--background-card) !important;
   font-weight: 400 !important;
   border-radius: var(--emp-control-radius, 6px) !important;
   box-shadow: none !important;

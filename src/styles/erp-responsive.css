@@ -115,8 +115,8 @@
     align-self: center !important;
     margin: 0 !important;
     white-space: nowrap !important;
-    color: #4b5563 !important;
-    border-color: #d1d5db !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
     font-weight: 400 !important;
     box-shadow: none !important;
   }
