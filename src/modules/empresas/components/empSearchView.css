@@ -1,0 +1,388 @@
+.cadastro-emp-scope .emp-search-view {
+  --emp-search-radius-card: 12px;
+  --emp-search-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--background-page, #f5f6fa);
+}
+
+.cadastro-emp-scope .emp-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  background: var(--background-card, #ffffff);
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-search-input-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: border-color 150ms ease;
+}
+
+.cadastro-emp-scope .emp-search-input-wrap:focus-within {
+  border-color: var(--erp-color-primary, #2899f5);
+}
+
+.cadastro-emp-scope .emp-search-input {
+  flex: 1;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text-primary, #374151);
+}
+
+.cadastro-emp-scope .emp-search-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 400;
+  color: #475569;
+  cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.cadastro-emp-scope .emp-search-action-btn:hover {
+  background: var(--erp-color-row-hover, #f5f6fa);
+}
+
+.cadastro-emp-scope .emp-search-action-btn--active {
+  color: var(--erp-color-primary, #2899f5);
+  border-color: #bfdbfe;
+  background: var(--erp-color-row-selected, #eef8ff);
+}
+
+.cadastro-emp-scope .emp-search-results {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 12px;
+}
+
+@media (min-width: 768px) {
+  .cadastro-emp-scope .emp-search-results {
+    padding: 12px 20px;
+  }
+}
+
+.cadastro-emp-scope .emp-search-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cadastro-emp-scope .emp-search-result-card {
+  background: #ffffff;
+  padding: 12px;
+  border-radius: var(--emp-search-radius-card);
+  box-shadow: var(--emp-search-shadow-card);
+  cursor: pointer;
+  transition: box-shadow 150ms ease;
+}
+
+.cadastro-emp-scope .emp-search-result-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.cadastro-emp-scope .emp-search-result-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.cadastro-emp-scope .emp-search-result-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.cadastro-emp-scope .emp-search-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-search-result-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.cadastro-emp-scope .emp-search-fav-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+  color: #cbd5e1;
+  line-height: 0;
+}
+
+.cadastro-emp-scope .emp-search-fav-btn--active {
+  color: #16a34a;
+}
+
+.cadastro-emp-scope .emp-search-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  font-size: 11px;
+  margin-left: 52px;
+}
+
+@media (min-width: 768px) {
+  .cadastro-emp-scope .emp-search-fields-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.cadastro-emp-scope .emp-search-field-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.cadastro-emp-scope .emp-search-field-value {
+  color: #334155;
+}
+
+.cadastro-emp-scope .emp-search-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--border-color, #e5e7eb);
+  background: var(--background-card, #ffffff);
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-search-footer-label {
+  font-size: 11px;
+  color: var(--text-secondary, #6b7280);
+}
+
+.cadastro-emp-scope .emp-search-page-size {
+  position: relative;
+  width: 60px;
+  cursor: pointer;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-search-page-size-display {
+  width: 100%;
+  height: 28px;
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 8px;
+  padding: 6px 24px 2px 12px;
+  font-size: 12px;
+  background: var(--background-card, #ffffff);
+  color: var(--text-primary, #374151);
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  transition: border-color 150ms ease;
+}
+
+.cadastro-emp-scope .emp-search-page-size.open .emp-search-page-size-display {
+  border-color: var(--erp-color-primary, #2899f5);
+}
+
+.cadastro-emp-scope .emp-search-page-size-panel {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: var(--background-card, #ffffff);
+  border: 1px solid var(--border-color, #e5e7eb);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  z-index: 80;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-search-page-size.open .emp-search-page-size-panel {
+  display: block;
+}
+
+.cadastro-emp-scope .emp-search-page-size-option {
+  padding: 7px 12px;
+  font-size: 12px;
+  color: var(--text-primary, #374151);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  margin: 2px 4px;
+}
+
+.cadastro-emp-scope .emp-search-page-size-option:hover {
+  background: var(--erp-color-row-hover, #f5f6fa);
+}
+
+.cadastro-emp-scope .emp-search-page-size-option--selected {
+  color: var(--erp-color-primary, #2899f5);
+  font-weight: 500;
+  background: var(--erp-color-row-selected, #eef8ff);
+}
+
+.cadastro-emp-scope .emp-search-pagination {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.cadastro-emp-scope .emp-search-page-btn {
+  padding: 4px 10px;
+  font-size: 11px;
+  border-radius: 6px;
+  border: 0;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.cadastro-emp-scope .emp-search-page-btn--active {
+  background: var(--erp-color-primary, #2899f5);
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.cadastro-emp-scope .emp-search-page-ellipsis {
+  padding: 0 4px;
+  font-size: 11px;
+  color: var(--text-secondary, #6b7280);
+}
+
+.cadastro-emp-scope .emp-search-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  font-size: 13px;
+  color: var(--text-secondary, #6b7280);
+}
+
+.cadastro-emp-scope .emp-search-config-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cadastro-emp-scope .emp-search-config-modal {
+  background: var(--background-card, #ffffff);
+  border-radius: 14px;
+  max-width: 420px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.2);
+}
+
+.cadastro-emp-scope .emp-search-config-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cadastro-emp-scope .emp-search-config-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.cadastro-emp-scope .emp-search-config-close {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.cadastro-emp-scope .emp-search-config-close:hover {
+  background: #f1f5f9;
+}
+
+.cadastro-emp-scope .emp-search-config-body {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cadastro-emp-scope .emp-search-config-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cadastro-emp-scope .emp-search-config-field:hover {
+  background: #f8fafc;
+}
+
+.cadastro-emp-scope .emp-search-config-field span {
+  font-size: 13px;
+  color: #334155;
+}
+
+.cadastro-emp-scope .emp-search-config-footer {
+  padding: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.cadastro-emp-scope .emp-search-config-save {
+  width: 100%;
+  padding: 8px 0;
+  border-radius: 8px;
+  border: 0;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  background: var(--erp-color-primary, #2899f5);
+}

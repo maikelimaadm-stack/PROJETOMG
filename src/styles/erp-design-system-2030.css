@@ -465,6 +465,12 @@
   box-shadow: var(--erp-shadow-control) !important;
 }
 
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-active {
+  background: var(--erp-color-row-selected) !important;
+  border-color: #bfdbfe !important;
+  color: var(--erp-color-primary) !important;
+}
+
 .cadastro-emp-scope .emp-toolbar-search,
 .cadastro-emp-scope .emp-toolbar-counter {
   background: var(--erp-color-card) !important;
