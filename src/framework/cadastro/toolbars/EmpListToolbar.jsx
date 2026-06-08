@@ -190,12 +190,14 @@ export default function EmpListToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <EmpBubbleCounter
-            value={counterValue}
-            title={counterTitle}
-            variant="toolbar"
-            className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
-          />
+          {viewMode !== "search" ? (
+            <EmpBubbleCounter
+              value={counterValue}
+              title={counterTitle}
+              variant="toolbar"
+              className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
+            />
+          ) : null}
         </div>
       </div>
     </div>

@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, Search, Star, X } from "lucide-react";
-import { Checkbox } from "@/shared/ui/checkbox";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
+  formatSearchCounter,
   getEmpSearchAvatarColor,
   getEmpSearchFieldValue,
   getEmpSearchInitials,
@@ -133,7 +133,7 @@ function SearchConfigModal({ open, fields, onClose, onSave }) {
     >
       <div className="emp-search-config-modal">
         <div className="emp-search-config-header">
-          <h3 className="emp-search-config-title">Configurar Visualização</h3>
+          <h3 className="emp-search-config-title">⚙ Configurar Visualização</h3>
           <button type="button" className="emp-search-config-close" onClick={onClose} aria-label="Fechar">
             <X className="h-4 w-4 text-slate-400" />
           </button>
@@ -141,12 +141,15 @@ function SearchConfigModal({ open, fields, onClose, onSave }) {
         <div className="emp-search-config-body">
           {draft.map((field) => (
             <label key={field.key} className="emp-search-config-field">
-              <Checkbox
+              <input
+                type="checkbox"
+                className="emp-search-config-checkbox"
                 checked={field.visible}
-                onCheckedChange={(checked) => {
+                onChange={(event) => {
+                  const checked = event.target.checked;
                   setDraft((current) =>
                     current.map((item) =>
-                      item.key === field.key ? { ...item, visible: checked === true } : item
+                      item.key === field.key ? { ...item, visible: checked } : item
                     )
                   );
                 }}
@@ -196,10 +199,13 @@ export default function SRCHEMP({
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      if (localSearch !== searchValue) onSearchChange?.(localSearch);
+      if (localSearch !== searchValue) {
+        onPageChange?.(1);
+        onSearchChange?.(localSearch);
+      }
     }, 200);
     return () => window.clearTimeout(timer);
-  }, [localSearch, onSearchChange, searchValue]);
+  }, [localSearch, onSearchChange, onPageChange, searchValue]);
 
   const handleSearchInput = useCallback((value) => {
     setLocalSearch(value);
@@ -211,8 +217,12 @@ export default function SRCHEMP({
   }, [empresas, favorites, showOnlyFavorites]);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const visibleStart = total === 0 ? 0 : (page - 1) * pageSize + 1;
-  const visibleEnd = total === 0 ? 0 : Math.min(page * pageSize, (page - 1) * pageSize + filteredEmpresas.length);
+  const counterText = formatSearchCounter({
+    page,
+    pageSize,
+    pageCount: filteredEmpresas.length,
+    total,
+  });
 
   const detailFields = useMemo(
     () => visFields.filter((field) => field.visible && !field.primary),
@@ -254,8 +264,11 @@ export default function SRCHEMP({
         </div>
         <button
           type="button"
-          className={`emp-search-action-btn${showOnlyFavorites ? " emp-search-action-btn--active" : ""}`}
-          onClick={() => setShowOnlyFavorites((current) => !current)}
+          className="emp-search-action-btn"
+          onClick={() => {
+            setShowOnlyFavorites((current) => !current);
+            onPageChange?.(1);
+          }}
         >
           Favoritos
         </button>
@@ -273,7 +286,7 @@ export default function SRCHEMP({
           </div>
         ) : (
           <div className="emp-search-results-list">
-            {filteredEmpresas.map((emp) => {
+            {filteredEmpresas.map((emp, index) => {
               const isFavorite = favorites.has(emp.id);
               const code = getEmpSearchFieldValue(emp, "codempresa");
               const title = getEmpSearchFieldValue(emp, "razao_social");
@@ -288,7 +301,7 @@ export default function SRCHEMP({
                     <div className="emp-search-result-main">
                       <div
                         className="emp-search-avatar"
-                        style={{ background: getEmpSearchAvatarColor(emp) }}
+                        style={{ background: getEmpSearchAvatarColor(emp, index) }}
                       >
                         {getEmpSearchInitials(emp)}
                       </div>
@@ -332,9 +345,7 @@ export default function SRCHEMP({
       <footer className="emp-search-footer">
         <span className="emp-search-footer-label">Por página:</span>
         <SearchPageSizeSelect value={pageSize} onChange={onPageSizeChange} />
-        <span className="emp-search-footer-label">
-          Exibindo {visibleEnd === 0 ? 0 : `${visibleStart}-${visibleEnd}`} de {total} registros
-        </span>
+        <span className="emp-search-footer-label emp-search-footer-counter">{counterText}</span>
         <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
       </footer>
 

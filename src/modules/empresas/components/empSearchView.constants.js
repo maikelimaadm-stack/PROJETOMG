@@ -1,6 +1,8 @@
 import { formatDateValue } from "./tblEmp.constants";
 
-export const EMP_SEARCH_VIS_KEY = "emp_search_vis_config";
+/** Compatível com protótipo HTML (`erp_vis_config`). */
+export const EMP_SEARCH_VIS_KEY = "erp_vis_config";
+export const EMP_SEARCH_VIS_KEY_LEGACY = "emp_search_vis_config";
 export const EMP_SEARCH_FAV_KEY = "emp_search_favorites";
 
 export const EMP_SEARCH_AVATAR_COLORS = [
@@ -11,6 +13,16 @@ export const EMP_SEARCH_AVATAR_COLORS = [
   "#F59E0B",
   "#3B82F6",
 ];
+
+/** Mapeamento chaves protótipo → campos Empresa. */
+export const EMP_SEARCH_FIELD_ALIASES = {
+  codigo: "codempresa",
+  nome: "razao_social",
+  fantasia: "nome_fantasia",
+  cnpj: "cpf_cnpj",
+  uf: "estado",
+  dataCadastro: "createdAt",
+};
 
 export const EMP_SEARCH_DEFAULT_FIELDS = [
   { key: "codempresa", label: "Código", visible: true, primary: true },
@@ -26,11 +38,23 @@ export const EMP_SEARCH_DEFAULT_FIELDS = [
   { key: "createdAt", label: "Data Cadastro", visible: false },
 ];
 
+const normalizeVisConfig = (raw = {}) => {
+  const normalized = {};
+  Object.entries(raw).forEach(([key, value]) => {
+    const mapped = EMP_SEARCH_FIELD_ALIASES[key] || key;
+    normalized[mapped] = value;
+  });
+  return normalized;
+};
+
 export const loadSearchVisFields = () => {
   try {
-    const saved = localStorage.getItem(EMP_SEARCH_VIS_KEY);
+    let saved = localStorage.getItem(EMP_SEARCH_VIS_KEY);
+    if (!saved) {
+      saved = localStorage.getItem(EMP_SEARCH_VIS_KEY_LEGACY);
+    }
     if (!saved) return EMP_SEARCH_DEFAULT_FIELDS.map((field) => ({ ...field }));
-    const config = JSON.parse(saved);
+    const config = normalizeVisConfig(JSON.parse(saved));
     return EMP_SEARCH_DEFAULT_FIELDS.map((field) => ({
       ...field,
       visible: config[field.key] !== undefined ? Boolean(config[field.key]) : field.visible,
@@ -40,10 +64,15 @@ export const loadSearchVisFields = () => {
   }
 };
 
+const REVERSE_FIELD_ALIASES = Object.fromEntries(
+  Object.entries(EMP_SEARCH_FIELD_ALIASES).map(([prototypeKey, modelKey]) => [modelKey, prototypeKey])
+);
+
 export const saveSearchVisFields = (fields) => {
   const obj = {};
   fields.forEach((field) => {
-    obj[field.key] = field.visible;
+    const storageKey = REVERSE_FIELD_ALIASES[field.key] || field.key;
+    obj[storageKey] = field.visible;
   });
   localStorage.setItem(EMP_SEARCH_VIS_KEY, JSON.stringify(obj));
 };
@@ -84,11 +113,17 @@ export const getEmpSearchInitials = (emp) =>
     .substring(0, 3)
     .toUpperCase() || "EMP";
 
-export const getEmpSearchAvatarColor = (emp) => {
-  const seed = String(emp?.id || emp?.codempresa || "0");
-  let hash = 0;
-  for (let i = 0; i < seed.length; i += 1) {
-    hash = (hash + seed.charCodeAt(i) * (i + 1)) % EMP_SEARCH_AVATAR_COLORS.length;
+/** Mesma lógica do protótipo: `colors[id % colors.length]`. */
+export const getEmpSearchAvatarColor = (emp, index = 0) => {
+  const numericSeed = Number(emp?.codempresa);
+  if (Number.isFinite(numericSeed) && numericSeed > 0) {
+    return EMP_SEARCH_AVATAR_COLORS[numericSeed % EMP_SEARCH_AVATAR_COLORS.length];
   }
-  return EMP_SEARCH_AVATAR_COLORS[hash];
+  return EMP_SEARCH_AVATAR_COLORS[index % EMP_SEARCH_AVATAR_COLORS.length];
+};
+
+export const formatSearchCounter = ({ page, pageSize, pageCount, total }) => {
+  if (total <= 0 || pageCount <= 0) return "Exibindo 0 de 0 registros";
+  const displayed = Math.min(page * pageSize, (page - 1) * pageSize + pageCount);
+  return `Exibindo ${displayed} de ${total} registros`;
 };
