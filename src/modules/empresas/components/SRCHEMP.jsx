@@ -305,11 +305,9 @@ export default function SRCHEMP({
                       >
                         {getEmpSearchInitials(emp)}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="emp-search-result-title">
-                          {code} - {title}
-                        </div>
-                      </div>
+                      <span className="emp-search-result-title">
+                        {code} - {title}
+                      </span>
                     </div>
                     <button
                       type="button"

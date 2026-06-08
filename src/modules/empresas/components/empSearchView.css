@@ -143,29 +143,30 @@
 
 .cadastro-emp-scope .emp-search-result-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 8px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
 .cadastro-emp-scope .emp-search-result-main {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  align-items: center;
+  gap: 8px;
   flex: 1 1 auto;
   min-width: 0;
+  min-height: 0;
 }
 
 .cadastro-emp-scope .emp-search-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 8px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
   line-height: 1;
   flex-shrink: 0;
@@ -174,7 +175,7 @@
 .cadastro-emp-scope .emp-search-result-title {
   font-size: 13px;
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.25;
   color: #0f172a;
   min-width: 0;
   word-break: break-word;
@@ -200,10 +201,10 @@
 .cadastro-emp-scope .emp-search-fields-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 4px;
   font-size: 11px;
   line-height: 1.4;
-  margin-left: 52px;
+  margin-left: 36px;
 }
 
 @media (min-width: 768px) {
