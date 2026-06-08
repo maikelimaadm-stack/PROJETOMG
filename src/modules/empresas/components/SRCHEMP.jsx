@@ -297,25 +297,17 @@ export default function SRCHEMP({
                   onClick={() => onEdit?.(emp)}
                   role="presentation"
                 >
-                  <div className="emp-search-result-body">
-                    <div
-                      className="emp-search-avatar"
-                      style={{ background: getEmpSearchAvatarColor(emp, index) }}
-                    >
-                      {getEmpSearchInitials(emp)}
-                    </div>
-                    <div className="emp-search-result-content">
-                      <div className="emp-search-result-title">
-                        {code} - {title}
+                  <div className="emp-search-result-head">
+                    <div className="emp-search-result-main">
+                      <div
+                        className="emp-search-avatar"
+                        style={{ background: getEmpSearchAvatarColor(emp, index) }}
+                      >
+                        {getEmpSearchInitials(emp)}
                       </div>
-                      {detailFields.map((field) => (
-                        <div key={field.key} className="emp-search-field-line">
-                          <span className="emp-search-field-label">{field.label}: </span>
-                          <span className="emp-search-field-value">
-                            {getEmpSearchFieldValue(emp, field.key)}
-                          </span>
-                        </div>
-                      ))}
+                      <span className="emp-search-result-title">
+                        {code} - {title}
+                      </span>
                     </div>
                     <button
                       type="button"
@@ -329,6 +321,18 @@ export default function SRCHEMP({
                       />
                     </button>
                   </div>
+                  {detailFields.length > 0 ? (
+                    <div className="emp-search-fields-grid">
+                      {detailFields.map((field) => (
+                        <div key={field.key}>
+                          <span className="emp-search-field-label">{field.label}: </span>
+                          <span className="emp-search-field-value">
+                            {getEmpSearchFieldValue(emp, field.key)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               );
             })}
