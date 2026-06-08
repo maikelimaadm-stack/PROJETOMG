@@ -130,7 +130,7 @@
 
 .cadastro-emp-scope .emp-search-result-card {
   background: #ffffff;
-  padding: 8px 10px;
+  padding: 6px 10px;
   border-radius: var(--emp-search-radius-card);
   box-shadow: var(--emp-search-shadow-card);
   cursor: pointer;
@@ -141,35 +141,35 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.cadastro-emp-scope .emp-search-result-head {
+.cadastro-emp-scope .emp-search-result-body {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  margin-bottom: 2px;
-}
-
-.cadastro-emp-scope .emp-search-result-main {
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  flex: 1 1 auto;
   min-width: 0;
-  min-height: 0;
 }
 
 .cadastro-emp-scope .emp-search-avatar {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1;
   flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.cadastro-emp-scope .emp-search-result-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding-top: 1px;
 }
 
 .cadastro-emp-scope .emp-search-result-title {
@@ -178,39 +178,38 @@
   line-height: 1.2;
   color: #0f172a;
   min-width: 0;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 1px;
+}
+
+.cadastro-emp-scope .emp-search-field-line {
+  font-size: 11px;
+  line-height: 1.25;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .cadastro-emp-scope .emp-search-fav-btn {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 2px;
+  padding: 0;
   flex-shrink: 0;
   color: #cbd5e1;
   line-height: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: flex-start;
+  margin-top: 1px;
 }
 
 .cadastro-emp-scope .emp-search-fav-btn--active {
   color: #16a34a;
-}
-
-.cadastro-emp-scope .emp-search-fields-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 2px 8px;
-  font-size: 11px;
-  line-height: 1.35;
-  margin-left: 46px;
-}
-
-@media (min-width: 768px) {
-  .cadastro-emp-scope .emp-search-fields-grid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 }
 
 .cadastro-emp-scope .emp-search-field-label {
