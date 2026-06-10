@@ -177,27 +177,36 @@ function FieldFrameCorp({
           width: "auto",
         };
 
-  const mgField = className.includes("fg") || className === "fg";
+  const mgPrototype =
+    className.includes("mg-prototype-field") || className === "mg-prototype-field";
 
   return (
     <div
       data-field={field.dataField || field.name}
       data-width-type={preset.type}
       className={cn(
-        mgField ? "fg" : "emp-form-field-corp",
-        !mgField && "emp-form-field-corp--balanced-grow",
-        !mgField && typeClass,
+        "emp-form-field-corp",
+        "emp-form-field-corp--balanced-grow",
+        typeClass,
         mediaInline && "emp-form-field-corp--media-inline",
         textareaField && "emp-form-field-corp--textarea",
         field?.wide && "emp-form-field-corp--wide",
         bare && "emp-form-field-corp--bare",
+        mgPrototype && "mg-prototype-field",
         className
       )}
       style={widthStyle}
     >
-      <label className={mgField ? `fg-label${field.required ? " required" : ""}` : "emp-form-field-label-top"}>
-        {!mgField ? field.label : field.label}
-        {!mgField && field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
+      <label
+        className={cn(
+          mgPrototype ? "fg-label" : "emp-form-field-label-top",
+          mgPrototype && field.required && "required"
+        )}
+      >
+        {field.label}
+        {!mgPrototype && field.required ? (
+          <span className="emp-form-required-mark ml-0.5">*</span>
+        ) : null}
       </label>
       <div
         className={cn(
@@ -368,7 +377,7 @@ export default function EmpDynamicFormRenderer({
         fieldSizes={fieldSizes}
         rowBalance={rowBalance}
         narrowLayout={narrowLayout}
-        className={fieldClassName || "fg"}
+        className={fieldClassName}
       >
         {control}
       </FieldFrameCorp>
@@ -469,7 +478,7 @@ export default function EmpDynamicFormRenderer({
       )}
       style={{ width: "100%" }}
     >
-      <div className="emp-form-cards-layout cad-form-cards-layout mg-form-cards-grid">{cardSections}</div>
+      <div className="emp-form-cards-layout cad-form-cards-layout mg-prototype-cards-layout">{cardSections}</div>
     </div>
   );
 }

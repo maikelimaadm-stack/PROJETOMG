@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
 
+const LABELED = "tb-btn-labeled";
+
 export default function MgActionBar({
   viewMode = "tabela",
   onViewModeChange,
@@ -32,7 +34,6 @@ export default function MgActionBar({
   showSave = false,
   showEdit = false,
   showDelete = false,
-  showDuplicate = false,
   showNew = true,
   actionsLocked = false,
 }) {
@@ -49,15 +50,17 @@ export default function MgActionBar({
   }, [moreOpen]);
 
   return (
-    <div data-template-id="action-bar" className="mg-action-bar hidden md:flex">
+    <div
+      data-template-id="action-bar"
+      className="mg-action-bar hidden shrink-0 items-center gap-3 md:flex"
+    >
       <div className="flex items-center gap-1.5">
         {onToggleFilter ? (
           <button
             type="button"
-            className="ios-btn tb-btn tb-btn-ghost"
+            className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter ${LABELED}`}
             onClick={onToggleFilter}
             disabled={actionsLocked}
-            style={{ padding: "0 10px" }}
           >
             <Filter className="h-3.5 w-3.5" />
             <span>Filtrar</span>
@@ -65,32 +68,46 @@ export default function MgActionBar({
         ) : null}
 
         {showNew && onNew ? (
-          <button type="button" className="ios-btn tb-btn tb-btn-green" onClick={onNew} disabled={actionsLocked}>
+          <button
+            type="button"
+            className={`ios-btn tb-btn tb-btn-green ${LABELED}`}
+            onClick={onNew}
+            disabled={actionsLocked}
+          >
             Novo
           </button>
         ) : null}
 
         {showSave && onSave ? (
-          <button type="button" className="ios-btn tb-btn tb-btn-blue" onClick={onSave} disabled={actionsLocked}>
+          <button
+            type="button"
+            className={`ios-btn tb-btn tb-btn-blue ${LABELED}`}
+            onClick={onSave}
+            disabled={actionsLocked}
+          >
             Salvar
           </button>
         ) : null}
 
         {showEdit && onEdit ? (
-          <button type="button" className="ios-btn tb-btn tb-btn-gray" onClick={onEdit} disabled={actionsLocked}>
+          <button
+            type="button"
+            className={`ios-btn tb-btn tb-btn-gray ${LABELED}`}
+            onClick={onEdit}
+            disabled={actionsLocked}
+          >
             Editar
           </button>
         ) : null}
 
         {showDelete && onDelete ? (
-          <button type="button" className="ios-btn tb-btn tb-btn-red" onClick={onDelete} disabled={actionsLocked}>
+          <button
+            type="button"
+            className={`ios-btn tb-btn tb-btn-red ${LABELED}`}
+            onClick={onDelete}
+            disabled={actionsLocked}
+          >
             Excluir
-          </button>
-        ) : null}
-
-        {showDuplicate && onDuplicate ? (
-          <button type="button" className="ios-btn tb-btn tb-btn-gray" onClick={onDuplicate} disabled={actionsLocked}>
-            Duplicar
           </button>
         ) : null}
       </div>
@@ -112,10 +129,9 @@ export default function MgActionBar({
         <div className="relative" ref={moreRef}>
           <button
             type="button"
-            className="ios-btn tb-btn tb-btn-ghost tb-btn-icon"
+            className={`ios-btn tb-btn tb-btn-ghost tb-btn-more ${LABELED}`}
             id="more-btn"
             onClick={() => setMoreOpen((open) => !open)}
-            style={{ padding: "0 10px", background: "var(--gray-fill)", color: "var(--text-1)" }}
           >
             <MoreVertical className="h-4 w-4" />
           </button>

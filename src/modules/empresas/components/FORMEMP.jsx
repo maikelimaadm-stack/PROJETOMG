@@ -590,7 +590,7 @@ export default function FORMEMP({
               errors={errors}
               onChange={handleDynamicFieldChange}
               readOnly={isReadOnly}
-              fieldClassName={mgVariant ? "fg" : ""}
+              fieldClassName={mgVariant ? "mg-prototype-field" : ""}
             />
           </fieldset>
         </div>

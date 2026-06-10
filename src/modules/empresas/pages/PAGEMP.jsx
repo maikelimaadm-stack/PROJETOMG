@@ -20,7 +20,7 @@ import {
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
-import MgMobileHeader from "@/modules/empresas/layout/MgMobileHeader";
+import MgMobileFilterStrip from "@/modules/empresas/layout/MgMobileFilterStrip";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
@@ -706,11 +706,6 @@ export default function PAGEMP() {
         variant={saveCycle.variant}
       />
 
-      <MgMobileHeader
-        title="Empresas"
-        onToggleFilter={() => setFilterPanelOpen((open) => !open)}
-      />
-
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MgFilterPanel
           open={filterPanelOpen}
@@ -722,6 +717,10 @@ export default function PAGEMP() {
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <MgMobileFilterStrip
+            filterOpen={filterPanelOpen}
+            onToggleFilter={() => setFilterPanelOpen((open) => !open)}
+          />
           <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
@@ -754,7 +753,6 @@ export default function PAGEMP() {
             showSave={!!formBridge?.editMode}
             showEdit={!!formBridge?.isReadOnly}
             showDelete={showForm ? !!editingEmp : selectedTableItems.length > 0}
-            showDuplicate={showForm ? !!formBridge?.isEditing && !formBridge?.editMode : selectedTableItems.length === 1}
             showNew={!formBridge?.editMode}
             actionsLocked={saveCycle.isSaving}
           />
