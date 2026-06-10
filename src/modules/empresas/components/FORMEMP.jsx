@@ -675,7 +675,7 @@ export default function FORMEMP({
             </button>
             <button
               type="submit"
-              className="emp-form-mobile-footer__btn emp-form-mobile-footer__btn--primary emp-toolbar-btn emp-toolbar-btn-labeled emp-toolbar-btn-new"
+              className="emp-form-mobile-footer__btn emp-form-mobile-footer__btn--primary emp-toolbar-btn emp-toolbar-btn-labeled emp-toolbar-btn-save"
               disabled={actionsLocked}
             >
               Salvar

@@ -73,7 +73,7 @@ export default function EmpRecordToolbar({
             </ToolbarBtn>
           )}
           {showEditAction && (
-            <ToolbarBtn onClick={onEditRecord} className={LABELED_BTN_CLASS} title="Editar">
+            <ToolbarBtn onClick={onEditRecord} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-edit`} title="Editar">
               <EmpToolbarIcon icon={Pencil} />
               <span>Editar</span>
             </ToolbarBtn>
@@ -121,7 +121,7 @@ export default function EmpRecordToolbar({
           )}
           {showSaveActions && (
             <div className="emp-toolbar-actions-save-mobile flex items-center gap-1.5 shrink-0">
-              <ToolbarBtn onClick={onSave} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new hidden md:inline-flex`} title="Salvar">
+              <ToolbarBtn onClick={onSave} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-save hidden md:inline-flex`} title="Salvar">
                 <EmpToolbarIcon icon={Check} strokeWidth={2.5} />
                 <span>Salvar</span>
               </ToolbarBtn>
