@@ -26,7 +26,7 @@ export default function MgCmdSelect({
   const [highlighted, setHighlighted] = useState(-1);
   const rootRef = useRef(null);
   const panelRef = useRef(null);
-  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { estimatedHeight: 260 });
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { estimatedHeight: 560 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 
@@ -130,7 +130,7 @@ export default function MgCmdSelect({
           }}
           onClick={(event) => event.stopPropagation()}
         />
-        <div className="py-1" role="listbox">
+        <div className="cmd-panel-options py-1" role="listbox">
           {filtered.map((option, index) => (
             <div
               key={String(option.value)}

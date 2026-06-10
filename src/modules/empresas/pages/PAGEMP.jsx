@@ -22,7 +22,6 @@ import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
-import MgMobileFilterStrip from "@/modules/empresas/layout/MgMobileFilterStrip";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
@@ -722,10 +721,6 @@ export default function PAGEMP() {
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <MgMobileFilterStrip
-            filterOpen={filterPanelOpen}
-            onToggleFilter={toggleFilterPanel}
-          />
           <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}

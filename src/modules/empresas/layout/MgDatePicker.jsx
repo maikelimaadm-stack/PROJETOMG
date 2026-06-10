@@ -172,7 +172,11 @@ export default function MgDatePicker({
   };
 
   const drillUp = () => {
-    setState((s) => ({ ...s, view: "years" }));
+    setState((s) => {
+      if (s.view === "days") return { ...s, view: "months" };
+      if (s.view === "months") return { ...s, view: "years" };
+      return s;
+    });
   };
 
   const startYear = state.year - 5;
