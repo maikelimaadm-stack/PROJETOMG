@@ -29,6 +29,9 @@ import ErpOperationBadge from "@/shared/layouts/ErpOperationBadge";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import MgDesktopHeader from "@/modules/empresas/layout/MgDesktopHeader";
+import MgMobileHeader from "@/modules/empresas/layout/MgMobileHeader";
+import { MgEmpresasChromeProvider } from "@/modules/empresas/layout/MgEmpresasChromeContext";
+import MgEmpresasMobileOverlays from "@/modules/empresas/layout/MgEmpresasMobileOverlays";
 
 const isEmpresasRoute = (pathname) =>
   pathname === "/" || pathname === "/CadastroEmpresas" || pathname.startsWith("/CadastroEmpresas/");
@@ -233,7 +236,9 @@ function ErpShellBody({
   onSelectEmpresa,
   allowAllEmpresas,
 }) {
-  return (
+  const empresasPage = isEmpresasRoute(pathname);
+
+  const shell = (
     <div className="erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[var(--background-page)]">
       <Sidebar collapsible="offcanvas" className="erp-sidebar border-r border-[var(--border-color)] bg-[var(--background-page)]">
         <SidebarHeader className="border-b border-[#e8ecef] p-0">
@@ -248,8 +253,9 @@ function ErpShellBody({
       <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[var(--background-page)]">
         <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden">
           <div className="erp-shell-top-unified shrink-0">
-            {isEmpresasRoute(pathname) ? (
+            {empresasPage ? (
               <div className="mg-empresas-scope shrink-0">
+                <MgMobileHeader />
                 <MgDesktopHeader />
               </div>
             ) : (
@@ -269,9 +275,16 @@ function ErpShellBody({
             {children}
           </div>
         </div>
+        {empresasPage ? <MgEmpresasMobileOverlays /> : null}
       </SidebarInset>
     </div>
   );
+
+  if (empresasPage) {
+    return <MgEmpresasChromeProvider>{shell}</MgEmpresasChromeProvider>;
+  }
+
+  return shell;
 }
 
 export default function ErpShell(props) {

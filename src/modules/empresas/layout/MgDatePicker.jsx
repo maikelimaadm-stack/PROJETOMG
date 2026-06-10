@@ -41,7 +41,7 @@ export default function MgDatePicker({
   const [open, setOpen] = useState(false);
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
-  const panelStyle = useMgPanelPosition(open, rootRef, { minWidth: 300 });
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { minWidth: 300, estimatedHeight: 360 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 

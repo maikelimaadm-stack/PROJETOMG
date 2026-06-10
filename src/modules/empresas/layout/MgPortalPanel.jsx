@@ -5,7 +5,7 @@ export default function MgPortalPanel({ open, panelRef, panelClassName, style, o
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="mg-empresas-scope mg-floating-panel-root">
+    <div className="mg-empresas-scope mg-floating-panel-root" data-mg-floating-panel="">
       <div
         ref={panelRef}
         className={panelClassName}

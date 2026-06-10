@@ -21,6 +21,7 @@ import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
+import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import MgMobileFilterStrip from "@/modules/empresas/layout/MgMobileFilterStrip";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
@@ -83,7 +84,11 @@ export default function PAGEMP() {
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const {
+    filterPanelOpen,
+    closeFilterPanel,
+    toggleFilterPanel,
+  } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
   const [filterStatus, setFilterStatus] = useState("Todos");
   const [formBridge, setFormBridge] = useState(null);
@@ -711,7 +716,7 @@ export default function PAGEMP() {
           open={filterPanelOpen}
           values={filterValues}
           onChange={handleFilterChange}
-          onClose={() => setFilterPanelOpen(false)}
+          onClose={closeFilterPanel}
           status={filterStatus}
           onStatusChange={setFilterStatus}
         />
@@ -719,14 +724,14 @@ export default function PAGEMP() {
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <MgMobileFilterStrip
             filterOpen={filterPanelOpen}
-            onToggleFilter={() => setFilterPanelOpen((open) => !open)}
+            onToggleFilter={toggleFilterPanel}
           />
           <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
             searchValue={searchTerm}
             onSearchChange={handleSearchChange}
-            onToggleFilter={() => setFilterPanelOpen((open) => !open)}
+            onToggleFilter={toggleFilterPanel}
             onNew={handleNew}
             onSave={formBridge?.onSave}
             onEdit={formBridge?.onEdit}

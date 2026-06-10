@@ -1462,7 +1462,9 @@
 }
 
 .mg-floating-panel-root {
-  position: static;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
   pointer-events: none;
 }
 

@@ -19,7 +19,7 @@ export default function MgLookup({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlighted, setHighlighted] = useState(-1);
-  const panelStyle = useMgPanelPosition(open, rootRef);
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { estimatedHeight: 300 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 

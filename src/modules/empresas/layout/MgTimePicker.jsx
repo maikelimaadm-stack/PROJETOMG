@@ -22,7 +22,7 @@ export default function MgTimePicker({
   const minutesRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(parseTime(value));
-  const panelStyle = useMgPanelPosition(open, rootRef, { width: 220 });
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { width: 220, estimatedHeight: 220 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 

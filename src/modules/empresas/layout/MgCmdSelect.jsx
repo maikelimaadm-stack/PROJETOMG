@@ -26,7 +26,7 @@ export default function MgCmdSelect({
   const [highlighted, setHighlighted] = useState(-1);
   const rootRef = useRef(null);
   const panelRef = useRef(null);
-  const panelStyle = useMgPanelPosition(open, rootRef);
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { estimatedHeight: 260 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 

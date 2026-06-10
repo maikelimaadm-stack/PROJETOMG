@@ -14,7 +14,12 @@ export function useMgPanelCoordinator(rootRef, setOpen) {
   }, [rootRef, setOpen]);
 }
 
-export function useMgPanelPosition(open, rootRef, { minWidth = 0, width = null } = {}) {
+export function useMgPanelPosition(
+  open,
+  rootRef,
+  panelRef,
+  { minWidth = 0, width = null, estimatedHeight = 280 } = {}
+) {
   const [style, setStyle] = useState({});
 
   useLayoutEffect(() => {
@@ -26,23 +31,52 @@ export function useMgPanelPosition(open, rootRef, { minWidth = 0, width = null }
     const update = () => {
       const rect = rootRef.current.getBoundingClientRect();
       const panelWidth = width ?? Math.max(rect.width, minWidth);
+      const panelHeight = panelRef?.current?.offsetHeight || estimatedHeight;
+      const padding = 8;
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      let left = rect.left;
+      if (left + panelWidth > viewportWidth - padding) {
+        left = Math.max(padding, viewportWidth - panelWidth - padding);
+      }
+      if (left < padding) left = padding;
+
+      const gap = 4;
+      const spaceBelow = viewportHeight - rect.bottom - padding;
+      const spaceAbove = rect.top - padding;
+      let top = rect.bottom + gap;
+
+      if (panelHeight > spaceBelow && spaceAbove >= spaceBelow) {
+        top = rect.top - panelHeight - gap;
+      }
+
+      if (top + panelHeight > viewportHeight - padding) {
+        top = Math.max(padding, viewportHeight - panelHeight - padding);
+      }
+      if (top < padding) top = padding;
+
       setStyle({
         position: "fixed",
-        top: rect.bottom + 4,
-        left: rect.left,
+        top,
+        left,
         width: panelWidth,
-        zIndex: 1000,
+        maxHeight: `calc(100vh - ${padding * 2}px)`,
+        overflowY: "auto",
+        zIndex: 10000,
       });
     };
 
     update();
+    const raf = requestAnimationFrame(update);
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
     return () => {
+      cancelAnimationFrame(raf);
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open, rootRef, minWidth, width]);
+  }, [open, rootRef, panelRef, minWidth, width, estimatedHeight]);
 
   return style;
 }
