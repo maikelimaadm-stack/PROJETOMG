@@ -141,6 +141,18 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.cadastro-emp-scope .emp-search-result-layout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.cadastro-emp-scope .emp-search-result-details {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .cadastro-emp-scope .emp-search-result-head {
   display: flex;
   align-items: center;
@@ -149,30 +161,23 @@
   margin-bottom: 2px;
 }
 
-.cadastro-emp-scope .emp-search-result-main {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 1 1 auto;
-  min-width: 0;
-  min-height: 0;
-}
-
 .cadastro-emp-scope .emp-search-avatar {
-  width: 40px;
-  height: 40px;
+  width: 52px;
+  height: 52px;
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   line-height: 1;
   flex-shrink: 0;
+  align-self: center;
 }
 
 .cadastro-emp-scope .emp-search-result-title {
+  flex: 1 1 auto;
   font-size: 13px;
   font-weight: 600;
   line-height: 1.2;
@@ -204,7 +209,6 @@
   gap: 2px 8px;
   font-size: 11px;
   line-height: 1.35;
-  margin-left: 50px;
 }
 
 @media (min-width: 768px) {

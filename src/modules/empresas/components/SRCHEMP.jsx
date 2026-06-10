@@ -297,42 +297,44 @@ export default function SRCHEMP({
                   onClick={() => onEdit?.(emp)}
                   role="presentation"
                 >
-                  <div className="emp-search-result-head">
-                    <div className="emp-search-result-main">
-                      <div
-                        className="emp-search-avatar"
-                        style={{ background: getEmpSearchAvatarColor(emp, index) }}
-                      >
-                        {getEmpSearchInitials(emp)}
-                      </div>
-                      <span className="emp-search-result-title">
-                        {code} - {title}
-                      </span>
-                    </div>
-                    <button
-                      type="button"
-                      className={`emp-search-fav-btn${isFavorite ? " emp-search-fav-btn--active" : ""}`}
-                      onClick={(event) => toggleFavorite(emp.id, event)}
-                      aria-label={isFavorite ? "Remover favorito" : "Adicionar favorito"}
+                  <div className="emp-search-result-layout">
+                    <div
+                      className="emp-search-avatar"
+                      style={{ background: getEmpSearchAvatarColor(emp, index) }}
                     >
-                      <Star
-                        style={{ width: 16, height: 16 }}
-                        fill={isFavorite ? "currentColor" : "none"}
-                      />
-                    </button>
-                  </div>
-                  {detailFields.length > 0 ? (
-                    <div className="emp-search-fields-grid">
-                      {detailFields.map((field) => (
-                        <div key={field.key}>
-                          <span className="emp-search-field-label">{field.label}: </span>
-                          <span className="emp-search-field-value">
-                            {getEmpSearchFieldValue(emp, field.key)}
-                          </span>
-                        </div>
-                      ))}
+                      {getEmpSearchInitials(emp)}
                     </div>
-                  ) : null}
+                    <div className="emp-search-result-details">
+                      <div className="emp-search-result-head">
+                        <span className="emp-search-result-title">
+                          {code} - {title}
+                        </span>
+                        <button
+                          type="button"
+                          className={`emp-search-fav-btn${isFavorite ? " emp-search-fav-btn--active" : ""}`}
+                          onClick={(event) => toggleFavorite(emp.id, event)}
+                          aria-label={isFavorite ? "Remover favorito" : "Adicionar favorito"}
+                        >
+                          <Star
+                            style={{ width: 16, height: 16 }}
+                            fill={isFavorite ? "currentColor" : "none"}
+                          />
+                        </button>
+                      </div>
+                      {detailFields.length > 0 ? (
+                        <div className="emp-search-fields-grid">
+                          {detailFields.map((field) => (
+                            <div key={field.key}>
+                              <span className="emp-search-field-label">{field.label}: </span>
+                              <span className="emp-search-field-value">
+                                {getEmpSearchFieldValue(emp, field.key)}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
               );
             })}
