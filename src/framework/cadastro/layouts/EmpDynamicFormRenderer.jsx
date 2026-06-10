@@ -26,8 +26,23 @@ const isBareControlField = (field) => field?.type === "checkbox" || field?.type 
 
 const isImageField = (field) => field?.type === "image" || field?.type === "file" || field?.type === "imagem";
 
-const isDateField = (field) =>
-  ["date", "datetime", "datetime-local"].includes(String(field?.type || "").toLowerCase());
+const isDateField = (field) => {
+  const type = String(field?.type || "").toLowerCase();
+  return ["date", "datetime", "datetime-local", "data", "data_hora", "datahora"].includes(type);
+};
+
+const isTimeField = (field) => {
+  const type = String(field?.type || "").toLowerCase();
+  return type === "time" || type === "hora";
+};
+
+const brDateToIso = (value) => {
+  const parts = String(value || "").split("/");
+  if (parts.length === 3 && parts[2].length === 4) {
+    return `${parts[2]}-${String(parts[1]).padStart(2, "0")}-${String(parts[0]).padStart(2, "0")}`;
+  }
+  return value;
+};
 
 const isLookupField = (field) =>
   field?.type === "relation" ||
@@ -35,9 +50,10 @@ const isLookupField = (field) =>
   Boolean(field?.relation_entity || field?.options_source_entity);
 
 const isMgCompositeField = (field) => {
-  if (["select", "autocomplete", "relation", "lookup"].includes(field?.type)) return true;
+  const type = String(field?.type || "").toLowerCase();
+  if (["select", "autocomplete", "relation", "lookup", "lista", "relacao"].includes(type)) return true;
   if (isDateField(field)) return true;
-  if (field?.type === "time") return true;
+  if (isTimeField(field)) return true;
   return false;
 };
 
@@ -117,6 +133,33 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
     }
 
     if (isDateField(field)) {
+      const fieldType = String(field.type || "").toLowerCase();
+      if (["datetime", "datetime-local", "data_hora", "datahora"].includes(fieldType)) {
+        const [datePart = "", timePart = ""] = String(value || "").split("T");
+        return (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <MgDatePicker
+              label={field.label}
+              required={field.required}
+              value={datePart}
+              onChange={(e) => {
+                const nextDate = brDateToIso(e.target.value);
+                onChange(field.name, nextDate ? `${nextDate}T${timePart || "00:00"}` : "");
+              }}
+              readOnly={fieldReadOnly}
+              disabled={fieldReadOnly}
+            />
+            <MgTimePicker
+              label="Hora"
+              value={timePart.slice(0, 5)}
+              onChange={(e) => onChange(field.name, datePart ? `${datePart}T${e.target.value || "00:00"}` : "")}
+              readOnly={fieldReadOnly}
+              disabled={fieldReadOnly}
+            />
+          </div>
+        );
+      }
+
       return (
         <MgDatePicker
           label={field.label}
@@ -129,7 +172,7 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
       );
     }
 
-    if (field.type === "time") {
+    if (field.type === "time" || isTimeField(field)) {
       return (
         <MgTimePicker
           label={field.label}
@@ -224,7 +267,7 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
     );
   }
 
-  if (field.type === "time") {
+  if (field.type === "time" || isTimeField(field)) {
     return (
       <EmpFormDateControl
         type="time"

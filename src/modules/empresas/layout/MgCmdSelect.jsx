@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
+import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 
 function resolveOption(options, value) {
   const normalized = String(value ?? "");
@@ -24,7 +25,8 @@ export default function MgCmdSelect({
   const [query, setQuery] = useState("");
   const [highlighted, setHighlighted] = useState(-1);
   const rootRef = useRef(null);
-  const panelStyle = useMgPanelPosition(open, rootRef);
+  const panelRef = useRef(null);
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { estimatedHeight: 260 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 
@@ -38,10 +40,12 @@ export default function MgCmdSelect({
   useEffect(() => {
     if (!open) return undefined;
     const close = (event) => {
-      if (!rootRef.current?.contains(event.target)) setOpen(false);
+      if (!rootRef.current?.contains(event.target) && !panelRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
     };
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
   const selectOption = (option) => {
@@ -109,11 +113,12 @@ export default function MgCmdSelect({
       {label ? <span className={`cmd-label${required ? " req" : ""}`}>{label}</span> : null}
       <div className="cmd-display">{display}</div>
       <ChevronDown className="cmd-chevron h-3 w-3" />
-      <div
-        className="cmd-panel"
-        style={open ? panelStyle : undefined}
+      <MgPortalPanel
+        open={open}
+        panelRef={panelRef}
+        panelClassName="cmd-panel"
+        style={panelStyle}
         onClick={(event) => event.stopPropagation()}
-        role="listbox"
       >
         <input
           type="text"
@@ -125,7 +130,7 @@ export default function MgCmdSelect({
           }}
           onClick={(event) => event.stopPropagation()}
         />
-        <div className="py-1">
+        <div className="py-1" role="listbox">
           {filtered.map((option, index) => (
             <div
               key={String(option.value)}
@@ -140,7 +145,7 @@ export default function MgCmdSelect({
             </div>
           ))}
         </div>
-      </div>
+      </MgPortalPanel>
     </div>
   );
 }

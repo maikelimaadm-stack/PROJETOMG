@@ -317,6 +317,7 @@ export default function FORMEMP({
     handleCustomChange,
     relatedOptions,
     onUploadError: () => showError("Não foi possível enviar a imagem."),
+    mgPrototype: hideToolbar,
   });
 
   const dynamicFields = useMemo(() => [

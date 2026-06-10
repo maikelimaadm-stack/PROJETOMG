@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Clock } from "lucide-react";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
+import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 
 function parseTime(value) {
   const p = String(value || "").split(":");
@@ -16,21 +17,24 @@ export default function MgTimePicker({
   disabled = false,
 }) {
   const rootRef = useRef(null);
+  const panelRef = useRef(null);
   const hoursRef = useRef(null);
   const minutesRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(parseTime(value));
-  const panelStyle = useMgPanelPosition(open, rootRef, { width: 220 });
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { width: 220, estimatedHeight: 220 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 
   useEffect(() => {
     if (!open) return undefined;
     const close = (e) => {
-      if (!rootRef.current?.contains(e.target)) setOpen(false);
+      if (!rootRef.current?.contains(e.target) && !panelRef.current?.contains(e.target)) {
+        setOpen(false);
+      }
     };
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
   useEffect(() => {
@@ -94,7 +98,13 @@ export default function MgTimePicker({
         onClick={toggle}
       />
       <div className="mg-tp-icon"><Clock className="h-3.5 w-3.5" /></div>
-      <div className="mg-tp-panel" style={open ? panelStyle : undefined} onClick={(e) => e.stopPropagation()}>
+      <MgPortalPanel
+        open={open}
+        panelRef={panelRef}
+        panelClassName="mg-tp-panel"
+        style={panelStyle}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mg-tp-columns">
           <div className="mg-tp-col" ref={hoursRef}>
             <div className="mg-tp-col-label">Hora</div>
@@ -121,7 +131,7 @@ export default function MgTimePicker({
             ))}
           </div>
         </div>
-      </div>
+      </MgPortalPanel>
     </div>
   );
 }
