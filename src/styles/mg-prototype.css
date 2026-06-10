@@ -199,6 +199,11 @@
   color: var(--accent);
 }
 
+.mg-empresas-scope .view-mode-btn svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
 /* Grid */
 .mg-empresas-scope .mg-grid-wrapper {
   flex: 1;
@@ -341,8 +346,8 @@
 }
 
 .mg-empresas-scope .tb-btn-green {
-  background: var(--green);
-  color: #fff;
+  background: var(--green) !important;
+  color: #fff !important;
 }
 
 .mg-empresas-scope .tb-btn-green:hover:not(:disabled) {
@@ -350,8 +355,8 @@
 }
 
 .mg-empresas-scope .tb-btn-blue {
-  background: var(--accent);
-  color: #fff;
+  background: var(--accent) !important;
+  color: #fff !important;
 }
 
 .mg-empresas-scope .tb-btn-blue:hover:not(:disabled) {
@@ -359,8 +364,8 @@
 }
 
 .mg-empresas-scope .tb-btn-gray {
-  background: var(--gray-fill2);
-  color: var(--text-1);
+  background: var(--gray-fill2) !important;
+  color: var(--text-1) !important;
 }
 
 .mg-empresas-scope .tb-btn-gray:hover:not(:disabled) {
@@ -368,8 +373,8 @@
 }
 
 .mg-empresas-scope .tb-btn-red {
-  background: var(--red);
-  color: #fff;
+  background: var(--red) !important;
+  color: #fff !important;
 }
 
 .mg-empresas-scope .tb-btn-red:hover:not(:disabled) {
@@ -948,4 +953,304 @@
 
 .mg-empresas-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active::after {
   display: none !important;
+}
+
+/* —— Fundo da área dos cards (cinza protótipo) —— */
+.mg-empresas-scope .mg-form-scroll,
+.mg-empresas-scope .mg-prototype-form,
+.mg-empresas-scope .mg-prototype-form .emp-form-body,
+.mg-empresas-scope .mg-prototype-form .emp-form-section-panel--corp,
+.mg-empresas-scope .mg-prototype-form .emp-form-fields-corp,
+.mg-empresas-scope #mode-cards .flex-1.overflow-y-auto,
+.mg-empresas-scope .mg-grid-wrapper {
+  background: var(--bg-page) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form .emp-form-card.erp-card,
+.mg-empresas-scope .mg-prototype-form .emp-form-card:not(.emp-form-card--virtual) {
+  background: var(--bg-card) !important;
+}
+
+.mg-empresas-scope .mg-mobile-filter-strip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-mobile-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--gray-fill);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .mg-empresas-scope .mg-mobile-filter-strip {
+    display: none !important;
+  }
+}
+
+/* —— Date picker (mg-dp) —— */
+.mg-empresas-scope .mg-dp {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.mg-empresas-scope .mg-dp-field {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 32px 0 10px;
+  font-size: 13px;
+  background: var(--bg-card);
+  color: var(--text-1);
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.mg-empresas-scope .mg-dp-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-dp-icon {
+  position: absolute;
+  right: 10px;
+  bottom: 9px;
+  pointer-events: none;
+  color: var(--text-3);
+}
+
+/* —— Time picker (mg-tp) —— */
+.mg-empresas-scope .mg-tp {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.mg-empresas-scope .mg-tp-field {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 32px 0 10px;
+  font-size: 13px;
+  background: var(--bg-card);
+  color: var(--text-1);
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.mg-empresas-scope .mg-tp-field:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-tp-icon {
+  position: absolute;
+  right: 10px;
+  bottom: 9px;
+  pointer-events: none;
+  color: var(--text-3);
+}
+
+/* Controles dentro do field frame — sem borda dupla */
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control:has(.mg-dp),
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control:has(.mg-tp),
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control:has(.mg-prototype-autocomplete) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  min-height: auto !important;
+  padding: 0 !important;
+}
+
+/* —— Select / cmd-select visual —— */
+.mg-empresas-scope .mg-prototype-autocomplete.erp-field-select,
+.mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-select {
+  position: relative;
+  min-height: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete.erp-field-select.erp-field-open,
+.mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-select.erp-field-open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete.erp-field-select .erp-field-select-input,
+.mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-select .erp-field-select-input {
+  height: 34px !important;
+  min-height: 34px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--text-1) !important;
+  text-transform: none !important;
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete .erp-field-select-chevron-btn {
+  width: 28px;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-3) !important;
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete .erp-field-select-chevron-btn svg {
+  color: var(--text-3) !important;
+  stroke: var(--text-3) !important;
+}
+
+/* —— Lookup / mg-lookup visual —— */
+.mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup,
+.mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-lookup {
+  position: relative;
+  min-height: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg-card);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup.erp-field-open,
+.mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-lookup.erp-field-open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup .erp-field-lookup-input {
+  height: 34px !important;
+  min-height: 34px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete .erp-lookup-inline-divider,
+.mg-empresas-scope .mg-prototype-autocomplete .emp-form-lookup-btn {
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-3) !important;
+  width: 28px !important;
+}
+
+.mg-empresas-scope .mg-prototype-autocomplete .erp-field-lookup-inline-icon {
+  color: var(--text-3) !important;
+}
+
+/* Painéis dropdown (select / lookup) */
+.mg-empresas-scope .erp-select-menu,
+.mg-empresas-scope .erp-search-panel {
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--shadow-md) !important;
+  background: var(--bg-card) !important;
+  overflow: hidden;
+}
+
+.mg-empresas-scope .erp-menu-search-field {
+  border-bottom: 1px solid var(--border) !important;
+  padding: 8px 10px !important;
+  background: var(--bg-card) !important;
+}
+
+.mg-empresas-scope .erp-menu-search-field__input {
+  border: none !important;
+  padding: 6px 10px !important;
+  font-size: 12px !important;
+  outline: none !important;
+  background: var(--gray-fill) !important;
+  color: var(--text-1) !important;
+  border-radius: 6px !important;
+  width: 100%;
+}
+
+.mg-empresas-scope .erp-menu-item {
+  padding: 7px 10px !important;
+  font-size: 12px !important;
+  color: var(--text-1) !important;
+  border-radius: 4px !important;
+  margin: 2px 4px !important;
+}
+
+.mg-empresas-scope .erp-menu-item:hover,
+.mg-empresas-scope .erp-menu-item.erp-dropdown-item--active {
+  background: var(--gray-fill) !important;
+}
+
+.mg-empresas-scope .erp-menu-item.erp-menu-item--selected {
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+  background: var(--accent-light) !important;
+}
+
+/* Campos nativos no formulário protótipo */
+.mg-empresas-scope .mg-prototype-form input[type="time"],
+.mg-empresas-scope .mg-prototype-form input[type="date"],
+.mg-empresas-scope .mg-prototype-form input[type="datetime-local"] {
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--bg-card);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control input,
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control textarea {
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--bg-card);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control textarea {
+  height: auto;
+  min-height: 64px;
+  padding: 8px 10px;
+}
+
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="time"]),
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="date"]),
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> .grid) {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  min-height: auto !important;
 }

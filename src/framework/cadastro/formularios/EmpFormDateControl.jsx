@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Calendar } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { cn } from "@/shared/utils/utils";
 
 export default function EmpFormDateControl({
@@ -9,8 +9,12 @@ export default function EmpFormDateControl({
   disabled,
   type = "date",
   className,
+  variant = "default",
 }) {
   const inputRef = useRef(null);
+  const isMg = variant === "mg";
+  const isTime = type === "time";
+  const Icon = isTime ? Clock : Calendar;
 
   const openPicker = () => {
     if (readOnly || disabled) return;
@@ -26,6 +30,26 @@ export default function EmpFormDateControl({
       el.focus();
     }
   };
+
+  if (isMg) {
+    return (
+      <div className={cn(isTime ? "mg-tp" : "mg-dp", className)}>
+        <input
+          ref={inputRef}
+          type={type}
+          value={value || ""}
+          onChange={onChange}
+          readOnly={readOnly}
+          disabled={disabled}
+          className={isTime ? "mg-tp-field" : "mg-dp-field"}
+          onClick={openPicker}
+        />
+        <div className={isTime ? "mg-tp-icon" : "mg-dp-icon"} aria-hidden>
+          <Icon className="h-3.5 w-3.5" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={cn("emp-form-date-control", className)}>
@@ -44,9 +68,9 @@ export default function EmpFormDateControl({
         tabIndex={-1}
         disabled={readOnly || disabled}
         onClick={openPicker}
-        aria-label="Abrir calendário"
+        aria-label={isTime ? "Abrir seletor de hora" : "Abrir calendário"}
       >
-        <Calendar className="h-3.5 w-3.5" strokeWidth={2} />
+        <Icon className="h-3.5 w-3.5" strokeWidth={2} />
       </button>
     </div>
   );

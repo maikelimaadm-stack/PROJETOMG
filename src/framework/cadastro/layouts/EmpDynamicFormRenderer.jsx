@@ -38,7 +38,7 @@ function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
   );
 }
 
-function DefaultControl({ field, value, onChange, readOnly }) {
+function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false }) {
   const loteStyle = isCustomField(field);
   const inputClass =
     "emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white uppercase".trim();
@@ -72,7 +72,7 @@ function DefaultControl({ field, value, onChange, readOnly }) {
         renderSubtext={isLookup ? field.renderSubtext : undefined}
         disabled={readOnly || field.readOnly}
         readOnly={readOnly || field.readOnly}
-        className="w-full min-w-0 emp-autocomplete"
+        className={cn("w-full min-w-0 emp-autocomplete", mgPrototype && "mg-prototype-autocomplete")}
         inputClassName="emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white"
         placeholder={isLookup ? field.placeholder || "Digite para pesquisar..." : field.placeholder || "SELECIONE"}
         uppercaseDisplay={!isLookup}
@@ -101,6 +101,20 @@ function DefaultControl({ field, value, onChange, readOnly }) {
         onChange={(e) => onChange(field.name, e.target.value)}
         readOnly={readOnly || field.readOnly}
         disabled={readOnly || field.readOnly}
+        variant={mgPrototype ? "mg" : "default"}
+      />
+    );
+  }
+
+  if (field.type === "time") {
+    return (
+      <EmpFormDateControl
+        type="time"
+        value={value || ""}
+        onChange={(e) => onChange(field.name, e.target.value)}
+        readOnly={readOnly || field.readOnly}
+        disabled={readOnly || field.readOnly}
+        variant={mgPrototype ? "mg" : "default"}
       />
     );
   }
@@ -338,10 +352,19 @@ export default function EmpDynamicFormRenderer({
     );
   }
 
+  const mgPrototype =
+    fieldClassName.includes("mg-prototype-field") || fieldClassName === "mg-prototype-field";
+
   const renderFieldControl = (field, configuredField, value, fieldReadOnly) => {
     if (typeof field.render !== "function") {
       return (
-        <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />
+        <DefaultControl
+          field={configuredField}
+          value={value}
+          onChange={onChange}
+          readOnly={fieldReadOnly}
+          mgPrototype={mgPrototype}
+        />
       );
     }
     try {
@@ -359,7 +382,13 @@ export default function EmpDynamicFormRenderer({
       console.error("[EmpDynamicFormRenderer] Erro ao renderizar campo", field.id, error);
     }
     return (
-      <DefaultControl field={configuredField} value={value} onChange={onChange} readOnly={fieldReadOnly} />
+      <DefaultControl
+        field={configuredField}
+        value={value}
+        onChange={onChange}
+        readOnly={fieldReadOnly}
+        mgPrototype={mgPrototype}
+      />
     );
   };
 
@@ -478,7 +507,14 @@ export default function EmpDynamicFormRenderer({
       )}
       style={{ width: "100%" }}
     >
-      <div className="emp-form-cards-layout cad-form-cards-layout mg-prototype-cards-layout">{cardSections}</div>
+      <div
+        className={cn(
+          "emp-form-cards-layout cad-form-cards-layout",
+          mgPrototype && "mg-prototype-cards-layout"
+        )}
+      >
+        {cardSections}
+      </div>
     </div>
   );
 }

@@ -7,7 +7,6 @@ import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import { lazy, Suspense, useState } from "react";
 import generatedModules from "@/modules/generatedModules.json";
 import PAGEMP from "@/modules/empresas/pages/PAGEMP";
-import MgEmpresasLayoutRoute from "@/modules/empresas/layout/MgEmpresasLayoutRoute";
 import ErpShell from "@/shared/layouts/ErpShell";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
@@ -171,11 +170,9 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
-      <Route element={<MgEmpresasLayoutRoute />}>
+      <Route element={<ErpLayoutRoute />}>
         <Route path="/" element={<PAGEMP />} />
         <Route path="/CadastroEmpresas" element={<PAGEMP />} />
-      </Route>
-      <Route element={<ErpLayoutRoute />}>
         {generatedModuleRoutes.map((module) => (
           <Route
             key={module.moduleId}
