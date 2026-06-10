@@ -714,7 +714,7 @@ export default function FORMEMP({
                 variant="mg"
               />
             </div>
-            <div className="mg-form-scroll">{renderFormBody(true)}</div>
+            <div className="mg-form-scroll mg-prototype-form">{renderFormBody(true)}</div>
           </div>
         ) : null}
         {editMode ? (
