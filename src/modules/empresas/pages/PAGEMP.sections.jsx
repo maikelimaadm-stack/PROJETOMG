@@ -52,20 +52,19 @@ export const EmpresasFormPanel = ({ formProps }) => (
   </div>
 );
 
-export const EmpresasTablePanel = ({
-  toolbarProps,
-  tableProps,
-}) => (
+export const EmpresasTablePanel = ({ tableProps }) => (
   <EmpSplitToolbarLayout
     className="emp-table-view flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
     contentClassName="emp-table-card"
-    toolbar={<SankhyaListToolbar {...toolbarProps} />}
+    unifiedChrome
   >
     <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
       <TBLEMP {...tableProps} />
     </div>
   </EmpSplitToolbarLayout>
 );
+
+export { SankhyaListToolbar };
 
 export const EmpresasDialogs = ({
   exportPdfProps,

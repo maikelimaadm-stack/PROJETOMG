@@ -1901,3 +1901,111 @@
 .cadastro-emp-scope .emp-form-field-corp .emp-form-field-control.erp-field-invalid select {
   background: #fef2f2 !important;
 }
+
+/* —— Chrome unificado: menu + botões + painéis em moldura retangular —— */
+.erp-cadastro-frame {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid var(--erp-color-border, #e4eaf2);
+  border-radius: 0;
+  box-shadow: var(--erp-shadow-card);
+  overflow: hidden;
+}
+
+.erp-cadastro-frame__body {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--erp-color-surface, #f8f9fd);
+}
+
+.erp-cadastro-unified-chrome {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+}
+
+.erp-cadastro-unified-chrome__toolbar-row {
+  display: flex;
+  min-height: 40px;
+  width: 100%;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--erp-color-border, #e4eaf2);
+}
+
+.erp-cadastro-unified-chrome__trail {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.erp-cadastro-unified-chrome__actions {
+  display: flex;
+  min-width: 0;
+  flex: 1 1 280px;
+  align-items: center;
+}
+
+.erp-cadastro-unified-chrome__actions .emp-toolbar,
+.erp-cadastro-unified-chrome__actions .emp-toolbar-row {
+  width: 100%;
+  min-width: 0;
+}
+
+.erp-cadastro-unified-chrome__tabs-row {
+  background: #ffffff;
+  border-bottom: 1px solid var(--erp-color-border, #e4eaf2);
+}
+
+.erp-cadastro-unified-chrome__tabs-row .emp-form-tabs.emp-form-tabs-launch {
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: #ffffff !important;
+}
+
+.erp-cadastro-frame .cadastro-emp-scope {
+  --erp-radius-card: 0;
+}
+
+.erp-cadastro-frame .cadastro-emp-scope .emp-split-view--unified-chrome,
+.erp-cadastro-frame .cadastro-emp-scope .emp-table-view.emp-split-view--unified-chrome {
+  gap: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.erp-cadastro-frame .cadastro-emp-scope .emp-content-card,
+.erp-cadastro-frame .cadastro-emp-scope .emp-table-card,
+.erp-cadastro-frame .cadastro-emp-scope .emp-form-panels-zone--unified {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+
+.erp-cadastro-frame .cadastro-emp-scope .emp-form-card {
+  border-radius: 0 !important;
+}
+
+.erp-cadastro-frame .cadastro-emp-scope .emp-form-card-title {
+  border-radius: 0 !important;
+}
+
+.erp-cadastro-frame .cadastro-emp-scope .emp-form-card-title::before {
+  border-radius: 0 !important;
+}

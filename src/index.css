@@ -2920,6 +2920,14 @@ input[type="number"] {
   box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
 }
 
+.erp-cadastro-frame .cadastro-emp-scope .emp-table-view,
+.erp-cadastro-frame .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone),
+.erp-cadastro-frame .cadastro-emp-scope .emp-split-view--unified-chrome {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
 .erp-shell .cadastro-emp-scope .emp-table-view > .emp-toolbar-card {
   background: #ffffff !important;
   border: none !important;

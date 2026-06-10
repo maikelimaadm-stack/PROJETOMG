@@ -6,10 +6,13 @@ export default function EmpSplitToolbarLayout({
   className = "",
   toolbarClassName = "",
   contentClassName = "",
+  unifiedChrome = false,
 }) {
   return (
-    <div className={`emp-split-view flex h-full min-h-0 flex-1 flex-col overflow-hidden ${className}`.trim()}>
-      {toolbar ? (
+    <div
+      className={`emp-split-view flex h-full min-h-0 flex-1 flex-col overflow-hidden ${unifiedChrome ? "emp-split-view--unified-chrome" : ""} ${className}`.trim()}
+    >
+      {toolbar && !unifiedChrome ? (
         <div
           className={`emp-toolbar-card shrink-0 overflow-hidden ${toolbarClassName}`.trim()}
         >
