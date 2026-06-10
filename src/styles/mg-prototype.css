@@ -16,6 +16,11 @@
   background: var(--bg-card);
 }
 
+.erp-shell--empresas-mg .erp-shell-main {
+  width: 100%;
+  max-width: 100%;
+}
+
 .mg-empresas-scope {
   --bg-page: #f5f7fa;
   --bg-card: #ffffff;
@@ -802,8 +807,16 @@
   min-width: 0;
 }
 
-.mg-empresas-scope .mg-desktop-header {
-  display: flex;
+@media (min-width: 768px) {
+  .mg-empresas-scope .mg-desktop-header {
+    display: flex;
+  }
+}
+
+@media (max-width: 767px) {
+  .mg-empresas-scope .mobile-header {
+    display: flex !important;
+  }
 }
 
 .mg-empresas-scope .mg-context-panel {
@@ -1461,11 +1474,20 @@
   z-index: 10000;
 }
 
-.mg-floating-panel-root {
+/* Wrapper do portal: sem fundo nem tamanho — só ancora variáveis CSS para o painel */
+.mg-empresas-scope.mg-floating-panel-root {
   position: fixed;
-  inset: 0;
-  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 10000;
   pointer-events: none;
+  background: transparent !important;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 .mg-floating-panel-root > .mg-dp-panel,
@@ -1473,6 +1495,7 @@
 .mg-floating-panel-root > .cmd-panel,
 .mg-floating-panel-root > .mg-lookup-panel {
   pointer-events: auto;
+  position: fixed;
 }
 
 .mg-empresas-scope .mg-lookup-search {
