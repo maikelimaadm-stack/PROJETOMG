@@ -22,6 +22,7 @@ import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import MgMobileFilterStrip from "@/modules/empresas/layout/MgMobileFilterStrip";
+import MgDesktopHeader from "@/modules/empresas/layout/MgDesktopHeader";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
@@ -700,6 +701,7 @@ export default function PAGEMP() {
 
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <MgDesktopHeader />
       <SaveProgressOverlay
         active={saveCycle.isSaving}
         message={saveCycle.saveMessage}

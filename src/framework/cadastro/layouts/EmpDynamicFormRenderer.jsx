@@ -5,6 +5,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui
 import { Textarea } from "@/shared/ui/textarea";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import EmpFormDateControl from "@/framework/cadastro/formularios/EmpFormDateControl";
+import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
+import MgDatePicker from "@/modules/empresas/layout/MgDatePicker";
+import MgTimePicker from "@/modules/empresas/layout/MgTimePicker";
+import MgLookup from "@/modules/empresas/layout/MgLookup";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import { cn } from "@/shared/utils/utils";
@@ -25,6 +29,18 @@ const isImageField = (field) => field?.type === "image" || field?.type === "file
 const isDateField = (field) =>
   ["date", "datetime", "datetime-local"].includes(String(field?.type || "").toLowerCase());
 
+const isLookupField = (field) =>
+  field?.type === "relation" ||
+  field?.type === "lookup" ||
+  Boolean(field?.relation_entity || field?.options_source_entity);
+
+const isMgCompositeField = (field) => {
+  if (["select", "autocomplete", "relation", "lookup"].includes(field?.type)) return true;
+  if (isDateField(field)) return true;
+  if (field?.type === "time") return true;
+  return false;
+};
+
 function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
   return (
     <ToggleSwitch
@@ -42,6 +58,108 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
   const loteStyle = isCustomField(field);
   const inputClass =
     "emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white uppercase".trim();
+  const fieldReadOnly = readOnly || field.readOnly;
+
+  if (mgPrototype) {
+    if (field.type === "textarea") {
+      return (
+        <textarea
+          value={value || ""}
+          onChange={(e) => onChange(field.name, e.target.value)}
+          readOnly={fieldReadOnly}
+          rows={field.rows || 4}
+        />
+      );
+    }
+
+    if (field.type === "checkbox" || field.type === "switch") {
+      return (
+        <EmpFormToggle
+          checked={!!value}
+          onChange={(checked) => onChange(field.name, checked)}
+          disabled={fieldReadOnly}
+          loteStyle={loteStyle}
+        />
+      );
+    }
+
+    if (["select", "autocomplete", "relation", "lookup"].includes(field.type)) {
+      if (isLookupField(field)) {
+        return (
+          <MgLookup
+            label={field.label}
+            required={field.required}
+            value={value}
+            items={field.options || []}
+            onChange={(nextValue) => onChange(field.name, nextValue ?? "")}
+            displayField={field.displayField || "nome"}
+            searchFields={field.searchFields || [field.displayField || "nome", "cnpj", "cpf", "codigo"]}
+            readOnly={fieldReadOnly}
+            disabled={fieldReadOnly}
+          />
+        );
+      }
+
+      const options = (field.options || []).map((option) => ({
+        value: getOptionValue(option),
+        label: getOptionLabel(option),
+      }));
+
+      return (
+        <MgCmdSelect
+          label={field.label}
+          required={!!field.required}
+          value={value}
+          options={options}
+          onChange={(nextValue) => onChange(field.name, nextValue ?? "")}
+        />
+      );
+    }
+
+    if (isDateField(field)) {
+      return (
+        <MgDatePicker
+          label={field.label}
+          required={field.required}
+          value={value || ""}
+          onChange={(e) => onChange(field.name, e.target.value)}
+          readOnly={fieldReadOnly}
+          disabled={fieldReadOnly}
+        />
+      );
+    }
+
+    if (field.type === "time") {
+      return (
+        <MgTimePicker
+          label={field.label}
+          value={value || ""}
+          onChange={(e) => onChange(field.name, e.target.value)}
+          readOnly={fieldReadOnly}
+          disabled={fieldReadOnly}
+        />
+      );
+    }
+
+    const inputType =
+      field.type === "number"
+        ? "number"
+        : field.type === "email"
+          ? "email"
+          : field.type === "url"
+            ? "url"
+            : "text";
+
+    return (
+      <input
+        type={inputType}
+        value={value || ""}
+        onChange={(e) => onChange(field.name, e.target.value)}
+        readOnly={fieldReadOnly}
+        disabled={fieldReadOnly}
+      />
+    );
+  }
 
   if (field.type === "textarea") {
     return (
@@ -194,6 +312,51 @@ function FieldFrameCorp({
   const mgPrototype =
     className.includes("mg-prototype-field") || className === "mg-prototype-field";
 
+  const errorSlot = (
+    <div className="emp-form-field-message-slot" aria-hidden={!field.required || !error}>
+      <span
+        className={cn(
+          "emp-form-field-error-message",
+          (!field.required || !error) && "emp-form-field-error-message--hidden"
+        )}
+      >
+        Campo obrigatório
+      </span>
+    </div>
+  );
+
+  if (mgPrototype && isMgCompositeField(field)) {
+    return (
+      <div
+        data-field={field.dataField || field.name}
+        data-width-type={preset.type}
+        className={cn("mg-prototype-composite", className)}
+        style={widthStyle}
+      >
+        {children}
+        {errorSlot}
+      </div>
+    );
+  }
+
+  if (mgPrototype) {
+    return (
+      <div
+        data-field={field.dataField || field.name}
+        data-width-type={preset.type}
+        className={cn("fg mg-prototype-field", bare && "mg-prototype-field--bare", className)}
+        style={widthStyle}
+      >
+        {!bare ? (
+          <label className={cn("fg-label", field.required && "required")}>{field.label}</label>
+        ) : null}
+        {loteStyle && !bare ? <EmpCustomMarker variant="lote" /> : null}
+        {children}
+        {errorSlot}
+      </div>
+    );
+  }
+
   return (
     <div
       data-field={field.dataField || field.name}
@@ -206,21 +369,13 @@ function FieldFrameCorp({
         textareaField && "emp-form-field-corp--textarea",
         field?.wide && "emp-form-field-corp--wide",
         bare && "emp-form-field-corp--bare",
-        mgPrototype && "mg-prototype-field",
         className
       )}
       style={widthStyle}
     >
-      <label
-        className={cn(
-          mgPrototype ? "fg-label" : "emp-form-field-label-top",
-          mgPrototype && field.required && "required"
-        )}
-      >
+      <label className="emp-form-field-label-top">
         {field.label}
-        {!mgPrototype && field.required ? (
-          <span className="emp-form-required-mark ml-0.5">*</span>
-        ) : null}
+        {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
       </label>
       <div
         className={cn(
@@ -231,16 +386,7 @@ function FieldFrameCorp({
         {loteStyle && !bare && <EmpCustomMarker variant="lote" />}
         {children}
       </div>
-      <div className="emp-form-field-message-slot" aria-hidden={!field.required || !error}>
-        <span
-          className={cn(
-            "emp-form-field-error-message",
-            (!field.required || !error) && "emp-form-field-error-message--hidden"
-          )}
-        >
-          Campo obrigatório
-        </span>
-      </div>
+      {errorSlot}
     </div>
   );
 }

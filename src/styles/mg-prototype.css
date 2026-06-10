@@ -5,6 +5,11 @@
 
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap");
 
+/* Esconde breadcrumbs do ErpShell — o MgDesktopHeader replica o header do protótipo */
+.erp-shell-content-wrap:has(.mg-empresas-scope) .erp-shell-breadcrumbs {
+  display: none !important;
+}
+
 .mg-empresas-scope {
   --bg-page: #f5f7fa;
   --bg-card: #ffffff;
@@ -525,11 +530,17 @@
   padding: 0 28px 0 10px;
   font-size: 13px;
   background: var(--bg-card);
-  color: var(--text-1);
+  color: var(--text-1) !important;
   display: flex;
   align-items: center;
   transition: border 0.2s, box-shadow 0.2s;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.2;
+  min-width: 0;
+  -webkit-text-fill-color: var(--text-1);
 }
 
 .mg-empresas-scope .cmd-chevron {
@@ -538,6 +549,7 @@
   bottom: 10px;
   transition: transform 0.2s;
   pointer-events: none;
+  color: var(--text-3);
 }
 
 .mg-empresas-scope .cmd-select.open .cmd-chevron {
@@ -566,6 +578,12 @@
 .mg-empresas-scope .cmd-select.open .cmd-display {
   border-color: var(--accent);
   box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .cmd-select.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 
 .mg-empresas-scope .cmd-panel input {
@@ -741,9 +759,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 6px 20px;
-  border-bottom: 1px solid var(--border);
-  background: var(--bg-card);
   flex-shrink: 0;
 }
 
@@ -1028,12 +1043,209 @@
   box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
+.mg-empresas-scope .mg-dp-label,
+.mg-empresas-scope .mg-tp-label,
+.mg-empresas-scope .mg-lookup-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  line-height: 1;
+}
+
+.mg-empresas-scope .mg-dp-label.req::after,
+.mg-empresas-scope .mg-lookup-label.req::after {
+  content: " *";
+  color: var(--red);
+}
+
+.mg-empresas-scope .cmd-select .cmd-label.req::after {
+  content: " *";
+  color: var(--red);
+}
+
 .mg-empresas-scope .mg-dp-icon {
   position: absolute;
   right: 10px;
   bottom: 9px;
   pointer-events: none;
   color: var(--text-3);
+}
+
+.mg-empresas-scope .mg-dp.open .mg-dp-field {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-dp-panel {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  min-width: 300px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+  animation: mg-dp-slide 0.18s ease;
+}
+
+.mg-empresas-scope .mg-dp.open .mg-dp-panel {
+  display: block;
+}
+
+@keyframes mg-dp-slide {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mg-empresas-scope .mg-dp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 14px 10px;
+}
+
+.mg-empresas-scope .mg-dp-nav {
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.12s;
+}
+
+.mg-empresas-scope .mg-dp-nav:hover {
+  background: var(--gray-fill);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-dp-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-1);
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.12s;
+}
+
+.mg-empresas-scope .mg-dp-title:hover {
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope .mg-dp-body {
+  padding: 0;
+}
+
+.mg-empresas-scope .mg-dp-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 0 12px 8px;
+}
+
+.mg-empresas-scope .mg-dp-wd {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 0;
+}
+
+.mg-empresas-scope .mg-dp-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 0 12px 14px;
+}
+
+.mg-empresas-scope .mg-dp-day {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-1);
+  background: none;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.12s;
+  margin: 0 auto;
+}
+
+.mg-empresas-scope .mg-dp-day:hover:not(:disabled):not(.other):not(.selected) {
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope .mg-dp-day.today:not(.selected) {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.mg-empresas-scope .mg-dp-day.selected {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  border-color: var(--accent);
+}
+
+.mg-empresas-scope .mg-dp-day.other {
+  color: var(--text-3);
+  opacity: 0.25;
+  cursor: default;
+  border: none;
+}
+
+.mg-empresas-scope .mg-dp-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  padding: 12px 14px 14px;
+}
+
+.mg-empresas-scope .mg-dp-grid button {
+  padding: 10px 6px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  background: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-1);
+  transition: all 0.12s;
+}
+
+.mg-empresas-scope .mg-dp-grid button:hover {
+  background: var(--gray-fill);
+  color: var(--accent);
+}
+
+.mg-empresas-scope .mg-dp-grid button.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
 }
 
 /* —— Time picker (mg-tp) —— */
@@ -1071,6 +1283,264 @@
   bottom: 9px;
   pointer-events: none;
   color: var(--text-3);
+}
+
+.mg-empresas-scope .mg-tp.open .mg-tp-field {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-tp-panel {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  z-index: 100;
+  overflow: hidden;
+  animation: mg-dp-slide 0.18s ease;
+}
+
+.mg-empresas-scope .mg-tp.open .mg-tp-panel {
+  display: block;
+}
+
+.mg-empresas-scope .mg-tp-columns {
+  display: flex;
+  gap: 0;
+  height: 200px;
+}
+
+.mg-empresas-scope .mg-tp-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding: 6px 4px;
+  border-right: 1px solid var(--border);
+}
+
+.mg-empresas-scope .mg-tp-col:last-child {
+  border-right: none;
+}
+
+.mg-empresas-scope .mg-tp-col::-webkit-scrollbar {
+  width: 3px;
+}
+
+.mg-empresas-scope .mg-tp-col::-webkit-scrollbar-thumb {
+  background: var(--gray-fill2);
+  border-radius: 2px;
+}
+
+.mg-empresas-scope .mg-tp-col-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-align: center;
+  padding: 8px 0 6px;
+  position: sticky;
+  top: 0;
+  background: var(--bg-card);
+  z-index: 1;
+}
+
+.mg-empresas-scope .mg-tp-item {
+  padding: 6px 4px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.1s;
+  margin: 1px 4px;
+}
+
+.mg-empresas-scope .mg-tp-item:hover {
+  background: var(--gray-fill);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-tp-item.active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* —— Lookup (mg-lookup) —— */
+.mg-empresas-scope .mg-lookup {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+}
+
+.mg-empresas-scope .mg-lookup-display {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 28px 0 10px;
+  font-size: 13px;
+  background: var(--bg-card);
+  color: var(--text-1);
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  transition: border 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mg-empresas-scope .mg-lookup-icon {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  pointer-events: none;
+  transition: transform 0.2s;
+}
+
+.mg-empresas-scope .mg-lookup.open .mg-lookup-icon {
+  transform: rotate(180deg);
+}
+
+.mg-empresas-scope .mg-lookup.open .mg-lookup-display {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-lookup-panel {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 90;
+  overflow: hidden;
+  animation: mg-dp-slide 0.15s ease;
+}
+
+.mg-empresas-scope .mg-lookup.open .mg-lookup-panel {
+  display: block;
+}
+
+.mg-empresas-scope .mg-lookup-search {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.mg-empresas-scope .mg-lookup-search input {
+  width: 100%;
+  border: none;
+  padding: 6px 10px;
+  font-size: 12px;
+  outline: none;
+  background: var(--gray-fill);
+  color: var(--text-1);
+  border-radius: 6px;
+}
+
+.mg-empresas-scope .mg-lookup-list {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.mg-empresas-scope .mg-lookup-option {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: var(--text-1);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: all 0.12s;
+}
+
+.mg-empresas-scope .mg-lookup-option:hover,
+.mg-empresas-scope .mg-lookup-option.highlighted {
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope .mg-lookup-option.selected {
+  background: var(--accent-light);
+  color: var(--accent);
+}
+
+.mg-empresas-scope .mg-lookup-option-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Composite field wrapper (select, date, lookup com label interno) */
+.mg-empresas-scope .mg-prototype-composite {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
+}
+
+.mg-empresas-scope .mg-prototype-composite:has(.open) {
+  z-index: 20;
+}
+
+.mg-empresas-scope .cmd-select,
+.mg-empresas-scope .mg-dp,
+.mg-empresas-scope .mg-tp,
+.mg-empresas-scope .mg-lookup {
+  overflow: visible;
+}
+
+.mg-empresas-scope .mg-prototype-form .emp-form-card,
+.mg-empresas-scope .mg-prototype-form .emp-form-card-body,
+.mg-empresas-scope .mg-prototype-form .emp-form-card-slot,
+.mg-empresas-scope .mg-prototype-form .emp-form-card-row-grid--flex,
+.mg-empresas-scope .mg-prototype-form .emp-form-card-row-grid--pair {
+  overflow: visible !important;
+}
+
+.mg-empresas-scope .mg-lookup-display,
+.mg-empresas-scope .mg-dp-field,
+.mg-empresas-scope .mg-tp-field {
+  color: var(--text-1) !important;
+  -webkit-text-fill-color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-lookup-search input::placeholder {
+  color: var(--text-3);
+}
+
+.mg-empresas-scope .mg-prototype-composite .emp-form-field-message-slot {
+  margin-top: 2px;
+}
+
+.mg-empresas-scope .mg-prototype-field input,
+.mg-empresas-scope .mg-prototype-field textarea,
+.mg-empresas-scope .mg-prototype-form input:not([class*="mg-"]),
+.mg-empresas-scope .mg-prototype-form textarea {
+  text-transform: none !important;
 }
 
 /* Controles dentro do field frame — sem borda dupla */
