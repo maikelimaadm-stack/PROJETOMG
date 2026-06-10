@@ -17,6 +17,12 @@ import {
   EmpresasSearchPanel,
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
+import MgActionBar from "@/modules/empresas/layout/MgActionBar";
+import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
+import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
+import MgMobileHeader from "@/modules/empresas/layout/MgMobileHeader";
+import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
+import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -77,6 +83,10 @@ export default function PAGEMP() {
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const [filterValues, setFilterValues] = useState({});
+  const [filterStatus, setFilterStatus] = useState("Todos");
+  const [formBridge, setFormBridge] = useState(null);
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
@@ -369,6 +379,55 @@ export default function PAGEMP() {
     setQueryPage(1);
   }, []);
 
+  const handleFilterChange = useCallback((key, value) => {
+    setFilterValues((prev) => ({ ...prev, [key]: value }));
+    if (key === "razao_social" || key === "nome_fantasia" || key === "cnpj") {
+      setSearchTerm(value);
+      setQueryPage(1);
+    }
+  }, []);
+
+  const mgViewMode = resolveMgViewMode({ showForm, viewMode });
+
+  const handleOpenTableView = useCallback(() => {
+    setShowForm(false);
+    setEditingEmp(null);
+    setViewMode("table");
+  }, []);
+
+  const handleMgViewModeChange = useCallback(
+    (mode) => {
+      applyMgViewMode(mode, {
+        onOpenRegistro: () => {
+          if (showForm) return;
+          const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
+          if (!emp) {
+            handleNew();
+            return;
+          }
+          handleEdit(emp);
+        },
+        onOpenTabela: () => {
+          handleOpenTableView();
+        },
+        onOpenCards: () => {
+          if (!saveCycle.guardAction()) return;
+          setShowForm(false);
+          setEditingEmp(null);
+          setViewMode("search");
+        },
+      });
+    },
+    [
+      empresasNavegacao,
+      handleOpenTableView,
+      saveCycle,
+      selectedIndex,
+      selectedTableEmp,
+      showForm,
+    ]
+  );
+
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
     if (empresasNavegacao.length === 0) return;
@@ -402,12 +461,6 @@ export default function PAGEMP() {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
     if (ids.length === 1) { const i = empresasNavegacao.findIndex((e) => e.id === ids[0]); if (i >= 0) setSelectedIndex(i); }
   }, [empresasNavegacao]);
-
-  const handleOpenTableView = useCallback(() => {
-    setShowForm(false);
-    setEditingEmp(null);
-    setViewMode("table");
-  }, []);
 
   const handleToggleSearchView = useCallback(() => {
     if (!saveCycle.guardAction()) return;
@@ -615,156 +668,186 @@ export default function PAGEMP() {
     exportCadastroTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
   };
 
+  const formCancel = () => {
+    if (editingEmp && !editingEmp._isDuplicate) {
+      setFormVersion((p) => p + 1);
+      setViewMode("record");
+      return;
+    }
+    if ((editingEmp?._isDuplicate || !editingEmp) && returnRecordAfterNew) {
+      setEditingEmp(returnRecordAfterNew);
+      setShowForm(true);
+      setViewMode("record");
+      setReturnRecordAfterNew(null);
+      return;
+    }
+    setShowForm(false);
+    setEditingEmp(null);
+    setViewMode("table");
+    setReturnRecordAfterNew(null);
+  };
+
+  const recordCode = formBridge?.recordMeta?.codigo
+    ? String(formBridge.recordMeta.codigo).padStart(6, "0")
+    : editingEmp?.codempresa
+      ? String(editingEmp.codempresa).padStart(6, "0")
+      : "";
+  const recordTitle =
+    formBridge?.recordMeta?.nome ||
+    editingEmp?.razao_social ||
+    editingEmp?.nome_empresa ||
+    "Novo registro";
+
   return (
-    <div className="cadastro-emp-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <SaveProgressOverlay
         active={saveCycle.isSaving}
         message={saveCycle.saveMessage}
         variant={saveCycle.variant}
       />
-      {showForm ? (
-        <EmpresasFormPanel
-          formProps={{
-            key: `form-${formVersion}`,
-            initialData: editingEmp,
-            recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
-            isEditing: !!editingEmp,
-            onSubmit: handleSubmit,
-            onCancel: () => {
-              if (editingEmp && !editingEmp._isDuplicate) {
-                setFormVersion((p) => p + 1);
-                setViewMode("record");
-                return;
-              }
-              if ((editingEmp?._isDuplicate || !editingEmp) && returnRecordAfterNew) {
-                setEditingEmp(returnRecordAfterNew);
-                setShowForm(true);
-                setViewMode("record");
-                setReturnRecordAfterNew(null);
-                return;
-              }
-              setShowForm(false);
-              setEditingEmp(null);
-              setViewMode("table");
-              setReturnRecordAfterNew(null);
-            },
-            onToggleView: handleToggleView,
-            total: empresasNavegacao.length,
-            currentIndex: selectedIndex,
-            onNew: handleNew,
-            onFirst: () => navigateRecord(0),
-            onPrevious: () => navigateRecord(selectedIndex - 1),
-            onNext: () => navigateRecord(selectedIndex + 1),
-            onLast: () => navigateRecord(empresasNavegacao.length - 1),
-            onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
-            onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
-            filterOpen: false,
-            filterActive: false,
-            searchValue: searchTerm,
-            onSearchChange: handleSearchChange,
-            onAttachClick: () => editingEmp?.id && setAttachmentsRecord(editingEmp),
-            attachDisabled: false,
-            actionsLocked: saveCycle.isSaving,
-          }}
+
+      <MgMobileHeader
+        title="Empresas"
+        onToggleFilter={() => setFilterPanelOpen((open) => !open)}
+      />
+
+      <div className="flex min-h-0 flex-1 overflow-hidden">
+        <MgFilterPanel
+          open={filterPanelOpen}
+          values={filterValues}
+          onChange={handleFilterChange}
+          onClose={() => setFilterPanelOpen(false)}
+          status={filterStatus}
+          onStatusChange={setFilterStatus}
         />
-      ) : viewMode === "search" ? (
-        <EmpresasSearchPanel
-          toolbarProps={{
-            actionsLocked: saveCycle.isSaving,
-            viewMode,
-            total: totalEmpresas,
-            currentIndex: selectedIndex,
-            searchValue: searchTerm,
-            onSearchChange: handleSearchChange,
-            onNew: handleNew,
-            onToggleView: handleToggleView,
-            onToggleSearchView: handleToggleSearchView,
-            toggleViewDisabled: selectedTableItems.length > 1,
-            filterActive: false,
-            onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),
-            onDuplicate: () => selectedTableEmp && handleDuplicate(selectedTableEmp),
-            onAttachClick: () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp),
-            attachDisabled: selectedTableItems.length !== 1,
-            onExportPdf: handleExportPdf,
-            onConfigExportPdf: () => setShowConfigPdf(true),
-            onExportExcel: handleExportExcel,
-            onConfigExportExcel: () => setShowConfigExcel(true),
-            onConfigColumns: () => setShowConfigColunas(true),
-            selectedCount: selectedTableItems.length,
-            title: moduleLabels.title,
-            recordLabel: "",
-          }}
-          searchProps={{
-            empresas: empresasFiltradasPainel,
-            total: totalEmpresas,
-            isLoading: empresasLoading || isFetching,
-            searchValue: searchTerm,
-            onSearchChange: handleSearchChange,
-            page: queryPage,
-            pageSize: queryPageSize,
-            onPageChange: setQueryPage,
-            onPageSizeChange: (nextPageSize) => {
-              setQueryPageSize(nextPageSize);
-              setQueryPage(1);
-            },
-            onEdit: handleEdit,
-          }}
-        />
-      ) : (
-        <EmpresasTablePanel
-          toolbarProps={{
-          actionsLocked: saveCycle.isSaving,
-          viewMode,
-          total: totalEmpresas,
-          currentIndex: selectedIndex,
-          searchValue: searchTerm,
-          onSearchChange: handleSearchChange,
-          onNew: handleNew,
-          onToggleView: handleToggleView,
-          onToggleSearchView: handleToggleSearchView,
-          toggleViewDisabled: selectedTableItems.length > 1,
-          filterActive: false,
-          onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),
-          onDuplicate: () => selectedTableEmp && handleDuplicate(selectedTableEmp),
-          onAttachClick: () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp),
-          attachDisabled: selectedTableItems.length !== 1,
-          onExportPdf: handleExportPdf,
-          onConfigExportPdf: () => setShowConfigPdf(true),
-          onExportExcel: handleExportExcel,
-          onConfigExportExcel: () => setShowConfigExcel(true),
-          onConfigColumns: () => setShowConfigColunas(true),
-          selectedCount: selectedTableItems.length,
-          title: moduleLabels.title,
-          recordLabel: "",
-        }}
-        tableProps={{
-          key: "tbl-emp",
-          empresas: empresasFiltradasPainel,
-          isLoadingEmpresas: empresasLoading,
-          onEdit: handleEdit,
-          showConfigColunas,
-          setShowConfigColunas,
-          searchTerm: "",
-          selectedRecordId: showForm ? editingEmp?.id : undefined,
-          onSelectionChange: handleTableSelectionChange,
-          onVisibleDataChange: setVisibleTableData,
-          onFilteredEmpresasChange: handleFilteredEmpresasChange,
-          serverPage: queryPage,
-          serverPageSize: queryPageSize,
-          serverTotal: totalEmpresas,
-          onServerPageChange: setQueryPage,
-          onServerPageSizeChange: (nextPageSize) => {
-            setQueryPageSize(nextPageSize);
-            setQueryPage(1);
-          },
-          onServerSortChange: (nextSort) => {
-            setQuerySort(nextSort);
-            setQueryPage(1);
-          },
-          moduleTitle: moduleLabels.title,
-        }}
-        />
-      )}
+
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <MgActionBar
+            viewMode={mgViewMode}
+            onViewModeChange={handleMgViewModeChange}
+            searchValue={searchTerm}
+            onSearchChange={handleSearchChange}
+            onToggleFilter={() => setFilterPanelOpen((open) => !open)}
+            onNew={handleNew}
+            onSave={formBridge?.onSave}
+            onEdit={formBridge?.onEdit}
+            onDelete={
+              showForm
+                ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
+                : () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)
+            }
+            onDuplicate={
+              showForm
+                ? () => editingEmp && handleDuplicate(editingEmp)
+                : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
+            }
+            onAttach={
+              showForm
+                ? () => editingEmp?.id && setAttachmentsRecord(editingEmp)
+                : () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp)
+            }
+            attachDisabled={!showForm && selectedTableItems.length !== 1}
+            onExportExcel={handleExportExcel}
+            onExportPdf={handleExportPdf}
+            onConfigColumns={() => setShowConfigColunas(true)}
+            onLayoutConfig={formBridge?.onLayoutConfig}
+            showSave={!!formBridge?.editMode}
+            showEdit={!!formBridge?.isReadOnly}
+            showDelete={showForm ? !!editingEmp : selectedTableItems.length > 0}
+            showDuplicate={showForm ? !!formBridge?.isEditing && !formBridge?.editMode : selectedTableItems.length === 1}
+            showNew={!formBridge?.editMode}
+            actionsLocked={saveCycle.isSaving}
+          />
+
+          {showForm ? (
+            <>
+              <MgContextPanel
+                code={recordCode}
+                title={recordTitle}
+                total={empresasNavegacao.length}
+                currentIndex={selectedIndex}
+                onFirst={() => navigateRecord(0)}
+                onPrevious={() => navigateRecord(selectedIndex - 1)}
+                onNext={() => navigateRecord(selectedIndex + 1)}
+                onLast={() => navigateRecord(empresasNavegacao.length - 1)}
+                disabled={saveCycle.isSaving}
+              />
+              <EmpresasFormPanel
+                formProps={{
+                  key: `form-${formVersion}`,
+                  initialData: editingEmp,
+                  recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
+                  isEditing: !!editingEmp,
+                  onSubmit: handleSubmit,
+                  onCancel: formCancel,
+                  hideToolbar: true,
+                  onToolbarBridge: setFormBridge,
+                  total: empresasNavegacao.length,
+                  currentIndex: selectedIndex,
+                  onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
+                  onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
+                  actionsLocked: saveCycle.isSaving,
+                }}
+              />
+            </>
+          ) : mgViewMode === "cards" ? (
+            <div id="mode-cards" className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <EmpresasSearchPanel
+                searchProps={{
+                  empresas: empresasFiltradasPainel,
+                  total: totalEmpresas,
+                  isLoading: empresasLoading || isFetching,
+                  searchValue: searchTerm,
+                  onSearchChange: handleSearchChange,
+                  page: queryPage,
+                  pageSize: queryPageSize,
+                  onPageChange: setQueryPage,
+                  onPageSizeChange: (nextPageSize) => {
+                    setQueryPageSize(nextPageSize);
+                    setQueryPage(1);
+                  },
+                  onEdit: handleEdit,
+                  mgPrototype: true,
+                }}
+              />
+            </div>
+          ) : (
+            <div id="mode-tabela" className="mg-grid-wrapper flex min-h-0 flex-1 flex-col overflow-hidden">
+              <EmpresasTablePanel
+                tableProps={{
+                  key: "tbl-emp",
+                  empresas: empresasFiltradasPainel,
+                  isLoadingEmpresas: empresasLoading,
+                  onEdit: handleEdit,
+                  showConfigColunas,
+                  setShowConfigColunas,
+                  searchTerm: "",
+                  selectedRecordId: undefined,
+                  onSelectionChange: handleTableSelectionChange,
+                  onVisibleDataChange: setVisibleTableData,
+                  onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                  serverPage: queryPage,
+                  serverPageSize: queryPageSize,
+                  serverTotal: totalEmpresas,
+                  onServerPageChange: setQueryPage,
+                  onServerPageSizeChange: (nextPageSize) => {
+                    setQueryPageSize(nextPageSize);
+                    setQueryPage(1);
+                  },
+                  onServerSortChange: (nextSort) => {
+                    setQuerySort(nextSort);
+                    setQueryPage(1);
+                  },
+                  moduleTitle: moduleLabels.title,
+                  mgPrototype: true,
+                }}
+              />
+            </div>
+          )}
+        </div>
+      </div>
+
+      <MgMobileViewBar value={mgViewMode} onChange={handleMgViewModeChange} />
 
       <EmpresasDialogs
         exportPdfProps={{

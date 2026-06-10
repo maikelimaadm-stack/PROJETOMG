@@ -177,14 +177,16 @@ function FieldFrameCorp({
           width: "auto",
         };
 
+  const mgField = className.includes("fg") || className === "fg";
+
   return (
     <div
       data-field={field.dataField || field.name}
       data-width-type={preset.type}
       className={cn(
-        "emp-form-field-corp",
-        "emp-form-field-corp--balanced-grow",
-        typeClass,
+        mgField ? "fg" : "emp-form-field-corp",
+        !mgField && "emp-form-field-corp--balanced-grow",
+        !mgField && typeClass,
         mediaInline && "emp-form-field-corp--media-inline",
         textareaField && "emp-form-field-corp--textarea",
         field?.wide && "emp-form-field-corp--wide",
@@ -193,9 +195,9 @@ function FieldFrameCorp({
       )}
       style={widthStyle}
     >
-      <label className="emp-form-field-label-top">
-        {field.label}
-        {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
+      <label className={mgField ? `fg-label${field.required ? " required" : ""}` : "emp-form-field-label-top"}>
+        {!mgField ? field.label : field.label}
+        {!mgField && field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
       </label>
       <div
         className={cn(
@@ -235,9 +237,9 @@ function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, childre
 
   if (!collapsible) {
     return (
-      <section className="emp-form-card">
-        <div className="emp-form-card-title">{card.label}</div>
-        <div className="emp-form-card-body">{children}</div>
+      <section className="emp-form-card erp-card p-4">
+        <h3 className="emp-form-card-title mb-3 text-sm font-semibold">{card.label}</h3>
+        <div className="emp-form-card-body grid grid-cols-1 gap-3">{children}</div>
       </section>
     );
   }
@@ -366,7 +368,7 @@ export default function EmpDynamicFormRenderer({
         fieldSizes={fieldSizes}
         rowBalance={rowBalance}
         narrowLayout={narrowLayout}
-        className={fieldClassName}
+        className={fieldClassName || "fg"}
       >
         {control}
       </FieldFrameCorp>
@@ -467,7 +469,7 @@ export default function EmpDynamicFormRenderer({
       )}
       style={{ width: "100%" }}
     >
-      <div className="emp-form-cards-layout cad-form-cards-layout">{cardSections}</div>
+      <div className="emp-form-cards-layout cad-form-cards-layout mg-form-cards-grid">{cardSections}</div>
     </div>
   );
 }

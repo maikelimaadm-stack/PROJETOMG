@@ -58,6 +58,8 @@ export default function FORMEMP({
   isEditing,
   recordKey,
   actionsLocked = false,
+  hideToolbar = false,
+  onToolbarBridge,
 }) {
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
@@ -509,7 +511,7 @@ export default function FORMEMP({
   const showRequiredCounter = !isReadOnly && !layoutConfigOpen;
 
   useCadastroPageHeader({
-    enabled: true,
+    enabled: !hideToolbar,
     recordMeta,
     operationLabel,
     requiredStatus: showRequiredCounter
@@ -521,6 +523,80 @@ export default function FORMEMP({
         }
       : null,
   });
+
+  useEffect(() => {
+    if (!onToolbarBridge) return;
+    onToolbarBridge({
+      editMode,
+      isReadOnly,
+      isEditing,
+      isDuplicating,
+      recordMeta,
+      onSave: () => handleSubmit(),
+      onEdit: () => setEditMode(true),
+      onLayoutConfig: () => {
+        if (filterOpen) onToggleFilter?.();
+        setLayoutConfigOpen(true);
+      },
+    });
+  }, [
+    onToolbarBridge,
+    editMode,
+    isReadOnly,
+    isEditing,
+    isDuplicating,
+    recordMeta,
+    filterOpen,
+    onToggleFilter,
+  ]);
+
+  const renderFormBody = (mgVariant = false) => (
+    <div className="emp-form-body flex min-h-0 flex-1 flex-col">
+      <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
+        {!mgVariant ? (
+          <CadTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onChange={setActiveTab}
+            systemPanelIds={empresasCadastroConfig.systemPanelIds}
+            trailing={
+              <FormValidationStatus
+                visible={showRequiredCounter}
+                filled={requiredFieldStats.filled}
+                total={requiredFieldStats.total}
+                pendingFields={requiredFieldStats.pendingFields}
+                className="emp-form-tabs-required-desktop"
+              />
+            }
+          />
+        ) : null}
+
+        <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
+          <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+            <RenderEngine
+              recordKey={recordKey}
+              panels={tabs}
+              fields={dynamicFields}
+              layout={activeLayoutConfig.layout}
+              defaultLayout={defaultLayout}
+              hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+              lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+              requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+              visibilityRules={activeLayoutConfig.visibilityRules || {}}
+              fieldSizes={activeLayoutConfig.fieldSizes || {}}
+              fieldLayoutConfig={fieldLayoutConfig}
+              activePanelId={activeTab}
+              values={formData}
+              errors={errors}
+              onChange={handleDynamicFieldChange}
+              readOnly={isReadOnly}
+              fieldClassName={mgVariant ? "fg" : ""}
+            />
+          </fieldset>
+        </div>
+      </div>
+    </div>
+  );
 
   if (layoutConfigOpen) {
     return (
@@ -582,87 +658,65 @@ export default function FORMEMP({
             background-color: #94a3b8;
           }
         `}</style>
-        <CadSplitLayout
-          className="h-full min-h-0 flex-1"
-          toolbar={
-            <CadRecordToolbar
-              showSaveActions={editMode}
-              showEditAction={isReadOnly}
-              showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
-              showRecordNavigation={isEditing && !editMode && !isDuplicating}
-              onSave={handleSubmit}
-              onCancel={onCancel}
-              onEditRecord={() => setEditMode(true)}
-              onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
-              onToggleView={onToggleView}
-              total={total}
-              currentIndex={currentIndex}
-              onNew={onNew}
-              onFirst={onFirst}
-              onPrevious={onPrevious}
-              onNext={onNext}
-              onLast={onLast}
-              onDelete={onDelete}
-              onDuplicate={onDuplicate}
-              onRefresh={onRefresh}
-              actionsLocked={actionsLocked}
-              filterOpen={filterOpen}
-              filterActive={filterActive}
-              onToggleFilter={onToggleFilter}
-              onClearFilter={onClearFilter}
-              onAttachClick={onAttachClick}
-              attachDisabled={attachDisabled}
-              searchValue={searchValue}
-              onSearchChange={onSearchChange}
-              showSearch
-            />
-          }
-        >
-        <div className="form-scroll-container min-h-0 flex-1 overflow-auto">
-          <div className="emp-form-body flex min-h-0 flex-1 flex-col">
-            <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
+        {hideToolbar ? null : (
+          <CadSplitLayout
+            className="h-full min-h-0 flex-1"
+            toolbar={
+              <CadRecordToolbar
+                showSaveActions={editMode}
+                showEditAction={isReadOnly}
+                showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
+                showRecordNavigation={isEditing && !editMode && !isDuplicating}
+                onSave={handleSubmit}
+                onCancel={onCancel}
+                onEditRecord={() => setEditMode(true)}
+                onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
+                onToggleView={onToggleView}
+                total={total}
+                currentIndex={currentIndex}
+                onNew={onNew}
+                onFirst={onFirst}
+                onPrevious={onPrevious}
+                onNext={onNext}
+                onLast={onLast}
+                onDelete={onDelete}
+                onDuplicate={onDuplicate}
+                onRefresh={onRefresh}
+                actionsLocked={actionsLocked}
+                filterOpen={filterOpen}
+                filterActive={filterActive}
+                onToggleFilter={onToggleFilter}
+                onClearFilter={onClearFilter}
+                onAttachClick={onAttachClick}
+                attachDisabled={attachDisabled}
+                searchValue={searchValue}
+                onSearchChange={onSearchChange}
+                showSearch
+              />
+            }
+          >
+            <div className="form-scroll-container min-h-0 flex-1 overflow-auto">
+              {renderFormBody(false)}
+            </div>
+          </CadSplitLayout>
+        )}
+        {hideToolbar ? (
+          <div id="mode-registro" className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div
+              className="shrink-0 overflow-x-auto border-b px-3 py-1 md:px-5"
+              style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
+            >
               <CadTabs
                 tabs={tabs}
                 activeTab={activeTab}
                 onChange={setActiveTab}
                 systemPanelIds={empresasCadastroConfig.systemPanelIds}
-                trailing={
-                  <FormValidationStatus
-                    visible={showRequiredCounter}
-                    filled={requiredFieldStats.filled}
-                    total={requiredFieldStats.total}
-                    pendingFields={requiredFieldStats.pendingFields}
-                    className="emp-form-tabs-required-desktop"
-                  />
-                }
+                variant="mg"
               />
-
-              <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
-                <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
-                  <RenderEngine
-                    recordKey={recordKey}
-                    panels={tabs}
-                    fields={dynamicFields}
-                    layout={activeLayoutConfig.layout}
-                    defaultLayout={defaultLayout}
-                    hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                    lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                    requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                    visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                    fieldSizes={activeLayoutConfig.fieldSizes || {}}
-                    fieldLayoutConfig={fieldLayoutConfig}
-                    activePanelId={activeTab}
-                    values={formData}
-                    errors={errors}
-                    onChange={handleDynamicFieldChange}
-                    readOnly={isReadOnly}
-                  />
-                </fieldset>
-              </div>
             </div>
+            <div className="mg-form-scroll">{renderFormBody(true)}</div>
           </div>
-        </div>
-        </CadSplitLayout>
+        ) : null}
         {editMode ? (
           <div className="emp-form-mobile-footer" role="toolbar" aria-label="Ações do formulário">
             <button
