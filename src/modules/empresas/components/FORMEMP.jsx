@@ -377,7 +377,7 @@ export default function FORMEMP({
       errorKey: `campos_personalizados.${campo.field_name}`,
       wide: campo.tipo === "textarea",
       medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo),
-      compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo),
+      compact: (["number", "date", "data", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo),
       totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara,
       options: ["select", "option_list"].includes(campo.tipo)
         ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({
@@ -387,9 +387,9 @@ export default function FORMEMP({
         : [],
       displayField: "nome",
       searchFields: ["nome"],
-      render: () => renderCampoPersonalizado(campo),
+      render: (ctx) => renderCampoPersonalizado(campo, ctx),
     }))
-  ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions]);
+  ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions, renderCampoPersonalizado]);
 
   const basePanels = useMemo(
     () => EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),

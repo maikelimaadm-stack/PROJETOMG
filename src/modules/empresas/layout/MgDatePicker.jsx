@@ -1,7 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
-import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import { closeMgPanels, useMgPanelCoordinator } from "@/modules/empresas/layout/useMgPanelPosition";
 
 const MONTH_NAMES = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -27,10 +26,6 @@ function formatBrDate(day, month, year) {
   return `${String(day).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}/${year}`;
 }
 
-function isInsideFloatingPanel(target) {
-  return Boolean(target?.closest?.("[data-mg-floating-panel]"));
-}
-
 export default function MgDatePicker({
   label,
   required = false,
@@ -46,10 +41,8 @@ export default function MgDatePicker({
   const [open, setOpen] = useState(false);
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
-  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { minWidth: 300, estimatedHeight: 360 });
 
   useMgPanelCoordinator(rootRef, setOpen);
-
   onChangeRef.current = onChange;
 
   const displayValue = value
@@ -62,12 +55,11 @@ export default function MgDatePicker({
     const close = (event) => {
       if (rootRef.current?.contains(event.target)) return;
       if (panelRef.current?.contains(event.target)) return;
-      if (isInsideFloatingPanel(event.target)) return;
       setOpen(false);
     };
 
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
   useEffect(() => {
@@ -87,19 +79,10 @@ export default function MgDatePicker({
     });
   };
 
-  const emitChange = (nextValue) => {
-    onChangeRef.current?.({ target: { value: nextValue } });
-  };
-
   const selectDay = (day) => {
-    emitChange(formatBrDate(day, state.month, state.year));
+    const next = formatBrDate(day, state.month, state.year);
+    onChangeRef.current?.({ target: { value: next } });
     setOpen(false);
-  };
-
-  const handleDaySelect = (event, day) => {
-    event.preventDefault();
-    event.stopPropagation();
-    selectDay(day);
   };
 
   const renderBody = () => {
@@ -111,8 +94,8 @@ export default function MgDatePicker({
               key={name}
               type="button"
               className={m === state.month ? "active" : ""}
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={(event) => {
+                event.stopPropagation();
                 setState((s) => ({ ...s, month: m, view: "days" }));
               }}
             >
@@ -131,8 +114,8 @@ export default function MgDatePicker({
               key={y}
               type="button"
               className={y === state.year ? "active" : ""}
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={(event) => {
+                event.stopPropagation();
                 setState((s) => ({ ...s, year: y, view: "months" }));
               }}
             >
@@ -162,7 +145,10 @@ export default function MgDatePicker({
           key={`d-${d}`}
           type="button"
           className={cls}
-          onMouseDown={(event) => handleDaySelect(event, d)}
+          onClick={(event) => {
+            event.stopPropagation();
+            selectDay(d);
+          }}
         >
           {d}
         </button>
@@ -225,22 +211,23 @@ export default function MgDatePicker({
         onClick={toggle}
       />
       <div className="mg-dp-icon"><Calendar className="h-3.5 w-3.5" /></div>
-      <MgPortalPanel
-        open={open}
-        panelRef={panelRef}
-        panelClassName="mg-dp-panel"
-        style={panelStyle}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mg-dp-header">
-          <button type="button" className="mg-dp-nav" onClick={() => nav(-1)}><ChevronLeft className="h-4 w-4" /></button>
-          <button type="button" className="mg-dp-title" onClick={drillUp}>
-            {title}
-          </button>
-          <button type="button" className="mg-dp-nav" onClick={() => nav(1)}><ChevronRight className="h-4 w-4" /></button>
+      {open ? (
+        <div
+          ref={panelRef}
+          className="mg-dp-panel"
+          onMouseDown={(event) => event.stopPropagation()}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className="mg-dp-header">
+            <button type="button" className="mg-dp-nav" onClick={() => nav(-1)}><ChevronLeft className="h-4 w-4" /></button>
+            <button type="button" className="mg-dp-title" onClick={drillUp}>
+              {title}
+            </button>
+            <button type="button" className="mg-dp-nav" onClick={() => nav(1)}><ChevronRight className="h-4 w-4" /></button>
+          </div>
+          <div className="mg-dp-body">{renderBody()}</div>
         </div>
-        <div className="mg-dp-body">{renderBody()}</div>
-      </MgPortalPanel>
+      ) : null}
     </div>
   );
 }
