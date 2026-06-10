@@ -23,8 +23,35 @@ export default function EmpTabs({
   onChange,
   systemPanelIds = EMP_SYSTEM_PANEL_IDS,
   trailing = null,
+  variant = "default",
 }) {
   if (!tabs.length) return null;
+
+  const isMg = variant === "mg";
+
+  if (isMg) {
+    return (
+      <div className="seg-control" role="tablist">
+        {tabs.map((tab) => {
+          const active = tab.id === activeTab;
+          const custom = isCustomPanel(tab, systemPanelIds);
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => onChange?.(tab.id)}
+              className={`seg-tab${active ? " active" : ""}`}
+            >
+              {custom ? <EmpCustomMarker /> : null}
+              {formatPanelLabel(tab.label)}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
 
   return (
     <div className="emp-form-tabs emp-form-tabs-launch relative flex min-h-[34px] items-end justify-start px-0">

@@ -1,0 +1,869 @@
+/**
+ * MakGestão — CSS do protótipo HTML (escopo empresas).
+ * Classes idênticas ao mockup: fg, tb-btn, seg-tab, view-seg, mg-grid, erp-card, etc.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap");
+
+.mg-empresas-scope {
+  --bg-page: #f5f7fa;
+  --bg-card: #ffffff;
+  --bg-surface: #ffffff;
+  --border: #e5e7eb;
+  --border-focus: #2899f5;
+  --text-1: #111827;
+  --text-2: #6b7280;
+  --text-3: #9ca3af;
+  --accent: #2899f5;
+  --accent-light: rgba(40, 153, 245, 0.08);
+  --accent-glow: rgba(40, 153, 245, 0.15);
+  --green: #059669;
+  --green-light: rgba(5, 150, 105, 0.08);
+  --yellow: #d97706;
+  --red: #dc2626;
+  --red-light: rgba(220, 38, 38, 0.08);
+  --gray-fill: #f3f4f6;
+  --gray-fill2: #e5e7eb;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+
+  font-family: "DM Sans", -apple-system, sans-serif;
+  font-size: 13px;
+  color: var(--text-1);
+  -webkit-font-smoothing: antialiased;
+  background: var(--bg-page);
+}
+
+.mg-empresas-scope * {
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope .ios-btn {
+  transition: transform 100ms ease, opacity 100ms;
+  border: none;
+  cursor: pointer;
+}
+
+.mg-empresas-scope .ios-btn:active {
+  transform: scale(0.97);
+  opacity: 0.85;
+}
+
+.mg-empresas-scope .ios-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Form fields */
+.mg-empresas-scope .fg {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mg-empresas-scope .fg .fg-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  line-height: 1;
+}
+
+.mg-empresas-scope .fg .fg-label.required::after {
+  content: " *";
+  color: var(--red);
+}
+
+.mg-empresas-scope .fg input,
+.mg-empresas-scope .fg textarea,
+.mg-empresas-scope .fg .emp-form-field-control input,
+.mg-empresas-scope .fg .emp-form-field-control textarea {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 500;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: var(--bg-card);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .fg textarea,
+.mg-empresas-scope .fg .emp-form-field-control textarea {
+  height: auto;
+  min-height: 64px;
+  padding: 8px 10px;
+  resize: vertical;
+}
+
+.mg-empresas-scope .fg input:focus,
+.mg-empresas-scope .fg textarea:focus,
+.mg-empresas-scope .fg .emp-form-field-control:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .fg .emp-form-field-control {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-height: 36px;
+  background: var(--bg-card);
+}
+
+.mg-empresas-scope .fg .emp-form-field-control input {
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Segmented tabs */
+.mg-empresas-scope .seg-control {
+  display: flex;
+  background: transparent;
+  padding: 0;
+  gap: 0;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.mg-empresas-scope .seg-tab {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: color 0.2s;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  outline: none;
+}
+
+.mg-empresas-scope .seg-tab:hover {
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .seg-tab.active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+/* View segmented control */
+.mg-empresas-scope .view-seg {
+  display: flex;
+  background: var(--gray-fill);
+  border-radius: 8px;
+  padding: 3px;
+  position: relative;
+  height: 34px;
+}
+
+.mg-empresas-scope .view-seg-slider {
+  position: absolute;
+  top: 3px;
+  height: 28px;
+  background: #ffffff;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), width 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mg-empresas-scope .view-mode-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-3);
+  width: 34px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  transition: color 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.mg-empresas-scope .view-mode-btn.active {
+  color: var(--accent);
+}
+
+/* Grid */
+.mg-empresas-scope .mg-grid-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mg-empresas-scope .mg-grid-scroll {
+  flex: 1;
+  overflow: auto;
+}
+
+.mg-empresas-scope .mg-grid,
+.mg-empresas-scope table.mg-grid {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.mg-empresas-scope .mg-grid thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--bg-card);
+}
+
+.mg-empresas-scope .mg-grid th {
+  padding: 8px 14px;
+  text-align: left;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  color: var(--text-3);
+  border-bottom: 2px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+
+.mg-empresas-scope .mg-grid th:hover {
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope .mg-grid td {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-grid tbody tr {
+  transition: background 0.1s;
+}
+
+.mg-empresas-scope .mg-grid tbody tr:nth-child(even) {
+  background: #fafbfc;
+}
+
+.mg-empresas-scope .mg-grid tbody tr:hover {
+  background: #eef6ff;
+}
+
+.mg-empresas-scope .mg-grid tbody tr.selected {
+  background: var(--accent-light);
+}
+
+.mg-empresas-scope .mg-grid .cell-muted {
+  color: var(--text-2);
+}
+
+/* Pills */
+.mg-empresas-scope .pill {
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mg-empresas-scope .pill-active {
+  background: var(--green-light);
+  color: var(--green);
+}
+
+.mg-empresas-scope .pill-inactive {
+  background: var(--gray-fill);
+  color: var(--text-3);
+}
+
+/* Toolbar buttons */
+.mg-empresas-scope .tb-btn {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 0 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  transition: all 0.12s;
+  white-space: nowrap;
+}
+
+.mg-empresas-scope .tb-btn-labeled {
+  gap: 6px;
+}
+
+.mg-empresas-scope .tb-btn-filter {
+  padding: 0 10px;
+  background: var(--gray-fill) !important;
+  color: var(--text-2) !important;
+}
+
+.mg-empresas-scope .tb-btn-filter:hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .tb-btn-more {
+  padding: 0 10px;
+  background: var(--gray-fill) !important;
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .tb-btn-more:hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+}
+
+.mg-empresas-scope .tb-btn:active:not(:disabled) {
+  transform: scale(0.95);
+  opacity: 0.9;
+}
+
+.mg-empresas-scope .tb-btn-green {
+  background: var(--green);
+  color: #fff;
+}
+
+.mg-empresas-scope .tb-btn-green:hover:not(:disabled) {
+  background: #047857;
+}
+
+.mg-empresas-scope .tb-btn-blue {
+  background: var(--accent);
+  color: #fff;
+}
+
+.mg-empresas-scope .tb-btn-blue:hover:not(:disabled) {
+  background: #2180d0;
+}
+
+.mg-empresas-scope .tb-btn-gray {
+  background: var(--gray-fill2);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .tb-btn-gray:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.mg-empresas-scope .tb-btn-red {
+  background: var(--red);
+  color: #fff;
+}
+
+.mg-empresas-scope .tb-btn-red:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.mg-empresas-scope .tb-btn-ghost {
+  background: var(--gray-fill);
+  color: var(--text-2);
+}
+
+.mg-empresas-scope .tb-btn-ghost:hover:not(:disabled) {
+  background: var(--gray-fill);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .tb-btn-icon {
+  width: 34px;
+  padding: 0;
+}
+
+/* Campos do formulário — visual fg, layout emp-form-field-corp preservado */
+.mg-empresas-scope .mg-prototype-field .fg-label,
+.mg-empresas-scope .mg-prototype-field .emp-form-field-label-top {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  line-height: 1;
+}
+
+.mg-empresas-scope .mg-prototype-field .fg-label.required::after {
+  content: " *";
+  color: var(--red);
+}
+
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-height: 36px;
+  background: var(--bg-card);
+  transition: border 0.2s, box-shadow 0.2s;
+}
+
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control input,
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control textarea {
+  height: 36px;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control textarea {
+  height: auto;
+  min-height: 64px;
+  padding: 8px 10px;
+}
+
+/* Cards do formulário — grid 1 col mobile / 2 cols desktop */
+.mg-empresas-scope .mg-prototype-cards-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .mg-empresas-scope .mg-prototype-cards-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mg-empresas-scope .mg-prototype-cards-layout .emp-form-cards-row {
+  display: contents;
+}
+
+.mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-slot {
+  grid-column: span 1;
+  min-width: 0;
+}
+
+.mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-row-grid--flex,
+.mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-row-grid--pair {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.mg-empresas-scope .mg-prototype-cards-layout .mg-prototype-field {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex: unset !important;
+}
+
+@media (min-width: 768px) {
+  .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-row-grid--pair:has(> :nth-child(2):last-child) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-row-grid--pair:has(> :nth-child(3):last-child) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-row-grid--pair:has(> :nth-child(4)) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-row-grid--flex:not(.emp-form-card-row-grid--single):not(.emp-form-card-row-grid--pair) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* CMD Select */
+.mg-empresas-scope .cmd-select {
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mg-empresas-scope .cmd-select .cmd-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  line-height: 1;
+}
+
+.mg-empresas-scope .cmd-display {
+  width: 100%;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0 28px 0 10px;
+  font-size: 13px;
+  background: var(--bg-card);
+  color: var(--text-1);
+  display: flex;
+  align-items: center;
+  transition: border 0.2s, box-shadow 0.2s;
+  font-weight: 500;
+}
+
+.mg-empresas-scope .cmd-chevron {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  transition: transform 0.2s;
+  pointer-events: none;
+}
+
+.mg-empresas-scope .cmd-select.open .cmd-chevron {
+  transform: rotate(180deg);
+}
+
+.mg-empresas-scope .cmd-panel {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 80;
+  overflow: hidden;
+}
+
+.mg-empresas-scope .cmd-select.open .cmd-panel {
+  display: block;
+}
+
+.mg-empresas-scope .cmd-select.open .cmd-display {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .cmd-panel input {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 10px;
+  font-size: 12px;
+  outline: none;
+  background: var(--bg-card);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .cmd-option {
+  padding: 7px 10px;
+  font-size: 12px;
+  color: var(--text-1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 4px;
+  margin: 2px 4px;
+  transition: all 0.12s;
+}
+
+.mg-empresas-scope .cmd-option:hover,
+.mg-empresas-scope .cmd-option.highlighted {
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope .cmd-option.selected {
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--accent-light);
+}
+
+.mg-empresas-scope .mg-mobile-filter-strip {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 6px 12px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-mobile-filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: var(--gray-fill);
+  color: var(--text-2);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Filter panel */
+.mg-empresas-scope .filter-panel {
+  width: 260px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  display: none;
+  flex-shrink: 0;
+  max-height: calc(100vh - 48px - 34px);
+}
+
+.mg-empresas-scope .filter-panel.open {
+  display: block;
+}
+
+@media (max-width: 767px) {
+  .mg-empresas-scope .filter-panel.open {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: min(280px, 88vw);
+    height: 100%;
+    z-index: 60;
+    box-shadow: var(--shadow-lg);
+    max-height: none;
+  }
+}
+
+/* Cards */
+.mg-empresas-scope .erp-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--bg-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+/* Action bar + context */
+.mg-empresas-scope .mg-action-bar {
+  align-items: center;
+  gap: 12px;
+  padding: 6px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-action-bar__end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mg-empresas-scope .mg-search-pill {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--gray-fill);
+  height: 34px;
+  min-width: 180px;
+}
+
+.mg-empresas-scope .mg-search-pill input {
+  flex: 1;
+  background: transparent;
+  outline: none;
+  border: none;
+  font-size: 12px;
+  color: var(--text-1);
+  min-width: 0;
+}
+
+.mg-empresas-scope .mg-context-panel {
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-card);
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-nav-btn {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  background: var(--gray-fill);
+  color: var(--text-3);
+  border: none;
+  cursor: pointer;
+}
+
+.mg-empresas-scope .mg-nav-btn:hover:not(:disabled) {
+  background: var(--gray-fill2);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 50;
+  min-width: 160px;
+  padding: 4px;
+}
+
+.mg-empresas-scope .dropdown-menu.open {
+  display: block;
+}
+
+.mg-empresas-scope .dropdown-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: var(--text-1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.mg-empresas-scope .dropdown-menu button:hover {
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope .mobile-bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+  padding: 5px 0;
+  padding-bottom: calc(5px + env(safe-area-inset-bottom));
+  z-index: 100;
+}
+
+.mg-empresas-scope .mobile-bottom-bar button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 10px;
+  color: var(--text-3);
+  font-weight: 500;
+  flex: 1;
+  max-width: 72px;
+}
+
+.mg-empresas-scope .mobile-bottom-bar button.active {
+  color: var(--accent);
+}
+
+.mg-empresas-scope .mg-form-scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 12px;
+  background: var(--bg-page);
+}
+
+@media (min-width: 768px) {
+  .mg-empresas-scope .mg-form-scroll {
+    padding: 12px 20px;
+  }
+}
+
+.mg-empresas-scope ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.mg-empresas-scope ::-webkit-scrollbar-thumb {
+  background: var(--gray-fill2);
+  border-radius: 3px;
+}
+
+@media (max-width: 767px) {
+  .mg-empresas-scope input,
+  .mg-empresas-scope select,
+  .mg-empresas-scope textarea {
+    font-size: 16px !important;
+  }
+
+  .mg-empresas-scope.cadastro-emp-scope {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom));
+  }
+
+  .mg-empresas-scope .mobile-bottom-bar {
+    display: flex;
+  }
+}
+
+@media (min-width: 768px) {
+  .mg-empresas-scope .mg-mobile-filter-strip,
+  .mg-empresas-scope .mobile-bottom-bar {
+    display: none !important;
+  }
+}
+
+/* Neutraliza overrides legados dentro do escopo protótipo */
+.mg-empresas-scope .emp-toolbar-card,
+.mg-empresas-scope .emp-content-card,
+.mg-empresas-scope .emp-form-panels-zone,
+.mg-empresas-scope .emp-form-card {
+  border-radius: 14px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+}
+
+.mg-empresas-scope .emp-form-card-title::before {
+  display: none !important;
+}
+
+.mg-empresas-scope .emp-form-card-title {
+  color: var(--text-1) !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  padding: 0 0 12px !important;
+  background: transparent !important;
+}
+
+.mg-empresas-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active::after {
+  display: none !important;
+}

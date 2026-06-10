@@ -1,12 +1,10 @@
-/* Visualização Pesquisa — espelho do protótipo HTML MakGestão */
-
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap");
+/* Visualização Pesquisa — tokens globais em mg-ui-system.css */
 
 .cadastro-emp-scope .emp-search-view-wrap {
   gap: 0 !important;
-  background: #f5f6fa !important;
-  border-radius: var(--erp-radius-card, 12px) !important;
-  box-shadow: var(--erp-shadow-card, 0 2px 8px rgba(15, 23, 42, 0.04)) !important;
+  background: var(--mg-bg-page, #f5f7fa) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   overflow: hidden;
 }
 
@@ -27,25 +25,16 @@
 .cadastro-emp-scope .emp-search-view {
   --emp-search-radius-card: 12px;
   --emp-search-shadow-card: 0 2px 8px rgba(15, 23, 42, 0.04);
-  --background-page: #f5f6fa;
-  --background-card: #ffffff;
-  --border-color: #e5e7eb;
-  --text-primary: #374151;
-  --text-secondary: #6b7280;
-  --erp-color-primary: #2899f5;
-  --erp-color-row-hover: #f5f6fa;
-  --erp-color-row-selected: #eef8ff;
-
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
   overflow: hidden;
-  background: var(--background-page);
-  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
-  font-size: 13px;
-  color: var(--text-primary);
+  background: var(--mg-bg-page, #f5f7fa);
+  font-family: inherit;
+  font-size: var(--mg-font-size, 13px);
+  color: var(--mg-text-1, #111827);
 }
 
 .cadastro-emp-scope .emp-search-bar {

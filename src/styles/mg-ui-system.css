@@ -1,0 +1,595 @@
+/**
+ * MakGestão UI System — camada visual do protótipo HTML.
+ * Apenas estética: tokens, tipografia, cores, bordas e sombras.
+ * Não altera regras de layout configurável nem visibilidade de botões.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap");
+
+:root {
+  --mg-bg-page: #f5f7fa;
+  --mg-bg-card: #ffffff;
+  --mg-bg-surface: #ffffff;
+  --mg-border: #e5e7eb;
+  --mg-border-focus: #2899f5;
+  --mg-text-1: #111827;
+  --mg-text-2: #6b7280;
+  --mg-text-3: #9ca3af;
+  --mg-accent: #2899f5;
+  --mg-accent-light: rgba(40, 153, 245, 0.08);
+  --mg-accent-glow: rgba(40, 153, 245, 0.15);
+  --mg-green: #059669;
+  --mg-green-light: rgba(5, 150, 105, 0.08);
+  --mg-yellow: #d97706;
+  --mg-red: #dc2626;
+  --mg-red-light: rgba(220, 38, 38, 0.08);
+  --mg-gray-fill: #f3f4f6;
+  --mg-gray-fill2: #e5e7eb;
+  --mg-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --mg-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --mg-shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --mg-radius-card: 14px;
+  --mg-radius-control: 8px;
+  --mg-control-height: 36px;
+  --mg-toolbar-height: 34px;
+  --mg-font-size: 13px;
+  --mg-font-size-sm: 12px;
+  --mg-font-size-xs: 11px;
+
+  /* Aliases ERP (consumidos pelos módulos existentes) */
+  --background-page: var(--mg-bg-page);
+  --background-card: var(--mg-bg-card);
+  --border-color: var(--mg-border);
+  --text-primary: var(--mg-text-1);
+  --text-secondary: var(--mg-text-2);
+  --erp-color-primary: var(--mg-accent);
+  --erp-color-text: var(--mg-text-1);
+  --erp-color-text-secondary: var(--mg-text-2);
+  --erp-color-text-muted: var(--mg-text-3);
+  --erp-color-label: var(--mg-text-2);
+  --erp-color-border: var(--mg-border);
+  --erp-color-card-border: var(--mg-border);
+  --erp-color-input-border: var(--mg-border);
+  --erp-color-input-hover: var(--mg-border-focus);
+  --erp-color-input-focus: var(--mg-border-focus);
+  --erp-color-surface: var(--mg-bg-page);
+  --erp-color-card: var(--mg-bg-card);
+  --erp-color-row-hover: #eef6ff;
+  --erp-color-row-selected: var(--mg-accent-light);
+  --erp-color-required: var(--mg-red);
+  --erp-radius-card: var(--mg-radius-card);
+  --erp-radius-control: var(--mg-radius-control);
+  --erp-radius-toolbar-btn: var(--mg-radius-control);
+  --erp-shadow-card: var(--mg-shadow-sm);
+  --erp-shadow-control: none;
+  --erp-shadow-focus: 0 0 0 2px var(--mg-accent-glow);
+  --erp-control-height: var(--mg-control-height);
+  --erp-toolbar-height: var(--mg-toolbar-height);
+  --erp-toolbar-btn-size: var(--mg-toolbar-height);
+  --erp-state-success: var(--mg-green);
+  --erp-state-error: var(--mg-red);
+}
+
+html,
+body,
+#root {
+  font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: var(--mg-font-size);
+  color: var(--mg-text-1);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* —— Shell —— */
+.erp-shell {
+  background: var(--mg-bg-page) !important;
+}
+
+.erp-shell-header {
+  height: 44px !important;
+  min-height: 44px !important;
+  border-bottom: 1px solid var(--mg-border) !important;
+  background: var(--mg-bg-card) !important;
+  padding-inline: 20px !important;
+}
+
+.erp-shell-breadcrumbs {
+  min-height: 44px !important;
+  border-bottom: 1px solid var(--mg-border) !important;
+  background: var(--mg-bg-card) !important;
+  padding-inline: 20px !important;
+}
+
+.erp-shell-content-area {
+  background: var(--mg-bg-page) !important;
+}
+
+.erp-shell .erp-sidebar,
+.erp-shell [data-sidebar="sidebar"] {
+  background: var(--mg-bg-surface) !important;
+  border-right: 1px solid var(--mg-border) !important;
+}
+
+.erp-shell .erp-sidebar-sub-link[data-active="true"],
+.erp-shell .erp-sidebar-link[data-active="true"] {
+  background: #e0edff !important;
+  color: var(--mg-accent) !important;
+  font-weight: 600 !important;
+}
+
+.erp-shell .erp-sidebar-group-trigger:hover,
+.erp-shell .erp-sidebar-sub-link:not([data-active="true"]):hover {
+  background: var(--mg-gray-fill) !important;
+  color: var(--mg-text-1) !important;
+}
+
+.erp-info-pill {
+  border-radius: 4px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+}
+
+/* —— Cadastro: layout plano (protótipo) —— */
+.cadastro-scope,
+.cadastro-emp-scope {
+  font-family: "DM Sans", -apple-system, sans-serif;
+  font-size: var(--mg-font-size);
+  color: var(--mg-text-1);
+  --erp-control-height: var(--mg-control-height);
+  --erp-toolbar-height: var(--mg-toolbar-height);
+  --erp-radius-card: var(--mg-radius-card);
+}
+
+.cadastro-scope .emp-split-view,
+.cadastro-emp-scope .emp-split-view {
+  gap: 0 !important;
+  background: transparent !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-card {
+  background: var(--mg-bg-card) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--mg-border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 6px 20px !important;
+  min-height: calc(var(--mg-toolbar-height) + 12px) !important;
+}
+
+.cadastro-emp-scope .emp-content-card,
+.cadastro-emp-scope .emp-table-card {
+  background: var(--mg-bg-page) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-panels-zone {
+  background: var(--mg-bg-card) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-form-section-panel--corp {
+  background: var(--mg-bg-page) !important;
+  padding: 12px 20px !important;
+}
+
+/* —— Toolbar: botões tb-btn —— */
+.cadastro-emp-scope .emp-toolbar-btn,
+.cadastro-emp-scope .emp-header-ctrl {
+  height: var(--mg-toolbar-height) !important;
+  min-height: var(--mg-toolbar-height) !important;
+  border-radius: var(--mg-radius-control) !important;
+  font-size: var(--mg-font-size-sm) !important;
+  font-weight: 600 !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: transform 100ms ease, opacity 100ms ease, background 120ms ease !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn:active:not(:disabled),
+.cadastro-emp-scope .emp-header-ctrl:active:not(:disabled) {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn:not(.w-auto):not(.emp-toolbar-btn-labeled) {
+  width: var(--mg-toolbar-height) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.w-auto,
+.cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-labeled {
+  padding-inline: 14px !important;
+}
+
+/* Novo — verde */
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new {
+  background: var(--mg-green) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new span,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:hover:not(:disabled) {
+  background: #047857 !important;
+}
+
+/* Salvar — azul */
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save {
+  background: var(--mg-accent) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save span,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:hover:not(:disabled) {
+  background: #2180d0 !important;
+}
+
+/* Editar — cinza */
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-edit {
+  background: var(--mg-gray-fill2) !important;
+  color: var(--mg-text-1) !important;
+  border: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-edit span,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-edit svg {
+  color: var(--mg-text-1) !important;
+  stroke: var(--mg-text-1) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-edit:hover:not(:disabled) {
+  background: #d1d5db !important;
+}
+
+/* Excluir — vermelho */
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
+  background: var(--mg-red) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete span,
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
+  background: #b91c1c !important;
+}
+
+/* Ghost / filtros / ícones */
+.cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete):not(.emp-toolbar-btn-edit) {
+  background: var(--mg-gray-fill) !important;
+  color: var(--mg-text-2) !important;
+  border: none !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete):not(.emp-toolbar-btn-edit) span,
+.cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete):not(.emp-toolbar-btn-edit) svg {
+  color: var(--mg-text-2) !important;
+  stroke: var(--mg-text-2) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete):not(.emp-toolbar-btn-edit):hover:not(:disabled) {
+  background: var(--mg-gray-fill2) !important;
+  color: var(--mg-text-1) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-active {
+  background: var(--mg-accent-light) !important;
+  color: var(--mg-accent) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-active svg {
+  color: var(--mg-accent) !important;
+  stroke: var(--mg-accent) !important;
+}
+
+/* Busca na toolbar — pill */
+.cadastro-emp-scope .emp-toolbar-search {
+  height: var(--mg-toolbar-height) !important;
+  min-height: var(--mg-toolbar-height) !important;
+  border-radius: 999px !important;
+  background: var(--mg-gray-fill) !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding-inline: 12px !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search-input {
+  font-size: var(--mg-font-size-sm) !important;
+  line-height: var(--mg-toolbar-height) !important;
+  background: transparent !important;
+  color: var(--mg-text-1) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-search-input::placeholder {
+  color: var(--mg-text-3) !important;
+}
+
+.cadastro-emp-scope .emp-toolbar-counter {
+  height: var(--mg-toolbar-height) !important;
+  border-radius: var(--mg-radius-control) !important;
+  background: var(--mg-gray-fill) !important;
+  border: none !important;
+  font-size: var(--mg-font-size-xs) !important;
+  color: var(--mg-text-2) !important;
+}
+
+/* —— Abas seg-control —— */
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch {
+  background: var(--mg-bg-card) !important;
+  border-bottom: 1px solid var(--mg-border) !important;
+  padding-inline: 12px !important;
+  min-height: 40px !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab {
+  padding: 10px 14px !important;
+  font-size: var(--mg-font-size-sm) !important;
+  font-weight: 500 !important;
+  color: var(--mg-text-2) !important;
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 2px solid transparent !important;
+  margin-bottom: -1px !important;
+  border-radius: 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active {
+  color: var(--mg-accent) !important;
+  font-weight: 600 !important;
+  border-bottom-color: var(--mg-accent) !important;
+  background: transparent !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active::after,
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-inactive::after {
+  display: none !important;
+  content: none !important;
+}
+
+.cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-inactive:hover {
+  color: var(--mg-text-1) !important;
+  background: transparent !important;
+}
+
+/* —— Cards erp-card —— */
+.cadastro-emp-scope .emp-form-card:not(.emp-form-card--virtual) {
+  border: 1px solid var(--mg-border) !important;
+  border-radius: var(--mg-radius-card) !important;
+  background: var(--mg-bg-card) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope .emp-form-card-title {
+  min-height: auto !important;
+  padding: 0 0 12px 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--mg-text-1) !important;
+  background: transparent !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-card-title::before {
+  display: none !important;
+  content: none !important;
+}
+
+.cadastro-emp-scope .emp-form-card .emp-form-card-body,
+.cadastro-emp-scope .emp-form-card > .emp-form-fields-corp {
+  padding: 16px !important;
+}
+
+/* —— Campos fg (label acima) —— */
+.cadastro-emp-scope .emp-form-field-label-top,
+.cadastro-emp-scope .emp-form-fields-corp .emp-form-field-label-top,
+.cadastro-emp-scope .emp-form-fields [data-field] > label {
+  font-size: var(--mg-font-size-sm) !important;
+  font-weight: 600 !important;
+  color: var(--mg-text-2) !important;
+  line-height: 1 !important;
+  margin-bottom: 4px !important;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control {
+  min-height: var(--mg-control-height) !important;
+  border: 1px solid var(--mg-border) !important;
+  border-radius: var(--mg-radius-control) !important;
+  background: var(--mg-bg-card) !important;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control:focus-within,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control:focus-within {
+  border-color: var(--mg-border-focus) !important;
+  box-shadow: var(--erp-shadow-focus) !important;
+}
+
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control input,
+.cadastro-emp-scope .emp-form-field-corp .emp-form-field-control textarea,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control input,
+.cadastro-emp-scope .emp-form-fields .emp-form-field-control textarea {
+  font-size: var(--mg-font-size) !important;
+  font-weight: 500 !important;
+  color: var(--mg-text-1) !important;
+  height: calc(var(--mg-control-height) - 2px) !important;
+  min-height: calc(var(--mg-control-height) - 2px) !important;
+}
+
+.cadastro-emp-scope select,
+.cadastro-emp-scope .erp-select-closed {
+  height: var(--mg-control-height) !important;
+  min-height: var(--mg-control-height) !important;
+  font-size: var(--mg-font-size) !important;
+  font-weight: 500 !important;
+  border-radius: var(--mg-radius-control) !important;
+}
+
+.cadastro-emp-scope select:focus,
+.cadastro-emp-scope .erp-select-closed:focus {
+  border-color: var(--mg-border-focus) !important;
+  box-shadow: var(--erp-shadow-focus) !important;
+}
+
+/* Lookup / cmd-select */
+.cadastro-emp-scope .erp-field-select .erp-select-trigger,
+.cadastro-emp-scope .erp-field-lookup .erp-select-trigger {
+  min-height: var(--mg-control-height) !important;
+  border-radius: var(--mg-radius-control) !important;
+  font-size: var(--mg-font-size) !important;
+  font-weight: 500 !important;
+}
+
+.cadastro-emp-scope .erp-menu-panel,
+.cadastro-emp-scope .erp-select-menu,
+.cadastro-emp-scope .emp-filter-popover {
+  border-radius: var(--mg-radius-control) !important;
+  box-shadow: var(--mg-shadow-md) !important;
+  border: 1px solid var(--mg-border) !important;
+}
+
+.cadastro-emp-scope .erp-menu-item:hover,
+.cadastro-emp-scope .erp-menu-item[data-highlighted] {
+  background: var(--mg-gray-fill) !important;
+}
+
+.cadastro-emp-scope .erp-menu-item[data-selected="true"] {
+  background: var(--mg-accent-light) !important;
+  color: var(--mg-accent) !important;
+  font-weight: 600 !important;
+}
+
+/* —— Tabela mg-grid —— */
+.cadastro-emp-scope .emp-table-pro {
+  font-size: var(--mg-font-size-sm) !important;
+  border-collapse: collapse !important;
+}
+
+.cadastro-emp-scope .emp-table-pro thead .emp-th,
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 8px 14px !important;
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+  font-weight: 600 !important;
+  color: var(--mg-text-3) !important;
+  background: var(--mg-bg-card) !important;
+  border-bottom: 2px solid var(--mg-border) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-td {
+  padding: 8px 14px !important;
+  color: var(--mg-text-1) !important;
+  border-bottom: 1px solid var(--mg-border) !important;
+  background: var(--mg-bg-card) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tbody tr:nth-child(even) .emp-td {
+  background: #fafbfc !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tbody tr:hover .emp-td {
+  background: #eef6ff !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
+  background: var(--mg-accent-light) !important;
+}
+
+.cadastro-emp-scope .emp-table-pagination-page-active {
+  background: var(--mg-accent) !important;
+  color: #fff !important;
+}
+
+/* —— Pills de status —— */
+.cadastro-emp-scope .erp-info-pill--success,
+.cadastro-emp-scope .pill-active {
+  background: var(--mg-green-light) !important;
+  color: var(--mg-green) !important;
+  font-weight: 600 !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  font-size: 10px !important;
+}
+
+/* —— Pesquisa (cards) —— */
+.cadastro-emp-scope .emp-search-view-wrap {
+  background: var(--mg-bg-page) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope .emp-search-result-card {
+  border: 1px solid var(--mg-border) !important;
+  border-radius: var(--mg-radius-card) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+}
+
+.cadastro-emp-scope .emp-search-result-card:hover {
+  box-shadow: var(--mg-shadow-md) !important;
+}
+
+/* —— Scrollbars —— */
+.cadastro-emp-scope ::-webkit-scrollbar,
+.erp-shell ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.cadastro-emp-scope ::-webkit-scrollbar-thumb,
+.erp-shell ::-webkit-scrollbar-thumb {
+  background: var(--mg-gray-fill2);
+  border-radius: 3px;
+}
+
+/* —— Rodapé mobile do formulário —— */
+.cadastro-emp-scope .emp-form-mobile-footer {
+  background: var(--mg-bg-card) !important;
+  border-top: 1px solid var(--mg-border) !important;
+}
+
+.cadastro-emp-scope .emp-form-mobile-footer__btn {
+  border-radius: var(--mg-radius-control) !important;
+  font-size: var(--mg-font-size-sm) !important;
+  font-weight: 600 !important;
+}
+
+.cadastro-emp-scope .emp-form-mobile-footer__btn:not(.emp-toolbar-btn-save) {
+  background: var(--mg-gray-fill2) !important;
+  color: var(--mg-text-1) !important;
+}
+
+/* —— Mobile: evita zoom em inputs —— */
+@media (max-width: 767px) {
+  .cadastro-emp-scope input,
+  .cadastro-emp-scope select,
+  .cadastro-emp-scope textarea {
+    font-size: 16px !important;
+  }
+}

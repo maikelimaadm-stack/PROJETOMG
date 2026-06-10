@@ -177,6 +177,9 @@ function FieldFrameCorp({
           width: "auto",
         };
 
+  const mgPrototype =
+    className.includes("mg-prototype-field") || className === "mg-prototype-field";
+
   return (
     <div
       data-field={field.dataField || field.name}
@@ -189,13 +192,21 @@ function FieldFrameCorp({
         textareaField && "emp-form-field-corp--textarea",
         field?.wide && "emp-form-field-corp--wide",
         bare && "emp-form-field-corp--bare",
+        mgPrototype && "mg-prototype-field",
         className
       )}
       style={widthStyle}
     >
-      <label className="emp-form-field-label-top">
+      <label
+        className={cn(
+          mgPrototype ? "fg-label" : "emp-form-field-label-top",
+          mgPrototype && field.required && "required"
+        )}
+      >
         {field.label}
-        {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
+        {!mgPrototype && field.required ? (
+          <span className="emp-form-required-mark ml-0.5">*</span>
+        ) : null}
       </label>
       <div
         className={cn(
@@ -235,9 +246,9 @@ function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, childre
 
   if (!collapsible) {
     return (
-      <section className="emp-form-card">
-        <div className="emp-form-card-title">{card.label}</div>
-        <div className="emp-form-card-body">{children}</div>
+      <section className="emp-form-card erp-card p-4">
+        <h3 className="emp-form-card-title mb-3 text-sm font-semibold">{card.label}</h3>
+        <div className="emp-form-card-body grid grid-cols-1 gap-3">{children}</div>
       </section>
     );
   }
@@ -467,7 +478,7 @@ export default function EmpDynamicFormRenderer({
       )}
       style={{ width: "100%" }}
     >
-      <div className="emp-form-cards-layout cad-form-cards-layout">{cardSections}</div>
+      <div className="emp-form-cards-layout cad-form-cards-layout mg-prototype-cards-layout">{cardSections}</div>
     </div>
   );
 }

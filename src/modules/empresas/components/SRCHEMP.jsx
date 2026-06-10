@@ -186,6 +186,7 @@ export default function SRCHEMP({
   onPageChange,
   onPageSizeChange,
   onEdit,
+  mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
@@ -248,6 +249,86 @@ export default function SRCHEMP({
     setVisFields(normalized);
     saveSearchVisFields(normalized);
   }, []);
+
+  if (mgPrototype) {
+    return (
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto p-4">
+          {isLoading ? (
+            <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
+              Carregando registros...
+            </div>
+          ) : filteredEmpresas.length === 0 ? (
+            <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
+              Nenhum registro encontrado
+            </div>
+          ) : (
+            <div id="cards-grid" className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {filteredEmpresas.map((emp, index) => {
+                const code = String(getEmpSearchFieldValue(emp, "codempresa") || "").padStart(6, "0");
+                const nome = getEmpSearchFieldValue(emp, "razao_social");
+                const cnpj = getEmpSearchFieldValue(emp, "cnpj");
+                const telefone = getEmpSearchFieldValue(emp, "telefone");
+                const cidade = getEmpSearchFieldValue(emp, "cidade");
+                const uf = getEmpSearchFieldValue(emp, "uf");
+                return (
+                  <div
+                    key={emp.id}
+                    className="erp-card cursor-pointer p-4"
+                    onDoubleClick={() => onEdit?.(emp)}
+                    role="presentation"
+                  >
+                    <div className="mb-2.5 flex items-center gap-2.5">
+                      <div
+                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[11px] font-bold text-white"
+                        style={{ background: "linear-gradient(135deg, var(--accent), #60A5FA)" }}
+                      >
+                        {code.substring(0, 2)}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-xs font-semibold" style={{ color: "var(--text-1)" }}>
+                          {nome}
+                        </div>
+                        <div className="mt-0.5 text-[10px]" style={{ color: "var(--text-3)" }}>
+                          {code}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mb-2.5 flex flex-col gap-1.5 text-[11px]">
+                      <div>
+                        <span style={{ color: "var(--text-3)" }}>CNPJ: </span>
+                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{cnpj}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: "var(--text-3)" }}>Tel: </span>
+                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{telefone}</span>
+                      </div>
+                      <div>
+                        <span style={{ color: "var(--text-3)" }}>Cidade: </span>
+                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{cidade}/{uf}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end border-t pt-2.5" style={{ borderColor: "var(--border)" }}>
+                      <span className="pill pill-active">Ativo</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+        <footer
+          className="flex shrink-0 items-center gap-3 border-t px-5 py-2"
+          style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
+        >
+          <span className="text-[11px]" style={{ color: "var(--text-3)" }}>Por página:</span>
+          <SearchPageSizeSelect value={pageSize} onChange={onPageSizeChange} />
+          <span className="flex-1 text-[11px]" style={{ color: "var(--text-3)" }}>{counterText}</span>
+          <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
+        </footer>
+      </div>
+    );
+  }
 
   return (
     <div className="emp-search-view">

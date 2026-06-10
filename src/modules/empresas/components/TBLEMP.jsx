@@ -62,6 +62,7 @@ export default function TBLEMP({
   onServerPageSizeChange = null,
   onServerSortChange = null,
   moduleTitle = "Cadastro",
+  mgPrototype = false,
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codempresa", direction: "asc" });
@@ -893,8 +894,15 @@ export default function TBLEMP({
       );
     });
 
+  const tableClass = mgPrototype
+    ? "mg-grid emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none"
+    : "emp-table-pro emp-table-pro-header w-full border-separate border-spacing-0 table-fixed select-none";
+  const bodyTableClass = mgPrototype
+    ? "mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none"
+    : "emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none";
+
   return (
-    <div className="emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none">
+    <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
       <div
         ref={tableStageRef}
         className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
@@ -910,7 +918,7 @@ export default function TBLEMP({
             >
               <Table
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="emp-table-pro emp-table-pro-header w-full border-separate border-spacing-0 table-fixed select-none"
+                className={tableClass}
               >
                 <TableHeader>
                   <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
@@ -922,7 +930,7 @@ export default function TBLEMP({
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className="emp-table-body-scroll min-h-0 flex-1 outline-none overflow-auto"
+            className={`emp-table-body-scroll min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
           >
             <div
               className="block w-max min-w-full min-h-full"
@@ -931,7 +939,7 @@ export default function TBLEMP({
               <Table
                 ref={tableRef}
                 style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className="emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none"
+                className={bodyTableClass}
               >
                 <TableBody>
                   {isLoadingEmpresas
