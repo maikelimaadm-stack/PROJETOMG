@@ -20,8 +20,7 @@ import {
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
-import MgMobileFilterStrip from "@/modules/empresas/layout/MgMobileFilterStrip";
-import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
+import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
@@ -83,7 +82,8 @@ export default function PAGEMP() {
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const { filterPanelOpen, toggleFilterPanel, closeFilterPanel, registerViewModeBridge } =
+    useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
   const [filterStatus, setFilterStatus] = useState("Todos");
   const [formBridge, setFormBridge] = useState(null);
@@ -429,6 +429,10 @@ export default function PAGEMP() {
   );
 
   useEffect(() => {
+    registerViewModeBridge(mgViewMode, handleMgViewModeChange);
+  }, [mgViewMode, handleMgViewModeChange, registerViewModeBridge]);
+
+  useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
     if (empresasNavegacao.length === 0) return;
 
@@ -699,7 +703,7 @@ export default function PAGEMP() {
     "Novo registro";
 
   return (
-    <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <SaveProgressOverlay
         active={saveCycle.isSaving}
         message={saveCycle.saveMessage}
@@ -711,22 +715,18 @@ export default function PAGEMP() {
           open={filterPanelOpen}
           values={filterValues}
           onChange={handleFilterChange}
-          onClose={() => setFilterPanelOpen(false)}
+          onClose={closeFilterPanel}
           status={filterStatus}
           onStatusChange={setFilterStatus}
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <MgMobileFilterStrip
-            filterOpen={filterPanelOpen}
-            onToggleFilter={() => setFilterPanelOpen((open) => !open)}
-          />
           <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
             searchValue={searchTerm}
             onSearchChange={handleSearchChange}
-            onToggleFilter={() => setFilterPanelOpen((open) => !open)}
+            onToggleFilter={toggleFilterPanel}
             onNew={handleNew}
             onSave={formBridge?.onSave}
             onEdit={formBridge?.onEdit}
@@ -844,8 +844,6 @@ export default function PAGEMP() {
           )}
         </div>
       </div>
-
-      <MgMobileViewBar value={mgViewMode} onChange={handleMgViewModeChange} />
 
       <EmpresasDialogs
         exportPdfProps={{
