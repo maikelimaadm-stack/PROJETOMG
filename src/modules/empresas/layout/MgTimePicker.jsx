@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Clock } from "lucide-react";
+import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 
 function parseTime(value) {
   const p = String(value || "").split(":");
@@ -15,8 +16,13 @@ export default function MgTimePicker({
   disabled = false,
 }) {
   const rootRef = useRef(null);
+  const hoursRef = useRef(null);
+  const minutesRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(parseTime(value));
+  const panelStyle = useMgPanelPosition(open, rootRef, { width: 220 });
+
+  useMgPanelCoordinator(rootRef, setOpen);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -31,9 +37,23 @@ export default function MgTimePicker({
     setState(parseTime(value));
   }, [value]);
 
+  useEffect(() => {
+    if (!open) return;
+    requestAnimationFrame(() => {
+      hoursRef.current?.querySelector(".active")?.scrollIntoView({ block: "center", behavior: "smooth" });
+      minutesRef.current?.querySelector(".active")?.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+  }, [open, state.hour, state.minute]);
+
   const toggle = () => {
     if (readOnly || disabled) return;
-    setOpen((o) => !o);
+    setOpen((wasOpen) => {
+      if (!wasOpen) {
+        closeMgPanels(rootRef.current);
+        return true;
+      }
+      return false;
+    });
   };
 
   const finish = (hour, minute) => {
@@ -74,9 +94,9 @@ export default function MgTimePicker({
         onClick={toggle}
       />
       <div className="mg-tp-icon"><Clock className="h-3.5 w-3.5" /></div>
-      <div className="mg-tp-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="mg-tp-panel" style={open ? panelStyle : undefined} onClick={(e) => e.stopPropagation()}>
         <div className="mg-tp-columns">
-          <div className="mg-tp-col">
+          <div className="mg-tp-col" ref={hoursRef}>
             <div className="mg-tp-col-label">Hora</div>
             {Array.from({ length: 24 }, (_, h) => (
               <div
@@ -88,7 +108,7 @@ export default function MgTimePicker({
               </div>
             ))}
           </div>
-          <div className="mg-tp-col">
+          <div className="mg-tp-col" ref={minutesRef}>
             <div className="mg-tp-col-label">Minuto</div>
             {Array.from({ length: 12 }, (_, i) => i * 5).map((m) => (
               <div

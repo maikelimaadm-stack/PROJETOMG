@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 
 export default function MgLookup({
   label,
@@ -16,10 +17,13 @@ export default function MgLookup({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlighted, setHighlighted] = useState(-1);
+  const panelStyle = useMgPanelPosition(open, rootRef);
+
+  useMgPanelCoordinator(rootRef, setOpen);
 
   const itemKey = (item) => String(item?.id ?? item?.value ?? item?.codigo ?? "");
   const selected = items.find((item) => itemKey(item) === String(value));
-  const display = selected?.[displayField] || "";
+  const display = selected?.[displayField] || (value ? String(value) : "");
 
   const filtered = items.filter((item) =>
     searchFields.some((field) =>
@@ -38,9 +42,14 @@ export default function MgLookup({
 
   const toggle = () => {
     if (readOnly || disabled) return;
-    setOpen((o) => {
-      if (!o) { setQuery(""); setHighlighted(-1); }
-      return !o;
+    setOpen((wasOpen) => {
+      if (!wasOpen) {
+        closeMgPanels(rootRef.current);
+        setQuery("");
+        setHighlighted(-1);
+        return true;
+      }
+      return false;
     });
   };
 
@@ -54,7 +63,7 @@ export default function MgLookup({
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       if (!open) { toggle(); return; }
-      const item = filtered[highlighted >= 0 ? highlighted : filtered.findIndex((i) => String(i.id) === String(value))];
+      const item = filtered[highlighted >= 0 ? highlighted : filtered.findIndex((i) => itemKey(i) === String(value))];
       if (item) selectItem(item);
     }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -71,14 +80,14 @@ export default function MgLookup({
     <div
       ref={rootRef}
       className={`mg-lookup${open ? " open" : ""}`}
-      tabIndex={0}
+      tabIndex={disabled || readOnly ? -1 : 0}
       onKeyDown={onKeyDown}
       onClick={toggle}
     >
       {label ? <span className={`mg-lookup-label${required ? " req" : ""}`}>{label}</span> : null}
       <div className="mg-lookup-display">{display}</div>
-      <ChevronDown className="mg-lookup-icon h-3 w-3" style={{ color: "var(--text-3)" }} />
-      <div className="mg-lookup-panel" onClick={(e) => e.stopPropagation()}>
+      <ChevronDown className="mg-lookup-icon h-3 w-3" />
+      <div className="mg-lookup-panel" style={open ? panelStyle : undefined} onClick={(e) => e.stopPropagation()}>
         <div className="mg-lookup-search">
           <input
             type="text"
@@ -91,7 +100,7 @@ export default function MgLookup({
         <div className="mg-lookup-list">
           {filtered.map((item, index) => (
             <div
-              key={String(item.id)}
+              key={itemKey(item)}
               className={`mg-lookup-option${String(value) === itemKey(item) ? " selected" : ""}${highlighted === index ? " highlighted" : ""}`}
               onClick={() => selectItem(item)}
             >

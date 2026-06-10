@@ -241,7 +241,10 @@ export default function FORMEMP({
           label="Tipo de Pessoa"
           required
           value={formData.tipo_pessoa || "PJ"}
-          options={opcoesTipoPessoa.map((item) => ({ value: item.id, label: item.nome }))}
+          options={opcoesTipoPessoa.map((item) => ({
+            value: item.id,
+            label: item.id === "PJ" ? "Pessoa Jurídica" : item.id === "PF" ? "Pessoa Física" : item.nome,
+          }))}
           onChange={(next) => handleChange("tipo_pessoa", next || "PJ")}
           disabled={isReadOnly}
         />
@@ -270,7 +273,10 @@ export default function FORMEMP({
         <MgCmdSelect
           label="Proprietário/Arrendatário"
           value={formData.tipo_vinculo || ""}
-          options={opcoesTipoVinculo.map((item) => ({ value: item.id, label: item.nome }))}
+          options={opcoesTipoVinculo.map((item) => ({
+            value: item.id,
+            label: item.id === "proprietario" ? "Proprietário" : item.id === "arrendatario" ? "Arrendatário" : item.nome,
+          }))}
           onChange={(next) => handleChange("tipo_vinculo", next || "")}
           disabled={isReadOnly}
         />

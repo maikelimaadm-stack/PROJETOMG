@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 
 const MONTH_NAMES = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -38,6 +39,9 @@ export default function MgDatePicker({
   const [open, setOpen] = useState(false);
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
+  const panelStyle = useMgPanelPosition(open, rootRef, { minWidth: 300 });
+
+  useMgPanelCoordinator(rootRef, setOpen);
 
   const displayValue = value
     ? (String(value).includes("/") ? String(value) : formatBrDate(parsed.day, parsed.month, parsed.year))
@@ -59,8 +63,14 @@ export default function MgDatePicker({
 
   const toggle = () => {
     if (readOnly || disabled) return;
-    setOpen((o) => !o);
-    setState((s) => ({ ...s, view: "days" }));
+    setOpen((wasOpen) => {
+      if (!wasOpen) {
+        closeMgPanels(rootRef.current);
+        setState((s) => ({ ...s, view: "days" }));
+        return true;
+      }
+      return false;
+    });
   };
 
   const selectDay = (day) => {
@@ -157,12 +167,17 @@ export default function MgDatePicker({
     });
   };
 
+  const drillUp = () => {
+    setState((s) => ({ ...s, view: "years" }));
+  };
+
+  const startYear = state.year - 5;
   const title =
     state.view === "days"
       ? `${MONTH_NAMES[state.month]} de ${state.year}`
       : state.view === "months"
         ? String(state.year)
-        : `${state.year - 5} – ${state.year + 6}`;
+        : `${startYear} – ${startYear + 11}`;
 
   return (
     <div ref={rootRef} id={id} className={`mg-dp${open ? " open" : ""}`}>
@@ -176,14 +191,10 @@ export default function MgDatePicker({
         onClick={toggle}
       />
       <div className="mg-dp-icon"><Calendar className="h-3.5 w-3.5" /></div>
-      <div className="mg-dp-panel" onClick={(e) => e.stopPropagation()}>
+      <div className="mg-dp-panel" style={open ? panelStyle : undefined} onClick={(e) => e.stopPropagation()}>
         <div className="mg-dp-header">
           <button type="button" className="mg-dp-nav" onClick={() => nav(-1)}><ChevronLeft className="h-4 w-4" /></button>
-          <button
-            type="button"
-            className="mg-dp-title"
-            onClick={() => setState((s) => ({ ...s, view: s.view === "days" ? "months" : "years" }))}
-          >
+          <button type="button" className="mg-dp-title" onClick={drillUp}>
             {title}
           </button>
           <button type="button" className="mg-dp-nav" onClick={() => nav(1)}><ChevronRight className="h-4 w-4" /></button>
