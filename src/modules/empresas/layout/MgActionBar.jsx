@@ -54,7 +54,7 @@ export default function MgActionBar({
   return (
     <div
       data-template-id="action-bar"
-      className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 py-0 md:flex"
+      className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
       style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
     >
       <div className="flex items-center gap-1.5">

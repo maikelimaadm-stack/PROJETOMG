@@ -615,8 +615,9 @@
   color: var(--text-1);
 }
 
-.mg-empresas-scope .cmd-panel-options {
-  max-height: calc(15 * 34px);
+.mg-empresas-scope .cmd-panel-options,
+.mg-empresas-scope .mg-panel-options {
+  max-height: calc(10 * 34px);
   overflow-y: auto;
 }
 
@@ -777,25 +778,25 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
-/* Action bar + context — sem espaço entre barras empilhadas */
+/* Action bar — altura maior, colada ao header principal (breadcrumb) */
+.erp-shell--empresas-mg .erp-shell-content-wrap {
+  gap: 0 !important;
+}
+
+.erp-shell--empresas-mg .erp-shell-content-area {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
 .mg-empresas-scope .mg-action-bar {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
   margin: 0;
-}
-
-.mg-empresas-scope .mg-action-bar + .mg-context-panel,
-.mg-empresas-scope .mg-context-panel + #mode-registro,
-.mg-empresas-scope .mg-action-bar + #mode-registro,
-.mg-empresas-scope .mg-action-bar + #mode-tabela,
-.mg-empresas-scope .mg-action-bar + #mode-cards {
-  margin-top: 0 !important;
-}
-
-.mg-empresas-scope .mg-action-bar + .mg-context-panel {
-  border-top: none;
+  min-height: 52px;
+  padding-top: 9px;
+  padding-bottom: 9px;
 }
 
 .mg-empresas-scope .mg-action-bar__end {
@@ -1514,6 +1515,10 @@
 .mg-floating-panel-root > .mg-lookup-panel {
   pointer-events: auto;
   position: fixed;
+  top: auto;
+  left: auto;
+  right: auto;
+  margin-top: 0;
 }
 
 .mg-empresas-scope .mg-lookup-search {

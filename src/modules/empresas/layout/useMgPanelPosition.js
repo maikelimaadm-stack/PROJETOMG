@@ -18,21 +18,29 @@ export function useMgPanelPosition(
   open,
   rootRef,
   panelRef,
-  { minWidth = 0, width = null, estimatedHeight = 280 } = {}
+  { minWidth = 0, width = null, estimatedHeight = 280 } = {},
+  repositionKey = null
 ) {
-  const [style, setStyle] = useState({});
+  const [style, setStyle] = useState({ visibility: "hidden" });
 
   useLayoutEffect(() => {
     if (!open || !rootRef.current) {
-      setStyle({});
+      setStyle({ visibility: "hidden" });
       return undefined;
     }
 
     const update = () => {
-      const rect = rootRef.current.getBoundingClientRect();
+      const anchor = rootRef.current;
+      if (!anchor) return;
+
+      const rect = anchor.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return;
+
       const panelWidth = width ?? Math.max(rect.width, minWidth);
-      const panelHeight = panelRef?.current?.offsetHeight || estimatedHeight;
+      const measured = panelRef?.current?.offsetHeight ?? 0;
+      const panelHeight = measured > 0 ? measured : estimatedHeight;
       const padding = 8;
+      const gap = 4;
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
@@ -42,19 +50,16 @@ export function useMgPanelPosition(
       }
       if (left < padding) left = padding;
 
-      const gap = 4;
-      const spaceBelow = viewportHeight - rect.bottom - padding;
-      const spaceAbove = rect.top - padding;
       let top = rect.bottom + gap;
+      const fitsBelow = top + panelHeight <= viewportHeight - padding;
+      const aboveTop = rect.top - panelHeight - gap;
+      const fitsAbove = aboveTop >= padding;
 
-      if (panelHeight > spaceBelow && spaceAbove >= spaceBelow) {
-        top = rect.top - panelHeight - gap;
-      }
-
-      if (top + panelHeight > viewportHeight - padding) {
+      if (!fitsBelow && fitsAbove) {
+        top = aboveTop;
+      } else if (!fitsBelow) {
         top = Math.max(padding, viewportHeight - panelHeight - padding);
       }
-      if (top < padding) top = padding;
 
       setStyle({
         position: "fixed",
@@ -64,19 +69,31 @@ export function useMgPanelPosition(
         maxHeight: `calc(100vh - ${padding * 2}px)`,
         overflowY: "auto",
         zIndex: 10000,
+        visibility: "visible",
       });
     };
 
     update();
-    const raf = requestAnimationFrame(update);
+    const raf1 = requestAnimationFrame(update);
+    const raf2 = requestAnimationFrame(() => requestAnimationFrame(update));
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(update);
+      if (panelRef?.current) resizeObserver.observe(panelRef.current);
+      resizeObserver.observe(rootRef.current);
+    }
+
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
     return () => {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      resizeObserver?.disconnect();
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open, rootRef, panelRef, minWidth, width, estimatedHeight]);
+  }, [open, rootRef, panelRef, minWidth, width, estimatedHeight, repositionKey]);
 
   return style;
 }

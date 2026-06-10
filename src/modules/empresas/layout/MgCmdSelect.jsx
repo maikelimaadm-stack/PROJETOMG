@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
@@ -26,16 +26,27 @@ export default function MgCmdSelect({
   const [highlighted, setHighlighted] = useState(-1);
   const rootRef = useRef(null);
   const panelRef = useRef(null);
-  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { estimatedHeight: 560 });
+
+  const filtered = useMemo(
+    () =>
+      options.filter((option) =>
+        option.label.toLowerCase().includes(query.toLowerCase())
+      ),
+    [options, query]
+  );
+
+  const panelStyle = useMgPanelPosition(
+    open,
+    rootRef,
+    panelRef,
+    { estimatedHeight: 380 },
+    `${query}|${filtered.length}`
+  );
 
   useMgPanelCoordinator(rootRef, setOpen);
 
   const selected = resolveOption(options, value);
   const display = selected?.label ?? (value ? String(value) : "");
-
-  const filtered = options.filter((option) =>
-    option.label.toLowerCase().includes(query.toLowerCase())
-  );
 
   useEffect(() => {
     if (!open) return undefined;
