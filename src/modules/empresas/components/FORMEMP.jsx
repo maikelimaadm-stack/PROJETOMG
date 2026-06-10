@@ -15,7 +15,7 @@ import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
-import CadastroPageChrome from "@/shared/layouts/CadastroPageChrome";
+import { useCadastroPageHeader } from "@/framework/cadastro-engine/hooks/useCadastroPageHeader.js";
 import { useCadastroEnterNavigation } from "@/framework/cadastro-engine/keyboard/useCadastroEnterNavigation.js";
 import {
   countKnownLayoutFields,
@@ -508,48 +508,19 @@ export default function FORMEMP({
 
   const showRequiredCounter = !isReadOnly && !layoutConfigOpen;
 
-  const recordToolbar = (
-    <CadRecordToolbar
-      showSaveActions={editMode}
-      showEditAction={isReadOnly}
-      showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
-      showRecordNavigation={isEditing && !editMode && !isDuplicating}
-      onSave={handleSubmit}
-      onCancel={onCancel}
-      onEditRecord={() => setEditMode(true)}
-      onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
-      onToggleView={onToggleView}
-      total={total}
-      currentIndex={currentIndex}
-      onNew={onNew}
-      onFirst={onFirst}
-      onPrevious={onPrevious}
-      onNext={onNext}
-      onLast={onLast}
-      onDelete={onDelete}
-      onDuplicate={onDuplicate}
-      onRefresh={onRefresh}
-      actionsLocked={actionsLocked}
-      filterOpen={filterOpen}
-      filterActive={filterActive}
-      onToggleFilter={onToggleFilter}
-      onClearFilter={onClearFilter}
-      onAttachClick={onAttachClick}
-      attachDisabled={attachDisabled}
-      searchValue={searchValue}
-      onSearchChange={onSearchChange}
-      showSearch
-    />
-  );
-
-  const panelTabs = (
-    <CadTabs
-      tabs={tabs}
-      activeTab={activeTab}
-      onChange={setActiveTab}
-      systemPanelIds={empresasCadastroConfig.systemPanelIds}
-    />
-  );
+  useCadastroPageHeader({
+    enabled: true,
+    recordMeta,
+    operationLabel,
+    requiredStatus: showRequiredCounter
+      ? {
+          visible: true,
+          filled: requiredFieldStats.filled,
+          total: requiredFieldStats.total,
+          pendingFields: requiredFieldStats.pendingFields,
+        }
+      : null,
+  });
 
   if (layoutConfigOpen) {
     return (
@@ -582,22 +553,6 @@ export default function FORMEMP({
   }
 
   return (
-    <CadastroPageChrome
-      toolbar={recordToolbar}
-      tabs={panelTabs}
-      recordMeta={recordMeta}
-      operationLabel={operationLabel}
-      requiredStatus={
-        showRequiredCounter
-          ? {
-              visible: true,
-              filled: requiredFieldStats.filled,
-              total: requiredFieldStats.total,
-              pendingFields: requiredFieldStats.pendingFields,
-            }
-          : null
-      }
-    >
     <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <form ref={formRef} onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <style>{`
@@ -627,10 +582,61 @@ export default function FORMEMP({
             background-color: #94a3b8;
           }
         `}</style>
-        <CadSplitLayout className="h-full min-h-0 flex-1" unifiedChrome>
+        <CadSplitLayout
+          className="h-full min-h-0 flex-1"
+          toolbar={
+            <CadRecordToolbar
+              showSaveActions={editMode}
+              showEditAction={isReadOnly}
+              showDeleteDuplicateActions={isEditing && !editMode && !isDuplicating}
+              showRecordNavigation={isEditing && !editMode && !isDuplicating}
+              onSave={handleSubmit}
+              onCancel={onCancel}
+              onEditRecord={() => setEditMode(true)}
+              onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
+              onToggleView={onToggleView}
+              total={total}
+              currentIndex={currentIndex}
+              onNew={onNew}
+              onFirst={onFirst}
+              onPrevious={onPrevious}
+              onNext={onNext}
+              onLast={onLast}
+              onDelete={onDelete}
+              onDuplicate={onDuplicate}
+              onRefresh={onRefresh}
+              actionsLocked={actionsLocked}
+              filterOpen={filterOpen}
+              filterActive={filterActive}
+              onToggleFilter={onToggleFilter}
+              onClearFilter={onClearFilter}
+              onAttachClick={onAttachClick}
+              attachDisabled={attachDisabled}
+              searchValue={searchValue}
+              onSearchChange={onSearchChange}
+              showSearch
+            />
+          }
+        >
         <div className="form-scroll-container min-h-0 flex-1 overflow-auto">
           <div className="emp-form-body flex min-h-0 flex-1 flex-col">
-            <div className="emp-form-panels-zone emp-form-panels-zone--unified flex min-h-0 flex-1 flex-col">
+            <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
+              <CadTabs
+                tabs={tabs}
+                activeTab={activeTab}
+                onChange={setActiveTab}
+                systemPanelIds={empresasCadastroConfig.systemPanelIds}
+                trailing={
+                  <FormValidationStatus
+                    visible={showRequiredCounter}
+                    filled={requiredFieldStats.filled}
+                    total={requiredFieldStats.total}
+                    pendingFields={requiredFieldStats.pendingFields}
+                    className="emp-form-tabs-required-desktop"
+                  />
+                }
+              />
+
               <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
                 <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
                   <RenderEngine
@@ -678,6 +684,5 @@ export default function FORMEMP({
         ) : null}
       </form>
     </div>
-    </CadastroPageChrome>
   );
 }

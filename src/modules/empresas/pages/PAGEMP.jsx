@@ -15,9 +15,7 @@ import {
   EmpresasDialogs,
   EmpresasFormPanel,
   EmpresasTablePanel,
-  SankhyaListToolbar,
 } from "./PAGEMP.sections";
-import CadastroPageChrome from "@/shared/layouts/CadastroPageChrome";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -637,33 +635,31 @@ export default function PAGEMP() {
           }}
         />
       ) : (
-        <CadastroPageChrome
-          toolbar={
-            <SankhyaListToolbar
-              actionsLocked={saveCycle.isSaving}
-              viewMode={viewMode}
-              total={totalEmpresas}
-              currentIndex={selectedIndex}
-              searchValue={searchTerm}
-              onSearchChange={handleSearchChange}
-              onNew={handleNew}
-              onToggleView={handleToggleView}
-              toggleViewDisabled={selectedTableItems.length > 1}
-              filterActive={false}
-              onDelete={() => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)}
-              onDuplicate={() => selectedTableEmp && handleDuplicate(selectedTableEmp)}
-              onAttachClick={() => selectedTableEmp && setAttachmentsRecord(selectedTableEmp)}
-              attachDisabled={selectedTableItems.length !== 1}
-              onExportPdf={handleExportPdf}
-              onConfigExportPdf={() => setShowConfigPdf(true)}
-              onExportExcel={handleExportExcel}
-              onConfigExportExcel={() => setShowConfigExcel(true)}
-              onConfigColumns={() => setShowConfigColunas(true)}
-              selectedCount={selectedTableItems.length}
-            />
-          }
-        >
         <EmpresasTablePanel
+          toolbarProps={{
+          actionsLocked: saveCycle.isSaving,
+          viewMode,
+          total: totalEmpresas,
+          currentIndex: selectedIndex,
+          searchValue: searchTerm,
+          onSearchChange: handleSearchChange,
+          onNew: handleNew,
+          onToggleView: handleToggleView,
+          toggleViewDisabled: selectedTableItems.length > 1,
+          filterActive: false,
+          onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),
+          onDuplicate: () => selectedTableEmp && handleDuplicate(selectedTableEmp),
+          onAttachClick: () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp),
+          attachDisabled: selectedTableItems.length !== 1,
+          onExportPdf: handleExportPdf,
+          onConfigExportPdf: () => setShowConfigPdf(true),
+          onExportExcel: handleExportExcel,
+          onConfigExportExcel: () => setShowConfigExcel(true),
+          onConfigColumns: () => setShowConfigColunas(true),
+          selectedCount: selectedTableItems.length,
+          title: moduleLabels.title,
+          recordLabel: "",
+        }}
         tableProps={{
           key: "tbl-emp",
           empresas: empresasFiltradasPainel,
@@ -691,7 +687,6 @@ export default function PAGEMP() {
           moduleTitle: moduleLabels.title,
         }}
         />
-        </CadastroPageChrome>
       )}
 
       <EmpresasDialogs
