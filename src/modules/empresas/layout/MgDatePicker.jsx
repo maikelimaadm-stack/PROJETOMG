@@ -27,6 +27,10 @@ function formatBrDate(day, month, year) {
   return `${String(day).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}/${year}`;
 }
 
+function isInsideFloatingPanel(target) {
+  return Boolean(target?.closest?.("[data-mg-floating-panel]"));
+}
+
 export default function MgDatePicker({
   label,
   required = false,
@@ -38,6 +42,7 @@ export default function MgDatePicker({
   const id = useId();
   const rootRef = useRef(null);
   const panelRef = useRef(null);
+  const onChangeRef = useRef(onChange);
   const [open, setOpen] = useState(false);
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
@@ -45,19 +50,24 @@ export default function MgDatePicker({
 
   useMgPanelCoordinator(rootRef, setOpen);
 
+  onChangeRef.current = onChange;
+
   const displayValue = value
     ? (String(value).includes("/") ? String(value) : formatBrDate(parsed.day, parsed.month, parsed.year))
     : "";
 
   useEffect(() => {
     if (!open) return undefined;
+
     const close = (event) => {
-      if (!rootRef.current?.contains(event.target) && !panelRef.current?.contains(event.target)) {
-        setOpen(false);
-      }
+      if (rootRef.current?.contains(event.target)) return;
+      if (panelRef.current?.contains(event.target)) return;
+      if (isInsideFloatingPanel(event.target)) return;
+      setOpen(false);
     };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
   }, [open]);
 
   useEffect(() => {
@@ -77,10 +87,19 @@ export default function MgDatePicker({
     });
   };
 
+  const emitChange = (nextValue) => {
+    onChangeRef.current?.({ target: { value: nextValue } });
+  };
+
   const selectDay = (day) => {
-    const next = formatBrDate(day, state.month, state.year);
-    onChange?.({ target: { value: next } });
+    emitChange(formatBrDate(day, state.month, state.year));
     setOpen(false);
+  };
+
+  const handleDaySelect = (event, day) => {
+    event.preventDefault();
+    event.stopPropagation();
+    selectDay(day);
   };
 
   const renderBody = () => {
@@ -143,11 +162,7 @@ export default function MgDatePicker({
           key={`d-${d}`}
           type="button"
           className={cls}
-          onPointerDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            selectDay(d);
-          }}
+          onMouseDown={(event) => handleDaySelect(event, d)}
         >
           {d}
         </button>

@@ -374,7 +374,11 @@ export function useCustomFieldRenderer({
       );
     }
 
-    if (tipoCanon === "data" || campo.tipo === "date") {
+    const isSimpleDateField =
+      ["date", "data"].includes(String(campo.tipo || "").toLowerCase()) ||
+      ["date", "data"].includes(tipoCanon);
+
+    if (isSimpleDateField) {
       if (mgPrototype) {
         return (
           <MgDatePicker

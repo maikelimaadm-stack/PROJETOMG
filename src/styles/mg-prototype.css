@@ -1502,7 +1502,6 @@
   height: 0;
   overflow: visible;
   z-index: 10000;
-  pointer-events: none;
   background: transparent !important;
   border: none;
   margin: 0;
