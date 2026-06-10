@@ -41,7 +41,12 @@ export default function MgDatePicker({
   const [open, setOpen] = useState(false);
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
-  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { minWidth: 300, estimatedHeight: 360 });
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
+    minWidth: 300,
+    estimatedHeight: 332,
+    lockHeight: true,
+    observePanelResize: false,
+  });
 
   useMgPanelCoordinator(rootRef, setOpen);
 
@@ -51,13 +56,13 @@ export default function MgDatePicker({
 
   useEffect(() => {
     if (!open) return undefined;
-    const close = (e) => {
-      if (!rootRef.current?.contains(e.target) && !panelRef.current?.contains(e.target)) {
+    const close = (event) => {
+      if (!rootRef.current?.contains(event.target) && !panelRef.current?.contains(event.target)) {
         setOpen(false);
       }
     };
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    document.addEventListener("pointerdown", close);
+    return () => document.removeEventListener("pointerdown", close);
   }, [open]);
 
   useEffect(() => {
@@ -92,8 +97,9 @@ export default function MgDatePicker({
               key={name}
               type="button"
               className={m === state.month ? "active" : ""}
-              onClick={(e) => {
-                e.stopPropagation();
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
                 setState((s) => ({ ...s, month: m, view: "days" }));
               }}
             >
@@ -112,8 +118,9 @@ export default function MgDatePicker({
               key={y}
               type="button"
               className={y === state.year ? "active" : ""}
-              onClick={(e) => {
-                e.stopPropagation();
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
                 setState((s) => ({ ...s, year: y, view: "months" }));
               }}
             >
@@ -139,7 +146,18 @@ export default function MgDatePicker({
       if (today.getDate() === d && today.getMonth() === state.month && today.getFullYear() === state.year) cls += " today";
       if (parsed.day === d && parsed.month === state.month && parsed.year === state.year) cls += " selected";
       cells.push(
-        <button key={`d-${d}`} type="button" className={cls} onClick={(e) => { e.stopPropagation(); selectDay(d); }}>{d}</button>
+        <button
+          key={`d-${d}`}
+          type="button"
+          className={cls}
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            selectDay(d);
+          }}
+        >
+          {d}
+        </button>
       );
     }
     const remaining = (7 - ((startDay + daysInMonth) % 7)) % 7;

@@ -165,7 +165,7 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
           label={field.label}
           required={field.required}
           value={value || ""}
-          onChange={(e) => onChange(field.name, e.target.value)}
+          onChange={(e) => onChange(field.name, brDateToIso(e.target.value))}
           readOnly={fieldReadOnly}
           disabled={fieldReadOnly}
         />
