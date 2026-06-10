@@ -14,6 +14,7 @@ import {
 import {
   EmpresasDialogs,
   EmpresasFormPanel,
+  EmpresasSearchPanel,
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
@@ -402,9 +403,41 @@ export default function PAGEMP() {
     if (ids.length === 1) { const i = empresasNavegacao.findIndex((e) => e.id === ids[0]); if (i >= 0) setSelectedIndex(i); }
   }, [empresasNavegacao]);
 
+  const handleOpenTableView = useCallback(() => {
+    setShowForm(false);
+    setEditingEmp(null);
+    setViewMode("table");
+  }, []);
+
+  const handleToggleSearchView = useCallback(() => {
+    if (!saveCycle.guardAction()) return;
+    if (viewMode === "search") {
+      handleOpenTableView();
+      return;
+    }
+    setShowForm(false);
+    setEditingEmp(null);
+    setViewMode("search");
+  }, [handleOpenTableView, saveCycle, viewMode]);
+
   const handleToggleView = () => {
     if (!saveCycle.guardAction()) return;
-    if (showForm) { setShowForm(false); setEditingEmp(null); setViewMode("table"); return; }
+    if (viewMode === "search") {
+      if (selectedTableItems.length > 1) return;
+      const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
+      if (!emp) return;
+      const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
+      if (index >= 0) setSelectedIndex(index);
+      setEditingEmp(emp);
+      setShowForm(true);
+      setViewMode("record");
+      setFormVersion((version) => version + 1);
+      return;
+    }
+    if (showForm) {
+      handleOpenTableView();
+      return;
+    }
     if (selectedTableItems.length > 1) return;
     const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
     if (!emp) return;
@@ -634,6 +667,49 @@ export default function PAGEMP() {
             actionsLocked: saveCycle.isSaving,
           }}
         />
+      ) : viewMode === "search" ? (
+        <EmpresasSearchPanel
+          toolbarProps={{
+            actionsLocked: saveCycle.isSaving,
+            viewMode,
+            total: totalEmpresas,
+            currentIndex: selectedIndex,
+            searchValue: searchTerm,
+            onSearchChange: handleSearchChange,
+            onNew: handleNew,
+            onToggleView: handleToggleView,
+            onToggleSearchView: handleToggleSearchView,
+            toggleViewDisabled: selectedTableItems.length > 1,
+            filterActive: false,
+            onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),
+            onDuplicate: () => selectedTableEmp && handleDuplicate(selectedTableEmp),
+            onAttachClick: () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp),
+            attachDisabled: selectedTableItems.length !== 1,
+            onExportPdf: handleExportPdf,
+            onConfigExportPdf: () => setShowConfigPdf(true),
+            onExportExcel: handleExportExcel,
+            onConfigExportExcel: () => setShowConfigExcel(true),
+            onConfigColumns: () => setShowConfigColunas(true),
+            selectedCount: selectedTableItems.length,
+            title: moduleLabels.title,
+            recordLabel: "",
+          }}
+          searchProps={{
+            empresas: empresasFiltradasPainel,
+            total: totalEmpresas,
+            isLoading: empresasLoading || isFetching,
+            searchValue: searchTerm,
+            onSearchChange: handleSearchChange,
+            page: queryPage,
+            pageSize: queryPageSize,
+            onPageChange: setQueryPage,
+            onPageSizeChange: (nextPageSize) => {
+              setQueryPageSize(nextPageSize);
+              setQueryPage(1);
+            },
+            onEdit: handleEdit,
+          }}
+        />
       ) : (
         <EmpresasTablePanel
           toolbarProps={{
@@ -645,6 +721,7 @@ export default function PAGEMP() {
           onSearchChange: handleSearchChange,
           onNew: handleNew,
           onToggleView: handleToggleView,
+          onToggleSearchView: handleToggleSearchView,
           toggleViewDisabled: selectedTableItems.length > 1,
           filterActive: false,
           onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),

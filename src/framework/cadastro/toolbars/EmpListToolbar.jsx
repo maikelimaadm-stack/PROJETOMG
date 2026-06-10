@@ -1,5 +1,5 @@
 import React from "react";
-import { Filter, List, Table, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Search, Paperclip, MoreHorizontal } from "lucide-react";
+import { Filter, List, Table, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Search, Paperclip, MoreHorizontal, LayoutGrid } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
@@ -23,6 +23,7 @@ export default function EmpListToolbar({
   onSearchChange,
   onNew,
   onToggleView,
+  onToggleSearchView,
   onBack,
   toggleViewDisabled = false,
   filterActive = false,
@@ -48,6 +49,7 @@ export default function EmpListToolbar({
 }) {
   const canNavigate = viewMode === "record" && total > 0 && !actionsLocked;
   const showRecordNavigation = viewMode === "record";
+  const showListSearch = viewMode !== "search";
   const showDeleteSelectionAction = viewMode === "table" && selectedCount > 0 && !!onDelete;
   const showDuplicateSelectionAction = viewMode === "table" && selectedCount === 1 && !!onDuplicate;
   const counterValue = formatCadastroRecordPosition(currentIndex, total);
@@ -64,11 +66,32 @@ export default function EmpListToolbar({
           )}
           <ToolbarBtn
             onClick={onToggleView}
-            disabled={actionsLocked || toggleViewDisabled}
-            title={toggleViewDisabled ? "Selecione apenas um registro" : viewMode === "table" ? "Visualizar registro" : "Visualizar tabela"}
+            disabled={actionsLocked || toggleViewDisabled || viewMode === "search"}
+            title={
+              toggleViewDisabled
+                ? "Selecione apenas um registro"
+                : viewMode === "table"
+                  ? "Visualizar registro"
+                  : "Visualizar tabela"
+            }
+            className={viewMode === "record" ? "emp-toolbar-btn-active" : ""}
           >
-            {viewMode === "table" ? <EmpToolbarIcon icon={List} /> : <EmpToolbarIcon icon={Table} />}
+            {viewMode === "table" || viewMode === "search" ? (
+              <EmpToolbarIcon icon={List} />
+            ) : (
+              <EmpToolbarIcon icon={Table} />
+            )}
           </ToolbarBtn>
+          {onToggleSearchView ? (
+            <ToolbarBtn
+              onClick={onToggleSearchView}
+              disabled={actionsLocked}
+              title={viewMode === "search" ? "Visualizar tabela" : "Visualizar pesquisa"}
+              className={viewMode === "search" ? "emp-toolbar-btn-active" : ""}
+            >
+              <EmpToolbarIcon icon={viewMode === "search" ? Table : LayoutGrid} />
+            </ToolbarBtn>
+          ) : null}
           <ToolbarBtn onClick={onNew} disabled={actionsLocked} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Novo registro">
             <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />
             <span>Novo</span>
@@ -117,7 +140,7 @@ export default function EmpListToolbar({
         </div>
 
         <div className="emp-toolbar-actions-end ml-auto flex min-w-0 flex-1 items-center justify-end gap-1.5 overflow-hidden">
-          {showSearch && (
+          {showSearch && showListSearch && (
             <div className={EMP_TOOLBAR_SEARCH_WRAP} role="search" title="Pesquisar registros">
               <input
                 value={searchValue}
@@ -167,12 +190,14 @@ export default function EmpListToolbar({
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <EmpBubbleCounter
-            value={counterValue}
-            title={counterTitle}
-            variant="toolbar"
-            className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
-          />
+          {viewMode !== "search" ? (
+            <EmpBubbleCounter
+              value={counterValue}
+              title={counterTitle}
+              variant="toolbar"
+              className="emp-toolbar-bubble-counter emp-toolbar-record-counter"
+            />
+          ) : null}
         </div>
       </div>
     </div>

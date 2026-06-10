@@ -3,6 +3,7 @@ import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import FORMEMP from "@/modules/empresas/components/FORMEMP";
 import TBLEMP from "@/modules/empresas/components/TBLEMP";
+import SRCHEMP from "@/modules/empresas/components/SRCHEMP";
 import EmpConfiguracaoExportacaoDialog from "@/framework/cadastro/configurators/EmpConfiguracaoExportacaoDialog";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import RegistroAnexosDialog from "@/framework/cadastro/attachments/RegistroAnexosDialog";
@@ -64,6 +65,19 @@ export const EmpresasTablePanel = ({
     <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
       <TBLEMP {...tableProps} />
     </div>
+  </EmpSplitToolbarLayout>
+);
+
+export const EmpresasSearchPanel = ({
+  toolbarProps,
+  searchProps,
+}) => (
+  <EmpSplitToolbarLayout
+    className="emp-search-view-wrap flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden"
+    contentClassName="emp-search-content-card"
+    toolbar={<SankhyaListToolbar {...toolbarProps} />}
+  >
+    <SRCHEMP {...searchProps} />
   </EmpSplitToolbarLayout>
 );
 
