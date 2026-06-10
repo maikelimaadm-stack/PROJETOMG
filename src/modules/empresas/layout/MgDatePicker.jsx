@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
+import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 
 const MONTH_NAMES = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
@@ -36,6 +37,7 @@ export default function MgDatePicker({
 }) {
   const id = useId();
   const rootRef = useRef(null);
+  const panelRef = useRef(null);
   const [open, setOpen] = useState(false);
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
@@ -50,10 +52,12 @@ export default function MgDatePicker({
   useEffect(() => {
     if (!open) return undefined;
     const close = (e) => {
-      if (!rootRef.current?.contains(e.target)) setOpen(false);
+      if (!rootRef.current?.contains(e.target) && !panelRef.current?.contains(e.target)) {
+        setOpen(false);
+      }
     };
-    document.addEventListener("click", close);
-    return () => document.removeEventListener("click", close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
   useEffect(() => {
@@ -191,7 +195,13 @@ export default function MgDatePicker({
         onClick={toggle}
       />
       <div className="mg-dp-icon"><Calendar className="h-3.5 w-3.5" /></div>
-      <div className="mg-dp-panel" style={open ? panelStyle : undefined} onClick={(e) => e.stopPropagation()}>
+      <MgPortalPanel
+        open={open}
+        panelRef={panelRef}
+        panelClassName="mg-dp-panel"
+        style={panelStyle}
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="mg-dp-header">
           <button type="button" className="mg-dp-nav" onClick={() => nav(-1)}><ChevronLeft className="h-4 w-4" /></button>
           <button type="button" className="mg-dp-title" onClick={drillUp}>
@@ -200,7 +210,7 @@ export default function MgDatePicker({
           <button type="button" className="mg-dp-nav" onClick={() => nav(1)}><ChevronRight className="h-4 w-4" /></button>
         </div>
         <div className="mg-dp-body">{renderBody()}</div>
-      </div>
+      </MgPortalPanel>
     </div>
   );
 }

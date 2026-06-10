@@ -28,6 +28,10 @@ import ErpRecordMeta from "@/shared/layouts/ErpRecordMeta";
 import ErpOperationBadge from "@/shared/layouts/ErpOperationBadge";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
+import MgDesktopHeader from "@/modules/empresas/layout/MgDesktopHeader";
+
+const isEmpresasRoute = (pathname) =>
+  pathname === "/" || pathname === "/CadastroEmpresas" || pathname.startsWith("/CadastroEmpresas/");
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
@@ -244,14 +248,22 @@ function ErpShellBody({
       <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[var(--background-page)]">
         <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden">
           <div className="erp-shell-top-unified shrink-0">
-            <ErpTopHeader
-              empresas={empresas}
-              selectedEmpresaId={selectedEmpresaId}
-              onSelectEmpresa={onSelectEmpresa}
-              allowAllEmpresas={allowAllEmpresas}
-              onLogout={onLogout}
-            />
-            <ErpBreadcrumbs pathname={pathname} />
+            {isEmpresasRoute(pathname) ? (
+              <div className="mg-empresas-scope shrink-0">
+                <MgDesktopHeader />
+              </div>
+            ) : (
+              <>
+                <ErpTopHeader
+                  empresas={empresas}
+                  selectedEmpresaId={selectedEmpresaId}
+                  onSelectEmpresa={onSelectEmpresa}
+                  allowAllEmpresas={allowAllEmpresas}
+                  onLogout={onLogout}
+                />
+                <ErpBreadcrumbs pathname={pathname} />
+              </>
+            )}
           </div>
           <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {children}

@@ -7,11 +7,40 @@ import CadOptionListControl from "../design-system/CadOptionListControl.jsx";
 import CadFormImageField from "../design-system/CadFormImageField.jsx";
 import CadToggle from "../design-system/CadToggle.jsx";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
+import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
+import MgDatePicker from "@/modules/empresas/layout/MgDatePicker";
+import MgTimePicker from "@/modules/empresas/layout/MgTimePicker";
+import MgLookup from "@/modules/empresas/layout/MgLookup";
+
+const isMgDateTipo = (campo, tipoCanon) =>
+  ["date", "datetime", "datetime-local", "data", "data_hora", "datahora"].includes(campo?.tipo) ||
+  tipoCanon === "data" ||
+  tipoCanon === "data_hora";
+
+const isMgTimeTipo = (campo, tipoCanon) =>
+  campo?.tipo === "time" || tipoCanon === "hora";
+
+const isMgSelectTipo = (campo, tipoCanon) =>
+  ["select", "relation", "lista", "relacao"].includes(campo?.tipo) ||
+  ["lista", "relacao"].includes(tipoCanon);
+
+const isMgCompositeTipo = (campo, tipoCanon) =>
+  isMgDateTipo(campo, tipoCanon) ||
+  isMgTimeTipo(campo, tipoCanon) ||
+  isMgSelectTipo(campo, tipoCanon);
 
 const splitDateTimeValue = (value) => {
   if (!value) return { date: "", time: "" };
   const [date, time = ""] = String(value).split("T");
   return { date: date || "", time: time.slice(0, 5) || "" };
+};
+
+const brDateToIso = (value) => {
+  const parts = String(value || "").split("/");
+  if (parts.length === 3 && parts[2].length === 4) {
+    return `${parts[2]}-${String(parts[1]).padStart(2, "0")}-${String(parts[0]).padStart(2, "0")}`;
+  }
+  return value;
 };
 
 const formatMaskedNumber = (value, campo) => {
@@ -41,6 +70,7 @@ export function useCustomFieldRenderer({
   relatedOptions = {},
   onUploadError,
   inputClassName = "cad-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase",
+  mgPrototype = false,
 }) {
   const [uploadingFields, setUploadingFields] = useState({});
   const readOnlyClass = isReadOnly ? "cursor-default" : "";
@@ -49,10 +79,11 @@ export function useCustomFieldRenderer({
   const handleCustomDateTimeChange = (fieldName, part, nextValue) => {
     const current = splitDateTimeValue(personalizados[fieldName]);
     const horaAtual = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    const normalizedValue = part === "date" ? brDateToIso(nextValue) : nextValue;
     const next = {
       ...current,
-      [part]: nextValue,
-      ...(part === "date" && nextValue && !current.time ? { time: horaAtual } : {}),
+      [part]: normalizedValue,
+      ...(part === "date" && normalizedValue && !current.time ? { time: horaAtual } : {}),
     };
     onCustomChange(fieldName, next.date ? `${next.date}T${next.time || "00:00"}` : "");
   };
@@ -62,6 +93,7 @@ export function useCustomFieldRenderer({
     const campoOptions = FieldEngine.getOptionsCampo(campo, relatedOptions);
     const fieldReadOnly = campo.read_only || isReadOnly;
     const tipoCanon = String(campo.tipo_cadcps || campo.tipo || "text").toLowerCase();
+    const mgLabel = mgPrototype && isMgCompositeTipo(campo, tipoCanon) ? campo.label : undefined;
 
     if (campo.tipo === "checkbox" || tipoCanon === "sim_nao") {
       const checked = value === true || value === "true" || value === "1" || value === "sim";
@@ -135,6 +167,39 @@ export function useCustomFieldRenderer({
           subtext: option.subtext || option.description || "",
         }))
         .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR", { sensitivity: "base" }));
+
+      if (mgPrototype) {
+        if (isLookup) {
+          return (
+            <MgLookup
+              label={mgLabel}
+              required={campo.obrigatorio}
+              value={value}
+              items={options}
+              onChange={(nextValue) => onCustomChange(campo.field_name, nextValue ?? "")}
+              displayField="nome"
+              searchFields={["nome", "subtext"]}
+              readOnly={fieldReadOnly}
+              disabled={fieldReadOnly}
+            />
+          );
+        }
+
+        return (
+          <MgCmdSelect
+            label={mgLabel}
+            required={!!campo.obrigatorio}
+            value={value}
+            options={options.map((option) => ({
+              value: option.id,
+              label: option.nome,
+            }))}
+            onChange={(nextValue) => onCustomChange(campo.field_name, nextValue ?? "")}
+            disabled={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <CadAutocomplete
           variant={isLookup ? "lookup" : "select"}
@@ -158,6 +223,18 @@ export function useCustomFieldRenderer({
     }
 
     if (campo.tipo === "time" || tipoCanon === "hora") {
+      if (mgPrototype) {
+        return (
+          <MgTimePicker
+            label={mgLabel}
+            value={value}
+            onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
+            readOnly={fieldReadOnly}
+            disabled={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="time"
@@ -171,6 +248,29 @@ export function useCustomFieldRenderer({
 
     if (["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo) || tipoCanon === "data_hora") {
       const dateTimeValue = splitDateTimeValue(value);
+
+      if (mgPrototype) {
+        return (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <MgDatePicker
+              label={mgLabel || "Data"}
+              required={campo.obrigatorio}
+              value={dateTimeValue.date}
+              onChange={(e) => handleCustomDateTimeChange(campo.field_name, "date", e.target.value)}
+              readOnly={fieldReadOnly}
+              disabled={fieldReadOnly}
+            />
+            <MgTimePicker
+              label="Hora"
+              value={dateTimeValue.time}
+              onChange={(e) => handleCustomDateTimeChange(campo.field_name, "time", e.target.value)}
+              readOnly={fieldReadOnly}
+              disabled={fieldReadOnly}
+            />
+          </div>
+        );
+      }
+
       return (
         <div className="grid grid-cols-2 gap-1">
           <Input
@@ -275,6 +375,19 @@ export function useCustomFieldRenderer({
     }
 
     if (tipoCanon === "data" || campo.tipo === "date") {
+      if (mgPrototype) {
+        return (
+          <MgDatePicker
+            label={mgLabel}
+            required={campo.obrigatorio}
+            value={value}
+            onChange={(e) => onCustomChange(campo.field_name, brDateToIso(e.target.value))}
+            readOnly={fieldReadOnly}
+            disabled={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="date"

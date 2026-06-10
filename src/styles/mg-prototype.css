@@ -5,9 +5,15 @@
 
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&display=swap");
 
-/* Esconde breadcrumbs do ErpShell — o MgDesktopHeader replica o header do protótipo */
-.erp-shell-content-wrap:has(.mg-empresas-scope) .erp-shell-breadcrumbs {
+/* Esconde topo padrão do ErpShell na página Empresas — MgDesktopHeader substitui seletor de empresas */
+.erp-shell-content-wrap:has(.mg-empresas-scope) .erp-shell-breadcrumbs,
+.erp-shell-content-wrap:has(.mg-empresas-scope) .erp-shell-header {
   display: none !important;
+}
+
+.mg-empresas-scope.mg-empresas-shell-top,
+.erp-shell-top-unified > .mg-empresas-scope {
+  background: var(--bg-card);
 }
 
 .mg-empresas-scope {
@@ -157,9 +163,14 @@
 }
 
 .mg-empresas-scope .seg-tab.active {
-  color: var(--accent);
-  font-weight: 600;
-  border-bottom-color: var(--accent);
+  color: var(--accent) !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid var(--accent) !important;
+  border-bottom-color: var(--accent) !important;
+}
+
+.mg-empresas-scope .seg-control .seg-tab {
+  border-radius: 0;
 }
 
 /* View segmented control */
@@ -571,8 +582,10 @@
   overflow: hidden;
 }
 
-.mg-empresas-scope .cmd-select.open .cmd-panel {
+.mg-empresas-scope .cmd-select.open .cmd-panel,
+.mg-empresas-scope.mg-floating-panel-root > .cmd-panel {
   display: block;
+  z-index: 10000;
 }
 
 .mg-empresas-scope .cmd-select.open .cmd-display {
@@ -1092,8 +1105,10 @@
   animation: mg-dp-slide 0.18s ease;
 }
 
-.mg-empresas-scope .mg-dp.open .mg-dp-panel {
+.mg-empresas-scope .mg-dp.open .mg-dp-panel,
+.mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel {
   display: block;
+  z-index: 10000;
 }
 
 @keyframes mg-dp-slide {
@@ -1306,8 +1321,10 @@
   animation: mg-dp-slide 0.18s ease;
 }
 
-.mg-empresas-scope .mg-tp.open .mg-tp-panel {
+.mg-empresas-scope .mg-tp.open .mg-tp-panel,
+.mg-empresas-scope.mg-floating-panel-root > .mg-tp-panel {
   display: block;
+  z-index: 10000;
 }
 
 .mg-empresas-scope .mg-tp-columns {
@@ -1438,8 +1455,22 @@
   animation: mg-dp-slide 0.15s ease;
 }
 
-.mg-empresas-scope .mg-lookup.open .mg-lookup-panel {
+.mg-empresas-scope .mg-lookup.open .mg-lookup-panel,
+.mg-empresas-scope.mg-floating-panel-root > .mg-lookup-panel {
   display: block;
+  z-index: 10000;
+}
+
+.mg-floating-panel-root {
+  position: static;
+  pointer-events: none;
+}
+
+.mg-floating-panel-root > .mg-dp-panel,
+.mg-floating-panel-root > .mg-tp-panel,
+.mg-floating-panel-root > .cmd-panel,
+.mg-floating-panel-root > .mg-lookup-panel {
+  pointer-events: auto;
 }
 
 .mg-empresas-scope .mg-lookup-search {
