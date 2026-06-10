@@ -31,6 +31,7 @@ import {
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
+import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
@@ -233,37 +234,64 @@ export default function FORMEMP({
     []
   );
 
-  const renderTipoPessoaSelect = () => (
-    <EmpAutocomplete
-      variant="select"
-      items={opcoesTipoPessoa}
-      value={formData.tipo_pessoa || "PJ"}
-      onChange={(next) => handleChange("tipo_pessoa", next || "PJ")}
-      placeholder="SELECIONE"
-      displayField="nome"
-      searchFields={["nome"]}
-      disabled={isReadOnly}
-      readOnly={isReadOnly}
-      className="w-full min-w-0"
-      inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
-    />
-  );
+  const renderTipoPessoaSelect = () => {
+    if (hideToolbar) {
+      return (
+        <MgCmdSelect
+          label="Tipo de Pessoa"
+          required
+          value={formData.tipo_pessoa || "PJ"}
+          options={opcoesTipoPessoa.map((item) => ({ value: item.id, label: item.nome }))}
+          onChange={(next) => handleChange("tipo_pessoa", next || "PJ")}
+          disabled={isReadOnly}
+        />
+      );
+    }
+    return (
+      <EmpAutocomplete
+        variant="select"
+        items={opcoesTipoPessoa}
+        value={formData.tipo_pessoa || "PJ"}
+        onChange={(next) => handleChange("tipo_pessoa", next || "PJ")}
+        placeholder="SELECIONE"
+        displayField="nome"
+        searchFields={["nome"]}
+        disabled={isReadOnly}
+        readOnly={isReadOnly}
+        className="w-full min-w-0"
+        inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+      />
+    );
+  };
 
-  const renderTipoVinculoSelect = () => (
-    <EmpAutocomplete
-      variant="select"
-      items={opcoesTipoVinculo}
-      value={formData.tipo_vinculo || ""}
-      onChange={(next) => handleChange("tipo_vinculo", next || "")}
-      placeholder="SELECIONE"
-      displayField="nome"
-      searchFields={["nome"]}
-      disabled={isReadOnly}
-      readOnly={isReadOnly}
-      className="w-full min-w-0"
-      inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
-    />
-  );
+  const renderTipoVinculoSelect = () => {
+    if (hideToolbar) {
+      return (
+        <MgCmdSelect
+          label="Proprietário/Arrendatário"
+          value={formData.tipo_vinculo || ""}
+          options={opcoesTipoVinculo.map((item) => ({ value: item.id, label: item.nome }))}
+          onChange={(next) => handleChange("tipo_vinculo", next || "")}
+          disabled={isReadOnly}
+        />
+      );
+    }
+    return (
+      <EmpAutocomplete
+        variant="select"
+        items={opcoesTipoVinculo}
+        value={formData.tipo_vinculo || ""}
+        onChange={(next) => handleChange("tipo_vinculo", next || "")}
+        placeholder="SELECIONE"
+        displayField="nome"
+        searchFields={["nome"]}
+        disabled={isReadOnly}
+        readOnly={isReadOnly}
+        className="w-full min-w-0"
+        inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+      />
+    );
+  };
 
   const renderStatusToggle = () => (
     <div className="h-full w-full flex items-center px-1">
@@ -296,14 +324,22 @@ export default function FORMEMP({
       widthType: "CODIGO",
       compact: true,
       readOnly: true,
-      render: () => (
-        <Input
-          value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
-          readOnly
-          className={inputClass}
-          placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
-        />
-      ),
+      render: () =>
+        hideToolbar ? (
+          <input
+            type="text"
+            value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
+            readOnly
+            placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
+          />
+        ) : (
+          <Input
+            value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
+            readOnly
+            className={inputClass}
+            placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
+          />
+        ),
     },
     { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
     { id: "status", name: "status", label: "Ativa", type: "text", widthType: "SIM_NAO", compact: true, render: renderStatusToggle },

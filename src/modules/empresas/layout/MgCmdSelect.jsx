@@ -3,10 +3,12 @@ import { ChevronDown } from "lucide-react";
 
 export default function MgCmdSelect({
   label,
+  required = false,
   value,
   options = [],
   onChange,
   placeholder = "Pesquisar...",
+  disabled = false,
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -37,6 +39,7 @@ export default function MgCmdSelect({
   };
 
   const toggle = () => {
+    if (disabled) return;
     setOpen((current) => {
       const next = !current;
       if (next) {
@@ -80,14 +83,15 @@ export default function MgCmdSelect({
   return (
     <div
       ref={rootRef}
-      className={`cmd-select${open ? " open" : ""}`}
-      tabIndex={0}
+      className={`cmd-select${open ? " open" : ""}${disabled ? " disabled" : ""}`}
+      tabIndex={disabled ? -1 : 0}
+      aria-disabled={disabled}
       onKeyDown={onKeyDown}
       onClick={toggle}
       role="combobox"
       aria-expanded={open}
     >
-      {label ? <span className="cmd-label">{label}</span> : null}
+      {label ? <span className={`cmd-label${required ? " req" : ""}`}>{label}</span> : null}
       <div className="cmd-display">{display}</div>
       <ChevronDown className="cmd-chevron h-3 w-3" style={{ color: "var(--text-3)" }} />
       <div className="cmd-panel" onClick={(event) => event.stopPropagation()} role="listbox">

@@ -1,0 +1,105 @@
+import React, { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
+
+export default function MgLookup({
+  label,
+  required = false,
+  value,
+  items = [],
+  onChange,
+  displayField = "nome",
+  searchFields = ["nome"],
+  readOnly = false,
+  disabled = false,
+}) {
+  const rootRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [highlighted, setHighlighted] = useState(-1);
+
+  const itemKey = (item) => String(item?.id ?? item?.value ?? item?.codigo ?? "");
+  const selected = items.find((item) => itemKey(item) === String(value));
+  const display = selected?.[displayField] || "";
+
+  const filtered = items.filter((item) =>
+    searchFields.some((field) =>
+      String(item[field] || "").toLowerCase().includes(query.toLowerCase())
+    )
+  );
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const close = (e) => {
+      if (!rootRef.current?.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("click", close);
+    return () => document.removeEventListener("click", close);
+  }, [open]);
+
+  const toggle = () => {
+    if (readOnly || disabled) return;
+    setOpen((o) => {
+      if (!o) { setQuery(""); setHighlighted(-1); }
+      return !o;
+    });
+  };
+
+  const selectItem = (item) => {
+    onChange?.(itemKey(item));
+    setOpen(false);
+  };
+
+  const onKeyDown = (e) => {
+    if (e.key === "Escape") { setOpen(false); return; }
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (!open) { toggle(); return; }
+      const item = filtered[highlighted >= 0 ? highlighted : filtered.findIndex((i) => String(i.id) === String(value))];
+      if (item) selectItem(item);
+    }
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (!open) { toggle(); return; }
+      setHighlighted((idx) => {
+        if (e.key === "ArrowDown") return Math.min(filtered.length - 1, idx + 1);
+        return Math.max(0, idx - 1);
+      });
+    }
+  };
+
+  return (
+    <div
+      ref={rootRef}
+      className={`mg-lookup${open ? " open" : ""}`}
+      tabIndex={0}
+      onKeyDown={onKeyDown}
+      onClick={toggle}
+    >
+      {label ? <span className={`mg-lookup-label${required ? " req" : ""}`}>{label}</span> : null}
+      <div className="mg-lookup-display">{display}</div>
+      <ChevronDown className="mg-lookup-icon h-3 w-3" style={{ color: "var(--text-3)" }} />
+      <div className="mg-lookup-panel" onClick={(e) => e.stopPropagation()}>
+        <div className="mg-lookup-search">
+          <input
+            type="text"
+            placeholder="Pesquisar..."
+            value={query}
+            onChange={(e) => { setQuery(e.target.value); setHighlighted(-1); }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+        <div className="mg-lookup-list">
+          {filtered.map((item, index) => (
+            <div
+              key={String(item.id)}
+              className={`mg-lookup-option${String(value) === itemKey(item) ? " selected" : ""}${highlighted === index ? " highlighted" : ""}`}
+              onClick={() => selectItem(item)}
+            >
+              <div className="mg-lookup-option-text">{item[displayField]}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

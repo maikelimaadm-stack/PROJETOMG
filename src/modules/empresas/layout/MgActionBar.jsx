@@ -6,13 +6,15 @@ import {
   History,
   MoreVertical,
   Paperclip,
+  Pencil,
+  Plus,
   Printer,
+  Save,
   Search,
   Settings,
+  Trash2,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
-
-const LABELED = "tb-btn-labeled";
 
 export default function MgActionBar({
   viewMode = "tabela",
@@ -58,56 +60,65 @@ export default function MgActionBar({
         {onToggleFilter ? (
           <button
             type="button"
-            className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter ${LABELED}`}
+            className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
             onClick={onToggleFilter}
             disabled={actionsLocked}
+            title="Filtrar"
+            aria-label="Filtrar"
           >
             <Filter className="h-3.5 w-3.5" />
-            <span>Filtrar</span>
           </button>
         ) : null}
 
         {showNew && onNew ? (
           <button
             type="button"
-            className={`ios-btn tb-btn tb-btn-green ${LABELED}`}
+            className="ios-btn tb-btn tb-btn-green tb-btn-icon"
             onClick={onNew}
             disabled={actionsLocked}
+            title="Novo"
+            aria-label="Novo"
           >
-            Novo
+            <Plus className="h-3.5 w-3.5" />
           </button>
         ) : null}
 
         {showSave && onSave ? (
           <button
             type="button"
-            className={`ios-btn tb-btn tb-btn-blue ${LABELED}`}
+            className="ios-btn tb-btn tb-btn-blue tb-btn-icon"
             onClick={onSave}
             disabled={actionsLocked}
+            title="Salvar"
+            aria-label="Salvar"
           >
-            Salvar
+            <Save className="h-3.5 w-3.5" />
           </button>
         ) : null}
 
         {showEdit && onEdit ? (
           <button
             type="button"
-            className={`ios-btn tb-btn tb-btn-gray ${LABELED}`}
+            className="ios-btn tb-btn tb-btn-gray tb-btn-icon"
             onClick={onEdit}
             disabled={actionsLocked}
+            title="Editar"
+            aria-label="Editar"
           >
-            Editar
+            <Pencil className="h-3.5 w-3.5" />
           </button>
         ) : null}
 
         {showDelete && onDelete ? (
           <button
             type="button"
-            className={`ios-btn tb-btn tb-btn-red ${LABELED}`}
+            className="ios-btn tb-btn tb-btn-red tb-btn-icon"
             onClick={onDelete}
             disabled={actionsLocked}
+            title="Excluir"
+            aria-label="Excluir"
           >
-            Excluir
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         ) : null}
       </div>
@@ -129,7 +140,7 @@ export default function MgActionBar({
         <div className="relative" ref={moreRef}>
           <button
             type="button"
-            className={`ios-btn tb-btn tb-btn-ghost tb-btn-more ${LABELED}`}
+            className="ios-btn tb-btn tb-btn-ghost tb-btn-more tb-btn-icon"
             id="more-btn"
             onClick={() => setMoreOpen((open) => !open)}
           >
