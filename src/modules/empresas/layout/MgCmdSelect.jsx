@@ -55,8 +55,8 @@ export default function MgCmdSelect({
         setOpen(false);
       }
     };
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
   const selectOption = (option) => {

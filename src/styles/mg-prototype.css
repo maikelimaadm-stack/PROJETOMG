@@ -588,7 +588,7 @@
 }
 
 .mg-empresas-scope .cmd-select.open .cmd-panel,
-.mg-empresas-scope.cmd-panel {
+.mg-empresas-scope.mg-floating-panel-root > .cmd-panel {
   display: block;
   z-index: 10000;
 }
@@ -1138,7 +1138,7 @@
 }
 
 .mg-empresas-scope .mg-dp.open .mg-dp-panel,
-.mg-empresas-scope.mg-dp-panel {
+.mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel {
   display: block;
   z-index: 10000;
 }
@@ -1198,7 +1198,6 @@
 
 .mg-empresas-scope .mg-dp-body {
   padding: 0;
-  min-height: 268px;
 }
 
 .mg-empresas-scope .mg-dp-weekdays {
@@ -1221,9 +1220,7 @@
 .mg-empresas-scope .mg-dp-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  grid-template-rows: repeat(6, 36px);
   gap: 2px;
-  min-height: calc(6 * 36px + 5 * 2px);
   padding: 0 12px 14px;
 }
 
@@ -1357,7 +1354,7 @@
 }
 
 .mg-empresas-scope .mg-tp.open .mg-tp-panel,
-.mg-empresas-scope.mg-tp-panel {
+.mg-empresas-scope.mg-floating-panel-root > .mg-tp-panel {
   display: block;
   z-index: 10000;
 }
@@ -1491,19 +1488,37 @@
 }
 
 .mg-empresas-scope .mg-lookup.open .mg-lookup-panel,
-.mg-empresas-scope.mg-lookup-panel {
+.mg-empresas-scope.mg-floating-panel-root > .mg-lookup-panel {
   display: block;
   z-index: 10000;
 }
 
-/* Painéis portaled direto no body */
-.mg-empresas-scope.mg-dp-panel,
-.mg-empresas-scope.mg-tp-panel,
-.mg-empresas-scope.cmd-panel,
-.mg-empresas-scope.mg-lookup-panel {
+/* Wrapper do portal: sem fundo nem tamanho — só ancora variáveis CSS para o painel */
+.mg-empresas-scope.mg-floating-panel-root {
   position: fixed;
-  margin-top: 0;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 10000;
+  pointer-events: none;
+  background: transparent !important;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+.mg-floating-panel-root > .mg-dp-panel,
+.mg-floating-panel-root > .mg-tp-panel,
+.mg-floating-panel-root > .cmd-panel,
+.mg-floating-panel-root > .mg-lookup-panel {
   pointer-events: auto;
+  position: fixed;
+  top: auto;
+  left: auto;
+  right: auto;
+  margin-top: 0;
 }
 
 .mg-empresas-scope .mg-lookup-search {

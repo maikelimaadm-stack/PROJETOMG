@@ -22,12 +22,7 @@ export default function MgTimePicker({
   const minutesRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(parseTime(value));
-  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
-    width: 220,
-    estimatedHeight: 220,
-    lockHeight: true,
-    observePanelResize: false,
-  });
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { width: 220, estimatedHeight: 220 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 
@@ -38,8 +33,8 @@ export default function MgTimePicker({
         setOpen(false);
       }
     };
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
   useEffect(() => {

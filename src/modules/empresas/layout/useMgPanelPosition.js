@@ -18,13 +18,7 @@ export function useMgPanelPosition(
   open,
   rootRef,
   panelRef,
-  {
-    minWidth = 0,
-    width = null,
-    estimatedHeight = 280,
-    lockHeight = false,
-    observePanelResize = true,
-  } = {},
+  { minWidth = 0, width = null, estimatedHeight = 280 } = {},
   repositionKey = null
 ) {
   const [style, setStyle] = useState({ visibility: "hidden" });
@@ -44,11 +38,7 @@ export function useMgPanelPosition(
 
       const panelWidth = width ?? Math.max(rect.width, minWidth);
       const measured = panelRef?.current?.offsetHeight ?? 0;
-      const panelHeight = lockHeight
-        ? estimatedHeight
-        : measured > 0
-          ? measured
-          : estimatedHeight;
+      const panelHeight = measured > 0 ? measured : estimatedHeight;
       const padding = 8;
       const gap = 4;
       const viewportWidth = window.innerWidth;
@@ -71,22 +61,16 @@ export function useMgPanelPosition(
         top = Math.max(padding, viewportHeight - panelHeight - padding);
       }
 
-      const nextStyle = {
+      setStyle({
         position: "fixed",
         top,
         left,
         width: panelWidth,
+        maxHeight: `calc(100vh - ${padding * 2}px)`,
+        overflowY: "auto",
         zIndex: 10000,
         visibility: "visible",
-        pointerEvents: "auto",
-      };
-
-      if (!lockHeight) {
-        nextStyle.maxHeight = `calc(100vh - ${padding * 2}px)`;
-        nextStyle.overflowY = "auto";
-      }
-
-      setStyle(nextStyle);
+      });
     };
 
     update();
@@ -96,7 +80,7 @@ export function useMgPanelPosition(
     let resizeObserver;
     if (typeof ResizeObserver !== "undefined") {
       resizeObserver = new ResizeObserver(update);
-      if (observePanelResize && panelRef?.current) resizeObserver.observe(panelRef.current);
+      if (panelRef?.current) resizeObserver.observe(panelRef.current);
       resizeObserver.observe(rootRef.current);
     }
 
@@ -109,17 +93,7 @@ export function useMgPanelPosition(
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [
-    open,
-    rootRef,
-    panelRef,
-    minWidth,
-    width,
-    estimatedHeight,
-    lockHeight,
-    observePanelResize,
-    repositionKey,
-  ]);
+  }, [open, rootRef, panelRef, minWidth, width, estimatedHeight, repositionKey]);
 
   return style;
 }

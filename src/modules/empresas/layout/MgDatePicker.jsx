@@ -41,12 +41,7 @@ export default function MgDatePicker({
   const [open, setOpen] = useState(false);
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
-  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
-    minWidth: 300,
-    estimatedHeight: 332,
-    lockHeight: true,
-    observePanelResize: false,
-  });
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { minWidth: 300, estimatedHeight: 360 });
 
   useMgPanelCoordinator(rootRef, setOpen);
 
@@ -61,8 +56,8 @@ export default function MgDatePicker({
         setOpen(false);
       }
     };
-    document.addEventListener("pointerdown", close);
-    return () => document.removeEventListener("pointerdown", close);
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
   }, [open]);
 
   useEffect(() => {
@@ -97,9 +92,8 @@ export default function MgDatePicker({
               key={name}
               type="button"
               className={m === state.month ? "active" : ""}
-              onPointerDown={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
+              onClick={(e) => {
+                e.stopPropagation();
                 setState((s) => ({ ...s, month: m, view: "days" }));
               }}
             >
@@ -118,9 +112,8 @@ export default function MgDatePicker({
               key={y}
               type="button"
               className={y === state.year ? "active" : ""}
-              onPointerDown={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
+              onClick={(e) => {
+                e.stopPropagation();
                 setState((s) => ({ ...s, year: y, view: "months" }));
               }}
             >
