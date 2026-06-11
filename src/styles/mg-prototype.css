@@ -22,7 +22,7 @@
 }
 
 .mg-empresas-scope {
-  --bg-page: #f5f7fa;
+  --bg-page: #f8f9fb;
   --bg-card: #ffffff;
   --bg-surface: #ffffff;
   --border: #e8eaed;
@@ -57,6 +57,7 @@
   --mg-panel-tab-font: 13px;
   --mg-field-label-font: 13px;
   --mg-card-row-gap: 10px;
+  --mg-cards-layout-gap: 9px;
   --mg-btn-font: 13px;
   --mg-btn-font-compact: 12px;
   --mg-btn-height: 28px;
@@ -951,7 +952,7 @@
 .mg-empresas-scope .mg-prototype-cards-layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 6px;
+  gap: var(--mg-cards-layout-gap);
   width: 100%;
 }
 
@@ -2114,7 +2115,7 @@
   flex: 1;
   overflow-y: auto;
   min-height: 0;
-  padding: 4px 10px 8px;
+  padding: 6px 10px 10px;
   background: var(--bg-page);
 }
 
