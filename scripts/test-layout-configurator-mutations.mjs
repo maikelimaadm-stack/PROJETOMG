@@ -7,6 +7,8 @@ import {
   placeFieldsOnCard,
   stripFieldsFromAllCards,
   updateCardRowsOnly,
+  previewMoveFieldsAtTarget,
+  previewReorderCardsAtTarget,
 } from "../src/framework/cadastro/layouts/layoutConfiguratorMutations.js";
 import { createEmptyLayoutRow } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
@@ -127,5 +129,27 @@ assert.deepEqual(
   rowMoved.map((row) => row.id),
   ["r3", "r1", "r2"]
 );
+
+const cards = [cardA, cardB];
+const cardsMoved = previewReorderCardsAtTarget(cards, "card_b", "card_a");
+assert.ok(cardsMoved);
+assert.deepEqual(
+  cardsMoved.map((card) => card.id),
+  ["card_b", "card_a"]
+);
+
+const crossCard = previewMoveFieldsAtTarget({
+  cardsByPanel,
+  panelId,
+  cardId: "card_b",
+  fieldIds: ["f1"],
+  targetFieldId: "f4",
+  edge: "before",
+});
+assert.ok(crossCard);
+const cardAAfter = crossCard[panelId].cards.find((c) => c.id === "card_a");
+const cardBAfter = crossCard[panelId].cards.find((c) => c.id === "card_b");
+assert.ok(!cardAAfter.fieldIds.includes("f1"));
+assert.deepEqual(cardBAfter.fieldIds, ["f1", "f4"]);
 
 console.log("test-layout-configurator-mutations: OK");

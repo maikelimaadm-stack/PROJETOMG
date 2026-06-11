@@ -32,3 +32,10 @@ export const resolveDragInsertEdge = (event) => {
   if (!rect?.width) return "before";
   return event.clientX > rect.left + rect.width / 2 ? "after" : "before";
 };
+
+/** Metade superior = before, inferior = after (linhas). */
+export const resolveDragInsertEdgeVertical = (event) => {
+  const rect = event.currentTarget?.getBoundingClientRect?.();
+  if (!rect?.height) return "before";
+  return event.clientY > rect.top + rect.height / 2 ? "after" : "before";
+};

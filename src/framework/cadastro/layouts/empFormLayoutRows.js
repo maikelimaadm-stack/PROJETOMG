@@ -479,8 +479,19 @@ export const previewReorderFieldsAtTarget = (
 };
 
 /** Reordena linhas ao vivo — retorna null se não houve mudança. */
-export const previewReorderRowAtTarget = (rows = [], draggedRowId, targetRowId) => {
+export const previewReorderRowAtTarget = (
+  rows = [],
+  draggedRowId,
+  targetRowId,
+  edge = "auto"
+) => {
   if (!draggedRowId || !targetRowId || draggedRowId === targetRowId) return null;
+  if (edge === "before") {
+    return insertRowRelativeToTarget(rows, draggedRowId, targetRowId, "before");
+  }
+  if (edge === "after") {
+    return insertRowRelativeToTarget(rows, draggedRowId, targetRowId, "after");
+  }
   const list = [...rows].sort((a, b) => (a.order || 0) - (b.order || 0));
   const fromIndex = list.findIndex((row) => row.id === draggedRowId);
   const toIndex = list.findIndex((row) => row.id === targetRowId);

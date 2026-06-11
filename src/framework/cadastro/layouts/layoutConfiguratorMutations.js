@@ -1,10 +1,14 @@
 import {
   createEmptyLayoutRow,
   flattenRowsToFieldIds,
+  insertFieldsIntoRowAtEdge,
+  insertFieldsRelativeToTarget,
   placeFieldInCardRows,
+  previewReorderFieldsAtTarget,
   removeFieldFromRows,
   resolveConfiguredCardRows,
 } from "./empFormLayoutRows.js";
+import { resolveCardColSpan } from "./empFormFieldWidthPresets.js";
 import { normalizeLayoutCardV3 } from "./layoutConfigV3.js";
 
 export const ensureCardRows = (card) => {
@@ -87,6 +91,131 @@ export const updateCardRowsOnly = ({
     ),
   };
   return next;
+};
+
+/** Reordena cards ao vivo (splice, igual painéis). */
+export const previewReorderCardsAtTarget = (
+  cards = [],
+  draggedCardId,
+  targetCardId,
+  edge = "auto"
+) => {
+  if (!draggedCardId || !targetCardId || draggedCardId === targetCardId) return null;
+  const list = [...cards].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const from = list.findIndex((card) => card.id === draggedCardId);
+  const to = list.findIndex((card) => card.id === targetCardId);
+  if (from < 0 || to < 0 || from === to) return null;
+
+  const [moved] = list.splice(from, 1);
+  let insertAt = to;
+  if (edge === "before") {
+    insertAt = list.findIndex((card) => card.id === targetCardId);
+  } else if (edge === "after") {
+    insertAt = list.findIndex((card) => card.id === targetCardId) + 1;
+  }
+  if (insertAt < 0) return null;
+  list.splice(insertAt, 0, moved);
+  return list.map((card, orderIndex) => ({ ...card, order: orderIndex + 1 }));
+};
+
+export const updatePanelCardsOnly = ({ cardsByPanel, panelId, cards }) => ({
+  ...cardsByPanel,
+  [panelId]: { cards },
+});
+
+/**
+ * Preview ao vivo: move campos para painel/card/linha/campo alvo.
+ * Retorna null se não houve mudança.
+ */
+export const previewMoveFieldsAtTarget = ({
+  cardsByPanel,
+  panelId,
+  cardId,
+  fieldIds,
+  card = null,
+  targetFieldId = null,
+  targetRowId = null,
+  edge = "auto",
+  reorderOnly = false,
+}) => {
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !panelId || !cardId) return null;
+
+  const panelCards = cardsByPanel[panelId]?.cards || [];
+  const targetCard = panelCards.find((item) => item.id === cardId);
+  if (!targetCard) return null;
+
+  const cardMeta = card || targetCard;
+  const colSpan = resolveCardColSpan(cardMeta.colSpan);
+  const rowsBefore = ensureCardRows(targetCard);
+  const flatBefore = flattenRowsToFieldIds({ rows: rowsBefore });
+
+  if (
+    reorderOnly &&
+    targetFieldId &&
+    ids.every((id) => flatBefore.includes(id)) &&
+    !ids.includes(targetFieldId)
+  ) {
+    const reordered = previewReorderFieldsAtTarget(rowsBefore, ids, targetFieldId, edge);
+    if (!reordered) return null;
+    const flatAfter = flattenRowsToFieldIds({ rows: reordered });
+    if (flatBefore.join("|") === flatAfter.join("|")) return null;
+    return updateCardRowsOnly({
+      cardsByPanel,
+      panelId,
+      cardId,
+      rows: reordered,
+      fieldIds: flatAfter,
+    });
+  }
+
+  let next = stripFieldsFromAllCards(cardsByPanel, ids);
+  const updatedCard = (next[panelId]?.cards || []).find((item) => item.id === cardId);
+  if (!updatedCard) return null;
+
+  let rows = ensureCardRows(updatedCard);
+  const insertEdge = edge === "before" ? "before" : edge === "after" ? "after" : "after";
+
+  if (targetFieldId && !ids.includes(targetFieldId)) {
+    rows = insertFieldsRelativeToTarget(rows, ids, targetFieldId, insertEdge);
+  } else if (targetRowId) {
+    rows = insertFieldsIntoRowAtEdge(rows, ids, targetRowId, insertEdge);
+  } else {
+    ids.forEach((fieldId, index) => {
+      const result = placeFieldInCardRows(rows, fieldId, {
+        cardId,
+        colSpan,
+        preferredRowId: index === 0 ? targetRowId : null,
+        card: cardMeta,
+      });
+      rows = result.rows;
+    });
+  }
+
+  const fieldIdsFlat = flattenRowsToFieldIds({ rows });
+  const result = updateCardRowsOnly({
+    cardsByPanel: next,
+    panelId,
+    cardId,
+    rows,
+    fieldIds: fieldIdsFlat,
+  });
+
+  const snapshot = (cbp) =>
+    Object.keys(cbp || {})
+      .sort()
+      .map((pid) =>
+        (cbp[pid]?.cards || [])
+          .map((item) => {
+            const itemRows = ensureCardRows(item);
+            return `${item.id}:${flattenRowsToFieldIds({ rows: itemRows }).join(",")}`;
+          })
+          .join("|")
+      )
+      .join("::");
+
+  if (snapshot(cardsByPanel) === snapshot(result)) return null;
+  return result;
 };
 
 export const createEmptyCardForPanel = (panelId, existingCards = []) => {
