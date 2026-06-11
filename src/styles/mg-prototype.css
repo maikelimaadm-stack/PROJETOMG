@@ -4158,11 +4158,31 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-slot {
   position: relative;
   display: flex;
+  align-items: stretch;
   min-width: 0;
 }
 
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-gap--vertical {
+  flex-shrink: 0;
+  align-self: stretch;
+  min-height: var(--mg-field-height);
+  overflow: hidden;
+  border-left: 3px solid var(--mg-brand-green);
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mg-brand-green) 35%, white);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-gap--horizontal {
+  flex-shrink: 0;
+  width: 100%;
+  overflow: hidden;
+  margin: 2px 0;
+  border-top: 3px solid var(--mg-brand-green);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mg-brand-green) 35%, white);
+}
+
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field--drag-source {
-  opacity: 0.42;
+  opacity: 0.5;
   outline: 2px dashed var(--mg-brand-green);
   outline-offset: -2px;
 }
