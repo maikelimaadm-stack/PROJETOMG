@@ -350,6 +350,28 @@ export const addFieldToRow = (rows = [], rowId, fieldId) => {
   );
 };
 
+export const swapFieldsInRows = (rows = [], fieldA, fieldB) => {
+  if (!fieldA || !fieldB || fieldA === fieldB) return rows;
+  const next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
+  let posA = null;
+  let posB = null;
+
+  next.forEach((row, rowIndex) => {
+    (row.fieldIds || []).forEach((fieldId, fieldIndex) => {
+      if (fieldId === fieldA) posA = { rowIndex, fieldIndex };
+      if (fieldId === fieldB) posB = { rowIndex, fieldIndex };
+    });
+  });
+
+  if (!posA || !posB) return rows;
+
+  const a = next[posA.rowIndex].fieldIds[posA.fieldIndex];
+  const b = next[posB.rowIndex].fieldIds[posB.fieldIndex];
+  next[posA.rowIndex].fieldIds[posA.fieldIndex] = b;
+  next[posB.rowIndex].fieldIds[posB.fieldIndex] = a;
+  return next;
+};
+
 export const reorderFieldWithinRows = (rows = [], draggedFieldId, targetFieldId) => {
   if (!draggedFieldId || draggedFieldId === targetFieldId) return rows;
   let sourceRowIndex = -1;

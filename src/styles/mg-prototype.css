@@ -4153,3 +4153,43 @@
   color: var(--text-2) !important;
   stroke: var(--text-2) !important;
 }
+
+/* Configurador de layout — drag-and-drop */
+.mg-empresas-scope .emp-layout-configurator.emp-layout-config-editing .emp-layout-config-field--dragging {
+  opacity: 0.45;
+  transform: scale(0.98);
+  transition: opacity 80ms ease, transform 80ms ease;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-tab--drag-over {
+  outline: 2px solid var(--mg-brand-green);
+  outline-offset: -2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--dragging {
+  opacity: 0.55;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--drag-over {
+  outline: 2px dashed var(--mg-brand-green);
+  outline-offset: 2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-drop--active {
+  background: color-mix(in srgb, var(--mg-brand-green) 8%, transparent);
+  border-radius: var(--mg-radius-control);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-header--draggable {
+  cursor: grab;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-header--draggable:active {
+  cursor: grabbing;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list.emp-layout-config-drop-target {
+  outline: 2px dashed var(--mg-brand-green);
+  outline-offset: -2px;
+  border-radius: var(--mg-radius-control);
+}
