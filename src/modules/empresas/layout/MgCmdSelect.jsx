@@ -113,7 +113,7 @@ export default function MgCmdSelect({
   return (
     <div
       ref={rootRef}
-      className={`cmd-select${open ? " open" : ""}${disabled ? " disabled" : ""}`}
+      className={`cmd-select${open ? " open" : ""}${disabled ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
       tabIndex={disabled ? -1 : 0}
       onKeyDown={onKeyDown}
       onClick={toggle}

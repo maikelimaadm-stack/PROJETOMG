@@ -770,7 +770,13 @@ export default function FORMEMP({
                 variant="mg"
               />
             </div>
-            <div className="mg-form-scroll mg-prototype-form">{renderFormBody(true)}</div>
+            <div
+              className={`mg-form-scroll mg-prototype-form${
+                isReadOnly ? " mg-prototype-form--readonly" : ""
+              }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}`}
+            >
+              {renderFormBody(true)}
+            </div>
           </div>
         ) : null}
         {editMode ? (

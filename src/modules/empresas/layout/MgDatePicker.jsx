@@ -239,7 +239,7 @@ export default function MgDatePicker({
   );
 
   return (
-    <div ref={rootRef} id={id} className={`mg-dp${open ? " open" : ""}`}>
+    <div ref={rootRef} id={id} className={`mg-dp${open ? " open" : ""}${disabled || readOnly ? " is-disabled" : ""}${displayValue ? " mg-has-value" : ""}`}>
       {label ? <label className={`mg-dp-label${required ? " req" : ""}`}>{label}</label> : null}
       <input
         type="text"

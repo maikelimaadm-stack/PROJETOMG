@@ -94,7 +94,7 @@ export default function MgLookup({
   return (
     <div
       ref={rootRef}
-      className={`mg-lookup${open ? " open" : ""}`}
+      className={`mg-lookup${open ? " open" : ""}${disabled || readOnly ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
       tabIndex={disabled || readOnly ? -1 : 0}
       onKeyDown={onKeyDown}
       onClick={toggle}

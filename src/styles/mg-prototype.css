@@ -878,7 +878,7 @@
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-prototype-field .emp-form-field-control:focus-within {
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field .emp-form-field-control:focus-within {
   border-color: var(--mg-focus-border);
   box-shadow: var(--mg-focus-ring);
   background: var(--mg-focus-bg);
@@ -1044,6 +1044,12 @@
 }
 
 .mg-empresas-scope .cmd-select.disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-lookup.disabled {
   opacity: 0.55;
   cursor: not-allowed;
   pointer-events: none;
@@ -2976,7 +2982,7 @@
   padding: 8px 10px;
 }
 
-.mg-empresas-scope .mg-prototype-form .emp-form-field-control:focus-within {
+.mg-empresas-scope .mg-prototype-form--edit .emp-form-field-control:focus-within {
   border-color: var(--mg-focus-border);
   box-shadow: var(--mg-focus-ring);
   background: var(--mg-focus-bg);
@@ -3049,20 +3055,22 @@
   box-shadow: var(--mg-focus-ring);
 }
 
-/* Overrides index.css — idle igual search pill no escopo MG */
+/* Overrides index.css — idle igual search pill no escopo MG (exceto edição com valor) */
 .cadastro-emp-scope.mg-empresas-scope .emp-form-fields .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
 .cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
-.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error) {
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form:not(.mg-prototype-form--edit) .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control {
   background: var(--mg-field-idle-bg) !important;
   border-color: var(--mg-field-idle-border) !important;
   box-shadow: none !important;
 }
 
-/* Overrides index.css — focus unificado no escopo MG */
-.cadastro-emp-scope.mg-empresas-scope .emp-form-fields .emp-form-field-control:focus-within,
-.cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control:focus-within,
-.cadastro-emp-scope.mg-empresas-scope .emp-form-fields .emp-form-field-control.erp-field-open,
-.cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control.erp-field-open {
+/* Overrides index.css — focus unificado no escopo MG (somente edição/novo) */
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .emp-form-fields .emp-form-field-control:focus-within,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .emp-form-field-corp .emp-form-field-control:focus-within,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .emp-form-field-control:focus-within,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .emp-form-fields .emp-form-field-control.erp-field-open,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .emp-form-field-corp .emp-form-field-control.erp-field-open {
   border-color: var(--mg-focus-border) !important;
   box-shadow: var(--mg-focus-ring) !important;
   background: var(--mg-focus-bg) !important;
@@ -3074,4 +3082,84 @@
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35) !important;
   background: #fef2f2 !important;
+}
+
+/* —— Formulário: visualização (todos apagados) vs edição/novo (preenchido branco) —— */
+.mg-empresas-scope .mg-prototype-form--readonly input,
+.mg-empresas-scope .mg-prototype-form--readonly textarea,
+.mg-empresas-scope .mg-prototype-form--readonly .cmd-display,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--readonly .erp-field-select,
+.mg-empresas-scope .mg-prototype-form--readonly .erp-field-lookup,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .emp-form-field-control {
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
+  box-shadow: none !important;
+  color: var(--text-2) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--readonly .cmd-select,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-dp,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-tp {
+  opacity: 0.55;
+}
+
+.mg-empresas-scope .mg-prototype-form--readonly input:focus,
+.mg-empresas-scope .mg-prototype-form--readonly textarea:focus,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control:focus-within,
+.mg-empresas-scope .mg-prototype-form--readonly .cmd-select.open .cmd-display,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-dp.open .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-tp.open .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup.open .mg-lookup-display {
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
+  box-shadow: none !important;
+  color: var(--text-2) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--edit input:not([disabled]):not(:placeholder-shown),
+.mg-empresas-scope .mg-prototype-form--edit textarea:not([disabled]):not(:placeholder-shown),
+.mg-empresas-scope .mg-prototype-form--edit .cmd-select:not(.disabled).mg-has-value .cmd-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-lookup:not(.disabled).mg-has-value .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-dp:not(.is-disabled).mg-has-value .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-tp:not(.is-disabled).mg-has-value .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-autocomplete.mg-has-value.erp-field-select,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-autocomplete.mg-has-value.erp-field-lookup {
+  background: var(--mg-focus-bg) !important;
+  border-color: var(--border) !important;
+  box-shadow: none !important;
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--edit input[disabled],
+.mg-empresas-scope .mg-prototype-form--edit textarea[disabled],
+.mg-empresas-scope .mg-prototype-form--edit input[readonly]:not(.mg-dp-field):not(.mg-tp-field),
+.mg-empresas-scope .mg-prototype-form--edit .cmd-select.disabled .cmd-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-lookup.disabled .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-dp.is-disabled .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-tp.is-disabled .mg-tp-field {
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
+  box-shadow: none !important;
+  color: var(--text-2) !important;
+  opacity: 0.55;
+}
+
+.mg-empresas-scope .mg-prototype-form--edit .cmd-select.open:not(.disabled) .cmd-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-dp.open:not(.is-disabled) .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-tp.open:not(.is-disabled) .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-lookup.open:not(.disabled) .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--edit input:not([disabled]):focus,
+.mg-empresas-scope .mg-prototype-form--edit textarea:not([disabled]):focus,
+.mg-empresas-scope .mg-prototype-form--edit .mg-dp-field:focus,
+.mg-empresas-scope .mg-prototype-form--edit .mg-tp-field:focus {
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
+  background: var(--mg-focus-bg) !important;
+  color: var(--text-1) !important;
+  opacity: 1;
 }

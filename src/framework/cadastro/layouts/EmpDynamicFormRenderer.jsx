@@ -83,6 +83,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
           value={value || ""}
           onChange={(e) => onChange(field.name, e.target.value)}
           readOnly={fieldReadOnly}
+          disabled={fieldReadOnly}
+          placeholder=" "
           rows={field.rows || 4}
         />
       );
@@ -128,6 +130,7 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
           value={value}
           options={options}
           onChange={(nextValue) => onChange(field.name, nextValue ?? "")}
+          disabled={fieldReadOnly}
         />
       );
     }
@@ -200,6 +203,7 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
         onChange={(e) => onChange(field.name, e.target.value)}
         readOnly={fieldReadOnly}
         disabled={fieldReadOnly}
+        placeholder=" "
       />
     );
   }
