@@ -847,7 +847,7 @@ export default function EmpLayoutConfiguratorDialog({
       return next;
     });
   };
-  const setFieldWidthType = (fieldId, widthType) => {
+  const toggleListValue = (setter, fieldId, checked) =>
     setter((prev) => (checked ? Array.from(new Set([...prev, fieldId])) : prev.filter((id) => id !== fieldId)));
   const setAggregationEnabled = (fieldId, enabled) =>
     setDraftAggregationConfig((prev) => {
