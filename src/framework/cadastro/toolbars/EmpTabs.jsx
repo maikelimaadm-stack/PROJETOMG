@@ -1,5 +1,6 @@
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
+import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
 
 export const EMP_SYSTEM_PANEL_IDS = [
   "principais",
@@ -28,23 +29,7 @@ export default function EmpTabs({
   const segRef = useRef(null);
   const sliderRef = useRef(null);
 
-  useEffect(() => {
-    if (variant !== "mg") return undefined;
-    const seg = segRef.current;
-    const slider = sliderRef.current;
-    if (!seg || !slider) return undefined;
-
-    const updateSlider = () => {
-      const activeBtn = seg.querySelector(".seg-tab.active");
-      if (!activeBtn) return;
-      slider.style.width = `${activeBtn.offsetWidth}px`;
-      slider.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
-    };
-
-    updateSlider();
-    window.addEventListener("resize", updateSlider);
-    return () => window.removeEventListener("resize", updateSlider);
-  }, [activeTab, tabs, variant]);
+  useMgSegSlider(segRef, sliderRef, ".seg-tab.active", [activeTab, tabs, variant]);
 
   if (!tabs.length) return null;
 

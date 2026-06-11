@@ -11,6 +11,7 @@ import { RenderEngine } from "@/framework/cadastro-engine/render/RenderEngine.js
 import CadLayoutConfigurator from "@/framework/cadastro-engine/design-system/CadLayoutConfigurator.jsx";
 import CadSplitLayout from "@/framework/cadastro-engine/design-system/CadSplitLayout.jsx";
 import { CadRecordToolbar } from "@/framework/cadastro-engine/design-system/CadToolbar.jsx";
+import MgMotionPanel from "@/modules/empresas/layout/MgMotionPanel";
 import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
@@ -616,29 +617,36 @@ export default function FORMEMP({
           />
         ) : null}
 
-        <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
-          <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
-            <RenderEngine
-              recordKey={recordKey}
-              panels={tabs}
-              fields={dynamicFields}
-              layout={activeLayoutConfig.layout}
-              defaultLayout={defaultLayout}
-              hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-              lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-              requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-              visibilityRules={activeLayoutConfig.visibilityRules || {}}
-              fieldSizes={activeLayoutConfig.fieldSizes || {}}
-              fieldLayoutConfig={fieldLayoutConfig}
-              activePanelId={activeTab}
-              values={formData}
-              errors={errors}
-              onChange={handleDynamicFieldChange}
-              readOnly={isReadOnly}
-              fieldClassName={mgVariant ? "mg-prototype-field" : ""}
-            />
-          </fieldset>
-        </div>
+        <MgMotionPanel
+          panelKey={activeTab}
+          className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none"
+        >
+          {(panelId) => (
+            <fieldset
+              className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}
+            >
+              <RenderEngine
+                recordKey={recordKey}
+                panels={tabs}
+                fields={dynamicFields}
+                layout={activeLayoutConfig.layout}
+                defaultLayout={defaultLayout}
+                hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                fieldSizes={activeLayoutConfig.fieldSizes || {}}
+                fieldLayoutConfig={fieldLayoutConfig}
+                activePanelId={panelId}
+                values={formData}
+                errors={errors}
+                onChange={handleDynamicFieldChange}
+                readOnly={isReadOnly}
+                fieldClassName={mgVariant ? "mg-prototype-field" : ""}
+              />
+            </fieldset>
+          )}
+        </MgMotionPanel>
       </div>
     </div>
   );

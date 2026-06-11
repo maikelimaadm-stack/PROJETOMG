@@ -394,6 +394,17 @@ export default function PAGEMP() {
     }
   }, []);
 
+  const handleFilterClear = useCallback(() => {
+    setFilterValues({});
+    setFilterStatus("Todos");
+    setSearchTerm("");
+    setQueryPage(1);
+  }, []);
+
+  const handleFilterApply = useCallback(() => {
+    closeFilterPanel();
+  }, [closeFilterPanel]);
+
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
 
   const actionBarVisibility = useMemo(
@@ -734,6 +745,8 @@ export default function PAGEMP() {
           values={filterValues}
           onChange={handleFilterChange}
           onClose={closeFilterPanel}
+          onClear={handleFilterClear}
+          onApply={handleFilterApply}
           status={filterStatus}
           onStatusChange={setFilterStatus}
         />

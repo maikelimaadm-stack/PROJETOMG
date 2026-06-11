@@ -36,22 +36,22 @@ export default function MgEmpresasMobileOverlays() {
   return (
     <div className="mg-empresas-scope">
       <MgMobileMenu />
-      {filterPanelOpen ? (
-        <button
-          type="button"
-          className="mg-filter-backdrop md:hidden"
-          aria-label="Fechar filtros"
-          onClick={closeFilterPanel}
-        />
-      ) : null}
-      {mobileMenuOpen ? (
-        <button
-          type="button"
-          className="mg-mobile-menu-backdrop md:hidden"
-          aria-label="Fechar menu"
-          onClick={closeMobileMenu}
-        />
-      ) : null}
+      <button
+        type="button"
+        className={`mg-filter-backdrop md:hidden${filterPanelOpen ? " open" : ""}`}
+        aria-label="Fechar filtros"
+        aria-hidden={!filterPanelOpen}
+        tabIndex={filterPanelOpen ? 0 : -1}
+        onClick={closeFilterPanel}
+      />
+      <button
+        type="button"
+        className={`mg-mobile-menu-backdrop${mobileMenuOpen ? " open" : ""}`}
+        aria-label="Fechar menu"
+        aria-hidden={!mobileMenuOpen}
+        tabIndex={mobileMenuOpen ? 0 : -1}
+        onClick={closeMobileMenu}
+      />
     </div>
   );
 }

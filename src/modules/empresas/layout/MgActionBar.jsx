@@ -147,7 +147,7 @@ export default function MgActionBar({
       </div>
 
       <div className="mg-action-bar__end">
-        <MgMotionSlot show={!showSave}>
+        <MgMotionSlot show={!showSave} className="mg-motion-slot--toolbar-widget">
           <div className="mg-search-pill" role="search">
             <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
             <input
@@ -160,7 +160,7 @@ export default function MgActionBar({
           </div>
         </MgMotionSlot>
 
-        <MgMotionSlot show={!showSave}>
+        <MgMotionSlot show={!showSave} className="mg-motion-slot--toolbar-widget">
           <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
         </MgMotionSlot>
 

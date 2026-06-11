@@ -342,24 +342,24 @@ input[type="number"] {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn) {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab) {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn) span {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab) span {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn) svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab) svg {
   color: var(--emp-text-strong) !important;
   stroke: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):hover {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab):hover {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):hover svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab):hover svg {
   color: var(--emp-text-strong) !important;
 }
 
