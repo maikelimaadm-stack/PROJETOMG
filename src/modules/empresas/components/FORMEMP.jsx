@@ -67,6 +67,7 @@ export default function FORMEMP({
   const isDuplicating = !!initialData?._isDuplicate;
   const [errors, setErrors] = useState({});
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [layoutToolbarBridge, setLayoutToolbarBridge] = useState(null);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
   const nativeLayoutFieldIdsSet = useMemo(
     () => new Set(Object.values(EMP_FORM_DEFAULT_LAYOUT).flat().filter(Boolean)),
@@ -600,6 +601,7 @@ export default function FORMEMP({
       isEditing,
       isDuplicating,
       layoutConfigOpen,
+      layoutToolbar: layoutConfigOpen ? layoutToolbarBridge : null,
       recordMeta,
       onSave: () => handleSubmit(),
       onCancel,
@@ -616,6 +618,7 @@ export default function FORMEMP({
     isEditing,
     isDuplicating,
     layoutConfigOpen,
+    layoutToolbarBridge,
     recordMeta,
     onCancel,
     filterOpen,
@@ -684,6 +687,7 @@ export default function FORMEMP({
         <CadLayoutConfigurator
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}
+          onLayoutToolbarBridge={setLayoutToolbarBridge}
           inline
           panels={activeLayoutConfig.panels}
           fields={dynamicFields}

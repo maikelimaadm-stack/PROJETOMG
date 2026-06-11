@@ -790,6 +790,8 @@ export default function PAGEMP() {
             onConfigColumns={() => setShowConfigColunas(true)}
             onLayoutConfig={formBridge?.onLayoutConfig}
             actionsLocked={saveCycle.isSaving}
+            layoutConfigMode={!!formBridge?.layoutConfigOpen && !!formBridge?.layoutToolbar}
+            layoutToolbar={formBridge?.layoutToolbar}
             {...actionBarVisibility}
           />
 
