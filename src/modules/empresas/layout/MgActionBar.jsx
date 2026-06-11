@@ -182,7 +182,7 @@ export default function MgActionBar({
             aria-haspopup="menu"
             onClick={() => setMoreOpen((open) => !open)}
           >
-            <MoreVertical className="h-4 w-4" stroke="var(--accent)" />
+            <MoreVertical className="h-4 w-4" stroke="var(--mg-brand-green)" />
           </button>
           <div id="more-dd" className={`dropdown-menu${moreOpen ? " open" : ""}`}>
             {onDuplicate && !showDuplicate ? (
