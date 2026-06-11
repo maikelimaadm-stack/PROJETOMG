@@ -20,7 +20,6 @@ import {
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
-import MgMotionSlot from "@/modules/empresas/layout/MgMotionSlot";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
@@ -350,17 +349,19 @@ export default function PAGEMP() {
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((version) => version + 1);
   };
 
   const handleNew = () => {
     if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
     setSelectedTableItems([]);
+    const alreadyNew = showForm && !editingEmp?.id && !editingEmp?._isDuplicate;
     setEditingEmp(null);
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((p) => p + 1);
+    if (alreadyNew) {
+      setFormVersion((version) => version + 1);
+    }
   };
 
   const handleDuplicate = (emp) => {
@@ -370,7 +371,6 @@ export default function PAGEMP() {
     setEditingEmp({ ...dup, _isDuplicate: true });
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((p) => p + 1);
   };
 
   const handleRequestDelete = (ids) => {
@@ -516,7 +516,6 @@ export default function PAGEMP() {
       setEditingEmp(emp);
       setShowForm(true);
       setViewMode("record");
-      setFormVersion((version) => version + 1);
       return;
     }
     if (showForm) {
@@ -531,7 +530,6 @@ export default function PAGEMP() {
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((version) => version + 1);
   };
 
   const navigateRecord = (index) => {
@@ -726,6 +724,11 @@ export default function PAGEMP() {
       : "";
   const recordTitle =
     formBridge?.recordMeta?.nome ||
+    (showForm && !editingEmp?.id && !editingEmp?._isDuplicate
+      ? "Nova Empresa"
+      : editingEmp?._isDuplicate
+        ? "Duplicar empresa"
+        : null) ||
     editingEmp?.razao_social ||
     editingEmp?.nome_empresa ||
     "Novo registro";
@@ -785,25 +788,27 @@ export default function PAGEMP() {
             {...actionBarVisibility}
           />
 
-          <MgMotionSlot show={showForm} className="mg-motion-slot--panel">
-            <MgContextPanel
-              code={recordCode}
-              title={recordTitle}
-              total={empresasNavegacao.length}
-              currentIndex={selectedIndex}
-              onFirst={() => navigateRecord(0)}
-              onPrevious={() => navigateRecord(selectedIndex - 1)}
-              onNext={() => navigateRecord(selectedIndex + 1)}
-              onLast={() => navigateRecord(empresasNavegacao.length - 1)}
-              disabled={saveCycle.isSaving}
-            />
-          </MgMotionSlot>
+          {showForm ? (
+            <div className="mg-context-panel-wrap">
+              <MgContextPanel
+                code={recordCode}
+                title={recordTitle}
+                total={empresasNavegacao.length}
+                currentIndex={selectedIndex}
+                onFirst={() => navigateRecord(0)}
+                onPrevious={() => navigateRecord(selectedIndex - 1)}
+                onNext={() => navigateRecord(selectedIndex + 1)}
+                onLast={() => navigateRecord(empresasNavegacao.length - 1)}
+                disabled={saveCycle.isSaving}
+              />
+            </div>
+          ) : null}
 
           <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
             {showForm ? (
               <EmpresasFormPanel
                 formProps={{
-                  key: `form-${formVersion}`,
+                  key: `form-${editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new")}-v${formVersion}`,
                   initialData: editingEmp,
                   recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
                   isEditing: !!editingEmp,
