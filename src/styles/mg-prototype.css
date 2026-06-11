@@ -50,6 +50,10 @@
   --mg-focus-border: rgba(40, 153, 245, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(40, 153, 245, 0.12);
   --mg-focus-bg: #fff;
+  --mg-field-idle-bg: var(--gray-fill);
+  --mg-field-idle-border: transparent;
+  --mg-selection-bg: rgba(40, 153, 245, 0.12);
+  --mg-selection-ring: inset 0 0 0 1px rgba(40, 153, 245, 0.35);
 
   font-family: "DM Sans", -apple-system, sans-serif;
   font-size: 13px;
@@ -282,15 +286,19 @@
 .mg-empresas-scope .fg .emp-form-field-control textarea {
   width: 100%;
   height: 32px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: var(--mg-radius-control);
   padding: 0 10px;
   font-size: 13px;
   font-weight: 500;
   outline: none;
-  transition: border 0.2s, box-shadow 0.2s;
-  background: var(--bg-card);
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
+  background: var(--mg-field-idle-bg);
   color: var(--text-1);
+  box-shadow: none;
 }
 
 .mg-empresas-scope .fg textarea,
@@ -310,10 +318,15 @@
 }
 
 .mg-empresas-scope .fg .emp-form-field-control {
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: var(--mg-radius-control);
   min-height: 36px;
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .fg .emp-form-field-control input {
@@ -609,8 +622,10 @@
   background: #eef6ff;
 }
 
-.mg-empresas-scope .mg-grid tbody tr.selected {
-  background: var(--accent-light);
+.mg-empresas-scope .mg-grid tbody tr.selected,
+.cadastro-emp-scope.mg-empresas-scope .emp-table-pro tr.emp-row-selected .emp-td {
+  background: var(--mg-selection-bg) !important;
+  box-shadow: inset 3px 0 0 var(--accent);
 }
 
 .mg-empresas-scope .mg-grid .cell-muted {
@@ -852,11 +867,15 @@
 }
 
 .mg-empresas-scope .mg-prototype-field .emp-form-field-control {
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
   min-height: 32px;
-  background: var(--bg-card);
-  transition: border 0.2s, box-shadow 0.2s;
+  background: var(--mg-field-idle-bg);
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-prototype-field .emp-form-field-control:focus-within {
@@ -962,21 +981,25 @@
 .mg-empresas-scope .cmd-display {
   width: 100%;
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
   padding: 0 28px 0 10px;
   font-size: 13px;
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
   color: var(--text-1) !important;
   display: flex;
   align-items: center;
-  transition: border 0.2s, box-shadow 0.2s;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
   font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1.2;
   min-width: 0;
+  box-shadow: none;
   -webkit-text-fill-color: var(--text-1);
 }
 
@@ -1448,9 +1471,8 @@
 
 .mg-empresas-scope .mg-emp-card--selected,
 .mg-empresas-scope .mg-emp-card--selected:hover {
-  border: none;
-  background: var(--accent-light);
-  box-shadow: 0 4px 14px rgba(40, 153, 245, 0.14);
+  background: var(--mg-selection-bg) !important;
+  box-shadow: var(--mg-selection-ring), 0 4px 14px rgba(40, 153, 245, 0.16) !important;
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):active:not(.mg-emp-card--selected) {
@@ -1816,13 +1838,13 @@
 }
 
 .mg-empresas-scope .mg-context-panel__counter {
-  font-size: 10px;
+  font-size: 12px;
   color: var(--text-2);
   font-weight: 500;
-  min-width: 50px;
+  min-width: 56px;
   text-align: center;
   display: inline-block;
-  line-height: 14px;
+  line-height: 16px;
 }
 
 .mg-empresas-scope .mg-nav-btn {
@@ -2111,14 +2133,18 @@
 .mg-empresas-scope .mg-dp-field {
   width: 100%;
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
   padding: 0 32px 0 10px;
   font-size: 13px;
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
   color: var(--text-1);
   outline: none;
-  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
   cursor: pointer;
   font-weight: 500;
 }
@@ -2435,14 +2461,18 @@
 .mg-empresas-scope .mg-tp-field {
   width: 100%;
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
   padding: 0 32px 0 10px;
   font-size: 13px;
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
   color: var(--text-1);
   outline: none;
-  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
   cursor: pointer;
   font-weight: 500;
 }
@@ -2569,16 +2599,20 @@
 .mg-empresas-scope .mg-lookup-display {
   width: 100%;
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
   padding: 0 28px 0 10px;
   font-size: 13px;
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
   color: var(--text-1);
   display: flex;
   align-items: center;
   font-weight: 500;
-  transition: border 0.2s, box-shadow 0.2s;
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -2772,10 +2806,14 @@
   position: relative;
   min-height: 36px;
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
-  background: var(--bg-card);
-  transition: border 0.2s, box-shadow 0.2s;
+  background: var(--mg-field-idle-bg);
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-select.erp-field-open,
@@ -2813,10 +2851,14 @@
   position: relative;
   min-height: 36px;
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
-  background: var(--bg-card);
-  transition: border 0.2s, box-shadow 0.2s;
+  background: var(--mg-field-idle-bg);
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup.erp-field-open,
@@ -2897,25 +2939,35 @@
 .mg-empresas-scope .mg-prototype-form input[type="date"],
 .mg-empresas-scope .mg-prototype-form input[type="datetime-local"] {
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
   padding: 0 10px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
   color: var(--text-1);
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-field-control input,
 .mg-empresas-scope .mg-prototype-form .emp-form-field-control textarea {
   height: 36px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: 8px;
   padding: 0 10px;
   font-size: 13px;
   font-weight: 500;
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
   color: var(--text-1);
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-field-control textarea {
@@ -2964,13 +3016,19 @@
 
 /* Visualização cards — footer (paginação / por página) */
 .mg-empresas-scope .emp-search-page-size-display {
-  border: 1px solid var(--border);
+  border: 1px solid var(--mg-field-idle-border);
   border-radius: var(--mg-radius-control);
-  background: var(--bg-card);
+  background: var(--mg-field-idle-bg);
+  box-shadow: none;
   transition:
     border-color var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
     background var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-search-footer-counter,
+.mg-empresas-scope .mg-cards-footer-counter {
+  font-size: 12px !important;
 }
 
 .mg-empresas-scope .emp-search-page-size.open .emp-search-page-size-display {
@@ -2989,6 +3047,15 @@
   outline: none;
   border: 1px solid var(--mg-focus-border);
   box-shadow: var(--mg-focus-ring);
+}
+
+/* Overrides index.css — idle igual search pill no escopo MG */
+.cadastro-emp-scope.mg-empresas-scope .emp-form-fields .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
+.cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error) {
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
+  box-shadow: none !important;
 }
 
 /* Overrides index.css — focus unificado no escopo MG */

@@ -376,7 +376,7 @@ export default function SRCHEMP({
         >
           <span className="text-[11px]" style={{ color: "var(--text-3)" }}>Por página:</span>
           <SearchPageSizeSelect value={pageSize} onChange={onPageSizeChange} />
-          <span className="flex-1 text-[11px]" style={{ color: "var(--text-3)" }}>{counterText}</span>
+          <span className="flex-1 text-[12px] mg-cards-footer-counter" style={{ color: "var(--text-3)" }}>{counterText}</span>
           <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
         </footer>
       </div>

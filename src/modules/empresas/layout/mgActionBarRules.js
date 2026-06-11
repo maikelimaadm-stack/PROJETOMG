@@ -1,7 +1,7 @@
 /**
  * Regras de visibilidade da action bar MakGestão — espelha EmpListToolbar / EmpRecordToolbar.
  *
- * Tabela/cards: Novo; Excluir se houver seleção; Duplicar se 1 selecionado.
+ * Tabela/cards: Novo; Editar/Excluir/Duplicar somente com seleção (Editar/Duplicar = 1 item).
  * Registro (leitura): Novo, Editar, Excluir, Duplicar.
  * Registro (edição/novo): Salvar, Cancelar (sem Novo/Editar/Excluir/Duplicar).
  */
@@ -16,7 +16,7 @@ export function resolveMgActionBarVisibility({
       showNew: true,
       showSave: false,
       showCancel: false,
-      showEdit: false,
+      showEdit: selectedCount === 1,
       showDelete: selectedCount > 0,
       showDuplicate: selectedCount === 1,
     };

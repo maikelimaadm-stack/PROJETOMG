@@ -764,7 +764,11 @@ export default function PAGEMP() {
             onNew={handleNew}
             onSave={formBridge?.onSave}
             onCancel={formBridge?.onCancel ?? formCancel}
-            onEdit={formBridge?.onEdit}
+            onEdit={
+              showForm
+                ? formBridge?.onEdit
+                : () => selectedTableEmp && handleEdit(selectedTableEmp)
+            }
             onDelete={
               showForm
                 ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
