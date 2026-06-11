@@ -17,7 +17,7 @@ import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro
 import { getCachedCardRows } from "@/framework/cadastro-engine/layout/layoutCache.js";
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { useCardCollapsibleEnabled } from "@/framework/cadastro-engine/render/useCardCollapsibleEnabled.js";
-import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
+import { resolveCardColSpan, resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 import { isInlineMediaField } from "@/framework/cadastro/layouts/empFormFieldLayoutGroups";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
@@ -56,6 +56,40 @@ const isMgCompositeField = (field) => {
   if (isTimeField(field)) return true;
   return false;
 };
+
+/** MG: no máximo 2 campos por linha (inteiro ou meio a meio). */
+function splitMgLayoutRows(layoutRows = []) {
+  const next = [];
+  layoutRows.forEach((layoutRow) => {
+    const ids = (layoutRow.fieldIds || []).filter(Boolean);
+    if (ids.length <= 2) {
+      next.push(layoutRow);
+      return;
+    }
+    for (let offset = 0; offset < ids.length; offset += 2) {
+      next.push({
+        ...layoutRow,
+        id: offset === 0 ? layoutRow.id : `${layoutRow.id}_mg_${offset}`,
+        fieldIds: ids.slice(offset, offset + 2),
+      });
+    }
+  });
+  return next;
+}
+
+function resolveCardSlotLayout(card, mgPrototype) {
+  const colSpan = resolveCardColSpan(card?.colSpan);
+  if (mgPrototype) {
+    return {
+      className: colSpan <= 6 ? "emp-form-card-slot--half" : "emp-form-card-slot--full",
+      style: undefined,
+    };
+  }
+  return {
+    className: undefined,
+    style: { gridColumn: `span ${colSpan} / span ${colSpan}` },
+  };
+}
 
 function fieldHasDisplayValue(value) {
   if (value === null || value === undefined) return false;
@@ -646,11 +680,16 @@ export default function EmpDynamicFormRenderer({
         );
         if (!hasVisibleInCard) return null;
 
+        const cardSlotLayout = resolveCardSlotLayout(card, mgPrototype);
+        const cardLayoutRows = mgPrototype
+          ? splitMgLayoutRows(layoutRows)
+          : layoutRows;
+
         return (
           <div
             key={card.id}
-            className="emp-form-card-slot"
-            style={{ gridColumn: `span ${card.colSpan || 12} / span ${card.colSpan || 12}` }}
+            className={cn("emp-form-card-slot", cardSlotLayout.className)}
+            style={cardSlotLayout.style}
           >
             <FormCardSection
               card={card}
@@ -660,7 +699,7 @@ export default function EmpDynamicFormRenderer({
               mgPrototype={mgPrototype}
             >
               <div className="emp-form-card-rows">
-                {layoutRows.map((layoutRow) => {
+                {cardLayoutRows.map((layoutRow) => {
                   const rowFields = (layoutRow.fieldIds || [])
                     .map((fieldId) => fields.find((field) => field.id === fieldId))
                     .filter(Boolean)
