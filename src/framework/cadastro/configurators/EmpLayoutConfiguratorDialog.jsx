@@ -61,17 +61,12 @@ import {
   toggleListSelection,
 } from "@/framework/cadastro/layouts/layoutConfiguratorDrag.js";
 import {
-  AnimatePresence,
-  LayoutConfigDropGap,
   LayoutConfigDropLine,
   LayoutConfigFieldShell,
   LayoutConfigMotionGroup,
   LayoutConfigPanelBody,
   LayoutConfigRowShell,
   LayoutConfigSidebarList,
-  layoutConfigTransition,
-  layoutFieldPresence,
-  motion,
 } from "@/framework/cadastro/layouts/layoutConfiguratorMotion.jsx";
 import {
   getMaxFieldsPerRow,
@@ -299,6 +294,8 @@ export default function EmpLayoutConfiguratorDialog({
   const draftLayoutFlat = useMemo(() => flattenLayoutFromCards(draftCardsByPanel), [draftCardsByPanel]);
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayoutFlat).flat()), [draftLayoutFlat]);
   const panelFieldIds = flattenRowsToFieldIds({ rows: activeCardRows });
+  const isDragActive = Boolean(draggedFieldId || draggedRowId || draggedPanelId);
+  const enableLayoutMotion = !isDragActive;
 
   const ensureCardRows = (card) => ensureCardRowsHelper(card);
 
@@ -492,15 +489,30 @@ export default function EmpLayoutConfiguratorDialog({
   };
 
   const setFieldDropIndicator = (targetFieldId, edge) => {
-    setDropIndicator({ kind: "field", targetFieldId, edge });
+    setDropIndicator((prev) => {
+      if (prev?.kind === "field" && prev.targetFieldId === targetFieldId && prev.edge === edge) {
+        return prev;
+      }
+      return { kind: "field", targetFieldId, edge };
+    });
   };
 
   const setRowDropIndicator = (rowId, edge) => {
-    setDropIndicator({ kind: "row", rowId, edge });
+    setDropIndicator((prev) => {
+      if (prev?.kind === "row" && prev.rowId === rowId && prev.edge === edge) {
+        return prev;
+      }
+      return { kind: "row", rowId, edge };
+    });
   };
 
   const setRowFieldDropIndicator = (rowId, edge) => {
-    setDropIndicator({ kind: "row-field", rowId, edge });
+    setDropIndicator((prev) => {
+      if (prev?.kind === "row-field" && prev.rowId === rowId && prev.edge === edge) {
+        return prev;
+      }
+      return { kind: "row-field", rowId, edge };
+    });
   };
 
   const canInsertFieldsIntoRow = (rows, rowId, fieldIds, colSpan) => {
@@ -1136,20 +1148,16 @@ export default function EmpLayoutConfiguratorDialog({
     return (
       <LayoutConfigFieldShell
         key={field.id}
-        fieldId={field.id}
-        layout={!isDragSource}
+        layout={enableLayoutMotion}
         className="emp-layout-config-field-slot relative min-w-0"
         style={getPanelFieldBalanceStyle(field.id, layoutRow)}
       >
-        <LayoutConfigDropGap show={showBefore && isEditing && !!draggedFieldId} orientation="vertical" />
         <LayoutConfigDropLine show={showBefore} orientation="vertical" edge="before" />
-        <motion.div
+        <div
           role="button"
           tabIndex={0}
           aria-disabled={!isEditing}
           draggable={isEditing && !fixedVisibleFieldIds.includes(field.id)}
-          layout={!isDragSource}
-          transition={layoutConfigTransition.layout}
           onClick={(event) => toggleListSelection(setSelectedPanelFieldIds, field.id, event)}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
@@ -1200,16 +1208,15 @@ export default function EmpLayoutConfiguratorDialog({
           <span className="min-w-0 flex-1 truncate text-xs font-semibold">{field.label}</span>
           {renderFieldStatusIcons(field)}
           {renderFieldActions({ field, variant: "panel" })}
-        </motion.div>
+        </div>
         <LayoutConfigDropLine show={showAfter} orientation="vertical" edge="after" />
-        <LayoutConfigDropGap show={showAfter && isEditing && !!draggedFieldId} orientation="vertical" />
       </LayoutConfigFieldShell>
     );
   };
 
   const content = (
     <LayoutConfigMotionGroup
-      className={`cadastro-emp-scope mg-empresas-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}`}
+      className={`cadastro-emp-scope mg-empresas-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}${isDragActive ? " emp-layout-config-is-dragging" : ""}`}
       data-active-card-span={String(activeCardSpan)}
     >
       {!inline && (
@@ -1270,28 +1277,18 @@ export default function EmpLayoutConfiguratorDialog({
                 dropFieldsToAvailable();
               }}
             >
-              <LayoutConfigSidebarList mode={sidebarMode} className="flex flex-1 flex-col gap-1">
+              <LayoutConfigSidebarList className="flex flex-1 flex-col gap-1">
                 {sidebarMode === "available" ? (
                   availableFields.length === 0 ? (
                     <div className="py-4 text-center text-xs" style={{ color: "var(--text-3)" }}>
                       Solte aqui para remover do painel.
                     </div>
                   ) : (
-                    <AnimatePresence mode="popLayout" initial={false}>
-                      {availableFields.map((field) => (
-                        <LayoutConfigFieldShell
-                          key={field.id}
-                          fieldId={field.id}
-                          layout={!(draggedFieldId && resolveDragFieldIds().includes(field.id))}
-                          className="w-full"
-                          initial={layoutFieldPresence.initial}
-                          animate={layoutFieldPresence.animate}
-                          exit={layoutFieldPresence.exit}
-                        >
-                          {renderAvailableField(field)}
-                        </LayoutConfigFieldShell>
-                      ))}
-                    </AnimatePresence>
+                    availableFields.map((field) => (
+                      <LayoutConfigFieldShell key={field.id} layout={enableLayoutMotion} className="w-full">
+                        {renderAvailableField(field)}
+                      </LayoutConfigFieldShell>
+                    ))
                   )
                 ) : filteredUsedFields.length === 0 ? (
                   <div className="py-4 text-center text-xs" style={{ color: "var(--text-3)" }}>
@@ -1539,6 +1536,7 @@ export default function EmpLayoutConfiguratorDialog({
               </p>
               <LayoutConfigPanelBody
                 panelKey={`${activePanelId}:${activeCardId}`}
+                motionEnabled={enableLayoutMotion}
                 className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2"
               >
                 {displayRows.length === 0 ? (
@@ -1586,8 +1584,7 @@ export default function EmpLayoutConfiguratorDialog({
                     return (
                       <LayoutConfigRowShell
                         key={layoutRow.id}
-                        rowId={layoutRow.id}
-                        layout={draggedRowId !== layoutRow.id}
+                        layout={enableLayoutMotion}
                         className={cn(
                           "emp-layout-config-row emp-layout-config-card-shell relative",
                           rowFull ? "emp-layout-config-row--full" : "",
@@ -1612,19 +1609,11 @@ export default function EmpLayoutConfiguratorDialog({
                         }}
                       >
                         <LayoutConfigDropLine show={showRowLineBefore} orientation="horizontal" edge="before" />
-                        <LayoutConfigDropGap
-                          show={showRowLineBefore && isEditing && !!draggedRowId}
-                          orientation="horizontal"
-                        />
                         <LayoutConfigDropLine
                           show={showRowFieldLineBefore}
                           orientation="horizontal"
                           edge="before"
                           className="emp-layout-config-drop-line--in-row"
-                        />
-                        <LayoutConfigDropGap
-                          show={showRowFieldLineBefore && isEditing && !!draggedFieldId && !draggedRowId}
-                          orientation="horizontal"
                         />
                         {!isDraftRow ? (
                           <div
@@ -1737,19 +1726,11 @@ export default function EmpLayoutConfiguratorDialog({
                                 ))
                             : null}
                         </div>
-                        <LayoutConfigDropGap
-                          show={showRowFieldLineAfter && isEditing && !!draggedFieldId && !draggedRowId}
-                          orientation="horizontal"
-                        />
                         <LayoutConfigDropLine
                           show={showRowFieldLineAfter}
                           orientation="horizontal"
                           edge="after"
                           className="emp-layout-config-drop-line--in-row"
-                        />
-                        <LayoutConfigDropGap
-                          show={showRowLineAfter && isEditing && !!draggedRowId}
-                          orientation="horizontal"
                         />
                         <LayoutConfigDropLine show={showRowLineAfter} orientation="horizontal" edge="after" />
                       </LayoutConfigRowShell>

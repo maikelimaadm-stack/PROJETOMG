@@ -1,5 +1,5 @@
 import React from "react";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/shared/utils/utils";
 
 /** Alinhado a --mg-motion-duration / --mg-motion-ease do design system MG. */
@@ -8,64 +8,52 @@ export const LAYOUT_CONFIG_DURATION = 0.22;
 
 export const layoutConfigTransition = {
   layout: {
-    type: "spring",
-    stiffness: 520,
-    damping: 42,
-    mass: 0.85,
+    duration: LAYOUT_CONFIG_DURATION,
+    ease: LAYOUT_CONFIG_EASE,
   },
   default: {
     duration: LAYOUT_CONFIG_DURATION,
     ease: LAYOUT_CONFIG_EASE,
   },
-  exit: {
-    duration: 0.16,
-    ease: LAYOUT_CONFIG_EASE,
-  },
 };
 
 export const layoutFieldPresence = {
-  initial: { opacity: 0, x: -10, scale: 0.98 },
-  animate: { opacity: 1, x: 0, scale: 1 },
-  exit: { opacity: 0, x: 10, scale: 0.98 },
+  initial: { opacity: 0, y: -4 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: 4 },
 };
 
-export const layoutPanelPresence = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -8 },
+const motionTransition = {
+  ...layoutConfigTransition.default,
+  layout: layoutConfigTransition.layout,
 };
 
 export function LayoutConfigMotionGroup({ children, className = "", ...props }) {
   return (
-    <LayoutGroup id="emp-layout-configurator">
-      <div className={className} {...props}>
-        {children}
-      </div>
-    </LayoutGroup>
+    <div className={className} {...props}>
+      {children}
+    </div>
   );
 }
 
 export function LayoutConfigFieldShell({
-  fieldId,
   className = "",
   style,
-  layout = true,
-  initial = false,
-  animate,
-  exit,
+  layout = false,
   children,
 }) {
+  if (!layout) {
+    return (
+      <div className={className} style={style}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <motion.div
-      layout={layout}
-      layoutId={fieldId ? `layout-config-field-${fieldId}` : undefined}
-      transition={{
-        ...layoutConfigTransition.default,
-        layout: layoutConfigTransition.layout,
-      }}
-      initial={initial}
-      animate={animate}
-      exit={exit}
+      layout="position"
+      transition={motionTransition}
       className={className}
       style={style}
     >
@@ -74,15 +62,19 @@ export function LayoutConfigFieldShell({
   );
 }
 
-export function LayoutConfigRowShell({ rowId, className = "", layout = true, children, ...props }) {
+export function LayoutConfigRowShell({ className = "", layout = false, children, ...props }) {
+  if (!layout) {
+    return (
+      <div className={className} {...props}>
+        {children}
+      </div>
+    );
+  }
+
   return (
     <motion.div
-      layout={layout}
-      layoutId={rowId ? `layout-config-row-${rowId}` : undefined}
-      transition={{
-        ...layoutConfigTransition.default,
-        layout: layoutConfigTransition.layout,
-      }}
+      layout="position"
+      transition={motionTransition}
       className={className}
       {...props}
     >
@@ -92,111 +84,50 @@ export function LayoutConfigRowShell({ rowId, className = "", layout = true, chi
 }
 
 export function LayoutConfigDropLine({ show, orientation = "vertical", edge = "before", className = "" }) {
+  if (!show) return null;
   return (
-    <AnimatePresence initial={false}>
-      {show ? (
-        <motion.span
-          key={`${orientation}-${edge}`}
-          aria-hidden
-          initial={{
-            opacity: 0,
-            scaleX: orientation === "vertical" ? 1 : 0.2,
-            scaleY: orientation === "vertical" ? 0.2 : 1,
-          }}
-          animate={{ opacity: 1, scaleX: 1, scaleY: 1 }}
-          exit={{
-            opacity: 0,
-            scaleX: orientation === "vertical" ? 1 : 0.2,
-            scaleY: orientation === "vertical" ? 0.2 : 1,
-          }}
-          transition={layoutConfigTransition.default}
-          className={cn(
-            "emp-layout-config-drop-line",
-            orientation === "vertical"
-              ? "emp-layout-config-drop-line--vertical"
-              : "emp-layout-config-drop-line--horizontal",
-            edge === "before"
-              ? orientation === "vertical"
-                ? "emp-layout-config-drop-line--before"
-                : "emp-layout-config-drop-line--row-before"
-              : orientation === "vertical"
-                ? "emp-layout-config-drop-line--after"
-                : "emp-layout-config-drop-line--row-after",
-            className
-          )}
-        />
-      ) : null}
-    </AnimatePresence>
+    <span
+      aria-hidden
+      className={cn(
+        "emp-layout-config-drop-line emp-layout-config-drop-line--visible",
+        orientation === "vertical"
+          ? "emp-layout-config-drop-line--vertical"
+          : "emp-layout-config-drop-line--horizontal",
+        edge === "before"
+          ? orientation === "vertical"
+            ? "emp-layout-config-drop-line--before"
+            : "emp-layout-config-drop-line--row-before"
+          : orientation === "vertical"
+            ? "emp-layout-config-drop-line--after"
+            : "emp-layout-config-drop-line--row-after",
+        className
+      )}
+    />
   );
 }
 
-export function LayoutConfigDropGap({ show, orientation = "vertical" }) {
-  return (
-    <AnimatePresence initial={false}>
-      {show ? (
-        <motion.span
-          key="drop-gap"
-          aria-hidden
-          initial={{
-            opacity: 0,
-            width: orientation === "vertical" ? 0 : "100%",
-            height: orientation === "vertical" ? "auto" : 0,
-          }}
-          animate={{
-            opacity: 1,
-            width: orientation === "vertical" ? 52 : "100%",
-            height: orientation === "vertical" ? "auto" : 14,
-          }}
-          exit={{
-            opacity: 0,
-            width: orientation === "vertical" ? 0 : "100%",
-            height: orientation === "vertical" ? "auto" : 0,
-          }}
-          transition={layoutConfigTransition.default}
-          className={cn(
-            "emp-layout-config-drop-gap",
-            orientation === "vertical"
-              ? "emp-layout-config-drop-gap--vertical"
-              : "emp-layout-config-drop-gap--horizontal"
-          )}
-        />
-      ) : null}
-    </AnimatePresence>
-  );
-}
-
-export function LayoutConfigPanelBody({ panelKey, className = "", children }) {
-  return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={panelKey}
-        initial={layoutPanelPresence.initial}
-        animate={layoutPanelPresence.animate}
-        exit={layoutPanelPresence.exit}
-        transition={layoutConfigTransition.default}
-        className={className}
-      >
+export function LayoutConfigPanelBody({ panelKey, className = "", motionEnabled = true, children }) {
+  if (!motionEnabled) {
+    return (
+      <div key={panelKey} className={className}>
         {children}
-      </motion.div>
-    </AnimatePresence>
-  );
-}
+      </div>
+    );
+  }
 
-export function LayoutConfigSidebarList({ mode, children, className = "" }) {
   return (
-    <AnimatePresence mode="popLayout" initial={false}>
-      <motion.div
-        key={mode}
-        initial={{ opacity: 0, x: mode === "available" ? -8 : 8 }}
-        animate={{ opacity: 1, x: 0 }}
-        exit={{ opacity: 0, x: mode === "available" ? 8 : -8 }}
-        transition={layoutConfigTransition.default}
-        className={className}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      key={panelKey}
+      initial={{ opacity: 0.72, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={layoutConfigTransition.default}
+      className={className}
+    >
+      {children}
+    </motion.div>
   );
 }
 
-export { AnimatePresence, motion };
+export function LayoutConfigSidebarList({ children, className = "" }) {
+  return <div className={className}>{children}</div>;
+}
