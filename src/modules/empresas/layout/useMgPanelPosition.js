@@ -44,7 +44,11 @@ export function useMgPanelPosition(
 
       const panelWidth = width ?? Math.max(rect.width, minWidth);
       const measured = panelRef?.current?.offsetHeight ?? 0;
-      const panelHeight = measured > 0 ? measured : estimatedHeight;
+      const panelHeight = !scrollable
+        ? estimatedHeight
+        : measured > 0
+          ? measured
+          : estimatedHeight;
       const padding = 8;
       const gap = 4;
       const viewportWidth = window.innerWidth;
@@ -80,6 +84,9 @@ export function useMgPanelPosition(
       if (scrollable) {
         nextStyle.maxHeight = `calc(100vh - ${padding * 2}px)`;
         nextStyle.overflowY = "auto";
+      } else {
+        nextStyle.height = estimatedHeight;
+        nextStyle.overflow = "hidden";
       }
 
       setStyle(nextStyle);

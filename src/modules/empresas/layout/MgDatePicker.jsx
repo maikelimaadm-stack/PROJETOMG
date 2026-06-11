@@ -3,11 +3,18 @@ import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 
+const PANEL_WIDTH = 320;
+const PANEL_HEIGHT = 320;
+const VIEW_HEIGHT = 272;
+
 const MONTH_NAMES = [
   "janeiro", "fevereiro", "março", "abril", "maio", "junho",
   "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
 ];
 const MONTH_SHORT = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+
+const VIEW_INDEX = { days: 0, months: 1, years: 2 };
 
 function parseBrDate(value) {
   const parts = String(value || "").split("/");
@@ -27,6 +34,26 @@ function formatBrDate(day, month, year) {
   return `${String(day).padStart(2, "0")}/${String(month + 1).padStart(2, "0")}/${year}`;
 }
 
+function buildDayCells(year, month) {
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevLast = new Date(year, month, 0).getDate();
+  const cells = [];
+
+  for (let i = 0; i < 42; i += 1) {
+    const dayNum = i - firstDay + 1;
+    if (dayNum < 1) {
+      cells.push({ key: `p-${i}`, day: prevLast + dayNum, type: "other" });
+    } else if (dayNum > daysInMonth) {
+      cells.push({ key: `n-${i}`, day: dayNum - daysInMonth, type: "other" });
+    } else {
+      cells.push({ key: `d-${dayNum}`, day: dayNum, type: "current" });
+    }
+  }
+
+  return cells;
+}
+
 export default function MgDatePicker({
   label,
   required = false,
@@ -43,8 +70,8 @@ export default function MgDatePicker({
   const parsed = parseBrDate(value);
   const [state, setState] = useState({ ...parsed, view: "days" });
   const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
-    minWidth: 300,
-    estimatedHeight: 360,
+    width: PANEL_WIDTH,
+    estimatedHeight: PANEL_HEIGHT,
     scrollable: false,
     observePanelResize: false,
   });
@@ -92,90 +119,6 @@ export default function MgDatePicker({
     setOpen(false);
   };
 
-  const renderBody = () => {
-    if (state.view === "months") {
-      return (
-        <div className="mg-dp-grid">
-          {MONTH_SHORT.map((name, m) => (
-            <button
-              key={name}
-              type="button"
-              className={m === state.month ? "active" : ""}
-              onClick={(event) => {
-                event.stopPropagation();
-                setState((s) => ({ ...s, month: m, view: "days" }));
-              }}
-            >
-              {name}
-            </button>
-          ))}
-        </div>
-      );
-    }
-    if (state.view === "years") {
-      const startYear = state.year - 5;
-      return (
-        <div className="mg-dp-grid">
-          {Array.from({ length: 12 }, (_, i) => startYear + i).map((y) => (
-            <button
-              key={y}
-              type="button"
-              className={y === state.year ? "active" : ""}
-              onClick={(event) => {
-                event.stopPropagation();
-                setState((s) => ({ ...s, year: y, view: "months" }));
-              }}
-            >
-              {y}
-            </button>
-          ))}
-        </div>
-      );
-    }
-
-    const first = new Date(state.year, state.month, 1);
-    const daysInMonth = new Date(state.year, state.month + 1, 0).getDate();
-    const startDay = first.getDay();
-    const prevLast = new Date(state.year, state.month, 0).getDate();
-    const today = new Date();
-    const cells = [];
-
-    for (let i = startDay - 1; i >= 0; i -= 1) {
-      cells.push(<button key={`p-${i}`} type="button" className="mg-dp-day other" disabled>{prevLast - i}</button>);
-    }
-    for (let d = 1; d <= daysInMonth; d += 1) {
-      let cls = "mg-dp-day";
-      if (today.getDate() === d && today.getMonth() === state.month && today.getFullYear() === state.year) cls += " today";
-      if (parsed.day === d && parsed.month === state.month && parsed.year === state.year) cls += " selected";
-      cells.push(
-        <button
-          key={`d-${d}`}
-          type="button"
-          className={cls}
-          onClick={(event) => {
-            event.stopPropagation();
-            selectDay(d);
-          }}
-        >
-          {d}
-        </button>
-      );
-    }
-    const remaining = (7 - ((startDay + daysInMonth) % 7)) % 7;
-    for (let d = 1; d <= remaining; d += 1) {
-      cells.push(<button key={`n-${d}`} type="button" className="mg-dp-day other" disabled>{d}</button>);
-    }
-
-    return (
-      <>
-        <div className="mg-dp-weekdays">
-          {["D", "S", "T", "Q", "Q", "S", "S"].map((w) => <div key={w} className="mg-dp-wd">{w}</div>)}
-        </div>
-        <div className="mg-dp-days">{cells}</div>
-      </>
-    );
-  };
-
   const nav = (dir) => {
     setState((s) => {
       if (s.view === "days") {
@@ -198,13 +141,102 @@ export default function MgDatePicker({
     });
   };
 
-  const startYear = state.year - 5;
+  const yearStart = state.year - 5;
   const title =
     state.view === "days"
       ? `${MONTH_NAMES[state.month]} de ${state.year}`
       : state.view === "months"
         ? String(state.year)
-        : `${startYear} – ${startYear + 11}`;
+        : `${yearStart} – ${yearStart + 11}`;
+
+  const today = new Date();
+  const dayCells = buildDayCells(state.year, state.month);
+  const viewOffset = VIEW_INDEX[state.view] * VIEW_HEIGHT;
+
+  const renderDaysView = () => (
+    <div className="mg-dp-view-layer mg-dp-view-layer--days">
+      <div className="mg-dp-weekdays">
+        {WEEKDAYS.map((weekday) => (
+          <div key={weekday} className="mg-dp-wd">{weekday}</div>
+        ))}
+      </div>
+      <div className="mg-dp-days">
+        {dayCells.map((cell) => {
+          const isCurrent = cell.type === "current";
+          const isToday =
+            isCurrent &&
+            today.getDate() === cell.day &&
+            today.getMonth() === state.month &&
+            today.getFullYear() === state.year;
+          const isSelected =
+            isCurrent &&
+            parsed.day === cell.day &&
+            parsed.month === state.month &&
+            parsed.year === state.year;
+
+          let cls = "mg-dp-day";
+          if (!isCurrent) cls += " other";
+          if (isToday) cls += " today";
+          if (isSelected) cls += " selected";
+
+          return (
+            <button
+              key={cell.key}
+              type="button"
+              className={cls}
+              disabled={!isCurrent}
+              onClick={(event) => {
+                event.stopPropagation();
+                if (isCurrent) selectDay(cell.day);
+              }}
+            >
+              {cell.day}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderMonthsView = () => (
+    <div className="mg-dp-view-layer mg-dp-view-layer--grid">
+      <div className="mg-dp-grid">
+        {MONTH_SHORT.map((name, monthIndex) => (
+          <button
+            key={name}
+            type="button"
+            className={`mg-dp-pick${monthIndex === state.month ? " selected" : ""}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              setState((s) => ({ ...s, month: monthIndex, view: "days" }));
+            }}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderYearsView = () => (
+    <div className="mg-dp-view-layer mg-dp-view-layer--grid">
+      <div className="mg-dp-grid">
+        {Array.from({ length: 12 }, (_, i) => yearStart + i).map((year) => (
+          <button
+            key={year}
+            type="button"
+            className={`mg-dp-pick${year === state.year ? " selected" : ""}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              setState((s) => ({ ...s, year, view: "months" }));
+            }}
+          >
+            {year}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 
   return (
     <div ref={rootRef} id={id} className={`mg-dp${open ? " open" : ""}`}>
@@ -226,13 +258,28 @@ export default function MgDatePicker({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mg-dp-header">
-          <button type="button" className="mg-dp-nav" onClick={() => nav(-1)}><ChevronLeft className="h-4 w-4" /></button>
+          <button type="button" className="mg-dp-nav" onClick={() => nav(-1)} aria-label="Anterior">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
           <button type="button" className="mg-dp-title" onClick={drillUp}>
             {title}
           </button>
-          <button type="button" className="mg-dp-nav" onClick={() => nav(1)}><ChevronRight className="h-4 w-4" /></button>
+          <button type="button" className="mg-dp-nav" onClick={() => nav(1)} aria-label="Próximo">
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
-        <div className="mg-dp-body">{renderBody()}</div>
+        <div className="mg-dp-body">
+          <div className="mg-dp-viewport">
+            <div
+              className="mg-dp-view-track"
+              style={{ transform: `translate3d(0, -${viewOffset}px, 0)` }}
+            >
+              {renderDaysView()}
+              {renderMonthsView()}
+              {renderYearsView()}
+            </div>
+          </div>
+        </div>
       </MgPortalPanel>
     </div>
   );
