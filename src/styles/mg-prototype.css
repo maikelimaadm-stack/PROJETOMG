@@ -1587,6 +1587,9 @@
   padding-top: 4px;
   padding-bottom: 4px;
   border-bottom: 1px solid var(--mg-divider) !important;
+  overflow: visible;
+  position: relative;
+  z-index: 20;
 }
 
 .mg-empresas-scope .mg-action-bar__actions {
@@ -1657,7 +1660,8 @@
   gap: 10px;
   flex-shrink: 0;
   position: relative;
-  z-index: 1;
+  z-index: 30;
+  overflow: visible;
 }
 
 .mg-empresas-scope .mg-view-stack {
@@ -1997,9 +2001,12 @@
   border: 1px solid var(--border);
   border-radius: 8px;
   box-shadow: var(--shadow-md);
-  z-index: 50;
-  min-width: 160px;
-  padding: 4px;
+  z-index: 200;
+  min-width: 196px;
+  max-width: min(240px, calc(100vw - 24px));
+  padding: 0;
+  overflow: hidden;
+  box-sizing: border-box;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px) scale(0.98);
@@ -2019,21 +2026,42 @@
 
 .mg-empresas-scope .dropdown-menu button {
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   text-align: left;
-  padding: 7px 10px;
+  padding: 8px 12px;
   font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
   color: var(--text-1);
   display: flex;
   align-items: center;
   gap: 10px;
-  border-radius: 6px;
+  border-radius: 0;
   border: none;
   background: none;
   cursor: pointer;
+  white-space: nowrap;
+  margin: 0;
+  min-height: 0;
 }
 
-.mg-empresas-scope .dropdown-menu button:hover {
+.mg-empresas-scope .dropdown-menu button svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--text-2) !important;
+  stroke: var(--text-2) !important;
+}
+
+.mg-empresas-scope .dropdown-menu button:hover:not(:disabled) {
   background: var(--gray-fill);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .dropdown-menu button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .mg-empresas-scope .mobile-bottom-bar {
@@ -3547,4 +3575,32 @@
 .cadastro-emp-scope.mg-empresas-scope .emp-table-pagination-btn.emp-table-pagination-page-active:hover:not(:disabled) svg {
   color: #fff !important;
   stroke: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .dropdown-menu button {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 8px 12px !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: none !important;
+  min-height: 0 !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  line-height: 1.2 !important;
+  color: var(--text-1) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .dropdown-menu button:hover:not(:disabled) {
+  background: var(--gray-fill) !important;
+  border: none !important;
+  color: var(--text-1) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .dropdown-menu button svg {
+  flex-shrink: 0;
+  color: var(--text-2) !important;
+  stroke: var(--text-2) !important;
 }
