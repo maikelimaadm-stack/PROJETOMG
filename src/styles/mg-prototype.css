@@ -27,7 +27,7 @@
   --bg-surface: #ffffff;
   --border: var(--gray-fill);
   --mg-divider: var(--gray-fill);
-  --mg-divider-width: 1.5px;
+  --mg-divider-width: 2.5px;
   --border-focus: #40de63;
   --text-1: #111827;
   --text-2: #6b7280;
@@ -3465,7 +3465,7 @@
   opacity: 1;
 }
 
-/* —— Divisores padronizados: cinza do botão Duplicar (--gray-fill), um pouco mais grossos —— */
+/* —— Divisores padronizados: cinza do botão Duplicar (--gray-fill), mais grossos —— */
 .mg-empresas-scope .mobile-menu,
 .mg-empresas-scope .filter-panel__header,
 .mg-empresas-scope .filter-panel__footer,
@@ -3480,6 +3480,34 @@
 
 .mg-empresas-scope .mg-grid td {
   border-bottom: var(--mg-divider-width) solid var(--mg-divider);
+}
+
+/* Tailwind border-* no escopo MG — evita 1px fixo da utility */
+.cadastro-emp-scope.mg-empresas-scope .border-b,
+.mg-empresas-scope .border-b {
+  border-bottom-width: var(--mg-divider-width) !important;
+  border-bottom-style: solid !important;
+  border-bottom-color: var(--mg-divider) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .border-t,
+.mg-empresas-scope .border-t {
+  border-top-width: var(--mg-divider-width) !important;
+  border-top-style: solid !important;
+  border-top-color: var(--mg-divider) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .border-r,
+.mg-empresas-scope .border-r {
+  border-right-width: var(--mg-divider-width) !important;
+  border-right-style: solid !important;
+  border-right-color: var(--mg-divider) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-search-bar,
+.cadastro-emp-scope.mg-empresas-scope .emp-search-view-wrap > .emp-toolbar-card {
+  border-bottom-width: var(--mg-divider-width) !important;
+  border-bottom-color: var(--mg-divider) !important;
 }
 
 /* Tokens ERP dentro do módulo Empresas — verde #40DE63 no lugar do azul */
