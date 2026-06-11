@@ -14,7 +14,7 @@ export default function MgContextPanel({
   disabled = false,
 }) {
   const counter = formatCadastroRecordPosition(currentIndex, total);
-  const metaKey = `${code || "new"}-${title || ""}`;
+  const metaKey = `${code || "new"}-${title || ""}-${currentIndex}-${total}`;
 
   return (
     <div data-template-id="context-panel" className="mg-context-panel hidden md:flex">

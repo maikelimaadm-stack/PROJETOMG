@@ -1686,11 +1686,20 @@
 
 .mg-empresas-scope .mg-context-panel-wrap {
   flex-shrink: 0;
-  height: 45px;
-  min-height: 45px;
-  max-height: 45px;
+  max-height: 0;
   overflow: hidden;
   background: var(--bg-card);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    max-height var(--mg-motion-duration) var(--mg-motion-ease),
+    opacity var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-context-panel-wrap.is-visible {
+  max-height: 45px;
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .mg-empresas-scope .mg-context-panel {

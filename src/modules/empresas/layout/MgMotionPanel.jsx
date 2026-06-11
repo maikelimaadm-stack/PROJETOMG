@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-const MOTION_MS = 220;
-
 export default function MgMotionPanel({
   panelKey,
   children,
@@ -14,21 +12,18 @@ export default function MgMotionPanel({
   useEffect(() => {
     if (panelKey === renderKey) return undefined;
 
+    setRenderKey(panelKey);
     if (instant) {
-      setRenderKey(panelKey);
       setVisible(true);
       return undefined;
     }
 
     setVisible(false);
-    const timer = window.setTimeout(() => {
-      setRenderKey(panelKey);
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => setVisible(true));
-      });
-    }, MOTION_MS);
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setVisible(true));
+    });
 
-    return () => window.clearTimeout(timer);
+    return () => cancelAnimationFrame(frame);
   }, [panelKey, renderKey, instant]);
 
   return (
