@@ -2678,10 +2678,6 @@
   color: var(--text-3);
 }
 
-.mg-empresas-scope .mg-prototype-composite .emp-form-field-message-slot {
-  margin-top: 2px;
-}
-
 .mg-empresas-scope .mg-prototype-field input,
 .mg-empresas-scope .mg-prototype-field textarea,
 .mg-empresas-scope .mg-prototype-form input:not([class*="mg-"]),

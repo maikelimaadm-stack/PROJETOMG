@@ -355,19 +355,6 @@ function FieldFrameCorp({
   const mgPrototype =
     className.includes("mg-prototype-field") || className === "mg-prototype-field";
 
-  const errorSlot = (
-    <div className="emp-form-field-message-slot" aria-hidden={!field.required || !error}>
-      <span
-        className={cn(
-          "emp-form-field-error-message",
-          (!field.required || !error) && "emp-form-field-error-message--hidden"
-        )}
-      >
-        Campo obrigatório
-      </span>
-    </div>
-  );
-
   if (mgPrototype && isMgCompositeField(field)) {
     return (
       <div
@@ -377,7 +364,6 @@ function FieldFrameCorp({
         style={widthStyle}
       >
         {children}
-        {errorSlot}
       </div>
     );
   }
@@ -395,7 +381,6 @@ function FieldFrameCorp({
         ) : null}
         {loteStyle && !bare ? <EmpCustomMarker variant="lote" /> : null}
         {children}
-        {errorSlot}
       </div>
     );
   }
@@ -429,7 +414,6 @@ function FieldFrameCorp({
         {loteStyle && !bare && <EmpCustomMarker variant="lote" />}
         {children}
       </div>
-      {errorSlot}
     </div>
   );
 }
