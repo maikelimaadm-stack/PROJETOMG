@@ -13,7 +13,7 @@
 
 .mg-empresas-scope.mg-empresas-shell-top,
 .erp-shell-top-unified > .mg-empresas-scope {
-  background: var(--bg-card);
+  background: var(--accent);
 }
 
 .erp-shell--empresas-mg .erp-shell-main {
@@ -832,11 +832,116 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border);
+  height: 36px;
+  min-height: 36px;
+  padding: 0 12px;
+  background: var(--accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
   gap: 10px;
   flex-shrink: 0;
+  border-bottom: none;
+}
+
+.mg-empresas-scope .mobile-header .ios-btn {
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.mg-empresas-scope .mobile-header h1 {
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.mg-empresas-scope .mg-desktop-header {
+  align-items: center;
+  justify-content: space-between;
+  height: 36px;
+  min-height: 36px;
+  padding: 0 12px;
+  background: var(--accent);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  border-bottom: none;
+}
+
+.mg-empresas-scope .mg-desktop-header__crumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.mg-empresas-scope .mg-desktop-header__crumb {
+  font-size: 11px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.78);
+  white-space: nowrap;
+}
+
+.mg-empresas-scope .mg-desktop-header__crumb--current {
+  color: #fff;
+  font-weight: 600;
+}
+
+.mg-empresas-scope .mg-desktop-header__sep {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.mg-empresas-scope .mg-desktop-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-topbar-icon-btn {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #3d4f5f;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.mg-empresas-scope .mg-topbar-icon-btn:hover:not(:disabled) {
+  background: #fff;
+}
+
+.mg-empresas-scope .mg-topbar-icon-btn svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+.mg-empresas-scope .mg-topbar-user-initials {
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.mg-empresas-scope .mg-desktop-header__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  margin-left: 2px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.16);
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-desktop-header__logo svg {
+  color: #fff !important;
+  stroke: #fff !important;
 }
 
 .mg-empresas-scope .mobile-menu {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Filter, Menu } from "lucide-react";
+import { Filter, Hexagon, Menu } from "lucide-react";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 
 export default function MgMobileHeader({ title = "MakGestão ERP" }) {
@@ -9,30 +9,26 @@ export default function MgMobileHeader({ title = "MakGestão ERP" }) {
     <header className="mobile-header md:hidden">
       <button
         type="button"
-        className="ios-btn flex h-9 w-9 items-center justify-center"
-        style={{ color: "var(--text-2)" }}
+        className="ios-btn flex h-8 w-8 items-center justify-center"
         onClick={toggleMobileMenu}
         aria-label="Menu"
       >
         <Menu className="h-5 w-5" />
       </button>
       <div className="min-w-0 flex-1">
-        <h1
-          className="truncate text-[15px] font-bold"
-          style={{ color: "var(--text-1)" }}
-        >
-          {title}
-        </h1>
+        <h1 className="truncate text-[13px] font-semibold">{title}</h1>
       </div>
       <button
         type="button"
-        className="ios-btn flex h-9 w-9 items-center justify-center"
-        style={{ color: "var(--text-3)" }}
+        className="ios-btn flex h-8 w-8 items-center justify-center"
         onClick={toggleFilterPanel}
         aria-label="Filtros"
       >
-        <Filter className="h-5 w-5" />
+        <Filter className="h-4 w-4" />
       </button>
+      <div className="mg-desktop-header__logo" aria-hidden="true">
+        <Hexagon className="h-4 w-4 text-white" strokeWidth={2.2} />
+      </div>
     </header>
   );
 }

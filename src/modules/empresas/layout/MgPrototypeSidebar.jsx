@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FolderOpen, Hexagon, Pin } from "lucide-react";
+import { FolderOpen, Pin } from "lucide-react";
 import { ERP_MENU_SECTIONS, isRouteActive } from "@/shared/navigation/erpMenuConfig";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 
@@ -15,18 +15,6 @@ export default function MgPrototypeSidebar() {
       className={`erp-sidebar hidden shrink-0 flex-col md:flex${sidebarPinned ? " pinned" : ""}`}
       style={{ background: "var(--bg-surface)" }}
     >
-      <div
-        className="flex h-12 shrink-0 items-center justify-center border-b"
-        style={{ borderColor: "var(--border)" }}
-      >
-        <div
-          className="flex h-8 w-8 items-center justify-center rounded-xl"
-          style={{ background: "linear-gradient(135deg, var(--accent), #60A5FA)" }}
-        >
-          <Hexagon className="h-4 w-4 text-white" />
-        </div>
-      </div>
-
       <div className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
         {ERP_MENU_SECTIONS.map((section) => (
           <React.Fragment key={section.id}>
