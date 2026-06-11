@@ -1697,7 +1697,7 @@
 }
 
 .mg-empresas-scope .mg-context-panel-wrap.is-visible {
-  max-height: 45px;
+  max-height: 36px;
   opacity: 1;
   pointer-events: auto;
 }
@@ -1706,11 +1706,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  height: 45px;
-  min-height: 45px;
-  max-height: 45px;
-  padding: 0 20px;
+  gap: 12px;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  padding: 0 16px;
   border-bottom: none;
   background: var(--bg-card);
   flex-shrink: 0;
@@ -1754,8 +1754,8 @@
 }
 
 .mg-empresas-scope .mg-nav-btn {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
