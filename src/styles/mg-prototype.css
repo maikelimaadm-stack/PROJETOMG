@@ -135,15 +135,15 @@
   background: transparent;
 }
 
-/* Segmented tabs (painéis do formulário) */
+/* Segmented tabs (painéis — estilo GitHub, indicador azul) */
 .mg-empresas-scope .seg-control {
   display: flex;
   align-items: flex-end;
+  gap: 4px;
   background: transparent;
   padding: 0;
-  gap: 0;
   overflow-x: auto;
-  border-bottom: none !important;
+  border-bottom: 1px solid var(--border) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -165,67 +165,62 @@
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll {
-  margin-top: -1px;
+  margin-top: 0;
   position: relative;
   z-index: 1;
 }
 
 .mg-empresas-scope .seg-tab {
   position: relative;
-  padding: 6px 12px;
-  min-height: 28px;
+  padding: 8px 12px;
+  min-height: 32px;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-2);
   cursor: pointer;
-  transition: color 0.2s, background-color 0.2s;
+  transition: color 0.15s ease;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   border: none;
-  background: none;
+  background: transparent;
   outline: none;
   border-radius: 0 !important;
+  margin-bottom: 0;
 }
 
 .mg-empresas-scope .seg-tab:hover {
   color: var(--text-1);
 }
 
-/* Aba ativa: funde com o fundo cinza; laterais retas com cantos inferiores quadrados */
 .mg-empresas-scope .seg-tab.active {
   color: var(--text-1) !important;
   font-weight: 600 !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  background: var(--bg-page) !important;
-  margin-bottom: -1px;
-  z-index: 2;
+  background: transparent !important;
+  margin-bottom: 0;
+  z-index: 1;
 }
 
-.mg-empresas-scope .seg-tab.active::before,
+.mg-empresas-scope .seg-tab.active::before {
+  display: none !important;
+  content: none !important;
+}
+
 .mg-empresas-scope .seg-tab.active::after {
   content: "" !important;
   display: block !important;
   position: absolute;
-  top: 0;
+  left: 0;
+  right: 0;
   bottom: -1px;
-  width: 1px;
-  background: var(--border) !important;
+  height: 2px;
+  background: var(--accent) !important;
   border-radius: 0 !important;
   pointer-events: none;
-}
-
-.mg-empresas-scope .seg-tab.active::before {
-  left: 0;
-}
-
-.mg-empresas-scope .seg-tab.active::after {
-  right: 0;
-  left: auto;
-  background: var(--border) !important;
 }
 
 .mg-empresas-scope .seg-control .seg-tab {
