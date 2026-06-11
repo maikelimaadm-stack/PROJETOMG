@@ -878,6 +878,42 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
+.mg-empresas-scope .mg-emp-card {
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.1s ease;
+}
+
+.mg-empresas-scope .mg-emp-card:hover:not(.mg-emp-card--selected) {
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mg-empresas-scope .mg-emp-card:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.mg-empresas-scope .mg-emp-card--selected {
+  border-color: var(--accent) !important;
+  background: var(--accent-light) !important;
+  box-shadow:
+    0 0 0 1px rgba(40, 153, 245, 0.18),
+    0 4px 12px rgba(40, 153, 245, 0.12) !important;
+}
+
+.mg-empresas-scope .mg-emp-card--selected:hover {
+  border-color: var(--accent) !important;
+  background: var(--accent-light) !important;
+}
+
+.mg-empresas-scope .mg-emp-card:active:not(.mg-emp-card--selected) {
+  transform: scale(0.995);
+}
+
 /* Action bar — altura maior, colada ao header principal (breadcrumb) */
 .erp-shell--empresas-mg .erp-shell-content-wrap {
   gap: 0 !important;

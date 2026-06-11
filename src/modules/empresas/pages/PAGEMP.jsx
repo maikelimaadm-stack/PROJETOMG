@@ -819,6 +819,8 @@ export default function PAGEMP() {
                     setQueryPage(1);
                   },
                   onEdit: handleEdit,
+                  selectedIds: selectedTableItems,
+                  onSelectionChange: handleTableSelectionChange,
                   mgPrototype: true,
                 }}
               />
