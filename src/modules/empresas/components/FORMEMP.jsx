@@ -59,6 +59,7 @@ export default function FORMEMP({
   initialData,
   isEditing,
   recordKey,
+  resetSeed = 0,
   actionsLocked = false,
   hideToolbar = false,
   onToolbarBridge,
@@ -134,6 +135,7 @@ export default function FORMEMP({
     }
   }, [
     recordKey,
+    resetSeed,
     initialData?.id,
     initialData?.codempresa,
     initialData?.id_global,
@@ -618,10 +620,11 @@ export default function FORMEMP({
         ) : null}
 
         <MgMotionPanel
-          panelKey={activeTab}
+          panelKey={recordKey}
+          instant={recordKey === "new" || recordKey === "duplicate"}
           className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none"
         >
-          {(panelId) => (
+          {() => (
             <fieldset
               className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}
             >
@@ -637,7 +640,7 @@ export default function FORMEMP({
                 visibilityRules={activeLayoutConfig.visibilityRules || {}}
                 fieldSizes={activeLayoutConfig.fieldSizes || {}}
                 fieldLayoutConfig={fieldLayoutConfig}
-                activePanelId={panelId}
+                activePanelId={activeTab}
                 values={formData}
                 errors={errors}
                 onChange={handleDynamicFieldChange}

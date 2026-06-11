@@ -14,11 +14,12 @@ export default function MgContextPanel({
   disabled = false,
 }) {
   const counter = formatCadastroRecordPosition(currentIndex, total);
+  const metaKey = `${code || "new"}-${title || ""}`;
 
   return (
     <div data-template-id="context-panel" className="mg-context-panel hidden md:flex">
       <div className="mg-context-panel__meta">
-        <span className="mg-context-panel__meta-text">
+        <span key={metaKey} className="mg-motion-swap mg-motion-swap--text mg-context-panel__meta-text">
           {code ? (
             <>
               <span className="mg-context-panel__code">{code}</span>
@@ -35,7 +36,7 @@ export default function MgContextPanel({
         <button type="button" className="mg-nav-btn ios-btn" onClick={onPrevious} disabled={disabled || currentIndex <= 0} title="Anterior">
           <ChevronLeft className="h-3 w-3" />
         </button>
-        <span className="mg-context-panel__counter">
+        <span key={counter} className="mg-motion-swap mg-motion-swap--text mg-context-panel__counter">
           {counter}
         </span>
         <button type="button" className="mg-nav-btn ios-btn" onClick={onNext} disabled={disabled || currentIndex >= total - 1} title="Próximo">

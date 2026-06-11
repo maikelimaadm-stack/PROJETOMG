@@ -179,13 +179,47 @@
   overflow: hidden;
 }
 
+.mg-empresas-scope .mg-motion-panel__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-motion-panel__content.mg-motion-panel--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mg-empresas-scope .mg-motion-panel__content.mg-motion-panel--instant {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
 .mg-empresas-scope .mg-motion-panel--visible {
   opacity: 1;
   transform: none;
 }
 
-.mg-empresas-scope .mg-motion-swap {
-  animation: mg-motion-swap-in var(--mg-motion-duration) var(--mg-motion-ease) both;
+.mg-empresas-scope .mg-motion-swap--text {
+  animation: mg-motion-text-in var(--mg-motion-duration) var(--mg-motion-ease) both;
+}
+
+@keyframes mg-motion-text-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes mg-motion-swap-in {
@@ -1420,6 +1454,27 @@
   overflow: hidden;
   background: var(--bg-card);
   border-top: 1px solid var(--border);
+  position: relative;
+}
+
+.mg-empresas-scope .mg-view-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 0;
+}
+
+.mg-empresas-scope .mg-view-layer--active {
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+  z-index: 1;
 }
 
 .mg-empresas-scope .mg-view-panel {

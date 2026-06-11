@@ -805,17 +805,22 @@ export default function PAGEMP() {
           ) : null}
 
           <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
-            {showForm ? (
+            <div
+              className={`mg-view-layer mg-view-layer--form flex min-h-0 flex-1 flex-col overflow-hidden${
+                showForm ? " mg-view-layer--active" : ""
+              }`}
+              aria-hidden={!showForm}
+            >
               <EmpresasFormPanel
                 formProps={{
-                  key: `form-${editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new")}-v${formVersion}`,
                   initialData: editingEmp,
                   recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
+                  resetSeed: formVersion,
                   isEditing: !!editingEmp,
                   onSubmit: handleSubmit,
                   onCancel: formCancel,
                   hideToolbar: true,
-                  onToolbarBridge: setFormBridge,
+                  onToolbarBridge: showForm ? setFormBridge : undefined,
                   total: empresasNavegacao.length,
                   currentIndex: selectedIndex,
                   onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
@@ -823,7 +828,14 @@ export default function PAGEMP() {
                   actionsLocked: saveCycle.isSaving,
                 }}
               />
-            ) : mgViewMode === "cards" ? (
+            </div>
+
+            <div
+              className={`mg-view-layer mg-view-layer--cards flex min-h-0 flex-1 flex-col overflow-hidden${
+                !showForm && mgViewMode === "cards" ? " mg-view-layer--active" : ""
+              }`}
+              aria-hidden={showForm || mgViewMode !== "cards"}
+            >
               <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
                 <EmpresasSearchPanel
                   searchProps={{
@@ -846,39 +858,44 @@ export default function PAGEMP() {
                   }}
                 />
               </div>
-            ) : (
-              <div id="mode-tabela" className="mg-grid-wrapper mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-                <EmpresasTablePanel
-                  tableProps={{
-                    key: "tbl-emp",
-                    empresas: empresasFiltradasPainel,
-                    isLoadingEmpresas: empresasLoading,
-                    onEdit: handleEdit,
-                    showConfigColunas,
-                    setShowConfigColunas,
-                    searchTerm: "",
-                    selectedRecordId: undefined,
-                    onSelectionChange: handleTableSelectionChange,
-                    onVisibleDataChange: setVisibleTableData,
-                    onFilteredEmpresasChange: handleFilteredEmpresasChange,
-                    serverPage: queryPage,
-                    serverPageSize: queryPageSize,
-                    serverTotal: totalEmpresas,
-                    onServerPageChange: setQueryPage,
-                    onServerPageSizeChange: (nextPageSize) => {
-                      setQueryPageSize(nextPageSize);
-                      setQueryPage(1);
-                    },
-                    onServerSortChange: (nextSort) => {
-                      setQuerySort(nextSort);
-                      setQueryPage(1);
-                    },
-                    moduleTitle: moduleLabels.title,
-                    mgPrototype: true,
-                  }}
-                />
-              </div>
-            )}
+            </div>
+
+            <div
+              className={`mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden${
+                !showForm && mgViewMode !== "cards" ? " mg-view-layer--active" : ""
+              }`}
+              aria-hidden={showForm || mgViewMode === "cards"}
+            >
+              <EmpresasTablePanel
+                tableProps={{
+                  key: "tbl-emp",
+                  empresas: empresasFiltradasPainel,
+                  isLoadingEmpresas: empresasLoading,
+                  onEdit: handleEdit,
+                  showConfigColunas,
+                  setShowConfigColunas,
+                  searchTerm: "",
+                  selectedRecordId: undefined,
+                  onSelectionChange: handleTableSelectionChange,
+                  onVisibleDataChange: setVisibleTableData,
+                  onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                  serverPage: queryPage,
+                  serverPageSize: queryPageSize,
+                  serverTotal: totalEmpresas,
+                  onServerPageChange: setQueryPage,
+                  onServerPageSizeChange: (nextPageSize) => {
+                    setQueryPageSize(nextPageSize);
+                    setQueryPage(1);
+                  },
+                  onServerSortChange: (nextSort) => {
+                    setQuerySort(nextSort);
+                    setQueryPage(1);
+                  },
+                  moduleTitle: moduleLabels.title,
+                  mgPrototype: true,
+                }}
+              />
+            </div>
           </div>
         </div>
       </div>
