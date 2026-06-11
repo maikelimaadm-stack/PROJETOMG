@@ -52,6 +52,9 @@
   --mg-focus-bg: #fff;
   --mg-field-idle-bg: var(--gray-fill);
   --mg-field-idle-border: transparent;
+  --mg-field-view-bg: #e9edf2;
+  --mg-field-view-text: #8b939e;
+  --mg-field-view-border: transparent;
   --mg-selection-bg: rgba(40, 153, 245, 0.12);
   --mg-selection-ring: inset 0 0 0 1px rgba(40, 153, 245, 0.35);
 
@@ -3060,9 +3063,10 @@
 .cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form:not(.mg-prototype-form--edit) .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control {
-  background: var(--mg-field-idle-bg) !important;
-  border-color: var(--mg-field-idle-border) !important;
+  background: var(--mg-field-view-bg) !important;
+  border-color: var(--mg-field-view-border) !important;
   box-shadow: none !important;
+  color: var(--mg-field-view-text) !important;
 }
 
 /* Overrides index.css — focus unificado no escopo MG (somente edição/novo) */
@@ -3084,7 +3088,7 @@
   background: #fef2f2 !important;
 }
 
-/* —— Formulário: visualização (campos apagados, labels normais) —— */
+/* —— Formulário: visualização — todos os campos iguais (apagado suave, labels normais) —— */
 .mg-empresas-scope .mg-prototype-form--readonly .fg-label,
 .mg-empresas-scope .mg-prototype-form--readonly .cmd-label,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-dp-label,
@@ -3095,40 +3099,53 @@
   color: var(--text-2) !important;
 }
 
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > input,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > textarea,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .cmd-display,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .mg-dp-field,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .mg-tp-field,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .mg-lookup-display,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .cmd-display,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .mg-dp-field,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .mg-tp-field,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .mg-lookup-display,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-autocomplete,
-.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control,
-.mg-empresas-scope .mg-prototype-form--readonly .emp-form-image-field,
-.mg-empresas-scope .mg-prototype-form--readonly .emp-form-image-thumb,
-.mg-empresas-scope .mg-prototype-form--readonly .border.border-slate-300 {
-  background: var(--mg-field-idle-bg) !important;
-  border-color: var(--mg-field-idle-border) !important;
-  box-shadow: none !important;
-  color: var(--text-2) !important;
-  opacity: 0.55;
+/* Evita opacidade dupla (disabled 0.55 + campo 0.55) */
+.mg-empresas-scope .mg-prototype-form--readonly .cmd-select.disabled,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup.disabled,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-dp.is-disabled,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-tp.is-disabled {
+  opacity: 1 !important;
+  pointer-events: none;
 }
 
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > input:focus,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > textarea:focus,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field :is(input, textarea, select, .cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display, .emp-form-field-control, .emp-form-image-field, .emp-form-image-thumb),
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite :is(.cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display),
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-autocomplete,
+.mg-empresas-scope .mg-prototype-form--readonly .border.border-slate-300,
+.mg-empresas-scope .mg-prototype-form--readonly .cad-form-field-bare {
+  background: var(--mg-field-view-bg) !important;
+  border-color: var(--mg-field-view-border) !important;
+  box-shadow: none !important;
+  color: var(--mg-field-view-text) !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: var(--mg-field-view-text) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field :is(input, textarea, .cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display):focus,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .emp-form-field-control:focus-within,
 .mg-empresas-scope .mg-prototype-form--readonly .cmd-select.open .cmd-display,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-dp.open .mg-dp-field,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-tp.open .mg-tp-field,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-lookup.open .mg-lookup-display {
-  background: var(--mg-field-idle-bg) !important;
-  border-color: var(--mg-field-idle-border) !important;
+  background: var(--mg-field-view-bg) !important;
+  border-color: var(--mg-field-view-border) !important;
   box-shadow: none !important;
-  color: var(--text-2) !important;
-  opacity: 0.55;
+  color: var(--mg-field-view-text) !important;
+  opacity: 1 !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--readonly .cmd-chevron,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-dp-icon,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-tp-icon,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup-icon,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-image-empty-icon {
+  color: var(--mg-field-view-text) !important;
+  stroke: var(--mg-field-view-text) !important;
+  opacity: 1 !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-toggle-switch {
+  opacity: 0.72;
 }
 
 /* —— Formulário: edição/novo — vazio cinza, preenchido branco —— */
