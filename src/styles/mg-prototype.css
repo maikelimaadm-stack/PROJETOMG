@@ -1436,7 +1436,39 @@
   align-items: center;
   min-width: 0;
   flex: 1 1 auto;
-  gap: 6px;
+  gap: 0;
+}
+
+.mg-empresas-scope .mg-action-slot {
+  --slot-width: 88px;
+  flex: 0 0 auto;
+  width: var(--slot-width);
+  max-width: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateX(-6px);
+  overflow: hidden;
+  margin-right: 0;
+  pointer-events: none;
+  transition:
+    max-width var(--mg-motion-duration) var(--mg-motion-ease),
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease),
+    margin-right var(--mg-motion-duration) var(--mg-motion-ease),
+    visibility var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-action-slot.is-visible {
+  max-width: var(--slot-width);
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(0);
+  margin-right: 6px;
+  pointer-events: auto;
+}
+
+.mg-empresas-scope .mg-action-slot > .tb-btn {
+  width: 100%;
 }
 
 .mg-empresas-scope .mg-action-bar__tools {

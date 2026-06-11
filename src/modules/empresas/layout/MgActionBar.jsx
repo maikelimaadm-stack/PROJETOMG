@@ -20,6 +20,18 @@ function ActionLabelBtn({ className = "", children, ...props }) {
   );
 }
 
+function ActionSlot({ show, width = 88, children }) {
+  return (
+    <div
+      className={`mg-action-slot${show ? " is-visible" : ""}`}
+      style={{ "--slot-width": `${width}px` }}
+      aria-hidden={!show}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function MgActionBar({
   viewMode = "tabela",
   onViewModeChange,
@@ -64,8 +76,8 @@ export default function MgActionBar({
       className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
       style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
     >
-      <div className="mg-action-bar__actions flex min-w-0 items-center gap-1.5">
-        {onToggleFilter ? (
+      <div className="mg-action-bar__actions flex min-w-0 items-center">
+        <ActionSlot show={!!onToggleFilter} width={34}>
           <button
             type="button"
             className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
@@ -76,9 +88,9 @@ export default function MgActionBar({
           >
             <Filter className="h-3.5 w-3.5" />
           </button>
-        ) : null}
+        </ActionSlot>
 
-        {showNew && onNew ? (
+        <ActionSlot show={showNew && !!onNew} width={76}>
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onNew}
@@ -87,9 +99,9 @@ export default function MgActionBar({
           >
             Novo
           </ActionLabelBtn>
-        ) : null}
+        </ActionSlot>
 
-        {showSave && onSave ? (
+        <ActionSlot show={showSave && !!onSave} width={80}>
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onSave}
@@ -98,9 +110,9 @@ export default function MgActionBar({
           >
             Salvar
           </ActionLabelBtn>
-        ) : null}
+        </ActionSlot>
 
-        {showCancel && onCancel ? (
+        <ActionSlot show={showCancel && !!onCancel} width={90}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onCancel}
@@ -109,9 +121,9 @@ export default function MgActionBar({
           >
             Cancelar
           </ActionLabelBtn>
-        ) : null}
+        </ActionSlot>
 
-        {showEdit && onEdit ? (
+        <ActionSlot show={showEdit && !!onEdit} width={82}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onEdit}
@@ -120,9 +132,9 @@ export default function MgActionBar({
           >
             Editar
           </ActionLabelBtn>
-        ) : null}
+        </ActionSlot>
 
-        {showDelete && onDelete ? (
+        <ActionSlot show={showDelete && !!onDelete} width={84}>
           <ActionLabelBtn
             className="tb-btn-red"
             onClick={onDelete}
@@ -131,9 +143,9 @@ export default function MgActionBar({
           >
             Excluir
           </ActionLabelBtn>
-        ) : null}
+        </ActionSlot>
 
-        {showDuplicate && onDuplicate ? (
+        <ActionSlot show={showDuplicate && !!onDuplicate} width={96}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onDuplicate}
@@ -142,7 +154,7 @@ export default function MgActionBar({
           >
             Duplicar
           </ActionLabelBtn>
-        ) : null}
+        </ActionSlot>
       </div>
 
       <div className="mg-action-bar__end">
