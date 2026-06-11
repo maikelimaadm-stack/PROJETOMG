@@ -138,6 +138,7 @@
 /* Segmented tabs (painéis do formulário) */
 .mg-empresas-scope .seg-control {
   display: flex;
+  align-items: flex-end;
   background: transparent;
   padding: 0;
   gap: 0;
@@ -153,6 +154,7 @@
 
 .mg-empresas-scope .mg-panel-tabs-strip {
   padding-top: 10px;
+  padding-bottom: 0;
   border-bottom: none !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -160,6 +162,12 @@
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
   display: none;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll {
+  margin-top: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .mg-empresas-scope .seg-tab {
@@ -185,19 +193,31 @@
   color: var(--text-1);
 }
 
+/* Aba ativa: funde com o fundo cinza do formulário (sem linha no meio) */
 .mg-empresas-scope .seg-tab.active {
   color: var(--text-1) !important;
   font-weight: 600 !important;
   border: none !important;
-  border-bottom: 1px solid var(--bg-card) !important;
+  border-left: 1px solid var(--border) !important;
+  border-right: 1px solid var(--border) !important;
+  border-bottom: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   background: var(--bg-page) !important;
+  margin-bottom: -1px;
+  z-index: 2;
 }
 
 .mg-empresas-scope .seg-tab.active::after {
-  display: none !important;
-  content: none !important;
+  content: "" !important;
+  display: block !important;
+  position: absolute;
+  left: -1px;
+  right: -1px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--bg-page) !important;
+  pointer-events: none;
 }
 
 .mg-empresas-scope .seg-control .seg-tab {
