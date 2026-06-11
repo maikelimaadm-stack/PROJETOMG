@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Search, Star, X } from "lucide-react";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
@@ -11,6 +11,7 @@ import {
   saveSearchFavorites,
   saveSearchVisFields,
 } from "./empSearchView.constants";
+import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import "./empSearchView.css";
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100];
@@ -186,6 +187,8 @@ export default function SRCHEMP({
   onPageChange,
   onPageSizeChange,
   onEdit,
+  selectedIds = [],
+  onSelectionChange,
   mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
@@ -193,6 +196,13 @@ export default function SRCHEMP({
   const [configOpen, setConfigOpen] = useState(false);
   const [visFields, setVisFields] = useState(() => loadSearchVisFields());
   const [favorites, setFavorites] = useState(() => loadSearchFavorites());
+  const lastCardClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
+  const cardClickSuppressRef = useRef({ id: null, until: 0 });
+  const selectedIdsRef = useRef(selectedIds);
+
+  useEffect(() => {
+    selectedIdsRef.current = selectedIds;
+  }, [selectedIds]);
 
   useEffect(() => {
     setLocalSearch(searchValue);
@@ -250,6 +260,40 @@ export default function SRCHEMP({
     saveSearchVisFields(normalized);
   }, []);
 
+  const handleCardClick = useCallback(
+    (emp) => {
+      const now = Date.now();
+      const suppress = cardClickSuppressRef.current;
+      if (suppress.id === emp.id && now < suppress.until) return;
+
+      const last = lastCardClickRef.current;
+      const interval = last.id === emp.id && last.time > 0 ? now - last.time : null;
+
+      if (interval !== null && interval <= ROW_DBLCLICK_PAIR_MS) {
+        lastCardClickRef.current = { id: null, time: 0, wasSelectedBefore: false };
+        cardClickSuppressRef.current = { id: null, until: 0 };
+
+        if (!last.wasSelectedBefore && interval <= ROW_DBLCLICK_OPEN_MS) {
+          if (selectedIdsRef.current.length <= 1) onEdit?.(emp);
+        }
+        return;
+      }
+
+      const wasSelectedBefore = selectedIdsRef.current.includes(emp.id);
+      lastCardClickRef.current = { id: emp.id, time: now, wasSelectedBefore };
+
+      if (wasSelectedBefore) {
+        onSelectionChange?.([]);
+        cardClickSuppressRef.current = { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS };
+        return;
+      }
+
+      onSelectionChange?.([emp.id]);
+      cardClickSuppressRef.current = { id: null, until: 0 };
+    },
+    [onEdit, onSelectionChange]
+  );
+
   if (mgPrototype) {
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -264,7 +308,8 @@ export default function SRCHEMP({
             </div>
           ) : (
             <div id="cards-grid" className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {filteredEmpresas.map((emp, index) => {
+              {filteredEmpresas.map((emp) => {
+                const isSelected = selectedIds.includes(emp.id);
                 const code = String(getEmpSearchFieldValue(emp, "codempresa") || "").padStart(6, "0");
                 const nome = getEmpSearchFieldValue(emp, "razao_social");
                 const cnpj = getEmpSearchFieldValue(emp, "cnpj");
@@ -274,9 +319,17 @@ export default function SRCHEMP({
                 return (
                   <div
                     key={emp.id}
-                    className="erp-card cursor-pointer p-4"
-                    onDoubleClick={() => onEdit?.(emp)}
-                    role="presentation"
+                    className={`erp-card mg-emp-card p-4${isSelected ? " mg-emp-card--selected" : ""}`}
+                    onClick={() => handleCardClick(emp)}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        handleCardClick(emp);
+                      }
+                    }}
                   >
                     <div className="mb-2.5 flex items-center gap-2.5">
                       <div
@@ -308,7 +361,7 @@ export default function SRCHEMP({
                         <span className="font-medium" style={{ color: "var(--text-1)" }}>{cidade}/{uf}</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end border-t pt-2.5" style={{ borderColor: "var(--border)" }}>
+                    <div className="flex items-center justify-end pt-2.5">
                       <span className="pill pill-active">Ativo</span>
                     </div>
                   </div>
@@ -323,7 +376,7 @@ export default function SRCHEMP({
         >
           <span className="text-[11px]" style={{ color: "var(--text-3)" }}>Por página:</span>
           <SearchPageSizeSelect value={pageSize} onChange={onPageSizeChange} />
-          <span className="flex-1 text-[11px]" style={{ color: "var(--text-3)" }}>{counterText}</span>
+          <span className="flex-1 text-[12px] mg-cards-footer-counter" style={{ color: "var(--text-3)" }}>{counterText}</span>
           <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
         </footer>
       </div>

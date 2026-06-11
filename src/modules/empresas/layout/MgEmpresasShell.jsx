@@ -79,22 +79,22 @@ export default function MgEmpresasShell() {
         <MgMobileViewBar value={viewMode} onChange={onViewModeChange} />
       </div>
 
-      {filterPanelOpen ? (
-        <button
-          type="button"
-          className="mg-filter-backdrop md:hidden"
-          aria-label="Fechar filtros"
-          onClick={() => setFilterPanelOpen(false)}
-        />
-      ) : null}
-      {mobileMenuOpen ? (
-        <button
-          type="button"
-          className="mg-mobile-menu-backdrop md:hidden"
-          aria-label="Fechar menu"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      ) : null}
+      <button
+        type="button"
+        className={`mg-filter-backdrop md:hidden${filterPanelOpen ? " open" : ""}`}
+        aria-label="Fechar filtros"
+        aria-hidden={!filterPanelOpen}
+        tabIndex={filterPanelOpen ? 0 : -1}
+        onClick={() => setFilterPanelOpen(false)}
+      />
+      <button
+        type="button"
+        className={`mg-mobile-menu-backdrop md:hidden${mobileMenuOpen ? " open" : ""}`}
+        aria-label="Fechar menu"
+        aria-hidden={!mobileMenuOpen}
+        tabIndex={mobileMenuOpen ? 0 : -1}
+        onClick={() => setMobileMenuOpen(false)}
+      />
     </div>
   );
 }

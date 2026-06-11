@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useRef } from "react";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
+import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
 
 export const EMP_SYSTEM_PANEL_IDS = [
   "principais",
@@ -25,13 +26,19 @@ export default function EmpTabs({
   trailing = null,
   variant = "default",
 }) {
+  const segRef = useRef(null);
+  const sliderRef = useRef(null);
+
+  useMgSegSlider(segRef, sliderRef, ".seg-tab.active", [activeTab, tabs, variant]);
+
   if (!tabs.length) return null;
 
   const isMg = variant === "mg";
 
   if (isMg) {
     return (
-      <div className="seg-control" role="tablist">
+      <div className="seg-control" role="tablist" ref={segRef}>
+        <div className="seg-tab-slider" ref={sliderRef} aria-hidden="true" />
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
           const custom = isCustomPanel(tab, systemPanelIds);

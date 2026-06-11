@@ -29,6 +29,52 @@ const isMgCompositeTipo = (campo, tipoCanon) =>
   isMgTimeTipo(campo, tipoCanon) ||
   isMgSelectTipo(campo, tipoCanon);
 
+function MgPrototypeInput({
+  type = "text",
+  value,
+  onChange,
+  readOnly = false,
+  placeholder = " ",
+  className = "",
+  ...props
+}) {
+  return (
+    <input
+      type={type}
+      value={value ?? ""}
+      onChange={onChange}
+      readOnly={readOnly}
+      disabled={readOnly}
+      placeholder={placeholder}
+      className={className}
+      {...props}
+    />
+  );
+}
+
+function MgPrototypeTextarea({
+  value,
+  onChange,
+  readOnly = false,
+  rows = 2,
+  placeholder = " ",
+  className = "",
+  ...props
+}) {
+  return (
+    <textarea
+      value={value ?? ""}
+      onChange={onChange}
+      readOnly={readOnly}
+      disabled={readOnly}
+      placeholder={placeholder}
+      rows={rows}
+      className={className}
+      {...props}
+    />
+  );
+}
+
 const splitDateTimeValue = (value) => {
   if (!value) return { date: "", time: "" };
   const [date, time = ""] = String(value).split("T");
@@ -76,24 +122,30 @@ export function useCustomFieldRenderer({
   const readOnlyClass = isReadOnly ? "cursor-default" : "";
   const personalizados = formData?.campos_personalizados || {};
 
-  const handleCustomDateTimeChange = (fieldName, part, nextValue) => {
-    const current = splitDateTimeValue(personalizados[fieldName]);
-    const horaAtual = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-    const normalizedValue = part === "date" ? brDateToIso(nextValue) : nextValue;
-    const next = {
-      ...current,
-      [part]: normalizedValue,
-      ...(part === "date" && normalizedValue && !current.time ? { time: horaAtual } : {}),
-    };
-    onCustomChange(fieldName, next.date ? `${next.date}T${next.time || "00:00"}` : "");
-  };
-
-  const renderCampoPersonalizado = (campo) => {
-    const value = personalizados[campo.field_name] || "";
+  const renderCampoPersonalizado = (campo, ctx = {}) => {
+    const value = ctx.value ?? personalizados[campo.field_name] ?? "";
     const campoOptions = FieldEngine.getOptionsCampo(campo, relatedOptions);
-    const fieldReadOnly = campo.read_only || isReadOnly;
+    const fieldReadOnly = ctx.readOnly ?? (campo.read_only || isReadOnly);
     const tipoCanon = String(campo.tipo_cadcps || campo.tipo || "text").toLowerCase();
     const mgLabel = mgPrototype && isMgCompositeTipo(campo, tipoCanon) ? campo.label : undefined;
+    const setFieldValue = (fieldName, nextValue) => {
+      if (typeof ctx.onChange === "function") {
+        ctx.onChange(fieldName, nextValue);
+        return;
+      }
+      onCustomChange(fieldName, nextValue);
+    };
+    const handleCustomDateTimeChange = (fieldName, part, nextValue) => {
+      const current = splitDateTimeValue(value);
+      const horaAtual = new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+      const normalizedValue = part === "date" ? brDateToIso(nextValue) : nextValue;
+      const next = {
+        ...current,
+        [part]: normalizedValue,
+        ...(part === "date" && normalizedValue && !current.time ? { time: horaAtual } : {}),
+      };
+      setFieldValue(fieldName, next.date ? `${next.date}T${next.time || "00:00"}` : "");
+    };
 
     if (campo.tipo === "checkbox" || tipoCanon === "sim_nao") {
       const checked = value === true || value === "true" || value === "1" || value === "sim";
@@ -101,7 +153,7 @@ export function useCustomFieldRenderer({
         <div className="cad-form-field-bare flex min-h-[var(--cad-form-control-height,var(--emp-form-control-height,26px))] items-center">
           <CadToggle
             checked={checked}
-            onChange={(next) => onCustomChange(campo.field_name, next)}
+            onChange={(next) => setFieldValue(campo.field_name, next)}
             disabled={fieldReadOnly}
           />
         </div>
@@ -109,10 +161,21 @@ export function useCustomFieldRenderer({
     }
 
     if (campo.tipo === "textarea" || tipoCanon === "observacao") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeTextarea
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+            readOnly={fieldReadOnly}
+            rows={campo.rows || 2}
+          />
+        );
+      }
+
       return (
         <Textarea
           value={value}
-          onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
           placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
           readOnly={fieldReadOnly}
           className={`${inputClassName} text-xs uppercase bg-white px-2 ${readOnlyClass}`}
@@ -124,14 +187,28 @@ export function useCustomFieldRenderer({
     if (campo.tipo === "calculado" || tipoCanon === "formula") {
       const calculatedValue = FieldEngine.calcularCampo(formData, campo);
       const places = Math.min(6, Math.max(0, Number(campo.decimal_places ?? 2)));
+      const formatted = Number(calculatedValue || 0).toLocaleString(
+        "pt-BR",
+        campo.usar_decimal
+          ? { minimumFractionDigits: places, maximumFractionDigits: places }
+          : { maximumFractionDigits: 2 }
+      );
+
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="text"
+            value={formatted}
+            readOnly
+            disabled
+            placeholder=" "
+          />
+        );
+      }
+
       return (
         <Input
-          value={Number(calculatedValue || 0).toLocaleString(
-            "pt-BR",
-            campo.usar_decimal
-              ? { minimumFractionDigits: places, maximumFractionDigits: places }
-              : { maximumFractionDigits: 2 }
-          )}
+          value={formatted}
           readOnly
           placeholder="CALCULADO"
           className={`${inputClassName} ${readOnlyClass}`}
@@ -148,7 +225,7 @@ export function useCustomFieldRenderer({
         <CadOptionListControl
           options={options}
           value={value}
-          onChange={(nextValue) => onCustomChange(campo.field_name, nextValue)}
+          onChange={(nextValue) => setFieldValue(campo.field_name, nextValue)}
           disabled={fieldReadOnly}
           placeholder={(campo.placeholder || "SELECIONE UMA OU MAIS OPÇÕES").toUpperCase()}
         />
@@ -176,7 +253,7 @@ export function useCustomFieldRenderer({
               required={campo.obrigatorio}
               value={value}
               items={options}
-              onChange={(nextValue) => onCustomChange(campo.field_name, nextValue ?? "")}
+              onChange={(nextValue) => setFieldValue(campo.field_name, nextValue ?? "")}
               displayField="nome"
               searchFields={["nome", "subtext"]}
               readOnly={fieldReadOnly}
@@ -194,7 +271,7 @@ export function useCustomFieldRenderer({
               value: option.id,
               label: option.nome,
             }))}
-            onChange={(nextValue) => onCustomChange(campo.field_name, nextValue ?? "")}
+            onChange={(nextValue) => setFieldValue(campo.field_name, nextValue ?? "")}
             disabled={fieldReadOnly}
           />
         );
@@ -205,7 +282,7 @@ export function useCustomFieldRenderer({
           variant={isLookup ? "lookup" : "select"}
           items={options}
           value={value}
-          onChange={(nextValue) => onCustomChange(campo.field_name, nextValue || "")}
+          onChange={(nextValue) => setFieldValue(campo.field_name, nextValue || "")}
           placeholder={
             isLookup
               ? campo.placeholder || "Digite para pesquisar..."
@@ -228,7 +305,7 @@ export function useCustomFieldRenderer({
           <MgTimePicker
             label={mgLabel}
             value={value}
-            onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
             readOnly={fieldReadOnly}
             disabled={fieldReadOnly}
           />
@@ -239,7 +316,7 @@ export function useCustomFieldRenderer({
         <Input
           type="time"
           value={value}
-          onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
           readOnly={fieldReadOnly}
           className={`${inputClassName} ${readOnlyClass}`}
         />
@@ -292,13 +369,26 @@ export function useCustomFieldRenderer({
     }
 
     if ((campo.tipo === "number" && tipoCanon === "inteiro") || tipoCanon === "inteiro") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="number"
+            step="1"
+            inputMode="numeric"
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value.replace(/\D/g, ""))}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="number"
           step="1"
           inputMode="numeric"
           value={value}
-          onChange={(e) => onCustomChange(campo.field_name, e.target.value.replace(/\D/g, ""))}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value.replace(/\D/g, ""))}
           placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
           readOnly={fieldReadOnly}
           className={`${inputClassName} ${readOnlyClass}`}
@@ -310,12 +400,24 @@ export function useCustomFieldRenderer({
       (campo.tipo === "number" && campo.usar_mascara) ||
       ["decimal", "moeda", "percentual"].includes(tipoCanon)
     ) {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="text"
+            inputMode="numeric"
+            value={formatMaskedNumber(value, campo)}
+            onChange={(e) => setFieldValue(campo.field_name, formatMaskedNumber(e.target.value, campo))}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="text"
           inputMode="numeric"
           value={formatMaskedNumber(value, campo)}
-          onChange={(e) => onCustomChange(campo.field_name, formatMaskedNumber(e.target.value, campo))}
+          onChange={(e) => setFieldValue(campo.field_name, formatMaskedNumber(e.target.value, campo))}
           placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
           readOnly={fieldReadOnly}
           className={`${inputClassName} ${readOnlyClass}`}
@@ -324,11 +426,22 @@ export function useCustomFieldRenderer({
     }
 
     if (tipoCanon === "email") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="email"
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="email"
           value={value}
-          onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
           placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
           readOnly={fieldReadOnly}
           className={`${inputClassName} ${readOnlyClass}`}
@@ -337,11 +450,22 @@ export function useCustomFieldRenderer({
     }
 
     if (tipoCanon === "url") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="url"
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="url"
           value={value}
-          onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
           placeholder={(campo.placeholder || "HTTPS://...").toUpperCase()}
           readOnly={fieldReadOnly}
           className={`${inputClassName} ${readOnlyClass}`}
@@ -362,26 +486,30 @@ export function useCustomFieldRenderer({
             const fieldName = campo.field_name;
             setUploadingFields((previous) => ({ ...previous, [fieldName]: true }));
             AnexosApi.uploadFile(file)
-              .then(({ file_url }) => onCustomChange(fieldName, file_url))
+              .then(({ file_url }) => setFieldValue(fieldName, file_url))
               .catch(() => onUploadError?.())
               .finally(() => {
                 setUploadingFields((previous) => ({ ...previous, [fieldName]: false }));
               });
           }}
-          onClear={() => onCustomChange(campo.field_name, "")}
+          onClear={() => setFieldValue(campo.field_name, "")}
           alt={campo.label || "Arquivo"}
         />
       );
     }
 
-    if (tipoCanon === "data" || campo.tipo === "date") {
+    const isSimpleDateField =
+      ["date", "data"].includes(String(campo.tipo || "").toLowerCase()) ||
+      ["date", "data"].includes(tipoCanon);
+
+    if (isSimpleDateField) {
       if (mgPrototype) {
         return (
           <MgDatePicker
             label={mgLabel}
             required={campo.obrigatorio}
             value={value}
-            onChange={(e) => onCustomChange(campo.field_name, brDateToIso(e.target.value))}
+            onChange={(e) => setFieldValue(campo.field_name, brDateToIso(e.target.value))}
             readOnly={fieldReadOnly}
             disabled={fieldReadOnly}
           />
@@ -392,7 +520,7 @@ export function useCustomFieldRenderer({
         <Input
           type="date"
           value={value}
-          onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
           readOnly={fieldReadOnly}
           className={`${inputClassName} ${readOnlyClass}`}
         />
@@ -400,14 +528,23 @@ export function useCustomFieldRenderer({
     }
 
     return (
-      <Input
-        type={campo.tipo === "number" ? "number" : "text"}
-        value={value}
-        onChange={(e) => onCustomChange(campo.field_name, e.target.value)}
-        placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
-        readOnly={fieldReadOnly}
-        className={`${inputClassName} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`}
-      />
+      mgPrototype ? (
+        <MgPrototypeInput
+          type={campo.tipo === "number" ? "number" : "text"}
+          value={value}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+          readOnly={fieldReadOnly}
+        />
+      ) : (
+        <Input
+          type={campo.tipo === "number" ? "number" : "text"}
+          value={value}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+          placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
+          readOnly={fieldReadOnly}
+          className={`${inputClassName} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`}
+        />
+      )
     );
   };
 

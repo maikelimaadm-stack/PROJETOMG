@@ -1867,7 +1867,6 @@
 /* —— Aviso obrigatório abaixo do campo (altura reservada em todos os campos) —— */
 .cadastro-emp-scope .emp-form-field-corp {
   position: relative;
-  padding-bottom: 14px;
   box-sizing: border-box;
 }
 

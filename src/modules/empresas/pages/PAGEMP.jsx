@@ -22,8 +22,8 @@ import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
-import MgMobileFilterStrip from "@/modules/empresas/layout/MgMobileFilterStrip";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
+import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -212,6 +212,7 @@ export default function PAGEMP() {
         upsertEmpresaInSelector(optimistic);
         setEditingEmp(optimistic);
         stayOnRecordAfterSave(optimistic);
+        setFormVersion((version) => version + 1);
 
         void moduleRepository
           .update(editingEmp.id, validatedData)
@@ -349,17 +350,19 @@ export default function PAGEMP() {
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((version) => version + 1);
   };
 
   const handleNew = () => {
     if (!saveCycle.guardAction()) return;
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
     setSelectedTableItems([]);
+    const alreadyNew = showForm && !editingEmp?.id && !editingEmp?._isDuplicate;
     setEditingEmp(null);
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((p) => p + 1);
+    if (alreadyNew) {
+      setFormVersion((version) => version + 1);
+    }
   };
 
   const handleDuplicate = (emp) => {
@@ -369,7 +372,6 @@ export default function PAGEMP() {
     setEditingEmp({ ...dup, _isDuplicate: true });
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((p) => p + 1);
   };
 
   const handleRequestDelete = (ids) => {
@@ -392,7 +394,33 @@ export default function PAGEMP() {
     }
   }, []);
 
+  const handleFilterClear = useCallback(() => {
+    setFilterValues({});
+    setFilterStatus("Todos");
+    setSearchTerm("");
+    setQueryPage(1);
+  }, []);
+
+  const handleFilterApply = useCallback(() => {
+    closeFilterPanel();
+  }, [closeFilterPanel]);
+
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
+
+  const actionBarVisibility = useMemo(
+    () =>
+      resolveMgActionBarVisibility({
+        showForm,
+        formBridge,
+        selectedCount: selectedTableItems.length,
+        hasRecord: !!editingEmp?.id,
+      }),
+    [showForm, formBridge, selectedTableItems.length, editingEmp?.id]
+  );
+
+  useEffect(() => {
+    if (!showForm) setFormBridge(null);
+  }, [showForm]);
 
   const handleOpenTableView = useCallback(() => {
     setShowForm(false);
@@ -489,7 +517,6 @@ export default function PAGEMP() {
       setEditingEmp(emp);
       setShowForm(true);
       setViewMode("record");
-      setFormVersion((version) => version + 1);
       return;
     }
     if (showForm) {
@@ -504,7 +531,6 @@ export default function PAGEMP() {
     setEditingEmp(emp);
     setShowForm(true);
     setViewMode("record");
-    setFormVersion((version) => version + 1);
   };
 
   const navigateRecord = (index) => {
@@ -699,6 +725,11 @@ export default function PAGEMP() {
       : "";
   const recordTitle =
     formBridge?.recordMeta?.nome ||
+    (showForm && !editingEmp?.id && !editingEmp?._isDuplicate
+      ? "Nova Empresa"
+      : editingEmp?._isDuplicate
+        ? "Duplicar empresa"
+        : null) ||
     editingEmp?.razao_social ||
     editingEmp?.nome_empresa ||
     "Novo registro";
@@ -717,15 +748,13 @@ export default function PAGEMP() {
           values={filterValues}
           onChange={handleFilterChange}
           onClose={closeFilterPanel}
+          onClear={handleFilterClear}
+          onApply={handleFilterApply}
           status={filterStatus}
           onStatusChange={setFilterStatus}
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <MgMobileFilterStrip
-            filterOpen={filterPanelOpen}
-            onToggleFilter={toggleFilterPanel}
-          />
           <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
@@ -734,7 +763,12 @@ export default function PAGEMP() {
             onToggleFilter={toggleFilterPanel}
             onNew={handleNew}
             onSave={formBridge?.onSave}
-            onEdit={formBridge?.onEdit}
+            onCancel={formBridge?.onCancel ?? formCancel}
+            onEdit={
+              showForm
+                ? formBridge?.onEdit
+                : () => selectedTableEmp && handleEdit(selectedTableEmp)
+            }
             onDelete={
               showForm
                 ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
@@ -755,36 +789,41 @@ export default function PAGEMP() {
             onExportPdf={handleExportPdf}
             onConfigColumns={() => setShowConfigColunas(true)}
             onLayoutConfig={formBridge?.onLayoutConfig}
-            showSave={!!formBridge?.editMode}
-            showEdit={!!formBridge?.isReadOnly}
-            showDelete={showForm ? !!editingEmp : selectedTableItems.length > 0}
-            showNew={!formBridge?.editMode}
             actionsLocked={saveCycle.isSaving}
+            {...actionBarVisibility}
           />
 
-          {showForm ? (
-            <>
-              <MgContextPanel
-                code={recordCode}
-                title={recordTitle}
-                total={empresasNavegacao.length}
-                currentIndex={selectedIndex}
-                onFirst={() => navigateRecord(0)}
-                onPrevious={() => navigateRecord(selectedIndex - 1)}
-                onNext={() => navigateRecord(selectedIndex + 1)}
-                onLast={() => navigateRecord(empresasNavegacao.length - 1)}
-                disabled={saveCycle.isSaving}
-              />
+          <div className={`mg-context-panel-wrap${showForm ? " is-visible" : ""}`}>
+            <MgContextPanel
+              code={recordCode}
+              title={recordTitle}
+              total={empresasNavegacao.length}
+              currentIndex={selectedIndex}
+              onFirst={() => navigateRecord(0)}
+              onPrevious={() => navigateRecord(selectedIndex - 1)}
+              onNext={() => navigateRecord(selectedIndex + 1)}
+              onLast={() => navigateRecord(empresasNavegacao.length - 1)}
+              disabled={saveCycle.isSaving}
+            />
+          </div>
+
+          <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div
+              className={`mg-view-layer mg-view-layer--form flex min-h-0 flex-1 flex-col overflow-hidden${
+                showForm ? " mg-view-layer--active" : ""
+              }`}
+              aria-hidden={!showForm}
+            >
               <EmpresasFormPanel
                 formProps={{
-                  key: `form-${formVersion}`,
                   initialData: editingEmp,
                   recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
+                  resetSeed: formVersion,
                   isEditing: !!editingEmp,
                   onSubmit: handleSubmit,
                   onCancel: formCancel,
                   hideToolbar: true,
-                  onToolbarBridge: setFormBridge,
+                  onToolbarBridge: showForm ? setFormBridge : undefined,
                   total: empresasNavegacao.length,
                   currentIndex: selectedIndex,
                   onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
@@ -792,30 +831,44 @@ export default function PAGEMP() {
                   actionsLocked: saveCycle.isSaving,
                 }}
               />
-            </>
-          ) : mgViewMode === "cards" ? (
-            <div id="mode-cards" className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <EmpresasSearchPanel
-                searchProps={{
-                  empresas: empresasFiltradasPainel,
-                  total: totalEmpresas,
-                  isLoading: empresasLoading || isFetching,
-                  searchValue: searchTerm,
-                  onSearchChange: handleSearchChange,
-                  page: queryPage,
-                  pageSize: queryPageSize,
-                  onPageChange: setQueryPage,
-                  onPageSizeChange: (nextPageSize) => {
-                    setQueryPageSize(nextPageSize);
-                    setQueryPage(1);
-                  },
-                  onEdit: handleEdit,
-                  mgPrototype: true,
-                }}
-              />
             </div>
-          ) : (
-            <div id="mode-tabela" className="mg-grid-wrapper flex min-h-0 flex-1 flex-col overflow-hidden">
+
+            <div
+              className={`mg-view-layer mg-view-layer--cards flex min-h-0 flex-1 flex-col overflow-hidden${
+                !showForm && mgViewMode === "cards" ? " mg-view-layer--active" : ""
+              }`}
+              aria-hidden={showForm || mgViewMode !== "cards"}
+            >
+              <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+                <EmpresasSearchPanel
+                  searchProps={{
+                    empresas: empresasFiltradasPainel,
+                    total: totalEmpresas,
+                    isLoading: empresasLoading || isFetching,
+                    searchValue: searchTerm,
+                    onSearchChange: handleSearchChange,
+                    page: queryPage,
+                    pageSize: queryPageSize,
+                    onPageChange: setQueryPage,
+                    onPageSizeChange: (nextPageSize) => {
+                      setQueryPageSize(nextPageSize);
+                      setQueryPage(1);
+                    },
+                    onEdit: handleEdit,
+                    selectedIds: selectedTableItems,
+                    onSelectionChange: handleTableSelectionChange,
+                    mgPrototype: true,
+                  }}
+                />
+              </div>
+            </div>
+
+            <div
+              className={`mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden${
+                !showForm && mgViewMode !== "cards" ? " mg-view-layer--active" : ""
+              }`}
+              aria-hidden={showForm || mgViewMode === "cards"}
+            >
               <EmpresasTablePanel
                 tableProps={{
                   key: "tbl-emp",
@@ -846,7 +899,7 @@ export default function PAGEMP() {
                 }}
               />
             </div>
-          )}
+          </div>
         </div>
       </div>
 

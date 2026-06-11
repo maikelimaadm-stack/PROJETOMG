@@ -3,7 +3,7 @@ import { showWarning, REQUIRED_FIELDS_MESSAGE } from "@/shared/feedback/erpNotif
 const INVALID_CLASS = "erp-field-invalid";
 
 const CONTROL_SELECTOR =
-  ".emp-form-field-control, .emp-form-field-bare, input, textarea, select, button.emp-form-lookup-btn, button.emp-form-date-btn";
+  ".emp-form-field-control, .emp-form-field-bare, input, textarea, select, button.emp-form-lookup-btn, button.emp-form-date-btn, .cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display";
 
 /**
  * Destaca apenas o controle do campo (não a linha inteira), toast lateral e foco no primeiro.
@@ -15,10 +15,10 @@ export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   const root = options.root || document;
   keys.forEach((key) => {
     root.querySelectorAll(`[data-field="${key}"]`).forEach((node) => {
-      const control = node.querySelector(CONTROL_SELECTOR);
-      if (control) {
+      node.classList.add(INVALID_CLASS);
+      node.querySelectorAll(CONTROL_SELECTOR).forEach((control) => {
         control.classList.add(INVALID_CLASS);
-      }
+      });
     });
   });
 

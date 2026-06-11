@@ -11,6 +11,7 @@ import { RenderEngine } from "@/framework/cadastro-engine/render/RenderEngine.js
 import CadLayoutConfigurator from "@/framework/cadastro-engine/design-system/CadLayoutConfigurator.jsx";
 import CadSplitLayout from "@/framework/cadastro-engine/design-system/CadSplitLayout.jsx";
 import { CadRecordToolbar } from "@/framework/cadastro-engine/design-system/CadToolbar.jsx";
+import MgMotionPanel from "@/modules/empresas/layout/MgMotionPanel";
 import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
@@ -58,6 +59,7 @@ export default function FORMEMP({
   initialData,
   isEditing,
   recordKey,
+  resetSeed = 0,
   actionsLocked = false,
   hideToolbar = false,
   onToolbarBridge,
@@ -133,6 +135,7 @@ export default function FORMEMP({
     }
   }, [
     recordKey,
+    resetSeed,
     initialData?.id,
     initialData?.codempresa,
     initialData?.id_global,
@@ -377,7 +380,7 @@ export default function FORMEMP({
       errorKey: `campos_personalizados.${campo.field_name}`,
       wide: campo.tipo === "textarea",
       medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo),
-      compact: (["number", "date", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo),
+      compact: (["number", "date", "data", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo),
       totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara,
       options: ["select", "option_list"].includes(campo.tipo)
         ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({
@@ -387,9 +390,9 @@ export default function FORMEMP({
         : [],
       displayField: "nome",
       searchFields: ["nome"],
-      render: () => renderCampoPersonalizado(campo),
+      render: (ctx) => renderCampoPersonalizado(campo, ctx),
     }))
-  ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions]);
+  ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions, renderCampoPersonalizado]);
 
   const basePanels = useMemo(
     () => EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
@@ -576,6 +579,7 @@ export default function FORMEMP({
       isDuplicating,
       recordMeta,
       onSave: () => handleSubmit(),
+      onCancel,
       onEdit: () => setEditMode(true),
       onLayoutConfig: () => {
         if (filterOpen) onToggleFilter?.();
@@ -589,6 +593,7 @@ export default function FORMEMP({
     isEditing,
     isDuplicating,
     recordMeta,
+    onCancel,
     filterOpen,
     onToggleFilter,
   ]);
@@ -614,29 +619,37 @@ export default function FORMEMP({
           />
         ) : null}
 
-        <div className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none">
-          <fieldset className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
-            <RenderEngine
-              recordKey={recordKey}
-              panels={tabs}
-              fields={dynamicFields}
-              layout={activeLayoutConfig.layout}
-              defaultLayout={defaultLayout}
-              hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-              lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-              requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-              visibilityRules={activeLayoutConfig.visibilityRules || {}}
-              fieldSizes={activeLayoutConfig.fieldSizes || {}}
-              fieldLayoutConfig={fieldLayoutConfig}
-              activePanelId={activeTab}
-              values={formData}
-              errors={errors}
-              onChange={handleDynamicFieldChange}
-              readOnly={isReadOnly}
-              fieldClassName={mgVariant ? "mg-prototype-field" : ""}
-            />
-          </fieldset>
-        </div>
+        <MgMotionPanel
+          panelKey={`${activeTab}-${resetSeed}`}
+          instant={!isEditing || isDuplicating}
+          className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none"
+        >
+          {() => (
+            <fieldset
+              className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}
+            >
+              <RenderEngine
+                recordKey={recordKey}
+                panels={tabs}
+                fields={dynamicFields}
+                layout={activeLayoutConfig.layout}
+                defaultLayout={defaultLayout}
+                hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+                lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+                requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+                visibilityRules={activeLayoutConfig.visibilityRules || {}}
+                fieldSizes={activeLayoutConfig.fieldSizes || {}}
+                fieldLayoutConfig={fieldLayoutConfig}
+                activePanelId={activeTab}
+                values={formData}
+                errors={errors}
+                onChange={handleDynamicFieldChange}
+                readOnly={isReadOnly}
+                fieldClassName={mgVariant ? "mg-prototype-field" : ""}
+              />
+            </fieldset>
+          )}
+        </MgMotionPanel>
       </div>
     </div>
   );
@@ -746,8 +759,8 @@ export default function FORMEMP({
         {hideToolbar ? (
           <div id="mode-registro" className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
-              className="shrink-0 overflow-x-auto border-b px-3 py-1 md:px-5"
-              style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
+              className="mg-panel-tabs-strip shrink-0 px-3 md:px-5"
+              style={{ background: "var(--bg-card)" }}
             >
               <CadTabs
                 tabs={tabs}
@@ -757,7 +770,13 @@ export default function FORMEMP({
                 variant="mg"
               />
             </div>
-            <div className="mg-form-scroll mg-prototype-form">{renderFormBody(true)}</div>
+            <div
+              className={`mg-form-scroll mg-prototype-form${
+                isReadOnly ? " mg-prototype-form--readonly" : ""
+              }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}`}
+            >
+              {renderFormBody(true)}
+            </div>
           </div>
         ) : null}
         {editMode ? (

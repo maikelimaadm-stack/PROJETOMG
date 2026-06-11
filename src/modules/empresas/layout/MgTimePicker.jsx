@@ -87,7 +87,7 @@ export default function MgTimePicker({
     : "");
 
   return (
-    <div ref={rootRef} className={`mg-tp${open ? " open" : ""}`}>
+    <div ref={rootRef} className={`mg-tp${open ? " open" : ""}${disabled || readOnly ? " is-disabled" : ""}${display ? " mg-has-value" : ""}`}>
       {label ? <label className="mg-tp-label">{label}</label> : null}
       <input
         type="text"
@@ -95,6 +95,7 @@ export default function MgTimePicker({
         value={display}
         readOnly
         disabled={disabled || readOnly}
+        placeholder=" "
         onClick={toggle}
       />
       <div className="mg-tp-icon"><Clock className="h-3.5 w-3.5" /></div>

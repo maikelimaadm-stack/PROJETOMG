@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
@@ -19,19 +19,30 @@ export default function MgLookup({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [highlighted, setHighlighted] = useState(-1);
-  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { estimatedHeight: 300 });
+
+  const filtered = useMemo(
+    () =>
+      items.filter((item) =>
+        searchFields.some((field) =>
+          String(item[field] || "").toLowerCase().includes(query.toLowerCase())
+        )
+      ),
+    [items, query, searchFields]
+  );
+
+  const panelStyle = useMgPanelPosition(
+    open,
+    rootRef,
+    panelRef,
+    { estimatedHeight: 380 },
+    `${query}|${filtered.length}`
+  );
 
   useMgPanelCoordinator(rootRef, setOpen);
 
   const itemKey = (item) => String(item?.id ?? item?.value ?? item?.codigo ?? "");
   const selected = items.find((item) => itemKey(item) === String(value));
   const display = selected?.[displayField] || (value ? String(value) : "");
-
-  const filtered = items.filter((item) =>
-    searchFields.some((field) =>
-      String(item[field] || "").toLowerCase().includes(query.toLowerCase())
-    )
-  );
 
   useEffect(() => {
     if (!open) return undefined;
@@ -83,7 +94,7 @@ export default function MgLookup({
   return (
     <div
       ref={rootRef}
-      className={`mg-lookup${open ? " open" : ""}`}
+      className={`mg-lookup${open ? " open" : ""}${disabled || readOnly ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
       tabIndex={disabled || readOnly ? -1 : 0}
       onKeyDown={onKeyDown}
       onClick={toggle}
@@ -107,7 +118,7 @@ export default function MgLookup({
             onClick={(e) => e.stopPropagation()}
           />
         </div>
-        <div className="mg-lookup-list">
+        <div className="mg-lookup-list mg-panel-options">
           {filtered.map((item, index) => (
             <div
               key={itemKey(item)}

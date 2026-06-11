@@ -6,15 +6,31 @@ import {
   History,
   MoreVertical,
   Paperclip,
-  Pencil,
-  Plus,
   Printer,
-  Save,
   Search,
   Settings,
-  Trash2,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
+
+function ActionLabelBtn({ className = "", children, ...props }) {
+  return (
+    <button type="button" className={`ios-btn tb-btn tb-btn-labeled ${className}`} {...props}>
+      {children}
+    </button>
+  );
+}
+
+function ActionSlot({ show, width = 88, children }) {
+  return (
+    <div
+      className={`mg-action-slot${show ? " is-visible" : ""}`}
+      style={{ "--slot-width": `${width}px` }}
+      aria-hidden={!show}
+    >
+      {children}
+    </div>
+  );
+}
 
 export default function MgActionBar({
   viewMode = "tabela",
@@ -24,6 +40,7 @@ export default function MgActionBar({
   onToggleFilter,
   onNew,
   onSave,
+  onCancel,
   onEdit,
   onDelete,
   onDuplicate,
@@ -34,8 +51,10 @@ export default function MgActionBar({
   onConfigColumns,
   onLayoutConfig,
   showSave = false,
+  showCancel = false,
   showEdit = false,
   showDelete = false,
+  showDuplicate = false,
   showNew = true,
   actionsLocked = false,
 }) {
@@ -54,11 +73,11 @@ export default function MgActionBar({
   return (
     <div
       data-template-id="action-bar"
-      className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 py-1.5 md:flex"
+      className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
       style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
     >
-      <div className="flex items-center gap-1.5">
-        {onToggleFilter ? (
+      <div className="mg-action-bar__actions flex min-w-0 items-center">
+        <ActionSlot show={!!onToggleFilter} width={34}>
           <button
             type="button"
             className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
@@ -69,86 +88,104 @@ export default function MgActionBar({
           >
             <Filter className="h-3.5 w-3.5" />
           </button>
-        ) : null}
+        </ActionSlot>
 
-        {showNew && onNew ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-green tb-btn-icon"
+        <ActionSlot show={showNew && !!onNew} width={64}>
+          <ActionLabelBtn
+            className="tb-btn-blue"
             onClick={onNew}
             disabled={actionsLocked}
             title="Novo"
-            aria-label="Novo"
           >
-            <Plus className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
+            Novo
+          </ActionLabelBtn>
+        </ActionSlot>
 
-        {showSave && onSave ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-blue tb-btn-icon"
+        <ActionSlot show={showSave && !!onSave} width={68}>
+          <ActionLabelBtn
+            className="tb-btn-blue"
             onClick={onSave}
             disabled={actionsLocked}
             title="Salvar"
-            aria-label="Salvar"
           >
-            <Save className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
+            Salvar
+          </ActionLabelBtn>
+        </ActionSlot>
 
-        {showEdit && onEdit ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-gray tb-btn-icon"
+        <ActionSlot show={showCancel && !!onCancel} width={74}>
+          <ActionLabelBtn
+            className="tb-btn-ghost"
+            onClick={onCancel}
+            disabled={actionsLocked}
+            title="Cancelar"
+          >
+            Cancelar
+          </ActionLabelBtn>
+        </ActionSlot>
+
+        <ActionSlot show={showEdit && !!onEdit} width={66}>
+          <ActionLabelBtn
+            className="tb-btn-ghost"
             onClick={onEdit}
             disabled={actionsLocked}
             title="Editar"
-            aria-label="Editar"
           >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
+            Editar
+          </ActionLabelBtn>
+        </ActionSlot>
 
-        {showDelete && onDelete ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-red tb-btn-icon"
+        <ActionSlot show={showDelete && !!onDelete} width={68}>
+          <ActionLabelBtn
+            className="tb-btn-red"
             onClick={onDelete}
             disabled={actionsLocked}
             title="Excluir"
-            aria-label="Excluir"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        ) : null}
+            Excluir
+          </ActionLabelBtn>
+        </ActionSlot>
+
+        <ActionSlot show={showDuplicate && !!onDuplicate} width={78}>
+          <ActionLabelBtn
+            className="tb-btn-ghost"
+            onClick={onDuplicate}
+            disabled={actionsLocked}
+            title="Duplicar"
+          >
+            Duplicar
+          </ActionLabelBtn>
+        </ActionSlot>
       </div>
 
       <div className="mg-action-bar__end">
-        <div className="mg-search-pill" role="search">
-          <Search className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--text-3)", marginRight: 6 }} />
-          <input
-            type="text"
-            placeholder="Pesquisar..."
-            value={searchValue}
-            onChange={(event) => onSearchChange?.(event.target.value)}
-            aria-label="Pesquisar"
-          />
+        <div className={`mg-action-bar__tools${showSave ? "" : " mg-action-bar__tools--visible"}`}>
+          <div className="mg-search-pill" role="search">
+            <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
+            <input
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchValue}
+              onChange={(event) => onSearchChange?.(event.target.value)}
+              aria-label="Pesquisar"
+              tabIndex={showSave ? -1 : 0}
+            />
+          </div>
+          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked || showSave} />
         </div>
-
-        <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
 
         <div className="relative" ref={moreRef}>
           <button
             type="button"
-            className="ios-btn tb-btn tb-btn-ghost tb-btn-more tb-btn-icon"
+            className="ios-btn tb-btn tb-btn-ghost tb-btn-more tb-btn-icon mg-accent-icon-btn"
             id="more-btn"
+            aria-expanded={moreOpen}
+            aria-haspopup="menu"
             onClick={() => setMoreOpen((open) => !open)}
           >
-            <MoreVertical className="h-4 w-4" />
+            <MoreVertical className="h-4 w-4" stroke="var(--accent)" />
           </button>
           <div id="more-dd" className={`dropdown-menu${moreOpen ? " open" : ""}`}>
-            {onDuplicate ? (
+            {onDuplicate && !showDuplicate ? (
               <button type="button" onClick={() => { onDuplicate(); setMoreOpen(false); }}>
                 <Copy className="h-4 w-4" />
                 Duplicar
