@@ -162,6 +162,7 @@
 }
 
 .mg-empresas-scope .seg-tab {
+  position: relative;
   padding: 6px 12px;
   min-height: 28px;
   font-size: 12px;
@@ -176,6 +177,7 @@
   border: none;
   background: none;
   outline: none;
+  border-radius: 0 !important;
 }
 
 .mg-empresas-scope .seg-tab:hover {
@@ -186,13 +188,19 @@
   color: var(--text-1) !important;
   font-weight: 600 !important;
   border: none !important;
-  border-bottom: none !important;
+  border-bottom: 1px solid var(--bg-card) !important;
+  border-radius: 0 !important;
   box-shadow: none !important;
   background: var(--bg-page) !important;
 }
 
+.mg-empresas-scope .seg-tab.active::after {
+  display: none !important;
+  content: none !important;
+}
+
 .mg-empresas-scope .seg-control .seg-tab {
-  border-radius: 0;
+  border-radius: 0 !important;
 }
 
 /* View segmented control */
