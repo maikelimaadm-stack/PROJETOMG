@@ -22,11 +22,12 @@
 }
 
 .mg-empresas-scope {
-  --bg-page: #f8f9fb;
+  --bg-page: #f0f2f5;
   --bg-card: #ffffff;
   --bg-surface: #ffffff;
-  --border: #e8eaed;
-  --mg-divider: #e8eaed;
+  --border: var(--gray-fill);
+  --mg-divider: var(--gray-fill);
+  --mg-divider-width: 1.5px;
   --border-focus: #40de63;
   --text-1: #111827;
   --text-2: #6b7280;
@@ -364,7 +365,7 @@
   background: transparent;
   padding: 0;
   overflow-x: auto;
-  border-bottom: 1px solid var(--mg-divider) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
   position: relative;
@@ -396,7 +397,7 @@
   padding-right: 8px !important;
   min-height: 36px;
   border-top: none !important;
-  border-bottom: 1px solid var(--mg-divider) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   background: var(--bg-card) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -629,7 +630,7 @@
 
 .mg-empresas-scope .mg-grid td {
   padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
   color: var(--text-1);
 }
 
@@ -1135,7 +1136,7 @@
 .mg-empresas-scope .cmd-panel input {
   width: 100%;
   border: none;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
   padding: 8px 10px;
   font-size: 12px;
   outline: none;
@@ -1180,7 +1181,7 @@
   transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   background: #ffffff !important;
-  border-right: 1px solid var(--mg-divider);
+  border-right: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 .erp-shell--empresas-mg .mg-empresas-scope .erp-sidebar:hover,
@@ -1218,13 +1219,13 @@
 }
 
 .mg-empresas-scope .erp-sidebar .ng:not(:first-child) {
-  border-top: 1px solid var(--mg-divider);
+  border-top: var(--mg-divider-width) solid var(--mg-divider);
   margin-top: 6px;
   padding-top: 10px;
 }
 
 .mg-empresas-scope .erp-sidebar > .shrink-0 {
-  border-top: 1px solid var(--mg-divider) !important;
+  border-top: var(--mg-divider-width) solid var(--mg-divider) !important;
   border-color: var(--mg-divider) !important;
 }
 
@@ -1362,7 +1363,7 @@
   width: 280px;
   height: 100%;
   background: #ffffff;
-  border-right: 1px solid var(--border);
+  border-right: var(--mg-divider-width) solid var(--border);
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
   z-index: 999;
   overflow-y: auto;
@@ -1424,7 +1425,7 @@
   width: 260px;
   min-width: 260px;
   opacity: 1;
-  border-right-width: 1px;
+  border-right-width: var(--mg-divider-width);
   overflow-y: auto;
 }
 
@@ -1451,7 +1452,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 12px 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
   flex-shrink: 0;
 }
 
@@ -1495,7 +1496,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 12px 12px;
-  border-top: 1px solid var(--border);
+  border-top: var(--mg-divider-width) solid var(--border);
   flex-shrink: 0;
   background: var(--bg-card);
 }
@@ -1596,7 +1597,7 @@
   min-height: calc(var(--mg-btn-height) + 10px);
   padding-top: 4px;
   padding-bottom: 4px;
-  border-bottom: 1px solid var(--mg-divider) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   overflow: visible;
   position: relative;
   z-index: 20;
@@ -1897,7 +1898,7 @@
   max-height: 32px;
   opacity: 1;
   pointer-events: auto;
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 .mg-empresas-scope .mg-context-panel {
@@ -2084,7 +2085,7 @@
   justify-content: center;
   gap: 1px;
   background: var(--bg-card);
-  border-top: 1px solid var(--border);
+  border-top: var(--mg-divider-width) solid var(--border);
   padding: 5px 0;
   padding-bottom: calc(5px + env(safe-area-inset-bottom));
   z-index: 100;
@@ -2240,7 +2241,7 @@
   justify-content: flex-end;
   padding: 6px 12px;
   background: var(--bg-card);
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
   flex-shrink: 0;
 }
 
@@ -2727,7 +2728,7 @@
   overflow-y: auto;
   scroll-behavior: smooth;
   padding: 6px 4px;
-  border-right: 1px solid var(--border);
+  border-right: var(--mg-divider-width) solid var(--border);
 }
 
 .mg-empresas-scope .mg-tp-col:last-child {
@@ -2908,7 +2909,7 @@
 
 .mg-empresas-scope .mg-lookup-search {
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
 }
 
 .mg-empresas-scope .mg-lookup-search input {
@@ -3123,7 +3124,7 @@
 }
 
 .mg-empresas-scope .erp-menu-search-field {
-  border-bottom: 1px solid var(--border) !important;
+  border-bottom: var(--mg-divider-width) solid var(--border) !important;
   padding: 8px 10px !important;
   background: var(--bg-card) !important;
 }
@@ -3464,7 +3465,7 @@
   opacity: 1;
 }
 
-/* —— Divisores padronizados: 1px cinza suave em barras, menu e painéis —— */
+/* —— Divisores padronizados: cinza do botão Duplicar (--gray-fill), um pouco mais grossos —— */
 .mg-empresas-scope .mobile-menu,
 .mg-empresas-scope .filter-panel__header,
 .mg-empresas-scope .filter-panel__footer,
@@ -3474,11 +3475,11 @@
 }
 
 .mg-empresas-scope .mg-grid th {
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 .mg-empresas-scope .mg-grid td {
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 /* Tokens ERP dentro do módulo Empresas — verde #40DE63 no lugar do azul */
