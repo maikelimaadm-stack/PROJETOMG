@@ -162,11 +162,13 @@ export default function MgActionBar({
         <div className="relative" ref={moreRef}>
           <button
             type="button"
-            className="ios-btn tb-btn tb-btn-ghost tb-btn-more tb-btn-icon"
+            className="ios-btn tb-btn tb-btn-ghost tb-btn-more tb-btn-icon mg-accent-icon-btn"
             id="more-btn"
+            aria-expanded={moreOpen}
+            aria-haspopup="menu"
             onClick={() => setMoreOpen((open) => !open)}
           >
-            <MoreVertical className="h-4 w-4" />
+            <MoreVertical className="h-4 w-4" stroke="var(--accent)" />
           </button>
           <div id="more-dd" className={`dropdown-menu${moreOpen ? " open" : ""}`}>
             {onDuplicate && !showDuplicate ? (
