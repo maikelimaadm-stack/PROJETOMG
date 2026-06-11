@@ -442,24 +442,93 @@ export const insertRowRelativeToTarget = (rows = [], draggedRowId, targetRowId, 
   return list.map((row, orderIndex) => ({ ...row, order: orderIndex + 1 }));
 };
 
-export const reorderFieldWithinRows = (rows = [], draggedFieldId, targetFieldId) => {
-  if (!draggedFieldId || draggedFieldId === targetFieldId) return rows;
-  let sourceRowIndex = -1;
-  let targetRowIndex = -1;
-  rows.forEach((row, index) => {
-    if ((row.fieldIds || []).includes(draggedFieldId)) sourceRowIndex = index;
-    if ((row.fieldIds || []).includes(targetFieldId)) targetRowIndex = index;
-  });
-  if (sourceRowIndex < 0 || targetRowIndex < 0) return rows;
+/**
+ * Reordena campos ao vivo (splice flat como referência).
+ * @param {"auto"|"before"|"after"} edge — "auto" usa índice original do alvo; before/after evita oscilação no dragOver.
+ */
+export const previewReorderFieldsAtTarget = (
+  rows = [],
+  fieldIds = [],
+  targetFieldId,
+  edge = "auto"
+) => {
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !targetFieldId || ids.includes(targetFieldId)) return null;
+
+  const flatBefore = flattenRowsToFieldIds({ rows });
+  const movingSet = new Set(ids.filter((id) => flatBefore.includes(id)));
+  if (!movingSet.size) return null;
+
+  const to = flatBefore.indexOf(targetFieldId);
+  if (to < 0) return null;
+
+  if (movingSet.size === 1) {
+    const draggedFieldId = ids.find((id) => movingSet.has(id));
+    const nextRows = reorderFieldWithinRows(rows, draggedFieldId, targetFieldId, edge);
+    const flatAfter = flattenRowsToFieldIds({ rows: nextRows });
+    if (flatBefore.join("|") === flatAfter.join("|")) return null;
+    return nextRows;
+  }
+
+  const movingInOrder = flatBefore.filter((id) => movingSet.has(id));
+  const insertEdge = edge === "auto" ? "before" : edge;
+  const nextRows = insertFieldsRelativeToTarget(rows, movingInOrder, targetFieldId, insertEdge);
+  const flatAfter = flattenRowsToFieldIds({ rows: nextRows });
+  if (flatBefore.join("|") === flatAfter.join("|")) return null;
+  return nextRows;
+};
+
+/** Reordena linhas ao vivo — retorna null se não houve mudança. */
+export const previewReorderRowAtTarget = (rows = [], draggedRowId, targetRowId) => {
+  if (!draggedRowId || !targetRowId || draggedRowId === targetRowId) return null;
+  const list = [...rows].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const fromIndex = list.findIndex((row) => row.id === draggedRowId);
+  const toIndex = list.findIndex((row) => row.id === targetRowId);
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return null;
+  const [moved] = list.splice(fromIndex, 1);
+  list.splice(toIndex, 0, moved);
+  return list.map((row, orderIndex) => ({ ...row, order: orderIndex + 1 }));
+};
+
+export const reorderFieldWithinRows = (
+  rows = [],
+  draggedFieldId,
+  targetFieldId,
+  edge = "auto"
+) => {
+  if (!draggedFieldId || !targetFieldId || draggedFieldId === targetFieldId) return rows;
+
+  const flat = flattenRowsToFieldIds({ rows });
+  const from = flat.indexOf(draggedFieldId);
+  const to = flat.indexOf(targetFieldId);
+  if (from < 0 || to < 0 || from === to) return rows;
 
   const next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
-  const sourceIds = next[sourceRowIndex].fieldIds;
-  const from = sourceIds.indexOf(draggedFieldId);
-  if (from < 0) return rows;
-  sourceIds.splice(from, 1);
+  next.forEach((row) => {
+    row.fieldIds = row.fieldIds.filter((id) => id !== draggedFieldId);
+  });
 
-  const to = next[targetRowIndex].fieldIds.indexOf(targetFieldId);
-  next[targetRowIndex].fieldIds.splice(to >= 0 ? to : next[targetRowIndex].fieldIds.length, 0, draggedFieldId);
+  let targetRowIndex = -1;
+  let targetFieldIndex = -1;
+  next.forEach((row, rowIndex) => {
+    const fieldIndex = (row.fieldIds || []).indexOf(targetFieldId);
+    if (fieldIndex >= 0) {
+      targetRowIndex = rowIndex;
+      targetFieldIndex = fieldIndex;
+    }
+  });
+  if (targetRowIndex < 0) return rows;
+
+  let insertAt;
+  if (edge === "before") {
+    insertAt = targetFieldIndex;
+  } else if (edge === "after") {
+    insertAt = targetFieldIndex + 1;
+  } else {
+    insertAt = from < to ? targetFieldIndex + 1 : targetFieldIndex;
+  }
+
+  next[targetRowIndex].fieldIds.splice(insertAt, 0, draggedFieldId);
   return next;
 };
 

@@ -12,7 +12,9 @@ import { createEmptyLayoutRow } from "../src/framework/cadastro/layouts/empFormL
 import {
   insertFieldsRelativeToTarget,
   insertRowRelativeToTarget,
+  previewReorderFieldsAtTarget,
   swapFieldsInRows,
+  flattenRowsToFieldIds,
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 
 const panelId = "principais";
@@ -95,6 +97,21 @@ assert.deepEqual(swapped[1].fieldIds, ["a"]);
 // insert before/after target field
 const insertedBefore = insertFieldsRelativeToTarget(rows, ["d"], "b", "before");
 assert.deepEqual(insertedBefore[0].fieldIds, ["a", "d", "b"]);
+
+const previewMoved = previewReorderFieldsAtTarget(rows, ["a"], "c");
+assert.ok(previewMoved);
+assert.deepEqual(flattenRowsToFieldIds({ rows: previewMoved }), ["b", "c", "a"]);
+
+const previewBefore = previewReorderFieldsAtTarget(rows, ["b"], "a", "before");
+assert.ok(previewBefore);
+assert.deepEqual(flattenRowsToFieldIds({ rows: previewBefore }), ["b", "a", "c"]);
+
+const previewAfter = previewReorderFieldsAtTarget(rows, ["a"], "b", "after");
+assert.ok(previewAfter);
+assert.deepEqual(flattenRowsToFieldIds({ rows: previewAfter }), ["b", "a", "c"]);
+
+const previewNoop = previewReorderFieldsAtTarget(rows, ["a"], "a");
+assert.equal(previewNoop, null);
 
 const insertedAfter = insertFieldsRelativeToTarget(rows, ["d"], "a", "after");
 assert.deepEqual(insertedAfter[0].fieldIds, ["a", "d", "b"]);

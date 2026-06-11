@@ -4187,10 +4187,13 @@
   animation: none;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field--drag-source {
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-transition {
+  transition: opacity var(--mg-motion-duration) var(--mg-motion-ease), transform var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field--dragging {
   opacity: 0.5;
-  outline: 2px dashed var(--mg-brand-green);
-  outline-offset: -2px;
+  transform: scale(0.97);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-drag-ghost {

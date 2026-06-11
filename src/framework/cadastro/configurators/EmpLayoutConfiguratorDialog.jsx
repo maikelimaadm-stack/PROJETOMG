@@ -47,6 +47,8 @@ import {
   insertFieldsIntoRowAtEdge,
   insertFieldsRelativeToTarget,
   insertRowRelativeToTarget,
+  previewReorderFieldsAtTarget,
+  previewReorderRowAtTarget,
 } from "@/framework/cadastro/layouts/empFormLayoutRows";
 import {
   ensureCardRows as ensureCardRowsHelper,
@@ -56,18 +58,10 @@ import {
   updateCardRowsOnly,
 } from "@/framework/cadastro/layouts/layoutConfiguratorMutations.js";
 import {
-  resolvePointerEdge,
-  setDragGhostFromElement,
-  toggleListSelection,
+  selectAvailableField,
+  selectPanelField,
+  resolveDragInsertEdge,
 } from "@/framework/cadastro/layouts/layoutConfiguratorDrag.js";
-import {
-  LayoutConfigDropLine,
-  LayoutConfigFieldShell,
-  LayoutConfigMotionGroup,
-  LayoutConfigPanelBody,
-  LayoutConfigRowShell,
-  LayoutConfigSidebarList,
-} from "@/framework/cadastro/layouts/layoutConfiguratorMotion.jsx";
 import {
   getMaxFieldsPerRow,
   resolveCardColSpan,
@@ -163,12 +157,12 @@ export default function EmpLayoutConfiguratorDialog({
   const [dragOverRowId, setDragOverRowId] = useState(null);
   const [dragOverCardId, setDragOverCardId] = useState(null);
   const [dragOverPanelId, setDragOverPanelId] = useState(null);
-  const [dropIndicator, setDropIndicator] = useState(null);
   const [editingPanelId, setEditingPanelId] = useState(null);
   const [fieldLastPanelId, setFieldLastPanelId] = useState({});
   const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
   const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
   const wasOpenRef = useRef(false);
+  const suppressFieldClickRef = useRef(false);
   const panelSegRef = useRef(null);
   const panelSliderRef = useRef(null);
   const cardSegRef = useRef(null);
@@ -294,8 +288,11 @@ export default function EmpLayoutConfiguratorDialog({
   const draftLayoutFlat = useMemo(() => flattenLayoutFromCards(draftCardsByPanel), [draftCardsByPanel]);
   const usedFieldIds = useMemo(() => new Set(Object.values(draftLayoutFlat).flat()), [draftLayoutFlat]);
   const panelFieldIds = flattenRowsToFieldIds({ rows: activeCardRows });
-  const isDragActive = Boolean(draggedFieldId || draggedRowId || draggedPanelId);
-  const enableLayoutMotion = !isDragActive;
+
+  const fieldSelectionSetters = {
+    setSelectedAvailableIds,
+    setSelectedPanelFieldIds,
+  };
 
   const ensureCardRows = (card) => ensureCardRowsHelper(card);
 
@@ -474,45 +471,72 @@ export default function EmpLayoutConfiguratorDialog({
   const showRequiredPopup = (message) => showWarning(message);
 
   const finishFieldDrag = () => {
+    suppressFieldClickRef.current = true;
     setDraggedFieldId(null);
     setDraggedFrom(null);
     setDragOverRowId(null);
     setDragOverCardId(null);
     setDragOverPanelId(null);
-    setDropIndicator(null);
   };
+
+  const isDragging =
+    !!draggedFieldId || !!draggedRowId || !!draggedPanelId;
 
   const finishRowDrag = () => {
     setDraggedRowId(null);
     setDragOverRowId(null);
-    setDropIndicator(null);
   };
 
-  const setFieldDropIndicator = (targetFieldId, edge) => {
-    setDropIndicator((prev) => {
-      if (prev?.kind === "field" && prev.targetFieldId === targetFieldId && prev.edge === edge) {
-        return prev;
-      }
-      return { kind: "field", targetFieldId, edge };
-    });
+  const applyCardRows = (nextRows) => {
+    updateActiveCardRows(
+      nextRows.map((row, index) => ({
+        ...row,
+        id: row.id || createRowId(activeCard.id, index + 1),
+        order: index + 1,
+      }))
+    );
   };
 
-  const setRowDropIndicator = (rowId, edge) => {
-    setDropIndicator((prev) => {
-      if (prev?.kind === "row" && prev.rowId === rowId && prev.edge === edge) {
-        return prev;
-      }
-      return { kind: "row", rowId, edge };
-    });
+  const previewReorderFieldAt = (targetFieldId, edge = "auto") => {
+    if (draggedFrom !== "panel" || !draggedFieldId || !targetFieldId || !activePanel || !activeCard || !isEditing) {
+      return;
+    }
+    const ids = resolveDragFieldIds();
+    const rows = ensureCardRows(activeCard);
+    const colSpan = getActiveCardColSpan();
+    const targetRow = rows.find((row) => (row.fieldIds || []).includes(targetFieldId));
+    if (targetRow && !canInsertFieldsIntoRow(rows, targetRow.id, ids, colSpan)) {
+      return;
+    }
+    const nextRows = previewReorderFieldsAtTarget(rows, ids, targetFieldId, edge);
+    if (!nextRows) return;
+    applyCardRows(nextRows);
   };
 
-  const setRowFieldDropIndicator = (rowId, edge) => {
-    setDropIndicator((prev) => {
-      if (prev?.kind === "row-field" && prev.rowId === rowId && prev.edge === edge) {
-        return prev;
-      }
-      return { kind: "row-field", rowId, edge };
-    });
+  const previewReorderRowAt = (targetRowId) => {
+    if (!draggedRowId || !targetRowId || !activePanel || !activeCard || !isEditing) return;
+    const rows = ensureCardRows(activeCard);
+    const nextRows = previewReorderRowAtTarget(rows, draggedRowId, targetRowId);
+    if (!nextRows) return;
+    applyCardRows(nextRows);
+  };
+
+  const previewReorderPanelAt = (targetPanelId) => {
+    if (
+      !draggedPanelId ||
+      draggedPanelId === targetPanelId ||
+      fixedPanelIds.includes(draggedPanelId) ||
+      fixedPanelIds.includes(targetPanelId)
+    ) {
+      return;
+    }
+    const next = [...draftPanels];
+    const from = next.findIndex((panel) => panel.id === draggedPanelId);
+    const to = next.findIndex((panel) => panel.id === targetPanelId);
+    if (from < 0 || to < 0 || from === to) return;
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    setDraftPanels(next);
   };
 
   const canInsertFieldsIntoRow = (rows, rowId, fieldIds, colSpan) => {
@@ -673,41 +697,6 @@ export default function EmpLayoutConfiguratorDialog({
     setActivePanelId(nextPanelId);
     setActiveCardId(nextCards[nextPanelId]?.cards?.[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
   };
-  const reorderField = (targetFieldId, edge = "before") => {
-    const ids = resolveDragFieldIds();
-    const draggedId = ids[0];
-    if (!draggedId || !targetFieldId || !activePanel || !activeCard || !isEditing) {
-      return;
-    }
-    if (ids.includes(targetFieldId) && ids.length === 1) {
-      finishFieldDrag();
-      return;
-    }
-
-    const colSpan = getActiveCardColSpan();
-    const rows = ensureCardRows(activeCard);
-    const targetRow = rows.find((row) => (row.fieldIds || []).includes(targetFieldId));
-
-    if (
-      targetRow &&
-      !canInsertFieldsIntoRow(rows, targetRow.id, ids, colSpan)
-    ) {
-      showWarning(
-        `Esta linha já tem o máximo de ${getMaxFieldsPerRow(colSpan)} campos. Escolha outra linha ou crie uma nova.`
-      );
-      return;
-    }
-
-    const nextRows = insertFieldsRelativeToTarget(rows, ids, targetFieldId, edge);
-    updateActiveCardRows(
-      nextRows.map((row, index) => ({
-        ...row,
-        id: row.id || createRowId(activeCard.id, index + 1),
-        order: index + 1,
-      }))
-    );
-    finishFieldDrag();
-  };
 
   const removeLayoutRowById = (rowId) => {
     if (!activePanel || !activeCard || !isEditing) return;
@@ -735,7 +724,7 @@ export default function EmpLayoutConfiguratorDialog({
     updateActiveCardRows(ensureTrailingDraftRow(rows, activeCard.id));
   };
 
-  const moveFieldToLayoutRow = (targetRowId, edge = "after") => {
+  const moveFieldToLayoutRow = (targetRowId) => {
     const ids = resolveDragFieldIds();
     if (!ids.length || !activeCard?.id) return;
 
@@ -748,24 +737,13 @@ export default function EmpLayoutConfiguratorDialog({
       return;
     }
 
-    const nextRows = insertFieldsIntoRowAtEdge(rows, ids, targetRowId, edge);
-    updateActiveCardRows(
-      nextRows.map((row, index) => ({
-        ...row,
-        id: row.id || createRowId(activeCard.id, index + 1),
-        order: index + 1,
-      }))
-    );
+    const nextRows = insertFieldsIntoRowAtEdge(rows, ids, targetRowId, "after");
+    applyCardRows(nextRows);
     finishFieldDrag();
   };
 
-  const reorderLayoutRowById = (targetRowId, edge = "before") => {
-    if (!draggedRowId || draggedRowId === targetRowId || !activePanel || !activeCard || !isEditing) {
-      return;
-    }
-    const rows = ensureCardRows(activeCard);
-    const nextRows = insertRowRelativeToTarget(rows, draggedRowId, targetRowId, edge);
-    updateActiveCardRows(nextRows);
+  const reorderLayoutRowById = (targetRowId) => {
+    previewReorderRowAt(targetRowId);
     finishRowDrag();
   };
 
@@ -839,22 +817,7 @@ export default function EmpLayoutConfiguratorDialog({
     });
   };
   const reorderPanel = (targetPanelId) => {
-    if (
-      !draggedPanelId ||
-      draggedPanelId === targetPanelId ||
-      fixedPanelIds.includes(draggedPanelId) ||
-      fixedPanelIds.includes(targetPanelId)
-    ) {
-      return;
-    }
-    const next = [...draftPanels];
-    const from = next.findIndex((panel) => panel.id === draggedPanelId);
-    const to = next.findIndex((panel) => panel.id === targetPanelId);
-    if (from < 0 || to < 0) return;
-    const [moved] = next.splice(from, 1);
-    next.splice(to, 0, moved);
-    setDraftPanels(next);
-    setDraggedPanelId(null);
+    previewReorderPanelAt(targetPanelId);
   };
   const toggleListValue = (setter, fieldId, checked) =>
     setter((prev) => (checked ? Array.from(new Set([...prev, fieldId])) : prev.filter((id) => id !== fieldId)));
@@ -1054,31 +1017,30 @@ export default function EmpLayoutConfiguratorDialog({
       tabIndex={0}
       aria-disabled={!isEditing}
       draggable={isEditing}
-      onClick={(event) => toggleListSelection(setSelectedAvailableIds, field.id, event)}
+      onClick={(event) => {
+        if (suppressFieldClickRef.current) {
+          suppressFieldClickRef.current = false;
+          return;
+        }
+        selectAvailableField(field.id, event, fieldSelectionSetters);
+      }}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           setSelectedAvailableIds([field.id]);
         }
       }}
-      onDragStart={(event) => {
-        event.dataTransfer.effectAllowed = "move";
+      onDragStart={() => {
         setDraggedFrom("available");
-        if (!selectedAvailableIds.includes(field.id)) {
-          setSelectedAvailableIds([field.id]);
-        }
         setDraggedFieldId(field.id);
-        setDragGhostFromElement(event);
-        event.currentTarget.classList.add("emp-layout-config-field--drag-source");
+        setSelectedAvailableIds((prev) => (prev.includes(field.id) ? prev : [field.id]));
+        setSelectedPanelFieldIds([]);
       }}
-      onDragEnd={(event) => {
-        event.currentTarget.classList.remove("emp-layout-config-field--drag-source");
-        finishFieldDrag();
-      }}
+      onDragEnd={finishFieldDrag}
       onDoubleClick={(event) => {
         if (isEditing) openFieldSettings(field, event);
       }}
-      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing, "sidebar")} emp-layout-config-field-available w-full cursor-pointer`}
+      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing, "sidebar")} emp-layout-config-field-available emp-layout-config-field-transition w-full cursor-pointer${draggedFieldId === field.id ? " emp-layout-config-field--dragging" : ""}`}
     >
       {isCustomField(field) && <EmpCustomMarker />}
       <div className="min-w-0 flex-1">
@@ -1134,74 +1096,56 @@ export default function EmpLayoutConfiguratorDialog({
   };
 
   const renderPanelField = (field, layoutRow) => {
-    const draggingIds = draggedFieldId ? resolveDragFieldIds() : [];
-    const isDragSource = draggingIds.includes(field.id);
-    const showBefore =
-      dropIndicator?.kind === "field" &&
-      dropIndicator.targetFieldId === field.id &&
-      dropIndicator.edge === "before";
-    const showAfter =
-      dropIndicator?.kind === "field" &&
-      dropIndicator.targetFieldId === field.id &&
-      dropIndicator.edge === "after";
+    const isDragging = draggedFieldId === field.id;
 
     return (
-      <LayoutConfigFieldShell
+      <div
         key={field.id}
-        layout={enableLayoutMotion}
-        className="emp-layout-config-field-slot relative min-w-0"
+        className="emp-layout-config-field-slot relative min-w-0 emp-layout-config-field-transition"
         style={getPanelFieldBalanceStyle(field.id, layoutRow)}
       >
-        <LayoutConfigDropLine show={showBefore} orientation="vertical" edge="before" />
         <div
           role="button"
           tabIndex={0}
           aria-disabled={!isEditing}
           draggable={isEditing && !fixedVisibleFieldIds.includes(field.id)}
-          onClick={(event) => toggleListSelection(setSelectedPanelFieldIds, field.id, event)}
+          onClick={(event) => {
+            if (suppressFieldClickRef.current) {
+              suppressFieldClickRef.current = false;
+              return;
+            }
+            selectPanelField(field.id, event, fieldSelectionSetters);
+          }}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
               setSelectedPanelFieldIds([field.id]);
+              setSelectedAvailableIds([]);
             }
           }}
-          onDragStart={(event) => {
-            event.stopPropagation();
-            event.dataTransfer.effectAllowed = "move";
+          onDragStart={() => {
+            if (fixedVisibleFieldIds.includes(field.id)) return;
             setDraggedFrom("panel");
-            if (!selectedPanelFieldIds.includes(field.id)) {
-              setSelectedPanelFieldIds([field.id]);
-            }
             setDraggedFieldId(field.id);
-            setDragGhostFromElement(event);
-            event.currentTarget.classList.add("emp-layout-config-field--drag-source");
+            setSelectedPanelFieldIds((prev) => (prev.includes(field.id) ? prev : [field.id]));
+            setSelectedAvailableIds([]);
           }}
           onDragOver={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            if (!isEditing || !draggedFieldId || draggedRowId) return;
-            const edge = resolvePointerEdge(event, event.currentTarget, "x");
-            setFieldDropIndicator(field.id, edge);
-            event.dataTransfer.dropEffect = "move";
+            if (!isEditing || !draggedFieldId || draggedRowId || draggedFrom !== "panel") return;
+            previewReorderFieldAt(field.id, resolveDragInsertEdge(event));
           }}
           onDrop={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            if (draggedRowId) return;
-            const edge =
-              dropIndicator?.kind === "field" && dropIndicator.targetFieldId === field.id
-                ? dropIndicator.edge
-                : resolvePointerEdge(event, event.currentTarget, "x");
-            reorderField(field.id, edge);
-          }}
-          onDragEnd={(event) => {
-            event.currentTarget.classList.remove("emp-layout-config-field--drag-source");
             finishFieldDrag();
           }}
+          onDragEnd={finishFieldDrag}
           className={cn(
             fieldItemClass(field, selectedPanelFieldIds.includes(field.id), !isEditing),
             "emp-layout-config-field-panel emp-layout-config-field-panel-balanced min-w-0 w-full flex-1 cursor-pointer",
-            isDragSource ? "emp-layout-config-field--drag-source" : ""
+            isDragging ? "emp-layout-config-field--dragging" : ""
           )}
         >
           {isCustomField(field) && <EmpCustomMarker variant="white" />}
@@ -1209,14 +1153,13 @@ export default function EmpLayoutConfiguratorDialog({
           {renderFieldStatusIcons(field)}
           {renderFieldActions({ field, variant: "panel" })}
         </div>
-        <LayoutConfigDropLine show={showAfter} orientation="vertical" edge="after" />
-      </LayoutConfigFieldShell>
+      </div>
     );
   };
 
   const content = (
-    <LayoutConfigMotionGroup
-      className={`cadastro-emp-scope mg-empresas-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}${isDragActive ? " emp-layout-config-is-dragging" : ""}`}
+    <div
+      className={`cadastro-emp-scope mg-empresas-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}${isDragging ? " emp-layout-config-is-dragging" : ""}`}
       data-active-card-span={String(activeCardSpan)}
     >
       {!inline && (
@@ -1277,18 +1220,14 @@ export default function EmpLayoutConfiguratorDialog({
                 dropFieldsToAvailable();
               }}
             >
-              <LayoutConfigSidebarList className="flex flex-1 flex-col gap-1">
+              <div className="flex flex-1 flex-col gap-1">
                 {sidebarMode === "available" ? (
                   availableFields.length === 0 ? (
                     <div className="py-4 text-center text-xs" style={{ color: "var(--text-3)" }}>
                       Solte aqui para remover do painel.
                     </div>
                   ) : (
-                    availableFields.map((field) => (
-                      <LayoutConfigFieldShell key={field.id} layout={enableLayoutMotion} className="w-full">
-                        {renderAvailableField(field)}
-                      </LayoutConfigFieldShell>
-                    ))
+                    availableFields.map(renderAvailableField)
                   )
                 ) : filteredUsedFields.length === 0 ? (
                   <div className="py-4 text-center text-xs" style={{ color: "var(--text-3)" }}>
@@ -1297,7 +1236,7 @@ export default function EmpLayoutConfiguratorDialog({
                 ) : (
                   filteredUsedFields.map(renderUsedField)
                 )}
-              </LayoutConfigSidebarList>
+              </div>
             </div>
           </aside>
 
@@ -1371,9 +1310,9 @@ export default function EmpLayoutConfiguratorDialog({
                             setDragOverPanelId(panel.id);
                             return;
                           }
-                          if (draggedPanelId) {
+                          if (draggedPanelId && !draggedFieldId) {
                             event.dataTransfer.dropEffect = "move";
-                            setDragOverPanelId(panel.id);
+                            previewReorderPanelAt(panel.id);
                           }
                         }}
                         onDragLeave={() => {
@@ -1383,10 +1322,6 @@ export default function EmpLayoutConfiguratorDialog({
                           event.preventDefault();
                           event.stopPropagation();
                           setDragOverPanelId(null);
-                          if (draggedPanelId && !draggedFieldId) {
-                            reorderPanel(panel.id);
-                            return;
-                          }
                           if (draggedFieldId && isEditing) {
                             moveFieldsToPanel(resolveDragFieldIds(), panel.id);
                             finishFieldDrag();
@@ -1402,7 +1337,7 @@ export default function EmpLayoutConfiguratorDialog({
                             setEditingPanelId(panel.id);
                           }
                         }}
-                        className={`seg-tab${active ? " active" : ""}${panel.hidden ? " emp-form-tab-hidden-panel" : ""}${dragOverPanelId === panel.id ? " emp-layout-config-tab--drag-over" : ""}`}
+                        className={`seg-tab${active ? " active" : ""}${panel.hidden ? " emp-form-tab-hidden-panel" : ""}${dragOverPanelId === panel.id ? " emp-layout-config-tab--drag-over" : ""}${draggedPanelId === panel.id ? " emp-layout-config-field--dragging" : ""}`}
                       >
                         {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
                         {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
@@ -1534,11 +1469,7 @@ export default function EmpLayoutConfiguratorDialog({
                 <strong>4</strong>. Os campos da mesma linha ficam lado a lado e o espaço é redistribuído
                 automaticamente (como no formulário).
               </p>
-              <LayoutConfigPanelBody
-                panelKey={`${activePanelId}:${activeCardId}`}
-                motionEnabled={enableLayoutMotion}
-                className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2"
-              >
+              <div className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2">
                 {displayRows.length === 0 ? (
                   <div className="p-4 text-xs" style={{ color: "var(--text-3)" }}>
                     Card vazio. Arraste campos ou use os botões de transferência.
@@ -1565,56 +1496,26 @@ export default function EmpLayoutConfiguratorDialog({
                         return !isTrailingDraft;
                       }).length;
                     const canDeleteRow = isEditing && !isDraftRow;
-                    const showRowLineBefore =
-                      dropIndicator?.kind === "row" &&
-                      dropIndicator.rowId === layoutRow.id &&
-                      dropIndicator.edge === "before";
-                    const showRowLineAfter =
-                      dropIndicator?.kind === "row" &&
-                      dropIndicator.rowId === layoutRow.id &&
-                      dropIndicator.edge === "after";
-                    const showRowFieldLineBefore =
-                      dropIndicator?.kind === "row-field" &&
-                      dropIndicator.rowId === layoutRow.id &&
-                      dropIndicator.edge === "before";
-                    const showRowFieldLineAfter =
-                      dropIndicator?.kind === "row-field" &&
-                      dropIndicator.rowId === layoutRow.id &&
-                      dropIndicator.edge === "after";
                     return (
-                      <LayoutConfigRowShell
+                      <div
                         key={layoutRow.id}
-                        layout={enableLayoutMotion}
                         className={cn(
-                          "emp-layout-config-row emp-layout-config-card-shell relative",
+                          "emp-layout-config-row emp-layout-config-card-shell relative emp-layout-config-field-transition",
                           rowFull ? "emp-layout-config-row--full" : "",
                           isDraftRow ? "emp-layout-config-row--draft" : "",
-                          draggedRowId === layoutRow.id ? "emp-layout-config-row--drag-source" : ""
+                          draggedRowId === layoutRow.id ? "emp-layout-config-field--dragging" : ""
                         )}
                         onDragOver={(event) => {
                           if (!isEditing || !draggedRowId || draggedRowId === layoutRow.id) return;
                           event.preventDefault();
-                          const edge = resolvePointerEdge(event, event.currentTarget, "y");
-                          setRowDropIndicator(layoutRow.id, edge);
+                          previewReorderRowAt(layoutRow.id);
                           event.dataTransfer.dropEffect = "move";
                         }}
                         onDrop={(event) => {
-                          if (!draggedRowId || draggedRowId === layoutRow.id) return;
                           event.preventDefault();
-                          const edge =
-                            dropIndicator?.kind === "row" && dropIndicator.rowId === layoutRow.id
-                              ? dropIndicator.edge
-                              : resolvePointerEdge(event, event.currentTarget, "y");
-                          reorderLayoutRowById(layoutRow.id, edge);
+                          finishRowDrag();
                         }}
                       >
-                        <LayoutConfigDropLine show={showRowLineBefore} orientation="horizontal" edge="before" />
-                        <LayoutConfigDropLine
-                          show={showRowFieldLineBefore}
-                          orientation="horizontal"
-                          edge="before"
-                          className="emp-layout-config-drop-line--in-row"
-                        />
                         {!isDraftRow ? (
                           <div
                             className={cn(
@@ -1622,11 +1523,8 @@ export default function EmpLayoutConfiguratorDialog({
                               isEditing ? "emp-layout-config-row-header emp-layout-config-row-header--draggable" : ""
                             )}
                             draggable={isEditing}
-                            onDragStart={(event) => {
-                              event.stopPropagation();
+                            onDragStart={() => {
                               setDraggedRowId(layoutRow.id);
-                              event.dataTransfer.effectAllowed = "move";
-                              setDragGhostFromElement(event, "emp-layout-config-drag-ghost emp-layout-config-drag-ghost--row");
                             }}
                             onDragEnd={finishRowDrag}
                           >
@@ -1651,24 +1549,20 @@ export default function EmpLayoutConfiguratorDialog({
                         ) : null}
                         <div
                           className={cn(
-                            "emp-layout-config-panel-fields relative flex min-h-[48px] w-full min-w-0 flex-nowrap items-stretch gap-2",
+                            "emp-layout-config-panel-fields flex min-h-[48px] w-full min-w-0 flex-nowrap items-stretch gap-2",
                             dragOverRowId === layoutRow.id && draggedFieldId && !draggedRowId
                               ? "emp-layout-config-row-drop--active"
                               : ""
                           )}
                           data-row-max={rowMax}
                           onDragOver={(event) => {
-                            if (!isEditing) return;
+                            if (!isEditing || draggedRowId) return;
                             event.preventDefault();
-                            if (draggedRowId) return;
                             const fieldId = draggedFieldId || selectedAvailableIds[0];
                             const canDrop =
                               !fieldId || rowHasRoomForField(layoutRow, getActiveCardColSpan(), fieldId);
                             event.dataTransfer.dropEffect = canDrop ? "move" : "none";
-                            if (!canDrop) return;
-                            const edge = resolvePointerEdge(event, event.currentTarget, "y");
-                            setRowFieldDropIndicator(layoutRow.id, edge);
-                            setDragOverRowId(layoutRow.id);
+                            if (canDrop) setDragOverRowId(layoutRow.id);
                           }}
                           onDragLeave={() => {
                             if (dragOverRowId === layoutRow.id) setDragOverRowId(null);
@@ -1678,11 +1572,7 @@ export default function EmpLayoutConfiguratorDialog({
                             setDragOverRowId(null);
                             if (draggedRowId) return;
                             if (draggedFieldId || selectedAvailableIds.length) {
-                              const edge =
-                                dropIndicator?.kind === "row-field" && dropIndicator.rowId === layoutRow.id
-                                  ? dropIndicator.edge
-                                  : resolvePointerEdge(event, event.currentTarget, "y");
-                              moveFieldToLayoutRow(layoutRow.id, edge);
+                              moveFieldToLayoutRow(layoutRow.id);
                             }
                           }}
                         >
@@ -1726,18 +1616,11 @@ export default function EmpLayoutConfiguratorDialog({
                                 ))
                             : null}
                         </div>
-                        <LayoutConfigDropLine
-                          show={showRowFieldLineAfter}
-                          orientation="horizontal"
-                          edge="after"
-                          className="emp-layout-config-drop-line--in-row"
-                        />
-                        <LayoutConfigDropLine show={showRowLineAfter} orientation="horizontal" edge="after" />
-                      </LayoutConfigRowShell>
+                      </div>
                     );
                   })
                 )}
-              </LayoutConfigPanelBody>
+              </div>
               {isEditing && selectedPanelFieldIds.length === 1 && (
                 <div className="emp-layout-config-footer mt-3 flex flex-wrap items-center gap-2 pt-2">
                   <span className="emp-layout-config-footer-label text-[11px] font-semibold">Tipo de largura:</span>
@@ -1813,7 +1696,7 @@ export default function EmpLayoutConfiguratorDialog({
         onVisibilityRuleChange={setVisibilityRule}
       />
 
-    </LayoutConfigMotionGroup>
+    </div>
   );
 
   if (inline) return open ? content : null;
