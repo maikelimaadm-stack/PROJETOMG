@@ -76,7 +76,7 @@ export default function MgActionBar({
       className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
       style={{
         borderColor: "var(--mg-divider, var(--border))",
-        borderBottomWidth: "var(--mg-divider-width, 2.5px)",
+        borderBottomWidth: "var(--mg-divider-width, 2px)",
         background: "var(--bg-card)",
       }}
     >
