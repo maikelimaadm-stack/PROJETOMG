@@ -50,6 +50,7 @@ import {
 import {
   ensureCardRows as ensureCardRowsHelper,
   placeFieldsOnCard,
+  previewSwapFieldWithTarget,
   stripFieldsFromAllCards,
   updateCardRowsOnly,
   previewMoveFieldsAtTarget,
@@ -442,6 +443,10 @@ export default function EmpLayoutConfiguratorDialog({
   };
 
   const showRequiredPopup = (message) => showWarning(message);
+  const clearSelections = () => {
+    setSelectedAvailableIds([]);
+    setSelectedPanelFieldIds([]);
+  };
 
   const finishFieldDrag = () => {
     suppressFieldClickRef.current = true;
@@ -512,7 +517,23 @@ export default function EmpLayoutConfiguratorDialog({
       if (targetRowId && !canInsertFieldsIntoRow(rows, targetRowId, ids, colSpan)) return;
       if (targetFieldId) {
         const targetRow = rows.find((row) => (row.fieldIds || []).includes(targetFieldId));
-        if (targetRow && !canInsertFieldsIntoRow(rows, targetRow.id, ids, colSpan)) return;
+        const canInsert = targetRow ? canInsertFieldsIntoRow(rows, targetRow.id, ids, colSpan) : true;
+        if (!canInsert) {
+          const canSwapSingle =
+            ids.length === 1 && draggedFrom === "panel" && usedFieldIds.has(ids[0]);
+          if (!canSwapSingle) return;
+          const swappedCardsByPanel = previewSwapFieldWithTarget({
+            cardsByPanel: draftCardsByPanel,
+            draggedFieldId: ids[0],
+            targetFieldId,
+            targetPanelId,
+            targetCardId: cardId,
+          });
+          if (!swappedCardsByPanel) return;
+          applyCardsState(swappedCardsByPanel);
+          lastFieldPreviewKeyRef.current = previewKey;
+          return;
+        }
       }
     }
 
@@ -611,6 +632,9 @@ export default function EmpLayoutConfiguratorDialog({
 
     const colSpan = resolveCardColSpan(targetCard.colSpan);
     const canInsert = canInsertFieldsIntoRow(rows, row.id, ids, colSpan);
+    const canSwapSingle =
+      !!targetFieldId && ids.length === 1 && draggedFrom === "panel" && usedFieldIds.has(ids[0]);
+    if (!canInsert && canSwapSingle) return true;
     if (!canInsert && showWarningOnFail) {
       showRequiredPopup(
         `Não foi possível mover os campos selecionados. Esta linha aceita no máximo ${getMaxFieldsPerRow(colSpan)} campos. Nenhum campo foi movido.`
@@ -982,6 +1006,10 @@ export default function EmpLayoutConfiguratorDialog({
   }, [isEditing]);
 
   React.useEffect(() => {
+    if (!isEditing) clearSelections();
+  }, [isEditing]);
+
+  React.useEffect(() => {
     layoutToolbarHandlersRef.current = {
       onOpenChange,
       handleSave,
@@ -1087,6 +1115,7 @@ export default function EmpLayoutConfiguratorDialog({
       aria-disabled={!isEditing}
       draggable={isEditing}
       onClick={(event) => {
+        if (!isEditing) return;
         if (suppressFieldClickRef.current) {
           suppressFieldClickRef.current = false;
           return;
@@ -1094,6 +1123,7 @@ export default function EmpLayoutConfiguratorDialog({
         selectAvailableField(field.id, event, fieldSelectionSetters);
       }}
       onKeyDown={(event) => {
+        if (!isEditing) return;
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
           setSelectedAvailableIds([field.id]);
@@ -1155,6 +1185,7 @@ export default function EmpLayoutConfiguratorDialog({
           aria-disabled={!isEditing}
           draggable={isEditing && !fixedVisibleFieldIds.includes(field.id)}
           onClick={(event) => {
+            if (!isEditing) return;
             if (suppressFieldClickRef.current) {
               suppressFieldClickRef.current = false;
               return;
@@ -1162,6 +1193,7 @@ export default function EmpLayoutConfiguratorDialog({
             selectPanelField(field.id, event, fieldSelectionSetters);
           }}
           onKeyDown={(event) => {
+            if (!isEditing) return;
             if (event.key === "Enter" || event.key === " ") {
               event.preventDefault();
               setSelectedPanelFieldIds([field.id]);
@@ -1219,6 +1251,11 @@ export default function EmpLayoutConfiguratorDialog({
     <div
       className={`cadastro-emp-scope mg-empresas-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}${isDragging ? " emp-layout-config-is-dragging" : ""}`}
       data-active-card-span={String(activeCardSpan)}
+      onMouseDownCapture={(event) => {
+        if (event.target.closest?.(".emp-layout-config-field")) return;
+        if (event.target.closest?.("[data-radix-popper-content-wrapper]")) return;
+        clearSelections();
+      }}
     >
       {!inline && (
         <DialogHeader className="sr-only">

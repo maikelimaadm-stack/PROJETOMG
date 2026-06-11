@@ -123,6 +123,79 @@ export const updatePanelCardsOnly = ({ cardsByPanel, panelId, cards }) => ({
   [panelId]: { cards },
 });
 
+/** Troca 1 campo arrastado por 1 campo alvo (mantém limites por linha). */
+export const previewSwapFieldWithTarget = ({
+  cardsByPanel,
+  draggedFieldId,
+  targetFieldId,
+  targetPanelId = null,
+  targetCardId = null,
+}) => {
+  if (!draggedFieldId || !targetFieldId || draggedFieldId === targetFieldId) return null;
+
+  let source = null;
+  let target = null;
+
+  Object.entries(cardsByPanel || {}).forEach(([panelId, panel]) => {
+    (panel?.cards || []).forEach((card) => {
+      const rows = ensureCardRows(card);
+      rows.forEach((row) => {
+        const fieldIds = row.fieldIds || [];
+        const draggedIndex = fieldIds.indexOf(draggedFieldId);
+        if (draggedIndex >= 0) {
+          source = { panelId, cardId: card.id, rowId: row.id, index: draggedIndex };
+        }
+        const targetIndex = fieldIds.indexOf(targetFieldId);
+        if (targetIndex >= 0) {
+          target = { panelId, cardId: card.id, rowId: row.id, index: targetIndex };
+        }
+      });
+    });
+  });
+
+  if (!source || !target) return null;
+  if (targetPanelId && target.panelId !== targetPanelId) return null;
+  if (targetCardId && target.cardId !== targetCardId) return null;
+
+  const next = { ...cardsByPanel };
+  const touched = new Set([`${source.panelId}:${source.cardId}`, `${target.panelId}:${target.cardId}`]);
+
+  Object.entries(next).forEach(([panelId, panel]) => {
+    next[panelId] = {
+      cards: (panel?.cards || []).map((card) => {
+        const key = `${panelId}:${card.id}`;
+        if (!touched.has(key)) return card;
+        return {
+          ...card,
+          rows: ensureCardRows(card).map((row) => ({
+            ...row,
+            fieldIds: [...(row.fieldIds || [])],
+          })),
+        };
+      }),
+    };
+  });
+
+  const getCard = (panelId, cardId) => (next[panelId]?.cards || []).find((card) => card.id === cardId);
+
+  const sourceCard = getCard(source.panelId, source.cardId);
+  const targetCard = getCard(target.panelId, target.cardId);
+  if (!sourceCard || !targetCard) return null;
+
+  const sourceRow = (sourceCard.rows || []).find((row) => row.id === source.rowId);
+  const targetRow = (targetCard.rows || []).find((row) => row.id === target.rowId);
+  if (!sourceRow || !targetRow) return null;
+
+  sourceRow.fieldIds[source.index] = targetFieldId;
+  targetRow.fieldIds[target.index] = draggedFieldId;
+
+  [sourceCard, targetCard].forEach((card) => {
+    card.fieldIds = flattenRowsToFieldIds({ rows: card.rows || [] });
+  });
+
+  return next;
+};
+
 /**
  * Preview ao vivo: move campos para painel/card/linha/campo alvo.
  * Retorna null se não houve mudança.
