@@ -1817,7 +1817,7 @@
 
 .mg-empresas-scope .mg-context-panel__swap-slot {
   position: relative;
-  min-height: 14px;
+  min-height: 16px;
   overflow: hidden;
 }
 
@@ -1829,12 +1829,12 @@
 
 .mg-empresas-scope .mg-context-panel__meta-text {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
   color: var(--text-1);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 14px;
+  line-height: 16px;
 }
 
 .mg-empresas-scope .mg-context-panel__code {
