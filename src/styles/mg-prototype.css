@@ -37,7 +37,7 @@
   --green: #40de63;
   --green-light: rgba(64, 222, 99, 0.12);
   --mg-brand-green: #40de63;
-  --mg-brand-green-hover: var(--mg-brand-green-hover);
+  --mg-brand-green-hover: #36c956;
   --yellow: #d97706;
   --red: #dc2626;
   --red-light: rgba(220, 38, 38, 0.08);
@@ -53,7 +53,7 @@
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
-  --mg-field-height: 38px;
+  --mg-field-height: 34px;
   --mg-panel-tab-font: 13px;
   --mg-field-label-font: 13px;
   --mg-card-row-gap: 10px;
@@ -72,6 +72,7 @@
   --mg-selection-bg: rgba(64, 222, 99, 0.12);
   --mg-selection-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.35);
   --emp-accent-primary: #40de63;
+  --emp-accent-primary-hover: #36c956;
   --erp-color-primary: #40de63;
 
   font-family: "DM Sans", -apple-system, sans-serif;
@@ -1051,14 +1052,16 @@
 .mg-empresas-scope .cmd-chevron {
   position: absolute;
   right: 10px;
-  bottom: 10px;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
   transition: transform 0.2s;
   pointer-events: none;
   color: var(--text-3);
 }
 
 .mg-empresas-scope .cmd-select.open .cmd-chevron {
-  transform: rotate(180deg);
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .mg-empresas-scope .cmd-panel {
@@ -2263,7 +2266,9 @@
 .mg-empresas-scope .mg-dp-icon {
   position: absolute;
   right: 10px;
-  bottom: 9px;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
   pointer-events: none;
   color: var(--text-3);
 }
@@ -2571,7 +2576,9 @@
 .mg-empresas-scope .mg-tp-icon {
   position: absolute;
   right: 10px;
-  bottom: 9px;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
   pointer-events: none;
   color: var(--text-3);
 }
@@ -2706,13 +2713,15 @@
 .mg-empresas-scope .mg-lookup-icon {
   position: absolute;
   right: 10px;
-  bottom: 10px;
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
   pointer-events: none;
   transition: transform 0.2s;
 }
 
 .mg-empresas-scope .mg-lookup.open .mg-lookup-icon {
-  transform: rotate(180deg);
+  transform: translateY(-50%) rotate(180deg);
 }
 
 .mg-empresas-scope .mg-lookup.open .mg-lookup-display {
@@ -3347,7 +3356,94 @@
 .erp-shell--empresas-mg .mg-empresas-scope,
 .cadastro-emp-scope.mg-empresas-scope {
   --emp-accent-primary: #40de63;
+  --emp-accent-primary-hover: #36c956;
   --erp-color-primary: #40de63;
   --erp-nav-active-bg: #40de63;
   --mg-accent: #40de63;
+}
+
+/* Hover de botões — ícones sempre visíveis (neutraliza conflitos do cadastro-emp-scope) */
+.cadastro-emp-scope.mg-empresas-scope .mg-nav-btn:not(:disabled),
+.cadastro-emp-scope.mg-empresas-scope .mg-context-panel .mg-nav-btn:not(:disabled) {
+  color: var(--accent) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-nav-btn:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-context-panel .mg-nav-btn:not(:disabled) svg {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-nav-btn:not(:disabled):hover,
+.cadastro-emp-scope.mg-empresas-scope .mg-context-panel .mg-nav-btn:not(:disabled):hover {
+  background: var(--gray-fill2) !important;
+  color: var(--mg-brand-green-hover) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-nav-btn:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-context-panel .mg-nav-btn:not(:disabled):hover svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-filter:not(:disabled),
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-more:not(:disabled),
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-ghost.tb-btn-icon:not(:disabled),
+.cadastro-emp-scope.mg-empresas-scope .mg-accent-icon-btn:not(:disabled) {
+  background: var(--gray-fill) !important;
+  color: var(--accent) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-filter:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-more:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-ghost.tb-btn-icon:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-accent-icon-btn:not(:disabled) svg {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-filter:not(:disabled):hover,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-more:not(:disabled):hover,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-ghost.tb-btn-icon:not(:disabled):hover,
+.cadastro-emp-scope.mg-empresas-scope .mg-accent-icon-btn:not(:disabled):hover {
+  background: var(--gray-fill2) !important;
+  color: var(--mg-brand-green-hover) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-filter:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-more:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-ghost.tb-btn-icon:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-accent-icon-btn:not(:disabled):hover svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled),
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled) {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled):hover,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled):hover {
+  background: var(--mg-brand-green-hover) !important;
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled):hover svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-table-pagination-btn.emp-table-pagination-page-active:hover:not(:disabled) {
+  background: var(--mg-brand-green-hover) !important;
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-table-pagination-btn.emp-table-pagination-page-active:hover:not(:disabled) svg {
+  color: #fff !important;
+  stroke: #fff !important;
 }
