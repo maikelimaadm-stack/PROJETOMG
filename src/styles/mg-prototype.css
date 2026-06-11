@@ -910,14 +910,15 @@
   transform: scale(0.995);
 }
 
-/* Action bar — altura maior, colada ao header principal (breadcrumb) */
+/* Shell empresas — conteúdo colado às bordas (sem padding lateral da ErpShell) */
 .erp-shell--empresas-mg .erp-shell-content-wrap {
   gap: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .erp-shell--empresas-mg .erp-shell-content-area {
   margin-top: 0 !important;
-  padding-top: 0 !important;
+  padding: 0 !important;
 }
 
 .mg-empresas-scope .mg-action-bar {
