@@ -3084,33 +3084,42 @@
   background: #fef2f2 !important;
 }
 
-/* —— Formulário: visualização (todos apagados) vs edição/novo (preenchido branco) —— */
-.mg-empresas-scope .mg-prototype-form--readonly input,
-.mg-empresas-scope .mg-prototype-form--readonly textarea,
-.mg-empresas-scope .mg-prototype-form--readonly .cmd-display,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-dp-field,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-tp-field,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup-display,
-.mg-empresas-scope .mg-prototype-form--readonly .erp-field-select,
-.mg-empresas-scope .mg-prototype-form--readonly .erp-field-lookup,
+/* —— Formulário: visualização (campos apagados, labels normais) —— */
+.mg-empresas-scope .mg-prototype-form--readonly .fg-label,
+.mg-empresas-scope .mg-prototype-form--readonly .cmd-label,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-dp-label,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-tp-label,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup-label,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-label-top {
+  opacity: 1 !important;
+  color: var(--text-2) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > input,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > textarea,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .cmd-display,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .cmd-display,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-composite .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-autocomplete,
 .mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .emp-form-field-control {
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-image-field,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-image-thumb,
+.mg-empresas-scope .mg-prototype-form--readonly .border.border-slate-300 {
   background: var(--mg-field-idle-bg) !important;
   border-color: var(--mg-field-idle-border) !important;
   box-shadow: none !important;
   color: var(--text-2) !important;
-}
-
-.mg-empresas-scope .mg-prototype-form--readonly .cmd-select,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-lookup,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-dp,
-.mg-empresas-scope .mg-prototype-form--readonly .mg-tp {
   opacity: 0.55;
 }
 
-.mg-empresas-scope .mg-prototype-form--readonly input:focus,
-.mg-empresas-scope .mg-prototype-form--readonly textarea:focus,
-.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control:focus-within,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > input:focus,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field > textarea:focus,
+.mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field .emp-form-field-control:focus-within,
 .mg-empresas-scope .mg-prototype-form--readonly .cmd-select.open .cmd-display,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-dp.open .mg-dp-field,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-tp.open .mg-tp-field,
@@ -3119,20 +3128,41 @@
   border-color: var(--mg-field-idle-border) !important;
   box-shadow: none !important;
   color: var(--text-2) !important;
+  opacity: 0.55;
 }
 
-.mg-empresas-scope .mg-prototype-form--edit input:not([disabled]):not(:placeholder-shown),
-.mg-empresas-scope .mg-prototype-form--edit textarea:not([disabled]):not(:placeholder-shown),
-.mg-empresas-scope .mg-prototype-form--edit .cmd-select:not(.disabled).mg-has-value .cmd-display,
-.mg-empresas-scope .mg-prototype-form--edit .mg-lookup:not(.disabled).mg-has-value .mg-lookup-display,
-.mg-empresas-scope .mg-prototype-form--edit .mg-dp:not(.is-disabled).mg-has-value .mg-dp-field,
-.mg-empresas-scope .mg-prototype-form--edit .mg-tp:not(.is-disabled).mg-has-value .mg-tp-field,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-autocomplete.mg-has-value.erp-field-select,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-autocomplete.mg-has-value.erp-field-lookup {
+/* —— Formulário: edição/novo — vazio cinza, preenchido branco —— */
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value > input:not([disabled]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value > textarea:not([disabled]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value .emp-form-field-control,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value .cmd-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-has-value .cmd-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-has-value .mg-lookup-display,
+.mg-empresas-scope .mg-prototype-form--edit .mg-has-value .mg-dp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-has-value .mg-tp-field,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value .emp-form-image-thumb,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value .border.border-slate-300 {
   background: var(--mg-focus-bg) !important;
   border-color: var(--border) !important;
   box-shadow: none !important;
   color: var(--text-1) !important;
+  opacity: 1;
+}
+
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > input:not([disabled]):placeholder-shown,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > textarea:not([disabled]):placeholder-shown,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .cmd-display:empty,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .mg-lookup-display:empty,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .mg-dp-field:placeholder-shown,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .mg-tp-field:placeholder-shown {
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
+  box-shadow: none !important;
+  color: var(--text-1) !important;
+  opacity: 1;
 }
 
 .mg-empresas-scope .mg-prototype-form--edit input[disabled],
@@ -3153,8 +3183,8 @@
 .mg-empresas-scope .mg-prototype-form--edit .mg-dp.open:not(.is-disabled) .mg-dp-field,
 .mg-empresas-scope .mg-prototype-form--edit .mg-tp.open:not(.is-disabled) .mg-tp-field,
 .mg-empresas-scope .mg-prototype-form--edit .mg-lookup.open:not(.disabled) .mg-lookup-display,
-.mg-empresas-scope .mg-prototype-form--edit input:not([disabled]):focus,
-.mg-empresas-scope .mg-prototype-form--edit textarea:not([disabled]):focus,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field > input:not([disabled]):focus,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field > textarea:not([disabled]):focus,
 .mg-empresas-scope .mg-prototype-form--edit .mg-dp-field:focus,
 .mg-empresas-scope .mg-prototype-form--edit .mg-tp-field:focus {
   border-color: var(--mg-focus-border) !important;

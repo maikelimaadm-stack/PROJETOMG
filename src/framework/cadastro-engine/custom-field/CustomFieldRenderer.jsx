@@ -29,6 +29,52 @@ const isMgCompositeTipo = (campo, tipoCanon) =>
   isMgTimeTipo(campo, tipoCanon) ||
   isMgSelectTipo(campo, tipoCanon);
 
+function MgPrototypeInput({
+  type = "text",
+  value,
+  onChange,
+  readOnly = false,
+  placeholder = " ",
+  className = "",
+  ...props
+}) {
+  return (
+    <input
+      type={type}
+      value={value ?? ""}
+      onChange={onChange}
+      readOnly={readOnly}
+      disabled={readOnly}
+      placeholder={placeholder}
+      className={className}
+      {...props}
+    />
+  );
+}
+
+function MgPrototypeTextarea({
+  value,
+  onChange,
+  readOnly = false,
+  rows = 2,
+  placeholder = " ",
+  className = "",
+  ...props
+}) {
+  return (
+    <textarea
+      value={value ?? ""}
+      onChange={onChange}
+      readOnly={readOnly}
+      disabled={readOnly}
+      placeholder={placeholder}
+      rows={rows}
+      className={className}
+      {...props}
+    />
+  );
+}
+
 const splitDateTimeValue = (value) => {
   if (!value) return { date: "", time: "" };
   const [date, time = ""] = String(value).split("T");
@@ -115,6 +161,17 @@ export function useCustomFieldRenderer({
     }
 
     if (campo.tipo === "textarea" || tipoCanon === "observacao") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeTextarea
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+            readOnly={fieldReadOnly}
+            rows={campo.rows || 2}
+          />
+        );
+      }
+
       return (
         <Textarea
           value={value}
@@ -130,14 +187,28 @@ export function useCustomFieldRenderer({
     if (campo.tipo === "calculado" || tipoCanon === "formula") {
       const calculatedValue = FieldEngine.calcularCampo(formData, campo);
       const places = Math.min(6, Math.max(0, Number(campo.decimal_places ?? 2)));
+      const formatted = Number(calculatedValue || 0).toLocaleString(
+        "pt-BR",
+        campo.usar_decimal
+          ? { minimumFractionDigits: places, maximumFractionDigits: places }
+          : { maximumFractionDigits: 2 }
+      );
+
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="text"
+            value={formatted}
+            readOnly
+            disabled
+            placeholder=" "
+          />
+        );
+      }
+
       return (
         <Input
-          value={Number(calculatedValue || 0).toLocaleString(
-            "pt-BR",
-            campo.usar_decimal
-              ? { minimumFractionDigits: places, maximumFractionDigits: places }
-              : { maximumFractionDigits: 2 }
-          )}
+          value={formatted}
           readOnly
           placeholder="CALCULADO"
           className={`${inputClassName} ${readOnlyClass}`}
@@ -298,6 +369,19 @@ export function useCustomFieldRenderer({
     }
 
     if ((campo.tipo === "number" && tipoCanon === "inteiro") || tipoCanon === "inteiro") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="number"
+            step="1"
+            inputMode="numeric"
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value.replace(/\D/g, ""))}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="number"
@@ -316,6 +400,18 @@ export function useCustomFieldRenderer({
       (campo.tipo === "number" && campo.usar_mascara) ||
       ["decimal", "moeda", "percentual"].includes(tipoCanon)
     ) {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="text"
+            inputMode="numeric"
+            value={formatMaskedNumber(value, campo)}
+            onChange={(e) => setFieldValue(campo.field_name, formatMaskedNumber(e.target.value, campo))}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="text"
@@ -330,6 +426,17 @@ export function useCustomFieldRenderer({
     }
 
     if (tipoCanon === "email") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="email"
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="email"
@@ -343,6 +450,17 @@ export function useCustomFieldRenderer({
     }
 
     if (tipoCanon === "url") {
+      if (mgPrototype) {
+        return (
+          <MgPrototypeInput
+            type="url"
+            value={value}
+            onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+            readOnly={fieldReadOnly}
+          />
+        );
+      }
+
       return (
         <Input
           type="url"
@@ -410,14 +528,23 @@ export function useCustomFieldRenderer({
     }
 
     return (
-      <Input
-        type={campo.tipo === "number" ? "number" : "text"}
-        value={value}
-        onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
-        placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
-        readOnly={fieldReadOnly}
-        className={`${inputClassName} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`}
-      />
+      mgPrototype ? (
+        <MgPrototypeInput
+          type={campo.tipo === "number" ? "number" : "text"}
+          value={value}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+          readOnly={fieldReadOnly}
+        />
+      ) : (
+        <Input
+          type={campo.tipo === "number" ? "number" : "text"}
+          value={value}
+          onChange={(e) => setFieldValue(campo.field_name, e.target.value)}
+          placeholder={(campo.placeholder || campo.label || "").toUpperCase()}
+          readOnly={fieldReadOnly}
+          className={`${inputClassName} ${campo.uppercase ? "uppercase" : ""} ${readOnlyClass}`}
+        />
+      )
     );
   };
 

@@ -95,6 +95,7 @@ export default function MgTimePicker({
         value={display}
         readOnly
         disabled={disabled || readOnly}
+        placeholder=" "
         onClick={toggle}
       />
       <div className="mg-tp-icon"><Clock className="h-3.5 w-3.5" /></div>

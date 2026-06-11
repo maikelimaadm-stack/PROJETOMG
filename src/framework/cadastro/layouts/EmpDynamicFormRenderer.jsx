@@ -57,6 +57,15 @@ const isMgCompositeField = (field) => {
   return false;
 };
 
+function fieldHasDisplayValue(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === "boolean") return value;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "number") return !Number.isNaN(value);
+  if (typeof value === "string") return value.trim() !== "";
+  return Boolean(value);
+}
+
 function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
   return (
     <ToggleSwitch
@@ -331,6 +340,7 @@ function FieldFrameCorp({
   rowBalance = null,
   narrowLayout = false,
   className = "",
+  hasValue = false,
 }) {
   const bare = isBareControlField(field);
   const textareaField = field?.type === "textarea";
@@ -364,7 +374,7 @@ function FieldFrameCorp({
       <div
         data-field={field.dataField || field.name}
         data-width-type={preset.type}
-        className={cn("mg-prototype-composite", className)}
+        className={cn("mg-prototype-composite", hasValue && "mg-has-value", className)}
         style={widthStyle}
       >
         {children}
@@ -377,7 +387,12 @@ function FieldFrameCorp({
       <div
         data-field={field.dataField || field.name}
         data-width-type={preset.type}
-        className={cn("fg mg-prototype-field", bare && "mg-prototype-field--bare", className)}
+        className={cn(
+          "fg mg-prototype-field",
+          bare && "mg-prototype-field--bare",
+          hasValue && "mg-has-value",
+          className
+        )}
         style={widthStyle}
       >
         {!bare ? (
@@ -580,6 +595,7 @@ export default function EmpDynamicFormRenderer({
     const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
     const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
     const control = renderFieldControl(field, configuredField, value, fieldReadOnly);
+    const hasValue = fieldHasDisplayValue(value);
     return (
       <FieldFrameCorp
         key={field.id}
@@ -589,6 +605,7 @@ export default function EmpDynamicFormRenderer({
         rowBalance={rowBalance}
         narrowLayout={narrowLayout}
         className={fieldClassName}
+        hasValue={hasValue}
       >
         {control}
       </FieldFrameCorp>

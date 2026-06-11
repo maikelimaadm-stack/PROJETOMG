@@ -247,6 +247,7 @@ export default function MgDatePicker({
         value={displayValue}
         readOnly
         disabled={disabled || readOnly}
+        placeholder=" "
         onClick={toggle}
       />
       <div className="mg-dp-icon"><Calendar className="h-3.5 w-3.5" /></div>
