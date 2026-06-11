@@ -9,7 +9,11 @@ import {
   updateCardRowsOnly,
 } from "../src/framework/cadastro/layouts/layoutConfiguratorMutations.js";
 import { createEmptyLayoutRow } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
-import { swapFieldsInRows } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
+import {
+  insertFieldsRelativeToTarget,
+  insertRowRelativeToTarget,
+  swapFieldsInRows,
+} from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 
 const panelId = "principais";
 const cardA = {
@@ -87,5 +91,24 @@ const rows = [
 const swapped = swapFieldsInRows(rows, "a", "c");
 assert.deepEqual(swapped[0].fieldIds, ["c", "b"]);
 assert.deepEqual(swapped[1].fieldIds, ["a"]);
+
+// insert before/after target field
+const insertedBefore = insertFieldsRelativeToTarget(rows, ["d"], "b", "before");
+assert.deepEqual(insertedBefore[0].fieldIds, ["a", "d", "b"]);
+
+const insertedAfter = insertFieldsRelativeToTarget(rows, ["d"], "a", "after");
+assert.deepEqual(insertedAfter[0].fieldIds, ["a", "d", "b"]);
+
+// insert row before/after
+const layoutRows = [
+  { id: "r1", order: 1, fieldIds: ["a"] },
+  { id: "r2", order: 2, fieldIds: ["b"] },
+  { id: "r3", order: 3, fieldIds: ["c"] },
+];
+const rowMoved = insertRowRelativeToTarget(layoutRows, "r3", "r1", "before");
+assert.deepEqual(
+  rowMoved.map((row) => row.id),
+  ["r3", "r1", "r2"]
+);
 
 console.log("test-layout-configurator-mutations: OK");

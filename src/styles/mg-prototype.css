@@ -4155,10 +4155,85 @@
 }
 
 /* Configurador de layout — drag-and-drop */
-.mg-empresas-scope .emp-layout-configurator.emp-layout-config-editing .emp-layout-config-field--dragging {
-  opacity: 0.45;
-  transform: scale(0.98);
-  transition: opacity 80ms ease, transform 80ms ease;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-slot {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field--drag-source {
+  opacity: 0.42;
+  outline: 2px dashed var(--mg-brand-green);
+  outline-offset: -2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drag-ghost {
+  opacity: 1 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transform: none !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drag-ghost--row {
+  min-width: 240px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--mg-divider);
+  border-radius: var(--mg-radius-control);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line {
+  pointer-events: none;
+  z-index: 6;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--vertical {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--mg-brand-green);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mg-brand-green) 35%, white);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--vertical.emp-layout-config-drop-line--before {
+  left: -6px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--vertical.emp-layout-config-drop-line--after {
+  right: -6px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--horizontal {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--mg-brand-green);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mg-brand-green) 35%, white);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--horizontal.emp-layout-config-drop-line--row-before {
+  top: -2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--horizontal.emp-layout-config-drop-line--row-after {
+  bottom: -2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--in-row.emp-layout-config-drop-line--row-before {
+  top: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--in-row.emp-layout-config-drop-line--row-after {
+  bottom: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--drag-source {
+  opacity: 0.5;
+  outline: 2px dashed var(--mg-brand-green);
+  outline-offset: 2px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-tab--drag-over {
@@ -4166,17 +4241,8 @@
   outline-offset: -2px;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--dragging {
-  opacity: 0.55;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--drag-over {
-  outline: 2px dashed var(--mg-brand-green);
-  outline-offset: 2px;
-}
-
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-drop--active {
-  background: color-mix(in srgb, var(--mg-brand-green) 8%, transparent);
+  background: color-mix(in srgb, var(--mg-brand-green) 6%, transparent);
   border-radius: var(--mg-radius-control);
 }
 

@@ -372,6 +372,76 @@ export const swapFieldsInRows = (rows = [], fieldA, fieldB) => {
   return next;
 };
 
+export const insertFieldsRelativeToTarget = (
+  rows = [],
+  fieldIds = [],
+  targetFieldId,
+  edge = "before"
+) => {
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !targetFieldId) return rows;
+
+  let next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
+  ids.forEach((fieldId) => {
+    next = removeFieldFromRows(next, fieldId);
+  });
+
+  let targetRowIndex = -1;
+  let targetFieldIndex = -1;
+  next.forEach((row, rowIndex) => {
+    const idx = (row.fieldIds || []).indexOf(targetFieldId);
+    if (idx >= 0) {
+      targetRowIndex = rowIndex;
+      targetFieldIndex = idx;
+    }
+  });
+
+  if (targetRowIndex < 0) return rows;
+
+  const insertAt = edge === "after" ? targetFieldIndex + 1 : targetFieldIndex;
+  const targetIds = next[targetRowIndex].fieldIds || [];
+  next[targetRowIndex] = {
+    ...next[targetRowIndex],
+    fieldIds: [...targetIds.slice(0, insertAt), ...ids, ...targetIds.slice(insertAt)],
+  };
+
+  return next;
+};
+
+export const insertFieldsIntoRowAtEdge = (rows = [], fieldIds = [], rowId, edge = "after") => {
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !rowId) return rows;
+
+  let next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
+  ids.forEach((fieldId) => {
+    next = removeFieldFromRows(next, fieldId);
+  });
+
+  const rowIndex = next.findIndex((row) => row.id === rowId);
+  if (rowIndex < 0) return rows;
+
+  const current = next[rowIndex].fieldIds || [];
+  next[rowIndex] = {
+    ...next[rowIndex],
+    fieldIds: edge === "before" ? [...ids, ...current] : [...current, ...ids],
+  };
+  return next;
+};
+
+export const insertRowRelativeToTarget = (rows = [], draggedRowId, targetRowId, edge = "before") => {
+  if (!draggedRowId || !targetRowId || draggedRowId === targetRowId) return rows;
+  const list = [...rows].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const fromIndex = list.findIndex((row) => row.id === draggedRowId);
+  let toIndex = list.findIndex((row) => row.id === targetRowId);
+  if (fromIndex < 0 || toIndex < 0) return rows;
+
+  const [moved] = list.splice(fromIndex, 1);
+  if (fromIndex < toIndex) toIndex -= 1;
+  const insertAt = edge === "after" ? toIndex + 1 : toIndex;
+  list.splice(insertAt, 0, moved);
+  return list.map((row, orderIndex) => ({ ...row, order: orderIndex + 1 }));
+};
+
 export const reorderFieldWithinRows = (rows = [], draggedFieldId, targetFieldId) => {
   if (!draggedFieldId || draggedFieldId === targetFieldId) return rows;
   let sourceRowIndex = -1;
