@@ -402,6 +402,48 @@
   background: #b91c1c;
 }
 
+/* Ícones brancos nos botões coloridos (sobrescreve regras globais do cadastro-emp-scope) */
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red,
+.mg-empresas-scope .tb-btn-green,
+.mg-empresas-scope .tb-btn-blue,
+.mg-empresas-scope .tb-btn-red,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete {
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red svg,
+.mg-empresas-scope .tb-btn-green svg,
+.mg-empresas-scope .tb-btn-blue svg,
+.mg-empresas-scope .tb-btn-red svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new span,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save span,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete span {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
+.mg-empresas-scope .tb-btn-green:hover:not(:disabled) svg,
+.mg-empresas-scope .tb-btn-blue:hover:not(:disabled) svg,
+.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete:hover:not(:disabled) svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
 .mg-empresas-scope .tb-btn-ghost {
   background: var(--gray-fill);
   color: var(--text-2);
