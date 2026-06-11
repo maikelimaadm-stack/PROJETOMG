@@ -811,12 +811,13 @@
 
 .mg-empresas-scope .tb-btn-ghost.tb-btn-labeled {
   background: var(--gray-fill) !important;
-  color: var(--accent) !important;
+  color: var(--text-1) !important;
+  font-weight: 600;
 }
 
 .mg-empresas-scope .tb-btn-ghost.tb-btn-labeled:hover:not(:disabled) {
   background: var(--gray-fill2) !important;
-  color: #2180d0 !important;
+  color: var(--text-1) !important;
 }
 
 .mg-empresas-scope .tb-btn-ghost.tb-btn-danger.tb-btn-labeled,
@@ -1669,20 +1670,28 @@
   min-height: 0;
 }
 
-/* Barra superior — botões neutros, filtro, mais opções e modo ativo em azul accent */
-.mg-empresas-scope .mg-action-bar .tb-btn-ghost:not(.tb-btn-danger),
+/* Barra superior — ícones neutros em azul; botões com label usam cor do painel */
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-icon,
 .mg-empresas-scope .mg-action-bar .tb-btn-filter,
 .mg-empresas-scope .mg-action-bar .tb-btn-more,
 .mg-empresas-scope .mg-action-bar .view-mode-btn.active {
   color: var(--accent) !important;
 }
 
-.mg-empresas-scope .mg-action-bar .tb-btn-ghost:not(.tb-btn-danger) svg,
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-icon svg,
 .mg-empresas-scope .mg-action-bar .tb-btn-filter svg,
 .mg-empresas-scope .mg-action-bar .tb-btn-more svg,
 .mg-empresas-scope .mg-action-bar .view-mode-btn.active svg {
   color: var(--accent) !important;
   stroke: var(--accent) !important;
+}
+
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-labeled:not(.tb-btn-danger) {
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-labeled:not(.tb-btn-danger):hover:not(:disabled) {
+  color: var(--text-1) !important;
 }
 
 .mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-danger,
@@ -1695,13 +1704,13 @@
   color: #b91c1c !important;
 }
 
-.mg-empresas-scope .mg-action-bar .tb-btn-ghost:hover:not(:disabled):not(.tb-btn-danger),
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-icon:hover:not(:disabled),
 .mg-empresas-scope .mg-action-bar .tb-btn-filter:hover:not(:disabled),
 .mg-empresas-scope .mg-action-bar .tb-btn-more:hover:not(:disabled) {
   color: #2180d0 !important;
 }
 
-.mg-empresas-scope .mg-action-bar .tb-btn-ghost:hover:not(:disabled):not(.tb-btn-danger) svg,
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-icon:hover:not(:disabled) svg,
 .mg-empresas-scope .mg-action-bar .tb-btn-filter:hover:not(:disabled) svg,
 .mg-empresas-scope .mg-action-bar .tb-btn-more:hover:not(:disabled) svg,
 .mg-empresas-scope .mg-action-bar .mg-accent-icon-btn:hover:not(:disabled) svg {
