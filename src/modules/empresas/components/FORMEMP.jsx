@@ -620,7 +620,8 @@ export default function FORMEMP({
         ) : null}
 
         <MgMotionPanel
-          panelKey={`${recordKey}-${resetSeed}`}
+          panelKey={`${activeTab}-${resetSeed}`}
+          instant={!isEditing || isDuplicating}
           className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none"
         >
           {() => (
