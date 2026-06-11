@@ -11,7 +11,6 @@ import {
   Settings,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
-import MgMotionSlot from "@/modules/empresas/layout/MgMotionSlot";
 
 function ActionLabelBtn({ className = "", children, ...props }) {
   return (
@@ -65,8 +64,8 @@ export default function MgActionBar({
       className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
       style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
     >
-      <div className="mg-action-bar__actions flex min-w-0 items-center">
-        <MgMotionSlot show={!!onToggleFilter} className="mg-motion-slot--action">
+      <div className="mg-action-bar__actions flex min-w-0 items-center gap-1.5">
+        {onToggleFilter ? (
           <button
             type="button"
             className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
@@ -77,9 +76,9 @@ export default function MgActionBar({
           >
             <Filter className="h-3.5 w-3.5" />
           </button>
-        </MgMotionSlot>
+        ) : null}
 
-        <MgMotionSlot show={showNew && !!onNew} className="mg-motion-slot--action">
+        {showNew && onNew ? (
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onNew}
@@ -88,9 +87,9 @@ export default function MgActionBar({
           >
             Novo
           </ActionLabelBtn>
-        </MgMotionSlot>
+        ) : null}
 
-        <MgMotionSlot show={showSave && !!onSave} className="mg-motion-slot--action">
+        {showSave && onSave ? (
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onSave}
@@ -99,9 +98,9 @@ export default function MgActionBar({
           >
             Salvar
           </ActionLabelBtn>
-        </MgMotionSlot>
+        ) : null}
 
-        <MgMotionSlot show={showCancel && !!onCancel} className="mg-motion-slot--action">
+        {showCancel && onCancel ? (
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onCancel}
@@ -110,9 +109,9 @@ export default function MgActionBar({
           >
             Cancelar
           </ActionLabelBtn>
-        </MgMotionSlot>
+        ) : null}
 
-        <MgMotionSlot show={showEdit && !!onEdit} className="mg-motion-slot--action">
+        {showEdit && onEdit ? (
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onEdit}
@@ -121,9 +120,9 @@ export default function MgActionBar({
           >
             Editar
           </ActionLabelBtn>
-        </MgMotionSlot>
+        ) : null}
 
-        <MgMotionSlot show={showDelete && !!onDelete} className="mg-motion-slot--action">
+        {showDelete && onDelete ? (
           <ActionLabelBtn
             className="tb-btn-red"
             onClick={onDelete}
@@ -132,9 +131,9 @@ export default function MgActionBar({
           >
             Excluir
           </ActionLabelBtn>
-        </MgMotionSlot>
+        ) : null}
 
-        <MgMotionSlot show={showDuplicate && !!onDuplicate} className="mg-motion-slot--action">
+        {showDuplicate && onDuplicate ? (
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onDuplicate}
@@ -143,25 +142,24 @@ export default function MgActionBar({
           >
             Duplicar
           </ActionLabelBtn>
-        </MgMotionSlot>
+        ) : null}
       </div>
 
       <div className="mg-action-bar__end">
-        {!showSave ? (
-          <>
-            <div className="mg-search-pill" role="search">
-              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
-              <input
-                type="text"
-                placeholder="Pesquisar..."
-                value={searchValue}
-                onChange={(event) => onSearchChange?.(event.target.value)}
-                aria-label="Pesquisar"
-              />
-            </div>
-            <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
-          </>
-        ) : null}
+        <div className={`mg-action-bar__tools${showSave ? "" : " mg-action-bar__tools--visible"}`}>
+          <div className="mg-search-pill" role="search">
+            <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
+            <input
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchValue}
+              onChange={(event) => onSearchChange?.(event.target.value)}
+              aria-label="Pesquisar"
+              tabIndex={showSave ? -1 : 0}
+            />
+          </div>
+          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked || showSave} />
+        </div>
 
         <div className="relative" ref={moreRef}>
           <button
