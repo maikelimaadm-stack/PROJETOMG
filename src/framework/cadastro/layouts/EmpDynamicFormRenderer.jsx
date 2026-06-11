@@ -17,7 +17,7 @@ import { getPanelCardsForRender, groupCardsIntoRows } from "@/framework/cadastro
 import { getCachedCardRows } from "@/framework/cadastro-engine/layout/layoutCache.js";
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { useCardCollapsibleEnabled } from "@/framework/cadastro-engine/render/useCardCollapsibleEnabled.js";
-import { resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
+import { resolveCardColSpan, resolveFieldWidthTypePreset } from "@/framework/cadastro/layouts/empFormFieldWidthPresets";
 import { isInlineMediaField } from "@/framework/cadastro/layouts/empFormFieldLayoutGroups";
 
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
@@ -56,6 +56,20 @@ const isMgCompositeField = (field) => {
   if (isTimeField(field)) return true;
   return false;
 };
+
+function resolveCardSlotLayout(card, mgPrototype) {
+  const colSpan = resolveCardColSpan(card?.colSpan);
+  if (mgPrototype) {
+    return {
+      className: colSpan <= 6 ? "emp-form-card-slot--half" : "emp-form-card-slot--full",
+      style: undefined,
+    };
+  }
+  return {
+    className: undefined,
+    style: { gridColumn: `span ${colSpan} / span ${colSpan}` },
+  };
+}
 
 function fieldHasDisplayValue(value) {
   if (value === null || value === undefined) return false;
@@ -646,11 +660,13 @@ export default function EmpDynamicFormRenderer({
         );
         if (!hasVisibleInCard) return null;
 
+        const cardSlotLayout = resolveCardSlotLayout(card, mgPrototype);
+
         return (
           <div
             key={card.id}
-            className="emp-form-card-slot"
-            style={{ gridColumn: `span ${card.colSpan || 12} / span ${card.colSpan || 12}` }}
+            className={cn("emp-form-card-slot", cardSlotLayout.className)}
+            style={cardSlotLayout.style}
           >
             <FormCardSection
               card={card}
@@ -670,6 +686,10 @@ export default function EmpDynamicFormRenderer({
                     rowFields.length <= 1
                       ? "emp-form-card-row-grid--single"
                       : "emp-form-card-row-grid--pair";
+                  const rowGridStyle =
+                    mgPrototype && rowFields.length > 1
+                      ? { "--mg-row-cols": String(rowFields.length) }
+                      : undefined;
 
                   return (
                     <div key={layoutRow.id} className="emp-form-card-row">
@@ -678,6 +698,7 @@ export default function EmpDynamicFormRenderer({
                           "emp-form-card-row-grid emp-form-card-row-grid--flex",
                           rowDensityClass
                         )}
+                        style={rowGridStyle}
                       >
                         {rowFields.map((field) => renderField(field, layoutRow.fieldBalance))}
                       </div>

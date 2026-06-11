@@ -172,12 +172,12 @@
     width: 100% !important;
   }
 
-  /* Cards empilhados verticalmente */
-  .cadastro-emp-scope .emp-form-cards-row {
+  /* Cards empilhados verticalmente (exceto MG — mantém card meio no tablet/desktop) */
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-cards-row {
     grid-template-columns: minmax(0, 1fr) !important;
   }
 
-  .cadastro-emp-scope .emp-form-card-slot {
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-card-slot {
     grid-column: 1 / -1 !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -522,14 +522,14 @@
     font-size: 11px !important;
   }
 
-  /* Cards sempre inteiros (nunca meio card na tela) */
-  .cadastro-emp-scope .emp-form-section-panel--corp,
-  .cadastro-emp-scope .emp-form-fieldset,
-  .cadastro-emp-scope .emp-form-cards-layout,
-  .cadastro-emp-scope .emp-form-cards-row,
-  .cadastro-emp-scope .emp-form-card-slot,
-  .cadastro-emp-scope .emp-form-card,
-  .cadastro-emp-scope .emp-form-card--virtual {
+  /* Cards sempre inteiros (nunca meio card na tela) — exceto MG em mobile (grid próprio) */
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-section-panel--corp,
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-fieldset,
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-cards-layout,
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-cards-row,
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-card-slot,
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-card,
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-card--virtual {
     width: 100% !important;
     min-width: 0 !important;
     max-width: 100% !important;
@@ -538,14 +538,14 @@
     box-sizing: border-box;
   }
 
-  .cadastro-emp-scope .emp-form-cards-row {
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-cards-row {
     display: flex !important;
     flex-direction: column !important;
     gap: var(--erp-layout-gap, 8px) !important;
     overflow-x: hidden !important;
   }
 
-  .cadastro-emp-scope .emp-form-card-slot {
+  .cadastro-emp-scope:not(.mg-empresas-scope) .emp-form-card-slot {
     flex: 0 0 auto !important;
     grid-column: unset !important;
   }

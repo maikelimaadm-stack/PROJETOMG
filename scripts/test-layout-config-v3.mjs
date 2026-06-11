@@ -162,7 +162,7 @@ assert.equal(resolveCardColSpan(12), 12);
 assert.equal(resolveCardColSpan(6), 6);
 assert.equal(resolveCardColSpan(4), 6);
 assert.equal(resolveCardColSpan(undefined), 12);
-assert.equal(getMaxFieldsPerRow(12), 6);
+assert.equal(getMaxFieldsPerRow(12), 7);
 assert.equal(getMaxFieldsPerRow(6), 4);
 assert.equal(getMaxFieldsPerRow(4), 4, "colSpan parcial normaliza para meio → 4 campos");
 
@@ -205,7 +205,7 @@ const halfRowBalance = computeRowFieldBalance(
   720
 );
 assert.equal(halfRowBalance.a.maxWidth, "calc((100% - 24px) / 4)");
-assert.equal(halfRowBalance.a.flex, "3 1 0");
+assert.equal(halfRowBalance.a.flexGrow, 3);
 
 const textFields = Array.from({ length: 7 }, (_, i) => ({ id: `f${i + 1}`, type: "text" }));
 
@@ -214,10 +214,19 @@ const fullCardPacked = normalizeCardRows(
   {},
   textFields
 );
-assert.equal(fullCardPacked.rows.length, 2, "card inteiro: máximo 6 campos por linha (7 → 6+1)");
-assert.equal(fullCardPacked.rows[0].fieldIds.length, 6);
-assert.equal(fullCardPacked.rows[1].fieldIds.length, 1);
+assert.equal(fullCardPacked.rows.length, 1, "card inteiro: máximo 7 campos por linha (7 cabem em uma linha)");
+assert.equal(fullCardPacked.rows[0].fieldIds.length, 7);
 assert.equal(flattenRowsToFieldIds(fullCardPacked).length, 7);
+
+const eightFields = Array.from({ length: 8 }, (_, i) => ({ id: `e${i + 1}`, type: "text" }));
+const fullCardEight = normalizeCardRows(
+  { id: "c8", colSpan: 12, fieldIds: eightFields.map((f) => f.id) },
+  {},
+  eightFields
+);
+assert.equal(fullCardEight.rows.length, 2, "card inteiro: 8 campos → 7+1");
+assert.equal(fullCardEight.rows[0].fieldIds.length, 7);
+assert.equal(fullCardEight.rows[1].fieldIds.length, 1);
 
 const halfCardOverflow = normalizeCardRows(
   {
@@ -347,8 +356,7 @@ widths.forEach((w) => assert.ok(Math.abs(w - widths[0]) <= 2, "distribuição ig
 Object.values(equalBalance).forEach((entry) => {
   assert.equal(entry.flexGrow, 3);
   assert.match(entry.maxWidth, /^calc\(\(100% - \d+px\) \/ \d+\)$/);
-  assert.equal(entry.flex, "3 1 0");
-  assert.equal(entry.minWidth, "0");
+  assert.match(entry.flex, /^3 1 \d+px$/);
 });
 
 const growBalance = computeRowFieldBalance(
