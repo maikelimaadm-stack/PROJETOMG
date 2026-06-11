@@ -870,8 +870,8 @@
   }
 }
 
-/* Cards */
-.mg-empresas-scope .erp-card {
+/* Cards (grid de pesquisa — sem bordas) */
+.mg-empresas-scope .erp-card:not(.mg-emp-card) {
   border: 1px solid var(--border);
   border-radius: 14px;
   background: var(--bg-card);
@@ -879,35 +879,31 @@
 }
 
 .mg-empresas-scope .mg-emp-card {
+  border: none;
+  border-radius: 14px;
+  background: var(--bg-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
   cursor: pointer;
   outline: none;
   transition:
-    border-color 0.15s ease,
     box-shadow 0.15s ease,
     background-color 0.15s ease,
     transform 0.1s ease;
 }
 
 .mg-empresas-scope .mg-emp-card:hover:not(.mg-emp-card--selected) {
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
 .mg-empresas-scope .mg-emp-card:focus-visible {
   box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
-.mg-empresas-scope .mg-emp-card--selected {
-  border-color: var(--accent) !important;
-  background: var(--accent-light) !important;
-  box-shadow:
-    0 0 0 1px rgba(40, 153, 245, 0.18),
-    0 4px 12px rgba(40, 153, 245, 0.12) !important;
-}
-
+.mg-empresas-scope .mg-emp-card--selected,
 .mg-empresas-scope .mg-emp-card--selected:hover {
-  border-color: var(--accent) !important;
-  background: var(--accent-light) !important;
+  border: none;
+  background: var(--accent-light);
+  box-shadow: 0 4px 14px rgba(40, 153, 245, 0.14);
 }
 
 .mg-empresas-scope .mg-emp-card:active:not(.mg-emp-card--selected) {

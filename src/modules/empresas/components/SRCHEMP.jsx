@@ -361,7 +361,7 @@ export default function SRCHEMP({
                         <span className="font-medium" style={{ color: "var(--text-1)" }}>{cidade}/{uf}</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-end border-t pt-2.5" style={{ borderColor: "var(--border)" }}>
+                    <div className="flex items-center justify-end pt-2.5">
                       <span className="pill pill-active">Ativo</span>
                     </div>
                   </div>
