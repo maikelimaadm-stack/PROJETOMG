@@ -135,7 +135,7 @@
   background: transparent;
 }
 
-/* Segmented tabs */
+/* Segmented tabs (painéis do formulário) */
 .mg-empresas-scope .seg-control {
   display: flex;
   background: transparent;
@@ -143,6 +143,21 @@
   gap: 0;
   overflow-x: auto;
   border-bottom: 1px solid var(--border);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mg-empresas-scope .seg-control::-webkit-scrollbar {
+  display: none;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
+  display: none;
 }
 
 .mg-empresas-scope .seg-tab {
@@ -151,15 +166,13 @@
   font-weight: 500;
   color: var(--text-2);
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.2s, background-color 0.2s;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   border: none;
   background: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
   outline: none;
 }
 
@@ -168,10 +181,10 @@
 }
 
 .mg-empresas-scope .seg-tab.active {
-  color: var(--accent) !important;
+  color: var(--text-1) !important;
   font-weight: 600 !important;
-  border-bottom: 2px solid var(--accent) !important;
-  border-bottom-color: var(--accent) !important;
+  border-bottom: none !important;
+  background: var(--bg-page) !important;
 }
 
 .mg-empresas-scope .seg-control .seg-tab {

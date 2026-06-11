@@ -746,7 +746,7 @@ export default function FORMEMP({
         {hideToolbar ? (
           <div id="mode-registro" className="flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
-              className="shrink-0 overflow-x-auto border-b px-3 md:px-5"
+              className="mg-panel-tabs-strip shrink-0 border-b px-3 md:px-5"
               style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
             >
               <CadTabs
