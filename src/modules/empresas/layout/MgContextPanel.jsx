@@ -14,17 +14,20 @@ export default function MgContextPanel({
   disabled = false,
 }) {
   const counter = formatCadastroRecordPosition(currentIndex, total);
+  const metaKey = `${code || "new"}-${title || ""}-${currentIndex}-${total}`;
 
   return (
     <div data-template-id="context-panel" className="mg-context-panel hidden md:flex">
-      <div style={{ fontSize: 12, color: "var(--text-1)" }}>
-        {code ? (
-          <>
-            <span style={{ fontWeight: 600 }}>{code}</span>
-            <span style={{ color: "var(--text-3)" }}> • </span>
-          </>
-        ) : null}
-        <span>{title || "Novo registro"}</span>
+      <div key={metaKey} className="mg-motion-swap mg-context-panel__meta">
+        <span style={{ fontSize: 12, color: "var(--text-1)" }}>
+          {code ? (
+            <>
+              <span style={{ fontWeight: 600 }}>{code}</span>
+              <span style={{ color: "var(--text-3)" }}> • </span>
+            </>
+          ) : null}
+          <span>{title || "Novo registro"}</span>
+        </span>
       </div>
       <div className="flex items-center gap-1">
         <button type="button" className="mg-nav-btn ios-btn" onClick={onFirst} disabled={disabled || currentIndex <= 0} title="Primeiro">
@@ -33,7 +36,11 @@ export default function MgContextPanel({
         <button type="button" className="mg-nav-btn ios-btn" onClick={onPrevious} disabled={disabled || currentIndex <= 0} title="Anterior">
           <ChevronLeft className="h-3 w-3" />
         </button>
-        <span style={{ fontSize: 11, color: "var(--text-2)", fontWeight: 500, minWidth: 50, textAlign: "center" }}>
+        <span
+          key={counter}
+          className="mg-motion-swap mg-context-panel__counter"
+          style={{ fontSize: 11, color: "var(--text-2)", fontWeight: 500, minWidth: 50, textAlign: "center", display: "inline-block" }}
+        >
           {counter}
         </span>
         <button type="button" className="mg-nav-btn ios-btn" onClick={onNext} disabled={disabled || currentIndex >= total - 1} title="Próximo">

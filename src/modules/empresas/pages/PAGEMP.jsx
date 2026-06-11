@@ -20,6 +20,8 @@ import {
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
+import MgMotionPanel from "@/modules/empresas/layout/MgMotionPanel";
+import MgMotionSlot from "@/modules/empresas/layout/MgMotionSlot";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
@@ -771,93 +773,109 @@ export default function PAGEMP() {
             {...actionBarVisibility}
           />
 
-          {showForm ? (
-            <>
-              <MgContextPanel
-                code={recordCode}
-                title={recordTitle}
-                total={empresasNavegacao.length}
-                currentIndex={selectedIndex}
-                onFirst={() => navigateRecord(0)}
-                onPrevious={() => navigateRecord(selectedIndex - 1)}
-                onNext={() => navigateRecord(selectedIndex + 1)}
-                onLast={() => navigateRecord(empresasNavegacao.length - 1)}
-                disabled={saveCycle.isSaving}
-              />
-              <EmpresasFormPanel
-                formProps={{
-                  key: `form-${formVersion}`,
-                  initialData: editingEmp,
-                  recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
-                  isEditing: !!editingEmp,
-                  onSubmit: handleSubmit,
-                  onCancel: formCancel,
-                  hideToolbar: true,
-                  onToolbarBridge: setFormBridge,
-                  total: empresasNavegacao.length,
-                  currentIndex: selectedIndex,
-                  onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
-                  onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
-                  actionsLocked: saveCycle.isSaving,
-                }}
-              />
-            </>
-          ) : mgViewMode === "cards" ? (
-            <div id="mode-cards" className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <EmpresasSearchPanel
-                searchProps={{
-                  empresas: empresasFiltradasPainel,
-                  total: totalEmpresas,
-                  isLoading: empresasLoading || isFetching,
-                  searchValue: searchTerm,
-                  onSearchChange: handleSearchChange,
-                  page: queryPage,
-                  pageSize: queryPageSize,
-                  onPageChange: setQueryPage,
-                  onPageSizeChange: (nextPageSize) => {
-                    setQueryPageSize(nextPageSize);
-                    setQueryPage(1);
-                  },
-                  onEdit: handleEdit,
-                  selectedIds: selectedTableItems,
-                  onSelectionChange: handleTableSelectionChange,
-                  mgPrototype: true,
-                }}
-              />
-            </div>
-          ) : (
-            <div id="mode-tabela" className="mg-grid-wrapper flex min-h-0 flex-1 flex-col overflow-hidden">
-              <EmpresasTablePanel
-                tableProps={{
-                  key: "tbl-emp",
-                  empresas: empresasFiltradasPainel,
-                  isLoadingEmpresas: empresasLoading,
-                  onEdit: handleEdit,
-                  showConfigColunas,
-                  setShowConfigColunas,
-                  searchTerm: "",
-                  selectedRecordId: undefined,
-                  onSelectionChange: handleTableSelectionChange,
-                  onVisibleDataChange: setVisibleTableData,
-                  onFilteredEmpresasChange: handleFilteredEmpresasChange,
-                  serverPage: queryPage,
-                  serverPageSize: queryPageSize,
-                  serverTotal: totalEmpresas,
-                  onServerPageChange: setQueryPage,
-                  onServerPageSizeChange: (nextPageSize) => {
-                    setQueryPageSize(nextPageSize);
-                    setQueryPage(1);
-                  },
-                  onServerSortChange: (nextSort) => {
-                    setQuerySort(nextSort);
-                    setQueryPage(1);
-                  },
-                  moduleTitle: moduleLabels.title,
-                  mgPrototype: true,
-                }}
-              />
-            </div>
-          )}
+          <MgMotionSlot show={showForm} className="mg-motion-slot--panel">
+            <MgContextPanel
+              code={recordCode}
+              title={recordTitle}
+              total={empresasNavegacao.length}
+              currentIndex={selectedIndex}
+              onFirst={() => navigateRecord(0)}
+              onPrevious={() => navigateRecord(selectedIndex - 1)}
+              onNext={() => navigateRecord(selectedIndex + 1)}
+              onLast={() => navigateRecord(empresasNavegacao.length - 1)}
+              disabled={saveCycle.isSaving}
+            />
+          </MgMotionSlot>
+
+          <MgMotionPanel
+            panelKey={showForm ? "registro" : mgViewMode}
+            className="flex min-h-0 flex-1 flex-col overflow-hidden"
+          >
+            {(activeKey) => {
+              if (activeKey === "registro") {
+                return (
+                  <EmpresasFormPanel
+                    formProps={{
+                      key: `form-${formVersion}`,
+                      initialData: editingEmp,
+                      recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
+                      isEditing: !!editingEmp,
+                      onSubmit: handleSubmit,
+                      onCancel: formCancel,
+                      hideToolbar: true,
+                      onToolbarBridge: setFormBridge,
+                      total: empresasNavegacao.length,
+                      currentIndex: selectedIndex,
+                      onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
+                      onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
+                      actionsLocked: saveCycle.isSaving,
+                    }}
+                  />
+                );
+              }
+
+              if (activeKey === "cards") {
+                return (
+                  <div id="mode-cards" className="flex min-h-0 flex-1 flex-col overflow-hidden">
+                    <EmpresasSearchPanel
+                      searchProps={{
+                        empresas: empresasFiltradasPainel,
+                        total: totalEmpresas,
+                        isLoading: empresasLoading || isFetching,
+                        searchValue: searchTerm,
+                        onSearchChange: handleSearchChange,
+                        page: queryPage,
+                        pageSize: queryPageSize,
+                        onPageChange: setQueryPage,
+                        onPageSizeChange: (nextPageSize) => {
+                          setQueryPageSize(nextPageSize);
+                          setQueryPage(1);
+                        },
+                        onEdit: handleEdit,
+                        selectedIds: selectedTableItems,
+                        onSelectionChange: handleTableSelectionChange,
+                        mgPrototype: true,
+                      }}
+                    />
+                  </div>
+                );
+              }
+
+              return (
+                <div id="mode-tabela" className="mg-grid-wrapper flex min-h-0 flex-1 flex-col overflow-hidden">
+                  <EmpresasTablePanel
+                    tableProps={{
+                      key: "tbl-emp",
+                      empresas: empresasFiltradasPainel,
+                      isLoadingEmpresas: empresasLoading,
+                      onEdit: handleEdit,
+                      showConfigColunas,
+                      setShowConfigColunas,
+                      searchTerm: "",
+                      selectedRecordId: undefined,
+                      onSelectionChange: handleTableSelectionChange,
+                      onVisibleDataChange: setVisibleTableData,
+                      onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                      serverPage: queryPage,
+                      serverPageSize: queryPageSize,
+                      serverTotal: totalEmpresas,
+                      onServerPageChange: setQueryPage,
+                      onServerPageSizeChange: (nextPageSize) => {
+                        setQueryPageSize(nextPageSize);
+                        setQueryPage(1);
+                      },
+                      onServerSortChange: (nextSort) => {
+                        setQuerySort(nextSort);
+                        setQueryPage(1);
+                      },
+                      moduleTitle: moduleLabels.title,
+                      mgPrototype: true,
+                    }}
+                  />
+                </div>
+              );
+            }}
+          </MgMotionPanel>
         </div>
       </div>
 

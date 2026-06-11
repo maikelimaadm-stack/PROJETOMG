@@ -43,6 +43,8 @@
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --mg-motion-duration: 220ms;
+  --mg-motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 
   font-family: "DM Sans", -apple-system, sans-serif;
   font-size: 13px;
@@ -53,6 +55,85 @@
 
 .mg-empresas-scope * {
   box-sizing: border-box;
+}
+
+/* —— Motion system (mesmo easing do view-seg) —— */
+.mg-empresas-scope .mg-motion-slot {
+  display: grid;
+  grid-template-columns: 0fr;
+  opacity: 0;
+  transform: translateX(-8px);
+  overflow: hidden;
+  pointer-events: none;
+  margin-right: 0;
+  transition:
+    grid-template-columns var(--mg-motion-duration) var(--mg-motion-ease),
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease),
+    margin-right var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-motion-slot--visible {
+  grid-template-columns: 1fr;
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  margin-right: 6px;
+}
+
+.mg-empresas-scope .mg-motion-slot__content {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mg-empresas-scope .mg-motion-slot--panel {
+  display: block;
+  width: 100%;
+  grid-template-columns: unset;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-8px);
+  margin-right: 0;
+}
+
+.mg-empresas-scope .mg-motion-slot--panel.mg-motion-slot--visible {
+  max-height: 56px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mg-empresas-scope .mg-motion-panel {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-motion-panel--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mg-empresas-scope .mg-motion-swap {
+  animation: mg-motion-swap-in var(--mg-motion-duration) var(--mg-motion-ease) both;
+}
+
+@keyframes mg-motion-swap-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mg-empresas-scope .ios-btn {
@@ -110,8 +191,8 @@
 .mg-empresas-scope .fg textarea,
 .mg-empresas-scope .fg .emp-form-field-control textarea {
   height: auto;
-  min-height: 64px;
-  padding: 8px 10px;
+  min-height: 56px;
+  padding: 6px 10px;
   resize: vertical;
 }
 
@@ -135,7 +216,7 @@
   background: transparent;
 }
 
-/* Segmented tabs (painéis — estilo GitHub, indicador azul) */
+/* Segmented tabs (painéis — estilo GitHub, indicador azul deslizante) */
 .mg-empresas-scope .seg-control {
   display: flex;
   align-items: flex-end;
@@ -146,6 +227,22 @@
   border-bottom: 1px solid var(--border) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  position: relative;
+}
+
+.mg-empresas-scope .seg-tab-slider {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  height: 3px;
+  width: 0;
+  background: var(--accent);
+  border-radius: 0;
+  pointer-events: none;
+  z-index: 2;
+  transition:
+    transform var(--mg-motion-duration) var(--mg-motion-ease),
+    width var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .seg-control::-webkit-scrollbar {
@@ -178,7 +275,7 @@
   font-weight: 500;
   color: var(--text-2);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition: color var(--mg-motion-duration) var(--mg-motion-ease);
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -211,16 +308,8 @@
 }
 
 .mg-empresas-scope .seg-tab.active::after {
-  content: "" !important;
-  display: block !important;
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 3px;
-  background: var(--accent) !important;
-  border-radius: 0 !important;
-  pointer-events: none;
+  display: none !important;
+  content: none !important;
 }
 
 .mg-empresas-scope .seg-control .seg-tab {
@@ -244,7 +333,9 @@
   background: #ffffff;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1), width 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition:
+    transform var(--mg-motion-duration) var(--mg-motion-ease),
+    width var(--mg-motion-duration) var(--mg-motion-ease);
   pointer-events: none;
   z-index: 0;
 }
@@ -262,7 +353,7 @@
   justify-content: center;
   position: relative;
   z-index: 1;
-  transition: color 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .view-mode-btn.active {
@@ -382,7 +473,12 @@
   font-size: 12px;
   font-weight: 600;
   border: none;
-  transition: all 0.12s;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
+    transform 100ms ease,
+    opacity var(--mg-motion-duration) var(--mg-motion-ease);
   white-space: nowrap;
 }
 
@@ -1022,9 +1118,9 @@
   cursor: pointer;
   outline: none;
   transition:
-    box-shadow 0.15s ease,
-    background-color 0.15s ease,
-    transform 0.1s ease;
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
+    background-color var(--mg-motion-duration) var(--mg-motion-ease),
+    transform 100ms ease;
 }
 
 .mg-empresas-scope .mg-emp-card:hover:not(.mg-emp-card--selected) {
@@ -1066,6 +1162,13 @@
   min-height: 40px;
   padding-top: 6px;
   padding-bottom: 6px;
+}
+
+.mg-empresas-scope .mg-action-bar__actions {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .mg-empresas-scope .mg-action-bar__end {
@@ -1243,7 +1346,7 @@
 }
 
 .mg-empresas-scope .dropdown-menu {
-  display: none;
+  display: block;
   position: absolute;
   top: 100%;
   right: 0;
@@ -1255,10 +1358,21 @@
   z-index: 50;
   min-width: 160px;
   padding: 4px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
+  transition:
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease),
+    visibility var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .dropdown-menu.open {
-  display: block;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
 }
 
 .mg-empresas-scope .dropdown-menu button {

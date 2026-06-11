@@ -11,6 +11,7 @@ import {
   Settings,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
+import MgMotionSlot from "@/modules/empresas/layout/MgMotionSlot";
 
 function ActionLabelBtn({ className = "", children, ...props }) {
   return (
@@ -64,8 +65,8 @@ export default function MgActionBar({
       className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
       style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
     >
-      <div className="flex items-center gap-1.5">
-        {onToggleFilter ? (
+      <div className="mg-action-bar__actions flex min-w-0 items-center">
+        <MgMotionSlot show={!!onToggleFilter}>
           <button
             type="button"
             className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
@@ -76,9 +77,9 @@ export default function MgActionBar({
           >
             <Filter className="h-3.5 w-3.5" />
           </button>
-        ) : null}
+        </MgMotionSlot>
 
-        {showNew && onNew ? (
+        <MgMotionSlot show={showNew && !!onNew}>
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onNew}
@@ -87,9 +88,9 @@ export default function MgActionBar({
           >
             Novo
           </ActionLabelBtn>
-        ) : null}
+        </MgMotionSlot>
 
-        {showSave && onSave ? (
+        <MgMotionSlot show={showSave && !!onSave}>
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onSave}
@@ -98,9 +99,9 @@ export default function MgActionBar({
           >
             Salvar
           </ActionLabelBtn>
-        ) : null}
+        </MgMotionSlot>
 
-        {showCancel && onCancel ? (
+        <MgMotionSlot show={showCancel && !!onCancel}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onCancel}
@@ -109,9 +110,9 @@ export default function MgActionBar({
           >
             Cancelar
           </ActionLabelBtn>
-        ) : null}
+        </MgMotionSlot>
 
-        {showEdit && onEdit ? (
+        <MgMotionSlot show={showEdit && !!onEdit}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onEdit}
@@ -120,9 +121,9 @@ export default function MgActionBar({
           >
             Editar
           </ActionLabelBtn>
-        ) : null}
+        </MgMotionSlot>
 
-        {showDelete && onDelete ? (
+        <MgMotionSlot show={showDelete && !!onDelete}>
           <ActionLabelBtn
             className="tb-btn-red"
             onClick={onDelete}
@@ -131,9 +132,9 @@ export default function MgActionBar({
           >
             Excluir
           </ActionLabelBtn>
-        ) : null}
+        </MgMotionSlot>
 
-        {showDuplicate && onDuplicate ? (
+        <MgMotionSlot show={showDuplicate && !!onDuplicate}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onDuplicate}
@@ -142,22 +143,26 @@ export default function MgActionBar({
           >
             Duplicar
           </ActionLabelBtn>
-        ) : null}
+        </MgMotionSlot>
       </div>
 
       <div className="mg-action-bar__end">
-        <div className="mg-search-pill" role="search">
-          <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
-          <input
-            type="text"
-            placeholder="Pesquisar..."
-            value={searchValue}
-            onChange={(event) => onSearchChange?.(event.target.value)}
-            aria-label="Pesquisar"
-          />
-        </div>
+        <MgMotionSlot show={!showSave}>
+          <div className="mg-search-pill" role="search">
+            <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
+            <input
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchValue}
+              onChange={(event) => onSearchChange?.(event.target.value)}
+              aria-label="Pesquisar"
+            />
+          </div>
+        </MgMotionSlot>
 
-        <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
+        <MgMotionSlot show={!showSave}>
+          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
+        </MgMotionSlot>
 
         <div className="relative" ref={moreRef}>
           <button
