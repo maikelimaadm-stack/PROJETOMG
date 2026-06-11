@@ -153,7 +153,7 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip {
-  padding-top: 10px;
+  padding-top: 4px;
   padding-bottom: 0;
   border-bottom: none !important;
   scrollbar-width: none;
@@ -172,8 +172,8 @@
 
 .mg-empresas-scope .seg-tab {
   position: relative;
-  padding: 8px 12px;
-  min-height: 32px;
+  padding: 5px 12px 4px;
+  min-height: 28px;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-2);
@@ -217,7 +217,7 @@
   left: 0;
   right: 0;
   bottom: -1px;
-  height: 2px;
+  height: 3px;
   background: var(--accent) !important;
   border-radius: 0 !important;
   pointer-events: none;
