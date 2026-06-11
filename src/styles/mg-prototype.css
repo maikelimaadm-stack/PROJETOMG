@@ -47,6 +47,9 @@
   --mg-motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
   --mg-radius-control: 8px;
   --mg-radius-card: 8px;
+  --mg-focus-border: rgba(40, 153, 245, 0.35);
+  --mg-focus-ring: inset 0 0 0 1px rgba(40, 153, 245, 0.12);
+  --mg-focus-bg: #fff;
 
   font-family: "DM Sans", -apple-system, sans-serif;
   font-size: 13px;
@@ -301,13 +304,14 @@
 .mg-empresas-scope .fg input:focus,
 .mg-empresas-scope .fg textarea:focus,
 .mg-empresas-scope .fg .emp-form-field-control:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .fg .emp-form-field-control {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--mg-radius-control);
   min-height: 36px;
   background: var(--bg-card);
 }
@@ -856,8 +860,9 @@
 }
 
 .mg-empresas-scope .mg-prototype-field .emp-form-field-control:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-prototype-field .emp-form-field-control input,
@@ -1010,8 +1015,9 @@
 }
 
 .mg-empresas-scope .cmd-select.open .cmd-display {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .cmd-select.disabled {
@@ -1436,7 +1442,8 @@
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):focus-visible {
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  outline: none;
+  box-shadow: var(--mg-focus-ring), 0 1px 4px rgba(0, 0, 0, 0.03);
 }
 
 .mg-empresas-scope .mg-emp-card--selected,
@@ -1685,9 +1692,9 @@
 }
 
 .mg-empresas-scope .mg-search-pill:focus-within {
-  background: #fff;
-  border-color: rgba(40, 153, 245, 0.35);
-  box-shadow: inset 0 0 0 1px rgba(40, 153, 245, 0.12);
+  background: var(--mg-focus-bg);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
   z-index: 2;
 }
 
@@ -2117,8 +2124,9 @@
 }
 
 .mg-empresas-scope .mg-dp-field:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-dp-label,
@@ -2150,8 +2158,9 @@
 }
 
 .mg-empresas-scope .mg-dp.open .mg-dp-field {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-dp-panel {
@@ -2439,8 +2448,9 @@
 }
 
 .mg-empresas-scope .mg-tp-field:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-tp-icon {
@@ -2452,8 +2462,9 @@
 }
 
 .mg-empresas-scope .mg-tp.open .mg-tp-field {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-tp-panel {
@@ -2586,8 +2597,9 @@
 }
 
 .mg-empresas-scope .mg-lookup.open .mg-lookup-display {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-lookup-panel {
@@ -2768,8 +2780,9 @@
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-select.erp-field-open,
 .mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-select.erp-field-open {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-select .erp-field-select-input,
@@ -2808,8 +2821,9 @@
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup.erp-field-open,
 .mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-lookup.erp-field-open {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup .erp-field-lookup-input {
@@ -2911,8 +2925,9 @@
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-field-control:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-glow);
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="time"]),
@@ -2923,4 +2938,73 @@
   box-shadow: none !important;
   padding: 0 !important;
   min-height: auto !important;
+}
+
+/* Campos nativos / diretos no formulário */
+.mg-empresas-scope .mg-prototype-form input[type="time"]:focus,
+.mg-empresas-scope .mg-prototype-form input[type="date"]:focus,
+.mg-empresas-scope .mg-prototype-form input[type="datetime-local"]:focus,
+.mg-empresas-scope .mg-prototype-field input:focus,
+.mg-empresas-scope .mg-prototype-field textarea:focus,
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="time"]):focus-within,
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="date"]):focus-within,
+.mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="datetime-local"]):focus-within {
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
+  background: var(--mg-focus-bg) !important;
+  outline: none;
+}
+
+.mg-empresas-scope .cmd-display:focus-visible {
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
+  outline: none;
+}
+
+/* Visualização cards — footer (paginação / por página) */
+.mg-empresas-scope .emp-search-page-size-display {
+  border: 1px solid var(--border);
+  border-radius: var(--mg-radius-control);
+  background: var(--bg-card);
+  transition:
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
+    background var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-search-page-size.open .emp-search-page-size-display {
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+  background: var(--mg-focus-bg);
+}
+
+.mg-empresas-scope .emp-search-page-btn {
+  transition:
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-search-page-btn:focus-visible {
+  outline: none;
+  border: 1px solid var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+}
+
+/* Overrides index.css — focus unificado no escopo MG */
+.cadastro-emp-scope.mg-empresas-scope .emp-form-fields .emp-form-field-control:focus-within,
+.cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control:focus-within,
+.cadastro-emp-scope.mg-empresas-scope .emp-form-fields .emp-form-field-control.erp-field-open,
+.cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control.erp-field-open {
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
+  background: var(--mg-focus-bg) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-form-field-control.erp-field-invalid:focus-within,
+.cadastro-emp-scope.mg-empresas-scope .emp-form-field-control.emp-form-field-error:focus-within,
+.cadastro-emp-scope.mg-empresas-scope .fg .emp-form-field-control.erp-field-invalid:focus-within {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.35) !important;
+  background: #fef2f2 !important;
 }
