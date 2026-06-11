@@ -142,7 +142,7 @@
   padding: 0;
   gap: 0;
   overflow-x: auto;
-  border-bottom: 1px solid var(--border);
+  border-bottom: none !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -152,6 +152,7 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip {
+  border-bottom: none !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -161,7 +162,8 @@
 }
 
 .mg-empresas-scope .seg-tab {
-  padding: 10px 14px;
+  padding: 6px 12px;
+  min-height: 28px;
   font-size: 12px;
   font-weight: 500;
   color: var(--text-2);
@@ -183,7 +185,9 @@
 .mg-empresas-scope .seg-tab.active {
   color: var(--text-1) !important;
   font-weight: 600 !important;
+  border: none !important;
   border-bottom: none !important;
+  box-shadow: none !important;
   background: var(--bg-page) !important;
 }
 
