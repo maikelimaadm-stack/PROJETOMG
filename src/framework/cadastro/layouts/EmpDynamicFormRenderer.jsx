@@ -341,6 +341,7 @@ function FieldFrameCorp({
   narrowLayout = false,
   className = "",
   hasValue = false,
+  isLocked = false,
 }) {
   const bare = isBareControlField(field);
   const textareaField = field?.type === "textarea";
@@ -374,7 +375,13 @@ function FieldFrameCorp({
       <div
         data-field={field.dataField || field.name}
         data-width-type={preset.type}
-        className={cn("mg-prototype-composite", hasValue && "mg-has-value", className)}
+        className={cn(
+          "mg-prototype-composite",
+          hasValue && !isLocked && "mg-has-value",
+          isLocked && "mg-field-locked",
+          error && "erp-field-invalid",
+          className
+        )}
         style={widthStyle}
       >
         {children}
@@ -390,7 +397,9 @@ function FieldFrameCorp({
         className={cn(
           "fg mg-prototype-field",
           bare && "mg-prototype-field--bare",
-          hasValue && "mg-has-value",
+          hasValue && !isLocked && "mg-has-value",
+          isLocked && "mg-field-locked",
+          error && "erp-field-invalid",
           className
         )}
         style={widthStyle}
@@ -593,7 +602,8 @@ export default function EmpDynamicFormRenderer({
     const value = field.getValue ? field.getValue(values, context) : values[field.name];
     const error = errors[field.errorKey || field.name];
     const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
-    const fieldReadOnly = readOnly || lockedFieldIds.includes(field.id);
+    const fieldReadOnly = readOnly || field.readOnly || lockedFieldIds.includes(field.id);
+    const isLocked = !readOnly && (field.readOnly || lockedFieldIds.includes(field.id));
     const control = renderFieldControl(field, configuredField, value, fieldReadOnly);
     const hasValue = fieldHasDisplayValue(value);
     return (
@@ -606,6 +616,7 @@ export default function EmpDynamicFormRenderer({
         narrowLayout={narrowLayout}
         className={fieldClassName}
         hasValue={hasValue}
+        isLocked={isLocked}
       >
         {control}
       </FieldFrameCorp>
