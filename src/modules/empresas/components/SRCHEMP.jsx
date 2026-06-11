@@ -334,7 +334,7 @@ export default function SRCHEMP({
                     <div className="mb-2.5 flex items-center gap-2.5">
                       <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[11px] font-bold text-white"
-                        style={{ background: "linear-gradient(135deg, var(--accent), #60A5FA)" }}
+                        style={{ background: "linear-gradient(135deg, var(--mg-brand-green), #5ee87a)" }}
                       >
                         {code.substring(0, 2)}
                       </div>
