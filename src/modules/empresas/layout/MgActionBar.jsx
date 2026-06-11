@@ -147,7 +147,7 @@ export default function MgActionBar({
 
       <div className="mg-action-bar__end">
         <div className="mg-search-pill" role="search">
-          <Search className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--text-3)", marginRight: 6 }} />
+          <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
           <input
             type="text"
             placeholder="Pesquisar..."
