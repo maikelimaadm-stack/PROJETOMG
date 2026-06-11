@@ -22,11 +22,12 @@
 }
 
 .mg-empresas-scope {
-  --bg-page: #f8f9fb;
+  --bg-page: #f0f2f5;
   --bg-card: #ffffff;
   --bg-surface: #ffffff;
-  --border: #e8eaed;
-  --mg-divider: #e8eaed;
+  --border: var(--gray-fill);
+  --mg-divider: var(--gray-fill);
+  --mg-divider-width: 2px;
   --border-focus: #40de63;
   --text-1: #111827;
   --text-2: #6b7280;
@@ -364,7 +365,7 @@
   background: transparent;
   padding: 0;
   overflow-x: auto;
-  border-bottom: 1px solid var(--mg-divider) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
   position: relative;
@@ -396,7 +397,7 @@
   padding-right: 8px !important;
   min-height: 36px;
   border-top: none !important;
-  border-bottom: 1px solid var(--mg-divider) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   background: var(--bg-card) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
@@ -629,7 +630,7 @@
 
 .mg-empresas-scope .mg-grid td {
   padding: 8px 14px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
   color: var(--text-1);
 }
 
@@ -1135,7 +1136,7 @@
 .mg-empresas-scope .cmd-panel input {
   width: 100%;
   border: none;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
   padding: 8px 10px;
   font-size: 12px;
   outline: none;
@@ -1180,7 +1181,7 @@
   transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   background: #ffffff !important;
-  border-right: 1px solid var(--mg-divider);
+  border-right: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 .erp-shell--empresas-mg .mg-empresas-scope .erp-sidebar:hover,
@@ -1218,13 +1219,13 @@
 }
 
 .mg-empresas-scope .erp-sidebar .ng:not(:first-child) {
-  border-top: 1px solid var(--mg-divider);
+  border-top: var(--mg-divider-width) solid var(--mg-divider);
   margin-top: 6px;
   padding-top: 10px;
 }
 
 .mg-empresas-scope .erp-sidebar > .shrink-0 {
-  border-top: 1px solid var(--mg-divider) !important;
+  border-top: var(--mg-divider-width) solid var(--mg-divider) !important;
   border-color: var(--mg-divider) !important;
 }
 
@@ -1362,7 +1363,7 @@
   width: 280px;
   height: 100%;
   background: #ffffff;
-  border-right: 1px solid var(--border);
+  border-right: var(--mg-divider-width) solid var(--border);
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.1);
   z-index: 999;
   overflow-y: auto;
@@ -1424,7 +1425,7 @@
   width: 260px;
   min-width: 260px;
   opacity: 1;
-  border-right-width: 1px;
+  border-right-width: var(--mg-divider-width);
   overflow-y: auto;
 }
 
@@ -1451,7 +1452,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 12px 8px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
   flex-shrink: 0;
 }
 
@@ -1495,7 +1496,7 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 12px 12px;
-  border-top: 1px solid var(--border);
+  border-top: var(--mg-divider-width) solid var(--border);
   flex-shrink: 0;
   background: var(--bg-card);
 }
@@ -1596,7 +1597,7 @@
   min-height: calc(var(--mg-btn-height) + 10px);
   padding-top: 4px;
   padding-bottom: 4px;
-  border-bottom: 1px solid var(--mg-divider) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   overflow: visible;
   position: relative;
   z-index: 20;
@@ -1897,7 +1898,7 @@
   max-height: 32px;
   opacity: 1;
   pointer-events: auto;
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 .mg-empresas-scope .mg-context-panel {
@@ -2084,7 +2085,7 @@
   justify-content: center;
   gap: 1px;
   background: var(--bg-card);
-  border-top: 1px solid var(--border);
+  border-top: var(--mg-divider-width) solid var(--border);
   padding: 5px 0;
   padding-bottom: calc(5px + env(safe-area-inset-bottom));
   z-index: 100;
@@ -2240,7 +2241,7 @@
   justify-content: flex-end;
   padding: 6px 12px;
   background: var(--bg-card);
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
   flex-shrink: 0;
 }
 
@@ -2727,7 +2728,7 @@
   overflow-y: auto;
   scroll-behavior: smooth;
   padding: 6px 4px;
-  border-right: 1px solid var(--border);
+  border-right: var(--mg-divider-width) solid var(--border);
 }
 
 .mg-empresas-scope .mg-tp-col:last-child {
@@ -2908,7 +2909,7 @@
 
 .mg-empresas-scope .mg-lookup-search {
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: var(--mg-divider-width) solid var(--border);
 }
 
 .mg-empresas-scope .mg-lookup-search input {
@@ -3123,7 +3124,7 @@
 }
 
 .mg-empresas-scope .erp-menu-search-field {
-  border-bottom: 1px solid var(--border) !important;
+  border-bottom: var(--mg-divider-width) solid var(--border) !important;
   padding: 8px 10px !important;
   background: var(--bg-card) !important;
 }
@@ -3464,7 +3465,517 @@
   opacity: 1;
 }
 
-/* —— Divisores padronizados: 1px cinza suave em barras, menu e painéis —— */
+/* —— Configurador de layout — mesma linguagem visual do cadastro MG —— */
+.mg-empresas-scope.emp-layout-configurator,
+.mg-empresas-scope .emp-layout-configurator {
+  background: var(--bg-page);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-grid {
+  min-height: 0;
+  background: var(--bg-page);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
+  background: var(--bg-card);
+  border-right: 1px solid #ffffff;
+  padding: 10px 12px;
+  border-radius: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  border-radius: 999px !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search input {
+  width: 100%;
+  min-width: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list {
+  gap: 6px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip {
+  min-height: var(--mg-field-height);
+  padding: 6px 10px;
+  border-radius: 0;
+  background: var(--gray-fill);
+  color: var(--text-1);
+  border: 1px solid transparent;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip:hover {
+  background: var(--gray-fill2);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip.emp-layout-config-field-selected {
+  background: #fff;
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip .emp-layout-config-field-action {
+  background: var(--bg-card) !important;
+  color: var(--accent) !important;
+  border-radius: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip .emp-layout-config-field-action svg {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer {
+  background: var(--bg-page);
+  border-right: 1px solid #ffffff;
+  gap: 8px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) {
+  width: var(--mg-btn-icon-size);
+  height: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  background: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.04);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) svg {
+  color: var(--mg-brand-green) !important;
+  stroke: var(--mg-brand-green) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled):hover svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-main {
+  background: var(--bg-page);
+  border-left: 1px solid #ffffff;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs {
+  background: var(--bg-card) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
+  border-radius: 0 !important;
+  flex-shrink: 0;
+  padding-bottom: 6px !important;
+  min-height: 36px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs {
+  background: var(--bg-card) !important;
+  border-top: none !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
+  border-radius: 0 !important;
+  flex-shrink: 0;
+  padding-top: 6px !important;
+  padding-bottom: 2px !important;
+  min-height: 32px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab-slider {
+  height: 1px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab.active::after {
+  height: 1px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px 6px;
+  min-height: 28px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-tab {
+  border-radius: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger {
+  background: #ffffff !important;
+  color: var(--red) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger svg {
+  color: var(--red) !important;
+  stroke: var(--red) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger:hover:not(:disabled) {
+  background: var(--red-light) !important;
+  color: #b91c1c !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-tab {
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  background: var(--gray-fill);
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-tab:hover {
+  background: var(--gray-fill2);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-tab--active {
+  background: var(--accent-light);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-shell {
+  min-height: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip {
+  background: var(--bg-card) !important;
+  border-radius: 0 !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs.mg-panel-tabs-strip,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs.mg-panel-tabs-strip {
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger {
+  background: #ffffff !important;
+  color: var(--red) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger svg {
+  color: var(--red) !important;
+  stroke: var(--red) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger:hover:not(:disabled) {
+  background: var(--red-light) !important;
+  color: #b91c1c !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-cards-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mg-cards-layout-gap);
+  padding: 8px 12px 0;
+  border-bottom: none;
+  background: transparent;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-cards-bar .tb-btn-labeled {
+  gap: 5px;
+  padding: 0 8px;
+  font-size: var(--mg-btn-font-compact);
+  font-weight: 600;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--mg-radius-control);
+  border: 1px solid transparent;
+  background: var(--gray-fill);
+  color: var(--text-2);
+  cursor: pointer;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab:hover {
+  background: var(--gray-fill2);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab-active {
+  border-color: var(--mg-focus-border);
+  color: var(--mg-brand-green);
+  background: var(--accent-light);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-input {
+  border: 1px solid var(--mg-divider);
+  border-radius: var(--mg-radius-control);
+  background: var(--bg-card);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
+  background: var(--bg-page) !important;
+  padding: 6px 12px 10px !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-rows {
+  gap: var(--mg-cards-layout-gap);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell {
+  border: none !important;
+  border-radius: var(--mg-radius-card) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+  background: var(--bg-card) !important;
+  padding: 10px 16px 16px !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--draft.emp-layout-config-card-shell {
+  padding: 8px 16px 12px !important;
+  box-shadow: none !important;
+  background: var(--bg-card) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--full.emp-layout-config-card-shell {
+  box-shadow: none;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-help {
+  color: var(--text-2);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row {
+  background: transparent;
+  border: none;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--full {
+  border-color: transparent;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional {
+  min-height: var(--mg-field-height);
+  height: var(--mg-field-height);
+  padding: 0 10px;
+  border-radius: 0;
+  font-size: 12px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-label {
+  color: var(--text-2);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-label--full {
+  color: var(--yellow);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-dropzone {
+  border: none;
+  background: #ffffff;
+  color: var(--text-3);
+  border-radius: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-draft {
+  border: var(--mg-divider-width) dashed var(--mg-divider);
+  border-radius: 0;
+  background: #ffffff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-draft-add {
+  width: var(--mg-btn-icon-size);
+  height: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  border-radius: 0;
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-draft-add svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-draft-add:hover:not(:disabled) {
+  background: var(--mg-brand-green-hover) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer {
+  border-top: var(--mg-divider-width) solid var(--mg-divider);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn {
+  border: none;
+  border-radius: var(--mg-radius-control);
+  background: var(--gray-fill);
+  color: var(--text-2);
+  transition: background var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn:hover:not(:disabled),
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn:focus-visible {
+  background: var(--gray-fill2);
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required {
+  background: var(--red) !important;
+  color: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-required:not(.emp-layout-config-field-selected) span,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-optional:not(.emp-layout-config-field-selected) span {
+  color: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected.emp-layout-config-field-required,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected.emp-layout-config-field-optional {
+  outline: none !important;
+  background: var(--mg-field-idle-bg) !important;
+  border: 1px solid var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected span {
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-selected:not(.emp-layout-config-field-panel) {
+  outline: none;
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action {
+  background: rgba(255, 255, 255, 0.16) !important;
+  color: #fff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.28) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer-btn:disabled {
+  opacity: 0.4;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-labeled:not(.tb-btn-danger) {
+  background: var(--gray-fill) !important;
+  color: var(--text-1) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-labeled:not(.tb-btn-danger):hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-required:not(.emp-layout-config-field-selected) span,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-optional:not(.emp-layout-config-field-selected) span {
+  color: #ffffff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected span {
+  color: var(--text-1) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-selected.emp-layout-config-field-panel {
+  box-shadow: var(--mg-focus-ring) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger):not(:disabled) {
+  background: var(--gray-fill) !important;
+  color: var(--accent) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-green:not(:disabled) {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-green:not(:disabled) svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger:not(:disabled) {
+  background: #ffffff !important;
+  color: var(--red) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger:not(:disabled) svg {
+  color: var(--red) !important;
+  stroke: var(--red) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger):not(:disabled):hover {
+  background: var(--gray-fill2) !important;
+  color: var(--mg-brand-green-hover) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger):not(:disabled) svg {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger):not(:disabled):hover svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-label {
+  color: var(--text-2);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn--active {
+  color: var(--mg-brand-green) !important;
+  background: var(--accent-light) !important;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* —— Divisores padronizados: cinza do botão Duplicar (--gray-fill), mais grossos —— */
 .mg-empresas-scope .mobile-menu,
 .mg-empresas-scope .filter-panel__header,
 .mg-empresas-scope .filter-panel__footer,
@@ -3474,11 +3985,39 @@
 }
 
 .mg-empresas-scope .mg-grid th {
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 .mg-empresas-scope .mg-grid td {
-  border-bottom: 1px solid var(--mg-divider);
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
+}
+
+/* Tailwind border-* no escopo MG — evita 1px fixo da utility */
+.cadastro-emp-scope.mg-empresas-scope .border-b,
+.mg-empresas-scope .border-b {
+  border-bottom-width: var(--mg-divider-width) !important;
+  border-bottom-style: solid !important;
+  border-bottom-color: var(--mg-divider) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .border-t,
+.mg-empresas-scope .border-t {
+  border-top-width: var(--mg-divider-width) !important;
+  border-top-style: solid !important;
+  border-top-color: var(--mg-divider) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .border-r,
+.mg-empresas-scope .border-r {
+  border-right-width: var(--mg-divider-width) !important;
+  border-right-style: solid !important;
+  border-right-color: var(--mg-divider) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-search-bar,
+.cadastro-emp-scope.mg-empresas-scope .emp-search-view-wrap > .emp-toolbar-card {
+  border-bottom-width: var(--mg-divider-width) !important;
+  border-bottom-color: var(--mg-divider) !important;
 }
 
 /* Tokens ERP dentro do módulo Empresas — verde #40DE63 no lugar do azul */

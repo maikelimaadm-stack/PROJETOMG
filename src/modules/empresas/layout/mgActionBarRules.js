@@ -44,6 +44,17 @@ export function resolveMgActionBarVisibility({
     };
   }
 
+  if (formBridge.layoutConfigOpen) {
+    return {
+      showNew: false,
+      showSave: false,
+      showCancel: false,
+      showEdit: false,
+      showDelete: false,
+      showDuplicate: false,
+    };
+  }
+
   const editMode = !!formBridge.editMode;
   const isReadOnly = !!formBridge.isReadOnly;
   const isEditing = !!formBridge.isEditing;

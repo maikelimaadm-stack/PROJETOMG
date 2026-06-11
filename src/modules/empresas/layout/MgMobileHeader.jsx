@@ -3,7 +3,8 @@ import { Filter, Hexagon, Menu } from "lucide-react";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 
 export default function MgMobileHeader({ title = "MakGestão ERP" }) {
-  const { toggleMobileMenu, toggleFilterPanel } = useMgEmpresasChrome();
+  const { toggleMobileMenu, toggleFilterPanel, breadcrumbSuffix } = useMgEmpresasChrome();
+  const displayTitle = breadcrumbSuffix || title;
 
   return (
     <header className="mobile-header md:hidden">
@@ -16,7 +17,7 @@ export default function MgMobileHeader({ title = "MakGestão ERP" }) {
         <Menu className="h-5 w-5" />
       </button>
       <div className="min-w-0 flex-1">
-        <h1 className="truncate text-[13px] font-semibold">{title}</h1>
+        <h1 className="truncate text-[13px] font-semibold">{displayTitle}</h1>
       </div>
       <button
         type="button"

@@ -7,6 +7,7 @@ import {
   MoreVertical,
   Paperclip,
   Printer,
+  RotateCcw,
   Search,
   Settings,
 } from "lucide-react";
@@ -57,6 +58,8 @@ export default function MgActionBar({
   showDuplicate = false,
   showNew = true,
   actionsLocked = false,
+  layoutConfigMode = false,
+  layoutToolbar = null,
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
@@ -70,11 +73,67 @@ export default function MgActionBar({
     return () => document.removeEventListener("click", close);
   }, [moreOpen]);
 
+  if (layoutConfigMode && layoutToolbar) {
+    const { isEditing, onBack, onEdit, onSave, onCancel, onRestore } = layoutToolbar;
+
+    return (
+      <div
+        data-template-id="action-bar"
+        className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
+        style={{
+          borderColor: "var(--mg-divider, var(--border))",
+          borderBottomWidth: "var(--mg-divider-width, 2px)",
+          background: "var(--bg-card)",
+        }}
+      >
+        <div className="mg-action-bar__actions flex min-w-0 items-center">
+          <ActionSlot show={!!onBack} width={74}>
+            <ActionLabelBtn className="tb-btn-ghost" onClick={onBack} disabled={actionsLocked} title="Voltar">
+              Voltar
+            </ActionLabelBtn>
+          </ActionSlot>
+          <ActionSlot show={!isEditing && !!onEdit} width={66}>
+            <ActionLabelBtn className="tb-btn-ghost" onClick={onEdit} disabled={actionsLocked} title="Editar layout">
+              Editar
+            </ActionLabelBtn>
+          </ActionSlot>
+          <ActionSlot show={isEditing && !!onSave} width={68}>
+            <ActionLabelBtn className="tb-btn-green" onClick={onSave} disabled={actionsLocked} title="Salvar">
+              Salvar
+            </ActionLabelBtn>
+          </ActionSlot>
+          <ActionSlot show={isEditing && !!onCancel} width={74}>
+            <ActionLabelBtn className="tb-btn-ghost" onClick={onCancel} disabled={actionsLocked} title="Cancelar">
+              Cancelar
+            </ActionLabelBtn>
+          </ActionSlot>
+        </div>
+        <div className="mg-action-bar__end">
+          {isEditing && onRestore ? (
+            <button
+              type="button"
+              className="ios-btn tb-btn tb-btn-ghost tb-btn-icon"
+              onClick={onRestore}
+              disabled={actionsLocked}
+              title="Restaurar padrão"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       data-template-id="action-bar"
       className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
-      style={{ borderColor: "var(--mg-divider, var(--border))", background: "var(--bg-card)" }}
+      style={{
+        borderColor: "var(--mg-divider, var(--border))",
+        borderBottomWidth: "var(--mg-divider-width, 2px)",
+        background: "var(--bg-card)",
+      }}
     >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
         <ActionSlot show={!!onToggleFilter} width={28}>

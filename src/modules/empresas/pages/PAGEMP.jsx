@@ -88,6 +88,7 @@ export default function PAGEMP() {
     filterPanelOpen,
     closeFilterPanel,
     toggleFilterPanel,
+    setBreadcrumbSuffix,
   } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
   const [filterStatus, setFilterStatus] = useState("Todos");
@@ -421,6 +422,15 @@ export default function PAGEMP() {
   useEffect(() => {
     if (!showForm) setFormBridge(null);
   }, [showForm]);
+
+  useEffect(() => {
+    if (showForm && formBridge?.layoutConfigOpen) {
+      setBreadcrumbSuffix("Configuração de layout");
+      return () => setBreadcrumbSuffix(null);
+    }
+    setBreadcrumbSuffix(null);
+    return undefined;
+  }, [showForm, formBridge?.layoutConfigOpen, setBreadcrumbSuffix]);
 
   const handleOpenTableView = useCallback(() => {
     setShowForm(false);
@@ -790,10 +800,12 @@ export default function PAGEMP() {
             onConfigColumns={() => setShowConfigColunas(true)}
             onLayoutConfig={formBridge?.onLayoutConfig}
             actionsLocked={saveCycle.isSaving}
+            layoutConfigMode={!!formBridge?.layoutConfigOpen && !!formBridge?.layoutToolbar}
+            layoutToolbar={formBridge?.layoutToolbar}
             {...actionBarVisibility}
           />
 
-          <div className={`mg-context-panel-wrap${showForm ? " is-visible" : ""}`}>
+          <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
             <MgContextPanel
               code={recordCode}
               title={recordTitle}
