@@ -231,16 +231,16 @@
 .mg-empresas-scope .view-seg {
   display: flex;
   background: var(--gray-fill);
-  border-radius: 8px;
-  padding: 3px;
+  border-radius: 7px;
+  padding: 2px;
   position: relative;
-  height: 34px;
+  height: 28px;
 }
 
 .mg-empresas-scope .view-seg-slider {
   position: absolute;
-  top: 3px;
-  height: 28px;
+  top: 2px;
+  height: 24px;
   background: #ffffff;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -253,10 +253,10 @@
   border: none;
   background: transparent;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 5px;
   color: var(--text-3);
-  width: 34px;
-  height: 28px;
+  width: 30px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -370,13 +370,14 @@
 
 /* Toolbar buttons */
 .mg-empresas-scope .tb-btn {
-  height: 34px;
+  height: 28px;
+  min-height: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0;
-  padding: 0 14px;
-  border-radius: 8px;
+  padding: 0 10px;
+  border-radius: 7px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
@@ -511,7 +512,8 @@
 }
 
 .mg-empresas-scope .tb-btn-icon {
-  width: 34px;
+  width: 28px;
+  min-width: 28px;
   padding: 0;
 }
 
@@ -892,9 +894,9 @@
   gap: 12px;
   flex-shrink: 0;
   margin: 0;
-  min-height: 52px;
-  padding-top: 9px;
-  padding-bottom: 9px;
+  min-height: 40px;
+  padding-top: 6px;
+  padding-bottom: 6px;
 }
 
 .mg-empresas-scope .mg-action-bar__end {
@@ -910,7 +912,7 @@
   padding: 0 12px;
   border-radius: 999px;
   background: var(--gray-fill);
-  height: 34px;
+  height: 28px;
   min-width: 180px;
 }
 

@@ -91,7 +91,7 @@ export default function MgActionBar({
 
         {showSave && onSave ? (
           <ActionLabelBtn
-            className="tb-btn-ghost"
+            className="tb-btn-blue"
             onClick={onSave}
             disabled={actionsLocked}
             title="Salvar"
