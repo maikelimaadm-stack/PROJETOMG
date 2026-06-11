@@ -3063,10 +3063,10 @@
 .cadastro-emp-scope.mg-empresas-scope .emp-form-field-corp .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form:not(.mg-prototype-form--edit) .emp-form-field-control:not(:focus-within):not(.erp-field-open):not(.erp-field-invalid):not(.emp-form-field-error),
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-field-control {
-  background: var(--mg-field-view-bg) !important;
-  border-color: var(--mg-field-view-border) !important;
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
   box-shadow: none !important;
-  color: var(--mg-field-view-text) !important;
+  color: var(--text-1) !important;
 }
 
 /* Overrides index.css — focus unificado no escopo MG (somente edição/novo) */
@@ -3113,12 +3113,12 @@
 .mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-autocomplete,
 .mg-empresas-scope .mg-prototype-form--readonly .border.border-slate-300,
 .mg-empresas-scope .mg-prototype-form--readonly .cad-form-field-bare {
-  background: var(--mg-field-view-bg) !important;
-  border-color: var(--mg-field-view-border) !important;
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
   box-shadow: none !important;
-  color: var(--mg-field-view-text) !important;
+  color: var(--text-1) !important;
   opacity: 1 !important;
-  -webkit-text-fill-color: var(--mg-field-view-text) !important;
+  -webkit-text-fill-color: var(--text-1) !important;
 }
 
 .mg-empresas-scope .mg-prototype-form--readonly .mg-prototype-field :is(input, textarea, .cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display):focus,
@@ -3127,10 +3127,10 @@
 .mg-empresas-scope .mg-prototype-form--readonly .mg-dp.open .mg-dp-field,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-tp.open .mg-tp-field,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-lookup.open .mg-lookup-display {
-  background: var(--mg-field-view-bg) !important;
-  border-color: var(--mg-field-view-border) !important;
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-field-idle-border) !important;
   box-shadow: none !important;
-  color: var(--mg-field-view-text) !important;
+  color: var(--text-1) !important;
   opacity: 1 !important;
 }
 
@@ -3139,8 +3139,8 @@
 .mg-empresas-scope .mg-prototype-form--readonly .mg-tp-icon,
 .mg-empresas-scope .mg-prototype-form--readonly .mg-lookup-icon,
 .mg-empresas-scope .mg-prototype-form--readonly .emp-form-image-empty-icon {
-  color: var(--mg-field-view-text) !important;
-  stroke: var(--mg-field-view-text) !important;
+  color: var(--text-3) !important;
+  stroke: var(--text-3) !important;
   opacity: 1 !important;
 }
 
@@ -3169,17 +3169,16 @@
   opacity: 1;
 }
 
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > input:not([disabled]):placeholder-shown,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > textarea:not([disabled]):placeholder-shown,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .cmd-display:empty,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .mg-lookup-display:empty,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .mg-dp-field:placeholder-shown,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) .mg-tp-field:placeholder-shown {
-  background: var(--mg-field-idle-bg) !important;
-  border-color: var(--mg-field-idle-border) !important;
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > input:not([disabled]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > textarea:not([disabled]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) :is(.cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) :is(.cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display) {
+  background: var(--mg-field-view-bg) !important;
+  border-color: var(--mg-field-view-border) !important;
   box-shadow: none !important;
-  color: var(--text-1) !important;
+  color: var(--mg-field-view-text) !important;
   opacity: 1;
+  -webkit-text-fill-color: var(--mg-field-view-text) !important;
 }
 
 .mg-empresas-scope .mg-prototype-form--edit input[disabled],
@@ -3189,11 +3188,12 @@
 .mg-empresas-scope .mg-prototype-form--edit .mg-lookup.disabled .mg-lookup-display,
 .mg-empresas-scope .mg-prototype-form--edit .mg-dp.is-disabled .mg-dp-field,
 .mg-empresas-scope .mg-prototype-form--edit .mg-tp.is-disabled .mg-tp-field {
-  background: var(--mg-field-idle-bg) !important;
-  border-color: var(--mg-field-idle-border) !important;
+  background: var(--mg-field-view-bg) !important;
+  border-color: var(--mg-field-view-border) !important;
   box-shadow: none !important;
-  color: var(--text-2) !important;
-  opacity: 0.55;
+  color: var(--mg-field-view-text) !important;
+  opacity: 1;
+  -webkit-text-fill-color: var(--mg-field-view-text) !important;
 }
 
 .mg-empresas-scope .mg-prototype-form--edit .cmd-select.open:not(.disabled) .cmd-display,
