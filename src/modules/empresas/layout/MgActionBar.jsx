@@ -6,16 +6,19 @@ import {
   History,
   MoreVertical,
   Paperclip,
-  Pencil,
-  Plus,
   Printer,
-  Save,
   Search,
   Settings,
-  Trash2,
-  X,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
+
+function ActionLabelBtn({ className = "", children, ...props }) {
+  return (
+    <button type="button" className={`ios-btn tb-btn tb-btn-labeled ${className}`} {...props}>
+      {children}
+    </button>
+  );
+}
 
 export default function MgActionBar({
   viewMode = "tabela",
@@ -76,81 +79,69 @@ export default function MgActionBar({
         ) : null}
 
         {showNew && onNew ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-green tb-btn-icon"
+          <ActionLabelBtn
+            className="tb-btn-blue"
             onClick={onNew}
             disabled={actionsLocked}
             title="Novo"
-            aria-label="Novo"
           >
-            <Plus className="h-3.5 w-3.5" />
-          </button>
+            Novo
+          </ActionLabelBtn>
         ) : null}
 
         {showSave && onSave ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-blue tb-btn-icon"
+          <ActionLabelBtn
+            className="tb-btn-ghost"
             onClick={onSave}
             disabled={actionsLocked}
             title="Salvar"
-            aria-label="Salvar"
           >
-            <Save className="h-3.5 w-3.5" />
-          </button>
+            Salvar
+          </ActionLabelBtn>
         ) : null}
 
         {showCancel && onCancel ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-gray tb-btn-icon"
+          <ActionLabelBtn
+            className="tb-btn-ghost"
             onClick={onCancel}
             disabled={actionsLocked}
             title="Cancelar"
-            aria-label="Cancelar"
           >
-            <X className="h-3.5 w-3.5" />
-          </button>
+            Cancelar
+          </ActionLabelBtn>
         ) : null}
 
         {showEdit && onEdit ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-gray tb-btn-icon"
+          <ActionLabelBtn
+            className="tb-btn-ghost"
             onClick={onEdit}
             disabled={actionsLocked}
             title="Editar"
-            aria-label="Editar"
           >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
+            Editar
+          </ActionLabelBtn>
         ) : null}
 
         {showDelete && onDelete ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-red tb-btn-icon"
+          <ActionLabelBtn
+            className="tb-btn-red"
             onClick={onDelete}
             disabled={actionsLocked}
             title="Excluir"
-            aria-label="Excluir"
           >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
+            Excluir
+          </ActionLabelBtn>
         ) : null}
 
         {showDuplicate && onDuplicate ? (
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-gray tb-btn-icon"
+          <ActionLabelBtn
+            className="tb-btn-ghost"
             onClick={onDuplicate}
             disabled={actionsLocked}
             title="Duplicar"
-            aria-label="Duplicar"
           >
-            <Copy className="h-3.5 w-3.5" />
-          </button>
+            Duplicar
+          </ActionLabelBtn>
         ) : null}
       </div>
 
