@@ -3480,7 +3480,6 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
   background: var(--bg-card);
   border-right: 1px solid #ffffff;
-  border-top: 1px solid #ffffff;
   padding: 10px 12px;
   border-radius: 0;
 }
@@ -3563,7 +3562,6 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main {
   background: var(--bg-page);
   border-left: 1px solid #ffffff;
-  border-top: 1px solid #ffffff;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs {
@@ -3578,6 +3576,14 @@
   border-bottom: 1px solid var(--mg-divider) !important;
   border-radius: 0 !important;
   flex-shrink: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab-slider {
+  height: 1px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab.active::after {
+  height: 1px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab {
