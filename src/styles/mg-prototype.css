@@ -92,14 +92,50 @@
   grid-template-columns: unset;
   max-height: 0;
   opacity: 0;
-  transform: translateY(-8px);
+  transform: translateY(-4px);
   margin-right: 0;
+  overflow: hidden;
+  transition:
+    max-height var(--mg-motion-duration) var(--mg-motion-ease),
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-motion-slot--panel.mg-motion-slot--visible {
-  max-height: 56px;
+  max-height: 49px;
   opacity: 1;
   transform: translateY(0);
+}
+
+.mg-empresas-scope .mg-motion-slot--action {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  grid-template-columns: unset;
+  width: auto;
+  max-width: 148px;
+  opacity: 1;
+  transform: none;
+  overflow: hidden;
+  margin-right: 6px;
+  transition:
+    max-width var(--mg-motion-duration) var(--mg-motion-ease),
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    margin-right var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-motion-slot--action:not(.mg-motion-slot--visible) {
+  max-width: 0;
+  opacity: 0;
+  margin-right: 0;
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-motion-slot--action .mg-motion-slot__content {
+  display: inline-flex;
+  align-items: center;
+  min-width: max-content;
+  overflow: hidden;
 }
 
 .mg-empresas-scope .mg-motion-slot--toolbar-widget {
@@ -287,6 +323,7 @@
   padding-bottom: 0;
   padding-left: 8px !important;
   padding-right: 8px !important;
+  border-top: none !important;
   border-bottom: 1px solid var(--border) !important;
   background: var(--bg-card) !important;
   scrollbar-width: none;
@@ -294,6 +331,8 @@
   position: relative;
   overflow-x: auto;
   overflow-y: visible;
+  flex-shrink: 0;
+  z-index: 2;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
@@ -1375,6 +1414,22 @@
   display: flex;
   align-items: center;
   gap: 12px;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-view-stack {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border);
+}
+
+.mg-empresas-scope .mg-view-panel {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* Barra superior — botões neutros, filtro, mais opções e modo ativo em azul accent */
@@ -1533,7 +1588,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 10px 20px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: none;
   background: var(--bg-card);
   flex-shrink: 0;
 }

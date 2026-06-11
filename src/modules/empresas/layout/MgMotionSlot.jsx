@@ -1,12 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const MOTION_MS = 220;
 
 export default function MgMotionSlot({ show, children, className = "" }) {
   const [mounted, setMounted] = useState(show);
   const [visible, setVisible] = useState(show);
+  const hideTimerRef = useRef(null);
 
   useEffect(() => {
+    if (hideTimerRef.current) {
+      window.clearTimeout(hideTimerRef.current);
+      hideTimerRef.current = null;
+    }
+
     if (show) {
       setMounted(true);
       const frame = requestAnimationFrame(() => {
@@ -16,8 +22,17 @@ export default function MgMotionSlot({ show, children, className = "" }) {
     }
 
     setVisible(false);
-    const timer = window.setTimeout(() => setMounted(false), MOTION_MS);
-    return () => window.clearTimeout(timer);
+    hideTimerRef.current = window.setTimeout(() => {
+      setMounted(false);
+      hideTimerRef.current = null;
+    }, MOTION_MS);
+
+    return () => {
+      if (hideTimerRef.current) {
+        window.clearTimeout(hideTimerRef.current);
+        hideTimerRef.current = null;
+      }
+    };
   }, [show]);
 
   if (!mounted) return null;

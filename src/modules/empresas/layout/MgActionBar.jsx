@@ -66,7 +66,7 @@ export default function MgActionBar({
       style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
     >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
-        <MgMotionSlot show={!!onToggleFilter}>
+        <MgMotionSlot show={!!onToggleFilter} className="mg-motion-slot--action">
           <button
             type="button"
             className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
@@ -79,7 +79,7 @@ export default function MgActionBar({
           </button>
         </MgMotionSlot>
 
-        <MgMotionSlot show={showNew && !!onNew}>
+        <MgMotionSlot show={showNew && !!onNew} className="mg-motion-slot--action">
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onNew}
@@ -90,7 +90,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </MgMotionSlot>
 
-        <MgMotionSlot show={showSave && !!onSave}>
+        <MgMotionSlot show={showSave && !!onSave} className="mg-motion-slot--action">
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onSave}
@@ -101,7 +101,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </MgMotionSlot>
 
-        <MgMotionSlot show={showCancel && !!onCancel}>
+        <MgMotionSlot show={showCancel && !!onCancel} className="mg-motion-slot--action">
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onCancel}
@@ -112,7 +112,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </MgMotionSlot>
 
-        <MgMotionSlot show={showEdit && !!onEdit}>
+        <MgMotionSlot show={showEdit && !!onEdit} className="mg-motion-slot--action">
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onEdit}
@@ -123,7 +123,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </MgMotionSlot>
 
-        <MgMotionSlot show={showDelete && !!onDelete}>
+        <MgMotionSlot show={showDelete && !!onDelete} className="mg-motion-slot--action">
           <ActionLabelBtn
             className="tb-btn-red"
             onClick={onDelete}
@@ -134,7 +134,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </MgMotionSlot>
 
-        <MgMotionSlot show={showDuplicate && !!onDuplicate}>
+        <MgMotionSlot show={showDuplicate && !!onDuplicate} className="mg-motion-slot--action">
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onDuplicate}
@@ -147,22 +147,21 @@ export default function MgActionBar({
       </div>
 
       <div className="mg-action-bar__end">
-        <MgMotionSlot show={!showSave} className="mg-motion-slot--toolbar-widget">
-          <div className="mg-search-pill" role="search">
-            <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
-            <input
-              type="text"
-              placeholder="Pesquisar..."
-              value={searchValue}
-              onChange={(event) => onSearchChange?.(event.target.value)}
-              aria-label="Pesquisar"
-            />
-          </div>
-        </MgMotionSlot>
-
-        <MgMotionSlot show={!showSave} className="mg-motion-slot--toolbar-widget">
-          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
-        </MgMotionSlot>
+        {!showSave ? (
+          <>
+            <div className="mg-search-pill" role="search">
+              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
+              <input
+                type="text"
+                placeholder="Pesquisar..."
+                value={searchValue}
+                onChange={(event) => onSearchChange?.(event.target.value)}
+                aria-label="Pesquisar"
+              />
+            </div>
+            <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
+          </>
+        ) : null}
 
         <div className="relative" ref={moreRef}>
           <button
