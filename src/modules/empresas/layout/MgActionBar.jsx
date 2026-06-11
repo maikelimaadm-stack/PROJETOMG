@@ -90,7 +90,7 @@ export default function MgActionBar({
           </button>
         </ActionSlot>
 
-        <ActionSlot show={showNew && !!onNew} width={76}>
+        <ActionSlot show={showNew && !!onNew} width={64}>
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onNew}
@@ -101,7 +101,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </ActionSlot>
 
-        <ActionSlot show={showSave && !!onSave} width={80}>
+        <ActionSlot show={showSave && !!onSave} width={68}>
           <ActionLabelBtn
             className="tb-btn-blue"
             onClick={onSave}
@@ -112,7 +112,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </ActionSlot>
 
-        <ActionSlot show={showCancel && !!onCancel} width={90}>
+        <ActionSlot show={showCancel && !!onCancel} width={74}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onCancel}
@@ -123,7 +123,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </ActionSlot>
 
-        <ActionSlot show={showEdit && !!onEdit} width={82}>
+        <ActionSlot show={showEdit && !!onEdit} width={66}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onEdit}
@@ -134,7 +134,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </ActionSlot>
 
-        <ActionSlot show={showDelete && !!onDelete} width={84}>
+        <ActionSlot show={showDelete && !!onDelete} width={68}>
           <ActionLabelBtn
             className="tb-btn-red"
             onClick={onDelete}
@@ -145,7 +145,7 @@ export default function MgActionBar({
           </ActionLabelBtn>
         </ActionSlot>
 
-        <ActionSlot show={showDuplicate && !!onDuplicate} width={96}>
+        <ActionSlot show={showDuplicate && !!onDuplicate} width={78}>
           <ActionLabelBtn
             className="tb-btn-ghost"
             onClick={onDuplicate}
