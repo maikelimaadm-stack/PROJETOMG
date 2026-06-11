@@ -1186,7 +1186,6 @@ export default function EmpLayoutConfiguratorDialog({
             if (!isEditing || !draggedFieldId || draggedRowId) return;
             previewMoveFieldsLive({
               targetFieldId: field.id,
-              edge: resolveDragInsertEdge(event),
             });
           }}
           onDrop={(event) => {
