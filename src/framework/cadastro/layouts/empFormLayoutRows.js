@@ -203,7 +203,7 @@ export const balanceConfiguredRows = (
  * @param {number} [containerWidthPx]
  */
 /**
- * Garante no máximo 6 campos (card inteiro) ou 4 (card meio) por linha.
+ * Garante no máximo 7 campos (card inteiro) ou 4 (card meio) por linha.
  * @param {{ keepEmptyRows?: boolean }} [options] — true no configurador (linhas vazias para arrastar campos)
  */
 export const enforceMaxFieldsPerCardRows = (
@@ -400,7 +400,7 @@ export const rowHasRoomForField = (row, colSpan = 12, fieldId = null) => {
 };
 
 /**
- * Insere campos nas linhas existentes; cria nova linha quando a atual atinge o máximo (6/4).
+ * Insere campos nas linhas existentes; cria nova linha quando a atual atinge o máximo (7/4).
  */
 export const appendFieldIdsToCardRows = (rows = [], fieldIds = [], cardId = "card", colSpan = 12) => {
   const max = getMaxFieldsPerRow(resolveCardColSpan(colSpan));

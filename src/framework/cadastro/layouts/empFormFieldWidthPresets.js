@@ -175,7 +175,7 @@ export function resolveFieldWidthTypePreset(field, fieldWidthTypes = {}) {
 
 /** Máximo de campos por linha conforme largura do card (colSpan 12 = inteiro, 6 = meio). */
 export const MAX_FIELDS_PER_ROW_BY_COL_SPAN = Object.freeze({
-  12: 6,
+  12: 7,
   6: 4,
 });
 

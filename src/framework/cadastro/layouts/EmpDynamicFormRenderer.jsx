@@ -57,26 +57,6 @@ const isMgCompositeField = (field) => {
   return false;
 };
 
-/** MG: no máximo 2 campos por linha (inteiro ou meio a meio). */
-function splitMgLayoutRows(layoutRows = []) {
-  const next = [];
-  layoutRows.forEach((layoutRow) => {
-    const ids = (layoutRow.fieldIds || []).filter(Boolean);
-    if (ids.length <= 2) {
-      next.push(layoutRow);
-      return;
-    }
-    for (let offset = 0; offset < ids.length; offset += 2) {
-      next.push({
-        ...layoutRow,
-        id: offset === 0 ? layoutRow.id : `${layoutRow.id}_mg_${offset}`,
-        fieldIds: ids.slice(offset, offset + 2),
-      });
-    }
-  });
-  return next;
-}
-
 function resolveCardSlotLayout(card, mgPrototype) {
   const colSpan = resolveCardColSpan(card?.colSpan);
   if (mgPrototype) {
@@ -681,9 +661,6 @@ export default function EmpDynamicFormRenderer({
         if (!hasVisibleInCard) return null;
 
         const cardSlotLayout = resolveCardSlotLayout(card, mgPrototype);
-        const cardLayoutRows = mgPrototype
-          ? splitMgLayoutRows(layoutRows)
-          : layoutRows;
 
         return (
           <div
@@ -699,7 +676,7 @@ export default function EmpDynamicFormRenderer({
               mgPrototype={mgPrototype}
             >
               <div className="emp-form-card-rows">
-                {cardLayoutRows.map((layoutRow) => {
+                {layoutRows.map((layoutRow) => {
                   const rowFields = (layoutRow.fieldIds || [])
                     .map((fieldId) => fields.find((field) => field.id === fieldId))
                     .filter(Boolean)
@@ -709,6 +686,10 @@ export default function EmpDynamicFormRenderer({
                     rowFields.length <= 1
                       ? "emp-form-card-row-grid--single"
                       : "emp-form-card-row-grid--pair";
+                  const rowGridStyle =
+                    mgPrototype && rowFields.length > 1
+                      ? { "--mg-row-cols": String(rowFields.length) }
+                      : undefined;
 
                   return (
                     <div key={layoutRow.id} className="emp-form-card-row">
@@ -717,6 +698,7 @@ export default function EmpDynamicFormRenderer({
                           "emp-form-card-row-grid emp-form-card-row-grid--flex",
                           rowDensityClass
                         )}
+                        style={rowGridStyle}
                       >
                         {rowFields.map((field) => renderField(field, layoutRow.fieldBalance))}
                       </div>
