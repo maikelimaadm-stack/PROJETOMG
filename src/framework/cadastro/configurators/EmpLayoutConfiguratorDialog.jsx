@@ -2,8 +2,6 @@ import React, { useMemo, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import {
-  ChevronLeft,
-  ChevronRight,
   Plus,
   Reply,
   Search,
@@ -20,7 +18,6 @@ import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { cn } from "@/shared/utils/utils";
-import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
 import {
   initCardsByPanel,
@@ -192,8 +189,6 @@ export default function EmpLayoutConfiguratorDialog({
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
   const activeCard = activePanelCards.find((card) => card.id === activeCardId) || activePanelCards[0];
-  const activePanelIndex = Math.max(0, draftPanels.findIndex((panel) => panel.id === activePanel?.id));
-  const activeCardIndex = Math.max(0, activePanelCards.findIndex((card) => card.id === activeCard?.id));
 
   useMgSegSlider(panelSegRef, panelSliderRef, ".seg-tab.active", [
     activePanelId,
@@ -202,25 +197,6 @@ export default function EmpLayoutConfiguratorDialog({
     editingPanelId,
   ]);
 
-  const navigatePanel = (index) => {
-    if (!draftPanels.length) return;
-    const safeIndex = Math.max(0, Math.min(index, draftPanels.length - 1));
-    const panel = draftPanels[safeIndex];
-    if (!panel || panel.id === activePanelId) return;
-    setActivePanelId(panel.id);
-    setSelectedPanelFieldIds([]);
-    const cards = draftCardsByPanel[panel.id]?.cards || [];
-    setActiveCardId(cards[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
-  };
-
-  const navigateCard = (index) => {
-    if (!activePanelCards.length) return;
-    const safeIndex = Math.max(0, Math.min(index, activePanelCards.length - 1));
-    const card = activePanelCards[safeIndex];
-    if (!card || card.id === activeCard?.id) return;
-    setActiveCardId(card.id);
-    setSelectedPanelFieldIds([]);
-  };
   const activeCardSpan = activeCard ? resolveCardColSpan(activeCard.colSpan) : 12;
   const layoutBalanceWidthPx = Math.max(
     200,
@@ -1022,22 +998,88 @@ export default function EmpLayoutConfiguratorDialog({
         </DialogHeader>
       )}
 
-      <div className="mg-context-panel-wrap is-visible">
-        <MgContextPanel
-          title={`Configuração de layout • ${formatPanelLabel(activePanel?.label)}`}
-          total={draftPanels.length}
-          currentIndex={activePanelIndex}
-          onFirst={() => navigatePanel(0)}
-          onPrevious={() => navigatePanel(activePanelIndex - 1)}
-          onNext={() => navigatePanel(activePanelIndex + 1)}
-          onLast={() => navigatePanel(draftPanels.length - 1)}
-          disabled={draftPanels.length <= 1}
-        />
+      <div className="mg-panel-tabs-strip emp-layout-config-panel-tabs shrink-0 px-3 md:px-5">
+        <div className="flex min-h-[34px] items-end gap-2">
+          <div className="emp-layout-config-panel-actions relative z-20 mr-1 flex shrink-0 items-center gap-1.5 self-center">
+            {isEditing && (
+              <LayoutIconBtn className="tb-btn-green" onClick={createPanel} title="Novo painel">
+                <Plus className="h-3.5 w-3.5" />
+              </LayoutIconBtn>
+            )}
+            {isEditing && (
+              <LayoutIconBtn
+                className="tb-btn-danger"
+                disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
+                onClick={deletePanel}
+                title="Excluir painel"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </LayoutIconBtn>
+            )}
+          </div>
+          <div className="seg-control min-w-0 flex-1" role="tablist" ref={panelSegRef}>
+            <div className="seg-tab-slider" ref={panelSliderRef} aria-hidden="true" />
+            {draftPanels.map((panel) => {
+              const active = activePanel?.id === panel.id;
+              return (
+                <button
+                  key={panel.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  draggable={isEditing && !fixedPanelIds.includes(panel.id)}
+                  onDragStart={() => {
+                    setDraggedPanelId(panel.id);
+                    setActivePanelId(panel.id);
+                  }}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    reorderPanel(panel.id);
+                  }}
+                  onDrop={() => setDraggedPanelId(null)}
+                  onDragEnd={() => setDraggedPanelId(null)}
+                  onClick={() => {
+                    setActivePanelId(panel.id);
+                    setSelectedPanelFieldIds([]);
+                  }}
+                  onDoubleClick={() => {
+                    if (isEditing && !systemPanelIds.includes(panel.id)) {
+                      setEditingPanelId(panel.id);
+                    }
+                  }}
+                  className={`seg-tab${active ? " active" : ""}${panel.hidden ? " emp-form-tab-hidden-panel" : ""}`}
+                >
+                  {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
+                  {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
+                    <Input
+                      value={panel.label || ""}
+                      autoFocus
+                      onClick={(event) => event.stopPropagation()}
+                      onBlur={() => setEditingPanelId(null)}
+                      onChange={(event) =>
+                        setDraftPanels((prev) =>
+                          prev.map((item) =>
+                            item.id === panel.id
+                              ? { ...item, label: formatPanelLabel(event.target.value) }
+                              : item
+                          )
+                        )
+                      }
+                      className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
+                    />
+                  ) : (
+                    formatPanelLabel(panel.label)
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <EmpSplitToolbarLayout className="min-h-0 flex-1" toolbar={null}>
         <div className="emp-layout-config-grid grid min-h-0 h-full flex-1 grid-cols-[280px_48px_minmax(0,1fr)]">
-          <aside className="emp-layout-config-sidebar flex flex-col overflow-hidden p-2">
+          <aside className="emp-layout-config-sidebar flex flex-col overflow-hidden">
             <div className="emp-layout-config-sidebar-tabs mb-2 flex gap-1">
               <button
                 type="button"
@@ -1057,7 +1099,7 @@ export default function EmpLayoutConfiguratorDialog({
             <div className="mb-2 text-sm font-semibold" style={{ color: "var(--text-1)" }}>
               {sidebarMode === "available" ? "Campos disponíveis" : "Campos em uso no layout"}
             </div>
-            <div className="mg-search-pill mb-3 w-full" role="search">
+            <div className="mg-search-pill emp-layout-config-sidebar-search mb-3 w-full max-w-full" role="search">
               <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
               <input
                 type="text"
@@ -1118,86 +1160,6 @@ export default function EmpLayoutConfiguratorDialog({
             className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden"
             data-active-card-span={String(activeCardSpan)}
           >
-            <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
-              <div className="mg-panel-tabs-strip shrink-0 px-3 md:px-5">
-                <div className="flex min-h-[34px] items-end gap-2">
-                  <div className="emp-layout-config-panel-actions relative z-20 mr-1 flex shrink-0 items-center gap-1.5 self-center">
-                    {isEditing && (
-                      <LayoutIconBtn className="tb-btn-green" onClick={createPanel} title="Novo painel">
-                        <Plus className="h-3.5 w-3.5" />
-                      </LayoutIconBtn>
-                    )}
-                    {isEditing && (
-                      <LayoutIconBtn
-                        className="tb-btn-danger"
-                        disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
-                        onClick={deletePanel}
-                        title="Excluir painel"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </LayoutIconBtn>
-                    )}
-                  </div>
-                  <div className="seg-control min-w-0 flex-1" role="tablist" ref={panelSegRef}>
-                    <div className="seg-tab-slider" ref={panelSliderRef} aria-hidden="true" />
-                    {draftPanels.map((panel) => {
-                      const active = activePanel?.id === panel.id;
-                      return (
-                        <button
-                          key={panel.id}
-                          type="button"
-                          role="tab"
-                          aria-selected={active}
-                          draggable={isEditing && !fixedPanelIds.includes(panel.id)}
-                          onDragStart={() => {
-                            setDraggedPanelId(panel.id);
-                            setActivePanelId(panel.id);
-                          }}
-                          onDragOver={(event) => {
-                            event.preventDefault();
-                            reorderPanel(panel.id);
-                          }}
-                          onDrop={() => setDraggedPanelId(null)}
-                          onDragEnd={() => setDraggedPanelId(null)}
-                          onClick={() => {
-                            setActivePanelId(panel.id);
-                            setSelectedPanelFieldIds([]);
-                          }}
-                          onDoubleClick={() => {
-                            if (isEditing && !systemPanelIds.includes(panel.id)) {
-                              setEditingPanelId(panel.id);
-                            }
-                          }}
-                          className={`seg-tab${active ? " active" : ""}${panel.hidden ? " emp-form-tab-hidden-panel" : ""}`}
-                        >
-                          {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
-                          {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
-                            <Input
-                              value={panel.label || ""}
-                              autoFocus
-                              onClick={(event) => event.stopPropagation()}
-                              onBlur={() => setEditingPanelId(null)}
-                              onChange={(event) =>
-                                setDraftPanels((prev) =>
-                                  prev.map((item) =>
-                                    item.id === panel.id
-                                      ? { ...item, label: formatPanelLabel(event.target.value) }
-                                      : item
-                                  )
-                                )
-                              }
-                              className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
-                            />
-                          ) : (
-                            formatPanelLabel(panel.label)
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-
               <div className="emp-layout-config-cards-bar">
                 {isEditing && (
                   <button
@@ -1269,49 +1231,6 @@ export default function EmpLayoutConfiguratorDialog({
                     </div>
                   );
                 })}
-                {activePanelCards.length > 1 ? (
-                  <div className="mg-context-panel__nav ml-auto flex items-center gap-1">
-                    <button
-                      type="button"
-                      className="mg-nav-btn ios-btn"
-                      onClick={() => navigateCard(0)}
-                      disabled={activeCardIndex <= 0}
-                      title="Primeiro card"
-                    >
-                      <SkipBack className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      className="mg-nav-btn ios-btn"
-                      onClick={() => navigateCard(activeCardIndex - 1)}
-                      disabled={activeCardIndex <= 0}
-                      title="Card anterior"
-                    >
-                      <ChevronLeft className="h-3 w-3" />
-                    </button>
-                    <span className="mg-context-panel__counter">
-                      {activeCardIndex + 1}/{activePanelCards.length}
-                    </span>
-                    <button
-                      type="button"
-                      className="mg-nav-btn ios-btn"
-                      onClick={() => navigateCard(activeCardIndex + 1)}
-                      disabled={activeCardIndex >= activePanelCards.length - 1}
-                      title="Próximo card"
-                    >
-                      <ChevronRight className="h-3 w-3" />
-                    </button>
-                    <button
-                      type="button"
-                      className="mg-nav-btn ios-btn"
-                      onClick={() => navigateCard(activePanelCards.length - 1)}
-                      disabled={activeCardIndex >= activePanelCards.length - 1}
-                      title="Último card"
-                    >
-                      <SkipForward className="h-3 w-3" />
-                    </button>
-                  </div>
-                ) : null}
               </div>
 
               <div
@@ -1389,7 +1308,7 @@ export default function EmpLayoutConfiguratorDialog({
                             }}
                           >
                             {rowFields.length === 0 && isEditing ? (
-                              <span className="emp-layout-config-row-dropzone flex min-h-[40px] flex-1 items-center justify-center rounded border border-dashed px-2 text-[10px]">
+                              <span className="emp-layout-config-row-dropzone flex min-h-[var(--mg-field-height)] flex-1 items-center justify-center rounded px-2 text-[10px]">
                                 Arraste campos para esta linha
                               </span>
                             ) : null}
@@ -1438,7 +1357,6 @@ export default function EmpLayoutConfiguratorDialog({
                   </div>
                 )}
               </div>
-            </div>
           </main>
         </div>
       </EmpSplitToolbarLayout>

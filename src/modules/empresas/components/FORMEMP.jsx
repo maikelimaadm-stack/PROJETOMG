@@ -567,7 +567,7 @@ export default function FORMEMP({
   const operationLabel = useMemo(
     () =>
       layoutConfigOpen
-        ? "CONFIGURAÇÃO"
+        ? "Configuração de layout"
         : resolveRecordOperationLabel({
             isEditing,
             editMode,

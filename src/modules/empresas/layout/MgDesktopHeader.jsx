@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Bell, ChevronRight, CircleHelp, Grid3x3, Hexagon, User } from "lucide-react";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
+import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 
 function getUserInitials(user) {
   const name = String(user?.nome || user?.usuario || user?.email || "AR").trim();
@@ -14,8 +15,12 @@ function getUserInitials(user) {
 export default function MgDesktopHeader() {
   const { pathname } = useLocation();
   const { user } = useAuth();
+  const { breadcrumbSuffix } = useMgEmpresasChrome();
   const initials = getUserInitials(user);
   const crumbs = buildErpBreadcrumbs(pathname);
+  if (breadcrumbSuffix) {
+    crumbs.push({ label: breadcrumbSuffix, isPageTitle: true });
+  }
 
   return (
     <header data-template-id="header-bar" className="mg-desktop-header hidden shrink-0 md:flex">

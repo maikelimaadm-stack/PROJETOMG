@@ -88,6 +88,7 @@ export default function PAGEMP() {
     filterPanelOpen,
     closeFilterPanel,
     toggleFilterPanel,
+    setBreadcrumbSuffix,
   } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
   const [filterStatus, setFilterStatus] = useState("Todos");
@@ -421,6 +422,15 @@ export default function PAGEMP() {
   useEffect(() => {
     if (!showForm) setFormBridge(null);
   }, [showForm]);
+
+  useEffect(() => {
+    if (showForm && formBridge?.layoutConfigOpen) {
+      setBreadcrumbSuffix("Configuração de layout");
+      return () => setBreadcrumbSuffix(null);
+    }
+    setBreadcrumbSuffix(null);
+    return undefined;
+  }, [showForm, formBridge?.layoutConfigOpen, setBreadcrumbSuffix]);
 
   const handleOpenTableView = useCallback(() => {
     setShowForm(false);

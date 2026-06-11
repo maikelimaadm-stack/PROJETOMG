@@ -7,6 +7,7 @@ export function MgEmpresasChromeProvider({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarPinned, setSidebarPinned] = useState(false);
   const [viewMode, setViewMode] = useState("tabela");
+  const [breadcrumbSuffix, setBreadcrumbSuffix] = useState(null);
   const onViewModeChangeRef = useRef(null);
 
   const registerViewModeBridge = useCallback((nextValue, nextHandler) => {
@@ -34,6 +35,8 @@ export function MgEmpresasChromeProvider({ children }) {
       viewMode,
       onViewModeChange,
       registerViewModeBridge,
+      breadcrumbSuffix,
+      setBreadcrumbSuffix,
     }),
     [
       filterPanelOpen,
@@ -42,6 +45,7 @@ export function MgEmpresasChromeProvider({ children }) {
       registerViewModeBridge,
       sidebarPinned,
       viewMode,
+      breadcrumbSuffix,
     ]
   );
 

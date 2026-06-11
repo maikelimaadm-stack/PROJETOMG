@@ -3472,8 +3472,10 @@
   color: var(--text-1);
 }
 
-.mg-empresas-scope .emp-layout-configurator .mg-context-panel-wrap.is-visible {
-  max-height: 32px;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs {
+  background: var(--bg-card) !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
+  flex-shrink: 0;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-grid {
@@ -3485,6 +3487,17 @@
   background: var(--bg-card);
   border-right: var(--mg-divider-width) solid var(--mg-divider);
   padding: 10px 12px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search input {
+  width: 100%;
+  min-width: 0;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list {
@@ -3538,7 +3551,8 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main {
-  background: var(--bg-card);
+  background: var(--bg-page);
+  border-left: var(--mg-divider-width) solid var(--mg-divider);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-tabs {
@@ -3605,8 +3619,8 @@
   align-items: center;
   gap: var(--mg-cards-layout-gap);
   padding: 8px 12px 0;
-  border-bottom: var(--mg-divider-width) solid var(--mg-divider);
-  background: var(--bg-card);
+  border-bottom: none;
+  background: transparent;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-cards-bar .tb-btn-labeled {
@@ -3663,15 +3677,13 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell {
   border: none;
   border-radius: var(--mg-radius-card);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  box-shadow: none;
   background: var(--bg-card);
   padding: 10px 16px 16px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--full.emp-layout-config-card-shell {
-  box-shadow:
-    0 1px 4px rgba(0, 0, 0, 0.03),
-    inset 0 0 0 1px rgba(217, 119, 6, 0.35);
+  box-shadow: none;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-help {
@@ -3705,8 +3717,10 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-dropzone {
-  border-color: var(--mg-divider);
+  border: none;
+  background: var(--gray-fill);
   color: var(--text-3);
+  border-radius: var(--mg-radius-control);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer {
