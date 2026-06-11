@@ -13,7 +13,6 @@ export default function MgPrototypeSidebar() {
       data-template-id="sidebar-nav"
       id="sidebar"
       className={`erp-sidebar hidden shrink-0 flex-col md:flex${sidebarPinned ? " pinned" : ""}`}
-      style={{ background: "var(--bg-surface)" }}
     >
       <div className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
         {ERP_MENU_SECTIONS.map((section) => (
@@ -41,10 +40,10 @@ export default function MgPrototypeSidebar() {
         ))}
       </div>
 
-      <div className="shrink-0 border-t p-2" style={{ borderColor: "var(--border)" }}>
+      <div className="shrink-0 border-t p-2" style={{ borderColor: "var(--mg-divider, var(--border))" }}>
         <button type="button" className="ni ios-btn w-full" onClick={toggleSidebarPinned}>
           <Pin className="h-3.5 w-3.5 shrink-0" />
-          <span className="nl text-[11px]">Fixar menu</span>
+          <span className="nl">Fixar menu</span>
         </button>
       </div>
     </nav>

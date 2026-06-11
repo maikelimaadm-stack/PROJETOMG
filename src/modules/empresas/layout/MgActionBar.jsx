@@ -74,7 +74,7 @@ export default function MgActionBar({
     <div
       data-template-id="action-bar"
       className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 border-b px-5 md:flex"
-      style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
+      style={{ borderColor: "var(--mg-divider, var(--border))", background: "var(--bg-card)" }}
     >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
         <ActionSlot show={!!onToggleFilter} width={34}>
