@@ -77,7 +77,7 @@ export default function MgActionBar({
       style={{ borderColor: "var(--mg-divider, var(--border))", background: "var(--bg-card)" }}
     >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
-        <ActionSlot show={!!onToggleFilter} width={34}>
+        <ActionSlot show={!!onToggleFilter} width={28}>
           <button
             type="button"
             className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
@@ -92,7 +92,7 @@ export default function MgActionBar({
 
         <ActionSlot show={showNew && !!onNew} width={64}>
           <ActionLabelBtn
-            className="tb-btn-blue"
+            className="tb-btn-green"
             onClick={onNew}
             disabled={actionsLocked}
             title="Novo"
@@ -103,7 +103,7 @@ export default function MgActionBar({
 
         <ActionSlot show={showSave && !!onSave} width={68}>
           <ActionLabelBtn
-            className="tb-btn-blue"
+            className="tb-btn-green"
             onClick={onSave}
             disabled={actionsLocked}
             title="Salvar"
@@ -136,7 +136,7 @@ export default function MgActionBar({
 
         <ActionSlot show={showDelete && !!onDelete} width={68}>
           <ActionLabelBtn
-            className="tb-btn-red"
+            className="tb-btn-ghost tb-btn-danger"
             onClick={onDelete}
             disabled={actionsLocked}
             title="Excluir"
