@@ -418,10 +418,15 @@ function FieldFrameCorp({
   );
 }
 
-function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, children }) {
+function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, mgPrototype = false, children }) {
   const showHeader = Boolean(card.label?.trim());
   const collapsible = collapsibleEnabled && card.collapsible !== false && showHeader;
   const [open, setOpen] = useState(true);
+  const cardClassName = cn(
+    "emp-form-card",
+    mgPrototype ? "mg-emp-card p-4" : "erp-card p-4",
+    collapsible && "emp-form-card--collapsible"
+  );
 
   useEffect(() => {
     setOpen(true);
@@ -433,7 +438,7 @@ function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, childre
 
   if (!collapsible) {
     return (
-      <section className="emp-form-card erp-card p-4">
+      <section className={cardClassName}>
         <h3 className="emp-form-card-title mb-3 text-sm font-semibold">{card.label}</h3>
         <div className="emp-form-card-body grid grid-cols-1 gap-3">{children}</div>
       </section>
@@ -441,7 +446,7 @@ function FormCardSection({ card, panelId, recordKey, collapsibleEnabled, childre
   }
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="emp-form-card emp-form-card--collapsible">
+    <Collapsible open={open} onOpenChange={setOpen} className={cardClassName}>
       <section>
         <CollapsibleTrigger asChild>
           <button
@@ -620,6 +625,7 @@ export default function EmpDynamicFormRenderer({
               panelId={activePanel?.id}
               recordKey={recordKey}
               collapsibleEnabled={collapsibleEnabled}
+              mgPrototype={mgPrototype}
             >
               <div className="emp-form-card-rows">
                 {layoutRows.map((layoutRow) => {

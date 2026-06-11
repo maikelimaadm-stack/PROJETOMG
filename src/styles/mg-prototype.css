@@ -820,18 +820,30 @@
   padding: 0;
 }
 
-/* Campos do formulário — visual fg, layout emp-form-field-corp preservado */
+/* Campos do formulário — labels unificadas (mesmo estilo de Tipo de Pessoa / Proprietário) */
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .fg-label,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-fields [data-field] > label,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .cmd-label,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .mg-dp-label,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .mg-tp-label,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .mg-lookup-label,
 .mg-empresas-scope .mg-prototype-field .fg-label,
 .mg-empresas-scope .mg-prototype-field .emp-form-field-label-top {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-2);
-  line-height: 1;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--text-2) !important;
+  line-height: 1 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
 }
 
-.mg-empresas-scope .mg-prototype-field .fg-label.required::after {
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .fg-label.required::after,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .cmd-label.req::after,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .mg-dp-label.req::after,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .mg-lookup-label.req::after {
   content: " *";
   color: var(--red);
+  font-weight: 600;
 }
 
 .mg-empresas-scope .mg-prototype-field .emp-form-field-control {
@@ -1384,7 +1396,7 @@
 }
 
 .mg-empresas-scope .mg-emp-card,
-.mg-empresas-scope .mg-prototype-form .emp-form-card:not(.emp-form-card--virtual) {
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card:not(.emp-form-card--virtual) {
   border: none !important;
   border-radius: var(--mg-radius-card) !important;
   background: var(--bg-card) !important;
@@ -1392,7 +1404,23 @@
   overflow: visible !important;
 }
 
-.mg-empresas-scope .mg-emp-card {
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card {
+  padding: 16px !important;
+  cursor: default !important;
+  transform: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card:hover,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:hover,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card:active,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:active {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
+  background: var(--bg-card) !important;
+  transform: none !important;
+}
+
+.mg-empresas-scope .mg-emp-card:not(.emp-form-card) {
   cursor: pointer;
   outline: none;
   transition:
@@ -1401,11 +1429,11 @@
     transform 100ms ease;
 }
 
-.mg-empresas-scope .mg-emp-card:hover:not(.mg-emp-card--selected) {
+.mg-empresas-scope .mg-emp-card:not(.emp-form-card):hover:not(.mg-emp-card--selected) {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
 }
 
-.mg-empresas-scope .mg-emp-card:focus-visible {
+.mg-empresas-scope .mg-emp-card:not(.emp-form-card):focus-visible {
   box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
@@ -1416,7 +1444,7 @@
   box-shadow: 0 4px 14px rgba(40, 153, 245, 0.14);
 }
 
-.mg-empresas-scope .mg-emp-card:active:not(.mg-emp-card--selected) {
+.mg-empresas-scope .mg-emp-card:not(.emp-form-card):active:not(.mg-emp-card--selected) {
   transform: scale(0.995);
 }
 
@@ -1987,12 +2015,6 @@
   font-weight: 600 !important;
   padding: 0 0 8px !important;
   background: transparent !important;
-}
-
-.mg-empresas-scope .mg-prototype-form .emp-form-card.erp-card,
-.mg-empresas-scope .mg-prototype-form .emp-form-card:not(.emp-form-card--virtual),
-.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible {
-  padding: 8px 10px !important;
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-card .emp-form-card-body,
