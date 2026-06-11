@@ -576,6 +576,7 @@ export default function FORMEMP({
       isDuplicating,
       recordMeta,
       onSave: () => handleSubmit(),
+      onCancel,
       onEdit: () => setEditMode(true),
       onLayoutConfig: () => {
         if (filterOpen) onToggleFilter?.();
@@ -589,6 +590,7 @@ export default function FORMEMP({
     isEditing,
     isDuplicating,
     recordMeta,
+    onCancel,
     filterOpen,
     onToggleFilter,
   ]);

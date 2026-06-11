@@ -13,6 +13,7 @@ import {
   Search,
   Settings,
   Trash2,
+  X,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
 
@@ -24,6 +25,7 @@ export default function MgActionBar({
   onToggleFilter,
   onNew,
   onSave,
+  onCancel,
   onEdit,
   onDelete,
   onDuplicate,
@@ -34,8 +36,10 @@ export default function MgActionBar({
   onConfigColumns,
   onLayoutConfig,
   showSave = false,
+  showCancel = false,
   showEdit = false,
   showDelete = false,
+  showDuplicate = false,
   showNew = true,
   actionsLocked = false,
 }) {
@@ -97,6 +101,19 @@ export default function MgActionBar({
           </button>
         ) : null}
 
+        {showCancel && onCancel ? (
+          <button
+            type="button"
+            className="ios-btn tb-btn tb-btn-gray tb-btn-icon"
+            onClick={onCancel}
+            disabled={actionsLocked}
+            title="Cancelar"
+            aria-label="Cancelar"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        ) : null}
+
         {showEdit && onEdit ? (
           <button
             type="button"
@@ -120,6 +137,19 @@ export default function MgActionBar({
             aria-label="Excluir"
           >
             <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        ) : null}
+
+        {showDuplicate && onDuplicate ? (
+          <button
+            type="button"
+            className="ios-btn tb-btn tb-btn-gray tb-btn-icon"
+            onClick={onDuplicate}
+            disabled={actionsLocked}
+            title="Duplicar"
+            aria-label="Duplicar"
+          >
+            <Copy className="h-3.5 w-3.5" />
           </button>
         ) : null}
       </div>
@@ -148,7 +178,7 @@ export default function MgActionBar({
             <MoreVertical className="h-4 w-4" />
           </button>
           <div id="more-dd" className={`dropdown-menu${moreOpen ? " open" : ""}`}>
-            {onDuplicate ? (
+            {onDuplicate && !showDuplicate ? (
               <button type="button" onClick={() => { onDuplicate(); setMoreOpen(false); }}>
                 <Copy className="h-4 w-4" />
                 Duplicar

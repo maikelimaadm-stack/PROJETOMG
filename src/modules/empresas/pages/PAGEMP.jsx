@@ -23,6 +23,7 @@ import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
+import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -393,6 +394,21 @@ export default function PAGEMP() {
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
 
+  const actionBarVisibility = useMemo(
+    () =>
+      resolveMgActionBarVisibility({
+        showForm,
+        formBridge,
+        selectedCount: selectedTableItems.length,
+        hasRecord: !!editingEmp?.id,
+      }),
+    [showForm, formBridge, selectedTableItems.length, editingEmp?.id]
+  );
+
+  useEffect(() => {
+    if (!showForm) setFormBridge(null);
+  }, [showForm]);
+
   const handleOpenTableView = useCallback(() => {
     setShowForm(false);
     setEditingEmp(null);
@@ -729,6 +745,7 @@ export default function PAGEMP() {
             onToggleFilter={toggleFilterPanel}
             onNew={handleNew}
             onSave={formBridge?.onSave}
+            onCancel={formBridge?.onCancel ?? formCancel}
             onEdit={formBridge?.onEdit}
             onDelete={
               showForm
@@ -750,11 +767,8 @@ export default function PAGEMP() {
             onExportPdf={handleExportPdf}
             onConfigColumns={() => setShowConfigColunas(true)}
             onLayoutConfig={formBridge?.onLayoutConfig}
-            showSave={!!formBridge?.editMode}
-            showEdit={!!formBridge?.isReadOnly}
-            showDelete={showForm ? !!editingEmp : selectedTableItems.length > 0}
-            showNew={!formBridge?.editMode}
             actionsLocked={saveCycle.isSaving}
+            {...actionBarVisibility}
           />
 
           {showForm ? (
