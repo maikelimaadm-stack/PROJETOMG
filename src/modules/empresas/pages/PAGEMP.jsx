@@ -793,7 +793,7 @@ export default function PAGEMP() {
             {...actionBarVisibility}
           />
 
-          <div className={`mg-context-panel-wrap${showForm ? " is-visible" : ""}`}>
+          <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
             <MgContextPanel
               code={recordCode}
               title={recordTitle}

@@ -13,6 +13,8 @@ import {
   RotateCcw,
   Search,
   Settings,
+  SkipBack,
+  SkipForward,
   Trash2,
   X,
 } from "lucide-react";
@@ -20,15 +22,15 @@ import EmpLayoutFieldSettingsPopover from "@/framework/cadastro/layouts/EmpLayou
 import EmpLayoutFieldStatusIcons from "@/framework/cadastro/layouts/EmpLayoutFieldStatusIcons";
 import { showWarning } from "@/shared/feedback";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
-import EmpToolbarIcon from "@/framework/cadastro/toolbars/EmpToolbarIcon";
 import {
-  EMP_TOOLBAR_BTN,
   EMP_TOOLBAR_SEARCH_INPUT,
   EMP_TOOLBAR_SEARCH_WRAP,
 } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { cn } from "@/shared/utils/utils";
+import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
+import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
 import {
   initCardsByPanel,
   flattenLayoutFromCards,
@@ -65,13 +67,23 @@ const DEFAULT_SYSTEM_PANEL_IDS = ["principais", "endereco", "observacoes", "camp
 const DEFAULT_FIXED_PANEL_IDS = [];
 const DEFAULT_FIXED_VISIBLE_FIELD_IDS = [];
 
-const ToolbarBtn = ({ children, className = "", ...props }) => (
-  <button type="button" className={`${EMP_TOOLBAR_BTN} ${className}`} {...props}>
+const LayoutToolbarBtn = ({ className = "", children, ...props }) => (
+  <button type="button" className={`ios-btn tb-btn ${className}`} {...props}>
     {children}
   </button>
 );
 
-const LABELED_BTN_CLASS = "emp-toolbar-btn-labeled w-auto px-2 gap-1.5 text-[12px] font-medium";
+const LayoutIconBtn = ({ className = "", children, ...props }) => (
+  <LayoutToolbarBtn className={`tb-btn-ghost tb-btn-icon ${className}`} {...props}>
+    {children}
+  </LayoutToolbarBtn>
+);
+
+const LayoutLabeledBtn = ({ className = "", children, ...props }) => (
+  <LayoutToolbarBtn className={`tb-btn-ghost tb-btn-labeled ${className}`} {...props}>
+    {children}
+  </LayoutToolbarBtn>
+);
 
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
@@ -140,6 +152,8 @@ export default function EmpLayoutConfiguratorDialog({
   const [fieldSettingsTarget, setFieldSettingsTarget] = useState(null);
   const [fieldSettingsAnchor, setFieldSettingsAnchor] = useState(null);
   const wasOpenRef = useRef(false);
+  const panelSegRef = useRef(null);
+  const panelSliderRef = useRef(null);
 
   React.useEffect(() => {
     if (!open) {
@@ -185,6 +199,35 @@ export default function EmpLayoutConfiguratorDialog({
   const activePanel = draftPanels.find((panel) => panel.id === activePanelId) || draftPanels[0];
   const activePanelCards = draftCardsByPanel[activePanel?.id]?.cards || [];
   const activeCard = activePanelCards.find((card) => card.id === activeCardId) || activePanelCards[0];
+  const activePanelIndex = Math.max(0, draftPanels.findIndex((panel) => panel.id === activePanel?.id));
+  const activeCardIndex = Math.max(0, activePanelCards.findIndex((card) => card.id === activeCard?.id));
+
+  useMgSegSlider(panelSegRef, panelSliderRef, ".seg-tab.active", [
+    activePanelId,
+    draftPanels,
+    isEditing,
+    editingPanelId,
+  ]);
+
+  const navigatePanel = (index) => {
+    if (!draftPanels.length) return;
+    const safeIndex = Math.max(0, Math.min(index, draftPanels.length - 1));
+    const panel = draftPanels[safeIndex];
+    if (!panel || panel.id === activePanelId) return;
+    setActivePanelId(panel.id);
+    setSelectedPanelFieldIds([]);
+    const cards = draftCardsByPanel[panel.id]?.cards || [];
+    setActiveCardId(cards[0]?.id || DEFAULT_VIRTUAL_CARD_ID);
+  };
+
+  const navigateCard = (index) => {
+    if (!activePanelCards.length) return;
+    const safeIndex = Math.max(0, Math.min(index, activePanelCards.length - 1));
+    const card = activePanelCards[safeIndex];
+    if (!card || card.id === activeCard?.id) return;
+    setActiveCardId(card.id);
+    setSelectedPanelFieldIds([]);
+  };
   const activeCardSpan = activeCard ? resolveCardColSpan(activeCard.colSpan) : 12;
   const layoutBalanceWidthPx = Math.max(
     200,
@@ -943,7 +986,7 @@ export default function EmpLayoutConfiguratorDialog({
 
   const content = (
     <div
-      className={`cadastro-emp-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}`}
+      className={`cadastro-emp-scope mg-empresas-scope emp-layout-configurator flex h-full w-full flex-col overflow-hidden${isEditing ? " emp-layout-config-editing" : ""}`}
       data-active-card-span={String(activeCardSpan)}
     >
       {!inline && (
@@ -952,68 +995,71 @@ export default function EmpLayoutConfiguratorDialog({
         </DialogHeader>
       )}
 
-      <EmpSplitToolbarLayout
-        className="flex-1"
-        toolbar={
-          <div className="emp-layout-config-toolbar emp-toolbar flex h-[35px] min-h-[35px] max-h-[35px] shrink-0 items-center gap-1.5 overflow-x-auto overflow-y-hidden whitespace-nowrap bg-white px-2 py-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <ToolbarBtn onClick={() => onOpenChange(false)} title="Voltar">
-              <EmpToolbarIcon icon={ChevronLeft} nav />
-            </ToolbarBtn>
-            {!isEditing && (
-              <ToolbarBtn onClick={() => setIsEditing(true)} className={LABELED_BTN_CLASS} title="Editar layout">
-                <EmpToolbarIcon icon={Pencil} />
-                <span>Editar</span>
-              </ToolbarBtn>
-            )}
-            {isEditing && (
-              <ToolbarBtn onClick={handleSave} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-new`} title="Salvar">
-                <EmpToolbarIcon icon={Check} />
-                <span>Salvar</span>
-              </ToolbarBtn>
-            )}
-            {isEditing && (
-              <ToolbarBtn onClick={discardChanges} className={LABELED_BTN_CLASS} title="Cancelar alterações">
-                <EmpToolbarIcon icon={X} />
-                <span>Cancelar</span>
-              </ToolbarBtn>
-            )}
-            <div className="ml-auto">
-              {isEditing && (
-                <ToolbarBtn onClick={restoreDefault} title="Restaurar padrão">
-                  <EmpToolbarIcon icon={RotateCcw} />
-                </ToolbarBtn>
-              )}
-            </div>
-          </div>
-        }
-      >
-        <div className="grid min-h-0 h-full flex-1 grid-cols-[280px_48px_minmax(0,1fr)]">
-          <aside className="flex flex-col overflow-hidden border-r border-[#d6dce8] bg-white p-2">
-            <div className="mb-2 flex gap-1">
+      <div className="mg-layout-config-action-bar mg-action-bar hidden w-full shrink-0 items-center gap-2 border-b px-5 md:flex">
+        <LayoutLabeledBtn onClick={() => onOpenChange(false)} title="Voltar">
+          <ChevronLeft className="h-3.5 w-3.5" />
+          Voltar
+        </LayoutLabeledBtn>
+        {!isEditing && (
+          <LayoutLabeledBtn onClick={() => setIsEditing(true)} title="Editar layout">
+            <Pencil className="h-3.5 w-3.5" />
+            Editar
+          </LayoutLabeledBtn>
+        )}
+        {isEditing && (
+          <LayoutLabeledBtn className="tb-btn-green" onClick={handleSave} title="Salvar">
+            <Check className="h-3.5 w-3.5" />
+            Salvar
+          </LayoutLabeledBtn>
+        )}
+        {isEditing && (
+          <LayoutLabeledBtn onClick={discardChanges} title="Cancelar alterações">
+            <X className="h-3.5 w-3.5" />
+            Cancelar
+          </LayoutLabeledBtn>
+        )}
+        <div className="ml-auto">
+          {isEditing && (
+            <LayoutIconBtn onClick={restoreDefault} title="Restaurar padrão">
+              <RotateCcw className="h-3.5 w-3.5" />
+            </LayoutIconBtn>
+          )}
+        </div>
+      </div>
+
+      <div className="mg-context-panel-wrap is-visible">
+        <MgContextPanel
+          title={`Configuração de layout • ${formatPanelLabel(activePanel?.label)}`}
+          total={draftPanels.length}
+          currentIndex={activePanelIndex}
+          onFirst={() => navigatePanel(0)}
+          onPrevious={() => navigatePanel(activePanelIndex - 1)}
+          onNext={() => navigatePanel(activePanelIndex + 1)}
+          onLast={() => navigatePanel(draftPanels.length - 1)}
+          disabled={draftPanels.length <= 1}
+        />
+      </div>
+
+      <EmpSplitToolbarLayout className="min-h-0 flex-1" toolbar={null}>
+        <div className="emp-layout-config-grid grid min-h-0 h-full flex-1 grid-cols-[280px_48px_minmax(0,1fr)]">
+          <aside className="emp-layout-config-sidebar flex flex-col overflow-hidden p-2">
+            <div className="emp-layout-config-sidebar-tabs mb-2 flex gap-1">
               <button
                 type="button"
                 onClick={() => setSidebarMode("available")}
-                className={`flex-1 rounded-[5px] px-2 py-1 text-xs font-medium ${
-                  sidebarMode === "available"
-                    ? "bg-[#eaf2ff] text-[#1a1f26]"
-                    : "bg-white text-[#5b6b80] hover:bg-[#f8fafc]"
-                }`}
+                className={`emp-layout-config-sidebar-tab${sidebarMode === "available" ? " emp-layout-config-sidebar-tab--active" : ""}`}
               >
                 Disponíveis
               </button>
               <button
                 type="button"
                 onClick={() => setSidebarMode("in_use")}
-                className={`flex-1 rounded-[5px] px-2 py-1 text-xs font-medium ${
-                  sidebarMode === "in_use"
-                    ? "bg-[#eaf2ff] text-[#1a1f26]"
-                    : "bg-white text-[#5b6b80] hover:bg-[#f8fafc]"
-                }`}
+                className={`emp-layout-config-sidebar-tab${sidebarMode === "in_use" ? " emp-layout-config-sidebar-tab--active" : ""}`}
               >
                 Em uso ({usedFieldsInLayout.length})
               </button>
             </div>
-            <div className="mb-2 text-sm font-semibold text-[#1a1f26]">
+            <div className="mb-2 text-sm font-semibold" style={{ color: "var(--text-1)" }}>
               {sidebarMode === "available" ? "Campos disponíveis" : "Campos em uso no layout"}
             </div>
             <div className={`${EMP_TOOLBAR_SEARCH_WRAP} mb-3 w-full`}>
@@ -1025,7 +1071,7 @@ export default function EmpLayoutConfiguratorDialog({
                 }
                 className={`${EMP_TOOLBAR_SEARCH_INPUT} pr-7`}
               />
-              <Search className="emp-toolbar-search-icon pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#5b6b80]" />
+              <Search className="emp-toolbar-search-icon pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2" style={{ color: "var(--text-2)" }} />
             </div>
             <div
               className="emp-layout-config-available-list flex flex-1 flex-col gap-1 overflow-auto pr-1"
@@ -1033,12 +1079,14 @@ export default function EmpLayoutConfiguratorDialog({
             >
               {sidebarMode === "available" ? (
                 availableFields.length === 0 ? (
-                  <div className="py-4 text-center text-xs text-slate-400">Solte aqui para remover do painel.</div>
+                  <div className="py-4 text-center text-xs" style={{ color: "var(--text-3)" }}>
+                    Solte aqui para remover do painel.
+                  </div>
                 ) : (
                   availableFields.map(renderAvailableField)
                 )
               ) : filteredUsedFields.length === 0 ? (
-                <div className="py-4 text-center text-xs text-slate-400">
+                <div className="py-4 text-center text-xs" style={{ color: "var(--text-3)" }}>
                   {search.trim() ? "Nenhum campo em uso encontrado." : "Nenhum campo em uso no layout."}
                 </div>
               ) : (
@@ -1047,112 +1095,115 @@ export default function EmpLayoutConfiguratorDialog({
             </div>
           </aside>
 
-          <section className="emp-layout-config-transfer flex flex-col items-center justify-center gap-2 border-r border-[#d6dce8] bg-[#f8fafc] px-1">
-            <ToolbarBtn
+          <section className="emp-layout-config-transfer flex flex-col items-center justify-center gap-2 px-1">
+            <LayoutIconBtn
               disabled={!isEditing || panelFieldIds.length === 0}
               onClick={removeAllFields}
               className="emp-layout-config-transfer-btn"
               title="Remover todos"
             >
-              <EmpToolbarIcon icon={ChevronsLeft} nav />
-            </ToolbarBtn>
-            <ToolbarBtn
+              <ChevronsLeft className="h-3.5 w-3.5" />
+            </LayoutIconBtn>
+            <LayoutIconBtn
               disabled={!isEditing || availableFields.length === 0}
               onClick={addAllFields}
               className="emp-layout-config-transfer-btn"
               title="Adicionar todos"
             >
-              <EmpToolbarIcon icon={ChevronsRight} nav />
-            </ToolbarBtn>
+              <ChevronsRight className="h-3.5 w-3.5" />
+            </LayoutIconBtn>
           </section>
 
           <main
-            className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden bg-white"
+            className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden"
             data-active-card-span={String(activeCardSpan)}
           >
             <div className="emp-layout-config-panel-shell flex min-h-0 flex-1 flex-col">
-              <div className="emp-form-tabs emp-form-tabs-launch relative flex min-h-[34px] items-end justify-start pl-2 pr-2">
-                <div className="emp-form-tab-nav-group emp-layout-config-panel-actions relative z-20 mr-1.5 flex h-[30px] shrink-0 items-center gap-1.5 self-center">
-                  {isEditing && (
-                    <ToolbarBtn onClick={createPanel} className="emp-toolbar-btn-new" title="Novo painel">
-                      <EmpToolbarIcon icon={Plus} />
-                    </ToolbarBtn>
-                  )}
-                  {isEditing && (
-                    <ToolbarBtn
-                      disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
-                      onClick={deletePanel}
-                      className="emp-toolbar-btn-delete"
-                      title="Excluir painel"
-                    >
-                      <EmpToolbarIcon icon={Trash2} />
-                    </ToolbarBtn>
-                  )}
-                </div>
-                <div className="emp-form-tab-list flex min-h-[32px] min-w-0 flex-1 flex-wrap items-end gap-0">
-                  {draftPanels.map((panel) => {
-                    const active = activePanel?.id === panel.id;
-                    return (
-                      <button
-                        key={panel.id}
-                        type="button"
-                        draggable={isEditing && !fixedPanelIds.includes(panel.id)}
-                        onDragStart={() => {
-                          setDraggedPanelId(panel.id);
-                          setActivePanelId(panel.id);
-                        }}
-                        onDragOver={(event) => {
-                          event.preventDefault();
-                          reorderPanel(panel.id);
-                        }}
-                        onDrop={() => setDraggedPanelId(null)}
-                        onDragEnd={() => setDraggedPanelId(null)}
-                        onClick={() => {
-                          setActivePanelId(panel.id);
-                          setSelectedPanelFieldIds([]);
-                        }}
-                        onDoubleClick={() => {
-                          if (isEditing && !systemPanelIds.includes(panel.id)) {
-                            setEditingPanelId(panel.id);
-                          }
-                        }}
-                        className={`emp-form-tab relative min-w-max flex-none overflow-hidden whitespace-nowrap ${
-                          active ? "emp-form-tab-active z-[15]" : "emp-form-tab-inactive z-[2]"
-                        } ${panel.hidden ? "emp-form-tab-hidden-panel" : ""}`}
+              <div className="mg-panel-tabs-strip shrink-0 px-3 md:px-5">
+                <div className="flex min-h-[34px] items-end gap-2">
+                  <div className="emp-layout-config-panel-actions relative z-20 mr-1 flex shrink-0 items-center gap-1.5 self-center">
+                    {isEditing && (
+                      <LayoutIconBtn className="tb-btn-green" onClick={createPanel} title="Novo painel">
+                        <Plus className="h-3.5 w-3.5" />
+                      </LayoutIconBtn>
+                    )}
+                    {isEditing && (
+                      <LayoutIconBtn
+                        className="tb-btn-danger"
+                        disabled={!activePanel || activePanelIsSystem || activePanelIsFixed}
+                        onClick={deletePanel}
+                        title="Excluir painel"
                       >
-                        {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
-                        {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
-                          <Input
-                            value={panel.label || ""}
-                            autoFocus
-                            onClick={(event) => event.stopPropagation()}
-                            onBlur={() => setEditingPanelId(null)}
-                            onChange={(event) =>
-                              setDraftPanels((prev) =>
-                                prev.map((item) =>
-                                  item.id === panel.id
-                                    ? { ...item, label: formatPanelLabel(event.target.value) }
-                                    : item
-                                )
-                              )
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </LayoutIconBtn>
+                    )}
+                  </div>
+                  <div className="seg-control min-w-0 flex-1" role="tablist" ref={panelSegRef}>
+                    <div className="seg-tab-slider" ref={panelSliderRef} aria-hidden="true" />
+                    {draftPanels.map((panel) => {
+                      const active = activePanel?.id === panel.id;
+                      return (
+                        <button
+                          key={panel.id}
+                          type="button"
+                          role="tab"
+                          aria-selected={active}
+                          draggable={isEditing && !fixedPanelIds.includes(panel.id)}
+                          onDragStart={() => {
+                            setDraggedPanelId(panel.id);
+                            setActivePanelId(panel.id);
+                          }}
+                          onDragOver={(event) => {
+                            event.preventDefault();
+                            reorderPanel(panel.id);
+                          }}
+                          onDrop={() => setDraggedPanelId(null)}
+                          onDragEnd={() => setDraggedPanelId(null)}
+                          onClick={() => {
+                            setActivePanelId(panel.id);
+                            setSelectedPanelFieldIds([]);
+                          }}
+                          onDoubleClick={() => {
+                            if (isEditing && !systemPanelIds.includes(panel.id)) {
+                              setEditingPanelId(panel.id);
                             }
-                            className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
-                          />
-                        ) : (
-                          <span>{formatPanelLabel(panel.label)}</span>
-                        )}
-                      </button>
-                    );
-                  })}
+                          }}
+                          className={`seg-tab${active ? " active" : ""}${panel.hidden ? " emp-form-tab-hidden-panel" : ""}`}
+                        >
+                          {isCustomPanelByIds(panel, systemPanelIds) && <EmpCustomMarker />}
+                          {isEditing && editingPanelId === panel.id && !systemPanelIds.includes(panel.id) ? (
+                            <Input
+                              value={panel.label || ""}
+                              autoFocus
+                              onClick={(event) => event.stopPropagation()}
+                              onBlur={() => setEditingPanelId(null)}
+                              onChange={(event) =>
+                                setDraftPanels((prev) =>
+                                  prev.map((item) =>
+                                    item.id === panel.id
+                                      ? { ...item, label: formatPanelLabel(event.target.value) }
+                                      : item
+                                  )
+                                )
+                              }
+                              className="h-6 w-40 border-0 bg-transparent p-0 text-xs font-semibold normal-case shadow-none focus-visible:ring-0"
+                            />
+                          ) : (
+                            formatPanelLabel(panel.label)
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
               <div className="emp-layout-config-cards-bar">
                 {isEditing && (
-                  <ToolbarBtn onClick={createCard} className="emp-toolbar-btn-new h-7 px-2 text-[11px]" title="Novo card">
-                    <EmpToolbarIcon icon={Plus} />
-                    <span>Card</span>
-                  </ToolbarBtn>
+                  <LayoutLabeledBtn className="tb-btn-green h-7 px-2 text-[11px]" onClick={createCard} title="Novo card">
+                    <Plus className="h-3.5 w-3.5" />
+                    Card
+                  </LayoutLabeledBtn>
                 )}
                 {activePanelCards.map((card) => {
                   const active = card.id === activeCard?.id;
@@ -1164,7 +1215,7 @@ export default function EmpLayoutConfiguratorDialog({
                           autoFocus
                           onBlur={() => setEditingCardId(null)}
                           onChange={(event) => renameCard(card.id, event.target.value)}
-                          className="h-7 w-28 border-[#dce3eb] text-[11px]"
+                          className="emp-layout-config-card-input h-7 w-28 text-[11px]"
                         />
                       ) : (
                         <button
@@ -1193,13 +1244,13 @@ export default function EmpLayoutConfiguratorDialog({
                         </button>
                       )}
                       {isEditing && active && activePanelCards.length > 1 && (
-                        <ToolbarBtn onClick={() => deleteCard(card.id)} className="h-6 w-6" title="Excluir card">
-                          <EmpToolbarIcon icon={Trash2} />
-                        </ToolbarBtn>
+                        <LayoutIconBtn onClick={() => deleteCard(card.id)} title="Excluir card">
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </LayoutIconBtn>
                       )}
                       {isEditing && active && (
                         <>
-                          <ToolbarBtn
+                          <LayoutLabeledBtn
                             onClick={() => toggleCardColSpan(card.id)}
                             className="h-6 px-1.5 text-[9px]"
                             title={
@@ -1208,40 +1259,79 @@ export default function EmpLayoutConfiguratorDialog({
                             }
                           >
                             {(Number(card.colSpan) || 12) <= 6 ? "½→⬛" : "⬛→½"}
-                          </ToolbarBtn>
-                          <ToolbarBtn onClick={() => moveCard(card.id, -1)} className="h-6 w-6" title="Mover card">
-                            <EmpToolbarIcon icon={ChevronLeft} />
-                          </ToolbarBtn>
-                          <ToolbarBtn onClick={() => moveCard(card.id, 1)} className="h-6 w-6" title="Mover card">
-                            <EmpToolbarIcon icon={ChevronRight} />
-                          </ToolbarBtn>
+                          </LayoutLabeledBtn>
                         </>
                       )}
                     </div>
                   );
                 })}
+                {activePanelCards.length > 1 ? (
+                  <div className="mg-context-panel__nav ml-auto flex items-center gap-1">
+                    <button
+                      type="button"
+                      className="mg-nav-btn ios-btn"
+                      onClick={() => navigateCard(0)}
+                      disabled={activeCardIndex <= 0}
+                      title="Primeiro card"
+                    >
+                      <SkipBack className="h-3 w-3" />
+                    </button>
+                    <button
+                      type="button"
+                      className="mg-nav-btn ios-btn"
+                      onClick={() => navigateCard(activeCardIndex - 1)}
+                      disabled={activeCardIndex <= 0}
+                      title="Card anterior"
+                    >
+                      <ChevronLeft className="h-3 w-3" />
+                    </button>
+                    <span className="mg-context-panel__counter">
+                      {activeCardIndex + 1}/{activePanelCards.length}
+                    </span>
+                    <button
+                      type="button"
+                      className="mg-nav-btn ios-btn"
+                      onClick={() => navigateCard(activeCardIndex + 1)}
+                      disabled={activeCardIndex >= activePanelCards.length - 1}
+                      title="Próximo card"
+                    >
+                      <ChevronRight className="h-3 w-3" />
+                    </button>
+                    <button
+                      type="button"
+                      className="mg-nav-btn ios-btn"
+                      onClick={() => navigateCard(activePanelCards.length - 1)}
+                      disabled={activeCardIndex >= activePanelCards.length - 1}
+                      title="Último card"
+                    >
+                      <SkipForward className="h-3 w-3" />
+                    </button>
+                  </div>
+                ) : null}
               </div>
 
               <div
                 ref={layoutPanelRef}
-                className="emp-form-section emp-form-section-panel emp-form-section-panel--corp emp-layout-config-panel-body min-h-0 flex-1 overflow-auto pl-2 pr-4"
+                className="mg-form-scroll emp-layout-config-panel-body min-h-0 flex-1 overflow-auto px-3 md:px-5"
               >
-                <p className="mb-2 text-[10px] text-[#64748b]">
-                  Aba → Card → Linha → Campo. Card inteiro: até <strong>6</strong> por linha; card meio (½): até{" "}
+                <p className="emp-layout-config-help mb-2 text-[10px]">
+                  Aba → Card → Linha → Campo. Card inteiro: até <strong>7</strong> por linha; card meio (½): até{" "}
                   <strong>4</strong>. Os campos da mesma linha ficam lado a lado e o espaço é redistribuído
                   automaticamente (como no formulário).
                 </p>
                 {isEditing && (
                   <div className="mb-2 flex flex-wrap gap-1">
-                    <ToolbarBtn onClick={appendLayoutRow} className="h-7 px-2 text-[11px]" title="Nova linha">
-                      <EmpToolbarIcon icon={Plus} />
-                      <span>Linha</span>
-                    </ToolbarBtn>
+                    <LayoutLabeledBtn className="tb-btn-green h-7 px-2 text-[11px]" onClick={appendLayoutRow} title="Nova linha">
+                      <Plus className="h-3.5 w-3.5" />
+                      Linha
+                    </LayoutLabeledBtn>
                   </div>
                 )}
                 <div className="emp-layout-config-rows flex min-h-[160px] flex-col gap-3 py-2">
                   {activeCardRows.length === 0 ? (
-                    <div className="p-4 text-xs text-slate-400">Card vazio. Arraste campos ou use os botões de transferência.</div>
+                    <div className="p-4 text-xs" style={{ color: "var(--text-3)" }}>
+                      Card vazio. Arraste campos ou use os botões de transferência.
+                    </div>
                   ) : (
                     activeCardRows.map((layoutRow) => {
                       const rowFields = (layoutRow.fieldIds || [])
@@ -1254,25 +1344,24 @@ export default function EmpLayoutConfiguratorDialog({
                         <div
                           key={layoutRow.id}
                           className={cn(
-                            "emp-layout-config-row rounded border bg-[#f8fafc] p-2",
-                            rowFull ? "border-amber-400/80" : "border-[#dce3eb]"
+                            "emp-layout-config-row rounded border p-2",
+                            rowFull ? "emp-layout-config-row--full" : ""
                           )}
                         >
                           <div className="mb-2 flex items-center justify-between gap-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wide text-[#64748b]">
+                            <span className="emp-layout-config-row-label text-[10px] font-bold uppercase tracking-wide">
                               Linha {layoutRow.order}
-                              <span className={cn("ml-1 font-semibold", rowFull && "text-amber-700")}>
+                              <span className={cn("ml-1 font-semibold", rowFull && "emp-layout-config-row-label--full")}>
                                 ({rowCount}/{rowMax})
                               </span>
                             </span>
                             {isEditing && activeCardRows.length > 1 && (
-                              <ToolbarBtn
+                              <LayoutIconBtn
                                 onClick={() => removeLayoutRowById(layoutRow.id)}
-                                className="h-6 w-6"
                                 title="Excluir linha"
                               >
-                                <EmpToolbarIcon icon={Trash2} />
-                              </ToolbarBtn>
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </LayoutIconBtn>
                             )}
                           </div>
                           <div
@@ -1295,7 +1384,7 @@ export default function EmpLayoutConfiguratorDialog({
                             }}
                           >
                             {rowFields.length === 0 && isEditing ? (
-                              <span className="flex min-h-[40px] flex-1 items-center justify-center rounded border border-dashed border-[#cfd8e3] px-2 text-[10px] text-[#94a3b8]">
+                              <span className="emp-layout-config-row-dropzone flex min-h-[40px] flex-1 items-center justify-center rounded border border-dashed px-2 text-[10px]">
                                 Arraste campos para esta linha
                               </span>
                             ) : null}
@@ -1319,16 +1408,16 @@ export default function EmpLayoutConfiguratorDialog({
                 </div>
                 {isEditing && selectedPanelFieldIds.length === 1 && (
                   <div className="emp-layout-config-footer mt-3 flex flex-wrap items-center gap-2 pt-2">
-                    <span className="text-[11px] font-semibold text-[#5b6b80]">Tipo de largura:</span>
+                    <span className="emp-layout-config-footer-label text-[11px] font-semibold">Tipo de largura:</span>
                     {FIELD_WIDTH_TYPE_OPTIONS.map(({ value, label }) => (
                       <button
                         key={value}
                         type="button"
                         onClick={() => setFieldWidthType(selectedPanelFieldIds[0], value)}
-                        className={`emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold ${
+                        className={`emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold${
                           draftFieldSizes[selectedPanelFieldIds[0]] === value
-                            ? "text-[#2899f5] underline underline-offset-2"
-                            : "text-[#64748b]"
+                            ? " emp-layout-config-footer-btn--active"
+                            : ""
                         }`}
                       >
                         {label}
@@ -1337,7 +1426,7 @@ export default function EmpLayoutConfiguratorDialog({
                     <button
                       type="button"
                       onClick={() => setFieldWidthType(selectedPanelFieldIds[0], "")}
-                      className="emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold text-[#64748b]"
+                      className="emp-layout-config-footer-btn h-6 px-2 text-[10px] font-semibold"
                     >
                       Padrão do tipo
                     </button>

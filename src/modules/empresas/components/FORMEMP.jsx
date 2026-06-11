@@ -599,6 +599,7 @@ export default function FORMEMP({
       isReadOnly,
       isEditing,
       isDuplicating,
+      layoutConfigOpen,
       recordMeta,
       onSave: () => handleSubmit(),
       onCancel,
@@ -614,6 +615,7 @@ export default function FORMEMP({
     isReadOnly,
     isEditing,
     isDuplicating,
+    layoutConfigOpen,
     recordMeta,
     onCancel,
     filterOpen,
@@ -678,7 +680,7 @@ export default function FORMEMP({
 
   if (layoutConfigOpen) {
     return (
-      <section className="cadastro-scope cadastro-emp-scope w-full h-full max-w-full overflow-hidden">
+      <section className="cadastro-scope cadastro-emp-scope mg-empresas-scope flex h-full w-full max-w-full overflow-hidden">
         <CadLayoutConfigurator
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}
