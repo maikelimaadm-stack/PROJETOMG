@@ -3566,16 +3566,22 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs {
   background: var(--bg-card) !important;
-  border-bottom: 1px solid #ffffff !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   border-radius: 0 !important;
   flex-shrink: 0;
+  padding-bottom: 6px !important;
+  min-height: 36px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs {
   background: var(--bg-card) !important;
-  border-bottom: 1px solid var(--mg-divider) !important;
+  border-top: none !important;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   border-radius: 0 !important;
   flex-shrink: 0;
+  padding-top: 6px !important;
+  padding-bottom: 2px !important;
+  min-height: 32px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab-slider {
@@ -3658,6 +3664,11 @@
 .mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip {
   background: var(--bg-card) !important;
   border-radius: 0 !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs.mg-panel-tabs-strip,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs.mg-panel-tabs-strip {
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green {
