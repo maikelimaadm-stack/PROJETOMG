@@ -25,6 +25,7 @@ import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
+import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -76,7 +77,6 @@ export default function PAGEMP() {
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [cardsConfigOpen, setCardsConfigOpen] = useState(false);
   const [selectedTableItems, setSelectedTableItems] = useState([]);
   const [formVersion, setFormVersion] = useState(0);
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
@@ -409,6 +409,7 @@ export default function PAGEMP() {
   }, [closeFilterPanel]);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
+  const cardsVisFields = useEmpCardsVisFields(!showForm && mgViewMode === "cards");
 
   const actionBarVisibility = useMemo(
     () =>
@@ -832,7 +833,8 @@ export default function PAGEMP() {
 
           <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
             <MgCardsPanelStrip
-              onConfigure={() => setCardsConfigOpen(true)}
+              fields={cardsVisFields.configFields}
+              onSave={cardsVisFields.saveConfig}
               disabled={saveCycle.isSaving}
             />
           </div>
@@ -887,8 +889,8 @@ export default function PAGEMP() {
                     onEdit: handleEdit,
                     selectedIds: selectedTableItems,
                     onSelectionChange: handleTableSelectionChange,
-                    cardsConfigOpen,
-                    onCardsConfigOpenChange: setCardsConfigOpen,
+                    cardsDetailFields: cardsVisFields.detailFields,
+                    cardsVisFields: cardsVisFields.visFields,
                     mgPrototype: true,
                   }}
                 />

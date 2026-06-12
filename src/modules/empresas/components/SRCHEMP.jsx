@@ -1,18 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronDown, Search, Star, X } from "lucide-react";
-import { empRepository } from "@/modules/empresas/repositories/empRepository";
 import {
-  EMP_SEARCH_DEFAULT_FIELDS,
-  buildEmpCardFieldCatalog,
   formatSearchCounter,
   getEmpSearchAvatarColor,
   getEmpSearchFieldValue,
   getEmpSearchInitials,
   loadSearchFavorites,
   loadSearchVisFields,
-  mergeSearchVisFields,
   saveSearchFavorites,
   saveSearchVisFields,
 } from "./empSearchView.constants";
@@ -120,7 +114,7 @@ function SearchPagination({ page, totalPages, onChange }) {
   return <div className="emp-search-pagination">{buttons}</div>;
 }
 
-function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false }) {
+function SearchConfigModal({ open, fields, onClose, onSave }) {
   const [draft, setDraft] = useState(fields);
 
   useEffect(() => {
@@ -129,81 +123,56 @@ function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false 
 
   if (!open) return null;
 
-  const modal = (
+  return (
     <div
-      className={`emp-search-config-overlay${mgPrototype ? " mg-cards-config-overlay" : ""}`}
+      className="emp-search-config-overlay"
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
       role="presentation"
     >
-      <div
-        className={`emp-search-config-modal${mgPrototype ? " mg-cards-config-modal" : ""}`}
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="emp-search-config-title"
-      >
+      <div className="emp-search-config-modal">
         <div className="emp-search-config-header">
-          <h3 id="emp-search-config-title" className="emp-search-config-title">
-            {mgPrototype ? "Configurar campos dos cards" : "⚙ Configurar Visualização"}
-          </h3>
+          <h3 className="emp-search-config-title">⚙ Configurar Visualização</h3>
           <button type="button" className="emp-search-config-close" onClick={onClose} aria-label="Fechar">
             <X className="h-4 w-4 text-slate-400" />
           </button>
         </div>
         <div className="emp-search-config-body">
-          {draft.length === 0 ? (
-            <p className="emp-search-config-empty">Nenhum campo disponível.</p>
-          ) : (
-            draft.map((field) => (
-              <label
-                key={field.key}
-                className={`emp-search-config-field${field.primary && mgPrototype ? " emp-search-config-field--locked" : ""}`}
-              >
-                <input
-                  type="checkbox"
-                  className="emp-search-config-checkbox"
-                  checked={field.visible}
-                  disabled={field.primary && mgPrototype}
-                  onChange={(event) => {
-                    const checked = event.target.checked;
-                    setDraft((current) =>
-                      current.map((item) =>
-                        item.key === field.key ? { ...item, visible: checked } : item
-                      )
-                    );
-                  }}
-                />
-                <span>{field.label}</span>
-              </label>
-            ))
-          )}
+          {draft.map((field) => (
+            <label key={field.key} className="emp-search-config-field">
+              <input
+                type="checkbox"
+                className="emp-search-config-checkbox"
+                checked={field.visible}
+                onChange={(event) => {
+                  const checked = event.target.checked;
+                  setDraft((current) =>
+                    current.map((item) =>
+                      item.key === field.key ? { ...item, visible: checked } : item
+                    )
+                  );
+                }}
+              />
+              <span>{field.label}</span>
+            </label>
+          ))}
         </div>
         <div className="emp-search-config-footer">
           <button
             type="button"
-            className={`emp-search-config-save${mgPrototype ? " mg-cards-config-ok" : ""}`}
+            className="emp-search-config-save"
             onClick={() => {
               onSave(draft);
               onClose();
             }}
           >
-            {mgPrototype ? "OK" : "Salvar Configuração"}
+            Salvar Configuração
           </button>
         </div>
       </div>
     </div>
   );
-
-  if (mgPrototype && typeof document !== "undefined") {
-    return createPortal(
-      <div className="cadastro-emp-scope mg-empresas-scope">{modal}</div>,
-      document.body
-    );
-  }
-
-  return modal;
 }
 
 export default function SRCHEMP({
@@ -219,48 +188,23 @@ export default function SRCHEMP({
   onEdit,
   selectedIds = [],
   onSelectionChange,
-  cardsConfigOpen = false,
-  onCardsConfigOpenChange,
+  cardsDetailFields = [],
+  cardsVisFields = [],
   mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
-  const [configOpenInternal, setConfigOpenInternal] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
   const [visFields, setVisFields] = useState(() => loadSearchVisFields());
   const [favorites, setFavorites] = useState(() => loadSearchFavorites());
   const lastCardClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const cardClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedIdsRef = useRef(selectedIds);
 
-  const { data: camposPersonalizados = [] } = useQuery({
-    queryKey: ["emp-campos-personalizados"],
-    queryFn: () => empRepository.listCamposPersonalizados(),
-    initialData: [],
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
-    refetchOnMount: false,
-    enabled: mgPrototype,
-  });
-
-  const fieldCatalog = useMemo(
-    () => buildEmpCardFieldCatalog(camposPersonalizados),
-    [camposPersonalizados]
-  );
-
-  const configModalFields = useMemo(() => {
-    if (!mgPrototype) return visFields;
-    const catalog = fieldCatalog.length > 0 ? fieldCatalog : EMP_SEARCH_DEFAULT_FIELDS;
-    return mergeSearchVisFields(catalog, visFields.length > 0 ? visFields : catalog);
-  }, [fieldCatalog, mgPrototype, visFields]);
-
-  useEffect(() => {
-    if (!mgPrototype) return;
-    const catalog = fieldCatalog.length > 0 ? fieldCatalog : EMP_SEARCH_DEFAULT_FIELDS;
-    setVisFields((current) => mergeSearchVisFields(catalog, current.length > 0 ? current : catalog));
-  }, [fieldCatalog, mgPrototype]);
-
-  const configOpen = mgPrototype ? cardsConfigOpen : configOpenInternal;
-  const setConfigOpen = mgPrototype ? onCardsConfigOpenChange : setConfigOpenInternal;
+  const detailFields = mgPrototype
+    ? cardsDetailFields
+    : visFields.filter((field) => field.visible && !field.primary);
+  const statusFields = mgPrototype ? cardsVisFields : visFields;
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -297,11 +241,6 @@ export default function SRCHEMP({
     total,
   });
 
-  const detailFields = useMemo(
-    () => visFields.filter((field) => field.visible && !field.primary),
-    [visFields]
-  );
-
   const toggleFavorite = useCallback((empresaId, event) => {
     event?.stopPropagation();
     setFavorites((current) => {
@@ -314,14 +253,9 @@ export default function SRCHEMP({
   }, []);
 
   const handleSaveVisConfig = useCallback((nextFields) => {
-    const normalized = mergeSearchVisFields(fieldCatalog, nextFields).map((field) => {
-      const fallback = fieldCatalog.find((item) => item.key === field.key)
-        || EMP_SEARCH_DEFAULT_FIELDS.find((item) => item.key === field.key);
-      return { ...fallback, ...field };
-    });
-    setVisFields(normalized);
-    saveSearchVisFields(normalized);
-  }, [fieldCatalog]);
+    setVisFields(nextFields);
+    saveSearchVisFields(nextFields);
+  }, []);
 
   const handleCardClick = useCallback(
     (emp) => {
@@ -427,7 +361,7 @@ export default function SRCHEMP({
                         ))}
                       </div>
                     ) : null}
-                    {visFields.some((field) => field.key === "status" && field.visible) ? (
+                    {statusFields.some((field) => field.key === "status" && field.visible) ? (
                       <div className="flex items-center justify-end pt-2.5">
                         <span className={`pill ${statusActive ? "pill-active" : "pill-inactive"}`}>
                           {statusValue}
@@ -449,14 +383,6 @@ export default function SRCHEMP({
           <span className="flex-1 text-[12px] mg-cards-footer-counter" style={{ color: "var(--text-3)" }}>{counterText}</span>
           <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
         </footer>
-
-        <SearchConfigModal
-          open={configOpen}
-          fields={configModalFields}
-          onClose={() => setConfigOpen?.(false)}
-          onSave={handleSaveVisConfig}
-          mgPrototype
-        />
       </div>
     );
   }

@@ -24,6 +24,7 @@ export function useMgPanelPosition(
     estimatedHeight = 280,
     scrollable = true,
     observePanelResize = true,
+    align = "left",
   } = {},
   repositionKey = null
 ) {
@@ -54,7 +55,7 @@ export function useMgPanelPosition(
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
 
-      let left = rect.left;
+      let left = align === "right" ? rect.right - panelWidth : rect.left;
       if (left + panelWidth > viewportWidth - padding) {
         left = Math.max(padding, viewportWidth - panelWidth - padding);
       }
@@ -112,7 +113,7 @@ export function useMgPanelPosition(
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open, rootRef, panelRef, minWidth, width, estimatedHeight, scrollable, observePanelResize, repositionKey]);
+  }, [open, rootRef, panelRef, minWidth, width, estimatedHeight, scrollable, observePanelResize, align, repositionKey]);
 
   return style;
 }
