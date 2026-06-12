@@ -6,8 +6,6 @@ import {
   Reply,
   Search,
   Settings,
-  SkipBack,
-  SkipForward,
   Trash2,
   X,
 } from "lucide-react";
@@ -19,6 +17,7 @@ import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarL
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { cn } from "@/shared/utils/utils";
 import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
+import { MgNavSkipIcon } from "@/modules/empresas/layout/MgNavIcons";
 import {
   initCardsByPanel,
   flattenLayoutFromCards,
@@ -1491,7 +1490,7 @@ export default function EmpLayoutConfiguratorDialog({
               onClick={removeAllFields}
               title="Remover todos"
             >
-              <SkipBack className="h-3 w-3" />
+              <MgNavSkipIcon direction="left" />
             </button>
             <button
               type="button"
@@ -1500,7 +1499,7 @@ export default function EmpLayoutConfiguratorDialog({
               onClick={addAllFields}
               title="Adicionar todos"
             >
-              <SkipForward className="h-3 w-3" />
+              <MgNavSkipIcon direction="right" />
             </button>
           </section>
 
