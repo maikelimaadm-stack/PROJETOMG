@@ -71,18 +71,36 @@ export default function MgActionBar({
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchDraft, setSearchDraft] = useState(searchValue);
   const moreRef = useRef(null);
   const searchRef = useRef(null);
   const toolsLocked = actionsLocked || secondaryToolsLocked;
   const lockedClass = secondaryToolsLocked ? " mg-action-bar__zone--locked" : "";
 
   useEffect(() => {
-    if (secondaryToolsLocked) setMoreOpen(false);
+    if (secondaryToolsLocked) {
+      setMoreOpen(false);
+      setSearchOpen(false);
+    }
   }, [secondaryToolsLocked]);
 
   useEffect(() => {
-    if (secondaryToolsLocked) setSearchOpen(false);
-  }, [secondaryToolsLocked]);
+    setSearchDraft(searchValue);
+    if (!searchValue.trim()) setSearchOpen(false);
+  }, [searchValue]);
+
+  useEffect(() => {
+    if (searchDraft.trim() !== searchValue.trim()) {
+      setSearchOpen(false);
+    }
+  }, [searchDraft, searchValue]);
+
+  const commitSearch = () => {
+    if (toolsLocked) return;
+    const next = searchDraft.trim();
+    onSearchChange?.(next);
+    setSearchOpen(Boolean(next));
+  };
 
   useEffect(() => {
     if (!searchOpen) return undefined;
@@ -341,17 +359,25 @@ export default function MgActionBar({
         <div className="mg-action-bar__tools mg-action-bar__tools--visible">
           <div className="mg-search-pill-wrap" ref={searchRef}>
             <div className="mg-search-pill" role="search">
-              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
+              <button
+                type="button"
+                className="mg-search-pill-trigger"
+                aria-label="Buscar registros"
+                disabled={toolsLocked}
+                onClick={commitSearch}
+              >
+                <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
+              </button>
               <input
                 type="text"
                 placeholder="Pesquisar..."
-                value={searchValue}
-                onChange={(event) => {
-                  onSearchChange?.(event.target.value);
-                  if (!toolsLocked) setSearchOpen(true);
-                }}
-                onFocus={() => {
-                  if (!toolsLocked) setSearchOpen(true);
+                value={searchDraft}
+                onChange={(event) => setSearchDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") {
+                    event.preventDefault();
+                    commitSearch();
+                  }
                 }}
                 aria-label="Pesquisar"
                 aria-expanded={searchOpen && searchValue.trim().length > 0}
