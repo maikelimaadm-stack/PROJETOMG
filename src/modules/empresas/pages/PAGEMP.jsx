@@ -29,10 +29,7 @@ import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFie
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import {
-  buildEmpSearchFieldKeys,
-  filterEmpresasContains,
   normalizeSearchQuery,
-  paginateEmpresasList,
 } from "@/modules/empresas/utils/empSearchContains";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
@@ -47,7 +44,7 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   totalPages: 1,
 };
 
-const SEARCH_SOURCE_PAGE_SIZE = 200;
+const DROPDOWN_PREVIEW_SIZE = 10;
 
 const moduleRepository = empresasModuleDefinition.repository;
 const moduleLabels = {
@@ -106,13 +103,13 @@ export default function PAGEMP() {
   const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
   const searchDropdownFields = useEmpSearchDropdownFields();
   const empFavorites = useEmpFavorites();
-  const searchFieldKeys = useMemo(
-    () => buildEmpSearchFieldKeys(searchDropdownFields.detailFields),
-    [searchDropdownFields.detailFields]
+  const favoriteIds = useMemo(
+    () => [...empFavorites.favorites],
+    [empFavorites.favorites]
   );
   const favoriteIdsKey = useMemo(
-    () => [...empFavorites.favorites].sort().join(","),
-    [empFavorites.favorites]
+    () => favoriteIds.slice().sort().join(","),
+    [favoriteIds]
   );
   const {
     filterPanelOpen,
@@ -156,42 +153,40 @@ export default function PAGEMP() {
   const searchDraftNormalized = normalizeSearchQuery(searchDraft);
   const dropdownSearchPending = searchDraftNormalized !== dropdownSearch;
 
-  const { data: dropdownSourceResponse, isFetching: dropdownSourceFetching } = useQuery({
-    queryKey: ["emp-cadastro-dropdown-source", querySort.key, querySort.direction],
+  const { data: dropdownResponse, isFetching: dropdownSourceFetching } = useQuery({
+    queryKey: ["emp-cadastro-dropdown", dropdownSearch, querySort.key, querySort.direction],
     queryFn: () =>
       moduleRepository.listPage({
         page: 1,
-        pageSize: SEARCH_SOURCE_PAGE_SIZE,
-        search: "",
+        pageSize: DROPDOWN_PREVIEW_SIZE,
+        search: dropdownSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
       }),
     enabled: dropdownSearch.length > 0,
-    staleTime: 60_000,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
 
-  const dropdownSearchFiltered = useMemo(() => {
-    if (dropdownSearchPending || !dropdownSearch) return [];
-    const source = dropdownSourceResponse?.items || [];
-    return filterEmpresasContains(source, dropdownSearch, searchFieldKeys);
-  }, [
-    dropdownSearchPending,
-    dropdownSearch,
-    dropdownSourceResponse?.items,
-    searchFieldKeys,
-  ]);
+  const { data: dropdownFavoritesProbe } = useQuery({
+    queryKey: ["emp-cadastro-dropdown-fav", dropdownSearch, favoriteIdsKey, querySort.key, querySort.direction],
+    queryFn: () =>
+      moduleRepository.listPage({
+        page: 1,
+        pageSize: 1,
+        search: dropdownSearch,
+        sortBy: querySort.key,
+        sortDir: querySort.direction,
+        filters: { ids: favoriteIds },
+      }),
+    enabled: dropdownSearch.length > 0 && favoriteIds.length > 0,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+  });
 
-  const dropdownSearchResults = useMemo(
-    () => dropdownSearchFiltered.slice(0, 10),
-    [dropdownSearchFiltered]
-  );
-
-  const dropdownSearchResultsTotal = dropdownSearchFiltered.length;
-
-  const dropdownSearchHasFavorites = useMemo(
-    () => dropdownSearchFiltered.some((emp) => empFavorites.isFavorite(emp.id)),
-    [dropdownSearchFiltered, empFavorites]
-  );
+  const dropdownSearchResults = dropdownSearchPending ? [] : dropdownResponse?.items || [];
+  const dropdownSearchResultsTotal = dropdownSearchPending ? 0 : dropdownResponse?.total || 0;
+  const dropdownSearchHasFavorites = (dropdownFavoritesProbe?.total ?? 0) > 0;
 
   const dropdownSearchLoading =
     dropdownSearchPending ||
@@ -205,40 +200,30 @@ export default function PAGEMP() {
       searchTerm,
       querySort.key,
       querySort.direction,
-      searchFieldKeys.join("|"),
       searchFavoritesOnly,
       favoriteIdsKey,
     ],
     queryFn: async () => {
       const trimmedSearch = normalizeSearchQuery(searchTerm);
-      if (!trimmedSearch && !searchFavoritesOnly) {
-        return moduleRepository.listPage({
-          page: queryPage,
+
+      if (searchFavoritesOnly && favoriteIds.length === 0) {
+        return {
+          ...DEFAULT_EMPRESAS_RESPONSE,
           pageSize: queryPageSize,
-          search: "",
-          sortBy: querySort.key,
-          sortDir: querySort.direction,
-        });
+        };
       }
 
-      const source = await moduleRepository.listPage({
-        page: 1,
-        pageSize: SEARCH_SOURCE_PAGE_SIZE,
-        search: "",
+      return moduleRepository.listPage({
+        page: queryPage,
+        pageSize: queryPageSize,
+        search: trimmedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
+        filters: searchFavoritesOnly ? { ids: favoriteIds } : undefined,
       });
-      let items = source.items || [];
-      if (searchFavoritesOnly) {
-        items = items.filter((emp) => empFavorites.isFavorite(emp.id));
-      }
-      if (trimmedSearch) {
-        items = filterEmpresasContains(items, trimmedSearch, searchFieldKeys);
-      }
-      return paginateEmpresasList(items, queryPage, queryPageSize);
     },
     placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
-    staleTime: 60_000,
+    staleTime: 30_000,
     gcTime: 5 * 60_000,
   });
 
@@ -246,6 +231,7 @@ export default function PAGEMP() {
   const totalEmpresas = pinnedRecord ? 1 : empresasResponse.total || 0;
 
   const empresasLoading = isLoading && empresas.length === 0;
+  const empresasFetching = isFetching && !empresasLoading;
   const empresasFiltradasPainel = useMemo(() => {
     if (pinnedRecord) return [pinnedRecord];
     return empresas;
@@ -1137,7 +1123,8 @@ export default function PAGEMP() {
                   searchProps={{
                     empresas: empresasFiltradasPainel,
                     total: totalEmpresas,
-                    isLoading: empresasLoading || isFetching,
+                    isLoading: empresasLoading,
+                    isFetching: empresasFetching,
                     searchValue: searchTerm,
                     onSearchChange: handleSearchCommit,
                     page: queryPage,
@@ -1172,6 +1159,7 @@ export default function PAGEMP() {
                   key: "tbl-emp",
                   empresas: empresasFiltradasPainel,
                   isLoadingEmpresas: empresasLoading,
+                  isFetchingEmpresas: empresasFetching,
                   onEdit: handleEdit,
                   showConfigColunas,
                   setShowConfigColunas,

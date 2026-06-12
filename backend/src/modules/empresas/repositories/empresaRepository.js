@@ -21,7 +21,7 @@ const toPositiveInt = (value, fallback) => {
 };
 
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 200;
+const MAX_PAGE_SIZE = 500;
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
@@ -134,7 +134,23 @@ const FILTER_FIELD_MAP = {
 
 const buildFiltersWhere = (filters = {}) => {
   const and = [];
+  const rawIds = filters.ids;
+  if (rawIds != null) {
+    const ids = Array.isArray(rawIds)
+      ? rawIds.filter(Boolean)
+      : String(rawIds)
+          .split(",")
+          .map((id) => id.trim())
+          .filter(Boolean);
+    if (ids.length > 0) {
+      and.push({ id: { in: ids } });
+    } else {
+      and.push({ id: EMPTY_RESULT_COMPANY_ID });
+    }
+  }
+
   Object.entries(filters || {}).forEach(([key, value]) => {
+    if (key === "ids") return;
     if (!FILTER_FIELD_MAP[key]) return;
     if (value == null || value === "") return;
     and.push({

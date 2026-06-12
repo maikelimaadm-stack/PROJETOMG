@@ -7,7 +7,7 @@ import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -48,6 +48,7 @@ import {
 export default function TBLEMP({
   empresas = [],
   isLoadingEmpresas = false,
+  isFetchingEmpresas = false,
   onEdit,
   showConfigColunas,
   setShowConfigColunas,
@@ -973,8 +974,14 @@ export default function TBLEMP({
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className={`emp-table-body-scroll min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
+            className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
           >
+            {isFetchingEmpresas ? (
+              <div className="mg-table-loading-overlay" aria-live="polite" aria-busy="true">
+                <Loader2 className="mg-table-loading-overlay__icon animate-spin" aria-hidden="true" />
+                <span className="mg-table-loading-overlay__text">Carregando registros...</span>
+              </div>
+            ) : null}
             <div
               className="block w-max min-w-full min-h-full"
               style={{ width: totalTableWidth, minWidth: totalTableWidth }}
@@ -986,7 +993,7 @@ export default function TBLEMP({
               >
                 <TableBody>
                   {isLoadingEmpresas
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando empresas...</TableCell></TableRow>
+                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando registros...</TableCell></TableRow>
                     : empresasOrdenadas.length === 0
                     ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasPaginadas.map((emp, index) => {
@@ -1040,6 +1047,7 @@ export default function TBLEMP({
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            isBusy={isFetchingEmpresas}
           />
         </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
