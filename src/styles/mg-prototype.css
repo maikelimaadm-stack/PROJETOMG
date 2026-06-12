@@ -2313,6 +2313,9 @@
   max-height: 32px;
   opacity: 1;
   pointer-events: auto;
+  overflow: visible;
+  position: relative;
+  z-index: 25;
 }
 
 .mg-empresas-scope .mg-cards-panel-strip {

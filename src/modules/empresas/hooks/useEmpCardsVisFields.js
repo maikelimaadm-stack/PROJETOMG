@@ -9,7 +9,7 @@ import {
   saveSearchVisFields,
 } from "@/modules/empresas/components/empSearchView.constants";
 
-export function useEmpCardsVisFields(enabled = true) {
+export function useEmpCardsVisFields() {
   const { data: camposPersonalizados = [] } = useQuery({
     queryKey: ["emp-campos-personalizados"],
     queryFn: () => empRepository.listCamposPersonalizados(),
@@ -17,30 +17,23 @@ export function useEmpCardsVisFields(enabled = true) {
     staleTime: 60_000,
     gcTime: 10 * 60_000,
     refetchOnMount: false,
-    enabled,
   });
 
-  const fieldCatalog = useMemo(
-    () => buildEmpCardFieldCatalog(camposPersonalizados),
-    [camposPersonalizados]
-  );
+  const catalog = useMemo(() => {
+    const built = buildEmpCardFieldCatalog(camposPersonalizados);
+    return built.length > 0 ? built : EMP_SEARCH_DEFAULT_FIELDS;
+  }, [camposPersonalizados]);
 
-  const catalog = useMemo(
-    () => (fieldCatalog.length > 0 ? fieldCatalog : EMP_SEARCH_DEFAULT_FIELDS),
-    [fieldCatalog]
-  );
-
-  const [visFields, setVisFields] = useState(() => loadSearchVisFields());
+  const [visFields, setVisFields] = useState(() => loadSearchVisFields(EMP_SEARCH_DEFAULT_FIELDS));
 
   useEffect(() => {
-    if (!enabled) return;
     setVisFields(loadSearchVisFields(catalog));
-  }, [catalog, enabled]);
+  }, [catalog]);
 
-  const configFields = useMemo(
-    () => mergeSearchVisFields(catalog, visFields.length > 0 ? visFields : catalog),
-    [catalog, visFields]
-  );
+  const configFields = useMemo(() => {
+    const merged = mergeSearchVisFields(catalog, visFields.length > 0 ? visFields : catalog);
+    return merged.length > 0 ? merged : EMP_SEARCH_DEFAULT_FIELDS;
+  }, [catalog, visFields]);
 
   const detailFields = useMemo(
     () => visFields.filter((field) => field.visible && !field.primary),

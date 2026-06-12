@@ -409,7 +409,7 @@ export default function PAGEMP() {
   }, [closeFilterPanel]);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
-  const cardsVisFields = useEmpCardsVisFields(!showForm && mgViewMode === "cards");
+  const cardsVisFields = useEmpCardsVisFields();
 
   const actionBarVisibility = useMemo(
     () =>
@@ -835,7 +835,6 @@ export default function PAGEMP() {
             <MgCardsPanelStrip
               fields={cardsVisFields.configFields}
               onSave={cardsVisFields.saveConfig}
-              disabled={saveCycle.isSaving}
             />
           </div>
 

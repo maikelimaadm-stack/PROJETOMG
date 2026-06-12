@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { GalleryThumbnails } from "lucide-react";
+import { EMP_SEARCH_DEFAULT_FIELDS } from "@/modules/empresas/components/empSearchView.constants";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import {
   closeMgPanels,
@@ -7,7 +8,14 @@ import {
   useMgPanelPosition,
 } from "@/modules/empresas/layout/useMgPanelPosition";
 
-export default function MgCardsPanelStrip({ fields = [], onSave, disabled = false }) {
+export default function MgCardsPanelStrip({
+  fields: fieldsProp = [],
+  onSave,
+  disabled = false,
+}) {
+  const fields =
+    Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
+
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(fields);
   const rootRef = useRef(null);
@@ -30,6 +38,10 @@ export default function MgCardsPanelStrip({ fields = [], onSave, disabled = fals
   useMgPanelCoordinator(rootRef, setOpen);
 
   useEffect(() => {
+    setDraft(fields.map((field) => ({ ...field })));
+  }, [fields]);
+
+  useEffect(() => {
     if (open) setDraft(fields.map((field) => ({ ...field })));
   }, [open, fields]);
 
@@ -45,7 +57,7 @@ export default function MgCardsPanelStrip({ fields = [], onSave, disabled = fals
   }, [open]);
 
   const toggle = () => {
-    if (disabled || fields.length === 0) return;
+    if (disabled) return;
     setOpen((current) => {
       const next = !current;
       if (next) closeMgPanels(rootRef.current);
@@ -65,7 +77,7 @@ export default function MgCardsPanelStrip({ fields = [], onSave, disabled = fals
           type="button"
           className="mg-nav-btn ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-cards-panel-strip__config-btn"
           onClick={toggle}
-          disabled={disabled || fields.length === 0}
+          disabled={disabled}
           title="Configurar campos dos cards"
           aria-label="Configurar campos dos cards"
           aria-expanded={open}
@@ -82,32 +94,28 @@ export default function MgCardsPanelStrip({ fields = [], onSave, disabled = fals
           onClick={(event) => event.stopPropagation()}
         >
           <div className="mg-cards-config-menu__list">
-            {draft.length === 0 ? (
-              <p className="mg-cards-config-menu__empty">Nenhum campo disponível.</p>
-            ) : (
-              draft.map((field) => (
-                <label
-                  key={field.key}
-                  className={`mg-cards-config-menu__item${field.primary ? " mg-cards-config-menu__item--locked" : ""}`}
-                >
-                  <input
-                    type="checkbox"
-                    className="mg-cards-config-menu__checkbox"
-                    checked={field.visible}
-                    disabled={field.primary}
-                    onChange={(event) => {
-                      const checked = event.target.checked;
-                      setDraft((current) =>
-                        current.map((item) =>
-                          item.key === field.key ? { ...item, visible: checked } : item
-                        )
-                      );
-                    }}
-                  />
-                  <span>{field.label}</span>
-                </label>
-              ))
-            )}
+            {draft.map((field) => (
+              <label
+                key={field.key}
+                className={`mg-cards-config-menu__item${field.primary ? " mg-cards-config-menu__item--locked" : ""}`}
+              >
+                <input
+                  type="checkbox"
+                  className="mg-cards-config-menu__checkbox"
+                  checked={field.visible}
+                  disabled={field.primary}
+                  onChange={(event) => {
+                    const checked = event.target.checked;
+                    setDraft((current) =>
+                      current.map((item) =>
+                        item.key === field.key ? { ...item, visible: checked } : item
+                      )
+                    );
+                  }}
+                />
+                <span>{field.label}</span>
+              </label>
+            ))}
           </div>
           <div className="mg-cards-config-menu__footer">
             <button type="button" className="mg-cards-config-menu__ok" onClick={handleOk}>
