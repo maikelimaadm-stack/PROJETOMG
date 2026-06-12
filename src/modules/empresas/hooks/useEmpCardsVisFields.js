@@ -5,9 +5,14 @@ import {
   EMP_SEARCH_DEFAULT_FIELDS,
   buildCardCatalogFromColumnsInUse,
   buildCardDetailFieldsFromColumns,
+  EMP_CARDS_LAYOUT_DEFAULT,
   getDefaultCardVisFields,
-  mergeSearchVisFields,
+  getFieldsPerRowForLayout,
+  loadCardsLayoutConfig,
   loadSearchVisFields,
+  mergeSearchVisFields,
+  normalizeCardsPerRow,
+  saveCardsLayoutConfig,
   saveSearchVisFields,
   sortCardConfigFieldsAlphabetically,
 } from "@/modules/empresas/components/empSearchView.constants";
@@ -49,6 +54,12 @@ export function useEmpCardsVisFields({ columnsInUseOverride = null } = {}) {
   );
 
   const [visFields, setVisFields] = useState(() => loadSearchVisFields(EMP_SEARCH_DEFAULT_FIELDS));
+  const [layoutConfig, setLayoutConfig] = useState(() => loadCardsLayoutConfig());
+
+  const fieldsPerRow = useMemo(
+    () => getFieldsPerRowForLayout(layoutConfig.cardsPerRow),
+    [layoutConfig.cardsPerRow]
+  );
 
   useEffect(() => {
     if (catalog.length === 0) return;
@@ -87,11 +98,23 @@ export function useEmpCardsVisFields({ columnsInUseOverride = null } = {}) {
     [catalog]
   );
 
+  const saveLayoutConfig = useCallback((nextConfig) => {
+    const normalized = { cardsPerRow: normalizeCardsPerRow(nextConfig?.cardsPerRow) };
+    setLayoutConfig(normalized);
+    saveCardsLayoutConfig(normalized);
+  }, []);
+
+  const getRestoreLayoutDefaults = useCallback(() => ({ ...EMP_CARDS_LAYOUT_DEFAULT }), []);
+
   return {
     configFields,
     detailFields,
     visFields,
+    layoutConfig,
+    fieldsPerRow,
     saveConfig,
     getRestoreDefaults,
+    saveLayoutConfig,
+    getRestoreLayoutDefaults,
   };
 }

@@ -189,6 +189,8 @@ export default function SRCHEMP({
   selectedIds = [],
   onSelectionChange,
   cardsDetailFields = [],
+  cardsPerRow = 3,
+  fieldsPerRow = 1,
   mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
@@ -302,7 +304,10 @@ export default function SRCHEMP({
               Nenhum registro encontrado
             </div>
           ) : (
-            <div id="cards-grid" className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+            <div
+              id="cards-grid"
+              className={`mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
+            >
               {filteredEmpresas.map((emp, index) => {
                 const isSelected = selectedIds.includes(emp.id);
                 const code = getEmpSearchFieldValue(emp, "codempresa");
@@ -349,13 +354,17 @@ export default function SRCHEMP({
                       </div>
                     </div>
                     {detailFields.length > 0 ? (
-                      <div className="mb-2.5 flex flex-col gap-1.5 text-[11px]">
+                      <div
+                        className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}
+                      >
                         {detailFields.map((field) => (
-                          <div key={field.key}>
-                            <span style={{ color: "var(--text-3)" }}>{field.label}: </span>
-                            <span className="font-medium" style={{ color: "var(--text-1)" }}>
-                              {getEmpSearchFieldValue(emp, field.key)}
-                            </span>
+                          <div key={field.key} className="mg-emp-card__field">
+                            <div className="mg-emp-card__field-line">
+                              <span className="mg-emp-card__field-label">{field.label}:</span>
+                              <span className="mg-emp-card__field-value">
+                                {getEmpSearchFieldValue(emp, field.key)}
+                              </span>
+                            </div>
                           </div>
                         ))}
                       </div>

@@ -839,6 +839,9 @@ export default function PAGEMP() {
                 fields={cardsVisFields.configFields}
                 onSave={cardsVisFields.saveConfig}
                 onRestoreDefaults={cardsVisFields.getRestoreDefaults}
+                layout={cardsVisFields.layoutConfig}
+                onSaveLayout={cardsVisFields.saveLayoutConfig}
+                onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
               />
             </div>
           </div>
@@ -894,6 +897,8 @@ export default function PAGEMP() {
                     selectedIds: selectedTableItems,
                     onSelectionChange: handleTableSelectionChange,
                     cardsDetailFields: cardsVisFields.detailFields,
+                    cardsPerRow: cardsVisFields.layoutConfig.cardsPerRow,
+                    fieldsPerRow: cardsVisFields.fieldsPerRow,
                     mgPrototype: true,
                   }}
                 />

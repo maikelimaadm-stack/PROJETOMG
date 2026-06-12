@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Check, Settings2 } from "lucide-react";
+import { Check, LayoutGrid, Settings2 } from "lucide-react";
 import {
+  EMP_CARDS_LAYOUT_DEFAULT,
+  EMP_CARDS_LAYOUT_OPTIONS,
   EMP_SEARCH_DEFAULT_FIELDS,
   getDefaultCardVisFields,
 } from "@/modules/empresas/components/empSearchView.constants";
@@ -28,24 +30,67 @@ function CardsFieldCheck({ checked, disabled, onChange }) {
   );
 }
 
+function CardsLayoutRadio({ checked, onChange }) {
+  return (
+    <span className={`mg-cards-config-menu__check mg-cards-config-menu__check--radio${checked ? " is-checked" : ""}`}>
+      <input
+        type="radio"
+        className="mg-cards-config-menu__checkbox-input"
+        checked={checked}
+        onChange={onChange}
+      />
+      {checked ? <span className="mg-cards-config-menu__radio-dot" aria-hidden="true" /> : null}
+    </span>
+  );
+}
+
+function CardsConfigMenuFooter({ onRestore, onOk }) {
+  return (
+    <div className="mg-cards-config-menu__footer">
+      <button
+        type="button"
+        className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-cards-config-menu__reset"
+        onClick={onRestore}
+      >
+        Restaurar padrão
+      </button>
+      <button
+        type="button"
+        className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-cards-config-menu__ok"
+        onClick={onOk}
+      >
+        Ok
+      </button>
+    </div>
+  );
+}
+
 export default function MgCardsPanelStrip({
   fields: fieldsProp = [],
   onSave,
   onRestoreDefaults,
+  layout = EMP_CARDS_LAYOUT_DEFAULT,
+  onSaveLayout,
+  onRestoreLayoutDefaults,
   disabled = false,
 }) {
   const fields =
     Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
 
-  const [open, setOpen] = useState(false);
-  const [draft, setDraft] = useState(fields);
-  const rootRef = useRef(null);
-  const panelRef = useRef(null);
+  const [fieldsOpen, setFieldsOpen] = useState(false);
+  const [layoutOpen, setLayoutOpen] = useState(false);
+  const [fieldsDraft, setFieldsDraft] = useState(fields);
+  const [layoutDraft, setLayoutDraft] = useState(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
 
-  const panelStyle = useMgPanelPosition(
-    open,
-    rootRef,
-    panelRef,
+  const layoutRootRef = useRef(null);
+  const fieldsRootRef = useRef(null);
+  const layoutPanelRef = useRef(null);
+  const fieldsPanelRef = useRef(null);
+
+  const fieldsPanelStyle = useMgPanelPosition(
+    fieldsOpen,
+    fieldsRootRef,
+    fieldsPanelRef,
     {
       minWidth: 280,
       width: 280,
@@ -53,124 +98,213 @@ export default function MgCardsPanelStrip({
       align: "right",
       scrollable: false,
     },
-    `${open}|${draft.length}|${fields.length}`
+    `${fieldsOpen}|${fieldsDraft.length}|${fields.length}`
   );
 
-  const menuStyle = useMemo(
+  const layoutPanelStyle = useMgPanelPosition(
+    layoutOpen,
+    layoutRootRef,
+    layoutPanelRef,
+    {
+      minWidth: 280,
+      width: 280,
+      estimatedHeight: 220,
+      align: "right",
+      scrollable: false,
+    },
+    `${layoutOpen}|${layoutDraft}`
+  );
+
+  const fieldsMenuStyle = useMemo(
     () => ({
-      ...panelStyle,
+      ...fieldsPanelStyle,
       height: "auto",
       maxHeight: "min(420px, calc(100vh - 96px))",
       overflow: "hidden",
       display: "flex",
       flexDirection: "column",
     }),
-    [panelStyle]
+    [fieldsPanelStyle]
   );
 
-  useMgPanelCoordinator(rootRef, setOpen);
+  const layoutMenuStyle = useMemo(
+    () => ({
+      ...layoutPanelStyle,
+      height: "auto",
+      maxHeight: "min(280px, calc(100vh - 96px))",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+    }),
+    [layoutPanelStyle]
+  );
+
+  useMgPanelCoordinator(layoutRootRef, setLayoutOpen);
+  useMgPanelCoordinator(fieldsRootRef, setFieldsOpen);
 
   useEffect(() => {
-    setDraft(fields.map((field) => ({ ...field })));
+    setFieldsDraft(fields.map((field) => ({ ...field })));
   }, [fields]);
 
   useEffect(() => {
-    if (open) setDraft(fields.map((field) => ({ ...field })));
-  }, [open, fields]);
+    setLayoutDraft(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
+  }, [layout?.cardsPerRow]);
 
   useEffect(() => {
-    if (!open) return undefined;
+    if (fieldsOpen) setFieldsDraft(fields.map((field) => ({ ...field })));
+  }, [fieldsOpen, fields]);
+
+  useEffect(() => {
+    if (layoutOpen) setLayoutDraft(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
+  }, [layoutOpen, layout?.cardsPerRow]);
+
+  useEffect(() => {
+    if (!fieldsOpen && !layoutOpen) return undefined;
     const close = (event) => {
-      if (!rootRef.current?.contains(event.target) && !panelRef.current?.contains(event.target)) {
-        setOpen(false);
-      }
+      const inFields =
+        fieldsRootRef.current?.contains(event.target) || fieldsPanelRef.current?.contains(event.target);
+      const inLayout =
+        layoutRootRef.current?.contains(event.target) || layoutPanelRef.current?.contains(event.target);
+      if (!inFields) setFieldsOpen(false);
+      if (!inLayout) setLayoutOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
-  }, [open]);
+  }, [fieldsOpen, layoutOpen]);
 
-  const toggle = () => {
+  const toggleLayout = () => {
     if (disabled) return;
-    setOpen((current) => {
+    setLayoutOpen((current) => {
       const next = !current;
-      if (next) closeMgPanels(rootRef.current);
+      if (next) {
+        closeMgPanels(layoutRootRef.current);
+        setFieldsOpen(false);
+      }
       return next;
     });
   };
 
-  const handleOk = () => {
-    onSave?.(draft);
-    setOpen(false);
+  const toggleFields = () => {
+    if (disabled) return;
+    setFieldsOpen((current) => {
+      const next = !current;
+      if (next) {
+        closeMgPanels(fieldsRootRef.current);
+        setLayoutOpen(false);
+      }
+      return next;
+    });
   };
 
-  const handleRestore = () => {
+  const handleFieldsOk = () => {
+    onSave?.(fieldsDraft);
+    setFieldsOpen(false);
+  };
+
+  const handleFieldsRestore = () => {
     const defaults = onRestoreDefaults?.() ?? getDefaultCardVisFields(fields);
-    setDraft(defaults.map((field) => ({ ...field })));
+    setFieldsDraft(defaults.map((field) => ({ ...field })));
+  };
+
+  const handleLayoutOk = () => {
+    onSaveLayout?.({ cardsPerRow: layoutDraft });
+    setLayoutOpen(false);
+  };
+
+  const handleLayoutRestore = () => {
+    const defaults = onRestoreLayoutDefaults?.() ?? EMP_CARDS_LAYOUT_DEFAULT;
+    setLayoutDraft(defaults.cardsPerRow);
   };
 
   return (
     <div data-template-id="cards-panel" className="mg-cards-panel-strip hidden md:flex">
       <div className="mg-cards-panel-strip__meta" aria-hidden="true" />
-      <div className="mg-cards-panel-strip__actions" ref={rootRef}>
-        <button
-          type="button"
-          className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${open ? " is-open" : ""}`}
-          onClick={toggle}
-          disabled={disabled}
-          title="Configurar campos dos cards"
-          aria-label="Configurar campos dos cards"
-          aria-expanded={open}
-          aria-haspopup="dialog"
-        >
-          <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
-        </button>
+      <div className="mg-cards-panel-strip__actions">
+        <div className="mg-cards-panel-strip__action" ref={layoutRootRef}>
+          <button
+            type="button"
+            className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${layoutOpen ? " is-open" : ""}`}
+            onClick={toggleLayout}
+            disabled={disabled}
+            title="Configurar layout dos cards"
+            aria-label="Configurar layout dos cards"
+            aria-expanded={layoutOpen}
+            aria-haspopup="dialog"
+          >
+            <LayoutGrid className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
+          </button>
 
-        <MgPortalPanel
-          open={open}
-          panelRef={panelRef}
-          panelClassName="dropdown-menu mg-cards-config-menu open"
-          style={menuStyle}
-          onClick={(event) => event.stopPropagation()}
-        >
-          <div className="mg-cards-config-menu__list">
-            {draft.map((field) => (
-              <label
-                key={field.key}
-                className={`mg-cards-config-menu__item${field.primary ? " mg-cards-config-menu__item--locked" : ""}`}
-              >
-                <CardsFieldCheck
-                  checked={field.visible}
-                  disabled={field.primary}
-                  onChange={(event) => {
-                    const checked = event.target.checked;
-                    setDraft((current) =>
-                      current.map((item) =>
-                        item.key === field.key ? { ...item, visible: checked } : item
-                      )
-                    );
-                  }}
-                />
-                <span className="mg-cards-config-menu__label">{field.label}</span>
-              </label>
-            ))}
-          </div>
-          <div className="mg-cards-config-menu__footer">
-            <button
-              type="button"
-              className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-cards-config-menu__reset"
-              onClick={handleRestore}
-            >
-              Restaurar padrão
-            </button>
-            <button
-              type="button"
-              className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-cards-config-menu__ok"
-              onClick={handleOk}
-            >
-              Ok
-            </button>
-          </div>
-        </MgPortalPanel>
+          <MgPortalPanel
+            open={layoutOpen}
+            panelRef={layoutPanelRef}
+            panelClassName="dropdown-menu mg-cards-config-menu mg-cards-layout-menu open"
+            style={layoutMenuStyle}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mg-cards-config-menu__list mg-cards-layout-menu__list">
+              {EMP_CARDS_LAYOUT_OPTIONS.map((option) => (
+                <label key={option.value} className="mg-cards-config-menu__item mg-cards-layout-menu__item">
+                  <CardsLayoutRadio
+                    checked={layoutDraft === option.value}
+                    onChange={() => setLayoutDraft(option.value)}
+                  />
+                  <span className="mg-cards-layout-menu__text">
+                    <span className="mg-cards-config-menu__label">{option.label}</span>
+                    <span className="mg-cards-layout-menu__hint">{option.hint}</span>
+                  </span>
+                </label>
+              ))}
+            </div>
+            <CardsConfigMenuFooter onRestore={handleLayoutRestore} onOk={handleLayoutOk} />
+          </MgPortalPanel>
+        </div>
+
+        <div className="mg-cards-panel-strip__action" ref={fieldsRootRef}>
+          <button
+            type="button"
+            className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${fieldsOpen ? " is-open" : ""}`}
+            onClick={toggleFields}
+            disabled={disabled}
+            title="Configurar campos dos cards"
+            aria-label="Configurar campos dos cards"
+            aria-expanded={fieldsOpen}
+            aria-haspopup="dialog"
+          >
+            <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
+          </button>
+
+          <MgPortalPanel
+            open={fieldsOpen}
+            panelRef={fieldsPanelRef}
+            panelClassName="dropdown-menu mg-cards-config-menu open"
+            style={fieldsMenuStyle}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mg-cards-config-menu__list">
+              {fieldsDraft.map((field) => (
+                <label
+                  key={field.key}
+                  className={`mg-cards-config-menu__item${field.primary ? " mg-cards-config-menu__item--locked" : ""}`}
+                >
+                  <CardsFieldCheck
+                    checked={field.visible}
+                    disabled={field.primary}
+                    onChange={(event) => {
+                      const checked = event.target.checked;
+                      setFieldsDraft((current) =>
+                        current.map((item) =>
+                          item.key === field.key ? { ...item, visible: checked } : item
+                        )
+                      );
+                    }}
+                  />
+                  <span className="mg-cards-config-menu__label">{field.label}</span>
+                </label>
+              ))}
+            </div>
+            <CardsConfigMenuFooter onRestore={handleFieldsRestore} onOk={handleFieldsOk} />
+          </MgPortalPanel>
+        </div>
       </div>
     </div>
   );

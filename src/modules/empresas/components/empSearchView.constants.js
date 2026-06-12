@@ -6,6 +6,45 @@ import campoEngine from "@/framework/cadastro/fields/campoEngine";
 export const EMP_SEARCH_VIS_KEY = "erp_vis_config";
 export const EMP_SEARCH_VIS_KEY_LEGACY = "emp_search_vis_config";
 export const EMP_SEARCH_FAV_KEY = "emp_search_favorites";
+export const EMP_CARDS_LAYOUT_KEY = "erp_cards_layout_config";
+
+export const EMP_CARDS_LAYOUT_DEFAULT = { cardsPerRow: 3 };
+
+export const EMP_CARDS_LAYOUT_OPTIONS = [
+  { value: 1, label: "1 card por linha", hint: "Até 5 campos por linha no card" },
+  { value: 2, label: "2 cards por linha", hint: "Até 2 campos por linha no card" },
+  { value: 3, label: "3 cards por linha", hint: "1 campo por linha no card" },
+];
+
+export const normalizeCardsPerRow = (value) => {
+  const parsed = Number(value);
+  if (parsed === 1 || parsed === 2 || parsed === 3) return parsed;
+  return EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow;
+};
+
+export const getFieldsPerRowForLayout = (cardsPerRow) => {
+  if (cardsPerRow === 1) return 5;
+  if (cardsPerRow === 2) return 2;
+  return 1;
+};
+
+export const loadCardsLayoutConfig = () => {
+  try {
+    const saved = localStorage.getItem(EMP_CARDS_LAYOUT_KEY);
+    if (!saved) return { ...EMP_CARDS_LAYOUT_DEFAULT };
+    const parsed = JSON.parse(saved);
+    return { cardsPerRow: normalizeCardsPerRow(parsed?.cardsPerRow) };
+  } catch {
+    return { ...EMP_CARDS_LAYOUT_DEFAULT };
+  }
+};
+
+export const saveCardsLayoutConfig = (config) => {
+  localStorage.setItem(
+    EMP_CARDS_LAYOUT_KEY,
+    JSON.stringify({ cardsPerRow: normalizeCardsPerRow(config?.cardsPerRow) })
+  );
+};
 
 export const EMP_SEARCH_AVATAR_COLORS = [
   "#EC4899",
