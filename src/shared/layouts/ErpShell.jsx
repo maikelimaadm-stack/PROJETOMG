@@ -33,6 +33,7 @@ import MgMobileHeader from "@/modules/empresas/layout/MgMobileHeader";
 import { MgEmpresasChromeProvider } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import MgEmpresasMobileOverlays from "@/modules/empresas/layout/MgEmpresasMobileOverlays";
 import MgPrototypeSidebar from "@/modules/empresas/layout/MgPrototypeSidebar";
+import ErpEmpresaSelector from "@/shared/layouts/ErpEmpresaSelector";
 
 const isEmpresasRoute = (pathname) =>
   pathname === "/" || pathname === "/CadastroEmpresas" || pathname.startsWith("/CadastroEmpresas/");
@@ -83,28 +84,12 @@ function ErpTopHeader({
 
       <div className="flex items-center gap-2">
         <label className="text-xs text-slate-600">Empresa:</label>
-        <select
+        <ErpEmpresaSelector
           value={selectorValue}
-          onChange={(event) => onSelectEmpresa(event.target.value)}
-          className="erp-shell-company-select erp-select-closed h-8 min-w-[220px] max-w-[320px] rounded-md border border-slate-300 bg-white px-2 pr-7 text-xs text-slate-700"
-          title="Escolha ver todas as empresas ou focar em uma só"
-        >
-          <optgroup label="Visão geral">
-            {allowAllEmpresas ? <option value="all">Todas as empresas</option> : null}
-            {!allowAllEmpresas ? (
-              <option value={AUTHORIZED_SCOPE_OPTION}>Todas as empresas autorizadas</option>
-            ) : null}
-          </optgroup>
-          {empresas.length > 0 ? (
-            <optgroup label="Uma empresa">
-              {empresas.map((empresa) => (
-                <option key={String(empresa.id)} value={String(empresa.id)}>
-                  {empresa.codempresa} - {empresa.nome_empresa}
-                </option>
-              ))}
-            </optgroup>
-          ) : null}
-        </select>
+          allowAllEmpresas={allowAllEmpresas}
+          empresas={empresas}
+          onChange={onSelectEmpresa}
+        />
       </div>
 
       <div className="flex items-center gap-2">

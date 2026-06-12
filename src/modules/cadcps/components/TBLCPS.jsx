@@ -3,7 +3,7 @@ import { Checkbox } from "@/shared/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -45,6 +45,7 @@ import {
 export default function TBLCPS({
   campos = [],
   isLoadingCampos = false,
+  isFetchingCampos = false,
   onEdit,
   searchTerm = "",
   selectedRecordId,
@@ -57,6 +58,7 @@ export default function TBLCPS({
   onServerPageChange = null,
   onServerPageSizeChange = null,
   onServerSortChange = null,
+  onServerColumnFiltersChange = null,
   moduleTitle = "Cadastro",
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -279,9 +281,13 @@ export default function TBLCPS({
   const setValoresFiltro = (id, v) => setFiltrosColunas((p) => ({ ...p, [id]: v }));
   const clearColumnFilter = (id) => setValoresFiltro(id, []);
 
-  const camposFiltrados = useMemo(() => campos.filter((item) => campoPassaFiltros(item)), [campos, filtrosColunas, colunasDisponiveis, searchTerm]);
+  const camposFiltrados = useMemo(() => {
+    if (serverMode) return campos;
+    return campos.filter((item) => campoPassaFiltros(item));
+  }, [serverMode, campos, filtrosColunas, colunasDisponiveis, searchTerm]);
 
   const camposOrdenados = useMemo(() => {
+    if (serverMode) return camposFiltrados;
     const sorted = [...camposFiltrados];
     sorted.sort((a, b) => {
       if (sortConfig.key === "id_global") { const aV = Number(a.id_global || 0); const bV = Number(b.id_global || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
@@ -329,6 +335,11 @@ export default function TBLCPS({
   useEffect(() => {
     localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
   }, [pageSize]);
+
+  useEffect(() => {
+    if (!serverMode) return;
+    onServerColumnFiltersChange?.(filtrosColunas);
+  }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
     if (serverMode) {
@@ -885,8 +896,14 @@ export default function TBLCPS({
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className="emp-table-body-scroll min-h-0 flex-1 outline-none overflow-auto"
+            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto"
           >
+            {isFetchingCampos ? (
+              <div className="mg-table-loading-overlay" aria-live="polite" aria-busy="true">
+                <Loader2 className="mg-table-loading-overlay__icon animate-spin" aria-hidden="true" />
+                <span className="mg-table-loading-overlay__text">Carregando registros...</span>
+              </div>
+            ) : null}
             <div
               className="block w-max min-w-full min-h-full"
               style={{ width: totalTableWidth, minWidth: totalTableWidth }}
@@ -952,6 +969,7 @@ export default function TBLCPS({
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            isBusy={isFetchingCampos}
           />
         </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}

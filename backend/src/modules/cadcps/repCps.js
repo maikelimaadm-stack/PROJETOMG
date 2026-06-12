@@ -87,6 +87,9 @@ const buildListWhere = (scope, query = {}) => {
   if (query.com_formula) and.push({ formula: { not: null } });
   if (query.com_mascara) and.push({ usar_mascara: true });
   if (query.com_decimal) and.push({ usar_decimal: true });
+  if (query.field_name) and.push({ field_name: { contains: String(query.field_name), mode: "insensitive" } });
+  if (query.aplicacao_modo) and.push({ aplicacao_modo: String(query.aplicacao_modo) });
+  if (query.id_global) and.push({ id_global: Number(query.id_global) });
 
   if (query.tela_id) {
     and.push({ telas: { some: { tela_id: String(query.tela_id) } } });
@@ -100,6 +103,45 @@ const buildListWhere = (scope, query = {}) => {
       ],
     });
   }
+
+  const filters = query.filters && typeof query.filters === "object" ? query.filters : {};
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value == null || value === "") return;
+
+    if (key.endsWith("__in")) {
+      const baseKey = key.slice(0, -4);
+      const values = Array.isArray(value) ? value : [value];
+      const normalized = values.map((item) => String(item).trim()).filter(Boolean);
+      if (normalized.length === 0) return;
+      if (baseKey === "ativo" || baseKey === "obrigatorio") {
+        and.push({ [baseKey]: { in: normalized.map((v) => v === "Sim" || v === true || v === "true") } });
+        return;
+      }
+      if (baseKey === "codigo" || baseKey === "id_global") {
+        and.push({ [baseKey]: { in: normalized.map(Number).filter(Number.isFinite) } });
+        return;
+      }
+      and.push({ [baseKey]: { in: normalized } });
+      return;
+    }
+
+    if (key === "ativo" || key === "obrigatorio") {
+      and.push({ [key]: value === "Sim" || value === true || value === "true" });
+      return;
+    }
+    if (key === "codigo" || key === "id_global") {
+      const numeric = Number(value);
+      if (Number.isFinite(numeric)) and.push({ [key]: Math.floor(numeric) });
+      return;
+    }
+    if (key === "tipo" || key === "aplicacao_modo") {
+      and.push({ [key]: String(value) });
+      return;
+    }
+    if (key === "nome" || key === "field_name") {
+      and.push({ [key]: { contains: String(value).trim(), mode: "insensitive" } });
+    }
+  });
 
   const search = String(query.search || "").trim();
   if (search) {

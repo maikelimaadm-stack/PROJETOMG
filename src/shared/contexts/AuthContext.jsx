@@ -8,7 +8,7 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 
 const prefetchEmpresasCadastro = () => {
   void queryClientInstance.prefetchQuery({
-    queryKey: ["emp-cadastro", 1, 50, "", "codempresa", "asc"],
+    queryKey: ["emp-cadastro", 1, 50, "", "codempresa", "asc", "{}"],
     queryFn: () =>
       empresasModuleDefinition.repository.listPage({
         page: 1,

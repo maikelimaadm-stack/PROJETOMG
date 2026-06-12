@@ -56,6 +56,7 @@ export default function MgActionBar({
   onSearchApplyFavorites,
   isFavoriteRecord,
   onToggleFilter,
+  filterActive = false,
   onNew,
   onSave,
   onCancel,
@@ -268,14 +269,18 @@ export default function MgActionBar({
           <div className={`mg-action-bar__filter-slot${lockedClass}`}>
             <button
               type="button"
-              className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
+              className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon${filterActive ? " tb-btn-filter-active" : ""}`}
               onClick={onToggleFilter}
               disabled={toolsLocked}
               title="Filtrar"
               aria-label="Filtrar"
+              aria-pressed={filterActive}
               aria-disabled={toolsLocked}
             >
               <Filter className="h-3.5 w-3.5" />
+              {filterActive ? (
+                <span className="tb-filter-active-dot" aria-hidden="true" />
+              ) : null}
             </button>
           </div>
         </ActionSlot>

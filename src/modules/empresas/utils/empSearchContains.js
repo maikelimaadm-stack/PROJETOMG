@@ -1,11 +1,7 @@
 import { getEmpSearchFieldValue } from "@/modules/empresas/components/empSearchView.constants";
+import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 
-/** Normaliza texto para busca contido: trim + espaços consecutivos viram um. */
-export function normalizeSearchQuery(query) {
-  return String(query || "")
-    .trim()
-    .replace(/\s+/g, " ");
-}
+export { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 
 export function normalizeSearchText(value) {
   return String(value || "")

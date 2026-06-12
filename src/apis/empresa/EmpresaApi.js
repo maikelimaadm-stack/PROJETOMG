@@ -61,6 +61,28 @@ export const EmpresaApi = {
     return payload?.items || [];
   },
 
+  async listCamposPaginated(params = {}) {
+    const payload = await apiClient.get(`${CAMPOS_PATH}${toQuery({ mode: "config", ...params })}`, CADASTRO_LIST_SCOPE);
+    return {
+      items: payload?.items || [],
+      total: Number(payload?.total || 0),
+      page: Number(payload?.page || 1),
+      pageSize: Number(payload?.pageSize || params.pageSize || 50),
+      totalPages: Number(payload?.totalPages || 1),
+    };
+  },
+
+  async listEmpresasSelector(params = {}) {
+    const payload = await apiClient.get(`${EMPRESAS_PATH}/selector${toQuery(params)}`, CADASTRO_LIST_SCOPE);
+    return {
+      items: payload?.items || [],
+      total: Number(payload?.total || 0),
+      page: Number(payload?.page || 1),
+      pageSize: Number(payload?.pageSize || params.pageSize || 20),
+      totalPages: Number(payload?.totalPages || 1),
+    };
+  },
+
   async listOptionsSources(sources = []) {
     const payload = await apiClient.post("/api/empresas/options", { sources }, CADASTRO_LIST_SCOPE);
     return payload?.items || {};

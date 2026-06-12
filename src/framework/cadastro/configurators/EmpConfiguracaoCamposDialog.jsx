@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/dialog";
 import { Input } from "@/shared/ui/input";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -22,6 +22,11 @@ import EmpCalculationBuilder from "@/framework/cadastro/fields/EmpCalculationBui
 import EmpDecimalConfig from "@/framework/cadastro/fields/EmpDecimalConfig";
 import EmpMaskConfig from "@/framework/cadastro/fields/EmpMaskConfig";
 import { montarCamposDisponiveis, montarFormulaVisual } from "@/framework/cadastro/fields/empFieldConfigOptions";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
+import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
+import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
+import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 
 const TIPOS_CAMPO = [
   { value: "text", label: "Texto" },
@@ -110,14 +115,39 @@ export default function EmpConfiguracaoCamposDialog({
   const filterAnchorRefs = useRef({});
   const filterPanelRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
+  const [configSearchDraft, setConfigSearchDraft] = useState("");
+  const debouncedConfigSearch = useDebouncedValue(normalizeSearchQuery(configSearchDraft));
+  const [configPage, setConfigPage] = useState(1);
+  const [configPageSize, setConfigPageSize] = useState(LIST_DEFAULT_PAGE_SIZE);
 
-  const { data: campos = [], isLoading, isFetching, isFetched } = useQuery({
-    queryKey: ["emp-campos-personalizados", "config"],
-    queryFn: () => repository.listCamposPersonalizados("config"),
+  const listCamposPaginated = repository.listCamposPaginated?.bind(repository);
+
+  const {
+    items: campos = [],
+    total: camposTotal = 0,
+    isInitialLoading: isLoading,
+    isPageFetching: isFetching,
+    isFetched,
+  } = useServerListQuery({
+    queryKey: ["emp-campos-config", configPage, configPageSize, debouncedConfigSearch, sortConfig.key, sortConfig.direction],
+    queryFn: () =>
+      listCamposPaginated
+        ? listCamposPaginated({
+            page: configPage,
+            pageSize: configPageSize,
+            search: debouncedConfigSearch,
+            sortBy: sortConfig.key === "campo" ? "nome" : sortConfig.key,
+            sortDir: sortConfig.direction,
+          })
+        : repository.listCamposPersonalizados("config").then((items) => ({
+            items,
+            total: items.length,
+            page: 1,
+            pageSize: items.length || LIST_DEFAULT_PAGE_SIZE,
+            totalPages: 1,
+          })),
     enabled: open,
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
-    initialData: []
+    defaultResponse: { items: [], total: 0, page: 1, pageSize: LIST_DEFAULT_PAGE_SIZE, totalPages: 1 },
   });
 
   const camposCalculo = useMemo(() => montarCamposDisponiveis(campos, editingId), [campos, editingId]);
@@ -158,14 +188,8 @@ export default function EmpConfiguracaoCamposDialog({
     },
     onSuccess: (saved, _vars, context) => {
       const savedId = saved?.id || context?.optimisticId;
-      patchCamposCache(queryClient, (items) => {
-        const withoutPending = items.filter((item) => getCampoId(item) !== context?.optimisticId);
-        const exists = withoutPending.some((item) => getCampoId(item) === savedId);
-        if (exists) {
-          return withoutPending.map((item) => (getCampoId(item) === savedId ? { ...item, ...saved } : item));
-        }
-        return [...withoutPending, saved];
-      });
+      queryClient.invalidateQueries({ queryKey: ["emp-campos-config"] });
+      queryClient.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
       if (saved) loadCampoForm(saved);
     },
     onError: (error, _vars, context) => {
@@ -408,22 +432,11 @@ export default function EmpConfiguracaoCamposDialog({
     });
   };
   const hasActiveFilter = (colunaId) => getValoresFiltro(colunaId).length > 0;
-  const handleSort = (key) => setSortConfig((prev) => ({ key, direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc" }));
-  const camposFiltradosOrdenados = useMemo(() => {
-    const filtrados = campos.filter((campo) =>
-      tableColumns.every((coluna) => {
-        const filtro = filtrosColunas[coluna.id] || [];
-        if (!filtro.length) return true;
-        return filtro.includes(getColumnValue(campo, coluna.id));
-      })
-    );
-    return [...filtrados].sort((a, b) => {
-      const aValue = getColumnValue(a, sortConfig.key);
-      const bValue = getColumnValue(b, sortConfig.key);
-      const compare = String(aValue).localeCompare(String(bValue), "pt-BR", { sensitivity: "base", numeric: true });
-      return sortConfig.direction === "asc" ? compare : -compare;
-    });
-  }, [campos, filtrosColunas, tableColumns, sortConfig]);
+  const handleSort = (key) => {
+    setSortConfig((prev) => ({ key, direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc" }));
+    setConfigPage(1);
+  };
+  const camposFiltradosOrdenados = campos;
   const renderFilterIcon = (active) =>
     active
       ? <FilterX className={FILTER_ICON_CLASS} strokeWidth={2} />
@@ -705,7 +718,7 @@ export default function EmpConfiguracaoCamposDialog({
         <EmpSplitToolbarLayout
           className="h-full min-h-0 flex-1"
           toolbar={
-            <SankhyaListToolbar viewMode="table" total={campos.length} currentIndex={selectedIndex} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch={false} addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
+            <SankhyaListToolbar viewMode="table" total={camposTotal} currentIndex={selectedIndex} searchValue={configSearchDraft} onSearchChange={(value) => { setConfigSearchDraft(value); setConfigPage(1); }} onNew={handleNew} onToggleView={handleToggleView} onBack={() => onOpenChange(false)} toggleViewDisabled={!selectedCampo || selectedCampoIds.length > 1} onDelete={selectedHasNativeField ? undefined : handleDeleteSelected} onSettingsClick={() => {}} onAttachClick={() => {}} attachDisabled selectedCount={selectedCampoIds.length} title="Campos Personalizados" recordLabel="" showUtilityActions={false} showSearch addButtonClass="h-7 w-8 rounded-none border-y-0 border-l-0 border-r-[0.5px] border-slate-300 bg-white hover:bg-slate-50 text-slate-500 hover:text-slate-600 shadow-none" />
           }
         >
           <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden p-1.5">
@@ -802,6 +815,17 @@ export default function EmpConfiguracaoCamposDialog({
               </div>
               {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
             </div>
+            <EmpTablePagination
+              currentPage={configPage}
+              totalPages={Math.max(1, Math.ceil(camposTotal / configPageSize))}
+              pageSize={configPageSize}
+              onPageChange={setConfigPage}
+              onPageSizeChange={(nextPageSize) => {
+                setConfigPageSize(nextPageSize);
+                setConfigPage(1);
+              }}
+              isBusy={isFetching}
+            />
           </div>
         </EmpSplitToolbarLayout>
       }
