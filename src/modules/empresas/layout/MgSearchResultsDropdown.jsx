@@ -207,7 +207,7 @@ export default function MgSearchResultsDropdown({
         <div className="mg-search-dropdown__footer">
           <button
             type="button"
-            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-green"
+            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
             disabled={!hasListingData}
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => {
@@ -220,7 +220,7 @@ export default function MgSearchResultsDropdown({
           </button>
           <button
             type="button"
-            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-green"
+            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => {
               setConfigOpen(false);

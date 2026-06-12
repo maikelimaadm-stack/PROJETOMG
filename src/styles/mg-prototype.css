@@ -2624,6 +2624,11 @@
   pointer-events: none;
 }
 
+.mg-empresas-scope .mg-search-dropdown__footer-btn.tb-btn-ghost.tb-btn-labeled:not(:disabled):hover {
+  background: var(--gray-fill2) !important;
+  color: var(--text-1) !important;
+}
+
 .mg-empresas-scope .mg-search-dropdown__footer-btn--primary {
   grid-column: span 1;
 }
