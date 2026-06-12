@@ -72,12 +72,10 @@ export default function MgSearchResultsDropdown({
                       const value = getEmpSearchFieldValue(emp, field.key);
                       return (
                         <div key={field.key} className="mg-search-dropdown__field">
-                          <div className="mg-search-dropdown__field-line">
-                            <span className="mg-search-dropdown__field-label">{field.label}:</span>
-                            <span className="mg-search-dropdown__field-value">
-                              {renderSearchHighlight(value, query)}
-                            </span>
-                          </div>
+                          <span className="mg-search-dropdown__field-label">{field.label}:</span>
+                          <span className="mg-search-dropdown__field-value">
+                            {renderSearchHighlight(value, query)}
+                          </span>
                         </div>
                       );
                     })}
