@@ -109,6 +109,13 @@
   --mg-field-value-bottom-inset: 5px;
   --mg-selection-bg: rgba(64, 222, 99, 0.12);
   --mg-selection-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.35);
+  --mg-selection-panel-radius: 22px;
+  --mg-selection-panel-border: 1px solid rgba(64, 222, 99, 0.34);
+  --mg-selection-panel-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 14px rgba(64, 222, 99, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.96),
+    0 0 0 2px rgba(64, 222, 99, 0.12);
   --emp-accent-primary: #40de63;
   --emp-accent-primary-hover: #36c956;
   --erp-color-primary: #40de63;
@@ -1886,7 +1893,9 @@
   transition:
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
     background-color var(--mg-motion-duration) var(--mg-motion-ease),
-    transform 100ms ease;
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    border-radius var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):hover:not(.mg-emp-card--selected) {
@@ -1903,11 +1912,9 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card),
 .cadastro-emp-scope.mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card):hover {
   background: var(--mg-container-bg) !important;
-  border: var(--mg-launch-card-border) !important;
-  box-shadow:
-    0 0 0 2px rgba(64, 222, 99, 0.22),
-    0 0 10px rgba(64, 222, 99, 0.16),
-    var(--mg-launch-card-shadow) !important;
+  border: var(--mg-selection-panel-border) !important;
+  border-radius: var(--mg-selection-panel-radius) !important;
+  box-shadow: var(--mg-selection-panel-shadow) !important;
 }
 
 .mg-empresas-scope .mg-emp-card__select-badge {
@@ -2033,7 +2040,7 @@
 }
 
 .mg-empresas-scope .mg-record-fav-btn:disabled {
-  opacity: 0.45;
+  opacity: 0.42;
   cursor: not-allowed;
 }
 
