@@ -1040,7 +1040,6 @@ export default function TBLEMP({
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
-            variant={mgPrototype ? "mg" : "default"}
           />
         </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}

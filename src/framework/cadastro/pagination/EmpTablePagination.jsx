@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
-import { MgNavSkipIcon, MgNavStepIcon } from "@/modules/empresas/layout/MgNavIcons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { EMP_TOOLBAR_BTN_SHAPE, EMP_TOOLBAR_FIELD_BORDER } from "@/framework/cadastro/toolbars/empToolbarStyles";
 
@@ -43,25 +42,18 @@ export default function EmpTablePagination({
   pageSize = 50,
   onPageChange,
   onPageSizeChange,
-  variant = "default",
 }) {
-  const isMg = variant === "mg";
   const safePage = Math.min(Math.max(currentPage, 1), Math.max(totalPages, 1));
   const pageItems = useMemo(() => getVisiblePages(safePage, totalPages), [safePage, totalPages]);
-
-  const FirstIcon = isMg ? () => <MgNavSkipIcon direction="left" /> : () => <ChevronsLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />;
-  const PrevIcon = isMg ? () => <MgNavStepIcon direction="left" /> : () => <ChevronLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />;
-  const NextIcon = isMg ? () => <MgNavStepIcon direction="right" /> : () => <ChevronRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />;
-  const LastIcon = isMg ? () => <MgNavSkipIcon direction="right" /> : () => <ChevronsRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />;
 
   return (
     <div className="emp-table-pagination flex shrink-0 items-center justify-end gap-2 border-t border-[#e8ecef] bg-white px-2 py-1">
       <div className="flex shrink-0 items-center justify-end gap-1">
       <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Primeira página" aria-label="Primeira página">
-        <FirstIcon />
+        <ChevronsLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
       <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1} className="w-6 min-w-6 p-0" title="Página anterior" aria-label="Página anterior">
-        <PrevIcon />
+        <ChevronLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       {pageItems.map((item, index) =>
@@ -85,10 +77,10 @@ export default function EmpTablePagination({
       )}
 
       <PaginationBtn onClick={() => onPageChange?.(safePage + 1)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Próxima página" aria-label="Próxima página">
-        <NextIcon />
+        <ChevronRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
       <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages} className="w-6 min-w-6 p-0" title="Última página" aria-label="Última página">
-        <LastIcon />
+        <ChevronsRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))}>
