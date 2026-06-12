@@ -10,7 +10,7 @@ export default function MgRecordFavoriteStar({
   return (
     <button
       type="button"
-      className={`ios-btn tb-btn tb-btn-icon mg-record-fav-btn${active ? " is-active" : ""}${className ? ` ${className}` : ""}`}
+      className={`mg-record-fav-btn${active ? " is-active" : ""}${className ? ` ${className}` : ""}`}
       onClick={(event) => {
         event.stopPropagation();
         event.preventDefault();
@@ -21,11 +21,7 @@ export default function MgRecordFavoriteStar({
       aria-label={active ? "Remover favorito" : "Adicionar favorito"}
       aria-pressed={active}
     >
-      <Star
-        className="mg-record-fav-btn__icon"
-        strokeWidth={2}
-        fill={active ? "currentColor" : "none"}
-      />
+      <Star className="mg-record-fav-btn__icon" strokeWidth={2} />
     </button>
   );
 }
