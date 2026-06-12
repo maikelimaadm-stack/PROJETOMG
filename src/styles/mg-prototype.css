@@ -2574,21 +2574,91 @@
 
 .mg-empresas-scope .mg-search-dropdown__footer {
   flex-shrink: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 28px;
+  gap: 6px;
+  align-items: center;
   border-top: 1px solid var(--border);
   padding: 4px 8px 5px;
   background: var(--bg-card);
 }
 
-.mg-empresas-scope .mg-search-dropdown__apply-all.tb-btn {
-  width: 100%;
+.mg-empresas-scope .mg-search-dropdown__footer-btn {
   height: 22px;
   min-height: 22px;
-  padding: 0 10px;
+  padding: 0 8px;
   margin: 0;
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
   justify-content: center;
+  gap: 4px;
+}
+
+.mg-empresas-scope .mg-search-dropdown__footer-btn--primary {
+  grid-column: span 1;
+}
+
+.mg-empresas-scope .mg-search-dropdown__footer-btn--icon {
+  width: 28px;
+  min-width: 28px;
+  padding: 0;
+  border-radius: var(--mg-btn-icon-radius) !important;
+}
+
+.mg-empresas-scope .mg-search-dropdown__footer-btn--icon.is-open {
+  background: var(--gray-fill2) !important;
+  color: var(--accent) !important;
+}
+
+.mg-empresas-scope .mg-search-dropdown__footer-icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-search-dropdown__config {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  max-height: min(320px, calc(100vh - 160px));
+  border-bottom: 1px solid var(--border);
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-item {
+  padding: 7px 12px;
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-footer {
+  flex-shrink: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px 8px 4px;
+  border-top: 1px solid var(--border);
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-action {
+  height: 22px;
+  min-height: 22px;
+  font-size: 11px;
+  justify-content: center;
+  margin: 0;
+}
+
+.mg-empresas-scope .mg-search-dropdown__fav-btn[disabled],
+.mg-empresas-scope .mg-search-dropdown__fav-btn:disabled {
+  cursor: default;
+  pointer-events: none;
+  opacity: 1;
 }
 
 .mg-empresas-scope .mg-search-dropdown__mark {

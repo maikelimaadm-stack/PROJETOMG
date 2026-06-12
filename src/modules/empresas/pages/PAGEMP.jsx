@@ -26,6 +26,7 @@ import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeC
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
+import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import {
   buildEmpSearchFieldKeys,
@@ -88,6 +89,7 @@ export default function PAGEMP() {
   const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [pinnedRecord, setPinnedRecord] = useState(null);
+  const [searchFavoritesOnly, setSearchFavoritesOnly] = useState(false);
   const [searchViewPending, setSearchViewPending] = useState(false);
   const searchViewApplyRef = useRef(null);
   const [dropdownSearch, setDropdownSearch] = useState("");
@@ -102,9 +104,15 @@ export default function PAGEMP() {
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
   const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
+  const searchDropdownFields = useEmpSearchDropdownFields();
+  const empFavorites = useEmpFavorites();
   const searchFieldKeys = useMemo(
-    () => buildEmpSearchFieldKeys(cardsVisFields.detailFields),
-    [cardsVisFields.detailFields]
+    () => buildEmpSearchFieldKeys(searchDropdownFields.detailFields),
+    [searchDropdownFields.detailFields]
+  );
+  const favoriteIdsKey = useMemo(
+    () => [...empFavorites.favorites].sort().join(","),
+    [empFavorites.favorites]
   );
   const {
     filterPanelOpen,
@@ -134,6 +142,7 @@ export default function PAGEMP() {
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
+    setSearchFavoritesOnly(false);
     setDropdownSearch("");
   }, [selectedEmpresaId]);
 
@@ -185,10 +194,12 @@ export default function PAGEMP() {
       querySort.key,
       querySort.direction,
       searchFieldKeys.join("|"),
+      searchFavoritesOnly,
+      favoriteIdsKey,
     ],
     queryFn: async () => {
       const trimmedSearch = normalizeSearchQuery(searchTerm);
-      if (!trimmedSearch) {
+      if (!trimmedSearch && !searchFavoritesOnly) {
         return moduleRepository.listPage({
           page: queryPage,
           pageSize: queryPageSize,
@@ -205,8 +216,14 @@ export default function PAGEMP() {
         sortBy: querySort.key,
         sortDir: querySort.direction,
       });
-      const filtered = filterEmpresasContains(source.items, trimmedSearch, searchFieldKeys);
-      return paginateEmpresasList(filtered, queryPage, queryPageSize);
+      let items = source.items || [];
+      if (searchFavoritesOnly) {
+        items = items.filter((emp) => empFavorites.isFavorite(emp.id));
+      }
+      if (trimmedSearch) {
+        items = filterEmpresasContains(items, trimmedSearch, searchFieldKeys);
+      }
+      return paginateEmpresasList(items, queryPage, queryPageSize);
     },
     placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
     staleTime: 60_000,
@@ -518,6 +535,7 @@ export default function PAGEMP() {
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
+    setSearchFavoritesOnly(false);
     setDropdownSearch("");
     setSearchViewPending(false);
     searchViewApplyRef.current = null;
@@ -539,8 +557,21 @@ export default function PAGEMP() {
     const next = normalizeSearchQuery(searchDraft);
     searchViewApplyRef.current = "all";
     setSearchViewPending(true);
+    setSearchFavoritesOnly(false);
     setPinnedRecord(null);
     setSearchTerm(next);
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
+    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+  }, [searchDraft, queryClient]);
+
+  const handleSearchApplyFavorites = useCallback(() => {
+    searchViewApplyRef.current = "all";
+    setSearchViewPending(true);
+    setSearchFavoritesOnly(true);
+    setPinnedRecord(null);
+    setSearchTerm(normalizeSearchQuery(searchDraft));
     setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
@@ -552,6 +583,7 @@ export default function PAGEMP() {
       if (!emp) return;
       searchViewApplyRef.current = "single";
       setSearchViewPending(true);
+      setSearchFavoritesOnly(false);
       setPinnedRecord(emp);
       setSearchTerm(normalizeSearchQuery(searchDraft));
       setQueryPage(1);
@@ -581,6 +613,7 @@ export default function PAGEMP() {
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
+    setSearchFavoritesOnly(false);
     setDropdownSearch("");
     setQueryPage(1);
   }, []);
@@ -590,8 +623,9 @@ export default function PAGEMP() {
   }, [closeFilterPanel]);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
-  const empFavorites = useEmpFavorites();
-  const searchHasFilter = Boolean(searchDraft.trim() || searchTerm.trim() || pinnedRecord);
+  const searchHasFilter = Boolean(
+    searchDraft.trim() || searchTerm.trim() || pinnedRecord || searchFavoritesOnly
+  );
   const searchIconLoading = dropdownSearchLoading || searchViewPending;
 
   const actionBarVisibility = useMemo(
@@ -973,14 +1007,17 @@ export default function PAGEMP() {
             searchInputValue={searchDraft}
             onSearchInputChange={handleSearchInputChange}
             searchResults={dropdownSearchResults}
-            searchDetailFields={cardsVisFields.detailFields}
+            searchDetailFields={searchDropdownFields.detailFields}
             searchLoading={searchIconLoading}
             searchHasFilter={searchHasFilter}
             onSearchClear={handleSearchClear}
+            searchDropdownConfigFields={searchDropdownFields.configFields}
+            onSearchDropdownConfigSave={searchDropdownFields.saveConfig}
+            onSearchDropdownConfigRestore={searchDropdownFields.getRestoreDefaults}
             onSearchResultSelect={handleSearchResultSelect}
             onSearchApplyAll={handleSearchApplyAll}
+            onSearchApplyFavorites={handleSearchApplyFavorites}
             isFavoriteRecord={empFavorites.isFavorite}
-            onToggleFavorite={empFavorites.toggleFavorite}
             onToggleFilter={toggleFilterPanel}
             onNew={handleNew}
             onSave={formBridge?.onSave}

@@ -46,10 +46,13 @@ export default function MgActionBar({
   searchLoading = false,
   searchHasFilter = false,
   onSearchClear,
+  searchDropdownConfigFields = [],
+  onSearchDropdownConfigSave,
+  onSearchDropdownConfigRestore,
   onSearchResultSelect,
   onSearchApplyAll,
+  onSearchApplyFavorites,
   isFavoriteRecord,
-  onToggleFavorite,
   onToggleFilter,
   onNew,
   onSave,
@@ -395,6 +398,9 @@ export default function MgActionBar({
               detailFields={searchDetailFields}
               loading={searchLoading}
               searchQuery={searchInputValue}
+              configFields={searchDropdownConfigFields}
+              onConfigSave={onSearchDropdownConfigSave}
+              onConfigRestoreDefaults={onSearchDropdownConfigRestore}
               onSelect={(emp) => {
                 onSearchResultSelect?.(emp);
                 setSearchOpen(false);
@@ -403,8 +409,11 @@ export default function MgActionBar({
                 onSearchApplyAll?.();
                 setSearchOpen(false);
               }}
+              onApplyFavorites={() => {
+                onSearchApplyFavorites?.();
+                setSearchOpen(false);
+              }}
               isFavoriteRecord={isFavoriteRecord}
-              onToggleFavorite={onToggleFavorite}
             />
           </div>
           <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={toolsLocked} />
