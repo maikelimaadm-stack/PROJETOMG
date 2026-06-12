@@ -80,7 +80,7 @@
   --mg-field-view-bg: #e9edf2;
   --mg-field-view-text: #8b939e;
   --mg-field-view-border: transparent;
-  --mg-field-surface-border: 1px solid var(--border);
+  --mg-field-surface-border: 1px solid #E7EAEE;
   --mg-field-empty-bg: var(--gray-fill);
   --mg-field-filled-bg: #ffffff;
   --mg-field-readonly-bg: #f6f8fa;
@@ -1731,13 +1731,11 @@
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
-  margin: 8px 12px 0;
+  margin: 0;
   min-height: calc(var(--mg-btn-height) + 10px);
-  padding: 4px 12px;
-  background: var(--mg-container-bg);
-  border: var(--mg-container-border);
-  border-radius: var(--mg-radius-card);
-  box-shadow: var(--mg-card-shadow);
+  padding-top: 4px;
+  padding-bottom: 4px;
+  border-bottom: var(--mg-divider-width) solid var(--mg-divider) !important;
   overflow: visible;
   position: relative;
   z-index: 20;
@@ -1845,19 +1843,9 @@
   z-index: 1;
 }
 
-.mg-empresas-scope .mg-view-stack {
-  padding: 8px 12px 12px;
-  box-sizing: border-box;
-}
-
 .mg-empresas-scope .mg-view-panel {
   flex: 1 1 auto;
   min-height: 0;
-  background: var(--mg-container-bg);
-  border: var(--mg-container-border);
-  border-radius: var(--mg-radius-card);
-  box-shadow: var(--mg-card-shadow);
-  overflow: hidden;
 }
 
 /* Barra superior — ícones neutros em azul; botões com label usam cor do painel */
@@ -2310,8 +2298,15 @@
   }
 }
 
-/* Neutraliza overrides legados dentro do escopo protótipo */
-.mg-empresas-scope .emp-toolbar-card,
+/* Neutraliza overrides legados — toolbar sem moldura de card */
+.mg-empresas-scope .emp-toolbar-card {
+  border-radius: var(--mg-radius-card) !important;
+  box-shadow: none !important;
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Cards de lançamento / conteúdo */
 .mg-empresas-scope .emp-content-card,
 .mg-empresas-scope .emp-table-card {
   background: var(--mg-container-bg) !important;
@@ -2347,6 +2342,9 @@
   background: transparent !important;
 }
 
+/* Cards de lançamento — moldura corporativa (não aplicar na barra de botões) */
+.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card {
@@ -2354,7 +2352,6 @@
   border-radius: var(--mg-radius-card) !important;
   box-shadow: var(--mg-card-shadow) !important;
   background: var(--mg-container-bg) !important;
-  overflow: visible !important;
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-card .emp-form-card-body,
@@ -4676,7 +4673,7 @@
   box-shadow: none !important;
 }
 
-/* Preenchido → branco + borda (padrão botões da toolbar) */
+/* Preenchido → branco + borda suave (#E7EAEE) nos campos de lançamento */
 .mg-empresas-scope .mg-prototype-form--edit :is(
   .mg-prototype-field.mg-has-value:not(.mg-field-locked) > input:not([disabled]):not([readonly]),
   .mg-prototype-field.mg-has-value:not(.mg-field-locked) > textarea:not([disabled]):not([readonly]),
