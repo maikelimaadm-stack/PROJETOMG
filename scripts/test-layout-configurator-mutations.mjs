@@ -9,6 +9,7 @@ import {
   updateCardRowsOnly,
   previewMoveFieldsAtTarget,
   previewReorderCardsAtTarget,
+  previewSwapFieldWithTarget,
 } from "../src/framework/cadastro/layouts/layoutConfiguratorMutations.js";
 import { createEmptyLayoutRow } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 import {
@@ -151,5 +152,35 @@ const cardAAfter = crossCard[panelId].cards.find((c) => c.id === "card_a");
 const cardBAfter = crossCard[panelId].cards.find((c) => c.id === "card_b");
 assert.ok(!cardAAfter.fieldIds.includes("f1"));
 assert.deepEqual(cardBAfter.fieldIds, ["f1", "f4"]);
+
+const fullRowCards = {
+  principais: {
+    cards: [
+      {
+        id: "card_full",
+        label: "Full",
+        order: 1,
+        colSpan: 6,
+        rows: [
+          { id: "row_full_1", order: 1, fieldIds: ["a", "b", "c", "d"] },
+          { id: "row_full_2", order: 2, fieldIds: ["e"] },
+        ],
+        fieldIds: ["a", "b", "c", "d", "e"],
+      },
+    ],
+  },
+};
+const swappedFullRow = previewSwapFieldWithTarget({
+  cardsByPanel: fullRowCards,
+  draggedFieldId: "e",
+  targetFieldId: "b",
+  targetPanelId: "principais",
+  targetCardId: "card_full",
+});
+assert.ok(swappedFullRow);
+const swappedCard = swappedFullRow.principais.cards[0];
+assert.deepEqual(swappedCard.rows[0].fieldIds, ["a", "e", "c", "d"]);
+assert.deepEqual(swappedCard.rows[1].fieldIds, ["b"]);
+assert.equal(new Set(swappedCard.fieldIds).size, swappedCard.fieldIds.length);
 
 console.log("test-layout-configurator-mutations: OK");

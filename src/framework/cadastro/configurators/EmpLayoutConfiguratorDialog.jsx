@@ -50,6 +50,7 @@ import {
 import {
   ensureCardRows as ensureCardRowsHelper,
   placeFieldsOnCard,
+  previewSwapFieldWithTarget,
   stripFieldsFromAllCards,
   updateCardRowsOnly,
   previewMoveFieldsAtTarget,
@@ -493,11 +494,20 @@ export default function EmpLayoutConfiguratorDialog({
     if (!targetCard) return;
 
     const sameCard = targetPanelId === activePanelId && cardId === activeCardId;
+    const targetRows = ensureCardRows(targetCard);
+    const targetRow = targetFieldId
+      ? targetRows.find((row) => (row.fieldIds || []).includes(targetFieldId))
+      : null;
+    const draggedSourceRows = ids
+      .map((fieldId) => targetRows.find((row) => (row.fieldIds || []).includes(fieldId))?.id)
+      .filter(Boolean);
     const reorderOnly =
       draggedFrom === "panel" &&
       sameCard &&
       !!targetFieldId &&
-      ids.every((id) => panelFieldIds.includes(id));
+      !!targetRow?.id &&
+      draggedSourceRows.length === ids.length &&
+      draggedSourceRows.every((rowId) => rowId === targetRow.id);
 
     const previewKey = [
       ids.join(","),
@@ -511,12 +521,10 @@ export default function EmpLayoutConfiguratorDialog({
     if (lastFieldPreviewKeyRef.current === previewKey) return;
 
     if (!reorderOnly) {
-      const rows = ensureCardRows(targetCard);
       const colSpan = resolveCardColSpan(targetCard.colSpan);
-      if (targetRowId && !canInsertFieldsIntoRow(rows, targetRowId, ids, colSpan)) return;
+      if (targetRowId && !canInsertFieldsIntoRow(targetRows, targetRowId, ids, colSpan)) return;
       if (targetFieldId) {
-        const targetRow = rows.find((row) => (row.fieldIds || []).includes(targetFieldId));
-        const canInsert = targetRow ? canInsertFieldsIntoRow(rows, targetRow.id, ids, colSpan) : true;
+        const canInsert = targetRow ? canInsertFieldsIntoRow(targetRows, targetRow.id, ids, colSpan) : true;
         if (!canInsert) return;
       }
     }
@@ -616,12 +624,39 @@ export default function EmpLayoutConfiguratorDialog({
 
     const colSpan = resolveCardColSpan(targetCard.colSpan);
     const canInsert = canInsertFieldsIntoRow(rows, row.id, ids, colSpan);
+    const canSwapSingleLayoutField =
+      !!targetFieldId && ids.length === 1 && draggedFrom === "panel" && usedFieldIds.has(ids[0]);
+    if (!canInsert && canSwapSingleLayoutField) return true;
     if (!canInsert && showWarningOnFail) {
       showRequiredPopup(
         `Não foi possível mover os campos selecionados. Esta linha aceita no máximo ${getMaxFieldsPerRow(colSpan)} campos. Nenhum campo foi movido.`
       );
     }
     return canInsert;
+  };
+
+  const commitFieldDropOnField = (targetFieldId) => {
+    const ids = resolveDragFieldIds();
+    if (!isEditing || !draggedFieldId || !targetFieldId || ids.length !== 1) return false;
+    if (draggedFrom !== "panel" || !usedFieldIds.has(ids[0])) return false;
+
+    const rows = ensureCardRows(activeCard);
+    const targetRow = rows.find((row) => (row.fieldIds || []).includes(targetFieldId));
+    if (!targetRow) return false;
+
+    const colSpan = getActiveCardColSpan();
+    if (canInsertFieldsIntoRow(rows, targetRow.id, ids, colSpan)) return false;
+
+    const swappedCardsByPanel = previewSwapFieldWithTarget({
+      cardsByPanel: draftCardsByPanel,
+      draggedFieldId: ids[0],
+      targetFieldId,
+      targetPanelId: activePanelId,
+      targetCardId: activeCardId,
+    });
+    if (!swappedCardsByPanel) return false;
+    applyCardsState(swappedCardsByPanel);
+    return true;
   };
 
   const resolveDragFieldIds = () => {
@@ -1211,9 +1246,12 @@ export default function EmpLayoutConfiguratorDialog({
               showWarningOnFail: true,
             });
             if (canDrop) {
-              previewMoveFieldsLive({
-                targetFieldId: field.id,
-              });
+              const swapped = commitFieldDropOnField(field.id);
+              if (!swapped) {
+                previewMoveFieldsLive({
+                  targetFieldId: field.id,
+                });
+              }
             }
             finishFieldDrag();
           }}
