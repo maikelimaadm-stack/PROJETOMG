@@ -584,7 +584,6 @@ export default function EmpLayoutConfiguratorDialog({
       if (!allowLivePreview) return currentCardsByPanel;
 
       const sameCard = targetPanelId === activePanelId && cardId === activeCardId;
-      const targetRows = ensureCardRows(targetCard);
       const targetRow = targetFieldId
         ? targetRows.find((row) => (row.fieldIds || []).includes(targetFieldId))
         : null;
