@@ -6,14 +6,13 @@ import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
-import EmpListingScrollStatus from "@/framework/cadastro/pagination/EmpListingScrollStatus";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
-import { useInfiniteScrollLoadMore } from "@/shared/hooks/useInfiniteScrollLoadMore";
-import { EMP_LIST_CHUNK_SIZE } from "@/shared/listing/listQueryConfig";
+import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
+import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
-import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -67,12 +66,6 @@ export default function TBLEMP({
   serverPage = 1,
   serverPageSize = 50,
   serverTotal = null,
-  serverInfiniteScroll = false,
-  loadedCount = null,
-  hasMoreRecords = false,
-  isLoadingMore = false,
-  onLoadMore = null,
-  listChunkSize = EMP_LIST_CHUNK_SIZE,
   serverSearchTerm = "",
   serverBaseFilters = undefined,
   onServerPageChange = null,
@@ -146,7 +139,7 @@ export default function TBLEMP({
   const measureCanvasRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
-  const serverMode = typeof onServerPageChange === "function" || serverInfiniteScroll;
+  const serverMode = typeof onServerPageChange === "function";
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
     if (serverPageSize) return serverPageSize;
@@ -175,14 +168,7 @@ export default function TBLEMP({
     gcTime: 5 * 60_000,
   });
 
-  const { data: camposPersonalizados = [] } = useQuery({
-    queryKey: ["emp-campos-personalizados"],
-    queryFn: () => empRepository.listCamposPersonalizados(),
-    initialData: [],
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
-    refetchOnMount: false,
-  });
+  const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
 
   const colunasDisponiveis = useMemo(() => {
     const dinamicas = camposPersonalizados.map(campoEngine.normalize).filter((c) => c.ativo !== false && c.visivel_tabela === true).map((c) => ({
@@ -447,19 +433,12 @@ export default function TBLEMP({
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
 
   const empresasPaginadas = useMemo(() => {
-    if (serverMode && serverInfiniteScroll) return empresasOrdenadas;
     if (serverMode) return empresasOrdenadas;
     const start = (safeCurrentPage - 1) * pageSize;
     return empresasOrdenadas.slice(start, start + pageSize);
-  }, [serverMode, serverInfiniteScroll, empresasOrdenadas, safeCurrentPage, pageSize]);
+  }, [serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
 
-  useInfiniteScrollLoadMore({
-    containerRef: scrollContainerRef,
-    enabled: serverInfiniteScroll,
-    hasMore: hasMoreRecords,
-    isLoading: isLoadingMore || isFetchingEmpresas,
-    onLoadMore,
-  });
+  const TABLE_ROW_HEIGHT = 32;
 
   useEffect(() => {
     localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
@@ -471,10 +450,10 @@ export default function TBLEMP({
   }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
-    if (!serverMode || serverInfiniteScroll) return;
+    if (!serverMode) return;
     onServerPageChange?.(1);
-    if (!serverInfiniteScroll) setCurrentPage(1);
-  }, [serverMode, serverInfiniteScroll, onServerPageChange, filtrosColunas, searchTerm, pageSize]);
+    setCurrentPage(1);
+  }, [serverMode, onServerPageChange, filtrosColunas, searchTerm, pageSize]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -549,6 +528,14 @@ export default function TBLEMP({
 
     handleRowSelect(emp, event);
   };
+
+  const { virtualItems, paddingTop, paddingBottom, virtualizer } = useTableVirtualizer({
+    scrollRef: scrollContainerRef,
+    count: empresasPaginadas.length,
+    estimateSize: TABLE_ROW_HEIGHT,
+    enabled: empresasPaginadas.length > 0 && !isLoadingEmpresas,
+  });
+
   const syncTableFullscreen = useCallback(() => {
     setIsTableFullscreen(document.fullscreenElement === tableStageRef.current);
   }, []);
@@ -1066,27 +1053,67 @@ export default function TBLEMP({
                 className={bodyTableClass}
               >
                 <TableBody>
-                  {isLoadingEmpresas
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando registros...</TableCell></TableRow>
-                    : empresasOrdenadas.length === 0
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Nenhuma empresa encontrada</TableCell></TableRow>
-                    : empresasPaginadas.map((emp, index) => {
-                      const isSelected = selectedItems.includes(emp.id);
-                      const rowClass = getRowBgClass(index, isSelected);
-                      return (
-                      <TableRow key={emp.id} className={`emp-table-data-row ${rowClass} cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
-                        {colunasOrdenadas.map((col, colIndex) => {
-                          const width = columnPixelWidths[col.id] || 160;
-                          const isFrozen = colIndex < frozenColumnCount;
-                          return (
-                            <TableCell key={`${emp.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`} title={String(getFieldValue(emp, col.id) ?? "")}>
-                              {getFieldValue(emp, col.id)}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ); })
-                  }
+                  {isLoadingEmpresas ? (
+                    <TableRow>
+                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+                        Carregando registros...
+                      </TableCell>
+                    </TableRow>
+                  ) : empresasOrdenadas.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+                        Nenhuma empresa encontrada
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    <>
+                      {paddingTop > 0 ? (
+                        <TableRow aria-hidden="true">
+                          <TableCell colSpan={colunasOrdenadas.length} style={{ height: paddingTop, padding: 0, border: 0 }} />
+                        </TableRow>
+                      ) : null}
+                      {virtualItems.map((virtualRow) => {
+                        const emp = empresasPaginadas[virtualRow.index];
+                        if (!emp) return null;
+                        const isSelected = selectedItems.includes(emp.id);
+                        const rowClass = getRowBgClass(virtualRow.index, isSelected);
+                        return (
+                          <TableRow
+                            key={emp.id}
+                            data-index={virtualRow.index}
+                            ref={virtualizer?.measureElement}
+                            className={`emp-table-data-row ${rowClass} cursor-pointer select-none hover:brightness-[0.98]`}
+                            onClick={(e) => handleRowClick(emp, e)}
+                          >
+                            {colunasOrdenadas.map((col, colIndex) => {
+                              const width = columnPixelWidths[col.id] || 160;
+                              const isFrozen = colIndex < frozenColumnCount;
+                              return (
+                                <TableCell
+                                  key={`${emp.id}-${col.id}`}
+                                  style={{
+                                    width,
+                                    minWidth: width,
+                                    maxWidth: width,
+                                    left: isFrozen ? frozenOffsets[col.id] : undefined,
+                                  }}
+                                  className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+                                  title={String(getFieldValue(emp, col.id) ?? "")}
+                                >
+                                  {getFieldValue(emp, col.id)}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+                        );
+                      })}
+                      {paddingBottom > 0 ? (
+                        <TableRow aria-hidden="true">
+                          <TableCell colSpan={colunasOrdenadas.length} style={{ height: paddingBottom, padding: 0, border: 0 }} />
+                        </TableRow>
+                      ) : null}
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -1115,7 +1142,6 @@ export default function TBLEMP({
               </div>
             </div>
           ) : null}
-          {!serverInfiniteScroll ? (
           <EmpTablePagination
             currentPage={safeCurrentPage}
             totalPages={totalPages}
@@ -1124,14 +1150,6 @@ export default function TBLEMP({
             onPageSizeChange={handlePageSizeChange}
             isBusy={isFetchingEmpresas}
           />
-          ) : (
-          <EmpListingScrollStatus
-            loadedCount={loadedCount ?? empresasOrdenadas.length}
-            totalCount={serverTotal ?? empresasOrdenadas.length}
-            isLoadingMore={isLoadingMore}
-            chunkSize={listChunkSize}
-          />
-          )}
         </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>

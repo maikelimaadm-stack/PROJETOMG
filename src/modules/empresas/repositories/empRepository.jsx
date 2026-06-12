@@ -51,6 +51,10 @@ const empRepository = {
     return EmpresaApi.listDistinctColumnValues(params);
   },
 
+  async downloadExport(params = {}) {
+    return EmpresaApi.downloadExport(params);
+  },
+
 
   async listOptionsSources(sources) {
     return EmpresaApi.listOptionsSources(sources);

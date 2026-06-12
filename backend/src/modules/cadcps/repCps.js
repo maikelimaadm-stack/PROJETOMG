@@ -19,6 +19,27 @@ const CAMPO_INCLUDE = {
   opcoes: { orderBy: { ordem: "asc" } },
 };
 
+/** Include leve para campos aplicáveis (form/table metadata). */
+const CAMPO_APPLICABLE_INCLUDE = {
+  opcoes: { orderBy: { ordem: "asc" } },
+  telas: { include: { tela: { select: { id: true, codigo: true, nome: true, entity_name: true } } } },
+  empresas: { select: { empresa_id: true } },
+};
+
+const CADCPS_SORT_WHITELIST = new Set([
+  "codigo",
+  "nome",
+  "field_name",
+  "tipo",
+  "ativo",
+  "ordem_tabela",
+  "id_global",
+  "aplicacao_modo",
+  "updatedAt",
+]);
+
+const MAX_PAGE_SIZE = 200;
+
 const mapCampoRow = (row) => {
   if (!row) return null;
   const tipo = normalizeCadcpsTipo(row.tipo);
@@ -265,10 +286,11 @@ export const repCps = {
   async list({ scope, query }) {
     const prisma = getPrismaClient();
     const page = Math.max(1, Number(query.page) || 1);
-    const pageSize = Math.min(1000, Math.max(1, Number(query.pageSize) || 50));
+    const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Number(query.pageSize) || 50));
     const skip = (page - 1) * pageSize;
     const where = buildListWhere(scope, query);
-    const sortBy = String(query.sortBy || "codigo");
+    const rawSortBy = String(query.sortBy || "codigo");
+    const sortBy = CADCPS_SORT_WHITELIST.has(rawSortBy) ? rawSortBy : "codigo";
     const sortDir = query.sortDir === "desc" ? "desc" : "asc";
     const orderBy = { [sortBy]: sortDir };
 
@@ -299,7 +321,7 @@ export const repCps = {
     const prisma = getPrismaClient();
     const rows = await prisma.cadCpsCampo.findMany({
       where: buildApplicableWhere(scope, entityName),
-      include: CAMPO_INCLUDE,
+      include: CAMPO_APPLICABLE_INCLUDE,
       orderBy: [{ ordem_tabela: "asc" }, { nome: "asc" }],
     });
     return rows.map(mapCampoRow);

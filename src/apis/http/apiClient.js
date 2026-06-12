@@ -112,4 +112,35 @@ export const apiClient = {
   delete(path, options) {
     return this.request(path, { ...options, method: "DELETE" });
   },
+
+  async download(path, { filename, empresaHeader, signal } = {}) {
+    const token = getAuthToken();
+    const response = await fetch(buildUrl(path), {
+      method: "GET",
+      headers: {
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...resolveEmpresaHeader(empresaHeader),
+      },
+      signal,
+    });
+
+    if (!response.ok) {
+      const payload = await parseResponse(response);
+      throw new ApiError(
+        payload?.message || `Falha ao baixar ${path}`,
+        response.status,
+        payload
+      );
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename || "export.csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  },
 };

@@ -1,9 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Search, Star, X } from "lucide-react";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
-import EmpListingScrollStatus from "@/framework/cadastro/pagination/EmpListingScrollStatus";
-import { useInfiniteScrollLoadMore } from "@/shared/hooks/useInfiniteScrollLoadMore";
-import { EMP_LIST_CHUNK_SIZE } from "@/shared/listing/listQueryConfig";
+import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
+import { useGridVirtualizer } from "@/shared/hooks/useGridVirtualizer";
 import {
   formatSearchCounter,
   getEmpSearchAvatarColor,
@@ -190,10 +189,6 @@ export default function SRCHEMP({
   pageSize = 50,
   onPageChange,
   onPageSizeChange,
-  isLoadingMore = false,
-  hasMore = false,
-  onLoadMore = null,
-  chunkSize = EMP_LIST_CHUNK_SIZE,
   onEdit,
   selectedIds = [],
   onSelectionChange,
@@ -213,14 +208,17 @@ export default function SRCHEMP({
   const cardClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedIdsRef = useRef(selectedIds);
   const cardsScrollRef = useRef(null);
-  const infiniteScrollMode = typeof onLoadMore === "function";
 
-  useInfiniteScrollLoadMore({
-    containerRef: cardsScrollRef,
-    enabled: mgPrototype && infiniteScrollMode,
-    hasMore,
-    isLoading: isLoadingMore || isFetching,
-    onLoadMore,
+  const filteredEmpresas = useMemo(() => {
+    if (!showOnlyFavorites) return empresas;
+    return empresas.filter((emp) => favorites.has(emp.id));
+  }, [empresas, favorites, showOnlyFavorites]);
+
+  const { virtualRows, paddingTop, paddingBottom, columnsPerRow: gridColumns } = useGridVirtualizer({
+    scrollRef: cardsScrollRef,
+    itemCount: filteredEmpresas.length,
+    columnsPerRow: cardsPerRow,
+    enabled: mgPrototype && filteredEmpresas.length > 0,
   });
 
   const detailFields = mgPrototype
@@ -248,11 +246,6 @@ export default function SRCHEMP({
   const handleSearchInput = useCallback((value) => {
     setLocalSearch(value);
   }, []);
-
-  const filteredEmpresas = useMemo(() => {
-    if (!showOnlyFavorites) return empresas;
-    return empresas.filter((emp) => favorites.has(emp.id));
-  }, [empresas, favorites, showOnlyFavorites]);
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const counterText = formatSearchCounter({
@@ -329,103 +322,104 @@ export default function SRCHEMP({
               Nenhum registro encontrado
             </div>
           ) : (
-            <div
-              id="cards-grid"
-              className={`mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
-            >
-              {filteredEmpresas.map((emp, index) => {
-                const isSelected = selectedIds.includes(emp.id);
-                const code = getEmpSearchFieldValue(emp, "codempresa");
-                const nome = getEmpSearchFieldValue(emp, "razao_social");
-                const initials = getEmpSearchInitials(emp);
-                const avatarColor = getEmpSearchAvatarColor(emp, index);
-                const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
+            <div>
+              {paddingTop > 0 ? <div style={{ height: paddingTop }} aria-hidden="true" /> : null}
+              {virtualRows.map((virtualRow) => {
+                const startIndex = virtualRow.index * gridColumns;
+                const rowItems = filteredEmpresas.slice(startIndex, startIndex + gridColumns);
                 return (
                   <div
-                    key={emp.id}
-                    className={`erp-card mg-emp-card mg-emp-card--virtual relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
-                    onClick={() => handleCardClick(emp)}
-                    role="button"
-                    tabIndex={0}
-                    aria-pressed={isSelected}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" || event.key === " ") {
-                        event.preventDefault();
-                        handleCardClick(emp);
-                      }
-                    }}
+                    key={virtualRow.key}
+                    className={`mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
                   >
-                    {isSelected ? (
-                      <span className="mg-emp-card__select-badge" aria-hidden="true">
-                        <Check className="h-3 w-3" strokeWidth={2.5} />
-                      </span>
-                    ) : null}
-                    <div className="mb-2.5 flex items-center gap-2.5">
-                      <div
-                        className="mg-emp-card__avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[10px] font-bold tracking-tight text-white"
-                        style={{ background: avatarColor }}
-                      >
-                        {initials}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="mg-emp-card__meta-row truncate text-xs">
-                          <MgRecordFavoriteStar
-                            active={isFavorite}
-                            onToggle={() => onToggleFavorite?.(emp.id)}
-                            className="mg-emp-card__fav-btn"
-                          />
-                          <div className="mg-emp-card__meta-text min-w-0 truncate">
-                            {code && code !== "—" ? (
-                              <>
-                                <span className="mg-emp-card__code">{code}</span>
-                                <span className="mg-emp-card__sep"> • </span>
-                              </>
-                            ) : null}
-                            <span className="mg-emp-card__name">{nome}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    {detailFields.length > 0 ? (
-                      <div
-                        className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}
-                      >
-                        {detailFields.map((field) => (
-                          <div key={field.key} className="mg-emp-card__field">
-                            <div className="mg-emp-card__field-line">
-                              <span className="mg-emp-card__field-label">{field.label}:</span>
-                              <span className="mg-emp-card__field-value">
-                                {getEmpSearchFieldValue(emp, field.key)}
-                              </span>
+                    {rowItems.map((emp, colIndex) => {
+                      const index = startIndex + colIndex;
+                      const isSelected = selectedIds.includes(emp.id);
+                      const code = getEmpSearchFieldValue(emp, "codempresa");
+                      const nome = getEmpSearchFieldValue(emp, "razao_social");
+                      const initials = getEmpSearchInitials(emp);
+                      const avatarColor = getEmpSearchAvatarColor(emp, index);
+                      const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
+                      return (
+                        <div
+                          key={emp.id}
+                          className={`erp-card mg-emp-card mg-emp-card--virtual relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
+                          onClick={() => handleCardClick(emp)}
+                          role="button"
+                          tabIndex={0}
+                          aria-pressed={isSelected}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter" || event.key === " ") {
+                              event.preventDefault();
+                              handleCardClick(emp);
+                            }
+                          }}
+                        >
+                          {isSelected ? (
+                            <span className="mg-emp-card__select-badge" aria-hidden="true">
+                              <Check className="h-3 w-3" strokeWidth={2.5} />
+                            </span>
+                          ) : null}
+                          <div className="mb-2.5 flex items-center gap-2.5">
+                            <div
+                              className="mg-emp-card__avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[10px] font-bold tracking-tight text-white"
+                              style={{ background: avatarColor }}
+                            >
+                              {initials}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="mg-emp-card__meta-row truncate text-xs">
+                                <MgRecordFavoriteStar
+                                  active={isFavorite}
+                                  onToggle={() => onToggleFavorite?.(emp.id)}
+                                  className="mg-emp-card__fav-btn"
+                                />
+                                <div className="mg-emp-card__meta-text min-w-0 truncate">
+                                  {code && code !== "—" ? (
+                                    <>
+                                      <span className="mg-emp-card__code">{code}</span>
+                                      <span className="mg-emp-card__sep"> • </span>
+                                    </>
+                                  ) : null}
+                                  <span className="mg-emp-card__name">{nome}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    ) : null}
+                          {detailFields.length > 0 ? (
+                            <div
+                              className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}
+                            >
+                              {detailFields.map((field) => (
+                                <div key={field.key} className="mg-emp-card__field">
+                                  <div className="mg-emp-card__field-line">
+                                    <span className="mg-emp-card__field-label">{field.label}:</span>
+                                    <span className="mg-emp-card__field-value">
+                                      {getEmpSearchFieldValue(emp, field.key)}
+                                    </span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
+              {paddingBottom > 0 ? <div style={{ height: paddingBottom }} aria-hidden="true" /> : null}
             </div>
           )}
         </div>
-        {infiniteScrollMode ? (
-          <EmpListingScrollStatus
-            loadedCount={filteredEmpresas.length}
-            totalCount={total}
-            isLoadingMore={isLoadingMore}
-            chunkSize={chunkSize}
-          />
-        ) : (
-        <footer
-          className="flex shrink-0 items-center gap-3 border-t px-5 py-2"
-          style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
-        >
-          <span className="text-[11px]" style={{ color: "var(--text-3)" }}>Por página:</span>
-          <SearchPageSizeSelect value={pageSize} onChange={onPageSizeChange} />
-          <span className="flex-1 text-[12px] mg-cards-footer-counter" style={{ color: "var(--text-3)" }}>{counterText}</span>
-          <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
-        </footer>
-        )}
+        <EmpTablePagination
+          currentPage={page}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+          isBusy={isFetching}
+        />
       </div>
     );
   }
