@@ -3,7 +3,13 @@ import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-r
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { EMP_TOOLBAR_BTN_SHAPE, EMP_TOOLBAR_FIELD_BORDER } from "@/framework/cadastro/toolbars/empToolbarStyles";
 
-export const EMP_PAGE_SIZE_OPTIONS = [50, 100, 200, 500];
+import {
+  LIST_DEFAULT_PAGE_SIZE,
+  LIST_PAGE_SIZE_OPTIONS,
+  readStoredListPageSize,
+} from "@/shared/listing/listQueryConfig";
+
+export { LIST_PAGE_SIZE_OPTIONS as EMP_PAGE_SIZE_OPTIONS, LIST_DEFAULT_PAGE_SIZE };
 
 const PAGINATION_BTN_BASE =
   `emp-table-pagination-btn inline-flex shrink-0 items-center justify-center ${EMP_TOOLBAR_BTN_SHAPE} bg-white text-[12px] font-normal shadow-none hover:bg-[#f8f9fd] disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:outline-none focus-visible:ring-0`;
@@ -39,7 +45,7 @@ const PaginationBtn = ({ children, className = "", active = false, ...props }) =
 export default function EmpTablePagination({
   currentPage = 1,
   totalPages = 1,
-  pageSize = 50,
+  pageSize = LIST_DEFAULT_PAGE_SIZE,
   onPageChange,
   onPageSizeChange,
   isBusy = false,
@@ -94,7 +100,7 @@ export default function EmpTablePagination({
           <SelectValue />
         </SelectTrigger>
         <SelectContent className="min-w-[110px]">
-          {EMP_PAGE_SIZE_OPTIONS.map((size) => (
+          {LIST_PAGE_SIZE_OPTIONS.map((size) => (
             <SelectItem key={size} value={String(size)} className="text-xs">
               {size} por página
             </SelectItem>

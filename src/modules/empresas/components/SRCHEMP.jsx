@@ -12,9 +12,8 @@ import {
 } from "./empSearchView.constants";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
+import { LIST_PAGE_SIZE_OPTIONS } from "@/shared/listing/listQueryConfig";
 import "./empSearchView.css";
-
-const PAGE_SIZE_OPTIONS = [25, 50, 100];
 
 function SearchPageSizeSelect({ value, onChange }) {
   const [open, setOpen] = useState(false);
@@ -42,7 +41,7 @@ function SearchPageSizeSelect({ value, onChange }) {
       />
       <div className="emp-search-page-size-panel" onClick={(event) => event.stopPropagation()} role="presentation">
         <div className="py-1">
-          {PAGE_SIZE_OPTIONS.map((size) => (
+          {LIST_PAGE_SIZE_OPTIONS.map((size) => (
             <div
               key={size}
               className={`emp-search-page-size-option${size === value ? " emp-search-page-size-option--selected" : ""}`}

@@ -64,6 +64,7 @@ export default function TBLEMP({
   onServerPageChange = null,
   onServerPageSizeChange = null,
   onServerSortChange = null,
+  onServerColumnFiltersChange = null,
   moduleTitle = "Cadastro",
   mgPrototype = false,
   onColumnsInUseChange,
@@ -361,9 +362,13 @@ export default function TBLEMP({
   const setValoresFiltro = (id, v) => setFiltrosColunas((p) => ({ ...p, [id]: v }));
   const clearColumnFilter = (id) => setValoresFiltro(id, []);
 
-  const empresasFiltradas = useMemo(() => empresas.filter((emp) => empresaPassaFiltros(emp)), [empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
+  const empresasFiltradas = useMemo(() => {
+    if (serverMode) return empresas;
+    return empresas.filter((emp) => empresaPassaFiltros(emp));
+  }, [serverMode, empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
 
   const empresasOrdenadas = useMemo(() => {
+    if (serverMode) return empresasFiltradas;
     const sorted = [...empresasFiltradas];
     sorted.sort((a, b) => {
       if (sortConfig.key === "id_global") { const aV = Number(a.id_global || 0); const bV = Number(b.id_global || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
@@ -411,6 +416,11 @@ export default function TBLEMP({
   useEffect(() => {
     localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
   }, [pageSize]);
+
+  useEffect(() => {
+    if (!serverMode) return;
+    onServerColumnFiltersChange?.(filtrosColunas);
+  }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
     if (serverMode) {

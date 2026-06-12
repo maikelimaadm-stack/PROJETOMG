@@ -40,6 +40,11 @@ model Cliente {
   registrosGlobais   RegistroGlobal[]
   codigoSequencias   EntidadeCodigoSequencia[]
   modulos            ClienteModulo[]
+
+  @@index([nome])
+  @@index([cpf_cnpj])
+  @@index([status])
+  @@index([ativo])
 }
 
 model Usuario {
@@ -118,7 +123,12 @@ model Empresa {
   @@unique([cliente_id, id_global])
   @@index([cliente_id, codempresa])
   @@index([cliente_id, razao_social])
+  @@index([cliente_id, nome_fantasia])
+  @@index([cliente_id, cpf_cnpj])
+  @@index([cliente_id, cidade])
+  @@index([cliente_id, estado])
   @@index([cliente_id, status])
+  @@index([cliente_id, updatedAt])
   @@index([razao_social])
   @@index([cpf_cnpj])
 }
@@ -190,6 +200,9 @@ model CadCpsCampo {
   @@index([cliente_id, ativo])
   @@index([cliente_id, tipo])
   @@index([cliente_id, aplicacao_modo])
+  @@index([cliente_id, nome])
+  @@index([cliente_id, field_name])
+  @@index([cliente_id, codigo])
 }
 
 model CadCpsCampoTela {
@@ -284,6 +297,8 @@ model CadastroRegistro {
   @@index([cliente_id, entity_name, createdAt])
   @@index([cliente_id, empresa_id, entity_name, createdAt])
   @@index([cliente_id, entity_name, nome])
+  @@index([cliente_id, codigo])
+  @@index([cliente_id, status])
   @@index([entity_name, status])
 }
 

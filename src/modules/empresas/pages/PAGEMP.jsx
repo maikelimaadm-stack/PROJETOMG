@@ -28,9 +28,17 @@ import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgAction
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
+import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
 import {
-  normalizeSearchQuery,
-} from "@/modules/empresas/utils/empSearchContains";
+  LIST_DEFAULT_PAGE_SIZE,
+  LIST_SEARCH_DEBOUNCE_MS,
+} from "@/shared/listing/listQueryConfig";
+import {
+  buildEmpresaColumnFilters,
+  buildEmpresaPanelFilters,
+  mergeEmpresaListFilters,
+} from "@/shared/listing/buildEmpresaListFilters";
+import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -40,7 +48,7 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
   total: 0,
   page: 1,
-  pageSize: 50,
+  pageSize: LIST_DEFAULT_PAGE_SIZE,
   totalPages: 1,
 };
 
@@ -97,8 +105,10 @@ export default function PAGEMP() {
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const [queryPage, setQueryPage] = useState(1);
-  const [queryPageSize, setQueryPageSize] = useState(50);
+  const [queryPageSize, setQueryPageSize] = useState(LIST_DEFAULT_PAGE_SIZE);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
+  const [columnFilters, setColumnFilters] = useState({});
   const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
   const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
   const searchDropdownFields = useEmpSearchDropdownFields();
@@ -146,7 +156,7 @@ export default function PAGEMP() {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDropdownSearch(normalizeSearchQuery(searchDraft));
-    }, 200);
+    }, LIST_SEARCH_DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
   }, [searchDraft]);
 
@@ -192,7 +202,26 @@ export default function PAGEMP() {
     dropdownSearchPending ||
     (dropdownSearch.length > 0 && dropdownSourceFetching && dropdownSearchResults.length === 0);
 
-  const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
+  const listFilters = useMemo(
+    () =>
+      mergeEmpresaListFilters(
+        appliedPanelFilters,
+        buildEmpresaColumnFilters(columnFilters),
+        searchFavoritesOnly ? { ids: favoriteIds } : undefined
+      ),
+    [appliedPanelFilters, columnFilters, searchFavoritesOnly, favoriteIds]
+  );
+
+  const listFiltersKey = useMemo(() => JSON.stringify(listFilters ?? {}), [listFilters]);
+
+  const {
+    items: empresas,
+    total: empresasResponseTotal,
+    isInitialLoading: empresasLoading,
+    isPageFetching: empresasFetching,
+    isLoading,
+    isFetching,
+  } = useServerListQuery({
     queryKey: [
       "emp-cadastro",
       queryPage,
@@ -200,8 +229,7 @@ export default function PAGEMP() {
       searchTerm,
       querySort.key,
       querySort.direction,
-      searchFavoritesOnly,
-      favoriteIdsKey,
+      listFiltersKey,
     ],
     queryFn: async () => {
       const trimmedSearch = normalizeSearchQuery(searchTerm);
@@ -219,19 +247,13 @@ export default function PAGEMP() {
         search: trimmedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
-        filters: searchFavoritesOnly ? { ids: favoriteIds } : undefined,
+        filters: listFilters,
       });
     },
-    placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
-    staleTime: 30_000,
-    gcTime: 5 * 60_000,
+    defaultResponse: DEFAULT_EMPRESAS_RESPONSE,
   });
 
-  const empresas = empresasResponse.items || [];
-  const totalEmpresas = pinnedRecord ? 1 : empresasResponse.total || 0;
-
-  const empresasLoading = isLoading && empresas.length === 0;
-  const empresasFetching = isFetching && !empresasLoading;
+  const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
   const empresasFiltradasPainel = useMemo(() => {
     if (pinnedRecord) return [pinnedRecord];
     return empresas;
@@ -286,7 +308,12 @@ export default function PAGEMP() {
 
   const currentEmp = empresasNavegacao[selectedIndex] || empresasNavegacao[0] || null;
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
-  const hasActiveFilters = false;
+  const hasActiveFilters = Boolean(
+    appliedPanelFilters ||
+    Object.values(columnFilters).some((values) => Array.isArray(values) && values.length > 0) ||
+    searchTerm.trim() ||
+    searchFavoritesOnly
+  );
 
   const stayOnRecordAfterSave = useCallback((savedRecord) => {
     const normalized = normalizeEmpresaRecord(savedRecord);
@@ -597,17 +624,12 @@ export default function PAGEMP() {
 
   const handleFilterChange = useCallback((key, value) => {
     setFilterValues((prev) => ({ ...prev, [key]: value }));
-    if (key === "razao_social" || key === "nome_fantasia" || key === "cnpj") {
-      setSearchDraft(value);
-      setSearchTerm(value);
-      setPinnedRecord(null);
-      setQueryPage(1);
-    }
   }, []);
 
   const handleFilterClear = useCallback(() => {
     setFilterValues({});
     setFilterStatus("Todos");
+    setAppliedPanelFilters(undefined);
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
@@ -617,8 +639,15 @@ export default function PAGEMP() {
   }, []);
 
   const handleFilterApply = useCallback(() => {
+    setAppliedPanelFilters(buildEmpresaPanelFilters(filterValues, filterStatus));
+    setQueryPage(1);
     closeFilterPanel();
-  }, [closeFilterPanel]);
+  }, [closeFilterPanel, filterStatus, filterValues]);
+
+  const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
+    setColumnFilters(nextColumnFilters || {});
+    setQueryPage(1);
+  }, []);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
   const searchHasFilter = Boolean(
@@ -1169,6 +1198,7 @@ export default function PAGEMP() {
                   onSelectionChange: handleTableSelectionChange,
                   onVisibleDataChange: setVisibleTableData,
                   onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                  onServerColumnFiltersChange: handleColumnFiltersChange,
                   serverPage: queryPage,
                   serverPageSize: queryPageSize,
                   serverTotal: totalEmpresas,

@@ -11,15 +11,19 @@ import {
 } from "./PAGCPS.sections";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
-import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
+import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
+import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
+import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
 const DEFAULT_RESPONSE = {
   items: [],
   total: 0,
   page: 1,
-  pageSize: 50,
+  pageSize: LIST_DEFAULT_PAGE_SIZE,
   totalPages: 1,
 };
 
@@ -56,32 +60,35 @@ export default function PAGCPS() {
   const [deleteState, setDeleteState] = useState({ open: false, ids: [] });
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchDraft, setSearchDraft] = useState("");
+  const debouncedSearch = useDebouncedValue(normalizeSearchQuery(searchDraft));
   const [selectedTableItems, setSelectedTableItems] = useState([]);
   const [formVersion, setFormVersion] = useState(0);
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredCampos, setTableFilteredCampos] = useState(null);
   const [queryPage, setQueryPage] = useState(1);
-  const [queryPageSize, setQueryPageSize] = useState(50);
+  const [queryPageSize, setQueryPageSize] = useState(LIST_DEFAULT_PAGE_SIZE);
   const [querySort, setQuerySort] = useState({ key: "codigo", direction: "asc" });
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
 
-  const { data: listResponse = DEFAULT_RESPONSE, isLoading, isFetching } = useQuery({
-    queryKey: ["cadcps-campos", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
+  const {
+    items: campos,
+    total: totalCampos,
+    isInitialLoading: camposLoading,
+    isPageFetching: camposFetching,
+  } = useServerListQuery({
+    queryKey: ["cadcps-campos", queryPage, queryPageSize, debouncedSearch, querySort.key, querySort.direction],
     queryFn: () =>
       moduleRepository.listPage({
         page: queryPage,
         pageSize: queryPageSize,
-        search: searchTerm,
+        search: debouncedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
       }),
-    placeholderData: (previous) => previous ?? DEFAULT_RESPONSE,
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
-    refetchOnMount: false,
+    defaultResponse: DEFAULT_RESPONSE,
   });
 
   const { data: contadores = { empresas: 0, registrosGlobais: 0 } } = useQuery({
@@ -101,10 +108,6 @@ export default function PAGCPS() {
     placeholderData: [],
     refetchOnMount: false,
   });
-
-  const campos = listResponse.items || [];
-  const totalCampos = listResponse.total || 0;
-  const camposLoading = isLoading && campos.length === 0;
 
   const handleFilteredCamposChange = useCallback((filtered) => {
     setTableFilteredCampos(filtered);
@@ -353,7 +356,7 @@ export default function PAGCPS() {
   };
 
   const handleSearchChange = useCallback((value) => {
-    setSearchTerm(value);
+    setSearchDraft(normalizeSearchQuery(value));
     setQueryPage(1);
   }, []);
 
@@ -576,7 +579,7 @@ export default function PAGCPS() {
           onLast: () => navigateRecord(camposNavegacao.length - 1),
           onDelete: () => editingItem?.id && handleRequestDelete(editingItem.id),
           onDuplicate: () => editingItem && handleDuplicate(editingItem),
-          searchValue: searchTerm,
+          searchValue: searchDraft,
           onSearchChange: handleSearchChange,
           actionsLocked: saveCycle.isSaving,
         }}
@@ -589,12 +592,12 @@ export default function PAGCPS() {
           viewMode,
           total: totalCampos,
           currentIndex: selectedIndex,
-          searchValue: searchTerm,
+          searchValue: searchDraft,
           onSearchChange: handleSearchChange,
           onNew: handleNew,
           onToggleView: handleToggleView,
           toggleViewDisabled: selectedTableItems.length > 1,
-          filterActive: false,
+          filterActive: Boolean(debouncedSearch),
           onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),
           onDuplicate: () => selectedTableCampo && handleDuplicate(selectedTableCampo),
           selectedCount: selectedTableItems.length,
@@ -605,6 +608,7 @@ export default function PAGCPS() {
           key: "tbl-cps",
           campos,
           isLoadingCampos: camposLoading,
+          isFetchingCampos: camposFetching,
           onEdit: handleEdit,
           searchTerm: "",
           selectedRecordId: showForm ? editingItem?.id : undefined,

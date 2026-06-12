@@ -21,7 +21,7 @@ const toPositiveInt = (value, fallback) => {
 };
 
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 500;
+const MAX_PAGE_SIZE = 200;
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
@@ -126,10 +126,58 @@ const mergeSearchWhere = (baseWhere, extraIds = []) => {
 };
 
 const FILTER_FIELD_MAP = {
-  status: "status",
-  cidade: "cidade",
-  tipo_pessoa: "tipo_pessoa",
-  tipo_vinculo: "tipo_vinculo",
+  status: { field: "status", match: "equals" },
+  cidade: { field: "cidade", match: "contains" },
+  estado: { field: "estado", match: "equals" },
+  tipo_pessoa: { field: "tipo_pessoa", match: "equals" },
+  tipo_vinculo: { field: "tipo_vinculo", match: "equals" },
+  razao_social: { field: "razao_social", match: "contains" },
+  nome_fantasia: { field: "nome_fantasia", match: "contains" },
+  cpf_cnpj: { field: "cpf_cnpj", match: "contains" },
+  telefone: { field: "telefone", match: "contains" },
+  whatsapp: { field: "whatsapp", match: "contains" },
+  email: { field: "email", match: "contains" },
+  cep: { field: "cep", match: "contains" },
+  bairro: { field: "bairro", match: "contains" },
+  endereco: { field: "endereco", match: "contains" },
+  codempresa: { field: "codempresa", match: "number" },
+  id_global: { field: "id_global", match: "number" },
+};
+
+const buildFilterClause = (config, value) => {
+  if (value == null || value === "") return null;
+
+  if (config.match === "number") {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return null;
+    return { [config.field]: Math.floor(numeric) };
+  }
+
+  if (Array.isArray(value)) {
+    const normalized = value.map((item) => String(item).trim()).filter(Boolean);
+    if (normalized.length === 0) return null;
+    return {
+      [config.field]: {
+        in: config.match === "number" ? normalized.map(Number).filter(Number.isFinite) : normalized,
+      },
+    };
+  }
+
+  if (config.match === "contains") {
+    return {
+      [config.field]: {
+        contains: String(value).trim(),
+        mode: "insensitive",
+      },
+    };
+  }
+
+  return {
+    [config.field]: {
+      equals: String(value).trim(),
+      mode: "insensitive",
+    },
+  };
 };
 
 const buildFiltersWhere = (filters = {}) => {
@@ -151,14 +199,21 @@ const buildFiltersWhere = (filters = {}) => {
 
   Object.entries(filters || {}).forEach(([key, value]) => {
     if (key === "ids") return;
-    if (!FILTER_FIELD_MAP[key]) return;
     if (value == null || value === "") return;
-    and.push({
-      [FILTER_FIELD_MAP[key]]: {
-        equals: String(value),
-        mode: "insensitive",
-      },
-    });
+
+    if (key.endsWith("__in")) {
+      const baseKey = key.slice(0, -4);
+      const config = FILTER_FIELD_MAP[baseKey];
+      if (!config) return;
+      const clause = buildFilterClause(config, value);
+      if (clause) and.push(clause);
+      return;
+    }
+
+    const config = FILTER_FIELD_MAP[key];
+    if (!config) return;
+    const clause = buildFilterClause(config, value);
+    if (clause) and.push(clause);
   });
   if (and.length === 0) return null;
   return { AND: and };
@@ -362,7 +417,7 @@ export const empresaRepository = {
       const telaEmpresas = telas.find((t) => t.entity_name === EMPRESAS_ENTITY_NAME);
       const result = await svcCps.list(scope, {
         page: 1,
-        pageSize: 500,
+        pageSize: 200,
         sortBy: "codigo",
         sortDir: "asc",
         ...(telaEmpresas?.id ? { tela_id: telaEmpresas.id } : {}),
