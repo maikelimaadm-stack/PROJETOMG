@@ -85,7 +85,8 @@
   --mg-btn-pill-border: 1px solid transparent;
   --mg-search-pill-radius: var(--mg-btn-pill-radius);
   --mg-toolbar-gutter: 12px;
-  --mg-toolbar-row-height: 32px;
+  --mg-toolbar-row-height: 36px;
+  --mg-toolbar-row-padding-y: calc((var(--mg-toolbar-row-height) - var(--mg-btn-height)) / 2);
   --mg-toolbar-cluster-gap: 8px;
   --mg-action-slot-gap: 4px;
   --mg-view-seg-track-padding: 3px;
@@ -481,9 +482,6 @@
 }
 
 /* Divisores de seção — linha fina + brilho sutil (abaixo de toolbars/painéis) */
-.mg-empresas-scope .mg-context-panel,
-.mg-empresas-scope .mg-cards-panel-strip,
-.mg-empresas-scope .mg-panel-tabs-strip,
 .mg-empresas-scope .mg-mobile-filter-strip,
 .cadastro-emp-scope.mg-empresas-scope .emp-form-tabs.emp-form-tabs-launch,
 .cadastro-emp-scope.mg-empresas-scope .emp-search-bar,
@@ -492,19 +490,52 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search,
 .mg-empresas-scope .filter-panel__header,
-.mg-empresas-scope .erp-menu-search-field,
-.mg-empresas-scope .mg-action-bar:not(:has(+ .mg-context-panel-wrap.is-visible)):not(
-    :has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
-  ) {
+.mg-empresas-scope .erp-menu-search-field {
   border-bottom: var(--mg-section-divider-border) !important;
   box-shadow: var(--mg-section-divider-shadow);
 }
 
-/* Barra de ações colada ao painel contextual (registro ou cards) — sem linha/gap entre os dois */
+/* Linhas de toolbar MG — altura/padding idênticos; divisor via ::after (não altera alinhamento) */
+.mg-empresas-scope :is(
+  .mg-action-bar,
+  .mg-context-panel,
+  .mg-cards-panel-strip,
+  .mg-panel-tabs-strip
+) {
+  box-sizing: border-box;
+  height: var(--mg-toolbar-row-height);
+  min-height: var(--mg-toolbar-row-height);
+  max-height: var(--mg-toolbar-row-height);
+  padding: var(--mg-toolbar-row-padding-y) var(--mg-toolbar-gutter);
+  position: relative;
+}
+
+.mg-empresas-scope :is(.mg-context-panel, .mg-cards-panel-strip, .mg-panel-tabs-strip)::after,
+.mg-empresas-scope
+  .mg-action-bar:not(:has(+ .mg-context-panel-wrap.is-visible)):not(
+    :has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
+  )::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-bottom: var(--mg-section-divider-border);
+  box-shadow: var(--mg-section-divider-shadow);
+  pointer-events: none;
+}
+
+/* Barra de ações colada ao painel contextual (registro ou cards) — sem linha entre os dois */
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible),
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible) {
   border-bottom: none !important;
   box-shadow: none !important;
+}
+
+.mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible)::after,
+.mg-empresas-scope
+  .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)::after {
+  content: none;
 }
 
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible) + .mg-context-panel-wrap.is-visible,
@@ -563,16 +594,12 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip {
-  padding-top: 0;
-  padding-bottom: 0;
-  padding-left: 8px !important;
-  padding-right: 8px !important;
-  min-height: 36px;
+  display: flex;
+  align-items: center;
   border-top: none !important;
   background: var(--bg-card) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  position: relative;
   overflow-x: auto;
   overflow-y: hidden;
   flex-shrink: 0;
@@ -585,6 +612,16 @@
   overflow: visible;
   position: relative;
   min-width: min-content;
+  height: 100%;
+  align-items: stretch;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab {
+  min-height: 0;
+  height: 100%;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
@@ -2136,13 +2173,7 @@
   gap: var(--mg-toolbar-cluster-gap);
   flex-shrink: 0;
   margin: 0;
-  box-sizing: border-box;
-  height: var(--mg-toolbar-row-height);
-  min-height: var(--mg-toolbar-row-height);
-  max-height: var(--mg-toolbar-row-height);
-  padding: 0 var(--mg-toolbar-gutter);
   overflow: visible;
-  position: relative;
   z-index: 20;
 }
 
@@ -2464,14 +2495,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--mg-toolbar-cluster-gap);
-  height: var(--mg-toolbar-row-height);
-  min-height: var(--mg-toolbar-row-height);
-  max-height: var(--mg-toolbar-row-height);
-  padding: 0 var(--mg-toolbar-gutter);
   border: none;
   background: var(--bg-card);
   flex-shrink: 0;
-  box-sizing: border-box;
   contain: layout style;
 }
 
@@ -2542,14 +2568,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--mg-toolbar-cluster-gap);
-  height: var(--mg-toolbar-row-height);
-  min-height: var(--mg-toolbar-row-height);
-  max-height: var(--mg-toolbar-row-height);
-  padding: 0 var(--mg-toolbar-gutter);
   border: none;
   background: var(--bg-card);
   flex-shrink: 0;
-  box-sizing: border-box;
   contain: layout style;
 }
 
