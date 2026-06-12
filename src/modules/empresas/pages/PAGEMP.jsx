@@ -28,15 +28,13 @@ import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgAction
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
-import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
+import { useServerInfiniteListQuery } from "@/shared/hooks/useServerInfiniteListQuery";
 import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
 import { fetchAllListPages } from "@/shared/utils/fetchAllListPages";
 import {
-  LIST_DEFAULT_PAGE_SIZE,
+  EMP_LIST_CHUNK_SIZE,
   LIST_SEARCH_DEBOUNCE_MS,
-  readStoredListPageSize,
 } from "@/shared/listing/listQueryConfig";
-import { PAGE_SIZE_KEY } from "@/modules/empresas/components/tblEmp.constants";
 import {
   buildEmpresaColumnFilters,
   buildEmpresaPanelFilters,
@@ -53,7 +51,7 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
   total: 0,
   page: 1,
-  pageSize: LIST_DEFAULT_PAGE_SIZE,
+  pageSize: EMP_LIST_CHUNK_SIZE,
   totalPages: 1,
 };
 
@@ -109,10 +107,6 @@ export default function PAGEMP() {
   const [attachmentsRecord, setAttachmentsRecord] = useState(null);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
-  const [queryPage, setQueryPage] = useState(1);
-  const [queryPageSize, setQueryPageSize] = useState(() =>
-    readStoredListPageSize(PAGE_SIZE_KEY, LIST_DEFAULT_PAGE_SIZE)
-  );
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
@@ -151,7 +145,6 @@ export default function PAGEMP() {
     setViewMode("table");
     setSelectedTableItems([]);
     setSelectedIndex(0);
-    setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSearchDraft("");
     setSearchTerm("");
@@ -228,11 +221,6 @@ export default function PAGEMP() {
     fetchNextDropdownPage();
   }, [dropdownHasNextPage, dropdownFetchingNextPage, fetchNextDropdownPage]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(PAGE_SIZE_KEY, String(queryPageSize));
-  }, [queryPageSize]);
-
   const serverBaseFilters = useMemo(
     () =>
       mergeEmpresaListFilters(
@@ -259,31 +247,32 @@ export default function PAGEMP() {
     total: empresasResponseTotal,
     isInitialLoading: empresasLoading,
     isPageFetching: empresasFetching,
+    isLoadingMore: empresasLoadingMore,
+    hasMore: empresasHasMore,
+    fetchNextPage: fetchNextEmpresasPage,
     isLoading,
     isFetching,
-  } = useServerListQuery({
+  } = useServerInfiniteListQuery({
     queryKey: [
       "emp-cadastro",
-      queryPage,
-      queryPageSize,
       searchTerm,
       querySort.key,
       querySort.direction,
       listFiltersKey,
     ],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 1 }) => {
       const trimmedSearch = normalizeSearchQuery(searchTerm);
 
       if (searchFavoritesOnly && favoriteIds.length === 0) {
         return {
           ...DEFAULT_EMPRESAS_RESPONSE,
-          pageSize: queryPageSize,
+          pageSize: EMP_LIST_CHUNK_SIZE,
         };
       }
 
       return moduleRepository.listPage({
-        page: queryPage,
-        pageSize: queryPageSize,
+        page: pageParam,
+        pageSize: EMP_LIST_CHUNK_SIZE,
         search: trimmedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
@@ -292,6 +281,11 @@ export default function PAGEMP() {
     },
     defaultResponse: DEFAULT_EMPRESAS_RESPONSE,
   });
+
+  const handleListLoadMore = useCallback(() => {
+    if (!empresasHasMore || empresasLoadingMore) return;
+    fetchNextEmpresasPage();
+  }, [empresasHasMore, empresasLoadingMore, fetchNextEmpresasPage]);
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
   const empresasFiltradasPainel = useMemo(() => {
@@ -302,11 +296,13 @@ export default function PAGEMP() {
   const recordNav = useServerRecordNavigation({
     items: empresasFiltradasPainel,
     total: totalEmpresas,
-    page: queryPage,
-    pageSize: queryPageSize,
-    onPageChange: setQueryPage,
+    page: 1,
+    pageSize: EMP_LIST_CHUNK_SIZE,
     pinnedRecord,
     disabled: !showForm || viewMode !== "record",
+    cumulativeMode: true,
+    hasMore: empresasHasMore,
+    onLoadMore: handleListLoadMore,
   });
 
   useEffect(() => {
@@ -634,7 +630,6 @@ export default function PAGEMP() {
     setDropdownSearch("");
     setSearchViewPending(false);
     searchViewApplyRef.current = null;
-    setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
   }, []);
@@ -643,7 +638,6 @@ export default function PAGEMP() {
     const next = String(value || "").trim();
     setPinnedRecord(null);
     setSearchTerm(next);
-    setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
   }, []);
@@ -655,7 +649,6 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setPinnedRecord(null);
     setSearchTerm(next);
-    setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
     void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
@@ -667,7 +660,6 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(true);
     setPinnedRecord(null);
     setSearchTerm(normalizeSearchQuery(searchDraft));
-    setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
     void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
@@ -681,7 +673,6 @@ export default function PAGEMP() {
       setSearchFavoritesOnly(false);
       setPinnedRecord(emp);
       setSearchTerm(normalizeSearchQuery(searchDraft));
-      setQueryPage(1);
       setTableFilteredEmpresas(null);
       setSelectedTableItems([]);
       setSelectedIndex(0);
@@ -705,18 +696,15 @@ export default function PAGEMP() {
     setPinnedRecord(null);
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
-    setQueryPage(1);
   }, []);
 
   const handleFilterApply = useCallback(() => {
     setAppliedPanelFilters(buildEmpresaPanelFilters(filterValues, filterStatus));
-    setQueryPage(1);
     closeFilterPanel();
   }, [closeFilterPanel, filterStatus, filterValues]);
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
     setColumnFilters(nextColumnFilters || {});
-    setQueryPage(1);
   }, []);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
@@ -1269,13 +1257,10 @@ export default function PAGEMP() {
                       isFetching: empresasFetching,
                       searchValue: searchTerm,
                       onSearchChange: handleSearchCommit,
-                      page: queryPage,
-                      pageSize: queryPageSize,
-                      onPageChange: setQueryPage,
-                      onPageSizeChange: (nextPageSize) => {
-                        setQueryPageSize(nextPageSize);
-                        setQueryPage(1);
-                      },
+                      isLoadingMore: empresasLoadingMore,
+                      hasMore: empresasHasMore,
+                      onLoadMore: handleListLoadMore,
+                      chunkSize: EMP_LIST_CHUNK_SIZE,
                       onEdit: handleEdit,
                       selectedIds: selectedTableItems,
                       onSelectionChange: handleTableSelectionChange,
@@ -1307,19 +1292,17 @@ export default function PAGEMP() {
                     onVisibleDataChange: setVisibleTableData,
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
-                    serverPage: queryPage,
-                    serverPageSize: queryPageSize,
+                    serverInfiniteScroll: true,
                     serverTotal: totalEmpresas,
                     serverSearchTerm: searchTerm,
                     serverBaseFilters,
-                    onServerPageChange: setQueryPage,
-                    onServerPageSizeChange: (nextPageSize) => {
-                      setQueryPageSize(nextPageSize);
-                      setQueryPage(1);
-                    },
+                    loadedCount: empresasFiltradasPainel.length,
+                    hasMoreRecords: empresasHasMore,
+                    isLoadingMore: empresasLoadingMore,
+                    onLoadMore: handleListLoadMore,
+                    listChunkSize: EMP_LIST_CHUNK_SIZE,
                     onServerSortChange: (nextSort) => {
                       setQuerySort(nextSort);
-                      setQueryPage(1);
                     },
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,

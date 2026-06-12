@@ -3,6 +3,9 @@ export const LIST_PAGE_SIZE_OPTIONS = Object.freeze([25, 50, 100, 150, 200, 500,
 
 export const LIST_DEFAULT_PAGE_SIZE = 50;
 
+/** Tamanho do bloco para scroll infinito (tabela e cards de empresas). */
+export const EMP_LIST_CHUNK_SIZE = 500;
+
 export const LIST_MAX_PAGE_SIZE = 1000;
 
 export const LIST_SEARCH_DEBOUNCE_MS = 350;

@@ -12,6 +12,9 @@ export function useServerRecordNavigation({
   onPageChange,
   pinnedRecord = null,
   disabled = false,
+  cumulativeMode = false,
+  hasMore = false,
+  onLoadMore = null,
 }) {
   const [localIndex, setLocalIndex] = useState(0);
   const pendingLocalIndexRef = useRef(null);
@@ -23,17 +26,32 @@ export function useServerRecordNavigation({
   const globalIndex = useMemo(() => {
     if (effectiveTotal === 0) return 0;
     if (pinnedRecord) return 0;
+    if (cumulativeMode) {
+      return Math.min(Math.max(localIndex, 0), effectiveTotal - 1);
+    }
     const raw = (Math.max(1, Number(page) || 1) - 1) * safePageSize + localIndex;
     return Math.min(Math.max(raw, 0), effectiveTotal - 1);
-  }, [effectiveTotal, pinnedRecord, page, safePageSize, localIndex]);
+  }, [effectiveTotal, pinnedRecord, cumulativeMode, page, safePageSize, localIndex]);
 
   useEffect(() => {
+    if (cumulativeMode) return;
     if (pendingLocalIndexRef.current == null) return;
     const targetLocal = pendingLocalIndexRef.current;
     pendingLocalIndexRef.current = null;
     const maxLocal = Math.max(effectiveItems.length - 1, 0);
     setLocalIndex(Math.min(Math.max(targetLocal, 0), maxLocal));
-  }, [effectiveItems, page]);
+  }, [cumulativeMode, effectiveItems, page]);
+
+  useEffect(() => {
+    if (!cumulativeMode || pendingLocalIndexRef.current == null) return;
+    const targetLocal = pendingLocalIndexRef.current;
+    if (targetLocal < effectiveItems.length) {
+      pendingLocalIndexRef.current = null;
+      setLocalIndex(targetLocal);
+    } else if (hasMore) {
+      onLoadMore?.();
+    }
+  }, [cumulativeMode, effectiveItems.length, hasMore, onLoadMore]);
 
   useEffect(() => {
     if (pinnedRecord || effectiveItems.length === 0) return;
@@ -46,6 +64,18 @@ export function useServerRecordNavigation({
     (targetGlobal) => {
       if (disabled || pinnedRecord || effectiveTotal === 0) return null;
       const clamped = Math.min(Math.max(targetGlobal, 0), effectiveTotal - 1);
+
+      if (cumulativeMode) {
+        if (clamped >= effectiveItems.length && hasMore) {
+          onLoadMore?.();
+          pendingLocalIndexRef.current = clamped;
+          return { page: 1, localIndex: clamped, pending: true };
+        }
+        const nextLocal = Math.min(clamped, Math.max(effectiveItems.length - 1, 0));
+        setLocalIndex(nextLocal);
+        return { page: 1, localIndex: nextLocal, pending: false };
+      }
+
       const targetPage = Math.floor(clamped / safePageSize) + 1;
       const targetLocal = clamped % safePageSize;
 
@@ -58,7 +88,18 @@ export function useServerRecordNavigation({
       setLocalIndex(targetLocal);
       return { page: targetPage, localIndex: targetLocal, pending: false };
     },
-    [disabled, pinnedRecord, effectiveTotal, safePageSize, page, onPageChange]
+    [
+      disabled,
+      pinnedRecord,
+      effectiveTotal,
+      cumulativeMode,
+      effectiveItems.length,
+      hasMore,
+      onLoadMore,
+      safePageSize,
+      page,
+      onPageChange,
+    ]
   );
 
   const syncLocalIndexFromRecord = useCallback(
