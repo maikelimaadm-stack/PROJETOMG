@@ -1,13 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronDown, Search, Star, X } from "lucide-react";
+import { empRepository } from "@/modules/empresas/repositories/empRepository";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
+  buildEmpCardFieldCatalog,
   formatSearchCounter,
   getEmpSearchAvatarColor,
   getEmpSearchFieldValue,
   getEmpSearchInitials,
   loadSearchFavorites,
   loadSearchVisFields,
+  mergeSearchVisFields,
   saveSearchFavorites,
   saveSearchVisFields,
 } from "./empSearchView.constants";
@@ -115,7 +119,7 @@ function SearchPagination({ page, totalPages, onChange }) {
   return <div className="emp-search-pagination">{buttons}</div>;
 }
 
-function SearchConfigModal({ open, fields, onClose, onSave }) {
+function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false }) {
   const [draft, setDraft] = useState(fields);
 
   useEffect(() => {
@@ -126,15 +130,17 @@ function SearchConfigModal({ open, fields, onClose, onSave }) {
 
   return (
     <div
-      className="emp-search-config-overlay"
+      className={`emp-search-config-overlay${mgPrototype ? " mg-cards-config-overlay" : ""}`}
       onClick={(event) => {
         if (event.target === event.currentTarget) onClose();
       }}
       role="presentation"
     >
-      <div className="emp-search-config-modal">
+      <div className={`emp-search-config-modal${mgPrototype ? " mg-cards-config-modal" : ""}`}>
         <div className="emp-search-config-header">
-          <h3 className="emp-search-config-title">⚙ Configurar Visualização</h3>
+          <h3 className="emp-search-config-title">
+            {mgPrototype ? "Configurar campos dos cards" : "⚙ Configurar Visualização"}
+          </h3>
           <button type="button" className="emp-search-config-close" onClick={onClose} aria-label="Fechar">
             <X className="h-4 w-4 text-slate-400" />
           </button>
@@ -155,7 +161,10 @@ function SearchConfigModal({ open, fields, onClose, onSave }) {
                   );
                 }}
               />
-              <span>{field.label}</span>
+              <span>
+                {field.label}
+                {field.primary ? " (cabeçalho)" : ""}
+              </span>
             </label>
           ))}
         </div>
@@ -189,16 +198,41 @@ export default function SRCHEMP({
   onEdit,
   selectedIds = [],
   onSelectionChange,
+  cardsConfigOpen = false,
+  onCardsConfigOpenChange,
   mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
-  const [configOpen, setConfigOpen] = useState(false);
+  const [configOpenInternal, setConfigOpenInternal] = useState(false);
   const [visFields, setVisFields] = useState(() => loadSearchVisFields());
   const [favorites, setFavorites] = useState(() => loadSearchFavorites());
   const lastCardClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const cardClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedIdsRef = useRef(selectedIds);
+
+  const { data: camposPersonalizados = [] } = useQuery({
+    queryKey: ["emp-campos-personalizados"],
+    queryFn: () => empRepository.listCamposPersonalizados(),
+    initialData: [],
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnMount: false,
+    enabled: mgPrototype,
+  });
+
+  const fieldCatalog = useMemo(
+    () => buildEmpCardFieldCatalog(camposPersonalizados),
+    [camposPersonalizados]
+  );
+
+  useEffect(() => {
+    if (!mgPrototype) return;
+    setVisFields(loadSearchVisFields(fieldCatalog));
+  }, [fieldCatalog, mgPrototype]);
+
+  const configOpen = mgPrototype ? cardsConfigOpen : configOpenInternal;
+  const setConfigOpen = mgPrototype ? onCardsConfigOpenChange : setConfigOpenInternal;
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -252,13 +286,14 @@ export default function SRCHEMP({
   }, []);
 
   const handleSaveVisConfig = useCallback((nextFields) => {
-    const normalized = nextFields.map((field) => {
-      const fallback = EMP_SEARCH_DEFAULT_FIELDS.find((item) => item.key === field.key);
+    const normalized = mergeSearchVisFields(fieldCatalog, nextFields).map((field) => {
+      const fallback = fieldCatalog.find((item) => item.key === field.key)
+        || EMP_SEARCH_DEFAULT_FIELDS.find((item) => item.key === field.key);
       return { ...fallback, ...field };
     });
     setVisFields(normalized);
     saveSearchVisFields(normalized);
-  }, []);
+  }, [fieldCatalog]);
 
   const handleCardClick = useCallback(
     (emp) => {
@@ -308,14 +343,14 @@ export default function SRCHEMP({
             </div>
           ) : (
             <div id="cards-grid" className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {filteredEmpresas.map((emp) => {
+              {filteredEmpresas.map((emp, index) => {
                 const isSelected = selectedIds.includes(emp.id);
-                const code = String(getEmpSearchFieldValue(emp, "codempresa") || "").padStart(6, "0");
+                const code = getEmpSearchFieldValue(emp, "codempresa");
                 const nome = getEmpSearchFieldValue(emp, "razao_social");
-                const cnpj = getEmpSearchFieldValue(emp, "cnpj");
-                const telefone = getEmpSearchFieldValue(emp, "telefone");
-                const cidade = getEmpSearchFieldValue(emp, "cidade");
-                const uf = getEmpSearchFieldValue(emp, "uf");
+                const initials = getEmpSearchInitials(emp);
+                const avatarColor = getEmpSearchAvatarColor(emp, index);
+                const statusValue = getEmpSearchFieldValue(emp, "status");
+                const statusActive = String(statusValue).toLowerCase() === "ativo";
                 return (
                   <div
                     key={emp.id}
@@ -338,10 +373,10 @@ export default function SRCHEMP({
                     ) : null}
                     <div className="mb-2.5 flex items-center gap-2.5">
                       <div
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[11px] font-bold text-white"
-                        style={{ background: "linear-gradient(135deg, var(--mg-brand-green), #5ee87a)" }}
+                        className="mg-emp-card__avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[10px] font-bold tracking-tight text-white"
+                        style={{ background: avatarColor }}
                       >
-                        {code.substring(0, 2)}
+                        {initials}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-xs font-semibold" style={{ color: "var(--text-1)" }}>
@@ -352,23 +387,25 @@ export default function SRCHEMP({
                         </div>
                       </div>
                     </div>
-                    <div className="mb-2.5 flex flex-col gap-1.5 text-[11px]">
-                      <div>
-                        <span style={{ color: "var(--text-3)" }}>CNPJ: </span>
-                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{cnpj}</span>
+                    {detailFields.length > 0 ? (
+                      <div className="mb-2.5 flex flex-col gap-1.5 text-[11px]">
+                        {detailFields.map((field) => (
+                          <div key={field.key}>
+                            <span style={{ color: "var(--text-3)" }}>{field.label}: </span>
+                            <span className="font-medium" style={{ color: "var(--text-1)" }}>
+                              {getEmpSearchFieldValue(emp, field.key)}
+                            </span>
+                          </div>
+                        ))}
                       </div>
-                      <div>
-                        <span style={{ color: "var(--text-3)" }}>Tel: </span>
-                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{telefone}</span>
+                    ) : null}
+                    {visFields.some((field) => field.key === "status" && field.visible) ? (
+                      <div className="flex items-center justify-end pt-2.5">
+                        <span className={`pill ${statusActive ? "pill-active" : "pill-inactive"}`}>
+                          {statusValue}
+                        </span>
                       </div>
-                      <div>
-                        <span style={{ color: "var(--text-3)" }}>Cidade: </span>
-                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{cidade}/{uf}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-end pt-2.5">
-                      <span className="pill pill-active">Ativo</span>
-                    </div>
+                    ) : null}
                   </div>
                 );
               })}
@@ -384,6 +421,14 @@ export default function SRCHEMP({
           <span className="flex-1 text-[12px] mg-cards-footer-counter" style={{ color: "var(--text-3)" }}>{counterText}</span>
           <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
         </footer>
+
+        <SearchConfigModal
+          open={configOpen}
+          fields={visFields}
+          onClose={() => setConfigOpen?.(false)}
+          onSave={handleSaveVisConfig}
+          mgPrototype
+        />
       </div>
     );
   }
@@ -491,7 +536,7 @@ export default function SRCHEMP({
       <SearchConfigModal
         open={configOpen}
         fields={visFields}
-        onClose={() => setConfigOpen(false)}
+        onClose={() => setConfigOpen?.(false)}
         onSave={handleSaveVisConfig}
       />
     </div>

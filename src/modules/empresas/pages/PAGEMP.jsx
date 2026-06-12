@@ -18,6 +18,7 @@ import {
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
+import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
@@ -75,6 +76,7 @@ export default function PAGEMP() {
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [cardsConfigOpen, setCardsConfigOpen] = useState(false);
   const [selectedTableItems, setSelectedTableItems] = useState([]);
   const [formVersion, setFormVersion] = useState(0);
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
@@ -828,6 +830,13 @@ export default function PAGEMP() {
             />
           </div>
 
+          <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
+            <MgCardsPanelStrip
+              onConfigure={() => setCardsConfigOpen(true)}
+              disabled={saveCycle.isSaving}
+            />
+          </div>
+
           <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
               className={`mg-view-layer mg-view-layer--form flex min-h-0 flex-1 flex-col overflow-hidden${
@@ -878,6 +887,8 @@ export default function PAGEMP() {
                     onEdit: handleEdit,
                     selectedIds: selectedTableItems,
                     onSelectionChange: handleTableSelectionChange,
+                    cardsConfigOpen,
+                    onCardsConfigOpenChange: setCardsConfigOpen,
                     mgPrototype: true,
                   }}
                 />
