@@ -372,6 +372,22 @@ export const swapFieldsInRows = (rows = [], fieldA, fieldB) => {
   return next;
 };
 
+/** Resolve insert edge; "auto" uses flat order (before/after target). */
+export const resolveFieldInsertEdge = (rows = [], fieldIds = [], targetFieldId, edge = "auto") => {
+  if (edge === "before" || edge === "after") return edge;
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !targetFieldId) return "before";
+  const flat = flattenRowsToFieldIds({ rows });
+  if (ids.length === 1) {
+    const from = flat.indexOf(ids[0]);
+    const to = flat.indexOf(targetFieldId);
+    if (from >= 0 && to >= 0 && from !== to) {
+      return from < to ? "after" : "before";
+    }
+  }
+  return "before";
+};
+
 export const insertFieldsRelativeToTarget = (
   rows = [],
   fieldIds = [],

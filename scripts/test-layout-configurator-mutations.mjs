@@ -23,6 +23,7 @@ import {
   previewReorderFieldsAtTarget,
   swapFieldsInRows,
   flattenRowsToFieldIds,
+  resolveFieldInsertEdge,
 } from "../src/framework/cadastro/layouts/empFormLayoutRows.js";
 
 const panelId = "principais";
@@ -281,5 +282,18 @@ const rowMoveRetry = previewMoveFieldsAtTarget({
 assert.equal(rowMoveRetry, null, "repeat move to same row should be idempotent");
 
 assert.equal(isDragLeaveWithinContainer(null, null), false);
+
+assert.equal(
+  resolveFieldInsertEdge(rows, ["a"], "b", "before"),
+  "before"
+);
+assert.equal(
+  resolveFieldInsertEdge(rows, ["a"], "c", "auto"),
+  "after"
+);
+assert.equal(
+  resolveFieldInsertEdge(rows, ["c"], "a", "auto"),
+  "before"
+);
 
 console.log("test-layout-configurator-mutations: OK");
