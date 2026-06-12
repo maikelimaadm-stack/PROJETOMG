@@ -4153,3 +4153,138 @@
   color: var(--text-2) !important;
   stroke: var(--text-2) !important;
 }
+
+/* Configurador de layout — drag-and-drop */
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-slot {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--visible {
+  animation: emp-layout-drop-line-in 120ms var(--mg-motion-ease) both;
+}
+
+@keyframes emp-layout-drop-line-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.mg-empresas-scope .emp-layout-configurator.emp-layout-config-is-dragging .emp-layout-config-field-slot,
+.mg-empresas-scope .emp-layout-configurator.emp-layout-config-is-dragging .emp-layout-config-row,
+.mg-empresas-scope .emp-layout-configurator.emp-layout-config-is-dragging .emp-layout-config-panel-fields {
+  transition: none !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator.emp-layout-config-is-dragging .emp-layout-config-drop-line--visible {
+  animation: none;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-transition {
+  transition: opacity var(--mg-motion-duration) var(--mg-motion-ease), transform var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field--dragging {
+  opacity: 0.5;
+  transform: scale(0.97);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drag-ghost {
+  opacity: 1 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  transform: none !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drag-ghost--row {
+  min-width: 240px;
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--mg-divider);
+  border-radius: var(--mg-radius-control);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line {
+  pointer-events: none;
+  z-index: 6;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--vertical {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--mg-brand-green);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mg-brand-green) 35%, white);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--vertical.emp-layout-config-drop-line--before {
+  left: -6px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--vertical.emp-layout-config-drop-line--after {
+  right: -6px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--horizontal {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--mg-brand-green);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mg-brand-green) 35%, white);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--horizontal.emp-layout-config-drop-line--row-before {
+  top: -2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--horizontal.emp-layout-config-drop-line--row-after {
+  bottom: -2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--in-row.emp-layout-config-drop-line--row-before {
+  top: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-drop-line--in-row.emp-layout-config-drop-line--row-after {
+  bottom: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--drag-source {
+  opacity: 0.5;
+  outline: 2px dashed var(--mg-brand-green);
+  outline-offset: 2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-tab--drag-over {
+  outline: 2px solid var(--mg-brand-green);
+  outline-offset: -2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-drop--active {
+  background: color-mix(in srgb, var(--mg-brand-green) 6%, transparent);
+  border-radius: var(--mg-radius-control);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-header--draggable {
+  cursor: grab;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-header--draggable:active {
+  cursor: grabbing;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list.emp-layout-config-drop-target {
+  outline: 2px dashed var(--mg-brand-green);
+  outline-offset: -2px;
+  border-radius: var(--mg-radius-control);
+}

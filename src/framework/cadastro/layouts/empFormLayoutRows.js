@@ -350,24 +350,196 @@ export const addFieldToRow = (rows = [], rowId, fieldId) => {
   );
 };
 
-export const reorderFieldWithinRows = (rows = [], draggedFieldId, targetFieldId) => {
-  if (!draggedFieldId || draggedFieldId === targetFieldId) return rows;
-  let sourceRowIndex = -1;
-  let targetRowIndex = -1;
-  rows.forEach((row, index) => {
-    if ((row.fieldIds || []).includes(draggedFieldId)) sourceRowIndex = index;
-    if ((row.fieldIds || []).includes(targetFieldId)) targetRowIndex = index;
+export const swapFieldsInRows = (rows = [], fieldA, fieldB) => {
+  if (!fieldA || !fieldB || fieldA === fieldB) return rows;
+  const next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
+  let posA = null;
+  let posB = null;
+
+  next.forEach((row, rowIndex) => {
+    (row.fieldIds || []).forEach((fieldId, fieldIndex) => {
+      if (fieldId === fieldA) posA = { rowIndex, fieldIndex };
+      if (fieldId === fieldB) posB = { rowIndex, fieldIndex };
+    });
   });
-  if (sourceRowIndex < 0 || targetRowIndex < 0) return rows;
+
+  if (!posA || !posB) return rows;
+
+  const a = next[posA.rowIndex].fieldIds[posA.fieldIndex];
+  const b = next[posB.rowIndex].fieldIds[posB.fieldIndex];
+  next[posA.rowIndex].fieldIds[posA.fieldIndex] = b;
+  next[posB.rowIndex].fieldIds[posB.fieldIndex] = a;
+  return next;
+};
+
+export const insertFieldsRelativeToTarget = (
+  rows = [],
+  fieldIds = [],
+  targetFieldId,
+  edge = "before"
+) => {
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !targetFieldId) return rows;
+
+  let next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
+  ids.forEach((fieldId) => {
+    next = removeFieldFromRows(next, fieldId);
+  });
+
+  let targetRowIndex = -1;
+  let targetFieldIndex = -1;
+  next.forEach((row, rowIndex) => {
+    const idx = (row.fieldIds || []).indexOf(targetFieldId);
+    if (idx >= 0) {
+      targetRowIndex = rowIndex;
+      targetFieldIndex = idx;
+    }
+  });
+
+  if (targetRowIndex < 0) return rows;
+
+  const insertAt = edge === "after" ? targetFieldIndex + 1 : targetFieldIndex;
+  const targetIds = next[targetRowIndex].fieldIds || [];
+  next[targetRowIndex] = {
+    ...next[targetRowIndex],
+    fieldIds: [...targetIds.slice(0, insertAt), ...ids, ...targetIds.slice(insertAt)],
+  };
+
+  return next;
+};
+
+export const insertFieldsIntoRowAtEdge = (rows = [], fieldIds = [], rowId, edge = "after") => {
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !rowId) return rows;
+
+  let next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
+  ids.forEach((fieldId) => {
+    next = removeFieldFromRows(next, fieldId);
+  });
+
+  const rowIndex = next.findIndex((row) => row.id === rowId);
+  if (rowIndex < 0) return rows;
+
+  const current = next[rowIndex].fieldIds || [];
+  next[rowIndex] = {
+    ...next[rowIndex],
+    fieldIds: edge === "before" ? [...ids, ...current] : [...current, ...ids],
+  };
+  return next;
+};
+
+export const insertRowRelativeToTarget = (rows = [], draggedRowId, targetRowId, edge = "before") => {
+  if (!draggedRowId || !targetRowId || draggedRowId === targetRowId) return rows;
+  const list = [...rows].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const fromIndex = list.findIndex((row) => row.id === draggedRowId);
+  let toIndex = list.findIndex((row) => row.id === targetRowId);
+  if (fromIndex < 0 || toIndex < 0) return rows;
+
+  const [moved] = list.splice(fromIndex, 1);
+  if (fromIndex < toIndex) toIndex -= 1;
+  const insertAt = edge === "after" ? toIndex + 1 : toIndex;
+  list.splice(insertAt, 0, moved);
+  return list.map((row, orderIndex) => ({ ...row, order: orderIndex + 1 }));
+};
+
+/**
+ * Reordena campos ao vivo (splice flat como referência).
+ * @param {"auto"|"before"|"after"} edge — "auto" usa índice original do alvo; before/after evita oscilação no dragOver.
+ */
+export const previewReorderFieldsAtTarget = (
+  rows = [],
+  fieldIds = [],
+  targetFieldId,
+  edge = "auto"
+) => {
+  const ids = (Array.isArray(fieldIds) ? fieldIds : [fieldIds]).filter(Boolean);
+  if (!ids.length || !targetFieldId || ids.includes(targetFieldId)) return null;
+
+  const flatBefore = flattenRowsToFieldIds({ rows });
+  const movingSet = new Set(ids.filter((id) => flatBefore.includes(id)));
+  if (!movingSet.size) return null;
+
+  const to = flatBefore.indexOf(targetFieldId);
+  if (to < 0) return null;
+
+  if (movingSet.size === 1) {
+    const draggedFieldId = ids.find((id) => movingSet.has(id));
+    const nextRows = reorderFieldWithinRows(rows, draggedFieldId, targetFieldId, edge);
+    const flatAfter = flattenRowsToFieldIds({ rows: nextRows });
+    if (flatBefore.join("|") === flatAfter.join("|")) return null;
+    return nextRows;
+  }
+
+  const movingInOrder = flatBefore.filter((id) => movingSet.has(id));
+  const insertEdge = edge === "auto" ? "before" : edge;
+  const nextRows = insertFieldsRelativeToTarget(rows, movingInOrder, targetFieldId, insertEdge);
+  const flatAfter = flattenRowsToFieldIds({ rows: nextRows });
+  if (flatBefore.join("|") === flatAfter.join("|")) return null;
+  return nextRows;
+};
+
+/** Reordena linhas ao vivo — retorna null se não houve mudança. */
+export const previewReorderRowAtTarget = (
+  rows = [],
+  draggedRowId,
+  targetRowId,
+  edge = "auto"
+) => {
+  if (!draggedRowId || !targetRowId || draggedRowId === targetRowId) return null;
+  if (edge === "before") {
+    return insertRowRelativeToTarget(rows, draggedRowId, targetRowId, "before");
+  }
+  if (edge === "after") {
+    return insertRowRelativeToTarget(rows, draggedRowId, targetRowId, "after");
+  }
+  const list = [...rows].sort((a, b) => (a.order || 0) - (b.order || 0));
+  const fromIndex = list.findIndex((row) => row.id === draggedRowId);
+  const toIndex = list.findIndex((row) => row.id === targetRowId);
+  if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return null;
+  const [moved] = list.splice(fromIndex, 1);
+  list.splice(toIndex, 0, moved);
+  return list.map((row, orderIndex) => ({ ...row, order: orderIndex + 1 }));
+};
+
+export const reorderFieldWithinRows = (
+  rows = [],
+  draggedFieldId,
+  targetFieldId,
+  edge = "auto"
+) => {
+  if (!draggedFieldId || !targetFieldId || draggedFieldId === targetFieldId) return rows;
+
+  const flat = flattenRowsToFieldIds({ rows });
+  const from = flat.indexOf(draggedFieldId);
+  const to = flat.indexOf(targetFieldId);
+  if (from < 0 || to < 0 || from === to) return rows;
 
   const next = rows.map((row) => ({ ...row, fieldIds: [...(row.fieldIds || [])] }));
-  const sourceIds = next[sourceRowIndex].fieldIds;
-  const from = sourceIds.indexOf(draggedFieldId);
-  if (from < 0) return rows;
-  sourceIds.splice(from, 1);
+  next.forEach((row) => {
+    row.fieldIds = row.fieldIds.filter((id) => id !== draggedFieldId);
+  });
 
-  const to = next[targetRowIndex].fieldIds.indexOf(targetFieldId);
-  next[targetRowIndex].fieldIds.splice(to >= 0 ? to : next[targetRowIndex].fieldIds.length, 0, draggedFieldId);
+  let targetRowIndex = -1;
+  let targetFieldIndex = -1;
+  next.forEach((row, rowIndex) => {
+    const fieldIndex = (row.fieldIds || []).indexOf(targetFieldId);
+    if (fieldIndex >= 0) {
+      targetRowIndex = rowIndex;
+      targetFieldIndex = fieldIndex;
+    }
+  });
+  if (targetRowIndex < 0) return rows;
+
+  let insertAt;
+  if (edge === "before") {
+    insertAt = targetFieldIndex;
+  } else if (edge === "after") {
+    insertAt = targetFieldIndex + 1;
+  } else {
+    insertAt = from < to ? targetFieldIndex + 1 : targetFieldIndex;
+  }
+
+  next[targetRowIndex].fieldIds.splice(insertAt, 0, draggedFieldId);
   return next;
 };
 

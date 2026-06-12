@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { validatePreferenceConfig } from "./layoutValidators/index.js";
 
 const withStatus = (message, statusCode) => {
   const error = new Error(message);
@@ -41,6 +42,8 @@ export const preferencesRepository = {
       throw withStatus("Configuração inválida.", 400);
     }
 
+    const validatedConfig = validatePreferenceConfig(normalizedKey, config);
+
     const record = await prisma.usuarioPreferencia.upsert({
       where: {
         usuario_id_screen_key: {
@@ -52,10 +55,10 @@ export const preferencesRepository = {
         usuario_id: scope.userId,
         cliente_id: scope.clienteId,
         screen_key: normalizedKey,
-        config,
+        config: validatedConfig,
       },
       update: {
-        config,
+        config: validatedConfig,
         cliente_id: scope.clienteId,
       },
       select: {

@@ -21,6 +21,7 @@
     "smoke:auth-permissoes": "node scripts/smokeAuthPermissoes.js",
     "smoke:campos": "node scripts/smokeCamposPersonalizados.js",
     "smoke:campos-tipos": "node scripts/smokeCamposTipos.js",
+    "smoke:empresas-form-layout": "node scripts/smokeEmpresasFormLayout.js",
     "smoke:cadcps": "node scripts/smokeCadcps.js",
     "smoke:cadcps-tipos": "node scripts/smokeCadcpsTipos.js",
     "migrate:cadcps": "node scripts/migrateCampoPersonalizadoToCadcps.js",
