@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Check, GalleryThumbnails } from "lucide-react";
+import { Check, Settings2 } from "lucide-react";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
   getDefaultCardVisFields,
@@ -110,10 +110,11 @@ export default function MgCardsPanelStrip({
 
   return (
     <div data-template-id="cards-panel" className="mg-cards-panel-strip hidden md:flex">
-      <div className="mg-cards-panel-strip__actions relative" ref={rootRef}>
+      <div className="mg-cards-panel-strip__meta" aria-hidden="true" />
+      <div className="mg-cards-panel-strip__actions" ref={rootRef}>
         <button
           type="button"
-          className="mg-nav-btn ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-cards-panel-strip__config-btn"
+          className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${open ? " is-open" : ""}`}
           onClick={toggle}
           disabled={disabled}
           title="Configurar campos dos cards"
@@ -121,7 +122,7 @@ export default function MgCardsPanelStrip({
           aria-expanded={open}
           aria-haspopup="dialog"
         >
-          <GalleryThumbnails className="h-3 w-3" />
+          <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
         </button>
 
         <MgPortalPanel

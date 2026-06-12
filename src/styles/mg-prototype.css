@@ -2231,6 +2231,13 @@
   }
 }
 
+.mg-empresas-scope .mg-subtoolbar-stack {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 30;
+  background: var(--bg-card);
+}
+
 .mg-empresas-scope .mg-context-panel-wrap {
   flex-shrink: 0;
   max-height: 0;
@@ -2335,15 +2342,12 @@
   max-height: 32px;
   opacity: 1;
   pointer-events: auto;
-  overflow: visible;
-  position: relative;
-  z-index: 25;
 }
 
 .mg-empresas-scope .mg-cards-panel-strip {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: var(--mg-toolbar-cluster-gap);
   height: 32px;
   min-height: 32px;
@@ -2356,19 +2360,57 @@
   contain: layout style;
 }
 
+.mg-empresas-scope .mg-cards-panel-strip__meta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .mg-empresas-scope .mg-cards-panel-strip__actions {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: var(--mg-action-slot-gap);
+  margin-left: auto;
 }
 
 .mg-empresas-scope .mg-cards-panel-strip__config-btn {
-  width: var(--mg-btn-icon-size);
+  width: auto;
+  min-width: 42px;
   height: var(--mg-btn-icon-size);
-  min-width: var(--mg-btn-icon-size);
   min-height: var(--mg-btn-icon-size);
-  padding: 0;
+  padding: 0 12px;
+}
+
+.mg-empresas-scope .mg-cards-panel-strip__config-btn.is-open {
+  background: var(--gray-fill2);
+  color: var(--mg-brand-green-hover);
+}
+
+.mg-empresas-scope .mg-cards-panel-strip__config-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-cards-panel-strip .mg-nav-btn:not(:disabled) {
+  color: var(--accent);
+}
+
+.mg-empresas-scope .mg-cards-panel-strip .mg-nav-btn:not(:disabled) svg {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
+.mg-empresas-scope .mg-cards-panel-strip .mg-nav-btn:not(:disabled):hover,
+.mg-empresas-scope .mg-cards-panel-strip .mg-nav-btn.is-open:not(:disabled) {
+  color: var(--mg-brand-green-hover);
+}
+
+.mg-empresas-scope .mg-cards-panel-strip .mg-nav-btn:not(:disabled):hover svg,
+.mg-empresas-scope .mg-cards-panel-strip .mg-nav-btn.is-open:not(:disabled) svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
 }
 
 .mg-empresas-scope .mg-cards-config-overlay {

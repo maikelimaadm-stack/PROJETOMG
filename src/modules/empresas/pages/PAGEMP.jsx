@@ -779,7 +779,8 @@ export default function PAGEMP() {
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <MgActionBar
+          <div className="mg-subtoolbar-stack">
+            <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
             searchValue={searchTerm}
@@ -817,28 +818,29 @@ export default function PAGEMP() {
             layoutConfigMode={!!formBridge?.layoutConfigOpen && !!formBridge?.layoutToolbar}
             layoutToolbar={formBridge?.layoutToolbar}
             {...actionBarVisibility}
-          />
-
-          <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
-            <MgContextPanel
-              code={recordCode}
-              title={recordTitle}
-              total={empresasNavegacao.length}
-              currentIndex={selectedIndex}
-              onFirst={() => navigateRecord(0)}
-              onPrevious={() => navigateRecord(selectedIndex - 1)}
-              onNext={() => navigateRecord(selectedIndex + 1)}
-              onLast={() => navigateRecord(empresasNavegacao.length - 1)}
-              disabled={saveCycle.isSaving}
             />
-          </div>
 
-          <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
-            <MgCardsPanelStrip
-              fields={cardsVisFields.configFields}
-              onSave={cardsVisFields.saveConfig}
-              onRestoreDefaults={cardsVisFields.getRestoreDefaults}
-            />
+            <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
+              <MgContextPanel
+                code={recordCode}
+                title={recordTitle}
+                total={empresasNavegacao.length}
+                currentIndex={selectedIndex}
+                onFirst={() => navigateRecord(0)}
+                onPrevious={() => navigateRecord(selectedIndex - 1)}
+                onNext={() => navigateRecord(selectedIndex + 1)}
+                onLast={() => navigateRecord(empresasNavegacao.length - 1)}
+                disabled={saveCycle.isSaving}
+              />
+            </div>
+
+            <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
+              <MgCardsPanelStrip
+                fields={cardsVisFields.configFields}
+                onSave={cardsVisFields.saveConfig}
+                onRestoreDefaults={cardsVisFields.getRestoreDefaults}
+              />
+            </div>
           </div>
 
           <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
