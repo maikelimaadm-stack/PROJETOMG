@@ -7,13 +7,14 @@ import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
   loadColumnOrder,
   loadVisibleColumns,
 } from "@/framework/cadastro/tables/empColumnLayout";
+import { mergeEffectiveColumnLayout } from "@/modules/empresas/utils/empTableColumnCatalog";
 import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
@@ -47,11 +48,13 @@ import {
 export default function TBLEMP({
   empresas = [],
   isLoadingEmpresas = false,
+  isFetchingEmpresas = false,
   onEdit,
   showConfigColunas,
   setShowConfigColunas,
   searchTerm = "",
   selectedRecordId,
+  selectedIds,
   onSelectionChange,
   onVisibleDataChange,
   onFilteredEmpresasChange,
@@ -63,6 +66,7 @@ export default function TBLEMP({
   onServerSortChange = null,
   moduleTitle = "Cadastro",
   mgPrototype = false,
+  onColumnsInUseChange,
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codempresa", direction: "asc" });
@@ -173,7 +177,33 @@ export default function TBLEMP({
     });
   }, [camposPersonalizados, layoutAggregationConfig]);
 
-  useEffect(() => { const defaultVisible = colunasDisponiveis.filter((c) => c.default).map((c) => c.id); const allColumnIds = colunasDisponiveis.map((c) => c.id); setColunasVisiveis((p) => Array.from(new Set([...p, ...defaultVisible]))); setColunasOrdem((p) => { const merged = Array.from(new Set([...p, ...allColumnIds])); return merged.sort((a, b) => { const cA = colunasDisponiveis.find((c) => c.id === a); const cB = colunasDisponiveis.find((c) => c.id === b); return (cA?.ordem_tabela || 999) - (cB?.ordem_tabela || 999); }); }); }, [colunasDisponiveis]);
+  useEffect(() => {
+    if (!colunasDisponiveis.length) return;
+    const savedOrdem = loadColumnOrder(ORDER_KEY, colunasDisponiveis);
+    const savedVisiveis = loadVisibleColumns(VISIBLE_KEY, colunasDisponiveis);
+    const { ordem, visiveis } = mergeEffectiveColumnLayout(
+      colunasDisponiveis,
+      savedOrdem,
+      savedVisiveis
+    );
+    setColunasOrdem(ordem);
+    setColunasVisiveis(visiveis);
+    localStorage.setItem(ORDER_KEY, JSON.stringify(ordem));
+    localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis));
+    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+  }, [colunasDisponiveis]);
+
+  const colunasOrdenadas = useMemo(
+    () =>
+      colunasOrdem
+        .map((id) => colunasDisponiveis.find((c) => c.id === id))
+        .filter((c) => c && colunasVisiveis.includes(c.id)),
+    [colunasOrdem, colunasVisiveis, colunasDisponiveis]
+  );
+
+  useEffect(() => {
+    onColumnsInUseChange?.(colunasOrdenadas);
+  }, [colunasOrdenadas, onColumnsInUseChange]);
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
@@ -194,13 +224,27 @@ export default function TBLEMP({
 
   useEffect(() => { selectedItemsRef.current = selectedItems; }, [selectedItems]);
   useEffect(() => { setSelectedItems((p) => { const valid = p.filter((id) => empresas.some((e) => e.id === id)); return p.length === valid.length && p.every((id, i) => id === valid[i]) ? p : valid; }); }, [empresas]);
+  useEffect(() => {
+    if (selectedIds === undefined) return;
+    setSelectedItems((prev) => {
+      const next = Array.isArray(selectedIds) ? selectedIds : [];
+      if (prev.length === next.length && prev.every((id, index) => id === next[index])) return prev;
+      return next;
+    });
+  }, [selectedIds]);
   useEffect(() => { onSelectionChange?.(selectedItems); }, [selectedItems, onSelectionChange]);
-  useEffect(() => { if (!selectedRecordId) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId]);
+  useEffect(() => { if (!selectedRecordId || selectedIds !== undefined) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId, selectedIds]);
 
-  const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nf }) => { setColunasVisiveis(visiveis); setColunasOrdem(ordem); if (nf !== undefined) setFrozenColumnCount(Math.max(0, Math.min(Number(nf) || 0, visiveis.length))); localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis)); localStorage.setItem(ORDER_KEY, JSON.stringify(ordem)); };
+  const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nf }) => {
+    setColunasVisiveis(visiveis);
+    setColunasOrdem(ordem);
+    if (nf !== undefined) setFrozenColumnCount(Math.max(0, Math.min(Number(nf) || 0, visiveis.length)));
+    localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis));
+    localStorage.setItem(ORDER_KEY, JSON.stringify(ordem));
+    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+  };
   const handleResetColumnLayout = () => { const def = colunasDisponiveis.filter((c) => !c.fixo); handleColumnLayoutChange({ visiveis: def.filter((c) => c.default).map((c) => c.id), ordem: def.map((c) => c.id) }); };
 
-  const colunasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && colunasVisiveis.includes(c.id)), [colunasOrdem, colunasVisiveis, colunasDisponiveis]);
   const colunasTodasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && !c.fixo), [colunasOrdem, colunasDisponiveis]);
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
@@ -930,8 +974,14 @@ export default function TBLEMP({
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className={`emp-table-body-scroll min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
+            className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
           >
+            {isFetchingEmpresas ? (
+              <div className="mg-table-loading-overlay" aria-live="polite" aria-busy="true">
+                <Loader2 className="mg-table-loading-overlay__icon animate-spin" aria-hidden="true" />
+                <span className="mg-table-loading-overlay__text">Carregando registros...</span>
+              </div>
+            ) : null}
             <div
               className="block w-max min-w-full min-h-full"
               style={{ width: totalTableWidth, minWidth: totalTableWidth }}
@@ -943,7 +993,7 @@ export default function TBLEMP({
               >
                 <TableBody>
                   {isLoadingEmpresas
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando empresas...</TableCell></TableRow>
+                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando registros...</TableCell></TableRow>
                     : empresasOrdenadas.length === 0
                     ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Nenhuma empresa encontrada</TableCell></TableRow>
                     : empresasPaginadas.map((emp, index) => {
@@ -997,6 +1047,7 @@ export default function TBLEMP({
             pageSize={pageSize}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
+            isBusy={isFetchingEmpresas}
           />
         </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}

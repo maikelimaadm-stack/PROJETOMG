@@ -1,9 +1,52 @@
 import { formatDateValue } from "./tblEmp.constants";
+import { COLUNAS_BASE } from "./tblEmp.constants";
+import campoEngine from "@/framework/cadastro/fields/campoEngine";
 
 /** Compatível com protótipo HTML (`erp_vis_config`). */
 export const EMP_SEARCH_VIS_KEY = "erp_vis_config";
 export const EMP_SEARCH_VIS_KEY_LEGACY = "emp_search_vis_config";
+export const EMP_SEARCH_DROPDOWN_VIS_KEY = "erp_search_dropdown_vis_config";
+export const EMP_SEARCH_DROPDOWN_MAX_FIELDS = 5;
 export const EMP_SEARCH_FAV_KEY = "emp_search_favorites";
+export const EMP_CARDS_LAYOUT_KEY = "erp_cards_layout_config";
+
+export const EMP_CARDS_LAYOUT_DEFAULT = { cardsPerRow: 3 };
+
+export const EMP_CARDS_LAYOUT_OPTIONS = [
+  { value: 1, label: "1 card por linha", hint: "Até 5 campos por linha no card" },
+  { value: 2, label: "2 cards por linha", hint: "Até 2 campos por linha no card" },
+  { value: 3, label: "3 cards por linha", hint: "1 campo por linha no card" },
+];
+
+export const normalizeCardsPerRow = (value) => {
+  const parsed = Number(value);
+  if (parsed === 1 || parsed === 2 || parsed === 3) return parsed;
+  return EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow;
+};
+
+export const getFieldsPerRowForLayout = (cardsPerRow) => {
+  if (cardsPerRow === 1) return 5;
+  if (cardsPerRow === 2) return 2;
+  return 1;
+};
+
+export const loadCardsLayoutConfig = () => {
+  try {
+    const saved = localStorage.getItem(EMP_CARDS_LAYOUT_KEY);
+    if (!saved) return { ...EMP_CARDS_LAYOUT_DEFAULT };
+    const parsed = JSON.parse(saved);
+    return { cardsPerRow: normalizeCardsPerRow(parsed?.cardsPerRow) };
+  } catch {
+    return { ...EMP_CARDS_LAYOUT_DEFAULT };
+  }
+};
+
+export const saveCardsLayoutConfig = (config) => {
+  localStorage.setItem(
+    EMP_CARDS_LAYOUT_KEY,
+    JSON.stringify({ cardsPerRow: normalizeCardsPerRow(config?.cardsPerRow) })
+  );
+};
 
 export const EMP_SEARCH_AVATAR_COLORS = [
   "#EC4899",
@@ -22,6 +65,116 @@ export const EMP_SEARCH_FIELD_ALIASES = {
   cnpj: "cpf_cnpj",
   uf: "estado",
   dataCadastro: "createdAt",
+};
+
+export const EMP_CARD_PRIMARY_KEYS = new Set(["codempresa", "razao_social"]);
+
+const CARD_CATALOG_SKIP = new Set(["id_global", "logo_url"]);
+export const EMP_CARD_BODY_SKIP = new Set(["logo_url"]);
+/** Campos renderizados fora do corpo (ex.: logo no cabeçalho). */
+export const EMP_CARD_DETAIL_SKIP = new Set(["logo_url"]);
+
+/** Catálogo completo de campos do lançamento para cards (base + personalizados). */
+export const buildEmpCardFieldCatalog = (customFields = []) => {
+  const normalizedCustom = customFields
+    .map((campo) => campoEngine.normalize(campo))
+    .filter((campo) => campo?.ativo !== false)
+    .map((campo) => ({
+      key: `custom:${campo.field_name}`,
+      label: campo.label || campo.field_name,
+      visible: false,
+      primary: false,
+      customField: campo.field_name,
+    }));
+
+  const fromColumns = COLUNAS_BASE.filter((col) => !CARD_CATALOG_SKIP.has(col.id)).map((col) => {
+    const existing = EMP_SEARCH_DEFAULT_FIELDS.find((field) => field.key === col.id);
+    return {
+      key: col.id,
+      label: col.label,
+      visible: existing?.visible ?? false,
+      primary: EMP_CARD_PRIMARY_KEYS.has(col.id),
+    };
+  });
+
+  const merged = new Map();
+  [...fromColumns, ...normalizedCustom].forEach((field) => {
+    if (!merged.has(field.key)) merged.set(field.key, field);
+  });
+
+  EMP_SEARCH_DEFAULT_FIELDS.forEach((field) => {
+    if (!merged.has(field.key)) {
+      merged.set(field.key, {
+        ...field,
+        primary: EMP_CARD_PRIMARY_KEYS.has(field.key),
+      });
+    }
+  });
+
+  return [...merged.values()];
+};
+
+/** Visibilidade padrão dos campos nos cards (catálogo completo). */
+export const getDefaultCardVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
+  const defaultsMap = new Map(EMP_SEARCH_DEFAULT_FIELDS.map((field) => [field.key, field.visible]));
+  return catalog.map((field) => ({
+    ...field,
+    visible: field.primary ? true : defaultsMap.get(field.key) ?? field.visible ?? false,
+  }));
+};
+
+/** Catálogo de cards a partir das colunas em uso na tabela (sem código/nome fixos). */
+export const buildCardCatalogFromColumnsInUse = (columnsInUse = []) => {
+  return columnsInUse
+    .filter(
+      (col) =>
+        !EMP_CARD_BODY_SKIP.has(col.id) && !EMP_CARD_PRIMARY_KEYS.has(col.id)
+    )
+    .map((col) => {
+      const existing = EMP_SEARCH_DEFAULT_FIELDS.find((field) => field.key === col.id);
+      return {
+        key: col.id,
+        label: col.label,
+        visible: existing?.visible ?? col.default ?? false,
+        primary: EMP_CARD_PRIMARY_KEYS.has(col.id),
+        customField: col.customField,
+      };
+    });
+};
+
+export const sortCardConfigFieldsAlphabetically = (fields = []) =>
+  [...fields].sort((a, b) =>
+    String(a.label || "").localeCompare(String(b.label || ""), "pt-BR", { sensitivity: "base" })
+  );
+
+/** Campos visíveis no corpo do card, na ordem das colunas em uso. */
+export const buildCardDetailFieldsFromColumns = (columnsInUse = [], visFields = []) => {
+  const visibleMap = new Map(
+    visFields.filter((field) => field.visible && !field.primary).map((field) => [field.key, field])
+  );
+
+  return columnsInUse
+    .filter(
+      (col) =>
+        !EMP_CARD_PRIMARY_KEYS.has(col.id) &&
+        !EMP_CARD_BODY_SKIP.has(col.id) &&
+        !EMP_CARD_DETAIL_SKIP.has(col.id)
+    )
+    .map((col) => visibleMap.get(col.id))
+    .filter(Boolean);
+};
+
+export const mergeSearchVisFields = (catalog = [], saved = []) => {
+  const savedMap = new Map(saved.map((field) => [field.key, field]));
+  return catalog.map((field) => {
+    const persisted = savedMap.get(field.key);
+    if (!persisted) return { ...field };
+    return {
+      ...field,
+      visible: persisted.visible,
+      primary: field.primary,
+    };
+  });
 };
 
 export const EMP_SEARCH_DEFAULT_FIELDS = [
@@ -47,20 +200,57 @@ const normalizeVisConfig = (raw = {}) => {
   return normalized;
 };
 
-export const loadSearchVisFields = () => {
+export const countSearchDropdownVisibleFields = (fields = []) =>
+  fields.filter((field) => field.visible && !field.primary).length;
+
+export const buildSearchDropdownDetailFields = (catalog = [], visFields = []) => {
+  const merged = mergeSearchVisFields(catalog, visFields);
+  return merged.filter(
+    (field) =>
+      field.visible &&
+      !field.primary &&
+      !EMP_CARD_PRIMARY_KEYS.has(field.key) &&
+      !EMP_CARD_DETAIL_SKIP.has(field.key)
+  );
+};
+
+export const loadSearchDropdownVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
+  try {
+    const saved = localStorage.getItem(EMP_SEARCH_DROPDOWN_VIS_KEY);
+    if (!saved) return catalog.map((field) => ({ ...field }));
+    const config = normalizeVisConfig(JSON.parse(saved));
+    return catalog.map((field) => ({
+      ...field,
+      visible: config[field.key] !== undefined ? Boolean(config[field.key]) : field.visible,
+    }));
+  } catch {
+    return catalog.map((field) => ({ ...field }));
+  }
+};
+
+export const saveSearchDropdownVisFields = (fields) => {
+  const obj = {};
+  fields.forEach((field) => {
+    const storageKey = REVERSE_FIELD_ALIASES[field.key] || field.key;
+    obj[storageKey] = field.visible;
+  });
+  localStorage.setItem(EMP_SEARCH_DROPDOWN_VIS_KEY, JSON.stringify(obj));
+};
+
+export const loadSearchVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
   try {
     let saved = localStorage.getItem(EMP_SEARCH_VIS_KEY);
     if (!saved) {
       saved = localStorage.getItem(EMP_SEARCH_VIS_KEY_LEGACY);
     }
-    if (!saved) return EMP_SEARCH_DEFAULT_FIELDS.map((field) => ({ ...field }));
+    if (!saved) return catalog.map((field) => ({ ...field }));
     const config = normalizeVisConfig(JSON.parse(saved));
-    return EMP_SEARCH_DEFAULT_FIELDS.map((field) => ({
+    return catalog.map((field) => ({
       ...field,
       visible: config[field.key] !== undefined ? Boolean(config[field.key]) : field.visible,
     }));
   } catch {
-    return EMP_SEARCH_DEFAULT_FIELDS.map((field) => ({ ...field }));
+    return catalog.map((field) => ({ ...field }));
   }
 };
 
@@ -82,14 +272,17 @@ export const loadSearchFavorites = () => {
     const saved = localStorage.getItem(EMP_SEARCH_FAV_KEY);
     if (!saved) return new Set();
     const ids = JSON.parse(saved);
-    return new Set(Array.isArray(ids) ? ids : []);
+    return new Set(Array.isArray(ids) ? ids.map((id) => String(id)) : []);
   } catch {
     return new Set();
   }
 };
 
 export const saveSearchFavorites = (favorites) => {
-  localStorage.setItem(EMP_SEARCH_FAV_KEY, JSON.stringify([...favorites]));
+  localStorage.setItem(
+    EMP_SEARCH_FAV_KEY,
+    JSON.stringify([...favorites].map((id) => String(id)))
+  );
 };
 
 export const formatEmpSearchCode = (codempresa) => {
@@ -102,22 +295,51 @@ export const getEmpSearchFieldValue = (emp, key) => {
   if (!emp) return "—";
   if (key === "codempresa") return formatEmpSearchCode(emp.codempresa);
   if (key === "createdAt") return formatDateValue(emp.createdAt);
+  if (key === "tipo_vinculo") {
+    if (emp.tipo_vinculo === "proprietario") return "PROPRIETÁRIO";
+    if (emp.tipo_vinculo === "arrendatario") return "ARRENDATÁRIO";
+    return "—";
+  }
+  if (key.startsWith("custom:")) {
+    const fieldName = key.replace("custom:", "");
+    const col = { id: key, field_name: fieldName, customField: fieldName };
+    const value = campoEngine.getValorCampo(emp, col, {});
+    if (value === undefined || value === null || value === "") return "—";
+    return String(value);
+  }
   const value = emp[key];
   if (value === undefined || value === null || value === "") return "—";
   return String(value);
 };
 
-export const getEmpSearchInitials = (emp) =>
-  String(emp?.razao_social || "EMP")
+export const getEmpSearchInitials = (emp) => {
+  const source = String(emp?.razao_social || emp?.nome_fantasia || "")
     .trim()
-    .substring(0, 3)
-    .toUpperCase() || "EMP";
+    .replace(/[^a-zA-ZÀ-ÿ0-9\s]/g, "");
+  const compact = source.replace(/\s+/g, "").toUpperCase();
+  if (compact.length >= 3) return compact.substring(0, 3);
+  if (compact.length > 0) return compact.padEnd(3, compact.charAt(compact.length - 1));
+  return "EMP";
+};
 
-/** Mesma lógica do protótipo: `colors[id % colors.length]`. */
+const normalizeAlphabetIndex = (letter) => {
+  const normalized = letter
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toUpperCase();
+  const code = normalized.charCodeAt(0) - 65;
+  if (code >= 0 && code <= 25) return code;
+  return null;
+};
+
+/** Cor do avatar variando pela primeira letra do nome (A–Z). */
 export const getEmpSearchAvatarColor = (emp, index = 0) => {
-  const numericSeed = Number(emp?.codempresa);
-  if (Number.isFinite(numericSeed) && numericSeed > 0) {
-    return EMP_SEARCH_AVATAR_COLORS[numericSeed % EMP_SEARCH_AVATAR_COLORS.length];
+  const name = String(emp?.razao_social || emp?.nome_fantasia || "").trim();
+  const letter = name.match(/[a-zA-ZÀ-ÿ]/)?.[0] || "A";
+  const alphabetIndex = normalizeAlphabetIndex(letter);
+  if (alphabetIndex !== null) {
+    const hue = Math.round((alphabetIndex * 360) / 26);
+    return `hsl(${hue}, 62%, 44%)`;
   }
   return EMP_SEARCH_AVATAR_COLORS[index % EMP_SEARCH_AVATAR_COLORS.length];
 };

@@ -1,17 +1,20 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
   Download,
   Filter,
   History,
-  MoreVertical,
+  Loader2,
   Paperclip,
   Printer,
   RotateCcw,
   Search,
   Settings,
+  X,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
+import MgSpeedDialMenu from "@/modules/empresas/layout/MgSpeedDialMenu";
+import MgSearchResultsDropdown from "@/modules/empresas/layout/MgSearchResultsDropdown";
 
 function ActionLabelBtn({ className = "", children, ...props }) {
   return (
@@ -36,8 +39,22 @@ function ActionSlot({ show, width = 88, children }) {
 export default function MgActionBar({
   viewMode = "tabela",
   onViewModeChange,
-  searchValue = "",
-  onSearchChange,
+  searchInputValue = "",
+  onSearchInputChange,
+  searchResults = [],
+  searchResultsTotal = 0,
+  searchHasFavoritesInResults = false,
+  searchDetailFields = [],
+  searchLoading = false,
+  searchHasFilter = false,
+  onSearchClear,
+  searchDropdownConfigFields = [],
+  onSearchDropdownConfigSave,
+  onSearchDropdownConfigRestore,
+  onSearchResultSelect,
+  onSearchApplyAll,
+  onSearchApplyFavorites,
+  isFavoriteRecord,
   onToggleFilter,
   onNew,
   onSave,
@@ -58,11 +75,42 @@ export default function MgActionBar({
   showDuplicate = false,
   showNew = true,
   actionsLocked = false,
+  secondaryToolsLocked = false,
   layoutConfigMode = false,
   layoutToolbar = null,
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const moreRef = useRef(null);
+  const searchRef = useRef(null);
+  const toolsLocked = actionsLocked || secondaryToolsLocked;
+  const lockedClass = secondaryToolsLocked ? " mg-action-bar__zone--locked" : "";
+
+  useEffect(() => {
+    if (secondaryToolsLocked) {
+      setMoreOpen(false);
+      setSearchOpen(false);
+    }
+  }, [secondaryToolsLocked]);
+
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+    const close = (event) => {
+      if (event.target.closest?.(".mg-config-backdrop")) return;
+      if (!searchRef.current?.contains(event.target)) setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setSearchOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [searchOpen]);
 
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -73,13 +121,97 @@ export default function MgActionBar({
     return () => document.removeEventListener("click", close);
   }, [moreOpen]);
 
+  const speedDialItems = useMemo(() => {
+    const items = [];
+
+    if (onDuplicate && !showDuplicate) {
+      items.push({
+        id: "duplicate",
+        label: "Duplicar",
+        icon: Copy,
+        onClick: onDuplicate,
+      });
+    }
+
+    items.push({
+      id: "print",
+      label: "Imprimir",
+      icon: Printer,
+      onClick: () => {},
+    });
+
+    if (onExportExcel) {
+      items.push({
+        id: "export",
+        label: "Exportar",
+        icon: Download,
+        onClick: onExportExcel,
+      });
+    }
+
+    items.push({
+      id: "history",
+      label: "Histórico",
+      icon: History,
+      onClick: () => {},
+    });
+
+    if (onAttach) {
+      items.push({
+        id: "attach",
+        label: "Anexos",
+        icon: Paperclip,
+        onClick: onAttach,
+        disabled: attachDisabled,
+      });
+    }
+
+    if (onConfigColumns) {
+      items.push({
+        id: "config",
+        label: "Configurações",
+        icon: Settings,
+        onClick: onConfigColumns,
+      });
+    }
+
+    if (onLayoutConfig) {
+      items.push({
+        id: "layout",
+        label: "Layout do formulário",
+        icon: Settings,
+        onClick: onLayoutConfig,
+      });
+    }
+
+    if (onExportPdf) {
+      items.push({
+        id: "export-pdf",
+        label: "Exportar PDF",
+        icon: Download,
+        onClick: onExportPdf,
+      });
+    }
+
+    return items;
+  }, [
+    attachDisabled,
+    onAttach,
+    onConfigColumns,
+    onDuplicate,
+    onExportExcel,
+    onExportPdf,
+    onLayoutConfig,
+    showDuplicate,
+  ]);
+
   if (layoutConfigMode && layoutToolbar) {
     const { isEditing, onBack, onEdit, onSave, onCancel, onRestore } = layoutToolbar;
 
     return (
       <div
         data-template-id="action-bar"
-        className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 px-5 md:flex"
+        className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
         style={{
           background: "var(--bg-card)",
         }}
@@ -126,23 +258,26 @@ export default function MgActionBar({
   return (
     <div
       data-template-id="action-bar"
-      className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 px-5 md:flex"
+      className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
       style={{
         background: "var(--bg-card)",
       }}
     >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
         <ActionSlot show={!!onToggleFilter} width={28}>
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
-            onClick={onToggleFilter}
-            disabled={actionsLocked}
-            title="Filtrar"
-            aria-label="Filtrar"
-          >
-            <Filter className="h-3.5 w-3.5" />
-          </button>
+          <div className={`mg-action-bar__filter-slot${lockedClass}`}>
+            <button
+              type="button"
+              className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
+              onClick={onToggleFilter}
+              disabled={toolsLocked}
+              title="Filtrar"
+              aria-label="Filtrar"
+              aria-disabled={toolsLocked}
+            >
+              <Filter className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </ActionSlot>
 
         <ActionSlot show={showNew && !!onNew} width={64}>
@@ -212,79 +347,89 @@ export default function MgActionBar({
         </ActionSlot>
       </div>
 
-      <div className="mg-action-bar__end">
-        <div className={`mg-action-bar__tools${showSave ? "" : " mg-action-bar__tools--visible"}`}>
-          <div className="mg-search-pill" role="search">
-            <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
-            <input
-              type="text"
-              placeholder="Pesquisar..."
-              value={searchValue}
-              onChange={(event) => onSearchChange?.(event.target.value)}
-              aria-label="Pesquisar"
-              tabIndex={showSave ? -1 : 0}
+      <div className={`mg-action-bar__end${lockedClass}`}>
+        <div className="mg-action-bar__tools mg-action-bar__tools--visible">
+          <div className="mg-search-pill-wrap" ref={searchRef}>
+            <div className="mg-search-pill" role="search">
+              {searchLoading ? (
+                <Loader2
+                  className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : searchHasFilter ? (
+                <button
+                  type="button"
+                  className="mg-search-pill-clear"
+                  aria-label="Limpar pesquisa"
+                  disabled={toolsLocked}
+                  onClick={() => {
+                    onSearchClear?.();
+                    setSearchOpen(false);
+                  }}
+                >
+                  <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                </button>
+              ) : (
+                <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              )}
+              <input
+                type="text"
+                placeholder="Pesquisar..."
+                value={searchInputValue}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  onSearchInputChange?.(next);
+                  if (!toolsLocked) setSearchOpen(true);
+                }}
+                onFocus={() => {
+                  if (!toolsLocked) setSearchOpen(true);
+                }}
+                onClick={() => {
+                  if (!toolsLocked) setSearchOpen(true);
+                }}
+                aria-label="Pesquisar"
+                aria-expanded={searchOpen}
+                aria-haspopup="listbox"
+                disabled={toolsLocked}
+                tabIndex={toolsLocked ? -1 : 0}
+              />
+            </div>
+            <MgSearchResultsDropdown
+              open={searchOpen && !toolsLocked}
+              items={searchResults}
+              searchResultsTotal={searchResultsTotal}
+              searchHasFavoritesInResults={searchHasFavoritesInResults}
+              detailFields={searchDetailFields}
+              loading={searchLoading}
+              searchQuery={searchInputValue}
+              configFields={searchDropdownConfigFields}
+              onConfigSave={onSearchDropdownConfigSave}
+              onConfigRestoreDefaults={onSearchDropdownConfigRestore}
+              onSelect={(emp) => {
+                onSearchResultSelect?.(emp);
+                setSearchOpen(false);
+              }}
+              onApplyAll={() => {
+                onSearchApplyAll?.();
+                setSearchOpen(false);
+              }}
+              onApplyFavorites={() => {
+                onSearchApplyFavorites?.();
+                setSearchOpen(false);
+              }}
+              isFavoriteRecord={isFavoriteRecord}
             />
           </div>
-          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked || showSave} />
+          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={toolsLocked} />
         </div>
 
         <div className="relative" ref={moreRef}>
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-ghost tb-btn-more tb-btn-icon mg-accent-icon-btn"
-            id="more-btn"
-            aria-expanded={moreOpen}
-            aria-haspopup="menu"
-            onClick={() => setMoreOpen((open) => !open)}
-          >
-            <MoreVertical className="h-4 w-4" stroke="var(--mg-brand-green)" />
-          </button>
-          <div id="more-dd" className={`dropdown-menu${moreOpen ? " open" : ""}`}>
-            {onDuplicate && !showDuplicate ? (
-              <button type="button" onClick={() => { onDuplicate(); setMoreOpen(false); }}>
-                <Copy className="h-4 w-4" />
-                Duplicar
-              </button>
-            ) : null}
-            <button type="button" onClick={() => setMoreOpen(false)}>
-              <Printer className="h-4 w-4" />
-              Imprimir
-            </button>
-            {onExportExcel ? (
-              <button type="button" onClick={() => { onExportExcel(); setMoreOpen(false); }}>
-                <Download className="h-4 w-4" />
-                Exportar
-              </button>
-            ) : null}
-            <button type="button" onClick={() => setMoreOpen(false)}>
-              <History className="h-4 w-4" />
-              Histórico
-            </button>
-            {onAttach ? (
-              <button type="button" disabled={attachDisabled} onClick={() => { onAttach(); setMoreOpen(false); }}>
-                <Paperclip className="h-4 w-4" />
-                Anexos
-              </button>
-            ) : null}
-            {onConfigColumns ? (
-              <button type="button" onClick={() => { onConfigColumns(); setMoreOpen(false); }}>
-                <Settings className="h-4 w-4" />
-                Configurações
-              </button>
-            ) : null}
-            {onLayoutConfig ? (
-              <button type="button" onClick={() => { onLayoutConfig(); setMoreOpen(false); }}>
-                <Settings className="h-4 w-4" />
-                Layout do formulário
-              </button>
-            ) : null}
-            {onExportPdf ? (
-              <button type="button" onClick={() => { onExportPdf(); setMoreOpen(false); }}>
-                <Download className="h-4 w-4" />
-                Exportar PDF
-              </button>
-            ) : null}
-          </div>
+          <MgSpeedDialMenu
+            open={moreOpen}
+            onOpenChange={setMoreOpen}
+            disabled={toolsLocked}
+            items={speedDialItems}
+          />
         </div>
       </div>
     </div>

@@ -287,7 +287,23 @@ input[type="number"] {
   .emp-form-tab-inactive,
   .emp-form-toggle-switch,
   .rounded-full,
-  .rounded-none
+  .rounded-none,
+  .tb-btn,
+  .tb-btn-icon,
+  .tb-btn-labeled,
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-gray,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .view-mode-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .filter-panel__close,
+  .ios-btn
 ) {
   border-radius: var(--emp-button-radius, 5px) !important;
 }
@@ -2448,7 +2464,7 @@ input[type="number"] {
   max-height: 220px;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action {
+.cadastro-emp-scope:not(.mg-empresas-scope) .emp-layout-configurator .emp-layout-config-field-action {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2462,9 +2478,9 @@ input[type="number"] {
   padding: 0;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action svg,
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-status-icons svg,
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-status-icons span {
+.cadastro-emp-scope:not(.mg-empresas-scope) .emp-layout-configurator .emp-layout-config-field-action svg,
+.cadastro-emp-scope:not(.mg-empresas-scope) .emp-layout-configurator .emp-layout-config-field-status-icons svg,
+.cadastro-emp-scope:not(.mg-empresas-scope) .emp-layout-configurator .emp-layout-config-field-status-icons span {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }
@@ -2478,12 +2494,12 @@ input[type="number"] {
   --emp-on-accent-fg: #ffffff;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
+.cadastro-emp-scope:not(.mg-empresas-scope) .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.18);
   color: #ffffff !important;
 }
 
-.cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-action:disabled {
+.cadastro-emp-scope:not(.mg-empresas-scope) .emp-layout-configurator .emp-layout-config-field-action:disabled {
   opacity: 0.35;
   cursor: default;
 }

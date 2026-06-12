@@ -18,12 +18,19 @@ import {
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
+import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
+import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
+import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
+import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
+import {
+  normalizeSearchQuery,
+} from "@/modules/empresas/utils/empSearchContains";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -36,6 +43,8 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   pageSize: 50,
   totalPages: 1,
 };
+
+const DROPDOWN_PREVIEW_SIZE = 10;
 
 const moduleRepository = empresasModuleDefinition.repository;
 const moduleLabels = {
@@ -74,7 +83,13 @@ export default function PAGEMP() {
   const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [pinnedRecord, setPinnedRecord] = useState(null);
+  const [searchFavoritesOnly, setSearchFavoritesOnly] = useState(false);
+  const [searchViewPending, setSearchViewPending] = useState(false);
+  const searchViewApplyRef = useRef(null);
+  const [dropdownSearch, setDropdownSearch] = useState("");
   const [selectedTableItems, setSelectedTableItems] = useState([]);
   const [formVersion, setFormVersion] = useState(0);
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
@@ -84,6 +99,18 @@ export default function PAGEMP() {
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
+  const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
+  const searchDropdownFields = useEmpSearchDropdownFields();
+  const empFavorites = useEmpFavorites();
+  const favoriteIds = useMemo(
+    () => [...empFavorites.favorites],
+    [empFavorites.favorites]
+  );
+  const favoriteIdsKey = useMemo(
+    () => favoriteIds.slice().sort().join(","),
+    [favoriteIds]
+  );
   const {
     filterPanelOpen,
     closeFilterPanel,
@@ -109,28 +136,138 @@ export default function PAGEMP() {
     setSelectedIndex(0);
     setQueryPage(1);
     setTableFilteredEmpresas(null);
+    setSearchDraft("");
+    setSearchTerm("");
+    setPinnedRecord(null);
+    setSearchFavoritesOnly(false);
+    setDropdownSearch("");
   }, [selectedEmpresaId]);
 
-  const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
-    queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDropdownSearch(normalizeSearchQuery(searchDraft));
+    }, 200);
+    return () => window.clearTimeout(timer);
+  }, [searchDraft]);
+
+  const searchDraftNormalized = normalizeSearchQuery(searchDraft);
+  const dropdownSearchPending = searchDraftNormalized !== dropdownSearch;
+
+  const { data: dropdownResponse, isFetching: dropdownSourceFetching } = useQuery({
+    queryKey: ["emp-cadastro-dropdown", dropdownSearch, querySort.key, querySort.direction],
     queryFn: () =>
       moduleRepository.listPage({
-        page: queryPage,
-        pageSize: queryPageSize,
-        search: searchTerm,
+        page: 1,
+        pageSize: DROPDOWN_PREVIEW_SIZE,
+        search: dropdownSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
       }),
+    enabled: dropdownSearch.length > 0,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+  });
+
+  const { data: dropdownFavoritesProbe } = useQuery({
+    queryKey: ["emp-cadastro-dropdown-fav", dropdownSearch, favoriteIdsKey, querySort.key, querySort.direction],
+    queryFn: () =>
+      moduleRepository.listPage({
+        page: 1,
+        pageSize: 1,
+        search: dropdownSearch,
+        sortBy: querySort.key,
+        sortDir: querySort.direction,
+        filters: { ids: favoriteIds },
+      }),
+    enabled: dropdownSearch.length > 0 && favoriteIds.length > 0,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
+  });
+
+  const dropdownSearchResults = dropdownSearchPending ? [] : dropdownResponse?.items || [];
+  const dropdownSearchResultsTotal = dropdownSearchPending ? 0 : dropdownResponse?.total || 0;
+  const dropdownSearchHasFavorites = (dropdownFavoritesProbe?.total ?? 0) > 0;
+
+  const dropdownSearchLoading =
+    dropdownSearchPending ||
+    (dropdownSearch.length > 0 && dropdownSourceFetching && dropdownSearchResults.length === 0);
+
+  const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
+    queryKey: [
+      "emp-cadastro",
+      queryPage,
+      queryPageSize,
+      searchTerm,
+      querySort.key,
+      querySort.direction,
+      searchFavoritesOnly,
+      favoriteIdsKey,
+    ],
+    queryFn: async () => {
+      const trimmedSearch = normalizeSearchQuery(searchTerm);
+
+      if (searchFavoritesOnly && favoriteIds.length === 0) {
+        return {
+          ...DEFAULT_EMPRESAS_RESPONSE,
+          pageSize: queryPageSize,
+        };
+      }
+
+      return moduleRepository.listPage({
+        page: queryPage,
+        pageSize: queryPageSize,
+        search: trimmedSearch,
+        sortBy: querySort.key,
+        sortDir: querySort.direction,
+        filters: searchFavoritesOnly ? { ids: favoriteIds } : undefined,
+      });
+    },
     placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
-    staleTime: 60_000,
+    staleTime: 30_000,
     gcTime: 5 * 60_000,
   });
 
   const empresas = empresasResponse.items || [];
-  const totalEmpresas = empresasResponse.total || 0;
+  const totalEmpresas = pinnedRecord ? 1 : empresasResponse.total || 0;
 
   const empresasLoading = isLoading && empresas.length === 0;
-  const empresasFiltradasPainel = empresas;
+  const empresasFetching = isFetching && !empresasLoading;
+  const empresasFiltradasPainel = useMemo(() => {
+    if (pinnedRecord) return [pinnedRecord];
+    return empresas;
+  }, [empresas, pinnedRecord]);
+
+  useEffect(() => {
+    if (!searchViewPending) return undefined;
+
+    const mode = searchViewApplyRef.current;
+
+    if (mode === "single") {
+      if (!pinnedRecord) return undefined;
+      let innerId = 0;
+      const outerId = requestAnimationFrame(() => {
+        innerId = requestAnimationFrame(() => {
+          setSearchViewPending(false);
+          searchViewApplyRef.current = null;
+        });
+      });
+      return () => {
+        cancelAnimationFrame(outerId);
+        if (innerId) cancelAnimationFrame(innerId);
+      };
+    }
+
+    if (mode === "all") {
+      if (isLoading || isFetching) return undefined;
+      const timer = window.setTimeout(() => {
+        setSearchViewPending(false);
+        searchViewApplyRef.current = null;
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [searchViewPending, pinnedRecord, isLoading, isFetching, empresasFiltradasPainel]);
 
   const handleFilteredEmpresasChange = useCallback((filtered) => {
     setTableFilteredEmpresas(filtered);
@@ -345,6 +482,7 @@ export default function PAGEMP() {
 
   const handleEdit = (emp) => {
     if (!saveCycle.guardAction()) return;
+    closeFilterPanel();
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([emp.id]);
@@ -355,6 +493,7 @@ export default function PAGEMP() {
 
   const handleNew = () => {
     if (!saveCycle.guardAction()) return;
+    closeFilterPanel();
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
     setSelectedTableItems([]);
     const alreadyNew = showForm && !editingEmp?.id && !editingEmp?._isDuplicate;
@@ -368,6 +507,7 @@ export default function PAGEMP() {
 
   const handleDuplicate = (emp) => {
     if (!saveCycle.guardAction()) return;
+    closeFilterPanel();
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
     const { id, created_date, updated_date, created_by, codempresa, id_global, _isPersisting, ...dup } = emp;
     setEditingEmp({ ...dup, _isDuplicate: true });
@@ -382,15 +522,85 @@ export default function PAGEMP() {
     setDeleteState({ open: true, ids: normalized });
   };
 
-  const handleSearchChange = useCallback((value) => {
-    setSearchTerm(value);
-    setQueryPage(1);
+  const handleSearchInputChange = useCallback((value) => {
+    setSearchDraft(value);
+    if (!String(value || "").trim()) {
+      setPinnedRecord(null);
+    }
   }, []);
+
+  const handleSearchClear = useCallback(() => {
+    setSearchDraft("");
+    setSearchTerm("");
+    setPinnedRecord(null);
+    setSearchFavoritesOnly(false);
+    setDropdownSearch("");
+    setSearchViewPending(false);
+    searchViewApplyRef.current = null;
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
+  }, []);
+
+  const handleSearchCommit = useCallback((value) => {
+    const next = String(value || "").trim();
+    setPinnedRecord(null);
+    setSearchTerm(next);
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
+  }, []);
+
+  const handleSearchApplyAll = useCallback(() => {
+    const next = normalizeSearchQuery(searchDraft);
+    searchViewApplyRef.current = "all";
+    setSearchViewPending(true);
+    setSearchFavoritesOnly(false);
+    setPinnedRecord(null);
+    setSearchTerm(next);
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
+    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+  }, [searchDraft, queryClient]);
+
+  const handleSearchApplyFavorites = useCallback(() => {
+    searchViewApplyRef.current = "all";
+    setSearchViewPending(true);
+    setSearchFavoritesOnly(true);
+    setPinnedRecord(null);
+    setSearchTerm(normalizeSearchQuery(searchDraft));
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
+    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+  }, [searchDraft, queryClient]);
+
+  const handleSearchResultSelect = useCallback(
+    (emp) => {
+      if (!emp) return;
+      searchViewApplyRef.current = "single";
+      setSearchViewPending(true);
+      setSearchFavoritesOnly(false);
+      setPinnedRecord(emp);
+      setSearchTerm(normalizeSearchQuery(searchDraft));
+      setQueryPage(1);
+      setTableFilteredEmpresas(null);
+      setSelectedTableItems([]);
+      setSelectedIndex(0);
+      if (showForm && viewMode === "record") {
+        setEditingEmp(emp);
+      }
+    },
+    [searchDraft, showForm, viewMode]
+  );
 
   const handleFilterChange = useCallback((key, value) => {
     setFilterValues((prev) => ({ ...prev, [key]: value }));
     if (key === "razao_social" || key === "nome_fantasia" || key === "cnpj") {
+      setSearchDraft(value);
       setSearchTerm(value);
+      setPinnedRecord(null);
       setQueryPage(1);
     }
   }, []);
@@ -398,7 +608,11 @@ export default function PAGEMP() {
   const handleFilterClear = useCallback(() => {
     setFilterValues({});
     setFilterStatus("Todos");
+    setSearchDraft("");
     setSearchTerm("");
+    setPinnedRecord(null);
+    setSearchFavoritesOnly(false);
+    setDropdownSearch("");
     setQueryPage(1);
   }, []);
 
@@ -407,6 +621,10 @@ export default function PAGEMP() {
   }, [closeFilterPanel]);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
+  const searchHasFilter = Boolean(
+    searchDraft.trim() || searchTerm.trim() || pinnedRecord || searchFavoritesOnly
+  );
+  const searchIconLoading = dropdownSearchLoading || searchViewPending;
 
   const actionBarVisibility = useMemo(
     () =>
@@ -418,6 +636,12 @@ export default function PAGEMP() {
       }),
     [showForm, formBridge, selectedTableItems.length, editingEmp?.id]
   );
+
+  useEffect(() => {
+    if (actionBarVisibility.secondaryToolsLocked) {
+      closeFilterPanel();
+    }
+  }, [actionBarVisibility.secondaryToolsLocked, closeFilterPanel]);
 
   useEffect(() => {
     if (!showForm) setFormBridge(null);
@@ -433,10 +657,13 @@ export default function PAGEMP() {
   }, [showForm, formBridge?.layoutConfigOpen, setBreadcrumbSuffix]);
 
   const handleOpenTableView = useCallback(() => {
-    setShowForm(false);
-    setEditingEmp(null);
+    if (showForm) {
+      setShowForm(false);
+      setEditingEmp(null);
+      setSelectedTableItems([]);
+    }
     setViewMode("table");
-  }, []);
+  }, [showForm]);
 
   const handleMgViewModeChange = useCallback(
     (mode) => {
@@ -455,14 +682,19 @@ export default function PAGEMP() {
         },
         onOpenCards: () => {
           if (!saveCycle.guardAction()) return;
-          setShowForm(false);
-          setEditingEmp(null);
+          if (showForm) {
+            setShowForm(false);
+            setEditingEmp(null);
+            setSelectedTableItems([]);
+          }
           setViewMode("search");
         },
       });
     },
     [
       empresasNavegacao,
+      handleEdit,
+      handleNew,
       handleOpenTableView,
       saveCycle,
       selectedIndex,
@@ -725,6 +957,7 @@ export default function PAGEMP() {
     setShowForm(false);
     setEditingEmp(null);
     setViewMode("table");
+    setSelectedTableItems([]);
     setReturnRecordAfterNew(null);
   };
 
@@ -765,11 +998,26 @@ export default function PAGEMP() {
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-          <MgActionBar
+          <div className="mg-subtoolbar-stack">
+            <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
-            searchValue={searchTerm}
-            onSearchChange={handleSearchChange}
+            searchInputValue={searchDraft}
+            onSearchInputChange={handleSearchInputChange}
+            searchResults={dropdownSearchResults}
+            searchResultsTotal={dropdownSearchResultsTotal}
+            searchHasFavoritesInResults={dropdownSearchHasFavorites}
+            searchDetailFields={searchDropdownFields.detailFields}
+            searchLoading={searchIconLoading}
+            searchHasFilter={searchHasFilter}
+            onSearchClear={handleSearchClear}
+            searchDropdownConfigFields={searchDropdownFields.configFields}
+            onSearchDropdownConfigSave={searchDropdownFields.saveConfig}
+            onSearchDropdownConfigRestore={searchDropdownFields.getRestoreDefaults}
+            onSearchResultSelect={handleSearchResultSelect}
+            onSearchApplyAll={handleSearchApplyAll}
+            onSearchApplyFavorites={handleSearchApplyFavorites}
+            isFavoriteRecord={empFavorites.isFavorite}
             onToggleFilter={toggleFilterPanel}
             onNew={handleNew}
             onSave={formBridge?.onSave}
@@ -800,23 +1048,42 @@ export default function PAGEMP() {
             onConfigColumns={() => setShowConfigColunas(true)}
             onLayoutConfig={formBridge?.onLayoutConfig}
             actionsLocked={saveCycle.isSaving}
+            secondaryToolsLocked={actionBarVisibility.secondaryToolsLocked}
             layoutConfigMode={!!formBridge?.layoutConfigOpen && !!formBridge?.layoutToolbar}
             layoutToolbar={formBridge?.layoutToolbar}
             {...actionBarVisibility}
-          />
-
-          <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
-            <MgContextPanel
-              code={recordCode}
-              title={recordTitle}
-              total={empresasNavegacao.length}
-              currentIndex={selectedIndex}
-              onFirst={() => navigateRecord(0)}
-              onPrevious={() => navigateRecord(selectedIndex - 1)}
-              onNext={() => navigateRecord(selectedIndex + 1)}
-              onLast={() => navigateRecord(empresasNavegacao.length - 1)}
-              disabled={saveCycle.isSaving}
             />
+
+            <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
+              <MgContextPanel
+                code={recordCode}
+                title={recordTitle}
+                total={empresasNavegacao.length}
+                currentIndex={selectedIndex}
+                onFirst={() => navigateRecord(0)}
+                onPrevious={() => navigateRecord(selectedIndex - 1)}
+                onNext={() => navigateRecord(selectedIndex + 1)}
+                onLast={() => navigateRecord(empresasNavegacao.length - 1)}
+                disabled={saveCycle.isSaving}
+                interactionLocked={actionBarVisibility.secondaryToolsLocked}
+                recordId={editingEmp?.id ?? null}
+                isFavorite={editingEmp?.id ? empFavorites.isFavorite(editingEmp.id) : false}
+                onToggleFavorite={() => {
+                  if (editingEmp?.id) empFavorites.toggleFavorite(editingEmp.id);
+                }}
+              />
+            </div>
+
+            <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
+              <MgCardsPanelStrip
+                fields={cardsVisFields.configFields}
+                onSave={cardsVisFields.saveConfig}
+                onRestoreDefaults={cardsVisFields.getRestoreDefaults}
+                layout={cardsVisFields.layoutConfig}
+                onSaveLayout={cardsVisFields.saveLayoutConfig}
+                onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
+              />
+            </div>
           </div>
 
           <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -856,9 +1123,10 @@ export default function PAGEMP() {
                   searchProps={{
                     empresas: empresasFiltradasPainel,
                     total: totalEmpresas,
-                    isLoading: empresasLoading || isFetching,
+                    isLoading: empresasLoading,
+                    isFetching: empresasFetching,
                     searchValue: searchTerm,
-                    onSearchChange: handleSearchChange,
+                    onSearchChange: handleSearchCommit,
                     page: queryPage,
                     pageSize: queryPageSize,
                     onPageChange: setQueryPage,
@@ -869,6 +1137,11 @@ export default function PAGEMP() {
                     onEdit: handleEdit,
                     selectedIds: selectedTableItems,
                     onSelectionChange: handleTableSelectionChange,
+                    cardsDetailFields: cardsVisFields.detailFields,
+                    cardsPerRow: cardsVisFields.layoutConfig.cardsPerRow,
+                    fieldsPerRow: cardsVisFields.fieldsPerRow,
+                    isFavoriteRecord: empFavorites.isFavorite,
+                    onToggleFavorite: empFavorites.toggleFavorite,
                     mgPrototype: true,
                   }}
                 />
@@ -886,11 +1159,13 @@ export default function PAGEMP() {
                   key: "tbl-emp",
                   empresas: empresasFiltradasPainel,
                   isLoadingEmpresas: empresasLoading,
+                  isFetchingEmpresas: empresasFetching,
                   onEdit: handleEdit,
                   showConfigColunas,
                   setShowConfigColunas,
                   searchTerm: "",
                   selectedRecordId: undefined,
+                  selectedIds: selectedTableItems,
                   onSelectionChange: handleTableSelectionChange,
                   onVisibleDataChange: setVisibleTableData,
                   onFilteredEmpresasChange: handleFilteredEmpresasChange,
@@ -908,6 +1183,7 @@ export default function PAGEMP() {
                   },
                   moduleTitle: moduleLabels.title,
                   mgPrototype: true,
+                  onColumnsInUseChange: setTableColumnsInUse,
                 }}
               />
             </div>

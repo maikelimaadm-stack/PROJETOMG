@@ -19,6 +19,7 @@ export function resolveMgActionBarVisibility({
       showEdit: selectedCount === 1,
       showDelete: selectedCount > 0,
       showDuplicate: selectedCount === 1,
+      secondaryToolsLocked: false,
     };
   }
 
@@ -31,6 +32,7 @@ export function resolveMgActionBarVisibility({
         showEdit: false,
         showDelete: false,
         showDuplicate: false,
+        secondaryToolsLocked: true,
       };
     }
 
@@ -41,6 +43,7 @@ export function resolveMgActionBarVisibility({
       showEdit: true,
       showDelete: hasRecord,
       showDuplicate: hasRecord,
+      secondaryToolsLocked: false,
     };
   }
 
@@ -52,6 +55,7 @@ export function resolveMgActionBarVisibility({
       showEdit: false,
       showDelete: false,
       showDuplicate: false,
+      secondaryToolsLocked: false,
     };
   }
 
@@ -69,5 +73,11 @@ export function resolveMgActionBarVisibility({
     showEdit: isReadOnly,
     showDelete: showDeleteDuplicate && hasRecord,
     showDuplicate: showDeleteDuplicate && hasRecord,
+    secondaryToolsLocked: showSaveActions,
   };
+}
+
+/** Bloqueia pesquisa, filtro, visualização e mais opções durante novo/edição/duplicação. */
+export function resolveMgSecondaryToolsLocked(visibility = {}) {
+  return !!visibility.showSave;
 }

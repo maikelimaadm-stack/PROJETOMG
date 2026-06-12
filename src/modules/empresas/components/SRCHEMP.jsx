@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Search, Star, X } from "lucide-react";
+import { Check, ChevronDown, Loader2, Search, Star, X } from "lucide-react";
 import {
-  EMP_SEARCH_DEFAULT_FIELDS,
   formatSearchCounter,
   getEmpSearchAvatarColor,
   getEmpSearchFieldValue,
@@ -11,6 +10,7 @@ import {
   saveSearchFavorites,
   saveSearchVisFields,
 } from "./empSearchView.constants";
+import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import "./empSearchView.css";
 
@@ -180,6 +180,7 @@ export default function SRCHEMP({
   empresas = [],
   total = 0,
   isLoading = false,
+  isFetching = false,
   searchValue = "",
   onSearchChange,
   page = 1,
@@ -189,6 +190,11 @@ export default function SRCHEMP({
   onEdit,
   selectedIds = [],
   onSelectionChange,
+  cardsDetailFields = [],
+  cardsPerRow = 3,
+  fieldsPerRow = 1,
+  isFavoriteRecord,
+  onToggleFavorite,
   mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
@@ -199,6 +205,10 @@ export default function SRCHEMP({
   const lastCardClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const cardClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedIdsRef = useRef(selectedIds);
+
+  const detailFields = mgPrototype
+    ? cardsDetailFields
+    : visFields.filter((field) => field.visible && !field.primary);
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -235,11 +245,6 @@ export default function SRCHEMP({
     total,
   });
 
-  const detailFields = useMemo(
-    () => visFields.filter((field) => field.visible && !field.primary),
-    [visFields]
-  );
-
   const toggleFavorite = useCallback((empresaId, event) => {
     event?.stopPropagation();
     setFavorites((current) => {
@@ -252,12 +257,8 @@ export default function SRCHEMP({
   }, []);
 
   const handleSaveVisConfig = useCallback((nextFields) => {
-    const normalized = nextFields.map((field) => {
-      const fallback = EMP_SEARCH_DEFAULT_FIELDS.find((item) => item.key === field.key);
-      return { ...fallback, ...field };
-    });
-    setVisFields(normalized);
-    saveSearchVisFields(normalized);
+    setVisFields(nextFields);
+    saveSearchVisFields(nextFields);
   }, []);
 
   const handleCardClick = useCallback(
@@ -295,10 +296,19 @@ export default function SRCHEMP({
   );
 
   if (mgPrototype) {
+    const showCardsLoading = isLoading && filteredEmpresas.length === 0;
+    const showCardsFetching = isFetching && !showCardsLoading;
+
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="flex-1 overflow-y-auto p-4">
-          {isLoading ? (
+        <div className="relative flex-1 overflow-y-auto p-4">
+          {showCardsFetching ? (
+            <div className="mg-table-loading-overlay mg-table-loading-overlay--cards" aria-live="polite" aria-busy="true">
+              <Loader2 className="mg-table-loading-overlay__icon animate-spin" aria-hidden="true" />
+              <span className="mg-table-loading-overlay__text">Carregando registros...</span>
+            </div>
+          ) : null}
+          {showCardsLoading ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Carregando registros...
             </div>
@@ -307,19 +317,21 @@ export default function SRCHEMP({
               Nenhum registro encontrado
             </div>
           ) : (
-            <div id="cards-grid" className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-              {filteredEmpresas.map((emp) => {
+            <div
+              id="cards-grid"
+              className={`mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
+            >
+              {filteredEmpresas.map((emp, index) => {
                 const isSelected = selectedIds.includes(emp.id);
-                const code = String(getEmpSearchFieldValue(emp, "codempresa") || "").padStart(6, "0");
+                const code = getEmpSearchFieldValue(emp, "codempresa");
                 const nome = getEmpSearchFieldValue(emp, "razao_social");
-                const cnpj = getEmpSearchFieldValue(emp, "cnpj");
-                const telefone = getEmpSearchFieldValue(emp, "telefone");
-                const cidade = getEmpSearchFieldValue(emp, "cidade");
-                const uf = getEmpSearchFieldValue(emp, "uf");
+                const initials = getEmpSearchInitials(emp);
+                const avatarColor = getEmpSearchAvatarColor(emp, index);
+                const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
                 return (
                   <div
                     key={emp.id}
-                    className={`erp-card mg-emp-card p-4${isSelected ? " mg-emp-card--selected" : ""}`}
+                    className={`erp-card mg-emp-card relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
                     onClick={() => handleCardClick(emp)}
                     role="button"
                     tabIndex={0}
@@ -331,39 +343,53 @@ export default function SRCHEMP({
                       }
                     }}
                   >
+                    {isSelected ? (
+                      <span className="mg-emp-card__select-badge" aria-hidden="true">
+                        <Check className="h-3 w-3" strokeWidth={2.5} />
+                      </span>
+                    ) : null}
                     <div className="mb-2.5 flex items-center gap-2.5">
                       <div
-                        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[11px] font-bold text-white"
-                        style={{ background: "linear-gradient(135deg, var(--mg-brand-green), #5ee87a)" }}
+                        className="mg-emp-card__avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[10px] font-bold tracking-tight text-white"
+                        style={{ background: avatarColor }}
                       >
-                        {code.substring(0, 2)}
+                        {initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-xs font-semibold" style={{ color: "var(--text-1)" }}>
-                          {nome}
+                        <div className="mg-emp-card__meta-row truncate text-xs">
+                          <MgRecordFavoriteStar
+                            active={isFavorite}
+                            onToggle={() => onToggleFavorite?.(emp.id)}
+                            className="mg-emp-card__fav-btn"
+                          />
+                          <div className="mg-emp-card__meta-text min-w-0 truncate">
+                            {code && code !== "—" ? (
+                              <>
+                                <span className="mg-emp-card__code">{code}</span>
+                                <span className="mg-emp-card__sep"> • </span>
+                              </>
+                            ) : null}
+                            <span className="mg-emp-card__name">{nome}</span>
+                          </div>
                         </div>
-                        <div className="mt-0.5 text-[10px]" style={{ color: "var(--text-3)" }}>
-                          {code}
-                        </div>
                       </div>
                     </div>
-                    <div className="mb-2.5 flex flex-col gap-1.5 text-[11px]">
-                      <div>
-                        <span style={{ color: "var(--text-3)" }}>CNPJ: </span>
-                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{cnpj}</span>
+                    {detailFields.length > 0 ? (
+                      <div
+                        className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}
+                      >
+                        {detailFields.map((field) => (
+                          <div key={field.key} className="mg-emp-card__field">
+                            <div className="mg-emp-card__field-line">
+                              <span className="mg-emp-card__field-label">{field.label}:</span>
+                              <span className="mg-emp-card__field-value">
+                                {getEmpSearchFieldValue(emp, field.key)}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <div>
-                        <span style={{ color: "var(--text-3)" }}>Tel: </span>
-                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{telefone}</span>
-                      </div>
-                      <div>
-                        <span style={{ color: "var(--text-3)" }}>Cidade: </span>
-                        <span className="font-medium" style={{ color: "var(--text-1)" }}>{cidade}/{uf}</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-end pt-2.5">
-                      <span className="pill pill-active">Ativo</span>
-                    </div>
+                    ) : null}
                   </div>
                 );
               })}
@@ -486,7 +512,7 @@ export default function SRCHEMP({
       <SearchConfigModal
         open={configOpen}
         fields={visFields}
-        onClose={() => setConfigOpen(false)}
+        onClose={() => setConfigOpen?.(false)}
         onSave={handleSaveVisConfig}
       />
     </div>
