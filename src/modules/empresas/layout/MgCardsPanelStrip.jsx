@@ -47,17 +47,17 @@ function CardsLayoutRadio({ checked, onChange }) {
 
 function CardsConfigMenuFooter({ onRestore, onOk }) {
   return (
-    <div className="mg-cards-config-menu__footer">
+    <div className="mg-cards-config-menu__footer mg-search-dropdown__config-footer">
       <button
         type="button"
-        className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-cards-config-menu__reset"
+        className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
         onClick={onRestore}
       >
-        Restaurar padrão
+        Restaurar
       </button>
       <button
         type="button"
-        className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-cards-config-menu__ok"
+        className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
         onClick={onOk}
       >
         Ok

@@ -3,7 +3,6 @@ import { Check, Settings2 } from "lucide-react";
 import {
   getEmpSearchFieldValue,
 } from "@/modules/empresas/components/empSearchView.constants";
-import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import { renderSearchHighlight } from "@/modules/empresas/layout/mgSearchHighlight";
 
@@ -84,11 +83,15 @@ export default function MgSearchResultsDropdown({
 
   return (
     <>
-      <MgConfigBackdrop
-        open={configOpen}
-        onClose={() => setConfigOpen(false)}
-        ariaLabel="Fechar configuração de campos da pesquisa"
-      />
+      {configOpen ? (
+        <button
+          type="button"
+          className="mg-config-backdrop"
+          aria-label="Fechar configuração de campos da pesquisa"
+          tabIndex={-1}
+          onClick={() => setConfigOpen(false)}
+        />
+      ) : null}
       <div
         className={`mg-search-dropdown${configOpen ? " is-config-open" : ""}`}
         role="listbox"
@@ -204,44 +207,57 @@ export default function MgSearchResultsDropdown({
           </div>
         )}
 
-        <div className="mg-search-dropdown__footer">
-          <button
-            type="button"
-            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
-            disabled={!hasListingData}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              if (!hasListingData) return;
-              setConfigOpen(false);
-              onApplyAll?.();
-            }}
-          >
-            Buscar todos
-          </button>
-          <button
-            type="button"
-            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
-              setConfigOpen(false);
-              onApplyFavorites?.();
-            }}
-          >
-            Buscar favoritos
-          </button>
-          <button
-            type="button"
-            className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn mg-search-dropdown__config-btn${
-              configOpen ? " is-open" : ""
-            }`}
-            aria-label="Configurar campos da pesquisa"
-            aria-expanded={configOpen}
-            onMouseDown={(event) => event.preventDefault()}
-            onClick={() => setConfigOpen((current) => !current)}
-          >
-            <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} aria-hidden="true" />
-          </button>
-        </div>
+        {!configOpen ? (
+          <div className="mg-search-dropdown__footer">
+            <button
+              type="button"
+              className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
+              disabled={!hasListingData}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                if (!hasListingData) return;
+                setConfigOpen(false);
+                onApplyAll?.();
+              }}
+            >
+              Buscar todos
+            </button>
+            <button
+              type="button"
+              className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => {
+                setConfigOpen(false);
+                onApplyFavorites?.();
+              }}
+            >
+              Buscar favoritos
+            </button>
+            <button
+              type="button"
+              className="mg-nav-btn ios-btn mg-cards-panel-strip__config-btn mg-search-dropdown__config-btn"
+              aria-label="Configurar campos da pesquisa"
+              aria-expanded={false}
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => setConfigOpen(true)}
+            >
+              <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} aria-hidden="true" />
+            </button>
+          </div>
+        ) : (
+          <div className="mg-search-dropdown__footer mg-search-dropdown__footer--config">
+            <button
+              type="button"
+              className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn mg-search-dropdown__config-btn is-open`}
+              aria-label="Configurar campos da pesquisa"
+              aria-expanded
+              onMouseDown={(event) => event.preventDefault()}
+              onClick={() => setConfigOpen(false)}
+            >
+              <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
     </>
   );

@@ -2266,7 +2266,8 @@
   overflow: visible;
 }
 
-.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-speed-dial.is-open) {
+.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-speed-dial.is-open),
+.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-search-dropdown.is-config-open) {
   z-index: 45;
 }
 
@@ -2536,14 +2537,10 @@
   z-index: 45;
 }
 
-.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-search-dropdown.is-config-open) {
-  z-index: 10000;
-}
-
 .mg-empresas-scope .mg-config-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 35;
   border: none;
   padding: 0;
   margin: 0;
@@ -2571,7 +2568,8 @@
 }
 
 .mg-empresas-scope .mg-search-dropdown.is-config-open {
-  z-index: 10001;
+  z-index: 51;
+  max-height: min(380px, calc(100vh - 120px));
 }
 
 .mg-empresas-scope .mg-search-dropdown__list {
@@ -2604,6 +2602,11 @@
   border-top: 1px solid var(--border);
   padding: 4px 8px 5px;
   background: var(--bg-card);
+}
+
+.mg-empresas-scope .mg-search-dropdown__footer--config {
+  grid-template-columns: var(--mg-btn-icon-size);
+  justify-content: end;
 }
 
 .mg-empresas-scope .mg-search-dropdown__footer-btn {
@@ -2640,9 +2643,9 @@
 .mg-empresas-scope .mg-search-dropdown__config {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
   min-height: 0;
   max-height: min(320px, calc(100vh - 160px));
-  border-bottom: 1px solid var(--border);
 }
 
 .mg-empresas-scope .mg-search-dropdown__config-list {
@@ -3524,58 +3527,28 @@
 
 .mg-empresas-scope .mg-cards-config-menu__footer {
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--mg-toolbar-cluster-gap);
-  border-top: 1px solid var(--border);
-  padding: 8px;
   background: var(--bg-card);
 }
 
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-labeled {
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-search-dropdown__config-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 6px 8px 4px;
+  border-top: 1px solid var(--border);
+}
+
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-search-dropdown__config-action {
+  height: 22px;
+  min-height: 22px;
+  font-size: 11px;
   justify-content: center;
-  text-align: center;
   margin: 0;
-  min-height: var(--mg-btn-height);
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .mg-cards-config-menu__reset {
-  flex: 1 1 auto;
+  width: auto;
   min-width: 0;
-  width: auto;
   max-width: none;
-}
-
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .mg-cards-config-menu__ok {
-  flex: 0 0 auto;
-  width: auto;
-  min-width: 64px;
-  max-width: none;
-  padding: 0 12px;
-}
-
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-ghost.tb-btn-labeled {
-  background: var(--gray-fill) !important;
-  color: var(--text-1) !important;
-  border: var(--mg-btn-pill-border) !important;
-}
-
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-ghost.tb-btn-labeled:hover:not(:disabled) {
-  background: var(--gray-fill2) !important;
-  color: var(--text-1) !important;
-}
-
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-green.tb-btn-labeled {
-  background: var(--mg-brand-green) !important;
-  color: #fff !important;
-  border: var(--mg-btn-pill-border) !important;
-}
-
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-green.tb-btn-labeled:hover:not(:disabled) {
-  background: var(--mg-brand-green-hover) !important;
-  color: #fff !important;
+  padding: 0 8px;
+  font-weight: 600;
 }
 
 .mg-empresas-scope .mobile-bottom-bar {
