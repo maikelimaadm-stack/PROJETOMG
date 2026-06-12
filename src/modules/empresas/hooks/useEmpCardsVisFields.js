@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { empRepository } from "@/modules/empresas/repositories/empRepository";
+import empRepository from "@/modules/empresas/repositories/empRepository";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
   buildEmpCardFieldCatalog,
