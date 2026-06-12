@@ -47,7 +47,7 @@ export default function MgSpeedDialMenu({
 
       <div
         id={menuId}
-        className="mg-speed-dial__actions"
+        className="mg-speed-dial__panel"
         role="menu"
         aria-labelledby={labelId}
         aria-hidden={!open}
@@ -55,29 +55,22 @@ export default function MgSpeedDialMenu({
         {items.map((item, index) => {
           const Icon = item.icon;
           return (
-            <div
+            <button
               key={item.id}
-              className="mg-speed-dial__action"
+              type="button"
+              className="mg-speed-dial__item"
+              role="menuitem"
+              disabled={item.disabled}
+              tabIndex={open ? 0 : -1}
               style={{
                 "--speed-dial-index": index,
                 "--speed-dial-total": Math.max(items.length - 1, 0),
               }}
-              role="none"
+              onClick={() => handleAction(item)}
             >
-              <span className="mg-speed-dial__label">{item.label}</span>
-              <button
-                type="button"
-                className="mg-speed-dial__action-btn ios-btn"
-                role="menuitem"
-                title={item.label}
-                aria-label={item.label}
-                disabled={item.disabled}
-                tabIndex={open ? 0 : -1}
-                onClick={() => handleAction(item)}
-              >
-                <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-              </button>
-            </div>
+              <Icon className="h-4 w-4" aria-hidden="true" />
+              {item.label}
+            </button>
           );
         })}
       </div>
