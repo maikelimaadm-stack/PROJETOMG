@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronDown, Search, Star, X } from "lucide-react";
+import { Check, ChevronDown, Search, Star, X } from "lucide-react";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
   formatSearchCounter,
@@ -319,7 +319,7 @@ export default function SRCHEMP({
                 return (
                   <div
                     key={emp.id}
-                    className={`erp-card mg-emp-card p-4${isSelected ? " mg-emp-card--selected" : ""}`}
+                    className={`erp-card mg-emp-card relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
                     onClick={() => handleCardClick(emp)}
                     role="button"
                     tabIndex={0}
@@ -331,6 +331,11 @@ export default function SRCHEMP({
                       }
                     }}
                   >
+                    {isSelected ? (
+                      <span className="mg-emp-card__select-badge" aria-hidden="true">
+                        <Check className="h-3 w-3" strokeWidth={2.5} />
+                      </span>
+                    ) : null}
                     <div className="mb-2.5 flex items-center gap-2.5">
                       <div
                         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[11px] font-bold text-white"

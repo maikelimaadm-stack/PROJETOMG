@@ -433,10 +433,13 @@ export default function PAGEMP() {
   }, [showForm, formBridge?.layoutConfigOpen, setBreadcrumbSuffix]);
 
   const handleOpenTableView = useCallback(() => {
-    setShowForm(false);
-    setEditingEmp(null);
+    if (showForm) {
+      setShowForm(false);
+      setEditingEmp(null);
+      setSelectedTableItems([]);
+    }
     setViewMode("table");
-  }, []);
+  }, [showForm]);
 
   const handleMgViewModeChange = useCallback(
     (mode) => {
@@ -455,14 +458,19 @@ export default function PAGEMP() {
         },
         onOpenCards: () => {
           if (!saveCycle.guardAction()) return;
-          setShowForm(false);
-          setEditingEmp(null);
+          if (showForm) {
+            setShowForm(false);
+            setEditingEmp(null);
+            setSelectedTableItems([]);
+          }
           setViewMode("search");
         },
       });
     },
     [
       empresasNavegacao,
+      handleEdit,
+      handleNew,
       handleOpenTableView,
       saveCycle,
       selectedIndex,
@@ -725,6 +733,7 @@ export default function PAGEMP() {
     setShowForm(false);
     setEditingEmp(null);
     setViewMode("table");
+    setSelectedTableItems([]);
     setReturnRecordAfterNew(null);
   };
 
@@ -891,6 +900,7 @@ export default function PAGEMP() {
                   setShowConfigColunas,
                   searchTerm: "",
                   selectedRecordId: undefined,
+                  selectedIds: selectedTableItems,
                   onSelectionChange: handleTableSelectionChange,
                   onVisibleDataChange: setVisibleTableData,
                   onFilteredEmpresasChange: handleFilteredEmpresasChange,

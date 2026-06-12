@@ -52,6 +52,7 @@ export default function TBLEMP({
   setShowConfigColunas,
   searchTerm = "",
   selectedRecordId,
+  selectedIds,
   onSelectionChange,
   onVisibleDataChange,
   onFilteredEmpresasChange,
@@ -194,8 +195,16 @@ export default function TBLEMP({
 
   useEffect(() => { selectedItemsRef.current = selectedItems; }, [selectedItems]);
   useEffect(() => { setSelectedItems((p) => { const valid = p.filter((id) => empresas.some((e) => e.id === id)); return p.length === valid.length && p.every((id, i) => id === valid[i]) ? p : valid; }); }, [empresas]);
+  useEffect(() => {
+    if (selectedIds === undefined) return;
+    setSelectedItems((prev) => {
+      const next = Array.isArray(selectedIds) ? selectedIds : [];
+      if (prev.length === next.length && prev.every((id, index) => id === next[index])) return prev;
+      return next;
+    });
+  }, [selectedIds]);
   useEffect(() => { onSelectionChange?.(selectedItems); }, [selectedItems, onSelectionChange]);
-  useEffect(() => { if (!selectedRecordId) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId]);
+  useEffect(() => { if (!selectedRecordId || selectedIds !== undefined) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId, selectedIds]);
 
   const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nf }) => { setColunasVisiveis(visiveis); setColunasOrdem(ordem); if (nf !== undefined) setFrozenColumnCount(Math.max(0, Math.min(Number(nf) || 0, visiveis.length))); localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis)); localStorage.setItem(ORDER_KEY, JSON.stringify(ordem)); };
   const handleResetColumnLayout = () => { const def = colunasDisponiveis.filter((c) => !c.fixo); handleColumnLayoutChange({ visiveis: def.filter((c) => c.default).map((c) => c.id), ordem: def.map((c) => c.id) }); };

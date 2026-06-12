@@ -1852,10 +1852,36 @@
 }
 
 .mg-empresas-scope .mg-emp-card--selected,
-.mg-empresas-scope .mg-emp-card--selected:hover {
-  background: var(--mg-selection-bg) !important;
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-selection-ring), var(--mg-launch-card-shadow) !important;
+.mg-empresas-scope .mg-emp-card--selected:hover,
+.cadastro-emp-scope.mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card),
+.cadastro-emp-scope.mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card):hover {
+  background: rgba(64, 222, 99, 0.1) !important;
+  border: 2px solid var(--mg-brand-green) !important;
+  box-shadow:
+    0 0 0 3px rgba(64, 222, 99, 0.14),
+    var(--mg-launch-card-shadow) !important;
+}
+
+.mg-empresas-scope .mg-emp-card__select-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--mg-brand-green);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.14);
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-emp-card__select-badge svg {
+  color: #fff !important;
+  stroke: #fff !important;
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):active:not(.mg-emp-card--selected) {
