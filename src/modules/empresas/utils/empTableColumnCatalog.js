@@ -65,15 +65,25 @@ export const buildColunasDisponiveis = (
   });
 };
 
-/** Colunas em uso na configuração da tabela, na ordem configurada. */
+/** Mesma regra da TBLEMP / dialog de colunas: visíveis na ordem salva. */
+export const resolveColumnsInUse = (disponiveis = [], ordem = [], visiveis = []) =>
+  ordem
+    .map((id) => disponiveis.find((col) => col.id === id))
+    .filter((col) => col && visiveis.includes(col.id));
+
+/** Sincroniza visibilidade/ordem quando entram colunas novas, sem alterar a ordem salva. */
+export const mergeEffectiveColumnLayout = (disponiveis = [], savedOrdem = [], savedVisiveis = []) => {
+  const defaultVisible = disponiveis.filter((col) => col.default).map((col) => col.id);
+  const visiveis = Array.from(new Set([...savedVisiveis, ...defaultVisible]));
+  const ordem = savedOrdem;
+  return { ordem, visiveis, inUse: resolveColumnsInUse(disponiveis, ordem, visiveis) };
+};
+
+/** Colunas em uso na configuração da tabela (fallback via localStorage). */
 export const getColumnsInUse = (camposPersonalizados = []) => {
   const disponiveis = buildColunasDisponiveis(camposPersonalizados);
   const ordem = loadColumnOrder(ORDER_KEY, disponiveis);
   const visiveis = loadVisibleColumns(VISIBLE_KEY, disponiveis);
-
-  const inUse = ordem
-    .map((id) => disponiveis.find((col) => col.id === id))
-    .filter((col) => col && visiveis.includes(col.id));
-
+  const inUse = resolveColumnsInUse(disponiveis, ordem, visiveis);
   return { disponiveis, ordem, visiveis, inUse };
 };

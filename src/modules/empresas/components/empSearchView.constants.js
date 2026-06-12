@@ -82,10 +82,13 @@ export const getDefaultCardVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => 
   }));
 };
 
-/** Catálogo de cards a partir das colunas em uso na tabela. */
+/** Catálogo de cards a partir das colunas em uso na tabela (sem código/nome fixos). */
 export const buildCardCatalogFromColumnsInUse = (columnsInUse = []) => {
   return columnsInUse
-    .filter((col) => !EMP_CARD_BODY_SKIP.has(col.id))
+    .filter(
+      (col) =>
+        !EMP_CARD_BODY_SKIP.has(col.id) && !EMP_CARD_PRIMARY_KEYS.has(col.id)
+    )
     .map((col) => {
       const existing = EMP_SEARCH_DEFAULT_FIELDS.find((field) => field.key === col.id);
       return {

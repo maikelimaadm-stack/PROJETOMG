@@ -408,8 +408,10 @@ export default function PAGEMP() {
     closeFilterPanel();
   }, [closeFilterPanel]);
 
+  const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
+
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
-  const cardsVisFields = useEmpCardsVisFields();
+  const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
 
   const actionBarVisibility = useMemo(
     () =>
@@ -931,6 +933,7 @@ export default function PAGEMP() {
                   },
                   moduleTitle: moduleLabels.title,
                   mgPrototype: true,
+                  onColumnsInUseChange: setTableColumnsInUse,
                 }}
               />
             </div>

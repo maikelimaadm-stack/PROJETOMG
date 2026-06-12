@@ -13,7 +13,7 @@ import {
 } from "@/modules/empresas/components/empSearchView.constants";
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 
-export function useEmpCardsVisFields() {
+export function useEmpCardsVisFields({ columnsInUseOverride = null } = {}) {
   const [columnLayoutVersion, setColumnLayoutVersion] = useState(0);
 
   const { data: camposPersonalizados = [] } = useQuery({
@@ -37,8 +37,11 @@ export function useEmpCardsVisFields() {
 
   const columnsInUse = useMemo(() => {
     void columnLayoutVersion;
+    if (Array.isArray(columnsInUseOverride) && columnsInUseOverride.length > 0) {
+      return columnsInUseOverride;
+    }
     return getColumnsInUse(camposPersonalizados).inUse;
-  }, [camposPersonalizados, columnLayoutVersion]);
+  }, [camposPersonalizados, columnLayoutVersion, columnsInUseOverride]);
 
   const catalog = useMemo(
     () => buildCardCatalogFromColumnsInUse(columnsInUse),
@@ -57,9 +60,7 @@ export function useEmpCardsVisFields() {
       catalog,
       visFields.length > 0 ? visFields : catalog
     );
-    return sortCardConfigFieldsAlphabetically(
-      merged.length > 0 ? merged : EMP_SEARCH_DEFAULT_FIELDS
-    );
+    return sortCardConfigFieldsAlphabetically(merged);
   }, [catalog, visFields]);
 
   const detailFields = useMemo(

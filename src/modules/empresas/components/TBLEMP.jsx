@@ -14,6 +14,7 @@ import {
   loadColumnOrder,
   loadVisibleColumns,
 } from "@/framework/cadastro/tables/empColumnLayout";
+import { mergeEffectiveColumnLayout } from "@/modules/empresas/utils/empTableColumnCatalog";
 import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
@@ -64,6 +65,7 @@ export default function TBLEMP({
   onServerSortChange = null,
   moduleTitle = "Cadastro",
   mgPrototype = false,
+  onColumnsInUseChange,
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codempresa", direction: "asc" });
@@ -174,7 +176,33 @@ export default function TBLEMP({
     });
   }, [camposPersonalizados, layoutAggregationConfig]);
 
-  useEffect(() => { const defaultVisible = colunasDisponiveis.filter((c) => c.default).map((c) => c.id); const allColumnIds = colunasDisponiveis.map((c) => c.id); setColunasVisiveis((p) => Array.from(new Set([...p, ...defaultVisible]))); setColunasOrdem((p) => { const merged = Array.from(new Set([...p, ...allColumnIds])); return merged.sort((a, b) => { const cA = colunasDisponiveis.find((c) => c.id === a); const cB = colunasDisponiveis.find((c) => c.id === b); return (cA?.ordem_tabela || 999) - (cB?.ordem_tabela || 999); }); }); }, [colunasDisponiveis]);
+  useEffect(() => {
+    if (!colunasDisponiveis.length) return;
+    const savedOrdem = loadColumnOrder(ORDER_KEY, colunasDisponiveis);
+    const savedVisiveis = loadVisibleColumns(VISIBLE_KEY, colunasDisponiveis);
+    const { ordem, visiveis } = mergeEffectiveColumnLayout(
+      colunasDisponiveis,
+      savedOrdem,
+      savedVisiveis
+    );
+    setColunasOrdem(ordem);
+    setColunasVisiveis(visiveis);
+    localStorage.setItem(ORDER_KEY, JSON.stringify(ordem));
+    localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis));
+    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+  }, [colunasDisponiveis]);
+
+  const colunasOrdenadas = useMemo(
+    () =>
+      colunasOrdem
+        .map((id) => colunasDisponiveis.find((c) => c.id === id))
+        .filter((c) => c && colunasVisiveis.includes(c.id)),
+    [colunasOrdem, colunasVisiveis, colunasDisponiveis]
+  );
+
+  useEffect(() => {
+    onColumnsInUseChange?.(colunasOrdenadas);
+  }, [colunasOrdenadas, onColumnsInUseChange]);
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
@@ -216,7 +244,6 @@ export default function TBLEMP({
   };
   const handleResetColumnLayout = () => { const def = colunasDisponiveis.filter((c) => !c.fixo); handleColumnLayoutChange({ visiveis: def.filter((c) => c.default).map((c) => c.id), ordem: def.map((c) => c.id) }); };
 
-  const colunasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && colunasVisiveis.includes(c.id)), [colunasOrdem, colunasVisiveis, colunasDisponiveis]);
   const colunasTodasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && !c.fixo), [colunasOrdem, colunasDisponiveis]);
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
