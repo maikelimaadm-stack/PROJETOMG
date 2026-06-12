@@ -87,6 +87,8 @@ export default function PAGEMP() {
   const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [pinnedRecord, setPinnedRecord] = useState(null);
+  const [searchViewPending, setSearchViewPending] = useState(false);
+  const searchViewApplyRef = useRef(null);
   const [dropdownSearch, setDropdownSearch] = useState("");
   const [selectedTableItems, setSelectedTableItems] = useState([]);
   const [formVersion, setFormVersion] = useState(0);
@@ -218,6 +220,38 @@ export default function PAGEMP() {
     if (pinnedRecord) return [pinnedRecord];
     return empresas;
   }, [empresas, pinnedRecord]);
+
+  useEffect(() => {
+    if (!searchViewPending) return undefined;
+
+    const mode = searchViewApplyRef.current;
+
+    if (mode === "single") {
+      if (!pinnedRecord) return undefined;
+      let innerId = 0;
+      const outerId = requestAnimationFrame(() => {
+        innerId = requestAnimationFrame(() => {
+          setSearchViewPending(false);
+          searchViewApplyRef.current = null;
+        });
+      });
+      return () => {
+        cancelAnimationFrame(outerId);
+        if (innerId) cancelAnimationFrame(innerId);
+      };
+    }
+
+    if (mode === "all") {
+      if (isLoading || isFetching) return undefined;
+      const timer = window.setTimeout(() => {
+        setSearchViewPending(false);
+        searchViewApplyRef.current = null;
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+
+    return undefined;
+  }, [searchViewPending, pinnedRecord, isLoading, isFetching, empresasFiltradasPainel]);
 
   const handleFilteredEmpresasChange = useCallback((filtered) => {
     setTableFilteredEmpresas(filtered);
@@ -484,6 +518,8 @@ export default function PAGEMP() {
     setSearchTerm("");
     setPinnedRecord(null);
     setDropdownSearch("");
+    setSearchViewPending(false);
+    searchViewApplyRef.current = null;
     setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
@@ -500,16 +536,21 @@ export default function PAGEMP() {
 
   const handleSearchApplyAll = useCallback(() => {
     const next = searchDraft.trim();
+    searchViewApplyRef.current = "all";
+    setSearchViewPending(true);
     setPinnedRecord(null);
     setSearchTerm(next);
     setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
-  }, [searchDraft]);
+    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
+  }, [searchDraft, queryClient]);
 
   const handleSearchResultSelect = useCallback(
     (emp) => {
       if (!emp) return;
+      searchViewApplyRef.current = "single";
+      setSearchViewPending(true);
       setPinnedRecord(emp);
       setSearchTerm(searchDraft.trim());
       setQueryPage(1);
@@ -550,6 +591,7 @@ export default function PAGEMP() {
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
   const empFavorites = useEmpFavorites();
   const searchHasFilter = Boolean(searchDraft.trim() || searchTerm.trim() || pinnedRecord);
+  const searchIconLoading = dropdownSearchLoading || searchViewPending;
 
   const actionBarVisibility = useMemo(
     () =>
@@ -931,7 +973,7 @@ export default function PAGEMP() {
             onSearchInputChange={handleSearchInputChange}
             searchResults={dropdownSearchResults}
             searchDetailFields={cardsVisFields.detailFields}
-            searchLoading={dropdownSearchLoading}
+            searchLoading={searchIconLoading}
             searchHasFilter={searchHasFilter}
             onSearchClear={handleSearchClear}
             onSearchResultSelect={handleSearchResultSelect}
