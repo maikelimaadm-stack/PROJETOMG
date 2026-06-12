@@ -10,6 +10,7 @@ import {
   RotateCcw,
   Search,
   Settings,
+  X,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
 import MgSpeedDialMenu from "@/modules/empresas/layout/MgSpeedDialMenu";
@@ -43,6 +44,8 @@ export default function MgActionBar({
   searchResults = [],
   searchDetailFields = [],
   searchLoading = false,
+  searchHasFilter = false,
+  onSearchClear,
   onSearchResultSelect,
   onSearchApplyAll,
   isFavoriteRecord,
@@ -351,6 +354,19 @@ export default function MgActionBar({
                   className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
                   aria-hidden="true"
                 />
+              ) : searchHasFilter ? (
+                <button
+                  type="button"
+                  className="mg-search-pill-clear"
+                  aria-label="Limpar pesquisa"
+                  disabled={toolsLocked}
+                  onClick={() => {
+                    onSearchClear?.();
+                    setSearchOpen(false);
+                  }}
+                >
+                  <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                </button>
               ) : (
                 <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               )}

@@ -27,6 +27,11 @@ import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mg
 import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
+import {
+  buildEmpSearchFieldKeys,
+  filterEmpresasContains,
+  paginateEmpresasList,
+} from "@/modules/empresas/utils/empSearchContains";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -39,6 +44,8 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   pageSize: 50,
   totalPages: 1,
 };
+
+const SEARCH_SOURCE_PAGE_SIZE = 200;
 
 const moduleRepository = empresasModuleDefinition.repository;
 const moduleLabels = {
@@ -90,6 +97,12 @@ export default function PAGEMP() {
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(50);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
+  const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
+  const searchFieldKeys = useMemo(
+    () => buildEmpSearchFieldKeys(cardsVisFields.detailFields),
+    [cardsVisFields.detailFields]
+  );
   const {
     filterPanelOpen,
     closeFilterPanel,
@@ -131,35 +144,67 @@ export default function PAGEMP() {
   const searchDraftTrimmed = searchDraft.trim();
   const dropdownSearchPending = searchDraftTrimmed !== dropdownSearch;
 
-  const { data: dropdownSearchResponse, isFetching: dropdownSearchFetching } = useQuery({
-    queryKey: ["emp-cadastro-dropdown", dropdownSearch, querySort.key, querySort.direction],
+  const { data: dropdownSourceResponse, isFetching: dropdownSourceFetching } = useQuery({
+    queryKey: ["emp-cadastro-dropdown-source", querySort.key, querySort.direction],
     queryFn: () =>
       moduleRepository.listPage({
         page: 1,
-        pageSize: 10,
-        search: dropdownSearch,
+        pageSize: SEARCH_SOURCE_PAGE_SIZE,
+        search: "",
         sortBy: querySort.key,
         sortDir: querySort.direction,
       }),
     enabled: dropdownSearch.length > 0,
-    staleTime: 15_000,
+    staleTime: 60_000,
   });
 
-  const dropdownSearchResults = dropdownSearchPending
-    ? []
-    : dropdownSearchResponse?.items || [];
-  const dropdownSearchLoading = dropdownSearchPending || dropdownSearchFetching;
+  const dropdownSearchResults = useMemo(() => {
+    if (dropdownSearchPending || !dropdownSearch) return [];
+    const source = dropdownSourceResponse?.items || [];
+    return filterEmpresasContains(source, dropdownSearch, searchFieldKeys).slice(0, 10);
+  }, [
+    dropdownSearchPending,
+    dropdownSearch,
+    dropdownSourceResponse?.items,
+    searchFieldKeys,
+  ]);
+
+  const dropdownSearchLoading =
+    dropdownSearchPending ||
+    (dropdownSearch.length > 0 && dropdownSourceFetching && dropdownSearchResults.length === 0);
 
   const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
-    queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
-    queryFn: () =>
-      moduleRepository.listPage({
-        page: queryPage,
-        pageSize: queryPageSize,
-        search: searchTerm,
+    queryKey: [
+      "emp-cadastro",
+      queryPage,
+      queryPageSize,
+      searchTerm,
+      querySort.key,
+      querySort.direction,
+      searchFieldKeys.join("|"),
+    ],
+    queryFn: async () => {
+      const trimmedSearch = searchTerm.trim();
+      if (!trimmedSearch) {
+        return moduleRepository.listPage({
+          page: queryPage,
+          pageSize: queryPageSize,
+          search: "",
+          sortBy: querySort.key,
+          sortDir: querySort.direction,
+        });
+      }
+
+      const source = await moduleRepository.listPage({
+        page: 1,
+        pageSize: SEARCH_SOURCE_PAGE_SIZE,
+        search: "",
         sortBy: querySort.key,
         sortDir: querySort.direction,
-      }),
+      });
+      const filtered = filterEmpresasContains(source.items, trimmedSearch, searchFieldKeys);
+      return paginateEmpresasList(filtered, queryPage, queryPageSize);
+    },
     placeholderData: (previous) => previous ?? DEFAULT_EMPRESAS_RESPONSE,
     staleTime: 60_000,
     gcTime: 5 * 60_000,
@@ -434,6 +479,16 @@ export default function PAGEMP() {
     }
   }, []);
 
+  const handleSearchClear = useCallback(() => {
+    setSearchDraft("");
+    setSearchTerm("");
+    setPinnedRecord(null);
+    setDropdownSearch("");
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
+  }, []);
+
   const handleSearchCommit = useCallback((value) => {
     const next = String(value || "").trim();
     setPinnedRecord(null);
@@ -492,11 +547,9 @@ export default function PAGEMP() {
     closeFilterPanel();
   }, [closeFilterPanel]);
 
-  const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
-
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
-  const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
   const empFavorites = useEmpFavorites();
+  const searchHasFilter = Boolean(searchDraft.trim() || searchTerm.trim() || pinnedRecord);
 
   const actionBarVisibility = useMemo(
     () =>
@@ -879,6 +932,8 @@ export default function PAGEMP() {
             searchResults={dropdownSearchResults}
             searchDetailFields={cardsVisFields.detailFields}
             searchLoading={dropdownSearchLoading}
+            searchHasFilter={searchHasFilter}
+            onSearchClear={handleSearchClear}
             onSearchResultSelect={handleSearchResultSelect}
             onSearchApplyAll={handleSearchApplyAll}
             isFavoriteRecord={empFavorites.isFavorite}

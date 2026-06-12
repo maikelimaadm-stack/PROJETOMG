@@ -1157,6 +1157,7 @@
 .mg-empresas-scope .tb-btn-red:not(.tb-btn-icon),
 .mg-empresas-scope .filter-panel__footer .tb-btn,
 .mg-empresas-scope .mg-cards-config-menu__footer .tb-btn-labeled,
+.mg-empresas-scope .mg-search-dropdown__apply-all.tb-btn-labeled,
 .mg-empresas-scope .emp-layout-configurator .tb-btn-labeled,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab,
@@ -2449,6 +2450,35 @@
   transition:
     color var(--mg-motion-duration) var(--mg-motion-ease),
     stroke var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-search-pill-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 5px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+  color: inherit;
+}
+
+.mg-empresas-scope .mg-search-pill-clear:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.mg-empresas-scope .mg-search-pill-clear:hover:not(:disabled) .mg-search-pill-icon {
+  color: var(--text-1) !important;
+  stroke: var(--text-1) !important;
+}
+
+.mg-empresas-scope .mg-search-pill:focus-within .mg-search-pill-clear:not(:disabled) .mg-search-pill-icon {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
 }
 
 .mg-empresas-scope .mg-search-pill:focus-within {
