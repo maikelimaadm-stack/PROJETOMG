@@ -37,8 +37,9 @@ function ActionSlot({ show, width = 88, children }) {
 export default function MgActionBar({
   viewMode = "tabela",
   onViewModeChange,
-  searchValue = "",
-  onSearchChange,
+  searchInputValue = "",
+  onSearchInputChange,
+  onSearchCommit,
   searchResults = [],
   searchDetailFields = [],
   searchLoading = false,
@@ -71,11 +72,17 @@ export default function MgActionBar({
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchDraft, setSearchDraft] = useState(searchValue);
   const moreRef = useRef(null);
   const searchRef = useRef(null);
   const toolsLocked = actionsLocked || secondaryToolsLocked;
   const lockedClass = secondaryToolsLocked ? " mg-action-bar__zone--locked" : "";
+
+  const commitSearch = () => {
+    if (toolsLocked) return;
+    const next = searchInputValue.trim();
+    onSearchCommit?.(next);
+    setSearchOpen(Boolean(next));
+  };
 
   useEffect(() => {
     if (secondaryToolsLocked) {
@@ -85,18 +92,8 @@ export default function MgActionBar({
   }, [secondaryToolsLocked]);
 
   useEffect(() => {
-    setSearchDraft(searchValue);
-  }, [searchValue]);
-
-  const isSearchCommitted =
-    searchDraft.trim().length > 0 && searchDraft.trim() === searchValue.trim();
-
-  const commitSearch = () => {
-    if (toolsLocked) return;
-    const next = searchDraft.trim();
-    onSearchChange?.(next);
-    setSearchOpen(Boolean(next));
-  };
+    if (!searchInputValue.trim()) setSearchOpen(false);
+  }, [searchInputValue]);
 
   useEffect(() => {
     if (!searchOpen) return undefined;
@@ -367,14 +364,14 @@ export default function MgActionBar({
               <input
                 type="text"
                 placeholder="Pesquisar..."
-                value={searchDraft}
+                value={searchInputValue}
                 onChange={(event) => {
                   const next = event.target.value;
-                  setSearchDraft(next);
+                  onSearchInputChange?.(next);
                   if (!toolsLocked) setSearchOpen(Boolean(next.trim()));
                 }}
                 onFocus={() => {
-                  if (!toolsLocked && searchDraft.trim()) setSearchOpen(true);
+                  if (!toolsLocked && searchInputValue.trim()) setSearchOpen(true);
                 }}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
@@ -383,18 +380,17 @@ export default function MgActionBar({
                   }
                 }}
                 aria-label="Pesquisar"
-                aria-expanded={searchOpen && searchDraft.trim().length > 0}
+                aria-expanded={searchOpen && searchInputValue.trim().length > 0}
                 aria-haspopup="listbox"
                 disabled={toolsLocked}
                 tabIndex={toolsLocked ? -1 : 0}
               />
             </div>
             <MgSearchResultsDropdown
-              open={searchOpen && searchDraft.trim().length > 0 && !toolsLocked}
-              pending={!isSearchCommitted}
-              items={isSearchCommitted ? searchResults : []}
+              open={searchOpen && searchInputValue.trim().length > 0 && !toolsLocked}
+              items={searchResults}
               detailFields={searchDetailFields}
-              loading={isSearchCommitted && searchLoading}
+              loading={searchLoading}
               onSelect={(emp) => {
                 onSearchResultSelect?.(emp);
                 setSearchOpen(false);

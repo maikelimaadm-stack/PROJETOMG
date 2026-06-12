@@ -77,7 +77,10 @@ export default function PAGEMP() {
   const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [pinnedRecord, setPinnedRecord] = useState(null);
+  const [dropdownSearch, setDropdownSearch] = useState("");
   const [selectedTableItems, setSelectedTableItems] = useState([]);
   const [formVersion, setFormVersion] = useState(0);
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
@@ -112,7 +115,36 @@ export default function PAGEMP() {
     setSelectedIndex(0);
     setQueryPage(1);
     setTableFilteredEmpresas(null);
+    setSearchDraft("");
+    setSearchTerm("");
+    setPinnedRecord(null);
+    setDropdownSearch("");
   }, [selectedEmpresaId]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDropdownSearch(searchDraft.trim());
+    }, 280);
+    return () => window.clearTimeout(timer);
+  }, [searchDraft]);
+
+  const { data: dropdownSearchResponse, isFetching: dropdownSearchFetching } = useQuery({
+    queryKey: ["emp-cadastro-dropdown", dropdownSearch, querySort.key, querySort.direction],
+    queryFn: () =>
+      moduleRepository.listPage({
+        page: 1,
+        pageSize: 10,
+        search: dropdownSearch,
+        sortBy: querySort.key,
+        sortDir: querySort.direction,
+      }),
+    enabled: dropdownSearch.length > 0,
+    staleTime: 30_000,
+    placeholderData: (previous) => previous,
+  });
+
+  const dropdownSearchResults = dropdownSearchResponse?.items || [];
+  const dropdownSearchLoading = dropdownSearchFetching && dropdownSearchResults.length === 0;
 
   const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
     queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],
@@ -130,10 +162,13 @@ export default function PAGEMP() {
   });
 
   const empresas = empresasResponse.items || [];
-  const totalEmpresas = empresasResponse.total || 0;
+  const totalEmpresas = pinnedRecord ? 1 : empresasResponse.total || 0;
 
   const empresasLoading = isLoading && empresas.length === 0;
-  const empresasFiltradasPainel = empresas;
+  const empresasFiltradasPainel = useMemo(() => {
+    if (pinnedRecord) return [pinnedRecord];
+    return empresas;
+  }, [empresas, pinnedRecord]);
 
   const handleFilteredEmpresasChange = useCallback((filtered) => {
     setTableFilteredEmpresas(filtered);
@@ -388,30 +423,40 @@ export default function PAGEMP() {
     setDeleteState({ open: true, ids: normalized });
   };
 
-  const handleSearchChange = useCallback((value) => {
-    setSearchTerm(value);
+  const handleSearchInputChange = useCallback((value) => {
+    setSearchDraft(value);
+  }, []);
+
+  const handleSearchCommit = useCallback((value) => {
+    const next = String(value || "").trim();
+    setPinnedRecord(null);
+    setSearchTerm(next);
     setQueryPage(1);
+    setTableFilteredEmpresas(null);
   }, []);
 
   const handleSearchResultSelect = useCallback(
     (emp) => {
       if (!emp) return;
-      const index = empresasNavegacao.findIndex(
-        (item) => item.id === emp.id || Number(item.codempresa) === Number(emp.codempresa)
-      );
-      if (index >= 0) setSelectedIndex(index);
+      setPinnedRecord(emp);
+      setSearchTerm(searchDraft.trim());
+      setQueryPage(1);
+      setTableFilteredEmpresas(null);
+      setSelectedIndex(0);
       setSelectedTableItems([emp.id]);
       if (showForm || viewMode === "record") {
         handleEdit(emp);
       }
     },
-    [empresasNavegacao, handleEdit, showForm, viewMode]
+    [searchDraft, showForm, viewMode, handleEdit]
   );
 
   const handleFilterChange = useCallback((key, value) => {
     setFilterValues((prev) => ({ ...prev, [key]: value }));
     if (key === "razao_social" || key === "nome_fantasia" || key === "cnpj") {
+      setSearchDraft(value);
       setSearchTerm(value);
+      setPinnedRecord(null);
       setQueryPage(1);
     }
   }, []);
@@ -419,7 +464,10 @@ export default function PAGEMP() {
   const handleFilterClear = useCallback(() => {
     setFilterValues({});
     setFilterStatus("Todos");
+    setSearchDraft("");
     setSearchTerm("");
+    setPinnedRecord(null);
+    setDropdownSearch("");
     setQueryPage(1);
   }, []);
 
@@ -809,11 +857,12 @@ export default function PAGEMP() {
             <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
-            searchValue={searchTerm}
-            onSearchChange={handleSearchChange}
-            searchResults={empresasFiltradasPainel}
+            searchInputValue={searchDraft}
+            onSearchInputChange={handleSearchInputChange}
+            onSearchCommit={handleSearchCommit}
+            searchResults={dropdownSearchResults}
             searchDetailFields={cardsVisFields.detailFields}
-            searchLoading={empresasLoading || isFetching}
+            searchLoading={dropdownSearchLoading}
             onSearchResultSelect={handleSearchResultSelect}
             isFavoriteRecord={empFavorites.isFavorite}
             onToggleFavorite={empFavorites.toggleFavorite}
@@ -924,7 +973,7 @@ export default function PAGEMP() {
                     total: totalEmpresas,
                     isLoading: empresasLoading || isFetching,
                     searchValue: searchTerm,
-                    onSearchChange: handleSearchChange,
+                    onSearchChange: handleSearchCommit,
                     page: queryPage,
                     pageSize: queryPageSize,
                     onPageChange: setQueryPage,
