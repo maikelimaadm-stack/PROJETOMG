@@ -58,6 +58,8 @@
   --mg-container-bg: #FFFFFF;
   --mg-container-edge-glow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 1px 2px rgba(100, 116, 139, 0.05), inset 1px 0 1px rgba(148, 163, 184, 0.07), inset -1px 0 1px rgba(148, 163, 184, 0.07);
   --mg-container-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 2px 6px rgba(15, 23, 42, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 1px 2px rgba(100, 116, 139, 0.05), inset 1px 0 1px rgba(148, 163, 184, 0.07), inset -1px 0 1px rgba(148, 163, 184, 0.07);
+  --mg-launch-card-border: 1px solid rgba(255, 255, 255, 0.96);
+  --mg-launch-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 2px 6px rgba(15, 23, 42, 0.02), 0 0 0 1px rgba(231, 234, 238, 0.94), inset 0 1px 0 rgba(255, 255, 255, 0.98), inset 0 -1px 0 rgba(255, 255, 255, 0.84), inset 0 0 0 1px rgba(255, 255, 255, 0.35);
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
@@ -1390,7 +1392,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
   gap: 10px;
   flex-shrink: 0;
-  border-bottom: none;
+  border-bottom: 1px solid rgba(231, 234, 238, 0.42);
 }
 
 .mg-empresas-scope .mobile-header .ios-btn {
@@ -1411,7 +1413,7 @@
   padding: 0 12px;
   background: var(--accent);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
-  border-bottom: none;
+  border-bottom: 1px solid rgba(231, 234, 238, 0.42);
 }
 
 .mg-empresas-scope .mg-desktop-header__crumbs {
@@ -1678,10 +1680,10 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card {
-  border: var(--mg-container-border) !important;
+  border: var(--mg-launch-card-border) !important;
   border-radius: var(--mg-radius-card) !important;
   background: var(--mg-container-bg) !important;
-  box-shadow: var(--mg-container-shadow) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
   overflow: visible !important;
 }
 
@@ -1696,7 +1698,7 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:hover,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card:active,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:active {
-  box-shadow: var(--mg-container-shadow) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
   background: var(--mg-container-bg) !important;
   transform: none !important;
 }
@@ -2352,8 +2354,9 @@
   color: var(--text-1) !important;
   font-size: 14px !important;
   font-weight: 700 !important;
-  padding: 0 0 6px !important;
-  margin: 0 !important;
+  padding: 0 0 10px !important;
+  margin: 0 0 10px !important;
+  border-bottom: 1px solid #E7EAEE !important;
   background: transparent !important;
 }
 
@@ -2363,9 +2366,9 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card {
-  border: var(--mg-container-border) !important;
+  border: var(--mg-launch-card-border) !important;
   border-radius: var(--mg-radius-card) !important;
-  box-shadow: var(--mg-container-shadow) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
   background: var(--mg-container-bg) !important;
 }
 
