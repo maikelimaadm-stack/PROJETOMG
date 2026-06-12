@@ -95,6 +95,12 @@ const normalizeLayoutCardV3 = (source = {}, index = 0) => {
   };
 };
 
+const validationError = (message) => {
+  const error = new Error(message);
+  error.statusCode = 400;
+  return error;
+};
+
 const sanitizeLayoutV3 = (layoutV3 = {}) => {
   const globalSeen = new Set();
   const next = {};
@@ -154,12 +160,6 @@ const sanitizeLayoutV3 = (layoutV3 = {}) => {
   });
 
   return next;
-};
-
-const validationError = (message) => {
-  const error = new Error(message);
-  error.statusCode = 400;
-  return error;
 };
 
 /**
