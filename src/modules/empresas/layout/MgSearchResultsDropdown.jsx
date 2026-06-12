@@ -89,7 +89,7 @@ export default function MgSearchResultsDropdown({
       <div className="mg-search-dropdown__footer">
         <button
           type="button"
-          className="mg-search-dropdown__apply-all"
+          className="mg-search-dropdown__apply-all ios-btn tb-btn tb-btn-labeled tb-btn-green"
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => onApplyAll?.()}
         >

@@ -42,37 +42,87 @@ const resolveOrderBy = (sortBy = "codempresa", sortDir = "asc") => {
   return { [key]: direction };
 };
 
+const TEXT_SEARCH_FIELDS = [
+  "razao_social",
+  "nome_fantasia",
+  "cpf_cnpj",
+  "inscricao_estadual",
+  "telefone",
+  "whatsapp",
+  "email",
+  "cep",
+  "endereco",
+  "numero",
+  "bairro",
+  "cidade",
+  "estado",
+  "observacoes",
+  "status",
+  "tipo_pessoa",
+  "tipo_vinculo",
+];
+
+const buildTextContainsClauses = (value) =>
+  TEXT_SEARCH_FIELDS.map((field) => ({
+    [field]: { contains: value, mode: "insensitive" },
+  }));
+
 const buildSearchWhere = (search) => {
   const value = String(search || "").trim();
   if (!value) return null;
 
-  if (/^\d+$/.test(value)) {
-    const numericSearch = Number(value);
-    if (Number.isFinite(numericSearch)) {
-      return {
-        OR: [
-          { id_global: Math.floor(numericSearch) },
-          { codempresa: Math.floor(numericSearch) },
-        ],
-      };
-    }
-  }
+  const or = buildTextContainsClauses(value);
 
   const numericSearch = Number(value);
-  const or = [
-    { razao_social: { contains: value, mode: "insensitive" } },
-    { nome_fantasia: { contains: value, mode: "insensitive" } },
-    { cpf_cnpj: { contains: value, mode: "insensitive" } },
-    { email: { contains: value, mode: "insensitive" } },
-    { cidade: { contains: value, mode: "insensitive" } },
-  ];
-
   if (Number.isFinite(numericSearch)) {
     or.unshift({ id_global: Math.floor(numericSearch) });
     or.push({ codempresa: Math.floor(numericSearch) });
   }
 
   return { OR: or };
+};
+
+const findIdsMatchingCustomFields = async (prisma, scope, searchTerm) => {
+  const value = String(searchTerm || "").trim();
+  if (!value) return [];
+
+  const pattern = `%${value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_")}%`;
+  const params = [scope.clienteId, pattern];
+  let sql = `
+    SELECT id
+    FROM "Empresa"
+    WHERE cliente_id = $1
+      AND campos_personalizados IS NOT NULL
+      AND EXISTS (
+        SELECT 1
+        FROM jsonb_each_text(campos_personalizados) AS kv(key, value)
+        WHERE value ILIKE $2
+      )
+  `;
+
+  if (!scope.acessoGlobal) {
+    const allowed = scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID];
+    const placeholders = allowed.map((_, index) => `$${index + 3}`).join(", ");
+    sql += ` AND id IN (${placeholders})`;
+    params.push(...allowed);
+  }
+
+  if (scope.selectedEmpresaId) {
+    sql += ` AND id = $${params.length + 1}`;
+    params.push(scope.selectedEmpresaId);
+  }
+
+  const rows = await prisma.$queryRawUnsafe(sql, ...params);
+  return rows.map((row) => row.id).filter(Boolean);
+};
+
+const mergeSearchWhere = (baseWhere, extraIds = []) => {
+  if (!baseWhere) return null;
+  const uniqueIds = [...new Set(extraIds.filter(Boolean))];
+  if (uniqueIds.length === 0) return baseWhere;
+  return {
+    OR: [...(baseWhere.OR || []), { id: { in: uniqueIds } }],
+  };
 };
 
 const FILTER_FIELD_MAP = {
@@ -134,7 +184,12 @@ export const empresaRepository = {
     const safePage = toPositiveInt(page, 1);
     const safePageSize = Math.min(MAX_PAGE_SIZE, toPositiveInt(pageSize, DEFAULT_PAGE_SIZE));
     const skip = (safePage - 1) * safePageSize;
-    const searchWhere = buildSearchWhere(search);
+    const searchTerm = String(search || "").trim();
+    const baseSearchWhere = buildSearchWhere(searchTerm);
+    const customFieldIds = searchTerm
+      ? await findIdsMatchingCustomFields(prisma, scope, searchTerm)
+      : [];
+    const searchWhere = mergeSearchWhere(baseSearchWhere, customFieldIds);
     const filtersWhere = buildFiltersWhere(filters);
     const scopedClauses = [];
     if (searchWhere) scopedClauses.push(searchWhere);

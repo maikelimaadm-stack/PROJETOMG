@@ -2540,32 +2540,20 @@
 .mg-empresas-scope .mg-search-dropdown__footer {
   flex-shrink: 0;
   border-top: 1px solid var(--border);
-  padding: 5px 8px 6px;
+  padding: 4px 8px 5px;
   background: var(--bg-card);
 }
 
-.mg-empresas-scope .mg-search-dropdown__apply-all {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.mg-empresas-scope .mg-search-dropdown__apply-all.tb-btn {
   width: 100%;
-  min-height: 26px;
-  height: 26px;
+  height: 22px;
+  min-height: 22px;
   padding: 0 10px;
   margin: 0;
-  border: none;
-  border-radius: 8px;
-  background: var(--mg-brand-green);
-  color: #fff;
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
-  cursor: pointer;
-  transition: background 150ms ease;
-}
-
-.mg-empresas-scope .mg-search-dropdown__apply-all:hover {
-  background: var(--mg-brand-green-hover);
+  justify-content: center;
 }
 
 .mg-empresas-scope .mg-search-dropdown__mark {
