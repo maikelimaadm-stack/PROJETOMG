@@ -2265,6 +2265,10 @@
   overflow: visible;
 }
 
+.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-speed-dial.is-open) {
+  z-index: 45;
+}
+
 .mg-empresas-scope .mg-action-bar__zone--locked {
   opacity: 0.42;
   pointer-events: none;
@@ -2854,6 +2858,175 @@
   visibility: visible;
   transform: translateY(0) scale(1);
   pointer-events: auto;
+}
+
+/* Speed Dial — menu Mais opções */
+.mg-empresas-scope .mg-speed-dial {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+
+.mg-empresas-scope .mg-speed-dial__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 35;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(15, 23, 42, 0.04);
+  cursor: default;
+}
+
+.mg-empresas-scope .mg-speed-dial__actions {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 10px);
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 36;
+}
+
+.mg-empresas-scope .mg-speed-dial.is-open .mg-speed-dial__actions {
+  pointer-events: auto;
+}
+
+.mg-empresas-scope .mg-speed-dial__action {
+  --speed-dial-shift: 14px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  transform: translateX(var(--speed-dial-shift)) scale(0.82);
+  pointer-events: none;
+  transition:
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-speed-dial.is-open .mg-speed-dial__action {
+  opacity: 1;
+  transform: translateX(0) scale(1);
+  pointer-events: auto;
+  transition-delay: calc(var(--speed-dial-index) * 48ms);
+}
+
+.mg-empresas-scope .mg-speed-dial:not(.is-open) .mg-speed-dial__action {
+  transition-delay: calc((var(--speed-dial-total) - var(--speed-dial-index)) * 32ms);
+}
+
+.mg-empresas-scope .mg-speed-dial__label {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--bg-card);
+  border: 1px solid rgba(231, 234, 238, 0.92);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 12px rgba(15, 23, 42, 0.08);
+  color: var(--text-1);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(6px);
+  transition:
+    opacity 160ms var(--mg-motion-ease),
+    transform 160ms var(--mg-motion-ease);
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-speed-dial__action:hover .mg-speed-dial__label,
+.mg-empresas-scope .mg-speed-dial__action:focus-within .mg-speed-dial__label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.mg-empresas-scope .mg-speed-dial__action-btn {
+  width: var(--mg-btn-icon-size);
+  height: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  min-height: var(--mg-btn-icon-size);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--mg-btn-icon-radius);
+  background: var(--bg-card);
+  border: 1px solid rgba(231, 234, 238, 0.92);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 12px rgba(15, 23, 42, 0.08);
+  color: var(--mg-brand-green);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-speed-dial__action-btn svg {
+  color: currentColor !important;
+  stroke: currentColor !important;
+}
+
+.mg-empresas-scope .mg-speed-dial__action-btn:hover:not(:disabled) {
+  background: var(--gray-fill);
+  color: var(--mg-brand-green-hover);
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 4px rgba(15, 23, 42, 0.06),
+    0 6px 16px rgba(15, 23, 42, 0.1);
+}
+
+.mg-empresas-scope .mg-speed-dial__action-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mg-empresas-scope .mg-speed-dial__trigger {
+  position: relative;
+  z-index: 37;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-speed-dial__trigger-icon {
+  transition: transform var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-speed-dial.is-open .mg-speed-dial__trigger {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 4px 14px rgba(64, 222, 99, 0.28);
+}
+
+.mg-empresas-scope .mg-speed-dial.is-open .mg-speed-dial__trigger svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+.mg-empresas-scope .mg-speed-dial.is-open .mg-speed-dial__trigger-icon {
+  transform: rotate(90deg);
+}
+
+.mg-empresas-scope .mg-speed-dial.is-disabled {
+  opacity: 0.42;
+  pointer-events: none;
 }
 
 .mg-empresas-scope .dropdown-menu button {

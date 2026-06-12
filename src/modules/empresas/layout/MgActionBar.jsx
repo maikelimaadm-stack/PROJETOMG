@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   Copy,
   Download,
   Filter,
   History,
-  MoreVertical,
   Paperclip,
   Printer,
   RotateCcw,
@@ -12,6 +11,7 @@ import {
   Settings,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
+import MgSpeedDialMenu from "@/modules/empresas/layout/MgSpeedDialMenu";
 
 function ActionLabelBtn({ className = "", children, ...props }) {
   return (
@@ -79,6 +79,90 @@ export default function MgActionBar({
     document.addEventListener("click", close);
     return () => document.removeEventListener("click", close);
   }, [moreOpen]);
+
+  const speedDialItems = useMemo(() => {
+    const items = [];
+
+    if (onDuplicate && !showDuplicate) {
+      items.push({
+        id: "duplicate",
+        label: "Duplicar",
+        icon: Copy,
+        onClick: onDuplicate,
+      });
+    }
+
+    items.push({
+      id: "print",
+      label: "Imprimir",
+      icon: Printer,
+      onClick: () => {},
+    });
+
+    if (onExportExcel) {
+      items.push({
+        id: "export",
+        label: "Exportar",
+        icon: Download,
+        onClick: onExportExcel,
+      });
+    }
+
+    items.push({
+      id: "history",
+      label: "Histórico",
+      icon: History,
+      onClick: () => {},
+    });
+
+    if (onAttach) {
+      items.push({
+        id: "attach",
+        label: "Anexos",
+        icon: Paperclip,
+        onClick: onAttach,
+        disabled: attachDisabled,
+      });
+    }
+
+    if (onConfigColumns) {
+      items.push({
+        id: "config",
+        label: "Configurações",
+        icon: Settings,
+        onClick: onConfigColumns,
+      });
+    }
+
+    if (onLayoutConfig) {
+      items.push({
+        id: "layout",
+        label: "Layout do formulário",
+        icon: Settings,
+        onClick: onLayoutConfig,
+      });
+    }
+
+    if (onExportPdf) {
+      items.push({
+        id: "export-pdf",
+        label: "Exportar PDF",
+        icon: Download,
+        onClick: onExportPdf,
+      });
+    }
+
+    return items;
+  }, [
+    attachDisabled,
+    onAttach,
+    onConfigColumns,
+    onDuplicate,
+    onExportExcel,
+    onExportPdf,
+    onLayoutConfig,
+    showDuplicate,
+  ]);
 
   if (layoutConfigMode && layoutToolbar) {
     const { isEditing, onBack, onEdit, onSave, onCancel, onRestore } = layoutToolbar;
@@ -240,66 +324,12 @@ export default function MgActionBar({
         </div>
 
         <div className="relative" ref={moreRef}>
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-ghost tb-btn-more tb-btn-icon mg-accent-icon-btn"
-            id="more-btn"
-            aria-expanded={moreOpen}
-            aria-haspopup="menu"
+          <MgSpeedDialMenu
+            open={moreOpen}
+            onOpenChange={setMoreOpen}
             disabled={toolsLocked}
-            onClick={() => {
-              if (toolsLocked) return;
-              setMoreOpen((open) => !open);
-            }}
-          >
-            <MoreVertical className="h-4 w-4" stroke="var(--mg-brand-green)" />
-          </button>
-          <div id="more-dd" className={`dropdown-menu${moreOpen ? " open" : ""}`}>
-            {onDuplicate && !showDuplicate ? (
-              <button type="button" onClick={() => { onDuplicate(); setMoreOpen(false); }}>
-                <Copy className="h-4 w-4" />
-                Duplicar
-              </button>
-            ) : null}
-            <button type="button" onClick={() => setMoreOpen(false)}>
-              <Printer className="h-4 w-4" />
-              Imprimir
-            </button>
-            {onExportExcel ? (
-              <button type="button" onClick={() => { onExportExcel(); setMoreOpen(false); }}>
-                <Download className="h-4 w-4" />
-                Exportar
-              </button>
-            ) : null}
-            <button type="button" onClick={() => setMoreOpen(false)}>
-              <History className="h-4 w-4" />
-              Histórico
-            </button>
-            {onAttach ? (
-              <button type="button" disabled={attachDisabled} onClick={() => { onAttach(); setMoreOpen(false); }}>
-                <Paperclip className="h-4 w-4" />
-                Anexos
-              </button>
-            ) : null}
-            {onConfigColumns ? (
-              <button type="button" onClick={() => { onConfigColumns(); setMoreOpen(false); }}>
-                <Settings className="h-4 w-4" />
-                Configurações
-              </button>
-            ) : null}
-            {onLayoutConfig ? (
-              <button type="button" onClick={() => { onLayoutConfig(); setMoreOpen(false); }}>
-                <Settings className="h-4 w-4" />
-                Layout do formulário
-              </button>
-            ) : null}
-            {onExportPdf ? (
-              <button type="button" onClick={() => { onExportPdf(); setMoreOpen(false); }}>
-                <Download className="h-4 w-4" />
-                Exportar PDF
-              </button>
-            ) : null}
-          </div>
+            items={speedDialItems}
+          />
         </div>
       </div>
     </div>
