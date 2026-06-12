@@ -1902,6 +1902,7 @@
   text-overflow: ellipsis;
   line-height: 16px;
   min-width: 0;
+  color: var(--text-1);
 }
 
 .mg-empresas-scope .mg-emp-card__meta-row {
@@ -1926,38 +1927,67 @@
   cursor: pointer;
   line-height: 0;
   box-shadow: none;
-  transition: opacity 0.15s ease, transform 100ms ease;
+  color: var(--mg-brand-green) !important;
+  transition: opacity 0.15s ease, transform 100ms ease, color 0.15s ease;
 }
 
 .mg-empresas-scope .mg-record-fav-btn__icon {
   width: 15px;
   height: 18px;
   display: block;
+  color: var(--mg-brand-green) !important;
   transition: fill 0.15s ease, stroke 0.15s ease, color 0.15s ease;
 }
 
-.mg-empresas-scope .mg-record-fav-btn:not(.is-active) .mg-record-fav-btn__icon {
-  color: var(--mg-brand-green) !important;
+.mg-empresas-scope .mg-record-fav-btn__icon,
+.mg-empresas-scope .mg-record-fav-btn__icon path {
   stroke: var(--mg-brand-green) !important;
-  fill: #ffffff !important;
 }
 
-.mg-empresas-scope .mg-record-fav-btn:not(.is-active):hover:not(:disabled) .mg-record-fav-btn__icon {
+.mg-empresas-scope .mg-record-fav-btn:not(.is-active) .mg-record-fav-btn__icon,
+.mg-empresas-scope .mg-record-fav-btn:not(.is-active) .mg-record-fav-btn__icon path {
+  fill: #ffffff !important;
+  stroke: var(--mg-brand-green) !important;
+}
+
+.mg-empresas-scope .mg-record-fav-btn:not(.is-active):hover:not(:disabled),
+.mg-empresas-scope .mg-record-fav-btn:not(.is-active):hover:not(:disabled) .mg-record-fav-btn__icon,
+.mg-empresas-scope .mg-record-fav-btn:not(.is-active):hover:not(:disabled) .mg-record-fav-btn__icon path {
   color: var(--mg-brand-green-hover) !important;
   stroke: var(--mg-brand-green-hover) !important;
   fill: #ffffff !important;
 }
 
-.mg-empresas-scope .mg-record-fav-btn.is-active .mg-record-fav-btn__icon {
+.mg-empresas-scope .mg-record-fav-btn.is-active .mg-record-fav-btn__icon,
+.mg-empresas-scope .mg-record-fav-btn.is-active .mg-record-fav-btn__icon path {
   color: var(--mg-brand-green) !important;
   stroke: var(--mg-brand-green) !important;
   fill: var(--mg-brand-green) !important;
 }
 
-.mg-empresas-scope .mg-record-fav-btn.is-active:hover:not(:disabled) .mg-record-fav-btn__icon {
+.mg-empresas-scope .mg-record-fav-btn.is-active:hover:not(:disabled),
+.mg-empresas-scope .mg-record-fav-btn.is-active:hover:not(:disabled) .mg-record-fav-btn__icon,
+.mg-empresas-scope .mg-record-fav-btn.is-active:hover:not(:disabled) .mg-record-fav-btn__icon path {
   color: var(--mg-brand-green-hover) !important;
   stroke: var(--mg-brand-green-hover) !important;
   fill: var(--mg-brand-green-hover) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-record-fav-btn__icon,
+.cadastro-emp-scope.mg-empresas-scope .mg-record-fav-btn__icon path {
+  stroke: var(--mg-brand-green) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-record-fav-btn:not(.is-active) .mg-record-fav-btn__icon,
+.cadastro-emp-scope.mg-empresas-scope .mg-record-fav-btn:not(.is-active) .mg-record-fav-btn__icon path {
+  fill: #ffffff !important;
+  stroke: var(--mg-brand-green) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-record-fav-btn.is-active .mg-record-fav-btn__icon,
+.cadastro-emp-scope.mg-empresas-scope .mg-record-fav-btn.is-active .mg-record-fav-btn__icon path {
+  fill: var(--mg-brand-green) !important;
+  stroke: var(--mg-brand-green) !important;
 }
 
 .mg-empresas-scope .mg-record-fav-btn:active:not(:disabled) {

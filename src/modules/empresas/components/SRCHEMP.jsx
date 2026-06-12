@@ -346,7 +346,7 @@ export default function SRCHEMP({
                         {initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="mg-emp-card__meta-row truncate text-xs" style={{ color: "var(--text-1)" }}>
+                        <div className="mg-emp-card__meta-row truncate text-xs">
                           <MgRecordFavoriteStar
                             active={isFavorite}
                             onToggle={() => onToggleFavorite?.(emp.id)}
