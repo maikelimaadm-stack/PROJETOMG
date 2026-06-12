@@ -154,11 +154,19 @@ export default function MgCardsPanelStrip({
             ))}
           </div>
           <div className="mg-cards-config-menu__footer">
-            <button type="button" className="mg-cards-config-menu__reset" onClick={handleRestore}>
+            <button
+              type="button"
+              className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-cards-config-menu__reset"
+              onClick={handleRestore}
+            >
               Restaurar padrão
             </button>
-            <button type="button" className="mg-cards-config-menu__ok" onClick={handleOk}>
-              OK
+            <button
+              type="button"
+              className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-cards-config-menu__ok"
+              onClick={handleOk}
+            >
+              Ok
             </button>
           </div>
         </MgPortalPanel>

@@ -1101,6 +1101,7 @@
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-gray:not(.tb-btn-icon),
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-red:not(.tb-btn-icon),
 .cadastro-emp-scope.mg-empresas-scope .filter-panel__footer .tb-btn,
+.cadastro-emp-scope.mg-empresas-scope .mg-cards-config-menu__footer .tb-btn-labeled,
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-labeled,
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn,
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab,
@@ -1111,6 +1112,7 @@
 .mg-empresas-scope .tb-btn-gray:not(.tb-btn-icon),
 .mg-empresas-scope .tb-btn-red:not(.tb-btn-icon),
 .mg-empresas-scope .filter-panel__footer .tb-btn,
+.mg-empresas-scope .mg-cards-config-menu__footer .tb-btn-labeled,
 .mg-empresas-scope .emp-layout-configurator .tb-btn-labeled,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab,
@@ -2698,42 +2700,39 @@
   background: var(--bg-card);
 }
 
-.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer button {
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-labeled {
   flex: 1 1 0;
   min-width: 0;
-  min-height: 32px;
-  padding: 8px 10px;
-  margin: 0;
-  border-radius: var(--mg-search-pill-radius);
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.2;
-  text-align: center;
+  width: auto;
+  max-width: none;
   justify-content: center;
-  gap: 0;
+  text-align: center;
+  margin: 0;
+  min-height: var(--mg-btn-height);
+  font-weight: 600;
   white-space: nowrap;
 }
 
-.mg-empresas-scope .mg-cards-config-menu__reset {
-  border: 1px solid var(--border);
-  background: var(--bg-card);
-  color: var(--text-1);
-  cursor: pointer;
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-ghost.tb-btn-labeled {
+  background: var(--gray-fill) !important;
+  color: var(--text-1) !important;
+  border: var(--mg-btn-pill-border) !important;
 }
 
-.mg-empresas-scope .mg-cards-config-menu__reset:hover {
-  background: var(--gray-fill);
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-ghost.tb-btn-labeled:hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+  color: var(--text-1) !important;
 }
 
-.mg-empresas-scope .mg-cards-config-menu__ok {
-  border: 0;
-  background: var(--mg-brand-green);
-  color: #fff;
-  cursor: pointer;
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-green.tb-btn-labeled {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+  border: var(--mg-btn-pill-border) !important;
 }
 
-.mg-empresas-scope .mg-cards-config-menu__ok:hover {
-  filter: brightness(1.05);
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-green.tb-btn-labeled:hover:not(:disabled) {
+  background: var(--mg-brand-green-hover) !important;
+  color: #fff !important;
 }
 
 .mg-empresas-scope .mobile-bottom-bar {
