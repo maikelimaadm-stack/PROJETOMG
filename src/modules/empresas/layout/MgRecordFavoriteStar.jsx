@@ -10,7 +10,7 @@ export default function MgRecordFavoriteStar({
   return (
     <button
       type="button"
-      className={`mg-record-fav-btn${active ? " is-active" : ""}${className ? ` ${className}` : ""}`}
+      className={`ios-btn tb-btn tb-btn-icon mg-record-fav-btn${active ? " is-active" : ""}${className ? ` ${className}` : ""}`}
       onClick={(event) => {
         event.stopPropagation();
         event.preventDefault();
