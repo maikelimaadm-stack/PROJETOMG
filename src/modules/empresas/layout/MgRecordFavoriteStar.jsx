@@ -1,5 +1,5 @@
 import React from "react";
-import { Star } from "lucide-react";
+import { Bookmark } from "lucide-react";
 
 export default function MgRecordFavoriteStar({
   active = false,
@@ -21,7 +21,7 @@ export default function MgRecordFavoriteStar({
       aria-label={active ? "Remover favorito" : "Adicionar favorito"}
       aria-pressed={active}
     >
-      <Star className="mg-record-fav-btn__icon" strokeWidth={2} />
+      <Bookmark className="mg-record-fav-btn__icon" strokeWidth={2.25} />
     </button>
   );
 }
