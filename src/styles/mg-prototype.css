@@ -62,7 +62,8 @@
   --mg-launch-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.022), 0 3px 10px rgba(15, 23, 42, 0.024), 0 0 0 1px rgba(255, 255, 255, 0.92), 0 0 0 2px rgba(236, 240, 245, 0.82), 0 0 10px rgba(255, 255, 255, 0.28);
   --mg-section-divider-color: #E7EAEE;
   --mg-section-divider-border: 1px solid var(--mg-section-divider-color);
-  --mg-section-divider-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.95), 0 1px 2px rgba(15, 23, 42, 0.022), 0 2px 6px rgba(15, 23, 42, 0.018);
+  --mg-section-divider-shadow: inset 0 -1px 0 var(--mg-section-divider-color), inset 0 -3px 8px rgba(15, 23, 42, 0.038), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+  --mg-section-divider-shadow-top: inset 0 1px 0 var(--mg-section-divider-color), inset 0 3px 8px rgba(15, 23, 42, 0.038), inset 0 -1px 0 rgba(255, 255, 255, 0.92);
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
@@ -470,17 +471,27 @@
 
 /* Divisores de seção — linha suave + sombreamento corporativo (abaixo de toolbars/painéis) */
 .mg-empresas-scope .mg-action-bar,
+.mg-empresas-scope .mg-context-panel,
 .mg-empresas-scope .mg-panel-tabs-strip,
-.mg-empresas-scope .mg-context-panel-wrap.is-visible,
 .mg-empresas-scope .mg-mobile-filter-strip,
 .cadastro-emp-scope.mg-empresas-scope .emp-form-tabs.emp-form-tabs-launch,
 .cadastro-emp-scope.mg-empresas-scope .emp-search-bar,
 .cadastro-emp-scope.mg-empresas-scope .emp-search-view-wrap > .emp-toolbar-card,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search,
+.mg-empresas-scope .filter-panel__header,
 .mg-empresas-scope .erp-menu-search-field {
   border-bottom: var(--mg-section-divider-border) !important;
   box-shadow: var(--mg-section-divider-shadow);
+}
+
+/* Divisores superiores (rodapés de painel) */
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer,
+.mg-empresas-scope .filter-panel__footer {
+  border-top: var(--mg-section-divider-border) !important;
+  border-bottom: none !important;
+  box-shadow: var(--mg-section-divider-shadow-top);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control,
@@ -1412,10 +1423,10 @@
   min-height: 36px;
   padding: 0 12px;
   background: var(--accent);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.12);
   gap: 10px;
   flex-shrink: 0;
-  border-bottom: none;
+  border-bottom: var(--mg-section-divider-border) !important;
 }
 
 .mg-empresas-scope .mobile-header .ios-btn {
@@ -1435,8 +1446,8 @@
   min-height: 36px;
   padding: 0 12px;
   background: var(--accent);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
-  border-bottom: none;
+  box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.12);
+  border-bottom: var(--mg-section-divider-border) !important;
 }
 
 .mg-empresas-scope .mg-desktop-header__crumbs {
@@ -1616,7 +1627,6 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 12px 8px;
-  border-bottom: var(--mg-divider-width) solid var(--border);
   flex-shrink: 0;
 }
 
@@ -1660,7 +1670,6 @@
   justify-content: flex-end;
   gap: 8px;
   padding: 10px 12px 12px;
-  border-top: var(--mg-divider-width) solid var(--border);
   flex-shrink: 0;
   background: var(--bg-card);
 }
@@ -2096,7 +2105,6 @@
   max-height: 32px;
   padding: 0 14px;
   border: none;
-  border-bottom: none;
   background: var(--bg-card);
   flex-shrink: 0;
   box-sizing: border-box;
@@ -3703,6 +3711,8 @@
   max-width: 100% !important;
   min-width: 0 !important;
   border-radius: 999px !important;
+  padding-bottom: 12px !important;
+  margin-bottom: 8px !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search input {
@@ -4068,7 +4078,8 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer {
-  border-top: var(--mg-divider-width) solid var(--mg-divider);
+  margin-top: 12px;
+  padding-top: 10px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn {
