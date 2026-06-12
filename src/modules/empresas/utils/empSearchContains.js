@@ -1,5 +1,29 @@
 import { getEmpSearchFieldValue } from "@/modules/empresas/components/empSearchView.constants";
 
+/** Normaliza texto para busca contido: trim + espaços consecutivos viram um. */
+export function normalizeSearchQuery(query) {
+  return String(query || "")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+export function normalizeSearchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
+export function textContainsSearchQuery(text, query) {
+  const term = normalizeSearchQuery(query);
+  if (!term) return true;
+
+  const source = text == null || text === "—" ? "" : String(text);
+  if (!source) return false;
+
+  return normalizeSearchText(source).includes(normalizeSearchText(term));
+}
+
 /** Campos pesquisáveis: código, nome e detalhes visíveis na listagem. */
 export function buildEmpSearchFieldKeys(detailFields = []) {
   const keys = new Set(["codempresa", "razao_social"]);
@@ -10,19 +34,18 @@ export function buildEmpSearchFieldKeys(detailFields = []) {
 }
 
 export function empresaMatchesContainsSearch(emp, query, fieldKeys = []) {
-  const term = String(query || "").trim().toLowerCase();
+  const term = normalizeSearchQuery(query);
   if (!term) return true;
   if (!emp) return false;
 
   return fieldKeys.some((key) => {
     const display = getEmpSearchFieldValue(emp, key);
-    if (!display || display === "—") return false;
-    return String(display).toLowerCase().includes(term);
+    return textContainsSearchQuery(display, term);
   });
 }
 
 export function filterEmpresasContains(empresas, query, fieldKeys = []) {
-  const term = String(query || "").trim();
+  const term = normalizeSearchQuery(query);
   if (!term) return empresas;
   return (empresas || []).filter((emp) => empresaMatchesContainsSearch(emp, term, fieldKeys));
 }

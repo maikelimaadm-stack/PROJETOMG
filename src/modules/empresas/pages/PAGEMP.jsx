@@ -30,6 +30,7 @@ import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import {
   buildEmpSearchFieldKeys,
   filterEmpresasContains,
+  normalizeSearchQuery,
   paginateEmpresasList,
 } from "@/modules/empresas/utils/empSearchContains";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
@@ -138,13 +139,13 @@ export default function PAGEMP() {
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      setDropdownSearch(searchDraft.trim());
+      setDropdownSearch(normalizeSearchQuery(searchDraft));
     }, 200);
     return () => window.clearTimeout(timer);
   }, [searchDraft]);
 
-  const searchDraftTrimmed = searchDraft.trim();
-  const dropdownSearchPending = searchDraftTrimmed !== dropdownSearch;
+  const searchDraftNormalized = normalizeSearchQuery(searchDraft);
+  const dropdownSearchPending = searchDraftNormalized !== dropdownSearch;
 
   const { data: dropdownSourceResponse, isFetching: dropdownSourceFetching } = useQuery({
     queryKey: ["emp-cadastro-dropdown-source", querySort.key, querySort.direction],
@@ -186,7 +187,7 @@ export default function PAGEMP() {
       searchFieldKeys.join("|"),
     ],
     queryFn: async () => {
-      const trimmedSearch = searchTerm.trim();
+      const trimmedSearch = normalizeSearchQuery(searchTerm);
       if (!trimmedSearch) {
         return moduleRepository.listPage({
           page: queryPage,
@@ -535,7 +536,7 @@ export default function PAGEMP() {
   }, []);
 
   const handleSearchApplyAll = useCallback(() => {
-    const next = searchDraft.trim();
+    const next = normalizeSearchQuery(searchDraft);
     searchViewApplyRef.current = "all";
     setSearchViewPending(true);
     setPinnedRecord(null);
@@ -552,7 +553,7 @@ export default function PAGEMP() {
       searchViewApplyRef.current = "single";
       setSearchViewPending(true);
       setPinnedRecord(emp);
-      setSearchTerm(searchDraft.trim());
+      setSearchTerm(normalizeSearchQuery(searchDraft));
       setQueryPage(1);
       setTableFilteredEmpresas(null);
       setSelectedTableItems([]);

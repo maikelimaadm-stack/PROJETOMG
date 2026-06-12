@@ -1,33 +1,44 @@
 import React from "react";
+import { normalizeSearchQuery } from "@/modules/empresas/utils/empSearchContains";
 
-/** Destaca trechos que contêm o termo (case-insensitive). */
+const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const buildSearchHighlightRegex = (query) => {
+  const term = normalizeSearchQuery(query);
+  if (!term) return null;
+
+  const parts = term.split(/\s+/).filter(Boolean).map(escapeRegExp);
+  if (parts.length === 0) return null;
+
+  return new RegExp(parts.join("\\s+"), "gi");
+};
+
+/** Destaca trechos que contêm o termo (case-insensitive, ignora espaços extras). */
 export function renderSearchHighlight(text, query) {
   const source = text == null || text === "—" ? "" : String(text);
-  const term = String(query || "").trim();
-  if (!term || !source) return source || "—";
+  const regex = buildSearchHighlightRegex(query);
+  if (!regex || !source) return source || "—";
 
-  const lowerSource = source.toLowerCase();
-  const lowerTerm = term.toLowerCase();
   const nodes = [];
-  let cursor = 0;
-  let matchIndex = lowerSource.indexOf(lowerTerm, cursor);
+  let lastIndex = 0;
   let key = 0;
+  const matcher = new RegExp(regex.source, regex.flags);
 
-  while (matchIndex !== -1) {
-    if (matchIndex > cursor) {
-      nodes.push(source.slice(cursor, matchIndex));
+  for (const match of source.matchAll(matcher)) {
+    const start = match.index ?? 0;
+    if (start > lastIndex) {
+      nodes.push(source.slice(lastIndex, start));
     }
     nodes.push(
       <mark key={`m-${key++}`} className="mg-search-dropdown__mark">
-        {source.slice(matchIndex, matchIndex + term.length)}
+        {match[0]}
       </mark>
     );
-    cursor = matchIndex + term.length;
-    matchIndex = lowerSource.indexOf(lowerTerm, cursor);
+    lastIndex = start + match[0].length;
   }
 
-  if (cursor < source.length) {
-    nodes.push(source.slice(cursor));
+  if (lastIndex < source.length) {
+    nodes.push(source.slice(lastIndex));
   }
 
   return nodes.length > 0 ? nodes : source;

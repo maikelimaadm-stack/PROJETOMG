@@ -2463,7 +2463,12 @@
   background: none;
   cursor: pointer;
   line-height: 0;
-  color: inherit;
+  color: var(--red);
+}
+
+.mg-empresas-scope .mg-search-pill-clear .mg-search-pill-icon {
+  color: var(--red) !important;
+  stroke: var(--red) !important;
 }
 
 .mg-empresas-scope .mg-search-pill-clear:disabled {
@@ -2472,13 +2477,13 @@
 }
 
 .mg-empresas-scope .mg-search-pill-clear:hover:not(:disabled) .mg-search-pill-icon {
-  color: var(--text-1) !important;
-  stroke: var(--text-1) !important;
+  color: #b91c1c !important;
+  stroke: #b91c1c !important;
 }
 
 .mg-empresas-scope .mg-search-pill:focus-within .mg-search-pill-clear:not(:disabled) .mg-search-pill-icon {
-  color: var(--accent) !important;
-  stroke: var(--accent) !important;
+  color: var(--red) !important;
+  stroke: var(--red) !important;
 }
 
 .mg-empresas-scope .mg-search-pill:focus-within {
