@@ -252,7 +252,7 @@ export default function MgActionBar({
               setMoreOpen((open) => !open);
             }}
           >
-            <MoreVertical className="h-4 w-4" stroke="var(--mg-brand-green)" />
+            <MoreVertical className="mg-more-btn-icon" stroke="var(--mg-brand-green)" strokeWidth={2.75} />
           </button>
           <div id="more-dd" className={`dropdown-menu mg-more-dropdown${moreOpen ? " open" : ""}`}>
             <div className="mg-more-dropdown__surface">
