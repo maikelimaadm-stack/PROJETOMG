@@ -391,7 +391,7 @@ function FieldFrameCorp({
         data-width-type={preset.type}
         className={cn(
           "mg-prototype-composite",
-          hasValue && !isLocked && "mg-has-value",
+          hasValue && "mg-has-value",
           isLocked && "mg-field-locked",
           error && "erp-field-invalid",
           className
@@ -411,7 +411,7 @@ function FieldFrameCorp({
         className={cn(
           "fg mg-prototype-field",
           bare && "mg-prototype-field--bare",
-          hasValue && !isLocked && "mg-has-value",
+          hasValue && "mg-has-value",
           isLocked && "mg-field-locked",
           error && "erp-field-invalid",
           className
