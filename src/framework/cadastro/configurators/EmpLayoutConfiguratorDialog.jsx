@@ -166,6 +166,7 @@ export default function EmpLayoutConfiguratorDialog({
   const suppressFieldClickRef = useRef(false);
   const dragFieldIdsRef = useRef([]);
   const lastFieldPreviewKeyRef = useRef("");
+  const lastFieldHoverTargetRef = useRef("");
   const panelSegRef = useRef(null);
   const panelSliderRef = useRef(null);
   const cardSegRef = useRef(null);
@@ -452,6 +453,7 @@ export default function EmpLayoutConfiguratorDialog({
     suppressFieldClickRef.current = true;
     dragFieldIdsRef.current = [];
     lastFieldPreviewKeyRef.current = "";
+    lastFieldHoverTargetRef.current = "";
     setDraggedFieldId(null);
     setDraggedFrom(null);
     setDragOverRowId(null);
@@ -547,6 +549,20 @@ export default function EmpLayoutConfiguratorDialog({
 
     applyCardsState(nextCardsByPanel);
     lastFieldPreviewKeyRef.current = previewKey;
+  };
+
+  const previewFieldEnter = (targetFieldId) => {
+    if (!isEditing || !draggedFieldId || draggedRowId || !targetFieldId) return;
+    const ids = resolveDragFieldIds();
+    if (!ids.length || ids.includes(targetFieldId)) return;
+
+    const hoverKey = `${ids.join(",")}|${activePanelId}|${activeCardId}|${targetFieldId}`;
+    if (lastFieldHoverTargetRef.current === hoverKey) return;
+    lastFieldHoverTargetRef.current = hoverKey;
+
+    previewMoveFieldsLive({
+      targetFieldId,
+    });
   };
 
   const previewReorderRowAt = (targetRowId, edge = "auto") => {
@@ -1151,6 +1167,7 @@ export default function EmpLayoutConfiguratorDialog({
           : [field.id];
         dragFieldIdsRef.current = ids;
         lastFieldPreviewKeyRef.current = "";
+        lastFieldHoverTargetRef.current = "";
         setDraggedFrom("available");
         setDraggedFieldId(field.id);
         setSelectedAvailableIds(ids);
@@ -1223,18 +1240,28 @@ export default function EmpLayoutConfiguratorDialog({
               : [field.id];
             dragFieldIdsRef.current = ids;
             lastFieldPreviewKeyRef.current = "";
+            lastFieldHoverTargetRef.current = "";
             setDraggedFrom("panel");
             setDraggedFieldId(field.id);
             setSelectedPanelFieldIds(ids);
             setSelectedAvailableIds([]);
           }}
+          onDragEnter={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            previewFieldEnter(field.id);
+          }}
           onDragOver={(event) => {
             event.preventDefault();
             event.stopPropagation();
             if (!isEditing || !draggedFieldId || draggedRowId) return;
-            previewMoveFieldsLive({
+            const canDrop = canDropFieldsAtTarget({
+              targetPanelId: activePanelId,
+              targetCardId: activeCardId,
               targetFieldId: field.id,
+              showWarningOnFail: false,
             });
+            event.dataTransfer.dropEffect = canDrop ? "move" : "none";
           }}
           onDrop={(event) => {
             event.preventDefault();
