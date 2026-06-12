@@ -124,9 +124,12 @@ export default function PAGEMP() {
   useEffect(() => {
     const timer = window.setTimeout(() => {
       setDropdownSearch(searchDraft.trim());
-    }, 280);
+    }, 200);
     return () => window.clearTimeout(timer);
   }, [searchDraft]);
+
+  const searchDraftTrimmed = searchDraft.trim();
+  const dropdownSearchPending = searchDraftTrimmed !== dropdownSearch;
 
   const { data: dropdownSearchResponse, isFetching: dropdownSearchFetching } = useQuery({
     queryKey: ["emp-cadastro-dropdown", dropdownSearch, querySort.key, querySort.direction],
@@ -139,12 +142,13 @@ export default function PAGEMP() {
         sortDir: querySort.direction,
       }),
     enabled: dropdownSearch.length > 0,
-    staleTime: 30_000,
-    placeholderData: (previous) => previous,
+    staleTime: 15_000,
   });
 
-  const dropdownSearchResults = dropdownSearchResponse?.items || [];
-  const dropdownSearchLoading = dropdownSearchFetching && dropdownSearchResults.length === 0;
+  const dropdownSearchResults = dropdownSearchPending
+    ? []
+    : dropdownSearchResponse?.items || [];
+  const dropdownSearchLoading = dropdownSearchPending || dropdownSearchFetching;
 
   const { data: empresasResponse = DEFAULT_EMPRESAS_RESPONSE, isLoading, isFetching } = useQuery({
     queryKey: ["emp-cadastro", queryPage, queryPageSize, searchTerm, querySort.key, querySort.direction],

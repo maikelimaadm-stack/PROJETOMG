@@ -3,6 +3,7 @@ import {
   getEmpSearchFieldValue,
 } from "@/modules/empresas/components/empSearchView.constants";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
+import { renderSearchHighlight } from "@/modules/empresas/layout/mgSearchHighlight";
 
 export const MG_SEARCH_DROPDOWN_MAX = 10;
 
@@ -11,6 +12,7 @@ export default function MgSearchResultsDropdown({
   items = [],
   detailFields = [],
   loading = false,
+  searchQuery = "",
   onSelect,
   onApplyAll,
   isFavoriteRecord,
@@ -19,12 +21,13 @@ export default function MgSearchResultsDropdown({
   if (!open) return null;
 
   const visibleItems = items.slice(0, MG_SEARCH_DROPDOWN_MAX);
-  const showList = loading && visibleItems.length === 0;
+  const query = searchQuery.trim();
+  const showLoading = loading && visibleItems.length === 0;
 
   return (
     <div className="mg-search-dropdown" role="listbox" aria-label="Resultados da pesquisa">
       <div className="mg-search-dropdown__list">
-        {showList ? (
+        {showLoading ? (
           <div className="mg-search-dropdown__empty">Carregando...</div>
         ) : visibleItems.length === 0 ? (
           <div className="mg-search-dropdown__empty">Nenhum registro encontrado</div>
@@ -52,23 +55,30 @@ export default function MgSearchResultsDropdown({
                   <div className="mg-search-dropdown__title">
                     {code && code !== "—" ? (
                       <>
-                        <span className="mg-search-dropdown__code">{code}</span>
+                        <span className="mg-search-dropdown__code">
+                          {renderSearchHighlight(code, query)}
+                        </span>
                         <span className="mg-search-dropdown__sep"> • </span>
                       </>
                     ) : null}
-                    <span className="mg-search-dropdown__name">{nome}</span>
+                    <span className="mg-search-dropdown__name">
+                      {renderSearchHighlight(nome, query)}
+                    </span>
                   </div>
                 </div>
                 {detailFields.length > 0 ? (
                   <div className="mg-search-dropdown__meta">
-                    {detailFields.map((field) => (
-                      <div key={field.key} className="mg-search-dropdown__field">
-                        <span className="mg-search-dropdown__field-label">{field.label}:</span>
-                        <span className="mg-search-dropdown__field-value">
-                          {getEmpSearchFieldValue(emp, field.key)}
-                        </span>
-                      </div>
-                    ))}
+                    {detailFields.map((field) => {
+                      const value = getEmpSearchFieldValue(emp, field.key);
+                      return (
+                        <div key={field.key} className="mg-search-dropdown__field">
+                          <span className="mg-search-dropdown__field-label">{field.label}:</span>
+                          <span className="mg-search-dropdown__field-value">
+                            {renderSearchHighlight(value, query)}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : null}
               </button>
@@ -79,7 +89,7 @@ export default function MgSearchResultsDropdown({
       <div className="mg-search-dropdown__footer">
         <button
           type="button"
-          className="mg-search-dropdown__apply-all ios-btn tb-btn tb-btn-labeled tb-btn-green"
+          className="mg-search-dropdown__apply-all"
           onMouseDown={(event) => event.preventDefault()}
           onClick={() => onApplyAll?.()}
         >

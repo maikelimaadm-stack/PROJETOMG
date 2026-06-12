@@ -4,6 +4,7 @@ import {
   Download,
   Filter,
   History,
+  Loader2,
   Paperclip,
   Printer,
   RotateCcw,
@@ -345,7 +346,14 @@ export default function MgActionBar({
         <div className="mg-action-bar__tools mg-action-bar__tools--visible">
           <div className="mg-search-pill-wrap" ref={searchRef}>
             <div className="mg-search-pill" role="search">
-              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              {searchLoading ? (
+                <Loader2
+                  className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              )}
               <input
                 type="text"
                 placeholder="Pesquisar..."
@@ -370,6 +378,7 @@ export default function MgActionBar({
               items={searchResults}
               detailFields={searchDetailFields}
               loading={searchLoading}
+              searchQuery={searchInputValue}
               onSelect={(emp) => {
                 onSearchResultSelect?.(emp);
                 setSearchOpen(false);
