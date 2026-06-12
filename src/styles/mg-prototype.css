@@ -57,11 +57,13 @@
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
-  --mg-field-height: 48px;
-  --mg-field-label-size-top: 10px;
-  --mg-field-label-size-empty: 13px;
+  --mg-field-height: 40px;
+  --mg-field-label-size-top: 9px;
+  --mg-field-label-size-empty: 12px;
+  --mg-field-stack-inset-top: 11px;
+  --mg-field-stack-inset-bottom: 3px;
   --mg-panel-tab-font: 13px;
-  --mg-field-label-font: 13px;
+  --mg-field-label-font: 12px;
   --mg-card-row-gap: 10px;
   --mg-cards-layout-gap: 9px;
   --mg-btn-font: 13px;
@@ -329,7 +331,7 @@
 .mg-empresas-scope .mg-prototype-field.mg-has-value:not(.mg-prototype-field--bare) .fg-label,
 .mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-prototype-field--bare):focus-within .fg-label {
   align-self: start;
-  padding: 5px 10px 0;
+  padding: 4px 10px 0;
   font-size: var(--mg-field-label-size-top);
   line-height: 1;
 }
@@ -386,15 +388,15 @@
 .mg-empresas-scope .mg-prototype-field.mg-has-value:not(.mg-prototype-field--bare) > textarea,
 .mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-prototype-field--bare):focus-within > input:not([type="hidden"]),
 .mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-prototype-field--bare):focus-within > textarea {
-  padding-top: 14px;
-  padding-bottom: 4px;
+  padding-top: var(--mg-field-stack-inset-top);
+  padding-bottom: var(--mg-field-stack-inset-bottom);
 }
 
 .mg-empresas-scope .fg textarea,
 .mg-empresas-scope .fg .emp-form-field-control textarea {
   height: auto;
-  min-height: 72px;
-  padding: 22px 10px 8px;
+  min-height: 64px;
+  padding: 20px 10px 8px;
   resize: vertical;
 }
 
@@ -402,7 +404,7 @@
 .mg-empresas-scope .fg textarea:focus,
 .mg-empresas-scope .fg .emp-form-field-control:focus-within {
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .fg .emp-form-field-control {
@@ -441,6 +443,13 @@
   padding-bottom: 2px;
   font-weight: 600;
   line-height: 1.2;
+}
+
+.mg-empresas-scope .mg-prototype-field > input::placeholder,
+.mg-empresas-scope .mg-prototype-field > textarea::placeholder,
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control input::placeholder,
+.mg-empresas-scope .mg-prototype-field .emp-form-field-control textarea::placeholder {
+  color: transparent;
 }
 
 /* Segmented tabs (painéis — estilo GitHub, indicador azul deslizante) */
@@ -974,7 +983,7 @@
   padding: 0 !important;
 }
 
-/* Campos do formulário — labels unificadas (mesmo estilo de Tipo de Pessoa / Proprietário) */
+/* Campos do formulário — labels unificadas (mesmo estilo dos selects) */
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .fg-label,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-fields [data-field] > label,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .cmd-label,
@@ -983,10 +992,10 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .mg-lookup-label,
 .mg-empresas-scope .mg-prototype-field .fg-label,
 .mg-empresas-scope .mg-prototype-field .emp-form-field-label-top {
-  font-size: var(--mg-field-label-font) !important;
+  font-size: var(--mg-field-label-size-empty) !important;
   font-weight: 500 !important;
   color: var(--text-3) !important;
-  line-height: 1.2 !important;
+  line-height: 1.1 !important;
   letter-spacing: normal !important;
   text-transform: none !important;
 }
@@ -1015,7 +1024,7 @@
 
 .mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field .emp-form-field-control:focus-within {
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-prototype-field .emp-form-field-control input,
@@ -1032,8 +1041,8 @@
 }
 
 .mg-empresas-scope .mg-prototype-field .emp-form-field-control textarea {
-  min-height: 72px;
-  padding: 22px 10px 8px;
+  min-height: 64px;
+  padding: 20px 10px 8px;
 }
 
 .mg-empresas-scope .mg-prototype-field.mg-has-value .fg-label,
@@ -1152,7 +1161,7 @@
 .mg-empresas-scope .mg-prototype-composite.mg-has-value .cmd-label,
 .mg-empresas-scope .cmd-select.open .cmd-label {
   align-self: start;
-  padding: 5px 10px 0;
+  padding: 4px 10px 0;
   font-size: var(--mg-field-label-size-top);
   opacity: 1;
   visibility: visible;
@@ -1188,8 +1197,8 @@
 
 .mg-empresas-scope .mg-prototype-composite.mg-has-value .cmd-display,
 .mg-empresas-scope .cmd-select.open .cmd-display {
-  padding-top: 14px;
-  padding-bottom: 4px;
+  padding-top: var(--mg-field-stack-inset-top);
+  padding-bottom: var(--mg-field-stack-inset-bottom);
   align-items: flex-end;
 }
 
@@ -1237,7 +1246,7 @@
 
 .mg-empresas-scope .cmd-select.open .cmd-display {
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .cmd-select.disabled {
@@ -1954,7 +1963,7 @@
 }
 
 .mg-empresas-scope .mg-search-pill:focus-within {
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
   border-color: var(--mg-focus-border);
   box-shadow: var(--mg-focus-ring);
   z-index: 2;
@@ -2424,13 +2433,13 @@
 
 .mg-empresas-scope .mg-prototype-composite.mg-has-value .mg-dp-field,
 .mg-empresas-scope .mg-dp.open .mg-dp-field {
-  padding-top: 14px;
-  padding-bottom: 4px;
+  padding-top: var(--mg-field-stack-inset-top);
+  padding-bottom: var(--mg-field-stack-inset-bottom);
 }
 
 .mg-empresas-scope .mg-dp-field:focus {
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-dp-label,
@@ -2459,7 +2468,7 @@
 .mg-empresas-scope .mg-prototype-composite.mg-has-value :is(.mg-dp-label, .mg-tp-label, .mg-lookup-label),
 .mg-empresas-scope :is(.mg-dp.open, .mg-tp.open, .mg-lookup.open) :is(.mg-dp-label, .mg-tp-label, .mg-lookup-label) {
   align-self: start;
-  padding: 5px 10px 0;
+  padding: 4px 10px 0;
   font-size: var(--mg-field-label-size-top);
   opacity: 1;
   visibility: visible;
@@ -2499,7 +2508,7 @@
 
 .mg-empresas-scope .mg-dp.open .mg-dp-field {
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-dp-panel {
@@ -2800,13 +2809,13 @@
 
 .mg-empresas-scope .mg-prototype-composite.mg-has-value .mg-tp-field,
 .mg-empresas-scope .mg-tp.open .mg-tp-field {
-  padding-top: 14px;
-  padding-bottom: 4px;
+  padding-top: var(--mg-field-stack-inset-top);
+  padding-bottom: var(--mg-field-stack-inset-bottom);
 }
 
 .mg-empresas-scope .mg-tp-field:focus {
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-tp-icon {
@@ -2832,7 +2841,7 @@
 
 .mg-empresas-scope .mg-tp.open .mg-tp-field {
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-tp-panel {
@@ -2966,11 +2975,11 @@
 
 .mg-empresas-scope .mg-prototype-composite.mg-has-value .mg-lookup-display,
 .mg-empresas-scope .mg-lookup.open .mg-lookup-display {
-  padding-top: 14px;
-  padding-bottom: 4px;
+  padding-top: var(--mg-field-stack-inset-top);
+  padding-bottom: var(--mg-field-stack-inset-bottom);
   align-items: flex-end;
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-lookup-icon {
@@ -2991,12 +3000,6 @@
 
 .mg-empresas-scope .mg-lookup.open .mg-lookup-icon {
   transform: rotate(180deg);
-}
-
-.mg-empresas-scope .mg-lookup.open .mg-lookup-display {
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
 }
 
 .mg-empresas-scope .mg-lookup-panel {
@@ -3171,21 +3174,19 @@
   align-items: center;
   min-height: var(--mg-field-height);
   height: var(--mg-field-height);
-  border: 1px solid var(--mg-field-idle-border);
+  border: none;
   border-radius: 8px;
   background: var(--mg-field-idle-bg);
-  box-shadow: none;
+  box-shadow: var(--mg-field-edge-shadow);
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-select.erp-field-open,
 .mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-select.erp-field-open {
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-select .erp-field-select-input,
@@ -3221,21 +3222,19 @@
   align-items: center;
   min-height: var(--mg-field-height);
   height: var(--mg-field-height);
-  border: 1px solid var(--mg-field-idle-border);
+  border: none;
   border-radius: 8px;
   background: var(--mg-field-idle-bg);
-  box-shadow: none;
+  box-shadow: var(--mg-field-edge-shadow);
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup.erp-field-open,
 .mg-empresas-scope .mg-prototype-form .emp-form-autocomplete-wrap.erp-field-lookup.erp-field-open {
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-prototype-autocomplete.erp-field-lookup .erp-field-lookup-input {
@@ -3312,47 +3311,44 @@
 .mg-empresas-scope .mg-prototype-form input[type="date"],
 .mg-empresas-scope .mg-prototype-form input[type="datetime-local"] {
   height: var(--mg-field-height);
-  border: 1px solid var(--mg-field-idle-border);
+  border: none;
   border-radius: 8px;
   padding: 0 10px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   background: var(--mg-field-idle-bg);
   color: var(--text-1);
-  box-shadow: none;
+  box-shadow: var(--mg-field-edge-shadow);
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-prototype-form .emp-form-field-control input,
-.mg-empresas-scope .mg-prototype-form .emp-form-field-control textarea {
+.mg-empresas-scope .mg-prototype-form .emp-form-field-corp .emp-form-field-control input,
+.mg-empresas-scope .mg-prototype-form .emp-form-field-corp .emp-form-field-control textarea {
   height: var(--mg-field-height);
-  border: 1px solid var(--mg-field-idle-border);
+  border: none;
   border-radius: 8px;
   padding: 0 10px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   background: var(--mg-field-idle-bg);
   color: var(--text-1);
-  box-shadow: none;
+  box-shadow: var(--mg-field-edge-shadow);
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-prototype-form .emp-form-field-control textarea {
+.mg-empresas-scope .mg-prototype-form .emp-form-field-corp .emp-form-field-control textarea {
   height: auto;
   min-height: 64px;
   padding: 8px 10px;
 }
 
-.mg-empresas-scope .mg-prototype-form--edit .emp-form-field-control:focus-within {
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+.mg-empresas-scope .mg-prototype-form--edit .emp-form-field-corp .emp-form-field-control:focus-within {
+  box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="time"]),
@@ -3376,14 +3372,14 @@
 .mg-empresas-scope .mg-prototype-form .emp-form-field-control:has(> input[type="datetime-local"]):focus-within {
   border-color: var(--mg-focus-border) !important;
   box-shadow: var(--mg-focus-ring) !important;
-  background: var(--mg-focus-bg) !important;
+  background: var(--mg-field-idle-bg) !important;
   outline: none;
 }
 
 .mg-empresas-scope .cmd-display:focus-visible {
   border-color: var(--mg-focus-border);
   box-shadow: var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
   outline: none;
 }
 
@@ -3407,7 +3403,7 @@
 .mg-empresas-scope .emp-search-page-size.open .emp-search-page-size-display {
   border-color: var(--mg-focus-border);
   box-shadow: var(--mg-focus-ring);
-  background: var(--mg-focus-bg);
+  background: var(--mg-field-idle-bg);
 }
 
 .mg-empresas-scope .emp-search-page-btn {
@@ -3441,7 +3437,7 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .emp-form-field-corp .emp-form-field-control.erp-field-open {
   border-color: var(--mg-focus-border) !important;
   box-shadow: var(--mg-focus-ring) !important;
-  background: var(--mg-focus-bg) !important;
+  background: var(--mg-field-idle-bg) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.erp-field-invalid > input:not([disabled]):not([readonly]),
@@ -3475,7 +3471,7 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--edit .erp-field-invalid.emp-form-field-control:focus-within {
   border-color: var(--mg-focus-border) !important;
   box-shadow: var(--mg-focus-ring) !important;
-  background: var(--mg-focus-bg) !important;
+  background: var(--mg-field-idle-bg) !important;
   color: var(--text-1) !important;
 }
 
@@ -3539,37 +3535,29 @@
   opacity: 0.72;
 }
 
-/* —— Formulário: edição/novo — vazio cinza, preenchido branco —— */
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value:not(.mg-field-locked) > input:not([disabled]):not([readonly]),
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value:not(.mg-field-locked) > textarea:not([disabled]):not([readonly]),
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value:not(.mg-field-locked) .emp-form-field-control,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value:not(.mg-field-locked) .cmd-display,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value:not(.mg-field-locked) .mg-lookup-display,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value:not(.mg-field-locked) .mg-dp-field,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite.mg-has-value:not(.mg-field-locked) .mg-tp-field,
-.mg-empresas-scope .mg-prototype-form--edit .mg-has-value:not(.mg-field-locked) .cmd-display,
-.mg-empresas-scope .mg-prototype-form--edit .mg-has-value:not(.mg-field-locked) .mg-lookup-display,
-.mg-empresas-scope .mg-prototype-form--edit .mg-has-value:not(.mg-field-locked) .mg-dp-field,
-.mg-empresas-scope .mg-prototype-form--edit .mg-has-value:not(.mg-field-locked) .mg-tp-field,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value:not(.mg-field-locked) .emp-form-image-thumb,
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value:not(.mg-field-locked) .border.border-slate-300 {
-  background: var(--mg-focus-bg) !important;
-  border-color: var(--border) !important;
-  box-shadow: none !important;
+/* —— Formulário: edição/novo — superfície unificada em todos os campos —— */
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) > input:not([disabled]):not([readonly]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) > textarea:not([disabled]):not([readonly]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) .emp-form-field-control,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-field-locked) :is(.cmd-display, .mg-lookup-display, .mg-dp-field, .mg-tp-field),
+.mg-empresas-scope .mg-prototype-form--edit .mg-has-value:not(.mg-field-locked) :is(.cmd-display, .mg-lookup-display, .mg-dp-field, .mg-tp-field),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-autocomplete:not(.disabled):is(.erp-field-select, .erp-field-lookup),
+.mg-empresas-scope .mg-prototype-form--edit .emp-form-autocomplete-wrap:not(.disabled):is(.erp-field-select, .erp-field-lookup) {
+  background: var(--mg-field-idle-bg) !important;
+  box-shadow: var(--mg-field-edge-shadow) !important;
+  border: none !important;
   color: var(--text-1) !important;
   opacity: 1;
+  -webkit-text-fill-color: var(--text-1) !important;
 }
 
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > input:not([disabled]),
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) > textarea:not([disabled]),
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-has-value) :is(.cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display),
-.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-composite:not(.mg-has-value) :is(.cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display) {
-  background: var(--mg-field-view-bg) !important;
-  border-color: var(--mg-field-view-border) !important;
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) > input:not([disabled]):not([readonly]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) > textarea:not([disabled]):not([readonly]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) .emp-form-field-control input,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) .emp-form-field-control textarea {
+  background: transparent !important;
   box-shadow: none !important;
-  color: var(--mg-field-view-text) !important;
-  opacity: 1;
-  -webkit-text-fill-color: var(--mg-field-view-text) !important;
+  border: none !important;
 }
 
 .mg-empresas-scope .mg-prototype-form--edit input[disabled],
@@ -3604,11 +3592,13 @@
 .mg-empresas-scope .mg-prototype-form--edit .mg-lookup.open:not(.disabled) .mg-lookup-display,
 .mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) > input:not([disabled]):not([readonly]):focus,
 .mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) > textarea:not([disabled]):not([readonly]):focus,
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-field-locked) .emp-form-field-control:focus-within,
 .mg-empresas-scope .mg-prototype-form--edit .mg-dp-field:focus:not([readonly]),
-.mg-empresas-scope .mg-prototype-form--edit .mg-tp-field:focus:not([readonly]) {
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
-  background: var(--mg-focus-bg) !important;
+.mg-empresas-scope .mg-prototype-form--edit .mg-tp-field:focus:not([readonly]),
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-autocomplete.erp-field-open:is(.erp-field-select, .erp-field-lookup),
+.mg-empresas-scope .mg-prototype-form--edit .emp-form-autocomplete-wrap.erp-field-open:is(.erp-field-select, .erp-field-lookup) {
+  background: var(--mg-field-idle-bg) !important;
+  box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring) !important;
   color: var(--text-1) !important;
   opacity: 1;
 }
