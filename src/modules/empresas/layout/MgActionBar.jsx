@@ -254,7 +254,7 @@ export default function MgActionBar({
           >
             <MoreVertical className="h-4 w-4" stroke="var(--mg-brand-green)" />
           </button>
-          <div id="more-dd" className={`dropdown-menu${moreOpen ? " open" : ""}`}>
+          <div id="more-dd" className={`dropdown-menu mg-more-dropdown${moreOpen ? " open" : ""}`}>
             {onDuplicate && !showDuplicate ? (
               <button type="button" onClick={() => { onDuplicate(); setMoreOpen(false); }}>
                 <Copy className="h-4 w-4" />

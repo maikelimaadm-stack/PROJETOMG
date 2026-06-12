@@ -116,6 +116,13 @@
     0 4px 14px rgba(64, 222, 99, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.96),
     0 0 0 2px rgba(64, 222, 99, 0.12);
+  --mg-popover-radius: 16px;
+  --mg-popover-border: 1px solid rgba(231, 234, 238, 0.92);
+  --mg-popover-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 6px 18px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.96);
+  --mg-popover-arrow-size: 10px;
   --emp-accent-primary: #40de63;
   --emp-accent-primary-hover: #36c956;
   --erp-color-primary: #40de63;
@@ -2854,6 +2861,51 @@
   visibility: visible;
   transform: translateY(0) scale(1);
   pointer-events: auto;
+}
+
+/* Popover “Mais opções” — seta apontando para o botão */
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown {
+  margin-top: calc(var(--mg-popover-arrow-size) / 2 + 4px);
+  border: var(--mg-popover-border);
+  border-radius: var(--mg-popover-radius);
+  box-shadow: var(--mg-popover-shadow);
+  overflow: visible;
+}
+
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown::before,
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--mg-popover-arrow-size) / -2);
+  right: calc(var(--mg-btn-icon-size) / 2);
+  transform: translateX(50%);
+  width: 0;
+  height: 0;
+  border-left: calc(var(--mg-popover-arrow-size) / 2) solid transparent;
+  border-right: calc(var(--mg-popover-arrow-size) / 2) solid transparent;
+  border-bottom: none;
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown::after {
+  border-top: calc(var(--mg-popover-arrow-size) / 2 + 1px) solid rgba(231, 234, 238, 0.92);
+  top: calc(var(--mg-popover-arrow-size) / -2 - 1px);
+  z-index: 0;
+}
+
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown::before {
+  border-top: calc(var(--mg-popover-arrow-size) / 2) solid var(--bg-card);
+  z-index: 1;
+}
+
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown button:first-child {
+  border-top-left-radius: calc(var(--mg-popover-radius) - 1px);
+  border-top-right-radius: calc(var(--mg-popover-radius) - 1px);
+}
+
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown button:last-child {
+  border-bottom-left-radius: calc(var(--mg-popover-radius) - 1px);
+  border-bottom-right-radius: calc(var(--mg-popover-radius) - 1px);
 }
 
 .mg-empresas-scope .dropdown-menu button {
