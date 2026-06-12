@@ -1656,30 +1656,35 @@
   }
 }
 
-/* Cards (grid de pesquisa + formulário — superfície corporativa) */
+/* Cards (grid de pesquisa / modo visualização — mesma moldura dos lançamentos) */
 .mg-empresas-scope .erp-card:not(.mg-emp-card):not(.emp-form-card) {
-  border: var(--mg-container-border);
+  border: var(--mg-launch-card-border);
   border-radius: var(--mg-radius-card);
   background: var(--mg-container-bg);
-  box-shadow: var(--mg-card-shadow);
+  box-shadow: var(--mg-launch-card-shadow);
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card),
 .cadastro-emp-scope.mg-empresas-scope .mg-emp-card:not(.emp-form-card) {
-  border: var(--mg-container-border) !important;
+  border: var(--mg-launch-card-border) !important;
   border-radius: var(--mg-radius-card) !important;
   background: var(--mg-container-bg) !important;
-  box-shadow: var(--mg-card-shadow) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
   overflow: visible !important;
 }
 
-/* Cards de lançamento — borda clara + brilho/sombreamento nas bordas */
+/* Cards de lançamento / modo visualização (formulário) — borda clara + brilho nas bordas */
 .mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card.mg-emp-card,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card:not(.emp-form-card--virtual),
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
-.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card {
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card.mg-emp-card,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly section.emp-form-card.mg-emp-card {
   border: var(--mg-launch-card-border) !important;
   border-radius: var(--mg-radius-card) !important;
   background: var(--mg-container-bg) !important;
@@ -1696,8 +1701,12 @@
 
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card:hover,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:hover,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card.mg-emp-card:hover,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card:hover,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card:active,
-.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:active {
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:active,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card.mg-emp-card:active,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card:active {
   box-shadow: var(--mg-launch-card-shadow) !important;
   background: var(--mg-container-bg) !important;
   transform: none !important;
@@ -1713,19 +1722,19 @@
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):hover:not(.mg-emp-card--selected) {
-  box-shadow: var(--mg-card-shadow);
+  box-shadow: var(--mg-launch-card-shadow);
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):focus-visible {
   outline: none;
-  box-shadow: var(--mg-focus-ring), var(--mg-card-shadow);
+  box-shadow: var(--mg-focus-ring), var(--mg-launch-card-shadow);
 }
 
 .mg-empresas-scope .mg-emp-card--selected,
 .mg-empresas-scope .mg-emp-card--selected:hover {
   background: var(--mg-selection-bg) !important;
   border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-selection-ring), var(--mg-card-shadow) !important;
+  box-shadow: var(--mg-selection-ring), var(--mg-launch-card-shadow) !important;
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):active:not(.mg-emp-card--selected) {
@@ -2361,12 +2370,17 @@
   background: transparent !important;
 }
 
-/* Cards de lançamento — moldura corporativa (não aplicar na barra de botões) */
+/* Cards de lançamento / visualização — moldura corporativa (não aplicar na barra de botões) */
 .mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card.mg-emp-card,
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
-.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card {
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card.mg-emp-card,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card,
+.cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly section.emp-form-card.mg-emp-card {
   border: var(--mg-launch-card-border) !important;
   border-radius: var(--mg-radius-card) !important;
   box-shadow: var(--mg-launch-card-shadow) !important;
@@ -3659,9 +3673,9 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
   background: var(--mg-container-bg);
-  border: var(--mg-container-border);
+  border: var(--mg-launch-card-border);
   border-radius: var(--mg-radius-card);
-  box-shadow: var(--mg-card-shadow);
+  box-shadow: var(--mg-launch-card-shadow);
   padding: 10px 12px;
 }
 
@@ -3743,9 +3757,9 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main {
   background: var(--mg-container-bg);
-  border: var(--mg-container-border);
+  border: var(--mg-launch-card-border);
   border-radius: var(--mg-radius-card);
-  box-shadow: var(--mg-card-shadow);
+  box-shadow: var(--mg-launch-card-shadow);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs {
@@ -3942,21 +3956,23 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell {
-  border: var(--mg-container-border) !important;
+  border: var(--mg-launch-card-border) !important;
   border-radius: var(--mg-radius-card) !important;
-  box-shadow: var(--mg-card-shadow) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
   background: var(--mg-container-bg) !important;
   padding: 10px 16px 16px !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--draft.emp-layout-config-card-shell {
   padding: 8px 16px 12px !important;
-  box-shadow: var(--mg-card-shadow) !important;
+  border: var(--mg-launch-card-border) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
   background: var(--bg-card) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--full.emp-layout-config-card-shell {
-  box-shadow: none;
+  border: var(--mg-launch-card-border) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-help {
