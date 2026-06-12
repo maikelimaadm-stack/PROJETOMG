@@ -167,6 +167,7 @@ export default function EmpLayoutConfiguratorDialog({
   const dragFieldIdsRef = useRef([]);
   const lastFieldPreviewKeyRef = useRef("");
   const lastFieldHoverTargetRef = useRef("");
+  const fieldPreviewAppliedRef = useRef(false);
   const panelSegRef = useRef(null);
   const panelSliderRef = useRef(null);
   const cardSegRef = useRef(null);
@@ -445,15 +446,20 @@ export default function EmpLayoutConfiguratorDialog({
 
   const showRequiredPopup = (message) => showWarning(message);
   const clearSelections = () => {
+    suppressFieldClickRef.current = false;
     setSelectedAvailableIds([]);
     setSelectedPanelFieldIds([]);
   };
 
   const finishFieldDrag = () => {
     suppressFieldClickRef.current = true;
+    window.setTimeout(() => {
+      suppressFieldClickRef.current = false;
+    }, 0);
     dragFieldIdsRef.current = [];
     lastFieldPreviewKeyRef.current = "";
     lastFieldHoverTargetRef.current = "";
+    fieldPreviewAppliedRef.current = false;
     setDraggedFieldId(null);
     setDraggedFrom(null);
     setDragOverRowId(null);
@@ -549,6 +555,9 @@ export default function EmpLayoutConfiguratorDialog({
 
     applyCardsState(nextCardsByPanel);
     lastFieldPreviewKeyRef.current = previewKey;
+    fieldPreviewAppliedRef.current = true;
+    if (targetPanelId !== activePanelId) setActivePanelId(targetPanelId);
+    if (cardId !== activeCardId) setActiveCardId(cardId);
   };
 
   const previewFieldEnter = (targetFieldId, edge = "auto") => {
@@ -640,6 +649,9 @@ export default function EmpLayoutConfiguratorDialog({
     if (!row) return true;
 
     const colSpan = resolveCardColSpan(targetCard.colSpan);
+    if (targetFieldId && ids.every((id) => (row.fieldIds || []).includes(id))) {
+      return true;
+    }
     const canInsert = canInsertFieldsIntoRow(rows, row.id, ids, colSpan);
     const canSwapSingleLayoutField =
       !!targetFieldId && ids.length === 1 && draggedFrom === "panel" && usedFieldIds.has(ids[0]);
@@ -1169,6 +1181,7 @@ export default function EmpLayoutConfiguratorDialog({
         dragFieldIdsRef.current = ids;
         lastFieldPreviewKeyRef.current = "";
         lastFieldHoverTargetRef.current = "";
+        fieldPreviewAppliedRef.current = false;
         setDraggedFrom("available");
         setDraggedFieldId(field.id);
         setSelectedAvailableIds(ids);
@@ -1242,6 +1255,7 @@ export default function EmpLayoutConfiguratorDialog({
             dragFieldIdsRef.current = ids;
             lastFieldPreviewKeyRef.current = "";
             lastFieldHoverTargetRef.current = "";
+            fieldPreviewAppliedRef.current = false;
             setDraggedFrom("panel");
             setDraggedFieldId(field.id);
             setSelectedPanelFieldIds(ids);
@@ -1263,6 +1277,10 @@ export default function EmpLayoutConfiguratorDialog({
               showWarningOnFail: false,
             });
             event.dataTransfer.dropEffect = canDrop ? "move" : "none";
+            if (canDrop) previewFieldEnter(field.id, resolveDragInsertEdge(event));
+          }}
+          onDragLeave={() => {
+            lastFieldHoverTargetRef.current = "";
           }}
           onDrop={(event) => {
             event.preventDefault();
@@ -1412,7 +1430,16 @@ export default function EmpLayoutConfiguratorDialog({
                         draggable={isEditing && !fixedPanelIds.includes(panel.id)}
                         onDragStart={(event) => {
                           event.stopPropagation();
+                          lastFieldHoverTargetRef.current = "";
+                          fieldPreviewAppliedRef.current = false;
                           setDraggedPanelId(panel.id);
+                        }}
+                        onDragEnter={(event) => {
+                          if (!draggedFieldId || !isEditing) return;
+                          event.preventDefault();
+                          event.stopPropagation();
+                          previewMoveFieldsLive({ targetPanelId: panel.id });
+                          setDragOverPanelId(panel.id);
                         }}
                         onDragOver={(event) => {
                           event.preventDefault();
@@ -1434,7 +1461,9 @@ export default function EmpLayoutConfiguratorDialog({
                           event.stopPropagation();
                           setDragOverPanelId(null);
                           if (draggedFieldId && isEditing) {
-                            moveFieldsToPanel(resolveDragFieldIds(), panel.id);
+                            if (!fieldPreviewAppliedRef.current) {
+                              moveFieldsToPanel(resolveDragFieldIds(), panel.id);
+                            }
                             finishFieldDrag();
                           }
                         }}
@@ -1523,6 +1552,8 @@ export default function EmpLayoutConfiguratorDialog({
                         onDragStart={(event) => {
                           event.stopPropagation();
                           lastFieldPreviewKeyRef.current = "";
+                          lastFieldHoverTargetRef.current = "";
+                          fieldPreviewAppliedRef.current = false;
                           setDraggedCardId(card.id);
                         }}
                         onClick={() => {
@@ -1540,6 +1571,10 @@ export default function EmpLayoutConfiguratorDialog({
                           }
                           if (!draggedFieldId) return;
                           event.dataTransfer.dropEffect = "move";
+                          previewMoveFieldsLive({
+                            targetPanelId: activePanelId,
+                            targetCardId: card.id,
+                          });
                           setDragOverCardId(card.id);
                         }}
                         onDragLeave={() => {
@@ -1549,7 +1584,9 @@ export default function EmpLayoutConfiguratorDialog({
                           event.preventDefault();
                           setDragOverCardId(null);
                           if (draggedFieldId) {
-                            moveFieldsToCard(resolveDragFieldIds(), card.id);
+                            if (!fieldPreviewAppliedRef.current) {
+                              moveFieldsToCard(resolveDragFieldIds(), card.id);
+                            }
                             finishFieldDrag();
                           }
                         }}
@@ -1699,6 +1736,7 @@ export default function EmpLayoutConfiguratorDialog({
                           }}
                           onDragLeave={() => {
                             if (dragOverRowId === layoutRow.id) setDragOverRowId(null);
+                            lastFieldPreviewKeyRef.current = "";
                           }}
                           onDrop={(event) => {
                             event.preventDefault();
