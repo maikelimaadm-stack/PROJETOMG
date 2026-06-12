@@ -551,17 +551,18 @@ export default function EmpLayoutConfiguratorDialog({
     lastFieldPreviewKeyRef.current = previewKey;
   };
 
-  const previewFieldEnter = (targetFieldId) => {
+  const previewFieldEnter = (targetFieldId, edge = "auto") => {
     if (!isEditing || !draggedFieldId || draggedRowId || !targetFieldId) return;
     const ids = resolveDragFieldIds();
     if (!ids.length || ids.includes(targetFieldId)) return;
 
-    const hoverKey = `${ids.join(",")}|${activePanelId}|${activeCardId}|${targetFieldId}`;
+    const hoverKey = `${ids.join(",")}|${activePanelId}|${activeCardId}|${targetFieldId}|${edge}`;
     if (lastFieldHoverTargetRef.current === hoverKey) return;
     lastFieldHoverTargetRef.current = hoverKey;
 
     previewMoveFieldsLive({
       targetFieldId,
+      edge,
     });
   };
 
@@ -1249,7 +1250,7 @@ export default function EmpLayoutConfiguratorDialog({
           onDragEnter={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            previewFieldEnter(field.id);
+            previewFieldEnter(field.id, resolveDragInsertEdge(event));
           }}
           onDragOver={(event) => {
             event.preventDefault();
@@ -1274,11 +1275,7 @@ export default function EmpLayoutConfiguratorDialog({
             });
             if (canDrop) {
               const swapped = commitFieldDropOnField(field.id);
-              if (!swapped) {
-                previewMoveFieldsLive({
-                  targetFieldId: field.id,
-                });
-              }
+              if (!swapped) lastFieldPreviewKeyRef.current = "";
             }
             finishFieldDrag();
           }}
