@@ -1,6 +1,7 @@
 import React from "react";
 import { ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
 import { formatCadastroRecordPosition } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
+import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 
 export default function MgContextPanel({
   code,
@@ -12,6 +13,9 @@ export default function MgContextPanel({
   onNext,
   onLast,
   disabled = false,
+  recordId = null,
+  isFavorite = false,
+  onToggleFavorite,
 }) {
   const counter = formatCadastroRecordPosition(currentIndex, total);
 
@@ -20,13 +24,21 @@ export default function MgContextPanel({
       <div className="mg-context-panel__meta">
         <div className="mg-context-panel__swap-slot">
           <span key={`${code || "new"}-${title || ""}`} className="mg-motion-swap mg-motion-swap--text mg-context-panel__meta-text">
+            {recordId ? (
+              <MgRecordFavoriteStar
+                active={isFavorite}
+                disabled={disabled}
+                onToggle={onToggleFavorite}
+                className="mg-context-panel__fav-btn"
+              />
+            ) : null}
             {code ? (
               <>
                 <span className="mg-context-panel__code">{code}</span>
                 <span className="mg-context-panel__sep"> • </span>
               </>
             ) : null}
-            <span>{title || "Novo registro"}</span>
+            <span className="mg-context-panel__title">{title || "Novo registro"}</span>
           </span>
         </div>
       </div>

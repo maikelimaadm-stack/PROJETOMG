@@ -26,6 +26,7 @@ import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeC
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
+import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -412,6 +413,7 @@ export default function PAGEMP() {
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
   const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
+  const empFavorites = useEmpFavorites();
 
   const actionBarVisibility = useMemo(
     () =>
@@ -831,6 +833,9 @@ export default function PAGEMP() {
                 onNext={() => navigateRecord(selectedIndex + 1)}
                 onLast={() => navigateRecord(empresasNavegacao.length - 1)}
                 disabled={saveCycle.isSaving}
+                recordId={editingEmp?.id ?? null}
+                isFavorite={editingEmp?.id ? empFavorites.isFavorite(editingEmp.id) : false}
+                onToggleFavorite={() => editingEmp?.id && empFavorites.toggleFavorite(editingEmp.id)}
               />
             </div>
 
@@ -899,6 +904,8 @@ export default function PAGEMP() {
                     cardsDetailFields: cardsVisFields.detailFields,
                     cardsPerRow: cardsVisFields.layoutConfig.cardsPerRow,
                     fieldsPerRow: cardsVisFields.fieldsPerRow,
+                    isFavoriteRecord: empFavorites.isFavorite,
+                    onToggleFavorite: empFavorites.toggleFavorite,
                     mgPrototype: true,
                   }}
                 />

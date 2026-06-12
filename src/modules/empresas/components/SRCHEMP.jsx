@@ -10,6 +10,7 @@ import {
   saveSearchFavorites,
   saveSearchVisFields,
 } from "./empSearchView.constants";
+import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import "./empSearchView.css";
 
@@ -191,6 +192,8 @@ export default function SRCHEMP({
   cardsDetailFields = [],
   cardsPerRow = 3,
   fieldsPerRow = 1,
+  isFavoriteRecord,
+  onToggleFavorite,
   mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
@@ -314,6 +317,7 @@ export default function SRCHEMP({
                 const nome = getEmpSearchFieldValue(emp, "razao_social");
                 const initials = getEmpSearchInitials(emp);
                 const avatarColor = getEmpSearchAvatarColor(emp, index);
+                const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
                 return (
                   <div
                     key={emp.id}
@@ -342,14 +346,21 @@ export default function SRCHEMP({
                         {initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="mg-emp-card__meta-text truncate text-xs" style={{ color: "var(--text-1)" }}>
-                          {code && code !== "—" ? (
-                            <>
-                              <span className="mg-emp-card__code">{code}</span>
-                              <span className="mg-emp-card__sep"> • </span>
-                            </>
-                          ) : null}
-                          <span className="mg-emp-card__name">{nome}</span>
+                        <div className="mg-emp-card__meta-row truncate text-xs" style={{ color: "var(--text-1)" }}>
+                          <MgRecordFavoriteStar
+                            active={isFavorite}
+                            onToggle={() => onToggleFavorite?.(emp.id)}
+                            className="mg-emp-card__fav-btn"
+                          />
+                          <div className="mg-emp-card__meta-text min-w-0 truncate">
+                            {code && code !== "—" ? (
+                              <>
+                                <span className="mg-emp-card__code">{code}</span>
+                                <span className="mg-emp-card__sep"> • </span>
+                              </>
+                            ) : null}
+                            <span className="mg-emp-card__name">{nome}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
