@@ -65,7 +65,6 @@ import {
 } from "@/framework/cadastro/layouts/layoutConfiguratorDrag.js";
 import {
   cloneCardsByPanel,
-  shouldLivePreviewFieldMove,
   isDragLeaveWithinContainer,
 } from "@/framework/cadastro/layouts/layoutConfiguratorDragSession.js";
 import {
@@ -479,7 +478,7 @@ export default function EmpLayoutConfiguratorDialog({
     dragFieldIdsRef.current = fieldIds;
     lastFieldPreviewKeyRef.current = "";
     lastFieldHoverTargetRef.current = "";
-    lastFieldDropTargetRef.current = { targetFieldId: null, edge: "before" };
+    lastFieldDropTargetRef.current = { targetFieldId: null, edge: "before", targetRowId: null };
     fieldPreviewAppliedRef.current = false;
     setDraggedFrom(from);
     setDraggedFieldId(fieldId);
@@ -499,7 +498,7 @@ export default function EmpLayoutConfiguratorDialog({
     dragFieldIdsRef.current = [];
     lastFieldPreviewKeyRef.current = "";
     lastFieldHoverTargetRef.current = "";
-    lastFieldDropTargetRef.current = { targetFieldId: null, edge: "before" };
+    lastFieldDropTargetRef.current = { targetFieldId: null, edge: "before", targetRowId: null };
     fieldPreviewAppliedRef.current = false;
     setDraggedFieldId(null);
     setDraggedFrom(null);
@@ -543,126 +542,22 @@ export default function EmpLayoutConfiguratorDialog({
     );
   };
 
-  const previewMoveFieldsLive = ({
-    targetPanelId = activePanelId,
-    targetCardId = activeCardId,
-    targetFieldId = null,
-    targetRowId = null,
-    edge = "auto",
-  } = {}) => {
-    if (!isEditing || !draggedFieldId || draggedRowId) return;
+  const findFieldRowId = (rows, fieldId) =>
+    rows.find((row) => (row.fieldIds || []).includes(fieldId))?.id || null;
 
-    const ids = resolveDragFieldIds();
-    if (!ids.length || !targetPanelId) return;
-
-    const cardId = resolveTargetCardIdForPanel(targetPanelId, targetCardId);
-    const previewKey = [
-      ids.join(","),
-      targetPanelId,
-      cardId,
-      targetFieldId || "",
-      targetRowId || "",
-      edge,
-    ].join("|");
-    if (lastFieldPreviewKeyRef.current === previewKey) return;
-
-    setDraftCardsByPanel((currentCardsByPanel) => {
-      const panelCards = currentCardsByPanel[targetPanelId]?.cards || [];
-      const targetCard = panelCards.find((card) => card.id === cardId);
-      if (!targetCard) return currentCardsByPanel;
-
-      const targetRows = ensureCardRows(targetCard);
-      const allowLivePreview = shouldLivePreviewFieldMove({
-        rows: targetRows,
-        fieldIds: ids,
-        targetFieldId,
-        targetRowId,
-        targetPanelId,
-        targetCardId: cardId,
-        sourcePanelId: activePanelId,
-        sourceCardId: activeCardId,
-      });
-      if (!allowLivePreview) return currentCardsByPanel;
-
-      const sameCard = targetPanelId === activePanelId && cardId === activeCardId;
-      const targetRow = targetFieldId
-        ? targetRows.find((row) => (row.fieldIds || []).includes(targetFieldId))
-        : null;
-      const draggedSourceRows = ids
-        .map((fieldId) => targetRows.find((row) => (row.fieldIds || []).includes(fieldId))?.id)
-        .filter(Boolean);
-      const reorderOnly =
-        draggedFrom === "panel" &&
-        sameCard &&
-        !!targetFieldId &&
-        !!targetRow?.id &&
-        draggedSourceRows.length === ids.length &&
-        draggedSourceRows.every((rowId) => rowId === targetRow.id);
-
-      if (!reorderOnly) {
-        const colSpan = resolveCardColSpan(targetCard.colSpan);
-        if (
-          targetRowId &&
-          !canDropFieldsAtTarget({
-            targetPanelId,
-            targetCardId: cardId,
-            targetRowId,
-            cardsByPanel: currentCardsByPanel,
-            fieldIds: ids,
-          })
-        ) {
-          return currentCardsByPanel;
-        }
-        if (targetFieldId) {
-          const canInsert = targetRow
-            ? canDropFieldsAtTarget({
-                targetPanelId,
-                targetCardId: cardId,
-                targetFieldId,
-                cardsByPanel: currentCardsByPanel,
-                fieldIds: ids,
-              })
-            : true;
-          if (!canInsert) return currentCardsByPanel;
-        }
-      }
-
-      const nextCardsByPanel = previewMoveFieldsAtTarget({
-        cardsByPanel: currentCardsByPanel,
-        panelId: targetPanelId,
-        cardId,
-        fieldIds: ids,
-        card: targetCard,
-        targetFieldId,
-        targetRowId,
-        edge,
-        reorderOnly,
-      });
-      if (!nextCardsByPanel) return currentCardsByPanel;
-
-      lastFieldPreviewKeyRef.current = previewKey;
-      fieldPreviewAppliedRef.current = true;
-      return nextCardsByPanel;
-    });
-
-    if (targetPanelId !== activePanelId) setActivePanelId(targetPanelId);
-    if (cardId !== activeCardId) setActiveCardId(cardId);
+  const trackFieldDropTarget = (targetFieldId, edge = "before") => {
+    lastFieldDropTargetRef.current = { targetFieldId, edge, targetRowId: null };
   };
 
-  const previewFieldEnter = (targetFieldId, edge = "auto") => {
+  const trackRowDropTarget = (targetRowId, edge = "after") => {
+    lastFieldDropTargetRef.current = { targetFieldId: null, targetRowId, edge };
+  };
+
+  const trackFieldDropPreview = (targetFieldId, edge = "auto") => {
     if (!isEditing || !draggedFieldId || draggedRowId || !targetFieldId) return;
     const ids = resolveDragFieldIds();
     if (!ids.length || ids.includes(targetFieldId)) return;
-
-    const hoverKey = `${ids.join(",")}|${activePanelId}|${activeCardId}|${targetFieldId}|${edge}`;
-    if (lastFieldHoverTargetRef.current === hoverKey) return;
-    lastFieldHoverTargetRef.current = hoverKey;
-    lastFieldDropTargetRef.current = { targetFieldId, edge };
-
-    previewMoveFieldsLive({
-      targetFieldId,
-      edge,
-    });
+    trackFieldDropTarget(targetFieldId, edge);
   };
 
   const previewReorderRowAt = (targetRowId, edge = "auto") => {
@@ -745,8 +640,13 @@ export default function EmpLayoutConfiguratorDialog({
       return true;
     }
     const canInsert = canInsertFieldsIntoRow(rows, row.id, ids, colSpan);
+    const draggedFieldRowId = ids.length === 1 ? findFieldRowId(rows, ids[0]) : null;
     const canSwapSingleLayoutField =
-      !!targetFieldId && ids.length === 1 && draggedFrom === "panel" && usedFieldIds.has(ids[0]);
+      !!targetFieldId &&
+      ids.length === 1 &&
+      draggedFrom === "panel" &&
+      usedFieldIds.has(ids[0]) &&
+      draggedFieldRowId === row.id;
     if (!canInsert && canSwapSingleLayoutField) return true;
     if (!canInsert && showWarningOnFail) {
       showRequiredPopup(
@@ -777,6 +677,9 @@ export default function EmpLayoutConfiguratorDialog({
       const rows = ensureCardRows(card);
       const targetRow = rows.find((row) => (row.fieldIds || []).includes(targetFieldId));
       if (!targetRow) return currentCardsByPanel;
+
+      const sourceRowId = findFieldRowId(rows, ids[0]);
+      if (!sourceRowId || sourceRowId !== targetRow.id) return currentCardsByPanel;
 
       const colSpan = resolveCardColSpan(card?.colSpan);
       if (canInsertFieldsIntoRow(rows, targetRow.id, ids, colSpan)) return currentCardsByPanel;
@@ -1467,14 +1370,14 @@ export default function EmpLayoutConfiguratorDialog({
           onDragEnter={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            previewFieldEnter(field.id, resolveDragInsertEdge(event));
+            trackFieldDropPreview(field.id, resolveDragInsertEdge(event));
           }}
           onDragOver={(event) => {
             event.preventDefault();
             event.stopPropagation();
             if (!isEditing || !draggedFieldId || draggedRowId) return;
             const edge = resolveDragInsertEdge(event);
-            lastFieldDropTargetRef.current = { targetFieldId: field.id, edge };
+            trackFieldDropTarget(field.id, edge);
             const canDrop = canDropFieldsAtTarget({
               targetPanelId: activePanelId,
               targetCardId: activeCardId,
@@ -1482,9 +1385,6 @@ export default function EmpLayoutConfiguratorDialog({
               showWarningOnFail: false,
             });
             event.dataTransfer.dropEffect = canDrop ? "move" : "none";
-            if (canDrop) {
-              previewFieldEnter(field.id, edge);
-            }
           }}
           onDragLeave={() => {}}
           onDrop={(event) => {
@@ -1931,6 +1831,10 @@ export default function EmpLayoutConfiguratorDialog({
                               setDragOverRowId(layoutRow.id);
                               return;
                             }
+                            if (event.target.closest?.(".emp-layout-config-field-panel")) {
+                              return;
+                            }
+                            trackRowDropTarget(layoutRow.id, "after");
                             const ids = resolveDragFieldIds();
                             const canDrop = canDropFieldsAtTarget({
                               targetPanelId: activePanelId,
@@ -1982,10 +1886,30 @@ export default function EmpLayoutConfiguratorDialog({
                             const fieldInRow =
                               lastTarget?.targetFieldId &&
                               (layoutRow.fieldIds || []).includes(lastTarget.targetFieldId);
-                            if (fieldInRow) {
+                            const draggedIds = resolveDragFieldIds();
+                            const card = (draftCardsByPanel[activePanelId]?.cards || []).find(
+                              (item) => item.id === activeCardId
+                            );
+                            const cardRows = ensureCardRows(card);
+                            const draggedSourceRowId =
+                              draggedIds.length === 1 ? findFieldRowId(cardRows, draggedIds[0]) : null;
+                            const targetFieldRowId = lastTarget?.targetFieldId
+                              ? findFieldRowId(cardRows, lastTarget.targetFieldId)
+                              : null;
+                            const sameRowReorder =
+                              !!fieldInRow &&
+                              !!draggedSourceRowId &&
+                              draggedSourceRowId === targetFieldRowId;
+                            if (sameRowReorder) {
                               if (!commitFieldDropOnField(lastTarget.targetFieldId)) {
                                 commitMoveFieldsToField(lastTarget.targetFieldId, lastTarget.edge);
                               }
+                            } else if (
+                              lastTarget?.targetRowId === layoutRow.id ||
+                              !lastTarget?.targetFieldId ||
+                              targetFieldRowId !== layoutRow.id
+                            ) {
+                              commitMoveFieldsToRow(layoutRow.id, lastTarget?.edge || "after");
                             } else {
                               commitMoveFieldsToRow(layoutRow.id, "after");
                             }
