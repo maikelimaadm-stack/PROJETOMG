@@ -4,6 +4,7 @@ import empRepository from "@/modules/empresas/repositories/empRepository";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
   buildEmpCardFieldCatalog,
+  getDefaultCardVisFields,
   mergeSearchVisFields,
   loadSearchVisFields,
   saveSearchVisFields,
@@ -54,10 +55,16 @@ export function useEmpCardsVisFields() {
     [catalog]
   );
 
+  const getRestoreDefaults = useCallback(
+    () => getDefaultCardVisFields(catalog),
+    [catalog]
+  );
+
   return {
     configFields,
     detailFields,
     visFields,
     saveConfig,
+    getRestoreDefaults,
   };
 }

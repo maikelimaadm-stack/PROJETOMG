@@ -70,6 +70,15 @@ export const buildEmpCardFieldCatalog = (customFields = []) => {
   return [...merged.values()];
 };
 
+/** Visibilidade padrão dos campos nos cards (catálogo completo). */
+export const getDefaultCardVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
+  const defaultsMap = new Map(EMP_SEARCH_DEFAULT_FIELDS.map((field) => [field.key, field.visible]));
+  return catalog.map((field) => ({
+    ...field,
+    visible: field.primary ? true : defaultsMap.get(field.key) ?? false,
+  }));
+};
+
 export const mergeSearchVisFields = (catalog = [], saved = []) => {
   const savedMap = new Map(saved.map((field) => [field.key, field]));
   return catalog.map((field) => {

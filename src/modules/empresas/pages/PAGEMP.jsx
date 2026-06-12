@@ -835,6 +835,7 @@ export default function PAGEMP() {
             <MgCardsPanelStrip
               fields={cardsVisFields.configFields}
               onSave={cardsVisFields.saveConfig}
+              onRestoreDefaults={cardsVisFields.getRestoreDefaults}
             />
           </div>
 

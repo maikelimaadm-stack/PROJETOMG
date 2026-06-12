@@ -1,6 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import { GalleryThumbnails } from "lucide-react";
-import { EMP_SEARCH_DEFAULT_FIELDS } from "@/modules/empresas/components/empSearchView.constants";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { Check, GalleryThumbnails } from "lucide-react";
+import {
+  EMP_SEARCH_DEFAULT_FIELDS,
+  getDefaultCardVisFields,
+} from "@/modules/empresas/components/empSearchView.constants";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import {
   closeMgPanels,
@@ -8,9 +11,27 @@ import {
   useMgPanelPosition,
 } from "@/modules/empresas/layout/useMgPanelPosition";
 
+function CardsFieldCheck({ checked, disabled, onChange }) {
+  return (
+    <span
+      className={`mg-cards-config-menu__check${checked ? " is-checked" : ""}${disabled ? " is-locked" : ""}`}
+    >
+      <input
+        type="checkbox"
+        className="mg-cards-config-menu__checkbox-input"
+        checked={checked}
+        disabled={disabled}
+        onChange={onChange}
+      />
+      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} aria-hidden="true" /> : null}
+    </span>
+  );
+}
+
 export default function MgCardsPanelStrip({
   fields: fieldsProp = [],
   onSave,
+  onRestoreDefaults,
   disabled = false,
 }) {
   const fields =
@@ -28,11 +49,23 @@ export default function MgCardsPanelStrip({
     {
       minWidth: 280,
       width: 280,
-      estimatedHeight: 360,
+      estimatedHeight: 420,
       align: "right",
       scrollable: false,
     },
     `${open}|${draft.length}|${fields.length}`
+  );
+
+  const menuStyle = useMemo(
+    () => ({
+      ...panelStyle,
+      height: "auto",
+      maxHeight: "min(420px, calc(100vh - 96px))",
+      overflow: "hidden",
+      display: "flex",
+      flexDirection: "column",
+    }),
+    [panelStyle]
   );
 
   useMgPanelCoordinator(rootRef, setOpen);
@@ -70,6 +103,11 @@ export default function MgCardsPanelStrip({
     setOpen(false);
   };
 
+  const handleRestore = () => {
+    const defaults = onRestoreDefaults?.() ?? getDefaultCardVisFields(fields);
+    setDraft(defaults.map((field) => ({ ...field })));
+  };
+
   return (
     <div data-template-id="cards-panel" className="mg-cards-panel-strip hidden md:flex">
       <div className="mg-cards-panel-strip__actions relative" ref={rootRef}>
@@ -90,7 +128,7 @@ export default function MgCardsPanelStrip({
           open={open}
           panelRef={panelRef}
           panelClassName="dropdown-menu mg-cards-config-menu open"
-          style={panelStyle}
+          style={menuStyle}
           onClick={(event) => event.stopPropagation()}
         >
           <div className="mg-cards-config-menu__list">
@@ -99,9 +137,7 @@ export default function MgCardsPanelStrip({
                 key={field.key}
                 className={`mg-cards-config-menu__item${field.primary ? " mg-cards-config-menu__item--locked" : ""}`}
               >
-                <input
-                  type="checkbox"
-                  className="mg-cards-config-menu__checkbox"
+                <CardsFieldCheck
                   checked={field.visible}
                   disabled={field.primary}
                   onChange={(event) => {
@@ -113,11 +149,14 @@ export default function MgCardsPanelStrip({
                     );
                   }}
                 />
-                <span>{field.label}</span>
+                <span className="mg-cards-config-menu__label">{field.label}</span>
               </label>
             ))}
           </div>
           <div className="mg-cards-config-menu__footer">
+            <button type="button" className="mg-cards-config-menu__reset" onClick={handleRestore}>
+              Restaurar padrão
+            </button>
             <button type="button" className="mg-cards-config-menu__ok" onClick={handleOk}>
               OK
             </button>
