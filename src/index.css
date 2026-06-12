@@ -287,7 +287,23 @@ input[type="number"] {
   .emp-form-tab-inactive,
   .emp-form-toggle-switch,
   .rounded-full,
-  .rounded-none
+  .rounded-none,
+  .tb-btn,
+  .tb-btn-icon,
+  .tb-btn-labeled,
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-gray,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .view-mode-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .filter-panel__close,
+  .ios-btn
 ) {
   border-radius: var(--emp-button-radius, 5px) !important;
 }

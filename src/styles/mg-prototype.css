@@ -81,7 +81,9 @@
   --mg-btn-height: 28px;
   --mg-btn-icon-size: 28px;
   --mg-btn-pill-radius: 999px;
+  --mg-btn-icon-radius: 50%;
   --mg-btn-pill-border: 1px solid transparent;
+  --mg-search-pill-radius: var(--mg-btn-pill-radius);
   --mg-invalid-border: rgba(239, 68, 68, 0.35);
   --mg-invalid-ring: inset 0 0 0 1px rgba(239, 68, 68, 0.12);
   --mg-invalid-bg: #fff;
@@ -1051,20 +1053,41 @@
   padding: 0 !important;
 }
 
-/* Botões com ícone — circulares */
+/* Botões só-ícone — formato circular */
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-icon,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-filter,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-more,
+.cadastro-emp-scope.mg-empresas-scope .mg-accent-icon-btn,
+.cadastro-emp-scope.mg-empresas-scope .mg-nav-btn,
+.cadastro-emp-scope.mg-empresas-scope .mg-topbar-icon-btn,
+.cadastro-emp-scope.mg-empresas-scope .filter-panel__close,
+.cadastro-emp-scope.mg-empresas-scope .mobile-header .ios-btn,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-icon,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn,
 .mg-empresas-scope .tb-btn-icon,
 .mg-empresas-scope .tb-btn-filter,
 .mg-empresas-scope .tb-btn-more,
 .mg-empresas-scope .mg-accent-icon-btn,
 .mg-empresas-scope .mg-nav-btn,
 .mg-empresas-scope .mg-topbar-icon-btn,
+.mg-empresas-scope .filter-panel__close,
 .mg-empresas-scope .mobile-header .ios-btn,
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-icon,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn {
-  border-radius: var(--mg-btn-pill-radius) !important;
+  border-radius: var(--mg-btn-icon-radius) !important;
 }
 
-/* Botões com texto — borda/pill igual ao campo de pesquisa */
+/* Botões com texto — mesmo arredondamento do campo de pesquisa */
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-labeled,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(.tb-btn-icon),
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(.tb-btn-icon),
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-gray:not(.tb-btn-icon),
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red:not(.tb-btn-icon),
+.cadastro-emp-scope.mg-empresas-scope .filter-panel__footer .tb-btn,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-labeled,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-tab,
 .mg-empresas-scope .tb-btn-labeled,
 .mg-empresas-scope .tb-btn-green:not(.tb-btn-icon),
 .mg-empresas-scope .tb-btn-blue:not(.tb-btn-icon),
@@ -1075,7 +1098,7 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tab,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-tab {
-  border-radius: var(--mg-btn-pill-radius) !important;
+  border-radius: var(--mg-search-pill-radius) !important;
   border: var(--mg-btn-pill-border) !important;
 }
 
@@ -1548,7 +1571,7 @@
   align-items: center;
   justify-content: center;
   border: var(--mg-btn-pill-border);
-  border-radius: var(--mg-btn-pill-radius);
+  border-radius: var(--mg-btn-icon-radius);
   background: rgba(255, 255, 255, 0.92);
   color: #3d4f5f;
   cursor: pointer;
@@ -1699,7 +1722,7 @@
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 6px;
+  border-radius: var(--mg-btn-icon-radius);
   color: var(--text-3);
   background: transparent;
   transition:
@@ -2058,7 +2081,7 @@
   flex-shrink: 0;
   box-sizing: border-box;
   padding: 0 10px;
-  border-radius: 999px;
+  border-radius: var(--mg-search-pill-radius);
   background: var(--gray-fill);
   height: var(--mg-btn-height);
   width: 168px;
@@ -2224,7 +2247,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--mg-btn-pill-radius);
+  border-radius: var(--mg-btn-icon-radius);
   background: var(--gray-fill);
   color: var(--accent);
   border: var(--mg-btn-pill-border);
