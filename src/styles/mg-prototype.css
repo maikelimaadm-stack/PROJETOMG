@@ -85,6 +85,7 @@
   --mg-btn-pill-border: 1px solid transparent;
   --mg-search-pill-radius: var(--mg-btn-pill-radius);
   --mg-toolbar-gutter: 12px;
+  --mg-toolbar-row-height: 32px;
   --mg-toolbar-cluster-gap: 8px;
   --mg-action-slot-gap: 4px;
   --mg-view-seg-track-padding: 3px;
@@ -504,7 +505,6 @@
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible) {
   border-bottom: none !important;
   box-shadow: none !important;
-  padding-bottom: 0;
 }
 
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible) + .mg-context-panel-wrap.is-visible,
@@ -2136,8 +2136,11 @@
   gap: var(--mg-toolbar-cluster-gap);
   flex-shrink: 0;
   margin: 0;
-  min-height: calc(var(--mg-btn-height) + 8px);
-  padding: 4px var(--mg-toolbar-gutter);
+  box-sizing: border-box;
+  height: var(--mg-toolbar-row-height);
+  min-height: var(--mg-toolbar-row-height);
+  max-height: var(--mg-toolbar-row-height);
+  padding: 0 var(--mg-toolbar-gutter);
   overflow: visible;
   position: relative;
   z-index: 20;
@@ -2451,7 +2454,7 @@
 }
 
 .mg-empresas-scope .mg-context-panel-wrap.is-visible {
-  max-height: 32px;
+  max-height: var(--mg-toolbar-row-height);
   opacity: 1;
   pointer-events: auto;
 }
@@ -2461,9 +2464,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--mg-toolbar-cluster-gap);
-  height: 32px;
-  min-height: 32px;
-  max-height: 32px;
+  height: var(--mg-toolbar-row-height);
+  min-height: var(--mg-toolbar-row-height);
+  max-height: var(--mg-toolbar-row-height);
   padding: 0 var(--mg-toolbar-gutter);
   border: none;
   background: var(--bg-card);
@@ -2529,7 +2532,7 @@
 }
 
 .mg-empresas-scope .mg-cards-panel-wrap.is-visible {
-  max-height: 32px;
+  max-height: var(--mg-toolbar-row-height);
   opacity: 1;
   pointer-events: auto;
 }
@@ -2539,9 +2542,9 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--mg-toolbar-cluster-gap);
-  height: 32px;
-  min-height: 32px;
-  max-height: 32px;
+  height: var(--mg-toolbar-row-height);
+  min-height: var(--mg-toolbar-row-height);
+  max-height: var(--mg-toolbar-row-height);
   padding: 0 var(--mg-toolbar-gutter);
   border: none;
   background: var(--bg-card);
