@@ -393,6 +393,21 @@ export default function PAGEMP() {
     setQueryPage(1);
   }, []);
 
+  const handleSearchResultSelect = useCallback(
+    (emp) => {
+      if (!emp) return;
+      const index = empresasNavegacao.findIndex(
+        (item) => item.id === emp.id || Number(item.codempresa) === Number(emp.codempresa)
+      );
+      if (index >= 0) setSelectedIndex(index);
+      setSelectedTableItems([emp.id]);
+      if (showForm || viewMode === "record") {
+        handleEdit(emp);
+      }
+    },
+    [empresasNavegacao, handleEdit, showForm, viewMode]
+  );
+
   const handleFilterChange = useCallback((key, value) => {
     setFilterValues((prev) => ({ ...prev, [key]: value }));
     if (key === "razao_social" || key === "nome_fantasia" || key === "cnpj") {
@@ -796,6 +811,12 @@ export default function PAGEMP() {
             onViewModeChange={handleMgViewModeChange}
             searchValue={searchTerm}
             onSearchChange={handleSearchChange}
+            searchResults={empresasFiltradasPainel}
+            searchDetailFields={cardsVisFields.detailFields}
+            searchLoading={empresasLoading || isFetching}
+            onSearchResultSelect={handleSearchResultSelect}
+            isFavoriteRecord={empFavorites.isFavorite}
+            onToggleFavorite={empFavorites.toggleFavorite}
             onToggleFilter={toggleFilterPanel}
             onNew={handleNew}
             onSave={formBridge?.onSave}

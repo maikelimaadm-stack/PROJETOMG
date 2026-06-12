@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
 import MgSpeedDialMenu from "@/modules/empresas/layout/MgSpeedDialMenu";
+import MgSearchResultsDropdown from "@/modules/empresas/layout/MgSearchResultsDropdown";
 
 function ActionLabelBtn({ className = "", children, ...props }) {
   return (
@@ -38,6 +39,12 @@ export default function MgActionBar({
   onViewModeChange,
   searchValue = "",
   onSearchChange,
+  searchResults = [],
+  searchDetailFields = [],
+  searchLoading = false,
+  onSearchResultSelect,
+  isFavoriteRecord,
+  onToggleFavorite,
   onToggleFilter,
   onNew,
   onSave,
@@ -63,13 +70,37 @@ export default function MgActionBar({
   layoutToolbar = null,
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const moreRef = useRef(null);
+  const searchRef = useRef(null);
   const toolsLocked = actionsLocked || secondaryToolsLocked;
   const lockedClass = secondaryToolsLocked ? " mg-action-bar__zone--locked" : "";
 
   useEffect(() => {
     if (secondaryToolsLocked) setMoreOpen(false);
   }, [secondaryToolsLocked]);
+
+  useEffect(() => {
+    if (secondaryToolsLocked) setSearchOpen(false);
+  }, [secondaryToolsLocked]);
+
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+    const close = (event) => {
+      if (!searchRef.current?.contains(event.target)) setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [searchOpen]);
+
+  useEffect(() => {
+    if (!searchOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setSearchOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [searchOpen]);
 
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -308,16 +339,38 @@ export default function MgActionBar({
 
       <div className={`mg-action-bar__end${lockedClass}`}>
         <div className="mg-action-bar__tools mg-action-bar__tools--visible">
-          <div className="mg-search-pill" role="search">
-            <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
-            <input
-              type="text"
-              placeholder="Pesquisar..."
-              value={searchValue}
-              onChange={(event) => onSearchChange?.(event.target.value)}
-              aria-label="Pesquisar"
-              disabled={toolsLocked}
-              tabIndex={toolsLocked ? -1 : 0}
+          <div className="mg-search-pill-wrap" ref={searchRef}>
+            <div className="mg-search-pill" role="search">
+              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
+              <input
+                type="text"
+                placeholder="Pesquisar..."
+                value={searchValue}
+                onChange={(event) => {
+                  onSearchChange?.(event.target.value);
+                  if (!toolsLocked) setSearchOpen(true);
+                }}
+                onFocus={() => {
+                  if (!toolsLocked) setSearchOpen(true);
+                }}
+                aria-label="Pesquisar"
+                aria-expanded={searchOpen && searchValue.trim().length > 0}
+                aria-haspopup="listbox"
+                disabled={toolsLocked}
+                tabIndex={toolsLocked ? -1 : 0}
+              />
+            </div>
+            <MgSearchResultsDropdown
+              open={searchOpen && searchValue.trim().length > 0 && !toolsLocked}
+              items={searchResults}
+              detailFields={searchDetailFields}
+              loading={searchLoading}
+              onSelect={(emp) => {
+                onSearchResultSelect?.(emp);
+                setSearchOpen(false);
+              }}
+              isFavoriteRecord={isFavoriteRecord}
+              onToggleFavorite={onToggleFavorite}
             />
           </div>
           <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={toolsLocked} />
