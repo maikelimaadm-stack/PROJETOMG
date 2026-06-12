@@ -2618,6 +2618,12 @@
   gap: 4px;
 }
 
+.mg-empresas-scope .mg-search-dropdown__footer-btn:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .mg-empresas-scope .mg-search-dropdown__footer-btn--primary {
   grid-column: span 1;
 }
