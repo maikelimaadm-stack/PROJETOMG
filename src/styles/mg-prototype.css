@@ -27,7 +27,7 @@
   --bg-surface: #ffffff;
   --border: var(--gray-fill);
   --mg-divider: var(--gray-fill);
-  --mg-divider-width: 2px;
+  --mg-divider-width: 1px;
   --border-focus: #40de63;
   --text-1: #111827;
   --text-2: #6b7280;
@@ -61,9 +61,9 @@
   --mg-launch-card-border: 1px solid rgba(255, 255, 255, 0.98);
   --mg-launch-card-shadow: 0 1px 2px rgba(15, 23, 42, 0.022), 0 3px 10px rgba(15, 23, 42, 0.024), 0 0 0 1px rgba(255, 255, 255, 0.92), 0 0 0 2px rgba(236, 240, 245, 0.82), 0 0 10px rgba(255, 255, 255, 0.28);
   --mg-section-divider-color: #E7EAEE;
-  --mg-section-divider-border: 1px solid var(--mg-section-divider-color);
-  --mg-section-divider-shadow: inset 0 -1px 0 var(--mg-section-divider-color), inset 0 -3px 8px rgba(15, 23, 42, 0.038), inset 0 1px 0 rgba(255, 255, 255, 0.92);
-  --mg-section-divider-shadow-top: inset 0 1px 0 var(--mg-section-divider-color), inset 0 3px 8px rgba(15, 23, 42, 0.038), inset 0 -1px 0 rgba(255, 255, 255, 0.92);
+  --mg-section-divider-border: 1px solid rgba(231, 234, 238, 0.82);
+  --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --mg-section-divider-shadow-top: inset 0 1px 0 rgba(231, 234, 238, 0.82), inset 0 -1px 0 rgba(255, 255, 255, 0.9);
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
@@ -469,8 +469,7 @@
   color: transparent;
 }
 
-/* Divisores de seção — linha suave + sombreamento corporativo (abaixo de toolbars/painéis) */
-.mg-empresas-scope .mg-action-bar,
+/* Divisores de seção — linha fina + brilho sutil (abaixo de toolbars/painéis) */
 .mg-empresas-scope .mg-context-panel,
 .mg-empresas-scope .mg-panel-tabs-strip,
 .mg-empresas-scope .mg-mobile-filter-strip,
@@ -481,9 +480,21 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search,
 .mg-empresas-scope .filter-panel__header,
-.mg-empresas-scope .erp-menu-search-field {
+.mg-empresas-scope .erp-menu-search-field,
+.mg-empresas-scope .mg-action-bar:not(:has(+ .mg-context-panel-wrap.is-visible)) {
   border-bottom: var(--mg-section-divider-border) !important;
   box-shadow: var(--mg-section-divider-shadow);
+}
+
+/* Barra de ações colada ao nome do registro — sem linha/gap entre os dois */
+.mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible) {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  padding-bottom: 0;
+}
+
+.mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible) + .mg-context-panel-wrap.is-visible {
+  margin-top: 0;
 }
 
 /* Divisores superiores (rodapés de painel) */
@@ -759,7 +770,7 @@
   letter-spacing: 0.05em;
   font-weight: 600;
   color: var(--text-3);
-  border-bottom: var(--mg-section-divider-border);
+  border-bottom: 1px solid rgba(231, 234, 238, 0.82);
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
@@ -772,7 +783,7 @@
 
 .mg-empresas-scope .mg-grid td {
   padding: 8px 14px;
-  border-bottom: var(--mg-section-divider-border);
+  border-bottom: 1px solid rgba(231, 234, 238, 0.82);
   color: var(--text-1);
 }
 
@@ -1423,7 +1434,7 @@
   min-height: 36px;
   padding: 0 12px;
   background: var(--accent);
-  box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.1);
   gap: 10px;
   flex-shrink: 0;
   border-bottom: var(--mg-section-divider-border) !important;
@@ -1446,7 +1457,7 @@
   min-height: 36px;
   padding: 0 12px;
   background: var(--accent);
-  box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.12);
+  box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.1);
   border-bottom: var(--mg-section-divider-border) !important;
 }
 
@@ -1790,7 +1801,7 @@
   gap: 10px;
   flex-shrink: 0;
   margin: 0;
-  min-height: calc(var(--mg-btn-height) + 10px);
+  min-height: calc(var(--mg-btn-height) + 8px);
   padding-top: 4px;
   padding-bottom: 4px;
   overflow: visible;
@@ -4227,11 +4238,11 @@
 }
 
 .mg-empresas-scope .mg-grid th {
-  border-bottom: var(--mg-section-divider-border);
+  border-bottom: 1px solid rgba(231, 234, 238, 0.82);
 }
 
 .mg-empresas-scope .mg-grid td {
-  border-bottom: var(--mg-section-divider-border);
+  border-bottom: 1px solid rgba(231, 234, 238, 0.82);
 }
 
 /* Tailwind border-* no escopo MG — evita 1px fixo da utility */
