@@ -50,7 +50,6 @@ import {
 import {
   ensureCardRows as ensureCardRowsHelper,
   placeFieldsOnCard,
-  previewSwapFieldWithTarget,
   stripFieldsFromAllCards,
   updateCardRowsOnly,
   previewMoveFieldsAtTarget,
@@ -617,41 +616,12 @@ export default function EmpLayoutConfiguratorDialog({
 
     const colSpan = resolveCardColSpan(targetCard.colSpan);
     const canInsert = canInsertFieldsIntoRow(rows, row.id, ids, colSpan);
-    const canSwapSingle =
-      !!targetFieldId && ids.length === 1 && draggedFrom === "panel" && usedFieldIds.has(ids[0]);
-    if (!canInsert && canSwapSingle) return true;
     if (!canInsert && showWarningOnFail) {
       showRequiredPopup(
         `Não foi possível mover os campos selecionados. Esta linha aceita no máximo ${getMaxFieldsPerRow(colSpan)} campos. Nenhum campo foi movido.`
       );
     }
     return canInsert;
-  };
-
-  const commitFieldDropOnField = (targetFieldId) => {
-    const ids = resolveDragFieldIds();
-    if (!isEditing || !draggedFieldId || !targetFieldId || !ids.length) return;
-
-    const targetRow = ensureCardRows(activeCard).find((row) => (row.fieldIds || []).includes(targetFieldId));
-    if (!targetRow) return;
-
-    const colSpan = getActiveCardColSpan();
-    const canInsert = canInsertFieldsIntoRow(ensureCardRows(activeCard), targetRow.id, ids, colSpan);
-    if (canInsert) return;
-
-    const canSwapSingle =
-      ids.length === 1 && draggedFrom === "panel" && usedFieldIds.has(ids[0]);
-    if (!canSwapSingle) return;
-
-    const swappedCardsByPanel = previewSwapFieldWithTarget({
-      cardsByPanel: draftCardsByPanel,
-      draggedFieldId: ids[0],
-      targetFieldId,
-      targetPanelId: activePanelId,
-      targetCardId: activeCardId,
-    });
-    if (!swappedCardsByPanel) return;
-    applyCardsState(swappedCardsByPanel);
   };
 
   const resolveDragFieldIds = () => {
@@ -1240,7 +1210,11 @@ export default function EmpLayoutConfiguratorDialog({
               targetFieldId: field.id,
               showWarningOnFail: true,
             });
-            if (canDrop) commitFieldDropOnField(field.id);
+            if (canDrop) {
+              previewMoveFieldsLive({
+                targetFieldId: field.id,
+              });
+            }
             finishFieldDrag();
           }}
           onDragEnd={finishFieldDrag}
@@ -1669,12 +1643,18 @@ export default function EmpLayoutConfiguratorDialog({
                             setDragOverRowId(null);
                             if (draggedRowId) return;
                             if (draggedFieldId || selectedAvailableIds.length) {
-                              canDropFieldsAtTarget({
+                              const canDrop = canDropFieldsAtTarget({
                                 targetPanelId: activePanelId,
                                 targetCardId: activeCardId,
                                 targetRowId: layoutRow.id,
                                 showWarningOnFail: true,
                               });
+                              if (canDrop) {
+                                previewMoveFieldsLive({
+                                  targetRowId: layoutRow.id,
+                                  edge: "after",
+                                });
+                              }
                               finishFieldDrag();
                             }
                           }}
