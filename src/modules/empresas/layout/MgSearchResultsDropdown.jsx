@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Check, Settings2 } from "lucide-react";
 import {
+  countSearchDropdownVisibleFields,
+  EMP_SEARCH_DROPDOWN_MAX_FIELDS,
   getEmpSearchFieldValue,
 } from "@/modules/empresas/components/empSearchView.constants";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import { renderSearchHighlight } from "@/modules/empresas/layout/mgSearchHighlight";
+import { showWarning } from "@/shared/feedback";
 
 export const MG_SEARCH_DROPDOWN_MAX = 10;
 
@@ -70,6 +73,23 @@ export default function MgSearchResultsDropdown({
   const hasQuery = query.length > 0;
   const showLoading = hasQuery && loading && visibleItems.length === 0;
   const hasListingData = hasQuery && !showLoading && visibleItems.length > 0;
+  const selectedFieldCount = countSearchDropdownVisibleFields(fieldsDraft);
+
+  const handleFieldToggle = (fieldKey, checked) => {
+    if (checked) {
+      const currentCount = countSearchDropdownVisibleFields(fieldsDraft);
+      if (currentCount >= EMP_SEARCH_DROPDOWN_MAX_FIELDS) {
+        showWarning(
+          `É permitido selecionar no máximo ${EMP_SEARCH_DROPDOWN_MAX_FIELDS} campos.`
+        );
+        return;
+      }
+    }
+
+    setFieldsDraft((current) =>
+      current.map((item) => (item.key === fieldKey ? { ...item, visible: checked } : item))
+    );
+  };
 
   const handleConfigOk = () => {
     onConfigSave?.(fieldsDraft);
@@ -110,14 +130,7 @@ export default function MgSearchResultsDropdown({
                   <SearchFieldCheck
                     checked={field.visible}
                     disabled={field.primary}
-                    onChange={(event) => {
-                      const checked = event.target.checked;
-                      setFieldsDraft((current) =>
-                        current.map((item) =>
-                          item.key === field.key ? { ...item, visible: checked } : item
-                        )
-                      );
-                    }}
+                    onChange={(event) => handleFieldToggle(field.key, event.target.checked)}
                   />
                   <span className="mg-cards-config-menu__label">{field.label}</span>
                 </label>
@@ -132,6 +145,13 @@ export default function MgSearchResultsDropdown({
               >
                 Restaurar
               </button>
+              <span
+                className="mg-search-dropdown__config-counter"
+                aria-live="polite"
+                aria-label={`${selectedFieldCount} de ${EMP_SEARCH_DROPDOWN_MAX_FIELDS} campos selecionados`}
+              >
+                {selectedFieldCount}/{EMP_SEARCH_DROPDOWN_MAX_FIELDS}
+              </span>
               <button
                 type="button"
                 className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
@@ -244,20 +264,7 @@ export default function MgSearchResultsDropdown({
               <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} aria-hidden="true" />
             </button>
           </div>
-        ) : (
-          <div className="mg-search-dropdown__footer mg-search-dropdown__footer--config">
-            <button
-              type="button"
-              className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn mg-search-dropdown__config-btn is-open`}
-              aria-label="Configurar campos da pesquisa"
-              aria-expanded
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => setConfigOpen(false)}
-            >
-              <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} aria-hidden="true" />
-            </button>
-          </div>
-        )}
+        ) : null}
       </div>
     </>
   );

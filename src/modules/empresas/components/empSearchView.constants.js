@@ -6,6 +6,7 @@ import campoEngine from "@/framework/cadastro/fields/campoEngine";
 export const EMP_SEARCH_VIS_KEY = "erp_vis_config";
 export const EMP_SEARCH_VIS_KEY_LEGACY = "emp_search_vis_config";
 export const EMP_SEARCH_DROPDOWN_VIS_KEY = "erp_search_dropdown_vis_config";
+export const EMP_SEARCH_DROPDOWN_MAX_FIELDS = 5;
 export const EMP_SEARCH_FAV_KEY = "emp_search_favorites";
 export const EMP_CARDS_LAYOUT_KEY = "erp_cards_layout_config";
 
@@ -198,6 +199,9 @@ const normalizeVisConfig = (raw = {}) => {
   });
   return normalized;
 };
+
+export const countSearchDropdownVisibleFields = (fields = []) =>
+  fields.filter((field) => field.visible && !field.primary).length;
 
 export const buildSearchDropdownDetailFields = (catalog = [], visFields = []) => {
   const merged = mergeSearchVisFields(catalog, visFields);
