@@ -94,7 +94,7 @@ export default function EmpTablePagination({
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))} disabled={paginationDisabled}>
         <SelectTrigger
-          className={`emp-table-pagination-size h-[22px] min-h-[22px] max-h-[22px] w-[112px] shrink-0 ${EMP_TOOLBAR_FIELD_BORDER} bg-white px-2 text-[11px] font-normal text-[#1a1f26] shadow-none hover:bg-white focus:ring-1 focus:ring-sky-300`}
+          className={`emp-table-pagination-size h-[22px] min-h-[22px] max-h-[22px] w-[128px] shrink-0 ${EMP_TOOLBAR_FIELD_BORDER} bg-white px-2 text-[11px] font-normal text-[#1a1f26] shadow-none hover:bg-white focus:ring-1 focus:ring-sky-300`}
           aria-label="Registros por página"
         >
           <SelectValue />

@@ -4,7 +4,7 @@ const DEFAULT_MAX_PAGES = 500;
 
 /**
  * Busca todas as páginas de uma listagem server-side (para exportação).
- * Nunca carrega tudo de uma vez — itera pageSize=200 por página.
+ * Itera em lotes de até LIST_MAX_PAGE_SIZE registros por requisição.
  */
 export async function fetchAllListPages({
   listPage,

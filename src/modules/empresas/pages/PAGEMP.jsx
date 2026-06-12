@@ -274,13 +274,22 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || pinnedRecord) return;
+    if (!editingEmp?.id || editingEmp._isDuplicate) return;
     const record = recordNav.currentRecord;
-    if (record?.id && record.id !== editingEmp?.id) {
+    if (record?.id && record.id !== editingEmp.id) {
       setEditingEmp(record);
       setSelectedTableItems([record.id]);
       setSelectedIndex(recordNav.localIndex);
     }
-  }, [recordNav.currentRecord?.id, recordNav.localIndex, showForm, viewMode, pinnedRecord, editingEmp?.id]);
+  }, [
+    recordNav.currentRecord?.id,
+    recordNav.localIndex,
+    showForm,
+    viewMode,
+    pinnedRecord,
+    editingEmp?.id,
+    editingEmp?._isDuplicate,
+  ]);
 
   useEffect(() => {
     if (!searchViewPending) return undefined;

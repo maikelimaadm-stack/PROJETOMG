@@ -21,7 +21,7 @@ const toPositiveInt = (value, fallback) => {
 };
 
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 200;
+const MAX_PAGE_SIZE = 1000;
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
