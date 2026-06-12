@@ -1,18 +1,19 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from "react";
 import { AuthApi } from "@/apis/auth/AuthApi";
 import { resetAllLayoutPreferencesSync } from "@/framework/cadastro-engine/preferences/LayoutPreferencesEngine.js";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
+import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 
 const prefetchEmpresasCadastro = () => {
   void queryClientInstance.prefetchQuery({
-    queryKey: ["emp-cadastro", 1, 50, "", "codempresa", "asc", "{}"],
+    queryKey: ["emp-cadastro", 1, LIST_DEFAULT_PAGE_SIZE, "", "codempresa", "asc", "{}"],
     queryFn: () =>
       empresasModuleDefinition.repository.listPage({
         page: 1,
-        pageSize: 50,
+        pageSize: LIST_DEFAULT_PAGE_SIZE,
         search: "",
         sortBy: "codempresa",
         sortDir: "asc",
@@ -221,18 +222,17 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   };
 
-  const navigateToLogin = () => {
+  const navigateToLogin = useCallback(() => {
     setIsAuthenticated(false);
     setUser(null);
     setCliente(null);
     setEmpresas([]);
     setAllowAllEmpresas(false);
     setSelectedEmpresaId(null);
-  };
+  }, []);
 
-  return (
-    <AuthContext.Provider
-      value={{
+  const contextValue = useMemo(
+    () => ({
       user,
       cliente,
       empresas,
@@ -251,7 +251,31 @@ export const AuthProvider = ({ children }) => {
       replaceEmpresasInSelector,
       navigateToLogin,
       checkAppState,
-    }}>
+    }),
+    [
+      user,
+      cliente,
+      empresas,
+      allowAllEmpresas,
+      selectedEmpresaId,
+      isAuthenticated,
+      isLoadingAuth,
+      isLoadingPublicSettings,
+      authError,
+      appPublicSettings,
+      login,
+      logout,
+      selectEmpresa,
+      upsertEmpresaInSelector,
+      removeEmpresasFromSelector,
+      replaceEmpresasInSelector,
+      navigateToLogin,
+      checkAppState,
+    ]
+  );
+
+  return (
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );

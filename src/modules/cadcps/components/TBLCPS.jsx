@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, Table
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
+import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -423,6 +424,15 @@ export default function TBLCPS({
 
     handleRowSelect(emp, event);
   };
+
+  const TABLE_ROW_HEIGHT = 32;
+  const { virtualItems, paddingTop, paddingBottom, virtualizer } = useTableVirtualizer({
+    scrollRef: scrollContainerRef,
+    count: camposPaginados.length,
+    estimateSize: TABLE_ROW_HEIGHT,
+    enabled: camposPaginados.length > 0 && !isLoadingCampos,
+  });
+
   const syncTableFullscreen = useCallback(() => {
     setIsTableFullscreen(document.fullscreenElement === tableStageRef.current);
   }, []);
@@ -910,27 +920,67 @@ export default function TBLCPS({
                 className="emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none"
               >
                 <TableBody>
-                  {isLoadingCampos
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Carregando campos...</TableCell></TableRow>
-                    : camposOrdenados.length === 0
-                    ? <TableRow><TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">Nenhuma campo encontrada</TableCell></TableRow>
-                    : camposPaginados.map((item, index) => {
-                      const isSelected = selectedItems.includes(item.id);
-                      const rowClass = getRowBgClass(index, isSelected);
-                      return (
-                      <TableRow key={item.id} className={`${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(item, e)}>
-                        {colunasOrdenadas.map((col, colIndex) => {
-                          const width = columnPixelWidths[col.id] || 160;
-                          const isFrozen = colIndex < frozenColumnCount;
-                          return (
-                            <TableCell key={`${item.id}-${col.id}`} style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }} className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`} title={String(getFieldValue(item, col.id) ?? "")}>
-                              {getFieldValue(item, col.id)}
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ); })
-                  }
+                  {isLoadingCampos ? (
+                    <TableRow>
+                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+                        Carregando campos...
+                      </TableCell>
+                    </TableRow>
+                  ) : camposOrdenados.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+                        Nenhuma campo encontrada
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    <>
+                      {paddingTop > 0 ? (
+                        <TableRow aria-hidden="true">
+                          <TableCell colSpan={colunasOrdenadas.length} style={{ height: paddingTop, padding: 0, border: 0 }} />
+                        </TableRow>
+                      ) : null}
+                      {virtualItems.map((virtualRow) => {
+                        const item = camposPaginados[virtualRow.index];
+                        if (!item) return null;
+                        const isSelected = selectedItems.includes(item.id);
+                        const rowClass = getRowBgClass(virtualRow.index, isSelected);
+                        return (
+                          <TableRow
+                            key={item.id}
+                            data-index={virtualRow.index}
+                            ref={virtualizer?.measureElement}
+                            className={`${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`}
+                            onClick={(e) => handleRowClick(item, e)}
+                          >
+                            {colunasOrdenadas.map((col, colIndex) => {
+                              const width = columnPixelWidths[col.id] || 160;
+                              const isFrozen = colIndex < frozenColumnCount;
+                              return (
+                                <TableCell
+                                  key={`${item.id}-${col.id}`}
+                                  style={{
+                                    width,
+                                    minWidth: width,
+                                    maxWidth: width,
+                                    left: isFrozen ? frozenOffsets[col.id] : undefined,
+                                  }}
+                                  className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${isSelected ? "font-semibold" : ""}`}
+                                  title={String(getFieldValue(item, col.id) ?? "")}
+                                >
+                                  {getFieldValue(item, col.id)}
+                                </TableCell>
+                              );
+                            })}
+                          </TableRow>
+                        );
+                      })}
+                      {paddingBottom > 0 ? (
+                        <TableRow aria-hidden="true">
+                          <TableCell colSpan={colunasOrdenadas.length} style={{ height: paddingBottom, padding: 0, border: 0 }} />
+                        </TableRow>
+                      ) : null}
+                    </>
+                  )}
                 </TableBody>
               </Table>
             </div>

@@ -21,7 +21,47 @@ const toPositiveInt = (value, fallback) => {
 };
 
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 1000;
+const MAX_PAGE_SIZE = 200;
+
+/** Colunas retornadas em listagens paginadas (sem observações/logo pesados). */
+const LIST_SELECT = {
+  id: true,
+  id_global: true,
+  codempresa: true,
+  razao_social: true,
+  nome_fantasia: true,
+  tipo_pessoa: true,
+  tipo_vinculo: true,
+  cpf_cnpj: true,
+  inscricao_estadual: true,
+  telefone: true,
+  whatsapp: true,
+  email: true,
+  cep: true,
+  endereco: true,
+  numero: true,
+  bairro: true,
+  cidade: true,
+  estado: true,
+  status: true,
+  campos_personalizados: true,
+  createdAt: true,
+  updatedAt: true,
+};
+
+const EXPORT_COLUMNS = [
+  { label: "ID Global", getValue: (row) => row.id_global ?? "" },
+  { label: "Código", getValue: (row) => row.codempresa ?? "" },
+  { label: "Razão Social", getValue: (row) => row.razao_social ?? "" },
+  { label: "Nome Fantasia", getValue: (row) => row.nome_fantasia ?? "" },
+  { label: "CPF/CNPJ", getValue: (row) => row.cpf_cnpj ?? "" },
+  { label: "Telefone", getValue: (row) => row.telefone ?? "" },
+  { label: "E-mail", getValue: (row) => row.email ?? "" },
+  { label: "Cidade", getValue: (row) => row.cidade ?? "" },
+  { label: "Estado", getValue: (row) => row.estado ?? "" },
+  { label: "Status", getValue: (row) => row.status ?? "" },
+];
+
 const EMPTY_RESULT_COMPANY_ID = "__no_company_permission__";
 
 const ORDER_BY_MAP = {
@@ -35,11 +75,64 @@ const ORDER_BY_MAP = {
   updatedAt: { updatedAt: "desc" },
 };
 
+const SORT_WHITELIST = new Set(Object.keys(ORDER_BY_MAP));
+
 const resolveOrderBy = (sortBy = "codempresa", sortDir = "asc") => {
-  const base = ORDER_BY_MAP[sortBy] || ORDER_BY_MAP.codempresa;
+  const safeSortBy = SORT_WHITELIST.has(sortBy) ? sortBy : "codempresa";
+  const base = ORDER_BY_MAP[safeSortBy] || ORDER_BY_MAP.codempresa;
   const direction = String(sortDir || "asc").toLowerCase() === "desc" ? "desc" : "asc";
   const [key] = Object.keys(base);
   return { [key]: direction };
+};
+
+const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {}) => {
+  const searchTerm = String(search || "").trim();
+  const baseSearchWhere = buildSearchWhere(searchTerm);
+  const customFieldIds = searchTerm
+    ? await findIdsMatchingCustomFields(prisma, scope, searchTerm)
+    : [];
+  const searchWhere = mergeSearchWhere(baseSearchWhere, customFieldIds);
+  const filtersWhere = buildFiltersWhere(filters);
+  const scopedClauses = [];
+  if (searchWhere) scopedClauses.push(searchWhere);
+  if (filtersWhere) scopedClauses.push(filtersWhere);
+  return buildCadastroScopeWhere(
+    scope,
+    scopedClauses.length === 0
+      ? {}
+      : scopedClauses.length === 1
+        ? scopedClauses[0]
+        : { AND: scopedClauses }
+  );
+};
+
+const buildCustomDistinctSql = (scope, fieldName, limit) => {
+  const safeField = String(fieldName || "").replace(/[^a-zA-Z0-9_]/g, "");
+  if (!safeField) return null;
+  const params = [scope.clienteId, limit];
+  let sql = `
+    SELECT DISTINCT TRIM(campos_personalizados->>'${safeField}') AS value
+    FROM "Empresa"
+    WHERE cliente_id = $1
+      AND campos_personalizados IS NOT NULL
+      AND campos_personalizados ? '${safeField}'
+      AND TRIM(campos_personalizados->>'${safeField}') <> ''
+  `;
+
+  if (!scope.acessoGlobal) {
+    const allowed = scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID];
+    const placeholders = allowed.map((_, index) => `$${index + 3}`).join(", ");
+    sql += ` AND id IN (${placeholders})`;
+    params.push(...allowed);
+  }
+
+  if (scope.selectedEmpresaId) {
+    sql += ` AND id = $${params.length + 1}`;
+    params.push(scope.selectedEmpresaId);
+  }
+
+  sql += ` ORDER BY value ASC LIMIT $2`;
+  return { sql, params };
 };
 
 const TEXT_SEARCH_FIELDS = [
@@ -302,6 +395,10 @@ const buildCadastroScopeWhere = (scope, extra = {}) => {
 };
 
 export const empresaRepository = {
+  LIST_SELECT,
+  EXPORT_COLUMNS,
+  resolveOrderBy,
+  buildListWhere,
   async count(scope) {
     const prisma = getPrismaClient();
     return prisma.empresa.count({
@@ -314,28 +411,12 @@ export const empresaRepository = {
     const safePage = toPositiveInt(page, 1);
     const safePageSize = Math.min(MAX_PAGE_SIZE, toPositiveInt(pageSize, DEFAULT_PAGE_SIZE));
     const skip = (safePage - 1) * safePageSize;
-    const searchTerm = String(search || "").trim();
-    const baseSearchWhere = buildSearchWhere(searchTerm);
-    const customFieldIds = searchTerm
-      ? await findIdsMatchingCustomFields(prisma, scope, searchTerm)
-      : [];
-    const searchWhere = mergeSearchWhere(baseSearchWhere, customFieldIds);
-    const filtersWhere = buildFiltersWhere(filters);
-    const scopedClauses = [];
-    if (searchWhere) scopedClauses.push(searchWhere);
-    if (filtersWhere) scopedClauses.push(filtersWhere);
-    const where = buildCadastroScopeWhere(
-      scope,
-      scopedClauses.length === 0
-        ? {}
-        : scopedClauses.length === 1
-          ? scopedClauses[0]
-          : { AND: scopedClauses }
-    );
+    const where = await buildListWhere(prisma, scope, { search, filters });
 
     const [items, total] = await Promise.all([
       prisma.empresa.findMany({
         where,
+        select: LIST_SELECT,
         orderBy: resolveOrderBy(sortBy, sortDir),
         skip,
         take: safePageSize,
@@ -374,25 +455,13 @@ export const empresaRepository = {
     );
 
     if (fieldMeta.type === "custom") {
-      const rows = await prisma.empresa.findMany({
-        where: {
-          ...where,
-          campos_personalizados: { not: null },
-        },
-        select: { campos_personalizados: true },
-        take: 2000,
-      });
-      const values = new Set();
-      rows.forEach((row) => {
-        const payload = row.campos_personalizados;
-        if (!payload || typeof payload !== "object") return;
-        const raw = payload[fieldMeta.field];
-        if (raw == null || raw === "") return;
-        values.add(String(raw));
-      });
-      return {
-        items: [...values].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true })).slice(0, safeLimit),
-      };
+      const distinctSql = buildCustomDistinctSql(scope, fieldMeta.field, safeLimit);
+      if (!distinctSql) return { items: [] };
+      const rows = await prisma.$queryRawUnsafe(distinctSql.sql, ...distinctSql.params);
+      const items = rows
+        .map((row) => String(row.value || "").trim())
+        .filter(Boolean);
+      return { items: [...new Set(items)] };
     }
 
     const rows = await prisma.empresa.findMany({

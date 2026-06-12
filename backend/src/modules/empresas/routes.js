@@ -1,4 +1,6 @@
 import { empresaService } from "./services/empresaService.js";
+import { streamEmpresasExport } from "./services/empresaExportService.js";
+import { empresaRepository } from "./repositories/empresaRepository.js";
 import { assertRole, loadAccessScope } from "../auth/accessScope.js";
 import { getContadores } from "../metrics/metricsService.js";
 import {
@@ -25,6 +27,17 @@ export const registerEmpresasRoutes = async (app) => {
       scope
     );
     return result;
+  });
+
+  app.get("/api/empresas/export", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
+    reply.hijack();
+    await streamEmpresasExport({
+      reply,
+      scope,
+      empresaRepository,
+      query: request.query || {},
+    });
   });
 
   app.get("/api/empresas/selector", { preHandler: app.authenticate }, async (request) => {

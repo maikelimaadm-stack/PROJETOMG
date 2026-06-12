@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import empRepository from "@/modules/empresas/repositories/empRepository";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
   buildCardCatalogFromColumnsInUse,
@@ -17,18 +15,12 @@ import {
   sortCardConfigFieldsAlphabetically,
 } from "@/modules/empresas/components/empSearchView.constants";
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
+import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 
 export function useEmpCardsVisFields({ columnsInUseOverride = null } = {}) {
   const [columnLayoutVersion, setColumnLayoutVersion] = useState(0);
 
-  const { data: camposPersonalizados = [] } = useQuery({
-    queryKey: ["emp-campos-personalizados"],
-    queryFn: () => empRepository.listCamposPersonalizados(),
-    initialData: [],
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
-    refetchOnMount: false,
-  });
+  const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
 
   useEffect(() => {
     const refresh = () => setColumnLayoutVersion((current) => current + 1);

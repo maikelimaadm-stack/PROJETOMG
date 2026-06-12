@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import empRepository from "@/modules/empresas/repositories/empRepository";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
   buildEmpCardFieldCatalog,
@@ -11,16 +9,10 @@ import {
   saveSearchDropdownVisFields,
   sortCardConfigFieldsAlphabetically,
 } from "@/modules/empresas/components/empSearchView.constants";
+import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 
 export function useEmpSearchDropdownFields() {
-  const { data: camposPersonalizados = [] } = useQuery({
-    queryKey: ["emp-campos-personalizados"],
-    queryFn: () => empRepository.listCamposPersonalizados(),
-    initialData: [],
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
-    refetchOnMount: false,
-  });
+  const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
 
   const catalog = useMemo(
     () => sortCardConfigFieldsAlphabetically(buildEmpCardFieldCatalog(camposPersonalizados)),

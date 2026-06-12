@@ -102,4 +102,20 @@ export const EmpresaApi = {
     );
     return payload?.items || [];
   },
+
+  async downloadExport(params = {}) {
+    const format = params.format === "excel" ? "excel" : "csv";
+    const extension = format === "excel" ? "xls" : "csv";
+    const query = toQuery({
+      format,
+      search: params.search,
+      sortBy: params.sortBy,
+      sortDir: params.sortDir,
+      filters: params.filters,
+      ids: params.ids,
+    });
+    return apiClient.download(`${EMPRESAS_PATH}/export${query}`, {
+      filename: `empresas-${new Date().toISOString().slice(0, 10)}.${extension}`,
+    });
+  },
 };

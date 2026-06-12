@@ -4,7 +4,7 @@ import { showSuccess, showError } from "@/shared/feedback";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { printCadastroTable, exportCadastroTableToExcel } from "@/framework/cadastro/exports/tableExportUtils";
+import { printCadastroTable } from "@/framework/cadastro/exports/tableExportUtils";
 import {
   getEmpPdfExportConfig,
   getEmpExcelExportConfig,
@@ -28,12 +28,12 @@ import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgAction
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
-import { useServerInfiniteListQuery } from "@/shared/hooks/useServerInfiniteListQuery";
+import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
 import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
-import { fetchAllListPages } from "@/shared/utils/fetchAllListPages";
 import {
-  EMP_LIST_CHUNK_SIZE,
+  LIST_DEFAULT_PAGE_SIZE,
   LIST_SEARCH_DEBOUNCE_MS,
+  readStoredListPageSize,
 } from "@/shared/listing/listQueryConfig";
 import {
   buildEmpresaColumnFilters,
@@ -51,9 +51,11 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
   total: 0,
   page: 1,
-  pageSize: EMP_LIST_CHUNK_SIZE,
+  pageSize: LIST_DEFAULT_PAGE_SIZE,
   totalPages: 1,
 };
+
+const EMP_PAGE_SIZE_KEY = "emp_table_page_size";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -108,6 +110,10 @@ export default function PAGEMP() {
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const [queryPage, setQueryPage] = useState(1);
+  const [queryPageSize, setQueryPageSize] = useState(() =>
+    readStoredListPageSize(EMP_PAGE_SIZE_KEY, LIST_DEFAULT_PAGE_SIZE)
+  );
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
   const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
@@ -247,32 +253,31 @@ export default function PAGEMP() {
     total: empresasResponseTotal,
     isInitialLoading: empresasLoading,
     isPageFetching: empresasFetching,
-    isLoadingMore: empresasLoadingMore,
-    hasMore: empresasHasMore,
-    fetchNextPage: fetchNextEmpresasPage,
     isLoading,
     isFetching,
-  } = useServerInfiniteListQuery({
+  } = useServerListQuery({
     queryKey: [
       "emp-cadastro",
+      queryPage,
+      queryPageSize,
       searchTerm,
       querySort.key,
       querySort.direction,
       listFiltersKey,
     ],
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async () => {
       const trimmedSearch = normalizeSearchQuery(searchTerm);
 
       if (searchFavoritesOnly && favoriteIds.length === 0) {
         return {
           ...DEFAULT_EMPRESAS_RESPONSE,
-          pageSize: EMP_LIST_CHUNK_SIZE,
+          pageSize: queryPageSize,
         };
       }
 
       return moduleRepository.listPage({
-        page: pageParam,
-        pageSize: EMP_LIST_CHUNK_SIZE,
+        page: queryPage,
+        pageSize: queryPageSize,
         search: trimmedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
@@ -281,11 +286,6 @@ export default function PAGEMP() {
     },
     defaultResponse: DEFAULT_EMPRESAS_RESPONSE,
   });
-
-  const handleListLoadMore = useCallback(() => {
-    if (!empresasHasMore || empresasLoadingMore) return;
-    fetchNextEmpresasPage();
-  }, [empresasHasMore, empresasLoadingMore, fetchNextEmpresasPage]);
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
   const empresasFiltradasPainel = useMemo(() => {
@@ -296,13 +296,11 @@ export default function PAGEMP() {
   const recordNav = useServerRecordNavigation({
     items: empresasFiltradasPainel,
     total: totalEmpresas,
-    page: 1,
-    pageSize: EMP_LIST_CHUNK_SIZE,
+    page: queryPage,
+    pageSize: queryPageSize,
+    onPageChange: setQueryPage,
     pinnedRecord,
     disabled: !showForm || viewMode !== "record",
-    cumulativeMode: true,
-    hasMore: empresasHasMore,
-    onLoadMore: handleListLoadMore,
   });
 
   useEffect(() => {
@@ -638,6 +636,7 @@ export default function PAGEMP() {
     const next = String(value || "").trim();
     setPinnedRecord(null);
     setSearchTerm(next);
+    setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
   }, []);
@@ -649,6 +648,7 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setPinnedRecord(null);
     setSearchTerm(next);
+    setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
     void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
@@ -700,11 +700,25 @@ export default function PAGEMP() {
 
   const handleFilterApply = useCallback(() => {
     setAppliedPanelFilters(buildEmpresaPanelFilters(filterValues, filterStatus));
+    setQueryPage(1);
     closeFilterPanel();
   }, [closeFilterPanel, filterStatus, filterValues]);
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
     setColumnFilters(nextColumnFilters || {});
+    setQueryPage(1);
+  }, []);
+
+  const handleServerPageChange = useCallback((nextPage) => {
+    setQueryPage(nextPage);
+  }, []);
+
+  const handleServerPageSizeChange = useCallback((nextPageSize) => {
+    setQueryPageSize(nextPageSize);
+    setQueryPage(1);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(EMP_PAGE_SIZE_KEY, String(nextPageSize));
+    }
   }, []);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
@@ -1011,40 +1025,35 @@ export default function PAGEMP() {
   const [exportBusy, setExportBusy] = useState(false);
   const [exportMessage, setExportMessage] = useState("");
 
-  const fetchExportEmpresas = useCallback(async () => {
-    if (pinnedRecord) return [pinnedRecord];
-    const listParams = {
+  const buildExportParams = useCallback(
+    (format) => ({
+      format,
       search: normalizeSearchQuery(searchTerm),
       sortBy: querySort.key,
       sortDir: querySort.direction,
-      filters: listFilters,
-    };
-    const { items } = await fetchAllListPages({
-      listPage: (params) => moduleRepository.listPage({ ...params, ...listParams }),
-      onProgress: ({ loaded, total }) => {
-        setExportMessage(`Preparando exportação... ${loaded}/${total}`);
-      },
-    });
-    if (selectedTableItems.length > 0) {
-      const selectedSet = new Set(selectedTableItems);
-      return items.filter((item) => selectedSet.has(item.id));
-    }
-    return items;
-  }, [pinnedRecord, selectedTableItems, searchTerm, querySort, listFilters]);
+      filters: JSON.stringify(listFilters ?? {}),
+      ...(selectedTableItems.length > 0 ? { ids: selectedTableItems.join(",") } : {}),
+    }),
+    [searchTerm, querySort, listFilters, selectedTableItems]
+  );
 
   const handleExportPdf = async () => {
     if (exportBusy || !saveCycle.guardAction("Aguarde a exportação terminar.")) return;
-    setExportBusy(true);
-    setExportMessage("Preparando exportação...");
-    try {
-      const sourceEmpresas = await fetchExportEmpresas();
+    if (pinnedRecord) {
       const config = getEmpPdfExportConfig();
       const srcCols = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
       const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
-      const rows = buildEmpresaExportRows(sourceEmpresas, selCols);
-      const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
-      const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
-      printCadastroTable({ columns: selCols, rows, totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
+      const rows = buildEmpresaExportRows([pinnedRecord], selCols);
+      printCadastroTable({ columns: selCols, rows, totalRows: [], title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
+      return;
+    }
+    setExportBusy(true);
+    setExportMessage("Preparando exportação...");
+    try {
+      await moduleRepository.downloadExport(buildExportParams("csv"));
+      showSuccess("Exportação concluída.");
+    } catch (error) {
+      showError(resolveErrorMessage(error, "Não foi possível exportar."));
     } finally {
       setExportBusy(false);
       setExportMessage("");
@@ -1056,14 +1065,10 @@ export default function PAGEMP() {
     setExportBusy(true);
     setExportMessage("Preparando exportação...");
     try {
-      const sourceEmpresas = await fetchExportEmpresas();
-      const config = getEmpExcelExportConfig();
-      const srcCols = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
-      const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
-      const rows = buildEmpresaExportRows(sourceEmpresas, selCols);
-      const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
-      const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
-      exportCadastroTableToExcel({ columns: selCols, rows, totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
+      await moduleRepository.downloadExport(buildExportParams("excel"));
+      showSuccess("Exportação concluída.");
+    } catch (error) {
+      showError(resolveErrorMessage(error, "Não foi possível exportar."));
     } finally {
       setExportBusy(false);
       setExportMessage("");
@@ -1255,12 +1260,12 @@ export default function PAGEMP() {
                       total: totalEmpresas,
                       isLoading: empresasLoading,
                       isFetching: empresasFetching,
+                      page: queryPage,
+                      pageSize: queryPageSize,
+                      onPageChange: handleServerPageChange,
+                      onPageSizeChange: handleServerPageSizeChange,
                       searchValue: searchTerm,
                       onSearchChange: handleSearchCommit,
-                      isLoadingMore: empresasLoadingMore,
-                      hasMore: empresasHasMore,
-                      onLoadMore: handleListLoadMore,
-                      chunkSize: EMP_LIST_CHUNK_SIZE,
                       onEdit: handleEdit,
                       selectedIds: selectedTableItems,
                       onSelectionChange: handleTableSelectionChange,
@@ -1292,17 +1297,16 @@ export default function PAGEMP() {
                     onVisibleDataChange: setVisibleTableData,
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
-                    serverInfiniteScroll: true,
+                    serverPage: queryPage,
+                    serverPageSize: queryPageSize,
                     serverTotal: totalEmpresas,
+                    onServerPageChange: handleServerPageChange,
+                    onServerPageSizeChange: handleServerPageSizeChange,
                     serverSearchTerm: searchTerm,
                     serverBaseFilters,
-                    loadedCount: empresasFiltradasPainel.length,
-                    hasMoreRecords: empresasHasMore,
-                    isLoadingMore: empresasLoadingMore,
-                    onLoadMore: handleListLoadMore,
-                    listChunkSize: EMP_LIST_CHUNK_SIZE,
                     onServerSortChange: (nextSort) => {
                       setQuerySort(nextSort);
+                      setQueryPage(1);
                     },
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,

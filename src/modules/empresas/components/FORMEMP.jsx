@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Input } from "@/shared/ui/input";
 import { useQuery } from "@tanstack/react-query";
+import { Input } from "@/shared/ui/input";
+import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import { useCadastroForm } from "@/framework/cadastro-engine/hooks/useCadastroForm.js";
@@ -146,12 +147,8 @@ export default function FORMEMP({
     formLayoutConfig?.clearOnDuplicateFieldIds,
   ]);
 
-  const { data: camposPersonalizados = [], isFetched: camposPersonalizadosReady } = useQuery({
-    queryKey: ["emp-campos-personalizados"],
-    queryFn: () => empRepository.listCamposPersonalizados(),
-    initialData: [],
-    staleTime: 60_000,
-  });
+  const { data: camposPersonalizados = [], isFetched: camposPersonalizadosReady } =
+    useEmpCamposPersonalizados();
 
   const camposPersonalizadosForm = useMemo(() => camposPersonalizados
     .map(campoEngine.normalize)
