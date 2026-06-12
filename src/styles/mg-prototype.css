@@ -857,6 +857,45 @@
   pointer-events: none;
 }
 
+.mg-empresas-scope .erp-listing-top-progress,
+.erp-listing-top-progress {
+  position: relative;
+  z-index: 30;
+  height: 3px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: rgba(14, 165, 233, 0.12);
+}
+
+.mg-empresas-scope .erp-listing-top-progress__bar,
+.erp-listing-top-progress__bar {
+  height: 100%;
+  width: 36%;
+  background: linear-gradient(90deg, rgba(14, 165, 233, 0.35), rgb(14, 165, 233));
+  animation: erp-listing-top-progress-slide 0.9s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes erp-listing-top-progress-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+.mg-empresas-scope .emp-table-data-row {
+  content-visibility: auto;
+  contain-intrinsic-size: 26px;
+}
+
+.mg-empresas-scope .mg-search-dropdown__empty--more {
+  padding-top: 6px;
+  padding-bottom: 10px;
+  font-size: 11px;
+}
+
 .mg-empresas-scope .mg-grid,
 .mg-empresas-scope table.mg-grid {
   width: 100%;

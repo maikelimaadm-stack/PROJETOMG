@@ -139,12 +139,13 @@ export default function PAGCPS() {
 
   useEffect(() => {
     if (!showForm || viewMode !== "record") return;
+    if (!editingItem?.id || editingItem._isDuplicate) return;
     const record = recordNav.currentRecord;
-    if (record?.id && record.id !== editingItem?.id) {
+    if (record?.id && record.id !== editingItem.id) {
       setEditingItem(record);
       setSelectedTableItems([record.id]);
     }
-  }, [recordNav.currentRecord?.id, showForm, viewMode, editingItem?.id]);
+  }, [recordNav.currentRecord?.id, showForm, viewMode, editingItem?.id, editingItem?._isDuplicate]);
 
   const camposNavegacao = campos;
 

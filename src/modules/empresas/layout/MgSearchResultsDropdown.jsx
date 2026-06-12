@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Settings2 } from "lucide-react";
 import {
   countSearchDropdownVisibleFields,
@@ -9,7 +9,7 @@ import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar
 import { renderSearchHighlight } from "@/modules/empresas/layout/mgSearchHighlight";
 import { showWarning } from "@/shared/feedback";
 
-export const MG_SEARCH_DROPDOWN_MAX = 10;
+const SCROLL_LOAD_THRESHOLD_PX = 48;
 
 function SearchFieldCheck({ checked, disabled, onChange }) {
   return (
@@ -35,6 +35,9 @@ export default function MgSearchResultsDropdown({
   searchHasFavoritesInResults = false,
   detailFields = [],
   loading = false,
+  loadingMore = false,
+  hasMore = false,
+  onLoadMore,
   searchQuery = "",
   configFields = [],
   onConfigSave,
@@ -46,6 +49,8 @@ export default function MgSearchResultsDropdown({
 }) {
   const [configOpen, setConfigOpen] = useState(false);
   const [fieldsDraft, setFieldsDraft] = useState(configFields);
+  const listRef = useRef(null);
+  const loadMoreLockRef = useRef(false);
 
   useEffect(() => {
     if (!open) setConfigOpen(false);
@@ -68,12 +73,24 @@ export default function MgSearchResultsDropdown({
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [configOpen]);
 
+  useEffect(() => {
+    if (!loadingMore) loadMoreLockRef.current = false;
+  }, [loadingMore]);
+
+  const handleListScroll = useCallback(() => {
+    const el = listRef.current;
+    if (!el || !hasMore || loading || loadingMore || loadMoreLockRef.current) return;
+    const remaining = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (remaining > SCROLL_LOAD_THRESHOLD_PX) return;
+    loadMoreLockRef.current = true;
+    onLoadMore?.();
+  }, [hasMore, loading, loadingMore, onLoadMore]);
+
   if (!open) return null;
 
-  const visibleItems = items.slice(0, MG_SEARCH_DROPDOWN_MAX);
   const query = searchQuery.trim();
   const hasQuery = query.length > 0;
-  const showLoading = hasQuery && loading && visibleItems.length === 0;
+  const showLoading = hasQuery && loading && items.length === 0;
   const hasListingData = hasQuery && !showLoading && searchResultsTotal > 0;
   const canApplyFavorites = !hasQuery || (hasListingData && searchHasFavoritesInResults);
   const showResultsCounter = hasQuery && !showLoading;
@@ -167,66 +184,77 @@ export default function MgSearchResultsDropdown({
             </div>
           </div>
         ) : (
-          <div className={`mg-search-dropdown__list${!hasQuery ? " mg-search-dropdown__list--idle" : ""}`}>
+          <div
+            ref={listRef}
+            className={`mg-search-dropdown__list${!hasQuery ? " mg-search-dropdown__list--idle" : ""}`}
+            onScroll={handleListScroll}
+          >
             {showLoading ? (
               <div className="mg-search-dropdown__empty">Carregando...</div>
-            ) : !hasQuery ? null : visibleItems.length === 0 ? (
+            ) : !hasQuery ? null : items.length === 0 ? (
               <div className="mg-search-dropdown__empty">Nenhum registro encontrado</div>
             ) : (
-              visibleItems.map((emp) => {
-                const code = getEmpSearchFieldValue(emp, "codempresa");
-                const nome = getEmpSearchFieldValue(emp, "razao_social");
-                const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
+              <>
+                {items.map((emp) => {
+                  const code = getEmpSearchFieldValue(emp, "codempresa");
+                  const nome = getEmpSearchFieldValue(emp, "razao_social");
+                  const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
 
-                return (
-                  <button
-                    key={emp.id}
-                    type="button"
-                    className="mg-search-dropdown__item"
-                    role="option"
-                    onMouseDown={(event) => event.preventDefault()}
-                    onClick={() => onSelect?.(emp)}
-                  >
-                    <div className="mg-search-dropdown__head">
-                      <MgRecordFavoriteStar
-                        active={isFavorite}
-                        disabled
-                        className="mg-search-dropdown__fav-btn"
-                      />
-                      <div className="mg-search-dropdown__title">
-                        {code && code !== "—" ? (
-                          <>
-                            <span className="mg-search-dropdown__code">
-                              {renderSearchHighlight(code, query)}
-                            </span>
-                            <span className="mg-search-dropdown__sep"> • </span>
-                          </>
-                        ) : null}
-                        <span className="mg-search-dropdown__name">
-                          {renderSearchHighlight(nome, query)}
-                        </span>
+                  return (
+                    <button
+                      key={emp.id}
+                      type="button"
+                      className="mg-search-dropdown__item"
+                      role="option"
+                      onMouseDown={(event) => event.preventDefault()}
+                      onClick={() => onSelect?.(emp)}
+                    >
+                      <div className="mg-search-dropdown__head">
+                        <MgRecordFavoriteStar
+                          active={isFavorite}
+                          disabled
+                          className="mg-search-dropdown__fav-btn"
+                        />
+                        <div className="mg-search-dropdown__title">
+                          {code && code !== "—" ? (
+                            <>
+                              <span className="mg-search-dropdown__code">
+                                {renderSearchHighlight(code, query)}
+                              </span>
+                              <span className="mg-search-dropdown__sep"> • </span>
+                            </>
+                          ) : null}
+                          <span className="mg-search-dropdown__name">
+                            {renderSearchHighlight(nome, query)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    {detailFields.length > 0 ? (
-                      <div className="mg-search-dropdown__meta">
-                        {detailFields.map((field) => {
-                          const value = getEmpSearchFieldValue(emp, field.key);
-                          return (
-                            <div key={field.key} className="mg-search-dropdown__field">
-                              <div className="mg-search-dropdown__field-line">
-                                <span className="mg-search-dropdown__field-label">{field.label}:</span>
-                                <span className="mg-search-dropdown__field-value">
-                                  {renderSearchHighlight(value, query)}
-                                </span>
+                      {detailFields.length > 0 ? (
+                        <div className="mg-search-dropdown__meta">
+                          {detailFields.map((field) => {
+                            const value = getEmpSearchFieldValue(emp, field.key);
+                            return (
+                              <div key={field.key} className="mg-search-dropdown__field">
+                                <div className="mg-search-dropdown__field-line">
+                                  <span className="mg-search-dropdown__field-label">{field.label}:</span>
+                                  <span className="mg-search-dropdown__field-value">
+                                    {renderSearchHighlight(value, query)}
+                                  </span>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : null}
-                  </button>
-                );
-              })
+                            );
+                          })}
+                        </div>
+                      ) : null}
+                    </button>
+                  );
+                })}
+                {loadingMore ? (
+                  <div className="mg-search-dropdown__empty mg-search-dropdown__empty--more">
+                    Carregando mais...
+                  </div>
+                ) : null}
+              </>
             )}
           </div>
         )}

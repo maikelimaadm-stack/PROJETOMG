@@ -46,6 +46,9 @@ export default function MgActionBar({
   searchHasFavoritesInResults = false,
   searchDetailFields = [],
   searchLoading = false,
+  searchLoadingMore = false,
+  searchHasMore = false,
+  onSearchLoadMore,
   searchHasFilter = false,
   onSearchClear,
   searchDropdownConfigFields = [],
@@ -406,6 +409,9 @@ export default function MgActionBar({
               searchHasFavoritesInResults={searchHasFavoritesInResults}
               detailFields={searchDetailFields}
               loading={searchLoading}
+              loadingMore={searchLoadingMore}
+              hasMore={searchHasMore}
+              onLoadMore={onSearchLoadMore}
               searchQuery={searchInputValue}
               configFields={searchDropdownConfigFields}
               onConfigSave={onSearchDropdownConfigSave}

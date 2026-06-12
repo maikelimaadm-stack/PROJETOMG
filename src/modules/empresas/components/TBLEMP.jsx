@@ -5,9 +5,12 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
-import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
+import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
+import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
+import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -61,6 +64,8 @@ export default function TBLEMP({
   serverPage = 1,
   serverPageSize = 50,
   serverTotal = null,
+  serverSearchTerm = "",
+  serverBaseFilters = undefined,
   onServerPageChange = null,
   onServerPageSizeChange = null,
   onServerSortChange = null,
@@ -136,8 +141,29 @@ export default function TBLEMP({
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
     if (serverPageSize) return serverPageSize;
-    const saved = Number(localStorage.getItem(PAGE_SIZE_KEY));
-    return EMP_PAGE_SIZE_OPTIONS.includes(saved) ? saved : 50;
+    return readStoredListPageSize(PAGE_SIZE_KEY, 50);
+  });
+
+  const distinctFiltersKey = useMemo(() => {
+    if (!serverMode || !menuFiltroAberto) return "";
+    const withoutColumn = { ...filtrosColunas };
+    delete withoutColumn[menuFiltroAberto];
+    const merged = buildEmpresaColumnFilters(withoutColumn);
+    const payload = { ...(serverBaseFilters || {}), ...(merged || {}) };
+    return JSON.stringify(payload);
+  }, [serverMode, menuFiltroAberto, filtrosColunas, serverBaseFilters]);
+
+  const { data: serverDistinctOptions, isFetching: serverDistinctFetching } = useQuery({
+    queryKey: ["emp-distinct-column", menuFiltroAberto, serverSearchTerm, distinctFiltersKey],
+    queryFn: () =>
+      empRepository.listDistinctColumnValues({
+        column: menuFiltroAberto,
+        search: serverSearchTerm,
+        filters: distinctFiltersKey ? JSON.parse(distinctFiltersKey) : serverBaseFilters,
+      }),
+    enabled: serverMode && Boolean(menuFiltroAberto),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
   });
 
   const { data: camposPersonalizados = [] } = useQuery({
@@ -349,13 +375,17 @@ export default function TBLEMP({
   };
 
   const columnOptions = useMemo(() => {
+    if (serverMode) {
+      if (!menuFiltroAberto) return {};
+      return { [menuFiltroAberto]: serverDistinctOptions?.items || [] };
+    }
     const opts = {};
     colunasDisponiveis.filter((c) => !c.fixo).forEach((col) => {
       const source = empresas.filter((e) => empresaPassaFiltros(e, col.id));
       opts[col.id] = [...new Set(source.map((e) => getFieldValue(e, col.id)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
     });
     return opts;
-  }, [empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
+  }, [serverMode, menuFiltroAberto, serverDistinctOptions, empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
 
   const hasActiveFilter = (id) => (filtrosColunas[id] || []).length > 0;
   const getValoresFiltro = (id) => filtrosColunas[id] || [];
@@ -767,21 +797,25 @@ export default function TBLEMP({
                 />
                 <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
               </label>
-              {filteredOpts.map((opt) => (
-                <label key={opt} className="emp-filter-value-list-item">
-                  <Checkbox
-                    checked={listSel.includes(opt)}
-                    onCheckedChange={(c) => setFiltroTemp((p) => {
-                      const rangeVals = getRangeFilterValues(p.valores, ft);
-                      const listVals = getListFilterValues(p.valores, ft);
-                      const nextList = c ? [...listVals, opt] : listVals.filter((i) => i !== opt);
-                      return { ...p, valores: [...rangeVals, ...nextList] };
-                    })}
-                    className="emp-filter-checkbox"
-                  />
-                  <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
-                </label>
-              ))}
+              {serverMode && serverDistinctFetching && filteredOpts.length === 0 ? (
+                <div className="emp-filter-loading px-2 py-3 text-xs text-slate-500">Carregando opções...</div>
+              ) : (
+                filteredOpts.map((opt) => (
+                  <label key={opt} className="emp-filter-value-list-item">
+                    <Checkbox
+                      checked={listSel.includes(opt)}
+                      onCheckedChange={(c) => setFiltroTemp((p) => {
+                        const rangeVals = getRangeFilterValues(p.valores, ft);
+                        const listVals = getListFilterValues(p.valores, ft);
+                        const nextList = c ? [...listVals, opt] : listVals.filter((i) => i !== opt);
+                        return { ...p, valores: [...rangeVals, ...nextList] };
+                      })}
+                      className="emp-filter-checkbox"
+                    />
+                    <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
+                  </label>
+                ))
+              )}
             </div>
 
             <div className="emp-filter-actions">
@@ -962,6 +996,7 @@ export default function TBLEMP({
         className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
       >
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
+          <ErpListingTopProgress active={isFetchingEmpresas && !isLoadingEmpresas} />
           <div
             ref={headerScrollRef}
             className="emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden"
@@ -986,12 +1021,6 @@ export default function TBLEMP({
             onKeyDown={handleTableKeyDown}
             className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
           >
-            {isFetchingEmpresas ? (
-              <div className="mg-table-loading-overlay" aria-live="polite" aria-busy="true">
-                <Loader2 className="mg-table-loading-overlay__icon animate-spin" aria-hidden="true" />
-                <span className="mg-table-loading-overlay__text">Carregando registros...</span>
-              </div>
-            ) : null}
             <div
               className="block w-max min-w-full min-h-full"
               style={{ width: totalTableWidth, minWidth: totalTableWidth }}
@@ -1010,7 +1039,7 @@ export default function TBLEMP({
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
                       return (
-                      <TableRow key={emp.id} className={`${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
+                      <TableRow key={emp.id} className={`emp-table-data-row ${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;

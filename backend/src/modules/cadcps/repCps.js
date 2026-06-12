@@ -265,7 +265,7 @@ export const repCps = {
   async list({ scope, query }) {
     const prisma = getPrismaClient();
     const page = Math.max(1, Number(query.page) || 1);
-    const pageSize = Math.min(200, Math.max(1, Number(query.pageSize) || 50));
+    const pageSize = Math.min(1000, Math.max(1, Number(query.pageSize) || 50));
     const skip = (page - 1) * pageSize;
     const where = buildListWhere(scope, query);
     const sortBy = String(query.sortBy || "codigo");
