@@ -57,13 +57,13 @@
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
-  --mg-field-height: 40px;
-  --mg-field-label-size-top: 9px;
-  --mg-field-label-size-empty: 12px;
+  --mg-field-height: 38px;
+  --mg-field-label-size-top: 11px;
+  --mg-field-label-size-empty: 11px;
   --mg-field-stack-inset-top: 11px;
   --mg-field-stack-inset-bottom: 3px;
   --mg-panel-tab-font: 13px;
-  --mg-field-label-font: 12px;
+  --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-cards-layout-gap: 9px;
   --mg-btn-font: 13px;
@@ -4440,4 +4440,131 @@
   outline: 2px dashed var(--mg-brand-green);
   outline-offset: -2px;
   border-radius: var(--mg-radius-control);
+}
+
+/* -------------------------------------------------------------------------- */
+/* Lançamentos: padrão único de campo (igual "Tipo de Pessoa")               */
+/* -------------------------------------------------------------------------- */
+.mg-empresas-scope .mg-prototype-form :is(
+  .fg-label,
+  .cmd-label,
+  .mg-dp-label,
+  .mg-tp-label,
+  .mg-lookup-label,
+  .emp-form-field-label-top
+) {
+  font-size: var(--mg-field-label-font) !important;
+  font-weight: 500 !important;
+  color: var(--text-3) !important;
+  line-height: 1 !important;
+}
+
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field:not(.mg-prototype-field--bare) .fg-label,
+.mg-empresas-scope .mg-prototype-form :is(.cmd-label, .mg-dp-label, .mg-tp-label, .mg-lookup-label),
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-prototype-field.mg-has-value .fg-label,
+  .mg-prototype-field:focus-within .fg-label,
+  .mg-prototype-composite.mg-has-value .cmd-label,
+  .mg-prototype-composite.mg-has-value .mg-dp-label,
+  .mg-prototype-composite.mg-has-value .mg-tp-label,
+  .mg-prototype-composite.mg-has-value .mg-lookup-label,
+  .cmd-select.open .cmd-label,
+  .mg-dp.open .mg-dp-label,
+  .mg-tp.open .mg-tp-label,
+  .mg-lookup.open .mg-lookup-label
+) {
+  align-self: start !important;
+  padding: 4px 10px 0 !important;
+  font-size: var(--mg-field-label-font) !important;
+  line-height: 1 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-prototype-field > input:not([type="hidden"]),
+  .mg-prototype-field > select,
+  .mg-prototype-field .emp-form-field-control,
+  .cmd-display,
+  .mg-dp-field,
+  .mg-tp-field,
+  .mg-lookup-display,
+  .mg-prototype-autocomplete.erp-field-select,
+  .emp-form-autocomplete-wrap.erp-field-select,
+  .mg-prototype-autocomplete.erp-field-lookup,
+  .emp-form-autocomplete-wrap.erp-field-lookup
+) {
+  min-height: var(--mg-field-height) !important;
+  height: var(--mg-field-height) !important;
+  border: none !important;
+  border-radius: var(--mg-radius-control) !important;
+  background: var(--mg-field-idle-bg) !important;
+  box-shadow: var(--mg-field-edge-shadow) !important;
+  color: var(--text-1) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-prototype-field > input:not([type="hidden"]),
+  .mg-prototype-field .emp-form-field-control input,
+  .cmd-display,
+  .mg-dp-field,
+  .mg-tp-field,
+  .mg-lookup-display,
+  .mg-prototype-autocomplete .erp-field-select-input,
+  .mg-prototype-autocomplete .erp-field-lookup-input
+) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-prototype-field > input:not([type="hidden"]),
+  .mg-prototype-field .emp-form-field-control input
+) {
+  padding: var(--mg-field-stack-inset-top) 10px var(--mg-field-stack-inset-bottom) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field > textarea,
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field .emp-form-field-control textarea {
+  min-height: 64px !important;
+  height: auto !important;
+  padding: 20px 10px 8px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form .cmd-display {
+  align-items: flex-end !important;
+  padding: var(--mg-field-stack-inset-top) 28px var(--mg-field-stack-inset-bottom) 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(.mg-dp-field, .mg-tp-field) {
+  padding: var(--mg-field-stack-inset-top) 32px var(--mg-field-stack-inset-bottom) 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form .mg-lookup-display {
+  align-items: flex-end !important;
+  padding: var(--mg-field-stack-inset-top) 28px var(--mg-field-stack-inset-bottom) 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .cmd-select.open .cmd-display,
+  .mg-dp.open .mg-dp-field,
+  .mg-tp.open .mg-tp-field,
+  .mg-lookup.open .mg-lookup-display,
+  .mg-prototype-field > input:focus,
+  .mg-prototype-field > textarea:focus,
+  .mg-prototype-field .emp-form-field-control:focus-within,
+  .mg-prototype-autocomplete.erp-field-open:is(.erp-field-select, .erp-field-lookup),
+  .emp-form-autocomplete-wrap.erp-field-open:is(.erp-field-select, .erp-field-lookup)
+) {
+  background: var(--mg-field-idle-bg) !important;
+  box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-prototype-field > input::placeholder,
+  .mg-prototype-field > textarea::placeholder,
+  .mg-prototype-field .emp-form-field-control input::placeholder,
+  .mg-prototype-field .emp-form-field-control textarea::placeholder
+) {
+  color: transparent !important;
 }
