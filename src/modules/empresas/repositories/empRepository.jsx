@@ -39,6 +39,14 @@ const empRepository = {
     return EmpresaApi.listCamposPersonalizados({ mode });
   },
 
+  async listCamposPaginated(params = {}) {
+    return EmpresaApi.listCamposPaginated(params);
+  },
+
+  async listEmpresasSelector(params = {}) {
+    return EmpresaApi.listEmpresasSelector(params);
+  },
+
 
   async listOptionsSources(sources) {
     return EmpresaApi.listOptionsSources(sources);

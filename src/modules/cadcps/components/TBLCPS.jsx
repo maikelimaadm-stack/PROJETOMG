@@ -58,6 +58,7 @@ export default function TBLCPS({
   onServerPageChange = null,
   onServerPageSizeChange = null,
   onServerSortChange = null,
+  onServerColumnFiltersChange = null,
   moduleTitle = "Cadastro",
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
@@ -334,6 +335,11 @@ export default function TBLCPS({
   useEffect(() => {
     localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
   }, [pageSize]);
+
+  useEffect(() => {
+    if (!serverMode) return;
+    onServerColumnFiltersChange?.(filtrosColunas);
+  }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
     if (serverMode) {

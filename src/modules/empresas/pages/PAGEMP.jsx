@@ -29,6 +29,8 @@ import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFie
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
+import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
+import { fetchAllListPages } from "@/shared/utils/fetchAllListPages";
 import {
   LIST_DEFAULT_PAGE_SIZE,
   LIST_SEARCH_DEBOUNCE_MS,
@@ -39,6 +41,7 @@ import {
   mergeEmpresaListFilters,
 } from "@/shared/listing/buildEmpresaListFilters";
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
+import { buildEmpresaExportRows } from "@/modules/empresas/utils/empExportRows";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
@@ -258,6 +261,26 @@ export default function PAGEMP() {
     if (pinnedRecord) return [pinnedRecord];
     return empresas;
   }, [empresas, pinnedRecord]);
+
+  const recordNav = useServerRecordNavigation({
+    items: empresasFiltradasPainel,
+    total: totalEmpresas,
+    page: queryPage,
+    pageSize: queryPageSize,
+    onPageChange: setQueryPage,
+    pinnedRecord,
+    disabled: !showForm || viewMode !== "record",
+  });
+
+  useEffect(() => {
+    if (!showForm || viewMode !== "record" || pinnedRecord) return;
+    const record = recordNav.currentRecord;
+    if (record?.id && record.id !== editingEmp?.id) {
+      setEditingEmp(record);
+      setSelectedTableItems([record.id]);
+      setSelectedIndex(recordNav.localIndex);
+    }
+  }, [recordNav.currentRecord?.id, recordNav.localIndex, showForm, viewMode, pinnedRecord, editingEmp?.id]);
 
   useEffect(() => {
     if (!searchViewPending) return undefined;
@@ -510,7 +533,8 @@ export default function PAGEMP() {
   const handleEdit = (emp) => {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
-    const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
+    recordNav.syncLocalIndexFromRecord(emp);
+    const index = empresasFiltradasPainel.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([emp.id]);
     setEditingEmp(emp);
@@ -804,11 +828,12 @@ export default function PAGEMP() {
     setViewMode("record");
   };
 
-  const navigateRecord = (index) => {
+  const navigateRecord = (direction) => {
     if (!showForm || !saveCycle.guardAction()) return;
-    const ni = Math.min(Math.max(index, 0), Math.max(empresasNavegacao.length - 1, 0));
-    setSelectedIndex(ni);
-    if (empresasNavegacao[ni]) { setEditingEmp(empresasNavegacao[ni]); setSelectedTableItems([empresasNavegacao[ni].id]); }
+    if (direction === "first") recordNav.navigateFirst();
+    else if (direction === "last") recordNav.navigateLast();
+    else if (direction === "prev") recordNav.navigatePrevious();
+    else recordNav.navigateNext();
   };
 
   const handleConfirmDelete = async () => {
@@ -947,27 +972,66 @@ export default function PAGEMP() {
     }
   };
 
-  const handleExportPdf = () => {
-    const config = getEmpPdfExportConfig();
-    const srcCols = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
-    const srcRows = config.useConfiguredColumns ? visibleTableData.allRows || visibleTableData.rows : visibleTableData.rows;
-    const selRows = config.useConfiguredColumns ? visibleTableData.allSelectedRows || visibleTableData.selectedRows : visibleTableData.selectedRows;
-    const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
-    const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
-    const filterRows = (rows = []) => rows.map((row) => selIdx.map((i) => row[i]));
-    const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
-    printCadastroTable({ columns: selCols, rows: filterRows(selectedTableItems.length > 0 ? selRows || [] : srcRows || []), totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
+  const [exportBusy, setExportBusy] = useState(false);
+  const [exportMessage, setExportMessage] = useState("");
+
+  const fetchExportEmpresas = useCallback(async () => {
+    if (pinnedRecord) return [pinnedRecord];
+    const listParams = {
+      search: normalizeSearchQuery(searchTerm),
+      sortBy: querySort.key,
+      sortDir: querySort.direction,
+      filters: listFilters,
+    };
+    const { items } = await fetchAllListPages({
+      listPage: (params) => moduleRepository.listPage({ ...params, ...listParams }),
+      onProgress: ({ loaded, total }) => {
+        setExportMessage(`Preparando exportação... ${loaded}/${total}`);
+      },
+    });
+    if (selectedTableItems.length > 0) {
+      const selectedSet = new Set(selectedTableItems);
+      return items.filter((item) => selectedSet.has(item.id));
+    }
+    return items;
+  }, [pinnedRecord, selectedTableItems, searchTerm, querySort, listFilters]);
+
+  const handleExportPdf = async () => {
+    if (exportBusy || !saveCycle.guardAction("Aguarde a exportação terminar.")) return;
+    setExportBusy(true);
+    setExportMessage("Preparando exportação...");
+    try {
+      const sourceEmpresas = await fetchExportEmpresas();
+      const config = getEmpPdfExportConfig();
+      const srcCols = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
+      const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
+      const rows = buildEmpresaExportRows(sourceEmpresas, selCols);
+      const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
+      const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
+      printCadastroTable({ columns: selCols, rows, totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
+    } finally {
+      setExportBusy(false);
+      setExportMessage("");
+    }
   };
 
-  const handleExportExcel = () => {
-    const config = getEmpExcelExportConfig();
-    const srcCols = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
-    const srcRows = config.useConfiguredColumns ? visibleTableData.allRows || visibleTableData.rows : visibleTableData.rows;
-    const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
-    const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
-    const filterRows = (rows = []) => rows.map((row) => selIdx.map((i) => row[i]));
-    const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
-    exportCadastroTableToExcel({ columns: selCols, rows: filterRows(srcRows || []), totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
+  const handleExportExcel = async () => {
+    if (exportBusy || !saveCycle.guardAction("Aguarde a exportação terminar.")) return;
+    setExportBusy(true);
+    setExportMessage("Preparando exportação...");
+    try {
+      const sourceEmpresas = await fetchExportEmpresas();
+      const config = getEmpExcelExportConfig();
+      const srcCols = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
+      const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
+      const rows = buildEmpresaExportRows(sourceEmpresas, selCols);
+      const selIdx = selCols.map((c) => srcCols.findIndex((x) => x.id === c.id));
+      const totalRows = visibleTableData.totalRows?.length ? visibleTableData.totalRows.map((row) => selIdx.map((i) => row[i])) : [];
+      exportCadastroTableToExcel({ columns: selCols, rows, totalRows, title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
+    } finally {
+      setExportBusy(false);
+      setExportMessage("");
+    }
   };
 
   const formCancel = () => {
@@ -1009,8 +1073,8 @@ export default function PAGEMP() {
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <SaveProgressOverlay
-        active={saveCycle.isSaving}
-        message={saveCycle.saveMessage}
+        active={saveCycle.isSaving || exportBusy}
+        message={exportBusy ? exportMessage || "Preparando exportação..." : saveCycle.saveMessage}
         variant={saveCycle.variant}
       />
 
@@ -1048,6 +1112,7 @@ export default function PAGEMP() {
             onSearchApplyFavorites={handleSearchApplyFavorites}
             isFavoriteRecord={empFavorites.isFavorite}
             onToggleFilter={toggleFilterPanel}
+            filterActive={hasActiveFilters}
             onNew={handleNew}
             onSave={formBridge?.onSave}
             onCancel={formBridge?.onCancel ?? formCancel}
@@ -1087,12 +1152,12 @@ export default function PAGEMP() {
               <MgContextPanel
                 code={recordCode}
                 title={recordTitle}
-                total={empresasNavegacao.length}
-                currentIndex={selectedIndex}
-                onFirst={() => navigateRecord(0)}
-                onPrevious={() => navigateRecord(selectedIndex - 1)}
-                onNext={() => navigateRecord(selectedIndex + 1)}
-                onLast={() => navigateRecord(empresasNavegacao.length - 1)}
+                total={recordNav.effectiveTotal}
+                currentIndex={recordNav.globalIndex}
+                onFirst={() => navigateRecord("first")}
+                onPrevious={() => navigateRecord("prev")}
+                onNext={() => navigateRecord("next")}
+                onLast={() => navigateRecord("last")}
                 disabled={saveCycle.isSaving}
                 interactionLocked={actionBarVisibility.secondaryToolsLocked}
                 recordId={editingEmp?.id ?? null}
@@ -1132,8 +1197,8 @@ export default function PAGEMP() {
                   onCancel: formCancel,
                   hideToolbar: true,
                   onToolbarBridge: showForm ? setFormBridge : undefined,
-                  total: empresasNavegacao.length,
-                  currentIndex: selectedIndex,
+                  total: recordNav.effectiveTotal,
+                  currentIndex: recordNav.globalIndex,
                   onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
                   onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
                   actionsLocked: saveCycle.isSaving,

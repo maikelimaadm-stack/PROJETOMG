@@ -413,17 +413,37 @@ export const empresaRepository = {
 
   async listCampos(scope, mode = "aplicavel") {
     if (mode === "config") {
-      const telas = await svcCps.listTelas();
-      const telaEmpresas = telas.find((t) => t.entity_name === EMPRESAS_ENTITY_NAME);
-      const result = await svcCps.list(scope, {
-        page: 1,
-        pageSize: 200,
-        sortBy: "codigo",
-        sortDir: "asc",
-        ...(telaEmpresas?.id ? { tela_id: telaEmpresas.id } : {}),
-      });
-      return toLegacyCampoList(result.items);
+      const paginated = await this.listCamposPaginated(scope, { page: 1, pageSize: 200 });
+      return toLegacyCampoList(paginated.items);
     }
     return svcCps.listApplicableLegacy(scope, EMPRESAS_ENTITY_NAME);
+  },
+
+  async listCamposPaginated(scope, query = {}) {
+    const telas = await svcCps.listTelas();
+    const telaEmpresas = telas.find((t) => t.entity_name === EMPRESAS_ENTITY_NAME);
+    const page = Math.max(1, Number(query.page) || 1);
+    const pageSize = Math.min(MAX_PAGE_SIZE, Math.max(1, Number(query.pageSize) || DEFAULT_PAGE_SIZE));
+    let filters = {};
+    if (query.filters) {
+      try {
+        filters = typeof query.filters === "string" ? JSON.parse(query.filters) : query.filters;
+      } catch {
+        filters = {};
+      }
+    }
+    const result = await svcCps.list(scope, {
+      page,
+      pageSize,
+      search: query.search || "",
+      sortBy: query.sortBy || "codigo",
+      sortDir: query.sortDir || "asc",
+      filters,
+      ...(telaEmpresas?.id ? { tela_id: telaEmpresas.id } : {}),
+    });
+    return {
+      ...result,
+      items: toLegacyCampoList(result.items),
+    };
   },
 };

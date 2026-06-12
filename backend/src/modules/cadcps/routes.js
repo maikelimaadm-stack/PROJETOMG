@@ -41,7 +41,15 @@ export const registerCadcpsRoutes = async (app) => {
   app.get("/api/cadcps/campos", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
     const query = parseOrThrow(cadcpsListQuerySchema, request.query || {}, "Query inválida.");
-    return svcCps.list(scope, query);
+    let filters = {};
+    if (request.query?.filters) {
+      try {
+        filters = JSON.parse(String(request.query.filters));
+      } catch {
+        filters = {};
+      }
+    }
+    return svcCps.list(scope, { ...query, filters });
   });
 
   app.get("/api/cadcps/campos/:id", { preHandler: app.authenticate }, async (request, reply) => {

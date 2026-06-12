@@ -39,37 +39,42 @@ const normalizeCredentials = ({ cliente, usuario }) => ({
   login: String(usuario || "").trim().toLowerCase(),
 });
 
-const fetchEmpresasPermitidas = async (usuario) => {
+const fetchEmpresasPermitidas = async (usuario, { limit = 50 } = {}) => {
   const prisma = getPrismaClient();
+  const select = {
+    id: true,
+    codempresa: true,
+    razao_social: true,
+  };
+  const orderBy = [{ codempresa: "asc" }];
+
   if (usuario.acesso_global) {
-    const empresas = await prisma.empresa.findMany({
-      where: { cliente_id: usuario.cliente_id },
-      orderBy: [{ codempresa: "asc" }],
-      select: {
-        id: true,
-        codempresa: true,
-        razao_social: true,
-      },
-    });
-    return empresas.map(sanitizeEmpresa);
+    const [empresas, total] = await Promise.all([
+      prisma.empresa.findMany({
+        where: { cliente_id: usuario.cliente_id },
+        orderBy,
+        select,
+        take: limit,
+      }),
+      prisma.empresa.count({ where: { cliente_id: usuario.cliente_id } }),
+    ]);
+    return {
+      items: empresas.map(sanitizeEmpresa),
+      total,
+      hasMore: total > empresas.length,
+    };
   }
 
   const permissoes = await prisma.permissaoEmpresa.findMany({
     where: { usuario_id: usuario.id },
-    include: {
-      empresa: {
-        select: {
-          id: true,
-          codempresa: true,
-          razao_social: true,
-        },
-      },
-    },
+    include: { empresa: { select } },
   });
-  return permissoes
-    .map((item) => item.empresa)
-    .filter(Boolean)
-    .map(sanitizeEmpresa);
+  const all = permissoes.map((item) => item.empresa).filter(Boolean).map(sanitizeEmpresa);
+  return {
+    items: all.slice(0, limit),
+    total: all.length,
+    hasMore: all.length > limit,
+  };
 };
 
 export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
@@ -115,7 +120,8 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
   });
   usuarioData.ultimo_acesso = new Date();
 
-  const empresas = await fetchEmpresasPermitidas(usuarioData);
+  const empresasResult = await fetchEmpresasPermitidas(usuarioData);
+  const empresas = empresasResult.items || [];
   const selectedEmpresaId = usuarioData.acesso_global
     ? "all"
     : empresas.length === 1
@@ -127,6 +133,8 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
     cliente: sanitizeCliente(clienteData),
     user: sanitizeUser(usuarioData),
     empresas,
+    empresasTotal: empresasResult.total || empresas.length,
+    empresasHasMore: Boolean(empresasResult.hasMore),
     selectedEmpresaId,
     allowAllEmpresas,
   };
@@ -140,7 +148,7 @@ export const listEmpresasFromSession = async (sessionUser) => {
   if (!usuario || !usuario.ativo) {
     throw new Error("Sessão inválida.");
   }
-  return fetchEmpresasPermitidas(usuario);
+  return fetchEmpresasPermitidas(usuario).then((result) => result.items || []);
 };
 
 export const createSessionTokenPayload = (session) => ({

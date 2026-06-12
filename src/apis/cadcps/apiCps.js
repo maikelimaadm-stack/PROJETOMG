@@ -6,6 +6,10 @@ const toQuery = (params = {}) => {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value === undefined || value === null || value === "") return;
+    if (typeof value === "object") {
+      search.set(key, JSON.stringify(value));
+      return;
+    }
     search.set(key, String(value));
   });
   const query = search.toString();

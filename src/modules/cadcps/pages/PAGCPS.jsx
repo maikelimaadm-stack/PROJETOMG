@@ -13,7 +13,9 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
+import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
+import { buildCadcpsColumnFilters } from "@/shared/listing/buildCadcpsColumnFilters";
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
@@ -70,8 +72,15 @@ export default function PAGCPS() {
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(LIST_DEFAULT_PAGE_SIZE);
   const [querySort, setQuerySort] = useState({ key: "codigo", direction: "asc" });
+  const [columnFilters, setColumnFilters] = useState({});
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
+
+  const listFilters = useMemo(
+    () => buildCadcpsColumnFilters(columnFilters),
+    [columnFilters]
+  );
+  const listFiltersKey = useMemo(() => JSON.stringify(listFilters ?? {}), [listFilters]);
 
   const {
     items: campos,
@@ -79,7 +88,7 @@ export default function PAGCPS() {
     isInitialLoading: camposLoading,
     isPageFetching: camposFetching,
   } = useServerListQuery({
-    queryKey: ["cadcps-campos", queryPage, queryPageSize, debouncedSearch, querySort.key, querySort.direction],
+    queryKey: ["cadcps-campos", queryPage, queryPageSize, debouncedSearch, querySort.key, querySort.direction, listFiltersKey],
     queryFn: () =>
       moduleRepository.listPage({
         page: queryPage,
@@ -87,6 +96,7 @@ export default function PAGCPS() {
         search: debouncedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
+        filters: listFilters,
       }),
     defaultResponse: DEFAULT_RESPONSE,
   });
@@ -113,7 +123,30 @@ export default function PAGCPS() {
     setTableFilteredCampos(filtered);
   }, []);
 
-  const camposNavegacao = tableFilteredCampos ?? campos;
+  const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
+    setColumnFilters(nextColumnFilters || {});
+    setQueryPage(1);
+  }, []);
+
+  const recordNav = useServerRecordNavigation({
+    items: campos,
+    total: totalCampos,
+    page: queryPage,
+    pageSize: queryPageSize,
+    onPageChange: setQueryPage,
+    disabled: !showForm || viewMode !== "record",
+  });
+
+  useEffect(() => {
+    if (!showForm || viewMode !== "record") return;
+    const record = recordNav.currentRecord;
+    if (record?.id && record.id !== editingItem?.id) {
+      setEditingItem(record);
+      setSelectedTableItems([record.id]);
+    }
+  }, [recordNav.currentRecord?.id, showForm, viewMode, editingItem?.id]);
+
+  const camposNavegacao = campos;
 
   const formulaFields = useMemo(
     () =>
@@ -318,8 +351,7 @@ export default function PAGCPS() {
 
   const handleEdit = (item) => {
     if (!saveCycle.guardAction()) return;
-    const index = camposNavegacao.findIndex((entry) => entry.id === item.id);
-    if (index >= 0) setSelectedIndex(index);
+    recordNav.syncLocalIndexFromRecord(item);
     setSelectedTableItems([item.id]);
     setEditingItem(item);
     setShowForm(true);
@@ -419,14 +451,12 @@ export default function PAGCPS() {
     setFormVersion((version) => version + 1);
   };
 
-  const navigateRecord = (index) => {
+  const navigateRecord = (direction) => {
     if (!showForm || !saveCycle.guardAction()) return;
-    const nextIndex = Math.min(Math.max(index, 0), Math.max(camposNavegacao.length - 1, 0));
-    setSelectedIndex(nextIndex);
-    if (camposNavegacao[nextIndex]) {
-      setEditingItem(camposNavegacao[nextIndex]);
-      setSelectedTableItems([camposNavegacao[nextIndex].id]);
-    }
+    if (direction === "first") recordNav.navigateFirst();
+    else if (direction === "last") recordNav.navigateLast();
+    else if (direction === "prev") recordNav.navigatePrevious();
+    else recordNav.navigateNext();
   };
 
   const handleConfirmDelete = async () => {
@@ -570,13 +600,13 @@ export default function PAGCPS() {
             setReturnRecordAfterNew(null);
           },
           onToggleView: handleToggleView,
-          total: camposNavegacao.length,
-          currentIndex: selectedIndex,
+          total: recordNav.effectiveTotal,
+          currentIndex: recordNav.globalIndex,
           onNew: handleNew,
-          onFirst: () => navigateRecord(0),
-          onPrevious: () => navigateRecord(selectedIndex - 1),
-          onNext: () => navigateRecord(selectedIndex + 1),
-          onLast: () => navigateRecord(camposNavegacao.length - 1),
+          onFirst: () => navigateRecord("first"),
+          onPrevious: () => navigateRecord("prev"),
+          onNext: () => navigateRecord("next"),
+          onLast: () => navigateRecord("last"),
           onDelete: () => editingItem?.id && handleRequestDelete(editingItem.id),
           onDuplicate: () => editingItem && handleDuplicate(editingItem),
           searchValue: searchDraft,
@@ -597,7 +627,7 @@ export default function PAGCPS() {
           onNew: handleNew,
           onToggleView: handleToggleView,
           toggleViewDisabled: selectedTableItems.length > 1,
-          filterActive: Boolean(debouncedSearch),
+          filterActive: Boolean(debouncedSearch || listFilters),
           onDelete: () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems),
           onDuplicate: () => selectedTableCampo && handleDuplicate(selectedTableCampo),
           selectedCount: selectedTableItems.length,
@@ -627,6 +657,7 @@ export default function PAGCPS() {
             setQuerySort(nextSort);
             setQueryPage(1);
           },
+          onServerColumnFiltersChange: handleColumnFiltersChange,
           moduleTitle: moduleLabels.title,
         }}
       />

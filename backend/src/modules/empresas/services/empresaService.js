@@ -69,6 +69,10 @@ export const empresaService = {
     return empresaRepository.listCampos(scope, mode);
   },
 
+  listCamposPaginated(scope, query = {}) {
+    return empresaRepository.listCamposPaginated(scope, query);
+  },
+
   async listOptionsSources(sources = [], _scope) {
     // Placeholder para evolução multi-entity.
     const result = {};

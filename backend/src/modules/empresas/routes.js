@@ -27,9 +27,37 @@ export const registerEmpresasRoutes = async (app) => {
     return result;
   });
 
+  app.get("/api/empresas/selector", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const result = await empresaService.list(
+      {
+        page: request.query?.page || 1,
+        pageSize: Math.min(50, Number(request.query?.pageSize) || 20),
+        search: request.query?.search || "",
+        sortBy: "codempresa",
+        sortDir: "asc",
+      },
+      scope
+    );
+    return {
+      items: (result.items || []).map((item) => ({
+        id: item.id,
+        codempresa: item.codempresa,
+        nome_empresa: item.razao_social,
+      })),
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+      totalPages: result.totalPages,
+    };
+  });
+
   app.get("/api/empresas/campos", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
     const mode = String(request.query?.mode || "aplicavel").toLowerCase() === "config" ? "config" : "aplicavel";
+    if (mode === "config") {
+      return empresaService.listCamposPaginated(scope, request.query || {});
+    }
     const items = await empresaService.listCampos(scope, mode);
     return { items };
   });

@@ -109,6 +109,6 @@ export const legacyPayloadToCadcps = async (payload = {}) => {
 };
 
 export const listCamposForLegacyDialog = async () => {
-  const result = await repCps.listPage({ page: 1, pageSize: 500, sortBy: "codigo", sortDir: "asc" });
+  const result = await repCps.listPage({ page: 1, pageSize: 200, sortBy: "codigo", sortDir: "asc" });
   return (result.items || []).map(toLegacyDialogCampo).filter(Boolean);
 };
