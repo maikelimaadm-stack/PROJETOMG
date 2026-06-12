@@ -22,24 +22,28 @@ export default function MgContextPanel({
   return (
     <div data-template-id="context-panel" className="mg-context-panel hidden md:flex">
       <div className="mg-context-panel__meta">
-        <div className="mg-context-panel__swap-slot">
-          <span key={`${code || "new"}-${title || ""}`} className="mg-motion-swap mg-motion-swap--text mg-context-panel__meta-text">
-            {recordId ? (
-              <MgRecordFavoriteStar
-                active={isFavorite}
-                disabled={disabled}
-                onToggle={onToggleFavorite}
-                className="mg-context-panel__fav-btn"
-              />
-            ) : null}
-            {code ? (
-              <>
-                <span className="mg-context-panel__code">{code}</span>
-                <span className="mg-context-panel__sep"> • </span>
-              </>
-            ) : null}
-            <span className="mg-context-panel__title">{title || "Novo registro"}</span>
-          </span>
+        <div className="mg-context-panel__meta-row">
+          {recordId ? (
+            <MgRecordFavoriteStar
+              active={isFavorite}
+              onToggle={onToggleFavorite}
+              className="mg-context-panel__fav-btn"
+            />
+          ) : null}
+          <div className="mg-context-panel__swap-slot min-w-0 flex-1">
+            <span
+              key={`${code || "new"}-${title || ""}`}
+              className="mg-motion-swap mg-motion-swap--text mg-context-panel__meta-text"
+            >
+              {code ? (
+                <>
+                  <span className="mg-context-panel__code">{code}</span>
+                  <span className="mg-context-panel__sep"> • </span>
+                </>
+              ) : null}
+              <span className="mg-context-panel__title">{title || "Novo registro"}</span>
+            </span>
+          </div>
         </div>
       </div>
       <div className="mg-context-panel__nav">

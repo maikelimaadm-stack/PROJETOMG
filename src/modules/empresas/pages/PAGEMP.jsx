@@ -835,7 +835,9 @@ export default function PAGEMP() {
                 disabled={saveCycle.isSaving}
                 recordId={editingEmp?.id ?? null}
                 isFavorite={editingEmp?.id ? empFavorites.isFavorite(editingEmp.id) : false}
-                onToggleFavorite={() => editingEmp?.id && empFavorites.toggleFavorite(editingEmp.id)}
+                onToggleFavorite={() => {
+                  if (editingEmp?.id) empFavorites.toggleFavorite(editingEmp.id);
+                }}
               />
             </div>
 

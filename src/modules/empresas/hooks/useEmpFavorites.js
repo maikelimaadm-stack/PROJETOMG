@@ -4,6 +4,11 @@ import {
   saveSearchFavorites,
 } from "@/modules/empresas/components/empSearchView.constants";
 
+const normalizeFavoriteId = (recordId) => {
+  if (recordId == null || recordId === "") return "";
+  return String(recordId);
+};
+
 export function useEmpFavorites() {
   const [favorites, setFavorites] = useState(() => loadSearchFavorites());
 
@@ -18,21 +23,26 @@ export function useEmpFavorites() {
   }, []);
 
   const toggleFavorite = useCallback((recordId) => {
-    if (!recordId) return;
+    const id = normalizeFavoriteId(recordId);
+    if (!id) return;
     setFavorites((current) => {
       const next = new Set(current);
-      if (next.has(recordId)) next.delete(recordId);
-      else next.add(recordId);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       saveSearchFavorites(next);
       window.dispatchEvent(new CustomEvent("emp-favorites-updated"));
       return next;
     });
   }, []);
 
-  const isFavorite = useCallback((recordId) => {
-    if (!recordId) return false;
-    return favorites.has(recordId);
-  }, [favorites]);
+  const isFavorite = useCallback(
+    (recordId) => {
+      const id = normalizeFavoriteId(recordId);
+      if (!id) return false;
+      return favorites.has(id);
+    },
+    [favorites]
+  );
 
   return {
     favorites,

@@ -21,7 +21,11 @@ export default function MgRecordFavoriteStar({
       aria-label={active ? "Remover favorito" : "Adicionar favorito"}
       aria-pressed={active}
     >
-      <Star className="mg-record-fav-btn__icon" strokeWidth={2} />
+      <Star
+        className="mg-record-fav-btn__icon"
+        strokeWidth={2}
+        fill={active ? "currentColor" : "none"}
+      />
     </button>
   );
 }

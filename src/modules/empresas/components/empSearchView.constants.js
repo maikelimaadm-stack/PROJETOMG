@@ -233,14 +233,17 @@ export const loadSearchFavorites = () => {
     const saved = localStorage.getItem(EMP_SEARCH_FAV_KEY);
     if (!saved) return new Set();
     const ids = JSON.parse(saved);
-    return new Set(Array.isArray(ids) ? ids : []);
+    return new Set(Array.isArray(ids) ? ids.map((id) => String(id)) : []);
   } catch {
     return new Set();
   }
 };
 
 export const saveSearchFavorites = (favorites) => {
-  localStorage.setItem(EMP_SEARCH_FAV_KEY, JSON.stringify([...favorites]));
+  localStorage.setItem(
+    EMP_SEARCH_FAV_KEY,
+    JSON.stringify([...favorites].map((id) => String(id)))
+  );
 };
 
 export const formatEmpSearchCode = (codempresa) => {
