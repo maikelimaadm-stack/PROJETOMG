@@ -34,18 +34,18 @@ export function MgNavSkipIcon({ direction = "right", className = "", ...props })
 
   return (
     <svg
-      viewBox="0 0 16 16"
-      className={`mg-nav-icon${className ? ` ${className}` : ""}`}
+      viewBox="0 0 20 16"
+      className={`mg-nav-icon mg-nav-icon--skip${className ? ` ${className}` : ""}`}
       aria-hidden="true"
       {...props}
     >
-      <g transform={mirror ? "translate(16 0) scale(-1 1)" : undefined}>
-        <path d="M2.4 8 L5.85 4.55 L5.85 11.45 Z" fill="currentColor" stroke="none" />
+      <g transform={mirror ? "translate(20 0) scale(-1 1)" : undefined}>
+        <path d="M0.5 8 L5.75 3.85 L5.75 12.15 Z" fill="currentColor" stroke="none" />
         <path
-          d="M7.65 3.85 L12.15 8 L7.65 12.15"
+          d="M7.35 3.2 L14.85 8 L7.35 12.8"
           fill="none"
           stroke="currentColor"
-          strokeWidth="2.35"
+          strokeWidth="2.65"
           strokeLinecap="round"
           strokeLinejoin="round"
         />

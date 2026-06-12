@@ -119,10 +119,9 @@
   --mg-popover-radius: 16px;
   --mg-popover-border: 1px solid rgba(231, 234, 238, 0.92);
   --mg-popover-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.05),
-    0 6px 18px rgba(15, 23, 42, 0.08),
+    2px 4px 8px rgba(15, 23, 42, 0.1),
     0 0 0 1px rgba(255, 255, 255, 0.96);
-  --mg-popover-arrow-size: 12px;
+  --mg-popover-arrow-size: 14px;
   --emp-accent-primary: #40de63;
   --emp-accent-primary-hover: #36c956;
   --erp-color-primary: #40de63;
@@ -2817,6 +2816,12 @@
   color: var(--mg-brand-green);
 }
 
+/* Skip (primeiro/último/todos): triângulo + chevron — maior que o step */
+.mg-empresas-scope .mg-nav-icon--skip {
+  width: 16px;
+  height: 14px;
+}
+
 .mg-empresas-scope .mg-nav-btn svg {
   color: inherit !important;
   stroke: currentColor !important;
@@ -2875,39 +2880,51 @@
   pointer-events: auto;
 }
 
-/* Popover “Mais opções” — seta apontando para o botão */
+/* Popover “Mais opções” — bico apontando para o botão ⋮ (modelo visual) */
 .mg-empresas-scope .mg-action-bar .mg-more-dropdown {
-  margin-top: calc(var(--mg-popover-arrow-size) / 2 + 4px);
-  border: var(--mg-popover-border);
-  border-radius: var(--mg-popover-radius);
-  box-shadow: var(--mg-popover-shadow);
+  margin-top: 8px;
+  padding-top: calc(var(--mg-popover-arrow-size) / 2 - 1px);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
   overflow: visible;
+  filter: drop-shadow(3px 4px 7px rgba(15, 23, 42, 0.11));
 }
 
 .mg-empresas-scope .mg-action-bar .mg-more-dropdown::before,
 .mg-empresas-scope .mg-action-bar .mg-more-dropdown::after {
   content: "";
   position: absolute;
-  top: calc(var(--mg-popover-arrow-size) / -2);
+  top: 0;
   right: calc(var(--mg-btn-icon-size) / 2);
   transform: translateX(50%);
   width: 0;
   height: 0;
   border-left: calc(var(--mg-popover-arrow-size) / 2) solid transparent;
   border-right: calc(var(--mg-popover-arrow-size) / 2) solid transparent;
-  border-bottom: none;
+  border-top: none;
   pointer-events: none;
 }
 
-.mg-empresas-scope .mg-action-bar .mg-more-dropdown::after {
-  border-top: calc(var(--mg-popover-arrow-size) / 2 + 1px) solid rgba(231, 234, 238, 0.92);
-  top: calc(var(--mg-popover-arrow-size) / -2 - 1px);
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown::before {
+  border-bottom: calc(var(--mg-popover-arrow-size) / 2 + 1px) solid rgba(231, 234, 238, 0.92);
+  top: -1px;
   z-index: 0;
 }
 
-.mg-empresas-scope .mg-action-bar .mg-more-dropdown::before {
-  border-top: calc(var(--mg-popover-arrow-size) / 2) solid var(--bg-card);
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown::after {
+  border-bottom: calc(var(--mg-popover-arrow-size) / 2) solid var(--bg-card);
   z-index: 1;
+}
+
+.mg-empresas-scope .mg-action-bar .mg-more-dropdown__surface {
+  position: relative;
+  z-index: 2;
+  background: var(--bg-card);
+  border: var(--mg-popover-border);
+  border-radius: var(--mg-popover-radius);
+  overflow: hidden;
 }
 
 .mg-empresas-scope .mg-action-bar .mg-more-dropdown button:first-child {
