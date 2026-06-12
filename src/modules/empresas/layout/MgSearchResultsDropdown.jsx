@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Bookmark, Check, Settings2 } from "lucide-react";
+import { Check, Settings2 } from "lucide-react";
 import {
   getEmpSearchFieldValue,
 } from "@/modules/empresas/components/empSearchView.constants";
+import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import { renderSearchHighlight } from "@/modules/empresas/layout/mgSearchHighlight";
 
@@ -54,11 +55,22 @@ export default function MgSearchResultsDropdown({
     if (configOpen) setFieldsDraft(configFields.map((field) => ({ ...field })));
   }, [configOpen, configFields]);
 
+  useEffect(() => {
+    if (!configOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setConfigOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [configOpen]);
+
   if (!open) return null;
 
   const visibleItems = items.slice(0, MG_SEARCH_DROPDOWN_MAX);
   const query = searchQuery.trim();
-  const showLoading = loading && visibleItems.length === 0;
+  const hasQuery = query.length > 0;
+  const showLoading = hasQuery && loading && visibleItems.length === 0;
+  const hasListingData = hasQuery && !showLoading && visibleItems.length > 0;
 
   const handleConfigOk = () => {
     onConfigSave?.(fieldsDraft);
@@ -71,154 +83,166 @@ export default function MgSearchResultsDropdown({
   };
 
   return (
-    <div className="mg-search-dropdown" role="listbox" aria-label="Resultados da pesquisa">
-      {configOpen ? (
-        <div className="mg-search-dropdown__config">
-          <div className="mg-search-dropdown__config-list">
-            {fieldsDraft.map((field) => (
-              <label
-                key={field.key}
-                className={`mg-cards-config-menu__item mg-search-dropdown__config-item${
-                  field.primary ? " mg-cards-config-menu__item--locked" : ""
-                }`}
-              >
-                <SearchFieldCheck
-                  checked={field.visible}
-                  disabled={field.primary}
-                  onChange={(event) => {
-                    const checked = event.target.checked;
-                    setFieldsDraft((current) =>
-                      current.map((item) =>
-                        item.key === field.key ? { ...item, visible: checked } : item
-                      )
-                    );
-                  }}
-                />
-                <span className="mg-cards-config-menu__label">{field.label}</span>
-              </label>
-            ))}
-          </div>
-          <div className="mg-search-dropdown__config-footer">
-            <button
-              type="button"
-              className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={handleConfigRestore}
-            >
-              Restaurar
-            </button>
-            <button
-              type="button"
-              className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={handleConfigOk}
-            >
-              Ok
-            </button>
-          </div>
-        </div>
-      ) : (
-        <div className="mg-search-dropdown__list">
-          {showLoading ? (
-            <div className="mg-search-dropdown__empty">Carregando...</div>
-          ) : visibleItems.length === 0 ? (
-            <div className="mg-search-dropdown__empty">Nenhum registro encontrado</div>
-          ) : (
-            visibleItems.map((emp) => {
-              const code = getEmpSearchFieldValue(emp, "codempresa");
-              const nome = getEmpSearchFieldValue(emp, "razao_social");
-              const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
-
-              return (
-                <button
-                  key={emp.id}
-                  type="button"
-                  className="mg-search-dropdown__item"
-                  role="option"
-                  onMouseDown={(event) => event.preventDefault()}
-                  onClick={() => onSelect?.(emp)}
+    <>
+      <MgConfigBackdrop
+        open={configOpen}
+        onClose={() => setConfigOpen(false)}
+        ariaLabel="Fechar configuração de campos da pesquisa"
+      />
+      <div
+        className={`mg-search-dropdown${configOpen ? " is-config-open" : ""}`}
+        role="listbox"
+        aria-label="Resultados da pesquisa"
+      >
+        {configOpen ? (
+          <div className="mg-search-dropdown__config">
+            <div className="mg-search-dropdown__config-list">
+              {fieldsDraft.map((field) => (
+                <label
+                  key={field.key}
+                  className={`mg-cards-config-menu__item mg-search-dropdown__config-item${
+                    field.primary ? " mg-cards-config-menu__item--locked" : ""
+                  }`}
                 >
-                  <div className="mg-search-dropdown__head">
-                    <MgRecordFavoriteStar
-                      active={isFavorite}
-                      disabled
-                      className="mg-search-dropdown__fav-btn"
-                    />
-                    <div className="mg-search-dropdown__title">
-                      {code && code !== "—" ? (
-                        <>
-                          <span className="mg-search-dropdown__code">
-                            {renderSearchHighlight(code, query)}
-                          </span>
-                          <span className="mg-search-dropdown__sep"> • </span>
-                        </>
-                      ) : null}
-                      <span className="mg-search-dropdown__name">
-                        {renderSearchHighlight(nome, query)}
-                      </span>
-                    </div>
-                  </div>
-                  {detailFields.length > 0 ? (
-                    <div className="mg-search-dropdown__meta">
-                      {detailFields.map((field) => {
-                        const value = getEmpSearchFieldValue(emp, field.key);
-                        return (
-                          <div key={field.key} className="mg-search-dropdown__field">
-                            <div className="mg-search-dropdown__field-line">
-                              <span className="mg-search-dropdown__field-label">{field.label}:</span>
-                              <span className="mg-search-dropdown__field-value">
-                                {renderSearchHighlight(value, query)}
-                              </span>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ) : null}
-                </button>
-              );
-            })
-          )}
-        </div>
-      )}
+                  <SearchFieldCheck
+                    checked={field.visible}
+                    disabled={field.primary}
+                    onChange={(event) => {
+                      const checked = event.target.checked;
+                      setFieldsDraft((current) =>
+                        current.map((item) =>
+                          item.key === field.key ? { ...item, visible: checked } : item
+                        )
+                      );
+                    }}
+                  />
+                  <span className="mg-cards-config-menu__label">{field.label}</span>
+                </label>
+              ))}
+            </div>
+            <div className="mg-search-dropdown__config-footer">
+              <button
+                type="button"
+                className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={handleConfigRestore}
+              >
+                Restaurar
+              </button>
+              <button
+                type="button"
+                className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={handleConfigOk}
+              >
+                Ok
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className={`mg-search-dropdown__list${!hasQuery ? " mg-search-dropdown__list--idle" : ""}`}>
+            {showLoading ? (
+              <div className="mg-search-dropdown__empty">Carregando...</div>
+            ) : !hasQuery ? null : visibleItems.length === 0 ? (
+              <div className="mg-search-dropdown__empty">Nenhum registro encontrado</div>
+            ) : (
+              visibleItems.map((emp) => {
+                const code = getEmpSearchFieldValue(emp, "codempresa");
+                const nome = getEmpSearchFieldValue(emp, "razao_social");
+                const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
 
-      <div className="mg-search-dropdown__footer">
-        <button
-          type="button"
-          className="mg-search-dropdown__footer-btn mg-search-dropdown__footer-btn--primary ios-btn tb-btn tb-btn-labeled tb-btn-green"
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => {
-            setConfigOpen(false);
-            onApplyAll?.();
-          }}
-        >
-          Buscar todos
-        </button>
-        <button
-          type="button"
-          className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-green"
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => {
-            setConfigOpen(false);
-            onApplyFavorites?.();
-          }}
-        >
-          <Bookmark className="mg-search-dropdown__footer-icon" strokeWidth={2.1} aria-hidden="true" />
-          Favoritos
-        </button>
-        <button
-          type="button"
-          className={`mg-search-dropdown__footer-btn mg-search-dropdown__footer-btn--icon ios-btn tb-btn tb-btn-icon tb-btn-ghost${
-            configOpen ? " is-open" : ""
-          }`}
-          aria-label="Configurar campos da pesquisa"
-          aria-expanded={configOpen}
-          onMouseDown={(event) => event.preventDefault()}
-          onClick={() => setConfigOpen((current) => !current)}
-        >
-          <Settings2 className="h-3.5 w-3.5" strokeWidth={2.1} aria-hidden="true" />
-        </button>
+                return (
+                  <button
+                    key={emp.id}
+                    type="button"
+                    className="mg-search-dropdown__item"
+                    role="option"
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => onSelect?.(emp)}
+                  >
+                    <div className="mg-search-dropdown__head">
+                      <MgRecordFavoriteStar
+                        active={isFavorite}
+                        disabled
+                        className="mg-search-dropdown__fav-btn"
+                      />
+                      <div className="mg-search-dropdown__title">
+                        {code && code !== "—" ? (
+                          <>
+                            <span className="mg-search-dropdown__code">
+                              {renderSearchHighlight(code, query)}
+                            </span>
+                            <span className="mg-search-dropdown__sep"> • </span>
+                          </>
+                        ) : null}
+                        <span className="mg-search-dropdown__name">
+                          {renderSearchHighlight(nome, query)}
+                        </span>
+                      </div>
+                    </div>
+                    {detailFields.length > 0 ? (
+                      <div className="mg-search-dropdown__meta">
+                        {detailFields.map((field) => {
+                          const value = getEmpSearchFieldValue(emp, field.key);
+                          return (
+                            <div key={field.key} className="mg-search-dropdown__field">
+                              <div className="mg-search-dropdown__field-line">
+                                <span className="mg-search-dropdown__field-label">{field.label}:</span>
+                                <span className="mg-search-dropdown__field-value">
+                                  {renderSearchHighlight(value, query)}
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ) : null}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        <div className="mg-search-dropdown__footer">
+          <button
+            type="button"
+            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-green"
+            disabled={!hasListingData}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              if (!hasListingData) return;
+              setConfigOpen(false);
+              onApplyAll?.();
+            }}
+          >
+            Buscar todos
+          </button>
+          <button
+            type="button"
+            className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-green"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => {
+              setConfigOpen(false);
+              onApplyFavorites?.();
+            }}
+          >
+            Buscar favoritos
+          </button>
+          <button
+            type="button"
+            className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn mg-search-dropdown__config-btn${
+              configOpen ? " is-open" : ""
+            }`}
+            aria-label="Configurar campos da pesquisa"
+            aria-expanded={configOpen}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => setConfigOpen((current) => !current)}
+          >
+            <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} aria-hidden="true" />
+          </button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

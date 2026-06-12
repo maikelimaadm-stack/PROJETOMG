@@ -7,6 +7,7 @@ import {
   getDefaultCardVisFields,
 } from "@/modules/empresas/components/empSearchView.constants";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import {
   closeMgPanels,
   useMgPanelCoordinator,
@@ -160,6 +161,18 @@ export default function MgCardsPanelStrip({
 
   useEffect(() => {
     if (!fieldsOpen && !layoutOpen) return undefined;
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setFieldsOpen(false);
+        setLayoutOpen(false);
+      }
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [fieldsOpen, layoutOpen]);
+
+  useEffect(() => {
+    if (!fieldsOpen && !layoutOpen) return undefined;
     const close = (event) => {
       const inFields =
         fieldsRootRef.current?.contains(event.target) || fieldsPanelRef.current?.contains(event.target);
@@ -216,11 +229,26 @@ export default function MgCardsPanelStrip({
     setLayoutDraft(defaults.cardsPerRow);
   };
 
+  const configOpen = fieldsOpen || layoutOpen;
+
+  const closeConfigPanels = () => {
+    setFieldsOpen(false);
+    setLayoutOpen(false);
+  };
+
   return (
     <div data-template-id="cards-panel" className="mg-cards-panel-strip hidden md:flex">
+      <MgConfigBackdrop
+        open={configOpen}
+        onClose={closeConfigPanels}
+        ariaLabel="Fechar configuração dos cards"
+      />
       <div className="mg-cards-panel-strip__meta" aria-hidden="true" />
       <div className="mg-cards-panel-strip__actions">
-        <div className="mg-cards-panel-strip__action" ref={layoutRootRef}>
+        <div
+          className={`mg-cards-panel-strip__action${layoutOpen ? " is-config-open" : ""}`}
+          ref={layoutRootRef}
+        >
           <button
             type="button"
             className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${layoutOpen ? " is-open" : ""}`}
@@ -259,7 +287,10 @@ export default function MgCardsPanelStrip({
           </MgPortalPanel>
         </div>
 
-        <div className="mg-cards-panel-strip__action" ref={fieldsRootRef}>
+        <div
+          className={`mg-cards-panel-strip__action${fieldsOpen ? " is-config-open" : ""}`}
+          ref={fieldsRootRef}
+        >
           <button
             type="button"
             className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${fieldsOpen ? " is-open" : ""}`}

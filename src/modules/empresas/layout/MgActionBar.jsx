@@ -92,12 +92,9 @@ export default function MgActionBar({
   }, [secondaryToolsLocked]);
 
   useEffect(() => {
-    if (!searchInputValue.trim()) setSearchOpen(false);
-  }, [searchInputValue]);
-
-  useEffect(() => {
     if (!searchOpen) return undefined;
     const close = (event) => {
+      if (event.target.closest?.(".mg-config-backdrop")) return;
       if (!searchRef.current?.contains(event.target)) setSearchOpen(false);
     };
     document.addEventListener("mousedown", close);
@@ -380,20 +377,23 @@ export default function MgActionBar({
                 onChange={(event) => {
                   const next = event.target.value;
                   onSearchInputChange?.(next);
-                  if (!toolsLocked) setSearchOpen(Boolean(next.trim()));
+                  if (!toolsLocked) setSearchOpen(true);
                 }}
                 onFocus={() => {
-                  if (!toolsLocked && searchInputValue.trim()) setSearchOpen(true);
+                  if (!toolsLocked) setSearchOpen(true);
+                }}
+                onClick={() => {
+                  if (!toolsLocked) setSearchOpen(true);
                 }}
                 aria-label="Pesquisar"
-                aria-expanded={searchOpen && searchInputValue.trim().length > 0}
+                aria-expanded={searchOpen}
                 aria-haspopup="listbox"
                 disabled={toolsLocked}
                 tabIndex={toolsLocked ? -1 : 0}
               />
             </div>
             <MgSearchResultsDropdown
-              open={searchOpen && searchInputValue.trim().length > 0 && !toolsLocked}
+              open={searchOpen && !toolsLocked}
               items={searchResults}
               detailFields={searchDetailFields}
               loading={searchLoading}
