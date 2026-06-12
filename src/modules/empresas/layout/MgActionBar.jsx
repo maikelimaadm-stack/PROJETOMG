@@ -58,11 +58,18 @@ export default function MgActionBar({
   showDuplicate = false,
   showNew = true,
   actionsLocked = false,
+  secondaryToolsLocked = false,
   layoutConfigMode = false,
   layoutToolbar = null,
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef(null);
+  const toolsLocked = actionsLocked || secondaryToolsLocked;
+  const lockedClass = secondaryToolsLocked ? " mg-action-bar__zone--locked" : "";
+
+  useEffect(() => {
+    if (secondaryToolsLocked) setMoreOpen(false);
+  }, [secondaryToolsLocked]);
 
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -133,16 +140,19 @@ export default function MgActionBar({
     >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
         <ActionSlot show={!!onToggleFilter} width={28}>
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
-            onClick={onToggleFilter}
-            disabled={actionsLocked}
-            title="Filtrar"
-            aria-label="Filtrar"
-          >
-            <Filter className="h-3.5 w-3.5" />
-          </button>
+          <div className={`mg-action-bar__filter-slot${lockedClass}`}>
+            <button
+              type="button"
+              className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon"
+              onClick={onToggleFilter}
+              disabled={toolsLocked}
+              title="Filtrar"
+              aria-label="Filtrar"
+              aria-disabled={toolsLocked}
+            >
+              <Filter className="h-3.5 w-3.5" />
+            </button>
+          </div>
         </ActionSlot>
 
         <ActionSlot show={showNew && !!onNew} width={64}>
@@ -212,8 +222,8 @@ export default function MgActionBar({
         </ActionSlot>
       </div>
 
-      <div className="mg-action-bar__end">
-        <div className={`mg-action-bar__tools${showSave ? "" : " mg-action-bar__tools--visible"}`}>
+      <div className={`mg-action-bar__end${lockedClass}`}>
+        <div className="mg-action-bar__tools mg-action-bar__tools--visible">
           <div className="mg-search-pill" role="search">
             <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
             <input
@@ -222,10 +232,11 @@ export default function MgActionBar({
               value={searchValue}
               onChange={(event) => onSearchChange?.(event.target.value)}
               aria-label="Pesquisar"
-              tabIndex={showSave ? -1 : 0}
+              disabled={toolsLocked}
+              tabIndex={toolsLocked ? -1 : 0}
             />
           </div>
-          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked || showSave} />
+          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={toolsLocked} />
         </div>
 
         <div className="relative" ref={moreRef}>
@@ -235,7 +246,11 @@ export default function MgActionBar({
             id="more-btn"
             aria-expanded={moreOpen}
             aria-haspopup="menu"
-            onClick={() => setMoreOpen((open) => !open)}
+            disabled={toolsLocked}
+            onClick={() => {
+              if (toolsLocked) return;
+              setMoreOpen((open) => !open);
+            }}
           >
             <MoreVertical className="h-4 w-4" stroke="var(--mg-brand-green)" />
           </button>

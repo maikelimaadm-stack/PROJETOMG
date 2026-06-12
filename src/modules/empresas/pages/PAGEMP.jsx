@@ -348,6 +348,7 @@ export default function PAGEMP() {
 
   const handleEdit = (emp) => {
     if (!saveCycle.guardAction()) return;
+    closeFilterPanel();
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([emp.id]);
@@ -358,6 +359,7 @@ export default function PAGEMP() {
 
   const handleNew = () => {
     if (!saveCycle.guardAction()) return;
+    closeFilterPanel();
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
     setSelectedTableItems([]);
     const alreadyNew = showForm && !editingEmp?.id && !editingEmp?._isDuplicate;
@@ -371,6 +373,7 @@ export default function PAGEMP() {
 
   const handleDuplicate = (emp) => {
     if (!saveCycle.guardAction()) return;
+    closeFilterPanel();
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
     const { id, created_date, updated_date, created_by, codempresa, id_global, _isPersisting, ...dup } = emp;
     setEditingEmp({ ...dup, _isDuplicate: true });
@@ -425,6 +428,12 @@ export default function PAGEMP() {
       }),
     [showForm, formBridge, selectedTableItems.length, editingEmp?.id]
   );
+
+  useEffect(() => {
+    if (actionBarVisibility.secondaryToolsLocked) {
+      closeFilterPanel();
+    }
+  }, [actionBarVisibility.secondaryToolsLocked, closeFilterPanel]);
 
   useEffect(() => {
     if (!showForm) setFormBridge(null);
@@ -817,6 +826,7 @@ export default function PAGEMP() {
             onConfigColumns={() => setShowConfigColunas(true)}
             onLayoutConfig={formBridge?.onLayoutConfig}
             actionsLocked={saveCycle.isSaving}
+            secondaryToolsLocked={actionBarVisibility.secondaryToolsLocked}
             layoutConfigMode={!!formBridge?.layoutConfigOpen && !!formBridge?.layoutToolbar}
             layoutToolbar={formBridge?.layoutToolbar}
             {...actionBarVisibility}
@@ -833,6 +843,7 @@ export default function PAGEMP() {
                 onNext={() => navigateRecord(selectedIndex + 1)}
                 onLast={() => navigateRecord(empresasNavegacao.length - 1)}
                 disabled={saveCycle.isSaving}
+                interactionLocked={actionBarVisibility.secondaryToolsLocked}
                 recordId={editingEmp?.id ?? null}
                 isFavorite={editingEmp?.id ? empFavorites.isFavorite(editingEmp.id) : false}
                 onToggleFavorite={() => {
