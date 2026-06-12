@@ -42,6 +42,8 @@ export default function MgActionBar({
   searchInputValue = "",
   onSearchInputChange,
   searchResults = [],
+  searchResultsTotal = 0,
+  searchHasFavoritesInResults = false,
   searchDetailFields = [],
   searchLoading = false,
   searchHasFilter = false,
@@ -395,6 +397,8 @@ export default function MgActionBar({
             <MgSearchResultsDropdown
               open={searchOpen && !toolsLocked}
               items={searchResults}
+              searchResultsTotal={searchResultsTotal}
+              searchHasFavoritesInResults={searchHasFavoritesInResults}
               detailFields={searchDetailFields}
               loading={searchLoading}
               searchQuery={searchInputValue}

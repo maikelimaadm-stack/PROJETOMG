@@ -31,6 +31,8 @@ function SearchFieldCheck({ checked, disabled, onChange }) {
 export default function MgSearchResultsDropdown({
   open = false,
   items = [],
+  searchResultsTotal = 0,
+  searchHasFavoritesInResults = false,
   detailFields = [],
   loading = false,
   searchQuery = "",
@@ -72,7 +74,9 @@ export default function MgSearchResultsDropdown({
   const query = searchQuery.trim();
   const hasQuery = query.length > 0;
   const showLoading = hasQuery && loading && visibleItems.length === 0;
-  const hasListingData = hasQuery && !showLoading && visibleItems.length > 0;
+  const hasListingData = hasQuery && !showLoading && searchResultsTotal > 0;
+  const canApplyFavorites = !hasQuery || (hasListingData && searchHasFavoritesInResults);
+  const showResultsCounter = hasQuery && !showLoading;
   const selectedFieldCount = countSearchDropdownVisibleFields(fieldsDraft);
 
   const handleFieldToggle = (fieldKey, checked) => {
@@ -228,7 +232,11 @@ export default function MgSearchResultsDropdown({
         )}
 
         {!configOpen ? (
-          <div className="mg-search-dropdown__footer">
+          <div
+            className={`mg-search-dropdown__footer${
+              showResultsCounter ? " mg-search-dropdown__footer--with-counter" : ""
+            }`}
+          >
             <button
               type="button"
               className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
@@ -242,11 +250,22 @@ export default function MgSearchResultsDropdown({
             >
               Buscar todos
             </button>
+            {showResultsCounter ? (
+              <span
+                className="mg-search-dropdown__results-counter"
+                aria-live="polite"
+                aria-label={`${searchResultsTotal} registros encontrados`}
+              >
+                {searchResultsTotal}
+              </span>
+            ) : null}
             <button
               type="button"
               className="mg-search-dropdown__footer-btn ios-btn tb-btn tb-btn-labeled tb-btn-ghost"
+              disabled={!canApplyFavorites}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => {
+                if (!canApplyFavorites) return;
                 setConfigOpen(false);
                 onApplyFavorites?.();
               }}
@@ -255,13 +274,13 @@ export default function MgSearchResultsDropdown({
             </button>
             <button
               type="button"
-              className="mg-nav-btn ios-btn mg-cards-panel-strip__config-btn mg-search-dropdown__config-btn"
+              className="mg-nav-btn ios-btn mg-search-dropdown__config-btn"
               aria-label="Configurar campos da pesquisa"
               aria-expanded={false}
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => setConfigOpen(true)}
             >
-              <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} aria-hidden="true" />
+              <Settings2 className="mg-search-dropdown__config-icon" strokeWidth={2.1} aria-hidden="true" />
             </button>
           </div>
         ) : null}

@@ -170,16 +170,28 @@ export default function PAGEMP() {
     staleTime: 60_000,
   });
 
-  const dropdownSearchResults = useMemo(() => {
+  const dropdownSearchFiltered = useMemo(() => {
     if (dropdownSearchPending || !dropdownSearch) return [];
     const source = dropdownSourceResponse?.items || [];
-    return filterEmpresasContains(source, dropdownSearch, searchFieldKeys).slice(0, 10);
+    return filterEmpresasContains(source, dropdownSearch, searchFieldKeys);
   }, [
     dropdownSearchPending,
     dropdownSearch,
     dropdownSourceResponse?.items,
     searchFieldKeys,
   ]);
+
+  const dropdownSearchResults = useMemo(
+    () => dropdownSearchFiltered.slice(0, 10),
+    [dropdownSearchFiltered]
+  );
+
+  const dropdownSearchResultsTotal = dropdownSearchFiltered.length;
+
+  const dropdownSearchHasFavorites = useMemo(
+    () => dropdownSearchFiltered.some((emp) => empFavorites.isFavorite(emp.id)),
+    [dropdownSearchFiltered, empFavorites]
+  );
 
   const dropdownSearchLoading =
     dropdownSearchPending ||
@@ -1007,6 +1019,8 @@ export default function PAGEMP() {
             searchInputValue={searchDraft}
             onSearchInputChange={handleSearchInputChange}
             searchResults={dropdownSearchResults}
+            searchResultsTotal={dropdownSearchResultsTotal}
+            searchHasFavoritesInResults={dropdownSearchHasFavorites}
             searchDetailFields={searchDropdownFields.detailFields}
             searchLoading={searchIconLoading}
             searchHasFilter={searchHasFilter}
