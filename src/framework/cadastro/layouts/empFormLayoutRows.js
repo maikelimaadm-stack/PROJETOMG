@@ -559,11 +559,20 @@ export const moveLayoutRow = (rows = [], rowId, direction) => {
   return list.map((row, orderIndex) => ({ ...row, order: orderIndex + 1 }));
 };
 
-export const createEmptyLayoutRow = (cardId, existingRows = []) => ({
-  id: createRowId(cardId, existingRows.length + 1),
-  order: existingRows.length + 1,
-  fieldIds: [],
-});
+export const createEmptyLayoutRow = (cardId, existingRows = []) => {
+  const usedIds = new Set((existingRows || []).map((row) => row?.id).filter(Boolean));
+  let index = (existingRows || []).length + 1;
+  let id = createRowId(cardId, index);
+  while (usedIds.has(id)) {
+    index += 1;
+    id = createRowId(cardId, index);
+  }
+  return {
+    id,
+    order: index,
+    fieldIds: [],
+  };
+};
 
 export const rowHasRoomForField = (row, colSpan = 12, fieldId = null) => {
   const ids = row?.fieldIds || [];
