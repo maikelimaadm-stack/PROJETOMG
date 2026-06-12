@@ -1855,10 +1855,11 @@
 .mg-empresas-scope .mg-emp-card--selected:hover,
 .cadastro-emp-scope.mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card),
 .cadastro-emp-scope.mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card):hover {
-  background: rgba(64, 222, 99, 0.1) !important;
-  border: 2px solid var(--mg-brand-green) !important;
+  background: var(--mg-container-bg) !important;
+  border: var(--mg-launch-card-border) !important;
   box-shadow:
-    0 0 0 3px rgba(64, 222, 99, 0.14),
+    0 0 0 2px rgba(64, 222, 99, 0.22),
+    0 0 10px rgba(64, 222, 99, 0.16),
     var(--mg-launch-card-shadow) !important;
 }
 
