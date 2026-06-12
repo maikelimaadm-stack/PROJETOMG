@@ -3,6 +3,7 @@ import { Checkbox } from "@/shared/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
+import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -874,6 +875,7 @@ export default function TBLCPS({
         className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
       >
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
+          <ErpListingTopProgress active={isFetchingCampos && !isLoadingCampos} />
           <div
             ref={headerScrollRef}
             className="emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden"
@@ -898,12 +900,6 @@ export default function TBLCPS({
             onKeyDown={handleTableKeyDown}
             className="emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto"
           >
-            {isFetchingCampos ? (
-              <div className="mg-table-loading-overlay" aria-live="polite" aria-busy="true">
-                <Loader2 className="mg-table-loading-overlay__icon animate-spin" aria-hidden="true" />
-                <span className="mg-table-loading-overlay__text">Carregando registros...</span>
-              </div>
-            ) : null}
             <div
               className="block w-max min-w-full min-h-full"
               style={{ width: totalTableWidth, minWidth: totalTableWidth }}

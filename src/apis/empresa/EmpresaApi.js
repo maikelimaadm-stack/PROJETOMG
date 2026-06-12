@@ -72,6 +72,13 @@ export const EmpresaApi = {
     };
   },
 
+  async listDistinctColumnValues(params = {}) {
+    const payload = await apiClient.get(`${EMPRESAS_PATH}/distinct${toQuery(params)}`, CADASTRO_LIST_SCOPE);
+    return {
+      items: payload?.items || [],
+    };
+  },
+
   async listEmpresasSelector(params = {}) {
     const payload = await apiClient.get(`${EMPRESAS_PATH}/selector${toQuery(params)}`, CADASTRO_LIST_SCOPE);
     return {

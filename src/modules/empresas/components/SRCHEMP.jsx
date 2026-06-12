@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Search, Star, X } from "lucide-react";
+import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import {
   formatSearchCounter,
   getEmpSearchAvatarColor,
@@ -300,13 +301,8 @@ export default function SRCHEMP({
 
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <ErpListingTopProgress active={showCardsFetching} />
         <div className="relative flex-1 overflow-y-auto p-4">
-          {showCardsFetching ? (
-            <div className="mg-table-loading-overlay mg-table-loading-overlay--cards" aria-live="polite" aria-busy="true">
-              <Loader2 className="mg-table-loading-overlay__icon animate-spin" aria-hidden="true" />
-              <span className="mg-table-loading-overlay__text">Carregando registros...</span>
-            </div>
-          ) : null}
           {showCardsLoading ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Carregando registros...

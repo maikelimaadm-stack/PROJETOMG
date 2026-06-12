@@ -52,6 +52,31 @@ export const registerEmpresasRoutes = async (app) => {
     };
   });
 
+  app.get("/api/empresas/distinct", { preHandler: app.authenticate }, async (request, reply) => {
+    const scope = await loadAccessScope(request);
+    const column = String(request.query?.column || "").trim();
+    if (!column) {
+      return reply.status(400).send({ message: "Parâmetro column é obrigatório." });
+    }
+    let parsedFilters = {};
+    if (request.query?.filters) {
+      try {
+        parsedFilters = JSON.parse(String(request.query.filters));
+      } catch {
+        parsedFilters = {};
+      }
+    }
+    return empresaService.distinctColumnValues(
+      {
+        column,
+        search: request.query?.search || "",
+        filters: parsedFilters,
+        limit: request.query?.limit,
+      },
+      scope
+    );
+  });
+
   app.get("/api/empresas/campos", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
     const mode = String(request.query?.mode || "aplicavel").toLowerCase() === "config" ? "config" : "aplicavel";

@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
+import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { showSuccess, showError } from "@/shared/feedback";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
@@ -34,7 +34,9 @@ import { fetchAllListPages } from "@/shared/utils/fetchAllListPages";
 import {
   LIST_DEFAULT_PAGE_SIZE,
   LIST_SEARCH_DEBOUNCE_MS,
+  readStoredListPageSize,
 } from "@/shared/listing/listQueryConfig";
+import { PAGE_SIZE_KEY } from "@/modules/empresas/components/tblEmp.constants";
 import {
   buildEmpresaColumnFilters,
   buildEmpresaPanelFilters,
@@ -55,7 +57,7 @@ const DEFAULT_EMPRESAS_RESPONSE = {
   totalPages: 1,
 };
 
-const DROPDOWN_PREVIEW_SIZE = 10;
+const DROPDOWN_PAGE_SIZE = 30;
 
 const moduleRepository = empresasModuleDefinition.repository;
 const moduleLabels = {
@@ -108,7 +110,9 @@ export default function PAGEMP() {
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const [queryPage, setQueryPage] = useState(1);
-  const [queryPageSize, setQueryPageSize] = useState(LIST_DEFAULT_PAGE_SIZE);
+  const [queryPageSize, setQueryPageSize] = useState(() =>
+    readStoredListPageSize(PAGE_SIZE_KEY, LIST_DEFAULT_PAGE_SIZE)
+  );
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
@@ -166,20 +170,31 @@ export default function PAGEMP() {
   const searchDraftNormalized = normalizeSearchQuery(searchDraft);
   const dropdownSearchPending = searchDraftNormalized !== dropdownSearch;
 
-  const { data: dropdownResponse, isFetching: dropdownSourceFetching } = useQuery({
+  const {
+    data: dropdownPages,
+    fetchNextPage: fetchNextDropdownPage,
+    hasNextPage: dropdownHasNextPage,
+    isFetchingNextPage: dropdownFetchingNextPage,
+    isFetching: dropdownSourceFetching,
+  } = useInfiniteQuery({
     queryKey: ["emp-cadastro-dropdown", dropdownSearch, querySort.key, querySort.direction],
-    queryFn: () =>
+    queryFn: ({ pageParam = 1 }) =>
       moduleRepository.listPage({
-        page: 1,
-        pageSize: DROPDOWN_PREVIEW_SIZE,
+        page: pageParam,
+        pageSize: DROPDOWN_PAGE_SIZE,
         search: dropdownSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
       }),
+    getNextPageParam: (lastPage) =>
+      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    initialPageParam: 1,
     enabled: dropdownSearch.length > 0,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
   });
+
+  const dropdownResponse = dropdownPages?.pages?.[0];
 
   const { data: dropdownFavoritesProbe } = useQuery({
     queryKey: ["emp-cadastro-dropdown-fav", dropdownSearch, favoriteIdsKey, querySort.key, querySort.direction],
@@ -197,13 +212,35 @@ export default function PAGEMP() {
     gcTime: 5 * 60_000,
   });
 
-  const dropdownSearchResults = dropdownSearchPending ? [] : dropdownResponse?.items || [];
+  const dropdownSearchResults = useMemo(() => {
+    if (dropdownSearchPending) return [];
+    return dropdownPages?.pages?.flatMap((page) => page.items || []) || [];
+  }, [dropdownSearchPending, dropdownPages]);
   const dropdownSearchResultsTotal = dropdownSearchPending ? 0 : dropdownResponse?.total || 0;
   const dropdownSearchHasFavorites = (dropdownFavoritesProbe?.total ?? 0) > 0;
 
   const dropdownSearchLoading =
     dropdownSearchPending ||
     (dropdownSearch.length > 0 && dropdownSourceFetching && dropdownSearchResults.length === 0);
+
+  const handleSearchLoadMore = useCallback(() => {
+    if (!dropdownHasNextPage || dropdownFetchingNextPage) return;
+    fetchNextDropdownPage();
+  }, [dropdownHasNextPage, dropdownFetchingNextPage, fetchNextDropdownPage]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(PAGE_SIZE_KEY, String(queryPageSize));
+  }, [queryPageSize]);
+
+  const serverBaseFilters = useMemo(
+    () =>
+      mergeEmpresaListFilters(
+        appliedPanelFilters,
+        searchFavoritesOnly ? { ids: favoriteIds } : undefined
+      ),
+    [appliedPanelFilters, searchFavoritesOnly, favoriteIds]
+  );
 
   const listFilters = useMemo(
     () =>
@@ -740,16 +777,18 @@ export default function PAGEMP() {
           handleEdit(emp);
         },
         onOpenTabela: () => {
-          handleOpenTableView();
+          startTransition(() => handleOpenTableView());
         },
         onOpenCards: () => {
           if (!saveCycle.guardAction()) return;
-          if (showForm) {
-            setShowForm(false);
-            setEditingEmp(null);
-            setSelectedTableItems([]);
-          }
-          setViewMode("search");
+          startTransition(() => {
+            if (showForm) {
+              setShowForm(false);
+              setEditingEmp(null);
+              setSelectedTableItems([]);
+            }
+            setViewMode("search");
+          });
         },
       });
     },
@@ -1111,6 +1150,9 @@ export default function PAGEMP() {
             searchHasFavoritesInResults={dropdownSearchHasFavorites}
             searchDetailFields={searchDropdownFields.detailFields}
             searchLoading={searchIconLoading}
+            searchLoadingMore={dropdownFetchingNextPage}
+            searchHasMore={Boolean(dropdownHasNextPage)}
+            onSearchLoadMore={handleSearchLoadMore}
             searchHasFilter={searchHasFilter}
             onSearchClear={handleSearchClear}
             searchDropdownConfigFields={searchDropdownFields.configFields}
@@ -1190,107 +1232,102 @@ export default function PAGEMP() {
           </div>
 
           <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div
-              className={`mg-view-layer mg-view-layer--form flex min-h-0 flex-1 flex-col overflow-hidden${
-                showForm ? " mg-view-layer--active" : ""
-              }`}
-              aria-hidden={!showForm}
-            >
-              <EmpresasFormPanel
-                formProps={{
-                  initialData: editingEmp,
-                  recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
-                  resetSeed: formVersion,
-                  isEditing: !!editingEmp,
-                  onSubmit: handleSubmit,
-                  onCancel: formCancel,
-                  hideToolbar: true,
-                  onToolbarBridge: showForm ? setFormBridge : undefined,
-                  total: recordNav.effectiveTotal,
-                  currentIndex: recordNav.globalIndex,
-                  onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
-                  onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
-                  actionsLocked: saveCycle.isSaving,
-                }}
-              />
-            </div>
-
-            <div
-              className={`mg-view-layer mg-view-layer--cards flex min-h-0 flex-1 flex-col overflow-hidden${
-                !showForm && mgViewMode === "cards" ? " mg-view-layer--active" : ""
-              }`}
-              aria-hidden={showForm || mgViewMode !== "cards"}
-            >
-              <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-                <EmpresasSearchPanel
-                  searchProps={{
-                    empresas: empresasFiltradasPainel,
-                    total: totalEmpresas,
-                    isLoading: empresasLoading,
-                    isFetching: empresasFetching,
-                    searchValue: searchTerm,
-                    onSearchChange: handleSearchCommit,
-                    page: queryPage,
-                    pageSize: queryPageSize,
-                    onPageChange: setQueryPage,
-                    onPageSizeChange: (nextPageSize) => {
-                      setQueryPageSize(nextPageSize);
-                      setQueryPage(1);
-                    },
-                    onEdit: handleEdit,
-                    selectedIds: selectedTableItems,
-                    onSelectionChange: handleTableSelectionChange,
-                    cardsDetailFields: cardsVisFields.detailFields,
-                    cardsPerRow: cardsVisFields.layoutConfig.cardsPerRow,
-                    fieldsPerRow: cardsVisFields.fieldsPerRow,
-                    isFavoriteRecord: empFavorites.isFavorite,
-                    onToggleFavorite: empFavorites.toggleFavorite,
-                    mgPrototype: true,
+            {showForm ? (
+              <div
+                className="mg-view-layer mg-view-layer--form mg-view-layer--active flex min-h-0 flex-1 flex-col overflow-hidden"
+                aria-hidden={false}
+              >
+                <EmpresasFormPanel
+                  formProps={{
+                    initialData: editingEmp,
+                    recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
+                    resetSeed: formVersion,
+                    isEditing: !!editingEmp,
+                    onSubmit: handleSubmit,
+                    onCancel: formCancel,
+                    hideToolbar: true,
+                    onToolbarBridge: setFormBridge,
+                    total: recordNav.effectiveTotal,
+                    currentIndex: recordNav.globalIndex,
+                    onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
+                    onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
+                    actionsLocked: saveCycle.isSaving,
                   }}
                 />
               </div>
-            </div>
-
-            <div
-              className={`mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden${
-                !showForm && mgViewMode !== "cards" ? " mg-view-layer--active" : ""
-              }`}
-              aria-hidden={showForm || mgViewMode === "cards"}
-            >
-              <EmpresasTablePanel
-                tableProps={{
-                  key: "tbl-emp",
-                  empresas: empresasFiltradasPainel,
-                  isLoadingEmpresas: empresasLoading,
-                  isFetchingEmpresas: empresasFetching,
-                  onEdit: handleEdit,
-                  showConfigColunas,
-                  setShowConfigColunas,
-                  searchTerm: "",
-                  selectedRecordId: undefined,
-                  selectedIds: selectedTableItems,
-                  onSelectionChange: handleTableSelectionChange,
-                  onVisibleDataChange: setVisibleTableData,
-                  onFilteredEmpresasChange: handleFilteredEmpresasChange,
-                  onServerColumnFiltersChange: handleColumnFiltersChange,
-                  serverPage: queryPage,
-                  serverPageSize: queryPageSize,
-                  serverTotal: totalEmpresas,
-                  onServerPageChange: setQueryPage,
-                  onServerPageSizeChange: (nextPageSize) => {
-                    setQueryPageSize(nextPageSize);
-                    setQueryPage(1);
-                  },
-                  onServerSortChange: (nextSort) => {
-                    setQuerySort(nextSort);
-                    setQueryPage(1);
-                  },
-                  moduleTitle: moduleLabels.title,
-                  mgPrototype: true,
-                  onColumnsInUseChange: setTableColumnsInUse,
-                }}
-              />
-            </div>
+            ) : mgViewMode === "cards" ? (
+              <div
+                className="mg-view-layer mg-view-layer--cards mg-view-layer--active flex min-h-0 flex-1 flex-col overflow-hidden"
+                aria-hidden={false}
+              >
+                <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+                  <EmpresasSearchPanel
+                    searchProps={{
+                      empresas: empresasFiltradasPainel,
+                      total: totalEmpresas,
+                      isLoading: empresasLoading,
+                      isFetching: empresasFetching,
+                      searchValue: searchTerm,
+                      onSearchChange: handleSearchCommit,
+                      page: queryPage,
+                      pageSize: queryPageSize,
+                      onPageChange: setQueryPage,
+                      onPageSizeChange: (nextPageSize) => {
+                        setQueryPageSize(nextPageSize);
+                        setQueryPage(1);
+                      },
+                      onEdit: handleEdit,
+                      selectedIds: selectedTableItems,
+                      onSelectionChange: handleTableSelectionChange,
+                      cardsDetailFields: cardsVisFields.detailFields,
+                      cardsPerRow: cardsVisFields.layoutConfig.cardsPerRow,
+                      fieldsPerRow: cardsVisFields.fieldsPerRow,
+                      isFavoriteRecord: empFavorites.isFavorite,
+                      onToggleFavorite: empFavorites.toggleFavorite,
+                      mgPrototype: true,
+                    }}
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-layer--active mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+                <EmpresasTablePanel
+                  tableProps={{
+                    key: "tbl-emp",
+                    empresas: empresasFiltradasPainel,
+                    isLoadingEmpresas: empresasLoading,
+                    isFetchingEmpresas: empresasFetching,
+                    onEdit: handleEdit,
+                    showConfigColunas,
+                    setShowConfigColunas,
+                    searchTerm: "",
+                    selectedRecordId: undefined,
+                    selectedIds: selectedTableItems,
+                    onSelectionChange: handleTableSelectionChange,
+                    onVisibleDataChange: setVisibleTableData,
+                    onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                    onServerColumnFiltersChange: handleColumnFiltersChange,
+                    serverPage: queryPage,
+                    serverPageSize: queryPageSize,
+                    serverTotal: totalEmpresas,
+                    serverSearchTerm: searchTerm,
+                    serverBaseFilters,
+                    onServerPageChange: setQueryPage,
+                    onServerPageSizeChange: (nextPageSize) => {
+                      setQueryPageSize(nextPageSize);
+                      setQueryPage(1);
+                    },
+                    onServerSortChange: (nextSort) => {
+                      setQuerySort(nextSort);
+                      setQueryPage(1);
+                    },
+                    moduleTitle: moduleLabels.title,
+                    mgPrototype: true,
+                    onColumnsInUseChange: setTableColumnsInUse,
+                  }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

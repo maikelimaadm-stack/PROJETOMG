@@ -203,9 +203,20 @@ const buildFiltersWhere = (filters = {}) => {
 
     if (key.endsWith("__in")) {
       const baseKey = key.slice(0, -4);
+      if (baseKey.startsWith("custom:")) {
+        const clause = buildCustomFieldFilterClause(baseKey.slice(7), value);
+        if (clause) and.push(clause);
+        return;
+      }
       const config = FILTER_FIELD_MAP[baseKey];
       if (!config) return;
       const clause = buildFilterClause(config, value);
+      if (clause) and.push(clause);
+      return;
+    }
+
+    if (key.startsWith("custom:")) {
+      const clause = buildCustomFieldFilterClause(key.slice(7), value);
       if (clause) and.push(clause);
       return;
     }
@@ -217,6 +228,54 @@ const buildFiltersWhere = (filters = {}) => {
   });
   if (and.length === 0) return null;
   return { AND: and };
+};
+
+const buildCustomFieldFilterClause = (fieldName, value) => {
+  const safeField = String(fieldName || "").trim();
+  if (!safeField) return null;
+
+  if (Array.isArray(value)) {
+    const normalized = value.map((item) => String(item).trim()).filter(Boolean);
+    if (normalized.length === 0) return null;
+    return {
+      OR: normalized.map((item) => ({
+        campos_personalizados: {
+          path: [safeField],
+          equals: item,
+        },
+      })),
+    };
+  }
+
+  const text = String(value).trim();
+  if (!text) return null;
+  return {
+    campos_personalizados: {
+      path: [safeField],
+      string_contains: text,
+    },
+  };
+};
+
+const resolveDistinctField = (column) => {
+  const key = String(column || "").trim();
+  if (!key) return null;
+  if (key.startsWith("custom:")) {
+    return { type: "custom", field: key.slice(7) };
+  }
+  const config = FILTER_FIELD_MAP[key];
+  if (!config) return null;
+  return { type: "column", field: config.field };
+};
+
+const formatDistinctValue = (column, raw) => {
+  if (raw == null || raw === "") return null;
+  if (column === "tipo_vinculo") {
+    if (raw === "proprietario") return "PROPRIETÁRIO";
+    if (raw === "arrendatario") return "ARRENDATÁRIO";
+  }
+  if (column === "codempresa" || column === "id_global") return String(raw);
+  return String(raw);
 };
 
 const buildCadastroScopeWhere = (scope, extra = {}) => {
@@ -291,6 +350,64 @@ export const empresaRepository = {
       pageSize: safePageSize,
       totalPages: Math.max(1, Math.ceil(total / safePageSize)),
     };
+  },
+
+  async distinctColumnValues({ scope, column, search = "", filters = {}, limit = 150 }) {
+    const prisma = getPrismaClient();
+    const safeLimit = Math.min(300, Math.max(1, Number(limit) || 150));
+    const fieldMeta = resolveDistinctField(column);
+    if (!fieldMeta) return { items: [] };
+
+    const searchTerm = String(search || "").trim();
+    const baseSearchWhere = buildSearchWhere(searchTerm);
+    const filtersWhere = buildFiltersWhere(filters);
+    const scopedClauses = [];
+    if (baseSearchWhere) scopedClauses.push(baseSearchWhere);
+    if (filtersWhere) scopedClauses.push(filtersWhere);
+    const where = buildCadastroScopeWhere(
+      scope,
+      scopedClauses.length === 0
+        ? {}
+        : scopedClauses.length === 1
+          ? scopedClauses[0]
+          : { AND: scopedClauses }
+    );
+
+    if (fieldMeta.type === "custom") {
+      const rows = await prisma.empresa.findMany({
+        where: {
+          ...where,
+          campos_personalizados: { not: null },
+        },
+        select: { campos_personalizados: true },
+        take: 2000,
+      });
+      const values = new Set();
+      rows.forEach((row) => {
+        const payload = row.campos_personalizados;
+        if (!payload || typeof payload !== "object") return;
+        const raw = payload[fieldMeta.field];
+        if (raw == null || raw === "") return;
+        values.add(String(raw));
+      });
+      return {
+        items: [...values].sort((a, b) => a.localeCompare(b, "pt-BR", { numeric: true })).slice(0, safeLimit),
+      };
+    }
+
+    const rows = await prisma.empresa.findMany({
+      where,
+      select: { [fieldMeta.field]: true },
+      distinct: [fieldMeta.field],
+      orderBy: { [fieldMeta.field]: "asc" },
+      take: safeLimit,
+    });
+
+    const items = rows
+      .map((row) => formatDistinctValue(column, row[fieldMeta.field]))
+      .filter(Boolean);
+
+    return { items: [...new Set(items)] };
   },
 
   async getById(id, scope) {

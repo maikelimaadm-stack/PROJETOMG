@@ -1,4 +1,8 @@
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
+import {
+  mapEmpresaColumnIdToFilterKey,
+  normalizeEmpresaColumnFilterValue,
+} from "@/shared/listing/normalizeEmpresaColumnFilter";
 
 const STATUS_PANEL_MAP = {
   Ativo: "Ativa",
@@ -40,11 +44,16 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
 
   Object.entries(filtrosColunas).forEach(([key, values]) => {
     if (!Array.isArray(values) || values.length === 0) return;
-    if (values.length === 1) {
-      filters[key] = values[0];
+    const filterKey = mapEmpresaColumnIdToFilterKey(key);
+    const normalized = values
+      .map((value) => normalizeEmpresaColumnFilterValue(key, value))
+      .filter((value) => value != null && value !== "");
+    if (normalized.length === 0) return;
+    if (normalized.length === 1) {
+      filters[filterKey] = normalized[0];
       return;
     }
-    filters[`${key}__in`] = values;
+    filters[`${filterKey}__in`] = normalized;
   });
 
   return Object.keys(filters).length > 0 ? filters : undefined;

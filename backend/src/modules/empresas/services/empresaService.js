@@ -49,6 +49,16 @@ export const empresaService = {
     });
   },
 
+  distinctColumnValues(query = {}, scope) {
+    return empresaRepository.distinctColumnValues({
+      scope,
+      column: query.column,
+      search: query.search,
+      filters: query.filters,
+      limit: query.limit,
+    });
+  },
+
   get(id, scope) {
     return empresaRepository.getById(id, scope);
   },

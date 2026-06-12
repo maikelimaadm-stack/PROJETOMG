@@ -47,6 +47,10 @@ const empRepository = {
     return EmpresaApi.listEmpresasSelector(params);
   },
 
+  async listDistinctColumnValues(params = {}) {
+    return EmpresaApi.listDistinctColumnValues(params);
+  },
+
 
   async listOptionsSources(sources) {
     return EmpresaApi.listOptionsSources(sources);
