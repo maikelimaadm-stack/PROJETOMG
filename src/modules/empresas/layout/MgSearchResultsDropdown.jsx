@@ -58,20 +58,13 @@ export default function MgSearchResultsDropdown({
               </div>
               {detailFields.length > 0 ? (
                 <div className="mg-search-dropdown__meta">
-                  {detailFields.map((field, index) => (
-                    <React.Fragment key={field.key}>
-                      {index > 0 ? (
-                        <span className="mg-search-dropdown__meta-sep" aria-hidden="true">
-                          ·
-                        </span>
-                      ) : null}
-                      <span className="mg-search-dropdown__meta-item">
-                        <span className="mg-search-dropdown__meta-label">{field.label}:</span>
-                        <span className="mg-search-dropdown__meta-value">
-                          {getEmpSearchFieldValue(emp, field.key)}
-                        </span>
+                  {detailFields.map((field) => (
+                    <div key={field.key} className="mg-search-dropdown__field">
+                      <span className="mg-search-dropdown__field-label">{field.label}:</span>
+                      <span className="mg-search-dropdown__field-value">
+                        {getEmpSearchFieldValue(emp, field.key)}
                       </span>
-                    </React.Fragment>
+                    </div>
                   ))}
                 </div>
               ) : null}
