@@ -73,10 +73,10 @@ export default function MgSearchResultsDropdown({
                       return (
                         <div key={field.key} className="mg-search-dropdown__field">
                           <div className="mg-search-dropdown__field-line">
+                            <span className="mg-search-dropdown__field-label">{field.label}:</span>
                             <span className="mg-search-dropdown__field-value">
                               {renderSearchHighlight(value, query)}
                             </span>
-                            <span className="mg-search-dropdown__field-label">{field.label}:</span>
                           </div>
                         </div>
                       );

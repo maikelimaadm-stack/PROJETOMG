@@ -371,10 +371,10 @@ export default function SRCHEMP({
                         {detailFields.map((field) => (
                           <div key={field.key} className="mg-emp-card__field">
                             <div className="mg-emp-card__field-line">
+                              <span className="mg-emp-card__field-label">{field.label}:</span>
                               <span className="mg-emp-card__field-value">
                                 {getEmpSearchFieldValue(emp, field.key)}
                               </span>
-                              <span className="mg-emp-card__field-label">{field.label}:</span>
                             </div>
                           </div>
                         ))}
