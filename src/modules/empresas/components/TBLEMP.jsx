@@ -8,7 +8,7 @@ import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/Emp
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
