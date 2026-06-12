@@ -39,11 +39,11 @@ export default function MgActionBar({
   onViewModeChange,
   searchInputValue = "",
   onSearchInputChange,
-  onSearchCommit,
   searchResults = [],
   searchDetailFields = [],
   searchLoading = false,
   onSearchResultSelect,
+  onSearchApplyAll,
   isFavoriteRecord,
   onToggleFavorite,
   onToggleFilter,
@@ -76,13 +76,6 @@ export default function MgActionBar({
   const searchRef = useRef(null);
   const toolsLocked = actionsLocked || secondaryToolsLocked;
   const lockedClass = secondaryToolsLocked ? " mg-action-bar__zone--locked" : "";
-
-  const commitSearch = () => {
-    if (toolsLocked) return;
-    const next = searchInputValue.trim();
-    onSearchCommit?.(next);
-    setSearchOpen(Boolean(next));
-  };
 
   useEffect(() => {
     if (secondaryToolsLocked) {
@@ -352,15 +345,7 @@ export default function MgActionBar({
         <div className="mg-action-bar__tools mg-action-bar__tools--visible">
           <div className="mg-search-pill-wrap" ref={searchRef}>
             <div className="mg-search-pill" role="search">
-              <button
-                type="button"
-                className="mg-search-pill-trigger"
-                aria-label="Buscar registros"
-                disabled={toolsLocked}
-                onClick={commitSearch}
-              >
-                <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" />
-              </button>
+              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               <input
                 type="text"
                 placeholder="Pesquisar..."
@@ -372,12 +357,6 @@ export default function MgActionBar({
                 }}
                 onFocus={() => {
                   if (!toolsLocked && searchInputValue.trim()) setSearchOpen(true);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    event.preventDefault();
-                    commitSearch();
-                  }
                 }}
                 aria-label="Pesquisar"
                 aria-expanded={searchOpen && searchInputValue.trim().length > 0}
@@ -393,6 +372,10 @@ export default function MgActionBar({
               loading={searchLoading}
               onSelect={(emp) => {
                 onSearchResultSelect?.(emp);
+                setSearchOpen(false);
+              }}
+              onApplyAll={() => {
+                onSearchApplyAll?.();
                 setSearchOpen(false);
               }}
               isFavoriteRecord={isFavoriteRecord}

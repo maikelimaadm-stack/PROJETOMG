@@ -425,6 +425,9 @@ export default function PAGEMP() {
 
   const handleSearchInputChange = useCallback((value) => {
     setSearchDraft(value);
+    if (!String(value || "").trim()) {
+      setPinnedRecord(null);
+    }
   }, []);
 
   const handleSearchCommit = useCallback((value) => {
@@ -433,7 +436,17 @@ export default function PAGEMP() {
     setSearchTerm(next);
     setQueryPage(1);
     setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
   }, []);
+
+  const handleSearchApplyAll = useCallback(() => {
+    const next = searchDraft.trim();
+    setPinnedRecord(null);
+    setSearchTerm(next);
+    setQueryPage(1);
+    setTableFilteredEmpresas(null);
+    setSelectedTableItems([]);
+  }, [searchDraft]);
 
   const handleSearchResultSelect = useCallback(
     (emp) => {
@@ -442,13 +455,13 @@ export default function PAGEMP() {
       setSearchTerm(searchDraft.trim());
       setQueryPage(1);
       setTableFilteredEmpresas(null);
+      setSelectedTableItems([]);
       setSelectedIndex(0);
-      setSelectedTableItems([emp.id]);
-      if (showForm || viewMode === "record") {
-        handleEdit(emp);
+      if (showForm && viewMode === "record") {
+        setEditingEmp(emp);
       }
     },
-    [searchDraft, showForm, viewMode, handleEdit]
+    [searchDraft, showForm, viewMode]
   );
 
   const handleFilterChange = useCallback((key, value) => {
@@ -859,11 +872,11 @@ export default function PAGEMP() {
             onViewModeChange={handleMgViewModeChange}
             searchInputValue={searchDraft}
             onSearchInputChange={handleSearchInputChange}
-            onSearchCommit={handleSearchCommit}
             searchResults={dropdownSearchResults}
             searchDetailFields={cardsVisFields.detailFields}
             searchLoading={dropdownSearchLoading}
             onSearchResultSelect={handleSearchResultSelect}
+            onSearchApplyAll={handleSearchApplyAll}
             isFavoriteRecord={empFavorites.isFavorite}
             onToggleFavorite={empFavorites.toggleFavorite}
             onToggleFilter={toggleFilterPanel}
