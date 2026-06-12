@@ -57,6 +57,16 @@ export const buildEmpCardFieldCatalog = (customFields = []) => {
   [...fromColumns, ...normalizedCustom].forEach((field) => {
     if (!merged.has(field.key)) merged.set(field.key, field);
   });
+
+  EMP_SEARCH_DEFAULT_FIELDS.forEach((field) => {
+    if (!merged.has(field.key)) {
+      merged.set(field.key, {
+        ...field,
+        primary: EMP_CARD_PRIMARY_KEYS.has(field.key),
+      });
+    }
+  });
+
   return [...merged.values()];
 };
 

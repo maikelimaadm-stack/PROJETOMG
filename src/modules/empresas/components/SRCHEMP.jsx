@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronDown, Search, Star, X } from "lucide-react";
 import { empRepository } from "@/modules/empresas/repositories/empRepository";
@@ -128,7 +129,7 @@ function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false 
 
   if (!open) return null;
 
-  return (
+  const modal = (
     <div
       className={`emp-search-config-overlay${mgPrototype ? " mg-cards-config-overlay" : ""}`}
       onClick={(event) => {
@@ -136,9 +137,15 @@ function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false 
       }}
       role="presentation"
     >
-      <div className={`emp-search-config-modal${mgPrototype ? " mg-cards-config-modal" : ""}`}>
+      <div
+        className={`emp-search-config-modal${mgPrototype ? " mg-cards-config-modal" : ""}`}
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="emp-search-config-title"
+      >
         <div className="emp-search-config-header">
-          <h3 className="emp-search-config-title">
+          <h3 id="emp-search-config-title" className="emp-search-config-title">
             {mgPrototype ? "Configurar campos dos cards" : "⚙ Configurar Visualização"}
           </h3>
           <button type="button" className="emp-search-config-close" onClick={onClose} aria-label="Fechar">
@@ -146,28 +153,32 @@ function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false 
           </button>
         </div>
         <div className="emp-search-config-body">
-          {draft.map((field) => (
-            <label
-              key={field.key}
-              className={`emp-search-config-field${field.primary && mgPrototype ? " emp-search-config-field--locked" : ""}`}
-            >
-              <input
-                type="checkbox"
-                className="emp-search-config-checkbox"
-                checked={field.visible}
-                disabled={field.primary && mgPrototype}
-                onChange={(event) => {
-                  const checked = event.target.checked;
-                  setDraft((current) =>
-                    current.map((item) =>
-                      item.key === field.key ? { ...item, visible: checked } : item
-                    )
-                  );
-                }}
-              />
-              <span>{field.label}</span>
-            </label>
-          ))}
+          {draft.length === 0 ? (
+            <p className="emp-search-config-empty">Nenhum campo disponível.</p>
+          ) : (
+            draft.map((field) => (
+              <label
+                key={field.key}
+                className={`emp-search-config-field${field.primary && mgPrototype ? " emp-search-config-field--locked" : ""}`}
+              >
+                <input
+                  type="checkbox"
+                  className="emp-search-config-checkbox"
+                  checked={field.visible}
+                  disabled={field.primary && mgPrototype}
+                  onChange={(event) => {
+                    const checked = event.target.checked;
+                    setDraft((current) =>
+                      current.map((item) =>
+                        item.key === field.key ? { ...item, visible: checked } : item
+                      )
+                    );
+                  }}
+                />
+                <span>{field.label}</span>
+              </label>
+            ))
+          )}
         </div>
         <div className="emp-search-config-footer">
           <button
@@ -184,6 +195,15 @@ function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false 
       </div>
     </div>
   );
+
+  if (mgPrototype && typeof document !== "undefined") {
+    return createPortal(
+      <div className="cadastro-emp-scope mg-empresas-scope">{modal}</div>,
+      document.body
+    );
+  }
+
+  return modal;
 }
 
 export default function SRCHEMP({
@@ -227,9 +247,16 @@ export default function SRCHEMP({
     [camposPersonalizados]
   );
 
+  const configModalFields = useMemo(() => {
+    if (!mgPrototype) return visFields;
+    const catalog = fieldCatalog.length > 0 ? fieldCatalog : EMP_SEARCH_DEFAULT_FIELDS;
+    return mergeSearchVisFields(catalog, visFields.length > 0 ? visFields : catalog);
+  }, [fieldCatalog, mgPrototype, visFields]);
+
   useEffect(() => {
     if (!mgPrototype) return;
-    setVisFields(loadSearchVisFields(fieldCatalog));
+    const catalog = fieldCatalog.length > 0 ? fieldCatalog : EMP_SEARCH_DEFAULT_FIELDS;
+    setVisFields((current) => mergeSearchVisFields(catalog, current.length > 0 ? current : catalog));
   }, [fieldCatalog, mgPrototype]);
 
   const configOpen = mgPrototype ? cardsConfigOpen : configOpenInternal;
@@ -425,7 +452,7 @@ export default function SRCHEMP({
 
         <SearchConfigModal
           open={configOpen}
-          fields={visFields}
+          fields={configModalFields}
           onClose={() => setConfigOpen?.(false)}
           onSave={handleSaveVisConfig}
           mgPrototype
