@@ -58,8 +58,8 @@
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
   --mg-field-height: 38px;
-  --mg-field-label-size-top: 11px;
-  --mg-field-label-size-empty: 11px;
+  --mg-field-label-size-top: 9px;
+  --mg-field-label-size-empty: 12px;
   --mg-field-stack-inset-top: 11px;
   --mg-field-stack-inset-bottom: 3px;
   --mg-panel-tab-font: 13px;
@@ -4443,7 +4443,7 @@
 }
 
 /* -------------------------------------------------------------------------- */
-/* Lançamentos: padrão único de campo (igual "Tipo de Pessoa")               */
+/* Lançamentos: labels flutuantes + cores padronizadas (base Tipo de Pessoa) */
 /* -------------------------------------------------------------------------- */
 .mg-empresas-scope .mg-prototype-form :is(
   .fg-label,
@@ -4453,38 +4453,46 @@
   .mg-lookup-label,
   .emp-form-field-label-top
 ) {
-  font-size: var(--mg-field-label-font) !important;
+  font-size: var(--mg-field-label-size-empty) !important;
   font-weight: 500 !important;
   color: var(--text-3) !important;
-  line-height: 1 !important;
+  line-height: 1.1 !important;
 }
 
+/* Estado vazio: label no meio */
 .mg-empresas-scope .mg-prototype-form .mg-prototype-field:not(.mg-prototype-field--bare) .fg-label,
-.mg-empresas-scope .mg-prototype-form :is(.cmd-label, .mg-dp-label, .mg-tp-label, .mg-lookup-label),
+.mg-empresas-scope .mg-prototype-form :is(.cmd-label, .mg-dp-label, .mg-tp-label, .mg-lookup-label) {
+  align-self: center !important;
+  padding: 0 10px !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Estado foco/preenchido: label sobe */
 .mg-empresas-scope .mg-prototype-form :is(
   .mg-prototype-field.mg-has-value .fg-label,
   .mg-prototype-field:focus-within .fg-label,
-  .mg-prototype-composite.mg-has-value .cmd-label,
-  .mg-prototype-composite.mg-has-value .mg-dp-label,
-  .mg-prototype-composite.mg-has-value .mg-tp-label,
-  .mg-prototype-composite.mg-has-value .mg-lookup-label,
+  .cmd-select.mg-has-value .cmd-label,
   .cmd-select.open .cmd-label,
+  .mg-dp.mg-has-value .mg-dp-label,
   .mg-dp.open .mg-dp-label,
+  .mg-tp.mg-has-value .mg-tp-label,
   .mg-tp.open .mg-tp-label,
+  .mg-lookup.mg-has-value .mg-lookup-label,
   .mg-lookup.open .mg-lookup-label
 ) {
   align-self: start !important;
   padding: 4px 10px 0 !important;
-  font-size: var(--mg-field-label-font) !important;
+  font-size: var(--mg-field-label-size-top) !important;
   line-height: 1 !important;
   opacity: 1 !important;
   visibility: visible !important;
 }
 
+/* Superfície base única para todos os campos */
 .mg-empresas-scope .mg-prototype-form :is(
   .mg-prototype-field > input:not([type="hidden"]),
   .mg-prototype-field > select,
-  .mg-prototype-field .emp-form-field-control,
   .cmd-display,
   .mg-dp-field,
   .mg-tp-field,
@@ -4503,6 +4511,14 @@
   color: var(--text-1) !important;
 }
 
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field .emp-form-field-control {
+  min-height: var(--mg-field-height) !important;
+  border: none !important;
+  border-radius: var(--mg-radius-control) !important;
+  background: var(--mg-field-idle-bg) !important;
+  box-shadow: var(--mg-field-edge-shadow) !important;
+}
+
 .mg-empresas-scope .mg-prototype-form :is(
   .mg-prototype-field > input:not([type="hidden"]),
   .mg-prototype-field .emp-form-field-control input,
@@ -4517,13 +4533,64 @@
   font-weight: 600 !important;
 }
 
+/* Valor no centro quando vazio */
 .mg-empresas-scope .mg-prototype-form :is(
   .mg-prototype-field > input:not([type="hidden"]),
   .mg-prototype-field .emp-form-field-control input
 ) {
+  padding: 0 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form .cmd-display {
+  align-items: center !important;
+  padding: 0 28px 0 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(.mg-dp-field, .mg-tp-field) {
+  padding: 0 32px 0 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form .mg-lookup-display {
+  align-items: center !important;
+  padding: 0 28px 0 10px !important;
+}
+
+/* Valor desce quando label sobe */
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-prototype-field.mg-has-value > input:not([type="hidden"]),
+  .mg-prototype-field:focus-within > input:not([type="hidden"]),
+  .mg-prototype-field.mg-has-value .emp-form-field-control input,
+  .mg-prototype-field:focus-within .emp-form-field-control input
+) {
   padding: var(--mg-field-stack-inset-top) 10px var(--mg-field-stack-inset-bottom) !important;
 }
 
+.mg-empresas-scope .mg-prototype-form :is(
+  .cmd-select.mg-has-value .cmd-display,
+  .cmd-select.open .cmd-display
+) {
+  align-items: flex-end !important;
+  padding: var(--mg-field-stack-inset-top) 28px var(--mg-field-stack-inset-bottom) 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-dp.mg-has-value .mg-dp-field,
+  .mg-dp.open .mg-dp-field,
+  .mg-tp.mg-has-value .mg-tp-field,
+  .mg-tp.open .mg-tp-field
+) {
+  padding: var(--mg-field-stack-inset-top) 32px var(--mg-field-stack-inset-bottom) 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-lookup.mg-has-value .mg-lookup-display,
+  .mg-lookup.open .mg-lookup-display
+) {
+  align-items: flex-end !important;
+  padding: var(--mg-field-stack-inset-top) 28px var(--mg-field-stack-inset-bottom) 10px !important;
+}
+
+/* Textarea mantém altura própria */
 .mg-empresas-scope .mg-prototype-form .mg-prototype-field > textarea,
 .mg-empresas-scope .mg-prototype-form .mg-prototype-field .emp-form-field-control textarea {
   min-height: 64px !important;
@@ -4531,20 +4598,7 @@
   padding: 20px 10px 8px !important;
 }
 
-.mg-empresas-scope .mg-prototype-form .cmd-display {
-  align-items: flex-end !important;
-  padding: var(--mg-field-stack-inset-top) 28px var(--mg-field-stack-inset-bottom) 10px !important;
-}
-
-.mg-empresas-scope .mg-prototype-form :is(.mg-dp-field, .mg-tp-field) {
-  padding: var(--mg-field-stack-inset-top) 32px var(--mg-field-stack-inset-bottom) 10px !important;
-}
-
-.mg-empresas-scope .mg-prototype-form .mg-lookup-display {
-  align-items: flex-end !important;
-  padding: var(--mg-field-stack-inset-top) 28px var(--mg-field-stack-inset-bottom) 10px !important;
-}
-
+/* Foco: mantém mesma cor, adiciona ring */
 .mg-empresas-scope .mg-prototype-form :is(
   .cmd-select.open .cmd-display,
   .mg-dp.open .mg-dp-field,
@@ -4560,6 +4614,7 @@
   box-shadow: var(--mg-field-edge-shadow), var(--mg-focus-ring) !important;
 }
 
+/* Remove placeholder visual para não competir com a label */
 .mg-empresas-scope .mg-prototype-form :is(
   .mg-prototype-field > input::placeholder,
   .mg-prototype-field > textarea::placeholder,
