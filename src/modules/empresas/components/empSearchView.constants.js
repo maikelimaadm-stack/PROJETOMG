@@ -29,6 +29,9 @@ export const EMP_SEARCH_FIELD_ALIASES = {
 export const EMP_CARD_PRIMARY_KEYS = new Set(["codempresa", "razao_social"]);
 
 const CARD_CATALOG_SKIP = new Set(["id_global", "logo_url"]);
+export const EMP_CARD_BODY_SKIP = new Set(["logo_url"]);
+/** Campos renderizados fora do corpo (cabeçalho ou pill de status). */
+export const EMP_CARD_DETAIL_SKIP = new Set(["logo_url", "status"]);
 
 /** Catálogo completo de campos do lançamento para cards (base + personalizados). */
 export const buildEmpCardFieldCatalog = (customFields = []) => {
@@ -75,8 +78,46 @@ export const getDefaultCardVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => 
   const defaultsMap = new Map(EMP_SEARCH_DEFAULT_FIELDS.map((field) => [field.key, field.visible]));
   return catalog.map((field) => ({
     ...field,
-    visible: field.primary ? true : defaultsMap.get(field.key) ?? false,
+    visible: field.primary ? true : defaultsMap.get(field.key) ?? field.visible ?? false,
   }));
+};
+
+/** Catálogo de cards a partir das colunas em uso na tabela. */
+export const buildCardCatalogFromColumnsInUse = (columnsInUse = []) => {
+  return columnsInUse
+    .filter((col) => !EMP_CARD_BODY_SKIP.has(col.id))
+    .map((col) => {
+      const existing = EMP_SEARCH_DEFAULT_FIELDS.find((field) => field.key === col.id);
+      return {
+        key: col.id,
+        label: col.label,
+        visible: existing?.visible ?? col.default ?? false,
+        primary: EMP_CARD_PRIMARY_KEYS.has(col.id),
+        customField: col.customField,
+      };
+    });
+};
+
+export const sortCardConfigFieldsAlphabetically = (fields = []) =>
+  [...fields].sort((a, b) =>
+    String(a.label || "").localeCompare(String(b.label || ""), "pt-BR", { sensitivity: "base" })
+  );
+
+/** Campos visíveis no corpo do card, na ordem das colunas em uso. */
+export const buildCardDetailFieldsFromColumns = (columnsInUse = [], visFields = []) => {
+  const visibleMap = new Map(
+    visFields.filter((field) => field.visible && !field.primary).map((field) => [field.key, field])
+  );
+
+  return columnsInUse
+    .filter(
+      (col) =>
+        !EMP_CARD_PRIMARY_KEYS.has(col.id) &&
+        !EMP_CARD_BODY_SKIP.has(col.id) &&
+        !EMP_CARD_DETAIL_SKIP.has(col.id)
+    )
+    .map((col) => visibleMap.get(col.id))
+    .filter(Boolean);
 };
 
 export const mergeSearchVisFields = (catalog = [], saved = []) => {

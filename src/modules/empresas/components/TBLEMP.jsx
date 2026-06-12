@@ -206,7 +206,14 @@ export default function TBLEMP({
   useEffect(() => { onSelectionChange?.(selectedItems); }, [selectedItems, onSelectionChange]);
   useEffect(() => { if (!selectedRecordId || selectedIds !== undefined) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId, selectedIds]);
 
-  const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nf }) => { setColunasVisiveis(visiveis); setColunasOrdem(ordem); if (nf !== undefined) setFrozenColumnCount(Math.max(0, Math.min(Number(nf) || 0, visiveis.length))); localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis)); localStorage.setItem(ORDER_KEY, JSON.stringify(ordem)); };
+  const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nf }) => {
+    setColunasVisiveis(visiveis);
+    setColunasOrdem(ordem);
+    if (nf !== undefined) setFrozenColumnCount(Math.max(0, Math.min(Number(nf) || 0, visiveis.length)));
+    localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis));
+    localStorage.setItem(ORDER_KEY, JSON.stringify(ordem));
+    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+  };
   const handleResetColumnLayout = () => { const def = colunasDisponiveis.filter((c) => !c.fixo); handleColumnLayoutChange({ visiveis: def.filter((c) => c.default).map((c) => c.id), ordem: def.map((c) => c.id) }); };
 
   const colunasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && colunasVisiveis.includes(c.id)), [colunasOrdem, colunasVisiveis, colunasDisponiveis]);

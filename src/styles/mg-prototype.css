@@ -1907,6 +1907,10 @@
   font-weight: 600;
 }
 
+.mg-empresas-scope .mg-emp-card__name {
+  font-weight: 600;
+}
+
 .mg-empresas-scope .mg-emp-card__sep {
   color: var(--text-3);
 }

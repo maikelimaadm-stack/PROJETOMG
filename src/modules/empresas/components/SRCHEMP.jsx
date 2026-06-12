@@ -348,7 +348,7 @@ export default function SRCHEMP({
                               <span className="mg-emp-card__sep"> • </span>
                             </>
                           ) : null}
-                          <span>{nome}</span>
+                          <span className="mg-emp-card__name">{nome}</span>
                         </div>
                       </div>
                     </div>

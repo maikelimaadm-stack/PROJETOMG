@@ -3,14 +3,19 @@ import { useQuery } from "@tanstack/react-query";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
-  buildEmpCardFieldCatalog,
+  buildCardCatalogFromColumnsInUse,
+  buildCardDetailFieldsFromColumns,
   getDefaultCardVisFields,
   mergeSearchVisFields,
   loadSearchVisFields,
   saveSearchVisFields,
+  sortCardConfigFieldsAlphabetically,
 } from "@/modules/empresas/components/empSearchView.constants";
+import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 
 export function useEmpCardsVisFields() {
+  const [columnLayoutVersion, setColumnLayoutVersion] = useState(0);
+
   const { data: camposPersonalizados = [] } = useQuery({
     queryKey: ["emp-campos-personalizados"],
     queryFn: () => empRepository.listCamposPersonalizados(),
@@ -20,25 +25,46 @@ export function useEmpCardsVisFields() {
     refetchOnMount: false,
   });
 
-  const catalog = useMemo(() => {
-    const built = buildEmpCardFieldCatalog(camposPersonalizados);
-    return built.length > 0 ? built : EMP_SEARCH_DEFAULT_FIELDS;
-  }, [camposPersonalizados]);
+  useEffect(() => {
+    const refresh = () => setColumnLayoutVersion((current) => current + 1);
+    window.addEventListener("storage", refresh);
+    window.addEventListener("emp-column-layout-updated", refresh);
+    return () => {
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("emp-column-layout-updated", refresh);
+    };
+  }, []);
+
+  const columnsInUse = useMemo(() => {
+    void columnLayoutVersion;
+    return getColumnsInUse(camposPersonalizados).inUse;
+  }, [camposPersonalizados, columnLayoutVersion]);
+
+  const catalog = useMemo(
+    () => buildCardCatalogFromColumnsInUse(columnsInUse),
+    [columnsInUse]
+  );
 
   const [visFields, setVisFields] = useState(() => loadSearchVisFields(EMP_SEARCH_DEFAULT_FIELDS));
 
   useEffect(() => {
-    setVisFields(loadSearchVisFields(catalog));
+    if (catalog.length === 0) return;
+    setVisFields((current) => mergeSearchVisFields(catalog, current));
   }, [catalog]);
 
   const configFields = useMemo(() => {
-    const merged = mergeSearchVisFields(catalog, visFields.length > 0 ? visFields : catalog);
-    return merged.length > 0 ? merged : EMP_SEARCH_DEFAULT_FIELDS;
+    const merged = mergeSearchVisFields(
+      catalog,
+      visFields.length > 0 ? visFields : catalog
+    );
+    return sortCardConfigFieldsAlphabetically(
+      merged.length > 0 ? merged : EMP_SEARCH_DEFAULT_FIELDS
+    );
   }, [catalog, visFields]);
 
   const detailFields = useMemo(
-    () => visFields.filter((field) => field.visible && !field.primary),
-    [visFields]
+    () => buildCardDetailFieldsFromColumns(columnsInUse, visFields),
+    [columnsInUse, visFields]
   );
 
   const saveConfig = useCallback(
@@ -56,7 +82,7 @@ export function useEmpCardsVisFields() {
   );
 
   const getRestoreDefaults = useCallback(
-    () => getDefaultCardVisFields(catalog),
+    () => sortCardConfigFieldsAlphabetically(getDefaultCardVisFields(catalog)),
     [catalog]
   );
 
