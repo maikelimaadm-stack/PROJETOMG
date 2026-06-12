@@ -345,10 +345,10 @@
 }
 
 .mg-empresas-scope .fg .fg-label {
-  font-size: var(--mg-field-label-font);
+  font-size: var(--mg-field-label-size-empty);
   font-weight: 500;
   color: var(--text-3);
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .mg-empresas-scope .fg .fg-label.required::after {
@@ -367,7 +367,7 @@
   border-radius: var(--mg-radius-control);
   padding: 0 10px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   outline: none;
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
@@ -441,7 +441,7 @@
 .mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field:not(.mg-prototype-field--bare):focus-within .emp-form-field-control input {
   padding-top: 0;
   padding-bottom: 2px;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.2;
 }
 
@@ -1035,7 +1035,7 @@
   box-shadow: none;
   background: transparent;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-1);
   padding: 0 10px 4px;
 }
@@ -1185,7 +1185,7 @@
     background var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
     padding var(--mg-motion-duration) var(--mg-motion-ease);
-  font-weight: 600;
+  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -4648,4 +4648,102 @@
   .mg-prototype-field .emp-form-field-control textarea::placeholder
 ) {
   color: transparent !important;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Padrão único de label + valor (referência: campo Ativa / cmd-select)       */
+/* -------------------------------------------------------------------------- */
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field:not(.mg-prototype-field--bare):is(
+  .mg-has-value,
+  .mg-field-locked,
+  :focus-within,
+  :has(> input:not(:placeholder-shown)),
+  :has(> textarea:not(:placeholder-shown))
+) .fg-label,
+.mg-empresas-scope .mg-prototype-form .mg-prototype-composite:is(
+  .mg-has-value,
+  .mg-field-locked,
+  :focus-within
+) :is(.cmd-label, .mg-dp-label, .mg-tp-label, .mg-lookup-label),
+.mg-empresas-scope .mg-prototype-form :is(
+  .cmd-select.mg-has-value,
+  .cmd-select.open,
+  .mg-dp.mg-has-value,
+  .mg-dp.open,
+  .mg-tp.mg-has-value,
+  .mg-tp.open,
+  .mg-lookup.mg-has-value,
+  .mg-lookup.open
+) :is(.cmd-label, .mg-dp-label, .mg-tp-label, .mg-lookup-label) {
+  align-self: start !important;
+  padding: 4px 10px 0 !important;
+  font-size: var(--mg-field-label-size-top) !important;
+  line-height: 1 !important;
+}
+
+/* Valor alinhado na base do campo (igual cmd-display / Ativa) */
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field:not(.mg-prototype-field--bare):is(
+  .mg-has-value,
+  .mg-field-locked,
+  :focus-within,
+  :has(> input:not(:placeholder-shown)),
+  :has(> textarea:not(:placeholder-shown))
+) > :is(input:not([type="hidden"]), select, textarea),
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field:not(.mg-prototype-field--bare):is(
+  .mg-has-value,
+  :focus-within,
+  :has(.emp-form-field-control > input:not(:placeholder-shown)),
+  :has(.emp-form-field-control > textarea:not(:placeholder-shown))
+) .emp-form-field-control > :is(input, textarea) {
+  padding: var(--mg-field-stack-inset-top) 10px var(--mg-field-stack-inset-bottom) !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .cmd-select.mg-has-value .cmd-display,
+  .cmd-select.open .cmd-display,
+  .mg-dp.mg-has-value .mg-dp-field,
+  .mg-dp.open .mg-dp-field,
+  .mg-tp.mg-has-value .mg-tp-field,
+  .mg-tp.open .mg-tp-field,
+  .mg-lookup.mg-has-value .mg-lookup-display,
+  .mg-lookup.open .mg-lookup-display
+) {
+  align-items: flex-end !important;
+  padding: var(--mg-field-stack-inset-top) 28px var(--mg-field-stack-inset-bottom) 10px !important;
+  line-height: 1.2 !important;
+  font-weight: 500 !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-dp.mg-has-value .mg-dp-field,
+  .mg-dp.open .mg-dp-field,
+  .mg-tp.mg-has-value .mg-tp-field,
+  .mg-tp.open .mg-tp-field
+) {
+  padding-right: 32px !important;
+}
+
+/* Estado vazio: label central, sem padding extra no valor */
+.mg-empresas-scope .mg-prototype-form .mg-prototype-field:not(.mg-prototype-field--bare):not(.mg-has-value):not(.mg-field-locked):not(:focus-within):not(:has(> input:not(:placeholder-shown))):not(:has(> textarea:not(:placeholder-shown))) > :is(input:not([type="hidden"]), select, textarea) {
+  padding: 0 10px !important;
+  line-height: var(--mg-field-height) !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .cmd-select:not(.mg-has-value):not(.open) .cmd-display,
+  .mg-dp:not(.mg-has-value):not(.open) .mg-dp-field,
+  .mg-tp:not(.mg-has-value):not(.open) .mg-tp-field,
+  .mg-lookup:not(.mg-has-value):not(.open) .mg-lookup-display
+) {
+  align-items: center !important;
+  padding: 0 28px 0 10px !important;
+}
+
+.mg-empresas-scope .mg-prototype-form :is(
+  .mg-dp:not(.mg-has-value):not(.open) .mg-dp-field,
+  .mg-tp:not(.mg-has-value):not(.open) .mg-tp-field
+) {
+  padding-right: 32px !important;
 }
