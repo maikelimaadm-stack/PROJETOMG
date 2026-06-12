@@ -1,7 +1,7 @@
 import {
   EMPRESAS_FORM_LAYOUT_SCREEN_KEY,
   validateAndNormalizeEmpresasFormLayout,
-} from "../../../../../shared/layout/empresasFormLayoutValidate.mjs";
+} from "../../../shared/layout/empresasFormLayoutValidate.mjs";
 
 const layoutValidators = {
   [EMPRESAS_FORM_LAYOUT_SCREEN_KEY]: validateAndNormalizeEmpresasFormLayout,
