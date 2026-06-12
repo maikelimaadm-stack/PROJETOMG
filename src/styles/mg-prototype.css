@@ -1895,6 +1895,22 @@
   stroke: #fff !important;
 }
 
+.mg-empresas-scope .mg-emp-card__meta-text {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 16px;
+}
+
+.mg-empresas-scope .mg-emp-card__code {
+  font-weight: 600;
+}
+
+.mg-empresas-scope .mg-emp-card__sep {
+  color: var(--text-3);
+}
+
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):active:not(.mg-emp-card--selected) {
   transform: none;
 }
@@ -2701,16 +2717,27 @@
 }
 
 .mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-labeled {
-  flex: 1 1 0;
-  min-width: 0;
-  width: auto;
-  max-width: none;
   justify-content: center;
   text-align: center;
   margin: 0;
   min-height: var(--mg-btn-height);
   font-weight: 600;
   white-space: nowrap;
+}
+
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .mg-cards-config-menu__reset {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  max-width: none;
+}
+
+.mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .mg-cards-config-menu__ok {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 64px;
+  max-width: none;
+  padding: 0 12px;
 }
 
 .mg-empresas-scope .dropdown-menu.mg-cards-config-menu .mg-cards-config-menu__footer .tb-btn-ghost.tb-btn-labeled {

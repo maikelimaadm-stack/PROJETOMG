@@ -341,11 +341,14 @@ export default function SRCHEMP({
                         {initials}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="truncate text-xs font-semibold" style={{ color: "var(--text-1)" }}>
-                          {nome}
-                        </div>
-                        <div className="mt-0.5 text-[10px]" style={{ color: "var(--text-3)" }}>
-                          {code}
+                        <div className="mg-emp-card__meta-text truncate text-xs" style={{ color: "var(--text-1)" }}>
+                          {code && code !== "—" ? (
+                            <>
+                              <span className="mg-emp-card__code">{code}</span>
+                              <span className="mg-emp-card__sep"> • </span>
+                            </>
+                          ) : null}
+                          <span>{nome}</span>
                         </div>
                       </div>
                     </div>
