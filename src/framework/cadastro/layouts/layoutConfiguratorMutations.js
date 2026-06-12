@@ -7,6 +7,7 @@ import {
   previewReorderFieldsAtTarget,
   removeFieldFromRows,
   resolveConfiguredCardRows,
+  resolveFieldInsertEdge,
 } from "./empFormLayoutRows.js";
 import { resolveCardColSpan } from "./empFormFieldWidthPresets.js";
 import { normalizeLayoutCardV3 } from "./layoutConfigV3.js";
@@ -247,7 +248,12 @@ export const previewMoveFieldsAtTarget = ({
   if (!updatedCard) return null;
 
   let rows = ensureCardRows(updatedCard);
-  const insertEdge = edge === "before" ? "before" : edge === "after" ? "after" : "after";
+  const insertEdge =
+    targetFieldId && !ids.includes(targetFieldId)
+      ? resolveFieldInsertEdge(rowsBefore, ids, targetFieldId, edge)
+      : edge === "before"
+        ? "before"
+        : "after";
 
   if (targetFieldId && !ids.includes(targetFieldId)) {
     rows = insertFieldsRelativeToTarget(rows, ids, targetFieldId, insertEdge);
