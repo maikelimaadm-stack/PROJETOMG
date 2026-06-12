@@ -885,6 +885,11 @@
   }
 }
 
+.mg-empresas-scope .mg-emp-card--virtual {
+  content-visibility: auto;
+  contain-intrinsic-size: 180px;
+}
+
 .mg-empresas-scope .emp-table-data-row {
   content-visibility: auto;
   contain-intrinsic-size: 26px;

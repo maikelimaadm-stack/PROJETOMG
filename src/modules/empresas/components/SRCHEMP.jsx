@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Search, Star, X } from "lucide-react";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
+import EmpListingScrollStatus from "@/framework/cadastro/pagination/EmpListingScrollStatus";
+import { useInfiniteScrollLoadMore } from "@/shared/hooks/useInfiniteScrollLoadMore";
+import { EMP_LIST_CHUNK_SIZE } from "@/shared/listing/listQueryConfig";
 import {
   formatSearchCounter,
   getEmpSearchAvatarColor,
@@ -187,6 +190,10 @@ export default function SRCHEMP({
   pageSize = 50,
   onPageChange,
   onPageSizeChange,
+  isLoadingMore = false,
+  hasMore = false,
+  onLoadMore = null,
+  chunkSize = EMP_LIST_CHUNK_SIZE,
   onEdit,
   selectedIds = [],
   onSelectionChange,
@@ -205,6 +212,16 @@ export default function SRCHEMP({
   const lastCardClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const cardClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedIdsRef = useRef(selectedIds);
+  const cardsScrollRef = useRef(null);
+  const infiniteScrollMode = typeof onLoadMore === "function";
+
+  useInfiniteScrollLoadMore({
+    containerRef: cardsScrollRef,
+    enabled: mgPrototype && infiniteScrollMode,
+    hasMore,
+    isLoading: isLoadingMore || isFetching,
+    onLoadMore,
+  });
 
   const detailFields = mgPrototype
     ? cardsDetailFields
@@ -302,7 +319,7 @@ export default function SRCHEMP({
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ErpListingTopProgress active={showCardsFetching} />
-        <div className="relative flex-1 overflow-y-auto p-4">
+        <div ref={cardsScrollRef} className="relative flex-1 overflow-y-auto p-4">
           {showCardsLoading ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Carregando registros...
@@ -326,7 +343,7 @@ export default function SRCHEMP({
                 return (
                   <div
                     key={emp.id}
-                    className={`erp-card mg-emp-card relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
+                    className={`erp-card mg-emp-card mg-emp-card--virtual relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
                     onClick={() => handleCardClick(emp)}
                     role="button"
                     tabIndex={0}
@@ -391,6 +408,14 @@ export default function SRCHEMP({
             </div>
           )}
         </div>
+        {infiniteScrollMode ? (
+          <EmpListingScrollStatus
+            loadedCount={filteredEmpresas.length}
+            totalCount={total}
+            isLoadingMore={isLoadingMore}
+            chunkSize={chunkSize}
+          />
+        ) : (
         <footer
           className="flex shrink-0 items-center gap-3 border-t px-5 py-2"
           style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}
@@ -400,6 +425,7 @@ export default function SRCHEMP({
           <span className="flex-1 text-[12px] mg-cards-footer-counter" style={{ color: "var(--text-3)" }}>{counterText}</span>
           <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
         </footer>
+        )}
       </div>
     );
   }

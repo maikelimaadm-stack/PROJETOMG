@@ -6,8 +6,11 @@ import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
+import EmpListingScrollStatus from "@/framework/cadastro/pagination/EmpListingScrollStatus";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
+import { useInfiniteScrollLoadMore } from "@/shared/hooks/useInfiniteScrollLoadMore";
+import { EMP_LIST_CHUNK_SIZE } from "@/shared/listing/listQueryConfig";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
@@ -64,6 +67,12 @@ export default function TBLEMP({
   serverPage = 1,
   serverPageSize = 50,
   serverTotal = null,
+  serverInfiniteScroll = false,
+  loadedCount = null,
+  hasMoreRecords = false,
+  isLoadingMore = false,
+  onLoadMore = null,
+  listChunkSize = EMP_LIST_CHUNK_SIZE,
   serverSearchTerm = "",
   serverBaseFilters = undefined,
   onServerPageChange = null,
@@ -137,7 +146,7 @@ export default function TBLEMP({
   const measureCanvasRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
-  const serverMode = typeof onServerPageChange === "function";
+  const serverMode = typeof onServerPageChange === "function" || serverInfiniteScroll;
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
     if (serverPageSize) return serverPageSize;
@@ -438,10 +447,19 @@ export default function TBLEMP({
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
 
   const empresasPaginadas = useMemo(() => {
+    if (serverMode && serverInfiniteScroll) return empresasOrdenadas;
     if (serverMode) return empresasOrdenadas;
     const start = (safeCurrentPage - 1) * pageSize;
     return empresasOrdenadas.slice(start, start + pageSize);
-  }, [serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
+  }, [serverMode, serverInfiniteScroll, empresasOrdenadas, safeCurrentPage, pageSize]);
+
+  useInfiniteScrollLoadMore({
+    containerRef: scrollContainerRef,
+    enabled: serverInfiniteScroll,
+    hasMore: hasMoreRecords,
+    isLoading: isLoadingMore || isFetchingEmpresas,
+    onLoadMore,
+  });
 
   useEffect(() => {
     localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
@@ -453,12 +471,10 @@ export default function TBLEMP({
   }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
-    if (serverMode) {
-      onServerPageChange?.(1);
-      return;
-    }
-    setCurrentPage(1);
-  }, [serverMode, onServerPageChange, filtrosColunas, searchTerm, pageSize]);
+    if (!serverMode || serverInfiniteScroll) return;
+    onServerPageChange?.(1);
+    if (!serverInfiniteScroll) setCurrentPage(1);
+  }, [serverMode, serverInfiniteScroll, onServerPageChange, filtrosColunas, searchTerm, pageSize]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -591,7 +607,12 @@ export default function TBLEMP({
     return "emp-row-even";
   };
 
-  const agregacoes = useMemo(() => campoEngine.calcularAgregacoes ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {}) : {}, [empresasOrdenadas, colunasOrdenadas]);
+  const agregacoes = useMemo(() => {
+    if (empresasOrdenadas.length > 150) return {};
+    return campoEngine.calcularAgregacoes
+      ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {})
+      : {};
+  }, [empresasOrdenadas, colunasOrdenadas]);
 
   const closeFilterMenu = () => {
     setMenuFiltroAberto(null);
@@ -876,14 +897,28 @@ export default function TBLEMP({
   };
 
   useEffect(() => {
+    if (!onVisibleDataChange) return undefined;
     const buildCols = (cols) => cols.map((c) => ({ id: c.id, label: c.label, width: Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c)) }));
     const buildRows = (items, cols) => items.map((e) => cols.map((c) => getFieldValue(e, c.id)));
     const buildTotalRow = (cols, totals) => Object.keys(totals).length > 0 ? cols.map((c, i) => i === 0 ? "Totais" : totals[c.id] !== undefined ? formatTotalValue(totals[c.id], c) : "") : null;
     const exp = colunasOrdenadas.filter((c) => !c.fixo);
     const selEmps = empresasOrdenadas.filter((e) => selectedItems.includes(e.id));
     const totalRow = buildTotalRow(exp, agregacoes);
-    onVisibleDataChange?.({ columns: buildCols(exp), rows: buildRows(empresasOrdenadas, exp), selectedRows: buildRows(selEmps, exp), totalRows: totalRow ? [totalRow] : [], allColumns: buildCols(colunasTodasOrdenadas), allRows: buildRows(empresasOrdenadas, colunasTodasOrdenadas), allSelectedRows: buildRows(selEmps, colunasTodasOrdenadas), allTotalRows: totalRow ? [totalRow] : [] });
-  }, [colunasOrdenadas, colunasTodasOrdenadas, empresasOrdenadas, selectedItems, onVisibleDataChange, agregacoes, columnWidths]);
+    const skipHeavyRows = serverMode && empresasOrdenadas.length > 80;
+    const timer = window.setTimeout(() => {
+      onVisibleDataChange({
+        columns: buildCols(exp),
+        rows: skipHeavyRows ? [] : buildRows(empresasOrdenadas, exp),
+        selectedRows: buildRows(selEmps, exp),
+        totalRows: totalRow ? [totalRow] : [],
+        allColumns: buildCols(colunasTodasOrdenadas),
+        allRows: skipHeavyRows ? [] : buildRows(empresasOrdenadas, colunasTodasOrdenadas),
+        allSelectedRows: buildRows(selEmps, colunasTodasOrdenadas),
+        allTotalRows: totalRow ? [totalRow] : [],
+      });
+    }, skipHeavyRows ? 0 : 120);
+    return () => window.clearTimeout(timer);
+  }, [colunasOrdenadas, colunasTodasOrdenadas, empresasOrdenadas, selectedItems, onVisibleDataChange, agregacoes, columnWidths, serverMode]);
 
   const hasTotalRow = Object.keys(agregacoes).length > 0;
 
@@ -1039,7 +1074,7 @@ export default function TBLEMP({
                       const isSelected = selectedItems.includes(emp.id);
                       const rowClass = getRowBgClass(index, isSelected);
                       return (
-                      <TableRow key={emp.id} className={`emp-table-data-row ${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
+                      <TableRow key={emp.id} className={`emp-table-data-row ${rowClass} cursor-pointer select-none hover:brightness-[0.98]`} onClick={(e) => handleRowClick(emp, e)}>
                         {colunasOrdenadas.map((col, colIndex) => {
                           const width = columnPixelWidths[col.id] || 160;
                           const isFrozen = colIndex < frozenColumnCount;
@@ -1080,6 +1115,7 @@ export default function TBLEMP({
               </div>
             </div>
           ) : null}
+          {!serverInfiniteScroll ? (
           <EmpTablePagination
             currentPage={safeCurrentPage}
             totalPages={totalPages}
@@ -1088,6 +1124,14 @@ export default function TBLEMP({
             onPageSizeChange={handlePageSizeChange}
             isBusy={isFetchingEmpresas}
           />
+          ) : (
+          <EmpListingScrollStatus
+            loadedCount={loadedCount ?? empresasOrdenadas.length}
+            totalCount={serverTotal ?? empresasOrdenadas.length}
+            isLoadingMore={isLoadingMore}
+            chunkSize={listChunkSize}
+          />
+          )}
         </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>
