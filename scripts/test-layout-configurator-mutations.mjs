@@ -131,6 +131,10 @@ assert.deepEqual(
   ["r3", "r1", "r2"]
 );
 
+const draftRow = createEmptyLayoutRow("card_x", []);
+const insertedDraftRow = createEmptyLayoutRow("card_x", [draftRow]);
+assert.notEqual(draftRow.id, insertedDraftRow.id);
+
 const cards = [cardA, cardB];
 const cardsMoved = previewReorderCardsAtTarget(cards, "card_b", "card_a");
 assert.ok(cardsMoved);

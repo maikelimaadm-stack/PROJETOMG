@@ -857,7 +857,7 @@ export default function EmpLayoutConfiguratorDialog({
 
     if (isLastDraft && lastIndex >= 0) {
       const beforeDraft = rows.slice(0, lastIndex);
-      const newRow = createEmptyLayoutRow(activeCard.id, beforeDraft);
+      const newRow = createEmptyLayoutRow(activeCard.id, rows);
       updateActiveCardRows([...beforeDraft, newRow, last]);
       return;
     }
@@ -1277,7 +1277,6 @@ export default function EmpLayoutConfiguratorDialog({
               showWarningOnFail: false,
             });
             event.dataTransfer.dropEffect = canDrop ? "move" : "none";
-            if (canDrop) previewFieldEnter(field.id, resolveDragInsertEdge(event));
           }}
           onDragLeave={() => {
             lastFieldHoverTargetRef.current = "";
@@ -1571,6 +1570,12 @@ export default function EmpLayoutConfiguratorDialog({
                           }
                           if (!draggedFieldId) return;
                           event.dataTransfer.dropEffect = "move";
+                          setDragOverCardId(card.id);
+                        }}
+                        onDragEnter={(event) => {
+                          if (!draggedFieldId || !isEditing) return;
+                          event.preventDefault();
+                          event.stopPropagation();
                           previewMoveFieldsLive({
                             targetPanelId: activePanelId,
                             targetCardId: card.id,
@@ -1714,6 +1719,23 @@ export default function EmpLayoutConfiguratorDialog({
                               : ""
                           )}
                           data-row-max={rowMax}
+                          onDragEnter={(event) => {
+                            if (!isEditing || draggedRowId || !draggedFieldId) return;
+                            event.preventDefault();
+                            event.stopPropagation();
+                            const canDrop = canDropFieldsAtTarget({
+                              targetPanelId: activePanelId,
+                              targetCardId: activeCardId,
+                              targetRowId: layoutRow.id,
+                              showWarningOnFail: false,
+                            });
+                            if (!canDrop) return;
+                            previewMoveFieldsLive({
+                              targetRowId: layoutRow.id,
+                              edge: resolveDragInsertEdgeVertical(event),
+                            });
+                            setDragOverRowId(layoutRow.id);
+                          }}
                           onDragOver={(event) => {
                             if (!isEditing || draggedRowId) return;
                             event.preventDefault();
@@ -1724,13 +1746,7 @@ export default function EmpLayoutConfiguratorDialog({
                               showWarningOnFail: false,
                             });
                             event.dataTransfer.dropEffect = canDrop ? "move" : "none";
-                            if (canDrop && draggedFieldId) {
-                              previewMoveFieldsLive({
-                                targetRowId: layoutRow.id,
-                                edge: resolveDragInsertEdgeVertical(event),
-                              });
-                              setDragOverRowId(layoutRow.id);
-                            } else if (canDrop) {
+                            if (canDrop) {
                               setDragOverRowId(layoutRow.id);
                             }
                           }}
@@ -1749,7 +1765,7 @@ export default function EmpLayoutConfiguratorDialog({
                                 targetRowId: layoutRow.id,
                                 showWarningOnFail: true,
                               });
-                              if (canDrop) {
+                              if (canDrop && !fieldPreviewAppliedRef.current) {
                                 previewMoveFieldsLive({
                                   targetRowId: layoutRow.id,
                                   edge: "after",
