@@ -30,8 +30,8 @@ export const EMP_CARD_PRIMARY_KEYS = new Set(["codempresa", "razao_social"]);
 
 const CARD_CATALOG_SKIP = new Set(["id_global", "logo_url"]);
 export const EMP_CARD_BODY_SKIP = new Set(["logo_url"]);
-/** Campos renderizados fora do corpo (cabeçalho ou pill de status). */
-export const EMP_CARD_DETAIL_SKIP = new Set(["logo_url", "status"]);
+/** Campos renderizados fora do corpo (ex.: logo no cabeçalho). */
+export const EMP_CARD_DETAIL_SKIP = new Set(["logo_url"]);
 
 /** Catálogo completo de campos do lançamento para cards (base + personalizados). */
 export const buildEmpCardFieldCatalog = (customFields = []) => {

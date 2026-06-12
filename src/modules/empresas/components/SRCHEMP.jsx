@@ -189,7 +189,6 @@ export default function SRCHEMP({
   selectedIds = [],
   onSelectionChange,
   cardsDetailFields = [],
-  cardsVisFields = [],
   mgPrototype = false,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
@@ -204,7 +203,6 @@ export default function SRCHEMP({
   const detailFields = mgPrototype
     ? cardsDetailFields
     : visFields.filter((field) => field.visible && !field.primary);
-  const statusFields = mgPrototype ? cardsVisFields : visFields;
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -311,8 +309,6 @@ export default function SRCHEMP({
                 const nome = getEmpSearchFieldValue(emp, "razao_social");
                 const initials = getEmpSearchInitials(emp);
                 const avatarColor = getEmpSearchAvatarColor(emp, index);
-                const statusValue = getEmpSearchFieldValue(emp, "status");
-                const statusActive = String(statusValue).toLowerCase() === "ativo";
                 return (
                   <div
                     key={emp.id}
@@ -362,13 +358,6 @@ export default function SRCHEMP({
                             </span>
                           </div>
                         ))}
-                      </div>
-                    ) : null}
-                    {statusFields.some((field) => field.key === "status" && field.visible) ? (
-                      <div className="flex items-center justify-end pt-2.5">
-                        <span className={`pill ${statusActive ? "pill-active" : "pill-inactive"}`}>
-                          {statusValue}
-                        </span>
                       </div>
                     ) : null}
                   </div>

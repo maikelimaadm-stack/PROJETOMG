@@ -894,7 +894,6 @@ export default function PAGEMP() {
                     selectedIds: selectedTableItems,
                     onSelectionChange: handleTableSelectionChange,
                     cardsDetailFields: cardsVisFields.detailFields,
-                    cardsVisFields: cardsVisFields.visFields,
                     mgPrototype: true,
                   }}
                 />
