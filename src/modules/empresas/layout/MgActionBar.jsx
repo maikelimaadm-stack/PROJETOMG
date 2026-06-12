@@ -79,7 +79,7 @@ export default function MgActionBar({
     return (
       <div
         data-template-id="action-bar"
-        className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 px-5 md:flex"
+        className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
         style={{
           background: "var(--bg-card)",
         }}
@@ -126,7 +126,7 @@ export default function MgActionBar({
   return (
     <div
       data-template-id="action-bar"
-      className="mg-action-bar canva-section hidden w-full shrink-0 items-center gap-3 px-5 md:flex"
+      className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
       style={{
         background: "var(--bg-card)",
       }}

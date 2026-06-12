@@ -30,7 +30,7 @@ export default function MgContextPanel({
           </span>
         </div>
       </div>
-      <div className="mg-context-panel__nav flex items-center gap-1">
+      <div className="mg-context-panel__nav">
         <button type="button" className="mg-nav-btn ios-btn" onClick={onFirst} disabled={disabled || currentIndex <= 0} title="Primeiro">
           <SkipBack className="h-3 w-3" />
         </button>
