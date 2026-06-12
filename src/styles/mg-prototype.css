@@ -2318,7 +2318,7 @@
 .mg-empresas-scope .mg-cards-panel-strip {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: var(--mg-toolbar-cluster-gap);
   height: 32px;
   min-height: 32px;
@@ -2331,36 +2331,19 @@
   contain: layout style;
 }
 
-.mg-empresas-scope .mg-cards-panel-strip__meta {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-}
-
-.mg-empresas-scope .mg-cards-panel-strip__label {
-  display: block;
-  font-size: 13px;
-  color: var(--text-1);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 16px;
-}
-
 .mg-empresas-scope .mg-cards-panel-strip__actions {
   flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: var(--mg-action-slot-gap);
-  margin-left: auto;
 }
 
 .mg-empresas-scope .mg-cards-panel-strip__config-btn {
-  height: 26px;
-  min-height: 26px;
-  padding: 0 10px;
-  font-size: 12px;
-  gap: 6px;
+  width: var(--mg-btn-icon-size);
+  height: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  min-height: var(--mg-btn-icon-size);
+  padding: 0;
 }
 
 .mg-empresas-scope .mg-cards-config-overlay {
@@ -2419,18 +2402,17 @@
 .mg-empresas-scope .mg-cards-config-modal .emp-search-config-field {
   padding: 8px 10px;
   border-radius: 8px;
+  flex-direction: row;
+  align-items: center;
 }
 
-.mg-empresas-scope .mg-cards-config-modal .emp-search-config-field:hover {
-  background: var(--bg-hover);
-}
-
-.mg-empresas-scope .mg-cards-config-modal .emp-search-config-field span {
-  font-size: 13px;
-  color: var(--text-1);
+.mg-empresas-scope .mg-cards-config-modal .emp-search-config-field--locked {
+  opacity: 0.55;
+  cursor: default;
 }
 
 .mg-empresas-scope .mg-cards-config-modal .emp-search-config-checkbox {
+  order: -1;
   accent-color: var(--mg-brand-green);
 }
 

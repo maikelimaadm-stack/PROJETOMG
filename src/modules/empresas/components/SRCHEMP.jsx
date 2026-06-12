@@ -147,11 +147,15 @@ function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false 
         </div>
         <div className="emp-search-config-body">
           {draft.map((field) => (
-            <label key={field.key} className="emp-search-config-field">
+            <label
+              key={field.key}
+              className={`emp-search-config-field${field.primary && mgPrototype ? " emp-search-config-field--locked" : ""}`}
+            >
               <input
                 type="checkbox"
                 className="emp-search-config-checkbox"
                 checked={field.visible}
+                disabled={field.primary && mgPrototype}
                 onChange={(event) => {
                   const checked = event.target.checked;
                   setDraft((current) =>
@@ -161,23 +165,20 @@ function SearchConfigModal({ open, fields, onClose, onSave, mgPrototype = false 
                   );
                 }}
               />
-              <span>
-                {field.label}
-                {field.primary ? " (cabeçalho)" : ""}
-              </span>
+              <span>{field.label}</span>
             </label>
           ))}
         </div>
         <div className="emp-search-config-footer">
           <button
             type="button"
-            className="emp-search-config-save"
+            className={`emp-search-config-save${mgPrototype ? " mg-cards-config-ok" : ""}`}
             onClick={() => {
               onSave(draft);
               onClose();
             }}
           >
-            Salvar Configuração
+            {mgPrototype ? "OK" : "Salvar Configuração"}
           </button>
         </div>
       </div>
