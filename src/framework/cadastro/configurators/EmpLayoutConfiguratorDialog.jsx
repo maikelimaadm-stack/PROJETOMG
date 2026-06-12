@@ -1238,7 +1238,7 @@ export default function EmpLayoutConfiguratorDialog({
               addFieldById(field.id);
             }}
           >
-            <Reply className="h-3.5 w-3.5 stroke-white text-white" />
+            <Reply className="h-3.5 w-3.5" />
           </button>
         ) : (
           <>
@@ -1252,7 +1252,7 @@ export default function EmpLayoutConfiguratorDialog({
                 removeFieldById(field.id);
               }}
             >
-              <X className="h-3.5 w-3.5 stroke-white text-white" />
+              <X className="h-3.5 w-3.5" />
             </button>
             <button
               type="button"
@@ -1260,7 +1260,7 @@ export default function EmpLayoutConfiguratorDialog({
               title="Configurações do campo"
               onClick={(event) => openFieldSettings(field, event)}
             >
-              <Settings className="h-3.5 w-3.5 stroke-white text-white" />
+              <Settings className="h-3.5 w-3.5" />
             </button>
           </>
         )}

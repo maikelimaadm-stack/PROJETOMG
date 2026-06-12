@@ -662,16 +662,18 @@
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
+  justify-content: stretch;
   background: var(--gray-fill);
-  border-radius: var(--mg-btn-pill-radius);
+  border-radius: var(--mg-search-pill-radius);
   padding: 2px;
   position: relative;
   height: var(--mg-btn-height);
-  width: 94px;
-  min-width: 94px;
+  width: calc(var(--mg-btn-icon-size) * 3 + 4px);
+  min-width: calc(var(--mg-btn-icon-size) * 3 + 4px);
   overflow: hidden;
   border: var(--mg-btn-pill-border);
   box-shadow: none;
+  box-sizing: border-box;
   transition:
     border-color var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
@@ -689,7 +691,7 @@
   height: calc(var(--mg-btn-height) - 4px);
   width: 0;
   background: #ffffff;
-  border-radius: var(--mg-btn-pill-radius);
+  border-radius: var(--mg-search-pill-radius);
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
   transition:
     transform var(--mg-motion-duration) var(--mg-motion-ease),
@@ -702,12 +704,13 @@
   border: none !important;
   background: transparent !important;
   cursor: pointer;
-  border-radius: var(--mg-btn-pill-radius);
+  border-radius: var(--mg-search-pill-radius);
   color: var(--text-3) !important;
-  width: 30px;
-  min-width: 30px;
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
   height: calc(var(--mg-btn-height) - 4px);
-  flex: 0 0 30px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1914,8 +1917,17 @@
   pointer-events: auto;
 }
 
-.mg-empresas-scope .mg-action-slot > .tb-btn {
+.mg-empresas-scope .mg-action-slot > .tb-btn-labeled,
+.mg-empresas-scope .mg-action-slot > .tb-btn:not(.tb-btn-icon):not(.tb-btn-filter):not(.tb-btn-more) {
   width: 100%;
+}
+
+.mg-empresas-scope .mg-action-slot > .tb-btn-icon,
+.mg-empresas-scope .mg-action-slot > .tb-btn-filter,
+.mg-empresas-scope .mg-action-slot > .tb-btn-more {
+  width: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  max-width: var(--mg-btn-icon-size);
 }
 
 .mg-empresas-scope .mg-action-bar__tools {
@@ -2242,8 +2254,9 @@
 }
 
 .mg-empresas-scope .mg-nav-btn {
-  width: 20px;
-  height: 20px;
+  width: var(--mg-btn-icon-size);
+  height: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2252,6 +2265,8 @@
   color: var(--accent);
   border: var(--mg-btn-pill-border);
   cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 .mg-empresas-scope .mg-nav-btn svg {
@@ -2541,12 +2556,15 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 10px;
-  border-radius: 8px;
+  padding: 0 10px;
+  height: var(--mg-btn-height);
+  min-height: var(--mg-btn-height);
+  border-radius: var(--mg-search-pill-radius);
   background: var(--gray-fill);
   color: var(--text-2);
   font-size: 12px;
   font-weight: 600;
+  border: var(--mg-btn-pill-border);
 }
 
 @media (min-width: 768px) {
@@ -3829,9 +3847,9 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip .emp-layout-config-field-action {
-  background: var(--bg-card) !important;
+  background: var(--gray-fill) !important;
   color: var(--accent) !important;
-  border-radius: 0;
+  border-radius: var(--mg-btn-icon-radius) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip .emp-layout-config-field-action svg {
@@ -4219,13 +4237,14 @@
   box-shadow: var(--mg-focus-ring) !important;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action {
-  background: rgba(17, 24, 39, 0.06) !important;
-  color: var(--text-2) !important;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+  color: var(--mg-brand-green-hover) !important;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
-  background: rgba(17, 24, 39, 0.1) !important;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer-btn:disabled {
@@ -4270,7 +4289,7 @@
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger:not(:disabled) {
-  background: #ffffff !important;
+  background: var(--gray-fill) !important;
   color: var(--red) !important;
 }
 
@@ -4971,4 +4990,167 @@
   border: var(--mg-container-border);
   border-radius: var(--mg-radius-card);
   box-shadow: var(--mg-card-shadow);
+}
+
+/* -------------------------------------------------------------------------- */
+/* MG Button System — overrides finais (ícone circular / texto pill pesquisa) */
+/* -------------------------------------------------------------------------- */
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-icon,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .mg-accent-icon-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .filter-panel__close,
+  .mobile-header .ios-btn,
+  .emp-layout-configurator .tb-btn-icon,
+  .emp-layout-configurator .emp-layout-config-field-action,
+  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn
+) {
+  border-radius: var(--mg-btn-icon-radius) !important;
+  flex-shrink: 0;
+  aspect-ratio: 1;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-icon,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .mg-accent-icon-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .filter-panel__close,
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
+  .emp-layout-configurator .emp-layout-config-field-action,
+  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+) {
+  background: var(--gray-fill) !important;
+  border: var(--mg-btn-pill-border) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-icon,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .mg-accent-icon-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .filter-panel__close,
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
+  .emp-layout-configurator .emp-layout-config-field-action,
+  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+) svg {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-icon,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .mg-accent-icon-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .filter-panel__close,
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
+  .emp-layout-configurator .emp-layout-config-field-action,
+  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+):hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action {
+  width: var(--mg-btn-icon-size) !important;
+  height: var(--mg-btn-icon-size) !important;
+  min-width: var(--mg-btn-icon-size) !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-labeled,
+  .tb-btn-green:not(.tb-btn-icon),
+  .tb-btn-blue:not(.tb-btn-icon),
+  .tb-btn-gray:not(.tb-btn-icon),
+  .tb-btn-red:not(.tb-btn-icon),
+  .tb-btn-ghost.tb-btn-labeled,
+  .tb-btn-danger.tb-btn-labeled,
+  .filter-panel__footer .tb-btn,
+  .emp-layout-configurator .tb-btn-labeled,
+  .emp-layout-configurator .emp-layout-config-footer-btn,
+  .emp-layout-configurator .emp-layout-config-card-tab,
+  .emp-layout-configurator .emp-layout-config-sidebar-tab
+) {
+  border-radius: var(--mg-search-pill-radius) !important;
+  border: var(--mg-btn-pill-border) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-action-bar :is(
+  .tb-btn-labeled,
+  .tb-btn-green:not(.tb-btn-icon),
+  .tb-btn-ghost.tb-btn-labeled
+) {
+  background: var(--gray-fill) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-green.tb-btn-labeled {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-danger.tb-btn-labeled,
+.cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-danger.tb-btn-labeled {
+  background: var(--gray-fill) !important;
+  color: var(--red) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .view-seg {
+  border-radius: var(--mg-search-pill-radius) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .view-seg-slider,
+.cadastro-emp-scope.mg-empresas-scope .view-mode-btn {
+  border-radius: var(--mg-search-pill-radius) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-ghost.tb-btn-icon.tb-btn-danger,
+  .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger
+):not(:disabled) {
+  background: var(--gray-fill) !important;
+  color: var(--red) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-ghost.tb-btn-icon.tb-btn-danger,
+  .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger
+):not(:disabled) svg {
+  color: var(--red) !important;
+  stroke: var(--red) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-ghost.tb-btn-icon.tb-btn-green,
+  .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-green
+):not(:disabled) {
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-ghost.tb-btn-icon.tb-btn-green,
+  .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-green
+):not(:disabled) svg {
+  color: #fff !important;
+  stroke: #fff !important;
 }
