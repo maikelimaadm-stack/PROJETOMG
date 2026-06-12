@@ -8,6 +8,7 @@ export const MG_SEARCH_DROPDOWN_MAX = 10;
 
 export default function MgSearchResultsDropdown({
   open = false,
+  pending = false,
   items = [],
   detailFields = [],
   loading = false,
@@ -21,7 +22,11 @@ export default function MgSearchResultsDropdown({
 
   return (
     <div className="mg-search-dropdown" role="listbox" aria-label="Resultados da pesquisa">
-      {loading && visibleItems.length === 0 ? (
+      {pending ? (
+        <div className="mg-search-dropdown__empty mg-search-dropdown__hint">
+          Pressione Enter ou clique na lupa para buscar
+        </div>
+      ) : loading && visibleItems.length === 0 ? (
         <div className="mg-search-dropdown__empty">Carregando...</div>
       ) : visibleItems.length === 0 ? (
         <div className="mg-search-dropdown__empty">Nenhum registro encontrado</div>

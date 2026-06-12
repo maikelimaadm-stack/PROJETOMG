@@ -86,14 +86,10 @@ export default function MgActionBar({
 
   useEffect(() => {
     setSearchDraft(searchValue);
-    if (!searchValue.trim()) setSearchOpen(false);
   }, [searchValue]);
 
-  useEffect(() => {
-    if (searchDraft.trim() !== searchValue.trim()) {
-      setSearchOpen(false);
-    }
-  }, [searchDraft, searchValue]);
+  const isSearchCommitted =
+    searchDraft.trim().length > 0 && searchDraft.trim() === searchValue.trim();
 
   const commitSearch = () => {
     if (toolsLocked) return;
@@ -372,7 +368,14 @@ export default function MgActionBar({
                 type="text"
                 placeholder="Pesquisar..."
                 value={searchDraft}
-                onChange={(event) => setSearchDraft(event.target.value)}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  setSearchDraft(next);
+                  if (!toolsLocked) setSearchOpen(Boolean(next.trim()));
+                }}
+                onFocus={() => {
+                  if (!toolsLocked && searchDraft.trim()) setSearchOpen(true);
+                }}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") {
                     event.preventDefault();
@@ -380,17 +383,18 @@ export default function MgActionBar({
                   }
                 }}
                 aria-label="Pesquisar"
-                aria-expanded={searchOpen && searchValue.trim().length > 0}
+                aria-expanded={searchOpen && searchDraft.trim().length > 0}
                 aria-haspopup="listbox"
                 disabled={toolsLocked}
                 tabIndex={toolsLocked ? -1 : 0}
               />
             </div>
             <MgSearchResultsDropdown
-              open={searchOpen && searchValue.trim().length > 0 && !toolsLocked}
-              items={searchResults}
+              open={searchOpen && searchDraft.trim().length > 0 && !toolsLocked}
+              pending={!isSearchCommitted}
+              items={isSearchCommitted ? searchResults : []}
               detailFields={searchDetailFields}
-              loading={searchLoading}
+              loading={isSearchCommitted && searchLoading}
               onSelect={(emp) => {
                 onSearchResultSelect?.(emp);
                 setSearchOpen(false);

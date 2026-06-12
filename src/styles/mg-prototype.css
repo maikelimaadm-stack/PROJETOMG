@@ -2545,6 +2545,12 @@
   text-align: center;
 }
 
+.mg-empresas-scope .mg-search-dropdown__hint {
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 12px 14px;
+}
+
 .mg-empresas-scope .mg-search-dropdown__item {
   display: flex;
   flex-direction: column;
