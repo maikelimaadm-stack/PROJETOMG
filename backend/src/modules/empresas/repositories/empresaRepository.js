@@ -580,14 +580,13 @@ export const empresaRepository = {
     let created = null;
     let lastError = null;
 
-    for (let attempt = 0; attempt < 3; attempt += 1) {
+    for (let attempt = 0; attempt < 5; attempt += 1) {
       try {
         created = await runTransactionWithRetry(
           prisma,
           async (tx) => {
-            // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
-            await syncClienteIdGlobalFloor(tx, scope.clienteId);
-            await ensureCodigoSequenciaFloor(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
+            // Caminho quente: reserva IDs/códigos de forma atômica sem realinhamento prévio.
+            // O realinhamento pesado fica no fallback de conflito para reduzir latência.
             const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
             const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
             const record = await tx.empresa.create({
@@ -613,7 +612,7 @@ export const empresaRepository = {
         lastError = error;
         const isIdGlobalConflict = isIdGlobalUniqueConflict(error);
         const isCodigoConflict = isCodigoUniqueConflict(error);
-        if ((!isIdGlobalConflict && !isCodigoConflict) || attempt >= 2) {
+        if ((!isIdGlobalConflict && !isCodigoConflict) || attempt >= 4) {
           if (isIdGlobalConflict || isCodigoConflict) {
             const conflictError = new Error(
               "Conflito ao gerar sequências internas. Tente novamente em alguns segundos."
