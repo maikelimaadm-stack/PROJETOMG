@@ -1,16 +1,42 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
 import { runTransactionWithRetry } from "../../database/transactionRetry.js";
 
+const ID_GLOBAL_FLOOR_TABLES = ["RegistroGlobal", "Empresa", "CadCpsCampo"];
+
+const isMissingRelationError = (error, relationName = "") => {
+  const message = `${error?.message || ""} ${error?.meta?.message || ""}`.toLowerCase();
+  const relation = String(relationName || "").toLowerCase();
+  const relationHint = relation ? message.includes(relation) : true;
+
+  return (
+    error?.meta?.code === "42P01" ||
+    (error?.code === "P2021" && relationHint) ||
+    ((message.includes("does not exist") || message.includes("não existe")) &&
+      (message.includes("relation") || message.includes("table")) &&
+      relationHint)
+  );
+};
+
 export const syncClienteIdGlobalFloor = async (tx, clienteId) => {
-  const floorRows = await tx.$queryRaw`
-    SELECT
-      GREATEST(
-        COALESCE((SELECT MAX("id_global") FROM "RegistroGlobal" WHERE "cliente_id" = ${clienteId}), 0),
-        COALESCE((SELECT MAX("id_global") FROM "Empresa" WHERE "cliente_id" = ${clienteId}), 0),
-        COALESCE((SELECT MAX("id_global") FROM "CadCpsCampo" WHERE "cliente_id" = ${clienteId}), 0)
-      ) + 1 AS next_assign
-  `;
-  const nextAssign = Number(floorRows[0]?.next_assign) || 1;
+  let maxAssignedIdGlobal = 0;
+
+  for (const tableName of ID_GLOBAL_FLOOR_TABLES) {
+    try {
+      const rows = await tx.$queryRawUnsafe(
+        `SELECT COALESCE(MAX("id_global"), 0) AS max_id FROM "${tableName}" WHERE "cliente_id" = $1`,
+        clienteId
+      );
+      const currentMax = Number(rows?.[0]?.max_id) || 0;
+      maxAssignedIdGlobal = Math.max(maxAssignedIdGlobal, currentMax);
+    } catch (error) {
+      // Ambientes legados podem não ter todas as tabelas auxiliares de id_global.
+      if (!isMissingRelationError(error, tableName)) {
+        throw error;
+      }
+    }
+  }
+
+  const nextAssign = Math.max(1, maxAssignedIdGlobal + 1);
 
   await tx.$executeRaw`
     UPDATE "Cliente"
@@ -48,14 +74,21 @@ export const registerRegistroGlobal = async (
   tx,
   { clienteId, idGlobal, entityName, registroId }
 ) => {
-  await tx.registroGlobal.create({
-    data: {
-      cliente_id: clienteId,
-      id_global: idGlobal,
-      entity_name: entityName,
-      registro_id: registroId,
-    },
-  });
+  try {
+    await tx.registroGlobal.create({
+      data: {
+        cliente_id: clienteId,
+        id_global: idGlobal,
+        entity_name: entityName,
+        registro_id: registroId,
+      },
+    });
+  } catch (error) {
+    // Compatibilidade com bancos antigos sem tabela RegistroGlobal.
+    if (!isMissingRelationError(error, "RegistroGlobal")) {
+      throw error;
+    }
+  }
 };
 
 export const createWithIdGlobal = async ({ clienteId, entityName, createRecord }) => {
