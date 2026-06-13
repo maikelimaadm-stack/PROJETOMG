@@ -887,18 +887,18 @@
 
 .mg-empresas-scope .mg-emp-card--virtual {
   min-height: 0;
-  content-visibility: auto;
-  contain-intrinsic-size: 180px;
+  height: 100%;
 }
 
 .mg-empresas-scope .mg-cards-virtual-shell {
   width: 100%;
+  contain: layout style;
 }
 
 .mg-empresas-scope .mg-cards-virtual-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
   width: 100%;
 }
 
@@ -906,8 +906,9 @@
   width: 100%;
   box-sizing: border-box;
   align-items: start;
-  content-visibility: auto;
-  contain-intrinsic-size: auto 152px;
+  flex-shrink: 0;
+  overflow: hidden;
+  contain: layout style paint;
 }
 
 .mg-empresas-scope .emp-table-data-row {

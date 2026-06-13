@@ -221,7 +221,7 @@ export default function SRCHEMP({
 
   const cardsLayoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
 
-  const { virtualizer, virtualRows, paddingTop, paddingBottom, columnsPerRow: gridColumns } =
+  const { virtualizer, virtualRows, paddingTop, paddingBottom, columnsPerRow: gridColumns, estimateSize: cardRowHeight } =
     useGridVirtualizer({
       scrollRef: cardsScrollRef,
       itemCount: filteredEmpresas.length,
@@ -237,12 +237,7 @@ export default function SRCHEMP({
     if (!scrollEl) return;
     scrollEl.scrollTop = 0;
     virtualizer?.scrollToIndex?.(0, { align: "start" });
-  }, [page, showOnlyFavorites, mgPrototype, virtualizer]);
-
-  useEffect(() => {
-    if (!mgPrototype) return;
-    virtualizer?.measure?.();
-  }, [cardsLayoutKey, filteredEmpresas.length, mgPrototype, virtualizer]);
+  }, [page, showOnlyFavorites, cardsLayoutKey, mgPrototype, virtualizer]);
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -355,8 +350,8 @@ export default function SRCHEMP({
                   <div
                     key={virtualRow.key}
                     data-index={virtualRow.index}
-                    ref={virtualizer?.measureElement}
                     className={`mg-cards-virtual-row mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
+                    style={{ height: cardRowHeight, minHeight: cardRowHeight }}
                   >
                     {rowItems.map((emp, colIndex) => {
                       const index = startIndex + colIndex;

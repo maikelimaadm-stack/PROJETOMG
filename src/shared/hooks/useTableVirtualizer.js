@@ -20,6 +20,7 @@ export function useTableVirtualizer({
     getScrollElement: () => scrollRef.current,
     estimateSize: () => estimateSize,
     overscan,
+    isScrollingResetDelay: 80,
   });
 
   if (!enabled) {

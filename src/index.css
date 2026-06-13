@@ -187,14 +187,15 @@ input[type="number"] {
 :root,
 .tema-claro,
 [data-tema="claro"] {
-  --erp-scrollbar-size: 8px;
+  --erp-scrollbar-size: 11px;
   --erp-scrollbar-thumb: hsl(215 16% 47%);
   --erp-scrollbar-thumb-hover: hsl(215 20% 40%);
   --erp-scrollbar-thumb-active: hsl(215 25% 32%);
   --erp-scrollbar-track: hsl(210 40% 98%);
   --erp-scrollbar-track-shadow: inset 0 0 6px hsl(214 32% 91%);
   --erp-scrollbar-bg: hsl(0 0% 100%);
-  --erp-scrollbar-radius: 5px;
+  --erp-scrollbar-radius: 6px;
+  --erp-scrollbar-thumb-min: 40px;
 }
 
 .escuro,
@@ -246,6 +247,7 @@ input[type="number"] {
   scrollbar-width: thin;
   scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
   overscroll-behavior: contain;
+  scroll-behavior: auto;
 }
 
 @supports selector(::-webkit-scrollbar) {
@@ -363,9 +365,9 @@ input[type="number"] {
   ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
     background-color: var(--erp-scrollbar-thumb);
     border-radius: var(--erp-scrollbar-radius);
-    min-height: 32px;
-    min-width: 32px;
-    transition: background-color 120ms ease;
+    min-height: var(--erp-scrollbar-thumb-min);
+    min-width: var(--erp-scrollbar-thumb-min);
+    transition: background-color 80ms linear;
   }
 
   :is(

@@ -1083,7 +1083,6 @@ export default function TBLEMP({
                           <TableRow
                             key={emp.id}
                             data-index={virtualRow.index}
-                            ref={virtualizer?.measureElement}
                             className={`emp-table-data-row ${rowClass} cursor-pointer select-none hover:brightness-[0.98]`}
                             onClick={(e) => handleRowClick(emp, e)}
                           >

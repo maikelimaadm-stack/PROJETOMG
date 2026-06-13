@@ -950,7 +950,6 @@ export default function TBLCPS({
                           <TableRow
                             key={item.id}
                             data-index={virtualRow.index}
-                            ref={virtualizer?.measureElement}
                             className={`${rowClass} transition-colors cursor-pointer select-none hover:brightness-[0.98]`}
                             onClick={(e) => handleRowClick(item, e)}
                           >
