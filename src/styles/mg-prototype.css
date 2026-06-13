@@ -75,6 +75,9 @@
   --mg-panel-tab-font: 13px;
   --mg-panel-tab-radius: 14px;
   --mg-panel-tab-scoop: 14px;
+  --mg-panel-indicator-height: 3px;
+  --mg-panel-indicator-duration: 260ms;
+  --mg-panel-indicator-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-cards-layout-gap: 9px;
@@ -712,8 +715,71 @@
   );
 }
 
-.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
-  display: none !important;
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider,
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider--panel {
+  display: block !important;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: var(--mg-panel-indicator-height);
+  width: 0;
+  border: none;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 6;
+  will-change: transform, width;
+  opacity: 0;
+  transition:
+    transform var(--mg-panel-indicator-duration) var(--mg-panel-indicator-ease),
+    width var(--mg-panel-indicator-duration) var(--mg-panel-indicator-ease),
+    opacity 200ms ease-out;
+  background: linear-gradient(
+    90deg,
+    rgba(64, 222, 99, 0) 0%,
+    rgba(64, 222, 99, 0.72) 16%,
+    var(--mg-brand-green) 50%,
+    rgba(64, 222, 99, 0.72) 84%,
+    rgba(64, 222, 99, 0) 100%
+  );
+  box-shadow:
+    0 0 8px rgba(64, 222, 99, 0.28),
+    0 0 16px rgba(64, 222, 99, 0.14),
+    0 1px 2px rgba(64, 222, 99, 0.1);
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider::before {
+  content: "";
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 50%;
+  height: 10px;
+  transform: translateY(-35%);
+  border-radius: 999px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(64, 222, 99, 0.34) 0%,
+    rgba(64, 222, 99, 0.08) 52%,
+    rgba(64, 222, 99, 0) 78%
+  );
+  filter: blur(3px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.12) 42%,
+    transparent 100%
+  );
+  opacity: 0.9;
+  pointer-events: none;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab,

@@ -29,7 +29,10 @@ export default function EmpTabs({
   const segRef = useRef(null);
   const sliderRef = useRef(null);
 
-  useMgSegSlider(segRef, sliderRef, ".seg-tab.active", [activeTab, tabs, variant]);
+  useMgSegSlider(segRef, sliderRef, ".seg-tab.active", [activeTab, tabs, variant], {
+    insetX: 10,
+    bottom: 0,
+  });
 
   if (!tabs.length) return null;
 
@@ -38,7 +41,7 @@ export default function EmpTabs({
   if (isMg) {
     return (
       <div className="seg-control" role="tablist" ref={segRef}>
-        <div className="seg-tab-slider" ref={sliderRef} aria-hidden="true" />
+        <div className="seg-tab-slider seg-tab-slider--panel" ref={sliderRef} aria-hidden="true" />
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
           const custom = isCustomPanel(tab, systemPanelIds);
