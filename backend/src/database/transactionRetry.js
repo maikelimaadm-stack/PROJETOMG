@@ -12,7 +12,18 @@ const isRetryableMessage = (message = "") => {
 
 export const isRetryableTransactionError = (error) => {
   const code = String(error?.code || "");
-  if (code === "P2028") return false;
+  if (code === "P2028") {
+    const message = String(error?.message || "").toLowerCase();
+    if (
+      message.includes("transaction already closed") ||
+      message.includes("transaction api error") ||
+      message.includes("transaction timed out") ||
+      message.includes("expired")
+    ) {
+      return true;
+    }
+    return false;
+  }
   if (RETRYABLE_CODES.has(code)) return true;
   return isRetryableMessage(error?.message || "");
 };
@@ -32,7 +43,7 @@ export const runTransactionWithRetry = async (
       if (!isRetryableTransactionError(error) || attempt >= attempts - 1) {
         throw error;
       }
-      await new Promise((resolve) => setTimeout(resolve, 15 * (attempt + 1)));
+      await new Promise((resolve) => setTimeout(resolve, 40 * (attempt + 1)));
     }
   }
 

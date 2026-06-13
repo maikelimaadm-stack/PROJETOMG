@@ -582,28 +582,32 @@ export const empresaRepository = {
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       try {
-        created = await runTransactionWithRetry(prisma, async (tx) => {
-          // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
-          await syncClienteIdGlobalFloor(tx, scope.clienteId);
-          await ensureCodigoSequenciaFloor(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
-          const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
-          const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
-          const record = await tx.empresa.create({
-            data: {
-              ...data,
-              id_global: idGlobal,
-              codempresa: codigo,
-              cliente_id: scope.clienteId,
-            },
-          });
-          await registerRegistroGlobal(tx, {
-            clienteId: scope.clienteId,
-            idGlobal,
-            entityName: "Empresa",
-            registroId: record.id,
-          });
-          return record;
-        });
+        created = await runTransactionWithRetry(
+          prisma,
+          async (tx) => {
+            // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
+            await syncClienteIdGlobalFloor(tx, scope.clienteId);
+            await ensureCodigoSequenciaFloor(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
+            const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
+            const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
+            const record = await tx.empresa.create({
+              data: {
+                ...data,
+                id_global: idGlobal,
+                codempresa: codigo,
+                cliente_id: scope.clienteId,
+              },
+            });
+            await registerRegistroGlobal(tx, {
+              clienteId: scope.clienteId,
+              idGlobal,
+              entityName: "Empresa",
+              registroId: record.id,
+            });
+            return record;
+          },
+          { attempts: 10, maxWait: 20_000, timeout: 45_000 }
+        );
         break;
       } catch (error) {
         lastError = error;
@@ -693,10 +697,14 @@ export const empresaRepository = {
     });
     if (!current) return false;
     try {
-      await runTransactionWithRetry(prisma, async (tx) => {
-        await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
-        await tx.empresa.delete({ where: { id: current.id } });
-      });
+      await runTransactionWithRetry(
+        prisma,
+        async (tx) => {
+          await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
+          await tx.empresa.delete({ where: { id: current.id } });
+        },
+        { attempts: 10, maxWait: 20_000, timeout: 45_000 }
+      );
       await incrementClienteCounter(scope.clienteId, "empresas", -1);
     } catch (error) {
       if (String(error?.code || "") === "P2003") {
