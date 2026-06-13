@@ -30,11 +30,9 @@ import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearc
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
 import {
-  LIST_DEFAULT_PAGE_SIZE,
   LIST_DROPDOWN_MAX_ITEMS,
   LIST_DROPDOWN_MAX_PAGES,
   LIST_SEARCH_DEBOUNCE_MS,
-  readStoredListPageSize,
 } from "@/shared/listing/listQueryConfig";
 import {
   buildEmpresaColumnFilters,
@@ -48,15 +46,15 @@ import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
+const EMP_INFINITE_PAGE_SIZE = 500;
+
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
   total: 0,
   page: 1,
-  pageSize: LIST_DEFAULT_PAGE_SIZE,
+  pageSize: EMP_INFINITE_PAGE_SIZE,
   totalPages: 1,
 };
-
-const EMP_PAGE_SIZE_KEY = "emp_table_page_size";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -78,7 +76,7 @@ const patchEmpresasCache = (queryClient, updater) => {
     }
 
     const pageSize =
-      Number(previous.pages[0]?.pageSize) || LIST_DEFAULT_PAGE_SIZE;
+      Number(previous.pages[0]?.pageSize) || EMP_INFINITE_PAGE_SIZE;
     const mergedItems = previous.pages.flatMap((page) => page?.items || []);
     const mergedTotal = Number(previous.pages[0]?.total ?? mergedItems.length);
     const nextMerged = updater({
@@ -163,9 +161,7 @@ export default function PAGEMP() {
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const [queryPage, setQueryPage] = useState(1);
-  const [queryPageSize, setQueryPageSize] = useState(() =>
-    readStoredListPageSize(EMP_PAGE_SIZE_KEY, LIST_DEFAULT_PAGE_SIZE)
-  );
+  const [queryPageSize, setQueryPageSize] = useState(EMP_INFINITE_PAGE_SIZE);
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
   const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
@@ -315,7 +311,7 @@ export default function PAGEMP() {
     queryKey: [
       "emp-cadastro",
       "infinite",
-      queryPageSize,
+      EMP_INFINITE_PAGE_SIZE,
       searchTerm,
       querySort.key,
       querySort.direction,
@@ -327,13 +323,13 @@ export default function PAGEMP() {
         return {
           ...DEFAULT_EMPRESAS_RESPONSE,
           page: Number(pageParam) || 1,
-          pageSize: queryPageSize,
+          pageSize: EMP_INFINITE_PAGE_SIZE,
           totalPages: 1,
         };
       }
       return moduleRepository.listPage({
         page: Number(pageParam) || 1,
-        pageSize: queryPageSize,
+        pageSize: EMP_INFINITE_PAGE_SIZE,
         search: trimmedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
@@ -814,12 +810,9 @@ export default function PAGEMP() {
     [loadedPagesCount, handleLoadMoreEmpresas]
   );
 
-  const handleServerPageSizeChange = useCallback((nextPageSize) => {
-    setQueryPageSize(nextPageSize);
+  const handleServerPageSizeChange = useCallback(() => {
+    setQueryPageSize(EMP_INFINITE_PAGE_SIZE);
     setQueryPage(1);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(EMP_PAGE_SIZE_KEY, String(nextPageSize));
-    }
   }, []);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });

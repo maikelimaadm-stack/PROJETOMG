@@ -35,6 +35,8 @@ import MgEmpresasMobileOverlays from "@/modules/empresas/layout/MgEmpresasMobile
 import MgPrototypeSidebar from "@/modules/empresas/layout/MgPrototypeSidebar";
 import ErpEmpresaSelector from "@/shared/layouts/ErpEmpresaSelector";
 import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
+import ErpGlobalTopProgress from "@/shared/components/ErpGlobalTopProgress";
+import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 
 const isEmpresasRoute = (pathname) =>
   pathname === "/" || pathname === "/CadastroEmpresas" || pathname.startsWith("/CadastroEmpresas/");
@@ -225,6 +227,9 @@ function ErpShellBody({
   allowAllEmpresas,
 }) {
   const empresasPage = isEmpresasRoute(pathname);
+  const activeFetches = useIsFetching({ queryKey: ["emp-cadastro"] });
+  const activeMutations = useIsMutating();
+  const showTopProgress = activeFetches > 0 || activeMutations > 0;
 
   const shell = (
     <div className={`erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[var(--background-page)]${empresasPage ? " erp-shell--empresas-mg" : ""}`}>
@@ -241,7 +246,8 @@ function ErpShellBody({
       )}
 
       <SidebarInset className="erp-shell-main flex h-full min-h-0 min-w-0 flex-col overflow-hidden bg-[var(--background-page)]">
-        <div className="erp-shell-content-wrap flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="erp-shell-content-wrap relative flex min-h-0 flex-1 flex-col overflow-hidden">
+          <ErpGlobalTopProgress active={showTopProgress} />
           {empresasPage ? (
             <div className="mg-empresas-scope shrink-0">
               <MgMobileHeader />

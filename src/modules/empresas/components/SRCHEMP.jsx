@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Search, Star, X } from "lucide-react";
-import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
 import MgCardsVirtualGrid from "./MgCardsVirtualGrid";
 import {
@@ -341,20 +340,16 @@ export default function SRCHEMP({
 
   if (mgPrototype) {
     const showCardsLoading = isLoading && filteredEmpresas.length === 0;
-    const showCardsFetching = isFetching && !showCardsLoading;
 
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <ErpListingTopProgress active={showCardsFetching} />
         <ErpScrollNav
           ref={cardsScrollRef}
           className="relative min-h-0 flex-1"
           viewportClassName="overflow-y-auto"
         >
           {showCardsLoading ? (
-            <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
-              Carregando registros...
-            </div>
+            <div className="py-8" aria-hidden="true" />
           ) : filteredEmpresas.length === 0 ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Nenhum registro encontrado
@@ -385,11 +380,7 @@ export default function SRCHEMP({
           />
         ) : (
           <div className="border-t border-slate-200 px-3 py-2 text-center text-xs text-slate-500">
-            {isLoadingMoreRows
-              ? "Carregando mais registros..."
-              : hasMoreRows
-                ? "Role para carregar mais registros"
-                : "Fim da listagem"}
+            {hasMoreRows ? "Role para carregar mais registros" : "Fim da listagem"}
           </div>
         )}
       </div>
@@ -426,7 +417,7 @@ export default function SRCHEMP({
 
       <main className="emp-search-results">
         {isLoading ? (
-          <div className="emp-search-empty">Carregando registros...</div>
+          <div className="py-8" aria-hidden="true" />
         ) : filteredEmpresas.length === 0 ? (
           <div className="emp-search-empty">
             {showOnlyFavorites ? "Nenhum favorito nesta página." : "Nenhum registro encontrado."}
