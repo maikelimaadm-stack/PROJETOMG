@@ -30,7 +30,7 @@ export default function EmpTabs({
   const sliderRef = useRef(null);
 
   useMgSegSlider(segRef, sliderRef, ".seg-tab.active", [activeTab, tabs, variant], {
-    extendX: 6,
+    extendX: 0,
     bottom: 0,
   });
 

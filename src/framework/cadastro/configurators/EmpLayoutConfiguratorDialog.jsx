@@ -258,7 +258,7 @@ export default function EmpLayoutConfiguratorDialog({
     draftPanels,
     isEditing,
     editingPanelId,
-  ], { extendX: 6, bottom: 0 });
+  ], { extendX: 0, bottom: 0 });
 
   useMgSegSlider(cardSegRef, cardSliderRef, ".seg-tab.active", [
     activeCardId,
