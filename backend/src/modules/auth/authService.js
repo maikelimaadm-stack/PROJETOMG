@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { setSessionEmpresas, getSessionEmpresas } from "./sessionCache.js";
 
 const sanitizeUser = (user) => ({
   id: user.id,
@@ -39,7 +40,7 @@ const normalizeCredentials = ({ cliente, usuario }) => ({
   login: String(usuario || "").trim().toLowerCase(),
 });
 
-const fetchEmpresasPermitidas = async (usuario, { limit = 50 } = {}) => {
+const fetchEmpresasPermitidas = async (usuario, { limit = 50, totalEmpresas = null } = {}) => {
   const prisma = getPrismaClient();
   const select = {
     id: true,
@@ -49,15 +50,13 @@ const fetchEmpresasPermitidas = async (usuario, { limit = 50 } = {}) => {
   const orderBy = [{ codempresa: "asc" }];
 
   if (usuario.acesso_global) {
-    const [empresas, total] = await Promise.all([
-      prisma.empresa.findMany({
-        where: { cliente_id: usuario.cliente_id },
-        orderBy,
-        select,
-        take: limit,
-      }),
-      prisma.empresa.count({ where: { cliente_id: usuario.cliente_id } }),
-    ]);
+    const empresas = await prisma.empresa.findMany({
+      where: { cliente_id: usuario.cliente_id },
+      orderBy,
+      select,
+      take: limit,
+    });
+    const total = totalEmpresas ?? empresas.length;
     return {
       items: empresas.map(sanitizeEmpresa),
       total,
@@ -77,6 +76,15 @@ const fetchEmpresasPermitidas = async (usuario, { limit = 50 } = {}) => {
   };
 };
 
+const loadAllowedEmpresaIds = async (prisma, usuario) => {
+  if (usuario.acesso_global) return [];
+  const rows = await prisma.permissaoEmpresa.findMany({
+    where: { usuario_id: usuario.id },
+    select: { empresa_id: true },
+  });
+  return rows.map((row) => row.empresa_id);
+};
+
 export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
   const prisma = getPrismaClient();
   const { clienteCodigo, login } = normalizeCredentials({ cliente, usuario });
@@ -88,6 +96,20 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
         mode: "insensitive",
       },
       ativo: true,
+    },
+    select: {
+      id: true,
+      codigo: true,
+      nome: true,
+      cpf_cnpj: true,
+      telefone: true,
+      email: true,
+      status: true,
+      plano: true,
+      limite_usuarios: true,
+      limite_empresas: true,
+      data_vencimento: true,
+      total_empresas: true,
     },
   });
   if (!clienteData) {
@@ -114,13 +136,18 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
     throw new Error("Usuário ou senha inválidos.");
   }
 
-  await prisma.usuario.update({
-    where: { id: usuarioData.id },
-    data: { ultimo_acesso: new Date() },
-  });
+  const [allowedEmpresaIds] = await Promise.all([
+    loadAllowedEmpresaIds(prisma, usuarioData),
+    prisma.usuario.update({
+      where: { id: usuarioData.id },
+      data: { ultimo_acesso: new Date() },
+    }),
+  ]);
   usuarioData.ultimo_acesso = new Date();
 
-  const empresasResult = await fetchEmpresasPermitidas(usuarioData);
+  const empresasResult = await fetchEmpresasPermitidas(usuarioData, {
+    totalEmpresas: Number(clienteData.total_empresas ?? 0),
+  });
   const empresas = empresasResult.items || [];
   const selectedEmpresaId = usuarioData.acesso_global
     ? "all"
@@ -128,6 +155,8 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
       ? empresas[0].id
       : null;
   const allowAllEmpresas = Boolean(usuarioData.acesso_global);
+
+  setSessionEmpresas(usuarioData.id, empresasResult);
 
   return {
     cliente: sanitizeCliente(clienteData),
@@ -137,18 +166,14 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
     empresasHasMore: Boolean(empresasResult.hasMore),
     selectedEmpresaId,
     allowAllEmpresas,
+    allowedEmpresaIds,
   };
 };
 
 export const listEmpresasFromSession = async (sessionUser) => {
-  const prisma = getPrismaClient();
-  const usuario = await prisma.usuario.findUnique({
-    where: { id: sessionUser.id },
-  });
-  if (!usuario || !usuario.ativo) {
-    throw new Error("Sessão inválida.");
-  }
-  return fetchEmpresasPermitidas(usuario).then((result) => result.items || []);
+  const cached = getSessionEmpresas(sessionUser.id);
+  if (cached?.items) return cached.items;
+  return [];
 };
 
 export const createSessionTokenPayload = (session) => ({
@@ -158,6 +183,23 @@ export const createSessionTokenPayload = (session) => ({
   login: session.user.login,
   perfil: session.user.perfil,
   acesso_global: session.user.acesso_global,
+  ativo: true,
+  allowed_empresa_ids: session.allowedEmpresaIds || [],
+  empresas_total: session.empresasTotal ?? session.empresas?.length ?? 0,
 });
 
 export const sanitizeSessionUser = sanitizeUser;
+
+export const buildSessionUserFromToken = (tokenUser) =>
+  sanitizeUser({
+    id: tokenUser.id || tokenUser.sub,
+    cliente_id: tokenUser.cliente_id,
+    codigo: tokenUser.codigo ?? null,
+    nome: tokenUser.nome ?? null,
+    login: tokenUser.login,
+    email: tokenUser.email ?? null,
+    telefone: tokenUser.telefone ?? null,
+    perfil: tokenUser.perfil,
+    acesso_global: tokenUser.acesso_global,
+    ultimo_acesso: tokenUser.ultimo_acesso ?? null,
+  });

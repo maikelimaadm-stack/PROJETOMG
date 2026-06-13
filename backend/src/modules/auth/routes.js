@@ -1,11 +1,12 @@
 import { loginSchema } from "./authSchemas.js";
 import {
+  buildSessionUserFromToken,
   createSessionTokenPayload,
   listEmpresasFromSession,
   loginWithCredentials,
-  sanitizeSessionUser,
 } from "./authService.js";
 import { loadAccessScope } from "./accessScope.js";
+import { getSessionEmpresas } from "./sessionCache.js";
 
 const parseLoginBody = (body) => {
   const parsed = loginSchema.safeParse(body || {});
@@ -45,19 +46,16 @@ export const registerAuthRoutes = async (app) => {
     { preHandler: app.authenticate },
     async (request) => {
       const scope = await loadAccessScope(request);
-      const empresas = await listEmpresasFromSession({ id: scope.userId });
+      const cached = getSessionEmpresas(scope.userId);
+      const empresas = cached?.items?.length ? cached.items : await listEmpresasFromSession({ id: scope.userId });
       return {
-        user: sanitizeSessionUser({
-          id: scope.userId,
-          cliente_id: scope.clienteId,
-          login: request.user?.login || "",
-          perfil: scope.perfil,
-          acesso_global: scope.acessoGlobal,
-        }),
+        user: buildSessionUserFromToken(request.user),
         cliente: {
           id: scope.clienteId,
         },
         empresas,
+        empresasTotal: cached?.total ?? Number(request.user?.empresas_total ?? empresas.length),
+        empresasHasMore: Boolean(cached?.hasMore),
         selectedEmpresaId: scope.selectedEmpresaId || (scope.allowAllEmpresas ? "all" : null),
         allowAllEmpresas: scope.acessoGlobal,
       };
@@ -69,7 +67,8 @@ export const registerAuthRoutes = async (app) => {
     { preHandler: app.authenticate },
     async (request) => {
       const scope = await loadAccessScope(request);
-      const empresas = await listEmpresasFromSession({ id: scope.userId });
+      const cached = getSessionEmpresas(scope.userId);
+      const empresas = cached?.items?.length ? cached.items : await listEmpresasFromSession({ id: scope.userId });
       return {
         empresas,
         selectedEmpresaId: scope.selectedEmpresaId || (scope.allowAllEmpresas ? "all" : null),

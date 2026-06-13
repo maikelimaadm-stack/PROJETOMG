@@ -1,5 +1,3 @@
-import { getPrismaClient } from "../../database/prismaClient.js";
-
 const normalizeEmpresaHeader = (value) => {
   const parsed = String(value || "").trim();
   if (!parsed) return null;
@@ -18,40 +16,57 @@ const withStatus = (message, statusCode) => {
   return error;
 };
 
+const readAllowedEmpresaIds = (user) => {
+  if (user.acesso_global) return [];
+  const raw = user.allowed_empresa_ids;
+  if (Array.isArray(raw)) return raw.map(String);
+  return [];
+};
+
+const loadAllowedEmpresaIdsFromDb = async (userId) => {
+  const { getPrismaClient } = await import("../../database/prismaClient.js");
+  const prisma = getPrismaClient();
+  const rows = await prisma.permissaoEmpresa.findMany({
+    where: { usuario_id: userId },
+    select: { empresa_id: true },
+  });
+  return rows.map((row) => row.empresa_id);
+};
+
+/**
+ * Constrói escopo a partir do JWT (sem query ao banco na maioria dos casos).
+ */
 export const loadAccessScope = async (request) => {
   if (request.accessScope) return request.accessScope;
 
-  const prisma = getPrismaClient();
+  const user = request.user;
   const authUserId = getAuthUserId(request);
-  if (!authUserId) {
+  if (!authUserId || !user) {
     throw withStatus("Sessão inválida.", 401);
   }
 
-  const user = await prisma.usuario.findUnique({
-    where: { id: authUserId },
-    include: {
-      permissoes: {
-        select: { empresa_id: true },
-      },
-    },
-  });
-  if (!user || !user.ativo) {
+  if (user.ativo === false) {
     throw withStatus("Usuário sem acesso.", 401);
   }
 
-  const requestedEmpresaId = normalizeEmpresaHeader(request.headers["x-empresa-id"]);
-  const allowedEmpresaIds = user.permissoes.map((item) => item.empresa_id);
+  const acessoGlobal = Boolean(user.acesso_global);
+  let allowedEmpresaIds = readAllowedEmpresaIds(user);
 
-  if (!user.acesso_global && allowedEmpresaIds.length === 0) {
+  if (!acessoGlobal && !Array.isArray(user.allowed_empresa_ids)) {
+    allowedEmpresaIds = await loadAllowedEmpresaIdsFromDb(authUserId);
+  }
+  const requestedEmpresaId = normalizeEmpresaHeader(request.headers["x-empresa-id"]);
+
+  if (!acessoGlobal && allowedEmpresaIds.length === 0) {
     throw withStatus("Usuário sem permissão em empresas.", 403);
   }
 
-  if (!user.acesso_global && requestedEmpresaId === "all") {
+  if (!acessoGlobal && requestedEmpresaId === "all") {
     throw withStatus("Usuário sem permissão para visualizar todas as empresas.", 403);
   }
 
   if (
-    !user.acesso_global &&
+    !acessoGlobal &&
     requestedEmpresaId &&
     requestedEmpresaId !== "all" &&
     !allowedEmpresaIds.includes(requestedEmpresaId)
@@ -65,14 +80,14 @@ export const loadAccessScope = async (request) => {
   }
 
   const scope = {
-    userId: user.id,
-    clienteId: user.cliente_id,
+    userId: authUserId,
+    clienteId: String(user.cliente_id),
     perfil: user.perfil,
-    acessoGlobal: user.acesso_global,
+    acessoGlobal,
     allowedEmpresaIds,
     requestedEmpresaId,
     selectedEmpresaId,
-    allowAllEmpresas: user.acesso_global && !selectedEmpresaId,
+    allowAllEmpresas: acessoGlobal && !selectedEmpresaId,
   };
 
   request.accessScope = scope;
@@ -86,4 +101,3 @@ export const assertRole = (scope, roles = []) => {
     throw error;
   }
 };
-
