@@ -1,0 +1,105 @@
+{
+  "timestamp": "2026-06-13T01:13:33.377Z",
+  "migrationFolders": [
+    "20260603010000_cadcps_module",
+    "20260604120000_id_global_corporativo",
+    "20260604200000_erp_restructure_definitivo",
+    "20260612120000_listing_performance_indexes",
+    "20260612180000_performance_optimization_indexes",
+    "20260613010000_enterprise_counter_columns"
+  ],
+  "productionHealth": {
+    "ok": true,
+    "alive": true,
+    "ready": true,
+    "service": "erp-backend",
+    "db": {
+      "configured": true,
+      "connected": true,
+      "error": null
+    },
+    "migration": {
+      "restructureApplied": true,
+      "directUrlConfigured": true
+    },
+    "auth": {
+      "jwtConfigured": false
+    },
+    "supabase": {
+      "authConfigured": true,
+      "storageConfigured": true,
+      "storageConnected": true,
+      "storageError": null
+    },
+    "data": {
+      "verboseCounts": false,
+      "hint": "Defina HEALTH_VERBOSE=true para contagens completas"
+    },
+    "performanceIndexes": {
+      "expected": 24,
+      "found": 3,
+      "applied": false,
+      "missing": [
+        "Empresa_cliente_id_codempresa_idx",
+        "Empresa_cliente_id_nome_fantasia_idx",
+        "Empresa_cliente_id_cpf_cnpj_idx",
+        "Empresa_cliente_id_cidade_idx",
+        "Empresa_cliente_id_estado_idx",
+        "Empresa_cliente_id_updatedAt_idx",
+        "Empresa_campos_personalizados_gin_idx",
+        "Empresa_razao_social_trgm_idx",
+        "Empresa_nome_fantasia_trgm_idx",
+        "Empresa_cpf_cnpj_trgm_idx",
+        "Empresa_telefone_trgm_idx",
+        "Empresa_email_trgm_idx",
+        "Empresa_cidade_trgm_idx",
+        "Empresa_endereco_trgm_idx",
+        "Empresa_bairro_trgm_idx",
+        "Empresa_whatsapp_trgm_idx",
+        "CadCpsCampo_cliente_id_nome_idx",
+        "CadCpsCampo_cliente_id_field_name_idx",
+        "CadCpsCampo_cliente_id_codigo_idx",
+        "CadCpsCampo_cliente_id_ordem_tabela_idx",
+        "CadCpsCampo_nome_trgm_idx"
+      ]
+    }
+  },
+  "database": {
+    "note": "DATABASE_URL ausente — auditoria DB local indisponível. Use health de produção."
+  },
+  "summary": {
+    "loginBlocked": true,
+    "counterColumnsInDb": false,
+    "indexesApplied": false,
+    "pendingMigrations": "unknown",
+    "missingClienteColumns": [
+      "total_empresas",
+      "total_cadcps_campos",
+      "next_id_global"
+    ],
+    "missingIndexes": [
+      "Empresa_cliente_id_codempresa_idx",
+      "Empresa_cliente_id_nome_fantasia_idx",
+      "Empresa_cliente_id_cpf_cnpj_idx",
+      "Empresa_cliente_id_cidade_idx",
+      "Empresa_cliente_id_estado_idx",
+      "Empresa_cliente_id_updatedAt_idx",
+      "Empresa_campos_personalizados_gin_idx",
+      "Empresa_razao_social_trgm_idx",
+      "Empresa_nome_fantasia_trgm_idx",
+      "Empresa_cpf_cnpj_trgm_idx",
+      "Empresa_telefone_trgm_idx",
+      "Empresa_email_trgm_idx",
+      "Empresa_cidade_trgm_idx",
+      "Empresa_endereco_trgm_idx",
+      "Empresa_bairro_trgm_idx",
+      "Empresa_whatsapp_trgm_idx",
+      "CadCpsCampo_cliente_id_nome_idx",
+      "CadCpsCampo_cliente_id_field_name_idx",
+      "CadCpsCampo_cliente_id_codigo_idx",
+      "CadCpsCampo_cliente_id_ordem_tabela_idx",
+      "CadCpsCampo_nome_trgm_idx"
+    ],
+    "loginError": "\nInvalid `prisma.cliente.findFirst()` invocation:\n\n\nThe column `Cliente.total_empresas` does not exist in the current database."
+  }
+}

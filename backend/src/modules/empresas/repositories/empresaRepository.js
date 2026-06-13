@@ -7,7 +7,7 @@ import {
   registerRegistroGlobal,
   reserveNextIdGlobal,
 } from "../../idGlobal/idGlobalService.js";
-import { getEmpresaCount, invalidateClienteStats } from "../../metrics/counterService.js";
+import { getEmpresaCount, invalidateClienteStats, incrementClienteCounter } from "../../metrics/counterService.js";
 import {
   ENTITY_CODIGO_EMPRESA,
   reserveNextCodigo,
@@ -527,13 +527,9 @@ export const empresaRepository = {
         entityName: "Empresa",
         registroId: record.id,
       });
-      await tx.cliente.update({
-        where: { id: scope.clienteId },
-        data: { total_empresas: { increment: 1 } },
-      });
       return record;
     });
-    void invalidateClienteStats(scope.clienteId);
+    void incrementClienteCounter(scope.clienteId, "empresas", 1);
     void auditService.log({
       scope,
       entityName: "Empresa",
@@ -596,12 +592,8 @@ export const empresaRepository = {
       await prisma.$transaction(async (tx) => {
         await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
         await tx.empresa.delete({ where: { id: current.id } });
-        await tx.cliente.update({
-          where: { id: scope.clienteId },
-          data: { total_empresas: { decrement: 1 } },
-        });
       });
-      void invalidateClienteStats(scope.clienteId);
+      void incrementClienteCounter(scope.clienteId, "empresas", -1);
     } catch (error) {
       if (String(error?.code || "") === "P2003") {
         const conflictError = new Error(

@@ -109,7 +109,6 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
       limite_usuarios: true,
       limite_empresas: true,
       data_vencimento: true,
-      total_empresas: true,
     },
   });
   if (!clienteData) {
@@ -145,10 +144,23 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
   ]);
   usuarioData.ultimo_acesso = new Date();
 
-  const empresasResult = await fetchEmpresasPermitidas(usuarioData, {
-    totalEmpresas: Number(clienteData.total_empresas ?? 0),
-  });
+  const empresasResult = await fetchEmpresasPermitidas(usuarioData);
   const empresas = empresasResult.items || [];
+  let empresasTotal = empresasResult.total || empresas.length;
+  if (usuarioData.acesso_global && empresasTotal <= empresas.length) {
+    try {
+      const { getEmpresaCount } = await import("../metrics/counterService.js");
+      empresasTotal = await getEmpresaCount({
+        userId: usuarioData.id,
+        clienteId: clienteData.id,
+        acessoGlobal: true,
+        allowedEmpresaIds: [],
+        allowAllEmpresas: true,
+      });
+    } catch {
+      empresasTotal = empresas.length;
+    }
+  }
   const selectedEmpresaId = usuarioData.acesso_global
     ? "all"
     : empresas.length === 1
@@ -156,13 +168,13 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
       : null;
   const allowAllEmpresas = Boolean(usuarioData.acesso_global);
 
-  setSessionEmpresas(usuarioData.id, empresasResult);
+  setSessionEmpresas(usuarioData.id, { ...empresasResult, total: empresasTotal });
 
   return {
     cliente: sanitizeCliente(clienteData),
     user: sanitizeUser(usuarioData),
     empresas,
-    empresasTotal: empresasResult.total || empresas.length,
+    empresasTotal,
     empresasHasMore: Boolean(empresasResult.hasMore),
     selectedEmpresaId,
     allowAllEmpresas,

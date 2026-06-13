@@ -179,10 +179,25 @@ const buildServer = () => {
   return app;
 };
 
+const runBlockingBootTasks = async (log) => {
+  try {
+    const { runBlockingDatabaseBoot } = await import("../scripts/runBlockingDatabaseBoot.js");
+    const report = await runBlockingDatabaseBoot(log);
+    log.info(`[boot-blocking] Concluído: ${JSON.stringify(report.summary ?? report.compatibility ?? report)}`);
+  } catch (error) {
+    log.error(`[boot-blocking] FATAL — servidor não iniciará: ${error.message}`);
+    process.exit(1);
+  }
+};
+
 const start = async () => {
   const app = buildServer();
   const host = resolveHost();
   const port = resolvePort();
+
+  if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
+    await runBlockingBootTasks(app.log);
+  }
 
   try {
     await app.listen({ host, port });
@@ -196,7 +211,7 @@ const start = async () => {
     setTimeout(() => {
       import("../scripts/productionBootTasks.js")
         .then(({ runProductionBootTasks }) => runProductionBootTasks(app.log))
-        .then(() => app.log.info("[boot] Tarefas de produção concluídas."))
+        .then(() => app.log.info("[boot] Tarefas de produção em background concluídas."))
         .catch((error) => app.log.error(`[boot] Falha nas tarefas de produção: ${error.message}`));
     }, 3000);
   }

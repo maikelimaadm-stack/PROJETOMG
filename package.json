@@ -29,7 +29,9 @@
     "audit:post-optimization": "node scripts/auditPostOptimization.mjs",
     "audit:latency-backend": "node scripts/latencyAuditBackend.mjs",
     "audit:enterprise-benchmark": "node scripts/enterpriseBenchmark.mjs",
-    "audit:stress-scale": "node scripts/stressScaleTest.mjs"
+    "audit:stress-scale": "node scripts/stressScaleTest.mjs",
+    "audit:post-deploy": "node scripts/postDeployValidation.mjs",
+    "smoke:production": "node scripts/productionStabilizationSmoke.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",
