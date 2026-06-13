@@ -44,8 +44,12 @@ export const runBlockingDatabaseBoot = async (log = console) => {
 
   const report = { steps: [] };
 
-  await runCommand("Prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"]);
-  report.steps.push({ step: "migrate_deploy", ok: true });
+  const migrateOk = await runCommand("Prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"], { allowFailure: true });
+  report.steps.push({ step: "migrate_deploy", ok: migrateOk });
+  if (!migrateOk) {
+    log.warn?.("[boot-blocking] prisma migrate deploy falhou (P3005? baseline necessário). Continuando boot...") ??
+      log.warn("[boot-blocking] prisma migrate deploy falhou (P3005? baseline necessário). Continuando boot...");
+  }
 
   const { ensureCounterColumns } = await import("../scripts/ensureCounterColumns.js");
   const counterResult = await ensureCounterColumns();
