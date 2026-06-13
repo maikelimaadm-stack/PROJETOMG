@@ -30,7 +30,9 @@ export function isolateFloatingPanelWheel(event, listSelector) {
   const panel = event.currentTarget;
   if (!(panel instanceof HTMLElement)) return;
 
-  const list = panel.querySelector(listSelector);
+  const list =
+    panel.querySelector(`${listSelector} .erp-scroll-surface__viewport`) ||
+    panel.querySelector(listSelector);
   if (list instanceof HTMLElement && list.contains(event.target)) {
     const delta = event.deltaY;
     if (delta === 0) return;

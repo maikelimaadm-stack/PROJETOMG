@@ -6,7 +6,8 @@ import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContex
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
-import { isolateFloatingPanelWheel, isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
+import ErpScrollViewport from "@/shared/components/ErpScrollViewport";
+import { isolateFloatingPanelWheel } from "@/shared/utils/scrollWheelBoundary";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -693,7 +694,7 @@ export default function TBLCPS({
               className="emp-filter-field emp-filter-search"
             />
 
-            <div className="emp-filter-value-list" onWheel={isolateScrollWheel}>
+            <ErpScrollViewport variant="compact" className="emp-filter-value-list">
               <label className="emp-filter-value-list-header">
                 <Checkbox
                   checked={allVisSel}
@@ -722,7 +723,7 @@ export default function TBLCPS({
                   <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
                 </label>
               ))}
-            </div>
+            </ErpScrollViewport>
 
             <div className="emp-filter-actions">
               <button
@@ -914,11 +915,12 @@ export default function TBLCPS({
               </Table>
             </div>
           </div>
-          <div
+          <ErpScrollViewport
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className="emp-table-body-scroll erp-scroll relative min-h-0 flex-1 outline-none overflow-auto"
+            stepSize={TABLE_ROW_HEIGHT}
+            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
           >
             <div
               className="block w-max min-w-full min-h-full"
@@ -994,7 +996,7 @@ export default function TBLCPS({
                 </TableBody>
               </Table>
             </div>
-          </div>
+          </ErpScrollViewport>
         </div>
         <div className="emp-table-bottom-dock">
           {hasTotalRow ? (

@@ -184,20 +184,33 @@ input[type="number"] {
 }
 
 :root {
-  /* Espessura fixa — não redimensiona (estilo Cursor) */
-  --erp-scrollbar-size-primary: 14px;
-  --erp-scrollbar-size-compact: 10px;
-  /* Altura mínima fixa do thumb — não encolhe em tabelas/listas grandes */
-  --erp-scrollbar-thumb-height-primary: 96px;
-  --erp-scrollbar-thumb-height-compact: 56px;
-  --erp-scrollbar-thumb: rgba(100, 116, 139, 0.52);
-  --erp-scrollbar-thumb-hover: rgba(71, 85, 105, 0.72);
+  /* Espessura padrão fina (estilo Google/select) — mesma em todo o ERP */
+  --erp-scrollbar-size-primary: 8px;
+  --erp-scrollbar-size-compact: 8px;
+  --erp-scrollbar-btn-size: 12px;
+  --erp-scrollbar-thumb-height-primary: 40px;
+  --erp-scrollbar-thumb-height-compact: 28px;
+  /* Verde do botão Novo (--mg-brand-green) */
+  --erp-scrollbar-thumb: rgba(64, 222, 99, 0.82);
+  --erp-scrollbar-thumb-hover: #36c956;
+  --erp-scrollbar-thumb-border: rgba(255, 255, 255, 0.55);
   --erp-scrollbar-track: transparent;
+  --erp-scrollbar-track-bg: rgba(15, 23, 42, 0.05);
+  --erp-scrollbar-track-border: rgba(15, 23, 42, 0.14);
+  --erp-scrollbar-arrow: #40de63;
+  --erp-scrollbar-arrow-hover: #36c956;
+  --erp-scrollbar-arrow-disabled: rgba(100, 116, 139, 0.35);
 }
 
 .dark {
-  --erp-scrollbar-thumb: rgba(148, 163, 184, 0.4);
-  --erp-scrollbar-thumb-hover: rgba(203, 213, 225, 0.58);
+  --erp-scrollbar-thumb: rgba(64, 222, 99, 0.72);
+  --erp-scrollbar-thumb-hover: #4ae870;
+  --erp-scrollbar-thumb-border: rgba(255, 255, 255, 0.2);
+  --erp-scrollbar-track-bg: rgba(255, 255, 255, 0.04);
+  --erp-scrollbar-track-border: rgba(255, 255, 255, 0.12);
+  --erp-scrollbar-arrow: #4ae870;
+  --erp-scrollbar-arrow-hover: #40de63;
+  --erp-scrollbar-arrow-disabled: rgba(148, 163, 184, 0.35);
 }
 
 /* —— Scrollbars: dois tamanhos fixos (principal × compacto) —— */
@@ -400,6 +413,137 @@ input[type="number"] {
 .erp-scroll,
 .erp-scroll-compact {
   overflow: auto;
+}
+
+/* —— Overlay: thumb fixo + trilho + botões ▲/▼ —— */
+.erp-scroll-surface {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.erp-scroll-surface__viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.erp-scroll-surface__viewport::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.erp-scroll-surface__rail {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: var(--erp-scrollbar-size-primary);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--erp-scrollbar-track-border);
+  background: var(--erp-scrollbar-track-bg);
+}
+
+.erp-scroll-surface--compact .erp-scroll-surface__rail {
+  width: var(--erp-scrollbar-size-compact);
+}
+
+.erp-scroll-surface__btn {
+  flex: 0 0 var(--erp-scrollbar-btn-size);
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-bottom: 1px solid var(--erp-scrollbar-track-border);
+  background: var(--erp-scrollbar-track-bg);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.erp-scroll-surface__btn--down {
+  border-bottom: none;
+  border-top: 1px solid var(--erp-scrollbar-track-border);
+}
+
+.erp-scroll-surface__btn:disabled {
+  cursor: default;
+}
+
+.erp-scroll-surface__btn::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+}
+
+.erp-scroll-surface__btn--up::before {
+  border-bottom: 4px solid var(--erp-scrollbar-arrow);
+}
+
+.erp-scroll-surface__btn--down::before {
+  border-top: 4px solid var(--erp-scrollbar-arrow);
+}
+
+.erp-scroll-surface__btn:hover:not(:disabled)::before {
+  border-bottom-color: var(--erp-scrollbar-arrow-hover);
+  border-top-color: var(--erp-scrollbar-arrow-hover);
+}
+
+.erp-scroll-surface__btn:disabled::before {
+  border-bottom-color: var(--erp-scrollbar-arrow-disabled);
+  border-top-color: var(--erp-scrollbar-arrow-disabled);
+}
+
+.erp-scroll-surface__track {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+  border-top: 1px solid var(--erp-scrollbar-track-border);
+  border-bottom: 1px solid var(--erp-scrollbar-track-border);
+  background: color-mix(in srgb, var(--erp-scrollbar-track-bg) 70%, white);
+}
+
+.erp-scroll-surface__thumb {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  right: 1px;
+  height: var(--erp-scrollbar-thumb-height-primary);
+  border-radius: 9999px;
+  background: var(--erp-scrollbar-thumb);
+  box-shadow: inset 0 0 0 1px var(--erp-scrollbar-thumb-border);
+  cursor: default;
+  user-select: none;
+  touch-action: none;
+  will-change: transform;
+}
+
+.erp-scroll-surface__thumb:hover {
+  background: var(--erp-scrollbar-thumb-hover);
+}
+
+.erp-scroll-surface--compact .erp-scroll-surface__thumb {
+  height: var(--erp-scrollbar-thumb-height-compact);
+}
+
+body.erp-scroll-dragging {
+  user-select: none;
+  cursor: default;
 }
 
 .erp-scroll-lock-wheel {
@@ -1959,6 +2103,15 @@ input[type="number"] {
   background: #ffffff;
   border: 1px solid #bae6fd;
   border-radius: 5px;
+}
+
+.emp-filter-value-list.erp-scroll-surface {
+  overflow: hidden;
+  padding: 0;
+}
+
+.emp-filter-value-list.erp-scroll-surface .erp-scroll-surface__viewport {
+  padding: 4px;
 }
 
 .emp-filter-value-list-header {

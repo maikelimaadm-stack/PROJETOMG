@@ -12,8 +12,9 @@ import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
-import { isolateFloatingPanelWheel, isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
+import ErpScrollViewport from "@/shared/components/ErpScrollViewport";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
+import { isolateFloatingPanelWheel } from "@/shared/utils/scrollWheelBoundary";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -801,7 +802,7 @@ export default function TBLEMP({
               className="emp-filter-field emp-filter-search"
             />
 
-            <div className="emp-filter-value-list" onWheel={isolateScrollWheel}>
+            <ErpScrollViewport variant="compact" className="emp-filter-value-list">
               <label className="emp-filter-value-list-header">
                 <Checkbox
                   checked={allVisSel}
@@ -834,7 +835,7 @@ export default function TBLEMP({
                   </label>
                 ))
               )}
-            </div>
+            </ErpScrollViewport>
 
             <div className="emp-filter-actions">
               <button
@@ -1047,11 +1048,12 @@ export default function TBLEMP({
               </Table>
             </div>
           </div>
-          <div
+          <ErpScrollViewport
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className={`emp-table-body-scroll erp-scroll relative min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
+            stepSize={TABLE_ROW_HEIGHT}
+            className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none${mgPrototype ? " mg-grid-scroll" : ""}`}
           >
             <div
               className="block w-max min-w-full min-h-full"
@@ -1127,7 +1129,7 @@ export default function TBLEMP({
                 </TableBody>
               </Table>
             </div>
-          </div>
+          </ErpScrollViewport>
         </div>
         <div className="emp-table-bottom-dock">
           {hasTotalRow ? (

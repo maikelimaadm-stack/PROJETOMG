@@ -14,6 +14,7 @@ import {
   saveSearchVisFields,
 } from "./empSearchView.constants";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
+import ErpScrollViewport from "@/shared/components/ErpScrollViewport";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import { LIST_PAGE_SIZE_OPTIONS } from "@/shared/listing/listQueryConfig";
 import "./empSearchView.css";
@@ -330,7 +331,7 @@ export default function SRCHEMP({
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ErpListingTopProgress active={showCardsFetching} />
-        <div ref={cardsScrollRef} className="erp-scroll-y relative min-h-0 flex-1 overflow-y-auto p-4">
+        <ErpScrollViewport ref={cardsScrollRef} className="relative min-h-0 flex-1 p-4">
           {showCardsLoading ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Carregando registros...
@@ -433,7 +434,7 @@ export default function SRCHEMP({
               {paddingBottom > 0 ? <div style={{ height: paddingBottom }} aria-hidden="true" /> : null}
             </div>
           )}
-        </div>
+        </ErpScrollViewport>
         <EmpTablePagination
           currentPage={page}
           totalPages={totalPages}
