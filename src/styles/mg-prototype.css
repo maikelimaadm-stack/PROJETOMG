@@ -611,7 +611,7 @@
   max-height: none;
   padding: 8px var(--mg-toolbar-gutter) 0;
   border-top: none !important;
-  background: var(--gray-fill) !important;
+  background: var(--bg-card) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
   overflow-x: auto;
@@ -647,28 +647,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-  border-bottom: none !important;
-  border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
-  background: var(--bg-card) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
   color: var(--text-2) !important;
   font-weight: 500;
   box-shadow: none !important;
   z-index: 1;
   transition:
     color var(--mg-motion-duration) var(--mg-motion-ease),
-    background-color var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease);
+    background-color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-panel-tabs-strip .seg-tab + .seg-tab {
-  margin-left: 2px;
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab + .seg-tab:not(.active) {
+  box-shadow: inset 1px 0 0 rgba(148, 163, 184, 0.22);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active) {
   color: var(--text-1) !important;
-  background: var(--bg-card) !important;
-  border-color: rgba(148, 163, 184, 0.28) !important;
+  background: transparent !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active {
@@ -678,6 +675,8 @@
   font-weight: 700 !important;
   background: var(--bg-page) !important;
   border: none !important;
+  border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
+  box-shadow: none !important;
   z-index: 5;
   margin-bottom: -1px;
   padding-bottom: 0;
@@ -730,19 +729,12 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab,
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab span {
   color: var(--text-2) !important;
-  border-color: rgba(148, 163, 184, 0.2) !important;
-}
-
-.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
-.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span {
-  color: var(--text-1) !important;
-  font-weight: 700 !important;
-  background: var(--bg-page) !important;
-  border: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:not(.active) {
-  background: var(--bg-card) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
@@ -829,6 +821,15 @@
   border-radius: 0 !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span {
+  color: var(--text-1) !important;
+  font-weight: 700 !important;
+  background: var(--bg-page) !important;
+  border: none !important;
+  border-radius: var(--mg-panel-tab-radius) var(--mg-panel-tab-radius) 0 0 !important;
+}
+
 /* Painéis — folder tabs Arc (override das regras flat .seg-tab acima) */
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab {
   --tab-r: var(--mg-panel-tab-radius);
@@ -836,11 +837,14 @@
   min-height: 32px;
   height: 32px;
   padding: 0 16px !important;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-  border-bottom: none !important;
-  border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
-  background: var(--bg-card) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
   box-shadow: none !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab + .seg-tab:not(.active) {
+  box-shadow: inset 1px 0 0 rgba(148, 163, 184, 0.22) !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active {
@@ -848,6 +852,7 @@
   min-height: var(--mg-toolbar-row-height) !important;
   background: var(--bg-page) !important;
   border: none !important;
+  border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
   margin-bottom: -1px;
   z-index: 5;
 }
@@ -893,16 +898,16 @@
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab,
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control button.seg-tab {
-  background: var(--bg-card) !important;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-  border-bottom: none !important;
-  border-radius: var(--mg-panel-tab-radius) var(--mg-panel-tab-radius) 0 0 !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active,
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active span {
   background: var(--bg-page) !important;
   border: none !important;
+  border-radius: var(--mg-panel-tab-radius) var(--mg-panel-tab-radius) 0 0 !important;
 }
 
 /* View segmented control — estilo pill da pesquisa */
