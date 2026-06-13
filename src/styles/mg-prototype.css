@@ -889,10 +889,23 @@
   min-height: 0;
 }
 
+.mg-empresas-scope .mg-cards-virtual-shell {
+  width: 100%;
+}
+
+.mg-empresas-scope .mg-cards-virtual-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
 .mg-empresas-scope .mg-cards-virtual-row {
   width: 100%;
+  box-sizing: border-box;
+  align-items: start;
   content-visibility: auto;
-  contain-intrinsic-size: auto 140px;
+  contain-intrinsic-size: auto 152px;
 }
 
 .mg-empresas-scope .emp-table-data-row {
@@ -2174,6 +2187,8 @@
 .mg-empresas-scope .mg-cards-grid {
   display: grid;
   gap: 12px;
+  row-gap: 12px;
+  column-gap: 12px;
 }
 
 .mg-empresas-scope .mg-cards-grid--cards-1 {

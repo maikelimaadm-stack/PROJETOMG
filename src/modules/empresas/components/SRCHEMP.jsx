@@ -336,8 +336,9 @@ export default function SRCHEMP({
               Nenhum registro encontrado
             </div>
           ) : (
-            <div>
+            <div className="mg-cards-virtual-shell">
               {paddingTop > 0 ? <div style={{ height: paddingTop }} aria-hidden="true" /> : null}
+              <div className="mg-cards-virtual-list">
               {virtualRows.map((virtualRow) => {
                 const startIndex = virtualRow.index * gridColumns;
                 const rowItems = filteredEmpresas.slice(startIndex, startIndex + gridColumns);
@@ -424,6 +425,7 @@ export default function SRCHEMP({
                   </div>
                 );
               })}
+              </div>
               {paddingBottom > 0 ? <div style={{ height: paddingBottom }} aria-hidden="true" /> : null}
             </div>
           )}
