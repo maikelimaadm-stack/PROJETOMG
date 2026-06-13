@@ -6486,36 +6486,3 @@
   stroke: #fff !important;
 }
 
-/* —— Tema escuro (ativado via botão da barra principal) —— */
-html.tema-escuro .mg-empresas-scope,
-html.escuro .mg-empresas-scope {
-  --bg-page: #0f1419;
-  --bg-card: #151b23;
-  --bg-surface: #151b23;
-  --border: #2a313c;
-  --mg-divider: #2a313c;
-  --text-1: #e6edf3;
-  --text-2: #9198a1;
-  --text-3: #656c76;
-  --gray-fill: #212830;
-  --gray-fill2: #30363d;
-  --mg-container-border: 1px solid #30363d;
-  --mg-container-bg: #151b23;
-  --mg-section-divider-color: #30363d;
-  --mg-section-divider-border: 1px solid rgba(48, 54, 61, 0.9);
-  --mg-focus-bg: #151b23;
-  --mg-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.24);
-  --mg-card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.28);
-}
-
-html.tema-escuro .erp-shell-header,
-html.escuro .erp-shell-header {
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  border-bottom: 1px solid hsl(var(--border));
-}
-
-html.tema-escuro .erp-shell-breadcrumbs,
-html.escuro .erp-shell-breadcrumbs {
-  color: hsl(var(--foreground));
-}

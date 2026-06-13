@@ -17,15 +17,18 @@ export function applyErpTemaToDocument(tema) {
   const root = document.documentElement;
   root.classList.remove("tema-claro", "tema-escuro", "escuro", "dark");
   root.removeAttribute("data-tema");
+  root.removeAttribute("data-theme");
 
   if (tema === ERP_TEMA_ESCURO) {
     root.classList.add("tema-escuro", "escuro", "dark");
     root.setAttribute("data-tema", ERP_TEMA_ESCURO);
+    root.setAttribute("data-theme", "dark");
     return;
   }
 
   root.classList.add("tema-claro");
   root.setAttribute("data-tema", ERP_TEMA_CLARO);
+  root.setAttribute("data-theme", "light");
 }
 
 export function ErpThemeProvider({ children }) {
