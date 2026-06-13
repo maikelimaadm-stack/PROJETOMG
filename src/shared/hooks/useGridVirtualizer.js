@@ -46,7 +46,7 @@ export function useGridVirtualizer({
     estimateSize: () => resolvedEstimate,
     overscan,
     gap: rowGap,
-    isScrollingResetDelay: 80,
+    isScrollingResetDelay: 0,
   });
 
   if (!enabled) {

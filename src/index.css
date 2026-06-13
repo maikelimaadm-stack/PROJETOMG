@@ -183,31 +183,30 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* —— Scrollbar ERP estilo Supabase (vertical + horizontal, claro/escuro) —— */
+/* —— Scrollbar estilo Cursor/VS Code (vertical + horizontal, claro/escuro) —— */
 :root,
 .tema-claro,
 [data-tema="claro"] {
-  --erp-scrollbar-size: 11px;
-  --erp-scrollbar-thumb: hsl(215 16% 47%);
-  --erp-scrollbar-thumb-hover: hsl(215 20% 40%);
-  --erp-scrollbar-thumb-active: hsl(215 25% 32%);
-  --erp-scrollbar-track: hsl(210 40% 98%);
-  --erp-scrollbar-track-shadow: inset 0 0 6px hsl(214 32% 91%);
-  --erp-scrollbar-bg: hsl(0 0% 100%);
-  --erp-scrollbar-radius: 6px;
-  --erp-scrollbar-thumb-min: 40px;
+  --erp-scrollbar-size: 16px;
+  --erp-scrollbar-thumb: rgba(100, 100, 100, 0.45);
+  --erp-scrollbar-thumb-hover: rgba(80, 80, 80, 0.65);
+  --erp-scrollbar-thumb-active: rgba(60, 60, 60, 0.75);
+  --erp-scrollbar-track: transparent;
+  --erp-scrollbar-track-shadow: none;
+  --erp-scrollbar-bg: transparent;
+  --erp-scrollbar-radius: 8px;
 }
 
 .escuro,
 .tema-escuro,
 [data-tema="escuro"],
 .dark {
-  --erp-scrollbar-thumb: hsl(215 20% 65%);
-  --erp-scrollbar-thumb-hover: hsl(214 32% 73%);
-  --erp-scrollbar-thumb-active: hsl(213 27% 84%);
-  --erp-scrollbar-track: hsl(222 47% 11%);
-  --erp-scrollbar-track-shadow: inset 0 0 6px hsl(217 33% 17%);
-  --erp-scrollbar-bg: hsl(222 47% 7%);
+  --erp-scrollbar-thumb: rgba(191, 191, 191, 0.35);
+  --erp-scrollbar-thumb-hover: rgba(191, 191, 191, 0.55);
+  --erp-scrollbar-thumb-active: rgba(191, 191, 191, 0.7);
+  --erp-scrollbar-track: transparent;
+  --erp-scrollbar-track-shadow: none;
+  --erp-scrollbar-bg: transparent;
 }
 
 :is(
@@ -244,8 +243,8 @@ input[type="number"] {
   .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
   .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll)
 ):not(.no-scrollbar):not(.erp-no-scrollbar) {
-  scrollbar-width: thin;
-  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+  scrollbar-width: auto;
+  scrollbar-color: var(--erp-scrollbar-thumb) transparent;
   overscroll-behavior: contain;
   scroll-behavior: auto;
 }
@@ -365,9 +364,6 @@ input[type="number"] {
   ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
     background-color: var(--erp-scrollbar-thumb);
     border-radius: var(--erp-scrollbar-radius);
-    min-height: var(--erp-scrollbar-thumb-min);
-    min-width: var(--erp-scrollbar-thumb-min);
-    transition: background-color 80ms linear;
   }
 
   :is(
@@ -481,6 +477,7 @@ input[type="number"] {
 .erp-scroll-nav__viewport {
   flex: 1 1 auto;
   min-height: 0;
+  -webkit-overflow-scrolling: touch;
 }
 
 .erp-menu-panel {
@@ -2752,7 +2749,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-toggles {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
 }
 
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-row > span {
