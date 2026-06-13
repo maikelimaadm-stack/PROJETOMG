@@ -73,6 +73,8 @@
   --mg-field-stack-inset-top: 11px;
   --mg-field-stack-inset-bottom: 3px;
   --mg-panel-tab-font: 13px;
+  --mg-panel-tab-radius: 10px;
+  --mg-panel-tab-scoop: 8px;
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-cards-layout-gap: 9px;
@@ -602,7 +604,7 @@
 
 .mg-empresas-scope .mg-panel-tabs-strip {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   border-top: none !important;
   background: var(--bg-card) !important;
   scrollbar-width: none;
@@ -614,26 +616,102 @@
   contain: layout style;
 }
 
+.mg-empresas-scope #mode-registro .mg-panel-tabs-strip::after {
+  content: none;
+}
+
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
   border-bottom: none !important;
   overflow: visible;
   position: relative;
   min-width: min-content;
   height: 100%;
-  align-items: stretch;
+  align-items: flex-end;
+  gap: 0;
+  padding-bottom: 0;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab {
+  position: relative;
   min-height: 0;
-  height: 100%;
-  padding: 0 12px;
+  height: calc(100% - 1px);
+  min-height: 32px;
+  padding: 0 14px;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  border: none !important;
+  border-radius: var(--mg-panel-tab-radius) var(--mg-panel-tab-radius) 0 0 !important;
+  background: var(--bg-card) !important;
+  color: var(--text-2) !important;
+  font-weight: 500;
+  box-shadow: none !important;
+  z-index: 1;
+  transition:
+    color var(--mg-motion-duration) var(--mg-motion-ease),
+    background-color var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab + .seg-tab:not(.active) {
+  box-shadow: inset 1px 0 0 rgba(148, 163, 184, 0.22) !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active) {
+  color: var(--text-1) !important;
+  background: var(--bg-card) !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active {
+  color: var(--text-1) !important;
+  font-weight: 700 !important;
+  background: var(--bg-page) !important;
+  z-index: 3;
+  margin-bottom: -1px;
+  padding-bottom: 1px;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before,
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
+  display: block !important;
+  content: "" !important;
+  position: absolute;
+  bottom: 0;
+  width: var(--mg-panel-tab-scoop);
+  height: var(--mg-panel-tab-scoop);
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before {
+  left: calc(-1 * var(--mg-panel-tab-scoop));
+  border-bottom-right-radius: var(--mg-panel-tab-scoop);
+  box-shadow: calc(var(--mg-panel-tab-scoop) / 2) 0 0 0 var(--bg-page);
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
+  right: calc(-1 * var(--mg-panel-tab-scoop));
+  border-bottom-left-radius: var(--mg-panel-tab-scoop);
+  box-shadow: calc(var(--mg-panel-tab-scoop) / -2) 0 0 0 var(--bg-page);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
-  bottom: 0;
-  z-index: 3;
+  display: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab span {
+  color: var(--text-2) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span {
+  color: var(--text-1) !important;
+  font-weight: 700 !important;
+  background: var(--bg-page) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:not(.active) {
+  background: var(--bg-card) !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
@@ -5273,7 +5351,7 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-tab {
-  border-radius: 0;
+  border-radius: var(--mg-panel-tab-radius) var(--mg-panel-tab-radius) 0 0 !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green {
