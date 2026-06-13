@@ -258,7 +258,7 @@ export default function EmpLayoutConfiguratorDialog({
     draftPanels,
     isEditing,
     editingPanelId,
-  ], { extendX: 0, bottom: 0 });
+  ]);
 
   useMgSegSlider(cardSegRef, cardSliderRef, ".seg-tab.active", [
     activeCardId,
@@ -1528,7 +1528,7 @@ export default function EmpLayoutConfiguratorDialog({
                   )}
                 </div>
                 <div className="seg-control min-w-0 flex-1" role="tablist" ref={panelSegRef}>
-                  <div className="seg-tab-slider seg-tab-slider--aurora" ref={panelSliderRef} aria-hidden="true" />
+                  <div className="seg-tab-slider" ref={panelSliderRef} aria-hidden="true" />
                   {draftPanels.map((panel) => {
                     const active = activePanel?.id === panel.id;
                     return (

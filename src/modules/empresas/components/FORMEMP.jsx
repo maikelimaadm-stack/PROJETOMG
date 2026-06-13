@@ -782,8 +782,11 @@ export default function FORMEMP({
           </CadSplitLayout>
         )}
         {hideToolbar ? (
-          <div id="mode-registro" className="flex min-h-0 flex-1 flex-col">
-            <div className="mg-panel-tabs-strip shrink-0 px-3 md:px-5">
+          <div id="mode-registro" className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div
+              className="mg-panel-tabs-strip shrink-0 px-3 md:px-5"
+              style={{ background: "var(--bg-card)" }}
+            >
               <CadTabs
                 tabs={tabs}
                 activeTab={activeTab}
