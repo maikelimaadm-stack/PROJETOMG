@@ -2,10 +2,10 @@ import React, { forwardRef, useCallback, useRef, useState, useEffect } from "rea
 import { ChevronsUp, ChevronUp, ChevronDown, ChevronsDown } from "lucide-react";
 import { cn } from "@/shared/utils/utils";
 import { useScrollNavActions } from "@/shared/hooks/useScrollNavActions";
+import { isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
 
 /**
- * Envolve um container rolável nativo e adiciona botões de navegação
- * (início, registro acima, registro abaixo, fim) sem alterar a scrollbar.
+ * Container rolável estilo Supabase (.erp-scrollbar) + botões de navegação.
  */
 const ErpScrollNav = forwardRef(function ErpScrollNav(
   {
@@ -14,6 +14,7 @@ const ErpScrollNav = forwardRef(function ErpScrollNav(
     viewportClassName,
     showNav = true,
     children,
+    onWheel,
     ...viewportProps
   },
   ref
@@ -73,11 +74,17 @@ const ErpScrollNav = forwardRef(function ErpScrollNav(
     event.stopPropagation();
   };
 
+  const handleWheel = (event) => {
+    onWheel?.(event);
+    if (!event.defaultPrevented) isolateScrollWheel(event);
+  };
+
   return (
     <div className={cn("erp-scroll-nav", className)}>
       <div
         ref={setViewportRef}
-        className={cn("erp-scroll-nav__viewport", viewportClassName)}
+        className={cn("erp-scroll-nav__viewport erp-scrollbar", viewportClassName)}
+        onWheel={handleWheel}
         {...viewportProps}
       >
         {children}

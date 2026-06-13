@@ -713,33 +713,6 @@ export default function FORMEMP({
   return (
     <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <form ref={formRef} onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
-        <style>{`
-          .form-scroll-container {
-            scrollbar-width: thin;
-            scrollbar-color: #94a3b8 transparent;
-            overflow: auto;
-            scrollbar-gutter: auto;
-            background: transparent;
-            border: none;
-            box-shadow: none;
-          }
-          .form-scroll-container::-webkit-scrollbar {
-            height: 8px;
-            width: 8px;
-          }
-          .form-scroll-container::-webkit-scrollbar-track {
-            background: transparent;
-          }
-          .form-scroll-container::-webkit-scrollbar-thumb {
-            background-color: #cbd5e1;
-            border-radius: 4px;
-            border: 2px solid transparent;
-            background-clip: content-box;
-          }
-          .form-scroll-container::-webkit-scrollbar-thumb:hover {
-            background-color: #94a3b8;
-          }
-        `}</style>
         {hideToolbar ? null : (
           <CadSplitLayout
             className="h-full min-h-0 flex-1"
