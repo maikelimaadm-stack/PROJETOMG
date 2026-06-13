@@ -204,6 +204,8 @@ const start = async () => {
     3_000,
     Number(process.env.BOOT_BACKGROUND_DELAY_MS) || 30_000
   );
+  const runBackgroundBootTasks =
+    String(process.env.BOOT_RUN_BACKGROUND_TASKS || "").toLowerCase() === "true";
 
   if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
     await runBlockingBootTasks(app.log);
@@ -218,13 +220,21 @@ const start = async () => {
   }
 
   if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
-    setTimeout(() => {
-      app.log.info(`[boot] Iniciando tarefas de produção em background após ${backgroundBootDelayMs}ms.`);
-      import("../scripts/productionBootTasks.js")
-        .then(({ runProductionBootTasks }) => runProductionBootTasks(app.log))
-        .then(() => app.log.info("[boot] Tarefas de produção em background concluídas."))
-        .catch((error) => app.log.error(`[boot] Falha nas tarefas de produção: ${error.message}`));
-    }, backgroundBootDelayMs);
+    if (runBackgroundBootTasks) {
+      setTimeout(() => {
+        app.log.info(
+          `[boot] Iniciando tarefas de produção em background após ${backgroundBootDelayMs}ms.`
+        );
+        import("../scripts/productionBootTasks.js")
+          .then(({ runProductionBootTasks }) => runProductionBootTasks(app.log))
+          .then(() => app.log.info("[boot] Tarefas de produção em background concluídas."))
+          .catch((error) => app.log.error(`[boot] Falha nas tarefas de produção: ${error.message}`));
+      }, backgroundBootDelayMs);
+    } else {
+      app.log.info(
+        "[boot] Tarefas de produção em background desativadas (BOOT_RUN_BACKGROUND_TASKS=false)."
+      );
+    }
   }
 
   const shutdown = async () => {
