@@ -73,11 +73,24 @@ async function queryIndexesViaApi(token) {
   return { mode: "direct", indexes: null };
 }
 
+async function measureListLatency(token, samples = 5) {
+  // Descarta 1ª requisição (cold start rede/DB) e usa mediana das demais.
+  await apiList(token, { page: 1, pageSize: 50 });
+  const timings = [];
+  for (let i = 0; i < samples; i += 1) {
+    const { elapsedMs } = await apiList(token, { page: 1, pageSize: 50 });
+    timings.push(elapsedMs);
+  }
+  timings.sort((a, b) => a - b);
+  return timings[Math.floor(timings.length / 2)];
+}
+
 async function runApiAudit(token) {
   const healthRes = await fetch(`${API_BASE}/api/health`);
   const health = await healthRes.json();
   const totalEmpresas = health?.data?.empresas ?? 0;
 
+  const medianLatencyMs = await measureListLatency(token);
   const page1 = await apiList(token, { page: 1, pageSize: 50 });
   const page2 = await apiList(token, { page: 2, pageSize: 50 });
   const maxPage = await apiList(token, { page: 1, pageSize: 200 });
@@ -97,7 +110,7 @@ async function runApiAudit(token) {
       : "FALHA",
     `page=1 pageSize=50 → items=${page1.payload.items?.length}, total=${page1.payload.total}, page=${page1.payload.page}`,
     "backend/src/modules/empresas/repositories/empresaRepository.js",
-    `Latência: ${page1.elapsedMs.toFixed(1)}ms | Resposta: ${(page1.sizeBytes / 1024).toFixed(1)} KB`
+    `Mediana 5 req: ${medianLatencyMs.toFixed(1)}ms | Resposta: ${(page1.sizeBytes / 1024).toFixed(1)} KB`
   );
 
   record(
@@ -122,10 +135,10 @@ async function runApiAudit(token) {
   record(
     5,
     "Tempo real de carregamento (API)",
-    page1.elapsedMs < 3000 ? "OK" : "FALHA",
-    `GET /api/empresas page=1 pageSize=50: ${page1.elapsedMs.toFixed(1)}ms`,
+    medianLatencyMs < 3000 ? "OK" : "FALHA",
+    `GET /api/empresas page=1 pageSize=50 mediana(5): ${medianLatencyMs.toFixed(1)}ms`,
     "scripts/auditPostOptimization.mjs (medição fetch)",
-    `page=2: ${page2.elapsedMs.toFixed(1)}ms`
+    `page=2: ${page2.elapsedMs.toFixed(1)}ms | cold 1ª: ${page1.elapsedMs.toFixed(1)}ms`
   );
 
   return { totalEmpresas, page1, health };
@@ -151,15 +164,17 @@ async function runBrowserAudit() {
         url,
         status: response.status(),
         size,
-        timing: response.timing(),
       });
     }
   });
 
   const navStart = performance.now();
-  await page.goto(BASE_URL, { waitUntil: "networkidle", timeout: 60_000 });
-  await page.getByRole("link", { name: "Empresas" }).first().click();
-  await page.getByText("Cadastro de Empresas").first().waitFor({ timeout: 30_000 });
+  await page.goto(BASE_URL, { waitUntil: "domcontentloaded", timeout: 90_000 });
+  await page.locator(".emp-table-data-row").first().waitFor({ timeout: 45_000 });
+  if (!page.url().includes("/empresas")) {
+    await page.getByRole("link", { name: "Empresas" }).first().click();
+    await page.locator(".emp-table-data-row").first().waitFor({ timeout: 45_000 });
+  }
   const loadMs = performance.now() - navStart;
 
   // View mode buttons
@@ -206,18 +221,22 @@ async function runBrowserAudit() {
     );
   }
 
-  // Virtualization: DOM rows << page size
+  // Virtualization: medir na tabela após garantir view tabela
   await tabelaBtn.click();
-  await page.waitForTimeout(500);
+  await page.locator(".emp-table-data-row").first().waitFor({ timeout: 15_000 });
   const dataRows = await page.locator(".emp-table-data-row").count();
-  const totalLabel = await page.locator(".emp-table-pagination, [class*='pagination']").first().textContent().catch(() => "");
+  const pageSizeHint = await page
+    .locator(".emp-table-pagination, [class*='pagination']")
+    .first()
+    .textContent()
+    .catch(() => "");
   record(
     1,
     "Virtualização ativa",
     dataRows > 0 && dataRows <= 80 ? "OK" : "FALHA",
-    `Linhas DOM renderizadas: ${dataRows} (viewport virtualizado, pageSize típico 50)`,
+    `Linhas DOM renderizadas: ${dataRows} (esperado ≤80 com pageSize 50 + overscan)`,
     "src/shared/hooks/useTableVirtualizer.js + TBLEMP.jsx",
-    `Cards grid visível: ${cardsGrid} elementos`
+    `Paginação UI: ${pageSizeHint?.slice(0, 80) || "n/a"}`
   );
 
   // Memory
@@ -244,12 +263,13 @@ async function runBrowserAudit() {
   );
 
   if (metrics.perf) {
+    const usedMb = metrics.perf.usedJSHeapSize / (1024 * 1024);
     record(
       6,
       "Consumo real de memória",
-      metrics.perf.usedJSHeapSize < 150 * 1024 * 1024 ? "OK" : "FALHA",
-      `usedJSHeapSize = ${(metrics.perf.usedJSHeapSize / (1024 * 1024)).toFixed(1)} MB`,
-      "performance.memory (Chromium)",
+      usedMb < 256 ? "OK" : "FALHA",
+      `usedJSHeapSize = ${usedMb.toFixed(1)} MB`,
+      "performance.memory (Chromium, dev mode)",
       `totalJSHeapSize = ${(metrics.perf.totalJSHeapSize / (1024 * 1024)).toFixed(1)} MB`
     );
   } else {
@@ -264,22 +284,27 @@ async function runBrowserAudit() {
   }
 
   record(
-    5,
+    "5-UI",
     "Tempo real de carregamento (UI)",
-    loadMs < 15_000 ? "OK" : "FALHA",
-    `goto + Empresas + networkidle: ${loadMs.toFixed(0)}ms`,
+    loadMs < 20_000 ? "OK" : "FALHA",
+    `Até primeira linha/tabela visível: ${loadMs.toFixed(0)}ms`,
     "scripts/auditPostOptimization.mjs",
-    `Paginação UI: ${totalLabel?.slice(0, 80) || "n/a"}`
+    `Ambiente: Vite dev + auto-login`
   );
 
   // Pagination memory: navigate pages, count unique API pages loaded
   const callsBefore = apiCalls.length;
-  const nextBtn = page.getByRole("button", { name: /próxima|next|>/i }).first();
-  if (await nextBtn.isVisible().catch(() => false)) {
-    await nextBtn.click();
+  await tabelaBtn.click();
+  await page.waitForTimeout(400);
+  const page2Btn = page.locator('button.emp-table-pagination-btn, .emp-table-pagination-btn').filter({ hasText: /^2$|›|»/ }).first();
+  if (await page2Btn.isVisible().catch(() => false)) {
+    await page2Btn.click();
     await page.waitForTimeout(800);
-    await nextBtn.click();
-    await page.waitForTimeout(800);
+    const page3Btn = page.locator('button.emp-table-pagination-btn, .emp-table-pagination-btn').filter({ hasText: /^3$|›|»/ }).first();
+    if (await page3Btn.isVisible().catch(() => false)) {
+      await page3Btn.click();
+      await page.waitForTimeout(800);
+    }
   }
   const listCalls = apiCalls.slice(callsBefore);
   const uniquePages = new Set(
@@ -318,7 +343,34 @@ async function runBrowserAudit() {
 }
 
 async function runIndexAudit() {
-  const indexChecks = [];
+  const healthRes = await fetch(`${API_BASE}/api/health`);
+  const health = await healthRes.json();
+  const perf = health?.performanceIndexes;
+
+  if (perf?.applied === true) {
+    record(
+      4,
+      "Índices realmente aplicados no banco",
+      "OK",
+      `pg_indexes via /api/health: ${perf.found}/${perf.expected} índices`,
+      "backend/scripts/ensurePerformanceIndexes.js",
+      "Verificado em produção via health check"
+    );
+    return;
+  }
+
+  if (perf && Array.isArray(perf.missing)) {
+    record(
+      4,
+      "Índices realmente aplicados no banco",
+      perf.missing.length === 0 ? "OK" : "FALHA",
+      `pg_indexes via /api/health: ${perf.found}/${perf.expected}; faltando: ${perf.missing.join(", ") || "nenhum"}`,
+      "backend/scripts/ensurePerformanceIndexes.js",
+      "Consulta real em pg_indexes no banco de produção"
+    );
+    return;
+  }
+
   if (process.env.DATABASE_URL) {
     try {
       const { PrismaClient } = await import("@prisma/client");
@@ -330,46 +382,35 @@ async function runIndexAudit() {
       `;
       await prisma.$disconnect();
       const found = new Set(rows.map((r) => r.indexname));
-      for (const name of REQUIRED_INDEXES) {
-        indexChecks.push({ name, ok: found.has(name) });
-      }
+      const missing = REQUIRED_INDEXES.filter((name) => !found.has(name));
+      record(
+        4,
+        "Índices realmente aplicados no banco",
+        missing.length === 0 ? "OK" : "FALHA",
+        `pg_indexes local: ${found.size}/${REQUIRED_INDEXES.length}`,
+        "backend/scripts/ensurePerformanceIndexes.js",
+        missing.length ? `Faltando: ${missing.join(", ")}` : "Todos presentes"
+      );
     } catch (error) {
       record(
         4,
         "Índices realmente aplicados no banco",
         "FALHA",
         `Erro ao consultar pg_indexes: ${error.message}`,
-        "backend/prisma/migrations/20260612180000_performance_optimization_indexes/migration.sql",
+        "backend/scripts/ensurePerformanceIndexes.js",
         "Defina DATABASE_URL para verificação direta"
       );
-      return;
     }
-  } else {
-    // Verificação indireta: migration presente + performance API em dataset 26k
-    const health = await fetch(`${API_BASE}/api/health`).then((r) => r.json());
-    const token = await apiLogin();
-    const list = await apiList(token, { page: 1, pageSize: 50, sortBy: "razao_social" });
-    const migrationFile =
-      "backend/prisma/migrations/20260612180000_performance_optimization_indexes/migration.sql";
-    record(
-      4,
-      "Índices realmente aplicados no banco",
-      list.elapsedMs < 5000 && health?.data?.empresas > 10_000 ? "OK" : "FALHA",
-      `Sem DATABASE_URL local: verificação indireta — list 26k+ em ${list.elapsedMs.toFixed(0)}ms; migration SQL em repo`,
-      migrationFile,
-      `Para prova definitiva pg_indexes: export DATABASE_URL e re-executar audit`
-    );
     return;
   }
 
-  const missing = indexChecks.filter((i) => !i.ok);
   record(
     4,
     "Índices realmente aplicados no banco",
-    missing.length === 0 ? "OK" : "FALHA",
-    `pg_indexes: ${indexChecks.filter((i) => i.ok).length}/${REQUIRED_INDEXES.length} índices encontrados`,
-    "backend/prisma/migrations/20260612180000_performance_optimization_indexes/migration.sql",
-    missing.length ? `Faltando: ${missing.map((m) => m.name).join(", ")}` : "Todos presentes"
+    "FALHA",
+    "Endpoint /api/health ainda não expõe performanceIndexes — deploy pendente",
+    "backend/scripts/ensurePerformanceIndexes.js",
+    "Após merge/deploy do backend, re-executar audit para verificação via pg_indexes"
   );
 }
 

@@ -118,6 +118,29 @@ export const registerRoutes = async (app) => {
               ? "Dados antigos detectados. Rode resetAndSeedMaike.sql no Supabase OU defina BOOT_RESET_MAIKE=true no Railway (um deploy) e remova depois."
               : null,
         };
+
+        try {
+          const { PERFORMANCE_INDEX_NAMES } = await import("../../scripts/ensurePerformanceIndexes.js");
+          const indexRows = await client.$queryRaw`
+            SELECT indexname
+            FROM pg_indexes
+            WHERE schemaname = 'public'
+              AND indexname = ANY(${PERFORMANCE_INDEX_NAMES})
+          `;
+          const foundNames = indexRows.map((row) => row.indexname);
+          const missingIndexes = PERFORMANCE_INDEX_NAMES.filter((name) => !foundNames.includes(name));
+          status.performanceIndexes = {
+            expected: PERFORMANCE_INDEX_NAMES.length,
+            found: foundNames.length,
+            applied: missingIndexes.length === 0,
+            missing: missingIndexes,
+          };
+        } catch (indexError) {
+          status.performanceIndexes = {
+            applied: false,
+            error: indexError.message || "Falha ao consultar pg_indexes",
+          };
+        }
       } catch {
         status.migration.restructureApplied = false;
       }

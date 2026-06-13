@@ -1,0 +1,103 @@
+{
+  "timestamp": "2026-06-13T00:21:12.855Z",
+  "results": [
+    {
+      "id": 1,
+      "name": "Virtualização ativa",
+      "status": "OK",
+      "evidence": "Linhas DOM renderizadas: 33 (esperado ≤80 com pageSize 50 + overscan)",
+      "file": "src/shared/hooks/useTableVirtualizer.js + TBLEMP.jsx",
+      "detail": "Paginação UI: 123...52550 por página"
+    },
+    {
+      "id": 2,
+      "name": "Paginação server-side real",
+      "status": "OK",
+      "evidence": "page=1 pageSize=50 → items=50, total=26225, page=1",
+      "file": "backend/src/modules/empresas/repositories/empresaRepository.js",
+      "detail": "Mediana 5 req: 2409.4ms | Resposta: 29.9 KB"
+    },
+    {
+      "id": 3,
+      "name": "Ausência de acúmulo de páginas em memória",
+      "status": "OK",
+      "evidence": "Após 2 cliques paginação: 1 requests empresas; páginas distintas: 2",
+      "file": "src/shared/hooks/useServerListQuery.js (sem infinite query)",
+      "detail": "React Query mantém cache por page key — não concatena páginas"
+    },
+    {
+      "id": 4,
+      "name": "Índices realmente aplicados no banco",
+      "status": "FALHA",
+      "evidence": "Endpoint /api/health ainda não expõe performanceIndexes — deploy pendente",
+      "file": "backend/scripts/ensurePerformanceIndexes.js",
+      "detail": "Após merge/deploy do backend, re-executar audit para verificação via pg_indexes"
+    },
+    {
+      "id": 5,
+      "name": "Tempo real de carregamento (API)",
+      "status": "OK",
+      "evidence": "GET /api/empresas page=1 pageSize=50 mediana(5): 2409.4ms",
+      "file": "scripts/auditPostOptimization.mjs (medição fetch)",
+      "detail": "page=2: 2760.4ms | cold 1ª: 2393.0ms"
+    },
+    {
+      "id": "5-UI",
+      "name": "Tempo real de carregamento (UI)",
+      "status": "OK",
+      "evidence": "Até primeira linha/tabela visível: 10999ms",
+      "file": "scripts/auditPostOptimization.mjs",
+      "detail": "Ambiente: Vite dev + auto-login"
+    },
+    {
+      "id": 6,
+      "name": "Consumo real de memória",
+      "status": "OK",
+      "evidence": "usedJSHeapSize = 28.0 MB",
+      "file": "performance.memory (Chromium, dev mode)",
+      "detail": "totalJSHeapSize = 104.0 MB"
+    },
+    {
+      "id": 7,
+      "name": "Quantidade real de nós DOM",
+      "status": "OK",
+      "evidence": "document.querySelectorAll('*').length = 1193",
+      "file": "Playwright page.evaluate",
+      "detail": "Linhas tabela visíveis: 33"
+    },
+    {
+      "id": 8,
+      "name": "Requests por tela",
+      "status": "OK",
+      "evidence": "Total requests /api/empresas na sessão: 3",
+      "file": "Network tab (Playwright)",
+      "detail": "200 29.9KB | 200 3.0KB | 200 29.3KB"
+    },
+    {
+      "id": 9,
+      "name": "Tamanho das respostas",
+      "status": "OK",
+      "evidence": "Página 50 registros: 30583 bytes (29.9 KB)",
+      "file": "GET /api/empresas",
+      "detail": "pageSize=200: 120710 bytes (117.9 KB)"
+    },
+    {
+      "id": 10,
+      "name": "Comportamento com 100.000 registros simulados",
+      "status": "OK",
+      "evidence": "page=2000 (simula 100k/50): items=0; pageSize=500 cap=200",
+      "file": "backend/src/modules/empresas/repositories/empresaRepository.js (MAX_PAGE_SIZE=200)",
+      "detail": "DB real: 26225 empresas | page2 distinta: true"
+    },
+    {
+      "id": "FIX",
+      "name": "Botões de visualização (Registro/Tabela/Cards)",
+      "status": "OK",
+      "evidence": "Alternância cards→tabela→registro confirmada via aria-pressed/class active",
+      "file": "src/modules/empresas/layout/MgActionBar.jsx",
+      "detail": "Após tabela: view-mode-btn active"
+    }
+  ],
+  "verdict": "B) Sistema ainda possui gargalos.",
+  "failures": 1
+}

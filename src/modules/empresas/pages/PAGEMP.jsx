@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState, startTransition } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
 import { showSuccess, showError } from "@/shared/feedback";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
@@ -779,18 +779,17 @@ export default function PAGEMP() {
           handleEdit(emp);
         },
         onOpenTabela: () => {
-          startTransition(() => handleOpenTableView());
+          setShowForm(false);
+          setEditingEmp(null);
+          setSelectedTableItems([]);
+          setViewMode("table");
         },
         onOpenCards: () => {
           if (!saveCycle.guardAction()) return;
-          startTransition(() => {
-            if (showForm) {
-              setShowForm(false);
-              setEditingEmp(null);
-              setSelectedTableItems([]);
-            }
-            setViewMode("search");
-          });
+          setShowForm(false);
+          setEditingEmp(null);
+          setSelectedTableItems([]);
+          setViewMode("search");
         },
       });
     },
@@ -798,7 +797,6 @@ export default function PAGEMP() {
       empresasNavegacao,
       handleEdit,
       handleNew,
-      handleOpenTableView,
       saveCycle,
       selectedIndex,
       selectedTableEmp,
