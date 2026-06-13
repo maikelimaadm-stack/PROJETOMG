@@ -8,11 +8,11 @@ import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/Emp
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
-import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
+import ErpScrollNav from "@/shared/components/ErpScrollNav";
+import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
-import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -439,7 +439,41 @@ export default function TBLEMP({
     return empresasOrdenadas.slice(start, start + pageSize);
   }, [serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
 
-  const TABLE_ROW_HEIGHT = 32;
+  const renderVirtualTableRow = useCallback(
+    (emp, virtualRowIndex) => {
+      const isSelected = selectedItems.includes(emp.id);
+      const rowClass = getRowBgClass(virtualRowIndex, isSelected);
+      return colunasOrdenadas.map((col, colIndex) => {
+        const width = columnPixelWidths[col.id] || 160;
+        const isFrozen = colIndex < frozenColumnCount;
+        return (
+          <TableCell
+            key={`${emp.id}-${col.id}`}
+            style={{
+              width,
+              minWidth: width,
+              maxWidth: width,
+              left: isFrozen ? frozenOffsets[col.id] : undefined,
+            }}
+            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+            title={String(getFieldValue(emp, col.id) ?? "")}
+          >
+            {getFieldValue(emp, col.id)}
+          </TableCell>
+        );
+      });
+    },
+    [
+      colunasOrdenadas,
+      columnPixelWidths,
+      frozenColumnCount,
+      frozenOffsets,
+      getColumnAlignClass,
+      getFieldValue,
+      getRowBgClass,
+      selectedItems,
+    ]
+  );
 
   useEffect(() => {
     localStorage.setItem(PAGE_SIZE_KEY, String(pageSize));
@@ -529,13 +563,6 @@ export default function TBLEMP({
 
     handleRowSelect(emp, event);
   };
-
-  const { virtualItems, paddingTop, paddingBottom, virtualizer } = useTableVirtualizer({
-    scrollRef: scrollContainerRef,
-    count: empresasPaginadas.length,
-    estimateSize: TABLE_ROW_HEIGHT,
-    enabled: empresasPaginadas.length > 0 && !isLoadingEmpresas,
-  });
 
   const syncTableFullscreen = useCallback(() => {
     setIsTableFullscreen(document.fullscreenElement === tableStageRef.current);
@@ -1046,77 +1073,49 @@ export default function TBLEMP({
             viewportClassName="overflow-auto"
           >
             <div
-              className="block w-max min-w-full min-h-full"
+              className="block w-max min-w-full"
               style={{ width: totalTableWidth, minWidth: totalTableWidth }}
             >
-              <Table
-                ref={tableRef}
-                style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className={bodyTableClass}
-              >
-                <TableBody>
-                  {isLoadingEmpresas ? (
+              {isLoadingEmpresas ? (
+                <Table
+                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                  className={bodyTableClass}
+                >
+                  <TableBody>
                     <TableRow>
                       <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
                         Carregando registros...
                       </TableCell>
                     </TableRow>
-                  ) : empresasOrdenadas.length === 0 ? (
+                  </TableBody>
+                </Table>
+              ) : empresasOrdenadas.length === 0 ? (
+                <Table
+                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+                  className={bodyTableClass}
+                >
+                  <TableBody>
                     <TableRow>
                       <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
                         Nenhuma empresa encontrada
                       </TableCell>
                     </TableRow>
-                  ) : (
-                    <>
-                      {paddingTop > 0 ? (
-                        <TableRow aria-hidden="true">
-                          <TableCell colSpan={colunasOrdenadas.length} style={{ height: paddingTop, padding: 0, border: 0 }} />
-                        </TableRow>
-                      ) : null}
-                      {virtualItems.map((virtualRow) => {
-                        const emp = empresasPaginadas[virtualRow.index];
-                        if (!emp) return null;
-                        const isSelected = selectedItems.includes(emp.id);
-                        const rowClass = getRowBgClass(virtualRow.index, isSelected);
-                        return (
-                          <TableRow
-                            key={emp.id}
-                            data-index={virtualRow.index}
-                            className={`emp-table-data-row ${rowClass} cursor-pointer select-none hover:brightness-[0.98]`}
-                            onClick={(e) => handleRowClick(emp, e)}
-                          >
-                            {colunasOrdenadas.map((col, colIndex) => {
-                              const width = columnPixelWidths[col.id] || 160;
-                              const isFrozen = colIndex < frozenColumnCount;
-                              return (
-                                <TableCell
-                                  key={`${emp.id}-${col.id}`}
-                                  style={{
-                                    width,
-                                    minWidth: width,
-                                    maxWidth: width,
-                                    left: isFrozen ? frozenOffsets[col.id] : undefined,
-                                  }}
-                                  className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
-                                  title={String(getFieldValue(emp, col.id) ?? "")}
-                                >
-                                  {getFieldValue(emp, col.id)}
-                                </TableCell>
-                              );
-                            })}
-                          </TableRow>
-                        );
-                      })}
-                      {paddingBottom > 0 ? (
-                        <TableRow aria-hidden="true">
-                          <TableCell colSpan={colunasOrdenadas.length} style={{ height: paddingBottom, padding: 0, border: 0 }} />
-                        </TableRow>
-                      ) : null}
-                    </>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableBody>
+                </Table>
+              ) : (
+                <EmpVirtualTableBody
+                  scrollRef={scrollContainerRef}
+                  rows={empresasPaginadas}
+                  enabled={!isLoadingEmpresas}
+                  totalTableWidth={totalTableWidth}
+                  bodyTableClass={bodyTableClass}
+                  renderRow={renderVirtualTableRow}
+                  getRowClassName={(emp, rowIndex) =>
+                    getRowBgClass(rowIndex, selectedItems.includes(emp.id))
+                  }
+                  onRowClick={handleRowClick}
+                />
+              )}
             </div>
           </ErpScrollNav>
         </div>

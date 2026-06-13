@@ -478,6 +478,7 @@ input[type="number"] {
   flex: 1 1 auto;
   min-height: 0;
   -webkit-overflow-scrolling: touch;
+  overflow-anchor: none;
 }
 
 .erp-menu-panel {

@@ -902,18 +902,24 @@
   width: 100%;
 }
 
+.mg-empresas-scope .emp-table-data-row {
+  height: 26px;
+  max-height: 26px;
+}
+
+.mg-empresas-scope .emp-table-virtual-body,
+.mg-empresas-scope .emp-table-virtual-row-wrap {
+  contain: layout style;
+}
+
 .mg-empresas-scope .mg-cards-virtual-row {
   width: 100%;
   box-sizing: border-box;
   align-items: start;
   flex-shrink: 0;
   overflow: hidden;
-  contain: layout style paint;
-}
-
-.mg-empresas-scope .emp-table-data-row {
-  content-visibility: auto;
-  contain-intrinsic-size: 26px;
+  contain: layout style;
+  will-change: transform;
 }
 
 .mg-empresas-scope .mg-search-dropdown__empty--more {
