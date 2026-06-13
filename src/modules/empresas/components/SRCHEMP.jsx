@@ -221,12 +221,7 @@ export default function SRCHEMP({
 
   const cardsLayoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
 
-  useEffect(() => {
-    if (!mgPrototype) return;
-    const scrollEl = cardsScrollRef.current;
-    if (!scrollEl) return;
-    scrollEl.scrollTop = 0;
-  }, [page, showOnlyFavorites, cardsLayoutKey, mgPrototype]);
+  const cardsScrollResetKey = `${page}:${showOnlyFavorites}:${cardsLayoutKey}`;
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -339,6 +334,7 @@ export default function SRCHEMP({
               isFavoriteRecord={isFavoriteRecord}
               onToggleFavorite={onToggleFavorite}
               onCardClick={handleCardClick}
+              scrollResetKey={cardsScrollResetKey}
             />
           )}
         </ErpScrollNav>

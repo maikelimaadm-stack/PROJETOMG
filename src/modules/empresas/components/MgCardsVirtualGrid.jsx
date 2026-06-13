@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect, useLayoutEffect } from "react";
 import { Check } from "lucide-react";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import {
@@ -21,8 +21,11 @@ function MgCardsVirtualGrid({
   isFavoriteRecord,
   onToggleFavorite,
   onCardClick,
+  scrollResetKey = "",
 }) {
-  const { virtualRows, totalSize } = useGridVirtualizer({
+  const layoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
+
+  const { virtualizer, virtualRows, totalSize } = useGridVirtualizer({
     scrollRef,
     itemCount: items.length,
     columnsPerRow: cardsPerRow,
@@ -31,6 +34,33 @@ function MgCardsVirtualGrid({
     scrollMargin: CARDS_LIST_PADDING,
     enabled: items.length > 0,
   });
+
+  useLayoutEffect(() => {
+    virtualizer?.measure?.();
+  }, [virtualizer]);
+
+  useEffect(() => {
+    virtualizer?.measure?.();
+  }, [virtualizer, items.length, layoutKey]);
+
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    if (!scrollEl || !virtualizer) return undefined;
+
+    const measure = () => virtualizer.measure();
+    measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(scrollEl);
+    return () => observer.disconnect();
+  }, [scrollRef, virtualizer]);
+
+  useEffect(() => {
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+    scrollEl.scrollTop = 0;
+    virtualizer?.scrollToIndex?.(0, { align: "start" });
+  }, [scrollResetKey, scrollRef, virtualizer]);
 
   if (items.length === 0) return null;
 
