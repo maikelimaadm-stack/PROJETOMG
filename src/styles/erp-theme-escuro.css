@@ -360,6 +360,23 @@ html.escuro .cadastro-emp-scope .emp-bubble-counter__tail {
 }
 
 /* —— Cards, painéis, filtros —— */
+html.tema-escuro .mg-empresas-scope .mg-emp-card:not(.emp-form-card),
+html.escuro .mg-empresas-scope .mg-emp-card:not(.emp-form-card) {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--mg-card-shadow) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card),
+html.tema-escuro .mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card):hover,
+html.escuro .mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card),
+html.escuro .mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card):hover {
+  background: var(--bg-card) !important;
+  border: var(--mg-selection-panel-border) !important;
+  border-radius: var(--mg-radius-card) !important;
+  box-shadow: var(--mg-selection-panel-shadow) !important;
+}
+
 html.tema-escuro .mg-empresas-scope .erp-card,
 html.tema-escuro .mg-empresas-scope .mg-emp-card,
 html.tema-escuro .mg-empresas-scope .emp-form-card,
