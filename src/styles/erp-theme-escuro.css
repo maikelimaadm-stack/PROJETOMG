@@ -909,9 +909,18 @@ html.escuro .cadastro-emp-scope .emp-table-pagination-btn.emp-table-pagination-p
   color: #40de63 !important;
 }
 
-html.tema-escuro .mg-empresas-scope .seg-tab.active,
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span {
+  color: #ffffff !important;
+}
+
 html.tema-escuro .mg-empresas-scope .view-mode-btn.active,
-html.escuro .mg-empresas-scope .seg-tab.active,
 html.escuro .mg-empresas-scope .view-mode-btn.active {
   color: #40de63 !important;
 }
@@ -1244,7 +1253,7 @@ html.escuro .mg-empresas-scope :is(
   .tb-btn-blue
 ) {
   background: #21262d !important;
-  border: 1px solid #40de63 !important;
+  border: 1px solid var(--erp-border-line, #484f58) !important;
   color: #40de63 !important;
   box-shadow: none !important;
 }
@@ -1282,7 +1291,7 @@ html.escuro .cadastro-emp-scope.mg-empresas-scope :is(
 ):hover:not(:disabled),
 html.escuro .mg-empresas-scope :is(.tb-btn-green, .tb-btn-blue):hover:not(:disabled) {
   background: #30363d !important;
-  border-color: #40de63 !important;
+  border-color: #6e7681 !important;
   color: #40de63 !important;
 }
 
@@ -1342,7 +1351,7 @@ html.escuro .mg-empresas-scope .emp-layout-configurator :is(
   .tb-btn-ghost.tb-btn-icon.tb-btn-green
 ) {
   background: #21262d !important;
-  border: 1px solid #40de63 !important;
+  border: 1px solid var(--erp-border-line, #484f58) !important;
   color: #40de63 !important;
 }
 
@@ -1365,7 +1374,7 @@ html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save,
 html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new,
 html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save {
   background: #21262d !important;
-  border: 1px solid #40de63 !important;
+  border: 1px solid var(--erp-border-line, #484f58) !important;
   color: #40de63 !important;
 }
 
@@ -1382,7 +1391,7 @@ html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:hover
 html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:hover:not(:disabled),
 html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:hover:not(:disabled) {
   background: #30363d !important;
-  border-color: #40de63 !important;
+  border-color: #6e7681 !important;
   color: #40de63 !important;
 }
 
@@ -1450,7 +1459,7 @@ html.escuro .cadastro-emp-scope .erp-form-footer__btn--primary:not(:disabled),
 html.escuro .cadastro-emp-scope .emp-form-mobile-footer__btn.emp-toolbar-btn-save:not(:disabled) {
   background: #21262d !important;
   background-color: #21262d !important;
-  border: 1px solid #40de63 !important;
+  border: 1px solid var(--erp-border-line, #484f58) !important;
   color: #40de63 !important;
   box-shadow: none !important;
 }
@@ -1501,7 +1510,7 @@ html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:not(:disab
 html.escuro .cadastro-emp-scope .erp-form-footer__btn--primary:not(:disabled):is(:hover, :focus-visible, :active) {
   background: #30363d !important;
   background-color: #30363d !important;
-  border-color: #40de63 !important;
+  border-color: #6e7681 !important;
   color: #40de63 !important;
   box-shadow: 0 0 0 2px rgba(64, 222, 99, 0.16) !important;
 }
@@ -1640,9 +1649,9 @@ html.escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"],
 html.escuro .emp-filter-checkbox[data-state="checked"] {
   background: #21262d !important;
   background-color: #21262d !important;
-  border-color: #40de63 !important;
+  border-color: var(--erp-border-line, #484f58) !important;
   color: #40de63 !important;
-  box-shadow: inset 0 0 0 1px rgba(64, 222, 99, 0.12) !important;
+  box-shadow: none !important;
 }
 
 html.tema-escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) svg,
@@ -1708,5 +1717,181 @@ html.escuro .cadastro-emp-scope :is(
   .emp-form-field-control-lote,
   [data-radix-select-trigger]
 ) {
+  border-color: var(--erp-border-line, #484f58) !important;
+}
+
+/* =============================================================================
+   Painéis de lançamento — só linha verde embaixo; texto branco no selecionado
+   ============================================================================= */
+
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip,
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-control,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip,
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch,
+html.tema-escuro .cadastro-emp-scope .form-scroll-container .emp-form-tabs.emp-form-tabs-launch,
+html.tema-escuro .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-control,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch,
+html.escuro .cadastro-emp-scope .form-scroll-container .emp-form-tabs.emp-form-tabs-launch,
+html.escuro .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-form-panels-zone > .emp-form-tabs.emp-form-tabs-launch {
+  background: transparent !important;
+  border: none !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip::after,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip::after,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip::after,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip::after {
+  content: none !important;
+  display: none !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab,
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab,
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab {
+  background: transparent !important;
+  border: none !important;
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
+  background: #40de63 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover,
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active:hover,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: transparent !important;
+  border: none !important;
+}
+
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active::after,
+html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active::after,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active::after,
+html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-form-tab-active::after {
+  display: block !important;
+  content: "" !important;
+  background: #40de63 !important;
+  box-shadow: none !important;
+}
+
+/* Novo / Salvar — borda clara igual aos outros; texto verde */
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled),
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled),
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-green.tb-btn-labeled:not(:disabled),
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-green:not(.tb-btn-icon):not(:disabled),
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-ghost.tb-btn-icon.tb-btn-green,
+  .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-green
+):not(:disabled),
+html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:not(:disabled),
+html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:not(:disabled),
+html.tema-escuro .cadastro-emp-scope .erp-form-footer__btn--primary:not(:disabled),
+html.tema-escuro .cadastro-emp-scope .emp-form-mobile-footer__btn.emp-toolbar-btn-save:not(:disabled),
+html.escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled),
+html.escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled),
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-green.tb-btn-labeled:not(:disabled),
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-green:not(.tb-btn-icon):not(:disabled),
+html.escuro .cadastro-emp-scope.mg-empresas-scope :is(
+  .tb-btn-ghost.tb-btn-icon.tb-btn-green,
+  .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-green
+):not(:disabled),
+html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:not(:disabled),
+html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:not(:disabled),
+html.escuro .cadastro-emp-scope .erp-form-footer__btn--primary:not(:disabled),
+html.escuro .cadastro-emp-scope .emp-form-mobile-footer__btn.emp-toolbar-btn-save:not(:disabled) {
+  border-color: var(--erp-border-line, #484f58) !important;
+}
+
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled):is(:hover, :focus-visible, :active),
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled):is(:hover, :focus-visible, :active),
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-green.tb-btn-labeled:not(:disabled):is(:hover, :focus-visible, :active),
+html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:not(:disabled):is(:hover, :focus-visible, :active),
+html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:not(:disabled):is(:hover, :focus-visible, :active),
+html.escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled):is(:hover, :focus-visible, :active),
+html.escuro .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled):is(:hover, :focus-visible, :active),
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-green.tb-btn-labeled:not(:disabled):is(:hover, :focus-visible, :active),
+html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:not(:disabled):is(:hover, :focus-visible, :active),
+html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:not(:disabled):is(:hover, :focus-visible, :active) {
+  border-color: #6e7681 !important;
+}
+
+/* Checkboxes globais — borda clara + ícone verde (config, listagens, filtros) */
+html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check,
+html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check--radio,
+html.escuro .mg-empresas-scope .mg-cards-config-menu__check,
+html.escuro .mg-empresas-scope .mg-cards-config-menu__check--radio {
+  background: #21262d !important;
+  border: 1.5px solid var(--erp-border-line, #484f58) !important;
+  box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked,
+html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked,
+html.escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked,
+html.escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked {
+  background: #21262d !important;
+  border-color: var(--erp-border-line, #484f58) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked .mg-cards-config-menu__check-icon,
+html.escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked .mg-cards-config-menu__check-icon {
+  color: #40de63 !important;
+  stroke: #40de63 !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked .mg-cards-config-menu__radio-dot,
+html.escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked .mg-cards-config-menu__radio-dot {
+  background: #40de63 !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-cards-config-modal .emp-search-config-checkbox,
+html.tema-escuro .cadastro-emp-scope .emp-search-config-checkbox,
+html.tema-escuro .cadastro-emp-scope input[type="checkbox"],
+html.escuro .mg-empresas-scope .mg-cards-config-modal .emp-search-config-checkbox,
+html.escuro .cadastro-emp-scope .emp-search-config-checkbox,
+html.escuro .cadastro-emp-scope input[type="checkbox"] {
+  accent-color: #40de63;
+  background-color: #21262d !important;
+  border: 1px solid var(--erp-border-line, #484f58) !important;
+}
+
+html.tema-escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch),
+html.tema-escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"],
+html.tema-escuro .emp-filter-checkbox[data-state="checked"],
+html.escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch),
+html.escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"],
+html.escuro .emp-filter-checkbox[data-state="checked"] {
   border-color: var(--erp-border-line, #484f58) !important;
 }
