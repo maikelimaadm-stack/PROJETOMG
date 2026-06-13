@@ -7,6 +7,7 @@ import {
   registerRegistroGlobal,
   reserveNextIdGlobal,
 } from "../../idGlobal/idGlobalService.js";
+import { getEmpresaCount, invalidateClienteStats } from "../../metrics/counterService.js";
 import {
   ENTITY_CODIGO_EMPRESA,
   reserveNextCodigo,
@@ -418,10 +419,7 @@ export const empresaRepository = {
   resolveOrderBy,
   buildListWhere,
   async count(scope) {
-    const prisma = getPrismaClient();
-    return prisma.empresa.count({
-      where: buildCadastroScopeWhere(scope),
-    });
+    return getEmpresaCount(scope);
   },
 
   async list({ scope, page = 1, pageSize = DEFAULT_PAGE_SIZE, search = "", sortBy, sortDir, filters = {} }) {
@@ -430,17 +428,22 @@ export const empresaRepository = {
     const safePageSize = Math.min(MAX_PAGE_SIZE, toPositiveInt(pageSize, DEFAULT_PAGE_SIZE));
     const skip = (safePage - 1) * safePageSize;
     const where = await buildListWhere(prisma, scope, { search, filters });
+    const hasHeavyFilter = Boolean(String(search || "").trim() || Object.keys(filters || {}).length);
 
-    const [items, total] = await Promise.all([
-      prisma.empresa.findMany({
-        where,
-        select: LIST_SELECT,
-        orderBy: resolveOrderBy(sortBy, sortDir),
-        skip,
-        take: safePageSize,
-      }),
-      prisma.empresa.count({ where }),
-    ]);
+    const items = await prisma.empresa.findMany({
+      where,
+      select: LIST_SELECT,
+      orderBy: resolveOrderBy(sortBy, sortDir),
+      skip,
+      take: safePageSize,
+    });
+
+    let total;
+    if (hasHeavyFilter) {
+      total = await prisma.empresa.count({ where });
+    } else {
+      total = await getEmpresaCount(scope);
+    }
 
     return {
       items,
@@ -524,8 +527,13 @@ export const empresaRepository = {
         entityName: "Empresa",
         registroId: record.id,
       });
+      await tx.cliente.update({
+        where: { id: scope.clienteId },
+        data: { total_empresas: { increment: 1 } },
+      });
       return record;
     });
+    void invalidateClienteStats(scope.clienteId);
     void auditService.log({
       scope,
       entityName: "Empresa",
@@ -588,7 +596,12 @@ export const empresaRepository = {
       await prisma.$transaction(async (tx) => {
         await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
         await tx.empresa.delete({ where: { id: current.id } });
+        await tx.cliente.update({
+          where: { id: scope.clienteId },
+          data: { total_empresas: { decrement: 1 } },
+        });
       });
+      void invalidateClienteStats(scope.clienteId);
     } catch (error) {
       if (String(error?.code || "") === "P2003") {
         const conflictError = new Error(

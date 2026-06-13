@@ -35,6 +35,7 @@
     "test:latency": "node scripts/testLatency.js",
     "apply:supabase": "node scripts/applyToSupabase.js",
     "audit:database": "node scripts/auditDatabaseStructure.js",
+    "audit:index-usage": "node scripts/auditIndexUsage.js",
     "ensure:campos-indexes": "node scripts/ensureCampoPersonalizadoIndexes.js",
     "ensure:usuario-preferencias": "node scripts/ensureUsuarioPreferenciaTable.js",
     "security:multiempresa": "node scripts/securityMultiempresaProbe.js",

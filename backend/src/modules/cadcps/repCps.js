@@ -11,6 +11,7 @@ import {
 } from "../sequencias/entidadeCodigoService.js";
 import { assertCampoNotInUse } from "./cadcpsFieldUsage.js";
 import { CADCPS_APLICACAO, normalizeCadcpsTipo } from "./cadcpsConstants.js";
+import { getCadcpsCampoCount, invalidateClienteStats } from "../metrics/counterService.js";
 import { listCadastroModulesForCadcps } from "./cadastroModuleRegistry.js";
 
 const CAMPO_INCLUDE = {
@@ -293,11 +294,25 @@ export const repCps = {
     const sortBy = CADCPS_SORT_WHITELIST.has(rawSortBy) ? rawSortBy : "codigo";
     const sortDir = query.sortDir === "desc" ? "desc" : "asc";
     const orderBy = { [sortBy]: sortDir };
+    const hasHeavyFilter = Boolean(
+      String(query.search || "").trim() || (query.filters && Object.keys(query.filters).length)
+    );
 
-    const [rows, total] = await Promise.all([
-      prisma.cadCpsCampo.findMany({ where, include: CAMPO_INCLUDE, skip, take: pageSize, orderBy }),
-      prisma.cadCpsCampo.count({ where }),
-    ]);
+    const rows = await prisma.cadCpsCampo.findMany({
+      where,
+      include: CAMPO_INCLUDE,
+      skip,
+      take: pageSize,
+      orderBy,
+    });
+
+    let total;
+    if (hasHeavyFilter) {
+      total = await prisma.cadCpsCampo.count({ where });
+    } else {
+      const cachedTotal = await getCadcpsCampoCount(scope);
+      total = cachedTotal ?? rows.length;
+    }
 
     return {
       items: rows.map(mapCampoRow),
@@ -397,8 +412,14 @@ export const repCps = {
         opcoes: payload.opcoes,
         aplicacao_modo,
       });
+      await tx.cliente.update({
+        where: { id: scope.clienteId },
+        data: { total_cadcps_campos: { increment: 1 } },
+      });
       return record;
     });
+
+    void invalidateClienteStats(scope.clienteId);
 
     const full = await this.getById(scope, created.id);
     await recordHistorico(prisma, { scope, campoId: created.id, acao: "CREATE", valorNovo: full });
@@ -521,6 +542,11 @@ export const repCps = {
       valorAnterior: current,
     });
     await prisma.cadCpsCampo.delete({ where: { id } });
+    await prisma.cliente.update({
+      where: { id: scope.clienteId },
+      data: { total_cadcps_campos: { decrement: 1 } },
+    });
+    void invalidateClienteStats(scope.clienteId);
     void auditService.log({
       scope,
       entityName: "CadCpsCampo",
