@@ -73,8 +73,8 @@
   --mg-field-stack-inset-top: 11px;
   --mg-field-stack-inset-bottom: 3px;
   --mg-panel-tab-font: 13px;
-  --mg-panel-tab-radius: 10px;
-  --mg-panel-tab-scoop: 8px;
+  --mg-panel-tab-radius: 12px;
+  --mg-panel-tab-scoop: 12px;
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-cards-layout-gap: 9px;
@@ -508,8 +508,7 @@
 .mg-empresas-scope :is(
   .mg-action-bar,
   .mg-context-panel,
-  .mg-cards-panel-strip,
-  .mg-panel-tabs-strip
+  .mg-cards-panel-strip
 ) {
   box-sizing: border-box;
   height: var(--mg-toolbar-row-height);
@@ -603,17 +602,23 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip {
+  box-sizing: border-box;
   display: flex;
   align-items: flex-end;
+  position: relative;
+  min-height: calc(var(--mg-toolbar-row-height) + 8px);
+  height: auto;
+  max-height: none;
+  padding: 8px var(--mg-toolbar-gutter) 0;
   border-top: none !important;
-  background: var(--bg-card) !important;
+  background: var(--gray-fill) !important;
   scrollbar-width: none;
   -ms-overflow-style: none;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: visible;
   flex-shrink: 0;
-  z-index: 2;
-  contain: layout style;
+  z-index: 4;
+  contain: none;
 }
 
 .mg-empresas-scope #mode-registro .mg-panel-tabs-strip::after {
@@ -625,23 +630,26 @@
   overflow: visible;
   position: relative;
   min-width: min-content;
-  height: 100%;
+  width: 100%;
+  height: auto;
   align-items: flex-end;
   gap: 0;
-  padding-bottom: 0;
+  padding: 0 4px;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab {
+  --tab-r: var(--mg-panel-tab-radius);
   position: relative;
-  min-height: 0;
-  height: calc(100% - 1px);
+  isolation: isolate;
   min-height: 32px;
-  padding: 0 14px;
+  height: 32px;
+  padding: 0 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: none !important;
-  border-radius: var(--mg-panel-tab-radius) var(--mg-panel-tab-radius) 0 0 !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-bottom: none !important;
+  border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
   background: var(--bg-card) !important;
   color: var(--text-2) !important;
   font-weight: 500;
@@ -649,25 +657,30 @@
   z-index: 1;
   transition:
     color var(--mg-motion-duration) var(--mg-motion-ease),
-    background-color var(--mg-motion-duration) var(--mg-motion-ease);
+    background-color var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-panel-tabs-strip .seg-tab + .seg-tab:not(.active) {
-  box-shadow: inset 1px 0 0 rgba(148, 163, 184, 0.22) !important;
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab + .seg-tab {
+  margin-left: 2px;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active) {
   color: var(--text-1) !important;
   background: var(--bg-card) !important;
+  border-color: rgba(148, 163, 184, 0.28) !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active {
+  height: var(--mg-toolbar-row-height);
+  min-height: var(--mg-toolbar-row-height);
   color: var(--text-1) !important;
   font-weight: 700 !important;
   background: var(--bg-page) !important;
-  z-index: 3;
+  border: none !important;
+  z-index: 5;
   margin-bottom: -1px;
-  padding-bottom: 1px;
+  padding-bottom: 0;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before,
@@ -676,21 +689,37 @@
   content: "" !important;
   position: absolute;
   bottom: 0;
-  width: var(--mg-panel-tab-scoop);
-  height: var(--mg-panel-tab-scoop);
+  width: var(--tab-r);
+  height: var(--tab-r);
+  background: transparent;
   pointer-events: none;
+  z-index: 1;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before {
-  left: calc(-1 * var(--mg-panel-tab-scoop));
-  border-bottom-right-radius: var(--mg-panel-tab-scoop);
-  box-shadow: calc(var(--mg-panel-tab-scoop) / 2) 0 0 0 var(--bg-page);
+  left: calc(-1 * var(--tab-r));
+  border-bottom-right-radius: var(--tab-r);
+  box-shadow:
+    calc(var(--tab-r) / 2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
-  right: calc(-1 * var(--mg-panel-tab-scoop));
-  border-bottom-left-radius: var(--mg-panel-tab-scoop);
-  box-shadow: calc(var(--mg-panel-tab-scoop) / -2) 0 0 0 var(--bg-page);
+  right: calc(-1 * var(--tab-r));
+  border-bottom-left-radius: var(--tab-r);
+  box-shadow:
+    calc(var(--tab-r) / -2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
+}
+
+@supports (corner-shape: scoop) {
+  .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active {
+    corner-shape: round round scoop scoop;
+  }
+
+  .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before,
+  .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
+    display: none !important;
+    content: none !important;
+  }
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
@@ -701,6 +730,7 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab,
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab span {
   color: var(--text-2) !important;
+  border-color: rgba(148, 163, 184, 0.2) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
@@ -708,6 +738,7 @@
   color: var(--text-1) !important;
   font-weight: 700 !important;
   background: var(--bg-page) !important;
+  border: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:not(.active) {
@@ -716,6 +747,11 @@
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
   display: none;
+}
+
+.mg-empresas-scope #mode-registro {
+  overflow: visible;
+  min-height: 0;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll {
@@ -791,6 +827,82 @@
 
 .mg-empresas-scope .seg-control .seg-tab {
   border-radius: 0 !important;
+}
+
+/* Painéis — folder tabs Arc (override das regras flat .seg-tab acima) */
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab {
+  --tab-r: var(--mg-panel-tab-radius);
+  isolation: isolate;
+  min-height: 32px;
+  height: 32px;
+  padding: 0 16px !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-bottom: none !important;
+  border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
+  background: var(--bg-card) !important;
+  box-shadow: none !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active {
+  height: var(--mg-toolbar-row-height) !important;
+  min-height: var(--mg-toolbar-row-height) !important;
+  background: var(--bg-page) !important;
+  border: none !important;
+  margin-bottom: -1px;
+  z-index: 5;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::before,
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::after {
+  display: block !important;
+  content: "" !important;
+  position: absolute;
+  bottom: 0;
+  width: var(--tab-r);
+  height: var(--tab-r);
+  background: transparent;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::before {
+  left: calc(-1 * var(--tab-r));
+  border-bottom-right-radius: var(--tab-r);
+  box-shadow:
+    calc(var(--tab-r) / 2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::after {
+  right: calc(-1 * var(--tab-r));
+  border-bottom-left-radius: var(--tab-r);
+  box-shadow:
+    calc(var(--tab-r) / -2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
+}
+
+@supports (corner-shape: scoop) {
+  .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active {
+    corner-shape: round round scoop scoop;
+  }
+
+  .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::before,
+  .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::after {
+    display: none !important;
+    content: none !important;
+  }
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control button.seg-tab {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-bottom: none !important;
+  border-radius: var(--mg-panel-tab-radius) var(--mg-panel-tab-radius) 0 0 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active span {
+  background: var(--bg-page) !important;
+  border: none !important;
 }
 
 /* View segmented control — estilo pill da pesquisa */
