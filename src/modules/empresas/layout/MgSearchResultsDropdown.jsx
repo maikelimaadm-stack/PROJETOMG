@@ -8,7 +8,6 @@ import {
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import { renderSearchHighlight } from "@/modules/empresas/layout/mgSearchHighlight";
 import { showWarning } from "@/shared/feedback";
-import { isolateFloatingPanelWheel, isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
 
 const SCROLL_LOAD_THRESHOLD_PX = 48;
 
@@ -138,12 +137,6 @@ export default function MgSearchResultsDropdown({
         className={`mg-search-dropdown${configOpen ? " is-config-open" : ""}`}
         role="listbox"
         aria-label="Resultados da pesquisa"
-        onWheel={(event) =>
-          isolateFloatingPanelWheel(
-            event,
-            configOpen ? ".mg-search-dropdown__config-list" : ".mg-search-dropdown__list"
-          )
-        }
       >
         {configOpen ? (
           <div className="mg-search-dropdown__config">
@@ -195,7 +188,6 @@ export default function MgSearchResultsDropdown({
             ref={listRef}
             className={`mg-search-dropdown__list${!hasQuery ? " mg-search-dropdown__list--idle" : ""}`}
             onScroll={handleListScroll}
-            onWheel={isolateScrollWheel}
           >
             {showLoading ? (
               <div className="mg-search-dropdown__empty">Carregando...</div>

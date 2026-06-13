@@ -12,9 +12,7 @@ import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
-import ErpScrollViewport from "@/shared/components/ErpScrollViewport";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
-import { isolateFloatingPanelWheel } from "@/shared/utils/scrollWheelBoundary";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -649,14 +647,7 @@ export default function TBLEMP({
   useLayoutEffect(() => {
     updateFilterAnchorRect();
     if (!menuFiltroAberto) return undefined;
-    let rafId = 0;
-    const onReflow = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        updateFilterAnchorRect();
-      });
-    };
+    const onReflow = () => updateFilterAnchorRect();
     const raf = requestAnimationFrame(updateFilterAnchorRect);
     const root = scrollContainerRef.current;
     root?.addEventListener("scroll", onReflow, { passive: true });
@@ -664,7 +655,6 @@ export default function TBLEMP({
     window.addEventListener("scroll", onReflow, true);
     return () => {
       cancelAnimationFrame(raf);
-      if (rafId) cancelAnimationFrame(rafId);
       root?.removeEventListener("scroll", onReflow);
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
@@ -729,9 +719,8 @@ export default function TBLEMP({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover erp-menu-panel erp-scroll-lock-wheel absolute z-[9999]"
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
-        onWheel={(event) => isolateFloatingPanelWheel(event, ".emp-filter-value-list")}
       >
           <div className="emp-filter-sort-section">
             <button
@@ -802,7 +791,7 @@ export default function TBLEMP({
               className="emp-filter-field emp-filter-search"
             />
 
-            <ErpScrollViewport variant="compact" className="emp-filter-value-list">
+            <div className="emp-filter-value-list">
               <label className="emp-filter-value-list-header">
                 <Checkbox
                   checked={allVisSel}
@@ -835,7 +824,7 @@ export default function TBLEMP({
                   </label>
                 ))
               )}
-            </ErpScrollViewport>
+            </div>
 
             <div className="emp-filter-actions">
               <button
@@ -1048,12 +1037,11 @@ export default function TBLEMP({
               </Table>
             </div>
           </div>
-          <ErpScrollViewport
+          <div
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            stepSize={TABLE_ROW_HEIGHT}
-            className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none${mgPrototype ? " mg-grid-scroll" : ""}`}
+            className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto${mgPrototype ? " mg-grid-scroll" : ""}`}
           >
             <div
               className="block w-max min-w-full min-h-full"
@@ -1129,7 +1117,7 @@ export default function TBLEMP({
                 </TableBody>
               </Table>
             </div>
-          </ErpScrollViewport>
+          </div>
         </div>
         <div className="emp-table-bottom-dock">
           {hasTotalRow ? (

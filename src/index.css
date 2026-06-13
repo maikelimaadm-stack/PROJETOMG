@@ -183,402 +183,41 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-:root {
-  /* Espessura padrão fina (estilo Google/select) — mesma em todo o ERP */
-  --erp-scrollbar-size-primary: 8px;
-  --erp-scrollbar-size-compact: 8px;
-  --erp-scrollbar-btn-size: 12px;
-  --erp-scrollbar-thumb-height-primary: 40px;
-  --erp-scrollbar-thumb-height-compact: 28px;
-  /* Verde do botão Novo (--mg-brand-green) */
-  --erp-scrollbar-thumb: rgba(64, 222, 99, 0.82);
-  --erp-scrollbar-thumb-hover: #36c956;
-  --erp-scrollbar-thumb-border: rgba(255, 255, 255, 0.55);
-  --erp-scrollbar-track: transparent;
-  --erp-scrollbar-track-bg: rgba(15, 23, 42, 0.05);
-  --erp-scrollbar-track-border: rgba(15, 23, 42, 0.14);
-  --erp-scrollbar-arrow: #40de63;
-  --erp-scrollbar-arrow-hover: #36c956;
-  --erp-scrollbar-arrow-disabled: rgba(100, 116, 139, 0.35);
-}
-
-.dark {
-  --erp-scrollbar-thumb: rgba(64, 222, 99, 0.72);
-  --erp-scrollbar-thumb-hover: #4ae870;
-  --erp-scrollbar-thumb-border: rgba(255, 255, 255, 0.2);
-  --erp-scrollbar-track-bg: rgba(255, 255, 255, 0.04);
-  --erp-scrollbar-track-border: rgba(255, 255, 255, 0.12);
-  --erp-scrollbar-arrow: #4ae870;
-  --erp-scrollbar-arrow-hover: #40de63;
-  --erp-scrollbar-arrow-disabled: rgba(148, 163, 184, 0.35);
-}
-
-/* —— Scrollbars: dois tamanhos fixos (principal × compacto) —— */
-
-/* Principal — tabelas, formulários, cards, filtros laterais, sidebar */
-.cadastro-emp-scope .form-scroll-container,
-.cadastro-emp-scope .emp-table-body-scroll,
-.mg-empresas-scope .mg-form-scroll,
-.mg-empresas-scope .mg-grid-scroll,
-.mg-empresas-scope .filter-panel__body,
-.mg-empresas-scope .mobile-menu,
-.emp-campos-config-table-wrap,
-.emp-layout-config-available-list,
-.emp-layout-config-panel-body,
-[data-sidebar="content"],
-.erp-scroll-y,
-.erp-scroll {
-  --erp-scrollbar-size: var(--erp-scrollbar-size-primary);
+* {
   scrollbar-width: thin;
-  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+  scrollbar-color: #cbd5e1 transparent;
 }
 
-/* Compacto — select, autocomplete, pesquisa, abas, popovers, listas curtas */
-.mg-empresas-scope .mg-search-dropdown__list,
-.mg-empresas-scope .mg-tp-col,
-.mg-empresas-scope .cmd-panel-options,
-.mg-empresas-scope .mg-panel-options,
-.mg-empresas-scope .mg-lookup-list,
-.mg-empresas-scope .mg-cards-config-menu__list,
-.mg-empresas-scope .mg-cards-config-modal__body,
-.erp-select-menu__list,
-.erp-search-panel__results,
-.erp-menu-panel [cmdk-list],
-.emp-filter-value-list,
-.erp-scroll-compact-y,
-.erp-scroll-compact {
-  --erp-scrollbar-size: var(--erp-scrollbar-size-compact);
-  scrollbar-width: thin;
-  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+.overflow-auto,
+.overflow-y-auto,
+.overflow-scroll,
+[class*="overflow-auto"],
+[class*="overflow-y-auto"] {
+  scrollbar-gutter: stable;
 }
 
-.cadastro-emp-scope .form-scroll-container::-webkit-scrollbar,
-.cadastro-emp-scope .emp-table-body-scroll::-webkit-scrollbar,
-.mg-empresas-scope .mg-form-scroll::-webkit-scrollbar,
-.mg-empresas-scope .mg-grid-scroll::-webkit-scrollbar,
-.mg-empresas-scope .filter-panel__body::-webkit-scrollbar,
-.mg-empresas-scope .mobile-menu::-webkit-scrollbar,
-.emp-campos-config-table-wrap::-webkit-scrollbar,
-.emp-layout-config-available-list::-webkit-scrollbar,
-.emp-layout-config-panel-body::-webkit-scrollbar,
-[data-sidebar="content"]::-webkit-scrollbar,
-.erp-scroll-y::-webkit-scrollbar,
-.erp-scroll::-webkit-scrollbar {
-  width: var(--erp-scrollbar-size-primary);
-  height: var(--erp-scrollbar-size-primary);
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.mg-empresas-scope .mg-search-dropdown__list::-webkit-scrollbar,
-.mg-empresas-scope .mg-tp-col::-webkit-scrollbar,
-.mg-empresas-scope .cmd-panel-options::-webkit-scrollbar,
-.mg-empresas-scope .mg-panel-options::-webkit-scrollbar,
-.mg-empresas-scope .mg-lookup-list::-webkit-scrollbar,
-.mg-empresas-scope .mg-cards-config-menu__list::-webkit-scrollbar,
-.mg-empresas-scope .mg-cards-config-modal__body::-webkit-scrollbar,
-.erp-select-menu__list::-webkit-scrollbar,
-.erp-search-panel__results::-webkit-scrollbar,
-.erp-menu-panel [cmdk-list]::-webkit-scrollbar,
-.emp-filter-value-list::-webkit-scrollbar,
-.erp-scroll-compact-y::-webkit-scrollbar,
-.erp-scroll-compact::-webkit-scrollbar {
-  width: var(--erp-scrollbar-size-compact);
-  height: var(--erp-scrollbar-size-compact);
-}
-
-/* Thumb/track fixos — largura real = hit area alinhada ao mouse (sem border-clip) */
-.cadastro-emp-scope .form-scroll-container::-webkit-scrollbar-track,
-.cadastro-emp-scope .emp-table-body-scroll::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-form-scroll::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-grid-scroll::-webkit-scrollbar-track,
-.mg-empresas-scope .filter-panel__body::-webkit-scrollbar-track,
-.mg-empresas-scope .mobile-menu::-webkit-scrollbar-track,
-.emp-campos-config-table-wrap::-webkit-scrollbar-track,
-.emp-layout-config-available-list::-webkit-scrollbar-track,
-.emp-layout-config-panel-body::-webkit-scrollbar-track,
-[data-sidebar="content"]::-webkit-scrollbar-track,
-.erp-scroll-y::-webkit-scrollbar-track,
-.erp-scroll::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-search-dropdown__list::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-tp-col::-webkit-scrollbar-track,
-.mg-empresas-scope .cmd-panel-options::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-panel-options::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-lookup-list::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-cards-config-menu__list::-webkit-scrollbar-track,
-.mg-empresas-scope .mg-cards-config-modal__body::-webkit-scrollbar-track,
-.erp-select-menu__list::-webkit-scrollbar-track,
-.erp-search-panel__results::-webkit-scrollbar-track,
-.erp-menu-panel [cmdk-list]::-webkit-scrollbar-track,
-.emp-filter-value-list::-webkit-scrollbar-track,
-.erp-scroll-compact-y::-webkit-scrollbar-track,
-.erp-scroll-compact::-webkit-scrollbar-track {
-  background: var(--erp-scrollbar-track);
-}
-
-.mg-empresas-scope .mg-search-dropdown__list::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-tp-col::-webkit-scrollbar-thumb,
-.mg-empresas-scope .cmd-panel-options::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-panel-options::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-lookup-list::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-cards-config-menu__list::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-cards-config-modal__body::-webkit-scrollbar-thumb,
-.erp-select-menu__list::-webkit-scrollbar-thumb,
-.erp-search-panel__results::-webkit-scrollbar-thumb,
-.erp-menu-panel [cmdk-list]::-webkit-scrollbar-thumb,
-.emp-filter-value-list::-webkit-scrollbar-thumb,
-.erp-scroll-compact-y::-webkit-scrollbar-thumb,
-.erp-scroll-compact::-webkit-scrollbar-thumb {
-  background-color: var(--erp-scrollbar-thumb);
-  border-radius: 9999px;
-  border: none;
-  background-clip: border-box;
-  min-height: var(--erp-scrollbar-thumb-height-compact);
-  min-width: var(--erp-scrollbar-thumb-height-compact);
-}
-
-/* Thumb principal — altura mínima fixa (tabelas/cards/formulários) */
-.cadastro-emp-scope .form-scroll-container::-webkit-scrollbar-thumb,
-.cadastro-emp-scope .emp-table-body-scroll::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-form-scroll::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-grid-scroll::-webkit-scrollbar-thumb,
-.mg-empresas-scope .filter-panel__body::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mobile-menu::-webkit-scrollbar-thumb,
-.emp-campos-config-table-wrap::-webkit-scrollbar-thumb,
-.emp-layout-config-available-list::-webkit-scrollbar-thumb,
-.emp-layout-config-panel-body::-webkit-scrollbar-thumb,
-[data-sidebar="content"]::-webkit-scrollbar-thumb,
-.erp-scroll-y::-webkit-scrollbar-thumb,
-.erp-scroll::-webkit-scrollbar-thumb {
-  background-color: var(--erp-scrollbar-thumb);
-  border-radius: 9999px;
-  border: none;
-  background-clip: border-box;
-  min-height: var(--erp-scrollbar-thumb-height-primary);
-  min-width: var(--erp-scrollbar-thumb-height-primary);
-}
-
-.cadastro-emp-scope .form-scroll-container::-webkit-scrollbar-thumb:hover,
-.cadastro-emp-scope .emp-table-body-scroll::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-form-scroll::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-grid-scroll::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .filter-panel__body::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mobile-menu::-webkit-scrollbar-thumb:hover,
-.emp-campos-config-table-wrap::-webkit-scrollbar-thumb:hover,
-.emp-layout-config-available-list::-webkit-scrollbar-thumb:hover,
-.emp-layout-config-panel-body::-webkit-scrollbar-thumb:hover,
-[data-sidebar="content"]::-webkit-scrollbar-thumb:hover,
-.erp-scroll-y::-webkit-scrollbar-thumb:hover,
-.erp-scroll::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-search-dropdown__list::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-tp-col::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .cmd-panel-options::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-panel-options::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-lookup-list::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-cards-config-menu__list::-webkit-scrollbar-thumb:hover,
-.mg-empresas-scope .mg-cards-config-modal__body::-webkit-scrollbar-thumb:hover,
-.erp-select-menu__list::-webkit-scrollbar-thumb:hover,
-.erp-search-panel__results::-webkit-scrollbar-thumb:hover,
-.erp-menu-panel [cmdk-list]::-webkit-scrollbar-thumb:hover,
-.emp-filter-value-list::-webkit-scrollbar-thumb:hover,
-.erp-scroll-compact-y::-webkit-scrollbar-thumb:hover,
-.erp-scroll-compact::-webkit-scrollbar-thumb:hover {
-  background-color: var(--erp-scrollbar-thumb-hover);
-}
-
-.cadastro-emp-scope .form-scroll-container::-webkit-scrollbar-corner,
-.cadastro-emp-scope .emp-table-body-scroll::-webkit-scrollbar-corner,
-.erp-scroll-y::-webkit-scrollbar-corner,
-.erp-scroll::-webkit-scrollbar-corner,
-.erp-scroll-compact-y::-webkit-scrollbar-corner,
-.erp-scroll-compact::-webkit-scrollbar-corner {
+*::-webkit-scrollbar-track {
   background: transparent;
 }
 
-/* —— Scroll containers canônicos (ERP) —— */
-.erp-scroll-y,
-.erp-scroll,
-.erp-scroll-compact-y,
-.erp-scroll-compact {
-  flex: 1 1 auto;
-  min-height: 0;
-  overscroll-behavior: contain;
-  scrollbar-gutter: auto;
-}
-
-.erp-scroll-y,
-.erp-scroll-compact-y {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.erp-scroll,
-.erp-scroll-compact {
-  overflow: auto;
-}
-
-/* —— Overlay: thumb fixo + trilho + botões ▲/▼ —— */
-.erp-scroll-surface {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.erp-scroll-surface__viewport {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow: auto;
-  overscroll-behavior: contain;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.erp-scroll-surface__viewport::-webkit-scrollbar {
-  display: none;
-  width: 0;
-  height: 0;
-}
-
-.erp-scroll-surface__rail {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: var(--erp-scrollbar-size-primary);
-  z-index: 6;
-  display: flex;
-  flex-direction: column;
-  border-left: 1px solid var(--erp-scrollbar-track-border);
-  background: var(--erp-scrollbar-track-bg);
-}
-
-.erp-scroll-surface--compact .erp-scroll-surface__rail {
-  width: var(--erp-scrollbar-size-compact);
-}
-
-.erp-scroll-surface__btn {
-  flex: 0 0 var(--erp-scrollbar-btn-size);
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  border: none;
-  border-bottom: 1px solid var(--erp-scrollbar-track-border);
-  background: var(--erp-scrollbar-track-bg);
-  cursor: pointer;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.erp-scroll-surface__btn--down {
-  border-bottom: none;
-  border-top: 1px solid var(--erp-scrollbar-track-border);
-}
-
-.erp-scroll-surface__btn:disabled {
-  cursor: default;
-}
-
-.erp-scroll-surface__btn::before {
-  content: "";
-  width: 0;
-  height: 0;
-  border-left: 3px solid transparent;
-  border-right: 3px solid transparent;
-}
-
-.erp-scroll-surface__btn--up::before {
-  border-bottom: 4px solid var(--erp-scrollbar-arrow);
-}
-
-.erp-scroll-surface__btn--down::before {
-  border-top: 4px solid var(--erp-scrollbar-arrow);
-}
-
-.erp-scroll-surface__btn:hover:not(:disabled)::before {
-  border-bottom-color: var(--erp-scrollbar-arrow-hover);
-  border-top-color: var(--erp-scrollbar-arrow-hover);
-}
-
-.erp-scroll-surface__btn:disabled::before {
-  border-bottom-color: var(--erp-scrollbar-arrow-disabled);
-  border-top-color: var(--erp-scrollbar-arrow-disabled);
-}
-
-.erp-scroll-surface__track {
-  position: relative;
-  flex: 1 1 auto;
-  min-height: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
-  border-top: 1px solid var(--erp-scrollbar-track-border);
-  border-bottom: 1px solid var(--erp-scrollbar-track-border);
-  background: color-mix(in srgb, var(--erp-scrollbar-track-bg) 70%, white);
-}
-
-.erp-scroll-surface__thumb {
-  position: absolute;
-  top: 0;
-  left: 1px;
-  right: 1px;
-  height: var(--erp-scrollbar-thumb-height-primary);
+*::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1 !important;
   border-radius: 9999px;
-  background: var(--erp-scrollbar-thumb);
-  box-shadow: inset 0 0 0 1px var(--erp-scrollbar-thumb-border);
-  cursor: default;
-  user-select: none;
-  touch-action: none;
-  will-change: transform;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
-.erp-scroll-surface__thumb:hover {
-  background: var(--erp-scrollbar-thumb-hover);
+*::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
 }
 
-.erp-scroll-surface--compact .erp-scroll-surface__thumb {
-  height: var(--erp-scrollbar-thumb-height-compact);
-}
-
-body.erp-scroll-dragging {
-  user-select: none;
-  cursor: default;
-}
-
-.erp-scroll-lock-wheel {
-  overscroll-behavior: contain;
-}
-
-.cadastro-emp-scope .form-scroll-container,
-.cadastro-emp-scope .emp-table-body-scroll,
-.mg-empresas-scope .mg-form-scroll,
-.mg-empresas-scope .mg-grid-scroll,
-.mg-empresas-scope .filter-panel__body,
-.mg-empresas-scope .mobile-menu,
-.emp-campos-config-table-wrap,
-.emp-layout-config-available-list,
-.emp-layout-config-panel-body,
-[data-sidebar="content"],
-.mg-empresas-scope .mg-search-dropdown__list,
-.mg-empresas-scope .mg-tp-col,
-.erp-select-menu__list,
-.erp-search-panel__results,
-.erp-menu-panel [cmdk-list],
-.emp-filter-value-list {
-  overscroll-behavior: contain;
-  scrollbar-gutter: auto;
-}
-
-.cadastro-emp-scope .form-scroll-container,
-.mg-empresas-scope .mg-form-scroll {
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.cadastro-emp-scope .emp-table-body-scroll,
-.mg-empresas-scope .mg-grid-scroll {
-  overflow: auto;
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 .cadastro-scope,
@@ -1081,14 +720,16 @@ body.erp-scroll-dragging {
 .cadastro-emp-scope .form-scroll-container {
   flex: 1 1 auto;
   min-height: 0;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+  overflow: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: transparent !important;
   padding: 0 !important;
   border: none !important;
   box-shadow: none !important;
   width: 100%;
   max-width: 100%;
+  scrollbar-gutter: auto;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
@@ -1822,6 +1463,8 @@ body.erp-scroll-dragging {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto !important;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   background: var(--emp-table-bg) !important;
 }
 
@@ -2003,7 +1646,6 @@ body.erp-scroll-dragging {
   max-width: 272px !important;
   animation: none !important;
   transform: none !important;
-  overscroll-behavior: contain;
 }
 
 .emp-filter-popover[data-state="open"],
@@ -2103,15 +1745,6 @@ body.erp-scroll-dragging {
   background: #ffffff;
   border: 1px solid #bae6fd;
   border-radius: 5px;
-}
-
-.emp-filter-value-list.erp-scroll-surface {
-  overflow: hidden;
-  padding: 0;
-}
-
-.emp-filter-value-list.erp-scroll-surface .erp-scroll-surface__viewport {
-  padding: 4px;
 }
 
 .emp-filter-value-list-header {
@@ -3230,9 +2863,9 @@ body.erp-scroll-dragging {
 .cadastro-emp-scope .emp-content-card > .form-scroll-container {
   flex: 1 1 auto;
   min-height: 0;
-  overflow-x: hidden !important;
-  overflow-y: auto !important;
+  overflow: auto !important;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .cadastro-emp-scope .emp-toolbar-card {

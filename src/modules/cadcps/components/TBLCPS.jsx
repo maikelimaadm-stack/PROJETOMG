@@ -6,8 +6,6 @@ import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContex
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
-import ErpScrollViewport from "@/shared/components/ErpScrollViewport";
-import { isolateFloatingPanelWheel } from "@/shared/utils/scrollWheelBoundary";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -541,14 +539,7 @@ export default function TBLCPS({
   useLayoutEffect(() => {
     updateFilterAnchorRect();
     if (!menuFiltroAberto) return undefined;
-    let rafId = 0;
-    const onReflow = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        updateFilterAnchorRect();
-      });
-    };
+    const onReflow = () => updateFilterAnchorRect();
     const raf = requestAnimationFrame(updateFilterAnchorRect);
     const root = scrollContainerRef.current;
     root?.addEventListener("scroll", onReflow, { passive: true });
@@ -556,7 +547,6 @@ export default function TBLCPS({
     window.addEventListener("scroll", onReflow, true);
     return () => {
       cancelAnimationFrame(raf);
-      if (rafId) cancelAnimationFrame(rafId);
       root?.removeEventListener("scroll", onReflow);
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
@@ -621,9 +611,8 @@ export default function TBLCPS({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover erp-menu-panel erp-scroll-lock-wheel absolute z-[9999]"
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
-        onWheel={(event) => isolateFloatingPanelWheel(event, ".emp-filter-value-list")}
       >
           <div className="emp-filter-sort-section">
             <button
@@ -694,7 +683,7 @@ export default function TBLCPS({
               className="emp-filter-field emp-filter-search"
             />
 
-            <ErpScrollViewport variant="compact" className="emp-filter-value-list">
+            <div className="emp-filter-value-list">
               <label className="emp-filter-value-list-header">
                 <Checkbox
                   checked={allVisSel}
@@ -723,7 +712,7 @@ export default function TBLCPS({
                   <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
                 </label>
               ))}
-            </ErpScrollViewport>
+            </div>
 
             <div className="emp-filter-actions">
               <button
@@ -915,12 +904,11 @@ export default function TBLCPS({
               </Table>
             </div>
           </div>
-          <ErpScrollViewport
+          <div
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            stepSize={TABLE_ROW_HEIGHT}
-            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
+            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto"
           >
             <div
               className="block w-max min-w-full min-h-full"
@@ -996,7 +984,7 @@ export default function TBLCPS({
                 </TableBody>
               </Table>
             </div>
-          </ErpScrollViewport>
+          </div>
         </div>
         <div className="emp-table-bottom-dock">
           {hasTotalRow ? (
