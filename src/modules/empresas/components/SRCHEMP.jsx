@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { Check, ChevronDown, Loader2, Search, Star, X } from "lucide-react";
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
-import { useGridVirtualizer } from "@/shared/hooks/useGridVirtualizer";
+import MgCardsVirtualGrid from "./MgCardsVirtualGrid";
 import {
   formatSearchCounter,
   getEmpSearchAvatarColor,
@@ -14,6 +14,7 @@ import {
   saveSearchVisFields,
 } from "./empSearchView.constants";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
+import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import { LIST_PAGE_SIZE_OPTIONS } from "@/shared/listing/listQueryConfig";
 import "./empSearchView.css";
@@ -223,24 +224,7 @@ export default function SRCHEMP({
     : visFields.filter((field) => field.visible && !field.primary);
 
   const cardsLayoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
-
-  const { virtualizer, virtualRows, paddingTop, paddingBottom, columnsPerRow: gridColumns } =
-    useGridVirtualizer({
-      scrollRef: cardsScrollRef,
-      itemCount: filteredEmpresas.length,
-      columnsPerRow: cardsPerRow,
-      detailFieldCount: detailFields.length,
-      fieldsPerRow,
-      enabled: mgPrototype && filteredEmpresas.length > 0,
-    });
-
-  useEffect(() => {
-    if (!mgPrototype) return;
-    const scrollEl = cardsScrollRef.current;
-    if (!scrollEl) return;
-    scrollEl.scrollTop = 0;
-    virtualizer?.scrollToIndex?.(0, { align: "start" });
-  }, [page, showOnlyFavorites, mgPrototype, virtualizer]);
+  const cardsScrollResetKey = `${page}:${showOnlyFavorites}:${cardsLayoutKey}`;
 
   const loadMoreLockRef = useRef(false);
 
@@ -274,11 +258,6 @@ export default function SRCHEMP({
     onLoadMoreRows,
     filteredEmpresas.length,
   ]);
-
-  useEffect(() => {
-    if (!mgPrototype) return;
-    virtualizer?.measure?.();
-  }, [cardsLayoutKey, filteredEmpresas.length, mgPrototype, virtualizer]);
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -367,7 +346,11 @@ export default function SRCHEMP({
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ErpListingTopProgress active={showCardsFetching} />
-        <div ref={cardsScrollRef} className="erp-scroll-y relative min-h-0 flex-1 overflow-y-auto p-4">
+        <ErpScrollNav
+          ref={cardsScrollRef}
+          className="relative min-h-0 flex-1"
+          viewportClassName="overflow-y-auto"
+        >
           {showCardsLoading ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Carregando registros...
@@ -377,100 +360,20 @@ export default function SRCHEMP({
               Nenhum registro encontrado
             </div>
           ) : (
-            <div className="mg-cards-virtual-shell">
-              {paddingTop > 0 ? <div style={{ height: paddingTop }} aria-hidden="true" /> : null}
-              <div className="mg-cards-virtual-list">
-              {virtualRows.map((virtualRow) => {
-                const startIndex = virtualRow.index * gridColumns;
-                const rowItems = filteredEmpresas.slice(startIndex, startIndex + gridColumns);
-                return (
-                  <div
-                    key={virtualRow.key}
-                    data-index={virtualRow.index}
-                    ref={virtualizer?.measureElement}
-                    className={`mg-cards-virtual-row mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
-                  >
-                    {rowItems.map((emp, colIndex) => {
-                      const index = startIndex + colIndex;
-                      const isSelected = selectedIds.includes(emp.id);
-                      const code = getEmpSearchFieldValue(emp, "codempresa");
-                      const nome = getEmpSearchFieldValue(emp, "razao_social");
-                      const initials = getEmpSearchInitials(emp);
-                      const avatarColor = getEmpSearchAvatarColor(emp, index);
-                      const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
-                      return (
-                        <div
-                          key={emp.id}
-                          className={`erp-card mg-emp-card mg-emp-card--virtual relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
-                          onClick={() => handleCardClick(emp)}
-                          role="button"
-                          tabIndex={0}
-                          aria-pressed={isSelected}
-                          onKeyDown={(event) => {
-                            if (event.key === "Enter" || event.key === " ") {
-                              event.preventDefault();
-                              handleCardClick(emp);
-                            }
-                          }}
-                        >
-                          {isSelected ? (
-                            <span className="mg-emp-card__select-badge" aria-hidden="true">
-                              <Check className="h-3 w-3" strokeWidth={2.5} />
-                            </span>
-                          ) : null}
-                          <div className="mb-2.5 flex items-center gap-2.5">
-                            <div
-                              className="mg-emp-card__avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[10px] font-bold tracking-tight text-white"
-                              style={{ background: avatarColor }}
-                            >
-                              {initials}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="mg-emp-card__meta-row truncate text-xs">
-                                <MgRecordFavoriteStar
-                                  active={isFavorite}
-                                  onToggle={() => onToggleFavorite?.(emp.id)}
-                                  className="mg-emp-card__fav-btn"
-                                />
-                                <div className="mg-emp-card__meta-text min-w-0 truncate">
-                                  {code && code !== "—" ? (
-                                    <>
-                                      <span className="mg-emp-card__code">{code}</span>
-                                      <span className="mg-emp-card__sep"> • </span>
-                                    </>
-                                  ) : null}
-                                  <span className="mg-emp-card__name">{nome}</span>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                          {detailFields.length > 0 ? (
-                            <div
-                              className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}
-                            >
-                              {detailFields.map((field) => (
-                                <div key={field.key} className="mg-emp-card__field">
-                                  <div className="mg-emp-card__field-line">
-                                    <span className="mg-emp-card__field-label">{field.label}:</span>
-                                    <span className="mg-emp-card__field-value">
-                                      {getEmpSearchFieldValue(emp, field.key)}
-                                    </span>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          ) : null}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-              </div>
-              {paddingBottom > 0 ? <div style={{ height: paddingBottom }} aria-hidden="true" /> : null}
-            </div>
+            <MgCardsVirtualGrid
+              scrollRef={cardsScrollRef}
+              items={filteredEmpresas}
+              cardsPerRow={cardsPerRow}
+              fieldsPerRow={fieldsPerRow}
+              detailFields={detailFields}
+              selectedIds={selectedIds}
+              isFavoriteRecord={isFavoriteRecord}
+              onToggleFavorite={onToggleFavorite}
+              onCardClick={handleCardClick}
+              scrollResetKey={cardsScrollResetKey}
+            />
           )}
-        </div>
+        </ErpScrollNav>
         {!infiniteMode ? (
           <EmpTablePagination
             currentPage={page}

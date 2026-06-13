@@ -1,4 +1,5 @@
 import React, { useMemo, useState } from "react";
+import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import EmpRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import EmpDynamicFormRenderer from "@/framework/cadastro/layouts/EmpDynamicFormRenderer";
@@ -87,7 +88,10 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
           />
         }
       >
-        <div className="form-scroll-container erp-scroll-y h-full min-h-0 flex-1 overflow-y-auto p-3">
+        <ErpScrollNav
+          className="form-scroll-container h-full min-h-0 flex-1"
+          viewportClassName="overflow-auto p-3"
+        >
           <div className="mb-2 flex gap-2">
             {TEMPLATE_PANELS.map((panel) => (
               <button
@@ -113,7 +117,7 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
             errors={{}}
             onChange={(name, value) => setState((prev) => ({ ...prev, [name]: value }))}
           />
-        </div>
+        </ErpScrollNav>
       </EmpSplitToolbarLayout>
     </div>
   );

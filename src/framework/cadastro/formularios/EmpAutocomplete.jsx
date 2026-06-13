@@ -96,19 +96,13 @@ export default function EmpAutocomplete({
   useEffect(() => {
     if (!open) return;
     calcPosition();
-    let rafId = 0;
     const handleScroll = (event) => {
       if (dropdownRef.current?.contains(event.target)) return;
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        calcPosition();
-      });
+      calcPosition();
     };
     document.addEventListener("scroll", handleScroll, true);
     window.addEventListener("resize", handleScroll);
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
       document.removeEventListener("scroll", handleScroll, true);
       window.removeEventListener("resize", handleScroll);
     };
@@ -281,6 +275,7 @@ export default function EmpAutocomplete({
             e.stopPropagation();
             handleSelect(item);
           }}
+          onWheel={(e) => e.stopPropagation()}
           onMouseEnter={() => setActiveIndex(index)}
           className={cn(
             "erp-menu-item",
@@ -377,7 +372,7 @@ export default function EmpAutocomplete({
             interactingWithDropdownRef.current = false;
           }, 300);
         }}
-        onWheel={(event) => event.stopPropagation()}
+        onWheel={(e) => e.stopPropagation()}
         className={panelClass}
       >
         {renderMenuSearch()}

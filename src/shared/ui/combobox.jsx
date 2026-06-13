@@ -38,7 +38,7 @@ export function Combobox({ options = [], value, onValueChange, placeholder = "Se
         <Command className="erp-menu-panel-inner">
           <CommandInput placeholder={searchPlaceholder} className="erp-menu-search-input h-7" />
           <CommandEmpty>Nenhum item encontrado.</CommandEmpty>
-          <CommandGroup className="max-h-[300px] overflow-y-auto erp-scroll-compact-y">
+          <CommandGroup className="max-h-[300px] overflow-auto">
             {options.map((option) => (
               <CommandItem
                 key={option.value}

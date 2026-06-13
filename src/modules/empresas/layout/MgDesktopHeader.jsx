@@ -4,6 +4,7 @@ import { Bell, ChevronRight, CircleHelp, Grid3x3, Hexagon, User } from "lucide-r
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { buildErpBreadcrumbs } from "@/shared/navigation/erpMenuConfig";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
+import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
 
 function getUserInitials(user) {
   const name = String(user?.nome || user?.usuario || user?.email || "AR").trim();
@@ -42,6 +43,7 @@ export default function MgDesktopHeader() {
       </nav>
 
       <div className="mg-desktop-header__actions">
+        <ErpThemeToggle />
         <button type="button" className="mg-topbar-icon-btn ios-btn" aria-label="Notificações">
           <Bell className="h-3.5 w-3.5" />
         </button>

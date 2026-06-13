@@ -144,7 +144,7 @@ export default function EmpConfiguracaoColunasDialog({
                       <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Procurar coluna" className="h-6 rounded-[5px] border-[#dce3eb] px-1 pr-7 text-xs shadow-none focus-visible:ring-0" />
                       <Search className="w-3.5 h-3.5 text-[#5b6b80] absolute right-3 top-1/2 -translate-y-1/2" />
                     </div>
-                    <div className="erp-scroll-compact-y min-h-0 flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-auto">
                       {filteredAvailable.length === 0 ? <div className="text-xs text-[#5b6b80] py-6 text-center">Nenhuma coluna disponível.</div> : filteredAvailable.map((col) => renderColumnButton({ col, selected: selectedAvailableIds.includes(col.id), onClick: (e) => selectAvailable(col.id, e), subtitle: "Disponível", origem: "available" }))}
                     </div>
                   </aside>
@@ -163,7 +163,7 @@ export default function EmpConfiguracaoColunasDialog({
                       <Input value={searchUsed} onChange={(e) => setSearchUsed(e.target.value)} placeholder="Procurar coluna em uso" className="h-6 rounded-[5px] border-[#dce3eb] px-1 pr-7 text-xs shadow-none focus-visible:ring-0" />
                       <Search className="w-3.5 h-3.5 text-[#5b6b80] absolute right-3 top-1/2 -translate-y-1/2" />
                     </div>
-                    <div className="erp-scroll-compact-y min-h-0 flex-1 overflow-y-auto">
+                    <div className="flex-1 overflow-auto">
                       {filteredUsed.length === 0 ? <div className="text-xs text-[#5b6b80] py-6 text-center">Nenhuma coluna em uso encontrada.</div> : filteredUsed.map((col) => { const originalIndex = usedColumns.findIndex((c) => c.id === col.id); return renderColumnButton({ col, selected: selectedUsedIds.includes(col.id), onClick: (e) => selectUsed(col.id, e), subtitle: "Em uso", index: originalIndex, origem: "used" }); })}
                     </div>
                   </main>

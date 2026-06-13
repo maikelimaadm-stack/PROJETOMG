@@ -14,6 +14,7 @@ import { CadRecordToolbar } from "@/framework/cadastro-engine/design-system/CadT
 import MgMotionPanel from "@/modules/empresas/layout/MgMotionPanel";
 import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
+import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
 import { useCadastroPageHeader } from "@/framework/cadastro-engine/hooks/useCadastroPageHeader.js";
@@ -749,9 +750,12 @@ export default function FORMEMP({
               />
             }
           >
-            <div className="form-scroll-container erp-scroll-y min-h-0 flex-1">
+            <ErpScrollNav
+              className="form-scroll-container min-h-0 flex-1"
+              viewportClassName="overflow-auto"
+            >
               {renderFormBody(false)}
-            </div>
+            </ErpScrollNav>
           </CadSplitLayout>
         )}
         {hideToolbar ? (
@@ -768,13 +772,14 @@ export default function FORMEMP({
                 variant="mg"
               />
             </div>
-            <div
-              className={`mg-form-scroll erp-scroll-y mg-prototype-form${
+            <ErpScrollNav
+              className={`mg-form-scroll mg-prototype-form${
                 isReadOnly ? " mg-prototype-form--readonly" : ""
               }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}`}
+              viewportClassName="overflow-y-auto"
             >
               {renderFormBody(true)}
-            </div>
+            </ErpScrollNav>
           </div>
         ) : null}
         {editMode ? (

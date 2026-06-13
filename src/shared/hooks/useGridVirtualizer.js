@@ -2,8 +2,8 @@ import { useMemo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const CARD_GRID_GAP = 12;
-const DEFAULT_CARD_ROW_HEIGHT = 140;
-const DEFAULT_OVERSCAN = 4;
+export const CARDS_LIST_PADDING = 16;
+const DEFAULT_OVERSCAN = 3;
 
 /** Estima altura de uma linha virtual de cards com base nos campos visíveis. */
 export function estimateCardRowHeight(detailFieldCount = 0, fieldsPerRow = 1) {
@@ -13,7 +13,7 @@ export function estimateCardRowHeight(detailFieldCount = 0, fieldsPerRow = 1) {
   const verticalPadding = 32;
   const fieldRowHeight = safeFieldsPerRow >= 2 ? 38 : 24;
   const detailRows = Math.ceil(safeFieldCount / safeFieldsPerRow);
-  return verticalPadding + headerBlock + detailRows * fieldRowHeight + CARD_GRID_GAP;
+  return verticalPadding + headerBlock + detailRows * fieldRowHeight;
 }
 
 /**
@@ -27,6 +27,7 @@ export function useGridVirtualizer({
   detailFieldCount = 0,
   fieldsPerRow = 1,
   rowGap = CARD_GRID_GAP,
+  scrollMargin = 0,
   overscan = DEFAULT_OVERSCAN,
   enabled = true,
 }) {
@@ -46,6 +47,8 @@ export function useGridVirtualizer({
     estimateSize: () => resolvedEstimate,
     overscan,
     gap: rowGap,
+    scrollMargin,
+    isScrollingResetDelay: 150,
   });
 
   if (!enabled) {
@@ -56,22 +59,22 @@ export function useGridVirtualizer({
       paddingBottom: 0,
       columnsPerRow: safeColumns,
       estimateSize: resolvedEstimate,
+      totalSize: 0,
+      scrollMargin,
     };
   }
 
   const virtualRows = virtualizer.getVirtualItems();
-  const paddingTop = virtualRows.length > 0 ? virtualRows[0].start : 0;
-  const paddingBottom =
-    virtualRows.length > 0
-      ? virtualizer.getTotalSize() - virtualRows[virtualRows.length - 1].end
-      : 0;
+  const totalSize = virtualizer.getTotalSize();
 
   return {
     virtualizer,
     virtualRows,
-    paddingTop,
-    paddingBottom,
+    paddingTop: 0,
+    paddingBottom: 0,
     columnsPerRow: safeColumns,
     estimateSize: resolvedEstimate,
+    totalSize,
+    scrollMargin,
   };
 }

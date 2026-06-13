@@ -1,6 +1,7 @@
 import React from "react";
 import { Filter, Hexagon, Menu } from "lucide-react";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
+import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
 
 export default function MgMobileHeader({ title = "MakGestão ERP" }) {
   const { toggleMobileMenu, toggleFilterPanel, breadcrumbSuffix } = useMgEmpresasChrome();
@@ -27,6 +28,7 @@ export default function MgMobileHeader({ title = "MakGestão ERP" }) {
       >
         <Filter className="h-4 w-4" />
       </button>
+      <ErpThemeToggle className="flex h-8 w-8 items-center justify-center" />
       <div className="mg-desktop-header__logo" aria-hidden="true">
         <Hexagon className="h-4 w-4 text-white" strokeWidth={2.2} />
       </div>
