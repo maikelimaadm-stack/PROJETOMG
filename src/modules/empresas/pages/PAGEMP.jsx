@@ -446,6 +446,7 @@ export default function PAGEMP() {
         setEditingEmp(optimistic);
         stayOnRecordAfterSave(optimistic);
         setFormVersion((version) => version + 1);
+        saveCycle.end();
 
         void moduleRepository
           .update(editingEmp.id, validatedData)
@@ -472,8 +473,7 @@ export default function PAGEMP() {
                 `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
               )
             );
-          })
-          .finally(() => saveCycle.end());
+          });
         return;
       }
 
@@ -496,6 +496,7 @@ export default function PAGEMP() {
       patchMetricsCache(queryClient, { empresas: 1, registrosGlobais: 1 });
       stayOnRecordAfterSave(optimistic);
       setFormVersion((version) => version + 1);
+      saveCycle.end();
 
       void moduleRepository
         .create(clean)
@@ -551,8 +552,7 @@ export default function PAGEMP() {
               `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
             )
           );
-        })
-        .finally(() => saveCycle.end());
+        });
     } catch (error) {
       saveCycle.end();
       showError(
@@ -979,6 +979,7 @@ export default function PAGEMP() {
 
     pendingDeleteIdsRef.current = [];
     setDeleteState({ open: false, ids: [] });
+    saveCycle.end();
 
     const pendingIds = ids.filter((id) => isPendingRecordId(id));
     const persistedIds = ids.filter((id) => !isPendingRecordId(id));
@@ -1021,8 +1022,6 @@ export default function PAGEMP() {
         )
       );
       throw error;
-    } finally {
-      saveCycle.end();
     }
   };
 

@@ -7,7 +7,7 @@ import {
   registerRegistroGlobal,
   reserveNextIdGlobal,
 } from "../../idGlobal/idGlobalService.js";
-import { getEmpresaCount, invalidateClienteStats, incrementClienteCounter } from "../../metrics/counterService.js";
+import { getEmpresaCount, incrementClienteCounter, bumpNextIdGlobalInCache } from "../../metrics/counterService.js";
 import {
   ENTITY_CODIGO_EMPRESA,
   reserveNextCodigo,
@@ -529,7 +529,8 @@ export const empresaRepository = {
       });
       return record;
     });
-    void incrementClienteCounter(scope.clienteId, "empresas", 1);
+    await incrementClienteCounter(scope.clienteId, "empresas", 1);
+    await bumpNextIdGlobalInCache(scope.clienteId, 1);
     void auditService.log({
       scope,
       entityName: "Empresa",
@@ -553,6 +554,7 @@ export const empresaRepository = {
     const prisma = getPrismaClient();
     const current = await prisma.empresa.findFirst({
       where: buildCadastroScopeWhere(scope, { id }),
+      select: { id: true, razao_social: true, status: true, codempresa: true },
     });
     if (!current) return null;
     const updated = await prisma.empresa.update({
@@ -593,7 +595,7 @@ export const empresaRepository = {
         await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
         await tx.empresa.delete({ where: { id: current.id } });
       });
-      void incrementClienteCounter(scope.clienteId, "empresas", -1);
+      await incrementClienteCounter(scope.clienteId, "empresas", -1);
     } catch (error) {
       if (String(error?.code || "") === "P2003") {
         const conflictError = new Error(

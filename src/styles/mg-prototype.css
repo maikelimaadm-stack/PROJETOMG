@@ -886,8 +886,13 @@
 }
 
 .mg-empresas-scope .mg-emp-card--virtual {
+  min-height: 0;
+}
+
+.mg-empresas-scope .mg-cards-virtual-row {
+  width: 100%;
   content-visibility: auto;
-  contain-intrinsic-size: 180px;
+  contain-intrinsic-size: auto 140px;
 }
 
 .mg-empresas-scope .emp-table-data-row {

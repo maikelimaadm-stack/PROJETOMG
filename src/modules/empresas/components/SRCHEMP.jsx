@@ -214,16 +214,30 @@ export default function SRCHEMP({
     return empresas.filter((emp) => favorites.has(emp.id));
   }, [empresas, favorites, showOnlyFavorites]);
 
-  const { virtualRows, paddingTop, paddingBottom, columnsPerRow: gridColumns } = useGridVirtualizer({
-    scrollRef: cardsScrollRef,
-    itemCount: filteredEmpresas.length,
-    columnsPerRow: cardsPerRow,
-    enabled: mgPrototype && filteredEmpresas.length > 0,
-  });
-
   const detailFields = mgPrototype
     ? cardsDetailFields
     : visFields.filter((field) => field.visible && !field.primary);
+
+  const cardsLayoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
+
+  const { virtualizer, virtualRows, paddingTop, paddingBottom, columnsPerRow: gridColumns } =
+    useGridVirtualizer({
+      scrollRef: cardsScrollRef,
+      itemCount: filteredEmpresas.length,
+      columnsPerRow: cardsPerRow,
+      detailFieldCount: detailFields.length,
+      fieldsPerRow,
+      enabled: mgPrototype && filteredEmpresas.length > 0,
+    });
+
+  useEffect(() => {
+    if (!mgPrototype) return;
+    const scrollEl = cardsScrollRef.current;
+    if (!scrollEl) return;
+    scrollEl.scrollTop = 0;
+    virtualizer?.scrollToIndex?.(0, { align: "start" });
+    virtualizer?.measure?.();
+  }, [cardsLayoutKey, filteredEmpresas.length, mgPrototype, virtualizer]);
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -330,7 +344,9 @@ export default function SRCHEMP({
                 return (
                   <div
                     key={virtualRow.key}
-                    className={`mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
+                    data-index={virtualRow.index}
+                    ref={virtualizer?.measureElement}
+                    className={`mg-cards-virtual-row mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
                   >
                     {rowItems.map((emp, colIndex) => {
                       const index = startIndex + colIndex;
