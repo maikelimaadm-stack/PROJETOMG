@@ -13,7 +13,7 @@ export function estimateCardRowHeight(detailFieldCount = 0, fieldsPerRow = 1) {
   const verticalPadding = 32;
   const fieldRowHeight = safeFieldsPerRow >= 2 ? 38 : 24;
   const detailRows = Math.ceil(safeFieldCount / safeFieldsPerRow);
-  return verticalPadding + headerBlock + detailRows * fieldRowHeight + 4;
+  return verticalPadding + headerBlock + detailRows * fieldRowHeight + CARD_GRID_GAP;
 }
 
 /**
