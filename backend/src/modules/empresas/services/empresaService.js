@@ -54,6 +54,7 @@ export const empresaService = {
       scope,
       column: query.column,
       search: query.search,
+      optionSearch: query.optionSearch,
       filters: query.filters,
       limit: query.limit,
     });

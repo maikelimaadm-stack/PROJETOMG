@@ -83,6 +83,7 @@ export const registerEmpresasRoutes = async (app) => {
       {
         column,
         search: request.query?.search || "",
+        optionSearch: request.query?.optionSearch || "",
         filters: parsedFilters,
         limit: request.query?.limit,
       },

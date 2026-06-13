@@ -11,6 +11,7 @@ import {
 import { getEmpresaCount, incrementClienteCounter, bumpNextIdGlobalInCache } from "../../metrics/counterService.js";
 import {
   ENTITY_CODIGO_EMPRESA,
+  ensureCodigoSequenciaFloor,
   reserveNextCodigo,
 } from "../../sequencias/entidadeCodigoService.js";
 
@@ -23,7 +24,7 @@ const toPositiveInt = (value, fallback) => {
 };
 
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 200;
+const MAX_PAGE_SIZE = 500;
 const MAX_EXPORT_ROWS = 100_000;
 
 /** Colunas retornadas em listagens paginadas (sem observações/logo pesados). */
@@ -110,6 +111,21 @@ const isIdGlobalUniqueConflict = (error) => {
   );
 };
 
+const isCodigoUniqueConflict = (error) => {
+  const code = String(error?.code || "");
+  const message = String(error?.message || "");
+  const targets = Array.isArray(error?.meta?.target)
+    ? error.meta.target.map((item) => String(item))
+    : [];
+  if (code !== "P2002") return false;
+  if (targets.includes("cliente_id") && targets.includes("codempresa")) return true;
+  return (
+    message.includes("cliente_id`,`codempresa") ||
+    message.includes("(cliente_id,codempresa)") ||
+    message.includes("codempresa")
+  );
+};
+
 const resolveOrderBy = (sortBy = "codempresa", sortDir = "asc") => {
   const safeSortBy = SORT_WHITELIST.has(sortBy) ? sortBy : "codempresa";
   const base = ORDER_BY_MAP[safeSortBy] || ORDER_BY_MAP.codempresa;
@@ -139,7 +155,7 @@ const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {})
   );
 };
 
-const buildCustomDistinctSql = (scope, fieldName, limit) => {
+const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "") => {
   const safeField = String(fieldName || "").replace(/[^a-zA-Z0-9_]/g, "");
   if (!safeField) return null;
   const params = [scope.clienteId, limit];
@@ -151,6 +167,16 @@ const buildCustomDistinctSql = (scope, fieldName, limit) => {
       AND campos_personalizados ? '${safeField}'
       AND TRIM(campos_personalizados->>'${safeField}') <> ''
   `;
+  const optionSearchTerm = String(optionSearch || "").trim();
+  if (optionSearchTerm) {
+    sql += ` AND campos_personalizados->>'${safeField}' ILIKE $${params.length + 1}`;
+    params.push(
+      `%${optionSearchTerm
+        .replace(/\\/g, "\\\\")
+        .replace(/%/g, "\\%")
+        .replace(/_/g, "\\_")}%`
+    );
+  }
 
   if (!scope.acessoGlobal) {
     const allowed = scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID];
@@ -470,9 +496,9 @@ export const empresaRepository = {
     };
   },
 
-  async distinctColumnValues({ scope, column, search = "", filters = {}, limit = 150 }) {
+  async distinctColumnValues({ scope, column, search = "", filters = {}, limit = 5000, optionSearch = "" }) {
     const prisma = getPrismaClient();
-    const safeLimit = Math.min(300, Math.max(1, Number(limit) || 150));
+    const safeLimit = Math.min(5000, Math.max(1, Number(limit) || 5000));
     const fieldMeta = resolveDistinctField(column);
     if (!fieldMeta) return { items: [] };
 
@@ -492,7 +518,7 @@ export const empresaRepository = {
     );
 
     if (fieldMeta.type === "custom") {
-      const distinctSql = buildCustomDistinctSql(scope, fieldMeta.field, safeLimit);
+      const distinctSql = buildCustomDistinctSql(scope, fieldMeta.field, safeLimit, optionSearch);
       if (!distinctSql) return { items: [] };
       const rows = await prisma.$queryRawUnsafe(distinctSql.sql, ...distinctSql.params);
       const items = rows
@@ -501,8 +527,34 @@ export const empresaRepository = {
       return { items: [...new Set(items)] };
     }
 
+    const optionSearchTerm = String(optionSearch || "").trim();
+    const optionSearchWhere = optionSearchTerm
+      ? (() => {
+          const numericFields = new Set(["codempresa", "id_global"]);
+          if (numericFields.has(fieldMeta.field)) {
+            const asNumber = Number(optionSearchTerm);
+            if (!Number.isFinite(asNumber)) {
+              return { id: EMPTY_RESULT_COMPANY_ID };
+            }
+            return { [fieldMeta.field]: Math.floor(asNumber) };
+          }
+          return {
+            [fieldMeta.field]: {
+              contains: optionSearchTerm,
+              mode: "insensitive",
+            },
+          };
+        })()
+      : null;
+
+    const finalWhere = optionSearchWhere
+      ? {
+          AND: [where, optionSearchWhere],
+        }
+      : where;
+
     const rows = await prisma.empresa.findMany({
-      where,
+      where: finalWhere,
       select: { [fieldMeta.field]: true },
       distinct: [fieldMeta.field],
       orderBy: { [fieldMeta.field]: "asc" },
@@ -554,18 +606,22 @@ export const empresaRepository = {
       } catch (error) {
         lastError = error;
         const isIdGlobalConflict = isIdGlobalUniqueConflict(error);
-        if (!isIdGlobalConflict || attempt >= 2) {
-          if (isIdGlobalConflict) {
+        const isCodigoConflict = isCodigoUniqueConflict(error);
+        if ((!isIdGlobalConflict && !isCodigoConflict) || attempt >= 2) {
+          if (isIdGlobalConflict || isCodigoConflict) {
             const conflictError = new Error(
-              "Conflito ao gerar ID global. Tente novamente em alguns segundos."
+              "Conflito ao gerar sequências internas. Tente novamente em alguns segundos."
             );
             conflictError.statusCode = 409;
             throw conflictError;
           }
           throw error;
         }
-        // Sequência defasada: realinha e tenta novamente.
-        await prisma.$transaction((tx) => syncClienteIdGlobalFloor(tx, scope.clienteId));
+        await prisma.$transaction(async (tx) => {
+          // Sequências defasadas: realinha e tenta novamente.
+          await syncClienteIdGlobalFloor(tx, scope.clienteId);
+          await ensureCodigoSequenciaFloor(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
+        });
       }
     }
 
@@ -635,7 +691,7 @@ export const empresaRepository = {
     });
     if (!current) return false;
     try {
-      await prisma.$transaction(async (tx) => {
+      await runTransactionWithRetry(prisma, async (tx) => {
         await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
         await tx.empresa.delete({ where: { id: current.id } });
       });

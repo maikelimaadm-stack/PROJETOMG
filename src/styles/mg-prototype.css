@@ -867,6 +867,28 @@
   background: rgba(14, 165, 233, 0.12);
 }
 
+.mg-empresas-scope .erp-global-top-progress,
+.erp-global-top-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 90;
+  height: 2px;
+  overflow: hidden;
+  pointer-events: none;
+  background: rgba(34, 197, 94, 0.15);
+}
+
+.mg-empresas-scope .erp-global-top-progress__bar,
+.erp-global-top-progress__bar {
+  height: 100%;
+  width: 32%;
+  background: linear-gradient(90deg, rgba(34, 197, 94, 0.35), rgb(34, 197, 94));
+  animation: erp-listing-top-progress-slide 0.9s ease-in-out infinite;
+  will-change: transform;
+}
+
 .mg-empresas-scope .erp-listing-top-progress__bar,
 .erp-listing-top-progress__bar {
   height: 100%;

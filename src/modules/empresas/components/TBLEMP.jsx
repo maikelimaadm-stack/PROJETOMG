@@ -7,7 +7,6 @@ import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
-import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
@@ -162,12 +161,20 @@ export default function TBLEMP({
   }, [serverMode, menuFiltroAberto, filtrosColunas, serverBaseFilters]);
 
   const { data: serverDistinctOptions, isFetching: serverDistinctFetching } = useQuery({
-    queryKey: ["emp-distinct-column", menuFiltroAberto, serverSearchTerm, distinctFiltersKey],
+    queryKey: [
+      "emp-distinct-column",
+      menuFiltroAberto,
+      serverSearchTerm,
+      distinctFiltersKey,
+      buscaFiltroMenu,
+    ],
     queryFn: () =>
       empRepository.listDistinctColumnValues({
         column: menuFiltroAberto,
         search: serverSearchTerm,
+        optionSearch: buscaFiltroMenu,
         filters: distinctFiltersKey ? JSON.parse(distinctFiltersKey) : serverBaseFilters,
+        limit: 5000,
       }),
     enabled: serverMode && Boolean(menuFiltroAberto),
     staleTime: 60_000,
@@ -1088,7 +1095,6 @@ export default function TBLEMP({
         className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
       >
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
-          <ErpListingTopProgress active={isFetchingEmpresas && !isLoadingEmpresas} />
           <div
             ref={headerScrollRef}
             className="emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden"
@@ -1126,7 +1132,7 @@ export default function TBLEMP({
                   <TableBody>
                     <TableRow>
                       <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
-                        Carregando registros...
+                        &nbsp;
                       </TableCell>
                     </TableRow>
                   </TableBody>
@@ -1158,11 +1164,7 @@ export default function TBLEMP({
                     }
                     onRowClick={handleRowClick}
                   />
-                  {infiniteMode && isLoadingMoreRows ? (
-                    <div className="py-2 text-center text-[11px] text-slate-500">
-                      Carregando mais registros...
-                    </div>
-                  ) : null}
+                  {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
                 </>
               )}
             </div>
