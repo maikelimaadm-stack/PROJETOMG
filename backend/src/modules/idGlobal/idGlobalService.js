@@ -2,6 +2,24 @@ import { getPrismaClient } from "../../database/prismaClient.js";
 import { runTransactionWithRetry } from "../../database/transactionRetry.js";
 
 const ID_GLOBAL_FLOOR_TABLES = ["RegistroGlobal", "Empresa", "CadCpsCampo"];
+const relationExistsCache = new Map();
+
+const quotePgIdentifier = (identifier) => `"${String(identifier).replaceAll('"', '""')}"`;
+
+const resolveRelationExists = async (tx, relationName) => {
+  const cacheKey = String(relationName);
+  if (relationExistsCache.has(cacheKey)) {
+    return relationExistsCache.get(cacheKey);
+  }
+
+  const regclassName = quotePgIdentifier(relationName);
+  const rows = await tx.$queryRaw`
+    SELECT to_regclass(${regclassName}) IS NOT NULL AS "exists"
+  `;
+  const exists = Boolean(rows?.[0]?.exists);
+  relationExistsCache.set(cacheKey, exists);
+  return exists;
+};
 
 const isMissingRelationError = (error, relationName = "") => {
   const message = `${error?.message || ""} ${error?.meta?.message || ""}`.toLowerCase();
@@ -21,19 +39,17 @@ export const syncClienteIdGlobalFloor = async (tx, clienteId) => {
   let maxAssignedIdGlobal = 0;
 
   for (const tableName of ID_GLOBAL_FLOOR_TABLES) {
-    try {
-      const rows = await tx.$queryRawUnsafe(
-        `SELECT COALESCE(MAX("id_global"), 0) AS max_id FROM "${tableName}" WHERE "cliente_id" = $1`,
-        clienteId
-      );
-      const currentMax = Number(rows?.[0]?.max_id) || 0;
-      maxAssignedIdGlobal = Math.max(maxAssignedIdGlobal, currentMax);
-    } catch (error) {
-      // Ambientes legados podem não ter todas as tabelas auxiliares de id_global.
-      if (!isMissingRelationError(error, tableName)) {
-        throw error;
-      }
+    const tableExists = await resolveRelationExists(tx, tableName);
+    if (!tableExists) {
+      continue;
     }
+
+    const rows = await tx.$queryRawUnsafe(
+      `SELECT COALESCE(MAX("id_global"), 0) AS max_id FROM "${tableName}" WHERE "cliente_id" = $1`,
+      clienteId
+    );
+    const currentMax = Number(rows?.[0]?.max_id) || 0;
+    maxAssignedIdGlobal = Math.max(maxAssignedIdGlobal, currentMax);
   }
 
   const nextAssign = Math.max(1, maxAssignedIdGlobal + 1);
@@ -74,6 +90,11 @@ export const registerRegistroGlobal = async (
   tx,
   { clienteId, idGlobal, entityName, registroId }
 ) => {
+  const hasRegistroGlobal = await resolveRelationExists(tx, "RegistroGlobal");
+  if (!hasRegistroGlobal) {
+    return;
+  }
+
   try {
     await tx.registroGlobal.create({
       data: {
@@ -108,6 +129,12 @@ export const createWithIdGlobal = async ({ clienteId, entityName, createRecord }
 
 export const countRegistrosGlobais = async (clienteId) => {
   const prisma = getPrismaClient();
+  const rows = await prisma.$queryRaw`
+    SELECT to_regclass('"RegistroGlobal"') IS NOT NULL AS "exists"
+  `;
+  if (!rows?.[0]?.exists) {
+    return 0;
+  }
   return prisma.registroGlobal.count({
     where: { cliente_id: clienteId },
   });
@@ -164,6 +191,10 @@ const OPERATIONAL_SOURCES = [
 export const backfillClienteIdGlobal = async (clienteId) => {
   const prisma = getPrismaClient();
   const rows = [];
+  const hasRegistroGlobalRows = await prisma.$queryRaw`
+    SELECT to_regclass('"RegistroGlobal"') IS NOT NULL AS "exists"
+  `;
+  const hasRegistroGlobal = Boolean(hasRegistroGlobalRows?.[0]?.exists);
 
   for (const source of OPERATIONAL_SOURCES) {
     const records = await source.fetch(prisma, clienteId);
@@ -188,17 +219,21 @@ export const backfillClienteIdGlobal = async (clienteId) => {
   }
 
   await prisma.$transaction(async (tx) => {
-    await tx.registroGlobal.deleteMany({ where: { cliente_id: clienteId } });
+    if (hasRegistroGlobal) {
+      await tx.registroGlobal.deleteMany({ where: { cliente_id: clienteId } });
+    }
 
     let nextId = 1;
     for (const row of rows) {
       await row.source.update(tx, row.id, nextId);
-      await registerRegistroGlobal(tx, {
-        clienteId,
-        idGlobal: nextId,
-        entityName: row.entityName,
-        registroId: row.id,
-      });
+      if (hasRegistroGlobal) {
+        await registerRegistroGlobal(tx, {
+          clienteId,
+          idGlobal: nextId,
+          entityName: row.entityName,
+          registroId: row.id,
+        });
+      }
       nextId += 1;
     }
 
