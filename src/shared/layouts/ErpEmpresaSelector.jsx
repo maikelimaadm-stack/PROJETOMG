@@ -95,7 +95,7 @@ export default function ErpEmpresaSelector({
               />
             </div>
           </div>
-          <div className="max-h-64 overflow-auto py-1" role="listbox">
+          <div className="erp-scroll-compact-y max-h-64 overflow-y-auto py-1" role="listbox">
             <button
               type="button"
               className="block w-full px-3 py-2 text-left text-xs hover:bg-slate-50"
