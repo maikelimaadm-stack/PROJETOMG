@@ -13,7 +13,7 @@ import("./runBlockingDatabaseBoot.js")
     const server = spawn("node", ["src/server.js"], {
       stdio: "inherit",
       cwd: backendRoot,
-      env: { ...process.env, NODE_ENV: "production" },
+      env: { ...process.env, NODE_ENV: "production", BOOT_SKIP_BLOCKING: "true" },
     });
     server.on("error", (error) => {
       console.error("[boot] Falha ao iniciar servidor:", error.message);

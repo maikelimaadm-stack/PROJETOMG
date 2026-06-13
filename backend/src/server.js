@@ -195,7 +195,8 @@ const start = async () => {
   const host = resolveHost();
   const port = resolvePort();
 
-  if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
+  // Boot bloqueante: migrations/DDL antes de aceitar tráfego (produção e Railway)
+  if (process.env.DATABASE_URL && String(process.env.BOOT_SKIP_BLOCKING || "").toLowerCase() !== "true") {
     await runBlockingBootTasks(app.log);
   }
 

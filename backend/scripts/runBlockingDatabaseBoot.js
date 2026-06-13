@@ -44,14 +44,16 @@ export const runBlockingDatabaseBoot = async (log = console) => {
 
   const report = { steps: [] };
 
-  await runCommand("Prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"]);
-  report.steps.push({ step: "migrate_deploy", ok: true });
-
-  const { ensureCounterColumns } = await import("../scripts/ensureCounterColumns.js");
+  // 1) DDL idempotente via raw SQL — funciona mesmo se _prisma_migrations estiver desatualizado
+  const { ensureCounterColumns } = await import("./ensureCounterColumns.js");
   const counterResult = await ensureCounterColumns();
   report.steps.push({ step: "ensure_counter_columns", ok: true, result: counterResult });
 
-  const { ensurePerformanceIndexes } = await import("../scripts/ensurePerformanceIndexes.js");
+  // 2) Marca migrations oficiais como aplicadas
+  await runCommand("Prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"]);
+  report.steps.push({ step: "migrate_deploy", ok: true });
+
+  const { ensurePerformanceIndexes } = await import("./ensurePerformanceIndexes.js");
   const indexResult = await ensurePerformanceIndexes();
   report.steps.push({ step: "ensure_performance_indexes", ok: true, result: indexResult });
 

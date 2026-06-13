@@ -18,5 +18,5 @@ COPY config ./config
 
 EXPOSE 3001
 
-# Sobe direto — bootProduction só atrasa healthcheck
-CMD ["node", "src/server.js"]
+# Migrations bloqueantes ANTES do servidor — proibido aceitar tráfego sem DDL
+CMD ["node", "scripts/bootProduction.js"]
