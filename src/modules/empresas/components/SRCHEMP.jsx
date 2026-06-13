@@ -333,7 +333,6 @@ export default function SRCHEMP({
         <ErpListingTopProgress active={showCardsFetching} />
         <ErpScrollNav
           ref={cardsScrollRef}
-          stepSize={152}
           className="relative min-h-0 flex-1"
           viewportClassName="overflow-y-auto p-4"
         >

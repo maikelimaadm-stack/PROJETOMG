@@ -753,7 +753,6 @@ export default function FORMEMP({
             <ErpScrollNav
               className="form-scroll-container min-h-0 flex-1"
               viewportClassName="overflow-auto"
-              stepSize={40}
             >
               {renderFormBody(false)}
             </ErpScrollNav>
@@ -778,7 +777,6 @@ export default function FORMEMP({
                 isReadOnly ? " mg-prototype-form--readonly" : ""
               }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}`}
               viewportClassName="overflow-y-auto"
-              stepSize={40}
             >
               {renderFormBody(true)}
             </ErpScrollNav>

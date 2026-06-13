@@ -91,7 +91,6 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
         <ErpScrollNav
           className="form-scroll-container h-full min-h-0 flex-1"
           viewportClassName="overflow-auto p-3"
-          stepSize={40}
         >
           <div className="mb-2 flex gap-2">
             {TEMPLATE_PANELS.map((panel) => (

@@ -848,24 +848,6 @@ html.escuro .emp-filter-value-list-item:hover {
   background: #21262d !important;
 }
 
-/* —— Scroll nav (index.css) —— */
-html.tema-escuro .erp-scroll-nav__group,
-html.escuro .erp-scroll-nav__group {
-  background: rgba(22, 27, 34, 0.92) !important;
-  border-color: rgba(48, 54, 61, 0.72) !important;
-}
-
-html.tema-escuro .erp-scroll-nav__btn,
-html.escuro .erp-scroll-nav__btn {
-  color: #848d97;
-}
-
-html.tema-escuro .erp-scroll-nav__btn:hover:not(:disabled),
-html.escuro .erp-scroll-nav__btn:hover:not(:disabled) {
-  color: #e6edf3;
-  background: rgba(48, 54, 61, 0.55);
-}
-
 /* —— Radix / shadcn portais —— */
 html.tema-escuro [data-radix-popper-content-wrapper] [role="menu"],
 html.tema-escuro [data-radix-select-content],

@@ -669,7 +669,6 @@ export default function FORMCPS({
           <ErpScrollNav
             className="form-scroll-container min-h-0 flex-1 pb-6 pr-2"
             viewportClassName="overflow-auto"
-            stepSize={40}
           >
             <div className="emp-form-body flex flex-col">
               <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">

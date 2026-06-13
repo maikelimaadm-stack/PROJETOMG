@@ -1042,7 +1042,6 @@ export default function TBLEMP({
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            stepSize={TABLE_ROW_HEIGHT}
             className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none${mgPrototype ? " mg-grid-scroll" : ""}`}
             viewportClassName="overflow-auto"
           >
