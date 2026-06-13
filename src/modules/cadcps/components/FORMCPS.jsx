@@ -665,7 +665,7 @@ export default function FORMCPS({
             />
           }
         >
-          <div className="form-scroll-container min-h-0 flex-1 overflow-auto pb-6 pr-2">
+          <div className="form-scroll-container erp-scroll-y min-h-0 flex-1 overflow-y-auto pb-6 pr-2">
             <div className="emp-form-body flex flex-col">
               <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">
                 {renderPrincipal()}

@@ -1457,7 +1457,7 @@ export default function EmpLayoutConfiguratorDialog({
             </div>
             <div
               className={cn(
-                "emp-layout-config-available-list flex flex-1 flex-col gap-1 overflow-auto pr-1",
+                "emp-layout-config-available-list erp-scroll-y flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto pr-1",
                 draggedFrom === "panel" && isEditing ? "emp-layout-config-drop-target" : ""
               )}
               onDragOver={(event) => {
@@ -1728,7 +1728,7 @@ export default function EmpLayoutConfiguratorDialog({
 
             <div
               ref={layoutPanelRef}
-              className="mg-form-scroll emp-layout-config-panel-body min-h-0 flex-1 overflow-auto px-3 md:px-5"
+              className="mg-form-scroll emp-layout-config-panel-body erp-scroll-y min-h-0 flex-1 overflow-y-auto px-3 md:px-5"
             >
               <p className="emp-layout-config-help mb-2 text-[10px]">
                 Painel → Card → Linha → Campo. Card inteiro: até <strong>7</strong> por linha; card meio (½): até{" "}

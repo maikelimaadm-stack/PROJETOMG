@@ -87,7 +87,7 @@ export default function FORMTemplate({ onSubmit, onCancel }) {
           />
         }
       >
-        <div className="form-scroll-container h-full min-h-0 flex-1 overflow-auto p-3">
+        <div className="form-scroll-container erp-scroll-y h-full min-h-0 flex-1 overflow-y-auto p-3">
           <div className="mb-2 flex gap-2">
             {TEMPLATE_PANELS.map((panel) => (
               <button

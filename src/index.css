@@ -183,41 +183,110 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
+:root {
+  --erp-scrollbar-size: 12px;
+  --erp-scrollbar-thumb: rgba(100, 116, 139, 0.42);
+  --erp-scrollbar-thumb-hover: rgba(71, 85, 105, 0.62);
+  --erp-scrollbar-track: transparent;
+}
+
+.dark {
+  --erp-scrollbar-thumb: rgba(148, 163, 184, 0.36);
+  --erp-scrollbar-thumb-hover: rgba(203, 213, 225, 0.52);
+}
+
 * {
   scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
+  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
 }
 
 .overflow-auto,
 .overflow-y-auto,
 .overflow-scroll,
 [class*="overflow-auto"],
-[class*="overflow-y-auto"] {
+[class*="overflow-y-auto"],
+.erp-scroll,
+.erp-scroll-y {
   scrollbar-gutter: stable;
 }
 
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: var(--erp-scrollbar-size);
+  height: var(--erp-scrollbar-size);
 }
 
 *::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--erp-scrollbar-track);
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1 !important;
+  background-color: var(--erp-scrollbar-thumb) !important;
   border-radius: 9999px;
-  border: 2px solid transparent;
+  border: 3px solid transparent;
   background-clip: content-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
+  background-color: var(--erp-scrollbar-thumb-hover);
 }
 
 *::-webkit-scrollbar-corner {
   background: transparent;
+}
+
+/* —— Scroll containers canônicos (ERP) —— */
+.erp-scroll-y,
+.erp-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+}
+
+.erp-scroll-y {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.erp-scroll {
+  overflow: auto;
+}
+
+.erp-scroll-lock-wheel {
+  overscroll-behavior: contain;
+}
+
+.cadastro-emp-scope .form-scroll-container,
+.cadastro-emp-scope .emp-table-body-scroll,
+.mg-empresas-scope .mg-form-scroll,
+.mg-empresas-scope .mg-grid-scroll,
+.mg-empresas-scope .filter-panel__body,
+.mg-empresas-scope .mg-search-dropdown__list,
+.mg-empresas-scope .mobile-menu,
+.mg-empresas-scope .mg-tp-col,
+.erp-select-menu__list,
+.erp-search-panel__results,
+.erp-menu-panel [cmdk-list],
+.emp-filter-value-list,
+.emp-campos-config-table-wrap,
+.emp-layout-config-available-list,
+.emp-layout-config-panel-body,
+[data-sidebar="content"] {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
+}
+
+.cadastro-emp-scope .form-scroll-container,
+.mg-empresas-scope .mg-form-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.cadastro-emp-scope .emp-table-body-scroll,
+.mg-empresas-scope .mg-grid-scroll {
+  overflow: auto;
 }
 
 .cadastro-scope,
@@ -720,16 +789,14 @@ input[type="number"] {
 .cadastro-emp-scope .form-scroll-container {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: auto !important;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   background: transparent !important;
   padding: 0 !important;
   border: none !important;
   box-shadow: none !important;
   width: 100%;
   max-width: 100%;
-  scrollbar-gutter: auto;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container .emp-form-body {
@@ -1463,8 +1530,6 @@ input[type="number"] {
   flex: 1 1 auto;
   min-height: 0;
   overflow: auto !important;
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
   background: var(--emp-table-bg) !important;
 }
 
@@ -1646,6 +1711,7 @@ input[type="number"] {
   max-width: 272px !important;
   animation: none !important;
   transform: none !important;
+  overscroll-behavior: contain;
 }
 
 .emp-filter-popover[data-state="open"],
@@ -1741,6 +1807,9 @@ input[type="number"] {
   max-height: 256px;
   overflow-x: hidden;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+  scroll-behavior: smooth;
   padding: 4px;
   background: #ffffff;
   border: 1px solid #bae6fd;
@@ -2863,9 +2932,9 @@ input[type="number"] {
 .cadastro-emp-scope .emp-content-card > .form-scroll-container {
   flex: 1 1 auto;
   min-height: 0;
-  overflow: auto !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
   overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
 }
 
 .cadastro-emp-scope .emp-toolbar-card {

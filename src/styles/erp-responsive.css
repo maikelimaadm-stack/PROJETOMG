@@ -236,7 +236,6 @@
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
 
@@ -383,7 +382,6 @@
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
     align-items: center;
@@ -574,7 +572,6 @@
   /* Espaço extra para rodapé não tampar campos */
   .cadastro-emp-scope .form-scroll-container {
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 20px) !important;
-    -webkit-overflow-scrolling: touch;
   }
 
   .cadastro-emp-scope .emp-form-body,
@@ -629,12 +626,12 @@
 
   .cadastro-emp-scope .emp-table-body-scroll,
   .cadastro-emp-scope .emp-table-stage {
-    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   .cadastro-emp-scope .emp-table-panel {
     min-width: 0;
-    overflow-x: auto;
+    overflow-x: hidden;
   }
 
   .erp-shell-logout {
