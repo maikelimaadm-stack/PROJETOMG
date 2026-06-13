@@ -101,23 +101,54 @@ export const registerRoutes = async (app) => {
           status.migration.missingSchema = missing;
         }
 
-        const [clientes, empresas, sequencias] = await Promise.all([
-          client.cliente.count(),
-          client.empresa.count(),
-          client.entidadeCodigoSequencia.findMany({
-            select: { cliente_id: true, entity_name: true, next_codigo: true },
-            take: 20,
-          }),
-        ]);
-        status.data = {
-          clientes,
-          empresas,
-          sequencias,
-          resetHint:
-            clientes > 1 || empresas > 0
-              ? "Dados antigos detectados. Rode resetAndSeedMaike.sql no Supabase OU defina BOOT_RESET_MAIKE=true no Railway (um deploy) e remova depois."
-              : null,
-        };
+        const [clientes, empresas, sequencias] =
+          String(process.env.HEALTH_VERBOSE || "").toLowerCase() === "true"
+            ? await Promise.all([
+                client.cliente.count(),
+                client.empresa.count(),
+                client.entidadeCodigoSequencia.findMany({
+                  select: { cliente_id: true, entity_name: true, next_codigo: true },
+                  take: 20,
+                }),
+              ])
+            : [null, null, null];
+
+        if (clientes != null) {
+          status.data = {
+            clientes,
+            empresas,
+            sequencias,
+            resetHint:
+              clientes > 1 || empresas > 0
+                ? "Dados antigos detectados. Rode resetAndSeedMaike.sql no Supabase OU defina BOOT_RESET_MAIKE=true no Railway (um deploy) e remova depois."
+                : null,
+          };
+        } else {
+          status.data = { verboseCounts: false, hint: "Defina HEALTH_VERBOSE=true para contagens completas" };
+        }
+
+        try {
+          const { PERFORMANCE_INDEX_NAMES } = await import("../../scripts/ensurePerformanceIndexes.js");
+          const indexRows = await client.$queryRaw`
+            SELECT indexname
+            FROM pg_indexes
+            WHERE schemaname = 'public'
+              AND indexname = ANY(${PERFORMANCE_INDEX_NAMES})
+          `;
+          const foundNames = indexRows.map((row) => row.indexname);
+          const missingIndexes = PERFORMANCE_INDEX_NAMES.filter((name) => !foundNames.includes(name));
+          status.performanceIndexes = {
+            expected: PERFORMANCE_INDEX_NAMES.length,
+            found: foundNames.length,
+            applied: missingIndexes.length === 0,
+            missing: missingIndexes,
+          };
+        } catch (indexError) {
+          status.performanceIndexes = {
+            applied: false,
+            error: indexError.message || "Falha ao consultar pg_indexes",
+          };
+        }
       } catch {
         status.migration.restructureApplied = false;
       }
@@ -160,4 +191,6 @@ export const registerRoutes = async (app) => {
     registerCadastroRoutes(app),
   ]);
   await registerGeneratedModuleRoutes(app);
+  const { registerLatencyDebugRoutes } = await import("../modules/debug/latencyRoutes.js");
+  await registerLatencyDebugRoutes(app);
 };

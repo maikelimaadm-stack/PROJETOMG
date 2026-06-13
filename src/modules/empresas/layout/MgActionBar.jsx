@@ -355,8 +355,8 @@ export default function MgActionBar({
         </ActionSlot>
       </div>
 
-      <div className={`mg-action-bar__end${lockedClass}`}>
-        <div className="mg-action-bar__tools mg-action-bar__tools--visible">
+      <div className="mg-action-bar__end">
+        <div className={`mg-action-bar__tools mg-action-bar__tools--visible${lockedClass}`}>
           <div className="mg-search-pill-wrap" ref={searchRef}>
             <div className="mg-search-pill" role="search">
               {searchLoading ? (
@@ -431,9 +431,8 @@ export default function MgActionBar({
               isFavoriteRecord={isFavoriteRecord}
             />
           </div>
-          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={toolsLocked} />
         </div>
-
+        <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
         <div className="relative" ref={moreRef}>
           <MgSpeedDialMenu
             open={moreOpen}

@@ -6,6 +6,12 @@ export const LIST_DEFAULT_PAGE_SIZE = 50;
 /** Limite máximo de registros por página (server e client). */
 export const LIST_MAX_PAGE_SIZE = 200;
 
+/** Máximo de itens acumulados no dropdown de pesquisa (anti-abuso DOM). */
+export const LIST_DROPDOWN_MAX_ITEMS = 150;
+
+/** Máximo de páginas carregadas no dropdown de pesquisa. */
+export const LIST_DROPDOWN_MAX_PAGES = 5;
+
 /** @deprecated Use LIST_DEFAULT_PAGE_SIZE — mantido para compatibilidade de imports legados. */
 export const EMP_LIST_CHUNK_SIZE = LIST_DEFAULT_PAGE_SIZE;
 

@@ -67,24 +67,7 @@ export const AuthProvider = ({ children }) => {
   const [authError, setAuthError] = useState(null);
   const [appPublicSettings, setAppPublicSettings] = useState(null);
 
-  useEffect(() => {
-    checkAppState();
-    let subscription = { unsubscribe: () => {} };
-    try {
-      subscription = AuthApi.onAuthStateChange(async () => {
-        await checkAppState();
-      });
-    } catch (error) {
-      setAuthError({
-        type: "auth_error",
-        message: error.message || "Falha ao iniciar autenticação.",
-      });
-      setIsLoadingAuth(false);
-    }
-    return () => subscription.unsubscribe?.();
-  }, []);
-
-  const checkAppState = async () => {
+  const checkAppState = useCallback(async () => {
     try {
       setIsLoadingAuth(true);
       setAuthError(null);
@@ -127,9 +110,26 @@ export const AuthProvider = ({ children }) => {
       setEmpresas([]);
       setAllowAllEmpresas(false);
     }
-  };
+  }, []);
 
-  const login = async ({ cliente: clienteCodigo, usuario, senha }) => {
+  useEffect(() => {
+    checkAppState();
+    let subscription = { unsubscribe: () => {} };
+    try {
+      subscription = AuthApi.onAuthStateChange(async () => {
+        await checkAppState();
+      });
+    } catch (error) {
+      setAuthError({
+        type: "auth_error",
+        message: error.message || "Falha ao iniciar autenticação.",
+      });
+      setIsLoadingAuth(false);
+    }
+    return () => subscription.unsubscribe?.();
+  }, [checkAppState]);
+
+  const login = useCallback(async ({ cliente: clienteCodigo, usuario, senha }) => {
     setIsLoadingAuth(true);
     setAuthError(null);
     try {
@@ -154,9 +154,9 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(false);
       throw error;
     }
-  };
+  }, []);
 
-  const selectEmpresa = (empresaId) => {
+  const selectEmpresa = useCallback((empresaId) => {
     const normalizedEmpresaId =
       empresaId === "__AUTHORIZED_SCOPE__"
         ? null
@@ -166,17 +166,17 @@ export const AuthProvider = ({ children }) => {
     AuthApi.setSelectedEmpresaId(normalizedEmpresaId);
     setSelectedEmpresaId(normalizedEmpresaId);
     void queryClientInstance.invalidateQueries({ queryKey: ["emp-cadastro"] });
-  };
+  }, []);
 
-  const mapEmpresaForSelector = (empresa) => ({
+  const mapEmpresaForSelector = useCallback((empresa) => ({
     id: empresa.id,
     codempresa: Number(empresa.codempresa || 0),
     nome_empresa: empresa.nome_empresa || empresa.razao_social || "",
     razao_social: empresa.razao_social || empresa.nome_empresa || "",
     status: empresa.status || "Ativa",
-  });
+  }), []);
 
-  const upsertEmpresaInSelector = (empresa) => {
+  const upsertEmpresaInSelector = useCallback((empresa) => {
     if (!empresa?.id) return;
     const mapped = mapEmpresaForSelector(empresa);
     setEmpresas((previous) => {
@@ -190,9 +190,9 @@ export const AuthProvider = ({ children }) => {
         (a, b) => Number(a.codempresa || 0) - Number(b.codempresa || 0)
       );
     });
-  };
+  }, [mapEmpresaForSelector]);
 
-  const removeEmpresasFromSelector = (ids = []) => {
+  const removeEmpresasFromSelector = useCallback((ids = []) => {
     const idSet = new Set(ids.filter(Boolean));
     if (idSet.size === 0) return;
 
@@ -205,13 +205,13 @@ export const AuthProvider = ({ children }) => {
       }
       return previous;
     });
-  };
+  }, [allowAllEmpresas]);
 
-  const replaceEmpresasInSelector = (nextEmpresas = []) => {
+  const replaceEmpresasInSelector = useCallback((nextEmpresas = []) => {
     setEmpresas(Array.isArray(nextEmpresas) ? nextEmpresas : []);
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     await AuthApi.logout().catch(() => null);
     resetAllLayoutPreferencesSync();
     setUser(null);
@@ -220,7 +220,7 @@ export const AuthProvider = ({ children }) => {
     setAllowAllEmpresas(false);
     setSelectedEmpresaId(null);
     setIsAuthenticated(false);
-  };
+  }, []);
 
   const navigateToLogin = useCallback(() => {
     setIsAuthenticated(false);

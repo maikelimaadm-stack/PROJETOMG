@@ -100,5 +100,6 @@ export const runProductionBootTasks = async (logger = console) => {
 
   await runScript("Popular telas CADCPS", "scripts/seedCadcpsTelas.js", logger);
   await runScript("Tabela preferências", "scripts/ensureUsuarioPreferenciaTable.js", logger);
+  await runScript("Índices de performance", "scripts/ensurePerformanceIndexes.js", logger);
   await runErpRestructure(logger);
 };

@@ -1,0 +1,230 @@
+{
+  "timestamp": "2026-06-13T00:30:11.810Z",
+  "sections": [
+    {
+      "name": "ETAPA 2 - Backend API",
+      "items": [
+        {
+          "name": "Paginação MAX_PAGE_SIZE=200",
+          "status": "OK",
+          "evidence": "pageSize=500 → effective 200",
+          "file": "backend/src/modules/empresas/repositories/empresaRepository.js",
+          "risk": "CRITICO"
+        },
+        {
+          "name": "Listagem page=1 (50 reg)",
+          "status": "OK",
+          "evidence": "Mediana 2527.4ms | total real=26225",
+          "file": "GET /api/empresas",
+          "risk": "MEDIO"
+        },
+        {
+          "name": "Busca textual",
+          "status": "OK",
+          "evidence": "Mediana 3584.4ms",
+          "file": "empresaRepository.buildListWhere",
+          "risk": "MEDIO"
+        },
+        {
+          "name": "Ordenação razao_social",
+          "status": "OK",
+          "evidence": "Mediana 2526.8ms",
+          "file": "empresaRepository.resolveOrderBy",
+          "risk": "MEDIO"
+        },
+        {
+          "name": "Paginação profunda (page=10)",
+          "status": "OK",
+          "evidence": "Mediana 2524.9ms",
+          "file": "GET /api/empresas?page=10",
+          "risk": "MEDIO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 3 - Banco (indireto via health)",
+      "items": [
+        {
+          "name": "performanceIndexes no health",
+          "status": "FALHA",
+          "evidence": "Campo ausente — deploy backend pendente",
+          "file": "backend/scripts/ensurePerformanceIndexes.js",
+          "risk": "CRITICO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 5 - Simulação volume (API)",
+      "items": [
+        {
+          "name": "Simulação 25.000 reg (page=500)",
+          "status": "OK",
+          "evidence": "DB real=26225 — page=500 testável",
+          "file": "empresaRepository MAX_PAGE_SIZE + skip/take",
+          "risk": "MEDIO"
+        },
+        {
+          "name": "Simulação 50.000 reg (page=1000)",
+          "status": "OK",
+          "evidence": "page=1000 com total real=26225 → vazio (esperado)",
+          "file": "empresaRepository MAX_PAGE_SIZE + skip/take",
+          "risk": "MEDIO"
+        },
+        {
+          "name": "Simulação 100.000 reg (page=2000)",
+          "status": "OK",
+          "evidence": "page=2000 com total real=26225 → vazio (esperado)",
+          "file": "empresaRepository MAX_PAGE_SIZE + skip/take",
+          "risk": "MEDIO"
+        },
+        {
+          "name": "Simulação 200.000 reg (page=4000)",
+          "status": "OK",
+          "evidence": "page=4000 com total real=26225 → vazio (esperado)",
+          "file": "empresaRepository MAX_PAGE_SIZE + skip/take",
+          "risk": "ALTO"
+        },
+        {
+          "name": "Deep page 100k (page=2000)",
+          "status": "OK",
+          "evidence": "items=0",
+          "file": "GET /api/empresas?page=2000",
+          "risk": "CRITICO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 6 - Rede / Payload",
+      "items": [
+        {
+          "name": "Tamanho resposta 50 reg",
+          "status": "OK",
+          "evidence": "29.9 KB",
+          "file": "GET /api/empresas",
+          "risk": "MEDIO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 7 - Segurança performance",
+      "items": [
+        {
+          "name": "Cap pageSize API",
+          "status": "OK",
+          "evidence": "Cap efetivo: 200",
+          "file": "empresaRepository.js",
+          "risk": "CRITICO"
+        },
+        {
+          "name": "Export MAX_EXPORT_ROWS",
+          "status": "OK",
+          "evidence": "MAX_EXPORT_ROWS=100000 no código (verificar após deploy)",
+          "file": "empresaRepository.js + empresaExportService.js",
+          "risk": "ALTO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 1 - Frontend",
+      "items": [
+        {
+          "name": "Virtualização TBLEMP",
+          "status": "OK",
+          "evidence": "33 linhas DOM (pageSize 50)",
+          "file": "src/shared/hooks/useTableVirtualizer.js",
+          "risk": "BAIXO"
+        },
+        {
+          "name": "Troca Registro/Tabela/Cards",
+          "status": "OK",
+          "evidence": "cards=true, rows após switch=33",
+          "file": "PAGEMP.jsx handleMgViewModeChange",
+          "risk": "ALTO"
+        },
+        {
+          "name": "useServerListQuery (sem infinite)",
+          "status": "OK",
+          "evidence": "PAGEMP usa useServerListQuery — verificado estaticamente",
+          "file": "src/shared/hooks/useServerListQuery.js",
+          "risk": "BAIXO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 4 - Virtualização",
+      "items": [
+        {
+          "name": "TBLEMP linhas DOM",
+          "status": "OK",
+          "evidence": "33",
+          "file": "TBLEMP.jsx",
+          "risk": "CRITICO"
+        },
+        {
+          "name": "Nós DOM totais",
+          "status": "OK",
+          "evidence": "1193",
+          "file": "Playwright",
+          "risk": "BAIXO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 5 - Memória browser",
+      "items": [
+        {
+          "name": "Heap JS",
+          "status": "OK",
+          "evidence": "48.1 MB",
+          "file": "performance.memory",
+          "risk": "BAIXO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 6 - Requests UI",
+      "items": [
+        {
+          "name": "Total /api/* na sessão",
+          "status": "OK",
+          "evidence": "8 requests",
+          "file": "Network Playwright",
+          "risk": "MEDIO"
+        }
+      ]
+    },
+    {
+      "name": "ETAPA 8 - UX",
+      "items": [
+        {
+          "name": "Tempo até primeira linha",
+          "status": "OK",
+          "evidence": "12897ms",
+          "file": "Vite dev + auto-login",
+          "risk": "Aceitável"
+        },
+        {
+          "name": "Troca tabela↔registro",
+          "status": "OK",
+          "evidence": "12897ms load, 33 rows after switch",
+          "file": "MgViewSeg",
+          "risk": "Boa"
+        }
+      ]
+    }
+  ],
+  "verdict": "REPROVADO PARA PRODUÇÃO",
+  "metrics": {
+    "dbEmpresas": 26225,
+    "apiListMs": 2527.4498129999993,
+    "apiSearchMs": 3584.362261000002,
+    "apiSortMs": 2526.7547889999987,
+    "apiPage10Ms": 2524.8778639999946,
+    "responseSize50": 30583,
+    "uiLoadMs": 12896.596153000006,
+    "domNodes": 1193,
+    "heapMb": 48.065185546875,
+    "tableRows": 33,
+    "apiRequests": 8
+  }
+}
