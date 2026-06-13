@@ -2,11 +2,17 @@ import { getPrismaClient } from "../../database/prismaClient.js";
 import { runTransactionWithRetry } from "../../database/transactionRetry.js";
 
 export const syncClienteIdGlobalFloor = async (tx, clienteId) => {
-  const agg = await tx.registroGlobal.aggregate({
-    where: { cliente_id: clienteId },
-    _max: { id_global: true },
-  });
-  const nextAssign = (Number(agg._max.id_global) || 0) + 1;
+  const floorRows = await tx.$queryRaw`
+    SELECT
+      GREATEST(
+        COALESCE((SELECT MAX("id_global") FROM "RegistroGlobal" WHERE "cliente_id" = ${clienteId}), 0),
+        COALESCE((SELECT MAX("id_global") FROM "Empresa" WHERE "cliente_id" = ${clienteId}), 0),
+        COALESCE((SELECT MAX("id_global") FROM "CadCpsCampo" WHERE "cliente_id" = ${clienteId}), 0),
+        COALESCE((SELECT MAX("id_global") FROM "CadastroRegistro" WHERE "cliente_id" = ${clienteId}), 0),
+        COALESCE((SELECT MAX("id_global") FROM "RegistroAnexo" WHERE "cliente_id" = ${clienteId}), 0)
+      ) + 1 AS next_assign
+  `;
+  const nextAssign = Number(floorRows[0]?.next_assign) || 1;
 
   await tx.$executeRaw`
     UPDATE "Cliente"
@@ -16,18 +22,27 @@ export const syncClienteIdGlobalFloor = async (tx, clienteId) => {
 };
 
 export const reserveNextIdGlobal = async (tx, clienteId) => {
-  const rows = await tx.$queryRaw`
-    UPDATE "Cliente"
-    SET "next_id_global" = "next_id_global" + 1, "updatedAt" = NOW()
-    WHERE "id" = ${clienteId}
-    RETURNING ("next_id_global" - 1) AS assigned
-  `;
+  const reserveOnce = async () => {
+    const rows = await tx.$queryRaw`
+      UPDATE "Cliente"
+      SET "next_id_global" = "next_id_global" + 1, "updatedAt" = NOW()
+      WHERE "id" = ${clienteId}
+      RETURNING ("next_id_global" - 1) AS assigned
+    `;
+    return Number(rows[0]?.assigned);
+  };
 
-  const assigned = Number(rows[0]?.assigned);
+  let assigned = await reserveOnce();
+  if (Number.isFinite(assigned) && assigned > 0) {
+    return assigned;
+  }
+
+  // Auto-recuperação para sequências defasadas/cliente ausente em cenários legados.
+  await syncClienteIdGlobalFloor(tx, clienteId);
+  assigned = await reserveOnce();
   if (!Number.isFinite(assigned) || assigned <= 0) {
     throw new Error("Falha ao reservar ID Global.");
   }
-
   return assigned;
 };
 

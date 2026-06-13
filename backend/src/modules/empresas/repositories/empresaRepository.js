@@ -6,6 +6,7 @@ import { runTransactionWithRetry } from "../../../database/transactionRetry.js";
 import {
   registerRegistroGlobal,
   reserveNextIdGlobal,
+  syncClienteIdGlobalFloor,
 } from "../../idGlobal/idGlobalService.js";
 import { getEmpresaCount, incrementClienteCounter, bumpNextIdGlobalInCache } from "../../metrics/counterService.js";
 import {
@@ -93,6 +94,21 @@ const ORDER_BY_MAP = {
 };
 
 const SORT_WHITELIST = new Set(Object.keys(ORDER_BY_MAP));
+
+const isIdGlobalUniqueConflict = (error) => {
+  const code = String(error?.code || "");
+  const message = String(error?.message || "");
+  const targets = Array.isArray(error?.meta?.target)
+    ? error.meta.target.map((item) => String(item))
+    : [];
+  if (code !== "P2002") return false;
+  if (targets.includes("cliente_id") && targets.includes("id_global")) return true;
+  return (
+    message.includes("cliente_id`,`id_global") ||
+    message.includes("(cliente_id,id_global)") ||
+    message.includes("id_global")
+  );
+};
 
 const resolveOrderBy = (sortBy = "codempresa", sortDir = "asc") => {
   const safeSortBy = SORT_WHITELIST.has(sortBy) ? sortBy : "codempresa";
@@ -509,26 +525,54 @@ export const empresaRepository = {
 
   async create(data, scope) {
     const prisma = getPrismaClient();
-    const created = await runTransactionWithRetry(prisma, async (tx) => {
-      // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
-      const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
-      const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
-      const record = await tx.empresa.create({
-        data: {
-          ...data,
-          id_global: idGlobal,
-          codempresa: codigo,
-          cliente_id: scope.clienteId,
-        },
-      });
-      await registerRegistroGlobal(tx, {
-        clienteId: scope.clienteId,
-        idGlobal,
-        entityName: "Empresa",
-        registroId: record.id,
-      });
-      return record;
-    });
+    let created = null;
+    let lastError = null;
+
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        created = await runTransactionWithRetry(prisma, async (tx) => {
+          // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
+          const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
+          const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
+          const record = await tx.empresa.create({
+            data: {
+              ...data,
+              id_global: idGlobal,
+              codempresa: codigo,
+              cliente_id: scope.clienteId,
+            },
+          });
+          await registerRegistroGlobal(tx, {
+            clienteId: scope.clienteId,
+            idGlobal,
+            entityName: "Empresa",
+            registroId: record.id,
+          });
+          return record;
+        });
+        break;
+      } catch (error) {
+        lastError = error;
+        const isIdGlobalConflict = isIdGlobalUniqueConflict(error);
+        if (!isIdGlobalConflict || attempt >= 2) {
+          if (isIdGlobalConflict) {
+            const conflictError = new Error(
+              "Conflito ao gerar ID global. Tente novamente em alguns segundos."
+            );
+            conflictError.statusCode = 409;
+            throw conflictError;
+          }
+          throw error;
+        }
+        // Sequência defasada: realinha e tenta novamente.
+        await prisma.$transaction((tx) => syncClienteIdGlobalFloor(tx, scope.clienteId));
+      }
+    }
+
+    if (!created) {
+      throw lastError || new Error("Falha ao criar empresa.");
+    }
+
     await incrementClienteCounter(scope.clienteId, "empresas", 1);
     await bumpNextIdGlobalInCache(scope.clienteId, 1);
     void auditService.log({

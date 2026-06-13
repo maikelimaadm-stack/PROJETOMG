@@ -198,6 +198,10 @@ export default function SRCHEMP({
   isFavoriteRecord,
   onToggleFavorite,
   mgPrototype = false,
+  infiniteMode = false,
+  hasMoreRows = false,
+  isLoadingMoreRows = false,
+  onLoadMoreRows = null,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
@@ -237,6 +241,39 @@ export default function SRCHEMP({
     scrollEl.scrollTop = 0;
     virtualizer?.scrollToIndex?.(0, { align: "start" });
   }, [page, showOnlyFavorites, mgPrototype, virtualizer]);
+
+  const loadMoreLockRef = useRef(false);
+
+  useEffect(() => {
+    if (!mgPrototype || !infiniteMode || typeof onLoadMoreRows !== "function") return undefined;
+    const scrollEl = cardsScrollRef.current;
+    if (!scrollEl) return undefined;
+
+    if (!isLoadingMoreRows) {
+      loadMoreLockRef.current = false;
+    }
+
+    const maybeLoadMore = () => {
+      if (!hasMoreRows || isLoadingMoreRows || isLoading) return;
+      const distanceToBottom =
+        scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight;
+      if (distanceToBottom > 320 || loadMoreLockRef.current) return;
+      loadMoreLockRef.current = true;
+      onLoadMoreRows();
+    };
+
+    scrollEl.addEventListener("scroll", maybeLoadMore, { passive: true });
+    maybeLoadMore();
+    return () => scrollEl.removeEventListener("scroll", maybeLoadMore);
+  }, [
+    mgPrototype,
+    infiniteMode,
+    hasMoreRows,
+    isLoadingMoreRows,
+    isLoading,
+    onLoadMoreRows,
+    filteredEmpresas.length,
+  ]);
 
   useEffect(() => {
     if (!mgPrototype) return;
@@ -434,14 +471,24 @@ export default function SRCHEMP({
             </div>
           )}
         </div>
-        <EmpTablePagination
-          currentPage={page}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={onPageChange}
-          onPageSizeChange={onPageSizeChange}
-          isBusy={isFetching}
-        />
+        {!infiniteMode ? (
+          <EmpTablePagination
+            currentPage={page}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={onPageChange}
+            onPageSizeChange={onPageSizeChange}
+            isBusy={isFetching}
+          />
+        ) : (
+          <div className="border-t border-slate-200 px-3 py-2 text-center text-xs text-slate-500">
+            {isLoadingMoreRows
+              ? "Carregando mais registros..."
+              : hasMoreRows
+                ? "Role para carregar mais registros"
+                : "Fim da listagem"}
+          </div>
+        )}
       </div>
     );
   }
@@ -541,9 +588,15 @@ export default function SRCHEMP({
 
       <footer className="emp-search-footer">
         <span className="emp-search-footer-label">Por página:</span>
-        <SearchPageSizeSelect value={pageSize} onChange={onPageSizeChange} />
+        {!infiniteMode ? (
+          <SearchPageSizeSelect value={pageSize} onChange={onPageSizeChange} />
+        ) : (
+          <span className="emp-search-footer-label">Auto</span>
+        )}
         <span className="emp-search-footer-label emp-search-footer-counter">{counterText}</span>
-        <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
+        {!infiniteMode ? (
+          <SearchPagination page={page} totalPages={totalPages} onChange={onPageChange} />
+        ) : null}
       </footer>
 
       <SearchConfigModal

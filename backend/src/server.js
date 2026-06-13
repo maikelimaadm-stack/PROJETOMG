@@ -4,6 +4,7 @@ import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
 import fastifyJwt from "@fastify/jwt";
 import fastifyRateLimit from "@fastify/rate-limit";
+import fastifyCompress from "@fastify/compress";
 import { registerRoutes } from "./routes/index.js";
 import { closePrismaClient } from "./database/prismaClient.js";
 import { validateRuntimeEnv } from "./config/env.js";
@@ -101,15 +102,12 @@ const buildServer = () => {
   const pluginTimeout = Number(process.env.FASTIFY_PLUGIN_TIMEOUT_MS || 120_000);
   const app = Fastify({ logger: true, pluginTimeout });
   const allowedOrigins = parseAllowedOrigins();
-  const jwtSecret = String(process.env.JWT_SECRET || "mak-gestao-dev-jwt-secret");
-  if (
-    String(process.env.NODE_ENV || "").toLowerCase() === "production" &&
-    !String(process.env.JWT_SECRET || "").trim()
-  ) {
-    console.warn(
-      "[env] JWT_SECRET não definido no Railway — usando fallback interno. Defina JWT_SECRET nas variáveis do serviço."
-    );
+  const isProduction = String(process.env.NODE_ENV || "").toLowerCase() === "production";
+  const jwtSecretFromEnv = String(process.env.JWT_SECRET || "").trim();
+  if (isProduction && !jwtSecretFromEnv) {
+    throw new Error("JWT_SECRET é obrigatório em produção.");
   }
+  const jwtSecret = jwtSecretFromEnv || "mak-gestao-dev-jwt-secret";
 
   // DELETE/GET sem corpo não deve falhar quando o client envia Content-Type: application/json.
   app.removeContentTypeParser("application/json");
@@ -154,6 +152,10 @@ const buildServer = () => {
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type", "X-Empresa-Id"],
   });
+  app.register(fastifyCompress, {
+    threshold: 1024,
+    global: true,
+  });
   app.register(multipart);
 
   app.setErrorHandler((error, _request, reply) => {
@@ -170,8 +172,12 @@ const buildServer = () => {
         message: "Banco de dados indisponível. Verifique DATABASE_URL/DIRECT_URL.",
       });
     }
-    reply.status(error.statusCode || 500).send({
-      message: error.message || "Erro interno do servidor",
+    const statusCode = Number(error?.statusCode || 500);
+    const isClientError = statusCode >= 400 && statusCode < 500;
+    reply.status(statusCode).send({
+      message: isClientError
+        ? error.message || "Requisição inválida."
+        : "Erro interno do servidor",
     });
   });
 

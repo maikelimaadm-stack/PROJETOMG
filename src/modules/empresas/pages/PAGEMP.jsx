@@ -28,7 +28,6 @@ import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgAction
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
-import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
 import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
 import {
   LIST_DEFAULT_PAGE_SIZE,
@@ -70,8 +69,59 @@ const moduleLabels = {
 
 const patchEmpresasCache = (queryClient, updater) => {
   queryClient.setQueriesData({ queryKey: ["emp-cadastro"] }, (previous) => {
-    if (!previous?.items) return previous;
-    return updater(previous);
+    if (previous?.items) {
+      return updater(previous);
+    }
+
+    if (!Array.isArray(previous?.pages)) {
+      return previous;
+    }
+
+    const pageSize =
+      Number(previous.pages[0]?.pageSize) || LIST_DEFAULT_PAGE_SIZE;
+    const mergedItems = previous.pages.flatMap((page) => page?.items || []);
+    const mergedTotal = Number(previous.pages[0]?.total ?? mergedItems.length);
+    const nextMerged = updater({
+      items: mergedItems,
+      total: mergedTotal,
+      page: 1,
+      pageSize,
+      totalPages: Math.max(1, Math.ceil(mergedTotal / pageSize)),
+    });
+
+    if (!nextMerged?.items) return previous;
+
+    const loadedPages = Math.max(previous.pages.length, 1);
+    const maxLoadedItems = loadedPages * pageSize;
+    const slicedItems = nextMerged.items.slice(0, maxLoadedItems);
+    const total = Number(nextMerged.total ?? slicedItems.length);
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const nextPages = Array.from({ length: loadedPages }, (_, index) => {
+      const start = index * pageSize;
+      const end = start + pageSize;
+      const basePage = previous.pages[index] || {};
+      return {
+        ...basePage,
+        items: slicedItems.slice(start, end),
+        page: index + 1,
+        pageSize,
+        total,
+        totalPages,
+      };
+    });
+    const existingParams = Array.isArray(previous.pageParams)
+      ? previous.pageParams.slice(0, loadedPages)
+      : [];
+    const pageParams =
+      existingParams.length === loadedPages
+        ? existingParams
+        : Array.from({ length: loadedPages }, (_, index) => index + 1);
+
+    return {
+      ...previous,
+      pages: nextPages,
+      pageParams,
+    };
   });
 };
 
@@ -254,34 +304,35 @@ export default function PAGEMP() {
   const listFiltersKey = useMemo(() => JSON.stringify(listFilters ?? {}), [listFilters]);
 
   const {
-    items: empresas,
-    total: empresasResponseTotal,
-    isInitialLoading: empresasLoading,
-    isPageFetching: empresasFetching,
-    isLoading,
-    isFetching,
-  } = useServerListQuery({
+    data: empresasPagesData,
+    fetchNextPage: fetchNextEmpresasPage,
+    hasNextPage: hasNextEmpresasPage,
+    isFetchingNextPage: isFetchingNextEmpresasPage,
+    isPending: isEmpresasPending,
+    isFetching: isEmpresasFetchingAny,
+    isLoading: isEmpresasLoadingCompat,
+  } = useInfiniteQuery({
     queryKey: [
       "emp-cadastro",
-      queryPage,
+      "infinite",
       queryPageSize,
       searchTerm,
       querySort.key,
       querySort.direction,
       listFiltersKey,
     ],
-    queryFn: async () => {
+    queryFn: async ({ pageParam = 1 }) => {
       const trimmedSearch = normalizeSearchQuery(searchTerm);
-
       if (searchFavoritesOnly && favoriteIds.length === 0) {
         return {
           ...DEFAULT_EMPRESAS_RESPONSE,
+          page: Number(pageParam) || 1,
           pageSize: queryPageSize,
+          totalPages: 1,
         };
       }
-
       return moduleRepository.listPage({
-        page: queryPage,
+        page: Number(pageParam) || 1,
         pageSize: queryPageSize,
         search: trimmedSearch,
         sortBy: querySort.key,
@@ -289,8 +340,46 @@ export default function PAGEMP() {
         filters: listFilters,
       });
     },
-    defaultResponse: DEFAULT_EMPRESAS_RESPONSE,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage?.page < lastPage?.totalPages ? lastPage.page + 1 : undefined,
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
   });
+
+  const empresasPages = empresasPagesData?.pages || [];
+  const empresas = useMemo(() => {
+    const seen = new Set();
+    const merged = [];
+    empresasPages.forEach((page) => {
+      (page?.items || []).forEach((item) => {
+        if (!item?.id || seen.has(item.id)) return;
+        seen.add(item.id);
+        merged.push(item);
+      });
+    });
+    return merged;
+  }, [empresasPages]);
+  const empresasResponseTotal = Number(empresasPages[0]?.total || 0);
+  const empresasLoading =
+    (isEmpresasPending || isEmpresasLoadingCompat) && empresas.length === 0;
+  const empresasFetching = isEmpresasFetchingAny && !empresasLoading;
+  const isLoading = empresasLoading;
+  const isFetching = isEmpresasFetchingAny;
+  const loadedPagesCount = Math.max(
+    1,
+    empresasPages.length || (empresasLoading ? 0 : 1)
+  );
+
+  const handleLoadMoreEmpresas = useCallback(() => {
+    if (!hasNextEmpresasPage || isFetchingNextEmpresasPage || empresasLoading) return;
+    void fetchNextEmpresasPage();
+  }, [
+    hasNextEmpresasPage,
+    isFetchingNextEmpresasPage,
+    empresasLoading,
+    fetchNextEmpresasPage,
+  ]);
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
   const empresasFiltradasPainel = useMemo(() => {
@@ -714,9 +803,16 @@ export default function PAGEMP() {
     setQueryPage(1);
   }, []);
 
-  const handleServerPageChange = useCallback((nextPage) => {
-    setQueryPage(nextPage);
-  }, []);
+  const handleServerPageChange = useCallback(
+    (nextPage) => {
+      const safePage = Math.max(1, Number(nextPage) || 1);
+      setQueryPage(safePage);
+      if (safePage > loadedPagesCount) {
+        handleLoadMoreEmpresas();
+      }
+    },
+    [loadedPagesCount, handleLoadMoreEmpresas]
+  );
 
   const handleServerPageSizeChange = useCallback((nextPageSize) => {
     setQueryPageSize(nextPageSize);
@@ -1263,7 +1359,7 @@ export default function PAGEMP() {
                       total: totalEmpresas,
                       isLoading: empresasLoading,
                       isFetching: empresasFetching,
-                      page: queryPage,
+                      page: loadedPagesCount,
                       pageSize: queryPageSize,
                       onPageChange: handleServerPageChange,
                       onPageSizeChange: handleServerPageSizeChange,
@@ -1278,6 +1374,10 @@ export default function PAGEMP() {
                       isFavoriteRecord: empFavorites.isFavorite,
                       onToggleFavorite: empFavorites.toggleFavorite,
                       mgPrototype: true,
+                      infiniteMode: true,
+                      hasMoreRows: hasNextEmpresasPage,
+                      onLoadMoreRows: handleLoadMoreEmpresas,
+                      isLoadingMoreRows: isFetchingNextEmpresasPage,
                     }}
                   />
                 </div>
@@ -1300,7 +1400,7 @@ export default function PAGEMP() {
                     onVisibleDataChange: setVisibleTableData,
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
-                    serverPage: queryPage,
+                    serverPage: loadedPagesCount,
                     serverPageSize: queryPageSize,
                     serverTotal: totalEmpresas,
                     onServerPageChange: handleServerPageChange,
@@ -1314,6 +1414,10 @@ export default function PAGEMP() {
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
                     onColumnsInUseChange: setTableColumnsInUse,
+                    infiniteMode: true,
+                    hasMoreRows: hasNextEmpresasPage,
+                    onLoadMoreRows: handleLoadMoreEmpresas,
+                    isLoadingMoreRows: isFetchingNextEmpresasPage,
                   }}
                 />
               </div>

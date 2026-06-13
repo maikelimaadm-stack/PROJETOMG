@@ -6,10 +6,10 @@ import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet }
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import { lazy, Suspense, useState } from "react";
 import generatedModules from "@/modules/generatedModules.json";
-import PAGEMP from "@/modules/empresas/pages/PAGEMP";
 import ErpShell from "@/shared/layouts/ErpShell";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
+const EmpresasPage = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
 const generatedModuleRoutes = generatedModules
   .filter((moduleConfig) => moduleConfig.moduleId !== "empresas")
   .map((moduleConfig) => {
@@ -171,8 +171,8 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route element={<ErpLayoutRoute />}>
-        <Route path="/" element={<PAGEMP />} />
-        <Route path="/CadastroEmpresas" element={<PAGEMP />} />
+        <Route path="/" element={<EmpresasPage />} />
+        <Route path="/CadastroEmpresas" element={<EmpresasPage />} />
         {generatedModuleRoutes.map((module) => (
           <Route
             key={module.moduleId}
