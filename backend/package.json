@@ -61,8 +61,5 @@
   },
   "devDependencies": {
     "prisma": "^6.9.0"
-  },
-  "prisma": {
-    "seed": "node scripts/seedBootstrap.js"
   }
 }
