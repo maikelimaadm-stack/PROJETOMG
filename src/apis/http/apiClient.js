@@ -31,6 +31,18 @@ const getAuthToken = () => {
   return null;
 };
 
+const clearAuthSession = () => {
+  try {
+    localStorage.removeItem("erp_auth_token");
+    localStorage.removeItem("erp_empresa_id");
+  } catch {
+    // noop
+  }
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("erp-auth-changed"));
+  }
+};
+
 const getSelectedEmpresaId = () => {
   try {
     const empresaId = localStorage.getItem("erp_empresa_id");
@@ -88,8 +100,13 @@ export const apiClient = {
 
     const payload = await parseResponse(response);
     if (!response.ok) {
+      if (response.status === 401) {
+        clearAuthSession();
+      }
       throw new ApiError(
-        payload?.message || `Falha na requisição ${method} ${path}`,
+        response.status === 401
+          ? "Sessão expirada ou inválida. Faça login novamente."
+          : payload?.message || `Falha na requisição ${method} ${path}`,
         response.status,
         payload
       );
