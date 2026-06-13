@@ -147,7 +147,7 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
   const empresasResult = await fetchEmpresasPermitidas(usuarioData);
   const empresas = empresasResult.items || [];
   let empresasTotal = empresasResult.total || empresas.length;
-  if (usuarioData.acesso_global) {
+  if (usuarioData.acesso_global && empresasTotal <= empresas.length) {
     try {
       const { getEmpresaCount } = await import("../metrics/counterService.js");
       empresasTotal = await getEmpresaCount({
@@ -158,7 +158,7 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
         allowAllEmpresas: true,
       });
     } catch {
-      /* fallback: empresasResult.total */
+      empresasTotal = empresas.length;
     }
   }
   const selectedEmpresaId = usuarioData.acesso_global

@@ -180,28 +180,13 @@ const buildServer = () => {
 };
 
 const runBlockingBootTasks = async (log) => {
-  if (String(process.env.BOOT_SKIP_MIGRATIONS || "").toLowerCase() === "true") {
-    log.info("[boot-blocking] BOOT_SKIP_MIGRATIONS=true — pulando DDL.");
-    return;
-  }
-  if (!process.env.DATABASE_URL) {
-    log.warn("[boot-blocking] DATABASE_URL ausente — pulando DDL.");
-    return;
-  }
-
-  const tasks = [
-    ["Contadores materializados", "../scripts/ensureCounterColumns.js", "ensureCounterColumns"],
-    ["Índices de performance", "../scripts/ensurePerformanceIndexes.js", "ensurePerformanceIndexes"],
-  ];
-
-  for (const [label, modulePath, exportName] of tasks) {
-    try {
-      const loaded = await import(modulePath);
-      const result = await loaded[exportName]();
-      log.info(`[boot-blocking] ${label}: OK ${JSON.stringify(result)}`);
-    } catch (error) {
-      log.error(`[boot-blocking] ${label} falhou: ${error.message}`);
-    }
+  try {
+    const { runBlockingDatabaseBoot } = await import("../scripts/runBlockingDatabaseBoot.js");
+    const report = await runBlockingDatabaseBoot(log);
+    log.info(`[boot-blocking] Concluído: ${JSON.stringify(report.summary ?? report.compatibility ?? report)}`);
+  } catch (error) {
+    log.error(`[boot-blocking] FATAL — servidor não iniciará: ${error.message}`);
+    process.exit(1);
   }
 };
 

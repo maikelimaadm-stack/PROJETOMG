@@ -28,8 +28,6 @@ model Cliente {
   data_vencimento   DateTime?
   observacoes       String?
   next_id_global    Int       @default(1)
-  total_empresas    Int       @default(0)
-  total_cadcps_campos Int     @default(0)
   ativo             Boolean   @default(true)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

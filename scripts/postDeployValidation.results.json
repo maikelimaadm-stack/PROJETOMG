@@ -1,0 +1,65 @@
+{
+  "timestamp": "2026-06-13T01:09:59.867Z",
+  "apiBase": "https://projetomg-production.up.railway.app",
+  "samples": 30,
+  "before": {
+    "empresas": {
+      "p50": 2545.34,
+      "p95": 2584,
+      "p99": 3730
+    },
+    "session": {
+      "p50": 3358.86,
+      "p95": 3369,
+      "p99": 4000
+    },
+    "contadores": {
+      "p50": 2390.5,
+      "p95": 2401,
+      "p99": 2500
+    },
+    "cadcps": {
+      "p50": 3996.08,
+      "p95": 4000,
+      "p99": 4100
+    }
+  },
+  "after": {},
+  "comparison": {},
+  "validations": {
+    "health": {
+      "performanceIndexes": {
+        "expected": 24,
+        "found": 3,
+        "applied": false,
+        "missing": [
+          "Empresa_cliente_id_codempresa_idx",
+          "Empresa_cliente_id_nome_fantasia_idx",
+          "Empresa_cliente_id_cpf_cnpj_idx",
+          "Empresa_cliente_id_cidade_idx",
+          "Empresa_cliente_id_estado_idx",
+          "Empresa_cliente_id_updatedAt_idx",
+          "Empresa_campos_personalizados_gin_idx",
+          "Empresa_razao_social_trgm_idx",
+          "Empresa_nome_fantasia_trgm_idx",
+          "Empresa_cpf_cnpj_trgm_idx",
+          "Empresa_telefone_trgm_idx",
+          "Empresa_email_trgm_idx",
+          "Empresa_cidade_trgm_idx",
+          "Empresa_endereco_trgm_idx",
+          "Empresa_bairro_trgm_idx",
+          "Empresa_whatsapp_trgm_idx",
+          "CadCpsCampo_cliente_id_nome_idx",
+          "CadCpsCampo_cliente_id_field_name_idx",
+          "CadCpsCampo_cliente_id_codigo_idx",
+          "CadCpsCampo_cliente_id_ordem_tabela_idx",
+          "CadCpsCampo_nome_trgm_idx"
+        ]
+      },
+      "verboseCounts": false
+    }
+  },
+  "stress": {},
+  "verdict": "REPROVADO",
+  "blocker": "\nInvalid `prisma.cliente.findFirst()` invocation:\n\n\nThe column `Cliente.total_empresas` does not exist in the current database."
+}
