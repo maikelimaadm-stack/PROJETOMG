@@ -22,6 +22,7 @@ const toPositiveInt = (value, fallback) => {
 
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 200;
+const MAX_EXPORT_ROWS = 100_000;
 
 /** Colunas retornadas em listagens paginadas (sem observações/logo pesados). */
 const LIST_SELECT = {
@@ -47,6 +48,21 @@ const LIST_SELECT = {
   campos_personalizados: true,
   createdAt: true,
   updatedAt: true,
+};
+
+/** Select enxuto para exportação CSV/Excel (sem JSON pesado). */
+const EXPORT_SELECT = {
+  id: true,
+  id_global: true,
+  codempresa: true,
+  razao_social: true,
+  nome_fantasia: true,
+  cpf_cnpj: true,
+  telefone: true,
+  email: true,
+  cidade: true,
+  estado: true,
+  status: true,
 };
 
 const EXPORT_COLUMNS = [
@@ -396,7 +412,9 @@ const buildCadastroScopeWhere = (scope, extra = {}) => {
 
 export const empresaRepository = {
   LIST_SELECT,
+  EXPORT_SELECT,
   EXPORT_COLUMNS,
+  MAX_EXPORT_ROWS,
   resolveOrderBy,
   buildListWhere,
   async count(scope) {

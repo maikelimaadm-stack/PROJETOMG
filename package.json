@@ -24,7 +24,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:empresas-novo": "playwright test --config=playwright.mock.config.js",
     "test:emp-form-layout": "node scripts/verify-emp-form-layout.mjs",
-    "verify:all": "node scripts/verify-all.mjs"
+    "verify:all": "node scripts/verify-all.mjs",
+    "audit:forensic": "node scripts/forensicAuditFinal.mjs",
+    "audit:post-optimization": "node scripts/auditPostOptimization.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

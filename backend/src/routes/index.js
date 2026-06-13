@@ -101,23 +101,31 @@ export const registerRoutes = async (app) => {
           status.migration.missingSchema = missing;
         }
 
-        const [clientes, empresas, sequencias] = await Promise.all([
-          client.cliente.count(),
-          client.empresa.count(),
-          client.entidadeCodigoSequencia.findMany({
-            select: { cliente_id: true, entity_name: true, next_codigo: true },
-            take: 20,
-          }),
-        ]);
-        status.data = {
-          clientes,
-          empresas,
-          sequencias,
-          resetHint:
-            clientes > 1 || empresas > 0
-              ? "Dados antigos detectados. Rode resetAndSeedMaike.sql no Supabase OU defina BOOT_RESET_MAIKE=true no Railway (um deploy) e remova depois."
-              : null,
-        };
+        const [clientes, empresas, sequencias] =
+          String(process.env.HEALTH_VERBOSE || "").toLowerCase() === "true"
+            ? await Promise.all([
+                client.cliente.count(),
+                client.empresa.count(),
+                client.entidadeCodigoSequencia.findMany({
+                  select: { cliente_id: true, entity_name: true, next_codigo: true },
+                  take: 20,
+                }),
+              ])
+            : [null, null, null];
+
+        if (clientes != null) {
+          status.data = {
+            clientes,
+            empresas,
+            sequencias,
+            resetHint:
+              clientes > 1 || empresas > 0
+                ? "Dados antigos detectados. Rode resetAndSeedMaike.sql no Supabase OU defina BOOT_RESET_MAIKE=true no Railway (um deploy) e remova depois."
+                : null,
+          };
+        } else {
+          status.data = { verboseCounts: false, hint: "Defina HEALTH_VERBOSE=true para contagens completas" };
+        }
 
         try {
           const { PERFORMANCE_INDEX_NAMES } = await import("../../scripts/ensurePerformanceIndexes.js");

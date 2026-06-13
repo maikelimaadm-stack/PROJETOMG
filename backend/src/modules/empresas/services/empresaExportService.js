@@ -62,16 +62,19 @@ export const streamEmpresasExport = async ({
   reply.raw.write(CSV_BOM);
   reply.raw.write(`${formatCsvRow(columns.map((col) => col.label))}\n`);
 
+  const maxRows = empresaRepository.MAX_EXPORT_ROWS;
   let skip = 0;
+  let exported = 0;
   let hasMore = true;
 
-  while (hasMore) {
+  while (hasMore && exported < maxRows) {
+    const take = Math.min(EXPORT_BATCH_SIZE, maxRows - exported);
     const batch = await prisma.empresa.findMany({
       where,
       orderBy,
       skip,
-      take: EXPORT_BATCH_SIZE,
-      select: empresaRepository.LIST_SELECT,
+      take,
+      select: empresaRepository.EXPORT_SELECT,
     });
 
     if (batch.length === 0) break;
@@ -79,10 +82,12 @@ export const streamEmpresasExport = async ({
     for (const row of batch) {
       const cells = columns.map((col) => col.getValue(row));
       reply.raw.write(`${formatCsvRow(cells)}\n`);
+      exported += 1;
+      if (exported >= maxRows) break;
     }
 
     skip += batch.length;
-    hasMore = batch.length === EXPORT_BATCH_SIZE;
+    hasMore = batch.length === take && exported < maxRows;
   }
 
   reply.raw.end();

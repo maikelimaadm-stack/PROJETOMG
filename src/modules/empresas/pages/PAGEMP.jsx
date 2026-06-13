@@ -32,6 +32,8 @@ import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
 import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
 import {
   LIST_DEFAULT_PAGE_SIZE,
+  LIST_DROPDOWN_MAX_ITEMS,
+  LIST_DROPDOWN_MAX_PAGES,
   LIST_SEARCH_DEBOUNCE_MS,
   readStoredListPageSize,
 } from "@/shared/listing/listQueryConfig";
@@ -185,8 +187,10 @@ export default function PAGEMP() {
         sortBy: querySort.key,
         sortDir: querySort.direction,
       }),
-    getNextPageParam: (lastPage) =>
-      lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined,
+    getNextPageParam: (lastPage, allPages) => {
+      if (allPages.length >= LIST_DROPDOWN_MAX_PAGES) return undefined;
+      return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
+    },
     initialPageParam: 1,
     enabled: dropdownSearch.length > 0,
     staleTime: 30_000,
@@ -213,7 +217,8 @@ export default function PAGEMP() {
 
   const dropdownSearchResults = useMemo(() => {
     if (dropdownSearchPending) return [];
-    return dropdownPages?.pages?.flatMap((page) => page.items || []) || [];
+    const flat = dropdownPages?.pages?.flatMap((page) => page.items || []) || [];
+    return flat.slice(0, LIST_DROPDOWN_MAX_ITEMS);
   }, [dropdownSearchPending, dropdownPages]);
   const dropdownSearchResultsTotal = dropdownSearchPending ? 0 : dropdownResponse?.total || 0;
   const dropdownSearchHasFavorites = (dropdownFavoritesProbe?.total ?? 0) > 0;
