@@ -179,10 +179,40 @@ const buildServer = () => {
   return app;
 };
 
+const runBlockingBootTasks = async (log) => {
+  if (String(process.env.BOOT_SKIP_MIGRATIONS || "").toLowerCase() === "true") {
+    log.info("[boot-blocking] BOOT_SKIP_MIGRATIONS=true — pulando DDL.");
+    return;
+  }
+  if (!process.env.DATABASE_URL) {
+    log.warn("[boot-blocking] DATABASE_URL ausente — pulando DDL.");
+    return;
+  }
+
+  const tasks = [
+    ["Contadores materializados", "../scripts/ensureCounterColumns.js", "ensureCounterColumns"],
+    ["Índices de performance", "../scripts/ensurePerformanceIndexes.js", "ensurePerformanceIndexes"],
+  ];
+
+  for (const [label, modulePath, exportName] of tasks) {
+    try {
+      const loaded = await import(modulePath);
+      const result = await loaded[exportName]();
+      log.info(`[boot-blocking] ${label}: OK ${JSON.stringify(result)}`);
+    } catch (error) {
+      log.error(`[boot-blocking] ${label} falhou: ${error.message}`);
+    }
+  }
+};
+
 const start = async () => {
   const app = buildServer();
   const host = resolveHost();
   const port = resolvePort();
+
+  if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
+    await runBlockingBootTasks(app.log);
+  }
 
   try {
     await app.listen({ host, port });
@@ -196,7 +226,7 @@ const start = async () => {
     setTimeout(() => {
       import("../scripts/productionBootTasks.js")
         .then(({ runProductionBootTasks }) => runProductionBootTasks(app.log))
-        .then(() => app.log.info("[boot] Tarefas de produção concluídas."))
+        .then(() => app.log.info("[boot] Tarefas de produção em background concluídas."))
         .catch((error) => app.log.error(`[boot] Falha nas tarefas de produção: ${error.message}`));
     }, 3000);
   }

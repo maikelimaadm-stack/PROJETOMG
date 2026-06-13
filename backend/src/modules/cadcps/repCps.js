@@ -11,7 +11,7 @@ import {
 } from "../sequencias/entidadeCodigoService.js";
 import { assertCampoNotInUse } from "./cadcpsFieldUsage.js";
 import { CADCPS_APLICACAO, normalizeCadcpsTipo } from "./cadcpsConstants.js";
-import { getCadcpsCampoCount, invalidateClienteStats } from "../metrics/counterService.js";
+import { getCadcpsCampoCount, incrementClienteCounter } from "../metrics/counterService.js";
 import { listCadastroModulesForCadcps } from "./cadastroModuleRegistry.js";
 
 const CAMPO_INCLUDE = {
@@ -412,14 +412,10 @@ export const repCps = {
         opcoes: payload.opcoes,
         aplicacao_modo,
       });
-      await tx.cliente.update({
-        where: { id: scope.clienteId },
-        data: { total_cadcps_campos: { increment: 1 } },
-      });
       return record;
     });
 
-    void invalidateClienteStats(scope.clienteId);
+    void incrementClienteCounter(scope.clienteId, "cadcps", 1);
 
     const full = await this.getById(scope, created.id);
     await recordHistorico(prisma, { scope, campoId: created.id, acao: "CREATE", valorNovo: full });
@@ -542,11 +538,7 @@ export const repCps = {
       valorAnterior: current,
     });
     await prisma.cadCpsCampo.delete({ where: { id } });
-    await prisma.cliente.update({
-      where: { id: scope.clienteId },
-      data: { total_cadcps_campos: { decrement: 1 } },
-    });
-    void invalidateClienteStats(scope.clienteId);
+    void incrementClienteCounter(scope.clienteId, "cadcps", -1);
     void auditService.log({
       scope,
       entityName: "CadCpsCampo",
