@@ -46,6 +46,7 @@
     "docker:build": "docker build -t mak-gestao-backend ."
   },
   "dependencies": {
+    "@fastify/compress": "^9.0.0",
     "@fastify/cors": "^11.1.0",
     "@fastify/jwt": "^10.1.0",
     "@fastify/multipart": "^9.2.1",
