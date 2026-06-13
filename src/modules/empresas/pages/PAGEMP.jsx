@@ -770,7 +770,7 @@ export default function PAGEMP() {
     (mode) => {
       applyMgViewMode(mode, {
         onOpenRegistro: () => {
-          if (showForm) return;
+          if (showForm && viewMode === "record") return;
           const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
           if (!emp) {
             handleNew();
@@ -803,6 +803,7 @@ export default function PAGEMP() {
       selectedIndex,
       selectedTableEmp,
       showForm,
+      viewMode,
     ]
   );
 
