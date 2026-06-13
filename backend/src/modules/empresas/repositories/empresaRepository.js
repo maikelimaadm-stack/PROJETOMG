@@ -584,6 +584,8 @@ export const empresaRepository = {
       try {
         created = await runTransactionWithRetry(prisma, async (tx) => {
           // Sempre reserva no servidor (atômico) — ignora codempresa do cliente no create.
+          await syncClienteIdGlobalFloor(tx, scope.clienteId);
+          await ensureCodigoSequenciaFloor(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
           const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_EMPRESA);
           const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
           const record = await tx.empresa.create({

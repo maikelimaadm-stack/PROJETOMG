@@ -7,9 +7,7 @@ export const syncClienteIdGlobalFloor = async (tx, clienteId) => {
       GREATEST(
         COALESCE((SELECT MAX("id_global") FROM "RegistroGlobal" WHERE "cliente_id" = ${clienteId}), 0),
         COALESCE((SELECT MAX("id_global") FROM "Empresa" WHERE "cliente_id" = ${clienteId}), 0),
-        COALESCE((SELECT MAX("id_global") FROM "CadCpsCampo" WHERE "cliente_id" = ${clienteId}), 0),
-        COALESCE((SELECT MAX("id_global") FROM "CadastroRegistro" WHERE "cliente_id" = ${clienteId}), 0),
-        COALESCE((SELECT MAX("id_global") FROM "RegistroAnexo" WHERE "cliente_id" = ${clienteId}), 0)
+        COALESCE((SELECT MAX("id_global") FROM "CadCpsCampo" WHERE "cliente_id" = ${clienteId}), 0)
       ) + 1 AS next_assign
   `;
   const nextAssign = Number(floorRows[0]?.next_assign) || 1;
