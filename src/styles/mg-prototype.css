@@ -73,8 +73,8 @@
   --mg-field-stack-inset-top: 11px;
   --mg-field-stack-inset-bottom: 3px;
   --mg-panel-tab-font: 13px;
-  --mg-panel-tab-radius: 12px;
-  --mg-panel-tab-scoop: 12px;
+  --mg-panel-tab-radius: 14px;
+  --mg-panel-tab-scoop: 14px;
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-cards-layout-gap: 9px;
@@ -659,10 +659,6 @@
     background-color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-panel-tabs-strip .seg-tab + .seg-tab:not(.active) {
-  box-shadow: inset 1px 0 0 rgba(148, 163, 184, 0.22);
-}
-
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active) {
   color: var(--text-1) !important;
   background: transparent !important;
@@ -677,11 +673,13 @@
   border: none !important;
   border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
   box-shadow: none !important;
+  overflow: visible !important;
   z-index: 5;
   margin-bottom: -1px;
   padding-bottom: 0;
 }
 
+/* Scoop Arc — curva branca da barra nos cantos inferiores da aba ativa */
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before,
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
   display: block !important;
@@ -690,35 +688,28 @@
   bottom: 0;
   width: var(--tab-r);
   height: var(--tab-r);
-  background: transparent;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before {
-  left: calc(-1 * var(--tab-r));
-  border-bottom-right-radius: var(--tab-r);
-  box-shadow:
-    calc(var(--tab-r) / 2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
+  left: 0;
+  transform: translateX(-100%);
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent var(--tab-r),
+    var(--bg-card) var(--tab-r)
+  );
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
-  right: calc(-1 * var(--tab-r));
-  border-bottom-left-radius: var(--tab-r);
-  box-shadow:
-    calc(var(--tab-r) / -2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
-}
-
-@supports (corner-shape: scoop) {
-  .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active {
-    corner-shape: round round scoop scoop;
-  }
-
-  .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before,
-  .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
-    display: none !important;
-    content: none !important;
-  }
+  right: 0;
+  transform: translateX(100%);
+  background: radial-gradient(
+    circle at 0 0,
+    transparent var(--tab-r),
+    var(--bg-card) var(--tab-r)
+  );
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
@@ -843,16 +834,13 @@
   box-shadow: none !important;
 }
 
-.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab + .seg-tab:not(.active) {
-  box-shadow: inset 1px 0 0 rgba(148, 163, 184, 0.22) !important;
-}
-
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active {
   height: var(--mg-toolbar-row-height) !important;
   min-height: var(--mg-toolbar-row-height) !important;
   background: var(--bg-page) !important;
   border: none !important;
   border-radius: var(--tab-r) var(--tab-r) 0 0 !important;
+  overflow: visible !important;
   margin-bottom: -1px;
   z-index: 5;
 }
@@ -865,35 +853,32 @@
   bottom: 0;
   width: var(--tab-r);
   height: var(--tab-r);
-  background: transparent;
   pointer-events: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::before {
-  left: calc(-1 * var(--tab-r));
-  border-bottom-right-radius: var(--tab-r);
-  box-shadow:
-    calc(var(--tab-r) / 2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
+  left: 0;
+  transform: translateX(-100%);
+  background: radial-gradient(
+    circle at 100% 0,
+    transparent var(--tab-r),
+    var(--bg-card) var(--tab-r)
+  ) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::after {
-  right: calc(-1 * var(--tab-r));
-  border-bottom-left-radius: var(--tab-r);
-  box-shadow:
-    calc(var(--tab-r) / -2) calc(var(--tab-r) / 2) 0 calc(var(--tab-r) / 2) var(--bg-page);
-}
-
-@supports (corner-shape: scoop) {
-  .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active {
-    corner-shape: round round scoop scoop;
-  }
-
-  .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::before,
-  .mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab.active::after {
-    display: none !important;
-    content: none !important;
-  }
+  right: 0;
+  transform: translateX(100%);
+  background: radial-gradient(
+    circle at 0 0,
+    transparent var(--tab-r),
+    var(--bg-card) var(--tab-r)
+  ) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab,
