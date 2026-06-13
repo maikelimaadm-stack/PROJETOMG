@@ -27,6 +27,7 @@ import { useServerListQuery } from "@/shared/hooks/useServerListQuery";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
+import { isolateFloatingPanelWheel, isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
 
 const TIPOS_CAMPO = [
   { value: "text", label: "Texto" },
@@ -549,7 +550,7 @@ export default function EmpConfiguracaoCamposDialog({
         ref={filterPanelRef}
         className="emp-filter-popover erp-menu-panel erp-scroll-lock-wheel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
-        onWheel={(event) => event.stopPropagation()}
+        onWheel={(event) => isolateFloatingPanelWheel(event, ".emp-filter-value-list")}
       >
         <div className="emp-filter-sort-section">
           <button
@@ -587,7 +588,7 @@ export default function EmpConfiguracaoCamposDialog({
             className="emp-filter-field emp-filter-search"
           />
 
-          <div className="emp-filter-value-list">
+          <div className="emp-filter-value-list" onWheel={isolateScrollWheel}>
             <label className="emp-filter-value-list-header">
               <Checkbox
                 checked={allVisibleSelected}

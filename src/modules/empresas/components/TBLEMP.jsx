@@ -12,6 +12,7 @@ import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import { isolateFloatingPanelWheel, isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -729,7 +730,7 @@ export default function TBLEMP({
         ref={filterPanelRef}
         className="emp-filter-popover erp-menu-panel erp-scroll-lock-wheel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
-        onWheel={(event) => event.stopPropagation()}
+        onWheel={(event) => isolateFloatingPanelWheel(event, ".emp-filter-value-list")}
       >
           <div className="emp-filter-sort-section">
             <button
@@ -800,7 +801,7 @@ export default function TBLEMP({
               className="emp-filter-field emp-filter-search"
             />
 
-            <div className="emp-filter-value-list">
+            <div className="emp-filter-value-list" onWheel={isolateScrollWheel}>
               <label className="emp-filter-value-list-header">
                 <Checkbox
                   checked={allVisSel}

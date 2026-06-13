@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import { ChevronDown, Plus, Search } from "lucide-react";
 import { Input } from "@/shared/ui/input";
 import { cn } from "@/shared/utils/utils";
+import { isolateFloatingPanelWheel, isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
 
 /** @typedef {'select' | 'lookup'} EmpAutocompleteVariant */
 
@@ -358,7 +359,10 @@ export default function EmpAutocomplete({
 
     const panelBody =
       filteredItems.length > 0 ? (
-        <div className={isLookup ? "erp-search-panel__results" : "erp-select-menu__list"}>
+        <div
+          className={isLookup ? "erp-search-panel__results" : "erp-select-menu__list"}
+          onWheel={isolateScrollWheel}
+        >
           {renderResultList()}
         </div>
       ) : (
@@ -377,7 +381,12 @@ export default function EmpAutocomplete({
             interactingWithDropdownRef.current = false;
           }, 300);
         }}
-        onWheel={(event) => event.stopPropagation()}
+        onWheel={(event) =>
+          isolateFloatingPanelWheel(
+            event,
+            isLookup ? ".erp-search-panel__results" : ".erp-select-menu__list"
+          )
+        }
         className={panelClass}
       >
         {renderMenuSearch()}

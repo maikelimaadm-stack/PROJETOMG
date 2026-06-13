@@ -184,11 +184,14 @@ input[type="number"] {
 }
 
 :root {
-  /* Cursor-like fixed scrollbar sizes — never resize per container */
-  --erp-scrollbar-size-primary: 10px;
-  --erp-scrollbar-size-compact: 8px;
-  --erp-scrollbar-thumb: rgba(100, 116, 139, 0.48);
-  --erp-scrollbar-thumb-hover: rgba(71, 85, 105, 0.68);
+  /* Espessura fixa — não redimensiona (estilo Cursor) */
+  --erp-scrollbar-size-primary: 14px;
+  --erp-scrollbar-size-compact: 10px;
+  /* Altura mínima fixa do thumb — não encolhe em tabelas/listas grandes */
+  --erp-scrollbar-thumb-height-primary: 96px;
+  --erp-scrollbar-thumb-height-compact: 56px;
+  --erp-scrollbar-thumb: rgba(100, 116, 139, 0.52);
+  --erp-scrollbar-thumb-hover: rgba(71, 85, 105, 0.72);
   --erp-scrollbar-track: transparent;
 }
 
@@ -298,18 +301,6 @@ input[type="number"] {
   background: var(--erp-scrollbar-track);
 }
 
-.cadastro-emp-scope .form-scroll-container::-webkit-scrollbar-thumb,
-.cadastro-emp-scope .emp-table-body-scroll::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-form-scroll::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mg-grid-scroll::-webkit-scrollbar-thumb,
-.mg-empresas-scope .filter-panel__body::-webkit-scrollbar-thumb,
-.mg-empresas-scope .mobile-menu::-webkit-scrollbar-thumb,
-.emp-campos-config-table-wrap::-webkit-scrollbar-thumb,
-.emp-layout-config-available-list::-webkit-scrollbar-thumb,
-.emp-layout-config-panel-body::-webkit-scrollbar-thumb,
-[data-sidebar="content"]::-webkit-scrollbar-thumb,
-.erp-scroll-y::-webkit-scrollbar-thumb,
-.erp-scroll::-webkit-scrollbar-thumb,
 .mg-empresas-scope .mg-search-dropdown__list::-webkit-scrollbar-thumb,
 .mg-empresas-scope .mg-tp-col::-webkit-scrollbar-thumb,
 .mg-empresas-scope .cmd-panel-options::-webkit-scrollbar-thumb,
@@ -327,6 +318,29 @@ input[type="number"] {
   border-radius: 9999px;
   border: none;
   background-clip: border-box;
+  min-height: var(--erp-scrollbar-thumb-height-compact);
+  min-width: var(--erp-scrollbar-thumb-height-compact);
+}
+
+/* Thumb principal — altura mínima fixa (tabelas/cards/formulários) */
+.cadastro-emp-scope .form-scroll-container::-webkit-scrollbar-thumb,
+.cadastro-emp-scope .emp-table-body-scroll::-webkit-scrollbar-thumb,
+.mg-empresas-scope .mg-form-scroll::-webkit-scrollbar-thumb,
+.mg-empresas-scope .mg-grid-scroll::-webkit-scrollbar-thumb,
+.mg-empresas-scope .filter-panel__body::-webkit-scrollbar-thumb,
+.mg-empresas-scope .mobile-menu::-webkit-scrollbar-thumb,
+.emp-campos-config-table-wrap::-webkit-scrollbar-thumb,
+.emp-layout-config-available-list::-webkit-scrollbar-thumb,
+.emp-layout-config-panel-body::-webkit-scrollbar-thumb,
+[data-sidebar="content"]::-webkit-scrollbar-thumb,
+.erp-scroll-y::-webkit-scrollbar-thumb,
+.erp-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--erp-scrollbar-thumb);
+  border-radius: 9999px;
+  border: none;
+  background-clip: border-box;
+  min-height: var(--erp-scrollbar-thumb-height-primary);
+  min-width: var(--erp-scrollbar-thumb-height-primary);
 }
 
 .cadastro-emp-scope .form-scroll-container::-webkit-scrollbar-thumb:hover,
