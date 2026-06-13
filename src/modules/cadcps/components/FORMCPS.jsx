@@ -9,6 +9,7 @@ import { montarFormulaVisual } from "@/framework/cadastro/fields/empFieldConfigO
 import LegacyRecordToolbar from "@/framework/cadastro/toolbars/EmpRecordToolbar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import LegacyTabs from "@/framework/cadastro/toolbars/EmpTabs";
+import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import { reportRequiredFieldErrors, clearRequiredFieldErrors } from "@/shared/feedback";
 import { useErpPageHeader } from "@/shared/layouts/ErpPageHeaderContext";
 import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
@@ -665,7 +666,11 @@ export default function FORMCPS({
             />
           }
         >
-          <div className="form-scroll-container min-h-0 flex-1 overflow-auto pb-6 pr-2">
+          <ErpScrollNav
+            className="form-scroll-container min-h-0 flex-1 pb-6 pr-2"
+            viewportClassName="overflow-auto"
+            stepSize={40}
+          >
             <div className="emp-form-body flex flex-col">
               <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">
                 {renderPrincipal()}
@@ -678,7 +683,7 @@ export default function FORMCPS({
                 </div>
               </div>
             </div>
-          </div>
+          </ErpScrollNav>
         </EmpSplitToolbarLayout>
       </form>
     </div>

@@ -220,6 +220,82 @@ input[type="number"] {
   background: transparent;
 }
 
+/* —— Botões de navegação do scroll (não altera a scrollbar nativa) —— */
+.erp-scroll-nav {
+  position: relative;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.erp-scroll-nav__viewport {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.erp-scroll-nav__controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  z-index: 7;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.erp-scroll-nav__group {
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.erp-scroll-nav__group--top {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.erp-scroll-nav__group--bottom {
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.erp-scroll-nav__spacer {
+  flex: 1 1 auto;
+  pointer-events: none;
+}
+
+.erp-scroll-nav__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 11px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.erp-scroll-nav__btn:hover:not(:disabled) {
+  color: #334155;
+  background: rgba(148, 163, 184, 0.18);
+}
+
+.erp-scroll-nav__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.erp-scroll-nav__icon {
+  width: 8px;
+  height: 8px;
+  pointer-events: none;
+}
+
 .cadastro-scope,
 .cadastro-emp-scope {
   --emp-text: var(--text-primary);

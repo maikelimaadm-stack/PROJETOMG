@@ -6,6 +6,7 @@ import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContex
 import ErpListingTopProgress from "@/shared/components/ErpListingTopProgress";
 import { useTableVirtualizer } from "@/shared/hooks/useTableVirtualizer";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, Loader2 } from "lucide-react";
+import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -904,11 +905,13 @@ export default function TBLCPS({
               </Table>
             </div>
           </div>
-          <div
+          <ErpScrollNav
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto"
+            stepSize={TABLE_ROW_HEIGHT}
+            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
+            viewportClassName="overflow-auto"
           >
             <div
               className="block w-max min-w-full min-h-full"
@@ -984,7 +987,7 @@ export default function TBLCPS({
                 </TableBody>
               </Table>
             </div>
-          </div>
+          </ErpScrollNav>
         </div>
         <div className="emp-table-bottom-dock">
           {hasTotalRow ? (
