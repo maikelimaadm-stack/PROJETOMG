@@ -26,7 +26,8 @@
     "test:emp-form-layout": "node scripts/verify-emp-form-layout.mjs",
     "verify:all": "node scripts/verify-all.mjs",
     "audit:forensic": "node scripts/forensicAuditFinal.mjs",
-    "audit:post-optimization": "node scripts/auditPostOptimization.mjs"
+    "audit:post-optimization": "node scripts/auditPostOptimization.mjs",
+    "audit:latency-backend": "node scripts/latencyAuditBackend.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

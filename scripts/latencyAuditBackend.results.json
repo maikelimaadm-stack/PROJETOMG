@@ -1,0 +1,155 @@
+{
+  "timestamp": "2026-06-13T00:49:09.770Z",
+  "apiBase": "https://projetomg-production.up.railway.app",
+  "infra": {
+    "dnsResolveMs": 2.72,
+    "railway": {
+      "host": "projetomg-production.up.railway.app",
+      "ips": [
+        "69.46.46.60"
+      ],
+      "geo": {
+        "ip": "69.46.46.60",
+        "city": "San Francisco",
+        "region": "California",
+        "country": "US",
+        "loc": "37.7915,-122.4018",
+        "org": "AS400940 Railway",
+        "postal": "94104",
+        "timezone": "America/Los_Angeles",
+        "readme": "https://ipinfo.io/missingauth",
+        "anycast": true
+      }
+    },
+    "supabase": {
+      "host": "aws-1-sa-east-1.pooler.supabase.com",
+      "ips": [
+        "52.67.188.92",
+        "54.232.77.43"
+      ],
+      "geo": {
+        "ip": "52.67.188.92",
+        "hostname": "ec2-52-67-188-92.sa-east-1.compute.amazonaws.com",
+        "city": "São Paulo",
+        "region": "São Paulo",
+        "country": "BR",
+        "loc": "-23.5475,-46.6361",
+        "org": "AS16509 Amazon.com, Inc.",
+        "postal": "01000-000",
+        "timezone": "America/Sao_Paulo",
+        "readme": "https://ipinfo.io/missingauth"
+      }
+    },
+    "railwayPing": "rtt min/avg/max/mdev = 8.787/9.120/10.060/0.482 ms",
+    "supabasePing": ""
+  },
+  "endpoints": {
+    "login": {
+      "status": 200,
+      "ttfbMs": 4109.95,
+      "bytes": 4737
+    },
+    "health": {
+      "status": 200,
+      "ttfbMs": 10251.08,
+      "downloadMs": 0.44,
+      "totalMs": 10251.52,
+      "bytes": 681
+    },
+    "empresas_list_50": {
+      "status": 200,
+      "ttfbMs": 2545.34,
+      "downloadMs": 1.3,
+      "totalMs": 2546.65,
+      "bytes": 30583
+    },
+    "empresas_export_ttfb": {
+      "status": 200,
+      "ttfbMs": 1433.22,
+      "downloadMs": 51241.93,
+      "totalMs": 52675.14,
+      "bytes": 3081489
+    },
+    "empresas_search": {
+      "status": 200,
+      "ttfbMs": 3730.55,
+      "downloadMs": 2.3,
+      "totalMs": 3732.85,
+      "bytes": 30583
+    },
+    "metrics_contadores": {
+      "status": 200,
+      "ttfbMs": 2390.5,
+      "downloadMs": 0.23,
+      "totalMs": 2390.72,
+      "bytes": 41
+    },
+    "auth_session": {
+      "status": 200,
+      "ttfbMs": 3358.86,
+      "downloadMs": 0.23,
+      "totalMs": 3359.09,
+      "bytes": 4198
+    },
+    "cadcps_campos": {
+      "status": 200,
+      "ttfbMs": 3996.08,
+      "downloadMs": 0.24,
+      "totalMs": 3996.32,
+      "bytes": 3704
+    },
+    "health_curl": {
+      "time_namelookup": 0.031702,
+      "time_connect": 0.03217,
+      "time_appconnect": 0.055304,
+      "time_starttransfer": 11.618946,
+      "time_total": 11.619063,
+      "size_download": 681,
+      "http_code": 200
+    },
+    "empresas_curl": {
+      "time_namelookup": 0.029768,
+      "time_connect": 0.030418,
+      "time_appconnect": 0.053911,
+      "time_starttransfer": 2.828513,
+      "time_total": 2.836933,
+      "size_download": 30583,
+      "http_code": 200
+    },
+    "cadcps_curl": {
+      "time_namelookup": 0.003002,
+      "time_connect": 0.00359,
+      "time_appconnect": 0.027884,
+      "time_starttransfer": 3.953144,
+      "time_total": 3.953224,
+      "size_download": 3704,
+      "http_code": 200
+    }
+  },
+  "differentials": {
+    "empresas_minus_contadores_ms": 154.84,
+    "session_minus_contadores_ms": 968.36,
+    "empresas_search_minus_list_ms": 1185.21,
+    "health_minus_contadores_ms": 7860.58
+  },
+  "decomposition": {
+    "empresas_curl": {
+      "dnsMs": 29.77,
+      "tcpTlsMs": 24.14,
+      "serverWaitMs": 2774.6,
+      "downloadMs": 8.42,
+      "totalMs": 2836.93,
+      "networkPct": 1.9,
+      "serverWaitPct": 97.8,
+      "downloadPct": 0.3
+    },
+    "empresas_server_side": {
+      "measured_total_ttfb_ms": 2545.34,
+      "shared_authenticated_db_baseline_ms": 2390.5,
+      "list_specific_delta_ms": 154.84,
+      "shared_baseline_pct": 93.9,
+      "list_specific_pct": 6.1,
+      "note": "Baseline = /api/metrics/contadores (JWT + loadAccessScope + 2 queries Prisma). Delta = findMany(50) vs findUnique."
+    }
+  }
+}

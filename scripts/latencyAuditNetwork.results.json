@@ -1,0 +1,88 @@
+{
+  "timestamp": "2026-06-13T00:36:23.446Z",
+  "infra": {
+    "dnsMs": 17.54446,
+    "railwayHost": "projetomg-production.up.railway.app",
+    "railwayIps": [
+      "69.46.46.60"
+    ],
+    "supabaseHost": "aws-1-sa-east-1.pooler.supabase.com",
+    "supabaseIps": [
+      "54.232.77.43",
+      "52.67.188.92"
+    ],
+    "ping_Railway": "rtt min/avg/max/mdev = 9.604/11.864/20.434/4.286 ms",
+    "ping_Supabase pooler": ""
+  },
+  "endpoints": {
+    "health_curl": {
+      "time_namelookup": 0.030351,
+      "time_connect": 0.031289,
+      "time_appconnect": 0.05742,
+      "time_starttransfer": 10.827166,
+      "time_total": 10.827267,
+      "size_download": 681,
+      "speed_download": 62,
+      "http_code": 200
+    },
+    "empresas_curl": {
+      "time_namelookup": 0.002587,
+      "time_connect": 0.002962,
+      "time_appconnect": 0.02911,
+      "time_starttransfer": 2.628394,
+      "time_total": 2.63776,
+      "size_download": 30583,
+      "speed_download": 11594,
+      "http_code": 200
+    },
+    "cadcps_curl": {
+      "time_namelookup": 0.035612,
+      "time_connect": 0.036223,
+      "time_appconnect": 0.059759,
+      "time_starttransfer": 4.007985,
+      "time_total": 4.008063,
+      "size_download": 3704,
+      "speed_download": 924,
+      "http_code": 200
+    },
+    "health_fetch": {
+      "status": 200,
+      "ttfbMs": 10262.253106000004,
+      "downloadMs": 0.3782800000044517,
+      "totalMs": 10262.632161000001,
+      "sizeBytes": 681
+    },
+    "empresas_fetch": {
+      "status": 200,
+      "ttfbMs": 2574.067391999997,
+      "downloadMs": 2.610438999996404,
+      "totalMs": 2576.679262999998,
+      "sizeBytes": 30583
+    },
+    "empresas_search_fetch": {
+      "status": 200,
+      "ttfbMs": 3659.8707489999942,
+      "downloadMs": 1.2874840000004042,
+      "totalMs": 3661.158997999999,
+      "sizeBytes": 30583
+    },
+    "cadcps_fetch": {
+      "status": 200,
+      "ttfbMs": 3925.3581479999993,
+      "downloadMs": 0.2985679999983404,
+      "totalMs": 3925.6576360000035,
+      "sizeBytes": 3704
+    }
+  },
+  "samples": [],
+  "decomposition": {
+    "dnsMs": 2.5869999999999997,
+    "tcpTlsMs": 26.523,
+    "serverWaitMs": 2599.284,
+    "downloadMs": 9.365999999999985,
+    "totalMs": 2637.76,
+    "serverWaitPct": "98.5",
+    "downloadPct": "0.4",
+    "networkPct": "1.1"
+  }
+}

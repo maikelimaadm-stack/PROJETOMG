@@ -191,4 +191,6 @@ export const registerRoutes = async (app) => {
     registerCadastroRoutes(app),
   ]);
   await registerGeneratedModuleRoutes(app);
+  const { registerLatencyDebugRoutes } = await import("../modules/debug/latencyRoutes.js");
+  await registerLatencyDebugRoutes(app);
 };
