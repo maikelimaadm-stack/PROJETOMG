@@ -97,12 +97,38 @@ export const getContadoresFromCache = async (scope) => {
   };
 };
 
-export const incrementClienteCounter = async (clienteId, field, delta = 1) => {
+const statsToContadores = (stats, scope) => {
+  const scoped = readScopedEmpresaCount(scope);
+  if (scoped != null) {
+    return {
+      empresas: scoped,
+      registrosGlobais: Math.max(0, stats.nextIdGlobal - 1),
+    };
+  }
+  return {
+    empresas: stats.totalEmpresas,
+    registrosGlobais: Math.max(0, stats.nextIdGlobal - 1),
+  };
+};
+
+const patchCachedStats = async (clienteId, patchFn) => {
+  const key = statsKey(clienteId);
+  let stats = await tieredCache.get(key);
+  if (!stats) {
+    stats = await loadClienteStats(clienteId);
+  }
+  patchFn(stats);
+  await tieredCache.set(key, stats, CLIENT_STATS_TTL_MS);
+  return stats;
+};
+
+/** Atualiza contador materializado e mantém cache quente (sem invalidar/reload). */
+export const incrementClienteCounter = async (clienteId, field, delta = 1, scope = null) => {
   const prisma = getPrismaClient();
   const compatibility = await probeSchemaCompatibility(prisma);
   if (!compatibility.counterColumnsReady) {
     await invalidateClienteStats(clienteId);
-    return;
+    return scope ? getContadoresFromCache(scope) : null;
   }
   const column = field === "empresas" ? "total_empresas" : "total_cadcps_campos";
   await prisma.$executeRawUnsafe(
@@ -110,5 +136,20 @@ export const incrementClienteCounter = async (clienteId, field, delta = 1) => {
     delta,
     clienteId
   );
-  await invalidateClienteStats(clienteId);
+  const stats = await patchCachedStats(clienteId, (current) => {
+    if (field === "empresas") {
+      current.totalEmpresas = Math.max(0, current.totalEmpresas + delta);
+    } else {
+      current.totalCadcpsCampos = Math.max(0, current.totalCadcpsCampos + delta);
+    }
+  });
+  return scope ? statsToContadores(stats, scope) : stats;
+};
+
+/** Sincroniza next_id_global reservado na transação com o cache de contadores. */
+export const bumpNextIdGlobalInCache = async (clienteId, delta = 1, scope = null) => {
+  const stats = await patchCachedStats(clienteId, (current) => {
+    current.nextIdGlobal = Math.max(1, current.nextIdGlobal + delta);
+  });
+  return scope ? statsToContadores(stats, scope) : stats;
 };
