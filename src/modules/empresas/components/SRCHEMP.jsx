@@ -236,6 +236,10 @@ export default function SRCHEMP({
     if (!scrollEl) return;
     scrollEl.scrollTop = 0;
     virtualizer?.scrollToIndex?.(0, { align: "start" });
+  }, [page, showOnlyFavorites, mgPrototype, virtualizer]);
+
+  useEffect(() => {
+    if (!mgPrototype) return;
     virtualizer?.measure?.();
   }, [cardsLayoutKey, filteredEmpresas.length, mgPrototype, virtualizer]);
 
@@ -326,7 +330,7 @@ export default function SRCHEMP({
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ErpListingTopProgress active={showCardsFetching} />
-        <div ref={cardsScrollRef} className="relative flex-1 overflow-y-auto p-4">
+        <div ref={cardsScrollRef} className="erp-scroll-y relative min-h-0 flex-1 overflow-y-auto p-4">
           {showCardsLoading ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Carregando registros...

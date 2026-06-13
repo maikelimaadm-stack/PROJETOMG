@@ -201,7 +201,6 @@
   border-radius: 0 !important;
   box-shadow: none !important;
   background: transparent !important;
-  scrollbar-gutter: auto;
 }
 
 .cadastro-emp-scope .emp-content-card > .form-scroll-container,
@@ -595,7 +594,7 @@
   padding: var(--erp-spacing, 8px) var(--erp-card-padding, 10px) calc(var(--erp-spacing, 8px) + 2px) !important;
   background: var(--erp-color-card) !important;
   border: none !important;
-  overflow-y: auto;
+  overflow: visible;
   border-radius: 0 !important;
   box-shadow: none !important;
 }

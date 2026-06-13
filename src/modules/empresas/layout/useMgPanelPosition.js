@@ -105,13 +105,22 @@ export function useMgPanelPosition(
     }
 
     window.addEventListener("resize", update);
-    window.addEventListener("scroll", update, true);
+    let scrollRaf = 0;
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        update();
+      });
+    };
+    window.addEventListener("scroll", onScroll, true);
     return () => {
       cancelAnimationFrame(raf1);
       cancelAnimationFrame(raf2);
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
       resizeObserver?.disconnect();
       window.removeEventListener("resize", update);
-      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("scroll", onScroll, true);
     };
   }, [open, rootRef, panelRef, minWidth, width, estimatedHeight, scrollable, observePanelResize, align, repositionKey]);
 

@@ -539,7 +539,14 @@ export default function TBLCPS({
   useLayoutEffect(() => {
     updateFilterAnchorRect();
     if (!menuFiltroAberto) return undefined;
-    const onReflow = () => updateFilterAnchorRect();
+    let rafId = 0;
+    const onReflow = () => {
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        updateFilterAnchorRect();
+      });
+    };
     const raf = requestAnimationFrame(updateFilterAnchorRect);
     const root = scrollContainerRef.current;
     root?.addEventListener("scroll", onReflow, { passive: true });
@@ -547,6 +554,7 @@ export default function TBLCPS({
     window.addEventListener("scroll", onReflow, true);
     return () => {
       cancelAnimationFrame(raf);
+      if (rafId) cancelAnimationFrame(rafId);
       root?.removeEventListener("scroll", onReflow);
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
@@ -611,8 +619,9 @@ export default function TBLCPS({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
+        className="emp-filter-popover erp-menu-panel erp-scroll-lock-wheel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
+        onWheel={(event) => event.stopPropagation()}
       >
           <div className="emp-filter-sort-section">
             <button
@@ -908,7 +917,7 @@ export default function TBLCPS({
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none overflow-auto"
+            className="emp-table-body-scroll erp-scroll relative min-h-0 flex-1 outline-none overflow-auto"
           >
             <div
               className="block w-max min-w-full min-h-full"

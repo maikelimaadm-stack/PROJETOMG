@@ -144,7 +144,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
                   />
                 </div>
 
-                <div className="max-h-80 overflow-auto">
+                <div className="max-h-80 erp-scroll-compact-y overflow-y-auto">
                   <div className="grid grid-cols-[1fr_1.4fr_28px] bg-white border-b-[0.5px] border-[#c5ced8] text-xs font-semibold text-[#1a1f26]">
                     <div className="h-[26px] px-1 flex items-center border-r-[0.5px] border-[#c5ced8]">Nome do arquivo:</div>
                     <div className="h-[26px] px-1 flex items-center border-r-[0.5px] border-[#c5ced8]">Arquivo</div>
