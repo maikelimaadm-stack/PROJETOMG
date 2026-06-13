@@ -9,6 +9,22 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const backendRoot = path.resolve(__dirname, "..");
 
+const logMessage = (logger, level, message) => {
+  const direct =
+    logger && typeof logger[level] === "function"
+      ? logger[level].bind(logger)
+      : null;
+
+  const fallback =
+    logger && typeof logger.info === "function"
+      ? logger.info.bind(logger)
+      : logger && typeof logger.log === "function"
+        ? logger.log.bind(logger)
+        : console.log.bind(console);
+
+  (direct || fallback)(message);
+};
+
 const runCommand = (label, command, args, { allowFailure = false } = {}) =>
   new Promise((resolve, reject) => {
     console.log(`[boot-blocking] ${label}...`);
@@ -33,8 +49,7 @@ const runCommand = (label, command, args, { allowFailure = false } = {}) =>
 
 export const runBlockingDatabaseBoot = async (log = console) => {
   if (String(process.env.BOOT_SKIP_MIGRATIONS || "").toLowerCase() === "true") {
-    log.warn?.("[boot-blocking] BOOT_SKIP_MIGRATIONS=true — pulando migrations.") ??
-      log.warn("[boot-blocking] BOOT_SKIP_MIGRATIONS=true — pulando migrations.");
+    logMessage(log, "warn", "[boot-blocking] BOOT_SKIP_MIGRATIONS=true — pulando migrations.");
     return { skipped: true };
   }
 
@@ -47,8 +62,11 @@ export const runBlockingDatabaseBoot = async (log = console) => {
   const migrateOk = await runCommand("Prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"], { allowFailure: true });
   report.steps.push({ step: "migrate_deploy", ok: migrateOk });
   if (!migrateOk) {
-    log.warn?.("[boot-blocking] prisma migrate deploy falhou (P3005? baseline necessário). Continuando boot...") ??
-      log.warn("[boot-blocking] prisma migrate deploy falhou (P3005? baseline necessário). Continuando boot...");
+    logMessage(
+      log,
+      "warn",
+      "[boot-blocking] prisma migrate deploy falhou (P3005? baseline necessário). Continuando boot..."
+    );
   }
 
   const { ensureCounterColumns } = await import("../scripts/ensureCounterColumns.js");
@@ -60,8 +78,11 @@ export const runBlockingDatabaseBoot = async (log = console) => {
   report.steps.push({ step: "ensure_performance_indexes", ok: true, result: indexResult });
 
   if (!indexResult.applied) {
-    log.warn?.(`[boot-blocking] Índices incompletos: ${indexResult.missing?.length ?? "?"} faltando`) ??
-      log.warn(`[boot-blocking] Índices incompletos: ${indexResult.missing?.length ?? "?"} faltando`);
+    logMessage(
+      log,
+      "warn",
+      `[boot-blocking] Índices incompletos: ${indexResult.missing?.length ?? "?"} faltando`
+    );
   }
 
   const { getPrismaClient } = await import("../src/database/prismaClient.js");
@@ -73,8 +94,7 @@ export const runBlockingDatabaseBoot = async (log = console) => {
   report.compatibility = compatibility;
 
   if (!compatibility.counterColumnsReady) {
-    log.warn?.("[boot-blocking] Colunas de contador ausentes — modo compatibilidade ativo.") ??
-      log.warn("[boot-blocking] Colunas de contador ausentes — modo compatibilidade ativo.");
+    logMessage(log, "warn", "[boot-blocking] Colunas de contador ausentes — modo compatibilidade ativo.");
   }
 
   return report;

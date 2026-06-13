@@ -5,9 +5,25 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const backendRoot = path.resolve(__dirname, "..");
 
+const logMessage = (logger, level, message) => {
+  const direct =
+    logger && typeof logger[level] === "function"
+      ? logger[level].bind(logger)
+      : null;
+
+  const fallback =
+    logger && typeof logger.info === "function"
+      ? logger.info.bind(logger)
+      : logger && typeof logger.log === "function"
+        ? logger.log.bind(logger)
+        : console.log.bind(console);
+
+  (direct || fallback)(message);
+};
+
 const runScript = (label, scriptPath, logger = console) =>
   new Promise((resolve) => {
-    logger.info?.(`[boot] ${label}...`) ?? logger.log(`[boot] ${label}...`);
+    logMessage(logger, "info", `[boot] ${label}...`);
     const child = spawn("node", [scriptPath], {
       stdio: "inherit",
       cwd: backendRoot,
@@ -15,16 +31,16 @@ const runScript = (label, scriptPath, logger = console) =>
     });
     child.on("error", (error) => {
       const msg = `[boot] ${label} falhou: ${error.message}`;
-      logger.warn?.(msg) ?? logger.warn(msg);
+      logMessage(logger, "warn", msg);
       resolve(false);
     });
     child.on("close", (code) => {
       if (code === 0) {
-        logger.info?.(`[boot] ${label}: OK`) ?? logger.log(`[boot] ${label}: OK`);
+        logMessage(logger, "info", `[boot] ${label}: OK`);
         resolve(true);
       } else {
         const msg = `[boot] ${label}: exit ${code}`;
-        logger.warn?.(msg) ?? logger.warn(msg);
+        logMessage(logger, "warn", msg);
         resolve(false);
       }
     });
@@ -34,11 +50,11 @@ const runErpRestructure = async (logger = console) => {
   try {
     const { runErpRestructure: run } = await import("./ensureErpRestructure.js");
     await run({ exitOnError: false });
-    logger.info?.("[boot] Reestruturação ERP: OK") ?? logger.log("[boot] Reestruturação ERP: OK");
+    logMessage(logger, "info", "[boot] Reestruturação ERP: OK");
     return true;
   } catch (error) {
     const msg = `[boot] Reestruturação ERP falhou: ${error.message}`;
-    logger.error?.(msg) ?? logger.error(msg);
+    logMessage(logger, "error", msg);
     return false;
   }
 };
@@ -49,27 +65,24 @@ const runErpRestructure = async (logger = console) => {
  */
 export const runProductionBootTasks = async (logger = console) => {
   if (String(process.env.BOOT_SKIP_MIGRATIONS || "").toLowerCase() === "true") {
-    logger.info?.("[boot] BOOT_SKIP_MIGRATIONS=true — tarefas de banco ignoradas.") ??
-      logger.log("[boot] BOOT_SKIP_MIGRATIONS=true — tarefas de banco ignoradas.");
+    logMessage(logger, "info", "[boot] BOOT_SKIP_MIGRATIONS=true — tarefas de banco ignoradas.");
     return;
   }
 
   if (String(process.env.BOOT_RESET_MAIKE || "").toLowerCase() === "true") {
-    logger.warn?.("[boot] BOOT_RESET_MAIKE=true — apagando todos os dados e recriando maike!") ??
-      logger.warn("[boot] BOOT_RESET_MAIKE=true — apagando todos os dados e recriando maike!");
+    logMessage(logger, "warn", "[boot] BOOT_RESET_MAIKE=true — apagando todos os dados e recriando maike!");
     await runScript("Reset banco + seed maike", "scripts/resetAllDataAndSeed.js", logger);
-    logger.warn?.("[boot] Remova BOOT_RESET_MAIKE das variáveis após este deploy.") ??
-      logger.warn("[boot] Remova BOOT_RESET_MAIKE das variáveis após este deploy.");
+    logMessage(logger, "warn", "[boot] Remova BOOT_RESET_MAIKE das variáveis após este deploy.");
     return;
   }
 
   try {
     const { ensureSchema } = await import("./ensureSchema.js");
     await ensureSchema({ exitOnError: false });
-    logger.info?.("[boot] Schema ERP: OK") ?? logger.log("[boot] Schema ERP: OK");
+    logMessage(logger, "info", "[boot] Schema ERP: OK");
   } catch (error) {
     const msg = `[boot] Schema ERP falhou: ${error.message}`;
-    logger.error?.(msg) ?? logger.error(msg);
+    logMessage(logger, "error", msg);
   }
 
   try {
@@ -82,14 +95,17 @@ export const runProductionBootTasks = async (logger = console) => {
         syncAllCodigoSequencias(prisma),
         syncAllIdGlobalSequencias(prisma),
       ]);
-      logger.info?.(`[boot] Sequências sincronizadas — código: ${codigos}, id_global: ${idGlobals} cliente(s).`) ??
-        logger.log(`[boot] Sequências sincronizadas — código: ${codigos}, id_global: ${idGlobals} cliente(s).`);
+      logMessage(
+        logger,
+        "info",
+        `[boot] Sequências sincronizadas — código: ${codigos}, id_global: ${idGlobals} cliente(s).`
+      );
     } finally {
       await prisma.$disconnect();
     }
   } catch (error) {
     const msg = `[boot] Sync sequências falhou: ${error.message}`;
-    logger.warn?.(msg) ?? logger.warn(msg);
+    logMessage(logger, "warn", msg);
   }
 
   await runScript("Garantir tabelas CADCPS", "scripts/ensureCadcpsTables.js", logger);

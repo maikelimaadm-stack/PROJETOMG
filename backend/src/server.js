@@ -200,6 +200,10 @@ const start = async () => {
   const app = buildServer();
   const host = resolveHost();
   const port = resolvePort();
+  const backgroundBootDelayMs = Math.max(
+    3_000,
+    Number(process.env.BOOT_BACKGROUND_DELAY_MS) || 30_000
+  );
 
   if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
     await runBlockingBootTasks(app.log);
@@ -215,11 +219,12 @@ const start = async () => {
 
   if (String(process.env.NODE_ENV || "").toLowerCase() === "production") {
     setTimeout(() => {
+      app.log.info(`[boot] Iniciando tarefas de produção em background após ${backgroundBootDelayMs}ms.`);
       import("../scripts/productionBootTasks.js")
         .then(({ runProductionBootTasks }) => runProductionBootTasks(app.log))
         .then(() => app.log.info("[boot] Tarefas de produção em background concluídas."))
         .catch((error) => app.log.error(`[boot] Falha nas tarefas de produção: ${error.message}`));
-    }, 3000);
+    }, backgroundBootDelayMs);
   }
 
   const shutdown = async () => {
