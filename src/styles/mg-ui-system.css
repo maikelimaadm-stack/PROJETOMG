@@ -555,19 +555,6 @@ body,
   box-shadow: var(--mg-shadow-md) !important;
 }
 
-/* —— Scrollbars —— */
-.cadastro-emp-scope ::-webkit-scrollbar,
-.erp-shell ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-
-.cadastro-emp-scope ::-webkit-scrollbar-thumb,
-.erp-shell ::-webkit-scrollbar-thumb {
-  background: var(--mg-gray-fill2);
-  border-radius: 3px;
-}
-
 /* —— Rodapé mobile do formulário —— */
 .cadastro-emp-scope .emp-form-mobile-footer {
   background: var(--mg-bg-card) !important;

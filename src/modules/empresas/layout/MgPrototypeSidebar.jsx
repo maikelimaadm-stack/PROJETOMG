@@ -14,7 +14,7 @@ export default function MgPrototypeSidebar() {
       id="sidebar"
       className={`erp-sidebar hidden shrink-0 flex-col md:flex${sidebarPinned ? " pinned" : ""}`}
     >
-      <div className="erp-scroll-y min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
+      <div className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
         {ERP_MENU_SECTIONS.map((section) => (
           <React.Fragment key={section.id}>
             <div

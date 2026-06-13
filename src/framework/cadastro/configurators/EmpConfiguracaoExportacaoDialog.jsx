@@ -94,7 +94,7 @@ export default function EmpConfiguracaoExportacaoDialog({
           <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
             <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
               <CardContent className="p-0">
-                <div className="max-h-[360px] erp-scroll-y overflow-y-auto">
+                <div className="max-h-[360px] overflow-auto">
                   <Table className="emp-table-pro w-full border-separate border-spacing-0 table-fixed select-none">
                     <TableHeader>
                       <TableRow className="hover:bg-transparent">

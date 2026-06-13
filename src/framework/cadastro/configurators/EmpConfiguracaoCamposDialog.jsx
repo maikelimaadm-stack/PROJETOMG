@@ -493,20 +493,12 @@ export default function EmpConfiguracaoCamposDialog({
   React.useLayoutEffect(() => {
     updateFilterAnchorRect();
     if (!menuFiltroAberto) return undefined;
-    let rafId = 0;
-    const onReflow = () => {
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        updateFilterAnchorRect();
-      });
-    };
+    const onReflow = () => updateFilterAnchorRect();
     const raf = requestAnimationFrame(updateFilterAnchorRect);
     window.addEventListener("resize", onReflow);
     window.addEventListener("scroll", onReflow, true);
     return () => {
       cancelAnimationFrame(raf);
-      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
     };
@@ -547,9 +539,8 @@ export default function EmpConfiguracaoCamposDialog({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover erp-menu-panel erp-scroll-lock-wheel absolute z-[9999]"
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
         style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
-        onWheel={(event) => event.stopPropagation()}
       >
         <div className="emp-filter-sort-section">
           <button
@@ -657,7 +648,7 @@ export default function EmpConfiguracaoCamposDialog({
           }
         >
         <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-          <fieldset className={`form-scroll-container erp-scroll-y min-h-0 flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
+          <fieldset className={`form-scroll-container min-h-0 flex-1 overflow-y-auto ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}>
             <div className="px-4 md:px-8 py-2 space-y-1 max-w-[780px]">
               <Field label="Nome do campo" required><Input value={form.label} onChange={(e) => updateForm("label", e.target.value)} readOnly={isNativeSelect} placeholder="EX: CONTATO RESPONSÁVEL" className="h-[22px] text-xs uppercase border-0 rounded-none shadow-none focus-visible:ring-0 bg-transparent px-1" /></Field>
               <Field label="Tipo"><EmpAutocomplete variant="select" items={TIPOS_CAMPO.map((t) => ({ ...t, id: t.value }))} value={form.tipo} onChange={(v) => updateForm("tipo", v)} placeholder="SELECIONE" displayField="label" searchFields={["label", "value"]} disabled={isNativeSelect} readOnly={isNativeSelect} className="w-full h-full" inputClassName="border-0 shadow-none focus-visible:ring-0 bg-transparent h-[22px] text-xs uppercase" uppercaseDisplay={false} /></Field>
@@ -733,7 +724,7 @@ export default function EmpConfiguracaoCamposDialog({
           <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden p-1.5">
             <div ref={tableStageRef} className={`emp-table-stage relative h-full min-h-0 ${menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}>
               <div className="emp-table-shell flex h-full min-h-0 flex-col overflow-hidden bg-white shadow-none">
-                <div className="emp-campos-config-table-wrap erp-scroll min-h-0 flex-1 overflow-auto">
+                <div className="emp-campos-config-table-wrap min-h-0 flex-1 overflow-auto">
                 <Table className="emp-table-pro w-full min-w-[760px] border-separate border-spacing-0 table-fixed select-none">
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">

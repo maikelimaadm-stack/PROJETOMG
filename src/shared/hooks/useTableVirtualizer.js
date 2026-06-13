@@ -1,16 +1,17 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 
-const DEFAULT_ROW_HEIGHT = 32;
-const DEFAULT_OVERSCAN = 10;
+const DEFAULT_OVERSCAN = 8;
 
 /**
- * Virtualiza linhas de tabela — renderiza apenas itens visíveis na viewport.
+ * Virtualiza linhas de tabela — altura fixa alinhada ao CSS (--emp-table-data-height).
  */
 export function useTableVirtualizer({
   scrollRef,
   count = 0,
-  estimateSize = DEFAULT_ROW_HEIGHT,
+  estimateSize = EMP_TABLE_ROW_HEIGHT,
   overscan = DEFAULT_OVERSCAN,
+  scrollMargin = 0,
   enabled = true,
 }) {
   const safeCount = enabled ? Math.max(0, count) : 0;
@@ -20,6 +21,8 @@ export function useTableVirtualizer({
     getScrollElement: () => scrollRef.current,
     estimateSize: () => estimateSize,
     overscan,
+    scrollMargin,
+    isScrollingResetDelay: 150,
   });
 
   if (!enabled) {
@@ -27,23 +30,12 @@ export function useTableVirtualizer({
       virtualizer: null,
       virtualItems: [],
       totalSize: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
     };
   }
 
-  const virtualItems = virtualizer.getVirtualItems();
-  const paddingTop = virtualItems.length > 0 ? virtualItems[0].start : 0;
-  const paddingBottom =
-    virtualItems.length > 0
-      ? virtualizer.getTotalSize() - virtualItems[virtualItems.length - 1].end
-      : 0;
-
   return {
     virtualizer,
-    virtualItems,
+    virtualItems: virtualizer.getVirtualItems(),
     totalSize: virtualizer.getTotalSize(),
-    paddingTop,
-    paddingBottom,
   };
 }
