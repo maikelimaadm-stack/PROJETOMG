@@ -425,6 +425,11 @@ export default function TBLCPS({
     handleRowSelect(emp, event);
   };
 
+  const getRowBgClass = (index, selected) => {
+    if (selected) return "emp-row-selected";
+    return "emp-row-even";
+  };
+
   const renderVirtualTableRow = useCallback(
     (item, virtualRowIndex) => {
       const isSelected = selectedItems.includes(item.id);
@@ -513,11 +518,6 @@ export default function TBLCPS({
       ? <FilterX className={FILTER_ICON_CLASS} strokeWidth={2} />
       : <Filter className={FILTER_ICON_CLASS} strokeWidth={2} />
   );
-
-  const getRowBgClass = (index, selected) => {
-    if (selected) return "emp-row-selected";
-    return "emp-row-even";
-  };
 
   const agregacoes = useMemo(() => ({}), [camposOrdenados, colunasOrdenadas]);
 

@@ -439,6 +439,11 @@ export default function TBLEMP({
     return empresasOrdenadas.slice(start, start + pageSize);
   }, [serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
 
+  const getRowBgClass = (index, selected) => {
+    if (selected) return "emp-row-selected";
+    return "emp-row-even";
+  };
+
   const renderVirtualTableRow = useCallback(
     (emp, virtualRowIndex) => {
       const isSelected = selectedItems.includes(emp.id);
@@ -616,11 +621,6 @@ export default function TBLEMP({
       ? <FilterX className={FILTER_ICON_CLASS} strokeWidth={2} />
       : <Filter className={FILTER_ICON_CLASS} strokeWidth={2} />
   );
-
-  const getRowBgClass = (index, selected) => {
-    if (selected) return "emp-row-selected";
-    return "emp-row-even";
-  };
 
   const agregacoes = useMemo(() => {
     if (empresasOrdenadas.length > 150) return {};
