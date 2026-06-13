@@ -6,8 +6,10 @@ import '@/styles/erp-design-system-2030.css'
 import '@/styles/erp-responsive.css'
 import '@/styles/mg-prototype.css'
 import { registerEmpresasPersonalizacoesDevTools } from '@/framework/cadastro/layouts/userLayoutPreferencesSync'
+import { applyErpTemaToDocument, readStoredErpTema } from '@/shared/contexts/ErpThemeContext'
 
 registerEmpresasPersonalizacoesDevTools()
+applyErpTemaToDocument(readStoredErpTema())
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   // <React.StrictMode>

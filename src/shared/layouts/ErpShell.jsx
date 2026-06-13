@@ -34,6 +34,7 @@ import { MgEmpresasChromeProvider } from "@/modules/empresas/layout/MgEmpresasCh
 import MgEmpresasMobileOverlays from "@/modules/empresas/layout/MgEmpresasMobileOverlays";
 import MgPrototypeSidebar from "@/modules/empresas/layout/MgPrototypeSidebar";
 import ErpEmpresaSelector from "@/shared/layouts/ErpEmpresaSelector";
+import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
 
 const isEmpresasRoute = (pathname) =>
   pathname === "/" || pathname === "/CadastroEmpresas" || pathname.startsWith("/CadastroEmpresas/");
@@ -93,6 +94,7 @@ function ErpTopHeader({
       </div>
 
       <div className="flex items-center gap-2">
+        <ErpThemeToggle variant="shell" />
         {tableFullscreenVisible && onToggleTableFullscreen ? (
           <button
             type="button"

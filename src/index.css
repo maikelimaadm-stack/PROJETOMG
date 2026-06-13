@@ -447,6 +447,35 @@ input[type="number"] {
   overscroll-behavior: contain;
 }
 
+.erp-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid hsl(var(--border));
+  border-radius: 5px;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.erp-theme-toggle:hover:not(:disabled) {
+  background: hsl(var(--accent));
+  color: hsl(var(--accent-foreground));
+}
+
+.erp-theme-toggle[aria-pressed="true"] {
+  background: hsl(var(--secondary));
+  color: hsl(var(--secondary-foreground));
+}
+
+.mg-empresas-scope .mg-topbar-icon-btn[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 1);
+  box-shadow: inset 0 0 0 1px rgba(17, 24, 39, 0.08);
+}
+
 .erp-scroll-nav__viewport {
   flex: 1 1 auto;
   min-height: 0;
