@@ -209,6 +209,17 @@ input[type="number"] {
   --erp-scrollbar-track-shadow: none;
   --erp-scrollbar-bg: transparent;
   --erp-scrollbar-thumb-shadow: none;
+  --erp-interactive-border-glow-base: rgba(168, 182, 198, 0.62);
+  --erp-interactive-border-glow-hover: rgba(208, 222, 238, 0.92);
+  --erp-interactive-shadow-base:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 0 1px rgba(168, 182, 198, 0.16);
+  --erp-interactive-shadow-hover:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 0 0 1px rgba(208, 222, 238, 0.32),
+    0 0 14px rgba(124, 150, 178, 0.3);
+  --erp-interactive-icon-shadow-base: drop-shadow(0 0 4px rgba(196, 214, 232, 0.22));
+  --erp-interactive-icon-shadow-hover: drop-shadow(0 0 8px rgba(216, 232, 248, 0.36));
 }
 
 :is(
@@ -571,6 +582,17 @@ input[type="number"] {
   --erp-toolbar-btn-size: 26px;
   --erp-color-card: var(--background-card);
   --erp-color-card-border: var(--border-color);
+  --erp-interactive-border-glow-base: rgba(106, 140, 174, 0.45);
+  --erp-interactive-border-glow-hover: rgba(61, 147, 229, 0.78);
+  --erp-interactive-shadow-base:
+    inset 0 1px 0 rgba(255, 255, 255, 0.6),
+    0 0 0 1px rgba(106, 140, 174, 0.14);
+  --erp-interactive-shadow-hover:
+    inset 0 1px 0 rgba(255, 255, 255, 0.85),
+    0 0 0 1px rgba(61, 147, 229, 0.28),
+    0 0 12px rgba(61, 147, 229, 0.2);
+  --erp-interactive-icon-shadow-base: drop-shadow(0 0 3px rgba(58, 124, 187, 0.2));
+  --erp-interactive-icon-shadow-hover: drop-shadow(0 0 7px rgba(58, 124, 187, 0.36));
   color: var(--emp-text);
 }
 
@@ -4457,5 +4479,171 @@ select.erp-field-invalid {
 .erp-confirm-dialog__icon-wrap--danger {
   background: #fef2f2;
   color: #dc2626;
+}
+
+/* —— Glow padrão global (claro + escuro) para elementos interativos —— */
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .tb-btn,
+  .tb-btn-icon,
+  .tb-btn-labeled,
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-gray,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .emp-toolbar-btn,
+  .emp-header-ctrl,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .view-mode-btn,
+  .seg-tab,
+  .emp-table-pagination-btn,
+  .emp-search-action-btn,
+  .emp-filter-sort-btn,
+  .emp-filter-value-list-item,
+  .emp-filter-value-list-header,
+  .emp-header-filter-icon
+):not(:disabled) {
+  border-color: var(--erp-interactive-border-glow-base) !important;
+  box-shadow: var(--erp-interactive-shadow-base) !important;
+}
+
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .tb-btn,
+  .tb-btn-icon,
+  .tb-btn-labeled,
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-gray,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .emp-toolbar-btn,
+  .emp-header-ctrl,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .view-mode-btn,
+  .seg-tab,
+  .emp-table-pagination-btn,
+  .emp-search-action-btn,
+  .emp-filter-sort-btn,
+  .emp-filter-value-list-item,
+  .emp-filter-value-list-header,
+  .emp-header-filter-icon
+):not(:disabled):hover {
+  border-color: var(--erp-interactive-border-glow-hover) !important;
+  box-shadow: var(--erp-interactive-shadow-hover) !important;
+}
+
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .tb-btn,
+  .emp-toolbar-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .view-mode-btn,
+  .seg-tab,
+  .emp-search-action-btn,
+  .emp-header-ctrl,
+  .emp-header-filter-icon
+) :is(svg),
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .tb-btn,
+  .emp-toolbar-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .view-mode-btn,
+  .seg-tab,
+  .emp-search-action-btn,
+  .emp-header-ctrl,
+  .emp-header-filter-icon
+) svg {
+  filter: var(--erp-interactive-icon-shadow-base);
+}
+
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .tb-btn,
+  .emp-toolbar-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .view-mode-btn,
+  .seg-tab,
+  .emp-search-action-btn,
+  .emp-header-ctrl,
+  .emp-header-filter-icon
+):not(:disabled):hover :is(svg),
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .tb-btn,
+  .emp-toolbar-btn,
+  .mg-nav-btn,
+  .mg-topbar-icon-btn,
+  .mg-accent-icon-btn,
+  .view-mode-btn,
+  .seg-tab,
+  .emp-search-action-btn,
+  .emp-header-ctrl,
+  .emp-header-filter-icon
+):not(:disabled):hover svg {
+  filter: var(--erp-interactive-icon-shadow-hover);
+}
+
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .emp-toolbar-search,
+  .emp-toolbar-counter,
+  .mg-search-pill,
+  .emp-search-input-wrap,
+  .emp-filter-field,
+  .emp-filter-value-list,
+  .emp-filter-popover,
+  .mg-search-dropdown
+) {
+  border-color: var(--erp-interactive-border-glow-base) !important;
+  box-shadow: var(--erp-interactive-shadow-base) !important;
+}
+
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .emp-toolbar-search,
+  .emp-toolbar-counter,
+  .mg-search-pill,
+  .emp-search-input-wrap,
+  .emp-filter-field,
+  .emp-filter-value-list,
+  .emp-filter-popover,
+  .mg-search-dropdown
+):hover,
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .emp-toolbar-search,
+  .emp-toolbar-counter,
+  .mg-search-pill,
+  .emp-search-input-wrap,
+  .emp-filter-field,
+  .emp-filter-value-list,
+  .emp-filter-popover,
+  .mg-search-dropdown
+):focus-within {
+  border-color: var(--erp-interactive-border-glow-hover) !important;
+  box-shadow: var(--erp-interactive-shadow-hover) !important;
+}
+
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .emp-table-pro thead .emp-th,
+  .mg-grid th
+) {
+  border-color: var(--erp-interactive-border-glow-base) !important;
+}
+
+:where(.cadastro-emp-scope, .mg-empresas-scope) :is(
+  .emp-table-pro thead .emp-th,
+  .mg-grid th
+):hover {
+  border-color: var(--erp-interactive-border-glow-hover) !important;
+  box-shadow: inset 0 0 0 1px var(--erp-interactive-border-glow-hover) !important;
 }
 
