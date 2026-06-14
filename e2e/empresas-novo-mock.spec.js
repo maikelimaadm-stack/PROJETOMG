@@ -40,9 +40,12 @@ const corruptLayout = {
 };
 
 const setupApiMocks = async (page) => {
-  await page.route("**/api/**", async (route) => {
+  await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
     const path = url.pathname;
+    if (!path.startsWith("/api/")) {
+      return route.continue();
+    }
 
     if (path === "/api/auth/login") {
       return route.fulfill({
