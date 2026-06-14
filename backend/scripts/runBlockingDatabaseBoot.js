@@ -66,14 +66,18 @@ const inspectMigrationState = async () => {
   const { createMigrationPrisma } = await import("./migrationPrisma.js");
   const prisma = createMigrationPrisma();
   try {
-    const migrationRows = await prisma.$queryRaw`
-      SELECT
-        to_regclass('_prisma_migrations') IS NOT NULL AS "tableExists",
-        CASE
-          WHEN to_regclass('_prisma_migrations') IS NULL THEN 0
-          ELSE (SELECT COUNT(*)::int FROM "_prisma_migrations")
-        END AS "appliedCount"
+    const migrationTableRows = await prisma.$queryRaw`
+      SELECT to_regclass('_prisma_migrations') IS NOT NULL AS "tableExists"
     `;
+    const tableExists = Boolean(migrationTableRows?.[0]?.tableExists);
+    let appliedCount = 0;
+    if (tableExists) {
+      const countRows = await prisma.$queryRaw`
+        SELECT COUNT(*)::int AS "count" FROM "_prisma_migrations"
+      `;
+      appliedCount = Number(countRows?.[0]?.count) || 0;
+    }
+
     const tableRows = await prisma.$queryRaw`
       SELECT EXISTS (
         SELECT 1
@@ -85,8 +89,8 @@ const inspectMigrationState = async () => {
     `;
 
     return {
-      tableExists: Boolean(migrationRows?.[0]?.tableExists),
-      appliedCount: Number(migrationRows?.[0]?.appliedCount) || 0,
+      tableExists,
+      appliedCount,
       hasUserTables: Boolean(tableRows?.[0]?.hasUserTables),
     };
   } finally {
