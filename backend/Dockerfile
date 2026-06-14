@@ -5,6 +5,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV SEED_SKIP=true
 ENV HOST=0.0.0.0
+ENV DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
+ENV DIRECT_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
 
 COPY package*.json ./
 COPY prisma.config.ts ./
