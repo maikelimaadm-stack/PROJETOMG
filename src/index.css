@@ -202,15 +202,13 @@ input[type="number"] {
 .tema-escuro,
 [data-tema="escuro"],
 .dark {
-  --erp-scrollbar-thumb: rgba(88, 255, 140, 0.58);
-  --erp-scrollbar-thumb-hover: rgba(112, 255, 157, 0.74);
-  --erp-scrollbar-thumb-active: rgba(136, 255, 173, 0.9);
+  --erp-scrollbar-thumb: rgba(215, 225, 235, 0.52);
+  --erp-scrollbar-thumb-hover: rgba(225, 235, 245, 0.68);
+  --erp-scrollbar-thumb-active: rgba(236, 243, 250, 0.82);
   --erp-scrollbar-track: transparent;
   --erp-scrollbar-track-shadow: none;
   --erp-scrollbar-bg: transparent;
-  --erp-scrollbar-thumb-shadow:
-    0 0 0 1px rgba(76, 235, 126, 0.35),
-    0 0 10px rgba(76, 235, 126, 0.35);
+  --erp-scrollbar-thumb-shadow: none;
 }
 
 :is(
