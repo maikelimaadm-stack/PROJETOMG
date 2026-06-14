@@ -656,61 +656,67 @@
 }
 
 /* ==========================================================================
-   Responsivo Global Organizado (referência de clareza: Supabase)
-   - Camada única e previsível.
-   - Poucos pontos de controle.
-   - Sem efeitos colaterais amplos em cada tela.
+   Modelo Responsivo Inteligente (global)
+   - Inspirado no comportamento fluido de interfaces como Google:
+     componentes se adaptam ao espaço disponível, não a "telas fixas".
+   - Prioriza: uma base única para botões, campos, cards, menus e toolbar.
    ========================================================================== */
 
 :root {
-  --erp-fluid-gap: clamp(8px, 0.45vw + 6px, 14px);
-  --erp-fluid-shell-pad: clamp(8px, 1vw + 4px, 18px);
-  --erp-fluid-radius: clamp(10px, 0.35vw + 9px, 14px);
-  --erp-fluid-control: clamp(30px, 0.45vw + 27px, 36px);
-  --erp-fluid-font-sm: clamp(11px, 0.15vw + 10.8px, 13px);
+  --erp-adaptive-gap: clamp(6px, 0.45vw + 4px, 12px);
+  --erp-adaptive-inline-pad: clamp(8px, 0.9vw + 4px, 20px);
+  --erp-adaptive-card-radius: clamp(10px, 0.6vw + 8px, 16px);
+  --erp-adaptive-card-pad: clamp(8px, 0.75vw + 5px, 14px);
+  --erp-adaptive-font-sm: clamp(11px, 0.2vw + 10.5px, 13px);
+  --erp-adaptive-font-md: clamp(12px, 0.25vw + 11.2px, 14px);
+  --erp-adaptive-control-height: clamp(28px, 0.55vw + 25px, 34px);
+  --erp-adaptive-touch-target: clamp(34px, 0.9vw + 30px, 42px);
+  --erp-adaptive-field-min: clamp(180px, 19vw, 280px);
 }
 
 @media (pointer: coarse) {
   :root {
-    --erp-fluid-control: clamp(34px, 0.7vw + 31px, 42px);
+    --erp-adaptive-control-height: var(--erp-adaptive-touch-target);
+    --erp-adaptive-gap: clamp(8px, 1.1vw + 5px, 14px);
   }
 }
 
 .erp-shell {
-  --erp-shell-padding: var(--erp-fluid-shell-pad);
+  --erp-shell-padding: var(--erp-adaptive-inline-pad);
 }
 
 .cadastro-emp-scope,
 .mg-empresas-scope {
-  --erp-layout-gap: var(--erp-fluid-gap);
-  --erp-radius-card: var(--erp-fluid-radius);
-  --erp-control-height: var(--erp-fluid-control);
-  --erp-toolbar-height: var(--erp-fluid-control);
-  --erp-toolbar-btn-size: var(--erp-fluid-control);
+  --erp-layout-gap: var(--erp-adaptive-gap);
+  --erp-card-padding: var(--erp-adaptive-card-pad);
+  --erp-radius-card: var(--erp-adaptive-card-radius);
+  --erp-control-height: var(--erp-adaptive-control-height);
+  --erp-toolbar-height: var(--erp-adaptive-control-height);
+  --erp-toolbar-btn-size: var(--erp-adaptive-control-height);
+  font-size: var(--erp-adaptive-font-md);
 }
 
-/* Elementos de alto volume nunca estouram o container */
-.mg-empresas-scope :is(
-  .mg-view-stack,
-  .mg-view-layer,
-  .mg-view-panel,
-  .mg-grid-wrapper,
-  .mg-action-bar,
-  .mg-context-panel,
-  .mg-panel-tabs-strip,
-  .mg-cards-panel-strip
-) {
-  min-width: 0;
-  max-width: 100%;
+/* Containers inteligentes: as regras reagem ao espaço do bloco pai */
+.cadastro-emp-scope .emp-toolbar-card,
+.cadastro-emp-scope .emp-form-section-panel--corp,
+.cadastro-emp-scope .emp-table-panel,
+.mg-empresas-scope .mg-action-bar,
+.mg-empresas-scope .mg-view-panel {
+  container-type: inline-size;
 }
 
-/* Botões e campos com escala uniforme global */
+/* Base global: botões e controles */
 .cadastro-emp-scope :is(
   .emp-toolbar-btn,
   .emp-header-ctrl,
   .tb-btn,
   .tb-btn-icon,
   .tb-btn-labeled,
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-gray,
   .tb-btn-filter,
   .tb-btn-more,
   .view-mode-btn,
@@ -720,9 +726,15 @@
   .seg-tab
 ),
 .mg-empresas-scope :is(
+  .emp-toolbar-btn,
   .tb-btn,
   .tb-btn-icon,
   .tb-btn-labeled,
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-gray,
   .tb-btn-filter,
   .tb-btn-more,
   .view-mode-btn,
@@ -731,9 +743,10 @@
   .mg-accent-icon-btn,
   .seg-tab
 ) {
-  min-height: var(--erp-fluid-control) !important;
-  height: var(--erp-fluid-control) !important;
-  font-size: var(--erp-fluid-font-sm) !important;
+  min-height: var(--erp-adaptive-control-height) !important;
+  height: var(--erp-adaptive-control-height) !important;
+  font-size: var(--erp-adaptive-font-sm) !important;
+  border-radius: clamp(6px, 0.35vw + 5px, 10px) !important;
 }
 
 .cadastro-emp-scope :is(
@@ -746,63 +759,102 @@
   .mg-dp-field,
   .mg-tp-field,
   .mg-lookup-display
+),
+.mg-empresas-scope :is(
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea,
+  [data-radix-select-trigger],
+  .emp-form-field-control,
+  .cmd-display,
+  .mg-dp-field,
+  .mg-tp-field,
+  .mg-lookup-display
 ) {
-  min-height: var(--erp-fluid-control) !important;
-  font-size: var(--erp-fluid-font-sm) !important;
+  min-height: var(--erp-adaptive-control-height) !important;
+  font-size: var(--erp-adaptive-font-sm) !important;
 }
 
-/* Toolbar com muitos botões: mantém organizado sem quebrar layout */
-@media (max-width: 1100px) {
-  .mg-empresas-scope .mg-action-bar__actions {
-    overflow-x: auto;
-    overflow-y: hidden;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-    padding-bottom: 2px;
-  }
-
-  .mg-empresas-scope .mg-action-bar__actions::-webkit-scrollbar {
-    display: none;
-  }
+/* Cards e painéis com escala fluida */
+.cadastro-emp-scope :is(
+  .emp-content-card,
+  .emp-table-card,
+  .emp-form-card,
+  .emp-form-section-panel--corp
+),
+.mg-empresas-scope :is(
+  .mg-launch-card,
+  .mg-form-card,
+  .mg-container,
+  .mg-cards-panel,
+  .mg-context-panel,
+  .mg-action-bar,
+  .mg-panel-tabs-strip,
+  .mg-cards-panel-strip
+) {
+  border-radius: var(--erp-adaptive-card-radius) !important;
 }
 
-/* Cards: reflow automático para evitar bagunça visual */
-@media (max-width: 1240px) {
-  .mg-empresas-scope .mg-cards-grid--cards-3 {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 860px) {
-  .mg-empresas-scope .mg-cards-grid--cards-3,
-  .mg-empresas-scope .mg-cards-grid--cards-2 {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .mg-empresas-scope .mg-emp-card__fields--per-row-5,
-  .mg-empresas-scope .mg-emp-card__fields--per-row-2 {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* Resumo inferior não quebra em telas pequenas */
-@media (max-width: 760px) {
-  .mg-records-summary .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 480px) {
-  .mg-records-summary .grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-
-/* Menus e dropdowns sempre dentro da viewport */
+/* Menus e popovers: largura inteligente sem precisar ajustar tela a tela */
 .erp-menu-panel,
 .emp-filter-popover,
 .mg-search-dropdown,
-.mg-search-dropdown__list,
-.mg-cards-config-menu {
+.mg-search-dropdown__list {
   max-width: min(96vw, 420px) !important;
+}
+
+/* Toolbar inteligente: usa container query no lugar de ajustes por "tela X" */
+.cadastro-emp-scope .emp-toolbar-row {
+  gap: var(--erp-adaptive-gap) !important;
+}
+
+@container (max-width: 980px) {
+  .cadastro-emp-scope .emp-toolbar-row,
+  .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-row::-webkit-scrollbar,
+  .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div::-webkit-scrollbar {
+    display: none;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-actions-end {
+    margin-left: auto !important;
+    width: auto !important;
+    flex-wrap: nowrap !important;
+  }
+}
+
+/* Formulário inteligente: colunas adaptam pelo espaço disponível do container */
+.cadastro-emp-scope .emp-form-card-row-grid--flex {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--erp-adaptive-field-min)), 1fr)) !important;
+  gap: var(--erp-adaptive-gap) !important;
+  align-items: start !important;
+}
+
+/* Respeita linhas semanticamente definidas */
+.cadastro-emp-scope .emp-form-card-row-grid--single {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.cadastro-emp-scope .emp-form-card-row-grid--pair {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+@container (max-width: 760px) {
+  .cadastro-emp-scope .emp-form-card-row-grid--pair,
+  .cadastro-emp-scope .emp-form-card-row-grid--flex {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .cadastro-emp-scope .emp-form-fields.emp-form-fields-compact,
+  .cadastro-emp-scope .emp-form-section-panel .emp-form-fields.emp-form-fields-compact {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
 }
