@@ -146,6 +146,7 @@ export default function PAGEMP() {
   const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [listNavIndex, setListNavIndex] = useState(0);
   const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [pinnedRecord, setPinnedRecord] = useState(null);
@@ -199,6 +200,7 @@ export default function PAGEMP() {
     setViewMode("table");
     setSelectedTableItems([]);
     setSelectedIndex(0);
+    setListNavIndex(0);
     setTableFilteredEmpresas(null);
     setSearchDraft("");
     setSearchTerm("");
@@ -239,6 +241,7 @@ export default function PAGEMP() {
     },
     initialPageParam: 1,
     enabled: dropdownSearch.length > 0,
+    placeholderData: (previous) => previous,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
   });
@@ -339,6 +342,7 @@ export default function PAGEMP() {
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage?.page < lastPage?.totalPages ? lastPage.page + 1 : undefined,
+    placeholderData: (previous) => previous,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
   });
@@ -531,7 +535,6 @@ export default function PAGEMP() {
         setEditingEmp(optimistic);
         stayOnRecordAfterSave(optimistic);
         setFormVersion((version) => version + 1);
-        saveCycle.end();
 
         void moduleRepository
           .update(editingEmp.id, validatedData)
@@ -558,6 +561,9 @@ export default function PAGEMP() {
                 `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
               )
             );
+          })
+          .finally(() => {
+            saveCycle.end();
           });
         return;
       }
@@ -581,7 +587,6 @@ export default function PAGEMP() {
       patchMetricsCache(queryClient, { empresas: 1, registrosGlobais: 1 });
       stayOnRecordAfterSave(optimistic);
       setFormVersion((version) => version + 1);
-      saveCycle.end();
 
       void moduleRepository
         .create(clean)
@@ -637,6 +642,9 @@ export default function PAGEMP() {
               `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
             )
           );
+        })
+        .finally(() => {
+          saveCycle.end();
         });
     } catch (error) {
       saveCycle.end();
@@ -720,6 +728,7 @@ export default function PAGEMP() {
     searchViewApplyRef.current = null;
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
+    setListNavIndex(0);
   }, []);
 
   const handleSearchCommit = useCallback((value) => {
@@ -729,6 +738,7 @@ export default function PAGEMP() {
     setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
+    setListNavIndex(0);
   }, []);
 
   const handleSearchApplyAll = useCallback(() => {
@@ -741,8 +751,8 @@ export default function PAGEMP() {
     setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
-    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
-  }, [searchDraft, queryClient]);
+    setListNavIndex(0);
+  }, [searchDraft]);
 
   const handleSearchApplyFavorites = useCallback(() => {
     searchViewApplyRef.current = "all";
@@ -752,8 +762,8 @@ export default function PAGEMP() {
     setSearchTerm(normalizeSearchQuery(searchDraft));
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
-    void queryClient.invalidateQueries({ queryKey: ["emp-cadastro"] });
-  }, [searchDraft, queryClient]);
+    setListNavIndex(0);
+  }, [searchDraft]);
 
   const handleSearchResultSelect = useCallback(
     (emp) => {
@@ -766,6 +776,7 @@ export default function PAGEMP() {
       setTableFilteredEmpresas(null);
       setSelectedTableItems([]);
       setSelectedIndex(0);
+      setListNavIndex(0);
       if (showForm && viewMode === "record") {
         setEditingEmp(emp);
       }
@@ -831,6 +842,16 @@ export default function PAGEMP() {
       }),
     [showForm, formBridge, selectedTableItems.length, editingEmp?.id]
   );
+
+  const loadedRecordsCount = empresasFiltradasPainel.length;
+  const filteredRecordsCount = tableFilteredEmpresas?.length ?? loadedRecordsCount;
+  const safeTotalRecords = Math.max(totalEmpresas || 0, filteredRecordsCount, loadedRecordsCount, 0);
+  const cardsCounterText = `${filteredRecordsCount}/${safeTotalRecords}`;
+  const tableCounterText = `${selectedTableItems.length} de ${filteredRecordsCount}/${safeTotalRecords}`;
+  const listNavDisabled =
+    saveCycle.isSaving ||
+    actionBarVisibility.secondaryToolsLocked ||
+    loadedRecordsCount <= 0;
 
   useEffect(() => {
     if (actionBarVisibility.secondaryToolsLocked) {
@@ -930,8 +951,89 @@ export default function PAGEMP() {
 
   const handleTableSelectionChange = useCallback((ids) => {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
-    if (ids.length === 1) { const i = empresasNavegacao.findIndex((e) => e.id === ids[0]); if (i >= 0) setSelectedIndex(i); }
+    if (ids.length === 1) {
+      const i = empresasNavegacao.findIndex((e) => e.id === ids[0]);
+      if (i >= 0) {
+        setSelectedIndex(i);
+        setListNavIndex(i);
+      }
+    }
   }, [empresasNavegacao]);
+
+  useEffect(() => {
+    if (empresasFiltradasPainel.length === 0) {
+      setListNavIndex(0);
+      return;
+    }
+    setListNavIndex((current) =>
+      Math.min(Math.max(current, 0), Math.max(0, empresasFiltradasPainel.length - 1))
+    );
+  }, [empresasFiltradasPainel.length]);
+
+  useEffect(() => {
+    if (selectedTableItems.length !== 1) return;
+    const index = empresasFiltradasPainel.findIndex((item) => item.id === selectedTableItems[0]);
+    if (index >= 0) setListNavIndex(index);
+  }, [selectedTableItems, empresasFiltradasPainel]);
+
+  const selectListedIndex = useCallback(
+    (nextIndex) => {
+      if (empresasFiltradasPainel.length === 0) return;
+      const safeIndex = Math.min(
+        Math.max(Number(nextIndex) || 0, 0),
+        Math.max(0, empresasFiltradasPainel.length - 1)
+      );
+      const nextRecord = empresasFiltradasPainel[safeIndex];
+      setListNavIndex(safeIndex);
+      setSelectedIndex(safeIndex);
+      if (nextRecord?.id) {
+        setSelectedTableItems([nextRecord.id]);
+      }
+    },
+    [empresasFiltradasPainel]
+  );
+
+  const navigateListedFirst = useCallback(() => {
+    selectListedIndex(0);
+  }, [selectListedIndex]);
+
+  const navigateListedPrevious = useCallback(() => {
+    if (empresasFiltradasPainel.length === 0) return;
+    selectListedIndex(listNavIndex - 1);
+  }, [empresasFiltradasPainel.length, listNavIndex, selectListedIndex]);
+
+  const navigateListedNext = useCallback(() => {
+    if (empresasFiltradasPainel.length === 0) return;
+    const lastLoadedIndex = Math.max(0, empresasFiltradasPainel.length - 1);
+    if (listNavIndex < lastLoadedIndex) {
+      selectListedIndex(listNavIndex + 1);
+      return;
+    }
+    if (hasNextEmpresasPage) handleLoadMoreEmpresas();
+  }, [
+    empresasFiltradasPainel.length,
+    listNavIndex,
+    selectListedIndex,
+    hasNextEmpresasPage,
+    handleLoadMoreEmpresas,
+  ]);
+
+  const navigateListedLast = useCallback(() => {
+    if (empresasFiltradasPainel.length === 0) return;
+    const lastLoadedIndex = Math.max(0, empresasFiltradasPainel.length - 1);
+    if (listNavIndex < lastLoadedIndex) {
+      selectListedIndex(lastLoadedIndex);
+      if (hasNextEmpresasPage) handleLoadMoreEmpresas();
+      return;
+    }
+    if (hasNextEmpresasPage) handleLoadMoreEmpresas();
+  }, [
+    empresasFiltradasPainel.length,
+    listNavIndex,
+    selectListedIndex,
+    hasNextEmpresasPage,
+    handleLoadMoreEmpresas,
+  ]);
 
   const handleToggleSearchView = useCallback(() => {
     if (!saveCycle.guardAction()) return;
@@ -1068,7 +1170,6 @@ export default function PAGEMP() {
 
     pendingDeleteIdsRef.current = [];
     setDeleteState({ open: false, ids: [] });
-    saveCycle.end();
 
     const pendingIds = ids.filter((id) => isPendingRecordId(id));
     const persistedIds = ids.filter((id) => !isPendingRecordId(id));
@@ -1111,6 +1212,8 @@ export default function PAGEMP() {
         )
       );
       throw error;
+    } finally {
+      saveCycle.end();
     }
   };
 
@@ -1312,6 +1415,28 @@ export default function PAGEMP() {
                 layout={cardsVisFields.layoutConfig}
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
+                listedCount={loadedRecordsCount}
+                counterText={cardsCounterText}
+                onFirst={navigateListedFirst}
+                onPrevious={navigateListedPrevious}
+                onNext={navigateListedNext}
+                onLast={navigateListedLast}
+                navDisabled={listNavDisabled}
+              />
+            </div>
+
+            <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
+              <MgCardsPanelStrip
+                fields={[]}
+                layout={cardsVisFields.layoutConfig}
+                listedCount={loadedRecordsCount}
+                counterText={tableCounterText}
+                onFirst={navigateListedFirst}
+                onPrevious={navigateListedPrevious}
+                onNext={navigateListedNext}
+                onLast={navigateListedLast}
+                navDisabled={listNavDisabled}
+                hideConfig
               />
             </div>
           </div>
@@ -1419,7 +1544,11 @@ export default function PAGEMP() {
         </div>
       </div>
 
-      <MgMobileViewBar value={mgViewMode} onChange={handleMgViewModeChange} />
+      <MgMobileViewBar
+        value={mgViewMode}
+        onChange={handleMgViewModeChange}
+        disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
+      />
 
       <EmpresasDialogs
         exportPdfProps={{

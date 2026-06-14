@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import {
@@ -229,7 +229,21 @@ function ErpShellBody({
   const empresasPage = isEmpresasRoute(pathname);
   const activeFetches = useIsFetching({ queryKey: ["emp-cadastro"] });
   const activeMutations = useIsMutating();
-  const showTopProgress = activeFetches > 0 || activeMutations > 0;
+  const [forcedTopProgress, setForcedTopProgress] = useState(() =>
+    typeof window !== "undefined" ? Boolean(window.__ERP_FORCE_TOP_PROGRESS__) : false
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const sync = (event) => {
+      const explicit = Boolean(event?.detail?.active);
+      setForcedTopProgress(explicit || Boolean(window.__ERP_FORCE_TOP_PROGRESS__));
+    };
+    window.addEventListener("erp:top-progress", sync);
+    return () => window.removeEventListener("erp:top-progress", sync);
+  }, []);
+
+  const showTopProgress = activeFetches > 0 || activeMutations > 0 || forcedTopProgress;
 
   const shell = (
     <div className={`erp-shell flex h-full min-h-0 w-full overflow-hidden bg-[var(--background-page)]${empresasPage ? " erp-shell--empresas-mg" : ""}`}>

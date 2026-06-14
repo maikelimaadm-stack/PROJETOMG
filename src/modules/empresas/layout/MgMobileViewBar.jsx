@@ -7,7 +7,7 @@ const ITEMS = [
   { id: "cards", label: "Cards", icon: LayoutGrid },
 ];
 
-export default function MgMobileViewBar({ value, onChange }) {
+export default function MgMobileViewBar({ value, onChange, disabled = false }) {
   return (
     <div className="mobile-bottom-bar md:hidden">
       {ITEMS.map((item) => {
@@ -17,6 +17,7 @@ export default function MgMobileViewBar({ value, onChange }) {
             key={item.id}
             type="button"
             className={value === item.id ? "active" : ""}
+            disabled={disabled}
             onClick={() => onChange?.(item.id)}
           >
             <Icon className="h-5 w-5" />

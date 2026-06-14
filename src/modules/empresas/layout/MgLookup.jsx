@@ -15,6 +15,7 @@ export default function MgLookup({
   disabled = false,
 }) {
   const rootRef = useRef(null);
+  const displayRef = useRef(null);
   const panelRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -71,10 +72,15 @@ export default function MgLookup({
   const selectItem = (item) => {
     onChange?.(itemKey(item));
     setOpen(false);
+    displayRef.current?.focus();
   };
 
   const onKeyDown = (e) => {
     if (e.key === "Escape") { setOpen(false); return; }
+    if (e.key === "Tab") {
+      if (open) setOpen(false);
+      return;
+    }
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
       if (!open) { toggle(); return; }
@@ -95,12 +101,33 @@ export default function MgLookup({
     <div
       ref={rootRef}
       className={`mg-lookup${open ? " open" : ""}${disabled || readOnly ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
-      tabIndex={disabled || readOnly ? -1 : 0}
-      onKeyDown={onKeyDown}
-      onClick={toggle}
     >
       {label ? <span className={`mg-lookup-label${required ? " req" : ""}`}>{label}</span> : null}
-      <div className="mg-lookup-display">{display}</div>
+      <div
+        ref={displayRef}
+        className="mg-lookup-display"
+        tabIndex={disabled || readOnly ? -1 : 0}
+        onKeyDown={onKeyDown}
+        onFocus={(event) => {
+          if (
+            !open &&
+            !disabled &&
+            !readOnly &&
+            event.currentTarget.matches(":focus-visible")
+          ) {
+            toggle();
+          }
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          toggle();
+        }}
+        role="combobox"
+        aria-expanded={open}
+        aria-disabled={disabled || readOnly}
+      >
+        {display}
+      </div>
       <ChevronDown className="mg-lookup-icon h-3 w-3" />
       <MgPortalPanel
         open={open}

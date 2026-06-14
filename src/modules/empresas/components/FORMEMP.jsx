@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/shared/ui/input";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
@@ -102,8 +102,23 @@ export default function FORMEMP({
       : buildEmptyEmpresaForm();
   const [formData, setFormData] = useState(() => buildFormData(initialData));
   const previousRecordKeyRef = useRef(recordKey);
+  const resetSignatureRef = useRef("");
 
   useEffect(() => {
+    const resetSignature = [
+      recordKey ?? "",
+      resetSeed,
+      initialData?.id ?? "",
+      initialData?.codempresa ?? "",
+      initialData?.id_global ?? "",
+      initialData?._isPersisting ? "persisting" : "",
+      initialData?.updatedAt ?? "",
+      initialData?._isDuplicate ? "dup" : "",
+      isEditing ? "editing" : "new",
+    ].join("|");
+    if (resetSignatureRef.current === resetSignature) return;
+    resetSignatureRef.current = resetSignature;
+
     let next = buildFormData(initialData);
     if (initialData?._isDuplicate) {
       const layoutKey = user?.id
@@ -146,6 +161,7 @@ export default function FORMEMP({
     initialData?._isDuplicate,
     isEditing,
     formLayoutConfig?.clearOnDuplicateFieldIds,
+    user?.id,
   ]);
 
   const { data: camposPersonalizados = [], isFetched: camposPersonalizadosReady } =
@@ -440,6 +456,17 @@ export default function FORMEMP({
     });
   }, [tabs, activeLayoutConfig, dynamicFields, formData]);
 
+  const panelIdByFieldId = useMemo(() => {
+    const panelMap = {};
+    tabs.forEach((panel) => {
+      const fieldIds = getPanelFieldIdsFromLayout(activeLayoutConfig?.layout, panel.id);
+      fieldIds.forEach((fieldId) => {
+        panelMap[fieldId] = panel.id;
+      });
+    });
+    return panelMap;
+  }, [tabs, activeLayoutConfig?.layout]);
+
   const applyLayoutConfig = (source, options) => applyLayoutConfigFromEngine(source, options);
 
   const tabIdsKey = useMemo(() => tabs.map((panel) => panel.id).join("|"), [tabs]);
@@ -520,9 +547,30 @@ export default function FORMEMP({
     setErrors(nextErrors);
     clearRequiredFieldErrors();
     if (Object.keys(nextErrors).length === 0) return true;
+
+    const firstErrorKey = Object.keys(nextErrors)[0];
+    const firstErrorField = dynamicFields.find(
+      (field) =>
+        field.errorKey === firstErrorKey ||
+        field.dataField === firstErrorKey ||
+        field.name === firstErrorKey
+    );
+    const targetPanelId = firstErrorField?.id ? panelIdByFieldId[firstErrorField.id] : null;
+    const shouldSwitchPanel = Boolean(targetPanelId && targetPanelId !== activeTab);
+    if (shouldSwitchPanel) {
+      setActiveTab(targetPanelId);
+    }
+
     const isMobileViewport =
       typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
-    reportRequiredFieldErrors(nextErrors, { focus: !isMobileViewport });
+    const report = () => reportRequiredFieldErrors(nextErrors, { focus: !isMobileViewport });
+    if (shouldSwitchPanel) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(report);
+      });
+    } else {
+      report();
+    }
     return false;
   };
 
@@ -537,6 +585,151 @@ export default function FORMEMP({
   };
 
   const formRef = useCadastroEnterNavigation(!isReadOnly && editMode);
+
+  const focusFirstFormControl = useCallback(() => {
+    const root = formRef.current;
+    if (!root) return;
+    const controls = Array.from(
+      root.querySelectorAll(
+        [
+          'input:not([type="hidden"]):not([disabled])',
+          "textarea:not([disabled]):not([readonly])",
+          "select:not([disabled])",
+          ".cmd-display[tabindex]:not([tabindex='-1'])",
+          ".mg-lookup-display[tabindex]:not([tabindex='-1'])",
+          "button.emp-form-toggle-switch:not([disabled])",
+        ].join(", ")
+      )
+    ).filter((node) => node instanceof HTMLElement && node.getClientRects().length > 0);
+    const firstControl = controls[0];
+    if (firstControl instanceof HTMLElement) {
+      firstControl.focus({ preventScroll: false });
+    }
+  }, [formRef]);
+
+  const resolveActionBarButton = useCallback((label) => {
+    if (typeof document === "undefined") return null;
+    return Array.from(document.querySelectorAll(".mg-action-bar .tb-btn-labeled:not([disabled])")).find(
+      (node) => String(node.textContent || "").trim().toLowerCase() === label
+    ) || null;
+  }, []);
+
+  useEffect(() => {
+    const root = formRef.current;
+    if (!root || isReadOnly || !editMode || actionsLocked) return undefined;
+
+    const handleTabAcrossPanels = (event) => {
+      if (event.key !== "Tab" || event.defaultPrevented || event.shiftKey) return;
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+      if (!root.contains(target)) return;
+
+      const controls = Array.from(
+        root.querySelectorAll(
+          [
+            'input:not([type="hidden"]):not([disabled])',
+            "textarea:not([disabled]):not([readonly])",
+            "select:not([disabled])",
+            ".cmd-display[tabindex]:not([tabindex='-1'])",
+            ".mg-lookup-display[tabindex]:not([tabindex='-1'])",
+            "button.emp-form-toggle-switch:not([disabled])",
+          ].join(", ")
+        )
+      ).filter((node) => node instanceof HTMLElement && node.getClientRects().length > 0);
+
+      if (controls.length === 0) return;
+      const currentIndex = controls.indexOf(target);
+      if (currentIndex < 0 || currentIndex < controls.length - 1) return;
+
+      event.preventDefault();
+
+      const panelIndex = tabs.findIndex((panel) => panel.id === activeTab);
+      if (panelIndex >= 0 && panelIndex < tabs.length - 1) {
+        const nextPanel = tabs[panelIndex + 1];
+        setActiveTab(nextPanel.id);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            focusFirstFormControl();
+          });
+        });
+        return;
+      }
+
+      const saveButton = resolveActionBarButton("salvar");
+      if (saveButton instanceof HTMLElement) {
+        saveButton.focus({ preventScroll: false });
+        return;
+      }
+
+      const cancelButton = resolveActionBarButton("cancelar");
+      if (cancelButton instanceof HTMLElement) {
+        cancelButton.focus({ preventScroll: false });
+      }
+    };
+
+    root.addEventListener("keydown", handleTabAcrossPanels, true);
+    return () => root.removeEventListener("keydown", handleTabAcrossPanels, true);
+  }, [
+    formRef,
+    isReadOnly,
+    editMode,
+    actionsLocked,
+    tabs,
+    activeTab,
+    setActiveTab,
+    focusFirstFormControl,
+    resolveActionBarButton,
+  ]);
+
+  useEffect(() => {
+    if (isReadOnly || !editMode || actionsLocked) return undefined;
+
+    const handleToolbarTabCycle = (event) => {
+      if (event.key !== "Tab" || event.defaultPrevented || event.shiftKey) return;
+      const target = event.target;
+      if (!(target instanceof HTMLElement)) return;
+
+      const saveButton = resolveActionBarButton("salvar");
+      const cancelButton = resolveActionBarButton("cancelar");
+
+      if (saveButton && target === saveButton) {
+        event.preventDefault();
+        if (cancelButton instanceof HTMLElement) {
+          cancelButton.focus({ preventScroll: false });
+        } else {
+          focusFirstFormControl();
+        }
+        return;
+      }
+
+      if (cancelButton && target === cancelButton) {
+        event.preventDefault();
+        const firstTab = tabs[0]?.id;
+        if (firstTab && firstTab !== activeTab) {
+          setActiveTab(firstTab);
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              focusFirstFormControl();
+            });
+          });
+          return;
+        }
+        focusFirstFormControl();
+      }
+    };
+
+    document.addEventListener("keydown", handleToolbarTabCycle, true);
+    return () => document.removeEventListener("keydown", handleToolbarTabCycle, true);
+  }, [
+    isReadOnly,
+    editMode,
+    actionsLocked,
+    resolveActionBarButton,
+    focusFirstFormControl,
+    tabs,
+    activeTab,
+    setActiveTab,
+  ]);
 
   const recordMeta = useMemo(() => {
     if (layoutConfigOpen) return null;

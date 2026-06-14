@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Check, LayoutGrid, Settings2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, LayoutGrid, Settings2, SkipBack, SkipForward } from "lucide-react";
 import {
   EMP_CARDS_LAYOUT_DEFAULT,
   EMP_CARDS_LAYOUT_OPTIONS,
@@ -74,6 +74,15 @@ export default function MgCardsPanelStrip({
   onSaveLayout,
   onRestoreLayoutDefaults,
   disabled = false,
+  listedCount = 0,
+  counterText = "0/0",
+  onFirst,
+  onPrevious,
+  onNext,
+  onLast,
+  navDisabled = false,
+  showNavigation = true,
+  hideConfig = false,
 }) {
   const fields =
     Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
@@ -236,6 +245,9 @@ export default function MgCardsPanelStrip({
     setLayoutOpen(false);
   };
 
+  const navigationDisabled = disabled || navDisabled;
+  const showConfig = !hideConfig;
+
   return (
     <div data-template-id="cards-panel" className="mg-cards-panel-strip hidden md:flex">
       <MgConfigBackdrop
@@ -243,8 +255,54 @@ export default function MgCardsPanelStrip({
         onClose={closeConfigPanels}
         ariaLabel="Fechar configuração dos cards"
       />
-      <div className="mg-cards-panel-strip__meta" aria-hidden="true" />
-      <div className="mg-cards-panel-strip__actions">
+      <div className="mg-cards-panel-strip__meta">
+        <span className="mg-cards-panel-strip__listed-count">{listedCount} registros listados</span>
+      </div>
+
+      {showNavigation ? (
+        <div className="mg-cards-panel-strip__nav">
+          <button
+            type="button"
+            className="mg-nav-btn ios-btn"
+            onClick={onFirst}
+            disabled={navigationDisabled}
+            title="Primeiro registro"
+          >
+            <SkipBack className="h-3 w-3" />
+          </button>
+          <button
+            type="button"
+            className="mg-nav-btn ios-btn"
+            onClick={onPrevious}
+            disabled={navigationDisabled}
+            title="Registro anterior"
+          >
+            <ChevronLeft className="h-3 w-3" />
+          </button>
+          <span className="mg-context-panel__counter">{counterText}</span>
+          <button
+            type="button"
+            className="mg-nav-btn ios-btn"
+            onClick={onNext}
+            disabled={navigationDisabled}
+            title="Próximo registro"
+          >
+            <ChevronRight className="h-3 w-3" />
+          </button>
+          <button
+            type="button"
+            className="mg-nav-btn ios-btn"
+            onClick={onLast}
+            disabled={navigationDisabled}
+            title="Último registro listado"
+          >
+            <SkipForward className="h-3 w-3" />
+          </button>
+        </div>
+      ) : null}
+
+      {showConfig ? (
+        <div className="mg-cards-panel-strip__actions">
         <div
           className={`mg-cards-panel-strip__action${layoutOpen ? " is-config-open" : ""}`}
           ref={layoutRootRef}
@@ -336,7 +394,8 @@ export default function MgCardsPanelStrip({
             <CardsConfigMenuFooter onRestore={handleFieldsRestore} onOk={handleFieldsOk} />
           </MgPortalPanel>
         </div>
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }
