@@ -432,7 +432,7 @@ export default function MgActionBar({
             />
           </div>
         </div>
-        <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
+        <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={toolsLocked} />
         <div className="relative" ref={moreRef}>
           <MgSpeedDialMenu
             open={moreOpen}

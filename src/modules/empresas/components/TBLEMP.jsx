@@ -145,6 +145,7 @@ export default function TBLEMP({
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
+  const listedOnlyDistinctOptions = mgPrototype || infiniteMode;
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
     if (serverPageSize) return serverPageSize;
@@ -176,7 +177,7 @@ export default function TBLEMP({
         filters: distinctFiltersKey ? JSON.parse(distinctFiltersKey) : serverBaseFilters,
         limit: 5000,
       }),
-    enabled: serverMode && Boolean(menuFiltroAberto),
+    enabled: serverMode && !listedOnlyDistinctOptions && Boolean(menuFiltroAberto),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
   });
@@ -383,7 +384,7 @@ export default function TBLEMP({
   };
 
   const columnOptions = useMemo(() => {
-    if (serverMode) {
+    if (serverMode && !listedOnlyDistinctOptions) {
       if (!menuFiltroAberto) return {};
       return { [menuFiltroAberto]: serverDistinctOptions?.items || [] };
     }
@@ -393,7 +394,16 @@ export default function TBLEMP({
       opts[col.id] = [...new Set(source.map((e) => getFieldValue(e, col.id)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
     });
     return opts;
-  }, [serverMode, menuFiltroAberto, serverDistinctOptions, empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
+  }, [
+    serverMode,
+    listedOnlyDistinctOptions,
+    menuFiltroAberto,
+    serverDistinctOptions,
+    empresas,
+    filtrosColunas,
+    colunasDisponiveis,
+    searchTerm,
+  ]);
 
   const hasActiveFilter = (id) => (filtrosColunas[id] || []).length > 0;
   const getValoresFiltro = (id) => filtrosColunas[id] || [];

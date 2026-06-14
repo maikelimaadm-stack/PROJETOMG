@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useLayoutEffect } from "react";
+import React, { memo, useEffect } from "react";
 import { Check } from "lucide-react";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import {
@@ -35,24 +35,29 @@ function MgCardsVirtualGrid({
     enabled: items.length > 0,
   });
 
-  useLayoutEffect(() => {
-    virtualizer?.measure?.();
-  }, [virtualizer]);
-
   useEffect(() => {
-    virtualizer?.measure?.();
+    if (!virtualizer) return;
+    const frame = requestAnimationFrame(() => virtualizer.measure());
+    return () => cancelAnimationFrame(frame);
   }, [virtualizer, items.length, layoutKey]);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
     if (!scrollEl || !virtualizer) return undefined;
 
-    const measure = () => virtualizer.measure();
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => virtualizer.measure());
+    };
     measure();
 
     const observer = new ResizeObserver(measure);
     observer.observe(scrollEl);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
   }, [scrollRef, virtualizer]);
 
   useEffect(() => {

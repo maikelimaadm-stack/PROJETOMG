@@ -15,7 +15,7 @@ export const LIST_DROPDOWN_MAX_PAGES = 5;
 /** @deprecated Use LIST_DEFAULT_PAGE_SIZE — mantido para compatibilidade de imports legados. */
 export const EMP_LIST_CHUNK_SIZE = LIST_DEFAULT_PAGE_SIZE;
 
-export const LIST_SEARCH_DEBOUNCE_MS = 350;
+export const LIST_SEARCH_DEBOUNCE_MS = 180;
 
 export const LIST_QUERY_STALE_MS = 30_000;
 

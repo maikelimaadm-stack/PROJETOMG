@@ -119,6 +119,45 @@ export default function MgDatePicker({
     setOpen(false);
   };
 
+  const adjustDateBy = (deltaDays) => {
+    const seedDay = Number.isFinite(state.day) && state.day > 0 ? state.day : 1;
+    const baseDate = new Date(state.year, state.month, seedDay);
+    baseDate.setDate(baseDate.getDate() + deltaDays);
+    const next = formatBrDate(baseDate.getDate(), baseDate.getMonth(), baseDate.getFullYear());
+    onChangeRef.current?.({ target: { value: next } });
+  };
+
+  const handleInputKeyDown = (event) => {
+    if (event.key === "Tab") {
+      if (open) setOpen(false);
+      return;
+    }
+
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustDateBy(7);
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustDateBy(-7);
+      return;
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustDateBy(1);
+      return;
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustDateBy(-1);
+    }
+  };
+
   const nav = (dir) => {
     setState((s) => {
       if (s.view === "days") {
@@ -249,6 +288,10 @@ export default function MgDatePicker({
         disabled={disabled || readOnly}
         placeholder=" "
         onClick={toggle}
+        onFocus={(event) => {
+          if (!open && event.currentTarget.matches(":focus-visible")) toggle();
+        }}
+        onKeyDown={handleInputKeyDown}
       />
       <div className="mg-dp-icon"><Calendar className="h-3.5 w-3.5" /></div>
       <MgPortalPanel

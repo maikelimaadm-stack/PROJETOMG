@@ -86,6 +86,50 @@ export default function MgTimePicker({
     ? `${String(state.hour).padStart(2, "0")}:${String(state.minute).padStart(2, "0")}`
     : "");
 
+  const adjustTimeBy = ({ hour = 0, minute = 0 }) => {
+    const baseHour = state.hour >= 0 ? state.hour : 0;
+    const baseMinute = state.minute >= 0 ? state.minute : 0;
+    const totalMinutes = ((baseHour * 60 + baseMinute + hour * 60 + minute) % (24 * 60) + (24 * 60)) % (24 * 60);
+    const nextHour = Math.floor(totalMinutes / 60);
+    const nextMinute = totalMinutes % 60;
+    setState({ hour: nextHour, minute: nextMinute });
+    onChange?.({
+      target: {
+        value: `${String(nextHour).padStart(2, "0")}:${String(nextMinute).padStart(2, "0")}`,
+      },
+    });
+  };
+
+  const handleInputKeyDown = (event) => {
+    if (event.key === "Tab") {
+      if (open) setOpen(false);
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustTimeBy({ minute: 5 });
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustTimeBy({ minute: -5 });
+      return;
+    }
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustTimeBy({ hour: 1 });
+      return;
+    }
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      if (!open) toggle();
+      adjustTimeBy({ hour: -1 });
+    }
+  };
+
   return (
     <div ref={rootRef} className={`mg-tp${open ? " open" : ""}${disabled || readOnly ? " is-disabled" : ""}${display ? " mg-has-value" : ""}`}>
       {label ? <label className="mg-tp-label">{label}</label> : null}
@@ -97,6 +141,10 @@ export default function MgTimePicker({
         disabled={disabled || readOnly}
         placeholder=" "
         onClick={toggle}
+        onFocus={(event) => {
+          if (!open && event.currentTarget.matches(":focus-visible")) toggle();
+        }}
+        onKeyDown={handleInputKeyDown}
       />
       <div className="mg-tp-icon"><Clock className="h-3.5 w-3.5" /></div>
       <MgPortalPanel

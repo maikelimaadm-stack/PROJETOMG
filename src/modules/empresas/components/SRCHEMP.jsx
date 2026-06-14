@@ -223,7 +223,7 @@ export default function SRCHEMP({
     : visFields.filter((field) => field.visible && !field.primary);
 
   const cardsLayoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
-  const cardsScrollResetKey = `${page}:${showOnlyFavorites}:${cardsLayoutKey}`;
+  const cardsScrollResetKey = `${infiniteMode ? "infinite" : page}:${showOnlyFavorites}:${cardsLayoutKey}`;
 
   const loadMoreLockRef = useRef(false);
 

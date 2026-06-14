@@ -15,10 +15,13 @@ export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   const root = options.root || document;
   keys.forEach((key) => {
     root.querySelectorAll(`[data-field="${key}"]`).forEach((node) => {
-      node.classList.add(INVALID_CLASS);
-      node.querySelectorAll(CONTROL_SELECTOR).forEach((control) => {
+      const controls = node.querySelectorAll(CONTROL_SELECTOR);
+      controls.forEach((control) => {
         control.classList.add(INVALID_CLASS);
       });
+      if (controls.length === 0) {
+        node.classList.add(INVALID_CLASS);
+      }
     });
   });
 

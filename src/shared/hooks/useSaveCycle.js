@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { showError } from "@/shared/feedback";
 
 export const SAVE_PROGRESS_MESSAGE = "Salvando registros...";
@@ -35,6 +35,16 @@ export function useSaveCycle() {
     },
     [state.active]
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.__ERP_FORCE_TOP_PROGRESS__ = state.active;
+    window.dispatchEvent(
+      new CustomEvent("erp:top-progress", {
+        detail: { active: state.active },
+      })
+    );
+  }, [state.active]);
 
   return {
     isSaving: state.active,

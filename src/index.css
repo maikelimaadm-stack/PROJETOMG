@@ -247,6 +247,7 @@ input[type="number"] {
   scrollbar-color: var(--erp-scrollbar-thumb) transparent;
   overscroll-behavior: contain;
   scroll-behavior: auto;
+  scrollbar-gutter: stable both-edges;
 }
 
 @supports selector(::-webkit-scrollbar) {

@@ -25,6 +25,7 @@ export default function MgCmdSelect({
   const [query, setQuery] = useState("");
   const [highlighted, setHighlighted] = useState(-1);
   const rootRef = useRef(null);
+  const displayRef = useRef(null);
   const panelRef = useRef(null);
 
   const filtered = useMemo(
@@ -63,7 +64,7 @@ export default function MgCmdSelect({
     onChange?.(option.value);
     setOpen(false);
     setQuery("");
-    rootRef.current?.focus();
+    displayRef.current?.focus();
   };
 
   const toggle = () => {
@@ -95,6 +96,10 @@ export default function MgCmdSelect({
       setOpen(false);
       return;
     }
+    if (event.key === "Tab") {
+      if (open) setOpen(false);
+      return;
+    }
     if (!open && (event.key === "ArrowDown" || event.key === "ArrowUp")) {
       event.preventDefault();
       toggle();
@@ -114,15 +119,28 @@ export default function MgCmdSelect({
     <div
       ref={rootRef}
       className={`cmd-select${open ? " open" : ""}${disabled ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
-      tabIndex={disabled ? -1 : 0}
-      onKeyDown={onKeyDown}
-      onClick={toggle}
-      role="combobox"
-      aria-expanded={open}
-      aria-disabled={disabled}
     >
       {label ? <span className={`cmd-label${required ? " req" : ""}`}>{label}</span> : null}
-      <div className="cmd-display">{display}</div>
+      <div
+        ref={displayRef}
+        className="cmd-display"
+        tabIndex={disabled ? -1 : 0}
+        onKeyDown={onKeyDown}
+        onFocus={(event) => {
+          if (!open && !disabled && event.currentTarget.matches(":focus-visible")) {
+            toggle();
+          }
+        }}
+        onClick={(event) => {
+          event.stopPropagation();
+          toggle();
+        }}
+        role="combobox"
+        aria-expanded={open}
+        aria-disabled={disabled}
+      >
+        {display}
+      </div>
       <ChevronDown className="cmd-chevron h-3 w-3" />
       <MgPortalPanel
         open={open}

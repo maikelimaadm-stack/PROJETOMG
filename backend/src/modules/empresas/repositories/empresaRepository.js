@@ -140,7 +140,13 @@ const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {})
   const customFieldIds = searchTerm
     ? await findIdsMatchingCustomFields(prisma, scope, searchTerm)
     : [];
-  const searchWhere = mergeSearchWhere(baseSearchWhere, customFieldIds);
+  const numericContainsIds = searchTerm
+    ? await findIdsMatchingNumericContains(prisma, scope, searchTerm)
+    : [];
+  const searchWhere = mergeSearchWhere(baseSearchWhere, [
+    ...customFieldIds,
+    ...numericContainsIds,
+  ]);
   const filtersWhere = buildFiltersWhere(filters);
   const scopedClauses = [];
   if (searchWhere) scopedClauses.push(searchWhere);
@@ -249,6 +255,38 @@ const findIdsMatchingCustomFields = async (prisma, scope, searchTerm) => {
         SELECT 1
         FROM jsonb_each_text(campos_personalizados) AS kv(key, value)
         WHERE value ILIKE $2
+      )
+  `;
+
+  if (!scope.acessoGlobal) {
+    const allowed = scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID];
+    const placeholders = allowed.map((_, index) => `$${index + 3}`).join(", ");
+    sql += ` AND id IN (${placeholders})`;
+    params.push(...allowed);
+  }
+
+  if (scope.selectedEmpresaId) {
+    sql += ` AND id = $${params.length + 1}`;
+    params.push(scope.selectedEmpresaId);
+  }
+
+  const rows = await prisma.$queryRawUnsafe(sql, ...params);
+  return rows.map((row) => row.id).filter(Boolean);
+};
+
+const findIdsMatchingNumericContains = async (prisma, scope, searchTerm) => {
+  const value = String(searchTerm || "").trim();
+  if (!value || !/\d/.test(value)) return [];
+
+  const pattern = `%${value.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_")}%`;
+  const params = [scope.clienteId, pattern];
+  let sql = `
+    SELECT id
+    FROM "Empresa"
+    WHERE cliente_id = $1
+      AND (
+        CAST(codempresa AS TEXT) ILIKE $2
+        OR CAST(id_global AS TEXT) ILIKE $2
       )
   `;
 
