@@ -195,18 +195,22 @@ input[type="number"] {
   --erp-scrollbar-track-shadow: none;
   --erp-scrollbar-bg: transparent;
   --erp-scrollbar-radius: 8px;
+  --erp-scrollbar-thumb-shadow: none;
 }
 
 .escuro,
 .tema-escuro,
 [data-tema="escuro"],
 .dark {
-  --erp-scrollbar-thumb: rgba(191, 191, 191, 0.35);
-  --erp-scrollbar-thumb-hover: rgba(191, 191, 191, 0.55);
-  --erp-scrollbar-thumb-active: rgba(191, 191, 191, 0.7);
+  --erp-scrollbar-thumb: rgba(88, 255, 140, 0.58);
+  --erp-scrollbar-thumb-hover: rgba(112, 255, 157, 0.74);
+  --erp-scrollbar-thumb-active: rgba(136, 255, 173, 0.9);
   --erp-scrollbar-track: transparent;
   --erp-scrollbar-track-shadow: none;
   --erp-scrollbar-bg: transparent;
+  --erp-scrollbar-thumb-shadow:
+    0 0 0 1px rgba(76, 235, 126, 0.35),
+    0 0 10px rgba(76, 235, 126, 0.35);
 }
 
 :is(
@@ -364,6 +368,7 @@ input[type="number"] {
   ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
     background-color: var(--erp-scrollbar-thumb);
     border-radius: var(--erp-scrollbar-radius);
+    box-shadow: var(--erp-scrollbar-thumb-shadow);
   }
 
   :is(

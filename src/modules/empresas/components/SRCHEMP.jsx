@@ -467,12 +467,12 @@ export default function SRCHEMP({
             isBusy={isFetching}
           />
         ) : (
-          <div className="border-t border-slate-200 px-3 py-2 text-xs text-slate-600">
+          <div className="mg-records-summary border-t border-slate-200 px-3 py-2 text-xs">
             <div className="grid grid-cols-4 gap-2">
-              <span className="truncate text-left">Selecionados: {summarySelected}</span>
-              <span className="truncate text-left">Listados: {summaryListed}</span>
-              <span className="truncate text-left">Filtrados: {summaryFiltered}</span>
-              <span className="truncate text-left">Totais: {summaryTotal}</span>
+              <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
+              <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
+              <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
+              <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
             </div>
           </div>
         )}
