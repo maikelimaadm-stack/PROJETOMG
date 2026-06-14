@@ -301,6 +301,7 @@ export default function SRCHEMP({
   const summaryListed = Number.isFinite(listedCount) ? listedCount : filteredEmpresas.length;
   const summaryFiltered = Number.isFinite(filteredCount) ? filteredCount : Math.max(total, summaryListed);
   const summaryTotal = Number.isFinite(totalCount) ? totalCount : Math.max(summaryFiltered, summaryListed);
+  const activeSelectionId = selectedIds.length > 0 ? selectedIds[selectedIds.length - 1] : null;
 
   const toggleFavorite = useCallback((empresaId, event) => {
     event?.stopPropagation();
@@ -349,6 +350,7 @@ export default function SRCHEMP({
           onSelectionChange?.(rangeIds);
           lastSelectedIdRef.current = emp.id;
           cardClickSuppressRef.current = { id: null, until: 0 };
+          cardsScrollRef.current?.focus?.({ preventScroll: true });
           return;
         }
       }
@@ -362,6 +364,7 @@ export default function SRCHEMP({
         cardClickSuppressRef.current = wasSelectedBefore
           ? { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS }
           : { id: null, until: 0 };
+        cardsScrollRef.current?.focus?.({ preventScroll: true });
         return;
       }
 
@@ -369,12 +372,14 @@ export default function SRCHEMP({
         onSelectionChange?.([]);
         lastSelectedIdRef.current = null;
         cardClickSuppressRef.current = { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS };
+        cardsScrollRef.current?.focus?.({ preventScroll: true });
         return;
       }
 
       onSelectionChange?.([emp.id]);
       lastSelectedIdRef.current = emp.id;
       cardClickSuppressRef.current = { id: null, until: 0 };
+      cardsScrollRef.current?.focus?.({ preventScroll: true });
     },
     [onEdit, onSelectionChange, filteredEmpresas]
   );
@@ -399,15 +404,7 @@ export default function SRCHEMP({
         event.preventDefault();
         lastSelectedIdRef.current = nextRecord.id;
         onSelectionChange?.([nextRecord.id]);
-        requestAnimationFrame(() => {
-          const scrollEl = cardsScrollRef.current;
-          if (!scrollEl) return;
-          const safeId = String(nextRecord.id).replace(/"/g, '\\"');
-          const card = scrollEl.querySelector(`[data-emp-id="${safeId}"]`);
-          if (card instanceof HTMLElement) {
-            card.scrollIntoView({ block: "nearest" });
-          }
-        });
+        cardsScrollRef.current?.focus?.({ preventScroll: true });
         return;
       }
 
@@ -433,6 +430,7 @@ export default function SRCHEMP({
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         <ErpScrollNav
           ref={cardsScrollRef}
+          tabIndex={0}
           className="relative min-h-0 flex-1"
           viewportClassName="overflow-y-auto"
           onKeyDown={handleCardsKeyDown}
@@ -454,6 +452,7 @@ export default function SRCHEMP({
               isFavoriteRecord={isFavoriteRecord}
               onToggleFavorite={onToggleFavorite}
               onCardClick={handleCardClick}
+              activeSelectionId={activeSelectionId}
               scrollResetKey={cardsScrollResetKey}
             />
           )}

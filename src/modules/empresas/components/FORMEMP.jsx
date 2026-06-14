@@ -939,6 +939,7 @@ export default function FORMEMP({
                 onEditRecord={startEditMode}
                 onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
                 onToggleView={onToggleView}
+                toggleViewDisabled={editMode}
                 total={total}
                 currentIndex={currentIndex}
                 onNew={onNew}
