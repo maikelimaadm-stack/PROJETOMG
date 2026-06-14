@@ -136,15 +136,16 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
         return (
           <div
             key={emp.id}
+            data-emp-id={emp.id}
             className={`erp-card mg-emp-card mg-emp-card--virtual relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
-            onClick={() => onCardClick(emp)}
+            onClick={(event) => onCardClick(emp, event)}
             role="button"
             tabIndex={0}
             aria-pressed={isSelected}
             onKeyDown={(event) => {
               if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                onCardClick(emp);
+                onCardClick(emp, event);
               }
             }}
           >

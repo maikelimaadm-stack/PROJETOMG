@@ -11,6 +11,7 @@ import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
+import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
@@ -648,6 +649,54 @@ export default function TBLEMP({
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
       e.preventDefault();
       setSelectedItems(empresasOrdenadas.map((e) => e.id));
+      return;
+    }
+
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (selectedItemsRef.current.length === 0) return;
+      const step = e.key === "ArrowDown" ? 1 : -1;
+      const anchorId =
+        (lastSelectedIdRef.current && selectedItemsRef.current.includes(lastSelectedIdRef.current))
+          ? lastSelectedIdRef.current
+          : selectedItemsRef.current[selectedItemsRef.current.length - 1];
+      const currentIndex = empresasOrdenadas.findIndex((item) => item.id === anchorId);
+      if (currentIndex < 0) return;
+      const nextIndex = Math.min(
+        Math.max(currentIndex + step, 0),
+        Math.max(0, empresasOrdenadas.length - 1)
+      );
+      const nextRecord = empresasOrdenadas[nextIndex];
+      if (!nextRecord?.id) return;
+      e.preventDefault();
+      lastSelectedIdRef.current = nextRecord.id;
+      setSelectedItems([nextRecord.id]);
+      requestAnimationFrame(() => {
+        const body = scrollContainerRef.current;
+        if (!body) return;
+        const row = body.querySelector(`.emp-table-data-row[data-index="${nextIndex}"]`);
+        if (row instanceof HTMLElement) {
+          row.scrollIntoView({ block: "nearest" });
+          return;
+        }
+        const maxTop = Math.max(0, body.scrollHeight - body.clientHeight);
+        body.scrollTo({
+          top: Math.min(nextIndex * EMP_TABLE_ROW_HEIGHT, maxTop),
+          behavior: "auto",
+        });
+      });
+      return;
+    }
+
+    if (e.key === "Enter") {
+      if (selectedItemsRef.current.length === 0) return;
+      const anchorId =
+        (lastSelectedIdRef.current && selectedItemsRef.current.includes(lastSelectedIdRef.current))
+          ? lastSelectedIdRef.current
+          : selectedItemsRef.current[selectedItemsRef.current.length - 1];
+      const selectedRecord = empresasOrdenadas.find((item) => item.id === anchorId);
+      if (!selectedRecord) return;
+      e.preventDefault();
+      onEdit?.(selectedRecord);
     }
   };
 

@@ -215,6 +215,7 @@ export default function SRCHEMP({
   const lastCardClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const cardClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedIdsRef = useRef(selectedIds);
+  const lastSelectedIdRef = useRef(null);
   const cardsScrollRef = useRef(null);
 
   const filteredEmpresas = useMemo(() => {
@@ -264,6 +265,11 @@ export default function SRCHEMP({
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
+    if (selectedIds.length === 0) {
+      lastSelectedIdRef.current = null;
+    } else if (!lastSelectedIdRef.current || !selectedIds.includes(lastSelectedIdRef.current)) {
+      lastSelectedIdRef.current = selectedIds[selectedIds.length - 1];
+    }
   }, [selectedIds]);
 
   useEffect(() => {
@@ -313,7 +319,7 @@ export default function SRCHEMP({
   }, []);
 
   const handleCardClick = useCallback(
-    (emp) => {
+    (emp, event) => {
       const now = Date.now();
       const suppress = cardClickSuppressRef.current;
       if (suppress.id === emp.id && now < suppress.until) return;
@@ -334,16 +340,90 @@ export default function SRCHEMP({
       const wasSelectedBefore = selectedIdsRef.current.includes(emp.id);
       lastCardClickRef.current = { id: emp.id, time: now, wasSelectedBefore };
 
+      if (event?.shiftKey && lastSelectedIdRef.current) {
+        const startIndex = filteredEmpresas.findIndex((item) => item.id === lastSelectedIdRef.current);
+        const endIndex = filteredEmpresas.findIndex((item) => item.id === emp.id);
+        if (startIndex >= 0 && endIndex >= 0) {
+          const [from, to] = [Math.min(startIndex, endIndex), Math.max(startIndex, endIndex)];
+          const rangeIds = filteredEmpresas.slice(from, to + 1).map((item) => item.id);
+          onSelectionChange?.(rangeIds);
+          lastSelectedIdRef.current = emp.id;
+          cardClickSuppressRef.current = { id: null, until: 0 };
+          return;
+        }
+      }
+
+      if (event?.ctrlKey || event?.metaKey) {
+        const nextSelection = wasSelectedBefore
+          ? selectedIdsRef.current.filter((id) => id !== emp.id)
+          : [...selectedIdsRef.current, emp.id];
+        onSelectionChange?.(nextSelection);
+        lastSelectedIdRef.current = nextSelection.length > 0 ? emp.id : null;
+        cardClickSuppressRef.current = wasSelectedBefore
+          ? { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS }
+          : { id: null, until: 0 };
+        return;
+      }
+
       if (wasSelectedBefore) {
-        onSelectionChange?.(selectedIdsRef.current.filter((id) => id !== emp.id));
+        onSelectionChange?.([]);
+        lastSelectedIdRef.current = null;
         cardClickSuppressRef.current = { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS };
         return;
       }
 
-      onSelectionChange?.([...selectedIdsRef.current, emp.id]);
+      onSelectionChange?.([emp.id]);
+      lastSelectedIdRef.current = emp.id;
       cardClickSuppressRef.current = { id: null, until: 0 };
     },
-    [onEdit, onSelectionChange]
+    [onEdit, onSelectionChange, filteredEmpresas]
+  );
+
+  const handleCardsKeyDown = useCallback(
+    (event) => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        if (selectedIdsRef.current.length === 0) return;
+        const step = event.key === "ArrowDown" ? 1 : -1;
+        const anchorId =
+          (lastSelectedIdRef.current && selectedIdsRef.current.includes(lastSelectedIdRef.current))
+            ? lastSelectedIdRef.current
+            : selectedIdsRef.current[selectedIdsRef.current.length - 1];
+        const currentIndex = filteredEmpresas.findIndex((item) => item.id === anchorId);
+        if (currentIndex < 0) return;
+        const nextIndex = Math.min(
+          Math.max(currentIndex + step, 0),
+          Math.max(0, filteredEmpresas.length - 1)
+        );
+        const nextRecord = filteredEmpresas[nextIndex];
+        if (!nextRecord?.id) return;
+        event.preventDefault();
+        lastSelectedIdRef.current = nextRecord.id;
+        onSelectionChange?.([nextRecord.id]);
+        requestAnimationFrame(() => {
+          const scrollEl = cardsScrollRef.current;
+          if (!scrollEl) return;
+          const safeId = String(nextRecord.id).replace(/"/g, '\\"');
+          const card = scrollEl.querySelector(`[data-emp-id="${safeId}"]`);
+          if (card instanceof HTMLElement) {
+            card.scrollIntoView({ block: "nearest" });
+          }
+        });
+        return;
+      }
+
+      if (event.key === "Enter") {
+        if (selectedIdsRef.current.length === 0) return;
+        const anchorId =
+          (lastSelectedIdRef.current && selectedIdsRef.current.includes(lastSelectedIdRef.current))
+            ? lastSelectedIdRef.current
+            : selectedIdsRef.current[selectedIdsRef.current.length - 1];
+        const selectedRecord = filteredEmpresas.find((item) => item.id === anchorId);
+        if (!selectedRecord) return;
+        event.preventDefault();
+        onEdit?.(selectedRecord);
+      }
+    },
+    [filteredEmpresas, onSelectionChange, onEdit]
   );
 
   if (mgPrototype) {
@@ -355,6 +435,7 @@ export default function SRCHEMP({
           ref={cardsScrollRef}
           className="relative min-h-0 flex-1"
           viewportClassName="overflow-y-auto"
+          onKeyDown={handleCardsKeyDown}
         >
           {showCardsLoading ? (
             <div className="py-8" aria-hidden="true" />
