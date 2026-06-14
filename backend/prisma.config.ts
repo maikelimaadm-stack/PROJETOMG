@@ -1,5 +1,9 @@
 import "dotenv/config";
-import { defineConfig, env } from "prisma/config";
+import { defineConfig } from "prisma/config";
+
+const buildTimeFallbackUrl = "postgresql://postgres:postgres@127.0.0.1:5432/postgres";
+const databaseUrl = process.env.DATABASE_URL || buildTimeFallbackUrl;
+const directUrl = process.env.DIRECT_URL || databaseUrl;
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -8,7 +12,9 @@ export default defineConfig({
     seed: "node scripts/seedBootstrap.js",
   },
   datasource: {
-    url: env("DATABASE_URL"),
-    directUrl: env("DIRECT_URL"),
+    // Railway build pode não expor DATABASE_URL durante `prisma generate`.
+    // Em runtime/boot de produção, DATABASE_URL real continua obrigatória.
+    url: databaseUrl,
+    directUrl,
   },
 });
