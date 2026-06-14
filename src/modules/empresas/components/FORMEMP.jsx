@@ -563,7 +563,11 @@ export default function FORMEMP({
 
     const isMobileViewport =
       typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
-    const report = () => reportRequiredFieldErrors(nextErrors, { focus: !isMobileViewport });
+    const report = () =>
+      reportRequiredFieldErrors(nextErrors, {
+        focus: !isMobileViewport,
+        activate: !isMobileViewport,
+      });
     if (shouldSwitchPanel) {
       requestAnimationFrame(() => {
         requestAnimationFrame(report);
@@ -606,6 +610,20 @@ export default function FORMEMP({
       firstControl.focus({ preventScroll: false });
     }
   }, [formRef]);
+
+  const startEditMode = useCallback(() => {
+    if (actionsLocked) return;
+    setEditMode(true);
+    const firstTabId = tabs[0]?.id || LAYOUT_MAIN_TAB_ID;
+    if (activeTab !== firstTabId) {
+      setActiveTab(firstTabId);
+    }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        focusFirstFormControl();
+      });
+    });
+  }, [actionsLocked, tabs, activeTab, setActiveTab, focusFirstFormControl]);
 
   const resolveActionBarButton = useCallback((label) => {
     if (typeof document === "undefined") return null;
@@ -796,7 +814,7 @@ export default function FORMEMP({
       recordMeta,
       onSave: () => handleSubmit(),
       onCancel,
-      onEdit: () => setEditMode(true),
+      onEdit: startEditMode,
       onLayoutConfig: () => {
         if (filterOpen) onToggleFilter?.();
         setLayoutConfigOpen(true);
@@ -814,6 +832,7 @@ export default function FORMEMP({
     onCancel,
     filterOpen,
     onToggleFilter,
+    startEditMode,
   ]);
 
   const renderFormBody = (mgVariant = false) => (
@@ -917,7 +936,7 @@ export default function FORMEMP({
                 showRecordNavigation={isEditing && !editMode && !isDuplicating}
                 onSave={handleSubmit}
                 onCancel={onCancel}
-                onEditRecord={() => setEditMode(true)}
+                onEditRecord={startEditMode}
                 onLayoutConfigClick={() => { if (filterOpen) onToggleFilter?.(); setLayoutConfigOpen(true); }}
                 onToggleView={onToggleView}
                 total={total}

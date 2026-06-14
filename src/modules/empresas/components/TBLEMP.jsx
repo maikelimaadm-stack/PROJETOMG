@@ -77,6 +77,10 @@ export default function TBLEMP({
   hasMoreRows = false,
   isLoadingMoreRows = false,
   onLoadMoreRows = null,
+  selectedCount,
+  listedCount,
+  filteredCount,
+  totalCount,
   moduleTitle = "Cadastro",
   mgPrototype = false,
   onColumnsInUseChange,
@@ -456,6 +460,10 @@ export default function TBLEMP({
   }, [serverMode, serverTotal, empresasOrdenadas.length, pageSize]);
 
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const summarySelected = Number.isFinite(selectedCount) ? selectedCount : selectedItems.length;
+  const summaryListed = Number.isFinite(listedCount) ? listedCount : empresasOrdenadas.length;
+  const summaryFiltered = Number.isFinite(filteredCount) ? filteredCount : Math.max(serverTotal || 0, summaryListed);
+  const summaryTotal = Number.isFinite(totalCount) ? totalCount : Math.max(summaryFiltered, summaryListed);
 
   const empresasPaginadas = useMemo(() => {
     if (infiniteMode) return empresasOrdenadas;
@@ -1212,7 +1220,16 @@ export default function TBLEMP({
               onPageSizeChange={handlePageSizeChange}
               isBusy={isFetchingEmpresas}
             />
-          ) : null}
+          ) : (
+            <div className="border-t border-slate-200 px-3 py-2 text-xs text-slate-600">
+              <div className="grid grid-cols-4 gap-2">
+                <span className="truncate text-left">Selecionados: {summarySelected}</span>
+                <span className="truncate text-left">Listados: {summaryListed}</span>
+                <span className="truncate text-left">Filtrados: {summaryFiltered}</span>
+                <span className="truncate text-left">Totais: {summaryTotal}</span>
+              </div>
+            </div>
+          )}
         </div>
         {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>

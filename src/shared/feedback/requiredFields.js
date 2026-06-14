@@ -5,6 +5,28 @@ const INVALID_CLASS = "erp-field-invalid";
 const CONTROL_SELECTOR =
   ".emp-form-field-control, .emp-form-field-bare, input, textarea, select, button.emp-form-lookup-btn, button.emp-form-date-btn, .cmd-display, .mg-dp-field, .mg-tp-field, .mg-lookup-display";
 
+const FOCUSABLE_CONTROL_SELECTOR = [
+  "input:not([type='hidden']):not([disabled]):not([readonly])",
+  "textarea:not([disabled]):not([readonly])",
+  "select:not([disabled])",
+  "button.emp-form-lookup-btn:not([disabled])",
+  "button.emp-form-date-btn:not([disabled])",
+  ".cmd-display[tabindex]:not([tabindex='-1'])",
+  ".mg-lookup-display[tabindex]:not([tabindex='-1'])",
+  ".mg-dp-field",
+  ".mg-tp-field",
+].join(", ");
+
+const INTERACTIVE_DISPLAY_SELECTOR = ".cmd-display, .mg-lookup-display, .mg-dp-field, .mg-tp-field";
+
+const resolveFocusableControl = (fieldNode) => {
+  if (!fieldNode) return null;
+  const controls = Array.from(fieldNode.querySelectorAll(FOCUSABLE_CONTROL_SELECTOR)).filter(
+    (node) => node instanceof HTMLElement && node.getClientRects().length > 0
+  );
+  return controls[0] || null;
+};
+
 /**
  * Destaca apenas o controle do campo (não a linha inteira), toast lateral e foco no primeiro.
  */
@@ -31,10 +53,23 @@ export function reportRequiredFieldErrors(errorMap = {}, options = {}) {
   if (first) {
     first.scrollIntoView({ behavior: "smooth", block: "center" });
     if (options.focus !== false) {
-      const focusable = first.querySelector(
-        "input:not([disabled]):not([readonly]), textarea:not([disabled]):not([readonly]), select:not([disabled]), button:not([disabled])"
-      );
-      focusable?.focus?.({ preventScroll: true });
+      const tryFocus = (attempt = 0) => {
+        const focusable = resolveFocusableControl(first);
+        if (focusable) {
+          focusable.focus?.({ preventScroll: true });
+          if (
+            options.activate &&
+            focusable.matches(INTERACTIVE_DISPLAY_SELECTOR)
+          ) {
+            focusable.click?.();
+          }
+          return;
+        }
+        if (attempt < 3) {
+          requestAnimationFrame(() => tryFocus(attempt + 1));
+        }
+      };
+      tryFocus();
     }
   }
 

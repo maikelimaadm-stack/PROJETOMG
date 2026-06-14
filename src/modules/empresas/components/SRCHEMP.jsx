@@ -202,6 +202,10 @@ export default function SRCHEMP({
   hasMoreRows = false,
   isLoadingMoreRows = false,
   onLoadMoreRows = null,
+  selectedCount,
+  listedCount,
+  filteredCount,
+  totalCount,
 }) {
   const [localSearch, setLocalSearch] = useState(searchValue);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
@@ -287,6 +291,10 @@ export default function SRCHEMP({
     pageCount: filteredEmpresas.length,
     total,
   });
+  const summarySelected = Number.isFinite(selectedCount) ? selectedCount : selectedIds.length;
+  const summaryListed = Number.isFinite(listedCount) ? listedCount : filteredEmpresas.length;
+  const summaryFiltered = Number.isFinite(filteredCount) ? filteredCount : Math.max(total, summaryListed);
+  const summaryTotal = Number.isFinite(totalCount) ? totalCount : Math.max(summaryFiltered, summaryListed);
 
   const toggleFavorite = useCallback((empresaId, event) => {
     event?.stopPropagation();
@@ -327,12 +335,12 @@ export default function SRCHEMP({
       lastCardClickRef.current = { id: emp.id, time: now, wasSelectedBefore };
 
       if (wasSelectedBefore) {
-        onSelectionChange?.([]);
+        onSelectionChange?.(selectedIdsRef.current.filter((id) => id !== emp.id));
         cardClickSuppressRef.current = { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS };
         return;
       }
 
-      onSelectionChange?.([emp.id]);
+      onSelectionChange?.([...selectedIdsRef.current, emp.id]);
       cardClickSuppressRef.current = { id: null, until: 0 };
     },
     [onEdit, onSelectionChange]
@@ -379,8 +387,13 @@ export default function SRCHEMP({
             isBusy={isFetching}
           />
         ) : (
-          <div className="border-t border-slate-200 px-3 py-2 text-center text-xs text-slate-500">
-            {hasMoreRows ? "Role para carregar mais registros" : "Fim da listagem"}
+          <div className="border-t border-slate-200 px-3 py-2 text-xs text-slate-600">
+            <div className="grid grid-cols-4 gap-2">
+              <span className="truncate text-left">Selecionados: {summarySelected}</span>
+              <span className="truncate text-left">Listados: {summaryListed}</span>
+              <span className="truncate text-left">Filtrados: {summaryFiltered}</span>
+              <span className="truncate text-left">Totais: {summaryTotal}</span>
+            </div>
           </div>
         )}
       </div>

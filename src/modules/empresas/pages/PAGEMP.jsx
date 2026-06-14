@@ -42,6 +42,7 @@ import {
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { buildEmpresaExportRows } from "@/modules/empresas/utils/empExportRows";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
+import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
@@ -146,7 +147,6 @@ export default function PAGEMP() {
   const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [listNavIndex, setListNavIndex] = useState(0);
   const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [pinnedRecord, setPinnedRecord] = useState(null);
@@ -200,7 +200,6 @@ export default function PAGEMP() {
     setViewMode("table");
     setSelectedTableItems([]);
     setSelectedIndex(0);
-    setListNavIndex(0);
     setTableFilteredEmpresas(null);
     setSearchDraft("");
     setSearchTerm("");
@@ -382,6 +381,13 @@ export default function PAGEMP() {
   ]);
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
+  const { data: metricsContadores } = useQuery({
+    queryKey: ["metrics-contadores"],
+    queryFn: () => MetricsApi.getContadores(),
+    staleTime: 60_000,
+    gcTime: 5 * 60_000,
+  });
+
   const empresasFiltradasPainel = useMemo(() => {
     if (pinnedRecord) return [pinnedRecord];
     return empresas;
@@ -728,7 +734,6 @@ export default function PAGEMP() {
     searchViewApplyRef.current = null;
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
-    setListNavIndex(0);
   }, []);
 
   const handleSearchCommit = useCallback((value) => {
@@ -738,7 +743,6 @@ export default function PAGEMP() {
     setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
-    setListNavIndex(0);
   }, []);
 
   const handleSearchApplyAll = useCallback(() => {
@@ -751,7 +755,6 @@ export default function PAGEMP() {
     setQueryPage(1);
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
-    setListNavIndex(0);
   }, [searchDraft]);
 
   const handleSearchApplyFavorites = useCallback(() => {
@@ -762,7 +765,6 @@ export default function PAGEMP() {
     setSearchTerm(normalizeSearchQuery(searchDraft));
     setTableFilteredEmpresas(null);
     setSelectedTableItems([]);
-    setListNavIndex(0);
   }, [searchDraft]);
 
   const handleSearchResultSelect = useCallback(
@@ -776,7 +778,6 @@ export default function PAGEMP() {
       setTableFilteredEmpresas(null);
       setSelectedTableItems([]);
       setSelectedIndex(0);
-      setListNavIndex(0);
       if (showForm && viewMode === "record") {
         setEditingEmp(emp);
       }
@@ -844,14 +845,12 @@ export default function PAGEMP() {
   );
 
   const loadedRecordsCount = empresasFiltradasPainel.length;
-  const filteredRecordsCount = tableFilteredEmpresas?.length ?? loadedRecordsCount;
-  const safeTotalRecords = Math.max(totalEmpresas || 0, filteredRecordsCount, loadedRecordsCount, 0);
-  const cardsCounterText = `${filteredRecordsCount}/${safeTotalRecords}`;
-  const tableCounterText = `${selectedTableItems.length} de ${filteredRecordsCount}/${safeTotalRecords}`;
-  const listNavDisabled =
-    saveCycle.isSaving ||
-    actionBarVisibility.secondaryToolsLocked ||
-    loadedRecordsCount <= 0;
+  const filteredRecordsCount = Math.max(Number(totalEmpresas || 0), loadedRecordsCount);
+  const totalRecordsCount = Math.max(
+    Number(metricsContadores?.empresas || 0),
+    filteredRecordsCount,
+    loadedRecordsCount
+  );
 
   useEffect(() => {
     if (actionBarVisibility.secondaryToolsLocked) {
@@ -955,85 +954,9 @@ export default function PAGEMP() {
       const i = empresasNavegacao.findIndex((e) => e.id === ids[0]);
       if (i >= 0) {
         setSelectedIndex(i);
-        setListNavIndex(i);
       }
     }
   }, [empresasNavegacao]);
-
-  useEffect(() => {
-    if (empresasFiltradasPainel.length === 0) {
-      setListNavIndex(0);
-      return;
-    }
-    setListNavIndex((current) =>
-      Math.min(Math.max(current, 0), Math.max(0, empresasFiltradasPainel.length - 1))
-    );
-  }, [empresasFiltradasPainel.length]);
-
-  useEffect(() => {
-    if (selectedTableItems.length !== 1) return;
-    const index = empresasFiltradasPainel.findIndex((item) => item.id === selectedTableItems[0]);
-    if (index >= 0) setListNavIndex(index);
-  }, [selectedTableItems, empresasFiltradasPainel]);
-
-  const selectListedIndex = useCallback(
-    (nextIndex) => {
-      if (empresasFiltradasPainel.length === 0) return;
-      const safeIndex = Math.min(
-        Math.max(Number(nextIndex) || 0, 0),
-        Math.max(0, empresasFiltradasPainel.length - 1)
-      );
-      const nextRecord = empresasFiltradasPainel[safeIndex];
-      setListNavIndex(safeIndex);
-      setSelectedIndex(safeIndex);
-      if (nextRecord?.id) {
-        setSelectedTableItems([nextRecord.id]);
-      }
-    },
-    [empresasFiltradasPainel]
-  );
-
-  const navigateListedFirst = useCallback(() => {
-    selectListedIndex(0);
-  }, [selectListedIndex]);
-
-  const navigateListedPrevious = useCallback(() => {
-    if (empresasFiltradasPainel.length === 0) return;
-    selectListedIndex(listNavIndex - 1);
-  }, [empresasFiltradasPainel.length, listNavIndex, selectListedIndex]);
-
-  const navigateListedNext = useCallback(() => {
-    if (empresasFiltradasPainel.length === 0) return;
-    const lastLoadedIndex = Math.max(0, empresasFiltradasPainel.length - 1);
-    if (listNavIndex < lastLoadedIndex) {
-      selectListedIndex(listNavIndex + 1);
-      return;
-    }
-    if (hasNextEmpresasPage) handleLoadMoreEmpresas();
-  }, [
-    empresasFiltradasPainel.length,
-    listNavIndex,
-    selectListedIndex,
-    hasNextEmpresasPage,
-    handleLoadMoreEmpresas,
-  ]);
-
-  const navigateListedLast = useCallback(() => {
-    if (empresasFiltradasPainel.length === 0) return;
-    const lastLoadedIndex = Math.max(0, empresasFiltradasPainel.length - 1);
-    if (listNavIndex < lastLoadedIndex) {
-      selectListedIndex(lastLoadedIndex);
-      if (hasNextEmpresasPage) handleLoadMoreEmpresas();
-      return;
-    }
-    if (hasNextEmpresasPage) handleLoadMoreEmpresas();
-  }, [
-    empresasFiltradasPainel.length,
-    listNavIndex,
-    selectListedIndex,
-    hasNextEmpresasPage,
-    handleLoadMoreEmpresas,
-  ]);
 
   const handleToggleSearchView = useCallback(() => {
     if (!saveCycle.guardAction()) return;
@@ -1415,28 +1338,6 @@ export default function PAGEMP() {
                 layout={cardsVisFields.layoutConfig}
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
-                listedCount={loadedRecordsCount}
-                counterText={cardsCounterText}
-                onFirst={navigateListedFirst}
-                onPrevious={navigateListedPrevious}
-                onNext={navigateListedNext}
-                onLast={navigateListedLast}
-                navDisabled={listNavDisabled}
-              />
-            </div>
-
-            <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
-              <MgCardsPanelStrip
-                fields={[]}
-                layout={cardsVisFields.layoutConfig}
-                listedCount={loadedRecordsCount}
-                counterText={tableCounterText}
-                onFirst={navigateListedFirst}
-                onPrevious={navigateListedPrevious}
-                onNext={navigateListedNext}
-                onLast={navigateListedLast}
-                navDisabled={listNavDisabled}
-                hideConfig
               />
             </div>
           </div>
@@ -1496,6 +1397,10 @@ export default function PAGEMP() {
                       hasMoreRows: hasNextEmpresasPage,
                       onLoadMoreRows: handleLoadMoreEmpresas,
                       isLoadingMoreRows: isFetchingNextEmpresasPage,
+                      selectedCount: selectedTableItems.length,
+                      listedCount: loadedRecordsCount,
+                      filteredCount: filteredRecordsCount,
+                      totalCount: totalRecordsCount,
                     }}
                   />
                 </div>
@@ -1536,6 +1441,10 @@ export default function PAGEMP() {
                     hasMoreRows: hasNextEmpresasPage,
                     onLoadMoreRows: handleLoadMoreEmpresas,
                     isLoadingMoreRows: isFetchingNextEmpresasPage,
+                    selectedCount: selectedTableItems.length,
+                    listedCount: loadedRecordsCount,
+                    filteredCount: filteredRecordsCount,
+                    totalCount: totalRecordsCount,
                   }}
                 />
               </div>
