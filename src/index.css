@@ -1915,7 +1915,28 @@ input[type="number"] {
   min-height: 12px;
 }
 
+.cadastro-emp-scope .emp-table-pro .emp-header-sort-icon {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0;
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  color: #64748b;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-sort-icon:hover {
+  color: #1e3a5f;
+}
+
 .cadastro-emp-scope .emp-table-pro .emp-header-filter-icon svg {
+  width: 12px !important;
+  height: 12px !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-sort-icon svg {
   width: 12px !important;
   height: 12px !important;
 }
@@ -2530,6 +2551,17 @@ input[type="number"] {
   height: 12px !important;
   color: #94a3b8 !important;
   stroke: #94a3b8 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-records-summary {
+  background: var(--emp-table-bg) !important;
+  border-top: 1px solid var(--emp-table-band-edge) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-records-summary__item {
+  color: #475569;
+  font-size: 11px;
+  line-height: 1.3;
 }
 
 @media screen and (max-width: 768px) {

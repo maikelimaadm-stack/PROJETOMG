@@ -13,7 +13,17 @@ import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCampo
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import {
+  Filter,
+  FilterX,
+  X,
+  ArrowDownAZ,
+  ArrowUpZA,
+  Check,
+  ArrowUpDown,
+  ChevronUp,
+  ChevronDown,
+} from "lucide-react";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -485,6 +495,7 @@ export default function TBLEMP({
       return colunasOrdenadas.map((col, colIndex) => {
         const width = columnPixelWidths[col.id] || 160;
         const isFrozen = colIndex < frozenColumnCount;
+        const fieldValue = getFieldValue(emp, col.id);
         return (
           <TableCell
             key={`${emp.id}-${col.id}`}
@@ -494,10 +505,12 @@ export default function TBLEMP({
               maxWidth: width,
               left: isFrozen ? frozenOffsets[col.id] : undefined,
             }}
-            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
-            title={String(getFieldValue(emp, col.id) ?? "")}
+            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden text-ellipsis select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+            title={String(fieldValue ?? "")}
           >
-            {getFieldValue(emp, col.id)}
+            <span className="block overflow-hidden text-ellipsis whitespace-nowrap">
+              {fieldValue}
+            </span>
           </TableCell>
         );
       });
@@ -1060,6 +1073,12 @@ export default function TBLEMP({
       const isResizing = resizeColumnId === col.id;
       const isColFiltered = hasActiveFilter(col.id);
       const isFilterOpen = menuFiltroAberto === col.id;
+      const isSorted = sortConfig.key === col.id;
+      const SortIcon = isSorted
+        ? sortConfig.direction === "asc"
+          ? ChevronUp
+          : ChevronDown
+        : ArrowUpDown;
       return (
         <TableHead
           key={col.id}
@@ -1067,7 +1086,7 @@ export default function TBLEMP({
           className={`emp-th group relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
           onDoubleClick={() => handleSort(col.id)}
         >
-          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden pr-7 ${getHeaderFlexClass(col)}`}>
             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
           </div>
           <div
@@ -1075,6 +1094,23 @@ export default function TBLEMP({
             onClick={(e) => e.stopPropagation()}
             onDoubleClick={(e) => e.stopPropagation()}
           >
+            <button
+              type="button"
+              className={`emp-header-sort-icon inline-flex h-3 w-3 shrink-0 items-center justify-center ${
+                isSorted ? "opacity-100" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
+              }`}
+              title={
+                isSorted
+                  ? `Ordenado ${sortConfig.direction === "asc" ? "crescente" : "decrescente"}`
+                  : "Ordenar coluna"
+              }
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSort(col.id);
+              }}
+            >
+              <SortIcon className="h-3 w-3" />
+            </button>
             <span
               ref={(el) => {
                 if (el) filterAnchorRefs.current[col.id] = el;

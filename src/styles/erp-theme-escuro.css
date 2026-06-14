@@ -213,6 +213,16 @@ html.escuro .cadastro-emp-scope .emp-table-pro thead .emp-th {
   border-color: #30363d !important;
 }
 
+html.tema-escuro .cadastro-emp-scope .emp-table-pro .emp-header-sort-icon,
+html.escuro .cadastro-emp-scope .emp-table-pro .emp-header-sort-icon {
+  color: #848d97 !important;
+}
+
+html.tema-escuro .cadastro-emp-scope .emp-table-pro .emp-header-sort-icon:hover,
+html.escuro .cadastro-emp-scope .emp-table-pro .emp-header-sort-icon:hover {
+  color: #e6edf3 !important;
+}
+
 html.tema-escuro .cadastro-emp-scope .emp-table-pro .emp-td,
 html.tema-escuro .cadastro-emp-scope .emp-table-pro tfoot .emp-th,
 html.escuro .cadastro-emp-scope .emp-table-pro .emp-td,
@@ -657,6 +667,17 @@ html.escuro .cadastro-emp-scope .emp-table-footer-bar,
 html.escuro .cadastro-emp-scope .emp-table-body-scroll {
   background: #161b22 !important;
   border-color: #30363d !important;
+}
+
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-records-summary,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-records-summary {
+  background: #161b22 !important;
+  border-top-color: #30363d !important;
+}
+
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-records-summary__item,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-records-summary__item {
+  color: #9aa4af !important;
 }
 
 html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-active,
