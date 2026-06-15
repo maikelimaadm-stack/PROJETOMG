@@ -349,25 +349,6 @@ export default function TBLEMP({
     return campoEngine.getValorCampo(emp, col || { id: colId }, {});
   };
 
-  const resolveColumnAlign = (col) => {
-    if (col?.tipo === "date") return "center";
-    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "id_global" || col?.id === "codempresa" || col?.id === "custom:valor") return "right";
-    return "left";
-  };
-
-  const getColumnAlignClass = (col) => {
-    const align = resolveColumnAlign(col);
-    if (align === "right") return "text-right";
-    if (align === "center") return "text-center";
-    return "text-left";
-  };
-
-  const getHeaderFlexClass = (col) => {
-    const align = resolveColumnAlign(col);
-    if (align === "right") return "justify-end";
-    if (align === "center") return "justify-center";
-    return "justify-start";
-  };
   const getComparableValue = (emp, col) => {
     if (col.id === "id_global") return Number(emp.id_global || 0);
     if (col.id === "codempresa") return Number(emp.codempresa || 0);
@@ -517,7 +498,7 @@ export default function TBLEMP({
             style={{
               left: isFrozen ? frozenOffsets[col.id] : undefined,
             }}
-            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+            className={`emp-td py-0 text-left text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
             title={String(getFieldValue(emp, col.id) ?? "")}
           >
             {getFieldValue(emp, col.id)}
@@ -529,7 +510,6 @@ export default function TBLEMP({
       colunasOrdenadas,
       frozenColumnCount,
       frozenOffsets,
-      getColumnAlignClass,
       getFieldValue,
       getRowBgClass,
       selectedItemsSet,
@@ -1105,53 +1085,55 @@ export default function TBLEMP({
         <TableHead
           key={col.id}
           style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer text-left ${isFrozen ? "z-50" : "z-40"}`}
           onClick={() => handleSort(col.id)}
         >
-          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 gap-1 overflow-hidden justify-start">
-            <span className="emp-header-sort-slot inline-flex shrink-0 items-center justify-center" aria-hidden={!isSorted}>
-              {SortIcon ? (
-                <SortIcon
-                  className="emp-header-sort-icon emp-toolbar-nav-icon shrink-0"
-                  strokeWidth={2.5}
-                  title={sortConfig.direction === "asc" ? "Ordenado do menor para o maior" : "Ordenado do maior para o menor"}
-                />
-              ) : null}
-            </span>
-            <span className="emp-th-label min-w-0 flex-1 truncate font-semibold whitespace-nowrap">{formatHeaderLabel(col)}</span>
-            <span
-              ref={(el) => {
-                if (el) filterAnchorRefs.current[col.id] = el;
-                else delete filterAnchorRefs.current[col.id];
-              }}
-              role="button"
-              tabIndex={0}
-              className={`emp-header-filter-icon inline-flex shrink-0 items-center justify-center cursor-pointer text-[var(--accent)] ${
-                isColFiltered || isFilterOpen
-                  ? "emp-header-filter-icon--visible"
-                  : "emp-header-filter-icon--idle"
-              }`}
-              title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFilterMenu(col.id);
-              }}
-              onDoubleClick={(e) => {
-                e.stopPropagation();
-                if (!isColFiltered) return;
-                clearColumnFilter(col.id);
-                closeFilterMenu();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
+          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 gap-1 overflow-hidden">
+            <span className="emp-th-label min-w-0 flex-1 truncate font-semibold whitespace-nowrap text-left">{formatHeaderLabel(col)}</span>
+            <div className="emp-header-icons flex shrink-0 items-center gap-0.5">
+              <span className="emp-header-sort-slot inline-flex shrink-0 items-center justify-center" aria-hidden={!isSorted}>
+                {SortIcon ? (
+                  <SortIcon
+                    className="emp-header-sort-icon emp-toolbar-nav-icon shrink-0"
+                    strokeWidth={2.5}
+                    title={sortConfig.direction === "asc" ? "Ordenado do menor para o maior" : "Ordenado do maior para o menor"}
+                  />
+                ) : null}
+              </span>
+              <span
+                ref={(el) => {
+                  if (el) filterAnchorRefs.current[col.id] = el;
+                  else delete filterAnchorRefs.current[col.id];
+                }}
+                role="button"
+                tabIndex={0}
+                className={`emp-header-filter-icon inline-flex shrink-0 items-center justify-center cursor-pointer text-[var(--accent)] ${
+                  isColFiltered || isFilterOpen
+                    ? "emp-header-filter-icon--visible"
+                    : "emp-header-filter-icon--idle"
+                }`}
+                title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
+                onClick={(e) => {
                   e.stopPropagation();
                   toggleFilterMenu(col.id);
-                }
-              }}
-            >
-              {renderFilterIcon(isColFiltered)}
-            </span>
+                }}
+                onDoubleClick={(e) => {
+                  e.stopPropagation();
+                  if (!isColFiltered) return;
+                  clearColumnFilter(col.id);
+                  closeFilterMenu();
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    toggleFilterMenu(col.id);
+                  }
+                }}
+              >
+                {renderFilterIcon(isColFiltered)}
+              </span>
+            </div>
           </div>
           <div
             role="separator"
@@ -1180,10 +1162,10 @@ export default function TBLEMP({
         <TableHead
           key={`total-${col.id}`}
           style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left ${isFrozen ? "z-50" : "z-40"}`}
         >
-          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-            <span className="emp-th-label truncate font-semibold">
+          <div className="emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden">
+            <span className="emp-th-label truncate font-semibold text-left">
               {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
             </span>
           </div>
