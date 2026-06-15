@@ -12,6 +12,7 @@ function EmpVirtualTableBody({
   enabled = true,
   totalTableWidth,
   bodyTableClass,
+  colGroup = null,
   renderRow,
   getRowClassName,
   onRowClick,
@@ -56,6 +57,7 @@ function EmpVirtualTableBody({
               style={{ width: totalTableWidth, minWidth: totalTableWidth }}
               className={bodyTableClass}
             >
+              {colGroup}
               <TableBody>
                 <TableRow
                   data-index={virtualRow.index}

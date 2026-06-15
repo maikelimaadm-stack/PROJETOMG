@@ -293,6 +293,17 @@ export default function TBLEMP({
   const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => [c.id, Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c))])), [colunasOrdenadas, columnWidths]);
   const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
+  const tableColGroup = useMemo(
+    () => (
+      <colgroup>
+        {colunasOrdenadas.map((col) => {
+          const width = columnPixelWidths[col.id] || 160;
+          return <col key={col.id} style={{ width }} span={1} />;
+        })}
+      </colgroup>
+    ),
+    [colunasOrdenadas, columnPixelWidths]
+  );
 
   const getFieldValue = (emp, colId) => {
     if (colId === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "-";
@@ -484,18 +495,14 @@ export default function TBLEMP({
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
       return colunasOrdenadas.map((col, colIndex) => {
-        const width = columnPixelWidths[col.id] || 160;
         const isFrozen = colIndex < frozenColumnCount;
         return (
           <TableCell
             key={`${emp.id}-${col.id}`}
             style={{
-              width,
-              minWidth: width,
-              maxWidth: width,
               left: isFrozen ? frozenOffsets[col.id] : undefined,
             }}
-            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
             title={String(getFieldValue(emp, col.id) ?? "")}
           >
             {getFieldValue(emp, col.id)}
@@ -1068,7 +1075,6 @@ export default function TBLEMP({
 
   const renderHeaderCells = () =>
     colunasOrdenadas.map((col, colIndex) => {
-      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = colIndex < frozenColumnCount;
       const isResizing = resizeColumnId === col.id;
       const isColFiltered = hasActiveFilter(col.id);
@@ -1076,8 +1082,8 @@ export default function TBLEMP({
       return (
         <TableHead
           key={col.id}
-          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th group relative align-middle px-1.5 whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
           onDoubleClick={() => handleSort(col.id)}
         >
           <div className={`emp-th-label-wrap flex items-center w-full h-full whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
@@ -1144,13 +1150,12 @@ export default function TBLEMP({
 
   const renderTotalCells = () =>
     colunasOrdenadas.map((col, ci) => {
-      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = ci < frozenColumnCount;
       return (
         <TableHead
           key={`total-${col.id}`}
-          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
         >
           <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
             <span className="emp-th-label truncate font-semibold">
@@ -1179,6 +1184,7 @@ export default function TBLEMP({
     <div ref={headerScrollRef} className={headerBarClassName} style={headerBarStyle}>
       <div className="block w-max min-w-full" style={tableWideStyle}>
         <Table style={tableWideStyle} className={tableClass}>
+          {tableColGroup}
           <TableHeader>
             <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
           </TableHeader>
@@ -1189,6 +1195,7 @@ export default function TBLEMP({
 
   const tableBodyContent = isLoadingEmpresas ? (
     <Table style={tableWideStyle} className={bodyTableClass}>
+      {tableColGroup}
       <TableBody>
         <TableRow>
           <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
@@ -1199,6 +1206,7 @@ export default function TBLEMP({
     </Table>
   ) : empresasOrdenadas.length === 0 ? (
     <Table style={tableWideStyle} className={bodyTableClass}>
+      {tableColGroup}
       <TableBody>
         <TableRow>
           <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
@@ -1215,6 +1223,7 @@ export default function TBLEMP({
         enabled={!isLoadingEmpresas}
         totalTableWidth={totalTableWidth}
         bodyTableClass={bodyTableClass}
+        colGroup={tableColGroup}
         renderRow={renderVirtualTableRow}
         getRowClassName={(emp, rowIndex) =>
           getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
@@ -1279,6 +1288,7 @@ export default function TBLEMP({
                   style={{ width: totalTableWidth, minWidth: totalTableWidth }}
                   className="emp-table-pro emp-table-pro-footer w-full border-separate border-spacing-0 table-fixed select-none"
                 >
+                  {tableColGroup}
                   <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
                     <TableRow className="emp-total-row border-0 hover:bg-transparent">
                       {renderTotalCells()}
