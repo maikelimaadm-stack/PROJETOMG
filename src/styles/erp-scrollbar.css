@@ -1,15 +1,20 @@
-/* Enterprise scrollbar — loaded last to win cascade */
+/* ==========================================================================
+   ERP Scrollbar — fonte oficial única (claro/escuro, global)
+   Aplica em TODAS as áreas roláveis: tabelas, forms, painéis, modais,
+   dropdowns, filtros, cards, sidebars, virtualizados e ErpScrollNav.
+   ========================================================================== */
+
 :root,
 .tema-claro,
 [data-tema="claro"] {
-  --erp-scrollbar-size: 16px;
+  --erp-scrollbar-size: 10px;
   --erp-scrollbar-thumb: #5a6772;
   --erp-scrollbar-thumb-hover: #4c5963;
   --erp-scrollbar-thumb-active: #3f4a53;
   --erp-scrollbar-track: #e9ecef;
   --erp-scrollbar-bg: #e9ecef;
   --erp-scrollbar-radius: 999px;
-  --erp-scrollbar-min-thumb-size: 32px;
+  --erp-scrollbar-min-thumb-size: 24px;
 }
 
 .escuro,
@@ -23,86 +28,172 @@
   --erp-scrollbar-bg: #2b3440;
 }
 
-*:not(.no-scrollbar):not(.erp-no-scrollbar) {
-  scrollbar-width: auto;
-  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+/* Comportamento de rolagem em containers comuns */
+.erp-scrollbar,
+.erp-scroll-nav__viewport,
+.cadastro-emp-scope .form-scroll-container,
+.cadastro-emp-scope .emp-table-body-scroll,
+.cadastro-emp-scope .emp-form-section-panel--corp,
+.cadastro-emp-scope .emp-search-results,
+.mg-empresas-scope .mg-form-scroll,
+.mg-empresas-scope .mg-grid-scroll,
+.mg-empresas-scope .filter-panel__body,
+.mg-empresas-scope .mobile-menu,
+.mg-empresas-scope .mg-search-dropdown__list,
+.mg-empresas-scope .mg-search-dropdown__config-list,
+.mg-empresas-scope .mg-tp-col,
+.mg-empresas-scope .cmd-panel-options,
+.mg-empresas-scope .mg-panel-options,
+.mg-empresas-scope .mg-lookup-list,
+.emp-campos-config-table-wrap,
+.emp-layout-config-available-list,
+.emp-layout-config-panel-body,
+.erp-select-menu__list,
+.erp-search-panel__results,
+.erp-menu-panel [cmdk-list],
+.emp-filter-value-list,
+[data-radix-scroll-area-viewport],
+[data-radix-select-viewport],
+[data-radix-dialog-content],
+[data-sidebar="content"],
+.cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+.mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+.erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+html,
+body {
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
 }
 
-@supports selector(::-webkit-scrollbar) {
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar {
-    width: var(--erp-scrollbar-size) !important;
-    height: var(--erp-scrollbar-size) !important;
-    background: var(--erp-scrollbar-bg) !important;
-    border-radius: var(--erp-scrollbar-radius) !important;
-    -webkit-appearance: none;
-  }
-
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track,
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track-piece {
-    background: var(--erp-scrollbar-track) !important;
-    border: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: var(--erp-scrollbar-radius) !important;
-    box-shadow: none !important;
-    -webkit-appearance: none;
-  }
-
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
-    background: var(--erp-scrollbar-thumb) !important;
-    border: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: var(--erp-scrollbar-radius) !important;
-    box-shadow: none !important;
-    min-height: var(--erp-scrollbar-min-thumb-size);
-    min-width: var(--erp-scrollbar-min-thumb-size);
-    background-clip: border-box !important;
-    -webkit-appearance: none;
-  }
-
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:hover {
-    background: var(--erp-scrollbar-thumb-hover) !important;
-  }
-
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:active {
-    background: var(--erp-scrollbar-thumb-active) !important;
-  }
-
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-corner {
-    background: var(--erp-scrollbar-bg) !important;
-  }
-
-  *::-webkit-scrollbar-button,
-  *::-webkit-scrollbar-button:single-button,
-  *::-webkit-scrollbar-button:double-button,
-  *::-webkit-scrollbar-button:start,
-  *::-webkit-scrollbar-button:end,
-  *::-webkit-scrollbar-button:increment,
-  *::-webkit-scrollbar-button:decrement,
-  *::-webkit-scrollbar-button:horizontal,
-  *::-webkit-scrollbar-button:vertical,
-  *::-webkit-scrollbar-button:horizontal:increment,
-  *::-webkit-scrollbar-button:horizontal:decrement,
-  *::-webkit-scrollbar-button:vertical:increment,
-  *::-webkit-scrollbar-button:vertical:decrement,
-  *::-webkit-scrollbar-button:vertical:start:decrement,
-  *::-webkit-scrollbar-button:vertical:end:increment,
-  *::-webkit-scrollbar-button:horizontal:start:decrement,
-  *::-webkit-scrollbar-button:horizontal:end:increment {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    -webkit-appearance: none !important;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
+/* Firefox / engines sem WebKit: thin remove setas nativas do SO */
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  html *:not(.no-scrollbar):not(.erp-no-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
   }
 }
 
-/* Radix ScrollArea (custom scrollbar track/thumb) */
+/* Chromium / Safari / Edge — scrollbar customizada completa */
+html:not(.erp-no-scrollbar)::-webkit-scrollbar,
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar {
+  width: var(--erp-scrollbar-size) !important;
+  height: var(--erp-scrollbar-size) !important;
+  background: var(--erp-scrollbar-bg) !important;
+  border-radius: var(--erp-scrollbar-radius) !important;
+  padding: 0 !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track,
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track-piece {
+  background: var(--erp-scrollbar-track) !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: var(--erp-scrollbar-radius) !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:vertical {
+  width: var(--erp-scrollbar-size) !important;
+}
+
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:horizontal {
+  height: var(--erp-scrollbar-size) !important;
+}
+
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
+  background: var(--erp-scrollbar-thumb) !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: var(--erp-scrollbar-radius) !important;
+  box-shadow: none !important;
+  min-height: var(--erp-scrollbar-min-thumb-size);
+  min-width: var(--erp-scrollbar-min-thumb-size);
+  background-clip: border-box !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:hover {
+  background: var(--erp-scrollbar-thumb-hover) !important;
+}
+
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:active {
+  background: var(--erp-scrollbar-thumb-active) !important;
+}
+
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-corner {
+  background: var(--erp-scrollbar-bg) !important;
+}
+
+/* Remoção total de botões/setas (incremento/decremento) — prioridade máxima */
+html *::-webkit-scrollbar-button,
+html *::-webkit-scrollbar-button:single-button,
+html *::-webkit-scrollbar-button:double-button,
+html *::-webkit-scrollbar-button:start,
+html *::-webkit-scrollbar-button:end,
+html *::-webkit-scrollbar-button:increment,
+html *::-webkit-scrollbar-button:decrement,
+html *::-webkit-scrollbar-button:horizontal,
+html *::-webkit-scrollbar-button:vertical,
+html *::-webkit-scrollbar-button:horizontal:increment,
+html *::-webkit-scrollbar-button:horizontal:decrement,
+html *::-webkit-scrollbar-button:vertical:increment,
+html *::-webkit-scrollbar-button:vertical:decrement,
+html *::-webkit-scrollbar-button:vertical:start:decrement,
+html *::-webkit-scrollbar-button:vertical:end:increment,
+html *::-webkit-scrollbar-button:horizontal:start:decrement,
+html *::-webkit-scrollbar-button:horizontal:end:increment,
+html *::-webkit-scrollbar-button:single-button:vertical:decrement,
+html *::-webkit-scrollbar-button:single-button:vertical:increment,
+html *::-webkit-scrollbar-button:single-button:horizontal:decrement,
+html *::-webkit-scrollbar-button:single-button:horizontal:increment,
+html *::-webkit-scrollbar-button:double-button:vertical:decrement,
+html *::-webkit-scrollbar-button:double-button:vertical:increment,
+html *::-webkit-scrollbar-button:double-button:horizontal:decrement,
+html *::-webkit-scrollbar-button:double-button:horizontal:increment {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
+
+/* Opt-out explícito (uso raro) */
+.erp-no-scrollbar,
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.erp-no-scrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Radix ScrollArea */
 [data-radix-scroll-area-scrollbar] {
   display: flex !important;
   touch-action: none;
