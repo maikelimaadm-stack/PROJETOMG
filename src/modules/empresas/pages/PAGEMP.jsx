@@ -1234,9 +1234,9 @@ export default function PAGEMP() {
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <SaveProgressOverlay
-        active={exportBusy}
-        message={exportMessage || "Preparando exportação..."}
-        variant="save"
+        active={saveCycle.isSaving || exportBusy}
+        message={exportBusy ? exportMessage || "Preparando exportação..." : saveCycle.saveMessage}
+        variant={saveCycle.variant}
       />
 
       <div className="flex min-h-0 flex-1 overflow-hidden">
