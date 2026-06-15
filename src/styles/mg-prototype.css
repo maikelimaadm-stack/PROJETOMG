@@ -6466,6 +6466,7 @@
   --emp-table-band-bg: #e9edf2;
   --emp-table-band-edge: #e7eaee;
   --emp-table-line: #e7eaee;
+  --emp-table-header-height: 30px;
   border: none !important;
   box-shadow: none !important;
   border-radius: 12px 12px 0 0 !important;
@@ -6501,6 +6502,12 @@
   box-shadow: none !important;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-header-bar--in-scroll {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-footer-bar {
   background: #ffffff !important;
   border-top: none !important;
@@ -6514,17 +6521,27 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
   background: #ffffff !important;
   color: #334155 !important;
+  height: var(--emp-table-header-height, 30px) !important;
+  line-height: var(--emp-table-header-height, 30px) !important;
 }
 
-/* Grade uniforme 1px — cabeçalho e dados; divisórias internas, sem borda lateral externa */
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th,
+/* Cabeçalho: só divisórias verticais (sem linha inferior) */
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th:not(:last-child) {
+  box-shadow: inset -1px 0 0 0 var(--emp-table-line) !important;
+}
+
+/* Dados e rodapé: grade horizontal + vertical interna */
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td {
   border: none !important;
   box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th:not(:last-child),
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child),
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td:not(:last-child) {
   box-shadow:

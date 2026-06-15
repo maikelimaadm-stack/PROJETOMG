@@ -786,7 +786,7 @@ export default function TBLEMP({
         Math.abs(prev - nextCompensation) < 1 ? prev : nextCompensation
       );
       if (footer) footer.scrollLeft = left;
-      if (header) header.scrollLeft = left;
+      if (header && !mgPrototype) header.scrollLeft = left;
     };
     const resizeObserver =
       typeof ResizeObserver !== "undefined"
@@ -799,7 +799,7 @@ export default function TBLEMP({
       body.removeEventListener("scroll", syncHorizontalScroll);
       resizeObserver?.disconnect();
     };
-  }, [colunasOrdenadas, columnWidths, agregacoes]);
+  }, [colunasOrdenadas, columnWidths, agregacoes, mgPrototype]);
 
   const loadMoreLockRef = useRef(false);
 
@@ -1077,10 +1077,10 @@ export default function TBLEMP({
         <TableHead
           key={col.id}
           style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th group relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          className={`emp-th group relative align-middle px-1.5 whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
           onDoubleClick={() => handleSort(col.id)}
         >
-          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+          <div className={`emp-th-label-wrap flex items-center w-full h-full whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
           </div>
           <div
@@ -1167,6 +1167,63 @@ export default function TBLEMP({
   const bodyTableClass = mgPrototype
     ? "mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none"
     : "emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none";
+  const tableWideStyle = { width: totalTableWidth, minWidth: totalTableWidth };
+  const headerBarClassName = mgPrototype
+    ? "emp-table-header-bar emp-table-header-bar--in-scroll shrink-0 overflow-x-hidden overflow-y-hidden"
+    : "emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden";
+  const headerBarStyle = !mgPrototype && scrollbarCompensation > 0
+    ? { paddingRight: `${scrollbarCompensation}px` }
+    : undefined;
+
+  const tableHeaderBar = (
+    <div ref={headerScrollRef} className={headerBarClassName} style={headerBarStyle}>
+      <div className="block w-max min-w-full" style={tableWideStyle}>
+        <Table style={tableWideStyle} className={tableClass}>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
+          </TableHeader>
+        </Table>
+      </div>
+    </div>
+  );
+
+  const tableBodyContent = isLoadingEmpresas ? (
+    <Table style={tableWideStyle} className={bodyTableClass}>
+      <TableBody>
+        <TableRow>
+          <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+            &nbsp;
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  ) : empresasOrdenadas.length === 0 ? (
+    <Table style={tableWideStyle} className={bodyTableClass}>
+      <TableBody>
+        <TableRow>
+          <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+            Nenhuma empresa encontrada
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  ) : (
+    <>
+      <EmpVirtualTableBody
+        scrollRef={scrollContainerRef}
+        rows={empresasPaginadas}
+        enabled={!isLoadingEmpresas}
+        totalTableWidth={totalTableWidth}
+        bodyTableClass={bodyTableClass}
+        renderRow={renderVirtualTableRow}
+        getRowClassName={(emp, rowIndex) =>
+          getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
+        }
+        onRowClick={handleRowClick}
+      />
+      {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
+    </>
+  );
 
   return (
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
@@ -1175,83 +1232,35 @@ export default function TBLEMP({
         className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
       >
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
-          <div
-            ref={headerScrollRef}
-            className="emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden"
-            style={{
-              paddingRight: scrollbarCompensation > 0 ? `${scrollbarCompensation}px` : undefined,
-            }}
-          >
-            <div
-              className="block w-max min-w-full"
-              style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+          {mgPrototype ? (
+            <ErpScrollNav
+              ref={scrollContainerRef}
+              tabIndex={0}
+              onKeyDown={handleTableKeyDown}
+              className="emp-table-body-scroll relative min-h-0 flex-1 outline-none mg-grid-scroll"
+              viewportClassName="overflow-auto"
             >
-              <Table
-                style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className={tableClass}
+              <div className="block w-max min-w-full" style={tableWideStyle}>
+                {tableHeaderBar}
+                {tableBodyContent}
+              </div>
+            </ErpScrollNav>
+          ) : (
+            <>
+              {tableHeaderBar}
+              <ErpScrollNav
+                ref={scrollContainerRef}
+                tabIndex={0}
+                onKeyDown={handleTableKeyDown}
+                className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
+                viewportClassName="overflow-auto"
               >
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
-                </TableHeader>
-              </Table>
-            </div>
-          </div>
-          <ErpScrollNav
-            ref={scrollContainerRef}
-            tabIndex={0}
-            onKeyDown={handleTableKeyDown}
-            className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none${mgPrototype ? " mg-grid-scroll" : ""}`}
-            viewportClassName="overflow-auto"
-          >
-            <div
-              className="block w-max min-w-full"
-              style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-            >
-              {isLoadingEmpresas ? (
-                <Table
-                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                  className={bodyTableClass}
-                >
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
-                        &nbsp;
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              ) : empresasOrdenadas.length === 0 ? (
-                <Table
-                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                  className={bodyTableClass}
-                >
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
-                        Nenhuma empresa encontrada
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              ) : (
-                <>
-                  <EmpVirtualTableBody
-                    scrollRef={scrollContainerRef}
-                    rows={empresasPaginadas}
-                    enabled={!isLoadingEmpresas}
-                    totalTableWidth={totalTableWidth}
-                    bodyTableClass={bodyTableClass}
-                    renderRow={renderVirtualTableRow}
-                    getRowClassName={(emp, rowIndex) =>
-                      getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
-                    }
-                    onRowClick={handleRowClick}
-                  />
-                  {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
-                </>
-              )}
-            </div>
-          </ErpScrollNav>
+                <div className="block w-max min-w-full" style={tableWideStyle}>
+                  {tableBodyContent}
+                </div>
+              </ErpScrollNav>
+            </>
+          )}
         </div>
         <div className="emp-table-bottom-dock">
           {hasTotalRow ? (
