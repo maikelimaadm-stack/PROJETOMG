@@ -43,8 +43,23 @@ export const MIN_COL_WIDTH = 80;
 export const MAX_AUTO_FIT_WIDTH = 520;
 export const AUTO_FIT_MEASURE_LIMIT = 300;
 
-export const getMinWidth = (col) =>
-  Math.max(MIN_COL_WIDTH, String(col?.label || "").length * 7 + 18);
+/** Espaço reservado no cabeçalho para ícones/padding (px). */
+export const HEADER_PADDING_X = 18;
+export const HEADER_SORT_SLOT = 17;
+export const HEADER_FILTER_SLOT = 16;
+export const HEADER_LABEL_MIN_CH = 5;
+export const HEADER_LABEL_CHAR_PX = 7;
+
+export const getMinWidth = (col, options = {}) => {
+  const { hasSort = false, reserveFilterSlot = true } = options;
+  const label = String(col?.label || "");
+  const labelChars = Math.max(HEADER_LABEL_MIN_CH, label.length);
+  const labelWidth = labelChars * HEADER_LABEL_CHAR_PX;
+  let chrome = HEADER_PADDING_X;
+  if (hasSort) chrome += HEADER_SORT_SLOT;
+  if (reserveFilterSlot) chrome += HEADER_FILTER_SLOT;
+  return Math.max(MIN_COL_WIDTH, Math.ceil(labelWidth + chrome));
+};
 
 export const formatDateValue = (value) => {
   if (!value) return "-";
