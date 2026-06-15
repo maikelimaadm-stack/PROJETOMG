@@ -13,7 +13,7 @@ import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCampo
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
+import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check, ChevronUp, ChevronDown } from "lucide-react";
 import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -1085,7 +1085,7 @@ export default function TBLEMP({
       const isColFiltered = hasActiveFilter(col.id);
       const isFilterOpen = menuFiltroAberto === col.id;
       const isSorted = sortConfig.key === col.id;
-      const SortIcon = isSorted ? (sortConfig.direction === "asc" ? ArrowDownAZ : ArrowUpZA) : null;
+      const SortIcon = isSorted ? (sortConfig.direction === "asc" ? ChevronUp : ChevronDown) : null;
       return (
         <TableHead
           key={col.id}
@@ -1093,15 +1093,20 @@ export default function TBLEMP({
           className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
           onClick={() => handleSort(col.id)}
         >
-          <div className={`emp-th-label-wrap flex items-center w-full h-full whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-            <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
+          <div
+            className={`emp-th-label-wrap flex items-center w-full h-full min-w-0 gap-1 overflow-hidden ${
+              isSorted ? "justify-start" : getHeaderFlexClass(col)
+            }`}
+          >
             {SortIcon ? (
               <SortIcon
-                className="emp-header-sort-icon shrink-0"
+                className="emp-header-sort-icon emp-toolbar-nav-icon shrink-0"
+                strokeWidth={2.5}
                 aria-hidden
                 title={sortConfig.direction === "asc" ? "Ordenado do menor para o maior" : "Ordenado do maior para o menor"}
               />
             ) : null}
+            <span className={`emp-th-label truncate font-semibold ${isSorted ? "min-w-0 flex-1" : ""}`}>{formatHeaderLabel(col)}</span>
           </div>
           <div
             className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
