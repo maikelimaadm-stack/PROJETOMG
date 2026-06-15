@@ -7,14 +7,14 @@
 :root,
 .tema-claro,
 [data-tema="claro"] {
-  --erp-scrollbar-size: 16px;
+  --erp-scrollbar-size: 10px;
   --erp-scrollbar-thumb: #5a6772;
   --erp-scrollbar-thumb-hover: #4c5963;
   --erp-scrollbar-thumb-active: #3f4a53;
   --erp-scrollbar-track: #e9ecef;
   --erp-scrollbar-bg: #e9ecef;
   --erp-scrollbar-radius: 999px;
-  --erp-scrollbar-min-thumb-size: 32px;
+  --erp-scrollbar-min-thumb-size: 24px;
 }
 
 .escuro,
