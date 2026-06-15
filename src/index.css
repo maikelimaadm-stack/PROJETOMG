@@ -1509,7 +1509,7 @@ input[type="number"] {
   font-size: 12px;
   line-height: var(--emp-table-header-height);
   height: var(--emp-table-header-height);
-  padding: 0 9px;
+  padding: 0 0 0 9px;
   text-transform: none;
   border: none !important;
   box-shadow: none !important;
@@ -1646,9 +1646,13 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th-label-wrap {
+  position: relative;
   min-width: 0;
+  width: 100%;
+  height: 100%;
   white-space: nowrap;
   text-align: left;
+  padding-right: 27px;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th-label {
@@ -1662,11 +1666,15 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-icons {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 55;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  margin-left: auto;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-sort-slot {

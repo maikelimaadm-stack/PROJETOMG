@@ -6536,9 +6536,17 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th {
   box-sizing: border-box !important;
-  padding: 0 9px !important;
   overflow: hidden !important;
   text-align: left !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
+  padding: 0 0 0 9px !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th {
+  padding: 0 9px !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead tr,
