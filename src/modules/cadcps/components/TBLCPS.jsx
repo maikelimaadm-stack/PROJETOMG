@@ -587,6 +587,11 @@ export default function TBLCPS({
     const header = headerScrollRef.current;
     if (!body) return undefined;
     const syncHorizontalScroll = () => {
+      const rawLeft = body.scrollLeft;
+      const snappedLeft = Math.round(rawLeft);
+      if (Math.abs(rawLeft - snappedLeft) > 0.01) {
+        body.scrollLeft = snappedLeft;
+      }
       const left = body.scrollLeft;
       if (footer) footer.scrollLeft = left;
       if (header) header.scrollLeft = left;

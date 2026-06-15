@@ -791,6 +791,12 @@ export default function TBLEMP({
     const header = headerScrollRef.current;
     if (!body) return undefined;
     const syncHorizontalScroll = () => {
+      // Evita subpixel na rolagem horizontal para manter as linhas da grade alinhadas.
+      const rawLeft = body.scrollLeft;
+      const snappedLeft = Math.round(rawLeft);
+      if (Math.abs(rawLeft - snappedLeft) > 0.01) {
+        body.scrollLeft = snappedLeft;
+      }
       const left = body.scrollLeft;
       const nextCompensation = Math.max(0, body.offsetWidth - body.clientWidth);
       setScrollbarCompensation((prev) =>
