@@ -1638,6 +1638,16 @@ input[type="number"] {
   height: 12px !important;
 }
 
+.cadastro-emp-scope .emp-table-pro .emp-header-sort-icon {
+  width: 12px;
+  height: 12px;
+  min-width: 12px;
+  min-height: 12px;
+  margin-left: 3px;
+  color: var(--accent, #2563eb);
+  flex-shrink: 0;
+}
+
 .cadastro-emp-scope .emp-table-pro .emp-header-filter-icon:hover {
   color: #1e3a5f;
 }

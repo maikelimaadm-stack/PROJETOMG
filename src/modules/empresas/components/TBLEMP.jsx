@@ -1084,15 +1084,24 @@ export default function TBLEMP({
       const isResizing = resizeColumnId === col.id;
       const isColFiltered = hasActiveFilter(col.id);
       const isFilterOpen = menuFiltroAberto === col.id;
+      const isSorted = sortConfig.key === col.id;
+      const SortIcon = isSorted ? (sortConfig.direction === "asc" ? ArrowDownAZ : ArrowUpZA) : null;
       return (
         <TableHead
           key={col.id}
           style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
           className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
-          onDoubleClick={() => handleSort(col.id)}
+          onClick={() => handleSort(col.id)}
         >
           <div className={`emp-th-label-wrap flex items-center w-full h-full whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
+            {SortIcon ? (
+              <SortIcon
+                className="emp-header-sort-icon shrink-0"
+                aria-hidden
+                title={sortConfig.direction === "asc" ? "Ordenado do menor para o maior" : "Ordenado do maior para o menor"}
+              />
+            ) : null}
           </div>
           <div
             className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
