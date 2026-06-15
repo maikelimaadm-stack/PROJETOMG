@@ -251,7 +251,7 @@ export default function TBLEMP({
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
   useEffect(() => { const s = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s ? JSON.parse(s) : {}); } catch { setLayoutAggregationConfig({}); } const h = () => { const s2 = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s2 ? JSON.parse(s2) : {}); } catch { setLayoutAggregationConfig({}); } }; window.addEventListener("storage", h); window.addEventListener("emp-layout-updated", h); return () => { window.removeEventListener("storage", h); window.removeEventListener("emp-layout-updated", h); }; }, []);
 
-  useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX)) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
+  useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.round(Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX))) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
 
   const startDragResize = (e, col) => {
     if (e.detail >= 2) return;
@@ -290,9 +290,20 @@ export default function TBLEMP({
   const colunasTodasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && !c.fixo), [colunasOrdem, colunasDisponiveis]);
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
-  const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => [c.id, Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c))])), [colunasOrdenadas, columnWidths]);
+  const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => { const rawWidth = Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c)); return [c.id, Math.max(getMinWidth(c), Math.round(rawWidth))]; })), [colunasOrdenadas, columnWidths]);
   const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
+  const tableColGroup = useMemo(
+    () => (
+      <colgroup>
+        {colunasOrdenadas.map((col) => {
+          const width = columnPixelWidths[col.id] || 160;
+          return <col key={col.id} style={{ width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` }} span={1} />;
+        })}
+      </colgroup>
+    ),
+    [colunasOrdenadas, columnPixelWidths]
+  );
 
   const getFieldValue = (emp, colId) => {
     if (colId === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "-";
@@ -484,18 +495,14 @@ export default function TBLEMP({
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
       return colunasOrdenadas.map((col, colIndex) => {
-        const width = columnPixelWidths[col.id] || 160;
         const isFrozen = colIndex < frozenColumnCount;
         return (
           <TableCell
             key={`${emp.id}-${col.id}`}
             style={{
-              width,
-              minWidth: width,
-              maxWidth: width,
               left: isFrozen ? frozenOffsets[col.id] : undefined,
             }}
-            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none px-1.5 ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
             title={String(getFieldValue(emp, col.id) ?? "")}
           >
             {getFieldValue(emp, col.id)}
@@ -505,7 +512,6 @@ export default function TBLEMP({
     },
     [
       colunasOrdenadas,
-      columnPixelWidths,
       frozenColumnCount,
       frozenOffsets,
       getColumnAlignClass,
@@ -780,13 +786,19 @@ export default function TBLEMP({
     const header = headerScrollRef.current;
     if (!body) return undefined;
     const syncHorizontalScroll = () => {
+      // Evita subpixel na rolagem horizontal para manter as linhas da grade alinhadas.
+      const rawLeft = body.scrollLeft;
+      const snappedLeft = Math.round(rawLeft);
+      if (Math.abs(rawLeft - snappedLeft) > 0.01) {
+        body.scrollLeft = snappedLeft;
+      }
       const left = body.scrollLeft;
       const nextCompensation = Math.max(0, body.offsetWidth - body.clientWidth);
       setScrollbarCompensation((prev) =>
         Math.abs(prev - nextCompensation) < 1 ? prev : nextCompensation
       );
       if (footer) footer.scrollLeft = left;
-      if (header) header.scrollLeft = left;
+      if (header && !mgPrototype) header.scrollLeft = left;
     };
     const resizeObserver =
       typeof ResizeObserver !== "undefined"
@@ -799,7 +811,7 @@ export default function TBLEMP({
       body.removeEventListener("scroll", syncHorizontalScroll);
       resizeObserver?.disconnect();
     };
-  }, [colunasOrdenadas, columnWidths, agregacoes]);
+  }, [colunasOrdenadas, columnWidths, agregacoes, mgPrototype]);
 
   const loadMoreLockRef = useRef(false);
 
@@ -1035,7 +1047,7 @@ export default function TBLEMP({
       ) + 14;
       maxW = Math.max(maxW, totalW);
     }
-    const nextWidth = Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW)));
+    const nextWidth = Math.round(Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW))));
     setColumnWidths((p) => ({ ...p, [col.id]: nextWidth }));
     setResizeColumnId(null);
   };
@@ -1068,7 +1080,6 @@ export default function TBLEMP({
 
   const renderHeaderCells = () =>
     colunasOrdenadas.map((col, colIndex) => {
-      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = colIndex < frozenColumnCount;
       const isResizing = resizeColumnId === col.id;
       const isColFiltered = hasActiveFilter(col.id);
@@ -1076,11 +1087,11 @@ export default function TBLEMP({
       return (
         <TableHead
           key={col.id}
-          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th group relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
           onDoubleClick={() => handleSort(col.id)}
         >
-          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
+          <div className={`emp-th-label-wrap flex items-center w-full h-full whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
             <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
           </div>
           <div
@@ -1144,13 +1155,12 @@ export default function TBLEMP({
 
   const renderTotalCells = () =>
     colunasOrdenadas.map((col, ci) => {
-      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = ci < frozenColumnCount;
       return (
         <TableHead
           key={`total-${col.id}`}
-          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th relative align-middle px-1.5 whitespace-nowrap h-[26px] py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
         >
           <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
             <span className="emp-th-label truncate font-semibold">
@@ -1167,6 +1177,75 @@ export default function TBLEMP({
   const bodyTableClass = mgPrototype
     ? "mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none"
     : "emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none";
+  const tableWideStyle = { width: totalTableWidth, minWidth: totalTableWidth };
+  const headerBarClassName = mgPrototype
+    ? "emp-table-header-bar emp-table-header-bar--in-scroll shrink-0 overflow-x-hidden overflow-y-hidden"
+    : "emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden";
+  const headerBarStyle = !mgPrototype && scrollbarCompensation > 0
+    ? { paddingRight: `${scrollbarCompensation}px` }
+    : undefined;
+
+  const tableHeader = (
+    <TableHeader>
+      <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
+    </TableHeader>
+  );
+
+  const tableHeaderBar = (
+    <div ref={headerScrollRef} className={headerBarClassName} style={headerBarStyle}>
+      <div className="block w-max min-w-full" style={tableWideStyle}>
+        <Table style={tableWideStyle} className={tableClass}>
+          {tableColGroup}
+          {tableHeader}
+        </Table>
+      </div>
+    </div>
+  );
+
+  const tableBodyContent = isLoadingEmpresas ? (
+    <Table style={tableWideStyle} className={bodyTableClass}>
+      {tableColGroup}
+      {mgPrototype ? tableHeader : null}
+      <TableBody>
+        <TableRow>
+          <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+            &nbsp;
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  ) : empresasOrdenadas.length === 0 ? (
+    <Table style={tableWideStyle} className={bodyTableClass}>
+      {tableColGroup}
+      {mgPrototype ? tableHeader : null}
+      <TableBody>
+        <TableRow>
+          <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+            Nenhuma empresa encontrada
+          </TableCell>
+        </TableRow>
+      </TableBody>
+    </Table>
+  ) : (
+    <>
+      <EmpVirtualTableBody
+        scrollRef={scrollContainerRef}
+        rows={empresasPaginadas}
+        enabled={!isLoadingEmpresas}
+        totalTableWidth={totalTableWidth}
+        bodyTableClass={bodyTableClass}
+        colGroup={tableColGroup}
+        tableHeader={mgPrototype ? tableHeader : null}
+        colCount={colunasOrdenadas.length}
+        renderRow={renderVirtualTableRow}
+        getRowClassName={(emp, rowIndex) =>
+          getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
+        }
+        onRowClick={handleRowClick}
+      />
+      {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
+    </>
+  );
 
   return (
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
@@ -1175,83 +1254,34 @@ export default function TBLEMP({
         className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
       >
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
-          <div
-            ref={headerScrollRef}
-            className="emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden"
-            style={{
-              paddingRight: scrollbarCompensation > 0 ? `${scrollbarCompensation}px` : undefined,
-            }}
-          >
-            <div
-              className="block w-max min-w-full"
-              style={{ width: totalTableWidth, minWidth: totalTableWidth }}
+          {mgPrototype ? (
+            <ErpScrollNav
+              ref={scrollContainerRef}
+              tabIndex={0}
+              onKeyDown={handleTableKeyDown}
+              className="emp-table-body-scroll relative min-h-0 flex-1 outline-none mg-grid-scroll"
+              viewportClassName="overflow-auto"
             >
-              <Table
-                style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                className={tableClass}
+              <div className="block w-max min-w-full" style={tableWideStyle}>
+                {tableBodyContent}
+              </div>
+            </ErpScrollNav>
+          ) : (
+            <>
+              {tableHeaderBar}
+              <ErpScrollNav
+                ref={scrollContainerRef}
+                tabIndex={0}
+                onKeyDown={handleTableKeyDown}
+                className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
+                viewportClassName="overflow-auto"
               >
-                <TableHeader>
-                  <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
-                </TableHeader>
-              </Table>
-            </div>
-          </div>
-          <ErpScrollNav
-            ref={scrollContainerRef}
-            tabIndex={0}
-            onKeyDown={handleTableKeyDown}
-            className={`emp-table-body-scroll relative min-h-0 flex-1 outline-none${mgPrototype ? " mg-grid-scroll" : ""}`}
-            viewportClassName="overflow-auto"
-          >
-            <div
-              className="block w-max min-w-full"
-              style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-            >
-              {isLoadingEmpresas ? (
-                <Table
-                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                  className={bodyTableClass}
-                >
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
-                        &nbsp;
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              ) : empresasOrdenadas.length === 0 ? (
-                <Table
-                  style={{ width: totalTableWidth, minWidth: totalTableWidth }}
-                  className={bodyTableClass}
-                >
-                  <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
-                        Nenhuma empresa encontrada
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              ) : (
-                <>
-                  <EmpVirtualTableBody
-                    scrollRef={scrollContainerRef}
-                    rows={empresasPaginadas}
-                    enabled={!isLoadingEmpresas}
-                    totalTableWidth={totalTableWidth}
-                    bodyTableClass={bodyTableClass}
-                    renderRow={renderVirtualTableRow}
-                    getRowClassName={(emp, rowIndex) =>
-                      getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
-                    }
-                    onRowClick={handleRowClick}
-                  />
-                  {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
-                </>
-              )}
-            </div>
-          </ErpScrollNav>
+                <div className="block w-max min-w-full" style={tableWideStyle}>
+                  {tableBodyContent}
+                </div>
+              </ErpScrollNav>
+            </>
+          )}
         </div>
         <div className="emp-table-bottom-dock">
           {hasTotalRow ? (
@@ -1270,6 +1300,7 @@ export default function TBLEMP({
                   style={{ width: totalTableWidth, minWidth: totalTableWidth }}
                   className="emp-table-pro emp-table-pro-footer w-full border-separate border-spacing-0 table-fixed select-none"
                 >
+                  {tableColGroup}
                   <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
                     <TableRow className="emp-total-row border-0 hover:bg-transparent">
                       {renderTotalCells()}

@@ -8,9 +8,9 @@
 .tema-claro,
 [data-tema="claro"] {
   --erp-scrollbar-size: 10px;
-  --erp-scrollbar-thumb: #5a6772;
-  --erp-scrollbar-thumb-hover: #4c5963;
-  --erp-scrollbar-thumb-active: #3f4a53;
+  --erp-scrollbar-thumb: #6f7d8a;
+  --erp-scrollbar-thumb-hover: #62717d;
+  --erp-scrollbar-thumb-active: #57646f;
   --erp-scrollbar-track: #e9ecef;
   --erp-scrollbar-bg: #e9ecef;
   --erp-scrollbar-radius: 999px;
@@ -21,9 +21,9 @@
 .tema-escuro,
 [data-tema="escuro"],
 .dark {
-  --erp-scrollbar-thumb: #9fb0c2;
-  --erp-scrollbar-thumb-hover: #b1c0cf;
-  --erp-scrollbar-thumb-active: #c2ceda;
+  --erp-scrollbar-thumb: #afbdcb;
+  --erp-scrollbar-thumb-hover: #c0ccd8;
+  --erp-scrollbar-thumb-active: #ced8e1;
   --erp-scrollbar-track: #2b3440;
   --erp-scrollbar-bg: #2b3440;
 }
