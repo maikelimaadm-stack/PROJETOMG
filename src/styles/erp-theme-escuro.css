@@ -1214,10 +1214,8 @@ html.escuro .mg-empresas-scope .mg-search-pill:focus-within {
 
 html.tema-escuro .mg-empresas-scope .mg-search-pill input,
 html.escuro .mg-empresas-scope .mg-search-pill input {
-  background: #21262d !important;
+  background: transparent !important;
   color: #e6edf3 !important;
-  -webkit-appearance: none;
-  appearance: none;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-search-pill input::placeholder,
