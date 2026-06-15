@@ -32,7 +32,6 @@ import MgDesktopHeader from "@/modules/empresas/layout/MgDesktopHeader";
 import MgMobileHeader from "@/modules/empresas/layout/MgMobileHeader";
 import { MgEmpresasChromeProvider } from "@/modules/empresas/layout/MgEmpresasChromeContext";
 import MgEmpresasMobileOverlays from "@/modules/empresas/layout/MgEmpresasMobileOverlays";
-import MgPrototypeSidebar from "@/modules/empresas/layout/MgPrototypeSidebar";
 import ErpEmpresaSelector from "@/shared/layouts/ErpEmpresaSelector";
 import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
 import ErpGlobalTopProgress from "@/shared/components/ErpGlobalTopProgress";
@@ -281,11 +280,8 @@ function ErpShellBody({
           )}
           <div className="erp-shell-content-area flex min-h-0 flex-1 flex-col overflow-hidden">
             {empresasPage ? (
-              <div className="mg-empresas-scope flex min-h-0 flex-1 overflow-hidden">
-                <MgPrototypeSidebar />
-                <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-                  {children}
-                </div>
+              <div className="mg-empresas-scope flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+                {children}
               </div>
             ) : (
               children
