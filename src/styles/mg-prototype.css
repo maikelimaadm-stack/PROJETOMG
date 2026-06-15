@@ -6464,8 +6464,8 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell {
   --emp-table-band-bg: #e9edf2;
-  --emp-table-band-edge: #d0d8e3;
-  --emp-table-line: #dbe2ec;
+  --emp-table-band-edge: #e7eaee;
+  --emp-table-line: #e7eaee;
   border: none !important;
   box-shadow: none !important;
   border-radius: 12px 12px 0 0 !important;
@@ -6473,7 +6473,7 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock {
   --emp-table-band-bg: #ffffff;
-  --emp-table-band-edge: #d0d8e3;
+  --emp-table-band-edge: #e7eaee;
   border: none !important;
   border-radius: 0 0 12px 12px !important;
   overflow: hidden !important;
@@ -6516,15 +6516,20 @@
   color: #334155 !important;
 }
 
+/* Grade uniforme 1px — cabeçalho e dados; divisórias internas, sem borda lateral externa */
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th,
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th {
-  border: none !important;
-  box-shadow: none !important;
-}
-
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td {
   border: none !important;
-  box-shadow: inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th:not(:last-child),
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child),
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-line),
+    inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pagination {

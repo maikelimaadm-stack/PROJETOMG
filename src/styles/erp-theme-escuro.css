@@ -662,8 +662,8 @@ html.escuro .cadastro-emp-scope .emp-table-body-scroll {
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell,
 html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell {
   --emp-table-band-bg: #20262e;
-  --emp-table-band-edge: #313946;
-  --emp-table-line: #313946;
+  --emp-table-band-edge: #2d333b;
+  --emp-table-line: #2d333b;
   border-color: transparent !important;
   box-shadow: none !important;
 }
@@ -671,7 +671,7 @@ html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell {
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock,
 html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock {
   --emp-table-band-bg: #20262e;
-  --emp-table-band-edge: #313946;
+  --emp-table-band-edge: #2d333b;
   border-color: transparent !important;
   background: #161b22 !important;
   box-shadow: none !important;
@@ -708,16 +708,23 @@ html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summar
 
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th,
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th,
-html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th,
-html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th {
-  border: none !important;
-  box-shadow: none !important;
-}
-
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td,
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th,
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th,
 html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td {
   border: none !important;
-  box-shadow: inset 0 -1px 0 0 var(--emp-table-line, #313946) !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th:not(:last-child),
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child),
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td:not(:last-child),
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th:not(:last-child),
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th:not(:last-child),
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-line),
+    inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item,
