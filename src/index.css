@@ -195,7 +195,7 @@ input[type="number"] {
   --erp-scrollbar-track-shadow: none;
   --erp-scrollbar-bg: #e6ecf3;
   --erp-scrollbar-radius: 999px;
-  --erp-scrollbar-gap: 0px;
+  --erp-scrollbar-min-thumb-size: 28px;
   --erp-scrollbar-thumb-shadow: none;
 }
 
@@ -291,6 +291,7 @@ input[type="number"] {
     height: var(--erp-scrollbar-size);
     background: var(--erp-scrollbar-bg);
     border-radius: var(--erp-scrollbar-radius);
+    padding: 0;
   }
 
   :is(
@@ -329,9 +330,48 @@ input[type="number"] {
   ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track {
     background: var(--erp-scrollbar-track);
     border-radius: var(--erp-scrollbar-radius);
-    border: var(--erp-scrollbar-gap) solid transparent;
-    background-clip: padding-box;
+    border: 0;
+    margin: 0;
     box-shadow: var(--erp-scrollbar-track-shadow);
+  }
+
+  :is(
+    html,
+    body,
+    .erp-scrollbar,
+    .erp-scroll-nav__viewport,
+    .cadastro-emp-scope .form-scroll-container,
+    .cadastro-emp-scope .emp-table-body-scroll,
+    .cadastro-emp-scope .emp-form-section-panel--corp,
+    .cadastro-emp-scope .emp-search-results,
+    .mg-empresas-scope .mg-form-scroll,
+    .mg-empresas-scope .mg-grid-scroll,
+    .mg-empresas-scope .filter-panel__body,
+    .mg-empresas-scope .mobile-menu,
+    .mg-empresas-scope .mg-search-dropdown__list,
+    .mg-empresas-scope .mg-search-dropdown__config-list,
+    .mg-empresas-scope .mg-tp-col,
+    .mg-empresas-scope .cmd-panel-options,
+    .mg-empresas-scope .mg-panel-options,
+    .mg-empresas-scope .mg-lookup-list,
+    .emp-campos-config-table-wrap,
+    .emp-layout-config-available-list,
+    .emp-layout-config-panel-body,
+    .erp-select-menu__list,
+    .erp-search-panel__results,
+    .erp-menu-panel [cmdk-list],
+    .emp-filter-value-list,
+    [data-radix-scroll-area-viewport],
+    [data-radix-select-viewport],
+    [data-radix-dialog-content],
+    [data-sidebar="content"],
+    .cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll)
+  ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track-piece {
+    background: var(--erp-scrollbar-track);
+    border-radius: var(--erp-scrollbar-radius);
+    margin: 0;
   }
 
   :is(
@@ -370,11 +410,153 @@ input[type="number"] {
   ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
     background-color: var(--erp-scrollbar-thumb);
     border-radius: var(--erp-scrollbar-radius);
-    border: var(--erp-scrollbar-gap) solid transparent;
-    background-clip: padding-box;
-    min-height: 28px;
-    min-width: 28px;
+    border: 0;
+    margin: 0;
+    min-height: var(--erp-scrollbar-min-thumb-size);
+    min-width: var(--erp-scrollbar-min-thumb-size);
     box-shadow: var(--erp-scrollbar-thumb-shadow);
+  }
+
+  :is(
+    html,
+    body,
+    .erp-scrollbar,
+    .erp-scroll-nav__viewport,
+    .cadastro-emp-scope .form-scroll-container,
+    .cadastro-emp-scope .emp-table-body-scroll,
+    .cadastro-emp-scope .emp-form-section-panel--corp,
+    .cadastro-emp-scope .emp-search-results,
+    .mg-empresas-scope .mg-form-scroll,
+    .mg-empresas-scope .mg-grid-scroll,
+    .mg-empresas-scope .filter-panel__body,
+    .mg-empresas-scope .mobile-menu,
+    .mg-empresas-scope .mg-search-dropdown__list,
+    .mg-empresas-scope .mg-search-dropdown__config-list,
+    .mg-empresas-scope .mg-tp-col,
+    .mg-empresas-scope .cmd-panel-options,
+    .mg-empresas-scope .mg-panel-options,
+    .mg-empresas-scope .mg-lookup-list,
+    .emp-campos-config-table-wrap,
+    .emp-layout-config-available-list,
+    .emp-layout-config-panel-body,
+    .erp-select-menu__list,
+    .erp-search-panel__results,
+    .erp-menu-panel [cmdk-list],
+    .emp-filter-value-list,
+    [data-radix-scroll-area-viewport],
+    [data-radix-select-viewport],
+    [data-radix-dialog-content],
+    [data-sidebar="content"],
+    .cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll)
+  ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:vertical,
+  :is(
+    html,
+    body,
+    .erp-scrollbar,
+    .erp-scroll-nav__viewport,
+    .cadastro-emp-scope .form-scroll-container,
+    .cadastro-emp-scope .emp-table-body-scroll,
+    .cadastro-emp-scope .emp-form-section-panel--corp,
+    .cadastro-emp-scope .emp-search-results,
+    .mg-empresas-scope .mg-form-scroll,
+    .mg-empresas-scope .mg-grid-scroll,
+    .mg-empresas-scope .filter-panel__body,
+    .mg-empresas-scope .mobile-menu,
+    .mg-empresas-scope .mg-search-dropdown__list,
+    .mg-empresas-scope .mg-search-dropdown__config-list,
+    .mg-empresas-scope .mg-tp-col,
+    .mg-empresas-scope .cmd-panel-options,
+    .mg-empresas-scope .mg-panel-options,
+    .mg-empresas-scope .mg-lookup-list,
+    .emp-campos-config-table-wrap,
+    .emp-layout-config-available-list,
+    .emp-layout-config-panel-body,
+    .erp-select-menu__list,
+    .erp-search-panel__results,
+    .erp-menu-panel [cmdk-list],
+    .emp-filter-value-list,
+    [data-radix-scroll-area-viewport],
+    [data-radix-select-viewport],
+    [data-radix-dialog-content],
+    [data-sidebar="content"],
+    .cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll)
+  ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:vertical {
+    width: var(--erp-scrollbar-size);
+  }
+
+  :is(
+    html,
+    body,
+    .erp-scrollbar,
+    .erp-scroll-nav__viewport,
+    .cadastro-emp-scope .form-scroll-container,
+    .cadastro-emp-scope .emp-table-body-scroll,
+    .cadastro-emp-scope .emp-form-section-panel--corp,
+    .cadastro-emp-scope .emp-search-results,
+    .mg-empresas-scope .mg-form-scroll,
+    .mg-empresas-scope .mg-grid-scroll,
+    .mg-empresas-scope .filter-panel__body,
+    .mg-empresas-scope .mobile-menu,
+    .mg-empresas-scope .mg-search-dropdown__list,
+    .mg-empresas-scope .mg-search-dropdown__config-list,
+    .mg-empresas-scope .mg-tp-col,
+    .mg-empresas-scope .cmd-panel-options,
+    .mg-empresas-scope .mg-panel-options,
+    .mg-empresas-scope .mg-lookup-list,
+    .emp-campos-config-table-wrap,
+    .emp-layout-config-available-list,
+    .emp-layout-config-panel-body,
+    .erp-select-menu__list,
+    .erp-search-panel__results,
+    .erp-menu-panel [cmdk-list],
+    .emp-filter-value-list,
+    [data-radix-scroll-area-viewport],
+    [data-radix-select-viewport],
+    [data-radix-dialog-content],
+    [data-sidebar="content"],
+    .cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll)
+  ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:horizontal,
+  :is(
+    html,
+    body,
+    .erp-scrollbar,
+    .erp-scroll-nav__viewport,
+    .cadastro-emp-scope .form-scroll-container,
+    .cadastro-emp-scope .emp-table-body-scroll,
+    .cadastro-emp-scope .emp-form-section-panel--corp,
+    .cadastro-emp-scope .emp-search-results,
+    .mg-empresas-scope .mg-form-scroll,
+    .mg-empresas-scope .mg-grid-scroll,
+    .mg-empresas-scope .filter-panel__body,
+    .mg-empresas-scope .mobile-menu,
+    .mg-empresas-scope .mg-search-dropdown__list,
+    .mg-empresas-scope .mg-search-dropdown__config-list,
+    .mg-empresas-scope .mg-tp-col,
+    .mg-empresas-scope .cmd-panel-options,
+    .mg-empresas-scope .mg-panel-options,
+    .mg-empresas-scope .mg-lookup-list,
+    .emp-campos-config-table-wrap,
+    .emp-layout-config-available-list,
+    .emp-layout-config-panel-body,
+    .erp-select-menu__list,
+    .erp-search-panel__results,
+    .erp-menu-panel [cmdk-list],
+    .emp-filter-value-list,
+    [data-radix-scroll-area-viewport],
+    [data-radix-select-viewport],
+    [data-radix-dialog-content],
+    [data-sidebar="content"],
+    .cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+    .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll)
+  ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:horizontal {
+    height: var(--erp-scrollbar-size);
   }
 
   :is(
