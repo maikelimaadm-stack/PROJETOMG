@@ -495,15 +495,11 @@ export default function TBLEMP({
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
       return colunasOrdenadas.map((col, colIndex) => {
-        const width = columnPixelWidths[col.id] || 160;
         const isFrozen = colIndex < frozenColumnCount;
         return (
           <TableCell
             key={`${emp.id}-${col.id}`}
             style={{
-              width,
-              minWidth: width,
-              maxWidth: width,
               left: isFrozen ? frozenOffsets[col.id] : undefined,
             }}
             className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
@@ -516,7 +512,6 @@ export default function TBLEMP({
     },
     [
       colunasOrdenadas,
-      columnPixelWidths,
       frozenColumnCount,
       frozenOffsets,
       getColumnAlignClass,
@@ -1085,7 +1080,6 @@ export default function TBLEMP({
 
   const renderHeaderCells = () =>
     colunasOrdenadas.map((col, colIndex) => {
-      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = colIndex < frozenColumnCount;
       const isResizing = resizeColumnId === col.id;
       const isColFiltered = hasActiveFilter(col.id);
@@ -1093,7 +1087,7 @@ export default function TBLEMP({
       return (
         <TableHead
           key={col.id}
-          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
           className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
           onDoubleClick={() => handleSort(col.id)}
         >
@@ -1161,12 +1155,11 @@ export default function TBLEMP({
 
   const renderTotalCells = () =>
     colunasOrdenadas.map((col, ci) => {
-      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = ci < frozenColumnCount;
       return (
         <TableHead
           key={`total-${col.id}`}
-          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
           className={`emp-th relative align-middle whitespace-nowrap py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
         >
           <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>

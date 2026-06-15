@@ -6564,6 +6564,12 @@
     inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro .emp-col-resize-handle,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro .emp-col-resize-handle:hover,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro .emp-col-resize-handle.emp-col-resize-active {
+  background: transparent !important;
+}
+
 /* Dados e rodapé: grade horizontal + vertical interna */
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td {
