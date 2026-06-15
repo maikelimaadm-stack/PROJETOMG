@@ -22,7 +22,10 @@
 }
 
 .mg-empresas-scope {
-  --bg-page: #f0f2f5;
+  --bg-page: #DCE3EB;
+  --background-page: #DCE3EB;
+  --erp-color-surface: #DCE3EB;
+  --emp-surface-bg: #DCE3EB;
   --bg-card: #ffffff;
   --bg-surface: #ffffff;
   --border: var(--gray-fill);
