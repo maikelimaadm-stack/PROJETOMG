@@ -1192,14 +1192,18 @@ export default function TBLEMP({
     ? { paddingRight: `${scrollbarCompensation}px` }
     : undefined;
 
+  const tableHeader = (
+    <TableHeader>
+      <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
+    </TableHeader>
+  );
+
   const tableHeaderBar = (
     <div ref={headerScrollRef} className={headerBarClassName} style={headerBarStyle}>
       <div className="block w-max min-w-full" style={tableWideStyle}>
         <Table style={tableWideStyle} className={tableClass}>
           {tableColGroup}
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
-          </TableHeader>
+          {tableHeader}
         </Table>
       </div>
     </div>
@@ -1208,6 +1212,7 @@ export default function TBLEMP({
   const tableBodyContent = isLoadingEmpresas ? (
     <Table style={tableWideStyle} className={bodyTableClass}>
       {tableColGroup}
+      {mgPrototype ? tableHeader : null}
       <TableBody>
         <TableRow>
           <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
@@ -1219,6 +1224,7 @@ export default function TBLEMP({
   ) : empresasOrdenadas.length === 0 ? (
     <Table style={tableWideStyle} className={bodyTableClass}>
       {tableColGroup}
+      {mgPrototype ? tableHeader : null}
       <TableBody>
         <TableRow>
           <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
@@ -1236,6 +1242,8 @@ export default function TBLEMP({
         totalTableWidth={totalTableWidth}
         bodyTableClass={bodyTableClass}
         colGroup={tableColGroup}
+        tableHeader={mgPrototype ? tableHeader : null}
+        colCount={colunasOrdenadas.length}
         renderRow={renderVirtualTableRow}
         getRowClassName={(emp, rowIndex) =>
           getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
@@ -1262,7 +1270,6 @@ export default function TBLEMP({
               viewportClassName="overflow-auto"
             >
               <div className="block w-max min-w-full" style={tableWideStyle}>
-                {tableHeaderBar}
                 {tableBodyContent}
               </div>
             </ErpScrollNav>
