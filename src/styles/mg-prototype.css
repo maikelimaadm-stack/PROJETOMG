@@ -85,6 +85,7 @@
   --mg-btn-pill-border: 1px solid transparent;
   --mg-search-pill-radius: var(--mg-btn-pill-radius);
   --mg-toolbar-gutter: 12px;
+  --mg-header-height: 40px;
   --mg-toolbar-row-height: 36px;
   --mg-toolbar-row-padding-y: calc((var(--mg-toolbar-row-height) - var(--mg-btn-height)) / 2);
   --mg-toolbar-cluster-gap: 8px;
@@ -1692,8 +1693,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 36px;
-  min-height: 36px;
+  height: var(--mg-header-height);
+  min-height: var(--mg-header-height);
   padding: 0 12px;
   background: var(--accent);
   box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -1715,8 +1716,8 @@
 .mg-empresas-scope .mg-desktop-header {
   align-items: center;
   justify-content: space-between;
-  height: 36px;
-  min-height: 36px;
+  height: var(--mg-header-height);
+  min-height: var(--mg-header-height);
   padding: 0 12px;
   background: var(--accent);
   box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.1);
