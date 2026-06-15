@@ -1509,7 +1509,7 @@ input[type="number"] {
   font-size: 12px;
   line-height: var(--emp-table-header-height);
   height: var(--emp-table-header-height);
-  padding: 0 0 0 9px;
+  padding: 0 9px;
   text-transform: none;
   border: none !important;
   box-shadow: none !important;
@@ -1645,10 +1645,6 @@ input[type="number"] {
   text-align: left !important;
 }
 
-.cadastro-emp-scope .emp-table-pro thead .emp-th {
-  --emp-header-icons-width: 26px;
-}
-
 .cadastro-emp-scope .emp-table-pro .emp-th-label-wrap {
   position: relative;
   min-width: 0;
@@ -1659,70 +1655,13 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th-label {
-  flex: 0 1 auto;
   min-width: 0;
-  max-width: calc(100% - var(--emp-header-icons-width));
+  max-width: 100%;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: keep-all;
   text-align: left;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-icons {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  width: var(--emp-header-icons-width);
-  transform: translateY(-50%);
-  z-index: 55;
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 1px;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-sort-slot {
-  width: 13px;
-  min-width: 13px;
-  height: 13px;
-  flex-shrink: 0;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon {
-  width: 12px;
-  min-width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon--visible {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon--idle {
-  opacity: 0;
-  pointer-events: none;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-th.group:hover .emp-header-filter-icon--idle {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-sort-icon {
-  width: 13px !important;
-  height: 13px !important;
-  min-width: 13px;
-  min-height: 13px;
-  flex-shrink: 0;
-  color: var(--accent, #2563eb);
-}
-
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon:hover {
-  color: #1e3a5f;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-col-resize-handle {
