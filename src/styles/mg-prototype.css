@@ -595,7 +595,14 @@
 }
 
 .mg-empresas-scope .seg-control::-webkit-scrollbar {
-  height: var(--erp-scrollbar-size);
+  height: var(--erp-scrollbar-size) !important;
+  -webkit-appearance: none !important;
+}
+
+.mg-empresas-scope .seg-control::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip {
@@ -633,7 +640,14 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
-  height: var(--erp-scrollbar-size);
+  height: var(--erp-scrollbar-size) !important;
+  -webkit-appearance: none !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar-button {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll {

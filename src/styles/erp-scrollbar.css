@@ -1,5 +1,7 @@
 /* ==========================================================================
    ERP Scrollbar — fonte oficial única (claro/escuro, global)
+   Aplica em TODAS as áreas roláveis: tabelas, forms, painéis, modais,
+   dropdowns, filtros, cards, sidebars, virtualizados e ErpScrollNav.
    ========================================================================== */
 
 :root,
@@ -56,98 +58,125 @@
 [data-sidebar="content"],
 .cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
 .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
-.erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll) {
+.erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+html,
+body {
   overscroll-behavior: contain;
   scroll-behavior: auto;
 }
 
-/* Firefox */
-*:not(.no-scrollbar):not(.erp-no-scrollbar) {
-  scrollbar-width: auto;
-  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+/* Firefox / engines sem WebKit: thin remove setas nativas do SO */
+@supports not selector(::-webkit-scrollbar) {
+  html,
+  html *:not(.no-scrollbar):not(.erp-no-scrollbar) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+  }
 }
 
-@supports selector(::-webkit-scrollbar) {
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar {
-    width: var(--erp-scrollbar-size) !important;
-    height: var(--erp-scrollbar-size) !important;
-    background: var(--erp-scrollbar-bg) !important;
-    border-radius: var(--erp-scrollbar-radius) !important;
-    padding: 0 !important;
-    -webkit-appearance: none;
-  }
+/* Chromium / Safari / Edge — scrollbar customizada completa */
+html:not(.erp-no-scrollbar)::-webkit-scrollbar,
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar {
+  width: var(--erp-scrollbar-size) !important;
+  height: var(--erp-scrollbar-size) !important;
+  background: var(--erp-scrollbar-bg) !important;
+  border-radius: var(--erp-scrollbar-radius) !important;
+  padding: 0 !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
 
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track,
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track-piece {
-    background: var(--erp-scrollbar-track) !important;
-    border: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: var(--erp-scrollbar-radius) !important;
-    box-shadow: none !important;
-    -webkit-appearance: none;
-  }
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track,
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track-piece {
+  background: var(--erp-scrollbar-track) !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: var(--erp-scrollbar-radius) !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
 
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:vertical {
-    width: var(--erp-scrollbar-size) !important;
-  }
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:vertical {
+  width: var(--erp-scrollbar-size) !important;
+}
 
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:horizontal {
-    height: var(--erp-scrollbar-size) !important;
-  }
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:horizontal {
+  height: var(--erp-scrollbar-size) !important;
+}
 
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
-    background: var(--erp-scrollbar-thumb) !important;
-    border: 0 !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border-radius: var(--erp-scrollbar-radius) !important;
-    box-shadow: none !important;
-    min-height: var(--erp-scrollbar-min-thumb-size);
-    min-width: var(--erp-scrollbar-min-thumb-size);
-    background-clip: border-box !important;
-    -webkit-appearance: none;
-  }
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
+  background: var(--erp-scrollbar-thumb) !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-radius: var(--erp-scrollbar-radius) !important;
+  box-shadow: none !important;
+  min-height: var(--erp-scrollbar-min-thumb-size);
+  min-width: var(--erp-scrollbar-min-thumb-size);
+  background-clip: border-box !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+}
 
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:hover {
-    background: var(--erp-scrollbar-thumb-hover) !important;
-  }
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:hover {
+  background: var(--erp-scrollbar-thumb-hover) !important;
+}
 
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:active {
-    background: var(--erp-scrollbar-thumb-active) !important;
-  }
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:active {
+  background: var(--erp-scrollbar-thumb-active) !important;
+}
 
-  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-corner {
-    background: var(--erp-scrollbar-bg) !important;
-  }
+html:not(.erp-no-scrollbar) *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-corner {
+  background: var(--erp-scrollbar-bg) !important;
+}
 
-  *::-webkit-scrollbar-button,
-  *::-webkit-scrollbar-button:single-button,
-  *::-webkit-scrollbar-button:double-button,
-  *::-webkit-scrollbar-button:start,
-  *::-webkit-scrollbar-button:end,
-  *::-webkit-scrollbar-button:increment,
-  *::-webkit-scrollbar-button:decrement,
-  *::-webkit-scrollbar-button:horizontal,
-  *::-webkit-scrollbar-button:vertical,
-  *::-webkit-scrollbar-button:horizontal:increment,
-  *::-webkit-scrollbar-button:horizontal:decrement,
-  *::-webkit-scrollbar-button:vertical:increment,
-  *::-webkit-scrollbar-button:vertical:decrement,
-  *::-webkit-scrollbar-button:vertical:start:decrement,
-  *::-webkit-scrollbar-button:vertical:end:increment,
-  *::-webkit-scrollbar-button:horizontal:start:decrement,
-  *::-webkit-scrollbar-button:horizontal:end:increment {
-    display: none !important;
-    width: 0 !important;
-    height: 0 !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    -webkit-appearance: none !important;
-    background: transparent !important;
-    border: 0 !important;
-    box-shadow: none !important;
-  }
+/* Remoção total de botões/setas (incremento/decremento) — prioridade máxima */
+html *::-webkit-scrollbar-button,
+html *::-webkit-scrollbar-button:single-button,
+html *::-webkit-scrollbar-button:double-button,
+html *::-webkit-scrollbar-button:start,
+html *::-webkit-scrollbar-button:end,
+html *::-webkit-scrollbar-button:increment,
+html *::-webkit-scrollbar-button:decrement,
+html *::-webkit-scrollbar-button:horizontal,
+html *::-webkit-scrollbar-button:vertical,
+html *::-webkit-scrollbar-button:horizontal:increment,
+html *::-webkit-scrollbar-button:horizontal:decrement,
+html *::-webkit-scrollbar-button:vertical:increment,
+html *::-webkit-scrollbar-button:vertical:decrement,
+html *::-webkit-scrollbar-button:vertical:start:decrement,
+html *::-webkit-scrollbar-button:vertical:end:increment,
+html *::-webkit-scrollbar-button:horizontal:start:decrement,
+html *::-webkit-scrollbar-button:horizontal:end:increment,
+html *::-webkit-scrollbar-button:single-button:vertical:decrement,
+html *::-webkit-scrollbar-button:single-button:vertical:increment,
+html *::-webkit-scrollbar-button:single-button:horizontal:decrement,
+html *::-webkit-scrollbar-button:single-button:horizontal:increment,
+html *::-webkit-scrollbar-button:double-button:vertical:decrement,
+html *::-webkit-scrollbar-button:double-button:vertical:increment,
+html *::-webkit-scrollbar-button:double-button:horizontal:decrement,
+html *::-webkit-scrollbar-button:double-button:horizontal:increment {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  background: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
 }
 
 /* Opt-out explícito (uso raro) */
