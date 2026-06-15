@@ -1088,8 +1088,8 @@ export default function TBLEMP({
           className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer text-left ${isFrozen ? "z-50" : "z-40"}`}
           onClick={() => handleSort(col.id)}
         >
-          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 gap-1 overflow-hidden">
-            <span className="emp-th-label min-w-0 flex-1 truncate font-semibold whitespace-nowrap text-left">{formatHeaderLabel(col)}</span>
+          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 overflow-hidden">
+            <span className="emp-th-label min-w-0 truncate font-semibold whitespace-nowrap text-left">{formatHeaderLabel(col)}</span>
             <div className="emp-header-icons flex shrink-0 items-center gap-0.5">
               <span className="emp-header-sort-slot inline-flex shrink-0 items-center justify-center" aria-hidden={!isSorted}>
                 {SortIcon ? (

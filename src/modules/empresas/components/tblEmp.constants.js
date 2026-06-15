@@ -45,8 +45,8 @@ export const AUTO_FIT_MEASURE_LIMIT = 300;
 
 /** Espaço reservado no cabeçalho para ícones/padding (px). */
 export const HEADER_PADDING_X = 18;
-export const HEADER_SORT_SLOT = 17;
-export const HEADER_FILTER_SLOT = 16;
+export const HEADER_SORT_SLOT = 14;
+export const HEADER_FILTER_SLOT = 13;
 export const HEADER_LABEL_MIN_CH = 5;
 export const HEADER_LABEL_CHAR_PX = 7;
 

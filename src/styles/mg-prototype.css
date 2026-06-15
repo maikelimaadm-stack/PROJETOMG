@@ -6542,6 +6542,7 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
   padding: 0 0 0 9px !important;
+  --emp-header-icons-width: 26px;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td,
