@@ -246,7 +246,7 @@ input[type="number"] {
   .mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
   .erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll)
 ):not(.no-scrollbar):not(.erp-no-scrollbar) {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
   scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
   overscroll-behavior: contain;
   scroll-behavior: auto;
@@ -292,7 +292,6 @@ input[type="number"] {
     background: var(--erp-scrollbar-bg);
     border-radius: var(--erp-scrollbar-radius);
     padding: 0;
-    -webkit-appearance: none;
   }
 
   :is(
@@ -334,7 +333,6 @@ input[type="number"] {
     border: 0;
     margin: 0;
     box-shadow: var(--erp-scrollbar-track-shadow);
-    -webkit-appearance: none;
   }
 
   :is(
@@ -417,7 +415,6 @@ input[type="number"] {
     min-height: var(--erp-scrollbar-min-thumb-size);
     min-width: var(--erp-scrollbar-min-thumb-size);
     box-shadow: var(--erp-scrollbar-thumb-shadow);
-    -webkit-appearance: none;
   }
 
   :is(
@@ -646,25 +643,10 @@ input[type="number"] {
     background: var(--erp-scrollbar-bg);
   }
 
-  *::-webkit-scrollbar-button,
-  *::-webkit-scrollbar-button:single-button,
-  *::-webkit-scrollbar-button:double-button,
-  *::-webkit-scrollbar-button:start,
-  *::-webkit-scrollbar-button:end,
-  *::-webkit-scrollbar-button:increment,
-  *::-webkit-scrollbar-button:decrement,
-  *::-webkit-scrollbar-button:horizontal,
-  *::-webkit-scrollbar-button:vertical,
-  *::-webkit-scrollbar-button:horizontal:increment,
-  *::-webkit-scrollbar-button:horizontal:decrement,
-  *::-webkit-scrollbar-button:vertical:increment,
-  *::-webkit-scrollbar-button:vertical:decrement {
+  *::-webkit-scrollbar-button {
     width: 0 !important;
     height: 0 !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
     display: none !important;
-    -webkit-appearance: none !important;
     background: transparent !important;
     border: none !important;
   }
@@ -2969,7 +2951,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-toggles {
-  scrollbar-width: thin;
+  scrollbar-width: auto;
 }
 
 .cadastro-emp-scope .emp-layout-field-settings-popover .emp-layout-field-settings-row > span {
