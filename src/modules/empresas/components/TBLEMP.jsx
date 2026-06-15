@@ -251,7 +251,7 @@ export default function TBLEMP({
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
   useEffect(() => { const s = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s ? JSON.parse(s) : {}); } catch { setLayoutAggregationConfig({}); } const h = () => { const s2 = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s2 ? JSON.parse(s2) : {}); } catch { setLayoutAggregationConfig({}); } }; window.addEventListener("storage", h); window.addEventListener("emp-layout-updated", h); return () => { window.removeEventListener("storage", h); window.removeEventListener("emp-layout-updated", h); }; }, []);
 
-  useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX)) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
+  useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.round(Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX))) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
 
   const startDragResize = (e, col) => {
     if (e.detail >= 2) return;
@@ -290,7 +290,7 @@ export default function TBLEMP({
   const colunasTodasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && !c.fixo), [colunasOrdem, colunasDisponiveis]);
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
-  const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => [c.id, Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c))])), [colunasOrdenadas, columnWidths]);
+  const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => { const rawWidth = Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c)); return [c.id, Math.max(getMinWidth(c), Math.round(rawWidth))]; })), [colunasOrdenadas, columnWidths]);
   const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
   const tableColGroup = useMemo(
@@ -298,7 +298,7 @@ export default function TBLEMP({
       <colgroup>
         {colunasOrdenadas.map((col) => {
           const width = columnPixelWidths[col.id] || 160;
-          return <col key={col.id} style={{ width }} span={1} />;
+          return <col key={col.id} style={{ width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` }} span={1} />;
         })}
       </colgroup>
     ),
@@ -495,11 +495,15 @@ export default function TBLEMP({
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
       return colunasOrdenadas.map((col, colIndex) => {
+        const width = columnPixelWidths[col.id] || 160;
         const isFrozen = colIndex < frozenColumnCount;
         return (
           <TableCell
             key={`${emp.id}-${col.id}`}
             style={{
+              width,
+              minWidth: width,
+              maxWidth: width,
               left: isFrozen ? frozenOffsets[col.id] : undefined,
             }}
             className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
@@ -1042,7 +1046,7 @@ export default function TBLEMP({
       ) + 14;
       maxW = Math.max(maxW, totalW);
     }
-    const nextWidth = Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW)));
+    const nextWidth = Math.round(Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW))));
     setColumnWidths((p) => ({ ...p, [col.id]: nextWidth }));
     setResizeColumnId(null);
   };
@@ -1075,6 +1079,7 @@ export default function TBLEMP({
 
   const renderHeaderCells = () =>
     colunasOrdenadas.map((col, colIndex) => {
+      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = colIndex < frozenColumnCount;
       const isResizing = resizeColumnId === col.id;
       const isColFiltered = hasActiveFilter(col.id);
@@ -1082,7 +1087,7 @@ export default function TBLEMP({
       return (
         <TableHead
           key={col.id}
-          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
           className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
           onDoubleClick={() => handleSort(col.id)}
         >
@@ -1150,11 +1155,12 @@ export default function TBLEMP({
 
   const renderTotalCells = () =>
     colunasOrdenadas.map((col, ci) => {
+      const width = columnPixelWidths[col.id] || 160;
       const isFrozen = ci < frozenColumnCount;
       return (
         <TableHead
           key={`total-${col.id}`}
-          style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
+          style={{ width, minWidth: width, maxWidth: width, left: isFrozen ? frozenOffsets[col.id] : undefined }}
           className={`emp-th relative align-middle whitespace-nowrap py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
         >
           <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
