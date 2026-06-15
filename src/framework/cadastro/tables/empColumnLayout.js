@@ -3,13 +3,12 @@ const PRIORITY_FIRST_COLUMNS = ["id_global"];
 export const mergeSavedColumnOrder = (savedOrder, baseColumns) => {
   const baseIds = baseColumns.map((col) => col.id);
   const parsed = Array.isArray(savedOrder)
-    ? savedOrder.filter((id) => baseIds.includes(id))
+    ? [...new Set(savedOrder.filter((id) => baseIds.includes(id)))]
     : [];
   const missing = baseIds.filter((id) => !parsed.includes(id));
-  const priorityMissing = PRIORITY_FIRST_COLUMNS.filter((id) => missing.includes(id));
-  const regularMissing = missing.filter((id) => !PRIORITY_FIRST_COLUMNS.includes(id));
-  const withoutPriority = parsed.filter((id) => !PRIORITY_FIRST_COLUMNS.includes(id));
-  return [...priorityMissing, ...withoutPriority, ...regularMissing];
+  const merged = [...parsed, ...missing];
+  const priorityFirst = PRIORITY_FIRST_COLUMNS.filter((id) => merged.includes(id));
+  return [...priorityFirst, ...merged.filter((id) => !priorityFirst.includes(id))];
 };
 
 export const mergeSavedVisibleColumns = (savedVisible, baseColumns) => {
