@@ -21,6 +21,7 @@ function MgCardsVirtualGrid({
   isFavoriteRecord,
   onToggleFavorite,
   onCardClick,
+  activeSelectionId = null,
   scrollResetKey = "",
 }) {
   const layoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
@@ -66,6 +67,16 @@ function MgCardsVirtualGrid({
     scrollEl.scrollTop = 0;
     virtualizer?.scrollToIndex?.(0, { align: "start" });
   }, [scrollResetKey, scrollRef, virtualizer]);
+
+  useEffect(() => {
+    if (!virtualizer || !activeSelectionId) return;
+    const itemIndex = items.findIndex((item) => item?.id === activeSelectionId);
+    if (itemIndex < 0) return;
+    const rowIndex = Math.floor(itemIndex / Math.max(1, cardsPerRow));
+    requestAnimationFrame(() => {
+      virtualizer.scrollToIndex(rowIndex, { align: "auto" });
+    });
+  }, [virtualizer, activeSelectionId, items, cardsPerRow]);
 
   if (items.length === 0) return null;
 

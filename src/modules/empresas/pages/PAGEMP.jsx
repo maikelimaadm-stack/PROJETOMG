@@ -882,6 +882,7 @@ export default function PAGEMP() {
 
   const handleMgViewModeChange = useCallback(
     (mode) => {
+      if (saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked) return;
       applyMgViewMode(mode, {
         onOpenRegistro: () => {
           if (showForm && viewMode === "record") return;
@@ -912,6 +913,7 @@ export default function PAGEMP() {
       handleEdit,
       handleNew,
       saveCycle,
+      actionBarVisibility.secondaryToolsLocked,
       selectedIndex,
       selectedTableEmp,
       showForm,

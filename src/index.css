@@ -195,18 +195,20 @@ input[type="number"] {
   --erp-scrollbar-track-shadow: none;
   --erp-scrollbar-bg: transparent;
   --erp-scrollbar-radius: 8px;
+  --erp-scrollbar-thumb-shadow: none;
 }
 
 .escuro,
 .tema-escuro,
 [data-tema="escuro"],
 .dark {
-  --erp-scrollbar-thumb: rgba(191, 191, 191, 0.35);
-  --erp-scrollbar-thumb-hover: rgba(191, 191, 191, 0.55);
-  --erp-scrollbar-thumb-active: rgba(191, 191, 191, 0.7);
+  --erp-scrollbar-thumb: rgba(215, 225, 235, 0.52);
+  --erp-scrollbar-thumb-hover: rgba(225, 235, 245, 0.68);
+  --erp-scrollbar-thumb-active: rgba(236, 243, 250, 0.82);
   --erp-scrollbar-track: transparent;
   --erp-scrollbar-track-shadow: none;
   --erp-scrollbar-bg: transparent;
+  --erp-scrollbar-thumb-shadow: none;
 }
 
 :is(
@@ -364,6 +366,7 @@ input[type="number"] {
   ):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
     background-color: var(--erp-scrollbar-thumb);
     border-radius: var(--erp-scrollbar-radius);
+    box-shadow: var(--erp-scrollbar-thumb-shadow);
   }
 
   :is(

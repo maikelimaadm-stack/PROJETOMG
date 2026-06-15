@@ -29,6 +29,7 @@ export default function EmpRecordToolbar({
   onAttachClick,
   attachDisabled = false,
   onToggleView,
+  toggleViewDisabled = false,
   onBack,
   total = 0,
   currentIndex = 0,
@@ -63,7 +64,11 @@ export default function EmpRecordToolbar({
               <EmpToolbarIcon icon={ChevronLeft} nav />
             </ToolbarBtn>
           )}
-          <ToolbarBtn onClick={onToggleView} disabled={actionsLocked} title="Visualizar tabela">
+          <ToolbarBtn
+            onClick={onToggleView}
+            disabled={actionsLocked || toggleViewDisabled}
+            title="Visualizar tabela"
+          >
             <EmpToolbarIcon icon={List} />
           </ToolbarBtn>
           {!showSaveActions && (
