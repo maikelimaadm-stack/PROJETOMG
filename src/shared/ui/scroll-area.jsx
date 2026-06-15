@@ -22,15 +22,15 @@ const ScrollBar = React.forwardRef(({ className, orientation = "vertical", ...pr
     ref={ref}
     orientation={orientation}
     className={cn(
-      "flex touch-none select-none bg-transparent p-0",
+      "flex touch-none select-none bg-[var(--erp-scrollbar-track)] p-0 m-0 border-0 shadow-none",
       orientation === "vertical" &&
-        "h-full w-[var(--erp-scrollbar-size)] border-l border-transparent",
+        "h-full w-[var(--erp-scrollbar-size)]",
       orientation === "horizontal" &&
-        "h-[var(--erp-scrollbar-size)] flex-col border-t border-transparent",
+        "h-[var(--erp-scrollbar-size)] w-full flex-col",
       className
     )}
     {...props}>
-    <ScrollAreaPrimitive.ScrollAreaThumb className="relative flex-1 rounded-[var(--erp-scrollbar-radius)] bg-[var(--erp-scrollbar-thumb)] hover:bg-[var(--erp-scrollbar-thumb-hover)] active:bg-[var(--erp-scrollbar-thumb-active)]" />
+    <ScrollAreaPrimitive.ScrollAreaThumb className="relative m-0 flex-1 border-0 shadow-none rounded-[var(--erp-scrollbar-radius)] bg-[var(--erp-scrollbar-thumb)] hover:bg-[var(--erp-scrollbar-thumb-hover)] active:bg-[var(--erp-scrollbar-thumb-active)]" />
   </ScrollAreaPrimitive.ScrollAreaScrollbar>
 ))
 ScrollBar.displayName = ScrollAreaPrimitive.ScrollAreaScrollbar.displayName

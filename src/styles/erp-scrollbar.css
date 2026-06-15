@@ -1,0 +1,140 @@
+/* Enterprise scrollbar — loaded last to win cascade */
+:root,
+.tema-claro,
+[data-tema="claro"] {
+  --erp-scrollbar-size: 16px;
+  --erp-scrollbar-thumb: #5a6772;
+  --erp-scrollbar-thumb-hover: #4c5963;
+  --erp-scrollbar-thumb-active: #3f4a53;
+  --erp-scrollbar-track: #e9ecef;
+  --erp-scrollbar-bg: #e9ecef;
+  --erp-scrollbar-radius: 999px;
+  --erp-scrollbar-min-thumb-size: 32px;
+}
+
+.escuro,
+.tema-escuro,
+[data-tema="escuro"],
+.dark {
+  --erp-scrollbar-thumb: #9fb0c2;
+  --erp-scrollbar-thumb-hover: #b1c0cf;
+  --erp-scrollbar-thumb-active: #c2ceda;
+  --erp-scrollbar-track: #2b3440;
+  --erp-scrollbar-bg: #2b3440;
+}
+
+*:not(.no-scrollbar):not(.erp-no-scrollbar) {
+  scrollbar-width: auto;
+  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+}
+
+@supports selector(::-webkit-scrollbar) {
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar {
+    width: var(--erp-scrollbar-size) !important;
+    height: var(--erp-scrollbar-size) !important;
+    background: var(--erp-scrollbar-bg) !important;
+    border-radius: var(--erp-scrollbar-radius) !important;
+    -webkit-appearance: none;
+  }
+
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track,
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track-piece {
+    background: var(--erp-scrollbar-track) !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: var(--erp-scrollbar-radius) !important;
+    box-shadow: none !important;
+    -webkit-appearance: none;
+  }
+
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
+    background: var(--erp-scrollbar-thumb) !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: var(--erp-scrollbar-radius) !important;
+    box-shadow: none !important;
+    min-height: var(--erp-scrollbar-min-thumb-size);
+    min-width: var(--erp-scrollbar-min-thumb-size);
+    background-clip: border-box !important;
+    -webkit-appearance: none;
+  }
+
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:hover {
+    background: var(--erp-scrollbar-thumb-hover) !important;
+  }
+
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:active {
+    background: var(--erp-scrollbar-thumb-active) !important;
+  }
+
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-corner {
+    background: var(--erp-scrollbar-bg) !important;
+  }
+
+  *::-webkit-scrollbar-button,
+  *::-webkit-scrollbar-button:single-button,
+  *::-webkit-scrollbar-button:double-button,
+  *::-webkit-scrollbar-button:start,
+  *::-webkit-scrollbar-button:end,
+  *::-webkit-scrollbar-button:increment,
+  *::-webkit-scrollbar-button:decrement,
+  *::-webkit-scrollbar-button:horizontal,
+  *::-webkit-scrollbar-button:vertical,
+  *::-webkit-scrollbar-button:horizontal:increment,
+  *::-webkit-scrollbar-button:horizontal:decrement,
+  *::-webkit-scrollbar-button:vertical:increment,
+  *::-webkit-scrollbar-button:vertical:decrement,
+  *::-webkit-scrollbar-button:vertical:start:decrement,
+  *::-webkit-scrollbar-button:vertical:end:increment,
+  *::-webkit-scrollbar-button:horizontal:start:decrement,
+  *::-webkit-scrollbar-button:horizontal:end:increment {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Radix ScrollArea (custom scrollbar track/thumb) */
+[data-radix-scroll-area-scrollbar] {
+  display: flex !important;
+  touch-action: none;
+  user-select: none;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: 0 !important;
+  background: var(--erp-scrollbar-track) !important;
+  box-shadow: none !important;
+}
+
+[data-radix-scroll-area-scrollbar][data-orientation="vertical"] {
+  width: var(--erp-scrollbar-size) !important;
+}
+
+[data-radix-scroll-area-scrollbar][data-orientation="horizontal"] {
+  height: var(--erp-scrollbar-size) !important;
+}
+
+[data-radix-scroll-area-thumb] {
+  flex: 1 1 auto !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: var(--erp-scrollbar-radius) !important;
+  background: var(--erp-scrollbar-thumb) !important;
+  box-shadow: none !important;
+}
+
+[data-radix-scroll-area-thumb]:hover {
+  background: var(--erp-scrollbar-thumb-hover) !important;
+}
+
+[data-radix-scroll-area-thumb]:active {
+  background: var(--erp-scrollbar-thumb-active) !important;
+}
