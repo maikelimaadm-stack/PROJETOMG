@@ -356,95 +356,95 @@ export default function MgActionBar({
       </div>
 
       <div className="mg-action-bar__end">
-        <div className={`mg-action-bar__tools${showSecondaryTools ? " mg-action-bar__tools--visible" : ""}${lockedClass}`}>
-          <div className="mg-search-pill-wrap" ref={searchRef}>
-            <div className="mg-search-pill" role="search">
-              {searchLoading ? (
-                <Loader2
-                  className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
-                  aria-hidden="true"
-                />
-              ) : searchHasFilter ? (
-                <button
-                  type="button"
-                  className="mg-search-pill-clear"
-                  aria-label="Limpar pesquisa"
-                  disabled={actionsLocked}
-                  onClick={() => {
-                    onSearchClear?.();
+        {showSecondaryTools ? (
+          <>
+            <div className={`mg-action-bar__tools mg-action-bar__tools--visible${lockedClass}`}>
+              <div className="mg-search-pill-wrap" ref={searchRef}>
+                <div className="mg-search-pill" role="search">
+                  {searchLoading ? (
+                    <Loader2
+                      className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+                      aria-hidden="true"
+                    />
+                  ) : searchHasFilter ? (
+                    <button
+                      type="button"
+                      className="mg-search-pill-clear"
+                      aria-label="Limpar pesquisa"
+                      disabled={actionsLocked}
+                      onClick={() => {
+                        onSearchClear?.();
+                        setSearchOpen(false);
+                      }}
+                    >
+                      <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    </button>
+                  ) : (
+                    <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  )}
+                  <input
+                    type="text"
+                    placeholder="Pesquisar..."
+                    value={searchInputValue}
+                    onChange={(event) => {
+                      const next = event.target.value;
+                      onSearchInputChange?.(next);
+                      if (!actionsLocked) setSearchOpen(true);
+                    }}
+                    onFocus={() => {
+                      if (!actionsLocked) setSearchOpen(true);
+                    }}
+                    onClick={() => {
+                      if (!actionsLocked) setSearchOpen(true);
+                    }}
+                    aria-label="Pesquisar"
+                    aria-expanded={searchOpen}
+                    aria-haspopup="listbox"
+                    disabled={actionsLocked}
+                    tabIndex={actionsLocked ? -1 : 0}
+                  />
+                </div>
+                <MgSearchResultsDropdown
+                  open={searchOpen && !actionsLocked}
+                  items={searchResults}
+                  searchResultsTotal={searchResultsTotal}
+                  searchHasFavoritesInResults={searchHasFavoritesInResults}
+                  detailFields={searchDetailFields}
+                  loading={searchLoading}
+                  loadingMore={searchLoadingMore}
+                  hasMore={searchHasMore}
+                  onLoadMore={onSearchLoadMore}
+                  searchQuery={searchInputValue}
+                  configFields={searchDropdownConfigFields}
+                  onConfigSave={onSearchDropdownConfigSave}
+                  onConfigRestoreDefaults={onSearchDropdownConfigRestore}
+                  onSelect={(emp) => {
+                    onSearchResultSelect?.(emp);
                     setSearchOpen(false);
                   }}
-                >
-                  <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                </button>
-              ) : (
-                <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              )}
-              <input
-                type="text"
-                placeholder="Pesquisar..."
-                value={searchInputValue}
-                onChange={(event) => {
-                  const next = event.target.value;
-                  onSearchInputChange?.(next);
-                  if (!actionsLocked) setSearchOpen(true);
-                }}
-                onFocus={() => {
-                  if (!actionsLocked) setSearchOpen(true);
-                }}
-                onClick={() => {
-                  if (!actionsLocked) setSearchOpen(true);
-                }}
-                aria-label="Pesquisar"
-                aria-expanded={searchOpen}
-                aria-haspopup="listbox"
+                  onApplyAll={() => {
+                    onSearchApplyAll?.();
+                    setSearchOpen(false);
+                  }}
+                  onApplyFavorites={() => {
+                    onSearchApplyFavorites?.();
+                    setSearchOpen(false);
+                  }}
+                  isFavoriteRecord={isFavoriteRecord}
+                />
+              </div>
+            </div>
+            <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
+            <div className="relative" ref={moreRef}>
+              <MgSpeedDialMenu
+                open={moreOpen}
+                onOpenChange={setMoreOpen}
                 disabled={actionsLocked}
-                tabIndex={actionsLocked ? -1 : 0}
+                items={speedDialItems}
               />
             </div>
-            <MgSearchResultsDropdown
-              open={searchOpen && !actionsLocked}
-              items={searchResults}
-              searchResultsTotal={searchResultsTotal}
-              searchHasFavoritesInResults={searchHasFavoritesInResults}
-              detailFields={searchDetailFields}
-              loading={searchLoading}
-              loadingMore={searchLoadingMore}
-              hasMore={searchHasMore}
-              onLoadMore={onSearchLoadMore}
-              searchQuery={searchInputValue}
-              configFields={searchDropdownConfigFields}
-              onConfigSave={onSearchDropdownConfigSave}
-              onConfigRestoreDefaults={onSearchDropdownConfigRestore}
-              onSelect={(emp) => {
-                onSearchResultSelect?.(emp);
-                setSearchOpen(false);
-              }}
-              onApplyAll={() => {
-                onSearchApplyAll?.();
-                setSearchOpen(false);
-              }}
-              onApplyFavorites={() => {
-                onSearchApplyFavorites?.();
-                setSearchOpen(false);
-              }}
-              isFavoriteRecord={isFavoriteRecord}
-            />
-          </div>
-        </div>
-        <ActionSlot show={showSecondaryTools} width={84}>
-          <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
-        </ActionSlot>
-        <ActionSlot show={showSecondaryTools} width={28}>
-          <div className="relative" ref={moreRef}>
-            <MgSpeedDialMenu
-              open={moreOpen}
-              onOpenChange={setMoreOpen}
-              disabled={actionsLocked}
-              items={speedDialItems}
-            />
-          </div>
-        </ActionSlot>
+          </>
+        ) : null}
       </div>
     </div>
   );
