@@ -6448,9 +6448,9 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell {
-  border: none !important;
+  border: 1px solid var(--emp-table-frame-border, #d5dde8) !important;
   box-shadow: none !important;
-  border-radius: 0 !important;
+  border-radius: 8px !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main,
