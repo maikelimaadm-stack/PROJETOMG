@@ -643,10 +643,25 @@ input[type="number"] {
     background: var(--erp-scrollbar-bg);
   }
 
-  *::-webkit-scrollbar-button {
+  *::-webkit-scrollbar-button,
+  *::-webkit-scrollbar-button:single-button,
+  *::-webkit-scrollbar-button:double-button,
+  *::-webkit-scrollbar-button:start,
+  *::-webkit-scrollbar-button:end,
+  *::-webkit-scrollbar-button:increment,
+  *::-webkit-scrollbar-button:decrement,
+  *::-webkit-scrollbar-button:horizontal,
+  *::-webkit-scrollbar-button:vertical,
+  *::-webkit-scrollbar-button:horizontal:increment,
+  *::-webkit-scrollbar-button:horizontal:decrement,
+  *::-webkit-scrollbar-button:vertical:increment,
+  *::-webkit-scrollbar-button:vertical:decrement {
     width: 0 !important;
     height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
     display: none !important;
+    -webkit-appearance: none !important;
     background: transparent !important;
     border: none !important;
   }
