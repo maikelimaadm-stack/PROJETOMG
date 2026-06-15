@@ -745,6 +745,18 @@ html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbo
     inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td,
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td {
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td:not(:last-child),
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-line),
+    inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item,
 html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item {
   color: #9aa4af !important;

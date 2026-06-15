@@ -6589,6 +6589,13 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td {
   background: #eef4fa !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-line),
+    inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main,
