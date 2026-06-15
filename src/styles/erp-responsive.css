@@ -35,18 +35,11 @@
     max-width: 100% !important;
     padding-left: 0 !important;
     padding-right: 0 !important;
-    scrollbar-width: none;
   }
 
   .cadastro-emp-scope .emp-toolbar-card .emp-toolbar > div {
     padding-left: var(--erp-toolbar-inner-px, 8px) !important;
     padding-right: var(--erp-toolbar-inner-px, 8px) !important;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-row::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-primary,
@@ -237,11 +230,6 @@
     overflow-x: auto !important;
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-  }
-
-  .cadastro-emp-scope .emp-form-tab-list::-webkit-scrollbar {
-    display: none;
   }
 
   .erp-shell-breadcrumbs {
@@ -384,16 +372,8 @@
     overflow-x: auto !important;
     overflow-y: hidden !important;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
     align-items: center;
     row-gap: 0;
-  }
-
-  .cadastro-emp-scope .emp-toolbar-row::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
   }
 
   .cadastro-emp-scope .emp-toolbar-actions-end {

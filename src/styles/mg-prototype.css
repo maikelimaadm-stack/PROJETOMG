@@ -576,8 +576,6 @@
   background: transparent;
   padding: 0;
   overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   position: relative;
 }
 
@@ -597,7 +595,7 @@
 }
 
 .mg-empresas-scope .seg-control::-webkit-scrollbar {
-  display: none;
+  height: var(--erp-scrollbar-size);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip {
@@ -605,8 +603,6 @@
   align-items: center;
   border-top: none !important;
   background: var(--bg-card) !important;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
   overflow-x: auto;
   overflow-y: hidden;
   flex-shrink: 0;
@@ -637,7 +633,7 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
-  display: none;
+  height: var(--erp-scrollbar-size);
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll {

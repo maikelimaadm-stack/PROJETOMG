@@ -1,4 +1,7 @@
-/* Enterprise scrollbar — loaded last to win cascade */
+/* ==========================================================================
+   ERP Scrollbar — fonte oficial única (claro/escuro, global)
+   ========================================================================== */
+
 :root,
 .tema-claro,
 [data-tema="claro"] {
@@ -23,6 +26,42 @@
   --erp-scrollbar-bg: #2b3440;
 }
 
+/* Comportamento de rolagem em containers comuns */
+.erp-scrollbar,
+.erp-scroll-nav__viewport,
+.cadastro-emp-scope .form-scroll-container,
+.cadastro-emp-scope .emp-table-body-scroll,
+.cadastro-emp-scope .emp-form-section-panel--corp,
+.cadastro-emp-scope .emp-search-results,
+.mg-empresas-scope .mg-form-scroll,
+.mg-empresas-scope .mg-grid-scroll,
+.mg-empresas-scope .filter-panel__body,
+.mg-empresas-scope .mobile-menu,
+.mg-empresas-scope .mg-search-dropdown__list,
+.mg-empresas-scope .mg-search-dropdown__config-list,
+.mg-empresas-scope .mg-tp-col,
+.mg-empresas-scope .cmd-panel-options,
+.mg-empresas-scope .mg-panel-options,
+.mg-empresas-scope .mg-lookup-list,
+.emp-campos-config-table-wrap,
+.emp-layout-config-available-list,
+.emp-layout-config-panel-body,
+.erp-select-menu__list,
+.erp-search-panel__results,
+.erp-menu-panel [cmdk-list],
+.emp-filter-value-list,
+[data-radix-scroll-area-viewport],
+[data-radix-select-viewport],
+[data-radix-dialog-content],
+[data-sidebar="content"],
+.cadastro-emp-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+.mg-empresas-scope :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll),
+.erp-shell :is(.overflow-auto, .overflow-y-auto, .overflow-x-auto, .overflow-scroll) {
+  overscroll-behavior: contain;
+  scroll-behavior: auto;
+}
+
+/* Firefox */
 *:not(.no-scrollbar):not(.erp-no-scrollbar) {
   scrollbar-width: auto;
   scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
@@ -34,6 +73,7 @@
     height: var(--erp-scrollbar-size) !important;
     background: var(--erp-scrollbar-bg) !important;
     border-radius: var(--erp-scrollbar-radius) !important;
+    padding: 0 !important;
     -webkit-appearance: none;
   }
 
@@ -46,6 +86,14 @@
     border-radius: var(--erp-scrollbar-radius) !important;
     box-shadow: none !important;
     -webkit-appearance: none;
+  }
+
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:vertical {
+    width: var(--erp-scrollbar-size) !important;
+  }
+
+  *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track:horizontal {
+    height: var(--erp-scrollbar-size) !important;
   }
 
   *:not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
@@ -102,7 +150,21 @@
   }
 }
 
-/* Radix ScrollArea (custom scrollbar track/thumb) */
+/* Opt-out explícito (uso raro) */
+.erp-no-scrollbar,
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.erp-no-scrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Radix ScrollArea */
 [data-radix-scroll-area-scrollbar] {
   display: flex !important;
   touch-action: none;

@@ -23,7 +23,7 @@ export default function MgPrototypeSidebar({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div className="flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
+      <div className="erp-scrollbar flex-1 space-y-0.5 overflow-y-auto px-2 py-2">
         {ERP_MENU_SECTIONS.map((section) => (
           <React.Fragment key={section.id}>
             <div
