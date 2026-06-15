@@ -6517,10 +6517,14 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th,
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th,
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro .emp-td {
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th {
   border: none !important;
   box-shadow: none !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td {
+  border: none !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pagination {
