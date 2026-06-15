@@ -6466,6 +6466,7 @@
   --emp-table-band-bg: #e9edf2;
   --emp-table-band-edge: #e7eaee;
   --emp-table-line: #e7eaee;
+  --emp-table-header-bg: #fafbfd;
   --emp-table-header-line: #dde4eb;
   --emp-table-header-height: 30px;
   border: none !important;
@@ -6498,7 +6499,7 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-header-bar {
-  background: #ffffff !important;
+  background: var(--emp-table-header-bg, #fafbfd) !important;
   border-bottom: none !important;
   box-shadow: none !important;
 }
@@ -6544,7 +6545,7 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
-  background: #ffffff !important;
+  background: var(--emp-table-header-bg, #fafbfd) !important;
   color: #334155 !important;
   height: var(--emp-table-header-height, 30px) !important;
   line-height: var(--emp-table-header-height, 30px) !important;

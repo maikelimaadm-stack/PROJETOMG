@@ -661,6 +661,7 @@ html.escuro .cadastro-emp-scope .emp-table-body-scroll {
 
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell,
 html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell {
+  --emp-table-header-bg: #20262e;
   --emp-table-band-bg: #20262e;
   --emp-table-band-edge: #2d333b;
   --emp-table-line: #2d333b;
