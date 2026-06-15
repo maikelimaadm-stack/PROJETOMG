@@ -187,7 +187,7 @@ input[type="number"] {
 :root,
 .tema-claro,
 [data-tema="claro"] {
-  --erp-scrollbar-size: 14px;
+  --erp-scrollbar-size: 16px;
   --erp-scrollbar-thumb: rgba(100, 100, 100, 0.45);
   --erp-scrollbar-thumb-hover: rgba(80, 80, 80, 0.65);
   --erp-scrollbar-thumb-active: rgba(60, 60, 60, 0.75);
@@ -659,57 +659,6 @@ input[type="number"] {
   *::-webkit-scrollbar-button:horizontal:decrement,
   *::-webkit-scrollbar-button:vertical:increment,
   *::-webkit-scrollbar-button:vertical:decrement {
-    width: 0 !important;
-    height: 0 !important;
-    min-width: 0 !important;
-    min-height: 0 !important;
-    display: none !important;
-    -webkit-appearance: none !important;
-    background: transparent !important;
-    border: none !important;
-  }
-}
-
-/* Fallback global: garante remoção de setas em qualquer área não mapeada acima */
-:is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar) {
-  scrollbar-width: thin;
-  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
-}
-
-@supports selector(::-webkit-scrollbar) {
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar {
-    width: var(--erp-scrollbar-size);
-    height: var(--erp-scrollbar-size);
-    border-radius: var(--erp-scrollbar-radius);
-    -webkit-appearance: none;
-  }
-
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track {
-    border-radius: var(--erp-scrollbar-radius);
-  }
-
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
-    border-radius: var(--erp-scrollbar-radius);
-    min-height: var(--erp-scrollbar-min-thumb-size);
-    min-width: var(--erp-scrollbar-min-thumb-size);
-    border: 0;
-    margin: 0;
-    -webkit-appearance: none;
-  }
-
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:single-button,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:double-button,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:start,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:end,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:increment,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:decrement,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal:increment,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal:decrement,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical:increment,
-  :is(html, body, *):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical:decrement {
     width: 0 !important;
     height: 0 !important;
     min-width: 0 !important;
