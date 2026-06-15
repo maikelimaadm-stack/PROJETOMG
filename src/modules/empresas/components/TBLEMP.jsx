@@ -148,6 +148,7 @@ export default function TBLEMP({
   const filterPanelRef = useRef(null);
   const measureCanvasRef = useRef(null);
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
+  const [scrollbarCompensation, setScrollbarCompensation] = useState(0);
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
   const listedOnlyDistinctOptions = mgPrototype || infiniteMode;
@@ -780,12 +781,24 @@ export default function TBLEMP({
     if (!body) return undefined;
     const syncHorizontalScroll = () => {
       const left = body.scrollLeft;
+      const nextCompensation = Math.max(0, body.offsetWidth - body.clientWidth);
+      setScrollbarCompensation((prev) =>
+        Math.abs(prev - nextCompensation) < 1 ? prev : nextCompensation
+      );
       if (footer) footer.scrollLeft = left;
       if (header) header.scrollLeft = left;
     };
+    const resizeObserver =
+      typeof ResizeObserver !== "undefined"
+        ? new ResizeObserver(syncHorizontalScroll)
+        : null;
+    resizeObserver?.observe(body);
     body.addEventListener("scroll", syncHorizontalScroll, { passive: true });
     syncHorizontalScroll();
-    return () => body.removeEventListener("scroll", syncHorizontalScroll);
+    return () => {
+      body.removeEventListener("scroll", syncHorizontalScroll);
+      resizeObserver?.disconnect();
+    };
   }, [colunasOrdenadas, columnWidths, agregacoes]);
 
   const loadMoreLockRef = useRef(false);
@@ -1165,6 +1178,9 @@ export default function TBLEMP({
           <div
             ref={headerScrollRef}
             className="emp-table-header-bar shrink-0 overflow-x-hidden overflow-y-hidden"
+            style={{
+              paddingRight: scrollbarCompensation > 0 ? `${scrollbarCompensation}px` : undefined,
+            }}
           >
             <div
               className="block w-max min-w-full"
@@ -1242,6 +1258,9 @@ export default function TBLEMP({
             <div
               ref={footerScrollRef}
               className="emp-table-footer-bar overflow-x-hidden overflow-y-hidden"
+              style={{
+                paddingRight: scrollbarCompensation > 0 ? `${scrollbarCompensation}px` : undefined,
+              }}
             >
               <div
                 className="block w-max min-w-full"

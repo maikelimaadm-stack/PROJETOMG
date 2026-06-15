@@ -20,6 +20,7 @@ export default function MgContextPanel({
 }) {
   const counter = formatCadastroRecordPosition(currentIndex, total);
   const navDisabled = disabled || interactionLocked;
+  const showNavigation = !interactionLocked;
 
   return (
     <div data-template-id="context-panel" className="mg-context-panel hidden md:flex">
@@ -49,7 +50,7 @@ export default function MgContextPanel({
           </div>
         </div>
       </div>
-      <div className={`mg-context-panel__nav${interactionLocked ? " mg-context-panel__nav--locked" : ""}`}>
+      <div className={`mg-context-panel__nav${showNavigation ? " is-visible" : ""}`}>
         <button type="button" className="mg-nav-btn ios-btn" onClick={onFirst} disabled={navDisabled || currentIndex <= 0} title="Primeiro">
           <SkipBack className="h-3 w-3" />
         </button>

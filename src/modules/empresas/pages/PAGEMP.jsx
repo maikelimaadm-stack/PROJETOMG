@@ -45,7 +45,6 @@ import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache"
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
-import SaveProgressOverlay from "@/shared/components/SaveProgressOverlay";
 
 const EMP_INFINITE_PAGE_SIZE = 500;
 
@@ -1233,12 +1232,6 @@ export default function PAGEMP() {
 
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
-      <SaveProgressOverlay
-        active={saveCycle.isSaving || exportBusy}
-        message={exportBusy ? exportMessage || "Preparando exportação..." : saveCycle.saveMessage}
-        variant={saveCycle.variant}
-      />
-
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MgFilterPanel
           open={filterPanelOpen}

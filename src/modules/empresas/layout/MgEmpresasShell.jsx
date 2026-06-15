@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import { useMgEmpresasChrome } from "./MgEmpresasChromeContext";
 import MgMobileHeader from "./MgMobileHeader";
 import MgDesktopHeader from "./MgDesktopHeader";
-import MgPrototypeSidebar from "./MgPrototypeSidebar";
 import MgMobileMenu from "./MgMobileMenu";
 import MgMobileViewBar from "./MgMobileViewBar";
 
@@ -66,8 +65,6 @@ export default function MgEmpresasShell() {
         <MgDesktopHeader />
 
         <div className="flex flex-1 min-h-0 overflow-hidden">
-          <MgPrototypeSidebar />
-
           <div className="flex flex-1 flex-col min-w-0 min-h-0 overflow-hidden">
             <Suspense fallback={<EmpresasLoadingFallback />}>
               <Outlet />
