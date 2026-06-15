@@ -655,7 +655,11 @@ input[type="number"] {
   *::-webkit-scrollbar-button:horizontal:increment,
   *::-webkit-scrollbar-button:horizontal:decrement,
   *::-webkit-scrollbar-button:vertical:increment,
-  *::-webkit-scrollbar-button:vertical:decrement {
+  *::-webkit-scrollbar-button:vertical:decrement,
+  *::-webkit-scrollbar-button:vertical:start:decrement,
+  *::-webkit-scrollbar-button:vertical:end:increment,
+  *::-webkit-scrollbar-button:horizontal:start:decrement,
+  *::-webkit-scrollbar-button:horizontal:end:increment {
     width: 0 !important;
     height: 0 !important;
     min-width: 0 !important;
@@ -664,6 +668,80 @@ input[type="number"] {
     -webkit-appearance: none !important;
     background: transparent !important;
     border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* Normalizacao global para evitar componentes fora da lista acima */
+:where(*):not(.no-scrollbar):not(.erp-no-scrollbar) {
+  scrollbar-width: auto;
+  scrollbar-color: var(--erp-scrollbar-thumb) var(--erp-scrollbar-track);
+}
+
+@supports selector(::-webkit-scrollbar) {
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar {
+    width: var(--erp-scrollbar-size);
+    height: var(--erp-scrollbar-size);
+    background: var(--erp-scrollbar-bg);
+    border-radius: var(--erp-scrollbar-radius);
+    -webkit-appearance: none;
+  }
+
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-track-piece {
+    background: var(--erp-scrollbar-track);
+    border: 0;
+    margin: 0;
+    border-radius: var(--erp-scrollbar-radius);
+    box-shadow: none;
+  }
+
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb {
+    background: var(--erp-scrollbar-thumb);
+    border: 0;
+    margin: 0;
+    border-radius: var(--erp-scrollbar-radius);
+    box-shadow: none;
+    min-height: var(--erp-scrollbar-min-thumb-size);
+    min-width: var(--erp-scrollbar-min-thumb-size);
+    background-clip: border-box;
+    -webkit-appearance: none;
+  }
+
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:hover {
+    background: var(--erp-scrollbar-thumb-hover);
+  }
+
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-thumb:active {
+    background: var(--erp-scrollbar-thumb-active);
+  }
+
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:single-button,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:double-button,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:start,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:end,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:increment,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:decrement,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal:increment,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal:decrement,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical:increment,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical:decrement,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical:start:decrement,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:vertical:end:increment,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal:start:decrement,
+  :where(*):not(.no-scrollbar):not(.erp-no-scrollbar)::-webkit-scrollbar-button:horizontal:end:increment {
+    width: 0 !important;
+    height: 0 !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    display: none !important;
+    -webkit-appearance: none !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 }
 
