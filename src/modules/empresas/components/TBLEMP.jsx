@@ -262,7 +262,7 @@ export default function TBLEMP({
       columnId: col.id,
       startX: cx,
       startWidth: columnWidths[col.id] || col.width || 160,
-      minWidth: getMinWidth(col, { hasSort: sortConfig.key === col.id, reserveFilterSlot: true }),
+      minWidth: getMinWidth(col),
     };
     setResizeColumnId(col.id);
     document.body.style.cursor = "col-resize";
@@ -299,12 +299,12 @@ export default function TBLEMP({
     () =>
       Object.fromEntries(
         colunasOrdenadas.map((c) => {
-          const minW = getMinWidth(c, { hasSort: sortConfig.key === c.id, reserveFilterSlot: true });
+          const minW = getMinWidth(c);
           const rawWidth = Math.max(columnWidths[c.id] || c.width || 160, minW);
           return [c.id, Math.round(rawWidth)];
         })
       ),
-    [colunasOrdenadas, columnWidths, sortConfig.key]
+    [colunasOrdenadas, columnWidths]
   );
   const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
@@ -1049,7 +1049,7 @@ export default function TBLEMP({
   };
 
   const autoFitColumnWidth = (col) => {
-    const minW = getMinWidth(col, { hasSort: sortConfig.key === col.id, reserveFilterSlot: true });
+    const minW = getMinWidth(col);
     let maxW = measureTextWidth(formatHeaderLabel(col), '600 12px Inter, system-ui, sans-serif') + 38;
     empresasOrdenadas.slice(0, AUTO_FIT_MEASURE_LIMIT).forEach((emp) => {
       const cellW = measureTextWidth(getFieldValue(emp, col.id)) + 14;
@@ -1109,15 +1109,16 @@ export default function TBLEMP({
           onClick={() => handleSort(col.id)}
         >
           <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 gap-1 overflow-hidden justify-start">
-            {SortIcon ? (
-              <SortIcon
-                className="emp-header-sort-icon emp-toolbar-nav-icon shrink-0"
-                strokeWidth={2.5}
-                aria-hidden
-                title={sortConfig.direction === "asc" ? "Ordenado do menor para o maior" : "Ordenado do maior para o menor"}
-              />
-            ) : null}
-            <span className="emp-th-label min-w-0 flex-1 truncate font-semibold">{formatHeaderLabel(col)}</span>
+            <span className="emp-header-sort-slot inline-flex shrink-0 items-center justify-center" aria-hidden={!isSorted}>
+              {SortIcon ? (
+                <SortIcon
+                  className="emp-header-sort-icon emp-toolbar-nav-icon shrink-0"
+                  strokeWidth={2.5}
+                  title={sortConfig.direction === "asc" ? "Ordenado do menor para o maior" : "Ordenado do maior para o menor"}
+                />
+              ) : null}
+            </span>
+            <span className="emp-th-label min-w-0 flex-1 truncate font-semibold whitespace-nowrap">{formatHeaderLabel(col)}</span>
             <span
               ref={(el) => {
                 if (el) filterAnchorRefs.current[col.id] = el;
@@ -1128,7 +1129,7 @@ export default function TBLEMP({
               className={`emp-header-filter-icon inline-flex shrink-0 items-center justify-center cursor-pointer text-[var(--accent)] ${
                 isColFiltered || isFilterOpen
                   ? "emp-header-filter-icon--visible"
-                  : "emp-header-filter-icon--hidden"
+                  : "emp-header-filter-icon--idle"
               }`}
               title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
               onClick={(e) => {

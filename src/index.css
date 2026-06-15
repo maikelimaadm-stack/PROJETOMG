@@ -1640,33 +1640,44 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pro .emp-th-label-wrap {
   min-width: 0;
+  white-space: nowrap;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-th-label {
   flex: 1 1 0%;
-  min-width: 5ch;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-sort-slot {
+  width: 13px;
+  min-width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon {
+  width: 12px;
+  min-width: 12px;
+  height: 12px;
+  flex-shrink: 0;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-header-filter-icon--visible {
-  width: 12px;
-  min-width: 12px;
   opacity: 1;
   pointer-events: auto;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon--hidden {
-  width: 0;
-  min-width: 0;
+.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon--idle {
   opacity: 0;
-  overflow: hidden;
   pointer-events: none;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-th.group:hover .emp-header-filter-icon--hidden {
-  width: 12px;
-  min-width: 12px;
+.cadastro-emp-scope .emp-table-pro .emp-th.group:hover .emp-header-filter-icon--idle {
   opacity: 1;
-  overflow: visible;
   pointer-events: auto;
 }
 
