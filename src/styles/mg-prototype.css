@@ -6549,14 +6549,10 @@
   line-height: var(--emp-table-header-height, 30px) !important;
 }
 
-/* Cabeçalho: só divisórias verticais (sem linha inferior) */
+/* Cabeçalho: sem bordas laterais, apenas linha inferior */
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
   border: none !important;
-  box-shadow: none !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th:not(:last-child) {
-  box-shadow: inset -1px 0 0 0 var(--emp-table-line) !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
 /* Dados e rodapé: grade horizontal + vertical interna */
