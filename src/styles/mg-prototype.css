@@ -1625,11 +1625,32 @@
 /* Sidebar — protótipo erp-sidebar */
 .erp-shell--empresas-mg .mg-empresas-scope .erp-sidebar,
 .mg-empresas-scope .erp-sidebar {
-  width: 60px;
-  transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 220px;
+  transition: opacity 0.16s ease, transform 0.16s ease;
   overflow: hidden;
   background: #ffffff !important;
   border-right: var(--mg-divider-width) solid var(--mg-divider);
+}
+
+.mg-empresas-scope .erp-sidebar.erp-sidebar--floating {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 120;
+  max-height: calc(100dvh - 54px);
+  min-height: 220px;
+  border: var(--mg-divider-width) solid var(--mg-divider);
+  border-radius: 10px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+
+.mg-empresas-scope .erp-sidebar.erp-sidebar--floating.is-open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 .erp-shell--empresas-mg .mg-empresas-scope .erp-sidebar:hover,
@@ -1650,6 +1671,11 @@
 .mg-empresas-scope .erp-sidebar.pinned .nl,
 .mg-empresas-scope .erp-sidebar:hover .ng,
 .mg-empresas-scope .erp-sidebar.pinned .ng {
+  opacity: 1;
+}
+
+.mg-empresas-scope .erp-sidebar.erp-sidebar--floating.is-open .nl,
+.mg-empresas-scope .erp-sidebar.erp-sidebar--floating.is-open .ng {
   opacity: 1;
 }
 
@@ -1723,11 +1749,32 @@
   border-bottom: var(--mg-section-divider-border) !important;
 }
 
+.mg-empresas-scope .mg-desktop-header__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  overflow: visible;
+}
+
+.mg-empresas-scope .mg-desktop-menu-anchor {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-desktop-menu-trigger.is-active {
+  background: #ffffff;
+  color: #2b3f52;
+}
+
 .mg-empresas-scope .mg-desktop-header__crumbs {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
+  overflow: hidden;
 }
 
 .mg-empresas-scope .mg-desktop-header__crumb {
