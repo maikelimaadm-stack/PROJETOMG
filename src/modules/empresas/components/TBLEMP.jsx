@@ -943,12 +943,12 @@ export default function TBLEMP({
     handleRowClick(row?.emp || row, event);
   };
 
-  const addGroupColumn = useCallback((columnId) => {
-    setGroupByColumnIds((prev) => (prev.includes(columnId) ? prev : [...prev, columnId]));
-  }, []);
-
-  const removeGroupColumn = useCallback((columnId) => {
-    setGroupByColumnIds((prev) => prev.filter((id) => id !== columnId));
+  const toggleGroupColumn = useCallback((columnId) => {
+    setGroupByColumnIds((prev) =>
+      prev.includes(columnId)
+        ? prev.filter((id) => id !== columnId)
+        : [...prev, columnId]
+    );
   }, []);
 
   const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
@@ -1321,22 +1321,14 @@ export default function TBLEMP({
       },
     },
     {
-      id: "group-column-add",
-      label: "Agrupar por esta coluna",
+      id: "group-column-toggle",
+      label: groupByColumnIds.includes(col.id)
+        ? "Remover agrupamento desta coluna"
+        : "Agrupar por esta coluna",
       Icon: UsersRound,
       active: groupByColumnIds.includes(col.id),
       onClick: () => {
-        addGroupColumn(col.id);
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-column-remove",
-      label: "Remover agrupamento",
-      Icon: Trash2,
-      disabled: !groupByColumnIds.includes(col.id),
-      onClick: () => {
-        removeGroupColumn(col.id);
+        toggleGroupColumn(col.id);
         closeColumnOverlays();
       },
     },
