@@ -923,7 +923,20 @@
 
 .mg-empresas-scope .mg-emp-card--virtual {
   min-height: 0;
-  height: 100%;
+  height: auto;
+}
+
+.mg-empresas-scope .mg-cards-virtual-row.mg-cards-grid {
+  align-items: start;
+}
+
+.mg-empresas-scope .mg-emp-card--virtual:not(.emp-form-card) {
+  padding: 12px 16px !important;
+  align-self: start;
+}
+
+.mg-empresas-scope .mg-emp-card__header {
+  margin-bottom: 12px;
 }
 
 .mg-empresas-scope .mg-cards-virtual-shell {
@@ -2310,8 +2323,8 @@
 
 .mg-empresas-scope .mg-emp-card__fields {
   display: grid;
-  gap: 5px 12px;
-  margin-bottom: 2px;
+  gap: 4px 12px;
+  margin-bottom: 0;
 }
 
 .mg-empresas-scope .mg-emp-card__fields--per-row-5 {
