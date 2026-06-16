@@ -565,10 +565,9 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-control,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-control {
   border-bottom: none !important;
-  box-shadow: none !important;
 }
 
-/* Segmented tabs (painéis — estilo GitHub, indicador azul deslizante) */
+/* Segmented tabs (painéis — trilho glass + abas pill) */
 .mg-empresas-scope .seg-control {
   display: flex;
   align-items: flex-end;
@@ -618,25 +617,84 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
-  border-bottom: none !important;
+  align-items: center;
+  gap: 6px;
+  padding: 2px;
+  border-radius: 18px;
+  background: var(--mg-panel-tabs-glass-bg, rgba(255, 255, 255, 0.65));
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--mg-panel-tabs-glass-border, rgba(255, 255, 255, 0.9));
+  box-shadow:
+    0 10px 30px rgba(15, 23, 42, 0.06),
+    0 1px 0 rgba(255, 255, 255, 0.9);
   overflow: visible;
   position: relative;
   min-width: min-content;
   height: 100%;
-  align-items: stretch;
+  flex-shrink: 0;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab {
   min-height: 0;
   height: 100%;
-  padding: 0 12px;
+  padding: 0 14px;
+  border-radius: 14px !important;
   display: inline-flex;
   align-items: center;
+  color: #64748b;
+  font-weight: 500;
+  transition:
+    color 0.35s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active) {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.65) !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  background: var(--mg-panel-tabs-tab-active-bg, rgba(255, 255, 255, 0.95)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 10px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before {
+  display: block !important;
+  content: "" !important;
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--mg-panel-tabs-glow, #22c55e);
+  box-shadow:
+    0 0 8px rgba(34, 197, 94, 0.4),
+    0 0 18px rgba(34, 197, 94, 0.25);
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
+  display: block !important;
+  content: "" !important;
+  position: absolute;
+  top: 0;
+  left: 12%;
+  width: 76%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.9);
+  pointer-events: none;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
-  bottom: 0;
-  z-index: 3;
+  display: none !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
@@ -711,6 +769,27 @@
   color: var(--text-1) !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab span {
+  border: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active) {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.65) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active span {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 10px 20px rgba(15, 23, 42, 0.08) !important;
+}
+
 .mg-empresas-scope .seg-tab.active::before {
   display: none !important;
   content: none !important;
@@ -723,6 +802,10 @@
 
 .mg-empresas-scope .seg-control .seg-tab {
   border-radius: 0 !important;
+}
+
+.mg-empresas-scope .mg-panel-tabs-strip .seg-control .seg-tab {
+  border-radius: 14px !important;
 }
 
 /* View segmented control — estilo pill da pesquisa */
@@ -5387,7 +5470,7 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab-slider {
-  height: 1px;
+  display: none !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab.active::after {
@@ -5397,12 +5480,12 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab {
   font-size: 11px;
   font-weight: 600;
-  padding: 4px 10px 6px;
-  min-height: 28px;
+  padding: 0 10px;
+  min-height: 0;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-tab {
-  border-radius: 0;
+  border-radius: 14px !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green {
