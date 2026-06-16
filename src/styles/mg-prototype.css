@@ -6947,19 +6947,24 @@
   box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.22);
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-backdrop {
+.emp-col-popup-backdrop {
   position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
   inset: 0;
-  z-index: 88;
+  z-index: 998;
   border: none;
   padding: 0;
   margin: 0;
-  background: rgba(17, 24, 39, 0.35);
+  background: rgba(17, 24, 39, 0.2);
+  cursor: pointer;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu {
   position: absolute;
-  z-index: 90;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   gap: 2px;

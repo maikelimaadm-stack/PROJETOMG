@@ -943,6 +943,7 @@ export default function TBLEMP({
   };
 
   const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
+  const isColumnOverlayOpen = Boolean(columnMenuAnchor || menuFiltroAberto);
 
   useLayoutEffect(() => {
     if (!overlayColumnId) return undefined;
@@ -1803,9 +1804,9 @@ export default function TBLEMP({
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
       <div
         ref={tableStageRef}
-        className={`emp-table-stage relative min-h-0 ${columnMenuAnchor || menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
+        className={`emp-table-stage relative min-h-0 ${isColumnOverlayOpen ? "overflow-visible" : "overflow-hidden"}`}
       >
-        {columnMenuAnchor || menuFiltroAberto ? (
+        {isColumnOverlayOpen ? (
           <button
             type="button"
             className="emp-col-popup-backdrop"
