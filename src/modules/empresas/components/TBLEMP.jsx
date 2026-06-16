@@ -226,6 +226,7 @@ export default function TBLEMP({
   const [collapsedGroupKeys, setCollapsedGroupKeys] = useState({});
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
+
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
     if (serverPageSize) return serverPageSize;
@@ -620,15 +621,16 @@ export default function TBLEMP({
 
   const columnOptions = useMemo(() => {
     const opts = {};
+    const sourceRows = serverMode ? empresas.slice(0, 200) : empresas;
     colunasDisponiveis
       .filter((c) => !c.fixo)
       .forEach((col) => {
-        const source = empresas.filter((emp) => empresaPassaFiltros(emp, col.id));
+        const source = sourceRows.filter((emp) => (serverMode ? true : empresaPassaFiltros(emp, col.id)));
         opts[col.id] = [...new Set(source.map((emp) => getFieldValue(emp, col.id)).filter(Boolean))]
           .sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
       });
     return opts;
-  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm]);
+  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, serverMode]);
 
   const hasActiveFilter = (id) => {
     const value = filtrosColunas[id];
@@ -1772,8 +1774,13 @@ export default function TBLEMP({
       {mgPrototype ? tableHeader : null}
       <TableBody>
         <TableRow>
-          <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
-            &nbsp;
+          <TableCell
+            colSpan={colunasOrdenadas.length}
+            className="emp-td text-center py-8 text-xs text-slate-500"
+            role="status"
+            aria-live="polite"
+          >
+            Carregando empresas...
           </TableCell>
         </TableRow>
       </TableBody>
@@ -1847,6 +1854,7 @@ export default function TBLEMP({
               onKeyDown={handleTableKeyDown}
               className="emp-table-body-scroll relative min-h-0 flex-1 outline-none mg-grid-scroll"
               viewportClassName="overflow-auto"
+              aria-busy={isLoadingEmpresas || isFetchingEmpresas}
             >
               <div className="block w-max min-w-full" style={tableWideStyle}>
                 {tableBodyContent}
@@ -1861,6 +1869,7 @@ export default function TBLEMP({
                 onKeyDown={handleTableKeyDown}
                 className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
                 viewportClassName="overflow-auto"
+                aria-busy={isLoadingEmpresas || isFetchingEmpresas}
               >
                 <div className="block w-max min-w-full" style={tableWideStyle}>
                   {tableBodyContent}
