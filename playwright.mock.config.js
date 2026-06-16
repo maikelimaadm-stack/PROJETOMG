@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "**/empresas-novo-mock.spec.js",
+  testMatch: "**/empresas-*-mock.spec.js",
   fullyParallel: false,
   workers: 1,
   reporter: [["list"]],

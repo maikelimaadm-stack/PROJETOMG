@@ -567,8 +567,8 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 0;
-    z-index: 40;
+    bottom: calc(var(--mg-mobile-view-bar-height, 56px) + env(safe-area-inset-bottom, 0px));
+    z-index: 90;
     display: flex;
     gap: 5px;
     padding: 4px 8px calc(4px + env(safe-area-inset-bottom, 0px));
@@ -606,8 +606,8 @@
     position: fixed;
     left: 0;
     right: 0;
-    bottom: 0;
-    z-index: 39;
+    bottom: calc(var(--mg-mobile-view-bar-height, 56px) + env(safe-area-inset-bottom, 0px));
+    z-index: 90;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -649,14 +649,13 @@
     white-space: nowrap;
   }
 
-  .cadastro-emp-scope .emp-form-mobile-nav ~ .emp-form-mobile-footer,
-  .cadastro-emp-scope .emp-form-mobile-footer {
-    bottom: 0;
-  }
-
   .cadastro-emp-scope:has(.emp-form-mobile-nav) .form-scroll-container,
-  .cadastro-emp-scope:has(.emp-form-mobile-nav) .mg-form-scroll {
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 20px) !important;
+  .cadastro-emp-scope:has(.emp-form-mobile-nav) .mg-form-scroll,
+  .cadastro-emp-scope:has(.emp-form-mobile-footer) .form-scroll-container,
+  .cadastro-emp-scope:has(.emp-form-mobile-footer) .mg-form-scroll {
+    padding-bottom: calc(
+      var(--mg-mobile-view-bar-height, 56px) + 72px + env(safe-area-inset-bottom, 0px) + 20px
+    ) !important;
   }
 
   .cadastro-emp-scope .emp-table-view,

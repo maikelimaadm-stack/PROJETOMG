@@ -3887,6 +3887,10 @@
   font-weight: 600;
 }
 
+.mg-empresas-scope {
+  --mg-mobile-view-bar-height: 56px;
+}
+
 .mg-empresas-scope .mobile-bottom-bar {
   position: fixed;
   bottom: 0;
@@ -3901,6 +3905,8 @@
   padding: 5px 0;
   padding-bottom: calc(5px + env(safe-area-inset-bottom));
   z-index: 100;
+  height: calc(var(--mg-mobile-view-bar-height) + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .mobile-bottom-bar button {
