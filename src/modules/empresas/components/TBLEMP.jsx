@@ -1,5 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MoreVertical } from "lucide-react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowDown,
+  ArrowUp,
+  Check,
+  ChevronDown,
+  ChevronRight,
+  EyeOff,
+  Filter,
+  MoreVertical,
+  Pin,
+  ScanLine,
+  X,
+  UsersRound,
+} from "lucide-react";
+import { Checkbox } from "@/shared/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
@@ -21,6 +35,7 @@ import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
   COLUNAS_BASE,
+  FILTER_POPOVER_WIDTH,
   FROZEN_KEY,
   MAX_AUTO_FIT_WIDTH,
   MIN_COL_WIDTH,
@@ -34,8 +49,13 @@ import {
   getMinWidth,
 } from "./tblEmp.constants";
 import {
+  formatRangeTokenForInput,
   getColumnFilterType,
   getListFilterValues,
+  getRangeFilterValues,
+  getRangeTokenInputValue,
+  normalizeRangeValoresForEdit,
+  optionPassaRangeTemp,
   parseDateFilterValue,
   parseNumberFilterValue,
 } from "./tblEmp.filters";
@@ -55,6 +75,8 @@ function haveSameRecordIds(listA = [], listB = []) {
   if (listA.length !== listB.length) return false;
   return listA.every((item, index) => item?.id === listB[index]?.id);
 }
+
+const COLUMN_MENU_WIDTH = 228;
 
 export default function TBLEMP({
   empresas = [],
@@ -144,12 +166,23 @@ export default function TBLEMP({
   const tableRef = useRef(null);
   const [isTableFullscreen, setIsTableFullscreen] = useState(false);
   const dragRef = useRef(null);
+  const columnMenuTriggerRefs = useRef({});
+  const columnMenuPanelRef = useRef(null);
+  const filterPanelRef = useRef(null);
   const measureCanvasRef = useRef(null);
   const [scrollbarCompensation, setScrollbarCompensation] = useState(0);
   const scrollbarCompensationRef = useRef(0);
   const columnsInUseSignatureRef = useRef("");
   const filteredEmpresasSignatureRef = useRef("");
   const serverResetSignatureRef = useRef("");
+  const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
+  const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
+  const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
+  const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
+  const [filterAnchorRect, setFilterAnchorRect] = useState(null);
+  const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
+  const [groupByColumnId, setGroupByColumnId] = useState(null);
+  const [collapsedGroupKeys, setCollapsedGroupKeys] = useState({});
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
@@ -225,6 +258,92 @@ export default function TBLEMP({
     onColumnsInUseChange(colunasOrdenadas);
   }, [colunasOrdenadas, onColumnsInUseChange]);
 
+  const closeColumnOverlays = useCallback(() => {
+    setColumnMenuAnchor(null);
+    setMenuFiltroAberto(null);
+    setFilterAnchorRect(null);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({ colunaId: null, valores: [] });
+  }, []);
+
+  const getColumnMenuAnchor = useCallback((columnId) => {
+    const triggerEl = columnMenuTriggerRefs.current[columnId];
+    const stageEl = tableStageRef.current;
+    if (!triggerEl || !stageEl) return null;
+    const triggerRect = triggerEl.getBoundingClientRect();
+    const stageRect = stageEl.getBoundingClientRect();
+    const padding = 10;
+    const preferredLeft = triggerRect.right - stageRect.left - COLUMN_MENU_WIDTH;
+    const fallbackLeft = triggerRect.left - stageRect.left;
+    const maxLeft = stageRect.width - COLUMN_MENU_WIDTH - padding;
+    const left = Math.max(
+      padding,
+      Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
+    );
+    const preferredTop = triggerRect.bottom - stageRect.top + 6;
+    const maxTop = Math.max(padding, stageRect.height - 260);
+    const top = Math.max(padding, Math.min(preferredTop, maxTop));
+    return { columnId, left, top };
+  }, []);
+
+  const getColumnFilterAnchor = useCallback((columnId) => {
+    const triggerEl = columnMenuTriggerRefs.current[columnId];
+    const stageEl = tableStageRef.current;
+    if (!triggerEl || !stageEl) return null;
+    const triggerRect = triggerEl.getBoundingClientRect();
+    const stageRect = stageEl.getBoundingClientRect();
+    const padding = 10;
+    const preferredLeft = triggerRect.right - stageRect.left - FILTER_POPOVER_WIDTH;
+    const fallbackLeft = triggerRect.left - stageRect.left;
+    const maxLeft = stageRect.width - FILTER_POPOVER_WIDTH - padding;
+    const left = Math.max(
+      padding,
+      Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
+    );
+    const preferredTop = triggerRect.bottom - stageRect.top + 6;
+    const maxTop = Math.max(padding, stageRect.height - 300);
+    const top = Math.max(padding, Math.min(preferredTop, maxTop));
+    return { left, top };
+  }, []);
+
+  const toggleColumnMenu = useCallback((columnId) => {
+    setMenuFiltroAberto(null);
+    setFilterAnchorRect(null);
+    setColumnMenuAnchor((prev) => {
+      if (prev?.columnId === columnId) return null;
+      return getColumnMenuAnchor(columnId);
+    });
+  }, [getColumnMenuAnchor]);
+
+  const openFilterMenu = useCallback((columnId) => {
+    const position = getColumnFilterAnchor(columnId);
+    if (!position) return;
+    const col = colunasDisponiveis.find((column) => column.id === columnId);
+    if (!col) return;
+    const currentValues = filtrosColunas[columnId] || [];
+    setColumnMenuAnchor(null);
+    setFilterAnchorRect({ columnId, left: position.left, top: position.top });
+    setMenuFiltroAberto(columnId);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({
+      colunaId: columnId,
+      valores: normalizeRangeValoresForEdit(columnId, [...currentValues], colunasDisponiveis),
+    });
+  }, [colunasDisponiveis, filtrosColunas, getColumnFilterAnchor]);
+
+  const updateColumnOverlayAnchorRect = useCallback(() => {
+    setColumnMenuAnchor((prev) => {
+      if (!prev?.columnId) return prev;
+      return getColumnMenuAnchor(prev.columnId);
+    });
+    setFilterAnchorRect((prev) => {
+      if (!prev?.columnId) return prev;
+      const position = getColumnFilterAnchor(prev.columnId);
+      if (!position) return prev;
+      return { ...prev, ...position };
+    });
+  }, [getColumnFilterAnchor, getColumnMenuAnchor]);
+
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
   useEffect(() => { const s = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s ? JSON.parse(s) : {}); } catch { setLayoutAggregationConfig({}); } const h = () => { const s2 = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s2 ? JSON.parse(s2) : {}); } catch { setLayoutAggregationConfig({}); } }; window.addEventListener("storage", h); window.addEventListener("emp-layout-updated", h); return () => { window.removeEventListener("storage", h); window.removeEventListener("emp-layout-updated", h); }; }, []);
@@ -242,6 +361,7 @@ export default function TBLEMP({
       startWidth: columnWidths[col.id] || col.width || 160,
       minWidth: getMinWidth(col),
     };
+    setAutoFitActiveColumns((prev) => ({ ...prev, [col.id]: false }));
     setResizeColumnId(col.id);
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
@@ -382,7 +502,6 @@ export default function TBLEMP({
   }, [serverMode, empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
 
   const empresasOrdenadas = useMemo(() => {
-    if (serverMode) return empresasFiltradas;
     const sorted = [...empresasFiltradas];
     sorted.sort((a, b) => {
       if (sortConfig.key === "id_global") { const aV = Number(a.id_global || 0); const bV = Number(b.id_global || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
@@ -395,6 +514,23 @@ export default function TBLEMP({
     });
     return sorted;
   }, [empresasFiltradas, sortConfig]);
+
+  const columnOptions = useMemo(() => {
+    const opts = {};
+    colunasDisponiveis
+      .filter((c) => !c.fixo)
+      .forEach((col) => {
+        const source = empresas.filter((emp) => empresaPassaFiltros(emp, col.id));
+        opts[col.id] = [...new Set(source.map((emp) => getFieldValue(emp, col.id)).filter(Boolean))]
+          .sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
+      });
+    return opts;
+  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm]);
+
+  const hasActiveFilter = (id) => (filtrosColunas[id] || []).length > 0;
+  const getValoresFiltro = (id) => filtrosColunas[id] || [];
+  const setValoresFiltro = (id, values) => setFiltrosColunas((prev) => ({ ...prev, [id]: values }));
+  const clearColumnFilter = (id) => setValoresFiltro(id, []);
 
   useEffect(() => {
     if (!onFilteredEmpresasChange) return;
@@ -437,13 +573,75 @@ export default function TBLEMP({
     return empresasOrdenadas.slice(start, start + pageSize);
   }, [infiniteMode, serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
 
+  const linhasExibidas = useMemo(() => {
+    if (!groupByColumnId) {
+      return empresasPaginadas.map((empresa) => ({ __type: "row", key: `row:${empresa.id}`, emp: empresa }));
+    }
+    const grouped = new Map();
+    empresasPaginadas.forEach((empresa) => {
+      const rawValue = getFieldValue(empresa, groupByColumnId);
+      const groupLabel = String(rawValue ?? "-").trim() || "-";
+      if (!grouped.has(groupLabel)) grouped.set(groupLabel, []);
+      grouped.get(groupLabel).push(empresa);
+    });
+    const sortedEntries = Array.from(grouped.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0], "pt-BR", { numeric: true, sensitivity: "base" })
+    );
+    const nextRows = [];
+    sortedEntries.forEach(([groupLabel, items]) => {
+      const groupKey = `${groupByColumnId}:${groupLabel}`;
+      nextRows.push({
+        __type: "group",
+        key: `group:${groupKey}`,
+        groupKey,
+        label: groupLabel,
+        count: items.length,
+      });
+      if (!collapsedGroupKeys[groupKey]) {
+        items.forEach((empresa) =>
+          nextRows.push({
+            __type: "row",
+            key: `row:${empresa.id}`,
+            emp: empresa,
+            groupKey,
+          })
+        );
+      }
+    });
+    return nextRows;
+  }, [collapsedGroupKeys, empresasPaginadas, getFieldValue, groupByColumnId]);
+
+  useEffect(() => {
+    setCollapsedGroupKeys({});
+  }, [groupByColumnId]);
+
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";
     return "emp-row-even";
   };
 
   const renderVirtualTableRow = useCallback(
-    (emp, virtualRowIndex) => {
+    (rowEntry, virtualRowIndex) => {
+      if (rowEntry?.__type === "group") {
+        const isCollapsed = Boolean(collapsedGroupKeys[rowEntry.groupKey]);
+        return (
+          <TableCell
+            colSpan={colunasOrdenadas.length}
+            className="emp-td emp-group-row-cell py-0 text-left text-[12px] align-middle select-none"
+          >
+            <div className="emp-group-row-content">
+              {isCollapsed ? (
+                <ChevronRight className="h-3.5 w-3.5 text-emerald-600" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 text-emerald-600" />
+              )}
+              <span className="emp-group-row-label">{rowEntry.label}</span>
+              <span className="emp-group-row-count">({rowEntry.count})</span>
+            </div>
+          </TableCell>
+        );
+      }
+      const emp = rowEntry?.emp ?? rowEntry;
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
       return colunasOrdenadas.map((col, colIndex) => {
@@ -463,6 +661,7 @@ export default function TBLEMP({
       });
     },
     [
+      collapsedGroupKeys,
       colunasOrdenadas,
       frozenColumnCount,
       frozenOffsets,
@@ -559,6 +758,70 @@ export default function TBLEMP({
     handleRowSelect(emp, event);
   };
 
+  const handleDisplayRowClick = (row, event) => {
+    if (row?.__type === "group") {
+      setCollapsedGroupKeys((prev) => ({
+        ...prev,
+        [row.groupKey]: !prev[row.groupKey],
+      }));
+      return;
+    }
+    handleRowClick(row?.emp || row, event);
+  };
+
+  const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
+
+  useLayoutEffect(() => {
+    if (!overlayColumnId) return undefined;
+    updateColumnOverlayAnchorRect();
+    const onReflow = () => updateColumnOverlayAnchorRect();
+    const scrollRoot = scrollContainerRef.current;
+    const raf = requestAnimationFrame(updateColumnOverlayAnchorRect);
+    scrollRoot?.addEventListener("scroll", onReflow, { passive: true });
+    window.addEventListener("resize", onReflow);
+    window.addEventListener("scroll", onReflow, true);
+    return () => {
+      cancelAnimationFrame(raf);
+      scrollRoot?.removeEventListener("scroll", onReflow);
+      window.removeEventListener("resize", onReflow);
+      window.removeEventListener("scroll", onReflow, true);
+    };
+  }, [overlayColumnId, updateColumnOverlayAnchorRect, colunasOrdenadas, columnWidths]);
+
+  useEffect(() => {
+    if (!overlayColumnId) return undefined;
+    const onPointerDown = (event) => {
+      const menuPanel = columnMenuPanelRef.current;
+      const filterPanel = filterPanelRef.current;
+      const trigger = columnMenuTriggerRefs.current[overlayColumnId];
+      if (
+        menuPanel?.contains(event.target) ||
+        filterPanel?.contains(event.target) ||
+        trigger?.contains(event.target)
+      ) {
+        return;
+      }
+      closeColumnOverlays();
+    };
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") closeColumnOverlays();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown, { passive: true });
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [overlayColumnId, closeColumnOverlays]);
+
+  useEffect(() => {
+    if (!overlayColumnId) return;
+    if (colunasOrdenadas.some((column) => column.id === overlayColumnId)) return;
+    closeColumnOverlays();
+  }, [overlayColumnId, colunasOrdenadas, closeColumnOverlays]);
+
   const syncTableFullscreen = useCallback(() => {
     setIsTableFullscreen(document.fullscreenElement === tableStageRef.current);
   }, []);
@@ -566,11 +829,11 @@ export default function TBLEMP({
   useEffect(() => {
     const onFullscreenChange = () => {
       syncTableFullscreen();
-      requestAnimationFrame(() => updateFilterAnchorRect());
+      requestAnimationFrame(() => updateColumnOverlayAnchorRect());
     };
     document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-  }, [syncTableFullscreen]);
+  }, [syncTableFullscreen, updateColumnOverlayAnchorRect]);
 
   const handleToggleTableFullscreen = useCallback(async () => {
     const el = tableStageRef.current;
@@ -599,6 +862,11 @@ export default function TBLEMP({
   ]);
 
   const handleTableKeyDown = (e) => {
+    if (e.key === "Escape" && (columnMenuAnchor || menuFiltroAberto)) {
+      e.preventDefault();
+      closeColumnOverlays();
+      return;
+    }
     if (e.key === "Escape" && document.fullscreenElement === tableStageRef.current) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
       e.preventDefault();
@@ -758,8 +1026,93 @@ export default function TBLEMP({
     }
     const nextWidth = Math.round(Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW))));
     setColumnWidths((p) => ({ ...p, [col.id]: nextWidth }));
+    setAutoFitActiveColumns((prev) => ({ ...prev, [col.id]: true }));
     setResizeColumnId(null);
   };
+
+  const applyQuickColumnFilter = (col) => {
+    openFilterMenu(col.id);
+  };
+
+  const hideColumn = (col) => {
+    if (!colunasVisiveis.includes(col.id) || colunasVisiveis.length <= 1) return;
+    const nextVisiveis = colunasVisiveis.filter((id) => id !== col.id);
+    setColunasVisiveis(nextVisiveis);
+    setFrozenColumnCount((count) => Math.min(count, nextVisiveis.length));
+    localStorage.setItem(VISIBLE_KEY, JSON.stringify(nextVisiveis));
+    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+    closeColumnOverlays();
+  };
+
+  const togglePinnedColumn = (colIndex) => {
+    const nextCount = frozenColumnCount > colIndex ? colIndex : colIndex + 1;
+    setFrozenColumnCount(Math.min(nextCount, colunasOrdenadas.length));
+    closeColumnOverlays();
+  };
+
+  const buildColumnMenuItems = (col, colIndex) => [
+    {
+      id: "filter",
+      label: "Filtro",
+      Icon: Filter,
+      active: (filtrosColunas[col.id] || []).length > 0,
+      onClick: () => applyQuickColumnFilter(col),
+    },
+    {
+      id: "sort-az",
+      label: "Classificar de A a Z",
+      Icon: ArrowUp,
+      active: sortConfig.key === col.id && sortConfig.direction === "asc",
+      onClick: () => {
+        setSortConfig({ key: col.id, direction: "asc" });
+        closeColumnOverlays();
+      },
+    },
+    {
+      id: "sort-za",
+      label: "Classificar de Z a A",
+      Icon: ArrowDown,
+      active: sortConfig.key === col.id && sortConfig.direction === "desc",
+      onClick: () => {
+        setSortConfig({ key: col.id, direction: "desc" });
+        closeColumnOverlays();
+      },
+    },
+    {
+      id: "auto-fit",
+      label: "Auto ajustar",
+      Icon: ScanLine,
+      active: Boolean(autoFitActiveColumns[col.id]),
+      onClick: () => {
+        autoFitColumnWidth(col);
+        closeColumnOverlays();
+      },
+    },
+    {
+      id: "pin-column",
+      label: "Fixar coluna",
+      Icon: Pin,
+      active: colIndex < frozenColumnCount,
+      onClick: () => togglePinnedColumn(colIndex),
+    },
+    {
+      id: "group-column",
+      label: "Agrupar por coluna",
+      Icon: UsersRound,
+      active: groupByColumnId === col.id,
+      onClick: () => {
+        setGroupByColumnId((prev) => (prev === col.id ? null : col.id));
+        closeColumnOverlays();
+      },
+    },
+    {
+      id: "hide-column",
+      label: "Ocultar coluna",
+      Icon: EyeOff,
+      disabled: colunasVisiveis.length <= 1,
+      onClick: () => hideColumn(col),
+    },
+  ];
 
   useEffect(() => {
     if (!onVisibleDataChange) return undefined;
@@ -791,6 +1144,8 @@ export default function TBLEMP({
     colunasOrdenadas.map((col, colIndex) => {
       const isFrozen = colIndex < frozenColumnCount;
       const isResizing = resizeColumnId === col.id;
+      const isMenuOpen = columnMenuAnchor?.columnId === col.id;
+      const hasColumnFilter = (filtrosColunas[col.id] || []).length > 0;
       return (
         <TableHead
           key={col.id}
@@ -801,9 +1156,24 @@ export default function TBLEMP({
             <span className="emp-th-label flex-1 min-w-0 truncate font-semibold whitespace-nowrap text-left">
               {formatHeaderLabel(col)}
             </span>
-            <span className="emp-th-menu-icon" aria-hidden="true">
-              <MoreVertical className="h-3.5 w-3.5" strokeWidth={2} />
-            </span>
+            <button
+              type="button"
+              ref={(element) => {
+                if (element) columnMenuTriggerRefs.current[col.id] = element;
+                else delete columnMenuTriggerRefs.current[col.id];
+              }}
+              className={`emp-th-menu-button${isMenuOpen ? " is-open" : ""}${hasColumnFilter ? " has-filter" : ""}`}
+              aria-label={`Abrir menu da coluna ${formatHeaderLabel(col)}`}
+              aria-expanded={isMenuOpen}
+              onClick={(event) => {
+                event.stopPropagation();
+                toggleColumnMenu(col.id);
+              }}
+            >
+              <span className="emp-th-menu-icon" aria-hidden="true">
+                <MoreVertical className="h-3.5 w-3.5" strokeWidth={2} />
+              </span>
+            </button>
           </div>
           <div
             role="separator"
@@ -824,6 +1194,250 @@ export default function TBLEMP({
         </TableHead>
       );
     });
+
+  const renderColumnMenu = () => {
+    if (!columnMenuAnchor?.columnId) return null;
+    const columnIndex = colunasOrdenadas.findIndex((column) => column.id === columnMenuAnchor.columnId);
+    if (columnIndex < 0) return null;
+    const column = colunasOrdenadas[columnIndex];
+    const menuItems = buildColumnMenuItems(column, columnIndex);
+    return (
+      <div
+        ref={columnMenuPanelRef}
+        className="emp-col-popup-menu erp-menu-panel"
+        style={{ left: columnMenuAnchor.left, top: columnMenuAnchor.top }}
+      >
+        {menuItems.map((item, index) => {
+          const Icon = item.Icon;
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`emp-col-popup-menu__item${item.active ? " is-active" : ""}`}
+              disabled={item.disabled}
+              style={{ "--menu-index": index }}
+              onClick={item.onClick}
+            >
+              <Icon className="h-4 w-4" />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderFilterPopoverContent = (colunaId) => {
+    const col = colunasDisponiveis.find((column) => column.id === colunaId);
+    if (!col) return null;
+    const options = columnOptions[colunaId] || [];
+    const filterType = getColumnFilterType(col);
+    const isRange = filterType === "number" || filterType === "date";
+    const selectedValues =
+      filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
+    const listSelected = getListFilterValues(selectedValues, filterType);
+    const tempRangeValues = filtroTemp.colunaId === colunaId ? filtroTemp.valores : [];
+    const rangeFilteredOptions =
+      isRange && menuFiltroAberto === colunaId
+        ? options.filter((option) => optionPassaRangeTemp(option, filterType, tempRangeValues))
+        : options;
+    const filteredOptions = rangeFilteredOptions.filter((option) =>
+      String(option).toLowerCase().includes(buscaFiltroMenu.toLowerCase())
+    );
+    const allVisibleSelected =
+      filteredOptions.length > 0 &&
+      filteredOptions.every((option) => listSelected.includes(option));
+    const columnLabel = formatHeaderLabel(col);
+    return (
+      <div
+        ref={filterPanelRef}
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
+        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
+      >
+        <div className="emp-filter-sort-section">
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            onClick={() => {
+              setSortConfig({ key: colunaId, direction: "asc" });
+              closeColumnOverlays();
+            }}
+          >
+            <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
+            <span>Classificar do Menor para o Maior</span>
+          </button>
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            onClick={() => {
+              setSortConfig({ key: colunaId, direction: "desc" });
+              closeColumnOverlays();
+            }}
+          >
+            <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
+            <span>Classificar do Maior para o Menor</span>
+          </button>
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            disabled={!hasActiveFilter(colunaId)}
+            onClick={() => {
+              clearColumnFilter(colunaId);
+              closeColumnOverlays();
+            }}
+          >
+            <X className="w-4 h-4 mr-2 shrink-0" />
+            <span className="truncate">Limpar Filtro de &apos;{columnLabel}&apos;</span>
+          </button>
+        </div>
+
+        <div className="emp-filter-body">
+          {isRange ? (
+            <div className="space-y-1">
+              <div className="emp-filter-range-label">Filtrar entre</div>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
+                <input
+                  type="text"
+                  value={formatRangeTokenForInput(
+                    getRangeTokenInputValue(
+                      selectedValues.find((item) =>
+                        String(item).startsWith(filterType === "date" ? "start:" : "min:")
+                      )
+                    )
+                  )}
+                  onChange={(event) =>
+                    setFiltroTemp((prev) => {
+                      const rangeValues = getRangeFilterValues(prev.valores, filterType).filter(
+                        (item) =>
+                          !String(item).startsWith(filterType === "date" ? "start:" : "min:")
+                      );
+                      const listValues = getListFilterValues(prev.valores, filterType);
+                      const minValue = event.target.value.trim()
+                        ? `${filterType === "date" ? "start" : "min"}:${event.target.value.trim()}`
+                        : null;
+                      return {
+                        ...prev,
+                        valores: [...(minValue ? [minValue] : []), ...rangeValues, ...listValues],
+                      };
+                    })
+                  }
+                  placeholder="DE"
+                  className="emp-filter-field emp-filter-search"
+                />
+                <span className="emp-filter-range-sep">a</span>
+                <input
+                  type="text"
+                  value={formatRangeTokenForInput(
+                    getRangeTokenInputValue(
+                      selectedValues.find((item) =>
+                        String(item).startsWith(filterType === "date" ? "end:" : "max:")
+                      )
+                    )
+                  )}
+                  onChange={(event) =>
+                    setFiltroTemp((prev) => {
+                      const rangeValues = getRangeFilterValues(prev.valores, filterType).filter(
+                        (item) =>
+                          !String(item).startsWith(filterType === "date" ? "end:" : "max:")
+                      );
+                      const listValues = getListFilterValues(prev.valores, filterType);
+                      const maxValue = event.target.value.trim()
+                        ? `${filterType === "date" ? "end" : "max"}:${event.target.value.trim()}`
+                        : null;
+                      return {
+                        ...prev,
+                        valores: [...rangeValues, ...(maxValue ? [maxValue] : []), ...listValues],
+                      };
+                    })
+                  }
+                  placeholder="ATÉ"
+                  className="emp-filter-field emp-filter-search"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <input
+            value={buscaFiltroMenu}
+            onChange={(event) => setBuscaFiltroMenu(event.target.value)}
+            placeholder="PESQUISAR"
+            className="emp-filter-field emp-filter-search"
+          />
+
+          <div className="emp-filter-value-list">
+            <label className="emp-filter-value-list-header">
+              <Checkbox
+                checked={allVisibleSelected}
+                onCheckedChange={(checked) =>
+                  setFiltroTemp((prev) => {
+                    const rangeValues = getRangeFilterValues(prev.valores, filterType);
+                    const listValues = getListFilterValues(prev.valores, filterType);
+                    const rest = listValues.filter((value) => !filteredOptions.includes(value));
+                    return {
+                      ...prev,
+                      valores: checked
+                        ? [...rangeValues, ...new Set([...rest, ...filteredOptions])]
+                        : [...rangeValues, ...rest],
+                    };
+                  })
+                }
+                className="emp-filter-checkbox"
+              />
+              <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                (Selecionar Tudo)
+              </span>
+            </label>
+            {filteredOptions.map((option) => (
+              <label key={option} className="emp-filter-value-list-item">
+                <Checkbox
+                  checked={listSelected.includes(option)}
+                  onCheckedChange={(checked) =>
+                    setFiltroTemp((prev) => {
+                      const rangeValues = getRangeFilterValues(prev.valores, filterType);
+                      const listValues = getListFilterValues(prev.valores, filterType);
+                      const nextList = checked
+                        ? [...listValues, option]
+                        : listValues.filter((value) => value !== option);
+                      return { ...prev, valores: [...rangeValues, ...nextList] };
+                    })
+                  }
+                  className="emp-filter-checkbox"
+                />
+                <span
+                  className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+                  title={option}
+                >
+                  {option}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          <div className="emp-filter-actions">
+            <button
+              type="button"
+              title="Aplicar filtro"
+              className="emp-col-filter-popup__action is-primary"
+              onClick={() => {
+                setValoresFiltro(colunaId, filtroTemp.valores);
+                closeColumnOverlays();
+              }}
+            >
+              <Check className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Cancelar"
+              className="emp-col-filter-popup__action"
+              onClick={closeColumnOverlays}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const renderTotalCells = () =>
     colunasOrdenadas.map((col, ci) => {
@@ -902,7 +1516,7 @@ export default function TBLEMP({
     <>
       <EmpVirtualTableBody
         scrollRef={scrollContainerRef}
-        rows={empresasPaginadas}
+        rows={linhasExibidas}
         enabled={!isLoadingEmpresas}
         totalTableWidth={totalTableWidth}
         bodyTableClass={bodyTableClass}
@@ -910,10 +1524,12 @@ export default function TBLEMP({
         tableHeader={mgPrototype ? tableHeader : null}
         colCount={colunasOrdenadas.length}
         renderRow={renderVirtualTableRow}
-        getRowClassName={(emp, rowIndex) =>
-          getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
+        getRowClassName={(row, rowIndex) =>
+          row?.__type === "group"
+            ? "emp-group-row"
+            : getRowBgClass(rowIndex, selectedItemsSet.has((row?.emp || row)?.id))
         }
-        onRowClick={handleRowClick}
+        onRowClick={handleDisplayRowClick}
       />
       {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
     </>
@@ -923,8 +1539,17 @@ export default function TBLEMP({
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
       <div
         ref={tableStageRef}
-        className="emp-table-stage relative min-h-0 overflow-hidden"
+        className={`emp-table-stage relative min-h-0 ${columnMenuAnchor || menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
       >
+        {columnMenuAnchor || menuFiltroAberto ? (
+          <button
+            type="button"
+            className="emp-col-popup-backdrop"
+            aria-label="Fechar opções da coluna"
+            tabIndex={-1}
+            onClick={closeColumnOverlays}
+          />
+        ) : null}
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
           {mgPrototype ? (
             <ErpScrollNav
@@ -1002,6 +1627,10 @@ export default function TBLEMP({
             </div>
           )}
         </div>
+        {renderColumnMenu()}
+        {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto
+          ? renderFilterPopoverContent(menuFiltroAberto)
+          : null}
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}
