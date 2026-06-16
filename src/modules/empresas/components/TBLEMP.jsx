@@ -942,14 +942,6 @@ export default function TBLEMP({
     handleRowClick(row?.emp || row, event);
   };
 
-  const toggleGroupColumn = useCallback((columnId) => {
-    setGroupByColumnIds((prev) =>
-      prev.includes(columnId)
-        ? prev.filter((id) => id !== columnId)
-        : [...prev, columnId]
-    );
-  }, []);
-
   const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
 
   useLayoutEffect(() => {
@@ -1326,18 +1318,6 @@ export default function TBLEMP({
       active: Boolean(autoFitActiveColumns[col.id]),
       onClick: () => {
         autoFitColumnWidth(col);
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-column-toggle",
-      label: groupByColumnIds.includes(col.id)
-        ? "Remover agrupamento desta coluna"
-        : "Agrupar por esta coluna",
-      Icon: UsersRound,
-      active: groupByColumnIds.includes(col.id),
-      onClick: () => {
-        toggleGroupColumn(col.id);
         closeColumnOverlays();
       },
     },
