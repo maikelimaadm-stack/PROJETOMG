@@ -2,6 +2,7 @@ import { getPrismaClient } from "../../../database/prismaClient.js";
 
 const EXPORT_BATCH_SIZE = 500;
 const CSV_BOM = "\uFEFF";
+const KEYSET_SORT_FIELDS = new Set(["codempresa", "id_global"]);
 
 const escapeCsvCell = (value) => {
   const text = value == null ? "" : String(value);
@@ -45,6 +46,9 @@ export const streamEmpresasExport = async ({
 
   const where = await empresaRepository.buildListWhere(prisma, scope, { search, filters });
   const orderBy = empresaRepository.resolveOrderBy(sortBy, sortDir);
+  const [sortField] = Object.keys(orderBy);
+  const sortDirection = orderBy[sortField] === "desc" ? "desc" : "asc";
+  const supportsKeyset = KEYSET_SORT_FIELDS.has(sortField);
   const columns = empresaRepository.EXPORT_COLUMNS;
 
   const extension = format === "excel" ? "xls" : "csv";
@@ -66,13 +70,35 @@ export const streamEmpresasExport = async ({
   let skip = 0;
   let exported = 0;
   let hasMore = true;
+  let keysetCursor = null;
+
+  const buildKeysetWhere = () => {
+    if (!supportsKeyset || !keysetCursor) return where;
+    const comparator = sortDirection === "desc" ? "lt" : "gt";
+    return {
+      AND: [
+        where,
+        {
+          OR: [
+            { [sortField]: { [comparator]: keysetCursor.value } },
+            {
+              AND: [
+                { [sortField]: keysetCursor.value },
+                { id: { [comparator]: keysetCursor.id } },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+  };
 
   while (hasMore && exported < maxRows) {
     const take = Math.min(EXPORT_BATCH_SIZE, maxRows - exported);
     const batch = await prisma.empresa.findMany({
-      where,
-      orderBy,
-      skip,
+      where: buildKeysetWhere(),
+      orderBy: supportsKeyset ? [{ [sortField]: sortDirection }, { id: sortDirection }] : orderBy,
+      ...(supportsKeyset ? {} : { skip }),
       take,
       select: empresaRepository.EXPORT_SELECT,
     });
@@ -86,7 +112,17 @@ export const streamEmpresasExport = async ({
       if (exported >= maxRows) break;
     }
 
-    skip += batch.length;
+    if (supportsKeyset) {
+      const lastRow = batch[batch.length - 1];
+      keysetCursor = lastRow
+        ? {
+            value: lastRow[sortField],
+            id: lastRow.id,
+          }
+        : keysetCursor;
+    } else {
+      skip += batch.length;
+    }
     hasMore = batch.length === take && exported < maxRows;
   }
 

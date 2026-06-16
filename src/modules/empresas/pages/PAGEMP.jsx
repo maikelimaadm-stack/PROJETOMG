@@ -48,7 +48,7 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 
-const EMP_INFINITE_PAGE_SIZE = 500;
+const EMP_INFINITE_PAGE_SIZE = 100;
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -325,28 +325,42 @@ export default function PAGEMP() {
       querySort.direction,
       listFiltersKey,
     ],
-    queryFn: async ({ pageParam = 1 }) => {
+    queryFn: async ({ pageParam = { page: 1, cursor: null } }) => {
       const trimmedSearch = normalizeSearchQuery(searchTerm);
+      const pageNumber =
+        typeof pageParam === "number"
+          ? pageParam
+          : Number(pageParam?.page) || 1;
+      const cursor = typeof pageParam === "object" ? pageParam?.cursor || null : null;
       if (searchFavoritesOnly && favoriteIds.length === 0) {
         return {
           ...DEFAULT_EMPRESAS_RESPONSE,
-          page: Number(pageParam) || 1,
+          page: pageNumber,
           pageSize: EMP_INFINITE_PAGE_SIZE,
           totalPages: 1,
+          nextCursor: null,
         };
       }
       return moduleRepository.listPage({
-        page: Number(pageParam) || 1,
+        page: pageNumber,
         pageSize: EMP_INFINITE_PAGE_SIZE,
         search: trimmedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
         filters: listFilters,
+        cursor,
       });
     },
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) =>
-      lastPage?.page < lastPage?.totalPages ? lastPage.page + 1 : undefined,
+    initialPageParam: { page: 1, cursor: null },
+    getNextPageParam: (lastPage) => {
+      if (lastPage?.nextCursor) {
+        return {
+          page: (Number(lastPage.page) || 1) + 1,
+          cursor: lastPage.nextCursor,
+        };
+      }
+      return lastPage?.page < lastPage?.totalPages ? lastPage.page + 1 : undefined;
+    },
     placeholderData: (previous) => previous,
     staleTime: 30_000,
     gcTime: 5 * 60_000,

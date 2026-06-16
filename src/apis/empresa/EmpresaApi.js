@@ -35,6 +35,7 @@ export const EmpresaApi = {
       page: Number(payload?.page || 1),
       pageSize: Number(payload?.pageSize || params.pageSize || 50),
       totalPages: Number(payload?.totalPages || 1),
+      nextCursor: payload?.nextCursor || null,
     };
   },
 
