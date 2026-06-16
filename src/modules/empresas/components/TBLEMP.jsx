@@ -2,11 +2,15 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSta
 import {
   ArrowDown,
   ArrowUp,
+  Check,
+  ChevronDown,
+  ChevronRight,
   EyeOff,
   Filter,
   MoreVertical,
   Pin,
   ScanLine,
+  X,
   UsersRound,
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
@@ -66,6 +70,7 @@ function haveSameRecordIds(listA = [], listB = []) {
 }
 
 const COLUMN_MENU_WIDTH = 228;
+const COLUMN_FILTER_WIDTH = 270;
 
 export default function TBLEMP({
   empresas = [],
@@ -164,6 +169,10 @@ export default function TBLEMP({
   const filteredEmpresasSignatureRef = useRef("");
   const serverResetSignatureRef = useRef("");
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
+  const [columnFilterPopup, setColumnFilterPopup] = useState(null);
+  const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
+  const [groupByColumnId, setGroupByColumnId] = useState(null);
+  const [collapsedGroupKeys, setCollapsedGroupKeys] = useState({});
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
@@ -239,8 +248,9 @@ export default function TBLEMP({
     onColumnsInUseChange(colunasOrdenadas);
   }, [colunasOrdenadas, onColumnsInUseChange]);
 
-  const closeColumnMenu = useCallback(() => {
+  const closeColumnOverlays = useCallback(() => {
     setColumnMenuAnchor(null);
+    setColumnFilterPopup(null);
   }, []);
 
   const getColumnMenuAnchor = useCallback((columnId) => {
@@ -263,19 +273,60 @@ export default function TBLEMP({
     return { columnId, left, top };
   }, []);
 
+  const getColumnFilterAnchor = useCallback((columnId) => {
+    const triggerEl = columnMenuTriggerRefs.current[columnId];
+    const stageEl = tableStageRef.current;
+    if (!triggerEl || !stageEl) return null;
+    const triggerRect = triggerEl.getBoundingClientRect();
+    const stageRect = stageEl.getBoundingClientRect();
+    const padding = 10;
+    const preferredLeft = triggerRect.right - stageRect.left - COLUMN_FILTER_WIDTH;
+    const fallbackLeft = triggerRect.left - stageRect.left;
+    const maxLeft = stageRect.width - COLUMN_FILTER_WIDTH - padding;
+    const left = Math.max(
+      padding,
+      Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
+    );
+    const preferredTop = triggerRect.bottom - stageRect.top + 6;
+    const maxTop = Math.max(padding, stageRect.height - 300);
+    const top = Math.max(padding, Math.min(preferredTop, maxTop));
+    return { left, top };
+  }, []);
+
   const toggleColumnMenu = useCallback((columnId) => {
+    setColumnFilterPopup(null);
     setColumnMenuAnchor((prev) => {
       if (prev?.columnId === columnId) return null;
       return getColumnMenuAnchor(columnId);
     });
   }, [getColumnMenuAnchor]);
 
-  const updateColumnMenuAnchorRect = useCallback(() => {
+  const openColumnFilterPopup = useCallback((column) => {
+    const position = getColumnFilterAnchor(column.id);
+    if (!position) return;
+    const currentFilter = filtrosColunas[column.id] || [];
+    const currentValue = getListFilterValues(currentFilter, getColumnFilterType(column))[0] ?? "";
+    setColumnMenuAnchor(null);
+    setColumnFilterPopup({
+      columnId: column.id,
+      left: position.left,
+      top: position.top,
+      value: String(currentValue || ""),
+    });
+  }, [filtrosColunas, getColumnFilterAnchor]);
+
+  const updateColumnOverlayAnchorRect = useCallback(() => {
     setColumnMenuAnchor((prev) => {
       if (!prev?.columnId) return prev;
       return getColumnMenuAnchor(prev.columnId);
     });
-  }, [getColumnMenuAnchor]);
+    setColumnFilterPopup((prev) => {
+      if (!prev?.columnId) return prev;
+      const position = getColumnFilterAnchor(prev.columnId);
+      if (!position) return prev;
+      return { ...prev, ...position };
+    });
+  }, [getColumnFilterAnchor, getColumnMenuAnchor]);
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
@@ -294,6 +345,7 @@ export default function TBLEMP({
       startWidth: columnWidths[col.id] || col.width || 160,
       minWidth: getMinWidth(col),
     };
+    setAutoFitActiveColumns((prev) => ({ ...prev, [col.id]: false }));
     setResizeColumnId(col.id);
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
@@ -434,7 +486,6 @@ export default function TBLEMP({
   }, [serverMode, empresas, filtrosColunas, colunasDisponiveis, searchTerm]);
 
   const empresasOrdenadas = useMemo(() => {
-    if (serverMode) return empresasFiltradas;
     const sorted = [...empresasFiltradas];
     sorted.sort((a, b) => {
       if (sortConfig.key === "id_global") { const aV = Number(a.id_global || 0); const bV = Number(b.id_global || 0); return sortConfig.direction === "asc" ? aV - bV : bV - aV; }
@@ -489,13 +540,75 @@ export default function TBLEMP({
     return empresasOrdenadas.slice(start, start + pageSize);
   }, [infiniteMode, serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
 
+  const linhasExibidas = useMemo(() => {
+    if (!groupByColumnId) {
+      return empresasPaginadas.map((empresa) => ({ __type: "row", key: `row:${empresa.id}`, emp: empresa }));
+    }
+    const grouped = new Map();
+    empresasPaginadas.forEach((empresa) => {
+      const rawValue = getFieldValue(empresa, groupByColumnId);
+      const groupLabel = String(rawValue ?? "-").trim() || "-";
+      if (!grouped.has(groupLabel)) grouped.set(groupLabel, []);
+      grouped.get(groupLabel).push(empresa);
+    });
+    const sortedEntries = Array.from(grouped.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0], "pt-BR", { numeric: true, sensitivity: "base" })
+    );
+    const nextRows = [];
+    sortedEntries.forEach(([groupLabel, items]) => {
+      const groupKey = `${groupByColumnId}:${groupLabel}`;
+      nextRows.push({
+        __type: "group",
+        key: `group:${groupKey}`,
+        groupKey,
+        label: groupLabel,
+        count: items.length,
+      });
+      if (!collapsedGroupKeys[groupKey]) {
+        items.forEach((empresa) =>
+          nextRows.push({
+            __type: "row",
+            key: `row:${empresa.id}`,
+            emp: empresa,
+            groupKey,
+          })
+        );
+      }
+    });
+    return nextRows;
+  }, [collapsedGroupKeys, empresasPaginadas, getFieldValue, groupByColumnId]);
+
+  useEffect(() => {
+    setCollapsedGroupKeys({});
+  }, [groupByColumnId]);
+
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";
     return "emp-row-even";
   };
 
   const renderVirtualTableRow = useCallback(
-    (emp, virtualRowIndex) => {
+    (rowEntry, virtualRowIndex) => {
+      if (rowEntry?.__type === "group") {
+        const isCollapsed = Boolean(collapsedGroupKeys[rowEntry.groupKey]);
+        return (
+          <TableCell
+            colSpan={colunasOrdenadas.length}
+            className="emp-td emp-group-row-cell py-0 text-left text-[12px] align-middle select-none"
+          >
+            <div className="emp-group-row-content">
+              {isCollapsed ? (
+                <ChevronRight className="h-3.5 w-3.5 text-emerald-600" />
+              ) : (
+                <ChevronDown className="h-3.5 w-3.5 text-emerald-600" />
+              )}
+              <span className="emp-group-row-label">{rowEntry.label}</span>
+              <span className="emp-group-row-count">({rowEntry.count})</span>
+            </div>
+          </TableCell>
+        );
+      }
+      const emp = rowEntry?.emp ?? rowEntry;
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
       return colunasOrdenadas.map((col, colIndex) => {
@@ -515,6 +628,7 @@ export default function TBLEMP({
       });
     },
     [
+      collapsedGroupKeys,
       colunasOrdenadas,
       frozenColumnCount,
       frozenOffsets,
@@ -611,12 +725,25 @@ export default function TBLEMP({
     handleRowSelect(emp, event);
   };
 
+  const handleDisplayRowClick = (row, event) => {
+    if (row?.__type === "group") {
+      setCollapsedGroupKeys((prev) => ({
+        ...prev,
+        [row.groupKey]: !prev[row.groupKey],
+      }));
+      return;
+    }
+    handleRowClick(row?.emp || row, event);
+  };
+
+  const overlayColumnId = columnMenuAnchor?.columnId || columnFilterPopup?.columnId;
+
   useLayoutEffect(() => {
-    if (!columnMenuAnchor?.columnId) return undefined;
-    updateColumnMenuAnchorRect();
-    const onReflow = () => updateColumnMenuAnchorRect();
+    if (!overlayColumnId) return undefined;
+    updateColumnOverlayAnchorRect();
+    const onReflow = () => updateColumnOverlayAnchorRect();
     const scrollRoot = scrollContainerRef.current;
-    const raf = requestAnimationFrame(updateColumnMenuAnchorRect);
+    const raf = requestAnimationFrame(updateColumnOverlayAnchorRect);
     scrollRoot?.addEventListener("scroll", onReflow, { passive: true });
     window.addEventListener("resize", onReflow);
     window.addEventListener("scroll", onReflow, true);
@@ -626,18 +753,18 @@ export default function TBLEMP({
       window.removeEventListener("resize", onReflow);
       window.removeEventListener("scroll", onReflow, true);
     };
-  }, [columnMenuAnchor?.columnId, updateColumnMenuAnchorRect, colunasOrdenadas, columnWidths]);
+  }, [overlayColumnId, updateColumnOverlayAnchorRect, colunasOrdenadas, columnWidths]);
 
   useEffect(() => {
-    if (!columnMenuAnchor?.columnId) return undefined;
+    if (!overlayColumnId) return undefined;
     const onPointerDown = (event) => {
       const panel = columnMenuPanelRef.current;
-      const trigger = columnMenuTriggerRefs.current[columnMenuAnchor.columnId];
+      const trigger = columnMenuTriggerRefs.current[overlayColumnId];
       if (panel?.contains(event.target) || trigger?.contains(event.target)) return;
-      closeColumnMenu();
+      closeColumnOverlays();
     };
     const onKeyDown = (event) => {
-      if (event.key === "Escape") closeColumnMenu();
+      if (event.key === "Escape") closeColumnOverlays();
     };
     document.addEventListener("mousedown", onPointerDown);
     document.addEventListener("touchstart", onPointerDown, { passive: true });
@@ -647,13 +774,13 @@ export default function TBLEMP({
       document.removeEventListener("touchstart", onPointerDown);
       document.removeEventListener("keydown", onKeyDown);
     };
-  }, [columnMenuAnchor?.columnId, closeColumnMenu]);
+  }, [overlayColumnId, closeColumnOverlays]);
 
   useEffect(() => {
-    if (!columnMenuAnchor?.columnId) return;
-    if (colunasOrdenadas.some((column) => column.id === columnMenuAnchor.columnId)) return;
-    closeColumnMenu();
-  }, [columnMenuAnchor?.columnId, colunasOrdenadas, closeColumnMenu]);
+    if (!overlayColumnId) return;
+    if (colunasOrdenadas.some((column) => column.id === overlayColumnId)) return;
+    closeColumnOverlays();
+  }, [overlayColumnId, colunasOrdenadas, closeColumnOverlays]);
 
   const syncTableFullscreen = useCallback(() => {
     setIsTableFullscreen(document.fullscreenElement === tableStageRef.current);
@@ -662,11 +789,11 @@ export default function TBLEMP({
   useEffect(() => {
     const onFullscreenChange = () => {
       syncTableFullscreen();
-      requestAnimationFrame(() => updateColumnMenuAnchorRect());
+      requestAnimationFrame(() => updateColumnOverlayAnchorRect());
     };
     document.addEventListener("fullscreenchange", onFullscreenChange);
     return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-  }, [syncTableFullscreen, updateColumnMenuAnchorRect]);
+  }, [syncTableFullscreen, updateColumnOverlayAnchorRect]);
 
   const handleToggleTableFullscreen = useCallback(async () => {
     const el = tableStageRef.current;
@@ -695,6 +822,11 @@ export default function TBLEMP({
   ]);
 
   const handleTableKeyDown = (e) => {
+    if (e.key === "Escape" && (columnMenuAnchor || columnFilterPopup)) {
+      e.preventDefault();
+      closeColumnOverlays();
+      return;
+    }
     if (e.key === "Escape" && document.fullscreenElement === tableStageRef.current) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
       e.preventDefault();
@@ -854,24 +986,12 @@ export default function TBLEMP({
     }
     const nextWidth = Math.round(Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW))));
     setColumnWidths((p) => ({ ...p, [col.id]: nextWidth }));
+    setAutoFitActiveColumns((prev) => ({ ...prev, [col.id]: true }));
     setResizeColumnId(null);
   };
 
   const applyQuickColumnFilter = (col) => {
-    const currentFilter = filtrosColunas[col.id] || [];
-    const filterType = getColumnFilterType(col);
-    const currentValue = getListFilterValues(currentFilter, filterType)[0] ?? "";
-    const input = window.prompt(
-      `Filtro rápido para "${formatHeaderLabel(col)}" (valor exato). Deixe vazio para limpar.`,
-      currentValue
-    );
-    if (input === null) {
-      closeColumnMenu();
-      return;
-    }
-    const value = input.trim();
-    setFiltrosColunas((prev) => ({ ...prev, [col.id]: value ? [value] : [] }));
-    closeColumnMenu();
+    openColumnFilterPopup(col);
   };
 
   const hideColumn = (col) => {
@@ -881,57 +1001,68 @@ export default function TBLEMP({
     setFrozenColumnCount((count) => Math.min(count, nextVisiveis.length));
     localStorage.setItem(VISIBLE_KEY, JSON.stringify(nextVisiveis));
     window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
-    closeColumnMenu();
+    closeColumnOverlays();
   };
 
   const togglePinnedColumn = (colIndex) => {
     const nextCount = frozenColumnCount > colIndex ? colIndex : colIndex + 1;
     setFrozenColumnCount(Math.min(nextCount, colunasOrdenadas.length));
-    closeColumnMenu();
+    closeColumnOverlays();
   };
 
   const buildColumnMenuItems = (col, colIndex) => [
-    { id: "filter", label: "Filtro", Icon: Filter, onClick: () => applyQuickColumnFilter(col) },
+    {
+      id: "filter",
+      label: "Filtro",
+      Icon: Filter,
+      active: (filtrosColunas[col.id] || []).length > 0,
+      onClick: () => applyQuickColumnFilter(col),
+    },
     {
       id: "sort-az",
       label: "Classificar de A a Z",
       Icon: ArrowUp,
+      active: sortConfig.key === col.id && sortConfig.direction === "asc",
       onClick: () => {
         setSortConfig({ key: col.id, direction: "asc" });
-        closeColumnMenu();
+        closeColumnOverlays();
       },
     },
     {
       id: "sort-za",
       label: "Classificar de Z a A",
       Icon: ArrowDown,
+      active: sortConfig.key === col.id && sortConfig.direction === "desc",
       onClick: () => {
         setSortConfig({ key: col.id, direction: "desc" });
-        closeColumnMenu();
+        closeColumnOverlays();
       },
     },
     {
       id: "auto-fit",
       label: "Auto ajustar",
       Icon: ScanLine,
+      active: Boolean(autoFitActiveColumns[col.id]),
       onClick: () => {
         autoFitColumnWidth(col);
-        closeColumnMenu();
+        closeColumnOverlays();
       },
     },
     {
       id: "pin-column",
       label: "Fixar coluna",
       Icon: Pin,
+      active: colIndex < frozenColumnCount,
       onClick: () => togglePinnedColumn(colIndex),
     },
     {
       id: "group-column",
       label: "Agrupar por coluna",
       Icon: UsersRound,
+      active: groupByColumnId === col.id,
       onClick: () => {
-        setSortConfig({ key: col.id, direction: "asc" });
-        closeColumnMenu();
+        setGroupByColumnId((prev) => (prev === col.id ? null : col.id));
+        closeColumnOverlays();
       },
     },
     {
@@ -1042,7 +1173,7 @@ export default function TBLEMP({
             <button
               key={item.id}
               type="button"
-              className="emp-col-popup-menu__item"
+              className={`emp-col-popup-menu__item${item.active ? " is-active" : ""}`}
               disabled={item.disabled}
               style={{ "--menu-index": index }}
               onClick={item.onClick}
@@ -1052,6 +1183,65 @@ export default function TBLEMP({
             </button>
           );
         })}
+      </div>
+    );
+  };
+
+  const renderColumnFilterPopup = () => {
+    if (!columnFilterPopup?.columnId) return null;
+    const col = colunasOrdenadas.find((column) => column.id === columnFilterPopup.columnId);
+    if (!col) return null;
+    const filterValue = columnFilterPopup.value || "";
+    return (
+      <div
+        ref={columnMenuPanelRef}
+        className="emp-col-filter-popup erp-menu-panel"
+        style={{ left: columnFilterPopup.left, top: columnFilterPopup.top }}
+      >
+        <div className="emp-col-filter-popup__title">Filtro — {formatHeaderLabel(col)}</div>
+        <input
+          value={filterValue}
+          placeholder="Digite um valor para filtrar"
+          className="emp-col-filter-popup__input"
+          onChange={(event) =>
+            setColumnFilterPopup((prev) =>
+              prev ? { ...prev, value: event.target.value } : prev
+            )
+          }
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              const value = filterValue.trim();
+              setFiltrosColunas((prev) => ({ ...prev, [col.id]: value ? [value] : [] }));
+              closeColumnOverlays();
+            }
+          }}
+        />
+        <div className="emp-col-filter-popup__actions">
+          <button
+            type="button"
+            className="emp-col-filter-popup__action is-primary"
+            onClick={() => {
+              const value = filterValue.trim();
+              setFiltrosColunas((prev) => ({ ...prev, [col.id]: value ? [value] : [] }));
+              closeColumnOverlays();
+            }}
+          >
+            <Check className="h-3.5 w-3.5" />
+            Aplicar
+          </button>
+          <button
+            type="button"
+            className="emp-col-filter-popup__action"
+            onClick={() => {
+              setColumnFilterPopup((prev) => (prev ? { ...prev, value: "" } : prev));
+              setFiltrosColunas((prev) => ({ ...prev, [col.id]: [] }));
+              closeColumnOverlays();
+            }}
+          >
+            <X className="h-3.5 w-3.5" />
+            Limpar
+          </button>
+        </div>
       </div>
     );
   };
@@ -1133,7 +1323,7 @@ export default function TBLEMP({
     <>
       <EmpVirtualTableBody
         scrollRef={scrollContainerRef}
-        rows={empresasPaginadas}
+        rows={linhasExibidas}
         enabled={!isLoadingEmpresas}
         totalTableWidth={totalTableWidth}
         bodyTableClass={bodyTableClass}
@@ -1141,10 +1331,12 @@ export default function TBLEMP({
         tableHeader={mgPrototype ? tableHeader : null}
         colCount={colunasOrdenadas.length}
         renderRow={renderVirtualTableRow}
-        getRowClassName={(emp, rowIndex) =>
-          getRowBgClass(rowIndex, selectedItemsSet.has(emp.id))
+        getRowClassName={(row, rowIndex) =>
+          row?.__type === "group"
+            ? "emp-group-row"
+            : getRowBgClass(rowIndex, selectedItemsSet.has((row?.emp || row)?.id))
         }
-        onRowClick={handleRowClick}
+        onRowClick={handleDisplayRowClick}
       />
       {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
     </>
@@ -1154,8 +1346,17 @@ export default function TBLEMP({
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
       <div
         ref={tableStageRef}
-        className={`emp-table-stage relative min-h-0 ${columnMenuAnchor ? "overflow-visible" : "overflow-hidden"}`}
+        className={`emp-table-stage relative min-h-0 ${columnMenuAnchor || columnFilterPopup ? "overflow-visible" : "overflow-hidden"}`}
       >
+        {columnMenuAnchor || columnFilterPopup ? (
+          <button
+            type="button"
+            className="emp-col-popup-backdrop"
+            aria-label="Fechar opções da coluna"
+            tabIndex={-1}
+            onClick={closeColumnOverlays}
+          />
+        ) : null}
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
           {mgPrototype ? (
             <ErpScrollNav
@@ -1234,6 +1435,7 @@ export default function TBLEMP({
           )}
         </div>
         {renderColumnMenu()}
+        {renderColumnFilterPopup()}
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}
