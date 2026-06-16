@@ -1588,7 +1588,7 @@ export default function TBLEMP({
       <div
         ref={filterPanelRef}
         className="emp-filter-popover erp-menu-panel"
-        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0, position: "fixed", zIndex: 1201 }}
+        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0, position: "fixed", zIndex: 9999 }}
       >
         <div className="emp-filter-sort-section space-y-1">
           <div className="px-1 text-[11px] font-semibold text-slate-500">{columnLabel}</div>
