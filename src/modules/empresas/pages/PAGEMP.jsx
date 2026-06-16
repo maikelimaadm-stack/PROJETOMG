@@ -26,8 +26,10 @@ import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeC
 import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
 import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
+import { getFieldsPerRowForLayout } from "@/modules/empresas/components/empSearchView.constants";
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useServerRecordNavigation } from "@/shared/hooks/useServerRecordNavigation";
 import {
   LIST_DROPDOWN_MAX_ITEMS,
@@ -166,6 +168,12 @@ export default function PAGEMP() {
   const [columnFilters, setColumnFilters] = useState({});
   const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
   const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
+  const isMobile = useIsMobile();
+  const mobileCardsPerRow = 1;
+  const effectiveCardsPerRow = isMobile ? mobileCardsPerRow : cardsVisFields.layoutConfig.cardsPerRow;
+  const effectiveFieldsPerRow = isMobile
+    ? getFieldsPerRowForLayout(mobileCardsPerRow)
+    : cardsVisFields.fieldsPerRow;
   const searchDropdownFields = useEmpSearchDropdownFields();
   const empFavorites = useEmpFavorites();
   const favoriteIds = useMemo(
@@ -1355,6 +1363,10 @@ export default function PAGEMP() {
                     onToolbarBridge: setFormBridge,
                     total: recordNav.effectiveTotal,
                     currentIndex: recordNav.globalIndex,
+                    onFirst: () => navigateRecord("first"),
+                    onPrevious: () => navigateRecord("prev"),
+                    onNext: () => navigateRecord("next"),
+                    onLast: () => navigateRecord("last"),
                     onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
                     onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
                     actionsLocked: saveCycle.isSaving,
@@ -1383,8 +1395,8 @@ export default function PAGEMP() {
                       selectedIds: selectedTableItems,
                       onSelectionChange: handleTableSelectionChange,
                       cardsDetailFields: cardsVisFields.detailFields,
-                      cardsPerRow: cardsVisFields.layoutConfig.cardsPerRow,
-                      fieldsPerRow: cardsVisFields.fieldsPerRow,
+                      cardsPerRow: effectiveCardsPerRow,
+                      fieldsPerRow: effectiveFieldsPerRow,
                       isFavoriteRecord: empFavorites.isFavorite,
                       onToggleFavorite: empFavorites.toggleFavorite,
                       mgPrototype: true,
