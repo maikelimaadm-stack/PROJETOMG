@@ -1816,16 +1816,8 @@ html.escuro .cadastro-emp-scope :is(
 }
 
 /* =============================================================================
-   Painéis de lançamento — trilho glass + aba pill com glow verde
+   Painéis de lançamento — só linha verde embaixo; texto branco no selecionado
    ============================================================================= */
-
-html.tema-escuro .mg-empresas-scope,
-html.escuro .mg-empresas-scope {
-  --mg-panel-tabs-glass-bg: rgba(33, 38, 45, 0.72);
-  --mg-panel-tabs-glass-border: rgba(48, 54, 61, 0.9);
-  --mg-panel-tabs-tab-active-bg: rgba(48, 54, 61, 0.95);
-  --mg-panel-tabs-glow: #40de63;
-}
 
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip,
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-control,
@@ -1846,15 +1838,6 @@ html.escuro .cadastro-emp-scope .emp-split-view:has(.emp-form-panels-zone) .emp-
   border-right: none !important;
   border-bottom: none !important;
   box-shadow: none !important;
-}
-
-html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-control,
-html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
-  background: var(--mg-panel-tabs-glass-bg) !important;
-  border: 1px solid var(--mg-panel-tabs-glass-border) !important;
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.24),
-    0 1px 0 rgba(255, 255, 255, 0.04) !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip::after,
@@ -1883,47 +1866,15 @@ html.escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch button.emp-f
   border-left: none !important;
   border-right: none !important;
   box-shadow: none !important;
-  color: #848d97 !important;
-}
-
-html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active),
-html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active),
-html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active),
-html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab:hover:not(.active) {
-  color: #e6edf3 !important;
-  background: rgba(48, 54, 61, 0.65) !important;
-}
-
-html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
-html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
-html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab.active,
-html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
-html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active,
-html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip button.seg-tab.active {
-  background: var(--mg-panel-tabs-tab-active-bg) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 10px 20px rgba(0, 0, 0, 0.28) !important;
-}
-
-html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after,
-html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::after {
-  background: rgba(255, 255, 255, 0.12) !important;
-}
-
-html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before,
-html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab.active::before {
-  background: var(--mg-panel-tabs-glow) !important;
-  box-shadow:
-    0 0 8px rgba(64, 222, 99, 0.45),
-    0 0 18px rgba(64, 222, 99, 0.28) !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider,
 html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider,
 html.escuro .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider,
 html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
-  display: none !important;
+  background: #40de63 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 html.tema-escuro .cadastro-emp-scope .emp-form-tabs.emp-form-tabs-launch .emp-form-tab-active,
