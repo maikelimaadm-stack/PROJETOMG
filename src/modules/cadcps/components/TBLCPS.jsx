@@ -276,12 +276,16 @@ export default function TBLCPS({
 
   const columnOptions = useMemo(() => {
     const opts = {};
-    colunasDisponiveis.filter((c) => !c.fixo).forEach((col) => {
-      const source = campos.filter((e) => campoPassaFiltros(e, col.id));
+    const sourceRows = serverMode ? campos.slice(0, 200) : campos;
+    const targetColumns = serverMode
+      ? colunasDisponiveis.filter((c) => !c.fixo && (!menuFiltroAberto || c.id === menuFiltroAberto))
+      : colunasDisponiveis.filter((c) => !c.fixo);
+    targetColumns.forEach((col) => {
+      const source = sourceRows.filter((e) => (serverMode ? true : campoPassaFiltros(e, col.id)));
       opts[col.id] = [...new Set(source.map((e) => getFieldValue(e, col.id)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
     });
     return opts;
-  }, [campos, filtrosColunas, colunasDisponiveis, searchTerm]);
+  }, [campos, filtrosColunas, colunasDisponiveis, searchTerm, serverMode, menuFiltroAberto]);
 
   const hasActiveFilter = (id) => (filtrosColunas[id] || []).length > 0;
   const getValoresFiltro = (id) => filtrosColunas[id] || [];
@@ -713,6 +717,7 @@ export default function TBLCPS({
               value={buscaFiltroMenu}
               onChange={(e) => setBuscaFiltroMenu(e.target.value)}
               placeholder="PESQUISAR"
+              aria-label={`Pesquisar valores de ${colLabel}`}
               className="emp-filter-field emp-filter-search"
             />
 
@@ -745,6 +750,9 @@ export default function TBLCPS({
                   <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
                 </label>
               ))}
+              {filteredOpts.length === 0 ? (
+                <div className="px-2 py-1.5 text-[11px] text-slate-500">Nenhum valor encontrado.</div>
+              ) : null}
             </div>
 
             <div className="emp-filter-actions">
