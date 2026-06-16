@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import { performance } from "node:perf_hooks";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
@@ -8,6 +9,7 @@ import fastifyCompress from "@fastify/compress";
 import { registerRoutes } from "./routes/index.js";
 import { closePrismaClient } from "./database/prismaClient.js";
 import { validateRuntimeEnv } from "./config/env.js";
+import { recordHttpLatency } from "./observability/httpLatencyMetrics.js";
 
 dotenv.config();
 try {
@@ -33,15 +35,6 @@ const matchWildcardOrigin = (origin, pattern) => {
     .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
     .replace(/\*/g, ".*");
   return new RegExp(`^${escaped}$`, "i").test(origin);
-};
-
-const isVercelDomain = (origin = "") => {
-  try {
-    const { hostname } = new URL(origin);
-    return hostname.endsWith(".vercel.app");
-  } catch {
-    return false;
-  }
 };
 
 const isLocalDevOrigin = (origin = "") => {
@@ -72,10 +65,23 @@ const isOriginAllowed = (origin, allowedOrigins) => {
     .some((pattern) => matchWildcardOrigin(normalizedOrigin, pattern));
   if (wildcardMatch) return true;
 
-  const hasVercelOriginConfigured = normalizedAllowed.some((item) => item.includes("vercel.app"));
-  if (hasVercelOriginConfigured && isVercelDomain(normalizedOrigin)) return true;
-
   return false;
+};
+
+const readCookieToken = (cookieHeader) => {
+  if (!cookieHeader) return null;
+  const match = String(cookieHeader)
+    .split(";")
+    .map((part) => part.trim())
+    .find((part) => part.startsWith("erp_auth_token="));
+  if (!match) return null;
+  const [, rawValue] = match.split("=");
+  if (!rawValue) return null;
+  try {
+    return decodeURIComponent(rawValue).trim() || null;
+  } catch {
+    return String(rawValue).trim() || null;
+  }
 };
 
 const resolveHost = () => {
@@ -137,6 +143,13 @@ const buildServer = () => {
 
   app.decorate("authenticate", async function authenticate(request, reply) {
     try {
+      const hasAuthorization = Boolean(request.headers.authorization);
+      if (!hasAuthorization) {
+        const cookieToken = readCookieToken(request.headers.cookie);
+        if (cookieToken) {
+          request.headers.authorization = `Bearer ${cookieToken}`;
+        }
+      }
       await request.jwtVerify();
     } catch {
       return reply.status(401).send({ message: "Não autenticado." });
@@ -156,7 +169,13 @@ const buildServer = () => {
     threshold: 1024,
     global: true,
   });
-  app.register(multipart);
+  app.register(multipart, {
+    limits: {
+      fileSize: Math.max(1024, Number(process.env.MAX_UPLOAD_BYTES || 20 * 1024 * 1024)),
+      files: 1,
+      fields: 30,
+    },
+  });
 
   app.setErrorHandler((error, _request, reply) => {
     app.log.error(error);
@@ -178,6 +197,23 @@ const buildServer = () => {
       message: isClientError
         ? error.message || "Requisição inválida."
         : "Erro interno do servidor",
+    });
+  });
+
+  app.addHook("onRequest", async (request) => {
+    request.__startAtMs = performance.now();
+  });
+
+  app.addHook("onResponse", async (request, reply) => {
+    const startedAt = Number(request.__startAtMs || 0);
+    if (!Number.isFinite(startedAt) || startedAt <= 0) return;
+    const durationMs = performance.now() - startedAt;
+    const route = request.routeOptions?.url || request.routerPath || request.url;
+    recordHttpLatency({
+      method: request.method,
+      route,
+      durationMs,
+      statusCode: reply.statusCode,
     });
   });
 

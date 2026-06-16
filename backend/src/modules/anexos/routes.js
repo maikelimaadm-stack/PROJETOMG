@@ -28,6 +28,7 @@ export const registerAnexosRoutes = async (app) => {
 
   app.post("/api/anexos", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN", "OPERADOR"]);
     try {
       const item = await anexoService.create(request.body || {}, scope);
       return reply.status(201).send({ item });
@@ -48,9 +49,16 @@ export const registerAnexosRoutes = async (app) => {
 
   app.post("/api/anexos/upload", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
-    const file = await readMultipartFile(request);
-    if (!file) return reply.status(400).send({ message: "Arquivo não informado" });
-    const result = await anexoService.uploadFile({ ...file, scope });
-    return { ...result };
+    assertRole(scope, ["ADMIN", "OPERADOR"]);
+    try {
+      const file = await readMultipartFile(request);
+      if (!file) return reply.status(400).send({ message: "Arquivo não informado" });
+      const result = await anexoService.uploadFile({ ...file, scope });
+      return { ...result };
+    } catch (error) {
+      return reply.status(error?.statusCode || 400).send({
+        message: error?.message || "Falha no upload do anexo.",
+      });
+    }
   });
 };

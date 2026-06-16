@@ -12,6 +12,7 @@ const sanitizeUser = (user) => ({
   telefone: user.telefone ?? null,
   perfil: user.perfil,
   acesso_global: user.acesso_global,
+  ativo: user.ativo !== false,
   ultimo_acesso: user.ultimo_acesso ?? null,
 });
 
@@ -195,7 +196,7 @@ export const createSessionTokenPayload = (session) => ({
   login: session.user.login,
   perfil: session.user.perfil,
   acesso_global: session.user.acesso_global,
-  ativo: true,
+  ativo: session.user.ativo !== false,
   allowed_empresa_ids: session.allowedEmpresaIds || [],
   empresas_total: session.empresasTotal ?? session.empresas?.length ?? 0,
 });
@@ -213,5 +214,6 @@ export const buildSessionUserFromToken = (tokenUser) =>
     telefone: tokenUser.telefone ?? null,
     perfil: tokenUser.perfil,
     acesso_global: tokenUser.acesso_global,
+    ativo: tokenUser.ativo !== false,
     ultimo_acesso: tokenUser.ultimo_acesso ?? null,
   });
