@@ -926,6 +926,9 @@
   height: auto;
 }
 
+.mg-empresas-scope .mg-cards-virtual-row.mg-cards-grid {
+  align-items: start;
+}
 .mg-empresas-scope .mg-emp-card--virtual:not(.emp-form-card) {
   padding: 12px 16px !important;
   align-self: start;
