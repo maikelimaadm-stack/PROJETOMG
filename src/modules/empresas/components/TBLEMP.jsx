@@ -39,6 +39,22 @@ import {
   parseNumberFilterValue,
 } from "./tblEmp.filters";
 
+function haveSameIds(listA = [], listB = []) {
+  if (listA === listB) return true;
+  if (listA.length !== listB.length) return false;
+  return listA.every((item, index) => {
+    const leftId = typeof item === "string" ? item : item?.id;
+    const rightId = typeof listB[index] === "string" ? listB[index] : listB[index]?.id;
+    return leftId === rightId;
+  });
+}
+
+function haveSameRecordIds(listA = [], listB = []) {
+  if (listA === listB) return true;
+  if (listA.length !== listB.length) return false;
+  return listA.every((item, index) => item?.id === listB[index]?.id);
+}
+
 export default function TBLEMP({
   empresas = [],
   isLoadingEmpresas = false,
@@ -130,6 +146,10 @@ export default function TBLEMP({
   const dragRef = useRef(null);
   const measureCanvasRef = useRef(null);
   const [scrollbarCompensation, setScrollbarCompensation] = useState(0);
+  const scrollbarCompensationRef = useRef(0);
+  const columnsInUseSignatureRef = useRef("");
+  const filteredEmpresasSignatureRef = useRef("");
+  const serverResetSignatureRef = useRef("");
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
@@ -178,12 +198,16 @@ export default function TBLEMP({
       savedOrdem,
       savedVisiveis
     );
+    const ordemChanged = !haveSameIds(colunasOrdem, ordem);
+    const visiveisChanged = !haveSameIds(colunasVisiveis, visiveis);
+    if (!ordemChanged && !visiveisChanged) return;
+
     setColunasOrdem(ordem);
     setColunasVisiveis(visiveis);
     localStorage.setItem(ORDER_KEY, JSON.stringify(ordem));
     localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis));
     window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
-  }, [colunasDisponiveis]);
+  }, [colunasDisponiveis, colunasOrdem, colunasVisiveis]);
 
   const colunasOrdenadas = useMemo(
     () =>
@@ -194,7 +218,11 @@ export default function TBLEMP({
   );
 
   useEffect(() => {
-    onColumnsInUseChange?.(colunasOrdenadas);
+    if (!onColumnsInUseChange) return;
+    const signature = colunasOrdenadas.map((column) => column.id).join("|");
+    if (columnsInUseSignatureRef.current === signature) return;
+    columnsInUseSignatureRef.current = signature;
+    onColumnsInUseChange(colunasOrdenadas);
   }, [colunasOrdenadas, onColumnsInUseChange]);
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
@@ -369,7 +397,11 @@ export default function TBLEMP({
   }, [empresasFiltradas, sortConfig]);
 
   useEffect(() => {
-    onFilteredEmpresasChange?.(empresasOrdenadas);
+    if (!onFilteredEmpresasChange) return;
+    const signature = empresasOrdenadas.map((empresa) => empresa.id).join("|");
+    if (filteredEmpresasSignatureRef.current === signature) return;
+    filteredEmpresasSignatureRef.current = signature;
+    onFilteredEmpresasChange(empresasOrdenadas);
   }, [empresasOrdenadas, onFilteredEmpresasChange]);
 
   useEffect(() => {
@@ -451,8 +483,11 @@ export default function TBLEMP({
 
   useEffect(() => {
     if (!serverMode) return;
-    onServerPageChange?.(1);
+    const signature = JSON.stringify({ filtrosColunas, searchTerm, pageSize });
+    if (serverResetSignatureRef.current === signature) return;
+    serverResetSignatureRef.current = signature;
     setCurrentPage(1);
+    onServerPageChange?.(1);
   }, [serverMode, onServerPageChange, filtrosColunas, searchTerm, pageSize]);
 
   useEffect(() => {
@@ -647,9 +682,10 @@ export default function TBLEMP({
       }
       const left = body.scrollLeft;
       const nextCompensation = Math.max(0, body.offsetWidth - body.clientWidth);
-      setScrollbarCompensation((prev) =>
-        Math.abs(prev - nextCompensation) < 1 ? prev : nextCompensation
-      );
+      if (Math.abs(scrollbarCompensationRef.current - nextCompensation) >= 1) {
+        scrollbarCompensationRef.current = nextCompensation;
+        setScrollbarCompensation(nextCompensation);
+      }
       if (footer) footer.scrollLeft = left;
       if (header && !mgPrototype) header.scrollLeft = left;
     };

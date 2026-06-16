@@ -462,7 +462,30 @@ export default function PAGEMP() {
   }, [searchViewPending, pinnedRecord, isLoading, isFetching, empresasFiltradasPainel]);
 
   const handleFilteredEmpresasChange = useCallback((filtered) => {
-    setTableFilteredEmpresas(filtered);
+    setTableFilteredEmpresas((previous) => {
+      if (previous === filtered) return previous;
+      if (
+        previous &&
+        filtered &&
+        previous.length === filtered.length &&
+        previous.every((item, index) => item?.id === filtered[index]?.id)
+      ) {
+        return previous;
+      }
+      return filtered;
+    });
+  }, []);
+
+  const handleColumnsInUseChange = useCallback((columns) => {
+    setTableColumnsInUse((previous) => {
+      if (
+        previous.length === columns.length &&
+        previous.every((column, index) => column?.id === columns[index]?.id)
+      ) {
+        return previous;
+      }
+      return columns;
+    });
   }, []);
 
   const empresasNavegacao = tableFilteredEmpresas ?? empresasFiltradasPainel;
@@ -1443,7 +1466,7 @@ export default function PAGEMP() {
                     },
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
-                    onColumnsInUseChange: setTableColumnsInUse,
+                    onColumnsInUseChange: handleColumnsInUseChange,
                     infiniteMode: true,
                     hasMoreRows: hasNextEmpresasPage,
                     onLoadMoreRows: handleLoadMoreEmpresas,

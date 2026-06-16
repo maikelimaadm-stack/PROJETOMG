@@ -51,11 +51,15 @@ export const EmpresasFormPanel = ({ formProps }) => (
   </div>
 );
 
-export const EmpresasTablePanel = ({ tableProps }) => (
-  <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-    <TBLEMP {...tableProps} />
-  </div>
-);
+export const EmpresasTablePanel = ({ tableProps }) => {
+  const { key: tableKey, ...restTableProps } = tableProps || {};
+
+  return (
+    <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+      <TBLEMP key={tableKey} {...restTableProps} />
+    </div>
+  );
+};
 
 export const EmpresasSearchPanel = ({ searchProps }) => (
   <SRCHEMP {...searchProps} />
