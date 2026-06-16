@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { MoreHorizontal } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
@@ -802,7 +802,7 @@ export default function TBLEMP({
               {formatHeaderLabel(col)}
             </span>
             <span className="emp-th-menu-icon" aria-hidden="true">
-              <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
+              <MoreVertical className="h-3.5 w-3.5" strokeWidth={2} />
             </span>
           </div>
           <div

@@ -6898,7 +6898,7 @@
   align-items: center;
   justify-content: center;
   flex: 0 0 auto;
-  color: #64748b;
+  color: var(--mg-brand-green);
   opacity: 0.9;
   pointer-events: none;
 }
