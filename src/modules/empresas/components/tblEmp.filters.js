@@ -6,6 +6,53 @@ export const getColumnFilterType = (col) => {
   return "list";
 };
 
+export const TEXT_FILTER_OPERATORS = [
+  { value: "contains", label: "Contém" },
+  { value: "not_contains", label: "Não contém" },
+  { value: "starts_with", label: "Começa com" },
+  { value: "ends_with", label: "Termina com" },
+  { value: "equals", label: "Igual" },
+  { value: "not_equals", label: "Diferente" },
+];
+
+export const NUMBER_FILTER_OPERATORS = [
+  { value: "equals", label: "Igual" },
+  { value: "not_equals", label: "Diferente" },
+  { value: "gt", label: "Maior que" },
+  { value: "lt", label: "Menor que" },
+  { value: "between", label: "Entre" },
+];
+
+export const DATE_FILTER_OPERATORS = [
+  { value: "today", label: "Hoje" },
+  { value: "yesterday", label: "Ontem" },
+  { value: "last_7_days", label: "Últimos 7 dias" },
+  { value: "last_30_days", label: "Últimos 30 dias" },
+  { value: "range", label: "Intervalo personalizado" },
+  { value: "equals", label: "Igual" },
+  { value: "not_equals", label: "Diferente" },
+];
+
+export const getFilterOperators = (filterType) => {
+  if (filterType === "number") return NUMBER_FILTER_OPERATORS;
+  if (filterType === "date") return DATE_FILTER_OPERATORS;
+  return TEXT_FILTER_OPERATORS;
+};
+
+export const getDefaultFilterOperator = (filterType) => {
+  if (filterType === "number") return "equals";
+  if (filterType === "date") return "today";
+  return "contains";
+};
+
+export const createDefaultColumnFilter = (filterType) => ({
+  type: filterType,
+  operator: getDefaultFilterOperator(filterType),
+  value: "",
+  valueTo: "",
+  values: [],
+});
+
 export const getRangeFilterValues = (valores, ft) => {
   if (ft === "number") return valores.filter((i) => String(i).startsWith("min:") || String(i).startsWith("max:"));
   if (ft === "date") return valores.filter((i) => String(i).startsWith("start:") || String(i).startsWith("end:"));
@@ -73,6 +120,182 @@ export const normalizeRangeValoresForEdit = (colunaId, valores, colunasDisponive
     }
     return v;
   });
+};
+
+const getStartOfDay = (dateLike) => {
+  const base = dateLike ? new Date(dateLike) : new Date();
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate());
+};
+
+const getEndOfDay = (dateLike) => {
+  const base = dateLike ? new Date(dateLike) : new Date();
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate(), 23, 59, 59, 999);
+};
+
+const evaluateTextOperator = (operator, sourceValue, targetValue) => {
+  const src = String(sourceValue || "").toLowerCase();
+  const target = String(targetValue || "").toLowerCase();
+  if (!target && operator !== "equals" && operator !== "not_equals") return true;
+  switch (operator) {
+    case "contains":
+      return src.includes(target);
+    case "not_contains":
+      return !src.includes(target);
+    case "starts_with":
+      return src.startsWith(target);
+    case "ends_with":
+      return src.endsWith(target);
+    case "equals":
+      return src === target;
+    case "not_equals":
+      return src !== target;
+    default:
+      return true;
+  }
+};
+
+const evaluateNumberOperator = (operator, sourceValue, targetValue, targetValueTo) => {
+  const source = Number(sourceValue);
+  if (!Number.isFinite(source)) return false;
+  const target = parseNumberFilterValue(targetValue);
+  const targetTo = parseNumberFilterValue(targetValueTo);
+  switch (operator) {
+    case "equals":
+      return Number.isFinite(target) ? source === target : true;
+    case "not_equals":
+      return Number.isFinite(target) ? source !== target : true;
+    case "gt":
+      return Number.isFinite(target) ? source > target : true;
+    case "lt":
+      return Number.isFinite(target) ? source < target : true;
+    case "between":
+      if (!Number.isFinite(target) && !Number.isFinite(targetTo)) return true;
+      if (Number.isFinite(target) && source < target) return false;
+      if (Number.isFinite(targetTo) && source > targetTo) return false;
+      return true;
+    default:
+      return true;
+  }
+};
+
+const evaluateDateOperator = (operator, sourceValue, targetValue, targetValueTo) => {
+  const sourceTs = parseDateFilterValue(sourceValue);
+  if (sourceTs === null) return false;
+  const now = new Date();
+  const todayStart = getStartOfDay(now).getTime();
+  const todayEnd = getEndOfDay(now).getTime();
+  switch (operator) {
+    case "today":
+      return sourceTs >= todayStart && sourceTs <= todayEnd;
+    case "yesterday": {
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      const start = getStartOfDay(yesterday).getTime();
+      const end = getEndOfDay(yesterday).getTime();
+      return sourceTs >= start && sourceTs <= end;
+    }
+    case "last_7_days": {
+      const start = getStartOfDay(now);
+      start.setDate(start.getDate() - 6);
+      return sourceTs >= start.getTime() && sourceTs <= todayEnd;
+    }
+    case "last_30_days": {
+      const start = getStartOfDay(now);
+      start.setDate(start.getDate() - 29);
+      return sourceTs >= start.getTime() && sourceTs <= todayEnd;
+    }
+    case "equals": {
+      const targetTs = parseDateFilterValue(targetValue);
+      if (targetTs === null) return true;
+      const start = getStartOfDay(targetTs).getTime();
+      const end = getEndOfDay(targetTs).getTime();
+      return sourceTs >= start && sourceTs <= end;
+    }
+    case "not_equals": {
+      const targetTs = parseDateFilterValue(targetValue);
+      if (targetTs === null) return true;
+      const start = getStartOfDay(targetTs).getTime();
+      const end = getEndOfDay(targetTs).getTime();
+      return sourceTs < start || sourceTs > end;
+    }
+    case "range": {
+      const startTs = parseDateFilterValue(targetValue);
+      const endTs = parseDateFilterValue(targetValueTo);
+      if (startTs !== null && sourceTs < getStartOfDay(startTs).getTime()) return false;
+      if (endTs !== null && sourceTs > getEndOfDay(endTs).getTime()) return false;
+      return true;
+    }
+    default:
+      return true;
+  }
+};
+
+export const normalizeLegacyColumnFilter = (legacyValues = [], filterType = "list") => {
+  if (!Array.isArray(legacyValues)) return createDefaultColumnFilter(filterType);
+  if (filterType === "number") {
+    const minToken = legacyValues.find((item) => String(item).startsWith("min:"));
+    const maxToken = legacyValues.find((item) => String(item).startsWith("max:"));
+    const listValues = getListFilterValues(legacyValues, filterType);
+    if (minToken || maxToken) {
+      return {
+        type: filterType,
+        operator: "between",
+        value: minToken ? String(minToken).replace("min:", "") : "",
+        valueTo: maxToken ? String(maxToken).replace("max:", "") : "",
+        values: listValues,
+      };
+    }
+    return {
+      type: filterType,
+      operator: "equals",
+      value: listValues[0] ?? "",
+      valueTo: "",
+      values: listValues,
+    };
+  }
+  if (filterType === "date") {
+    const startToken = legacyValues.find((item) => String(item).startsWith("start:"));
+    const endToken = legacyValues.find((item) => String(item).startsWith("end:"));
+    const listValues = getListFilterValues(legacyValues, filterType);
+    if (startToken || endToken) {
+      return {
+        type: filterType,
+        operator: "range",
+        value: startToken ? String(startToken).replace("start:", "") : "",
+        valueTo: endToken ? String(endToken).replace("end:", "") : "",
+        values: listValues,
+      };
+    }
+    return {
+      type: filterType,
+      operator: "equals",
+      value: listValues[0] ?? "",
+      valueTo: "",
+      values: listValues,
+    };
+  }
+  return {
+    type: filterType,
+    operator: "equals",
+    value: legacyValues[0] ?? "",
+    valueTo: "",
+    values: legacyValues,
+  };
+};
+
+export const evaluateColumnFilter = ({ filterDraft, filterType, rawValue, displayValue }) => {
+  if (!filterDraft || typeof filterDraft !== "object") return true;
+  const operator = filterDraft.operator || getDefaultFilterOperator(filterType);
+  const value = filterDraft.value ?? "";
+  const valueTo = filterDraft.valueTo ?? "";
+  const listValues = Array.isArray(filterDraft.values) ? filterDraft.values : [];
+  if (listValues.length > 0) {
+    const sourceValue = displayValue ?? rawValue ?? "";
+    if (!listValues.includes(sourceValue)) return false;
+  }
+  if (filterType === "number") return evaluateNumberOperator(operator, rawValue, value, valueTo);
+  if (filterType === "date") return evaluateDateOperator(operator, rawValue, value, valueTo);
+  return evaluateTextOperator(operator, displayValue ?? rawValue ?? "", value);
 };
 
 export const optionPassaRangeTemp = (opt, ft, tempValores) => {

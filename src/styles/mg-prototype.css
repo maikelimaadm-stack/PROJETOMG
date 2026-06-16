@@ -7080,6 +7080,20 @@
   font-weight: 700;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-group-row-metrics {
+  color: #475569;
+  font-weight: 500;
+  margin-left: 4px;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-shadow-right {
+  box-shadow: inset -9px 0 10px -10px rgba(15, 23, 42, 0.42) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-shadow-left {
+  box-shadow: inset 9px 0 10px -10px rgba(15, 23, 42, 0.42) !important;
+}
+
 /* Cabeçalho: fundo branco, linha inferior branca grossa e bordas laterais */
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
   border: none !important;

@@ -33,10 +33,14 @@ export const COLUNAS_BASE = [
 
 export const WIDTHS_KEY = "emp_col_widths";
 export const FROZEN_KEY = "emp_col_frozen";
+export const PINNED_RIGHT_KEY = "emp_col_pinned_right";
 export const VISIBLE_KEY = "emp_col_visiveis";
 export const ORDER_KEY = "emp_col_ordem";
 export const AGGR_KEY = "emp_table_aggregation_config";
 export const PAGE_SIZE_KEY = "emp_table_page_size";
+export const FILTERS_KEY = "emp_col_filters_v2";
+export const GROUP_BY_KEY = "emp_group_by_columns_v1";
+export const SORT_KEY = "emp_sort_columns_v1";
 export const ROW_DBLCLICK_OPEN_MS = 260;
 export const ROW_DBLCLICK_PAIR_MS = 500;
 export const MIN_COL_WIDTH = 80;

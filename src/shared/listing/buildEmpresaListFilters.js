@@ -43,17 +43,44 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
   const filters = {};
 
   Object.entries(filtrosColunas).forEach(([key, values]) => {
-    if (!Array.isArray(values) || values.length === 0) return;
     const filterKey = mapEmpresaColumnIdToFilterKey(key);
-    const normalized = values
-      .map((value) => normalizeEmpresaColumnFilterValue(key, value))
-      .filter((value) => value != null && value !== "");
-    if (normalized.length === 0) return;
-    if (normalized.length === 1) {
-      filters[filterKey] = normalized[0];
+    if (Array.isArray(values)) {
+      if (values.length === 0) return;
+      const normalized = values
+        .map((value) => normalizeEmpresaColumnFilterValue(key, value))
+        .filter((value) => value != null && value !== "");
+      if (normalized.length === 0) return;
+      if (normalized.length === 1) {
+        filters[filterKey] = normalized[0];
+        return;
+      }
+      filters[`${filterKey}__in`] = normalized;
       return;
     }
-    filters[`${filterKey}__in`] = normalized;
+
+    if (!values || typeof values !== "object") return;
+    const operator = String(values.operator || "").trim();
+    const rawValue = values.value;
+    const rawValues = Array.isArray(values.values) ? values.values : [];
+    const normalizedList = rawValues
+      .map((value) => normalizeEmpresaColumnFilterValue(key, value))
+      .filter((value) => value != null && value !== "");
+    if (normalizedList.length > 1) {
+      filters[`${filterKey}__in`] = normalizedList;
+      return;
+    }
+    if (normalizedList.length === 1) {
+      filters[filterKey] = normalizedList[0];
+      return;
+    }
+    if (rawValue == null || rawValue === "") return;
+    const normalizedValue = normalizeEmpresaColumnFilterValue(key, rawValue);
+    if (normalizedValue == null || normalizedValue === "") return;
+    // A API de listagem ainda suporta apenas equals/contains (e __in).
+    // Para operadores avançados, mantemos o filtro no cliente.
+    if (!operator || operator === "equals" || operator === "contains") {
+      filters[filterKey] = normalizedValue;
+    }
   });
 
   return Object.keys(filters).length > 0 ? filters : undefined;
