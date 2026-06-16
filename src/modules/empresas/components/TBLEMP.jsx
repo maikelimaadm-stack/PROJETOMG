@@ -27,6 +27,7 @@ import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -63,6 +64,7 @@ import {
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
 } from "./tblEmp.filters";
+import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 
 function haveSameIds(listA = [], listB = []) {
   if (listA === listB) return true;
@@ -115,6 +117,7 @@ export default function TBLEMP({
   onServerPageSizeChange = null,
   onServerColumnFiltersChange = null,
   onServerSortChange = null,
+  onRequestDistinctColumnValues = null,
   infiniteMode = false,
   hasMoreRows = false,
   isLoadingMoreRows = false,
@@ -216,8 +219,11 @@ export default function TBLEMP({
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
+  const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
+  const [remoteColumnOptions, setRemoteColumnOptions] = useState({});
+  const [loadingRemoteColumnOptions, setLoadingRemoteColumnOptions] = useState(false);
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
   const [groupByColumnIds, setGroupByColumnIds] = useState(() => {
     const saved = readStorageJSON(GROUP_BY_KEY, []);
@@ -622,15 +628,69 @@ export default function TBLEMP({
   const columnOptions = useMemo(() => {
     const opts = {};
     const sourceRows = serverMode ? empresas.slice(0, 200) : empresas;
-    colunasDisponiveis
-      .filter((c) => !c.fixo)
+    const targetColumns = serverMode
+      ? colunasDisponiveis.filter((c) => !c.fixo && (!menuFiltroAberto || c.id === menuFiltroAberto))
+      : colunasDisponiveis.filter((c) => !c.fixo);
+    targetColumns
       .forEach((col) => {
         const source = sourceRows.filter((emp) => (serverMode ? true : empresaPassaFiltros(emp, col.id)));
         opts[col.id] = [...new Set(source.map((emp) => getFieldValue(emp, col.id)).filter(Boolean))]
           .sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
       });
     return opts;
-  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, serverMode]);
+  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, serverMode, menuFiltroAberto]);
+
+  useEffect(() => {
+    if (!serverMode || !menuFiltroAberto || typeof onRequestDistinctColumnValues !== "function") {
+      setLoadingRemoteColumnOptions(false);
+      return;
+    }
+    const currentColumnId = menuFiltroAberto;
+    const nextColumnFilters = { ...(filtrosColunas || {}) };
+    delete nextColumnFilters[currentColumnId];
+    const mergedFilters = mergeEmpresaListFilters(
+      serverBaseFilters,
+      buildEmpresaColumnFilters(nextColumnFilters)
+    );
+    let active = true;
+    setLoadingRemoteColumnOptions(true);
+    Promise.resolve(
+      onRequestDistinctColumnValues({
+        column: currentColumnId,
+        search: serverSearchTerm || "",
+        optionSearch: debouncedBuscaFiltroMenu,
+        filters: mergedFilters,
+      })
+    )
+      .then((payload) => {
+        if (!active) return;
+        const items = Array.isArray(payload?.items) ? payload.items : [];
+        setRemoteColumnOptions((prev) => ({ ...prev, [currentColumnId]: items }));
+      })
+      .catch(() => {
+        if (!active) return;
+        setRemoteColumnOptions((prev) => {
+          if (!(currentColumnId in prev)) return prev;
+          const next = { ...prev };
+          delete next[currentColumnId];
+          return next;
+        });
+      })
+      .finally(() => {
+        if (active) setLoadingRemoteColumnOptions(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [
+    serverMode,
+    menuFiltroAberto,
+    onRequestDistinctColumnValues,
+    filtrosColunas,
+    serverBaseFilters,
+    serverSearchTerm,
+    debouncedBuscaFiltroMenu,
+  ]);
 
   const hasActiveFilter = (id) => {
     const value = filtrosColunas[id];
@@ -1578,7 +1638,9 @@ export default function TBLEMP({
   const renderFilterPopoverContent = (colunaId) => {
     const col = colunasDisponiveis.find((column) => column.id === colunaId);
     if (!col) return null;
-    const options = columnOptions[colunaId] || [];
+    const options = serverMode
+      ? (remoteColumnOptions[colunaId] || columnOptions[colunaId] || [])
+      : (columnOptions[colunaId] || []);
     const filterType = getColumnFilterType(col);
     const draft =
       filtroTemp.colunaId === colunaId && filtroTemp.draft
@@ -1660,8 +1722,14 @@ export default function TBLEMP({
             value={buscaFiltroMenu}
             onChange={(event) => setBuscaFiltroMenu(event.target.value)}
             placeholder="Pesquisar valores"
+            aria-label={`Pesquisar valores de ${columnLabel}`}
             className="emp-filter-field emp-filter-search"
           />
+          {serverMode && loadingRemoteColumnOptions ? (
+            <div className="px-1 py-1 text-[11px] text-slate-500" role="status" aria-live="polite">
+              Buscando opções...
+            </div>
+          ) : null}
 
           <div className="emp-filter-value-list">
             <label className="emp-filter-value-list-header">
@@ -1708,6 +1776,9 @@ export default function TBLEMP({
                 </span>
               </label>
             ))}
+            {filteredOptions.length === 0 ? (
+              <div className="px-2 py-1.5 text-[11px] text-slate-500">Nenhum valor encontrado.</div>
+            ) : null}
           </div>
 
           <div className="emp-filter-actions">
