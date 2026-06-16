@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowDown,
   ArrowUp,
@@ -308,40 +309,40 @@ export default function TBLEMP({
 
   const getColumnMenuAnchor = useCallback((columnId) => {
     const triggerEl = columnMenuTriggerRefs.current[columnId];
-    const stageEl = tableStageRef.current;
-    if (!triggerEl || !stageEl) return null;
+    if (!triggerEl) return null;
     const triggerRect = triggerEl.getBoundingClientRect();
-    const stageRect = stageEl.getBoundingClientRect();
     const padding = 10;
-    const preferredLeft = triggerRect.right - stageRect.left - COLUMN_MENU_WIDTH;
-    const fallbackLeft = triggerRect.left - stageRect.left;
-    const maxLeft = stageRect.width - COLUMN_MENU_WIDTH - padding;
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    const preferredLeft = triggerRect.right - COLUMN_MENU_WIDTH;
+    const fallbackLeft = triggerRect.left;
+    const maxLeft = viewportWidth - COLUMN_MENU_WIDTH - padding;
     const left = Math.max(
       padding,
       Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
     );
-    const preferredTop = triggerRect.bottom - stageRect.top + 6;
-    const maxTop = Math.max(padding, stageRect.height - 260);
+    const preferredTop = triggerRect.bottom + 6;
+    const maxTop = Math.max(padding, viewportHeight - 260);
     const top = Math.max(padding, Math.min(preferredTop, maxTop));
     return { columnId, left, top };
   }, []);
 
   const getColumnFilterAnchor = useCallback((columnId) => {
     const triggerEl = columnMenuTriggerRefs.current[columnId];
-    const stageEl = tableStageRef.current;
-    if (!triggerEl || !stageEl) return null;
+    if (!triggerEl) return null;
     const triggerRect = triggerEl.getBoundingClientRect();
-    const stageRect = stageEl.getBoundingClientRect();
     const padding = 10;
-    const preferredLeft = triggerRect.right - stageRect.left - FILTER_POPOVER_WIDTH;
-    const fallbackLeft = triggerRect.left - stageRect.left;
-    const maxLeft = stageRect.width - FILTER_POPOVER_WIDTH - padding;
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+    const preferredLeft = triggerRect.right - FILTER_POPOVER_WIDTH;
+    const fallbackLeft = triggerRect.left;
+    const maxLeft = viewportWidth - FILTER_POPOVER_WIDTH - padding;
     const left = Math.max(
       padding,
       Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
     );
-    const preferredTop = triggerRect.bottom - stageRect.top + 6;
-    const maxTop = Math.max(padding, stageRect.height - 300);
+    const preferredTop = triggerRect.bottom + 6;
+    const maxTop = Math.max(padding, viewportHeight - 300);
     const top = Math.max(padding, Math.min(preferredTop, maxTop));
     return { left, top };
   }, []);
@@ -1491,7 +1492,7 @@ export default function TBLEMP({
       <div
         ref={columnMenuPanelRef}
         className="emp-col-popup-menu erp-menu-panel"
-        style={{ left: columnMenuAnchor.left, top: columnMenuAnchor.top }}
+        style={{ left: columnMenuAnchor.left, top: columnMenuAnchor.top, position: "fixed" }}
         role="menu"
         tabIndex={-1}
         onKeyDown={(event) => {
@@ -1586,8 +1587,8 @@ export default function TBLEMP({
     return (
       <div
         ref={filterPanelRef}
-        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
-        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
+        className="emp-filter-popover erp-menu-panel"
+        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0, position: "fixed", zIndex: 1201 }}
       >
         <div className="emp-filter-sort-section space-y-1">
           <div className="px-1 text-[11px] font-semibold text-slate-500">{columnLabel}</div>
@@ -1812,21 +1813,32 @@ export default function TBLEMP({
     </>
   );
 
+  const columnOverlayLayer =
+    typeof document !== "undefined" && isColumnOverlayOpen
+      ? createPortal(
+          <>
+            <button
+              type="button"
+              className="emp-col-popup-backdrop"
+              aria-label="Fechar opções da coluna"
+              tabIndex={-1}
+              onClick={closeColumnOverlays}
+            />
+            {renderColumnMenu()}
+            {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto
+              ? renderFilterPopoverContent(menuFiltroAberto)
+              : null}
+          </>,
+          document.body
+        )
+      : null;
+
   return (
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
       <div
         ref={tableStageRef}
         className={`emp-table-stage relative min-h-0 ${isColumnOverlayOpen ? "overflow-visible" : "overflow-hidden"}`}
       >
-        {isColumnOverlayOpen ? (
-          <button
-            type="button"
-            className="emp-col-popup-backdrop"
-            aria-label="Fechar opções da coluna"
-            tabIndex={-1}
-            onClick={closeColumnOverlays}
-          />
-        ) : null}
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
           {mgPrototype ? (
             <ErpScrollNav
@@ -1904,10 +1916,6 @@ export default function TBLEMP({
             </div>
           )}
         </div>
-        {renderColumnMenu()}
-        {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto
-          ? renderFilterPopoverContent(menuFiltroAberto)
-          : null}
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}
@@ -1920,6 +1928,7 @@ export default function TBLEMP({
         onChange={handleColumnLayoutChange}
         onResetDefault={handleResetColumnLayout}
       />
+      {columnOverlayLayer}
     </div>
   );
 }

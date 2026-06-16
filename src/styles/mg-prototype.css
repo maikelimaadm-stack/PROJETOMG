@@ -6954,7 +6954,7 @@
   width: 100vw;
   height: 100dvh;
   inset: 0;
-  z-index: 35;
+  z-index: 1200;
   border: none;
   padding: 0;
   margin: 0;
@@ -6962,9 +6962,9 @@
   cursor: default;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu {
+.emp-col-popup-menu {
   position: absolute;
-  z-index: 1000;
+  z-index: 1201;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -6978,7 +6978,7 @@
     0 1px 2px rgba(15, 23, 42, 0.07);
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu__item {
+.emp-col-popup-menu__item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -6998,26 +6998,26 @@
   transition: background 140ms ease, color 140ms ease;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu__item svg {
+.emp-col-popup-menu__item svg {
   flex-shrink: 0;
   color: #16a34a;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu__item:hover:not(:disabled) {
+.emp-col-popup-menu__item:hover:not(:disabled) {
   background: #f1f5f9;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu__item.is-active {
+.emp-col-popup-menu__item.is-active {
   background: #ecfdf5;
   color: #166534;
   font-weight: 600;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu__item.is-active svg {
+.emp-col-popup-menu__item.is-active svg {
   color: #16a34a;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu__item:disabled {
+.emp-col-popup-menu__item:disabled {
   opacity: 0.55;
   cursor: not-allowed;
 }
