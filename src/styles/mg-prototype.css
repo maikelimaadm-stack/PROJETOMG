@@ -929,7 +929,6 @@
 .mg-empresas-scope .mg-cards-virtual-row.mg-cards-grid {
   align-items: start;
 }
-
 .mg-empresas-scope .mg-emp-card--virtual:not(.emp-form-card) {
   padding: 12px 16px !important;
   align-self: start;
@@ -2351,10 +2350,22 @@
   line-height: 1.25;
 }
 
+.mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-line {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  column-gap: 6px;
+}
+
 .mg-empresas-scope .mg-emp-card__field-label {
   flex: 0 0 auto;
   white-space: nowrap;
   color: var(--text-3);
+}
+
+.mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-label {
+  display: inline-block;
+  width: 100%;
+  text-align: left;
 }
 
 .mg-empresas-scope .mg-emp-card__field-value {
@@ -2364,6 +2375,22 @@
   color: var(--text-1);
   word-break: break-word;
   overflow-wrap: anywhere;
+}
+
+.mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-value {
+  text-align: left;
+}
+
+.mg-empresas-scope .mg-emp-card__field-value--align-left {
+  text-align: left;
+}
+
+.mg-empresas-scope .mg-emp-card__field-value--align-center {
+  text-align: center;
+}
+
+.mg-empresas-scope .mg-emp-card__field-value--align-right {
+  text-align: right;
 }
 
 .mg-empresas-scope .mg-emp-card__fields--per-row-5 .mg-emp-card__field-line,
@@ -6867,6 +6894,16 @@
   color: #334155 !important;
   height: var(--emp-table-header-height, 30px) !important;
   line-height: var(--emp-table-header-height, 30px) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: var(--mg-brand-green);
+  opacity: 0.9;
+  pointer-events: none;
 }
 
 /* Cabeçalho: fundo branco, linha inferior branca grossa e bordas laterais */

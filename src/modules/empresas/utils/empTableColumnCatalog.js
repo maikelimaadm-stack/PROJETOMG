@@ -1,7 +1,6 @@
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import {
   loadColumnOrder,
-  loadVisibleColumns,
 } from "@/framework/cadastro/tables/empColumnLayout";
 import {
   AGGR_KEY,
@@ -71,10 +70,50 @@ export const resolveColumnsInUse = (disponiveis = [], ordem = [], visiveis = [])
     .map((id) => disponiveis.find((col) => col.id === id))
     .filter((col) => col && visiveis.includes(col.id));
 
-/** Sincroniza visibilidade/ordem quando entram colunas novas, sem alterar a ordem salva. */
+export const loadSavedVisibleColumns = (storageKey) => {
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (!saved) return null;
+    const parsed = JSON.parse(saved);
+    return Array.isArray(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+};
+
+/** Respeita colunas ocultas pelo usuário; só inclui defaults para colunas novas no catálogo. */
+export const resolveEffectiveVisibleColumns = (
+  disponiveis = [],
+  savedVisiveis = null,
+  savedOrdem = null
+) => {
+  const baseIds = new Set(disponiveis.map((col) => col.id));
+  const defaults = disponiveis.filter((col) => col.default).map((col) => col.id);
+
+  if (!Array.isArray(savedVisiveis)) {
+    return defaults;
+  }
+
+  const persisted = savedVisiveis.filter((id) => baseIds.has(id));
+  if (persisted.length === 0) {
+    return defaults;
+  }
+
+  const knownIds = new Set(
+    Array.isArray(savedOrdem)
+      ? savedOrdem.filter((id) => baseIds.has(id))
+      : persisted
+  );
+  const novos = disponiveis
+    .filter((col) => !knownIds.has(col.id) && col.default)
+    .map((col) => col.id);
+
+  return [...persisted, ...novos];
+};
+
+/** Sincroniza visibilidade/ordem quando entram colunas novas, sem reexibir colunas ocultas pelo usuário. */
 export const mergeEffectiveColumnLayout = (disponiveis = [], savedOrdem = [], savedVisiveis = []) => {
-  const defaultVisible = disponiveis.filter((col) => col.default).map((col) => col.id);
-  const visiveis = Array.from(new Set([...savedVisiveis, ...defaultVisible]));
+  const visiveis = resolveEffectiveVisibleColumns(disponiveis, savedVisiveis, savedOrdem);
   const ordem = savedOrdem;
   return { ordem, visiveis, inUse: resolveColumnsInUse(disponiveis, ordem, visiveis) };
 };
@@ -83,7 +122,8 @@ export const mergeEffectiveColumnLayout = (disponiveis = [], savedOrdem = [], sa
 export const getColumnsInUse = (camposPersonalizados = []) => {
   const disponiveis = buildColunasDisponiveis(camposPersonalizados);
   const ordem = loadColumnOrder(ORDER_KEY, disponiveis);
-  const visiveis = loadVisibleColumns(VISIBLE_KEY, disponiveis);
+  const savedVisiveis = loadSavedVisibleColumns(VISIBLE_KEY);
+  const visiveis = resolveEffectiveVisibleColumns(disponiveis, savedVisiveis, ordem);
   const inUse = resolveColumnsInUse(disponiveis, ordem, visiveis);
   return { disponiveis, ordem, visiveis, inUse };
 };

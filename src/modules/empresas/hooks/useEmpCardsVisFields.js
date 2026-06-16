@@ -17,7 +17,7 @@ import {
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 
-export function useEmpCardsVisFields({ columnsInUseOverride = null } = {}) {
+export function useEmpCardsVisFields() {
   const [columnLayoutVersion, setColumnLayoutVersion] = useState(0);
 
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
@@ -34,11 +34,8 @@ export function useEmpCardsVisFields({ columnsInUseOverride = null } = {}) {
 
   const columnsInUse = useMemo(() => {
     void columnLayoutVersion;
-    if (Array.isArray(columnsInUseOverride) && columnsInUseOverride.length > 0) {
-      return columnsInUseOverride;
-    }
     return getColumnsInUse(camposPersonalizados).inUse;
-  }, [camposPersonalizados, columnLayoutVersion, columnsInUseOverride]);
+  }, [camposPersonalizados, columnLayoutVersion]);
 
   const catalog = useMemo(
     () => buildCardCatalogFromColumnsInUse(columnsInUse),
@@ -67,8 +64,8 @@ export function useEmpCardsVisFields({ columnsInUseOverride = null } = {}) {
   }, [catalog, visFields]);
 
   const detailFields = useMemo(
-    () => buildCardDetailFieldsFromColumns(columnsInUse, visFields),
-    [columnsInUse, visFields]
+    () => buildCardDetailFieldsFromColumns(columnsInUse, configFields),
+    [columnsInUse, configFields]
   );
 
   const saveConfig = useCallback(

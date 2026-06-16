@@ -160,7 +160,15 @@ export const buildCardDetailFieldsFromColumns = (columnsInUse = [], visFields = 
         !EMP_CARD_BODY_SKIP.has(col.id) &&
         !EMP_CARD_DETAIL_SKIP.has(col.id)
     )
-    .map((col) => visibleMap.get(col.id))
+    .map((col) => {
+      const vis = visibleMap.get(col.id);
+      if (!vis) return null;
+      return {
+        ...vis,
+        label: col.label,
+        align: col.align || "left",
+      };
+    })
     .filter(Boolean);
 };
 
