@@ -209,17 +209,170 @@ export default function MgActionBar({
     showDuplicate,
   ]);
 
+  const renderSearchField = () => (
+    <div className="mg-search-pill-wrap" ref={searchRef}>
+      <div className="mg-search-pill" role="search">
+        {searchLoading ? (
+          <Loader2
+            className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+            aria-hidden="true"
+          />
+        ) : searchHasFilter ? (
+          <button
+            type="button"
+            className="mg-search-pill-clear"
+            aria-label="Limpar pesquisa"
+            disabled={actionsLocked}
+            onClick={() => {
+              onSearchClear?.();
+              setSearchOpen(false);
+            }}
+          >
+            <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          </button>
+        ) : (
+          <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+        )}
+        <input
+          type="text"
+          placeholder="Pesquisar..."
+          value={searchInputValue}
+          onChange={(event) => {
+            const next = event.target.value;
+            onSearchInputChange?.(next);
+            if (!actionsLocked) setSearchOpen(true);
+          }}
+          onFocus={() => {
+            if (!actionsLocked) setSearchOpen(true);
+          }}
+          onClick={() => {
+            if (!actionsLocked) setSearchOpen(true);
+          }}
+          aria-label="Pesquisar"
+          aria-expanded={searchOpen}
+          aria-haspopup="listbox"
+          disabled={actionsLocked}
+          tabIndex={actionsLocked ? -1 : 0}
+        />
+      </div>
+      <MgSearchResultsDropdown
+        open={searchOpen && !actionsLocked}
+        items={searchResults}
+        searchResultsTotal={searchResultsTotal}
+        searchHasFavoritesInResults={searchHasFavoritesInResults}
+        detailFields={searchDetailFields}
+        loading={searchLoading}
+        loadingMore={searchLoadingMore}
+        hasMore={searchHasMore}
+        onLoadMore={onSearchLoadMore}
+        searchQuery={searchInputValue}
+        configFields={searchDropdownConfigFields}
+        onConfigSave={onSearchDropdownConfigSave}
+        onConfigRestoreDefaults={onSearchDropdownConfigRestore}
+        onSelect={(emp) => {
+          onSearchResultSelect?.(emp);
+          setSearchOpen(false);
+        }}
+        onApplyAll={() => {
+          onSearchApplyAll?.();
+          setSearchOpen(false);
+        }}
+        onApplyFavorites={() => {
+          onSearchApplyFavorites?.();
+          setSearchOpen(false);
+        }}
+        isFavoriteRecord={isFavoriteRecord}
+      />
+    </div>
+  );
+
+  const renderPrimaryActions = () => (
+    <>
+      <ActionSlot show={showNew && !!onNew} width={64}>
+        <ActionLabelBtn className="tb-btn-green" onClick={onNew} disabled={actionsLocked} title="Novo">
+          Novo
+        </ActionLabelBtn>
+      </ActionSlot>
+      <ActionSlot show={showSave && !!onSave} width={68}>
+        <ActionLabelBtn className="tb-btn-green" onClick={onSave} disabled={actionsLocked} title="Salvar">
+          Salvar
+        </ActionLabelBtn>
+      </ActionSlot>
+      <ActionSlot show={showCancel && !!onCancel} width={74}>
+        <ActionLabelBtn className="tb-btn-ghost" onClick={onCancel} disabled={actionsLocked} title="Cancelar">
+          Cancelar
+        </ActionLabelBtn>
+      </ActionSlot>
+      <ActionSlot show={showEdit && !!onEdit} width={66}>
+        <ActionLabelBtn className="tb-btn-ghost" onClick={onEdit} disabled={actionsLocked} title="Editar">
+          Editar
+        </ActionLabelBtn>
+      </ActionSlot>
+      <ActionSlot show={showDelete && !!onDelete} width={68}>
+        <ActionLabelBtn className="tb-btn-ghost tb-btn-danger" onClick={onDelete} disabled={actionsLocked} title="Excluir">
+          Excluir
+        </ActionLabelBtn>
+      </ActionSlot>
+      <ActionSlot show={showDuplicate && !!onDuplicate} width={78}>
+        <ActionLabelBtn className="tb-btn-ghost" onClick={onDuplicate} disabled={actionsLocked} title="Duplicar">
+          Duplicar
+        </ActionLabelBtn>
+      </ActionSlot>
+    </>
+  );
+
   if (layoutConfigMode && layoutToolbar) {
     const { isEditing, onBack, onEdit, onSave, onCancel, onRestore } = layoutToolbar;
 
     return (
-      <div
-        data-template-id="action-bar"
-        className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
-        style={{
-          background: "var(--bg-card)",
-        }}
-      >
+      <>
+        <div
+          data-template-id="action-bar-mobile"
+          className="mg-action-bar-mobile canva-section flex w-full shrink-0 flex-col md:hidden"
+          style={{ background: "var(--bg-card)" }}
+        >
+          <div className="mg-action-bar-mobile__actions">
+            {onBack ? (
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onBack} disabled={actionsLocked} title="Voltar">
+                Voltar
+              </ActionLabelBtn>
+            ) : null}
+            {!isEditing && onEdit ? (
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onEdit} disabled={actionsLocked} title="Editar layout">
+                Editar
+              </ActionLabelBtn>
+            ) : null}
+            {isEditing && onSave ? (
+              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
+                Salvar
+              </ActionLabelBtn>
+            ) : null}
+            {isEditing && onCancel ? (
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onCancel} disabled={actionsLocked} title="Cancelar">
+                Cancelar
+              </ActionLabelBtn>
+            ) : null}
+            {isEditing && onRestore ? (
+              <button
+                type="button"
+                className="ios-btn tb-btn tb-btn-ghost tb-btn-icon shrink-0"
+                onClick={onRestore}
+                disabled={actionsLocked}
+                title="Restaurar padrão"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
+          </div>
+        </div>
+
+        <div
+          data-template-id="action-bar"
+          className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
+          style={{
+            background: "var(--bg-card)",
+          }}
+        >
         <div className="mg-action-bar__actions flex min-w-0 items-center">
           <ActionSlot show={!!onBack} width={74}>
             <ActionLabelBtn className="tb-btn-ghost" onClick={onBack} disabled={actionsLocked} title="Voltar">
@@ -256,17 +409,71 @@ export default function MgActionBar({
           ) : null}
         </div>
       </div>
+      </>
     );
   }
 
   return (
-    <div
-      data-template-id="action-bar"
-      className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
-      style={{
-        background: "var(--bg-card)",
-      }}
-    >
+    <>
+      <div
+        data-template-id="action-bar-mobile"
+        className="mg-action-bar-mobile canva-section flex w-full shrink-0 flex-col md:hidden"
+        style={{ background: "var(--bg-card)" }}
+      >
+        {showSecondaryTools ? (
+          <div className={`mg-action-bar-mobile__search${lockedClass}`}>{renderSearchField()}</div>
+        ) : null}
+        <div className={`mg-action-bar-mobile__actions${lockedClass}`}>
+          {showNew && onNew ? (
+            <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onNew} disabled={actionsLocked} title="Novo">
+              Novo
+            </ActionLabelBtn>
+          ) : null}
+          {showSave && onSave ? (
+            <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
+              Salvar
+            </ActionLabelBtn>
+          ) : null}
+          {showCancel && onCancel ? (
+            <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onCancel} disabled={actionsLocked} title="Cancelar">
+              Cancelar
+            </ActionLabelBtn>
+          ) : null}
+          {showEdit && onEdit ? (
+            <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onEdit} disabled={actionsLocked} title="Editar">
+              Editar
+            </ActionLabelBtn>
+          ) : null}
+          {showDelete && onDelete ? (
+            <ActionLabelBtn className="tb-btn-ghost tb-btn-danger shrink-0" onClick={onDelete} disabled={actionsLocked} title="Excluir">
+              Excluir
+            </ActionLabelBtn>
+          ) : null}
+          {showDuplicate && onDuplicate ? (
+            <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onDuplicate} disabled={actionsLocked} title="Duplicar">
+              Duplicar
+            </ActionLabelBtn>
+          ) : null}
+          {showSecondaryTools ? (
+            <div className="relative shrink-0" ref={moreRef}>
+              <MgSpeedDialMenu
+                open={moreOpen}
+                onOpenChange={setMoreOpen}
+                disabled={actionsLocked}
+                items={speedDialItems}
+              />
+            </div>
+          ) : null}
+        </div>
+      </div>
+
+      <div
+        data-template-id="action-bar"
+        className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
+        style={{
+          background: "var(--bg-card)",
+        }}
+      >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
         <ActionSlot show={showSecondaryTools && !!onToggleFilter} width={28}>
           <div className={`mg-action-bar__filter-slot${lockedClass}`}>
@@ -288,151 +495,14 @@ export default function MgActionBar({
           </div>
         </ActionSlot>
 
-        <ActionSlot show={showNew && !!onNew} width={64}>
-          <ActionLabelBtn
-            className="tb-btn-green"
-            onClick={onNew}
-            disabled={actionsLocked}
-            title="Novo"
-          >
-            Novo
-          </ActionLabelBtn>
-        </ActionSlot>
-
-        <ActionSlot show={showSave && !!onSave} width={68}>
-          <ActionLabelBtn
-            className="tb-btn-green"
-            onClick={onSave}
-            disabled={actionsLocked}
-            title="Salvar"
-          >
-            Salvar
-          </ActionLabelBtn>
-        </ActionSlot>
-
-        <ActionSlot show={showCancel && !!onCancel} width={74}>
-          <ActionLabelBtn
-            className="tb-btn-ghost"
-            onClick={onCancel}
-            disabled={actionsLocked}
-            title="Cancelar"
-          >
-            Cancelar
-          </ActionLabelBtn>
-        </ActionSlot>
-
-        <ActionSlot show={showEdit && !!onEdit} width={66}>
-          <ActionLabelBtn
-            className="tb-btn-ghost"
-            onClick={onEdit}
-            disabled={actionsLocked}
-            title="Editar"
-          >
-            Editar
-          </ActionLabelBtn>
-        </ActionSlot>
-
-        <ActionSlot show={showDelete && !!onDelete} width={68}>
-          <ActionLabelBtn
-            className="tb-btn-ghost tb-btn-danger"
-            onClick={onDelete}
-            disabled={actionsLocked}
-            title="Excluir"
-          >
-            Excluir
-          </ActionLabelBtn>
-        </ActionSlot>
-
-        <ActionSlot show={showDuplicate && !!onDuplicate} width={78}>
-          <ActionLabelBtn
-            className="tb-btn-ghost"
-            onClick={onDuplicate}
-            disabled={actionsLocked}
-            title="Duplicar"
-          >
-            Duplicar
-          </ActionLabelBtn>
-        </ActionSlot>
+        {renderPrimaryActions()}
       </div>
 
       <div className="mg-action-bar__end">
         {showSecondaryTools ? (
           <>
             <div className={`mg-action-bar__tools mg-action-bar__tools--visible${lockedClass}`}>
-              <div className="mg-search-pill-wrap" ref={searchRef}>
-                <div className="mg-search-pill" role="search">
-                  {searchLoading ? (
-                    <Loader2
-                      className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
-                      aria-hidden="true"
-                    />
-                  ) : searchHasFilter ? (
-                    <button
-                      type="button"
-                      className="mg-search-pill-clear"
-                      aria-label="Limpar pesquisa"
-                      disabled={actionsLocked}
-                      onClick={() => {
-                        onSearchClear?.();
-                        setSearchOpen(false);
-                      }}
-                    >
-                      <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    </button>
-                  ) : (
-                    <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                  )}
-                  <input
-                    type="text"
-                    placeholder="Pesquisar..."
-                    value={searchInputValue}
-                    onChange={(event) => {
-                      const next = event.target.value;
-                      onSearchInputChange?.(next);
-                      if (!actionsLocked) setSearchOpen(true);
-                    }}
-                    onFocus={() => {
-                      if (!actionsLocked) setSearchOpen(true);
-                    }}
-                    onClick={() => {
-                      if (!actionsLocked) setSearchOpen(true);
-                    }}
-                    aria-label="Pesquisar"
-                    aria-expanded={searchOpen}
-                    aria-haspopup="listbox"
-                    disabled={actionsLocked}
-                    tabIndex={actionsLocked ? -1 : 0}
-                  />
-                </div>
-                <MgSearchResultsDropdown
-                  open={searchOpen && !actionsLocked}
-                  items={searchResults}
-                  searchResultsTotal={searchResultsTotal}
-                  searchHasFavoritesInResults={searchHasFavoritesInResults}
-                  detailFields={searchDetailFields}
-                  loading={searchLoading}
-                  loadingMore={searchLoadingMore}
-                  hasMore={searchHasMore}
-                  onLoadMore={onSearchLoadMore}
-                  searchQuery={searchInputValue}
-                  configFields={searchDropdownConfigFields}
-                  onConfigSave={onSearchDropdownConfigSave}
-                  onConfigRestoreDefaults={onSearchDropdownConfigRestore}
-                  onSelect={(emp) => {
-                    onSearchResultSelect?.(emp);
-                    setSearchOpen(false);
-                  }}
-                  onApplyAll={() => {
-                    onSearchApplyAll?.();
-                    setSearchOpen(false);
-                  }}
-                  onApplyFavorites={() => {
-                    onSearchApplyFavorites?.();
-                    setSearchOpen(false);
-                  }}
-                  isFavoriteRecord={isFavoriteRecord}
-                />
-              </div>
+              {renderSearchField()}
             </div>
             <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
             <div className="relative" ref={moreRef}>
@@ -447,5 +517,6 @@ export default function MgActionBar({
         ) : null}
       </div>
     </div>
+    </>
   );
 }

@@ -468,7 +468,7 @@ export default function SRCHEMP({
           />
         ) : (
           <div className="mg-records-summary border-t border-slate-200 px-3 py-2 text-xs">
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 md:grid-cols-4 md:gap-2">
               <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
               <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
               <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
