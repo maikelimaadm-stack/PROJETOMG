@@ -13,10 +13,17 @@ import { applyErpTemaToDocument, readStoredErpTema } from '@/shared/contexts/Erp
 registerEmpresasPersonalizacoesDevTools()
 applyErpTemaToDocument(readStoredErpTema())
 
+const strictModeEnabled =
+  String(import.meta.env.VITE_REACT_STRICT_MODE ?? 'true').toLowerCase() !== 'false'
+
 ReactDOM.createRoot(document.getElementById('root')).render(
-  // <React.StrictMode>
-  <App />
-  // </React.StrictMode>,
+  strictModeEnabled ? (
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  ) : (
+    <App />
+  ),
 )
 
 if (import.meta.hot) {
