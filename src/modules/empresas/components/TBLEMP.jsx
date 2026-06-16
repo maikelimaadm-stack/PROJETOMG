@@ -791,8 +791,9 @@ export default function TBLEMP({
               ) : (
                 <ChevronDown className="h-3.5 w-3.5 text-emerald-600" />
               )}
-              <span className="emp-group-row-label">{rowEntry.label}</span>
-              <span className="emp-group-row-count">({rowEntry.count})</span>
+              <span className="emp-group-row-label">
+                {rowEntry.label} ({rowEntry.count})
+              </span>
             </div>
           </TableCell>
         );
