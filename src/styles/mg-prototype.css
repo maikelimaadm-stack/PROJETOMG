@@ -73,6 +73,8 @@
   --mg-field-stack-inset-top: 11px;
   --mg-field-stack-inset-bottom: 3px;
   --mg-panel-tab-font: 13px;
+  --mg-panel-tab-indicator-height: 2px;
+  --mg-panel-tab-indicator-color: #7aed99;
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-cards-layout-gap: 9px;
@@ -637,6 +639,8 @@
 .mg-empresas-scope .mg-panel-tabs-strip .seg-tab-slider {
   bottom: 0;
   z-index: 3;
+  height: var(--mg-panel-tab-indicator-height);
+  background: var(--mg-panel-tab-indicator-color);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
@@ -5387,7 +5391,8 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab-slider {
-  height: 1px;
+  height: var(--mg-panel-tab-indicator-height);
+  background: var(--mg-panel-tab-indicator-color);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab.active::after {
