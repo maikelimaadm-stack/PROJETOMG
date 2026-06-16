@@ -4,6 +4,7 @@ import {
   createSessionTokenPayload,
   listEmpresasFromSession,
   loginWithCredentials,
+  sanitizeSessionUser,
 } from "./authService.js";
 import { loadAccessScope } from "./accessScope.js";
 import { getSessionEmpresas } from "./sessionCache.js";
@@ -17,13 +18,48 @@ const parseLoginBody = (body) => {
   throw error;
 };
 
+const resolveCookieAttributes = () => {
+  const secureCookie =
+    String(process.env.NODE_ENV || "").toLowerCase() === "production" ||
+    String(process.env.AUTH_COOKIE_SECURE || "").toLowerCase() === "true";
+  const sameSite = String(process.env.AUTH_COOKIE_SAMESITE || "Lax").trim() || "Lax";
+  const maxAgeSeconds = Math.max(300, Number(process.env.AUTH_COOKIE_MAX_AGE_SECONDS || 8 * 60 * 60));
+  const path = String(process.env.AUTH_COOKIE_PATH || "/").trim() || "/";
+  return { secureCookie, sameSite, maxAgeSeconds, path };
+};
+
+const buildAuthSetCookieHeader = (token) => {
+  const { secureCookie, sameSite, maxAgeSeconds, path } = resolveCookieAttributes();
+  return [
+    `erp_auth_token=${encodeURIComponent(token)}`,
+    `Path=${path}`,
+    `Max-Age=${maxAgeSeconds}`,
+    "HttpOnly",
+    `SameSite=${sameSite}`,
+    ...(secureCookie ? ["Secure"] : []),
+  ].join("; ");
+};
+
+const buildAuthClearCookieHeader = () => {
+  const { secureCookie, sameSite, path } = resolveCookieAttributes();
+  return [
+    "erp_auth_token=",
+    `Path=${path}`,
+    "Max-Age=0",
+    "HttpOnly",
+    `SameSite=${sameSite}`,
+    ...(secureCookie ? ["Secure"] : []),
+  ].join("; ");
+};
+
 export const registerAuthRoutes = async (app) => {
-  app.post("/api/auth/login", async (request, reply) => {
+  app.post("/api/auth/login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (request, reply) => {
     try {
       const credentials = parseLoginBody(request.body);
       const session = await loginWithCredentials(credentials);
       const tokenPayload = createSessionTokenPayload(session);
       const token = await reply.jwtSign(tokenPayload, { expiresIn: "8h" });
+      reply.header("Set-Cookie", buildAuthSetCookieHeader(token));
 
       return {
         token,
@@ -49,7 +85,19 @@ export const registerAuthRoutes = async (app) => {
       const cached = getSessionEmpresas(scope.userId);
       const empresas = cached?.items?.length ? cached.items : await listEmpresasFromSession({ id: scope.userId });
       return {
-        user: buildSessionUserFromToken(request.user),
+        user: sanitizeSessionUser({
+          ...buildSessionUserFromToken(request.user),
+          codigo: scope.user?.codigo ?? request.user?.codigo ?? null,
+          nome: scope.user?.nome ?? request.user?.nome ?? null,
+          login: scope.user?.login ?? request.user?.login,
+          email: scope.user?.email ?? request.user?.email ?? null,
+          telefone: scope.user?.telefone ?? request.user?.telefone ?? null,
+          cliente_id: scope.user?.cliente_id ?? request.user?.cliente_id,
+          perfil: scope.perfil,
+          acesso_global: scope.acessoGlobal,
+          ativo: scope.user?.ativo !== false,
+          ultimo_acesso: scope.user?.ultimo_acesso ?? request.user?.ultimo_acesso ?? null,
+        }),
         cliente: {
           id: scope.clienteId,
         },
@@ -61,6 +109,11 @@ export const registerAuthRoutes = async (app) => {
       };
     }
   );
+
+  app.post("/api/auth/logout", { preHandler: app.authenticate }, async (_request, reply) => {
+    reply.header("Set-Cookie", buildAuthClearCookieHeader());
+    return { ok: true };
+  });
 
   app.get(
     "/api/auth/empresas",

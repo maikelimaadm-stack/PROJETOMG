@@ -1,4 +1,5 @@
-const AUTH_TOKEN_KEY = "erp_auth_token";
+import { tokenStore } from "./tokenStore";
+
 const EMPRESA_SELECTION_KEY = "erp_empresa_id";
 const DEV_AUTH_MOCK = import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH_MOCK === "true";
 
@@ -27,6 +28,7 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
   try {
     response = await fetch(`${getApiBaseUrl()}${path}`, {
       method,
+      credentials: "include",
       headers: {
         ...(body ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -72,16 +74,12 @@ const emitAuthChange = () => {
 
 export const AuthApi = {
   getToken() {
-    try {
-      return localStorage.getItem(AUTH_TOKEN_KEY) || null;
-    } catch {
-      return null;
-    }
+    return tokenStore.getToken();
   },
 
   setToken(token) {
     if (!token) return;
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
+    tokenStore.setToken(token);
     emitAuthChange();
   },
 
@@ -103,7 +101,7 @@ export const AuthApi = {
   },
 
   clearSession() {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
+    tokenStore.clearToken();
     localStorage.removeItem(EMPRESA_SELECTION_KEY);
     emitAuthChange();
   },
@@ -175,6 +173,14 @@ export const AuthApi = {
   },
 
   async logout() {
+    const token = this.getToken();
+    if (token && !(DEV_AUTH_MOCK && token === DEV_MOCK_SESSION.token)) {
+      try {
+        await request("/api/auth/logout", { method: "POST", token });
+      } catch {
+        // ignora falha de logout remoto e limpa sessão local
+      }
+    }
     this.clearSession();
     return true;
   },

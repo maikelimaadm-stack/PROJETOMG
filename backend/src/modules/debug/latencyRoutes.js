@@ -5,7 +5,7 @@
  */
 import { performance } from "node:perf_hooks";
 import { getPrismaClient } from "../../database/prismaClient.js";
-import { loadAccessScope } from "../auth/accessScope.js";
+import { assertRole, loadAccessScope } from "../auth/accessScope.js";
 import { empresaRepository } from "../empresas/repositories/empresaRepository.js";
 import { svcCps } from "../cadcps/svcCps.js";
 
@@ -18,6 +18,7 @@ export const registerLatencyDebugRoutes = async (app) => {
     const totalStart = performance.now();
     const scopeStart = performance.now();
     const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN"]);
     return {
       loadAccessScopeMs: ms(scopeStart),
       totalHandlerMs: ms(totalStart),
@@ -32,6 +33,7 @@ export const registerLatencyDebugRoutes = async (app) => {
 
     const scopeStart = performance.now();
     const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN"]);
     timings.loadAccessScopeMs = ms(scopeStart);
 
     const prisma = getPrismaClient();
@@ -97,7 +99,9 @@ export const registerLatencyDebugRoutes = async (app) => {
     };
   });
 
-  app.get("/api/debug/pg-indexes", { preHandler: app.authenticate }, async () => {
+  app.get("/api/debug/pg-indexes", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN"]);
     const prisma = getPrismaClient();
     const rows = await prisma.$queryRaw`
       SELECT

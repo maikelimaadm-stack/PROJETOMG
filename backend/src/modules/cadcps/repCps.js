@@ -100,6 +100,15 @@ const resolveFieldName = (payload = {}) => {
 
 const buildListWhere = (scope, query = {}) => {
   const and = [{ cliente_id: scope.clienteId }];
+  if (scope.perfil !== "ADMIN") {
+    const empresaClauses = [{ aplicacao_modo: CADCPS_APLICACAO.TODAS }];
+    if (scope.selectedEmpresaId && scope.selectedEmpresaId !== "all") {
+      empresaClauses.push({ empresas: { some: { empresa_id: scope.selectedEmpresaId } } });
+    } else if (scope.allowedEmpresaIds?.length) {
+      empresaClauses.push({ empresas: { some: { empresa_id: { in: scope.allowedEmpresaIds } } } });
+    }
+    and.push({ OR: empresaClauses });
+  }
 
   if (query.codigo) and.push({ codigo: Number(query.codigo) });
   if (query.nome) and.push({ nome: { contains: String(query.nome), mode: "insensitive" } });
@@ -214,7 +223,25 @@ const resolveTelaIdsFromPayload = (payload, fallbackTelas = []) => {
   return single ? [String(single)] : [];
 };
 
-const syncRelations = async (prisma, campoId, { tela_ids = [], empresa_ids = [], opcoes = [], aplicacao_modo }) => {
+const assertEmpresaIdsBelongToCliente = async (prisma, scope, empresaIds) => {
+  if (!empresaIds.length) return [];
+  const normalized = [...new Set(empresaIds.map((id) => String(id).trim()).filter(Boolean))];
+  if (!normalized.length) return [];
+  const empresas = await prisma.empresa.findMany({
+    where: { id: { in: normalized }, cliente_id: scope.clienteId },
+    select: { id: true },
+  });
+  const allowed = new Set(empresas.map((item) => item.id));
+  const invalid = normalized.filter((id) => !allowed.has(id));
+  if (invalid.length > 0) {
+    const error = new Error("empresa_ids contém empresas inválidas para este cliente.");
+    error.statusCode = 400;
+    throw error;
+  }
+  return normalized;
+};
+
+const syncRelations = async (prisma, campoId, scope, { tela_ids = [], empresa_ids = [], opcoes = [], aplicacao_modo }) => {
   const telaIds = tela_ids.slice(0, 1);
   await prisma.cadCpsCampoTela.deleteMany({ where: { campo_id: campoId } });
   if (telaIds.length) {
@@ -226,8 +253,9 @@ const syncRelations = async (prisma, campoId, { tela_ids = [], empresa_ids = [],
 
   await prisma.cadCpsCampoEmpresa.deleteMany({ where: { campo_id: campoId } });
   if (aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS && empresa_ids.length) {
+    const safeEmpresaIds = await assertEmpresaIdsBelongToCliente(prisma, scope, empresa_ids);
     await prisma.cadCpsCampoEmpresa.createMany({
-      data: empresa_ids.map((empresa_id) => ({ campo_id: campoId, empresa_id })),
+      data: safeEmpresaIds.map((empresa_id) => ({ campo_id: campoId, empresa_id })),
       skipDuplicates: true,
     });
   }
@@ -406,7 +434,7 @@ export const repCps = {
         entityName: "CadCpsCampo",
         registroId: record.id,
       });
-      await syncRelations(tx, record.id, {
+      await syncRelations(tx, record.id, scope, {
         tela_ids: resolveTelaIdsFromPayload(payload),
         empresa_ids: payload.empresa_ids,
         opcoes: payload.opcoes,
@@ -497,7 +525,7 @@ export const repCps = {
       payload.opcoes ||
       payload.aplicacao_modo !== undefined
     ) {
-      await syncRelations(prisma, id, {
+      await syncRelations(prisma, id, scope, {
         tela_ids: resolveTelaIdsFromPayload(payload, current.telas),
         empresa_ids: payload.empresa_ids || current.empresa_ids,
         opcoes: payload.opcoes || current.opcoes,

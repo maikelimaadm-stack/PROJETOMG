@@ -134,6 +134,57 @@ const resolveOrderBy = (sortBy = "codempresa", sortDir = "asc") => {
   return { [key]: direction };
 };
 
+const CURSOR_SORT_FIELDS = new Set(["codempresa", "id_global"]);
+
+const encodeCursor = ({ sortField, direction, value, id }) => {
+  const payload = JSON.stringify({
+    s: sortField,
+    d: direction,
+    v: Number(value),
+    i: String(id),
+  });
+  return Buffer.from(payload, "utf8").toString("base64url");
+};
+
+const decodeCursor = (cursor) => {
+  if (!cursor) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(String(cursor), "base64url").toString("utf8"));
+    if (!parsed || typeof parsed !== "object") return null;
+    const value = Number(parsed.v);
+    if (!Number.isFinite(value) || !parsed.i || !parsed.s || !parsed.d) return null;
+    return {
+      sortField: String(parsed.s),
+      direction: String(parsed.d) === "desc" ? "desc" : "asc",
+      value,
+      id: String(parsed.i),
+    };
+  } catch {
+    return null;
+  }
+};
+
+const buildKeysetCursorWhere = (baseWhere, cursorMeta) => {
+  const comparator = cursorMeta.direction === "desc" ? "lt" : "gt";
+  const sortField = cursorMeta.sortField;
+  return {
+    AND: [
+      baseWhere,
+      {
+        OR: [
+          { [sortField]: { [comparator]: cursorMeta.value } },
+          {
+            AND: [
+              { [sortField]: cursorMeta.value },
+              { id: { [comparator]: cursorMeta.id } },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+};
+
 const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {}) => {
   const searchTerm = String(search || "").trim();
   const baseSearchWhere = buildSearchWhere(searchTerm);
@@ -502,19 +553,39 @@ export const empresaRepository = {
     return getEmpresaCount(scope);
   },
 
-  async list({ scope, page = 1, pageSize = DEFAULT_PAGE_SIZE, search = "", sortBy, sortDir, filters = {} }) {
+  async list({
+    scope,
+    page = 1,
+    pageSize = DEFAULT_PAGE_SIZE,
+    search = "",
+    sortBy,
+    sortDir,
+    filters = {},
+    cursor = null,
+  }) {
     const prisma = getPrismaClient();
     const safePage = toPositiveInt(page, 1);
     const safePageSize = Math.min(MAX_PAGE_SIZE, toPositiveInt(pageSize, DEFAULT_PAGE_SIZE));
-    const skip = (safePage - 1) * safePageSize;
     const where = await buildListWhere(prisma, scope, { search, filters });
+    const resolvedOrder = resolveOrderBy(sortBy, sortDir);
+    const [sortField] = Object.keys(resolvedOrder);
+    const direction = resolvedOrder[sortField] === "desc" ? "desc" : "asc";
+    const cursorMeta = decodeCursor(cursor);
+    const isCursorMode =
+      CURSOR_SORT_FIELDS.has(sortField) &&
+      cursorMeta &&
+      cursorMeta.sortField === sortField &&
+      cursorMeta.direction === direction;
+    const skip = (safePage - 1) * safePageSize;
     const hasHeavyFilter = Boolean(String(search || "").trim() || Object.keys(filters || {}).length);
+    const pageWhere = isCursorMode ? buildKeysetCursorWhere(where, cursorMeta) : where;
+    const orderBy = isCursorMode ? [{ [sortField]: direction }, { id: direction }] : resolvedOrder;
 
     const items = await prisma.empresa.findMany({
-      where,
+      where: pageWhere,
       select: LIST_SELECT,
-      orderBy: resolveOrderBy(sortBy, sortDir),
-      skip,
+      orderBy,
+      ...(isCursorMode ? {} : { skip }),
       take: safePageSize,
     });
 
@@ -531,6 +602,15 @@ export const empresaRepository = {
       page: safePage,
       pageSize: safePageSize,
       totalPages: Math.max(1, Math.ceil(total / safePageSize)),
+      nextCursor:
+        isCursorMode && items.length === safePageSize
+          ? encodeCursor({
+              sortField,
+              direction,
+              value: items[items.length - 1]?.[sortField],
+              id: items[items.length - 1]?.id,
+            })
+          : null,
     };
   },
 
@@ -738,6 +818,16 @@ export const empresaRepository = {
         prisma,
         async (tx) => {
           await tx.cadastroRegistro.deleteMany({ where: { empresa_id: current.id } });
+          await tx.registroAnexo.deleteMany({ where: { cliente_id: scope.clienteId, empresa_id: current.id } });
+          await tx.registroGlobal.deleteMany({
+            where: {
+              cliente_id: scope.clienteId,
+              OR: [
+                { entity_name: "Empresa", registro_id: current.id },
+                { entity_name: "EmpresaCadastro", registro_id: current.id },
+              ],
+            },
+          });
           await tx.empresa.delete({ where: { id: current.id } });
         },
         { attempts: 10, maxWait: 20_000, timeout: 45_000 }

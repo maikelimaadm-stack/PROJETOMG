@@ -1,3 +1,5 @@
+import { tokenStore } from "@/apis/auth/tokenStore";
+
 const getApiBaseUrl = () => {
   if (import.meta.env.DEV) return "";
   const configured = String(import.meta.env.VITE_API_URL || "").trim();
@@ -22,22 +24,13 @@ const buildUrl = (path) => {
 };
 
 const getAuthToken = () => {
-  try {
-    const token = localStorage.getItem("erp_auth_token");
-    if (token && token.trim()) return token.trim();
-  } catch {
-    // noop
-  }
-  return null;
+  const token = tokenStore.getToken();
+  return token && token.trim() ? token.trim() : null;
 };
 
 const clearAuthSession = () => {
-  try {
-    localStorage.removeItem("erp_auth_token");
-    localStorage.removeItem("erp_empresa_id");
-  } catch {
-    // noop
-  }
+  tokenStore.clearToken();
+  localStorage.removeItem("erp_empresa_id");
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("erp-auth-changed"));
   }
@@ -88,6 +81,7 @@ export const apiClient = {
     const hasJsonBody = body != null && !(body instanceof FormData);
     const response = await fetch(buildUrl(path), {
       method,
+      credentials: "include",
       headers: {
         ...(hasJsonBody ? { "Content-Type": "application/json" } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -134,6 +128,7 @@ export const apiClient = {
     const token = getAuthToken();
     const response = await fetch(buildUrl(path), {
       method: "GET",
+      credentials: "include",
       headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...resolveEmpresaHeader(empresaHeader),

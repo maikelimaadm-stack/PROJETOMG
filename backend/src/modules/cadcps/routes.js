@@ -40,6 +40,7 @@ export const registerCadcpsRoutes = async (app) => {
 
   app.get("/api/cadcps/campos", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
+    ensureAdmin(scope);
     const query = parseOrThrow(cadcpsListQuerySchema, request.query || {}, "Query inválida.");
     let filters = {};
     if (request.query?.filters) {
@@ -54,6 +55,7 @@ export const registerCadcpsRoutes = async (app) => {
 
   app.get("/api/cadcps/campos/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    ensureAdmin(scope);
     const item = await svcCps.get(scope, request.params.id);
     if (!item) return reply.status(404).send({ message: "Campo não encontrado." });
     return { item };
@@ -64,6 +66,7 @@ export const registerCadcpsRoutes = async (app) => {
     { preHandler: app.authenticate },
     async (request, reply) => {
       const scope = await loadAccessScope(request);
+      ensureAdmin(scope);
       const item = await svcCps.get(scope, request.params.id);
       if (!item) return reply.status(404).send({ message: "Campo não encontrado." });
       const items = await svcCps.listHistorico(scope, request.params.id);
