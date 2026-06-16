@@ -43,8 +43,17 @@ export const MIN_COL_WIDTH = 80;
 export const MAX_AUTO_FIT_WIDTH = 520;
 export const AUTO_FIT_MEASURE_LIMIT = 300;
 
-export const getMinWidth = (col) =>
-  Math.max(MIN_COL_WIDTH, String(col?.label || "").length * 7 + 18);
+/** Espaço reservado no cabeçalho para padding (px). */
+export const HEADER_PADDING_X = 18;
+export const HEADER_LABEL_MIN_CH = 5;
+export const HEADER_LABEL_CHAR_PX = 7;
+
+export const getMinWidth = (col) => {
+  const label = String(col?.label || "");
+  const labelChars = Math.max(HEADER_LABEL_MIN_CH, label.length);
+  const labelWidth = labelChars * HEADER_LABEL_CHAR_PX;
+  return Math.max(MIN_COL_WIDTH, Math.ceil(labelWidth + HEADER_PADDING_X));
+};
 
 export const formatDateValue = (value) => {
   if (!value) return "-";

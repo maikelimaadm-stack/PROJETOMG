@@ -6538,6 +6538,7 @@
   box-sizing: border-box !important;
   padding: 0 9px !important;
   overflow: hidden !important;
+  text-align: left !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead tr,

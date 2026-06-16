@@ -1593,6 +1593,7 @@ input[type="number"] {
   padding: 0 9px;
   background: #ffffff !important;
   color: #344054 !important;
+  text-align: left !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td,
@@ -1638,8 +1639,29 @@ input[type="number"] {
   height: 12px !important;
 }
 
-.cadastro-emp-scope .emp-table-pro .emp-header-filter-icon:hover {
-  color: #1e3a5f;
+.cadastro-emp-scope .emp-table-pro thead .emp-th,
+.cadastro-emp-scope .emp-table-pro .emp-td,
+.cadastro-emp-scope .emp-table-pro tfoot.emp-table-footer .emp-th {
+  text-align: left !important;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th-label-wrap {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.cadastro-emp-scope .emp-table-pro .emp-th-label {
+  min-width: 0;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  text-align: left;
 }
 
 .cadastro-emp-scope .emp-table-pro .emp-col-resize-handle {

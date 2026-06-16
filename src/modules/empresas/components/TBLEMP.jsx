@@ -1,8 +1,5 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Checkbox } from "@/shared/ui/checkbox";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
-import { useQuery } from "@tanstack/react-query";
-import empRepository from "@/modules/empresas/repositories/empRepository";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
@@ -13,9 +10,6 @@ import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCampo
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Filter, FilterX, X, ArrowDownAZ, ArrowUpZA, Check } from "lucide-react";
-import { buildEmpresaColumnFilters } from "@/shared/listing/buildEmpresaListFilters";
-import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
   loadColumnOrder,
@@ -26,8 +20,6 @@ import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
   COLUNAS_BASE,
-  FILTER_ICON_CLASS,
-  FILTER_POPOVER_WIDTH,
   FROZEN_KEY,
   MAX_AUTO_FIT_WIDTH,
   MIN_COL_WIDTH,
@@ -41,13 +33,8 @@ import {
   getMinWidth,
 } from "./tblEmp.constants";
 import {
-  formatRangeTokenForInput,
   getColumnFilterType,
   getListFilterValues,
-  getRangeFilterValues,
-  getRangeTokenInputValue,
-  normalizeRangeValoresForEdit,
-  optionPassaRangeTemp,
   parseDateFilterValue,
   parseNumberFilterValue,
 } from "./tblEmp.filters";
@@ -88,9 +75,6 @@ export default function TBLEMP({
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: "codempresa", direction: "asc" });
-  const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
-  const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
-  const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
   const [filtrosColunas, setFiltrosColunas] = useState({});
   const isMobile = useIsMobile();
 
@@ -144,48 +128,14 @@ export default function TBLEMP({
   const tableRef = useRef(null);
   const [isTableFullscreen, setIsTableFullscreen] = useState(false);
   const dragRef = useRef(null);
-  const filterAnchorRefs = useRef({});
-  const filterPanelRef = useRef(null);
   const measureCanvasRef = useRef(null);
-  const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [scrollbarCompensation, setScrollbarCompensation] = useState(0);
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
-  const listedOnlyDistinctOptions = mgPrototype || infiniteMode;
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
     if (serverPageSize) return serverPageSize;
     return readStoredListPageSize(PAGE_SIZE_KEY, 50);
-  });
-
-  const distinctFiltersKey = useMemo(() => {
-    if (!serverMode || !menuFiltroAberto) return "";
-    const withoutColumn = { ...filtrosColunas };
-    delete withoutColumn[menuFiltroAberto];
-    const merged = buildEmpresaColumnFilters(withoutColumn);
-    const payload = { ...(serverBaseFilters || {}), ...(merged || {}) };
-    return JSON.stringify(payload);
-  }, [serverMode, menuFiltroAberto, filtrosColunas, serverBaseFilters]);
-
-  const { data: serverDistinctOptions, isFetching: serverDistinctFetching } = useQuery({
-    queryKey: [
-      "emp-distinct-column",
-      menuFiltroAberto,
-      serverSearchTerm,
-      distinctFiltersKey,
-      buscaFiltroMenu,
-    ],
-    queryFn: () =>
-      empRepository.listDistinctColumnValues({
-        column: menuFiltroAberto,
-        search: serverSearchTerm,
-        optionSearch: buscaFiltroMenu,
-        filters: distinctFiltersKey ? JSON.parse(distinctFiltersKey) : serverBaseFilters,
-        limit: 5000,
-      }),
-    enabled: serverMode && !listedOnlyDistinctOptions && Boolean(menuFiltroAberto),
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
   });
 
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
@@ -258,7 +208,12 @@ export default function TBLEMP({
     e.preventDefault();
     e.stopPropagation();
     const cx = e.touches?.[0]?.clientX ?? e.clientX;
-    dragRef.current = { columnId: col.id, startX: cx, startWidth: columnWidths[col.id] || col.width || 160, minWidth: getMinWidth(col) };
+    dragRef.current = {
+      columnId: col.id,
+      startX: cx,
+      startWidth: columnWidths[col.id] || col.width || 160,
+      minWidth: getMinWidth(col),
+    };
     setResizeColumnId(col.id);
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
@@ -290,7 +245,17 @@ export default function TBLEMP({
   const colunasTodasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && !c.fixo), [colunasOrdem, colunasDisponiveis]);
   useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
 
-  const columnPixelWidths = useMemo(() => Object.fromEntries(colunasOrdenadas.map((c) => { const rawWidth = Math.max(columnWidths[c.id] || c.width || 160, getMinWidth(c)); return [c.id, Math.max(getMinWidth(c), Math.round(rawWidth))]; })), [colunasOrdenadas, columnWidths]);
+  const columnPixelWidths = useMemo(
+    () =>
+      Object.fromEntries(
+        colunasOrdenadas.map((c) => {
+          const minW = getMinWidth(c);
+          const rawWidth = Math.max(columnWidths[c.id] || c.width || 160, minW);
+          return [c.id, Math.round(rawWidth)];
+        })
+      ),
+    [colunasOrdenadas, columnWidths]
+  );
   const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
   const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
   const tableColGroup = useMemo(
@@ -334,25 +299,6 @@ export default function TBLEMP({
     return campoEngine.getValorCampo(emp, col || { id: colId }, {});
   };
 
-  const resolveColumnAlign = (col) => {
-    if (col?.tipo === "date") return "center";
-    if (col?.tipo === "number" || col?.tipo === "calculado" || col?.id === "id_global" || col?.id === "codempresa" || col?.id === "custom:valor") return "right";
-    return "left";
-  };
-
-  const getColumnAlignClass = (col) => {
-    const align = resolveColumnAlign(col);
-    if (align === "right") return "text-right";
-    if (align === "center") return "text-center";
-    return "text-left";
-  };
-
-  const getHeaderFlexClass = (col) => {
-    const align = resolveColumnAlign(col);
-    if (align === "right") return "justify-end";
-    if (align === "center") return "justify-center";
-    return "justify-start";
-  };
   const getComparableValue = (emp, col) => {
     if (col.id === "id_global") return Number(emp.id_global || 0);
     if (col.id === "codempresa") return Number(emp.codempresa || 0);
@@ -400,32 +346,6 @@ export default function TBLEMP({
     });
   };
 
-  const columnOptions = useMemo(() => {
-    if (serverMode && !listedOnlyDistinctOptions) {
-      if (!menuFiltroAberto) return {};
-      return { [menuFiltroAberto]: serverDistinctOptions?.items || [] };
-    }
-    const opts = {};
-    colunasDisponiveis.filter((c) => !c.fixo).forEach((col) => {
-      const source = empresas.filter((e) => empresaPassaFiltros(e, col.id));
-      opts[col.id] = [...new Set(source.map((e) => getFieldValue(e, col.id)).filter(Boolean))].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
-    });
-    return opts;
-  }, [
-    serverMode,
-    listedOnlyDistinctOptions,
-    menuFiltroAberto,
-    serverDistinctOptions,
-    empresas,
-    filtrosColunas,
-    colunasDisponiveis,
-    searchTerm,
-  ]);
-
-  const hasActiveFilter = (id) => (filtrosColunas[id] || []).length > 0;
-  const getValoresFiltro = (id) => filtrosColunas[id] || [];
-  const setValoresFiltro = (id, v) => setFiltrosColunas((p) => ({ ...p, [id]: v }));
-  const clearColumnFilter = (id) => setValoresFiltro(id, []);
   const selectedItemsSet = useMemo(() => new Set(selectedItems), [selectedItems]);
 
   const empresasFiltradas = useMemo(() => {
@@ -502,7 +422,7 @@ export default function TBLEMP({
             style={{
               left: isFrozen ? frozenOffsets[col.id] : undefined,
             }}
-            className={`emp-td py-0 text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${getColumnAlignClass(col)} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+            className={`emp-td py-0 text-left text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isFrozen ? "sticky z-20" : ""} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
             title={String(getFieldValue(emp, col.id) ?? "")}
           >
             {getFieldValue(emp, col.id)}
@@ -514,7 +434,6 @@ export default function TBLEMP({
       colunasOrdenadas,
       frozenColumnCount,
       frozenOffsets,
-      getColumnAlignClass,
       getFieldValue,
       getRowBgClass,
       selectedItemsSet,
@@ -707,78 +626,12 @@ export default function TBLEMP({
     }
   };
 
-  const renderFilterIcon = (active) => (
-    active
-      ? <FilterX className={FILTER_ICON_CLASS} strokeWidth={2} />
-      : <Filter className={FILTER_ICON_CLASS} strokeWidth={2} />
-  );
-
   const agregacoes = useMemo(() => {
     if (empresasOrdenadas.length > 150) return {};
     return campoEngine.calcularAgregacoes
       ? campoEngine.calcularAgregacoes(empresasOrdenadas, colunasOrdenadas, {})
       : {};
   }, [empresasOrdenadas, colunasOrdenadas]);
-
-  const closeFilterMenu = () => {
-    setMenuFiltroAberto(null);
-    setFilterAnchorRect(null);
-    setBuscaFiltroMenu("");
-    setFiltroTemp({ colunaId: null, valores: [] });
-  };
-
-  const getFilterPanelRect = (colunaId) => {
-    const el = filterAnchorRefs.current[colunaId];
-    const stage = tableStageRef.current;
-    if (!el || !stage) return null;
-    const rect = el.getBoundingClientRect();
-    const stageRect = stage.getBoundingClientRect();
-    const padding = 8;
-    const maxLeft = stageRect.width - FILTER_POPOVER_WIDTH - padding;
-    const left = Math.min(Math.max(rect.right - FILTER_POPOVER_WIDTH - stageRect.left, padding), maxLeft);
-    const top = rect.bottom + 6 - stageRect.top;
-    return { columnId: colunaId, left, top, width: rect.width, height: rect.height };
-  };
-
-  const openFilterMenu = (colunaId) => {
-    setFilterAnchorRect(getFilterPanelRect(colunaId));
-    setMenuFiltroAberto(colunaId);
-    setBuscaFiltroMenu("");
-    setFiltroTemp({ colunaId, valores: normalizeRangeValoresForEdit(colunaId, [...getValoresFiltro(colunaId)], colunasDisponiveis) });
-  };
-
-  const toggleFilterMenu = (colunaId) => {
-    if (menuFiltroAberto === colunaId) {
-      closeFilterMenu();
-      return;
-    }
-    openFilterMenu(colunaId);
-  };
-
-  const updateFilterAnchorRect = () => {
-    if (!menuFiltroAberto) {
-      setFilterAnchorRect(null);
-      return;
-    }
-    setFilterAnchorRect(getFilterPanelRect(menuFiltroAberto));
-  };
-
-  useLayoutEffect(() => {
-    updateFilterAnchorRect();
-    if (!menuFiltroAberto) return undefined;
-    const onReflow = () => updateFilterAnchorRect();
-    const raf = requestAnimationFrame(updateFilterAnchorRect);
-    const root = scrollContainerRef.current;
-    root?.addEventListener("scroll", onReflow, { passive: true });
-    window.addEventListener("resize", onReflow);
-    window.addEventListener("scroll", onReflow, true);
-    return () => {
-      cancelAnimationFrame(raf);
-      root?.removeEventListener("scroll", onReflow);
-      window.removeEventListener("resize", onReflow);
-      window.removeEventListener("scroll", onReflow, true);
-    };
-  }, [menuFiltroAberto, colunasOrdenadas, columnWidths, frozenColumnCount]);
 
   useEffect(() => {
     const body = scrollContainerRef.current;
@@ -845,179 +698,6 @@ export default function TBLEMP({
     empresasPaginadas.length,
   ]);
 
-  useEffect(() => {
-    if (!menuFiltroAberto) return undefined;
-    const onPointerDown = (event) => {
-      const panel = filterPanelRef.current;
-      const anchor = filterAnchorRefs.current[menuFiltroAberto];
-      if (panel?.contains(event.target) || anchor?.contains(event.target)) return;
-      closeFilterMenu();
-    };
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") {
-        event.stopPropagation();
-        closeFilterMenu();
-      }
-    };
-    document.addEventListener("mousedown", onPointerDown);
-    document.addEventListener("touchstart", onPointerDown, { passive: true });
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.removeEventListener("mousedown", onPointerDown);
-      document.removeEventListener("touchstart", onPointerDown);
-      document.removeEventListener("keydown", onKeyDown);
-    };
-  }, [menuFiltroAberto]);
-
-  const renderFilterPopoverContent = (colunaId) => {
-    const col = colunasDisponiveis.find((c) => c.id === colunaId);
-    const opts = columnOptions[colunaId] || [];
-    const ft = getColumnFilterType(col);
-    const isRange = ft === "number" || ft === "date";
-    const valSel = filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
-    const listSel = getListFilterValues(valSel, ft);
-    const tempRangeValores = filtroTemp.colunaId === colunaId ? filtroTemp.valores : [];
-    const rangeFilteredOpts = isRange && menuFiltroAberto === colunaId
-      ? opts.filter((o) => optionPassaRangeTemp(o, ft, tempRangeValores))
-      : opts;
-    const filteredOpts = rangeFilteredOpts.filter((o) => String(o).toLowerCase().includes(buscaFiltroMenu.toLowerCase()));
-    const allVisSel = filteredOpts.length > 0 && filteredOpts.every((o) => listSel.includes(o));
-    const colLabel = formatHeaderLabel(col);
-    const closeFilter = closeFilterMenu;
-
-    return (
-      <div
-        ref={filterPanelRef}
-        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
-        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
-      >
-          <div className="emp-filter-sort-section">
-            <button
-              type="button"
-              className="emp-filter-sort-btn"
-              onClick={() => { handleSort(colunaId); closeFilter(); }}
-            >
-              <ArrowDownAZ className="w-4 h-4 mr-2 shrink-0" />
-              <span>Classificar do Menor para o Maior</span>
-            </button>
-            <button
-              type="button"
-              className="emp-filter-sort-btn"
-              onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}
-            >
-              <ArrowUpZA className="w-4 h-4 mr-2 shrink-0" />
-              <span>Classificar do Maior para o Menor</span>
-            </button>
-            <button
-              type="button"
-              className="emp-filter-sort-btn"
-              disabled={!hasActiveFilter(colunaId)}
-              onClick={() => { clearColumnFilter(colunaId); closeFilter(); }}
-            >
-              <X className="w-4 h-4 mr-2 shrink-0" />
-              <span className="truncate">Limpar Filtro de &apos;{colLabel}&apos;</span>
-            </button>
-          </div>
-
-          <div className="emp-filter-body">
-            {isRange && (
-              <div className="space-y-1">
-                <div className="emp-filter-range-label">Filtrar entre</div>
-                <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
-                  <input
-                    type="text"
-                    value={getRangeTokenInputValue(valSel.find((i) => String(i).startsWith(ft === "date" ? "start:" : "min:")))}
-                    onChange={(e) => setFiltroTemp((p) => {
-                      const rangeVals = getRangeFilterValues(p.valores, ft).filter((i) => !String(i).startsWith(ft === "date" ? "start:" : "min:"));
-                      const listVals = getListFilterValues(p.valores, ft);
-                      const minVal = e.target.value.trim() ? `${ft === "date" ? "start" : "min"}:${e.target.value.trim()}` : null;
-                      return { ...p, valores: [...(minVal ? [minVal] : []), ...rangeVals, ...listVals] };
-                    })}
-                    placeholder="DE"
-                    className="emp-filter-field emp-filter-search"
-                  />
-                  <span className="emp-filter-range-sep">a</span>
-                  <input
-                    type="text"
-                    value={getRangeTokenInputValue(valSel.find((i) => String(i).startsWith(ft === "date" ? "end:" : "max:")))}
-                    onChange={(e) => setFiltroTemp((p) => {
-                      const rangeVals = getRangeFilterValues(p.valores, ft).filter((i) => !String(i).startsWith(ft === "date" ? "end:" : "max:"));
-                      const listVals = getListFilterValues(p.valores, ft);
-                      const maxVal = e.target.value.trim() ? `${ft === "date" ? "end" : "max"}:${e.target.value.trim()}` : null;
-                      return { ...p, valores: [...rangeVals, ...(maxVal ? [maxVal] : []), ...listVals] };
-                    })}
-                    placeholder="ATÉ"
-                    className="emp-filter-field emp-filter-search"
-                  />
-                </div>
-              </div>
-            )}
-
-            <input
-              value={buscaFiltroMenu}
-              onChange={(e) => setBuscaFiltroMenu(e.target.value)}
-              placeholder="PESQUISAR"
-              className="emp-filter-field emp-filter-search"
-            />
-
-            <div className="emp-filter-value-list">
-              <label className="emp-filter-value-list-header">
-                <Checkbox
-                  checked={allVisSel}
-                  onCheckedChange={(c) => setFiltroTemp((p) => {
-                    const rangeVals = getRangeFilterValues(p.valores, ft);
-                    const listVals = getListFilterValues(p.valores, ft);
-                    const rest = listVals.filter((v) => !filteredOpts.includes(v));
-                    return { ...p, valores: c ? [...rangeVals, ...new Set([...rest, ...filteredOpts])] : [...rangeVals, ...rest] };
-                  })}
-                  className="emp-filter-checkbox"
-                />
-                <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">(Selecionar Tudo)</span>
-              </label>
-              {serverMode && serverDistinctFetching && filteredOpts.length === 0 ? (
-                <div className="emp-filter-loading px-2 py-3 text-xs text-slate-500">Carregando opções...</div>
-              ) : (
-                filteredOpts.map((opt) => (
-                  <label key={opt} className="emp-filter-value-list-item">
-                    <Checkbox
-                      checked={listSel.includes(opt)}
-                      onCheckedChange={(c) => setFiltroTemp((p) => {
-                        const rangeVals = getRangeFilterValues(p.valores, ft);
-                        const listVals = getListFilterValues(p.valores, ft);
-                        const nextList = c ? [...listVals, opt] : listVals.filter((i) => i !== opt);
-                        return { ...p, valores: [...rangeVals, ...nextList] };
-                      })}
-                      className="emp-filter-checkbox"
-                    />
-                    <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap" title={opt}>{opt}</span>
-                  </label>
-                ))
-              )}
-            </div>
-
-            <div className="emp-filter-actions">
-              <button
-                type="button"
-                title="Aplicar filtro"
-                className={EMP_TOOLBAR_BTN}
-                onClick={() => { setValoresFiltro(colunaId, filtroTemp.valores); closeFilter(); }}
-              >
-                <Check className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                title="Cancelar"
-                className={EMP_TOOLBAR_BTN}
-                onClick={closeFilter}
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-      </div>
-    );
-  };
-
   const formatTotalValue = (valor, col) => {
     const isInt = col.id === "id_global" || col.id === "codempresa";
     const places = col.decimal_places ?? 2;
@@ -1082,56 +762,15 @@ export default function TBLEMP({
     colunasOrdenadas.map((col, colIndex) => {
       const isFrozen = colIndex < frozenColumnCount;
       const isResizing = resizeColumnId === col.id;
-      const isColFiltered = hasActiveFilter(col.id);
-      const isFilterOpen = menuFiltroAberto === col.id;
       return (
         <TableHead
           key={col.id}
           style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th group relative align-middle whitespace-nowrap py-0 select-none cursor-pointer ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
-          onDoubleClick={() => handleSort(col.id)}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-pointer text-left ${isFrozen ? "z-50" : "z-40"}`}
+          onClick={() => handleSort(col.id)}
         >
-          <div className={`emp-th-label-wrap flex items-center w-full h-full whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-            <span className="emp-th-label truncate font-semibold">{formatHeaderLabel(col)}</span>
-          </div>
-          <div
-            className="emp-th-controls absolute right-1 top-1/2 -translate-y-1/2 z-50 flex items-center gap-0.5"
-            onClick={(e) => e.stopPropagation()}
-            onDoubleClick={(e) => e.stopPropagation()}
-          >
-            <span
-              ref={(el) => {
-                if (el) filterAnchorRefs.current[col.id] = el;
-                else delete filterAnchorRefs.current[col.id];
-              }}
-              role="button"
-              tabIndex={0}
-              className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[var(--accent)] ${
-                isColFiltered || isFilterOpen
-                  ? "opacity-100 pointer-events-auto"
-                  : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"
-              }`}
-              title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleFilterMenu(col.id);
-              }}
-              onDoubleClick={(e) => {
-                e.stopPropagation();
-                if (!isColFiltered) return;
-                clearColumnFilter(col.id);
-                closeFilterMenu();
-              }}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  toggleFilterMenu(col.id);
-                }
-              }}
-            >
-              {renderFilterIcon(isColFiltered)}
-            </span>
+          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 overflow-hidden">
+            <span className="emp-th-label truncate font-semibold whitespace-nowrap text-left">{formatHeaderLabel(col)}</span>
           </div>
           <div
             role="separator"
@@ -1160,10 +799,10 @@ export default function TBLEMP({
         <TableHead
           key={`total-${col.id}`}
           style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none ${isFrozen ? "z-50" : "z-40"} ${getColumnAlignClass(col)}`}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left ${isFrozen ? "z-50" : "z-40"}`}
         >
-          <div className={`emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden ${getHeaderFlexClass(col)}`}>
-            <span className="emp-th-label truncate font-semibold">
+          <div className="emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden">
+            <span className="emp-th-label truncate font-semibold text-left">
               {ci === 0 && agregacoes[col.id] === undefined ? "Totais" : agregacoes[col.id] !== undefined ? formatTotalValue(agregacoes[col.id], col) : ""}
             </span>
           </div>
@@ -1251,7 +890,7 @@ export default function TBLEMP({
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
       <div
         ref={tableStageRef}
-        className={`emp-table-stage relative min-h-0 overflow-hidden ${menuFiltroAberto ? "overflow-visible" : ""}`}
+        className="emp-table-stage relative min-h-0 overflow-hidden"
       >
         <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
           {mgPrototype ? (
@@ -1330,7 +969,6 @@ export default function TBLEMP({
             </div>
           )}
         </div>
-        {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto && renderFilterPopoverContent(menuFiltroAberto)}
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}
