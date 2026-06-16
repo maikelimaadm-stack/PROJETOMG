@@ -671,13 +671,13 @@ export default function FORMCPS({
             viewportClassName="overflow-auto"
           >
             <div className="emp-form-body flex flex-col">
-              <div className="emp-form-section emp-form-section-principal w-full min-w-[920px] max-w-none pl-2 pr-4">
+              <div className="emp-form-section emp-form-section-principal w-full min-w-0 max-w-none pl-2 pr-4">
                 {renderPrincipal()}
               </div>
 
               <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
                 <LegacyTabs tabs={CPS_FORM_PANELS} activeTab={activeTab} onChange={setActiveTab} />
-                <div className="emp-form-section emp-form-section-panel min-h-[380px] w-full min-w-[920px] max-w-none pl-2 pr-4">
+                <div className="emp-form-section emp-form-section-panel min-h-[380px] w-full min-w-0 max-w-none pl-2 pr-4">
                   {panelContent[activeTab]?.()}
                 </div>
               </div>

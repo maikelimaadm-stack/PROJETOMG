@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { AlertTriangle, Info, X, Check } from "lucide-react";
 
-const iconButtonClass = "rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none h-7 w-7";
+const iconButtonClass = "rounded-none border-0 bg-white hover:bg-slate-50 text-slate-700 shadow-none min-h-11 min-w-11 h-11 w-11";
 
 export default function TopNoticeDialog({
   open,

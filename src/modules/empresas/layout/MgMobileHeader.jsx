@@ -11,7 +11,7 @@ export default function MgMobileHeader({ title = "MakGestão ERP" }) {
     <header className="mobile-header md:hidden">
       <button
         type="button"
-        className="ios-btn flex h-8 w-8 items-center justify-center"
+        className="ios-btn flex min-h-11 min-w-11 items-center justify-center"
         onClick={toggleMobileMenu}
         aria-label="Menu"
       >
@@ -22,13 +22,13 @@ export default function MgMobileHeader({ title = "MakGestão ERP" }) {
       </div>
       <button
         type="button"
-        className="ios-btn flex h-8 w-8 items-center justify-center"
+        className="ios-btn flex min-h-11 min-w-11 items-center justify-center"
         onClick={toggleFilterPanel}
         aria-label="Filtros"
       >
         <Filter className="h-4 w-4" />
       </button>
-      <ErpThemeToggle className="flex h-8 w-8 items-center justify-center" />
+      <ErpThemeToggle className="flex min-h-11 min-w-11 items-center justify-center" />
       <div className="mg-desktop-header__logo" aria-hidden="true">
         <Hexagon className="h-4 w-4 text-white" strokeWidth={2.2} />
       </div>

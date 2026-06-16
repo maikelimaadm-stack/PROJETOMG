@@ -27,7 +27,7 @@ export default function MgMobileMenu() {
         </h2>
         <button
           type="button"
-          className="ios-btn"
+          className="ios-btn flex min-h-11 min-w-11 items-center justify-center"
           onClick={closeMobileMenu}
           style={{ background: "none", color: "var(--text-2)" }}
           aria-label="Fechar menu"
@@ -43,7 +43,7 @@ export default function MgMobileMenu() {
               key={item.id}
               to={item.path}
               onClick={closeMobileMenu}
-              className="flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-[13px]"
+              className="flex min-h-11 cursor-pointer items-center gap-3 rounded-xl px-3 py-3 text-[13px]"
               style={
                 active
                   ? { background: "var(--accent-light)", color: "var(--accent)", fontWeight: 600 }

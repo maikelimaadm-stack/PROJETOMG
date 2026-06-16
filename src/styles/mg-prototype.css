@@ -1732,9 +1732,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 36px;
-  min-height: 36px;
-  padding: 0 12px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0 8px;
   background: var(--accent);
   box-shadow: var(--mg-section-divider-shadow), 0 2px 4px rgba(0, 0, 0, 0.1);
   gap: 10px;
@@ -1744,6 +1744,10 @@
 
 .mg-empresas-scope .mobile-header .ios-btn {
   color: rgba(255, 255, 255, 0.92);
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
 }
 
 .mg-empresas-scope .mobile-header h1 {
@@ -2013,12 +2017,17 @@
     position: fixed;
     top: 48px;
     left: 0;
-    width: 260px;
-    min-width: 260px;
+    width: min(280px, calc(100vw - 32px));
+    min-width: 0;
+    max-width: calc(100vw - 32px);
     height: calc(100% - 48px);
     z-index: 40;
     box-shadow: var(--shadow-lg);
     max-height: none;
+  }
+
+  .mg-empresas-scope .mobile-menu {
+    width: min(280px, calc(100vw - 32px));
   }
 }
 
@@ -3870,17 +3879,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 2px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 5px 8px;
+  padding: 6px 10px;
+  min-height: 44px;
   border-radius: 8px;
   font-size: 10px;
   color: var(--text-3);
   font-weight: 500;
   flex: 1;
-  max-width: 72px;
+  max-width: 88px;
 }
 
 .mg-empresas-scope .mobile-bottom-bar button.active {
@@ -3902,6 +3913,27 @@
 }
 
 @media (max-width: 767px) {
+  .mg-empresas-scope {
+    --mg-btn-height: 36px;
+    --mg-btn-icon-size: 36px;
+    --mg-toolbar-row-height: 44px;
+    --mg-view-seg-inner-height: calc(var(--mg-btn-height) - (var(--mg-view-seg-track-padding) * 2));
+  }
+
+  .mg-empresas-scope .tb-btn,
+  .mg-empresas-scope .tb-btn-icon,
+  .mg-empresas-scope .view-mode-btn,
+  .mg-empresas-scope .filter-panel__close {
+    min-height: 36px;
+  }
+
+  .mg-empresas-scope .filter-panel__close {
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+  }
+
   .mg-empresas-scope input,
   .mg-empresas-scope select,
   .mg-empresas-scope textarea {

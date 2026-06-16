@@ -634,3 +634,102 @@
     display: flex;
   }
 }
+
+/* —— Mobile UX: alvos de toque, modais, tabelas e overflow —— */
+@media (max-width: 767px) {
+  .cadastro-emp-scope .emp-form-details-panels,
+  .cadastro-emp-scope .emp-form-section-principal,
+  .cadastro-emp-scope .emp-form-section-panel:not(.emp-form-section-panel--corp) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Rodapé fixo — altura mínima WCAG 44px */
+  .cadastro-emp-scope .emp-form-mobile-footer {
+    gap: 8px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .cadastro-emp-scope .emp-form-mobile-footer__btn {
+    min-height: 44px !important;
+    height: 44px !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Paginação — alvos de toque maiores */
+  .cadastro-emp-scope .emp-table-pagination-btn {
+    min-width: 36px !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    max-height: 36px !important;
+  }
+
+  .cadastro-emp-scope .emp-table-pagination-size {
+    min-height: 36px !important;
+    height: 36px !important;
+    max-height: 36px !important;
+  }
+
+  .cadastro-emp-scope .emp-table-pagination-ellipsis {
+    line-height: 36px !important;
+  }
+
+  /* Modais de configuração — largura total em telas pequenas */
+  .cadastro-emp-scope.emp-layout-presets-dialog,
+  .cadastro-emp-scope.emp-config-columns-dialog {
+    width: calc(100vw - 16px) !important;
+    max-width: calc(100vw - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+  }
+
+  .cadastro-emp-scope .emp-campos-config-table-wrap,
+  .cadastro-emp-scope .emp-layout-presets-table-wrap {
+    -webkit-overflow-scrolling: touch;
+    overflow-x: auto !important;
+  }
+
+  /* Toast — não ultrapassar a viewport */
+  .erp-toast-panel {
+    min-width: 0 !important;
+    max-width: min(420px, calc(100vw - 24px)) !important;
+    width: 100% !important;
+  }
+
+  [data-sonner-toaster],
+  [data-sonner-toast] {
+    max-width: calc(100vw - 16px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .cadastro-emp-scope .emp-table-pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .cadastro-emp-scope .emp-table-pagination-size {
+    width: auto !important;
+    min-width: 7.5rem !important;
+    flex: 1 1 100%;
+  }
+
+  .cadastro-emp-scope .emp-table-pagination-ellipsis {
+    display: none;
+  }
+}
+
+@media (max-width: 390px) {
+  .erp-shell-breadcrumb-pill,
+  .erp-record-meta,
+  .erp-shell-breadcrumbs__trail .erp-info-pill {
+    max-width: 28vw !important;
+  }
+
+  .cadastro-emp-scope .emp-toolbar-search {
+    min-width: 6rem !important;
+    max-width: 7.5rem !important;
+  }
+}
