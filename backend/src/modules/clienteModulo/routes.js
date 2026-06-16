@@ -1,5 +1,6 @@
 import { loadAccessScope, assertRole } from "../auth/accessScope.js";
 import { clienteModuloService } from "./clienteModuloService.js";
+import { clearModuloGuardCache } from "./moduleGuard.js";
 
 const ensureAdmin = (scope) => assertRole(scope, ["ADMIN"]);
 
@@ -15,6 +16,7 @@ export const registerClienteModuloRoutes = async (app) => {
     ensureAdmin(scope);
     const ativo = Boolean(request.body?.ativo);
     const item = await clienteModuloService.updateModulo(scope, request.params.modulo, ativo);
+    clearModuloGuardCache(scope.clienteId, request.params.modulo);
     return reply.send({ item });
   });
 };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-const MOBILE_BREAKPOINT = 768;
+// Alinhado ao padrão oficial em erp-responsive.css (mobile <= 640px).
+const MOBILE_BREAKPOINT = 641;
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useState(() =>

@@ -20,6 +20,7 @@ export default function MgTimePicker({
   const panelRef = useRef(null);
   const hoursRef = useRef(null);
   const minutesRef = useRef(null);
+  const closeTimeoutRef = useRef(null);
   const [open, setOpen] = useState(false);
   const [state, setState] = useState(parseTime(value));
   const panelStyle = useMgPanelPosition(open, rootRef, panelRef, { width: 220, estimatedHeight: 220 });
@@ -49,6 +50,13 @@ export default function MgTimePicker({
     });
   }, [open, state.hour, state.minute]);
 
+  useEffect(() => () => {
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  }, []);
+
   const toggle = () => {
     if (readOnly || disabled) return;
     setOpen((wasOpen) => {
@@ -63,7 +71,13 @@ export default function MgTimePicker({
   const finish = (hour, minute) => {
     const next = `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
     onChange?.({ target: { value: next } });
-    setTimeout(() => setOpen(false), 150);
+    if (closeTimeoutRef.current) {
+      window.clearTimeout(closeTimeoutRef.current);
+    }
+    closeTimeoutRef.current = window.setTimeout(() => {
+      setOpen(false);
+      closeTimeoutRef.current = null;
+    }, 150);
   };
 
   const selectHour = (h) => {

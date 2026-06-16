@@ -8,6 +8,7 @@ import { ErpThemeProvider } from "@/shared/contexts/ErpThemeContext";
 import { lazy, Suspense, useState } from "react";
 import generatedModules from "@/modules/generatedModules.json";
 import ErpShell from "@/shared/layouts/ErpShell";
+import { GlobalErrorBoundary } from "@/shared/feedback/GlobalErrorBoundary";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const EmpresasPage = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
@@ -187,6 +188,15 @@ const AuthenticatedApp = () => {
   );
 };
 
+function AppWithErrorBoundary() {
+  const location = useLocation();
+  return (
+    <GlobalErrorBoundary resetKey={location.pathname}>
+      <AuthenticatedApp />
+    </GlobalErrorBoundary>
+  );
+}
+
 export default function App() {
   return (
     <ErpThemeProvider>
@@ -194,7 +204,7 @@ export default function App() {
         <QueryClientProvider client={queryClientInstance}>
           <ErpConfirmProvider>
             <Router>
-              <AuthenticatedApp />
+              <AppWithErrorBoundary />
             </Router>
             <ErpToaster />
           </ErpConfirmProvider>
