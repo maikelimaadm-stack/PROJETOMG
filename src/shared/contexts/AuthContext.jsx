@@ -68,14 +68,7 @@ export const AuthProvider = ({ children }) => {
   const [appPublicSettings, setAppPublicSettings] = useState(null);
 
   const checkAppState = useCallback(async () => {
-    try {
-      setIsLoadingAuth(true);
-      setAuthError(null);
-      setAppPublicSettings(null);
-      if (isDevAutoLoginEnabled() && !AuthApi.getToken()) {
-        await AuthApi.login(getDevAutoLoginCredentials());
-      }
-      const session = await AuthApi.getSession();
+    const applySession = (session) => {
       if (!session?.user) {
         setUser(null);
         setCliente(null);
@@ -83,7 +76,7 @@ export const AuthProvider = ({ children }) => {
         setAllowAllEmpresas(false);
         setIsAuthenticated(false);
         setIsLoadingAuth(false);
-        return;
+        return false;
       }
       setUser(session.user);
       setCliente(session.cliente || null);
@@ -98,6 +91,29 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       prefetchEmpresasCadastro();
+      return true;
+    };
+
+    try {
+      setIsLoadingAuth(true);
+      setAuthError(null);
+      setAppPublicSettings(null);
+
+      if (isDevAutoLoginEnabled() && !AuthApi.getToken()) {
+        await AuthApi.login(getDevAutoLoginCredentials());
+      }
+
+      try {
+        const session = await AuthApi.getSession();
+        if (applySession(session)) return;
+        return;
+      } catch (sessionError) {
+        if (!isDevAutoLoginEnabled()) throw sessionError;
+        AuthApi.clearSession();
+        await AuthApi.login(getDevAutoLoginCredentials());
+        const session = await AuthApi.getSession();
+        if (applySession(session)) return;
+      }
     } catch (error) {
       setAuthError({
         type: "auth_error",
