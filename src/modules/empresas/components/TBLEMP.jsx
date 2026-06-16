@@ -13,6 +13,7 @@ import {
   X,
   UsersRound,
 } from "lucide-react";
+import { Checkbox } from "@/shared/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
@@ -34,6 +35,7 @@ import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
   COLUNAS_BASE,
+  FILTER_POPOVER_WIDTH,
   FROZEN_KEY,
   MAX_AUTO_FIT_WIDTH,
   MIN_COL_WIDTH,
@@ -47,8 +49,13 @@ import {
   getMinWidth,
 } from "./tblEmp.constants";
 import {
+  formatRangeTokenForInput,
   getColumnFilterType,
   getListFilterValues,
+  getRangeFilterValues,
+  getRangeTokenInputValue,
+  normalizeRangeValoresForEdit,
+  optionPassaRangeTemp,
   parseDateFilterValue,
   parseNumberFilterValue,
 } from "./tblEmp.filters";
@@ -70,7 +77,6 @@ function haveSameRecordIds(listA = [], listB = []) {
 }
 
 const COLUMN_MENU_WIDTH = 228;
-const COLUMN_FILTER_WIDTH = 270;
 
 export default function TBLEMP({
   empresas = [],
@@ -162,6 +168,7 @@ export default function TBLEMP({
   const dragRef = useRef(null);
   const columnMenuTriggerRefs = useRef({});
   const columnMenuPanelRef = useRef(null);
+  const filterPanelRef = useRef(null);
   const measureCanvasRef = useRef(null);
   const [scrollbarCompensation, setScrollbarCompensation] = useState(0);
   const scrollbarCompensationRef = useRef(0);
@@ -169,7 +176,10 @@ export default function TBLEMP({
   const filteredEmpresasSignatureRef = useRef("");
   const serverResetSignatureRef = useRef("");
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
-  const [columnFilterPopup, setColumnFilterPopup] = useState(null);
+  const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
+  const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
+  const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
+  const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
   const [groupByColumnId, setGroupByColumnId] = useState(null);
   const [collapsedGroupKeys, setCollapsedGroupKeys] = useState({});
@@ -250,7 +260,10 @@ export default function TBLEMP({
 
   const closeColumnOverlays = useCallback(() => {
     setColumnMenuAnchor(null);
-    setColumnFilterPopup(null);
+    setMenuFiltroAberto(null);
+    setFilterAnchorRect(null);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({ colunaId: null, valores: [] });
   }, []);
 
   const getColumnMenuAnchor = useCallback((columnId) => {
@@ -280,9 +293,9 @@ export default function TBLEMP({
     const triggerRect = triggerEl.getBoundingClientRect();
     const stageRect = stageEl.getBoundingClientRect();
     const padding = 10;
-    const preferredLeft = triggerRect.right - stageRect.left - COLUMN_FILTER_WIDTH;
+    const preferredLeft = triggerRect.right - stageRect.left - FILTER_POPOVER_WIDTH;
     const fallbackLeft = triggerRect.left - stageRect.left;
-    const maxLeft = stageRect.width - COLUMN_FILTER_WIDTH - padding;
+    const maxLeft = stageRect.width - FILTER_POPOVER_WIDTH - padding;
     const left = Math.max(
       padding,
       Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
@@ -294,33 +307,36 @@ export default function TBLEMP({
   }, []);
 
   const toggleColumnMenu = useCallback((columnId) => {
-    setColumnFilterPopup(null);
+    setMenuFiltroAberto(null);
+    setFilterAnchorRect(null);
     setColumnMenuAnchor((prev) => {
       if (prev?.columnId === columnId) return null;
       return getColumnMenuAnchor(columnId);
     });
   }, [getColumnMenuAnchor]);
 
-  const openColumnFilterPopup = useCallback((column) => {
-    const position = getColumnFilterAnchor(column.id);
+  const openFilterMenu = useCallback((columnId) => {
+    const position = getColumnFilterAnchor(columnId);
     if (!position) return;
-    const currentFilter = filtrosColunas[column.id] || [];
-    const currentValue = getListFilterValues(currentFilter, getColumnFilterType(column))[0] ?? "";
+    const col = colunasDisponiveis.find((column) => column.id === columnId);
+    if (!col) return;
+    const currentValues = filtrosColunas[columnId] || [];
     setColumnMenuAnchor(null);
-    setColumnFilterPopup({
-      columnId: column.id,
-      left: position.left,
-      top: position.top,
-      value: String(currentValue || ""),
+    setFilterAnchorRect({ columnId, left: position.left, top: position.top });
+    setMenuFiltroAberto(columnId);
+    setBuscaFiltroMenu("");
+    setFiltroTemp({
+      colunaId: columnId,
+      valores: normalizeRangeValoresForEdit(columnId, [...currentValues], colunasDisponiveis),
     });
-  }, [filtrosColunas, getColumnFilterAnchor]);
+  }, [colunasDisponiveis, filtrosColunas, getColumnFilterAnchor]);
 
   const updateColumnOverlayAnchorRect = useCallback(() => {
     setColumnMenuAnchor((prev) => {
       if (!prev?.columnId) return prev;
       return getColumnMenuAnchor(prev.columnId);
     });
-    setColumnFilterPopup((prev) => {
+    setFilterAnchorRect((prev) => {
       if (!prev?.columnId) return prev;
       const position = getColumnFilterAnchor(prev.columnId);
       if (!position) return prev;
@@ -498,6 +514,23 @@ export default function TBLEMP({
     });
     return sorted;
   }, [empresasFiltradas, sortConfig]);
+
+  const columnOptions = useMemo(() => {
+    const opts = {};
+    colunasDisponiveis
+      .filter((c) => !c.fixo)
+      .forEach((col) => {
+        const source = empresas.filter((emp) => empresaPassaFiltros(emp, col.id));
+        opts[col.id] = [...new Set(source.map((emp) => getFieldValue(emp, col.id)).filter(Boolean))]
+          .sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
+      });
+    return opts;
+  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm]);
+
+  const hasActiveFilter = (id) => (filtrosColunas[id] || []).length > 0;
+  const getValoresFiltro = (id) => filtrosColunas[id] || [];
+  const setValoresFiltro = (id, values) => setFiltrosColunas((prev) => ({ ...prev, [id]: values }));
+  const clearColumnFilter = (id) => setValoresFiltro(id, []);
 
   useEffect(() => {
     if (!onFilteredEmpresasChange) return;
@@ -736,7 +769,7 @@ export default function TBLEMP({
     handleRowClick(row?.emp || row, event);
   };
 
-  const overlayColumnId = columnMenuAnchor?.columnId || columnFilterPopup?.columnId;
+  const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
 
   useLayoutEffect(() => {
     if (!overlayColumnId) return undefined;
@@ -758,9 +791,16 @@ export default function TBLEMP({
   useEffect(() => {
     if (!overlayColumnId) return undefined;
     const onPointerDown = (event) => {
-      const panel = columnMenuPanelRef.current;
+      const menuPanel = columnMenuPanelRef.current;
+      const filterPanel = filterPanelRef.current;
       const trigger = columnMenuTriggerRefs.current[overlayColumnId];
-      if (panel?.contains(event.target) || trigger?.contains(event.target)) return;
+      if (
+        menuPanel?.contains(event.target) ||
+        filterPanel?.contains(event.target) ||
+        trigger?.contains(event.target)
+      ) {
+        return;
+      }
       closeColumnOverlays();
     };
     const onKeyDown = (event) => {
@@ -822,7 +862,7 @@ export default function TBLEMP({
   ]);
 
   const handleTableKeyDown = (e) => {
-    if (e.key === "Escape" && (columnMenuAnchor || columnFilterPopup)) {
+    if (e.key === "Escape" && (columnMenuAnchor || menuFiltroAberto)) {
       e.preventDefault();
       closeColumnOverlays();
       return;
@@ -991,7 +1031,7 @@ export default function TBLEMP({
   };
 
   const applyQuickColumnFilter = (col) => {
-    openColumnFilterPopup(col);
+    openFilterMenu(col.id);
   };
 
   const hideColumn = (col) => {
@@ -1187,60 +1227,213 @@ export default function TBLEMP({
     );
   };
 
-  const renderColumnFilterPopup = () => {
-    if (!columnFilterPopup?.columnId) return null;
-    const col = colunasOrdenadas.find((column) => column.id === columnFilterPopup.columnId);
+  const renderFilterPopoverContent = (colunaId) => {
+    const col = colunasDisponiveis.find((column) => column.id === colunaId);
     if (!col) return null;
-    const filterValue = columnFilterPopup.value || "";
+    const options = columnOptions[colunaId] || [];
+    const filterType = getColumnFilterType(col);
+    const isRange = filterType === "number" || filterType === "date";
+    const selectedValues =
+      filtroTemp.colunaId === colunaId ? filtroTemp.valores : getValoresFiltro(colunaId);
+    const listSelected = getListFilterValues(selectedValues, filterType);
+    const tempRangeValues = filtroTemp.colunaId === colunaId ? filtroTemp.valores : [];
+    const rangeFilteredOptions =
+      isRange && menuFiltroAberto === colunaId
+        ? options.filter((option) => optionPassaRangeTemp(option, filterType, tempRangeValues))
+        : options;
+    const filteredOptions = rangeFilteredOptions.filter((option) =>
+      String(option).toLowerCase().includes(buscaFiltroMenu.toLowerCase())
+    );
+    const allVisibleSelected =
+      filteredOptions.length > 0 &&
+      filteredOptions.every((option) => listSelected.includes(option));
+    const columnLabel = formatHeaderLabel(col);
     return (
       <div
-        ref={columnMenuPanelRef}
-        className="emp-col-filter-popup erp-menu-panel"
-        style={{ left: columnFilterPopup.left, top: columnFilterPopup.top }}
+        ref={filterPanelRef}
+        className="emp-filter-popover erp-menu-panel absolute z-[9999]"
+        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0 }}
       >
-        <div className="emp-col-filter-popup__title">Filtro — {formatHeaderLabel(col)}</div>
-        <input
-          value={filterValue}
-          placeholder="Digite um valor para filtrar"
-          className="emp-col-filter-popup__input"
-          onChange={(event) =>
-            setColumnFilterPopup((prev) =>
-              prev ? { ...prev, value: event.target.value } : prev
-            )
-          }
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              const value = filterValue.trim();
-              setFiltrosColunas((prev) => ({ ...prev, [col.id]: value ? [value] : [] }));
-              closeColumnOverlays();
-            }
-          }}
-        />
-        <div className="emp-col-filter-popup__actions">
+        <div className="emp-filter-sort-section">
           <button
             type="button"
-            className="emp-col-filter-popup__action is-primary"
+            className="emp-filter-sort-btn"
             onClick={() => {
-              const value = filterValue.trim();
-              setFiltrosColunas((prev) => ({ ...prev, [col.id]: value ? [value] : [] }));
+              setSortConfig({ key: colunaId, direction: "asc" });
               closeColumnOverlays();
             }}
           >
-            <Check className="h-3.5 w-3.5" />
-            Aplicar
+            <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
+            <span>Classificar do Menor para o Maior</span>
           </button>
           <button
             type="button"
-            className="emp-col-filter-popup__action"
+            className="emp-filter-sort-btn"
             onClick={() => {
-              setColumnFilterPopup((prev) => (prev ? { ...prev, value: "" } : prev));
-              setFiltrosColunas((prev) => ({ ...prev, [col.id]: [] }));
+              setSortConfig({ key: colunaId, direction: "desc" });
               closeColumnOverlays();
             }}
           >
-            <X className="h-3.5 w-3.5" />
-            Limpar
+            <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
+            <span>Classificar do Maior para o Menor</span>
           </button>
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            disabled={!hasActiveFilter(colunaId)}
+            onClick={() => {
+              clearColumnFilter(colunaId);
+              closeColumnOverlays();
+            }}
+          >
+            <X className="w-4 h-4 mr-2 shrink-0" />
+            <span className="truncate">Limpar Filtro de &apos;{columnLabel}&apos;</span>
+          </button>
+        </div>
+
+        <div className="emp-filter-body">
+          {isRange ? (
+            <div className="space-y-1">
+              <div className="emp-filter-range-label">Filtrar entre</div>
+              <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-1">
+                <input
+                  type="text"
+                  value={formatRangeTokenForInput(
+                    getRangeTokenInputValue(
+                      selectedValues.find((item) =>
+                        String(item).startsWith(filterType === "date" ? "start:" : "min:")
+                      )
+                    )
+                  )}
+                  onChange={(event) =>
+                    setFiltroTemp((prev) => {
+                      const rangeValues = getRangeFilterValues(prev.valores, filterType).filter(
+                        (item) =>
+                          !String(item).startsWith(filterType === "date" ? "start:" : "min:")
+                      );
+                      const listValues = getListFilterValues(prev.valores, filterType);
+                      const minValue = event.target.value.trim()
+                        ? `${filterType === "date" ? "start" : "min"}:${event.target.value.trim()}`
+                        : null;
+                      return {
+                        ...prev,
+                        valores: [...(minValue ? [minValue] : []), ...rangeValues, ...listValues],
+                      };
+                    })
+                  }
+                  placeholder="DE"
+                  className="emp-filter-field emp-filter-search"
+                />
+                <span className="emp-filter-range-sep">a</span>
+                <input
+                  type="text"
+                  value={formatRangeTokenForInput(
+                    getRangeTokenInputValue(
+                      selectedValues.find((item) =>
+                        String(item).startsWith(filterType === "date" ? "end:" : "max:")
+                      )
+                    )
+                  )}
+                  onChange={(event) =>
+                    setFiltroTemp((prev) => {
+                      const rangeValues = getRangeFilterValues(prev.valores, filterType).filter(
+                        (item) =>
+                          !String(item).startsWith(filterType === "date" ? "end:" : "max:")
+                      );
+                      const listValues = getListFilterValues(prev.valores, filterType);
+                      const maxValue = event.target.value.trim()
+                        ? `${filterType === "date" ? "end" : "max"}:${event.target.value.trim()}`
+                        : null;
+                      return {
+                        ...prev,
+                        valores: [...rangeValues, ...(maxValue ? [maxValue] : []), ...listValues],
+                      };
+                    })
+                  }
+                  placeholder="ATÉ"
+                  className="emp-filter-field emp-filter-search"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          <input
+            value={buscaFiltroMenu}
+            onChange={(event) => setBuscaFiltroMenu(event.target.value)}
+            placeholder="PESQUISAR"
+            className="emp-filter-field emp-filter-search"
+          />
+
+          <div className="emp-filter-value-list">
+            <label className="emp-filter-value-list-header">
+              <Checkbox
+                checked={allVisibleSelected}
+                onCheckedChange={(checked) =>
+                  setFiltroTemp((prev) => {
+                    const rangeValues = getRangeFilterValues(prev.valores, filterType);
+                    const listValues = getListFilterValues(prev.valores, filterType);
+                    const rest = listValues.filter((value) => !filteredOptions.includes(value));
+                    return {
+                      ...prev,
+                      valores: checked
+                        ? [...rangeValues, ...new Set([...rest, ...filteredOptions])]
+                        : [...rangeValues, ...rest],
+                    };
+                  })
+                }
+                className="emp-filter-checkbox"
+              />
+              <span className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                (Selecionar Tudo)
+              </span>
+            </label>
+            {filteredOptions.map((option) => (
+              <label key={option} className="emp-filter-value-list-item">
+                <Checkbox
+                  checked={listSelected.includes(option)}
+                  onCheckedChange={(checked) =>
+                    setFiltroTemp((prev) => {
+                      const rangeValues = getRangeFilterValues(prev.valores, filterType);
+                      const listValues = getListFilterValues(prev.valores, filterType);
+                      const nextList = checked
+                        ? [...listValues, option]
+                        : listValues.filter((value) => value !== option);
+                      return { ...prev, valores: [...rangeValues, ...nextList] };
+                    })
+                  }
+                  className="emp-filter-checkbox"
+                />
+                <span
+                  className="block flex-1 overflow-hidden text-ellipsis whitespace-nowrap"
+                  title={option}
+                >
+                  {option}
+                </span>
+              </label>
+            ))}
+          </div>
+
+          <div className="emp-filter-actions">
+            <button
+              type="button"
+              title="Aplicar filtro"
+              className="emp-col-filter-popup__action is-primary"
+              onClick={() => {
+                setValoresFiltro(colunaId, filtroTemp.valores);
+                closeColumnOverlays();
+              }}
+            >
+              <Check className="w-3.5 h-3.5" />
+            </button>
+            <button
+              type="button"
+              title="Cancelar"
+              className="emp-col-filter-popup__action"
+              onClick={closeColumnOverlays}
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -1346,9 +1539,9 @@ export default function TBLEMP({
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
       <div
         ref={tableStageRef}
-        className={`emp-table-stage relative min-h-0 ${columnMenuAnchor || columnFilterPopup ? "overflow-visible" : "overflow-hidden"}`}
+        className={`emp-table-stage relative min-h-0 ${columnMenuAnchor || menuFiltroAberto ? "overflow-visible" : "overflow-hidden"}`}
       >
-        {columnMenuAnchor || columnFilterPopup ? (
+        {columnMenuAnchor || menuFiltroAberto ? (
           <button
             type="button"
             className="emp-col-popup-backdrop"
@@ -1435,7 +1628,9 @@ export default function TBLEMP({
           )}
         </div>
         {renderColumnMenu()}
-        {renderColumnFilterPopup()}
+        {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto
+          ? renderFilterPopoverContent(menuFiltroAberto)
+          : null}
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}
