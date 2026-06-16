@@ -4,7 +4,6 @@ import {
   ArrowUp,
   EyeOff,
   Filter,
-  MoveHorizontal,
   MoreVertical,
   Pin,
   ScanLine,
@@ -858,18 +857,6 @@ export default function TBLEMP({
     setResizeColumnId(null);
   };
 
-  const adjustColumnToHeaderWidth = (col) => {
-    const minW = getMinWidth(col);
-    const headerWidth = Math.ceil(
-      measureTextWidth(formatHeaderLabel(col), "600 12px Inter, system-ui, sans-serif") + 38
-    );
-    setColumnWidths((prev) => ({
-      ...prev,
-      [col.id]: Math.round(Math.max(minW, headerWidth)),
-    }));
-    setResizeColumnId(null);
-  };
-
   const applyQuickColumnFilter = (col) => {
     const currentFilter = filtrosColunas[col.id] || [];
     const filterType = getColumnFilterType(col);
@@ -920,15 +907,6 @@ export default function TBLEMP({
       Icon: ArrowDown,
       onClick: () => {
         setSortConfig({ key: col.id, direction: "desc" });
-        closeColumnMenu();
-      },
-    },
-    {
-      id: "fit-header",
-      label: "Ajustar largura",
-      Icon: MoveHorizontal,
-      onClick: () => {
-        adjustColumnToHeaderWidth(col);
         closeColumnMenu();
       },
     },
