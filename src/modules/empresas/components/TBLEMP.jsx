@@ -991,6 +991,18 @@ export default function TBLEMP({
   }, [overlayColumnId, closeColumnOverlays]);
 
   useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    if (isColumnOverlayOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = previousOverflow || "";
+    }
+    return () => {
+      document.body.style.overflow = previousOverflow || "";
+    };
+  }, [isColumnOverlayOpen]);
+
+  useEffect(() => {
     if (!columnMenuAnchor?.columnId) return;
     const raf = requestAnimationFrame(() => {
       const panel = columnMenuPanelRef.current;
