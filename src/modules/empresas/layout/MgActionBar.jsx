@@ -90,6 +90,7 @@ export default function MgActionBar({
   const moreRef = useRef(null);
   const searchRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
+  const blurTimeoutRef = useRef(null);
   const isMobile = useIsMobile();
   const showSecondaryTools = !secondaryToolsLocked;
   const lockedClass = actionsLocked ? " mg-action-bar__zone--locked" : "";
@@ -101,6 +102,13 @@ export default function MgActionBar({
       setMobileSearchExpanded(false);
     }
   }, [secondaryToolsLocked]);
+
+  useEffect(() => () => {
+    if (blurTimeoutRef.current) {
+      window.clearTimeout(blurTimeoutRef.current);
+      blurTimeoutRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     if (!searchOpen) return undefined;
@@ -230,9 +238,13 @@ export default function MgActionBar({
   };
 
   const handleMobileSearchBlur = () => {
-    window.setTimeout(() => {
+    if (blurTimeoutRef.current) {
+      window.clearTimeout(blurTimeoutRef.current);
+    }
+    blurTimeoutRef.current = window.setTimeout(() => {
       if (searchRef.current?.contains(document.activeElement)) return;
       collapseMobileSearch();
+      blurTimeoutRef.current = null;
     }, 120);
   };
 

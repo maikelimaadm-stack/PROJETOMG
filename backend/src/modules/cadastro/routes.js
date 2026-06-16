@@ -1,6 +1,7 @@
 import { loadAccessScope } from "../auth/accessScope.js";
 import { svcCps } from "../cadcps/svcCps.js";
 import { empresaService } from "../empresas/services/empresaService.js";
+import { ensureModuloAtivo } from "../clienteModulo/moduleGuard.js";
 
 const ENTITY_ALIASES = {
   empresas: "EmpresaCadastro",
@@ -30,6 +31,9 @@ export const registerCadastroRoutes = async (app) => {
     async (request) => {
       const scope = await loadAccessScope(request);
       const entityName = resolveEntityName(request.params.entity);
+      if (entityName === "EmpresaCadastro") {
+        await ensureModuloAtivo(scope, "EMPRESAS");
+      }
       const mode =
         String(request.query?.mode || "aplicavel").toLowerCase() === "config" ? "config" : "aplicavel";
 
@@ -54,6 +58,9 @@ export const registerCadastroRoutes = async (app) => {
     async (request) => {
       const scope = await loadAccessScope(request);
       const entityName = resolveEntityName(request.params.entity);
+      if (entityName === "EmpresaCadastro") {
+        await ensureModuloAtivo(scope, "EMPRESAS");
+      }
       if (entityName === "EmpresaCadastro") {
         const items = await empresaService.listOptionsSources(request.body?.sources || [], scope);
         return { items, entityName };

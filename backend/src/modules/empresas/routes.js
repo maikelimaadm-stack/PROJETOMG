@@ -3,6 +3,7 @@ import { streamEmpresasExport } from "./services/empresaExportService.js";
 import { empresaRepository } from "./repositories/empresaRepository.js";
 import { assertRole, loadAccessScope } from "../auth/accessScope.js";
 import { getContadores } from "../metrics/metricsService.js";
+import { ensureModuloAtivo } from "../clienteModulo/moduleGuard.js";
 import {
   empresaCreateSchema,
   empresaUpdateSchema,
@@ -14,6 +15,7 @@ const ensureMutationRole = (scope) => assertRole(scope, ["ADMIN"]);
 export const registerEmpresasRoutes = async (app) => {
   app.get("/api/empresas", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     let parsedFilters = {};
     if (request.query?.filters) {
       try {
@@ -31,6 +33,7 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.get("/api/empresas/export", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     reply.hijack();
     await streamEmpresasExport({
       reply,
@@ -42,6 +45,7 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.get("/api/empresas/selector", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     const result = await empresaService.list(
       {
         page: request.query?.page || 1,
@@ -67,6 +71,7 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.get("/api/empresas/distinct", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     const column = String(request.query?.column || "").trim();
     if (!column) {
       return reply.status(400).send({ message: "Parâmetro column é obrigatório." });
@@ -93,6 +98,7 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.get("/api/empresas/campos", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     const mode = String(request.query?.mode || "aplicavel").toLowerCase() === "config" ? "config" : "aplicavel";
     if (mode === "config") {
       return empresaService.listCamposPaginated(scope, request.query || {});
@@ -103,12 +109,14 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.post("/api/empresas/options", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     const items = await empresaService.listOptionsSources(request.body?.sources || [], scope);
     return { items };
   });
 
   app.get("/api/empresas/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     const item = await empresaService.get(request.params.id, scope);
     if (!item) return reply.status(404).send({ message: "Empresa não encontrada" });
     return { item };
@@ -116,6 +124,7 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.post("/api/empresas", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     ensureMutationRole(scope);
     const payload = parseOrThrow(
       empresaCreateSchema,
@@ -129,6 +138,7 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.put("/api/empresas/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     ensureMutationRole(scope);
     try {
       const payload = parseOrThrow(
@@ -149,6 +159,7 @@ export const registerEmpresasRoutes = async (app) => {
 
   app.delete("/api/empresas/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    await ensureModuloAtivo(scope, "EMPRESAS");
     ensureMutationRole(scope);
     try {
       const ok = await empresaService.remove(request.params.id, scope);
