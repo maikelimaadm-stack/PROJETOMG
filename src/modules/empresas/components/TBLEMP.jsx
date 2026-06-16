@@ -66,7 +66,7 @@ function haveSameRecordIds(listA = [], listB = []) {
   return listA.every((item, index) => item?.id === listB[index]?.id);
 }
 
-const COLUMN_ORB_MENU_WIDTH = 214;
+const COLUMN_MENU_WIDTH = 228;
 
 export default function TBLEMP({
   empresas = [],
@@ -251,15 +251,15 @@ export default function TBLEMP({
     const triggerRect = triggerEl.getBoundingClientRect();
     const stageRect = stageEl.getBoundingClientRect();
     const padding = 10;
-    const preferredLeft = triggerRect.left - stageRect.left + triggerRect.width + 8;
-    const fallbackLeft = triggerRect.right - stageRect.left - COLUMN_ORB_MENU_WIDTH;
-    const maxLeft = stageRect.width - COLUMN_ORB_MENU_WIDTH - padding;
+    const preferredLeft = triggerRect.right - stageRect.left - COLUMN_MENU_WIDTH;
+    const fallbackLeft = triggerRect.left - stageRect.left;
+    const maxLeft = stageRect.width - COLUMN_MENU_WIDTH - padding;
     const left = Math.max(
       padding,
       Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
     );
-    const preferredTop = triggerRect.top - stageRect.top - 8;
-    const maxTop = Math.max(padding, stageRect.height - 360);
+    const preferredTop = triggerRect.bottom - stageRect.top + 6;
+    const maxTop = Math.max(padding, stageRect.height - 260);
     const top = Math.max(padding, Math.min(preferredTop, maxTop));
     return { columnId, left, top };
   }, []);
@@ -903,11 +903,11 @@ export default function TBLEMP({
     closeColumnMenu();
   };
 
-  const buildColumnOrbMenuItems = (col, colIndex) => [
+  const buildColumnMenuItems = (col, colIndex) => [
     { id: "filter", label: "Filtro", Icon: Filter, onClick: () => applyQuickColumnFilter(col) },
     {
       id: "sort-az",
-      label: "Ordenar A > Z",
+      label: "Classificar de A a Z",
       Icon: ArrowUp,
       onClick: () => {
         setSortConfig({ key: col.id, direction: "asc" });
@@ -916,7 +916,7 @@ export default function TBLEMP({
     },
     {
       id: "sort-za",
-      label: "Ordenar Z > A",
+      label: "Classificar de Z a A",
       Icon: ArrowDown,
       onClick: () => {
         setSortConfig({ key: col.id, direction: "desc" });
@@ -948,13 +948,6 @@ export default function TBLEMP({
       onClick: () => togglePinnedColumn(colIndex),
     },
     {
-      id: "hide-column",
-      label: "Ocultar coluna",
-      Icon: EyeOff,
-      disabled: colunasVisiveis.length <= 1,
-      onClick: () => hideColumn(col),
-    },
-    {
       id: "group-column",
       label: "Agrupar por coluna",
       Icon: UsersRound,
@@ -962,6 +955,13 @@ export default function TBLEMP({
         setSortConfig({ key: col.id, direction: "asc" });
         closeColumnMenu();
       },
+    },
+    {
+      id: "hide-column",
+      label: "Ocultar coluna",
+      Icon: EyeOff,
+      disabled: colunasVisiveis.length <= 1,
+      onClick: () => hideColumn(col),
     },
   ];
 
@@ -1046,16 +1046,16 @@ export default function TBLEMP({
       );
     });
 
-  const renderColumnOrbMenu = () => {
+  const renderColumnMenu = () => {
     if (!columnMenuAnchor?.columnId) return null;
     const columnIndex = colunasOrdenadas.findIndex((column) => column.id === columnMenuAnchor.columnId);
     if (columnIndex < 0) return null;
     const column = colunasOrdenadas[columnIndex];
-    const menuItems = buildColumnOrbMenuItems(column, columnIndex);
+    const menuItems = buildColumnMenuItems(column, columnIndex);
     return (
       <div
         ref={columnMenuPanelRef}
-        className="emp-col-orb-menu"
+        className="emp-col-popup-menu erp-menu-panel"
         style={{ left: columnMenuAnchor.left, top: columnMenuAnchor.top }}
       >
         {menuItems.map((item, index) => {
@@ -1064,9 +1064,9 @@ export default function TBLEMP({
             <button
               key={item.id}
               type="button"
-              className="emp-col-orb-menu__item"
+              className="emp-col-popup-menu__item"
               disabled={item.disabled}
-              style={{ "--orb-index": index }}
+              style={{ "--menu-index": index }}
               onClick={item.onClick}
             >
               <Icon className="h-4 w-4" />
@@ -1255,7 +1255,7 @@ export default function TBLEMP({
             </div>
           )}
         </div>
-        {renderColumnOrbMenu()}
+        {renderColumnMenu()}
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}
