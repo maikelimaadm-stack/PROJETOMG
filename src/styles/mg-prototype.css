@@ -6921,6 +6921,25 @@
   transition: background 140ms ease, box-shadow 140ms ease;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-filter-clear-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 9999px;
+  background: rgba(22, 163, 74, 0.08);
+  color: #16a34a;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-filter-clear-button:hover {
+  background: rgba(22, 163, 74, 0.16);
+  color: #15803d;
+}
+
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:hover,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button.is-open,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button.has-filter {
@@ -6935,7 +6954,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  background: rgba(2, 6, 23, 0.34);
+  background: rgba(17, 24, 39, 0.35);
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-popup-menu {

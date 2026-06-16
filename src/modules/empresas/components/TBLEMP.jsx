@@ -58,7 +58,6 @@ import {
 import {
   createDefaultColumnFilter,
   evaluateColumnFilter,
-  getFilterOperators,
   getColumnFilterType,
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
@@ -1291,6 +1290,16 @@ export default function TBLEMP({
       onClick: () => applyQuickColumnFilter(col),
     },
     {
+      id: "filter-clear",
+      label: "Limpar filtro",
+      Icon: X,
+      disabled: !hasActiveFilter(col.id),
+      onClick: () => {
+        clearColumnFilter(col.id);
+        closeColumnOverlays();
+      },
+    },
+    {
       id: "sort-az",
       label: "Ordenar A → Z",
       Icon: ArrowUp,
@@ -1445,6 +1454,19 @@ export default function TBLEMP({
                 <MoreVertical className="h-3.5 w-3.5" strokeWidth={2} />
               </span>
             </button>
+            {hasColumnFilter ? (
+              <button
+                type="button"
+                className="emp-th-filter-clear-button"
+                aria-label={`Limpar filtro da coluna ${formatHeaderLabel(col)}`}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  clearColumnFilter(col.id);
+                }}
+              >
+                <X className="h-3 w-3" strokeWidth={2.2} />
+              </button>
+            ) : null}
           </div>
           <div
             role="separator"
@@ -1542,7 +1564,6 @@ export default function TBLEMP({
       filtroTemp.colunaId === colunaId && filtroTemp.draft
         ? filtroTemp.draft
         : getValoresFiltro(colunaId, col);
-    const operators = getFilterOperators(filterType);
     const selectedValues = Array.isArray(draft.values) ? draft.values : [];
     const filteredOptions = options.filter((option) =>
       String(option).toLowerCase().includes(buscaFiltroMenu.toLowerCase())
@@ -1577,90 +1598,6 @@ export default function TBLEMP({
       >
         <div className="emp-filter-sort-section space-y-1">
           <div className="px-1 text-[11px] font-semibold text-slate-500">{columnLabel}</div>
-          <select
-            value={draft.operator}
-            onChange={(event) => updateDraft({ operator: event.target.value })}
-            className="emp-filter-field emp-filter-search"
-          >
-            {operators.map((operator) => (
-              <option key={operator.value} value={operator.value}>
-                {operator.label}
-              </option>
-            ))}
-          </select>
-
-          {filterType === "number" ? (
-            draft.operator === "between" ? (
-              <div className="grid grid-cols-2 gap-1">
-                <input
-                  type="number"
-                  value={draft.value || ""}
-                  onChange={(event) => updateDraft({ value: event.target.value })}
-                  placeholder="De"
-                  className="emp-filter-field emp-filter-search"
-                />
-                <input
-                  type="number"
-                  value={draft.valueTo || ""}
-                  onChange={(event) => updateDraft({ valueTo: event.target.value })}
-                  placeholder="Até"
-                  className="emp-filter-field emp-filter-search"
-                />
-              </div>
-            ) : (
-              <input
-                type="number"
-                value={draft.value || ""}
-                onChange={(event) => updateDraft({ value: event.target.value, valueTo: "" })}
-                placeholder="Valor"
-                className="emp-filter-field emp-filter-search"
-              />
-            )
-          ) : null}
-
-          {filterType === "date" ? (
-            draft.operator === "range" ? (
-              <div className="grid grid-cols-2 gap-1">
-                <input
-                  type="date"
-                  value={draft.value || ""}
-                  onChange={(event) => updateDraft({ value: event.target.value })}
-                  className="emp-filter-field emp-filter-search"
-                />
-                <input
-                  type="date"
-                  value={draft.valueTo || ""}
-                  onChange={(event) => updateDraft({ valueTo: event.target.value })}
-                  className="emp-filter-field emp-filter-search"
-                />
-              </div>
-            ) : draft.operator === "equals" || draft.operator === "not_equals" ? (
-              <input
-                type="date"
-                value={draft.value || ""}
-                onChange={(event) => updateDraft({ value: event.target.value, valueTo: "" })}
-                className="emp-filter-field emp-filter-search"
-              />
-            ) : null
-          ) : null}
-
-          {filterType === "list" ? (
-            <input
-              value={draft.value || ""}
-              onChange={(event) => updateDraft({ value: event.target.value, valueTo: "" })}
-              placeholder="Valor"
-              className="emp-filter-field emp-filter-search"
-            />
-          ) : null}
-
-          {filterType !== "number" && filterType !== "date" ? (
-            <input
-              value={draft.value || ""}
-              onChange={(event) => updateDraft({ value: event.target.value, valueTo: "" })}
-              placeholder="Texto"
-              className="emp-filter-field emp-filter-search"
-            />
-          ) : null}
 
           <button
             type="button"
