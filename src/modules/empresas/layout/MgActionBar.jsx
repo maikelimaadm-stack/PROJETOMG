@@ -15,6 +15,7 @@ import {
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
 import MgSpeedDialMenu from "@/modules/empresas/layout/MgSpeedDialMenu";
 import MgSearchResultsDropdown from "@/modules/empresas/layout/MgSearchResultsDropdown";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 function ActionLabelBtn({ className = "", children, ...props }) {
   return (
@@ -85,8 +86,11 @@ export default function MgActionBar({
 }) {
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileSearchExpanded, setMobileSearchExpanded] = useState(false);
   const moreRef = useRef(null);
   const searchRef = useRef(null);
+  const mobileSearchInputRef = useRef(null);
+  const isMobile = useIsMobile();
   const showSecondaryTools = !secondaryToolsLocked;
   const lockedClass = actionsLocked ? " mg-action-bar__zone--locked" : "";
 
@@ -94,6 +98,7 @@ export default function MgActionBar({
     if (secondaryToolsLocked) {
       setMoreOpen(false);
       setSearchOpen(false);
+      setMobileSearchExpanded(false);
     }
   }, [secondaryToolsLocked]);
 
@@ -160,7 +165,7 @@ export default function MgActionBar({
       onClick: () => {},
     });
 
-    if (onAttach) {
+    if (onAttach && !isMobile) {
       items.push({
         id: "attach",
         label: "Anexos",
@@ -200,6 +205,7 @@ export default function MgActionBar({
     return items;
   }, [
     attachDisabled,
+    isMobile,
     onAttach,
     onConfigColumns,
     onDuplicate,
@@ -208,6 +214,133 @@ export default function MgActionBar({
     onLayoutConfig,
     showDuplicate,
   ]);
+
+  const collapseMobileSearch = () => {
+    setMobileSearchExpanded(false);
+    setSearchOpen(false);
+  };
+
+  const expandMobileSearch = () => {
+    if (actionsLocked) return;
+    setMobileSearchExpanded(true);
+    requestAnimationFrame(() => {
+      mobileSearchInputRef.current?.focus();
+      setSearchOpen(true);
+    });
+  };
+
+  const handleMobileSearchBlur = () => {
+    window.setTimeout(() => {
+      if (searchRef.current?.contains(document.activeElement)) return;
+      collapseMobileSearch();
+    }, 120);
+  };
+
+  const renderMobileSearchField = () => (
+    <div
+      className={`mg-mobile-search${mobileSearchExpanded ? " is-expanded" : ""}`}
+      ref={searchRef}
+    >
+      {!mobileSearchExpanded ? (
+        <button
+          type="button"
+          className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-mobile-search__trigger${
+            searchHasFilter ? " mg-mobile-search__trigger--active" : ""
+          }`}
+          onClick={() => {
+            if (searchHasFilter) {
+              onSearchClear?.();
+              return;
+            }
+            expandMobileSearch();
+          }}
+          disabled={actionsLocked}
+          aria-label={searchHasFilter ? "Pesquisa ativa" : "Pesquisar"}
+          aria-expanded={false}
+        >
+          {searchHasFilter ? (
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          ) : (
+            <Search className="h-3.5 w-3.5" aria-hidden="true" />
+          )}
+        </button>
+      ) : (
+        <div className="mg-search-pill-wrap mg-mobile-search__field">
+          <div className="mg-search-pill" role="search">
+            {searchLoading ? (
+              <Loader2
+                className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+                aria-hidden="true"
+              />
+            ) : searchHasFilter ? (
+              <button
+                type="button"
+                className="mg-search-pill-clear"
+                aria-label="Limpar pesquisa"
+                disabled={actionsLocked}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  onSearchClear?.();
+                  collapseMobileSearch();
+                }}
+              >
+                <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              </button>
+            ) : (
+              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            )}
+            <input
+              ref={mobileSearchInputRef}
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchInputValue}
+              onChange={(event) => {
+                const next = event.target.value;
+                onSearchInputChange?.(next);
+                if (!actionsLocked) setSearchOpen(true);
+              }}
+              onFocus={() => {
+                if (!actionsLocked) setSearchOpen(true);
+              }}
+              onBlur={handleMobileSearchBlur}
+              aria-label="Pesquisar"
+              aria-expanded={searchOpen}
+              aria-haspopup="listbox"
+              disabled={actionsLocked}
+            />
+          </div>
+          <MgSearchResultsDropdown
+            open={searchOpen && !actionsLocked}
+            items={searchResults}
+            searchResultsTotal={searchResultsTotal}
+            searchHasFavoritesInResults={searchHasFavoritesInResults}
+            detailFields={searchDetailFields}
+            loading={searchLoading}
+            loadingMore={searchLoadingMore}
+            hasMore={searchHasMore}
+            onLoadMore={onSearchLoadMore}
+            searchQuery={searchInputValue}
+            configFields={searchDropdownConfigFields}
+            onConfigSave={onSearchDropdownConfigSave}
+            onConfigRestoreDefaults={onSearchDropdownConfigRestore}
+            onSelect={(emp) => {
+              onSearchResultSelect?.(emp);
+              collapseMobileSearch();
+            }}
+            onApplyAll={() => {
+              onSearchApplyAll?.();
+              collapseMobileSearch();
+            }}
+            onApplyFavorites={() => {
+              onSearchApplyFavorites?.();
+              collapseMobileSearch();
+            }}
+            isFavoriteRecord={isFavoriteRecord}
+          />
+        </div>
+      )}
+    </div>
+  );
 
   const renderSearchField = () => (
     <div className="mg-search-pill-wrap" ref={searchRef}>
@@ -417,52 +550,84 @@ export default function MgActionBar({
     <>
       <div
         data-template-id="action-bar-mobile"
-        className="mg-action-bar-mobile canva-section flex w-full shrink-0 flex-col md:hidden"
+        className={`mg-action-bar-mobile canva-section flex w-full shrink-0 md:hidden${
+          mobileSearchExpanded ? " mg-action-bar-mobile--search-open" : ""
+        }`}
         style={{ background: "var(--bg-card)" }}
       >
-        {showSecondaryTools ? (
-          <div className={`mg-action-bar-mobile__search${lockedClass}`}>{renderSearchField()}</div>
-        ) : null}
-        <div className={`mg-action-bar-mobile__actions${lockedClass}`}>
-          {showNew && onNew ? (
-            <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onNew} disabled={actionsLocked} title="Novo">
-              Novo
-            </ActionLabelBtn>
-          ) : null}
-          {showSave && onSave ? (
-            <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
-              Salvar
-            </ActionLabelBtn>
-          ) : null}
-          {showCancel && onCancel ? (
-            <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onCancel} disabled={actionsLocked} title="Cancelar">
-              Cancelar
-            </ActionLabelBtn>
-          ) : null}
-          {showEdit && onEdit ? (
-            <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onEdit} disabled={actionsLocked} title="Editar">
-              Editar
-            </ActionLabelBtn>
-          ) : null}
-          {showDelete && onDelete ? (
-            <ActionLabelBtn className="tb-btn-ghost tb-btn-danger shrink-0" onClick={onDelete} disabled={actionsLocked} title="Excluir">
-              Excluir
-            </ActionLabelBtn>
-          ) : null}
-          {showDuplicate && onDuplicate ? (
-            <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onDuplicate} disabled={actionsLocked} title="Duplicar">
-              Duplicar
-            </ActionLabelBtn>
-          ) : null}
-          {showSecondaryTools ? (
-            <div className="relative shrink-0" ref={moreRef}>
-              <MgSpeedDialMenu
-                open={moreOpen}
-                onOpenChange={setMoreOpen}
+        <div className="mg-action-bar-mobile__row">
+          <div className={`mg-action-bar-mobile__actions${lockedClass}`}>
+            {showSecondaryTools && onToggleFilter ? (
+              <button
+                type="button"
+                className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon shrink-0${
+                  filterActive ? " tb-btn-filter-active" : ""
+                }`}
+                onClick={onToggleFilter}
                 disabled={actionsLocked}
-                items={speedDialItems}
-              />
-            </div>
+                title="Filtrar"
+                aria-label="Filtrar"
+                aria-pressed={filterActive}
+              >
+                <Filter className="h-3.5 w-3.5" />
+                {filterActive ? <span className="tb-filter-active-dot" aria-hidden="true" /> : null}
+              </button>
+            ) : null}
+            {showNew && onNew ? (
+              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onNew} disabled={actionsLocked} title="Novo">
+                Novo
+              </ActionLabelBtn>
+            ) : null}
+            {showSave && onSave ? (
+              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
+                Salvar
+              </ActionLabelBtn>
+            ) : null}
+            {showCancel && onCancel ? (
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onCancel} disabled={actionsLocked} title="Cancelar">
+                Cancelar
+              </ActionLabelBtn>
+            ) : null}
+            {showEdit && onEdit ? (
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onEdit} disabled={actionsLocked} title="Editar">
+                Editar
+              </ActionLabelBtn>
+            ) : null}
+            {showDelete && onDelete ? (
+              <ActionLabelBtn className="tb-btn-ghost tb-btn-danger shrink-0" onClick={onDelete} disabled={actionsLocked} title="Excluir">
+                Excluir
+              </ActionLabelBtn>
+            ) : null}
+            {showDuplicate && onDuplicate ? (
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onDuplicate} disabled={actionsLocked} title="Duplicar">
+                Duplicar
+              </ActionLabelBtn>
+            ) : null}
+            {onAttach ? (
+              <button
+                type="button"
+                className="ios-btn tb-btn tb-btn-ghost tb-btn-icon shrink-0"
+                onClick={onAttach}
+                disabled={actionsLocked || attachDisabled}
+                title="Anexos"
+                aria-label="Anexos"
+              >
+                <Paperclip className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
+            {showSecondaryTools ? (
+              <div className="relative shrink-0" ref={moreRef}>
+                <MgSpeedDialMenu
+                  open={moreOpen}
+                  onOpenChange={setMoreOpen}
+                  disabled={actionsLocked}
+                  items={speedDialItems}
+                />
+              </div>
+            ) : null}
+          </div>
+          {showSecondaryTools ? (
+            <div className={`mg-action-bar-mobile__search-slot${lockedClass}`}>{renderMobileSearchField()}</div>
           ) : null}
         </div>
       </div>

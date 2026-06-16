@@ -3973,7 +3973,7 @@
   .mg-empresas-scope .mg-action-bar-mobile {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 0;
     padding: 8px 10px;
     background: var(--bg-card);
     border-bottom: var(--mg-section-divider-border);
@@ -3983,24 +3983,12 @@
     z-index: 25;
   }
 
-  .mg-empresas-scope .mg-action-bar-mobile__search {
-    width: 100%;
+  .mg-empresas-scope .mg-action-bar-mobile__row {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: var(--mg-btn-height);
     min-width: 0;
-  }
-
-  .mg-empresas-scope .mg-action-bar-mobile__search .mg-search-pill-wrap {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  .mg-empresas-scope .mg-action-bar-mobile__search .mg-search-pill {
-    width: 100%;
-    min-width: 0;
-    max-width: none;
-  }
-
-  .mg-empresas-scope .mg-action-bar-mobile__search .mg-search-pill input {
-    font-size: 16px !important;
   }
 
   .mg-empresas-scope .mg-action-bar-mobile__actions {
@@ -4011,7 +3999,112 @@
     overflow-y: hidden;
     -webkit-overflow-scrolling: touch;
     padding-bottom: 2px;
+    padding-right: 42px;
     min-height: var(--mg-btn-height);
+    min-width: 0;
+    flex: 1 1 auto;
+    transition: opacity var(--mg-motion-duration) var(--mg-motion-ease);
+  }
+
+  .mg-empresas-scope .mg-action-bar-mobile--search-open .mg-action-bar-mobile__actions {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  .mg-empresas-scope .mg-action-bar-mobile__search-slot {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    width: var(--mg-btn-height);
+    min-width: var(--mg-btn-height);
+    pointer-events: none;
+  }
+
+  .mg-empresas-scope .mg-action-bar-mobile__search-slot .mg-mobile-search {
+    pointer-events: auto;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  .mg-empresas-scope .mg-mobile-search__trigger {
+    width: var(--mg-btn-height);
+    min-width: var(--mg-btn-height);
+    height: var(--mg-btn-height);
+    min-height: var(--mg-btn-height);
+    border-radius: var(--mg-btn-pill-radius);
+    background: var(--gray-fill);
+  }
+
+  .mg-empresas-scope .mg-mobile-search__trigger--active {
+    color: var(--mg-brand-green);
+  }
+
+  .mg-empresas-scope .mg-mobile-search.is-expanded {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 4;
+    justify-content: stretch;
+    animation: mg-mobile-search-expand var(--mg-motion-duration) var(--mg-motion-ease);
+  }
+
+  @keyframes mg-mobile-search-expand {
+    from {
+      opacity: 0.6;
+      transform: scaleX(0.2);
+      transform-origin: right center;
+    }
+
+    to {
+      opacity: 1;
+      transform: scaleX(1);
+      transform-origin: right center;
+    }
+  }
+
+  .mg-empresas-scope .mg-mobile-search.is-expanded .mg-mobile-search__field {
+    width: 100%;
+    height: 100%;
+  }
+
+  .mg-empresas-scope .mg-mobile-search.is-expanded .mg-search-pill-wrap {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+  }
+
+  .mg-empresas-scope .mg-mobile-search.is-expanded .mg-search-pill {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: var(--mg-btn-height);
+    background: var(--bg-card);
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.12);
+    border-color: rgba(34, 197, 94, 0.35);
+  }
+
+  .mg-empresas-scope .mg-mobile-search.is-expanded .mg-search-pill input {
+    font-size: 16px !important;
+  }
+
+  .mg-empresas-scope .mg-action-bar-mobile--search-open .mg-action-bar-mobile__search-slot {
+    left: 0;
+    width: auto;
+    pointer-events: auto;
+  }
+
+  .mg-empresas-scope .mg-action-bar-mobile__view-seg .view-seg {
+    flex-shrink: 0;
   }
 
   .mg-empresas-scope .mg-action-bar-mobile__actions .tb-btn-labeled {
@@ -4025,6 +4118,15 @@
     width: auto;
     min-width: 0;
     max-width: none;
+  }
+
+  .mg-empresas-scope .mg-cards-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .mg-empresas-scope .mg-emp-card__fields--per-row-5,
+  .mg-empresas-scope .mg-emp-card__fields--per-row-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 
   .mg-empresas-scope .mg-records-summary .grid {

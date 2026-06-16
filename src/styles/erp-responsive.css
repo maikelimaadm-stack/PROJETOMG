@@ -602,6 +602,63 @@
     pointer-events: none;
   }
 
+  .cadastro-emp-scope .emp-form-mobile-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 39;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.94);
+    border-top: 1px solid rgba(228, 234, 242, 0.9);
+    box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.05);
+    backdrop-filter: blur(6px);
+  }
+
+  .cadastro-emp-scope .emp-form-mobile-nav__btn {
+    flex: 1 1 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(228, 234, 242, 0.95);
+    background: #fff;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-1, #0f172a);
+  }
+
+  .cadastro-emp-scope .emp-form-mobile-nav__btn:disabled {
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .cadastro-emp-scope .emp-form-mobile-nav__counter {
+    flex: 0 0 auto;
+    min-width: 72px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-2, #64748b);
+    white-space: nowrap;
+  }
+
+  .cadastro-emp-scope .emp-form-mobile-nav ~ .emp-form-mobile-footer,
+  .cadastro-emp-scope .emp-form-mobile-footer {
+    bottom: 0;
+  }
+
+  .cadastro-emp-scope:has(.emp-form-mobile-nav) .form-scroll-container,
+  .cadastro-emp-scope:has(.emp-form-mobile-nav) .mg-form-scroll {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 20px) !important;
+  }
+
   .cadastro-emp-scope .emp-table-view,
   .cadastro-emp-scope .emp-split-view {
     border-radius: var(--erp-radius-card, 12px) !important;
@@ -625,12 +682,14 @@
 }
 
 /* Rodapé mobile oculto em desktop/tablet largo */
-.cadastro-emp-scope .emp-form-mobile-footer {
+.cadastro-emp-scope .emp-form-mobile-footer,
+.cadastro-emp-scope .emp-form-mobile-nav {
   display: none;
 }
 
 @media (max-width: 640px) {
-  .cadastro-emp-scope .emp-form-mobile-footer {
+  .cadastro-emp-scope .emp-form-mobile-footer,
+  .cadastro-emp-scope .emp-form-mobile-nav {
     display: flex;
   }
 }

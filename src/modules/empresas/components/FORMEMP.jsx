@@ -14,7 +14,8 @@ import { CadRecordToolbar } from "@/framework/cadastro-engine/design-system/CadT
 import MgMotionPanel from "@/modules/empresas/layout/MgMotionPanel";
 import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
-import ErpScrollNav from "@/shared/components/ErpScrollNav";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { formatCadastroRecordPosition } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
 import { useCadastroPageHeader } from "@/framework/cadastro-engine/hooks/useCadastroPageHeader.js";
@@ -993,6 +994,33 @@ export default function FORMEMP({
             >
               {renderFormBody(true)}
             </ErpScrollNav>
+          </div>
+        ) : null}
+        {hideToolbar && !editMode && total > 0 && initialData?.id ? (
+          <div className="emp-form-mobile-nav md:hidden" role="navigation" aria-label="Navegação entre registros">
+            <button
+              type="button"
+              className="emp-form-mobile-nav__btn"
+              onClick={onPrevious}
+              disabled={actionsLocked || currentIndex <= 0}
+              title="Anterior"
+            >
+              <ChevronLeft className="h-4 w-4 shrink-0" aria-hidden="true" />
+              <span>Anterior</span>
+            </button>
+            <span className="emp-form-mobile-nav__counter" title="Posição do registro">
+              {formatCadastroRecordPosition(currentIndex, total)}
+            </span>
+            <button
+              type="button"
+              className="emp-form-mobile-nav__btn"
+              onClick={onNext}
+              disabled={actionsLocked || currentIndex >= total - 1}
+              title="Próximo"
+            >
+              <span>Próximo</span>
+              <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            </button>
           </div>
         ) : null}
         {editMode ? (
