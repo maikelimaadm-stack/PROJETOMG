@@ -5,9 +5,6 @@ import {
   Check,
   ChevronDown,
   ChevronRight,
-  ChevronUp,
-  ChevronsDown,
-  ChevronsUp,
   EyeOff,
   Filter,
   MoreVertical,
@@ -954,35 +951,6 @@ export default function TBLEMP({
     setGroupByColumnIds((prev) => prev.filter((id) => id !== columnId));
   }, []);
 
-  const moveGroupColumnLevel = useCallback((columnId, direction) => {
-    setGroupByColumnIds((prev) => {
-      const currentIndex = prev.indexOf(columnId);
-      if (currentIndex < 0) return prev;
-      const targetIndex = currentIndex + direction;
-      if (targetIndex < 0 || targetIndex >= prev.length) return prev;
-      const next = [...prev];
-      [next[currentIndex], next[targetIndex]] = [next[targetIndex], next[currentIndex]];
-      return next;
-    });
-  }, []);
-
-  const clearGrouping = useCallback(() => {
-    setGroupByColumnIds([]);
-    setCollapsedGroupKeys({});
-  }, []);
-
-  const collapseAllGroups = useCallback(() => {
-    const next = {};
-    groupedResult.groupKeys.forEach((groupKey) => {
-      next[groupKey] = true;
-    });
-    setCollapsedGroupKeys(next);
-  }, [groupedResult.groupKeys]);
-
-  const expandAllGroups = useCallback(() => {
-    setCollapsedGroupKeys({});
-  }, []);
-
   const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
 
   useLayoutEffect(() => {
@@ -1369,58 +1337,6 @@ export default function TBLEMP({
       disabled: !groupByColumnIds.includes(col.id),
       onClick: () => {
         removeGroupColumn(col.id);
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-level-up",
-      label: "Subir nível do agrupamento",
-      Icon: ChevronUp,
-      disabled: !groupByColumnIds.includes(col.id) || groupByColumnIds.indexOf(col.id) === 0,
-      onClick: () => {
-        moveGroupColumnLevel(col.id, -1);
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-level-down",
-      label: "Descer nível do agrupamento",
-      Icon: ChevronDown,
-      disabled:
-        !groupByColumnIds.includes(col.id) ||
-        groupByColumnIds.indexOf(col.id) === groupByColumnIds.length - 1,
-      onClick: () => {
-        moveGroupColumnLevel(col.id, 1);
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-expand-all",
-      label: "Expandir tudo",
-      Icon: ChevronsDown,
-      disabled: groupByColumnIds.length === 0,
-      onClick: () => {
-        expandAllGroups();
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-collapse-all",
-      label: "Recolher tudo",
-      Icon: ChevronsUp,
-      disabled: groupByColumnIds.length === 0,
-      onClick: () => {
-        collapseAllGroups();
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-clear-all",
-      label: "Limpar agrupamentos",
-      Icon: Trash2,
-      disabled: groupByColumnIds.length === 0,
-      onClick: () => {
-        clearGrouping();
         closeColumnOverlays();
       },
     },
