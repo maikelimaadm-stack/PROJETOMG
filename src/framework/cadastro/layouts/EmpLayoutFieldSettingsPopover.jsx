@@ -105,15 +105,15 @@ export default function EmpLayoutFieldSettingsPopover({
   const nativeRequired = !!field?.required;
   const configuredRequired = draftRequiredFieldIds.includes(field.id);
   const required = isFieldRequired(field);
-  const panelWidth = 720;
   const viewportWidth = typeof window !== "undefined" ? window.innerWidth : 1200;
-  const left = Math.min(Math.max(8, anchorRect.left), viewportWidth - panelWidth - 8);
-  const top = anchorRect.bottom + 6;
+  const panelWidth = Math.min(720, viewportWidth - 16);
+  const left = Math.min(Math.max(8, anchorRect.left), Math.max(8, viewportWidth - panelWidth - 8));
+  const top = Math.min(anchorRect.bottom + 6, (typeof window !== "undefined" ? window.innerHeight : 800) - 16);
 
   return (
     <div
-      className="emp-layout-field-settings-popover fixed z-[200] w-[720px] max-w-[calc(100vw-16px)] overflow-visible border border-[#cfd8e3] bg-white shadow-lg"
-      style={{ top, left }}
+      className="emp-layout-field-settings-popover fixed z-[200] w-[720px] max-w-[calc(100vw-16px)] max-h-[min(80dvh,calc(100dvh-32px))] overflow-y-auto border border-[#cfd8e3] bg-white shadow-lg"
+      style={{ top, left, width: panelWidth }}
       role="dialog"
       aria-label={`Configurações de ${field.label}`}
       onPointerDown={(event) => event.stopPropagation()}
