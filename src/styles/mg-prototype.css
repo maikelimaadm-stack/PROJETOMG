@@ -2760,25 +2760,25 @@
 
 .mg-empresas-scope .mg-search-dropdown {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   right: 0;
   width: min(300px, calc(100vw - 24px));
   min-width: 240px;
-  z-index: 50;
-}
-
-.mg-empresas-scope .mg-search-dropdown .mg-popover-shell__body {
+  max-height: min(440px, calc(100vh - 120px));
   display: flex;
   flex-direction: column;
-  max-height: min(440px, calc(100vh - 120px));
+  overflow: hidden;
+  background: var(--bg-card);
   border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 8px 24px rgba(15, 23, 42, 0.12);
+  z-index: 50;
 }
 
 .mg-empresas-scope .mg-search-dropdown.is-config-open {
   z-index: 51;
-}
-
-.mg-empresas-scope .mg-search-dropdown.is-config-open .mg-popover-shell__body {
   max-height: min(380px, calc(100vh - 120px));
 }
 
@@ -3499,85 +3499,30 @@
   stroke: var(--text-3) !important;
 }
 
-/* Popover balão — bico fino apontando para o botão acionador */
-.mg-empresas-scope .mg-popover-shell {
-  position: absolute;
-  z-index: 200;
-  overflow: visible;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-  pointer-events: none;
-}
-
-.mg-empresas-scope .mg-popover-shell__arrow {
-  position: absolute;
-  top: -35px;
-  width: 50px;
-  height: 35px;
-  overflow: hidden;
-  z-index: 2;
-  pointer-events: none;
-}
-
-.mg-empresas-scope .mg-popover-shell__arrow--start {
-  left: 18px;
-}
-
-.mg-empresas-scope .mg-popover-shell__arrow--center {
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.mg-empresas-scope .mg-popover-shell__arrow--end {
-  right: 18px;
-}
-
-.mg-empresas-scope .mg-popover-shell__arrow::before {
-  content: "";
-  position: absolute;
-  width: 26px;
-  height: 26px;
-  left: 12px;
-  top: 22px;
-  background: var(--bg-card, #fff);
-  transform: rotate(45deg);
-  border-radius: 2px;
-  box-shadow: -2px -2px 6px rgba(0, 0, 0, 0.05);
-}
-
-.mg-empresas-scope .mg-popover-shell__body {
-  position: relative;
-  z-index: 1;
-  overflow: hidden;
-  background: var(--bg-card, #fff);
-  border-radius: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
-  pointer-events: auto;
-}
-
 .mg-empresas-scope .dropdown-menu {
   display: block;
   position: absolute;
   top: 100%;
   right: 0;
-  margin-top: 35px;
+  margin-top: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow-md);
+  z-index: 200;
   min-width: 196px;
-  max-width: min(380px, calc(100vw - 24px));
+  max-width: min(240px, calc(100vw - 24px));
+  padding: 0;
+  overflow: hidden;
   box-sizing: border-box;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-6px) scale(0.98);
+  pointer-events: none;
   transition:
     opacity var(--mg-motion-duration) var(--mg-motion-ease),
     transform var(--mg-motion-duration) var(--mg-motion-ease),
     visibility var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.mg-empresas-scope .dropdown-menu .mg-popover-shell__body {
-  border: 1px solid var(--border);
-  padding: 12px 0;
 }
 
 .mg-empresas-scope .dropdown-menu.open {
@@ -3608,24 +3553,29 @@
 }
 
 .mg-empresas-scope .mg-speed-dial__panel {
-  top: calc(100% + 8px);
+  position: absolute;
+  top: calc(100% + 6px);
   right: 0;
   z-index: 36;
   min-width: 196px;
-  max-width: min(380px, calc(100vw - 24px));
+  max-width: min(240px, calc(100vw - 24px));
+  padding: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 6px 18px rgba(15, 23, 42, 0.1);
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-8px) scale(0.96);
   transform-origin: top right;
+  pointer-events: none;
   transition:
     opacity var(--mg-motion-duration) var(--mg-motion-ease),
     transform var(--mg-motion-duration) var(--mg-motion-ease),
     visibility var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.mg-empresas-scope .mg-speed-dial__panel .mg-popover-shell__body {
-  padding: 6px;
-  border: 1px solid var(--border);
 }
 
 .mg-empresas-scope .mg-speed-dial.is-open .mg-speed-dial__panel {
@@ -3633,10 +3583,6 @@
   visibility: visible;
   transform: translateY(0) scale(1);
   pointer-events: auto;
-}
-
-.mg-empresas-scope .mg-speed-dial:not(.is-open) .mg-speed-dial__panel .mg-popover-shell__arrow {
-  opacity: 0;
 }
 
 .mg-empresas-scope .mg-speed-dial__item {
@@ -5046,15 +4992,10 @@
 .mg-floating-panel-root > .mg-dp-panel,
 .mg-floating-panel-root > .mg-tp-panel,
 .mg-floating-panel-root > .cmd-panel,
-.mg-floating-panel-root > .mg-lookup-panel,
-.mg-floating-panel-root > .mg-popover-shell {
+.mg-floating-panel-root > .mg-lookup-panel {
   pointer-events: auto;
   position: fixed;
   margin-top: 0;
-}
-
-.mg-floating-panel-root > .mg-popover-shell.dropdown-menu {
-  pointer-events: auto;
 }
 
 .mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel {

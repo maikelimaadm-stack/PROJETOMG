@@ -134,12 +134,10 @@ export default function MgSearchResultsDropdown({
         />
       ) : null}
       <div
-        className={`mg-popover-shell mg-search-dropdown${configOpen ? " is-config-open" : ""}`}
+        className={`mg-search-dropdown${configOpen ? " is-config-open" : ""}`}
         role="listbox"
         aria-label="Resultados da pesquisa"
       >
-        <div className="mg-popover-shell__arrow mg-popover-shell__arrow--end" aria-hidden="true" />
-        <div className="mg-popover-shell__body">
         {configOpen ? (
           <div className="mg-search-dropdown__config">
             <div className="mg-search-dropdown__config-list">
@@ -314,7 +312,6 @@ export default function MgSearchResultsDropdown({
             </button>
           </div>
         ) : null}
-        </div>
       </div>
     </>
   );

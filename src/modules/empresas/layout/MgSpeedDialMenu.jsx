@@ -1,6 +1,5 @@
 import React, { useEffect, useId } from "react";
 import { MoreVertical } from "lucide-react";
-import MgPopoverShell from "@/modules/empresas/layout/MgPopoverShell";
 
 export default function MgSpeedDialMenu({
   open = false,
@@ -46,13 +45,12 @@ export default function MgSpeedDialMenu({
         />
       ) : null}
 
-      <MgPopoverShell
+      <div
         id={menuId}
         className="mg-speed-dial__panel"
         role="menu"
         aria-labelledby={labelId}
         aria-hidden={!open}
-        arrowAlign="end"
       >
         {items.map((item, index) => {
           const Icon = item.icon;
@@ -75,7 +73,7 @@ export default function MgSpeedDialMenu({
             </button>
           );
         })}
-      </MgPopoverShell>
+      </div>
 
       <button
         type="button"
