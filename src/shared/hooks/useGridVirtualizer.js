@@ -9,11 +9,12 @@ const DEFAULT_OVERSCAN = 3;
 export function estimateCardRowHeight(detailFieldCount = 0, fieldsPerRow = 1) {
   const safeFieldsPerRow = Math.max(1, Number(fieldsPerRow) || 1);
   const safeFieldCount = Math.max(0, Number(detailFieldCount) || 0);
-  const headerBlock = 72;
-  const verticalPadding = 32;
-  const fieldRowHeight = safeFieldsPerRow >= 2 ? 38 : 24;
+  const verticalPadding = 24;
+  const headerBlock = 48;
+  const fieldRowHeight = safeFieldsPerRow >= 2 ? 30 : 14;
   const detailRows = Math.ceil(safeFieldCount / safeFieldsPerRow);
-  return verticalPadding + headerBlock + detailRows * fieldRowHeight;
+  const fieldGridGap = detailRows > 1 ? (detailRows - 1) * 4 : 0;
+  return verticalPadding + headerBlock + detailRows * fieldRowHeight + fieldGridGap;
 }
 
 /**
