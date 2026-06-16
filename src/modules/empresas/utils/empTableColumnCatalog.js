@@ -34,12 +34,7 @@ export const buildColunasDisponiveis = (
       default: false,
       sortable: campo.ordenavel !== false,
       filtravel: campo.filtravel !== false,
-      align:
-        campo.tipo === "date"
-          ? "center"
-          : campo.tipo === "number" || campo.tipo === "calculado"
-            ? "right"
-            : "left",
+      align: "left",
       width: campo.largura_coluna || 160,
       ordem_tabela: campo.ordem_tabela ?? campo.ordem ?? 999,
       customField: campo.field_name,

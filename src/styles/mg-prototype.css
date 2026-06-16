@@ -6527,6 +6527,16 @@
   border-spacing: 0 !important;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th {
+  text-align: left !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro .emp-th-label-wrap {
+  justify-content: flex-start !important;
+}
+
 .mg-empresas-scope .mg-view-panel .emp-table-root .mg-grid th,
 .mg-empresas-scope .mg-view-panel .emp-table-root .mg-grid td {
   border: none !important;

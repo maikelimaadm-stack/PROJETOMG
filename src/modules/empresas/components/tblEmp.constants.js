@@ -2,8 +2,8 @@ export const FILTER_POPOVER_WIDTH = 272;
 export const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 export const COLUNAS_BASE = [
-  { id: "id_global", label: "ID Global", default: true, sortable: true, align: "right", width: 90 },
-  { id: "codempresa", label: "Cód. Empresa", default: true, sortable: true, align: "right", width: 90 },
+  { id: "id_global", label: "ID Global", default: true, sortable: true, align: "left", width: 90 },
+  { id: "codempresa", label: "Cód. Empresa", default: true, sortable: true, align: "left", width: 90 },
   { id: "razao_social", label: "Nome/Razão Social Emp.", default: true, sortable: true, align: "left", width: 260 },
   { id: "nome_fantasia", label: "Nome fantasia", default: true, sortable: true, align: "left", width: 220 },
   { id: "tipo_pessoa", label: "Tipo", default: true, sortable: true, align: "left", width: 80 },
