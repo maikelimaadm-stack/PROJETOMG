@@ -171,12 +171,32 @@ export const registerRoutes = async (app) => {
       }
     }
 
+    const publicStatus = {
+      service: status.service,
+      db: {
+        configured: status.db.configured,
+        connected: status.db.connected,
+        error: status.db.connected ? null : status.db.error,
+      },
+      auth: {
+        jwtConfigured: status.auth.jwtConfigured,
+      },
+      supabase: {
+        authConfigured: status.supabase.authConfigured,
+        storageConfigured: status.supabase.storageConfigured,
+        storageConnected: status.supabase.storageConnected,
+      },
+      migration: {
+        restructureApplied: status.migration.restructureApplied,
+      },
+    };
+
     // Railway healthcheck: sempre HTTP 200 se o processo está vivo
     return {
       ok: true,
       alive: true,
       ready: status.db.connected,
-      ...status,
+      ...publicStatus,
     };
   });
 

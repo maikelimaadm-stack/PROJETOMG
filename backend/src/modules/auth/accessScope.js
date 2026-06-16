@@ -1,3 +1,5 @@
+import { getPrismaClient } from "../../database/prismaClient.js";
+
 const normalizeEmpresaHeader = (value) => {
   const parsed = String(value || "").trim();
   if (!parsed) return null;
@@ -16,15 +18,7 @@ const withStatus = (message, statusCode) => {
   return error;
 };
 
-const readAllowedEmpresaIds = (user) => {
-  if (user.acesso_global) return [];
-  const raw = user.allowed_empresa_ids;
-  if (Array.isArray(raw)) return raw.map(String);
-  return [];
-};
-
 const loadAllowedEmpresaIdsFromDb = async (userId) => {
-  const { getPrismaClient } = await import("../../database/prismaClient.js");
   const prisma = getPrismaClient();
   const rows = await prisma.permissaoEmpresa.findMany({
     where: { usuario_id: userId },
@@ -33,26 +27,45 @@ const loadAllowedEmpresaIdsFromDb = async (userId) => {
   return rows.map((row) => row.empresa_id);
 };
 
+const loadFreshUserState = async (userId) => {
+  const prisma = getPrismaClient();
+  const user = await prisma.usuario.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      cliente_id: true,
+      codigo: true,
+      nome: true,
+      login: true,
+      email: true,
+      telefone: true,
+      perfil: true,
+      acesso_global: true,
+      ativo: true,
+      ultimo_acesso: true,
+    },
+  });
+  if (!user || user.ativo === false) {
+    throw withStatus("Usuário sem acesso.", 401);
+  }
+  return user;
+};
+
 /**
- * Constrói escopo a partir do JWT (sem query ao banco na maioria dos casos).
+ * Constrói escopo usando estado atual do banco (evita claims JWT obsoletas).
  */
 export const loadAccessScope = async (request) => {
   if (request.accessScope) return request.accessScope;
 
-  const user = request.user;
   const authUserId = getAuthUserId(request);
-  if (!authUserId || !user) {
+  if (!authUserId || !request.user) {
     throw withStatus("Sessão inválida.", 401);
   }
 
-  if (user.ativo === false) {
-    throw withStatus("Usuário sem acesso.", 401);
-  }
-
-  const acessoGlobal = Boolean(user.acesso_global);
-  let allowedEmpresaIds = readAllowedEmpresaIds(user);
-
-  if (!acessoGlobal && !Array.isArray(user.allowed_empresa_ids)) {
+  const freshUser = await loadFreshUserState(authUserId);
+  const acessoGlobal = Boolean(freshUser.acesso_global);
+  let allowedEmpresaIds = [];
+  if (!acessoGlobal) {
     allowedEmpresaIds = await loadAllowedEmpresaIdsFromDb(authUserId);
   }
   const requestedEmpresaId = normalizeEmpresaHeader(request.headers["x-empresa-id"]);
@@ -81,13 +94,14 @@ export const loadAccessScope = async (request) => {
 
   const scope = {
     userId: authUserId,
-    clienteId: String(user.cliente_id),
-    perfil: user.perfil,
+    clienteId: String(freshUser.cliente_id),
+    perfil: freshUser.perfil,
     acessoGlobal,
     allowedEmpresaIds,
     requestedEmpresaId,
     selectedEmpresaId,
     allowAllEmpresas: acessoGlobal && !selectedEmpresaId,
+    user: freshUser,
   };
 
   request.accessScope = scope;
