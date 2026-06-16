@@ -6893,6 +6893,16 @@
   line-height: var(--emp-table-header-height, 30px) !important;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  color: #64748b;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
 /* Cabeçalho: fundo branco, linha inferior branca grossa e bordas laterais */
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
   border: none !important;

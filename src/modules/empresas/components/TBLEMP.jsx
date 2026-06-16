@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { MoreHorizontal } from "lucide-react";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import EmpConfiguracaoColunasDialog from "@/framework/cadastro/configurators/EmpConfiguracaoColunasDialog";
@@ -75,7 +76,6 @@ export default function TBLEMP({
   serverBaseFilters = undefined,
   onServerPageChange = null,
   onServerPageSizeChange = null,
-  onServerSortChange = null,
   onServerColumnFiltersChange = null,
   infiniteMode = false,
   hasMoreRows = false,
@@ -494,13 +494,6 @@ export default function TBLEMP({
     if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
 
-  const handleSort = (key) =>
-    setSortConfig((p) => {
-      const next = { key, direction: p.key === key && p.direction === "asc" ? "desc" : "asc" };
-      onServerSortChange?.(next);
-      return next;
-    });
-
   const handlePageChange = (nextPage) => {
     if (infiniteMode) return;
     setCurrentPage(nextPage);
@@ -802,11 +795,15 @@ export default function TBLEMP({
         <TableHead
           key={col.id}
           style={{ left: isFrozen ? frozenOffsets[col.id] : undefined }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-pointer text-left ${isFrozen ? "z-50" : "z-40"}`}
-          onClick={() => handleSort(col.id)}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isFrozen ? "z-50" : "z-40"}`}
         >
-          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 overflow-hidden">
-            <span className="emp-th-label truncate font-semibold whitespace-nowrap text-left">{formatHeaderLabel(col)}</span>
+          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 overflow-hidden gap-1">
+            <span className="emp-th-label flex-1 min-w-0 truncate font-semibold whitespace-nowrap text-left">
+              {formatHeaderLabel(col)}
+            </span>
+            <span className="emp-th-menu-icon" aria-hidden="true">
+              <MoreHorizontal className="h-3.5 w-3.5" strokeWidth={2} />
+            </span>
           </div>
           <div
             role="separator"
