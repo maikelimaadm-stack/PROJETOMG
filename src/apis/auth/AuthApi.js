@@ -62,7 +62,9 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
         "backend/.env ainda está com valores de exemplo. Copie as URLs reais do Supabase em DATABASE_URL e DIRECT_URL."
       );
     }
-    throw new Error(apiMessage || `Falha em ${method} ${path}`);
+    const error = new Error(apiMessage || `Falha em ${method} ${path}`);
+    error.status = response.status;
+    throw error;
   }
   return payload;
 };
@@ -139,7 +141,6 @@ export const AuthApi = {
 
   async getSession() {
     const token = this.getToken();
-    if (!token) return null;
     if (DEV_AUTH_MOCK && token === DEV_MOCK_SESSION.token) {
       return {
         user: DEV_MOCK_SESSION.user,
@@ -150,31 +151,40 @@ export const AuthApi = {
       };
     }
     const selectedEmpresaId = this.getSelectedEmpresaId();
-    return request("/api/auth/session", {
-      method: "GET",
-      token,
-      headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
-    });
+    try {
+      return await request("/api/auth/session", {
+        method: "GET",
+        token,
+        headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
+      });
+    } catch (error) {
+      if (Number(error?.status) === 401) return null;
+      throw error;
+    }
   },
 
   async listEmpresas() {
     const token = this.getToken();
-    if (!token) return [];
     if (DEV_AUTH_MOCK && token === DEV_MOCK_SESSION.token) {
       return DEV_MOCK_SESSION.empresas;
     }
     const selectedEmpresaId = this.getSelectedEmpresaId();
-    const payload = await request("/api/auth/empresas", {
-      method: "GET",
-      token,
-      headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
-    });
-    return payload?.empresas || [];
+    try {
+      const payload = await request("/api/auth/empresas", {
+        method: "GET",
+        token,
+        headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
+      });
+      return payload?.empresas || [];
+    } catch (error) {
+      if (Number(error?.status) === 401) return [];
+      throw error;
+    }
   },
 
   async logout() {
     const token = this.getToken();
-    if (token && !(DEV_AUTH_MOCK && token === DEV_MOCK_SESSION.token)) {
+    if (!(DEV_AUTH_MOCK && token === DEV_MOCK_SESSION.token)) {
       try {
         await request("/api/auth/logout", { method: "POST", token });
       } catch {
