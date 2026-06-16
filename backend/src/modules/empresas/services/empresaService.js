@@ -47,6 +47,7 @@ export const empresaService = {
       sortDir: query.sortDir,
       filters: query.filters,
       cursor: query.cursor,
+      includeTotal: query.includeTotal,
     });
   },
 

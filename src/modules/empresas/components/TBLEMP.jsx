@@ -945,6 +945,30 @@ export default function TBLEMP({
     handleRowClick(row?.emp || row, event);
   };
 
+  const getVirtualRowProps = useCallback(
+    (row) => {
+      if (row?.__type === "group") {
+        return {
+          role: "button",
+          tabIndex: 0,
+          "aria-expanded": !collapsedGroupKeys[row.groupKey],
+          "aria-label": `Alternar grupo ${row.label}`,
+          onKeyDown: (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              handleDisplayRowClick(row, event);
+            }
+          },
+        };
+      }
+      const emp = row?.emp || row;
+      return {
+        "aria-selected": selectedItemsSet.has(emp?.id),
+      };
+    },
+    [collapsedGroupKeys, handleDisplayRowClick, selectedItemsSet]
+  );
+
   const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
   const isColumnOverlayOpen = Boolean(columnMenuAnchor || menuFiltroAberto);
 
@@ -1814,6 +1838,7 @@ export default function TBLEMP({
             ? "emp-group-row"
             : getRowBgClass(rowIndex, selectedItemsSet.has((row?.emp || row)?.id))
         }
+        getRowProps={getVirtualRowProps}
         onRowClick={handleDisplayRowClick}
       />
       {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}

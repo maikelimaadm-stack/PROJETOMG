@@ -562,6 +562,7 @@ export const empresaRepository = {
     sortDir,
     filters = {},
     cursor = null,
+    includeTotal = true,
   }) {
     const prisma = getPrismaClient();
     const safePage = toPositiveInt(page, 1);
@@ -578,6 +579,9 @@ export const empresaRepository = {
       cursorMeta.direction === direction;
     const skip = (safePage - 1) * safePageSize;
     const hasHeavyFilter = Boolean(String(search || "").trim() || Object.keys(filters || {}).length);
+    const shouldIncludeTotal =
+      String(includeTotal ?? "true").toLowerCase() !== "false" &&
+      String(includeTotal ?? "true").toLowerCase() !== "0";
     const pageWhere = isCursorMode ? buildKeysetCursorWhere(where, cursorMeta) : where;
     const orderBy = isCursorMode ? [{ [sortField]: direction }, { id: direction }] : resolvedOrder;
 
@@ -590,10 +594,15 @@ export const empresaRepository = {
     });
 
     let total;
-    if (hasHeavyFilter) {
-      total = await prisma.empresa.count({ where });
+    if (shouldIncludeTotal) {
+      if (hasHeavyFilter) {
+        total = await prisma.empresa.count({ where });
+      } else {
+        total = await getEmpresaCount(scope);
+      }
     } else {
-      total = await getEmpresaCount(scope);
+      const baseTotal = (safePage - 1) * safePageSize;
+      total = baseTotal + items.length + (items.length === safePageSize ? 1 : 0);
     }
 
     return {
@@ -601,7 +610,11 @@ export const empresaRepository = {
       total,
       page: safePage,
       pageSize: safePageSize,
-      totalPages: Math.max(1, Math.ceil(total / safePageSize)),
+      totalPages: shouldIncludeTotal
+        ? Math.max(1, Math.ceil(total / safePageSize))
+        : items.length < safePageSize
+          ? safePage
+          : safePage + 1,
       nextCursor:
         isCursorMode && items.length === safePageSize
           ? encodeCursor({

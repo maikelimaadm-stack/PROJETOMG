@@ -18,6 +18,7 @@ function EmpVirtualTableBody({
   renderRow,
   getRowClassName,
   onRowClick,
+  getRowProps,
 }) {
   const { virtualItems, totalSize } = useTableVirtualizer({
     scrollRef,
@@ -54,6 +55,7 @@ function EmpVirtualTableBody({
           {virtualItems.map((virtualRow) => {
             const row = rows[virtualRow.index];
             if (!row) return null;
+            const rowProps = getRowProps?.(row, virtualRow.index) || {};
             return (
               <TableRow
                 key={virtualRow.key}
@@ -61,6 +63,7 @@ function EmpVirtualTableBody({
                 className={`emp-table-data-row ${getRowClassName?.(row, virtualRow.index) ?? ""} cursor-pointer select-none hover:brightness-[0.98]`}
                 style={{ height: EMP_TABLE_ROW_HEIGHT, maxHeight: EMP_TABLE_ROW_HEIGHT }}
                 onClick={(event) => onRowClick?.(row, event)}
+                {...rowProps}
               >
                 {renderRow(row, virtualRow.index)}
               </TableRow>
@@ -93,6 +96,7 @@ function EmpVirtualTableBody({
       {virtualItems.map((virtualRow) => {
         const row = rows[virtualRow.index];
         if (!row) return null;
+        const rowProps = getRowProps?.(row, virtualRow.index) || {};
         return (
           <div
             key={virtualRow.key}
@@ -118,6 +122,7 @@ function EmpVirtualTableBody({
                   className={`emp-table-data-row ${getRowClassName?.(row, virtualRow.index) ?? ""} cursor-pointer select-none hover:brightness-[0.98]`}
                   style={{ height: EMP_TABLE_ROW_HEIGHT, maxHeight: EMP_TABLE_ROW_HEIGHT }}
                   onClick={(event) => onRowClick?.(row, event)}
+                  {...rowProps}
                 >
                   {renderRow(row, virtualRow.index)}
                 </TableRow>

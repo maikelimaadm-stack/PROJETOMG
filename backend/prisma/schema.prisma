@@ -36,12 +36,15 @@ model Cliente {
 
   usuarios           Usuario[]
   empresas           Empresa[]
+  anexos             RegistroAnexo[]
   cadastros          CadastroRegistro[]
   logs               AuditLog[]
   cadcpsCampos       CadCpsCampo[]
+  cadcpsHistoricos   CadCpsHistorico[]
   registrosGlobais   RegistroGlobal[]
   codigoSequencias   EntidadeCodigoSequencia[]
   modulos            ClienteModulo[]
+  preferencias       UsuarioPreferencia[]
 
   @@index([nome])
   @@index([cpf_cnpj])
@@ -68,6 +71,8 @@ model Usuario {
   cliente      Cliente              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
   permissoes   PermissaoEmpresa[]
   preferencias UsuarioPreferencia[]
+  cadcpsHistoricos CadCpsHistorico[]
+  auditLogs    AuditLog[]
 
   @@unique([cliente_id, login])
   @@index([cliente_id, ativo])
@@ -120,6 +125,7 @@ model Empresa {
   permissoes     PermissaoEmpresa[]
   cadcpsEmpresas CadCpsCampoEmpresa[]
   cadastros      CadastroRegistro[]
+  auditLogs      AuditLog[]
 
   @@unique([cliente_id, codempresa])
   @@unique([cliente_id, id_global])
@@ -255,9 +261,12 @@ model CadCpsHistorico {
   valor_novo     Json?
   createdAt      DateTime @default(now())
 
-  campo CadCpsCampo @relation(fields: [campo_id], references: [id], onDelete: Cascade)
+  cliente Cliente    @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  campo   CadCpsCampo @relation(fields: [campo_id], references: [id], onDelete: Cascade)
+  usuario Usuario?    @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
 
   @@index([cliente_id, campo_id, createdAt])
+  @@index([campo_id, createdAt])
   @@index([usuario_id, createdAt])
 }
 
@@ -322,10 +331,12 @@ model RegistroAnexo {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
+  cliente Cliente  @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
   empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
 
   @@unique([cliente_id, id_global])
   @@index([cliente_id, entity_name, record_id])
+  @@index([cliente_id, empresa_id])
   @@index([cliente_id, createdAt])
   @@index([entity_name, record_id])
   @@index([empresa_id])
@@ -375,6 +386,8 @@ model AuditLog {
   createdAt    DateTime @default(now())
 
   cliente Cliente? @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
+  usuario Usuario? @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+  empresa Empresa? @relation(fields: [empresa_id], references: [id], onDelete: SetNull)
 
   @@index([cliente_id, id_global])
   @@index([cliente_id, createdAt])
@@ -394,6 +407,7 @@ model UsuarioPreferencia {
   updatedAt  DateTime @updatedAt
 
   usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
 
   @@unique([usuario_id, screen_key])
   @@index([cliente_id, usuario_id])

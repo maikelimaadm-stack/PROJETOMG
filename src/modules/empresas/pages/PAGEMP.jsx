@@ -349,6 +349,7 @@ export default function PAGEMP() {
         sortDir: querySort.direction,
         filters: listFilters,
         cursor,
+        includeTotal: pageNumber === 1,
       });
     },
     initialPageParam: { page: 1, cursor: null },
