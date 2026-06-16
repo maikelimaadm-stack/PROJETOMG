@@ -12,6 +12,7 @@ import {
   loadColumnOrder,
   loadVisibleColumns,
 } from "@/framework/cadastro/tables/empColumnLayout";
+import { useServerAwareSort } from "@/framework/cadastro/tables/useServerAwareSort";
 import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
@@ -64,7 +65,6 @@ export default function TBLCPS({
   moduleTitle = "Cadastro",
 }) {
   const [selectedItems, setSelectedItems] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ key: "codigo", direction: "asc" });
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
@@ -127,6 +127,11 @@ export default function TBLCPS({
   const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
+  const { sortConfig, applySort, toggleSort } = useServerAwareSort({
+    initialSort: { key: "codigo", direction: "asc" },
+    serverMode,
+    onServerSortChange,
+  });
   const [currentPage, setCurrentPage] = useState(serverPage || 1);
   const [pageSize, setPageSize] = useState(() => {
     if (serverPageSize) return serverPageSize;
@@ -355,12 +360,7 @@ export default function TBLCPS({
     if (currentPage > totalPages) setCurrentPage(totalPages);
   }, [currentPage, totalPages]);
 
-  const handleSort = (key) =>
-    setSortConfig((p) => {
-      const next = { key, direction: p.key === key && p.direction === "asc" ? "desc" : "asc" };
-      onServerSortChange?.(next);
-      return next;
-    });
+  const handleSort = (key) => toggleSort(key);
 
   const handlePageChange = (nextPage) => {
     setCurrentPage(nextPage);
@@ -659,7 +659,7 @@ export default function TBLCPS({
             <button
               type="button"
               className="emp-filter-sort-btn"
-              onClick={() => { setSortConfig({ key: colunaId, direction: "desc" }); closeFilter(); }}
+              onClick={() => { applySort(colunaId, "desc"); closeFilter(); }}
             >
               <ArrowUpZA className="w-4 h-4 mr-2 shrink-0" />
               <span>Classificar do Maior para o Menor</span>

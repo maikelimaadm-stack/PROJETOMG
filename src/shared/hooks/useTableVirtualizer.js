@@ -2,6 +2,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 
 const DEFAULT_OVERSCAN = 8;
+const EMPTY_VIRTUAL_ITEMS = [];
 
 /**
  * Virtualiza linhas de tabela — altura fixa alinhada ao CSS (--emp-table-data-height).
@@ -28,7 +29,7 @@ export function useTableVirtualizer({
   if (!enabled) {
     return {
       virtualizer: null,
-      virtualItems: [],
+      virtualItems: EMPTY_VIRTUAL_ITEMS,
       totalSize: 0,
     };
   }
