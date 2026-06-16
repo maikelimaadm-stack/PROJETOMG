@@ -148,7 +148,7 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
           <div
             key={emp.id}
             data-emp-id={emp.id}
-            className={`erp-card mg-emp-card mg-emp-card--virtual relative p-4${isSelected ? " mg-emp-card--selected" : ""}`}
+            className={`erp-card mg-emp-card mg-emp-card--virtual relative${isSelected ? " mg-emp-card--selected" : ""}`}
             onClick={(event) => onCardClick(emp, event)}
             role="button"
             tabIndex={0}
@@ -165,7 +165,7 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
                 <Check className="h-3 w-3" strokeWidth={2.5} />
               </span>
             ) : null}
-            <div className="mb-2.5 flex items-center gap-2.5">
+            <div className="mg-emp-card__header flex items-center gap-2.5">
               <div
                 className="mg-emp-card__avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] text-[10px] font-bold tracking-tight text-white"
                 style={{ background: avatarColor }}
