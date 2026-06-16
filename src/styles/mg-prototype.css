@@ -2353,6 +2353,18 @@
   overflow-wrap: anywhere;
 }
 
+.mg-empresas-scope .mg-emp-card__field-value--align-left {
+  text-align: left;
+}
+
+.mg-empresas-scope .mg-emp-card__field-value--align-center {
+  text-align: center;
+}
+
+.mg-empresas-scope .mg-emp-card__field-value--align-right {
+  text-align: right;
+}
+
 .mg-empresas-scope .mg-emp-card__fields--per-row-5 .mg-emp-card__field-line,
 .mg-empresas-scope .mg-emp-card__fields--per-row-2 .mg-emp-card__field-line {
   flex-direction: column;

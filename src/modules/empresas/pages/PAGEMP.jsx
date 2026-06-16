@@ -166,8 +166,7 @@ export default function PAGEMP() {
   const [queryPageSize, setQueryPageSize] = useState(EMP_INFINITE_PAGE_SIZE);
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
-  const [tableColumnsInUse, setTableColumnsInUse] = useState([]);
-  const cardsVisFields = useEmpCardsVisFields({ columnsInUseOverride: tableColumnsInUse });
+  const cardsVisFields = useEmpCardsVisFields();
   const isMobile = useIsMobile();
   const mobileCardsPerRow = 1;
   const effectiveCardsPerRow = isMobile ? mobileCardsPerRow : cardsVisFields.layoutConfig.cardsPerRow;
@@ -473,18 +472,6 @@ export default function PAGEMP() {
         return previous;
       }
       return filtered;
-    });
-  }, []);
-
-  const handleColumnsInUseChange = useCallback((columns) => {
-    setTableColumnsInUse((previous) => {
-      if (
-        previous.length === columns.length &&
-        previous.every((column, index) => column?.id === columns[index]?.id)
-      ) {
-        return previous;
-      }
-      return columns;
     });
   }, []);
 
@@ -1466,7 +1453,6 @@ export default function PAGEMP() {
                     },
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
-                    onColumnsInUseChange: handleColumnsInUseChange,
                     infiniteMode: true,
                     hasMoreRows: hasNextEmpresasPage,
                     onLoadMoreRows: handleLoadMoreEmpresas,

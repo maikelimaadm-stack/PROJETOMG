@@ -15,7 +15,7 @@ import {
   loadColumnOrder,
   loadVisibleColumns,
 } from "@/framework/cadastro/tables/empColumnLayout";
-import { mergeEffectiveColumnLayout } from "@/modules/empresas/utils/empTableColumnCatalog";
+import { loadSavedVisibleColumns, mergeEffectiveColumnLayout } from "@/modules/empresas/utils/empTableColumnCatalog";
 import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
@@ -192,7 +192,7 @@ export default function TBLEMP({
   useEffect(() => {
     if (!colunasDisponiveis.length) return;
     const savedOrdem = loadColumnOrder(ORDER_KEY, colunasDisponiveis);
-    const savedVisiveis = loadVisibleColumns(VISIBLE_KEY, colunasDisponiveis);
+    const savedVisiveis = loadSavedVisibleColumns(VISIBLE_KEY);
     const { ordem, visiveis } = mergeEffectiveColumnLayout(
       colunasDisponiveis,
       savedOrdem,

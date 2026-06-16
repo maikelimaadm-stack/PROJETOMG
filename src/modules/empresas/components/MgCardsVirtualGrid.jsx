@@ -197,7 +197,9 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
                   <div key={field.key} className="mg-emp-card__field">
                     <div className="mg-emp-card__field-line">
                       <span className="mg-emp-card__field-label">{field.label}:</span>
-                      <span className="mg-emp-card__field-value">
+                      <span
+                        className={`mg-emp-card__field-value${field.align ? ` mg-emp-card__field-value--align-${field.align}` : ""}`}
+                      >
                         {getEmpSearchFieldValue(emp, field.key)}
                       </span>
                     </div>
