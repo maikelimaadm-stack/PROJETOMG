@@ -1308,16 +1308,6 @@ export default function TBLEMP({
       onClick: () => applyQuickColumnFilter(col),
     },
     {
-      id: "filter-clear",
-      label: "Limpar filtro",
-      Icon: X,
-      disabled: !hasActiveFilter(col.id),
-      onClick: () => {
-        clearColumnFilter(col.id);
-        closeColumnOverlays();
-      },
-    },
-    {
       id: "auto-fit",
       label: autoFitActiveColumns[col.id] ? "Ajuste manual" : "Auto ajustar coluna",
       Icon: ScanLine,
