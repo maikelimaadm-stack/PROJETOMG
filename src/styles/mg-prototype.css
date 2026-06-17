@@ -3562,8 +3562,8 @@
   height: var(--mg-btn-height);
   padding: var(--mg-view-seg-track-padding);
   gap: 4px;
-  background: var(--gray-fill);
-  border: var(--mg-btn-pill-border);
+  background: #ffffff;
+  border: 1px solid var(--emp-table-header-side-line, var(--emp-table-line, #e7eaee));
   border-radius: var(--mg-search-pill-radius);
   overflow: hidden;
 }
@@ -3579,21 +3579,13 @@
 .mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pill__trigger {
   height: var(--mg-view-seg-inner-height);
   min-height: var(--mg-view-seg-inner-height);
-  background: #ffffff !important;
-  border: var(--mg-btn-pill-border);
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: var(--gray-fill) !important;
+  border: none;
+  box-shadow: none;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pill__trigger:hover:not(:disabled) {
-  background: #ffffff !important;
-}
-
-.mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pills-rail__nav {
-  background: #ffffff !important;
-}
-
-.mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pills-rail__nav:hover:not(:disabled) {
-  background: #ffffff !important;
+  background: var(--gray-fill2) !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__viewport {
@@ -8253,11 +8245,6 @@
 ):not(:disabled) svg {
   color: #fff !important;
   stroke: #fff !important;
-}
-
-.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pills-rail__nav.mg-nav-btn,
-.mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pills-rail__nav.mg-nav-btn {
-  background: #ffffff !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn,
