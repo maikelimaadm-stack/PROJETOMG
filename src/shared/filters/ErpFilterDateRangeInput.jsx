@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import {
@@ -50,7 +50,6 @@ function ErpFilterDateField({
   placeholder,
   disabled = false,
   inputId,
-  onOpenCalendar,
 }) {
   const [textValue, setTextValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
@@ -84,10 +83,7 @@ function ErpFilterDateField({
         setIsEditing(true);
         setTextValue(formatBrDateMaskAsYouType(event.target.value));
       }}
-      onFocus={() => {
-        setIsEditing(true);
-        onOpenCalendar?.();
-      }}
+      onFocus={() => setIsEditing(true)}
       onBlur={() => commit()}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
@@ -291,15 +287,30 @@ export default function ErpFilterDateRangeInput({
           onChange={onValueChange}
           placeholder="Data inicial"
           disabled={disabled}
-          onOpenCalendar={openCalendar}
         />
-        <span className="erp-filter-range-sep erp-filter-date-range__sep">até</span>
+        <button
+          type="button"
+          className="erp-filter-range-sep erp-filter-date-range__calendar-btn"
+          disabled={disabled}
+          aria-label="Abrir calendário de período"
+          aria-expanded={open}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openCalendar();
+          }}
+        >
+          <Calendar className="h-3.5 w-3.5" />
+        </button>
         <ErpFilterDateField
           value={valueTo}
           onChange={onValueToChange}
           placeholder="Data final"
           disabled={disabled}
-          onOpenCalendar={openCalendar}
         />
       </div>
 

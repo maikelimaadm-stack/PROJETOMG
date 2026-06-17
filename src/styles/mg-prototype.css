@@ -8580,6 +8580,27 @@
   color: var(--text-2, #64748b);
 }
 
+.erp-filter-date-range__calendar-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  color: var(--text-2, #64748b);
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.erp-filter-date-range__calendar-btn:hover:not(:disabled) {
+  color: var(--accent);
+}
+
+.erp-filter-date-range__calendar-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel.mg-dp-range-panel,
 .mg-empresas-scope .mg-dp-range-panel.mg-dp-panel {
   width: 500px;
