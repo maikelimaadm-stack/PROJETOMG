@@ -1288,6 +1288,7 @@
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-more,
 .cadastro-emp-scope.mg-empresas-scope .mg-accent-icon-btn,
 .cadastro-emp-scope.mg-empresas-scope .mg-nav-btn,
+.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav,
 .cadastro-emp-scope.mg-empresas-scope .mg-topbar-icon-btn,
 .cadastro-emp-scope.mg-empresas-scope .filter-panel__close,
 .cadastro-emp-scope.mg-empresas-scope .mobile-header .ios-btn,
@@ -1298,6 +1299,7 @@
 .mg-empresas-scope .tb-btn-more,
 .mg-empresas-scope .mg-accent-icon-btn,
 .mg-empresas-scope .mg-nav-btn,
+.mg-empresas-scope .mg-filter-pills-rail__nav,
 .mg-empresas-scope .mg-topbar-icon-btn,
 .mg-empresas-scope .filter-panel__close,
 .mg-empresas-scope .mobile-header .ios-btn,
@@ -8208,8 +8210,8 @@
   stroke: #fff !important;
 }
 
-.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav,
-.mg-empresas-scope .mg-filter-pills-rail__nav {
+.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn,
+.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn {
   width: 18px !important;
   height: 18px !important;
   min-width: 18px !important;
@@ -8225,7 +8227,9 @@
   color: var(--accent) !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn svg,
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav-icon,
+.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn svg,
 .mg-empresas-scope .mg-filter-pills-rail__nav-icon {
   width: 11px !important;
   height: 11px !important;
@@ -8233,13 +8237,17 @@
   stroke: var(--accent) !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn:hover:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav:hover:not(:disabled) .mg-filter-pills-rail__nav-icon,
+.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn:hover:not(:disabled) svg,
 .mg-empresas-scope .mg-filter-pills-rail__nav:hover:not(:disabled) .mg-filter-pills-rail__nav-icon {
   color: var(--mg-brand-green-hover) !important;
   stroke: var(--mg-brand-green-hover) !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn:disabled svg,
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav:disabled .mg-filter-pills-rail__nav-icon,
+.mg-empresas-scope .mg-filter-pills-rail__nav.mg-nav-btn:disabled svg,
 .mg-empresas-scope .mg-filter-pills-rail__nav:disabled .mg-filter-pills-rail__nav-icon {
   color: var(--text-3) !important;
   stroke: var(--text-3) !important;

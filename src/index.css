@@ -323,6 +323,7 @@ input[type="number"] {
   .tb-btn-more,
   .view-mode-btn,
   .mg-nav-btn,
+  .mg-filter-pills-rail__nav,
   .mg-topbar-icon-btn,
   .mg-accent-icon-btn,
   .filter-panel__close,
@@ -381,24 +382,24 @@ input[type="number"] {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) span {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) span {
   color: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) svg {
   color: var(--emp-text-strong) !important;
   stroke: var(--emp-text-strong) !important;
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover {
   color: var(--emp-text-strong);
 }
 
-.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover svg {
+.cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover svg {
   color: var(--emp-text-strong) !important;
 }
 

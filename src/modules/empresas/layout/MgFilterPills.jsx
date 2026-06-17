@@ -323,7 +323,7 @@ export default function MgFilterPills({
       {hasOverflow ? (
         <button
           type="button"
-          className="ios-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--prev"
+          className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--prev"
           onClick={scrollLeft}
           disabled={disabled || !canScrollLeft}
           aria-label="Rolar filtros para a esquerda"
@@ -338,7 +338,7 @@ export default function MgFilterPills({
       {hasOverflow ? (
         <button
           type="button"
-          className="ios-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--next"
+          className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--next"
           onClick={scrollRight}
           disabled={disabled || !canScrollRight}
           aria-label="Rolar filtros para a direita"
