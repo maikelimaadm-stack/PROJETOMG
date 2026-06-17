@@ -1300,46 +1300,18 @@ export default function TBLEMP({
     closeColumnOverlays();
   };
 
-  const isColumnFrozenAtIndex = useCallback(
-    (columnIndex) => columnIndex >= 0 && columnIndex < frozenColumnCount,
-    [frozenColumnCount]
-  );
-
-  const isColumnFrozenById = useCallback(
-    (columnId) => {
-      const columnIndex = colunasOrdenadas.findIndex((column) => column.id === columnId);
-      return isColumnFrozenAtIndex(columnIndex);
-    },
-    [colunasOrdenadas, isColumnFrozenAtIndex]
-  );
-
   const applySortToColumn = (columnId, direction) => {
-    if (isColumnFrozenById(columnId)) return;
     const nextDirection = direction === "desc" ? "desc" : "asc";
     setSortConfig([{ key: columnId, direction: nextDirection }]);
   };
 
   const toggleSortForColumn = useCallback((columnId) => {
-    if (isColumnFrozenById(columnId)) return;
     setSortConfig((previous) => {
       const currentRule = Array.isArray(previous) ? previous.find((rule) => rule.key === columnId) : null;
       const nextDirection = currentRule?.direction === "asc" ? "desc" : "asc";
       return [{ key: columnId, direction: nextDirection }];
     });
-  }, [isColumnFrozenById]);
-
-  useEffect(() => {
-    if (frozenColumnCount <= 0) return;
-    setSortConfig((previous) => {
-      const currentRule = Array.isArray(previous) ? previous.find((rule) => rule?.key) : null;
-      if (!currentRule?.key) return previous;
-      const columnIndex = colunasOrdenadas.findIndex((column) => column.id === currentRule.key);
-      if (!isColumnFrozenAtIndex(columnIndex)) return previous;
-      const fallbackColumn = colunasOrdenadas[frozenColumnCount];
-      if (!fallbackColumn) return previous;
-      return [{ key: fallbackColumn.id, direction: "asc" }];
-    });
-  }, [colunasOrdenadas, frozenColumnCount, isColumnFrozenAtIndex]);
+  }, []);
 
   const togglePinColumnLeft = useCallback((columnIndex) => {
     setFrozenColumnCount((previous) => (previous === columnIndex + 1 ? 0 : columnIndex + 1));
@@ -1432,7 +1404,7 @@ export default function TBLEMP({
       const isMenuOpen = columnMenuAnchor?.columnId === col.id;
       const hasColumnFilter = hasActiveFilter(col.id);
       const sortRule = Array.isArray(sortConfig) ? sortConfig.find((rule) => rule.key === col.id) : null;
-      const isSortActive = !isPinnedLeft && Boolean(sortRule);
+      const isSortActive = Boolean(sortRule);
       const isAutoFitActive = Boolean(autoFitActiveColumns[col.id]);
       const isFrozenAnchorColumn = frozenColumnCount > 0 && colIndex === frozenColumnCount - 1;
       const hasRightShadow = isFrozenAnchorColumn;
@@ -1448,7 +1420,6 @@ export default function TBLEMP({
           }}
           className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50 emp-th-pinned" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
           onDoubleClick={(event) => {
-            if (isPinnedLeft) return;
             const interactiveTarget = event.target?.closest?.(
               "button, [role='separator'], .emp-col-resize-handle"
             );
@@ -1465,44 +1436,46 @@ export default function TBLEMP({
             >
               {formatHeaderLabel(col)}
             </span>
-            {isSortActive ? (
-              <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
-                {sortRule?.direction === "desc" ? (
-                  <ArrowDown className="emp-th-icon-button__icon" strokeWidth={2.2} />
-                ) : (
-                  <ArrowUp className="emp-th-icon-button__icon" strokeWidth={2.2} />
-                )}
-              </span>
-            ) : null}
-            {isAutoFitActive ? (
-              <button
-                type="button"
-                className="emp-th-icon-button emp-th-icon-button--status"
-                aria-label={`Desativar auto ajustar da coluna ${formatHeaderLabel(col)}`}
-                title="Clique para ajuste manual"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
-                }}
-              >
-                <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
-              </button>
-            ) : null}
-            {isFrozenAnchorColumn ? (
-              <button
-                type="button"
-                className="emp-th-icon-button emp-th-icon-button--status"
-                aria-label={`Descongelar coluna ${formatHeaderLabel(col)}`}
-                title="Clique para descongelar coluna"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  togglePinColumnLeft(colIndex);
-                }}
-              >
-                <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
-              </button>
-            ) : null}
-            <div className="emp-th-actions flex shrink-0 items-center gap-1">
+            <div className="emp-th-trailing flex shrink-0 items-center gap-1">
+              <div className="emp-th-status-icons flex shrink-0 items-center gap-1 min-w-0">
+                {isSortActive ? (
+                  <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
+                    {sortRule?.direction === "desc" ? (
+                      <ArrowDown className="emp-th-icon-button__icon" strokeWidth={2.2} />
+                    ) : (
+                      <ArrowUp className="emp-th-icon-button__icon" strokeWidth={2.2} />
+                    )}
+                  </span>
+                ) : null}
+                {isAutoFitActive ? (
+                  <button
+                    type="button"
+                    className="emp-th-icon-button emp-th-icon-button--status"
+                    aria-label={`Desativar auto ajustar da coluna ${formatHeaderLabel(col)}`}
+                    title="Clique para ajuste manual"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
+                    }}
+                  >
+                    <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
+                  </button>
+                ) : null}
+                {isFrozenAnchorColumn ? (
+                  <button
+                    type="button"
+                    className="emp-th-icon-button emp-th-icon-button--status"
+                    aria-label={`Descongelar coluna ${formatHeaderLabel(col)}`}
+                    title="Clique para descongelar coluna"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      togglePinColumnLeft(colIndex);
+                    }}
+                  >
+                    <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
+                  </button>
+                ) : null}
+              </div>
               <button
                 type="button"
                 ref={(element) => {
