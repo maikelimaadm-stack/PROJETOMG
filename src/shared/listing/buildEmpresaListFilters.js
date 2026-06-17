@@ -11,14 +11,19 @@ const STATUS_PANEL_MAP = {
   Inativa: "Inativa",
 };
 
-/** Converte filtros do painel lateral em payload `filters` da API de empresas. */
+const normalizePanelFilterValues = (values) =>
+  (Array.isArray(values) ? values : [values])
+    .map((item) => String(item).trim())
+    .filter(Boolean);
+
+/** Converte filtros do painel lateral/pills em payload `filters` da API de empresas. */
 export function buildEmpresaPanelFilters(filterValues = {}) {
   const filters = {};
 
-  const setArrayFilter = (apiKey, values) => {
-    const normalized = (Array.isArray(values) ? values : [values])
-      .map((item) => normalizeSearchQuery(String(item)))
-      .filter(Boolean);
+  const setArrayFilter = (apiKey, values, { normalizeValue } = {}) => {
+    const normalized = normalizePanelFilterValues(values)
+      .map((item) => (normalizeValue ? normalizeValue(item) : normalizeSearchQuery(String(item))))
+      .filter((item) => item != null && item !== "");
     if (normalized.length === 0) return;
     if (normalized.length === 1) {
       filters[apiKey] = normalized[0];
@@ -27,22 +32,39 @@ export function buildEmpresaPanelFilters(filterValues = {}) {
     filters[`${apiKey}__in`] = normalized;
   };
 
-  setArrayFilter("razao_social", filterValues.razao_social);
-  setArrayFilter("nome_fantasia", filterValues.nome_fantasia);
-  setArrayFilter("cpf_cnpj", filterValues.cnpj);
-  setArrayFilter("telefone", filterValues.telefone);
-  setArrayFilter("cidade", filterValues.cidade);
-  setArrayFilter("estado", filterValues.uf);
+  Object.entries(filterValues || {}).forEach(([key, rawValues]) => {
+    const values = normalizePanelFilterValues(rawValues);
+    if (values.length === 0) return;
 
-  const statusValues = filterValues.status;
-  if (Array.isArray(statusValues) && statusValues.length > 0) {
-    const mapped = statusValues.map((item) => STATUS_PANEL_MAP[item] || item).filter(Boolean);
-    if (mapped.length === 1) {
-      filters.status = mapped[0];
-    } else if (mapped.length > 1) {
-      filters.status__in = mapped;
+    if (key === "status") {
+      const mapped = values.map((item) => STATUS_PANEL_MAP[item] || item).filter(Boolean);
+      if (mapped.length === 1) {
+        filters.status = mapped[0];
+      } else if (mapped.length > 1) {
+        filters.status__in = mapped;
+      }
+      return;
     }
-  }
+
+    if (key.startsWith("custom:")) {
+      setArrayFilter(key, values, {
+        normalizeValue: (item) => normalizeSearchQuery(String(item)),
+      });
+      return;
+    }
+
+    const apiKey =
+      key === "cnpj" ? "cpf_cnpj" : key === "uf" ? "estado" : key;
+
+    if (apiKey === "tipo_vinculo" || apiKey === "codempresa" || apiKey === "id_global") {
+      setArrayFilter(apiKey, values, {
+        normalizeValue: (item) => normalizeEmpresaColumnFilterValue(apiKey, item),
+      });
+      return;
+    }
+
+    setArrayFilter(apiKey, values);
+  });
 
   return Object.keys(filters).length > 0 ? filters : undefined;
 }

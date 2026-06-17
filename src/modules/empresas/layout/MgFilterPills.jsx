@@ -4,12 +4,7 @@ import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.const
 import EmpColFilterPopover from "@/modules/empresas/components/EmpColFilterPopover";
 import { matchesFilterOptionContains } from "@/modules/empresas/components/tblEmp.filters";
 import {
-  MG_FILTER_FIELDS,
-  MG_FILTER_STATUS_FIELD,
-} from "@/modules/empresas/layout/mgFilterFields";
-import {
   buildPanelFilterOptions,
-  MG_PANEL_FILTER_FIELDS,
 } from "@/modules/empresas/layout/mgPanelFilterOptions";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
@@ -49,6 +44,7 @@ function useFilterPopover(open, setOpen, rootRef, panelRef) {
 
 function PanelFilterPill({
   field,
+  filterFields = [],
   values = {},
   appliedValues = {},
   empresas = [],
@@ -75,8 +71,8 @@ function PanelFilterPill({
   }, [open, selectedValues]);
 
   const filterOptions = useMemo(
-    () => buildPanelFilterOptions(empresas, appliedValues, field.key),
-    [appliedValues, empresas, field.key]
+    () => buildPanelFilterOptions(empresas, appliedValues, field.key, filterFields),
+    [appliedValues, empresas, field.key, filterFields]
   );
 
   const filterQuery = debouncedSearchQuery.trim();
@@ -183,6 +179,7 @@ function PanelFilterPill({
 }
 
 export default function MgFilterPills({
+  filterFields = [],
   values = {},
   appliedValues = {},
   empresas = [],
@@ -194,18 +191,19 @@ export default function MgFilterPills({
 }) {
   const hasActiveFilters = useMemo(
     () =>
-      MG_PANEL_FILTER_FIELDS.some(
+      filterFields.some(
         (field) => Array.isArray(appliedValues[field.key]) && appliedValues[field.key].length > 0
       ),
-    [appliedValues]
+    [appliedValues, filterFields]
   );
 
   return (
     <div className={`mg-filter-pills${className ? ` ${className}` : ""}`}>
-      {MG_FILTER_FIELDS.map((field) => (
+      {filterFields.map((field) => (
         <PanelFilterPill
           key={field.key}
           field={field}
+          filterFields={filterFields}
           values={values}
           appliedValues={appliedValues}
           empresas={empresas}
@@ -215,19 +213,6 @@ export default function MgFilterPills({
           onApply={onApply}
         />
       ))}
-      <PanelFilterPill
-        field={MG_FILTER_STATUS_FIELD}
-        values={values}
-        appliedValues={appliedValues}
-        empresas={empresas}
-        active={
-          Array.isArray(appliedValues[MG_FILTER_STATUS_FIELD.key]) &&
-          appliedValues[MG_FILTER_STATUS_FIELD.key].length > 0
-        }
-        disabled={disabled}
-        onChange={onChange}
-        onApply={onApply}
-      />
       {hasActiveFilters ? (
         <button
           type="button"

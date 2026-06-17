@@ -6,6 +6,7 @@ export default function MgTablePanelStrip({
   onConfigColumns,
   disabled = false,
   empresas = [],
+  filterFields = [],
   filterValues = {},
   appliedFilterValues = {},
   onFilterChange,
@@ -16,6 +17,7 @@ export default function MgTablePanelStrip({
     <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
       <div className="mg-panel-strip__filters">
         <MgFilterPills
+          filterFields={filterFields}
           values={filterValues}
           appliedValues={appliedFilterValues}
           empresas={empresas}

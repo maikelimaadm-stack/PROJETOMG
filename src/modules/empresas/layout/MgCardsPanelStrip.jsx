@@ -76,6 +76,7 @@ export default function MgCardsPanelStrip({
   onRestoreLayoutDefaults,
   disabled = false,
   hideConfig = false,
+  filterFields = [],
   empresas = [],
   filterValues = {},
   appliedFilterValues = {},
@@ -256,6 +257,7 @@ export default function MgCardsPanelStrip({
 
       <div className="mg-panel-strip__filters">
         <MgFilterPills
+          filterFields={filterFields}
           values={filterValues}
           appliedValues={appliedFilterValues}
           empresas={empresas}

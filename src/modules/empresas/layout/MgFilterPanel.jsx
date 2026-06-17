@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { X } from "lucide-react";
 import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
-import { MG_FILTER_FIELDS } from "@/modules/empresas/layout/mgFilterFields";
+import { MG_FILTER_SIDEBAR_FIELDS } from "@/modules/empresas/layout/mgFilterFields";
 
 const STATUS_OPTIONS = [
   { value: "Todos", label: "Todos" },
@@ -44,7 +44,7 @@ export default function MgFilterPanel({
         </div>
 
         <div className="filter-panel__body">
-          {MG_FILTER_FIELDS.map((field) => {
+          {MG_FILTER_SIDEBAR_FIELDS.map((field) => {
             const fieldValue = Array.isArray(values[field.key]) ? values[field.key][0] || "" : "";
             return (
               <div key={field.key} className="fg">

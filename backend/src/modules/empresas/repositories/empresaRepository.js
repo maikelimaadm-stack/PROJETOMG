@@ -412,6 +412,10 @@ const FILTER_FIELD_MAP = {
   cep: { field: "cep", match: "contains" },
   bairro: { field: "bairro", match: "contains" },
   endereco: { field: "endereco", match: "contains" },
+  numero: { field: "numero", match: "contains" },
+  inscricao_estadual: { field: "inscricao_estadual", match: "contains" },
+  observacoes: { field: "observacoes", match: "contains" },
+  logo_url: { field: "logo_url", match: "contains" },
   codempresa: { field: "codempresa", match: "number" },
   id_global: { field: "id_global", match: "number" },
 };

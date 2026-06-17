@@ -56,6 +56,11 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
+import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import {
+  buildMgFilterFields,
+  buildPanelFilterColumnMap,
+} from "@/modules/empresas/layout/mgFilterFields";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -64,16 +69,6 @@ const moduleLabels = {
   singular: empresasModuleDefinition.singularLabel,
   plural: empresasModuleDefinition.pluralLabel,
   title: `Cadastro de ${empresasModuleDefinition.pluralLabel}`,
-};
-
-const PANEL_FILTER_COLUMN_MAP = {
-  razao_social: "razao_social",
-  nome_fantasia: "nome_fantasia",
-  cnpj: "cpf_cnpj",
-  telefone: "telefone",
-  cidade: "cidade",
-  uf: "estado",
-  status: "status",
 };
 
 const normalizeFilterList = (value) => {
@@ -93,13 +88,17 @@ const normalizeFilterList = (value) => {
   return [String(value).trim()];
 };
 
-const syncPanelFiltersIntoColumns = (panelValues = {}, baseColumnFilters = {}) => {
+const syncPanelFiltersIntoColumns = (
+  panelValues = {},
+  baseColumnFilters = {},
+  panelFilterColumnMap = {}
+) => {
   const next = { ...(baseColumnFilters || {}) };
-  Object.values(PANEL_FILTER_COLUMN_MAP).forEach((columnKey) => {
+  Object.values(panelFilterColumnMap).forEach((columnKey) => {
     delete next[columnKey];
   });
 
-  Object.entries(PANEL_FILTER_COLUMN_MAP).forEach(([panelKey, columnKey]) => {
+  Object.entries(panelFilterColumnMap).forEach(([panelKey, columnKey]) => {
     const values = normalizeFilterList(panelValues?.[panelKey]);
     if (values.length > 0) {
       next[columnKey] = { values: [...new Set(values)] };
@@ -109,8 +108,8 @@ const syncPanelFiltersIntoColumns = (panelValues = {}, baseColumnFilters = {}) =
   return next;
 };
 
-const syncColumnsIntoPanelFilters = (columnFilters = {}) =>
-  Object.entries(PANEL_FILTER_COLUMN_MAP).reduce((acc, [panelKey, columnKey]) => {
+const syncColumnsIntoPanelFilters = (columnFilters = {}, panelFilterColumnMap = {}) =>
+  Object.entries(panelFilterColumnMap).reduce((acc, [panelKey, columnKey]) => {
     acc[panelKey] = normalizeFilterList(columnFilters?.[columnKey]);
     return acc;
   }, {});
@@ -219,6 +218,15 @@ export default function PAGEMP() {
   const [columnFilters, setColumnFilters] = useState({});
   const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(false);
   const cardsVisFields = useEmpCardsVisFields();
+  const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
+  const filterFields = useMemo(
+    () => buildMgFilterFields(camposPersonalizados),
+    [camposPersonalizados]
+  );
+  const panelFilterColumnMap = useMemo(
+    () => buildPanelFilterColumnMap(filterFields),
+    [filterFields]
+  );
   const isMobile = useIsMobile();
   const mobileCardsPerRow = 1;
   const effectiveCardsPerRow = isMobile ? mobileCardsPerRow : cardsVisFields.layoutConfig.cardsPerRow;
@@ -852,14 +860,14 @@ export default function PAGEMP() {
     setAppliedFilterValues({});
     setAppliedPanelFilters(undefined);
     setColumnFiltersHydrated(true);
-    setColumnFilters((prev) => syncPanelFiltersIntoColumns({}, prev));
+    setColumnFilters((prev) => syncPanelFiltersIntoColumns({}, prev, panelFilterColumnMap));
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
     setQueryPage(1);
-  }, []);
+  }, [panelFilterColumnMap]);
 
   const handleFilterApply = useCallback(
     (snapshot) => {
@@ -870,23 +878,23 @@ export default function PAGEMP() {
       setAppliedFilterValues({ ...nextValues });
       setAppliedPanelFilters(buildEmpresaPanelFilters(nextValues));
       setColumnFiltersHydrated(true);
-      setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev));
+      setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
       setQueryPage(1);
       closeFilterPanel();
     },
-    [closeFilterPanel, filterValues]
+    [closeFilterPanel, filterValues, panelFilterColumnMap]
   );
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
     const safeNext = nextColumnFilters || {};
-    const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext);
+    const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext, panelFilterColumnMap);
     setColumnFiltersHydrated(true);
     setColumnFilters(safeNext);
     setFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
     setAppliedFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
     setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
-  }, []);
+  }, [panelFilterColumnMap]);
 
   const handleDistinctColumnValues = useCallback(
     (params) => moduleRepository.listDistinctColumnValues(params),
@@ -1425,6 +1433,7 @@ export default function PAGEMP() {
                 layout={cardsVisFields.layoutConfig}
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
+                filterFields={filterFields}
                 empresas={empresasFiltradasPainel}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
@@ -1439,6 +1448,7 @@ export default function PAGEMP() {
               <MgTablePanelStrip
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
+                filterFields={filterFields}
                 empresas={empresasFiltradasPainel}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
