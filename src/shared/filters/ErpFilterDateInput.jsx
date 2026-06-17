@@ -15,6 +15,8 @@ export default function ErpFilterDateInput({
         onChange={onChange}
         disabled={disabled}
         inputId={inputId}
+        closeSiblingsOnOpen={false}
+        panelClassName="mg-dp-panel erp-filter-date-panel"
       />
     </div>
   );
