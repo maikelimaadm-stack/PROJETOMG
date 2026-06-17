@@ -83,6 +83,7 @@ export default function MgCardsPanelStrip({
   filterApplyOrder = [],
   columnFilters = {},
   panelFilterColumnMap = {},
+  onRequestDistinctColumnValues = null,
   onFilterChange,
   onFilterClear,
   onFilterApply,
@@ -269,6 +270,7 @@ export default function MgCardsPanelStrip({
           filterApplyOrder={filterApplyOrder}
           columnFilters={columnFilters}
           panelFilterColumnMap={panelFilterColumnMap}
+          onRequestDistinctColumnValues={onRequestDistinctColumnValues}
           onChange={onFilterChange}
           onClear={onFilterClear}
           onApply={onFilterApply}

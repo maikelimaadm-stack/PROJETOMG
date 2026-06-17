@@ -4,6 +4,9 @@ import {
   normalizeEmpresaColumnFilterValue,
 } from "@/shared/listing/normalizeEmpresaColumnFilter";
 import { isErpFilterActive } from "@/shared/filters";
+import {
+  getPredecessorFilterOrderKeys,
+} from "@/shared/filters/erpFilterApplyOrder";
 
 const STATUS_PANEL_MAP = {
   Ativo: "Ativa",
@@ -155,4 +158,65 @@ export function mergeEmpresaListFilters(...parts) {
     Object.assign(merged, part);
   });
   return Object.keys(merged).length > 0 ? merged : undefined;
+}
+
+function isEmpresaFilterOrderKeyActive(key, appliedPanelValues = {}, columnFilters = {}, panelFilterColumnMap = {}) {
+  if (key.startsWith("col:")) {
+    return isErpFilterActive(columnFilters[key.slice(4)]);
+  }
+  if (isErpFilterActive(appliedPanelValues[key])) return true;
+  const mappedColumn = panelFilterColumnMap[key];
+  return mappedColumn ? isErpFilterActive(columnFilters[mappedColumn]) : false;
+}
+
+/** Filtros da API só dos predecessores na cadeia (vazio = lista completa do escopo). */
+export function buildPredecessorEmpresaListFilters({
+  filterApplyOrder = [],
+  currentOrderKey,
+  appliedPanelValues = {},
+  columnFilters = {},
+  panelFilterColumnMap = {},
+} = {}) {
+  const currentKey = String(currentOrderKey || "").trim();
+  if (!currentKey) return undefined;
+
+  const isOrderKeyActive = (key) =>
+    isEmpresaFilterOrderKeyActive(key, appliedPanelValues, columnFilters, panelFilterColumnMap);
+
+  const predecessors = getPredecessorFilterOrderKeys(filterApplyOrder, currentKey, isOrderKeyActive);
+  if (predecessors.length === 0) return undefined;
+
+  const partialPanel = {};
+  const partialColumn = {};
+
+  predecessors.forEach((key) => {
+    if (key.startsWith("col:")) {
+      const columnId = key.slice(4);
+      if (isErpFilterActive(columnFilters[columnId])) {
+        partialColumn[columnId] = columnFilters[columnId];
+      }
+      return;
+    }
+
+    if (isErpFilterActive(appliedPanelValues[key])) {
+      partialPanel[key] = appliedPanelValues[key];
+      return;
+    }
+
+    const mappedColumn = panelFilterColumnMap[key];
+    if (mappedColumn && isErpFilterActive(columnFilters[mappedColumn])) {
+      partialColumn[mappedColumn] = columnFilters[mappedColumn];
+    }
+  });
+
+  return mergeEmpresaListFilters(
+    buildEmpresaPanelFilters(partialPanel),
+    buildEmpresaColumnFilters(partialColumn)
+  );
+}
+
+export function resolveEmpresaDistinctColumnParam(columnId, panelFilterColumnMap = {}) {
+  const mapped = panelFilterColumnMap[columnId];
+  if (mapped) return mapEmpresaColumnIdToFilterKey(mapped);
+  return mapEmpresaColumnIdToFilterKey(columnId);
 }

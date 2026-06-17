@@ -63,6 +63,8 @@ import {
   parseDateFilterValue,
 } from "./tblEmp.filters";
 import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
+import { mapEmpresaColumnIdToFilterKey } from "@/shared/listing/normalizeEmpresaColumnFilter";
+import { buildPredecessorEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 import {
   ErpFilterPopover,
   isErpFilterActive,
@@ -329,6 +331,8 @@ export default function TBLEMP({
   const serverResetSignatureRef = useRef("");
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
+  const [filterDistinctOptions, setFilterDistinctOptions] = useState([]);
+  const [filterDistinctLoading, setFilterDistinctLoading] = useState(false);
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
@@ -773,6 +777,60 @@ export default function TBLEMP({
     getFieldValue,
     getNormalizedFilterDraft,
     menuFiltroAberto,
+    panelFilterColumnMap,
+  ]);
+
+  useEffect(() => {
+    if (!menuFiltroAberto || !onRequestDistinctColumnValues) {
+      setFilterDistinctOptions([]);
+      setFilterDistinctLoading(false);
+      return undefined;
+    }
+
+    const col = colunasDisponiveis.find((column) => column.id === menuFiltroAberto);
+    if (!col || col.fixo) {
+      setFilterDistinctOptions([]);
+      setFilterDistinctLoading(false);
+      return undefined;
+    }
+
+    const orderKey = resolveColumnFilterOrderKey(menuFiltroAberto, panelFilterColumnMap);
+    const predecessorFilters = buildPredecessorEmpresaListFilters({
+      filterApplyOrder,
+      currentOrderKey: orderKey,
+      appliedPanelValues,
+      columnFilters: filtrosColunas,
+      panelFilterColumnMap,
+    });
+
+    let cancelled = false;
+    setFilterDistinctLoading(true);
+
+    onRequestDistinctColumnValues({
+      column: mapEmpresaColumnIdToFilterKey(menuFiltroAberto),
+      filters: predecessorFilters,
+    })
+      .then((result) => {
+        if (cancelled) return;
+        setFilterDistinctOptions(Array.isArray(result?.items) ? result.items : []);
+        setFilterDistinctLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setFilterDistinctOptions([]);
+        setFilterDistinctLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    appliedPanelValues,
+    colunasDisponiveis,
+    filterApplyOrder,
+    filtrosColunas,
+    menuFiltroAberto,
+    onRequestDistinctColumnValues,
     panelFilterColumnMap,
   ]);
 
@@ -1782,7 +1840,11 @@ export default function TBLEMP({
         ? getValoresFiltro(menuFiltroAberto, filterColumn)
         : null;
   const filterColumnLabel = filterColumn ? formatHeaderLabel(filterColumn) : "";
-  const filterListOptions = menuFiltroAberto ? columnOptions[menuFiltroAberto] || [] : [];
+  const filterListOptions = menuFiltroAberto
+    ? onRequestDistinctColumnValues
+      ? filterDistinctOptions
+      : columnOptions[menuFiltroAberto] || []
+    : [];
   const filterEnumOptions = filterColumn
     ? resolveErpFilterEnumOptions(
         { columnMeta: filterColumn, column: filterColumn.id, key: filterColumn.id },
@@ -1791,7 +1853,7 @@ export default function TBLEMP({
     : [];
   const filterSearchPending =
     buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
-  const filterSearchLoading = filterSearchPending;
+  const filterSearchLoading = filterSearchPending || filterDistinctLoading;
 
   const updateFilterDraft = (updater) => {
     if (!filterColumn || !menuFiltroAberto) return;

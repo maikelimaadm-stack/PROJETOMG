@@ -12,6 +12,7 @@ export default function MgTablePanelStrip({
   filterApplyOrder = [],
   columnFilters = {},
   panelFilterColumnMap = {},
+  onRequestDistinctColumnValues = null,
   onFilterChange,
   onFilterClear,
   onFilterApply,
@@ -29,6 +30,7 @@ export default function MgTablePanelStrip({
           filterApplyOrder={filterApplyOrder}
           columnFilters={columnFilters}
           panelFilterColumnMap={panelFilterColumnMap}
+          onRequestDistinctColumnValues={onRequestDistinctColumnValues}
           onChange={onFilterChange}
           onClear={onFilterClear}
           onApply={onFilterApply}
