@@ -1311,7 +1311,7 @@ export default function PAGEMP() {
               />
             </div>
 
-            <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "table" ? " is-visible" : ""}`}>
+            <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
               <MgTablePanelStrip
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
