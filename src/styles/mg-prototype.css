@@ -3477,22 +3477,33 @@
 
 .mg-empresas-scope .mg-filter-pill__clear-btn {
   position: absolute;
-  right: 3px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 1px;
+  top: 0;
+  bottom: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 18px;
   border: none;
-  color: #16a34a;
+  color: var(--mg-brand-green);
   background: transparent;
   padding: 0;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .mg-empresas-scope .mg-filter-pill__clear-btn:hover:not(:disabled) {
   color: var(--mg-brand-green-hover);
+}
+
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__search .mg-search-pill,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-col-filter-popup__search .mg-search-pill {
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-value-list.emp-col-filter-popup__options,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-value-list.emp-col-filter-popup__options {
+  background: var(--gray-fill);
 }
 
 .mg-empresas-scope .mg-filter-pill__trigger:hover:not(:disabled) {

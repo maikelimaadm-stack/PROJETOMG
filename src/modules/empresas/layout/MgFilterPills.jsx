@@ -141,6 +141,10 @@ function PanelFilterPill({
         <button
           type="button"
           className="ios-btn mg-filter-pill__clear-btn"
+          onPointerDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
           onMouseDown={(event) => {
             event.preventDefault();
             event.stopPropagation();
