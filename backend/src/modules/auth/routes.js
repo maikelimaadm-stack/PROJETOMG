@@ -6,8 +6,8 @@ import {
   loginWithCredentials,
   sanitizeSessionUser,
 } from "./authService.js";
-import { loadAccessScope } from "./accessScope.js";
-import { getSessionEmpresas } from "./sessionCache.js";
+import { clearAccessScopeCache, loadAccessScope } from "./accessScope.js";
+import { clearSessionEmpresas, getSessionEmpresas } from "./sessionCache.js";
 import { revokeAuthToken } from "./tokenDenylist.js";
 
 const parseLoginBody = (body) => {
@@ -57,7 +57,9 @@ const shouldExposeTokenInBody = () => {
   const explicit = String(process.env.AUTH_EXPOSE_TOKEN_IN_BODY || "").trim().toLowerCase();
   if (explicit === "true") return true;
   if (explicit === "false") return false;
-  return String(process.env.NODE_ENV || "").toLowerCase() !== "production";
+  // Mantém compatibilidade para frontends cross-origin que ainda dependem do bearer
+  // durante a migração para cookie-only.
+  return true;
 };
 
 export const registerAuthRoutes = async (app) => {
@@ -65,6 +67,7 @@ export const registerAuthRoutes = async (app) => {
     try {
       const credentials = parseLoginBody(request.body);
       const session = await loginWithCredentials(credentials);
+      clearAccessScopeCache(session.user.id);
       const tokenPayload = createSessionTokenPayload(session);
       const token = await reply.jwtSign(tokenPayload, { expiresIn: "8h" });
       reply.header("Set-Cookie", buildAuthSetCookieHeader(token));
@@ -119,6 +122,9 @@ export const registerAuthRoutes = async (app) => {
   );
 
   app.post("/api/auth/logout", { preHandler: app.authenticate }, async (request, reply) => {
+    const userId = request.user?.id || request.user?.sub;
+    clearAccessScopeCache(userId);
+    clearSessionEmpresas(userId);
     revokeAuthToken({
       token: request.authTokenRaw || null,
       jti: request.user?.jti || null,

@@ -23,10 +23,24 @@ try {
 }
 
 const parseAllowedOrigins = () =>
-  String(process.env.FRONTEND_ORIGINS || "")
-    .split(",")
+  [
+    ...String(process.env.FRONTEND_ORIGINS || "").split(","),
+    String(process.env.FRONTEND_URL || ""),
+    String(process.env.VITE_FRONTEND_URL || ""),
+    String(process.env.VERCEL_PROJECT_PRODUCTION_URL || ""),
+    String(process.env.VERCEL_URL || ""),
+    // Defaults do projeto para não quebrar login em preview/deploy.
+    "https://projetomg.vercel.app",
+    "https://projetomg-*.vercel.app",
+    "https://projetomg-git-*.vercel.app",
+  ]
     .map((item) => item.trim().replaceAll('"', "").replaceAll("'", ""))
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((item) => {
+      if (/^https?:\/\//i.test(item)) return item;
+      if (item.includes(".")) return `https://${item}`;
+      return item;
+    });
 
 const normalizeOrigin = (origin = "") => String(origin).trim().replace(/\/+$/, "");
 
@@ -190,6 +204,9 @@ const buildServer = () => {
   app.register(cors, {
     origin(origin, callback) {
       if (isOriginAllowed(origin, allowedOrigins)) return callback(null, true);
+      if (origin) {
+        app.log.warn({ origin }, "Origin bloqueada por CORS");
+      }
       return callback(new Error("Origin não permitida"), false);
     },
     credentials: true,

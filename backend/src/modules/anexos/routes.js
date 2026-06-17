@@ -1,5 +1,18 @@
 import { anexoService } from "./services/anexoService.js";
 import { assertRole, loadAccessScope } from "../auth/accessScope.js";
+import { z } from "zod";
+
+const anexoCreateSchema = z.object({
+  entity_name: z.string().trim().min(1).max(120),
+  record_id: z.union([z.string(), z.number(), z.null()]).optional(),
+  attachment_name: z.string().trim().max(255).optional().nullable(),
+  file_name: z.string().trim().min(1).max(255),
+  file_url: z.string().trim().url().max(2000),
+  file_type: z.string().trim().max(120).optional().nullable(),
+  file_size: z.coerce.number().int().nonnegative().max(100 * 1024 * 1024).optional().nullable(),
+  storage_path: z.string().trim().max(500).optional().nullable(),
+  empresa_id: z.string().trim().min(1).optional().nullable(),
+});
 
 const readMultipartFile = async (request) => {
   const file = await request.file();
@@ -30,7 +43,17 @@ export const registerAnexosRoutes = async (app) => {
     const scope = await loadAccessScope(request);
     assertRole(scope, ["ADMIN", "OPERADOR"]);
     try {
-      const item = await anexoService.create(request.body || {}, scope);
+      const payload = anexoCreateSchema.parse(request.body || {});
+      const item = await anexoService.create(
+        {
+          ...payload,
+          record_id:
+            payload.record_id == null
+              ? null
+              : String(payload.record_id).trim() || null,
+        },
+        scope
+      );
       return reply.status(201).send({ item });
     } catch (error) {
       return reply.status(error?.statusCode || 400).send({

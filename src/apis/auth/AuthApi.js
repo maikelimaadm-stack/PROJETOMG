@@ -36,14 +36,27 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
       },
       body: body ? JSON.stringify(body) : undefined,
     });
-  } catch {
+  } catch (networkError) {
     if (import.meta.env.DEV) {
       throw new Error(backendOfflineMessage());
     }
-    throw new Error(`Falha em ${method} ${path}`);
+    const networkMessage = String(networkError?.message || "").trim();
+    throw new Error(
+      networkMessage
+        ? `Falha em ${method} ${path}: ${networkMessage}`
+        : `Falha em ${method} ${path}`
+    );
   }
 
-  const payload = await response.json().catch(() => null);
+  const rawBody = await response.text().catch(() => "");
+  let payload = null;
+  if (rawBody) {
+    try {
+      payload = JSON.parse(rawBody);
+    } catch {
+      payload = null;
+    }
+  }
   if (!response.ok) {
     if (import.meta.env.DEV && response.status >= 500 && !payload?.message) {
       throw new Error(backendOfflineMessage());
@@ -62,7 +75,10 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
         "backend/.env ainda está com valores de exemplo. Copie as URLs reais do Supabase em DATABASE_URL e DIRECT_URL."
       );
     }
-    const error = new Error(apiMessage || `Falha em ${method} ${path}`);
+    const fallbackMessage = rawBody
+      ? `Falha em ${method} ${path} (HTTP ${response.status})`
+      : `Falha em ${method} ${path}`;
+    const error = new Error(apiMessage || fallbackMessage);
     error.status = response.status;
     throw error;
   }
@@ -74,14 +90,32 @@ const emitAuthChange = () => {
   window.dispatchEvent(new CustomEvent("erp-auth-changed"));
 };
 
+const normalizeEmpresaSelection = (empresaId) => {
+  if (empresaId == null) return null;
+  const normalized = String(empresaId).trim();
+  return normalized || null;
+};
+
+const isEmpresaScopeError = (error) => {
+  if (Number(error?.status) !== 403) return false;
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    message.includes("empresa não permitida") ||
+    message.includes("sem permissão para visualizar todas as empresas")
+  );
+};
+
 export const AuthApi = {
   getToken() {
     return tokenStore.getToken();
   },
 
   setToken(token) {
-    if (!token) return;
-    tokenStore.setToken(token);
+    const nextToken = String(token || "").trim();
+    if (!nextToken) return;
+    const previousToken = tokenStore.getToken();
+    if (previousToken === nextToken) return;
+    tokenStore.setToken(nextToken);
     emitAuthChange();
   },
 
@@ -94,10 +128,17 @@ export const AuthApi = {
   },
 
   setSelectedEmpresaId(empresaId) {
-    if (!empresaId) {
-      localStorage.removeItem(EMPRESA_SELECTION_KEY);
-    } else {
-      localStorage.setItem(EMPRESA_SELECTION_KEY, empresaId);
+    const nextEmpresaId = normalizeEmpresaSelection(empresaId);
+    const previousEmpresaId = normalizeEmpresaSelection(this.getSelectedEmpresaId());
+    if (previousEmpresaId === nextEmpresaId) return;
+    try {
+      if (!nextEmpresaId) {
+        localStorage.removeItem(EMPRESA_SELECTION_KEY);
+      } else {
+        localStorage.setItem(EMPRESA_SELECTION_KEY, nextEmpresaId);
+      }
+    } catch {
+      return;
     }
     emitAuthChange();
   },
@@ -158,6 +199,18 @@ export const AuthApi = {
         headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
       });
     } catch (error) {
+      if (selectedEmpresaId && isEmpresaScopeError(error)) {
+        this.setSelectedEmpresaId(null);
+        try {
+          return await request("/api/auth/session", {
+            method: "GET",
+            token,
+          });
+        } catch (retryError) {
+          if (Number(retryError?.status) === 401) return null;
+          throw retryError;
+        }
+      }
       if (Number(error?.status) === 401) return null;
       throw error;
     }
@@ -177,6 +230,14 @@ export const AuthApi = {
       });
       return payload?.empresas || [];
     } catch (error) {
+      if (selectedEmpresaId && isEmpresaScopeError(error)) {
+        this.setSelectedEmpresaId(null);
+        const payload = await request("/api/auth/empresas", {
+          method: "GET",
+          token,
+        });
+        return payload?.empresas || [];
+      }
       if (Number(error?.status) === 401) return [];
       throw error;
     }

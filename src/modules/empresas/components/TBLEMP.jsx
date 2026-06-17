@@ -552,7 +552,7 @@ export default function TBLEMP({
     [filtrosColunas]
   );
 
-  const empresaPassaFiltros = (emp, excludeColId = null) => {
+  const empresaPassaFiltros = useCallback((emp, excludeColId = null) => {
     const termo = String(searchTerm || "").toLowerCase().trim();
     if (termo) {
       const m = colunasDisponiveis.filter((c) => !c.fixo).some((col) => String(getFieldValue(emp, col.id) || "").toLowerCase().includes(termo));
@@ -575,7 +575,7 @@ export default function TBLEMP({
         displayValue: display,
       });
     });
-  };
+  }, [searchTerm, colunasDisponiveis, getNormalizedFilterDraft]);
 
   const selectedItemsSet = useMemo(() => new Set(selectedItems), [selectedItems]);
 
@@ -595,6 +595,7 @@ export default function TBLEMP({
   }, [serverMode, empresas, filtrosColunas, searchTerm, empresaPassaFiltros]);
 
   const empresasOrdenadas = useMemo(() => {
+    if (serverMode) return empresasFiltradas;
     const sortRules = Array.isArray(sortConfig) ? sortConfig.filter((rule) => rule?.key) : [];
     if (sortRules.length === 0) return empresasFiltradas;
     const sorted = [...empresasFiltradas];
@@ -623,7 +624,7 @@ export default function TBLEMP({
       return 0;
     });
     return sorted;
-  }, [empresasFiltradas, sortConfig, colunasDisponiveis]);
+  }, [serverMode, empresasFiltradas, sortConfig, colunasDisponiveis]);
 
   const columnOptions = useMemo(() => {
     const opts = {};
@@ -829,6 +830,30 @@ export default function TBLEMP({
   ]);
 
   const linhasExibidas = groupedResult.rows;
+  const groupKeysSignature = useMemo(
+    () => groupedResult.groupKeys.join("||"),
+    [groupedResult.groupKeys]
+  );
+
+  useEffect(() => {
+    if (!groupKeysSignature) {
+      setCollapsedGroupKeys((previous) => (Object.keys(previous).length === 0 ? previous : {}));
+      return;
+    }
+    const allowedKeys = new Set(groupedResult.groupKeys);
+    setCollapsedGroupKeys((previous) => {
+      let changed = false;
+      const nextState = {};
+      Object.entries(previous).forEach(([groupKey, collapsed]) => {
+        if (!allowedKeys.has(groupKey)) {
+          changed = true;
+          return;
+        }
+        nextState[groupKey] = collapsed;
+      });
+      return changed ? nextState : previous;
+    });
+  }, [groupKeysSignature, groupedResult.groupKeys]);
 
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";

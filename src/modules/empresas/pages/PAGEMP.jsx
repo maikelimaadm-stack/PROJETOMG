@@ -49,6 +49,10 @@ import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 
 const EMP_INFINITE_PAGE_SIZE = 100;
+const EMP_INFINITE_MAX_ROWS = Math.max(
+  EMP_INFINITE_PAGE_SIZE,
+  Number(import.meta.env.VITE_EMP_INFINITE_MAX_ROWS || 3000)
+);
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -378,7 +382,7 @@ export default function PAGEMP() {
         merged.push(item);
       });
     });
-    return merged;
+    return merged.slice(0, EMP_INFINITE_MAX_ROWS);
   }, [empresasPages]);
   const empresasResponseTotal = Number(empresasPages[0]?.total || 0);
   const empresasLoading =
@@ -390,16 +394,39 @@ export default function PAGEMP() {
     1,
     empresasPages.length || (empresasLoading ? 0 : 1)
   );
+  const canLoadMoreRows = empresas.length < EMP_INFINITE_MAX_ROWS;
 
   const handleLoadMoreEmpresas = useCallback(() => {
-    if (!hasNextEmpresasPage || isFetchingNextEmpresasPage || empresasLoading) return;
+    if (!hasNextEmpresasPage || !canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
     void fetchNextEmpresasPage();
   }, [
     hasNextEmpresasPage,
+    canLoadMoreRows,
     isFetchingNextEmpresasPage,
     empresasLoading,
     fetchNextEmpresasPage,
   ]);
+
+  useEffect(() => {
+    if (queryPage <= loadedPagesCount) return;
+    if (!hasNextEmpresasPage || !canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
+    void fetchNextEmpresasPage();
+  }, [
+    queryPage,
+    loadedPagesCount,
+    hasNextEmpresasPage,
+    canLoadMoreRows,
+    isFetchingNextEmpresasPage,
+    empresasLoading,
+    fetchNextEmpresasPage,
+  ]);
+
+  useEffect(() => {
+    if (canLoadMoreRows) return;
+    if (queryPage > loadedPagesCount) {
+      setQueryPage(loadedPagesCount);
+    }
+  }, [canLoadMoreRows, queryPage, loadedPagesCount]);
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
   const { data: metricsContadores } = useQuery({
@@ -505,7 +532,15 @@ export default function PAGEMP() {
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = Boolean(
     appliedPanelFilters ||
-    Object.values(columnFilters).some((values) => Array.isArray(values) && values.length > 0) ||
+    Object.values(columnFilters).some((value) => {
+      if (!value) return false;
+      if (Array.isArray(value)) return value.length > 0;
+      if (typeof value !== "object") return false;
+      const hasValues = Array.isArray(value.values) && value.values.length > 0;
+      const hasPrimary = value.value !== null && value.value !== undefined && String(value.value).trim() !== "";
+      const hasSecondary = value.valueTo !== null && value.valueTo !== undefined && String(value.valueTo).trim() !== "";
+      return hasValues || hasPrimary || hasSecondary;
+    }) ||
     searchTerm.trim() ||
     searchFavoritesOnly
   );
@@ -1415,7 +1450,7 @@ export default function PAGEMP() {
                       total: totalEmpresas,
                       isLoading: empresasLoading,
                       isFetching: empresasFetching,
-                      page: loadedPagesCount,
+                      page: queryPage,
                       pageSize: queryPageSize,
                       onPageChange: handleServerPageChange,
                       onPageSizeChange: handleServerPageSizeChange,
@@ -1431,7 +1466,7 @@ export default function PAGEMP() {
                       onToggleFavorite: empFavorites.toggleFavorite,
                       mgPrototype: true,
                       infiniteMode: true,
-                      hasMoreRows: hasNextEmpresasPage,
+                      hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                       onLoadMoreRows: handleLoadMoreEmpresas,
                       isLoadingMoreRows: isFetchingNextEmpresasPage,
                       selectedCount: selectedTableItems.length,
@@ -1460,7 +1495,7 @@ export default function PAGEMP() {
                     onVisibleDataChange: setVisibleTableData,
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
-                    serverPage: loadedPagesCount,
+                    serverPage: queryPage,
                     serverPageSize: queryPageSize,
                     serverTotal: totalEmpresas,
                     onServerPageChange: handleServerPageChange,
@@ -1475,7 +1510,7 @@ export default function PAGEMP() {
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
                     infiniteMode: true,
-                    hasMoreRows: hasNextEmpresasPage,
+                    hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                     onLoadMoreRows: handleLoadMoreEmpresas,
                     isLoadingMoreRows: isFetchingNextEmpresasPage,
                     selectedCount: selectedTableItems.length,

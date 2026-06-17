@@ -83,11 +83,20 @@ export const AuthProvider = ({ children }) => {
       setEmpresas(session.empresas || []);
       setAllowAllEmpresas(Boolean(session.allowAllEmpresas));
       const persistedEmpresaId = AuthApi.getSelectedEmpresaId();
-      setSelectedEmpresaId(
+      const normalizedPersistedEmpresaId =
         persistedEmpresaId != null && String(persistedEmpresaId).trim() !== ""
-          ? persistedEmpresaId
-          : session.selectedEmpresaId ?? null
-      );
+          ? String(persistedEmpresaId).trim()
+          : null;
+      const canUsePersistedSelection =
+        normalizedPersistedEmpresaId &&
+        (normalizedPersistedEmpresaId === "all"
+          ? Boolean(session.allowAllEmpresas)
+          : (session.empresas || []).some((empresa) => empresa.id === normalizedPersistedEmpresaId));
+      const nextEmpresaId = canUsePersistedSelection
+        ? normalizedPersistedEmpresaId
+        : session.selectedEmpresaId ?? null;
+      AuthApi.setSelectedEmpresaId(nextEmpresaId);
+      setSelectedEmpresaId(nextEmpresaId);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       prefetchEmpresasCadastro();
@@ -229,6 +238,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     await AuthApi.logout().catch(() => null);
+    queryClientInstance.clear();
     resetAllLayoutPreferencesSync();
     setUser(null);
     setCliente(null);
