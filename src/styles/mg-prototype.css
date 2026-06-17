@@ -8544,166 +8544,154 @@
   box-shadow: var(--mg-focus-ring) !important;
 }
 
-.erp-filter-range-row--date {
+.erp-filter-date-range {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   width: 100%;
 }
 
-.erp-filter-date-range-input {
+.erp-filter-date-range__fields {
   width: 100%;
 }
 
-.erp-filter-date-range-input.mg-dp {
-  grid-template-rows: var(--mg-btn-height);
-}
-
-.erp-filter-date-range-input .mg-dp-field {
-  min-height: var(--mg-btn-height) !important;
-  height: var(--mg-btn-height) !important;
-  padding: 0 32px 0 10px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  border-radius: var(--mg-search-pill-radius) !important;
-  border: var(--mg-btn-pill-border) !important;
-  background: var(--gray-fill) !important;
-  box-shadow: none !important;
-  transition:
-    background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
-    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.erp-filter-date-range-input.mg-dp.open .mg-dp-field,
-.erp-filter-date-range-input.mg-dp.mg-has-value .mg-dp-field {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.erp-filter-date-range-input.mg-dp.open .mg-dp-field {
-  background: var(--mg-field-idle-bg) !important;
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
-}
-
-.erp-filter-date-range-input .erp-filter-date-range-input__toggle {
-  pointer-events: auto;
-  border: none;
-  background: none;
-  padding: 0;
-  cursor: pointer;
-  color: var(--text-3);
-}
-
-.erp-filter-date-range-input .erp-filter-date-range-input__toggle:hover:not(:disabled) {
-  color: var(--accent);
-}
-
-.erp-filter-date-range-input .erp-filter-date-range-input__toggle:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
-}
-
-.mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel.mg-dp-range-panel,
-.mg-empresas-scope .mg-dp-range-panel.mg-dp-panel {
-  width: 500px;
-  max-width: min(500px, calc(100vw - 16px));
-  height: 248px;
-  max-height: 248px;
-  z-index: 10002 !important;
-}
-
-.mg-empresas-scope .mg-dp-range-header {
-  gap: 0;
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
-  padding: 0 4px;
-}
-
-.mg-empresas-scope .mg-dp-range-header .mg-dp-nav {
-  width: 26px;
-  height: 26px;
-}
-
-.mg-empresas-scope .mg-dp-range-header__spacer {
-  flex: 1 1 auto;
+.erp-filter-date-field {
+  flex: 1 1 0;
   min-width: 0;
 }
 
-.mg-empresas-scope .mg-dp-range-body {
-  height: 212px;
-  min-height: 212px;
-  max-height: 212px;
-  padding: 0 6px 6px;
-  box-sizing: border-box;
-}
-
-.mg-empresas-scope .mg-dp-range-grid {
+.erp-filter-date-range__calendars {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px;
-  height: 100%;
+  width: 100%;
 }
 
-.mg-empresas-scope .mg-dp-range-month {
+.erp-filter-inline-calendar {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   min-width: 0;
-  height: 100%;
+  padding: 6px 4px 4px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 8px;
+  background: var(--gray-fill);
+  box-sizing: border-box;
 }
 
-.mg-empresas-scope .mg-dp-range-month__title {
-  flex: 0 0 auto;
-  height: 22px;
+.erp-filter-inline-calendar__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-2, #64748b);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.erp-filter-inline-calendar__header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 11px;
+  justify-content: space-between;
+  gap: 2px;
+  min-height: 22px;
+}
+
+.erp-filter-inline-calendar__title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 10px;
   font-weight: 600;
+  color: var(--text-1);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.erp-filter-inline-calendar__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: none;
+  border-radius: 4px;
+  color: var(--text-2);
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.erp-filter-inline-calendar__nav:hover:not(:disabled) {
+  background: var(--gray-fill2);
   color: var(--text-1);
 }
 
-.mg-empresas-scope .mg-dp-range-month .mg-dp-weekdays {
-  flex: 0 0 auto;
-  padding: 0 2px;
+.erp-filter-inline-calendar__nav:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
-.mg-empresas-scope .mg-dp-range-month .mg-dp-wd {
-  font-size: 10px;
-  padding: 2px 0;
+.erp-filter-inline-calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0;
 }
 
-.mg-empresas-scope .mg-dp-range-month .mg-dp-days {
-  flex: 1 1 auto;
-  height: auto;
-  min-height: 0;
-  max-height: none;
-  padding: 0 1px 1px;
+.erp-filter-inline-calendar__wd {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.2;
+  padding: 1px 0;
+}
+
+.erp-filter-inline-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 1px;
 }
 
-.mg-empresas-scope .mg-dp-range-panel .mg-dp-day {
-  max-width: 28px;
-  max-height: 28px;
-  font-size: 11px;
-}
-
-.mg-empresas-scope .mg-dp-day.in-range {
-  background: rgba(34, 197, 94, 0.16);
+.erp-filter-inline-calendar__day {
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 24px;
+  max-height: 24px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 500;
   color: var(--text-1);
-  border-color: transparent;
-  border-radius: 0;
-}
-
-.mg-empresas-scope .mg-dp-day.range-start {
-  border-radius: 999px 0 0 999px;
-}
-
-.mg-empresas-scope .mg-dp-day.range-end {
-  border-radius: 0 999px 999px 0;
-}
-
-.mg-empresas-scope .mg-dp-day.range-start.range-end {
+  background: none;
+  border: 1px solid transparent;
   border-radius: 50%;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+
+.erp-filter-inline-calendar__day:hover:not(:disabled):not(.other):not(.selected) {
+  background: var(--gray-fill2);
+}
+
+.erp-filter-inline-calendar__day.today:not(.selected) {
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.erp-filter-inline-calendar__day.selected {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  border-color: var(--accent);
+}
+
+.erp-filter-inline-calendar__day.other {
+  color: var(--text-3);
+  opacity: 0.35;
+  cursor: default;
 }
 
 .erp-filter-popover__footer {
