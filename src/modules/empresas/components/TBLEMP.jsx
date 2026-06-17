@@ -9,7 +9,7 @@ import {
   EyeOff,
   Filter,
   MoreVertical,
-  PanelRight,
+  PanelLeft,
   ScanLine,
   Trash2,
   X,
@@ -150,10 +150,7 @@ export default function TBLEMP({
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
   const [frozenColumnCount, setFrozenColumnCount] = useState(0);
-  const [pinnedRightColumnIds, setPinnedRightColumnIds] = useState(() => {
-    const saved = readStorageJSON(PINNED_RIGHT_KEY, []);
-    return Array.isArray(saved) && saved.length > 0 ? [saved[saved.length - 1]] : [];
-  });
+  const [pinnedRightColumnIds, setPinnedRightColumnIds] = useState([]);
   const [colunasOrdem, setColunasOrdem] = useState(() => loadColumnOrder(ORDER_KEY, COLUNAS_BASE));
   const [colunasVisiveis, setColunasVisiveis] = useState(() => loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE));
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
@@ -1407,12 +1404,12 @@ export default function TBLEMP({
     });
   }, []);
 
-  const togglePinColumnRight = useCallback((columnId) => {
-    setPinnedRightColumnIds((previous) => (previous[0] === columnId ? [] : [columnId]));
+  const togglePinColumnLeft = useCallback((columnIndex) => {
+    setFrozenColumnCount((previous) => (previous === columnIndex + 1 ? 0 : columnIndex + 1));
     closeColumnOverlays();
   }, [closeColumnOverlays]);
 
-  const buildColumnMenuItems = (col) => [
+  const buildColumnMenuItems = (col, colIndex) => [
     {
       id: "filter",
       label: "Abrir filtro avançado",
@@ -1445,11 +1442,11 @@ export default function TBLEMP({
       },
     },
     {
-      id: "pin-column-right",
-      label: "Fixar direita",
-      Icon: PanelRight,
-      active: pinnedRightColumnIds[0] === col.id,
-      onClick: () => togglePinColumnRight(col.id),
+      id: "pin-column-left",
+      label: "Fixar esquerda",
+      Icon: PanelLeft,
+      active: colIndex < frozenColumnCount,
+      onClick: () => togglePinColumnLeft(colIndex),
     },
     {
       id: "hide-column",
@@ -1528,7 +1525,9 @@ export default function TBLEMP({
                 ? <ArrowDown className="h-3.5 w-3.5 text-emerald-600" />
                 : <ArrowUp className="h-3.5 w-3.5 text-emerald-600" />
             ) : null}
-            {isPinnedRight ? <PanelRight className="h-3.5 w-3.5 text-emerald-600" /> : null}
+            {isPinnedLeft && colIndex === frozenColumnCount - 1 ? (
+              <PanelLeft className="h-3.5 w-3.5 text-emerald-600" />
+            ) : null}
             <button
               type="button"
               ref={(element) => {
@@ -1586,7 +1585,7 @@ export default function TBLEMP({
     const columnIndex = colunasOrdenadas.findIndex((column) => column.id === columnMenuAnchor.columnId);
     if (columnIndex < 0) return null;
     const column = colunasOrdenadas[columnIndex];
-    const menuItems = buildColumnMenuItems(column);
+    const menuItems = buildColumnMenuItems(column, columnIndex);
     return (
       <div
         ref={columnMenuPanelRef}
