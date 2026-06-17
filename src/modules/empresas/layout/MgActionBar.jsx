@@ -556,7 +556,7 @@ export default function MgActionBar({
   const renderPrimaryActions = () => (
     <>
       <ActionSlot show={showNew && !!onNew} width={64}>
-        <ActionLabelBtn className="tb-btn-green" onClick={onNew} disabled={actionsLocked} title="Novo">
+        <ActionLabelBtn className="tb-btn-ghost" onClick={onNew} disabled={actionsLocked} title="Novo">
           Novo
         </ActionLabelBtn>
       </ActionSlot>
@@ -708,7 +708,7 @@ export default function MgActionBar({
               </button>
             ) : null}
             {showNew && onNew ? (
-              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onNew} disabled={actionsLocked} title="Novo">
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onNew} disabled={actionsLocked} title="Novo">
                 Novo
               </ActionLabelBtn>
             ) : null}

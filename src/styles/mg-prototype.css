@@ -3456,7 +3456,7 @@
   min-height: var(--mg-btn-height);
   padding: 0 12px;
   border-radius: var(--mg-search-pill-radius);
-  background: var(--gray-fill);
+  background: var(--gray-fill) !important;
   border: var(--mg-btn-pill-border);
   box-shadow: none;
   color: var(--text-2);
@@ -3507,6 +3507,7 @@
 }
 
 .mg-empresas-scope .mg-filter-pill__trigger:hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
   color: var(--text-1);
 }
 
