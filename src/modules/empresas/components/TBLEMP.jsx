@@ -1368,7 +1368,7 @@ export default function TBLEMP({
     },
     {
       id: "auto-fit",
-      label: "Auto ajustar",
+      label: autoFitActiveColumns[col.id] ? "Ajuste manual" : "Auto ajustar coluna",
       Icon: ScanLine,
       active: Boolean(autoFitActiveColumns[col.id]),
       onClick: () => {
