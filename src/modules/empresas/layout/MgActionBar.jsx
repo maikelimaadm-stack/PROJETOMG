@@ -138,8 +138,13 @@ export default function MgActionBar({
       return;
     }
     if (!desktopSearchOpen) {
-      setDesktopSearchExpanded(false);
+      if (searchAnimTimeoutRef.current) return;
+      clearDesktopSearchAnimTimeout();
       setSearchOpen(false);
+      searchAnimTimeoutRef.current = window.setTimeout(() => {
+        setDesktopSearchExpanded(false);
+        searchAnimTimeoutRef.current = null;
+      }, DESKTOP_SEARCH_ANIM_MS);
       return;
     }
     setSearchOpen(false);
@@ -149,6 +154,20 @@ export default function MgActionBar({
       setDesktopSearchExpanded(false);
       searchAnimTimeoutRef.current = null;
     }, DESKTOP_SEARCH_ANIM_MS);
+  };
+
+  const toggleDesktopSearch = () => {
+    if (actionsLocked) return;
+    if (searchHasFilter) {
+      onSearchClear?.();
+      return;
+    }
+    if (desktopSearchExpanded && desktopSearchOpen) {
+      beginCollapseDesktopSearch();
+      return;
+    }
+    clearDesktopSearchAnimTimeout();
+    expandDesktopSearch();
   };
 
   const expandDesktopSearch = () => {
@@ -170,6 +189,7 @@ export default function MgActionBar({
     blurTimeoutRef.current = window.setTimeout(() => {
       if (searchRef.current?.contains(document.activeElement)) return;
       if (shouldKeepDesktopSearchExpanded) return;
+      if (searchAnimTimeoutRef.current) return;
       beginCollapseDesktopSearch();
     }, 120);
   };
@@ -438,14 +458,7 @@ export default function MgActionBar({
         className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-desktop-search__trigger${
           searchHasFilter ? " mg-desktop-search__trigger--active" : ""
         }`}
-        onClick={() => {
-          if (searchHasFilter) {
-            onSearchClear?.();
-            return;
-          }
-          if (desktopSearchExpanded) return;
-          expandDesktopSearch();
-        }}
+        onClick={toggleDesktopSearch}
         disabled={actionsLocked}
         aria-label={searchHasFilter ? "Pesquisa ativa" : "Pesquisar"}
         aria-expanded={desktopSearchOpen}
@@ -482,7 +495,22 @@ export default function MgActionBar({
                     <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   </button>
                 ) : (
-                  <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <button
+                    type="button"
+                    className="mg-search-pill-toggle"
+                    aria-label="Fechar pesquisa"
+                    disabled={actionsLocked}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      if (shouldKeepDesktopSearchExpanded) {
+                        setSearchOpen(false);
+                        return;
+                      }
+                      beginCollapseDesktopSearch();
+                    }}
+                  >
+                    <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  </button>
                 )}
                 <input
                   ref={desktopSearchInputRef}
