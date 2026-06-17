@@ -455,7 +455,11 @@ function FieldFrameCorp({
           <label id={labelId} className={cn("fg-label", field.required && "required")}>{field.label}</label>
         ) : null}
         {loteStyle && !bare ? <EmpCustomMarker variant="lote" /> : null}
-        <div role="group" aria-labelledby={!bare ? labelId : undefined}>
+        <div
+          className={cn(!bare && "emp-form-field-control")}
+          role="group"
+          aria-labelledby={!bare ? labelId : undefined}
+        >
           {children}
         </div>
       </div>
