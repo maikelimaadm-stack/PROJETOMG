@@ -3517,12 +3517,6 @@
   z-index: 45;
 }
 
-@media (min-width: 768px) {
-  .mg-empresas-scope .filter-panel {
-    display: none !important;
-  }
-}
-
 .mg-empresas-scope :is(.mg-cards-panel-strip, .mg-table-panel-strip) {
   align-items: center;
   justify-content: flex-start;
