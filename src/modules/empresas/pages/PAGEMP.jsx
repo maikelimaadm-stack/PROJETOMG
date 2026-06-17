@@ -49,6 +49,10 @@ import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 
 const EMP_INFINITE_PAGE_SIZE = 100;
+const EMP_INFINITE_MAX_ROWS = Math.max(
+  EMP_INFINITE_PAGE_SIZE,
+  Number(import.meta.env.VITE_EMP_INFINITE_MAX_ROWS || 3000)
+);
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -378,7 +382,7 @@ export default function PAGEMP() {
         merged.push(item);
       });
     });
-    return merged;
+    return merged.slice(0, EMP_INFINITE_MAX_ROWS);
   }, [empresasPages]);
   const empresasResponseTotal = Number(empresasPages[0]?.total || 0);
   const empresasLoading =
@@ -390,12 +394,14 @@ export default function PAGEMP() {
     1,
     empresasPages.length || (empresasLoading ? 0 : 1)
   );
+  const canLoadMoreRows = empresas.length < EMP_INFINITE_MAX_ROWS;
 
   const handleLoadMoreEmpresas = useCallback(() => {
-    if (!hasNextEmpresasPage || isFetchingNextEmpresasPage || empresasLoading) return;
+    if (!hasNextEmpresasPage || !canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
     void fetchNextEmpresasPage();
   }, [
     hasNextEmpresasPage,
+    canLoadMoreRows,
     isFetchingNextEmpresasPage,
     empresasLoading,
     fetchNextEmpresasPage,
@@ -403,16 +409,24 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (queryPage <= loadedPagesCount) return;
-    if (!hasNextEmpresasPage || isFetchingNextEmpresasPage || empresasLoading) return;
+    if (!hasNextEmpresasPage || !canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
     void fetchNextEmpresasPage();
   }, [
     queryPage,
     loadedPagesCount,
     hasNextEmpresasPage,
+    canLoadMoreRows,
     isFetchingNextEmpresasPage,
     empresasLoading,
     fetchNextEmpresasPage,
   ]);
+
+  useEffect(() => {
+    if (canLoadMoreRows) return;
+    if (queryPage > loadedPagesCount) {
+      setQueryPage(loadedPagesCount);
+    }
+  }, [canLoadMoreRows, queryPage, loadedPagesCount]);
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
   const { data: metricsContadores } = useQuery({
@@ -1444,7 +1458,7 @@ export default function PAGEMP() {
                       onToggleFavorite: empFavorites.toggleFavorite,
                       mgPrototype: true,
                       infiniteMode: true,
-                      hasMoreRows: hasNextEmpresasPage,
+                      hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                       onLoadMoreRows: handleLoadMoreEmpresas,
                       isLoadingMoreRows: isFetchingNextEmpresasPage,
                       selectedCount: selectedTableItems.length,
@@ -1488,7 +1502,7 @@ export default function PAGEMP() {
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
                     infiniteMode: true,
-                    hasMoreRows: hasNextEmpresasPage,
+                    hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                     onLoadMoreRows: handleLoadMoreEmpresas,
                     isLoadingMoreRows: isFetchingNextEmpresasPage,
                     selectedCount: selectedTableItems.length,
