@@ -102,7 +102,7 @@ export default function EmpLoadBatchControls({
       <EmpLoadBatchSelect value={loadBatchSize} onChange={onLoadBatchSizeChange} />
       <button
         type="button"
-        className="mg-records-load-btn"
+        className="mg-nav-btn mg-records-load-btn"
         onClick={() => onLoadMore?.()}
         disabled={!canLoad}
         aria-label="Carregar mais registros"

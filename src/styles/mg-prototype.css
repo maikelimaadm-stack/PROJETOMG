@@ -6927,7 +6927,8 @@
   stroke: var(--accent);
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn {
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -6937,41 +6938,62 @@
   min-width: var(--mg-records-control-height);
   min-height: var(--mg-records-control-height);
   max-width: var(--mg-records-control-height);
-  padding: 0;
-  border: var(--mg-btn-pill-border);
-  border-radius: 50%;
-  background: var(--gray-fill);
-  color: var(--accent);
+  padding: 0 !important;
+  border: var(--mg-btn-pill-border) !important;
+  border-radius: var(--mg-btn-icon-radius) !important;
+  background: var(--gray-fill) !important;
+  color: var(--accent) !important;
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: none !important;
   flex-shrink: 0;
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
     border-color var(--mg-motion-duration) var(--mg-motion-ease),
     color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) {
-  background: var(--gray-fill2);
-  color: var(--mg-brand-green-hover);
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled),
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+  color: var(--mg-brand-green-hover) !important;
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled {
-  opacity: 0.45;
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled {
+  opacity: 1;
   cursor: not-allowed;
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn__icon {
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn__icon,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn__icon,
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn svg {
   width: var(--mg-records-control-icon);
   height: var(--mg-records-control-icon);
   flex-shrink: 0;
-  color: var(--accent);
-  stroke: var(--accent);
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) .mg-records-load-btn__icon {
-  color: var(--mg-brand-green-hover);
-  stroke: var(--mg-brand-green-hover);
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled .mg-records-load-btn__icon,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled .mg-records-load-btn__icon,
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled svg {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+  opacity: 0.55;
+}
+
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) .mg-records-load-btn__icon,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) .mg-records-load-btn__icon,
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+  opacity: 1;
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-load-btn__icon--spin {
