@@ -1,4 +1,4 @@
-export const FILTER_POPOVER_WIDTH = 272;
+export const FILTER_POPOVER_WIDTH = 280;
 export const FILTER_ICON_CLASS = "w-3 h-3 shrink-0";
 
 export const COLUNAS_BASE = [
