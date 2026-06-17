@@ -6878,7 +6878,8 @@
   gap: 6px;
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger {
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -6886,14 +6887,17 @@
   min-width: 52px;
   height: var(--mg-records-control-height);
   min-height: var(--mg-records-control-height);
-  padding: 0 8px;
-  gap: 3px;
-  border: var(--mg-btn-pill-border);
-  border-radius: var(--mg-search-pill-radius);
-  background: var(--gray-fill);
-  color: var(--accent);
+  padding: 0 10px !important;
+  gap: 4px;
+  border: var(--mg-btn-pill-border) !important;
+  border-radius: var(--mg-search-pill-radius) !important;
+  background: var(--gray-fill) !important;
+  color: var(--text-1);
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: none !important;
+  overflow: hidden;
+  -webkit-appearance: none;
+  appearance: none;
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
     border-color var(--mg-motion-duration) var(--mg-motion-ease),
@@ -6902,27 +6906,38 @@
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger:hover,
-.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open {
-  background: var(--mg-field-idle-bg);
-  color: var(--accent);
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open {
+  background: var(--mg-field-idle-bg) !important;
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open {
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open {
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__value {
-  font-size: 11px;
-  font-weight: 600;
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__value,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__value {
+  font-size: 12px;
+  font-weight: 500;
   line-height: 1;
-  color: inherit;
+  color: var(--text-1);
 }
 
-.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__chevron {
-  width: var(--mg-records-control-icon);
-  height: var(--mg-records-control-icon);
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__chevron,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__chevron {
+  width: 13px;
+  height: 13px;
   flex-shrink: 0;
+  color: var(--text-3);
+  stroke: currentColor;
+  transition:
+    color var(--mg-motion-duration) var(--mg-motion-ease),
+    stroke var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open .mg-records-batch-trigger__chevron,
+.cadastro-emp-scope.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open .mg-records-batch-trigger__chevron {
   color: var(--accent);
   stroke: var(--accent);
 }
