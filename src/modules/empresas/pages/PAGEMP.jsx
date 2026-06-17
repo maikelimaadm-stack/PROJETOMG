@@ -1263,8 +1263,6 @@ export default function PAGEMP() {
         <MgFilterPanel
           open={filterPanelOpen}
           values={filterValues}
-          appliedValues={appliedFilterValues}
-          empresas={empresasFiltradasPainel}
           onChange={handleFilterChange}
           onClose={closeFilterPanel}
           onClear={handleFilterClear}

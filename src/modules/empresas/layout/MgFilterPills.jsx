@@ -18,7 +18,7 @@ function useFilterPopover(open, setOpen, rootRef, panelRef) {
     minWidth: FILTER_POPOVER_WIDTH,
     width: FILTER_POPOVER_WIDTH,
     estimatedHeight: 460,
-    align: "left",
+    align: "right",
     scrollable: true,
   });
 
