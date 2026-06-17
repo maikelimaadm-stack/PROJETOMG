@@ -1,22 +1,17 @@
 import React from "react";
 import { X } from "lucide-react";
-import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
-import {
-  MG_FILTER_STATUS_OPTIONS,
-  MG_FILTER_TEXT_FIELDS,
-} from "@/modules/empresas/layout/mgFilterFields";
-
-const FILTER_FIELDS = MG_FILTER_TEXT_FIELDS.map(({ key, label }) => ({ key, label }));
+import MgFilterPills from "@/modules/empresas/layout/MgFilterPills";
 
 export default function MgFilterPanel({
   open,
   values = {},
+  appliedValues = {},
   onChange,
   onClose,
   onClear,
   onApply,
-  status = "Todos",
-  onStatusChange,
+  onRequestDistinctValues,
+  disabled = false,
 }) {
   return (
     <aside id="filter-panel" className={`filter-panel${open ? " open" : ""}`} aria-hidden={!open}>
@@ -33,32 +28,25 @@ export default function MgFilterPanel({
           </button>
         </div>
 
-        <div className="filter-panel__body">
-          {FILTER_FIELDS.map((field) => (
-            <div key={field.key} className="fg">
-              <label className="fg-label">{field.label}</label>
-              <input
-                type="text"
-                value={values[field.key] || ""}
-                onChange={(event) => onChange?.(field.key, event.target.value)}
-              />
-            </div>
-          ))}
-
-          <MgCmdSelect
-            label="Status"
-            value={status}
-            onChange={onStatusChange}
-            options={MG_FILTER_STATUS_OPTIONS}
+        <div className="filter-panel__body mg-filter-panel__body">
+          <MgFilterPills
+            values={values}
+            appliedValues={appliedValues}
+            onChange={onChange}
+            onClear={onClear}
+            onApply={onApply}
+            onRequestDistinctValues={onRequestDistinctValues}
+            disabled={disabled}
+            className="mg-filter-pills--drawer"
           />
         </div>
 
         <div className="filter-panel__footer">
-          <button type="button" className="tb-btn tb-btn-ghost" onClick={onClear}>
+          <button type="button" className="tb-btn tb-btn-ghost" onClick={onClear} disabled={disabled}>
             Limpar
           </button>
-          <button type="button" className="tb-btn tb-btn-blue" onClick={onApply}>
-            Aplicar
+          <button type="button" className="tb-btn tb-btn-blue" onClick={onClose}>
+            Fechar
           </button>
         </div>
       </div>

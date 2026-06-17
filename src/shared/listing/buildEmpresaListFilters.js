@@ -10,29 +10,36 @@ const STATUS_PANEL_MAP = {
 };
 
 /** Converte filtros do painel lateral em payload `filters` da API de empresas. */
-export function buildEmpresaPanelFilters(filterValues = {}, filterStatus = "Todos") {
+export function buildEmpresaPanelFilters(filterValues = {}) {
   const filters = {};
 
-  const razao = normalizeSearchQuery(filterValues.razao_social);
-  if (razao) filters.razao_social = razao;
+  const setArrayFilter = (apiKey, values) => {
+    const normalized = (Array.isArray(values) ? values : [values])
+      .map((item) => normalizeSearchQuery(String(item)))
+      .filter(Boolean);
+    if (normalized.length === 0) return;
+    if (normalized.length === 1) {
+      filters[apiKey] = normalized[0];
+      return;
+    }
+    filters[`${apiKey}__in`] = normalized;
+  };
 
-  const fantasia = normalizeSearchQuery(filterValues.nome_fantasia);
-  if (fantasia) filters.nome_fantasia = fantasia;
+  setArrayFilter("razao_social", filterValues.razao_social);
+  setArrayFilter("nome_fantasia", filterValues.nome_fantasia);
+  setArrayFilter("cpf_cnpj", filterValues.cnpj);
+  setArrayFilter("telefone", filterValues.telefone);
+  setArrayFilter("cidade", filterValues.cidade);
+  setArrayFilter("estado", filterValues.uf);
 
-  const doc = normalizeSearchQuery(filterValues.cnpj);
-  if (doc) filters.cpf_cnpj = doc;
-
-  const telefone = normalizeSearchQuery(filterValues.telefone);
-  if (telefone) filters.telefone = telefone;
-
-  const cidade = normalizeSearchQuery(filterValues.cidade);
-  if (cidade) filters.cidade = cidade;
-
-  const uf = normalizeSearchQuery(filterValues.uf);
-  if (uf) filters.estado = uf;
-
-  if (filterStatus && filterStatus !== "Todos") {
-    filters.status = STATUS_PANEL_MAP[filterStatus] || filterStatus;
+  const statusValues = filterValues.status;
+  if (Array.isArray(statusValues) && statusValues.length > 0) {
+    const mapped = statusValues.map((item) => STATUS_PANEL_MAP[item] || item).filter(Boolean);
+    if (mapped.length === 1) {
+      filters.status = mapped[0];
+    } else if (mapped.length > 1) {
+      filters.status__in = mapped;
+    }
   }
 
   return Object.keys(filters).length > 0 ? filters : undefined;

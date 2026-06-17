@@ -510,7 +510,6 @@
 .mg-empresas-scope :is(
   .mg-action-bar,
   .mg-context-panel,
-  .mg-filter-strip,
   .mg-cards-panel-strip,
   .mg-table-panel-strip,
   .mg-panel-tabs-strip
@@ -523,14 +522,10 @@
   position: relative;
 }
 
-.mg-empresas-scope :is(.mg-context-panel, .mg-filter-strip, .mg-cards-panel-strip, .mg-table-panel-strip, .mg-panel-tabs-strip)::after,
+.mg-empresas-scope :is(.mg-context-panel, .mg-cards-panel-strip, .mg-table-panel-strip, .mg-panel-tabs-strip)::after,
 .mg-empresas-scope
-  .mg-action-bar:not(:has(+ .mg-filter-strip-wrap.is-visible)):not(:has(+ .mg-context-panel-wrap.is-visible)):not(
-    :has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap.is-visible)
-  ):not(
-    :has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
-  ):not(:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)):not(
-    :has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible)
+  .mg-action-bar:not(:has(+ .mg-context-panel-wrap.is-visible)):not(
+    :has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
   ):not(:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible))::after {
   content: "";
   position: absolute;
@@ -543,65 +538,32 @@
 }
 
 /* Barra de ações colada ao painel contextual (registro, cards ou tabela) — sem linha entre os dois */
-.mg-empresas-scope .mg-action-bar:has(+ .mg-filter-strip-wrap.is-visible),
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible),
-.mg-empresas-scope .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap.is-visible),
-.mg-empresas-scope .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible),
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible),
-.mg-empresas-scope .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible),
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible) {
   border-bottom: none !important;
   box-shadow: none !important;
 }
 
-.mg-empresas-scope .mg-action-bar:has(+ .mg-filter-strip-wrap.is-visible)::after,
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible)::after,
 .mg-empresas-scope
-  .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap.is-visible)::after,
-.mg-empresas-scope
-  .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)::after,
-.mg-empresas-scope
   .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)::after,
-.mg-empresas-scope
-  .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible)::after,
 .mg-empresas-scope
   .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible)::after {
   content: none;
 }
 
-.mg-empresas-scope .mg-action-bar:has(+ .mg-filter-strip-wrap.is-visible) + .mg-filter-strip-wrap.is-visible,
 .mg-empresas-scope .mg-action-bar:has(+ .mg-context-panel-wrap.is-visible) + .mg-context-panel-wrap.is-visible,
-.mg-empresas-scope
-  .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap.is-visible)
-  + .mg-filter-strip-wrap.is-visible
-  + .mg-context-panel-wrap.is-visible,
-.mg-empresas-scope
-  .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
-  + .mg-filter-strip-wrap.is-visible
-  + .mg-context-panel-wrap
-  + .mg-cards-panel-wrap.is-visible,
 .mg-empresas-scope
   .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
   + .mg-context-panel-wrap
   + .mg-cards-panel-wrap.is-visible,
-.mg-empresas-scope
-  .mg-action-bar:has(+ .mg-filter-strip-wrap + .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible)
-  + .mg-filter-strip-wrap.is-visible
-  + .mg-context-panel-wrap
-  + .mg-cards-panel-wrap
-  + .mg-table-panel-wrap.is-visible,
 .mg-empresas-scope
   .mg-action-bar:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible)
   + .mg-context-panel-wrap
   + .mg-cards-panel-wrap
   + .mg-table-panel-wrap.is-visible {
   margin-top: 0;
-}
-
-.mg-empresas-scope .mg-filter-strip-wrap.is-visible:has(+ .mg-cards-panel-wrap.is-visible) .mg-filter-strip::after,
-.mg-empresas-scope .mg-filter-strip-wrap.is-visible:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible) .mg-filter-strip::after,
-.mg-empresas-scope .mg-filter-strip-wrap.is-visible:has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap + .mg-table-panel-wrap.is-visible) .mg-filter-strip::after {
-  content: none;
 }
 
 /* Divisores superiores (rodapés de painel) */
@@ -3480,55 +3442,6 @@
   opacity: 1;
 }
 
-.mg-empresas-scope .mg-filter-strip-wrap {
-  flex-shrink: 0;
-  max-height: 0;
-  overflow: hidden;
-  background: var(--bg-card);
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    max-height var(--mg-motion-duration) var(--mg-motion-ease),
-    opacity var(--mg-motion-duration) var(--mg-motion-ease),
-    visibility var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.mg-empresas-scope .mg-filter-strip-wrap.is-visible {
-  visibility: visible;
-  pointer-events: auto;
-  max-height: var(--mg-toolbar-row-height);
-  opacity: 1;
-}
-
-.mg-empresas-scope .mg-filter-strip {
-  align-items: center;
-  gap: var(--mg-toolbar-cluster-gap);
-  border: none;
-  background: var(--bg-card);
-  flex-shrink: 0;
-  contain: layout style;
-  min-width: 0;
-}
-
-@media (min-width: 768px) {
-  .mg-empresas-scope .mg-filter-strip {
-    display: flex;
-  }
-}
-
-.mg-empresas-scope .mg-filter-strip__scroll {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 1px;
-}
-
 .mg-empresas-scope .mg-filter-pill {
   position: relative;
   flex-shrink: 0;
@@ -3656,12 +3569,43 @@
 
 .mg-empresas-scope :is(.mg-cards-panel-strip, .mg-table-panel-strip) {
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--mg-toolbar-cluster-gap);
   border: none;
   background: var(--bg-card);
   flex-shrink: 0;
   contain: layout style;
+  min-width: 0;
+}
+
+.mg-empresas-scope .mg-panel-strip__filters {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.mg-empresas-scope .mg-filter-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 1px;
+}
+
+.mg-empresas-scope .mg-filter-pills--drawer {
+  flex-wrap: wrap;
+  overflow: visible;
+  padding-bottom: 0;
+}
+
+.mg-empresas-scope .mg-filter-panel__body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 @media (min-width: 768px) {

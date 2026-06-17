@@ -21,7 +21,6 @@ import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
 import MgTablePanelStrip from "@/modules/empresas/layout/MgTablePanelStrip";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
-import MgFilterStrip from "@/modules/empresas/layout/MgFilterStrip";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
@@ -193,9 +192,7 @@ export default function PAGEMP() {
     setBreadcrumbSuffix,
   } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
-  const [filterStatus, setFilterStatus] = useState("Todos");
   const [appliedFilterValues, setAppliedFilterValues] = useState({});
-  const [appliedFilterStatus, setAppliedFilterStatus] = useState("Todos");
   const [formBridge, setFormBridge] = useState(null);
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
@@ -802,9 +799,7 @@ export default function PAGEMP() {
 
   const handleFilterClear = useCallback(() => {
     setFilterValues({});
-    setFilterStatus("Todos");
     setAppliedFilterValues({});
-    setAppliedFilterStatus("Todos");
     setAppliedPanelFilters(undefined);
     setSearchDraft("");
     setSearchTerm("");
@@ -814,13 +809,19 @@ export default function PAGEMP() {
     setQueryPage(1);
   }, []);
 
-  const handleFilterApply = useCallback(() => {
-    setAppliedFilterValues({ ...filterValues });
-    setAppliedFilterStatus(filterStatus);
-    setAppliedPanelFilters(buildEmpresaPanelFilters(filterValues, filterStatus));
-    setQueryPage(1);
-    closeFilterPanel();
-  }, [closeFilterPanel, filterStatus, filterValues]);
+  const handleFilterApply = useCallback(
+    (snapshot) => {
+      const nextValues = snapshot ?? filterValues;
+      if (snapshot) {
+        setFilterValues(snapshot);
+      }
+      setAppliedFilterValues({ ...nextValues });
+      setAppliedPanelFilters(buildEmpresaPanelFilters(nextValues));
+      setQueryPage(1);
+      closeFilterPanel();
+    },
+    [closeFilterPanel, filterValues]
+  );
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
     setColumnFilters(nextColumnFilters || {});
@@ -1254,7 +1255,7 @@ export default function PAGEMP() {
     editingEmp?.nome_empresa ||
     "Novo registro";
 
-  const showListFilters = !showForm && (mgViewMode === "tabela" || mgViewMode === "cards");
+  const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
 
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
@@ -1262,12 +1263,13 @@ export default function PAGEMP() {
         <MgFilterPanel
           open={filterPanelOpen}
           values={filterValues}
+          appliedValues={appliedFilterValues}
           onChange={handleFilterChange}
           onClose={closeFilterPanel}
           onClear={handleFilterClear}
           onApply={handleFilterApply}
-          status={filterStatus}
-          onStatusChange={setFilterStatus}
+          onRequestDistinctValues={handleDistinctColumnValues}
+          disabled={filterControlsDisabled}
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
@@ -1337,20 +1339,6 @@ export default function PAGEMP() {
             {...actionBarVisibility}
             />
 
-            <div className={`mg-filter-strip-wrap${showListFilters ? " is-visible" : ""}`}>
-              <MgFilterStrip
-                values={filterValues}
-                status={filterStatus}
-                appliedValues={appliedFilterValues}
-                appliedStatus={appliedFilterStatus}
-                onChange={handleFilterChange}
-                onStatusChange={setFilterStatus}
-                onClear={handleFilterClear}
-                onApply={handleFilterApply}
-                disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
-              />
-            </div>
-
             <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
               <MgContextPanel
                 code={recordCode}
@@ -1379,13 +1367,26 @@ export default function PAGEMP() {
                 layout={cardsVisFields.layoutConfig}
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
+                filterValues={filterValues}
+                appliedFilterValues={appliedFilterValues}
+                onFilterChange={handleFilterChange}
+                onFilterClear={handleFilterClear}
+                onFilterApply={handleFilterApply}
+                onRequestDistinctValues={handleDistinctColumnValues}
+                disabled={filterControlsDisabled}
               />
             </div>
 
             <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
               <MgTablePanelStrip
                 onConfigColumns={() => setShowConfigColunas(true)}
-                disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
+                disabled={filterControlsDisabled}
+                filterValues={filterValues}
+                appliedFilterValues={appliedFilterValues}
+                onFilterChange={handleFilterChange}
+                onFilterClear={handleFilterClear}
+                onFilterApply={handleFilterApply}
+                onRequestDistinctValues={handleDistinctColumnValues}
               />
             </div>
           </div>
