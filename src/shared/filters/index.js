@@ -57,3 +57,15 @@ export { default as ErpFilterOperatorSelect } from "@/shared/filters/ErpFilterOp
 export { default as ErpFilterDataList } from "@/shared/filters/ErpFilterDataList";
 export { default as ErpFilterRangeInputs } from "@/shared/filters/ErpFilterRangeInputs";
 export { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
+export {
+  buildDistinctOptionsFromRecords,
+  collectActiveFilterOrderKeys,
+  createPanelRecordPassesOrderKey,
+  filterRecordsForFilterOptions,
+  getActiveFilterOrderKeys,
+  getPredecessorFilterOrderKeys,
+  getPrimaryFilterOrderKey,
+  reconcileFilterApplyOrder,
+  resolveColumnFilterOrderKey,
+  resolvePanelFilterOrderKey,
+} from "@/shared/filters/erpFilterApplyOrder";

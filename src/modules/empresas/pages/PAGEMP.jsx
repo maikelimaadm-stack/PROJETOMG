@@ -66,6 +66,10 @@ import {
   isErpFilterActive,
   normalizePanelFilterValue,
 } from "@/shared/filters";
+import {
+  collectActiveFilterOrderKeys,
+  reconcileFilterApplyOrder,
+} from "@/shared/filters/erpFilterApplyOrder";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -247,6 +251,7 @@ export default function PAGEMP() {
   } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
   const [appliedFilterValues, setAppliedFilterValues] = useState({});
+  const [filterApplyOrder, setFilterApplyOrder] = useState([]);
   const [formBridge, setFormBridge] = useState(null);
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
@@ -847,6 +852,7 @@ export default function PAGEMP() {
   const handleFilterClear = useCallback(() => {
     setFilterValues({});
     setAppliedFilterValues({});
+    setFilterApplyOrder([]);
     setAppliedPanelFilters(undefined);
     setColumnFiltersHydrated(true);
     setColumnFilters((prev) => syncPanelFiltersIntoColumns({}, prev, panelFilterColumnMap));
@@ -867,7 +873,20 @@ export default function PAGEMP() {
       setAppliedFilterValues({ ...nextValues });
       setAppliedPanelFilters(buildEmpresaPanelFilters(nextValues));
       setColumnFiltersHydrated(true);
-      setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
+      setColumnFilters((prev) => {
+        const nextColumnFilters = syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap);
+        setFilterApplyOrder((currentOrder) =>
+          reconcileFilterApplyOrder(
+            currentOrder,
+            collectActiveFilterOrderKeys({
+              appliedPanelValues: nextValues,
+              columnFilters: nextColumnFilters,
+              panelFilterColumnMap,
+            })
+          )
+        );
+        return nextColumnFilters;
+      });
       setQueryPage(1);
       closeFilterPanel();
     },
@@ -880,10 +899,35 @@ export default function PAGEMP() {
     setColumnFiltersHydrated(true);
     setColumnFilters(safeNext);
     setFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
-    setAppliedFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
+    setAppliedFilterValues((prev) => {
+      const merged = { ...prev, ...syncedPanelValues };
+      setFilterApplyOrder((currentOrder) =>
+        reconcileFilterApplyOrder(
+          currentOrder,
+          collectActiveFilterOrderKeys({
+            appliedPanelValues: merged,
+            columnFilters: safeNext,
+            panelFilterColumnMap,
+          })
+        )
+      );
+      return merged;
+    });
     setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
   }, [panelFilterColumnMap]);
+
+  useEffect(() => {
+    if (!columnFiltersHydrated) return;
+    setFilterApplyOrder((prev) => {
+      if (prev.length > 0) return prev;
+      return collectActiveFilterOrderKeys({
+        appliedPanelValues: appliedFilterValues,
+        columnFilters,
+        panelFilterColumnMap,
+      });
+    });
+  }, [appliedFilterValues, columnFilters, columnFiltersHydrated, panelFilterColumnMap]);
 
   const handleDistinctColumnValues = useCallback(
     (params) => moduleRepository.listDistinctColumnValues(params),
@@ -1426,6 +1470,9 @@ export default function PAGEMP() {
                 empresas={empresasFiltradasPainel}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
+                filterApplyOrder={filterApplyOrder}
+                columnFilters={columnFilters}
+                panelFilterColumnMap={panelFilterColumnMap}
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
@@ -1443,6 +1490,9 @@ export default function PAGEMP() {
                 empresas={empresasFiltradasPainel}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
+                filterApplyOrder={filterApplyOrder}
+                columnFilters={columnFilters}
+                panelFilterColumnMap={panelFilterColumnMap}
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
@@ -1540,6 +1590,10 @@ export default function PAGEMP() {
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
                     externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
+                    filterApplyOrder,
+                    appliedPanelValues: appliedFilterValues,
+                    panelFilterColumnMap,
+                    filterFields,
                     serverPage: queryPage,
                     serverPageSize: queryPageSize,
                     serverTotal: totalEmpresas,

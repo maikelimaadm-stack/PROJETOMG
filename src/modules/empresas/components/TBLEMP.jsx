@@ -69,6 +69,14 @@ import {
   resolveErpFilterEnumOptions,
   resolveErpFilterMeta,
 } from "@/shared/filters";
+import {
+  buildDistinctOptionsFromRecords,
+  createPanelRecordPassesOrderKey,
+  filterRecordsForFilterOptions,
+  reconcileFilterApplyOrder,
+  collectActiveFilterOrderKeys,
+  resolveColumnFilterOrderKey,
+} from "@/shared/filters/erpFilterApplyOrder";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
@@ -178,6 +186,10 @@ export default function TBLEMP({
   onServerPageSizeChange = null,
   onServerColumnFiltersChange = null,
   externalColumnFilters = undefined,
+  filterApplyOrder: externalFilterApplyOrder = undefined,
+  appliedPanelValues = {},
+  panelFilterColumnMap = {},
+  filterFields = [],
   onServerSortChange = null,
   onRequestDistinctColumnValues = null,
   infiniteMode = false,
@@ -213,6 +225,20 @@ export default function TBLEMP({
     if (!saved || typeof saved !== "object") return {};
     return saved;
   });
+  const [localFilterApplyOrder, setLocalFilterApplyOrder] = useState([]);
+  const filterApplyOrder = externalFilterApplyOrder ?? localFilterApplyOrder;
+  const updateFilterApplyOrder = useCallback(
+    (nextFilters) => {
+      if (externalFilterApplyOrder !== undefined) return;
+      const activeKeys = collectActiveFilterOrderKeys({
+        appliedPanelValues,
+        columnFilters: nextFilters,
+        panelFilterColumnMap,
+      });
+      setLocalFilterApplyOrder((prev) => reconcileFilterApplyOrder(prev, activeKeys));
+    },
+    [appliedPanelValues, externalFilterApplyOrder, panelFilterColumnMap]
+  );
   useEffect(() => {
     if (externalColumnFilters === undefined) return;
     const normalized =
@@ -226,6 +252,18 @@ export default function TBLEMP({
       return normalized;
     });
   }, [externalColumnFilters]);
+
+  useEffect(() => {
+    if (externalFilterApplyOrder !== undefined) return;
+    setLocalFilterApplyOrder((prev) => {
+      if (prev.length > 0) return prev;
+      return collectActiveFilterOrderKeys({
+        appliedPanelValues,
+        columnFilters: filtrosColunas,
+        panelFilterColumnMap,
+      });
+    });
+  }, [appliedPanelValues, externalFilterApplyOrder, filtrosColunas, panelFilterColumnMap]);
   const isMobile = useIsMobile();
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
@@ -684,16 +722,59 @@ export default function TBLEMP({
     if (!menuFiltroAberto) return {};
     const col = colunasDisponiveis.find((column) => column.id === menuFiltroAberto);
     if (!col || col.fixo) return {};
-    const source = empresas.filter((emp) => empresaPassaFiltros(emp, menuFiltroAberto));
-    const items = [
-      ...new Set(
-        source
-          .map((emp) => getFieldValue(emp, col.id))
-          .filter((value) => value !== null && value !== undefined && String(value).trim() !== "")
-      ),
-    ].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
+
+    const orderKey = resolveColumnFilterOrderKey(menuFiltroAberto, panelFilterColumnMap);
+    const recordPassesOrderKey = createPanelRecordPassesOrderKey({
+      appliedPanelValues,
+      columnFilters: filtrosColunas,
+      panelFilterColumnMap,
+      filterFields,
+      getEmpresaFieldValue: (emp, field) => getFieldValue(emp, field?.column || field?.key || field?.id),
+      evaluateColumnFilterRecord: (emp, columnMeta, draft) => {
+        const column = columnMeta?.id ? columnMeta : col;
+        return evaluateColumnFilter({
+          filterDraft: draft,
+          filterType: draft?.type || getColumnFilterType(column),
+          rawValue: getComparableValue(emp, column),
+          displayValue: getFieldValue(emp, column.id),
+        });
+      },
+      getColumnMeta: (columnId) => colunasDisponiveis.find((column) => column.id === columnId),
+      getColumnFilterDraft: (columnId, columnMeta) => getNormalizedFilterDraft(columnId, columnMeta),
+    });
+    const isOrderKeyActive = (key) => {
+      if (key.startsWith("col:")) {
+        return isErpFilterActive(filtrosColunas[key.slice(4)]);
+      }
+      if (isErpFilterActive(appliedPanelValues?.[key])) return true;
+      const mappedColumn = panelFilterColumnMap?.[key];
+      return mappedColumn ? isErpFilterActive(filtrosColunas[mappedColumn]) : false;
+    };
+
+    const source = filterRecordsForFilterOptions({
+      records: empresas,
+      filterApplyOrder,
+      currentOrderKey: orderKey,
+      isOrderKeyActive,
+      recordPassesOrderKey,
+    });
+    const items = buildDistinctOptionsFromRecords(source, (emp) => getFieldValue(emp, col.id)).filter(
+      (value) => value !== "-"
+    );
     return { [col.id]: items };
-  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, menuFiltroAberto, empresaPassaFiltros, getFieldValue]);
+  }, [
+    appliedPanelValues,
+    colunasDisponiveis,
+    empresas,
+    filterApplyOrder,
+    filterFields,
+    filtrosColunas,
+    getComparableValue,
+    getFieldValue,
+    getNormalizedFilterDraft,
+    menuFiltroAberto,
+    panelFilterColumnMap,
+  ]);
 
   const hasActiveFilter = (id) => isErpFilterActive(filtrosColunas[id]);
   const getValoresFiltro = (id, col) => getNormalizedFilterDraft(id, col) || createDefaultColumnFilter(getColumnFilterType(col));
@@ -702,6 +783,7 @@ export default function TBLEMP({
       const next = { ...prev };
       if (!isErpFilterActive(draft)) delete next[id];
       else next[id] = draft;
+      updateFilterApplyOrder(next);
       return next;
     });
   const clearColumnFilter = (id) =>
@@ -709,6 +791,7 @@ export default function TBLEMP({
       if (!prev[id]) return prev;
       const next = { ...prev };
       delete next[id];
+      updateFilterApplyOrder(next);
       return next;
     });
 
