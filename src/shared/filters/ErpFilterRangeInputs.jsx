@@ -1,5 +1,5 @@
 import React from "react";
-import ErpFilterDateInput from "@/shared/filters/ErpFilterDateInput";
+import ErpFilterDateRangeInput from "@/shared/filters/ErpFilterDateRangeInput";
 import ErpFilterMoneyInput from "@/shared/filters/ErpFilterMoneyInput";
 
 function getRangePlaceholders(filterType) {
@@ -25,16 +25,12 @@ export default function ErpFilterRangeInputs({
 
   if (filterType === "date") {
     return (
-      <div className="erp-filter-range-row erp-filter-range-row--inputs">
-        <ErpFilterDateInput
+      <div className="erp-filter-range-row erp-filter-range-row--date">
+        <ErpFilterDateRangeInput
           value={value}
-          onChange={(event) => onValueChange?.(event.target.value)}
-          disabled={disabled}
-        />
-        <span className="erp-filter-range-sep">até</span>
-        <ErpFilterDateInput
-          value={valueTo}
-          onChange={(event) => onValueToChange?.(event.target.value)}
+          valueTo={valueTo}
+          onValueChange={onValueChange}
+          onValueToChange={onValueToChange}
           disabled={disabled}
         />
       </div>

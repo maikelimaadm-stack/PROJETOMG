@@ -8544,6 +8544,128 @@
   box-shadow: var(--mg-focus-ring) !important;
 }
 
+.erp-filter-range-row--date {
+  width: 100%;
+}
+
+.erp-filter-date-range-input {
+  width: 100%;
+}
+
+.erp-filter-date-range-input.mg-dp {
+  grid-template-rows: var(--mg-btn-height);
+}
+
+.erp-filter-date-range-input .mg-dp-field {
+  min-height: var(--mg-btn-height) !important;
+  height: var(--mg-btn-height) !important;
+  padding: 0 32px 0 10px !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  border-radius: var(--mg-search-pill-radius) !important;
+  border: var(--mg-btn-pill-border) !important;
+  background: var(--gray-fill) !important;
+  box-shadow: none !important;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.erp-filter-date-range-input.mg-dp.open .mg-dp-field,
+.erp-filter-date-range-input.mg-dp.mg-has-value .mg-dp-field {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.erp-filter-date-range-input.mg-dp.open .mg-dp-field {
+  background: var(--mg-field-idle-bg) !important;
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
+}
+
+.mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel.mg-dp-range-panel,
+.mg-empresas-scope .mg-dp-range-panel.mg-dp-panel {
+  width: 660px;
+  max-width: min(660px, calc(100vw - 16px));
+  height: 320px;
+  max-height: 320px;
+  z-index: 10001 !important;
+}
+
+.mg-empresas-scope .mg-dp-range-header {
+  gap: 2px;
+}
+
+.mg-empresas-scope .mg-dp-range-header__spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mg-empresas-scope .mg-dp-range-body {
+  height: 272px;
+  min-height: 272px;
+  max-height: 272px;
+  padding: 0 8px 8px;
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope .mg-dp-range-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  height: 100%;
+}
+
+.mg-empresas-scope .mg-dp-range-month {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.mg-empresas-scope .mg-dp-range-month__title {
+  flex: 0 0 auto;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-dp-range-month .mg-dp-weekdays {
+  flex: 0 0 auto;
+}
+
+.mg-empresas-scope .mg-dp-range-month .mg-dp-days {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding: 0 2px 2px;
+}
+
+.mg-empresas-scope .mg-dp-day.in-range {
+  background: rgba(34, 197, 94, 0.16);
+  color: var(--text-1);
+  border-color: transparent;
+  border-radius: 0;
+}
+
+.mg-empresas-scope .mg-dp-day.range-start {
+  border-radius: 999px 0 0 999px;
+}
+
+.mg-empresas-scope .mg-dp-day.range-end {
+  border-radius: 0 999px 999px 0;
+}
+
+.mg-empresas-scope .mg-dp-day.range-start.range-end {
+  border-radius: 50%;
+}
+
 .erp-filter-popover__footer {
   display: flex;
   justify-content: flex-end;
