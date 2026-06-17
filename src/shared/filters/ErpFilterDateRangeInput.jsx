@@ -62,9 +62,10 @@ function ErpFilterDateField({
   const commit = (nextText = textValue) => {
     const normalized = normalizeBrDateInput(nextText);
     const committed = isValidBrDate(normalized) ? normalized : formatBrDateMaskAsYouType(nextText);
-    onChange?.(committed);
     setTextValue(committed);
     setIsEditing(false);
+    if (committed === String(value || "")) return;
+    onChange?.(committed);
   };
 
   return (
@@ -115,6 +116,10 @@ function MonthGrid({
 }) {
   const today = new Date();
   const dayCells = buildDayCells(year, month);
+  const holdFocus = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
 
   return (
     <div className="mg-dp-range-month">
@@ -123,6 +128,8 @@ function MonthGrid({
           type="button"
           className="mg-dp-range-month__nav"
           aria-label="Ano anterior"
+          onMouseDown={holdFocus}
+          onPointerDown={holdFocus}
           onClick={() => onYearStep?.(-1)}
           disabled={disabled}
         >
@@ -132,6 +139,8 @@ function MonthGrid({
           type="button"
           className="mg-dp-range-month__nav"
           aria-label="Mês anterior"
+          onMouseDown={holdFocus}
+          onPointerDown={holdFocus}
           onClick={() => onMonthStep?.(-1)}
           disabled={disabled}
         >
@@ -144,6 +153,8 @@ function MonthGrid({
           type="button"
           className="mg-dp-range-month__nav"
           aria-label="Próximo mês"
+          onMouseDown={holdFocus}
+          onPointerDown={holdFocus}
           onClick={() => onMonthStep?.(1)}
           disabled={disabled}
         >
@@ -153,6 +164,8 @@ function MonthGrid({
           type="button"
           className="mg-dp-range-month__nav"
           aria-label="Próximo ano"
+          onMouseDown={holdFocus}
+          onPointerDown={holdFocus}
           onClick={() => onYearStep?.(1)}
           disabled={disabled}
         >
@@ -184,10 +197,8 @@ function MonthGrid({
               type="button"
               className={cls}
               disabled={disabled || !isCurrent}
-              onMouseDown={(event) => {
-                event.preventDefault();
-                event.stopPropagation();
-              }}
+              onMouseDown={holdFocus}
+              onPointerDown={holdFocus}
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -244,12 +255,12 @@ export default function ErpFilterDateRangeInput({
       if (event.key === "Escape") setOpen(false);
     };
 
-    document.addEventListener("mousedown", close, true);
-    document.addEventListener("touchstart", close, true);
+    document.addEventListener("pointerdown", close, true);
+    document.addEventListener("focusin", close, true);
     document.addEventListener("keydown", onKeyDown);
     return () => {
-      document.removeEventListener("mousedown", close, true);
-      document.removeEventListener("touchstart", close, true);
+      document.removeEventListener("pointerdown", close, true);
+      document.removeEventListener("focusin", close, true);
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [open]);
