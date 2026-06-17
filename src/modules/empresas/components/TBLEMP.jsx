@@ -82,17 +82,6 @@ function haveSameRecordIds(listA = [], listB = []) {
   return listA.every((item, index) => item?.id === listB[index]?.id);
 }
 
-function ColumnMenuStatusCheck({ checked }) {
-  return (
-    <span
-      className={`mg-cards-config-menu__check emp-col-popup-menu__status-check${checked ? " is-checked" : ""}`}
-      aria-hidden="true"
-    >
-      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} /> : null}
-    </span>
-  );
-}
-
 function FilterFieldCheck({ checked, onChange, disabled = false }) {
   return (
     <span
@@ -1380,7 +1369,6 @@ export default function TBLEMP({
       label: "Auto ajustar",
       Icon: ScanLine,
       active: Boolean(autoFitActiveColumns[col.id]),
-      showStatusCheck: true,
       onClick: () => {
         if (autoFitActiveColumns[col.id]) {
           setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
@@ -1773,7 +1761,6 @@ export default function TBLEMP({
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   <span className="mg-cards-config-menu__label">{item.label}</span>
-                  {item.showStatusCheck ? <ColumnMenuStatusCheck checked={Boolean(item.active)} /> : null}
                 </button>
               );
             })}
