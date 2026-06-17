@@ -6670,7 +6670,7 @@
 .mg-empresas-scope .mg-prototype-form--edit :is(
   .mg-prototype-field.mg-has-value:not(.mg-field-locked) > input:not([disabled]):not([readonly]),
   .mg-prototype-field.mg-has-value:not(.mg-field-locked) > textarea:not([disabled]):not([readonly]),
-  .mg-prototype-field.mg-has-value:not(.mg-field-locked) .emp-form-field-control,
+  .mg-prototype-field.mg-has-value:not(.mg-field-locked) .emp-form-field-control:not(.mg-prototype-field-control--native),
   .mg-prototype-field:not(.mg-field-locked):has(> input:not(:placeholder-shown)) > input:not([disabled]):not([readonly]),
   .mg-prototype-field:not(.mg-field-locked):has(> textarea:not(:placeholder-shown)) > textarea:not([disabled]):not([readonly]),
   .mg-prototype-composite.mg-has-value:not(.mg-field-locked) .cmd-display,
@@ -6687,6 +6687,13 @@
   background: var(--mg-field-filled-bg) !important;
   border: var(--mg-field-surface-border) !important;
   box-shadow: none !important;
+}
+
+/* Campos nativos MG mantêm superfície unificada no preenchido (claro/escuro) */
+.mg-empresas-scope .mg-prototype-form--edit .mg-prototype-field.mg-has-value:not(.mg-field-locked) .emp-form-field-control.mg-prototype-field-control--native {
+  background: var(--mg-field-idle-bg) !important;
+  border: none !important;
+  box-shadow: var(--mg-field-edge-shadow) !important;
 }
 
 /* Cód. Empresa e demais bloqueados → cinza especial, sem borda branca */
