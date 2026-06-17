@@ -8549,149 +8549,136 @@
   flex-direction: column;
   gap: 8px;
   width: 100%;
+  position: relative;
 }
 
 .erp-filter-date-range__fields {
   width: 100%;
 }
 
-.erp-filter-date-field {
+.erp-filter-date-field-wrap {
+  position: relative;
   flex: 1 1 0;
   min-width: 0;
-}
-
-.erp-filter-date-range__calendars {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-  width: 100%;
-}
-
-.erp-filter-inline-calendar {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  padding: 6px 4px 4px;
-  border: 1px solid rgba(148, 163, 184, 0.35);
-  border-radius: 8px;
-  background: var(--gray-fill);
-  box-sizing: border-box;
-}
-
-.erp-filter-inline-calendar__label {
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-2, #64748b);
-  text-align: center;
-  line-height: 1.2;
-}
-
-.erp-filter-inline-calendar__header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 2px;
-  min-height: 22px;
 }
 
-.erp-filter-inline-calendar__title {
+.erp-filter-date-field {
   flex: 1 1 auto;
   min-width: 0;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text-1);
-  text-align: center;
-  white-space: nowrap;
+  padding-right: 28px !important;
 }
 
-.erp-filter-inline-calendar__nav {
+.erp-filter-date-field__icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border: none;
   background: none;
-  border-radius: 4px;
-  color: var(--text-2);
-  cursor: pointer;
-  flex-shrink: 0;
   padding: 0;
+  color: var(--text-3);
+  cursor: pointer;
 }
 
-.erp-filter-inline-calendar__nav:hover:not(:disabled) {
-  background: var(--gray-fill2);
-  color: var(--text-1);
+.erp-filter-date-field__icon:hover:not(:disabled) {
+  color: var(--accent);
 }
 
-.erp-filter-inline-calendar__nav:disabled {
+.erp-filter-date-field__icon:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-.erp-filter-inline-calendar__weekdays {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+.mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel.mg-dp-range-panel,
+.mg-empresas-scope .mg-dp-range-panel.mg-dp-panel {
+  width: 500px;
+  max-width: min(500px, calc(100vw - 16px));
+  height: 248px;
+  max-height: 248px;
+  z-index: 10002 !important;
+}
+
+.mg-empresas-scope .mg-dp-range-header {
   gap: 0;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  padding: 0 4px;
 }
 
-.erp-filter-inline-calendar__wd {
-  font-size: 9px;
-  font-weight: 600;
-  color: var(--text-3);
-  text-align: center;
-  line-height: 1.2;
-  padding: 1px 0;
+.mg-empresas-scope .mg-dp-range-header .mg-dp-nav {
+  width: 26px;
+  height: 26px;
 }
 
-.erp-filter-inline-calendar__days {
+.mg-empresas-scope .mg-dp-range-header__spacer {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mg-empresas-scope .mg-dp-range-body {
+  height: 212px;
+  min-height: 212px;
+  max-height: 212px;
+  padding: 0 6px 6px;
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope .mg-dp-range-grid {
   display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 1px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  height: 100%;
 }
 
-.erp-filter-inline-calendar__day {
-  width: 100%;
-  aspect-ratio: 1;
-  max-width: 24px;
-  max-height: 24px;
-  margin: 0 auto;
+.mg-empresas-scope .mg-dp-range-month {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+.mg-empresas-scope .mg-dp-range-month__title {
+  flex: 0 0 auto;
+  height: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: 500;
-  color: var(--text-1);
-  background: none;
-  border: 1px solid transparent;
-  border-radius: 50%;
-  cursor: pointer;
-  padding: 0;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-}
-
-.erp-filter-inline-calendar__day:hover:not(:disabled):not(.other):not(.selected) {
-  background: var(--gray-fill2);
-}
-
-.erp-filter-inline-calendar__day.today:not(.selected) {
-  border-color: var(--accent);
-  color: var(--accent);
+  font-size: 11px;
   font-weight: 600;
+  color: var(--text-1);
 }
 
-.erp-filter-inline-calendar__day.selected {
-  background: var(--accent);
-  color: #fff;
-  font-weight: 700;
-  border-color: var(--accent);
+.mg-empresas-scope .mg-dp-range-month .mg-dp-weekdays {
+  flex: 0 0 auto;
+  padding: 0 2px;
 }
 
-.erp-filter-inline-calendar__day.other {
-  color: var(--text-3);
-  opacity: 0.35;
-  cursor: default;
+.mg-empresas-scope .mg-dp-range-month .mg-dp-wd {
+  font-size: 10px;
+  padding: 2px 0;
+}
+
+.mg-empresas-scope .mg-dp-range-month .mg-dp-days {
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  padding: 0 1px 1px;
+  gap: 1px;
+}
+
+.mg-empresas-scope .mg-dp-range-panel .mg-dp-day {
+  max-width: 28px;
+  max-height: 28px;
+  font-size: 11px;
 }
 
 .erp-filter-popover__footer {

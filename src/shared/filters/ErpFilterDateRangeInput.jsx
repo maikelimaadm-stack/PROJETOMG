@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useEffect, useId, useRef, useState } from "react";
+import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
+import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import {
   MONTH_SHORT,
   addMonths,
@@ -11,7 +13,10 @@ import {
   parseBrDate,
 } from "@/shared/filters/erpFilterDateUtils";
 
-const WEEKDAYS = ["D", "S", "T", "Q", "Q", "S", "S"];
+const PANEL_WIDTH = 500;
+const PANEL_HEIGHT = 248;
+const PANEL_Z_INDEX = 10002;
+const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 function resolveViewMonth(value) {
   if (value && isValidBrDate(value)) {
@@ -28,6 +33,7 @@ function ErpFilterDateField({
   placeholder,
   disabled = false,
   inputId,
+  onOpenCalendar,
 }) {
   const [textValue, setTextValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
@@ -45,94 +51,83 @@ function ErpFilterDateField({
   };
 
   return (
-    <input
-      id={inputId}
-      type="text"
-      className="erp-filter-field-input erp-filter-date-field"
-      value={textValue}
-      disabled={disabled}
-      placeholder={placeholder}
-      autoComplete="off"
-      spellCheck={false}
-      onChange={(event) => {
-        setIsEditing(true);
-        setTextValue(event.target.value);
-      }}
-      onFocus={() => setIsEditing(true)}
-      onBlur={() => commit()}
-      onKeyDown={(event) => {
-        if (event.key === "Enter") {
+    <div className="erp-filter-date-field-wrap">
+      <input
+        id={inputId}
+        type="text"
+        className="erp-filter-field-input erp-filter-date-field"
+        value={textValue}
+        disabled={disabled}
+        placeholder={placeholder}
+        autoComplete="off"
+        spellCheck={false}
+        onChange={(event) => {
+          setIsEditing(true);
+          setTextValue(event.target.value);
+        }}
+        onFocus={() => setIsEditing(true)}
+        onBlur={() => commit()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commit();
+            event.currentTarget.blur();
+          }
+          if (event.key === "Escape") {
+            setIsEditing(false);
+            setTextValue(value);
+            event.currentTarget.blur();
+          }
+        }}
+      />
+      <button
+        type="button"
+        className="erp-filter-date-field__icon"
+        disabled={disabled}
+        aria-label={`Abrir calendário (${placeholder})`}
+        onMouseDown={(event) => {
           event.preventDefault();
-          commit();
-          event.currentTarget.blur();
-        }
-        if (event.key === "Escape") {
-          setIsEditing(false);
-          setTextValue(value);
-          event.currentTarget.blur();
-        }
-      }}
-    />
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onOpenCalendar?.();
+        }}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+      </button>
+    </div>
   );
 }
 
-function InlineCalendar({
-  label,
-  value,
-  onChange,
-  view,
-  onViewChange,
-  disabled = false,
-}) {
+function PopupMonthGrid({ year, month, value, onSelect, disabled }) {
   const today = new Date();
-  const dayCells = buildDayCells(view.year, view.month);
+  const dayCells = buildDayCells(year, month);
 
   return (
-    <div className="erp-filter-inline-calendar">
-      <div className="erp-filter-inline-calendar__label">{label}</div>
-      <div className="erp-filter-inline-calendar__header">
-        <button
-          type="button"
-          className="erp-filter-inline-calendar__nav"
-          disabled={disabled}
-          aria-label={`Mês anterior (${label})`}
-          onClick={() => onViewChange(addMonths(view.year, view.month, -1))}
-        >
-          <ChevronLeft className="h-3 w-3" />
-        </button>
-        <span className="erp-filter-inline-calendar__title">
-          {view.year} {MONTH_SHORT[view.month]}
-        </span>
-        <button
-          type="button"
-          className="erp-filter-inline-calendar__nav"
-          disabled={disabled}
-          aria-label={`Próximo mês (${label})`}
-          onClick={() => onViewChange(addMonths(view.year, view.month, 1))}
-        >
-          <ChevronRight className="h-3 w-3" />
-        </button>
+    <div className="mg-dp-range-month">
+      <div className="mg-dp-range-month__title">
+        {year} {MONTH_SHORT[month]}
       </div>
-      <div className="erp-filter-inline-calendar__weekdays">
-        {WEEKDAYS.map((weekday, index) => (
-          <div key={`${label}-${weekday}-${index}`} className="erp-filter-inline-calendar__wd">
-            {weekday}
-          </div>
+      <div className="mg-dp-weekdays">
+        {WEEKDAYS.map((weekday) => (
+          <div key={weekday} className="mg-dp-wd">{weekday}</div>
         ))}
       </div>
-      <div className="erp-filter-inline-calendar__days">
+      <div className="mg-dp-days">
         {dayCells.map((cell) => {
           const isCurrent = cell.type === "current";
           const isToday =
             isCurrent &&
             today.getDate() === cell.day &&
-            today.getMonth() === view.month &&
-            today.getFullYear() === view.year;
+            today.getMonth() === month &&
+            today.getFullYear() === year;
 
-          let cls = "erp-filter-inline-calendar__day";
+          let cls = "mg-dp-day";
           if (!isCurrent) cls += " other";
           if (isToday) cls += " today";
-          if (isCurrent) cls += getSingleSelectedDayClass(view.year, view.month, cell.day, value);
+          if (isCurrent) cls += getSingleSelectedDayClass(year, month, cell.day, value);
 
           return (
             <button
@@ -140,11 +135,15 @@ function InlineCalendar({
               type="button"
               className={cls}
               disabled={disabled || !isCurrent}
+              onMouseDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
                 if (!isCurrent) return;
-                onChange?.(formatBrDate(cell.day, view.month, view.year));
+                onSelect?.(formatBrDate(cell.day, month, year));
               }}
             >
               {cell.day}
@@ -156,7 +155,7 @@ function InlineCalendar({
   );
 }
 
-/** Dois campos + dois calendários lado a lado: esquerda = inicial, direita = final. */
+/** Dois campos lado a lado + popup flutuante com calendário duplo (inicial | final). */
 export default function ErpFilterDateRangeInput({
   value = "",
   valueTo = "",
@@ -165,12 +164,40 @@ export default function ErpFilterDateRangeInput({
   disabled = false,
   inputId,
 }) {
+  const id = useId();
+  const rootRef = useRef(null);
+  const panelRef = useRef(null);
+  const [open, setOpen] = useState(false);
   const [startView, setStartView] = useState(() => resolveViewMonth(value));
-  const [endView, setEndView] = useState(() => {
-    if (valueTo && isValidBrDate(valueTo)) return resolveViewMonth(valueTo);
-    const start = resolveViewMonth(value);
-    return addMonths(start.year, start.month, 1);
+  const endView = addMonths(startView.year, startView.month, 1);
+
+  const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
+    width: PANEL_WIDTH,
+    estimatedHeight: PANEL_HEIGHT,
+    scrollable: false,
+    observePanelResize: false,
   });
+
+  useMgPanelCoordinator(rootRef, setOpen);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const close = (event) => {
+      if (rootRef.current?.contains(event.target)) return;
+      if (panelRef.current?.contains(event.target)) return;
+      setOpen(false);
+    };
+
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [open]);
+
+  useEffect(() => {
+    if (open) {
+      setStartView(resolveViewMonth(value || valueTo));
+    }
+  }, [open, value, valueTo]);
 
   useEffect(() => {
     if (value && isValidBrDate(value)) {
@@ -178,14 +205,22 @@ export default function ErpFilterDateRangeInput({
     }
   }, [value]);
 
-  useEffect(() => {
-    if (valueTo && isValidBrDate(valueTo)) {
-      setEndView(resolveViewMonth(valueTo));
-    }
-  }, [valueTo]);
+  const openCalendar = () => {
+    if (disabled) return;
+    setStartView(resolveViewMonth(value || valueTo));
+    setOpen(true);
+  };
+
+  const navMonth = (delta) => {
+    setStartView((current) => addMonths(current.year, current.month, delta));
+  };
+
+  const navYear = (delta) => {
+    setStartView((current) => ({ ...current, year: current.year + delta }));
+  };
 
   return (
-    <div className="erp-filter-date-range">
+    <div ref={rootRef} id={id} className={`erp-filter-date-range${open ? " is-calendar-open" : ""}`}>
       <div className="erp-filter-range-row erp-filter-range-row--inputs erp-filter-date-range__fields">
         <ErpFilterDateField
           inputId={inputId}
@@ -193,6 +228,7 @@ export default function ErpFilterDateRangeInput({
           onChange={onValueChange}
           placeholder="Data inicial"
           disabled={disabled}
+          onOpenCalendar={openCalendar}
         />
         <span className="erp-filter-range-sep">até</span>
         <ErpFilterDateField
@@ -200,26 +236,51 @@ export default function ErpFilterDateRangeInput({
           onChange={onValueToChange}
           placeholder="Data final"
           disabled={disabled}
+          onOpenCalendar={openCalendar}
         />
       </div>
-      <div className="erp-filter-date-range__calendars">
-        <InlineCalendar
-          label="Data inicial"
-          value={value}
-          onChange={onValueChange}
-          view={startView}
-          onViewChange={setStartView}
-          disabled={disabled}
-        />
-        <InlineCalendar
-          label="Data final"
-          value={valueTo}
-          onChange={onValueToChange}
-          view={endView}
-          onViewChange={setEndView}
-          disabled={disabled}
-        />
-      </div>
+
+      <MgPortalPanel
+        open={open}
+        panelRef={panelRef}
+        panelClassName="mg-dp-panel mg-dp-range-panel erp-filter-date-panel"
+        style={{ ...panelStyle, zIndex: PANEL_Z_INDEX }}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="mg-dp-header mg-dp-range-header">
+          <button type="button" className="mg-dp-nav" onClick={() => navYear(-1)} aria-label="Ano anterior">
+            <ChevronsLeft className="h-3.5 w-3.5" />
+          </button>
+          <button type="button" className="mg-dp-nav" onClick={() => navMonth(-1)} aria-label="Mês anterior">
+            <ChevronLeft className="h-3.5 w-3.5" />
+          </button>
+          <div className="mg-dp-range-header__spacer" aria-hidden="true" />
+          <button type="button" className="mg-dp-nav" onClick={() => navMonth(1)} aria-label="Próximo mês">
+            <ChevronRight className="h-3.5 w-3.5" />
+          </button>
+          <button type="button" className="mg-dp-nav" onClick={() => navYear(1)} aria-label="Próximo ano">
+            <ChevronsRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        <div className="mg-dp-body mg-dp-range-body">
+          <div className="mg-dp-range-grid">
+            <PopupMonthGrid
+              year={startView.year}
+              month={startView.month}
+              value={value}
+              onSelect={onValueChange}
+              disabled={disabled}
+            />
+            <PopupMonthGrid
+              year={endView.year}
+              month={endView.month}
+              value={valueTo}
+              onSelect={onValueToChange}
+              disabled={disabled}
+            />
+          </div>
+        </div>
+      </MgPortalPanel>
     </div>
   );
 }
