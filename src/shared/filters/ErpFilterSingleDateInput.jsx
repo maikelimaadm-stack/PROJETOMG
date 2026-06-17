@@ -28,7 +28,15 @@ function resolveMonth(value) {
   return { year: now.getFullYear(), month: now.getMonth() };
 }
 
-function SingleDateField({ value = "", onChange, placeholder = "Data", disabled = false, inputId }) {
+function SingleDateField({
+  value = "",
+  onChange,
+  placeholder = "Data",
+  disabled = false,
+  inputId,
+  onOpenCalendar,
+  open = false,
+}) {
   const [textValue, setTextValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
 
@@ -46,36 +54,56 @@ function SingleDateField({ value = "", onChange, placeholder = "Data", disabled 
   };
 
   return (
-    <input
-      id={inputId}
-      type="text"
-      inputMode="numeric"
-      className="erp-filter-field-input erp-filter-date-field"
-      value={textValue}
-      disabled={disabled}
-      placeholder={placeholder}
-      autoComplete="off"
-      spellCheck={false}
-      maxLength={10}
-      onChange={(event) => {
-        setIsEditing(true);
-        setTextValue(formatBrDateMaskAsYouType(event.target.value));
-      }}
-      onFocus={() => setIsEditing(true)}
-      onBlur={() => commit()}
-      onKeyDown={(event) => {
-        if (event.key === "Enter") {
+    <div className="erp-filter-single-date__field-wrap">
+      <button
+        type="button"
+        className="erp-filter-single-date__calendar-btn"
+        disabled={disabled}
+        aria-label="Abrir calendário"
+        aria-expanded={open}
+        onMouseDown={(event) => {
           event.preventDefault();
-          commit();
-          event.currentTarget.blur();
-        }
-        if (event.key === "Escape") {
-          setIsEditing(false);
-          setTextValue(value);
-          event.currentTarget.blur();
-        }
-      }}
-    />
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onOpenCalendar?.();
+        }}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+      </button>
+      <input
+        id={inputId}
+        type="text"
+        inputMode="numeric"
+        className="erp-filter-field-input erp-filter-date-field erp-filter-single-date__field"
+        value={textValue}
+        disabled={disabled}
+        placeholder={placeholder}
+        autoComplete="off"
+        spellCheck={false}
+        maxLength={10}
+        onChange={(event) => {
+          setIsEditing(true);
+          setTextValue(formatBrDateMaskAsYouType(event.target.value));
+        }}
+        onFocus={() => setIsEditing(true)}
+        onBlur={() => commit()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commit();
+            event.currentTarget.blur();
+          }
+          if (event.key === "Escape") {
+            setIsEditing(false);
+            setTextValue(value);
+            event.currentTarget.blur();
+          }
+        }}
+      />
+    </div>
   );
 }
 
@@ -209,25 +237,9 @@ export default function ErpFilterSingleDateInput({
           onChange={onValueChange}
           placeholder={placeholder}
           disabled={disabled}
+          onOpenCalendar={openCalendar}
+          open={open}
         />
-        <button
-          type="button"
-          className="erp-filter-single-date__calendar-btn"
-          disabled={disabled}
-          aria-label="Abrir calendário"
-          aria-expanded={open}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            openCalendar();
-          }}
-        >
-          <Calendar className="h-3.5 w-3.5" />
-        </button>
       </div>
       <MgPortalPanel
         open={open}
