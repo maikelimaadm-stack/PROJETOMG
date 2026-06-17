@@ -2860,6 +2860,11 @@
 .mg-empresas-scope .mg-desktop-search.is-expanded:not(.is-open) .mg-desktop-search__trigger {
   opacity: 1;
   pointer-events: auto;
+  z-index: 3;
+}
+
+.mg-empresas-scope .mg-desktop-search.is-expanded:not(.is-open) .mg-desktop-search__panel {
+  pointer-events: none;
 }
 
 .mg-empresas-scope .mg-desktop-search__panel {

@@ -97,6 +97,8 @@ export default function MgActionBar({
   const desktopSearchInputRef = useRef(null);
   const blurTimeoutRef = useRef(null);
   const searchAnimTimeoutRef = useRef(null);
+  const desktopSearchExpandedRef = useRef(false);
+  const desktopSearchOpenRef = useRef(false);
   const isMobile = useIsMobile();
   const showSecondaryTools = !secondaryToolsLocked;
   const lockedClass = actionsLocked ? " mg-action-bar__zone--locked" : "";
@@ -122,6 +124,11 @@ export default function MgActionBar({
     }
   }, []);
 
+  useEffect(() => {
+    desktopSearchExpandedRef.current = desktopSearchExpanded;
+    desktopSearchOpenRef.current = desktopSearchOpen;
+  }, [desktopSearchExpanded, desktopSearchOpen]);
+
   const shouldKeepDesktopSearchExpanded =
     searchHasFilter || String(searchInputValue || "").trim().length > 0;
 
@@ -133,20 +140,14 @@ export default function MgActionBar({
   };
 
   const beginCollapseDesktopSearch = () => {
-    if (!desktopSearchExpanded) {
+    if (searchAnimTimeoutRef.current) return;
+
+    if (!desktopSearchExpandedRef.current) {
       setSearchOpen(false);
+      setDesktopSearchOpen(false);
       return;
     }
-    if (!desktopSearchOpen) {
-      if (searchAnimTimeoutRef.current) return;
-      clearDesktopSearchAnimTimeout();
-      setSearchOpen(false);
-      searchAnimTimeoutRef.current = window.setTimeout(() => {
-        setDesktopSearchExpanded(false);
-        searchAnimTimeoutRef.current = null;
-      }, DESKTOP_SEARCH_ANIM_MS);
-      return;
-    }
+
     setSearchOpen(false);
     setDesktopSearchOpen(false);
     clearDesktopSearchAnimTimeout();
@@ -162,7 +163,7 @@ export default function MgActionBar({
       onSearchClear?.();
       return;
     }
-    if (desktopSearchExpanded && desktopSearchOpen) {
+    if (desktopSearchExpandedRef.current && desktopSearchOpenRef.current) {
       beginCollapseDesktopSearch();
       return;
     }
@@ -205,7 +206,7 @@ export default function MgActionBar({
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
-  }, [searchOpen, desktopSearchExpanded, shouldKeepDesktopSearchExpanded]);
+  }, [searchOpen, desktopSearchExpanded, desktopSearchOpen, shouldKeepDesktopSearchExpanded]);
 
   useEffect(() => {
     if (!searchOpen && !desktopSearchExpanded) return undefined;
@@ -217,7 +218,7 @@ export default function MgActionBar({
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [searchOpen, desktopSearchExpanded, shouldKeepDesktopSearchExpanded]);
+  }, [searchOpen, desktopSearchExpanded, desktopSearchOpen, shouldKeepDesktopSearchExpanded]);
 
   useEffect(() => {
     if (!moreOpen) return undefined;
