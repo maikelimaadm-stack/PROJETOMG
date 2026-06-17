@@ -246,7 +246,6 @@ export default function ErpFilterDateRangeInput({
 
     const close = (event) => {
       const target = event.target;
-      if (rootRef.current?.contains(target)) return;
       if (panelRef.current?.contains(target)) return;
       setOpen(false);
     };
@@ -256,10 +255,14 @@ export default function ErpFilterDateRangeInput({
     };
 
     document.addEventListener("pointerdown", close, true);
+    document.addEventListener("mousedown", close, true);
+    document.addEventListener("click", close, true);
     document.addEventListener("focusin", close, true);
     document.addEventListener("keydown", onKeyDown);
     return () => {
       document.removeEventListener("pointerdown", close, true);
+      document.removeEventListener("mousedown", close, true);
+      document.removeEventListener("click", close, true);
       document.removeEventListener("focusin", close, true);
       document.removeEventListener("keydown", onKeyDown);
     };
