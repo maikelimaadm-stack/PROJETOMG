@@ -57,6 +57,13 @@ const isMgCompositeField = (field) => {
   return false;
 };
 
+const toDomSafeId = (value) =>
+  String(value ?? "")
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
 function resolveCardSlotLayout(card, mgPrototype) {
   const colSpan = resolveCardColSpan(card?.colSpan);
   if (mgPrototype) {
@@ -80,7 +87,7 @@ function fieldHasDisplayValue(value) {
   return Boolean(value);
 }
 
-function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
+function EmpFormToggle({ checked, onChange, disabled, loteStyle = false, ariaLabelledby = undefined }) {
   return (
     <ToggleSwitch
       checked={!!checked}
@@ -89,11 +96,20 @@ function EmpFormToggle({ checked, onChange, disabled, loteStyle = false }) {
       className="emp-form-toggle-switch"
       checkedClassName="emp-form-toggle-switch-on"
       variant={loteStyle ? "lote" : "default"}
+      ariaLabelledby={ariaLabelledby}
     />
   );
 }
 
-function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false }) {
+function DefaultControl({
+  field,
+  value,
+  onChange,
+  readOnly,
+  mgPrototype = false,
+  inputId = undefined,
+  labelId = undefined,
+}) {
   const loteStyle = isCustomField(field);
   const inputClass =
     "emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white uppercase".trim();
@@ -103,6 +119,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
     if (field.type === "textarea") {
       return (
         <textarea
+          id={inputId}
+          aria-labelledby={labelId}
           value={value || ""}
           onChange={(e) => onChange(field.name, e.target.value)}
           readOnly={fieldReadOnly}
@@ -120,6 +138,7 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
           onChange={(checked) => onChange(field.name, checked)}
           disabled={fieldReadOnly}
           loteStyle={loteStyle}
+          ariaLabelledby={labelId}
         />
       );
     }
@@ -221,6 +240,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
 
     return (
       <input
+        id={inputId}
+        aria-labelledby={labelId}
         type={inputType}
         value={value || ""}
         onChange={(e) => onChange(field.name, e.target.value)}
@@ -234,6 +255,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
   if (field.type === "textarea") {
     return (
       <Textarea
+        id={inputId}
+        aria-labelledby={labelId}
         value={value || ""}
         onChange={(e) => onChange(field.name, e.target.value)}
         readOnly={readOnly || field.readOnly}
@@ -250,6 +273,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
       Boolean(field.relation_entity || field.options_source_entity);
     return (
       <EmpAutocomplete
+        inputId={inputId}
+        ariaLabelledby={labelId}
         variant={isLookup ? "lookup" : "select"}
         items={field.options || []}
         value={value || ""}
@@ -277,6 +302,7 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
         onChange={(checked) => onChange(field.name, checked)}
         disabled={readOnly || field.readOnly}
         loteStyle={loteStyle}
+        ariaLabelledby={labelId}
       />
     );
   }
@@ -284,6 +310,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
   if (isDateField(field)) {
     return (
       <EmpFormDateControl
+        inputId={inputId}
+        labelId={labelId}
         type={field.type === "datetime" ? "datetime-local" : field.type || "date"}
         value={value || ""}
         onChange={(e) => onChange(field.name, e.target.value)}
@@ -297,6 +325,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
   if (field.type === "time" || isTimeField(field)) {
     return (
       <EmpFormDateControl
+        inputId={inputId}
+        labelId={labelId}
         type="time"
         value={value || ""}
         onChange={(e) => onChange(field.name, e.target.value)}
@@ -309,6 +339,8 @@ function DefaultControl({ field, value, onChange, readOnly, mgPrototype = false 
 
   return (
     <Input
+      id={inputId}
+      aria-labelledby={labelId}
       type={field.type === "number" ? "number" : "text"}
       value={value || ""}
       onChange={(e) => onChange(field.name, e.target.value)}
@@ -350,6 +382,7 @@ function FieldFrameCorp({
   field,
   error,
   children,
+  labelId = undefined,
   fieldSizes = {},
   rowBalance = null,
   narrowLayout = false,
@@ -419,10 +452,12 @@ function FieldFrameCorp({
         style={widthStyle}
       >
         {!bare ? (
-          <label className={cn("fg-label", field.required && "required")}>{field.label}</label>
+          <label id={labelId} className={cn("fg-label", field.required && "required")}>{field.label}</label>
         ) : null}
         {loteStyle && !bare ? <EmpCustomMarker variant="lote" /> : null}
-        {children}
+        <div role="group" aria-labelledby={!bare ? labelId : undefined}>
+          {children}
+        </div>
       </div>
     );
   }
@@ -443,7 +478,7 @@ function FieldFrameCorp({
       )}
       style={widthStyle}
     >
-      <label className="emp-form-field-label-top">
+      <label id={labelId} className="emp-form-field-label-top">
         {field.label}
         {field.required ? <span className="emp-form-required-mark ml-0.5">*</span> : null}
       </label>
@@ -452,6 +487,8 @@ function FieldFrameCorp({
           "emp-form-field-control",
           error && "erp-field-invalid emp-form-field-error"
         )}
+        role="group"
+        aria-labelledby={labelId}
       >
         {loteStyle && !bare && <EmpCustomMarker variant="lote" />}
         {children}
@@ -575,7 +612,7 @@ export default function EmpDynamicFormRenderer({
   const mgPrototype =
     fieldClassName.includes("mg-prototype-field") || fieldClassName === "mg-prototype-field";
 
-  const renderFieldControl = (field, configuredField, value, fieldReadOnly) => {
+  const renderFieldControl = (field, configuredField, value, fieldReadOnly, fieldA11y) => {
     if (typeof field.render !== "function") {
       return (
         <DefaultControl
@@ -584,6 +621,8 @@ export default function EmpDynamicFormRenderer({
           onChange={onChange}
           readOnly={fieldReadOnly}
           mgPrototype={mgPrototype}
+          inputId={fieldA11y.inputId}
+          labelId={fieldA11y.labelId}
         />
       );
     }
@@ -596,6 +635,8 @@ export default function EmpDynamicFormRenderer({
         onChange,
         readOnly: fieldReadOnly,
         context,
+        inputId: fieldA11y.inputId,
+        labelId: fieldA11y.labelId,
       });
       if (rendered !== null && rendered !== undefined) return rendered;
     } catch (error) {
@@ -608,6 +649,8 @@ export default function EmpDynamicFormRenderer({
         onChange={onChange}
         readOnly={fieldReadOnly}
         mgPrototype={mgPrototype}
+        inputId={fieldA11y.inputId}
+        labelId={fieldA11y.labelId}
       />
     );
   };
@@ -618,7 +661,12 @@ export default function EmpDynamicFormRenderer({
     const configuredField = { ...field, required: field.required || requiredFieldIds.includes(field.id) };
     const fieldReadOnly = readOnly || field.readOnly || lockedFieldIds.includes(field.id);
     const isLocked = !readOnly && (field.readOnly || lockedFieldIds.includes(field.id));
-    const control = renderFieldControl(field, configuredField, value, fieldReadOnly);
+    const fieldDomBase = toDomSafeId(`field-${configuredField.id || configuredField.name || "input"}`);
+    const fieldA11y = {
+      inputId: `${fieldDomBase}-input`,
+      labelId: `${fieldDomBase}-label`,
+    };
+    const control = renderFieldControl(field, configuredField, value, fieldReadOnly, fieldA11y);
     const hasValue = fieldHasDisplayValue(value);
     return (
       <FieldFrameCorp
@@ -631,6 +679,7 @@ export default function EmpDynamicFormRenderer({
         className={fieldClassName}
         hasValue={hasValue}
         isLocked={isLocked}
+        labelId={fieldA11y.labelId}
       >
         {control}
       </FieldFrameCorp>

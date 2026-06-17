@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { ArrowDownAZ, ArrowUpZA, Check, Filter, FilterX, X } from "lucide-react";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
 import EmpTablePagination, { EMP_PAGE_SIZE_OPTIONS } from "@/framework/cadastro/pagination/EmpTablePagination";
@@ -8,6 +9,7 @@ import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { EMP_TOOLBAR_BTN } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   loadColumnOrder,
   loadVisibleColumns,
@@ -69,7 +71,7 @@ export default function TBLCPS({
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, valores: [] });
   const [filtrosColunas, setFiltrosColunas] = useState({});
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const isMobile = useIsMobile();
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
   const [frozenColumnCount, setFrozenColumnCount] = useState(() => { const s = Number(localStorage.getItem(FROZEN_KEY) || 0); return Number.isFinite(s) ? s : 0; });
@@ -949,7 +951,7 @@ export default function TBLCPS({
             ref={scrollContainerRef}
             tabIndex={0}
             onKeyDown={handleTableKeyDown}
-            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
+            className="emp-table-body-scroll relative min-h-0 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
             viewportClassName="overflow-auto"
           >
             <div
@@ -963,7 +965,12 @@ export default function TBLCPS({
                 >
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+                      <TableCell
+                        colSpan={colunasOrdenadas.length}
+                        className="emp-td text-center py-8 text-xs text-slate-400"
+                        role="status"
+                        aria-live="polite"
+                      >
                         Carregando campos...
                       </TableCell>
                     </TableRow>
@@ -976,7 +983,12 @@ export default function TBLCPS({
                 >
                   <TableBody>
                     <TableRow>
-                      <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+                      <TableCell
+                        colSpan={colunasOrdenadas.length}
+                        className="emp-td text-center py-8 text-xs text-slate-400"
+                        role="status"
+                        aria-live="polite"
+                      >
                         Nenhuma campo encontrada
                       </TableCell>
                     </TableRow>

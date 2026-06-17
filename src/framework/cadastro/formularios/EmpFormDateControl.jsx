@@ -10,6 +10,8 @@ export default function EmpFormDateControl({
   type = "date",
   className,
   variant = "default",
+  inputId = undefined,
+  labelId = undefined,
 }) {
   const inputRef = useRef(null);
   const isMg = variant === "mg";
@@ -36,6 +38,8 @@ export default function EmpFormDateControl({
       <div className={cn(isTime ? "mg-tp" : "mg-dp", className)}>
         <input
           ref={inputRef}
+          id={inputId}
+          aria-labelledby={labelId}
           type={type}
           value={value || ""}
           onChange={onChange}
@@ -55,6 +59,8 @@ export default function EmpFormDateControl({
     <div className={cn("emp-form-date-control", className)}>
       <input
         ref={inputRef}
+        id={inputId}
+        aria-labelledby={labelId}
         type={type}
         value={value || ""}
         onChange={onChange}

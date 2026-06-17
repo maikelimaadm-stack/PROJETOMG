@@ -1886,7 +1886,12 @@ export default function TBLEMP({
       {mgPrototype ? tableHeader : null}
       <TableBody>
         <TableRow>
-          <TableCell colSpan={colunasOrdenadas.length} className="emp-td text-center py-8 text-xs text-slate-400">
+          <TableCell
+            colSpan={colunasOrdenadas.length}
+            className="emp-td text-center py-8 text-xs text-slate-400"
+            role="status"
+            aria-live="polite"
+          >
             Nenhuma empresa encontrada
           </TableCell>
         </TableRow>
@@ -1948,7 +1953,7 @@ export default function TBLEMP({
               ref={scrollContainerRef}
               tabIndex={0}
               onKeyDown={handleTableKeyDown}
-              className="emp-table-body-scroll relative min-h-0 flex-1 outline-none mg-grid-scroll"
+              className="emp-table-body-scroll relative min-h-0 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 mg-grid-scroll"
               viewportClassName="overflow-auto"
               aria-busy={isLoadingEmpresas || isFetchingEmpresas}
             >
@@ -1963,7 +1968,7 @@ export default function TBLEMP({
                 ref={scrollContainerRef}
                 tabIndex={0}
                 onKeyDown={handleTableKeyDown}
-                className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
+                className="emp-table-body-scroll relative min-h-0 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
                 viewportClassName="overflow-auto"
                 aria-busy={isLoadingEmpresas || isFetchingEmpresas}
               >

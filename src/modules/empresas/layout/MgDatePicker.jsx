@@ -61,6 +61,8 @@ export default function MgDatePicker({
   onChange,
   readOnly = false,
   disabled = false,
+  inputId = undefined,
+  labelId = undefined,
 }) {
   const id = useId();
   const rootRef = useRef(null);
@@ -279,8 +281,10 @@ export default function MgDatePicker({
 
   return (
     <div ref={rootRef} id={id} className={`mg-dp${open ? " open" : ""}${disabled || readOnly ? " is-disabled" : ""}${displayValue ? " mg-has-value" : ""}`}>
-      {label ? <label className={`mg-dp-label${required ? " req" : ""}`}>{label}</label> : null}
+      {label ? <label id={labelId} htmlFor={inputId} className={`mg-dp-label${required ? " req" : ""}`}>{label}</label> : null}
       <input
+        id={inputId}
+        aria-labelledby={labelId}
         type="text"
         className="mg-dp-field"
         value={displayValue}
