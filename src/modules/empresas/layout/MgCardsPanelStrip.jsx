@@ -80,9 +80,6 @@ export default function MgCardsPanelStrip({
   empresas = [],
   filterValues = {},
   appliedFilterValues = {},
-  filterApplyOrder = [],
-  columnFilters = {},
-  panelFilterColumnMap = {},
   onFilterChange,
   onFilterClear,
   onFilterApply,
@@ -266,9 +263,6 @@ export default function MgCardsPanelStrip({
           values={filterValues}
           appliedValues={appliedFilterValues}
           empresas={empresas}
-          filterApplyOrder={filterApplyOrder}
-          columnFilters={columnFilters}
-          panelFilterColumnMap={panelFilterColumnMap}
           onChange={onFilterChange}
           onClear={onFilterClear}
           onApply={onFilterApply}

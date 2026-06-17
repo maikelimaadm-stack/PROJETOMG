@@ -55,9 +55,6 @@ function PanelFilterPill({
   values = {},
   appliedValues = {},
   empresas = [],
-  filterApplyOrder = [],
-  columnFilters = {},
-  panelFilterColumnMap = {},
   active,
   disabled,
   onChange,
@@ -74,13 +71,8 @@ function PanelFilterPill({
 
   const filterMeta = useMemo(() => resolveErpFilterMeta(field), [field]);
   const distinctOptions = useMemo(
-    () =>
-      buildPanelFilterOptions(empresas, appliedValues, field.key, filterFields, {
-        filterApplyOrder,
-        columnFilters,
-        panelFilterColumnMap,
-      }),
-    [appliedValues, columnFilters, empresas, field.key, filterApplyOrder, filterFields, panelFilterColumnMap]
+    () => buildPanelFilterOptions(empresas, appliedValues, field.key, filterFields),
+    [appliedValues, empresas, field.key, filterFields]
   );
   const enumOptions = useMemo(
     () => resolveErpFilterEnumOptions(field, distinctOptions),
@@ -264,9 +256,6 @@ export default function MgFilterPills({
   values = {},
   appliedValues = {},
   empresas = [],
-  filterApplyOrder = [],
-  columnFilters = {},
-  panelFilterColumnMap = {},
   onChange,
   onClear,
   onApply,
@@ -300,9 +289,6 @@ export default function MgFilterPills({
           values={values}
           appliedValues={appliedValues}
           empresas={empresas}
-          filterApplyOrder={filterApplyOrder}
-          columnFilters={columnFilters}
-          panelFilterColumnMap={panelFilterColumnMap}
           active={isErpFilterActive(appliedValues[field.key])}
           disabled={disabled}
           onChange={onChange}

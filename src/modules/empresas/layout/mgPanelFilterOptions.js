@@ -2,11 +2,6 @@ import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import { evaluateErpFilter, isErpFilterActive, normalizePanelFilterValue, resolveErpFilterMeta } from "@/shared/filters";
 import {
-  buildDistinctOptionsFromRecords,
-  createPanelRecordPassesOrderKey,
-  filterRecordsForFilterOptions,
-} from "@/shared/filters/erpFilterApplyOrder";
-import {
   buildMgFilterFields,
   MG_FILTER_STATUS_FIELD,
   MG_FILTER_SIDEBAR_FIELDS,
@@ -72,60 +67,22 @@ export function buildPanelFilterOptions(
   empresas = [],
   appliedValues = {},
   fieldKey,
-  filterFields = MG_PANEL_FILTER_FIELDS,
-  {
-    filterApplyOrder = [],
-    columnFilters = {},
-    panelFilterColumnMap = {},
-  } = {}
+  filterFields = MG_PANEL_FILTER_FIELDS
 ) {
   const field = filterFields.find((item) => item.key === fieldKey);
   if (!field) return [];
 
-  const orderKey = fieldKey;
+  const source = (Array.isArray(empresas) ? empresas : []).filter((emp) =>
+    empresaPassesOtherPanelFilters(emp, appliedValues, fieldKey, filterFields)
+  );
 
-  const recordPassesOrderKey = createPanelRecordPassesOrderKey({
-    appliedPanelValues: appliedValues,
-    columnFilters,
-    panelFilterColumnMap,
-    filterFields,
-    getEmpresaFieldValue: getEmpresaPanelFieldValue,
-    evaluateColumnFilterRecord: (emp, columnMeta, draft) => {
-      if (!columnMeta) return true;
-      const columnId = columnMeta.id || columnMeta.column || columnMeta.key;
-      const displayValue = getEmpresaPanelFieldValue(emp, { ...columnMeta, key: columnId, column: columnId });
-      const rawValue = displayValue === "-" ? "" : displayValue;
-      return evaluateErpFilter({
-        filter: draft,
-        filterType: draft?.type || resolveErpFilterMeta(columnMeta).filterType,
-        rawValue,
-        displayValue,
-      });
-    },
-    getColumnMeta: (columnId) => filterFields.find((item) => item.column === columnId || item.key === columnId) || { id: columnId, column: columnId, key: columnId },
-    getColumnFilterDraft: (columnId) => columnFilters?.[columnId],
-  });
-
-  const isOrderKeyActive = (key) => {
-    if (key.startsWith("col:")) {
-      const columnId = key.slice(4);
-      return isErpFilterActive(columnFilters?.[columnId]);
-    }
-    if (isErpFilterActive(appliedValues?.[key])) return true;
-    const mappedColumn = panelFilterColumnMap?.[key];
-    if (mappedColumn) return isErpFilterActive(columnFilters?.[mappedColumn]);
-    return false;
-  };
-
-  const source = filterRecordsForFilterOptions({
-    records: empresas,
-    filterApplyOrder,
-    currentOrderKey: orderKey,
-    isOrderKeyActive,
-    recordPassesOrderKey,
-  });
-
-  return buildDistinctOptionsFromRecords(source, (emp) => getEmpresaPanelFieldValue(emp, field));
+  return [
+    ...new Set(
+      source
+        .map((emp) => getEmpresaPanelFieldValue(emp, field))
+        .filter((value) => value !== null && value !== undefined && String(value).trim() !== "" && value !== "-")
+    ),
+  ].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
 }
 
 export { buildMgFilterFields };

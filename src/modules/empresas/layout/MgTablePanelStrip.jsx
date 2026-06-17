@@ -9,9 +9,6 @@ export default function MgTablePanelStrip({
   filterFields = [],
   filterValues = {},
   appliedFilterValues = {},
-  filterApplyOrder = [],
-  columnFilters = {},
-  panelFilterColumnMap = {},
   onFilterChange,
   onFilterClear,
   onFilterApply,
@@ -26,9 +23,6 @@ export default function MgTablePanelStrip({
           values={filterValues}
           appliedValues={appliedFilterValues}
           empresas={empresas}
-          filterApplyOrder={filterApplyOrder}
-          columnFilters={columnFilters}
-          panelFilterColumnMap={panelFilterColumnMap}
           onChange={onFilterChange}
           onClear={onFilterClear}
           onApply={onFilterApply}
