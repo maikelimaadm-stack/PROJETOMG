@@ -1020,9 +1020,9 @@ export default function TBLEMP({
     {
       minWidth: FILTER_POPOVER_WIDTH,
       width: FILTER_POPOVER_WIDTH,
-      estimatedHeight: 420,
+      estimatedHeight: 460,
       align: "right",
-      scrollable: false,
+      scrollable: true,
     },
     menuFiltroAberto
   );
