@@ -1443,8 +1443,10 @@ export default function TBLEMP({
           style={{
             left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
             right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
+            top: isPinned ? 0 : undefined,
+            zIndex: isPinnedLeft ? 51 + colIndex : isPinnedRight ? 51 : undefined,
           }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50 emp-th-pinned" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
           onDoubleClick={(event) => {
             if (isPinnedLeft) return;
             const interactiveTarget = event.target?.closest?.(

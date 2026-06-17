@@ -7253,7 +7253,7 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-pinned-border-right,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-pinned-border-right:not(:last-child) {
   box-shadow:
-    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
+    inset -2px 0 0 0 var(--mg-brand-green, #16a34a),
     inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
 }
 
@@ -7264,15 +7264,26 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td.emp-pinned-border-right,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td.emp-pinned-border-right:not(:last-child) {
   box-shadow:
-    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
+    inset -2px 0 0 0 var(--mg-brand-green, #16a34a),
     inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-group-row-cell.emp-pinned-border-right,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-group-row-cell.emp-pinned-border-right:not(:last-child) {
   box-shadow:
-    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
+    inset -2px 0 0 0 var(--mg-brand-green, #16a34a),
     inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro.mg-grid thead {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-th-pinned {
+  top: 0 !important;
+  background: var(--emp-table-header-bg, #ffffff) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main,
