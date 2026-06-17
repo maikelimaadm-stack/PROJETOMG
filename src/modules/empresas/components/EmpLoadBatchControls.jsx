@@ -40,7 +40,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
       <button
         ref={triggerRef}
         type="button"
-        className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter mg-records-batch-trigger${open ? " is-open" : ""}`}
+        className={`mg-records-batch-trigger${open ? " is-open" : ""}`}
         aria-label="Quantidade de registros por carregamento"
         aria-expanded={open}
         aria-haspopup="listbox"
@@ -55,7 +55,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
         }}
       >
         <span className="mg-records-batch-trigger__value">{value}</span>
-        <ChevronDown className="mg-records-batch-trigger__chevron" aria-hidden="true" />
+        <ChevronDown className="mg-records-batch-trigger__chevron" strokeWidth={2.2} aria-hidden="true" />
       </button>
       <MgPortalPanel
         open={open}
@@ -102,16 +102,16 @@ export default function EmpLoadBatchControls({
       <EmpLoadBatchSelect value={loadBatchSize} onChange={onLoadBatchSizeChange} />
       <button
         type="button"
-        className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-records-load-btn"
+        className="mg-records-load-btn"
         onClick={() => onLoadMore?.()}
         disabled={!canLoad}
         aria-label="Carregar mais registros"
         title="Carregar mais registros"
       >
         {isLoadingMoreRows ? (
-          <Loader2 className="mg-records-load-btn__icon mg-records-load-btn__icon--spin" aria-hidden="true" />
+          <Loader2 className="mg-records-load-btn__icon mg-records-load-btn__icon--spin" strokeWidth={2.2} aria-hidden="true" />
         ) : (
-          <ChevronsDown className="mg-records-load-btn__icon" aria-hidden="true" />
+          <ChevronsDown className="mg-records-load-btn__icon" strokeWidth={2.2} aria-hidden="true" />
         )}
       </button>
     </div>

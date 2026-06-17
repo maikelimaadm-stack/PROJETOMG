@@ -6871,49 +6871,107 @@
 }
 
 .mg-empresas-scope .mg-records-load-controls {
+  --mg-records-control-height: 24px;
+  --mg-records-control-icon: 12px;
   display: inline-flex;
   align-items: center;
   gap: 6px;
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger {
-  min-width: calc(var(--mg-btn-icon-size) + 26px);
-  height: var(--mg-btn-height);
-  min-height: var(--mg-btn-height);
-  padding: 0 10px !important;
-  gap: 4px;
-  border-radius: var(--mg-radius-control) !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 52px;
+  height: var(--mg-records-control-height);
+  min-height: var(--mg-records-control-height);
+  padding: 0 8px;
+  gap: 3px;
+  border: var(--mg-btn-pill-border);
+  border-radius: var(--mg-search-pill-radius);
+  background: var(--gray-fill);
+  color: var(--accent);
+  cursor: pointer;
+  box-shadow: none;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger:hover,
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open {
+  background: var(--mg-field-idle-bg);
+  color: var(--accent);
+}
+
+.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open {
+  border-color: var(--mg-focus-border);
+  box-shadow: var(--mg-focus-ring);
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__value {
-  font-size: var(--mg-btn-font-compact, 11px);
+  font-size: 11px;
   font-weight: 600;
   line-height: 1;
   color: inherit;
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger__chevron {
-  width: 14px;
-  height: 14px;
+  width: var(--mg-records-control-icon);
+  height: var(--mg-records-control-icon);
   flex-shrink: 0;
-  color: inherit;
-  stroke: currentColor;
-}
-
-.mg-empresas-scope .mg-records-load-controls .mg-records-batch-trigger.is-open {
-  background: var(--gray-fill2) !important;
+  color: var(--accent);
+  stroke: var(--accent);
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-load-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: var(--mg-records-control-height);
+  height: var(--mg-records-control-height);
+  min-width: var(--mg-records-control-height);
+  min-height: var(--mg-records-control-height);
+  max-width: var(--mg-records-control-height);
+  padding: 0;
+  border: var(--mg-btn-pill-border);
+  border-radius: 50%;
+  background: var(--gray-fill);
+  color: var(--accent);
+  cursor: pointer;
+  box-shadow: none;
   flex-shrink: 0;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) {
+  background: var(--gray-fill2);
+  color: var(--mg-brand-green-hover);
+}
+
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-load-btn__icon {
-  width: 14px;
-  height: 14px;
+  width: var(--mg-records-control-icon);
+  height: var(--mg-records-control-icon);
   flex-shrink: 0;
-  color: inherit;
-  stroke: currentColor;
+  color: var(--accent);
+  stroke: var(--accent);
+}
+
+.mg-empresas-scope .mg-records-load-controls .mg-records-load-btn:hover:not(:disabled) .mg-records-load-btn__icon {
+  color: var(--mg-brand-green-hover);
+  stroke: var(--mg-brand-green-hover);
 }
 
 .mg-empresas-scope .mg-records-load-controls .mg-records-load-btn__icon--spin {
