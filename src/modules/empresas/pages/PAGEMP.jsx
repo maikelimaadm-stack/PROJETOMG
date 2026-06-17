@@ -19,6 +19,7 @@ import {
 } from "./PAGEMP.sections";
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
+import MgTablePanelStrip from "@/modules/empresas/layout/MgTablePanelStrip";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
@@ -1307,6 +1308,13 @@ export default function PAGEMP() {
                 layout={cardsVisFields.layoutConfig}
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
+              />
+            </div>
+
+            <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "table" ? " is-visible" : ""}`}>
+              <MgTablePanelStrip
+                onConfigColumns={() => setShowConfigColunas(true)}
+                disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
               />
             </div>
           </div>
