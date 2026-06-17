@@ -1264,11 +1264,11 @@ export default function PAGEMP() {
           open={filterPanelOpen}
           values={filterValues}
           appliedValues={appliedFilterValues}
+          empresas={empresasFiltradasPainel}
           onChange={handleFilterChange}
           onClose={closeFilterPanel}
           onClear={handleFilterClear}
           onApply={handleFilterApply}
-          onRequestDistinctValues={handleDistinctColumnValues}
           disabled={filterControlsDisabled}
         />
 
@@ -1367,12 +1367,12 @@ export default function PAGEMP() {
                 layout={cardsVisFields.layoutConfig}
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
+                empresas={empresasFiltradasPainel}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
-                onRequestDistinctValues={handleDistinctColumnValues}
                 disabled={filterControlsDisabled}
               />
             </div>
@@ -1381,12 +1381,12 @@ export default function PAGEMP() {
               <MgTablePanelStrip
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
+                empresas={empresasFiltradasPainel}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
-                onRequestDistinctValues={handleDistinctColumnValues}
               />
             </div>
           </div>

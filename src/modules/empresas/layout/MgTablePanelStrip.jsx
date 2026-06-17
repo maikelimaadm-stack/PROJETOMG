@@ -5,12 +5,12 @@ import MgFilterPills from "@/modules/empresas/layout/MgFilterPills";
 export default function MgTablePanelStrip({
   onConfigColumns,
   disabled = false,
+  empresas = [],
   filterValues = {},
   appliedFilterValues = {},
   onFilterChange,
   onFilterClear,
   onFilterApply,
-  onRequestDistinctValues,
 }) {
   return (
     <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
@@ -18,10 +18,10 @@ export default function MgTablePanelStrip({
         <MgFilterPills
           values={filterValues}
           appliedValues={appliedFilterValues}
+          empresas={empresas}
           onChange={onFilterChange}
           onClear={onFilterClear}
           onApply={onFilterApply}
-          onRequestDistinctValues={onRequestDistinctValues}
           disabled={disabled}
         />
       </div>

@@ -13,10 +13,5 @@ export const MG_FILTER_STATUS_FIELD = {
   column: "status",
 };
 
-export const MG_FILTER_STATUS_OPTIONS = [
-  { value: "Ativo", label: "Ativo" },
-  { value: "Inativo", label: "Inativo" },
-];
-
 /** @deprecated use MG_FILTER_FIELDS */
 export const MG_FILTER_TEXT_FIELDS = MG_FILTER_FIELDS;

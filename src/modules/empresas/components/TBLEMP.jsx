@@ -64,6 +64,7 @@ import {
   parseDateFilterValue,
 } from "./tblEmp.filters";
 import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
+import EmpColFilterPopover from "@/modules/empresas/components/EmpColFilterPopover";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
@@ -1912,143 +1913,61 @@ export default function TBLEMP({
         </div>
       </MgPortalPanel>
 
-      <MgPortalPanel
+      <EmpColFilterPopover
         open={Boolean(filterColumn && menuFiltroAberto)}
         panelRef={filterPanelRef}
-        panelClassName="dropdown-menu mg-cards-config-menu open emp-col-filter-popup emp-filter-popover"
         style={filterPanelStyle}
-        onClick={(event) => event.stopPropagation()}
-      >
-        {filterColumn && filterDraft ? (
-          <>
-            <div className="emp-filter-sort-section">
-              <div className="px-1 text-[11px] font-semibold text-slate-500">{filterColumnLabel}</div>
-              <button
-                type="button"
-                className="emp-filter-sort-btn"
-                onClick={() => {
-                  applySortToColumn(menuFiltroAberto, "asc");
-                  closeColumnOverlays();
-                }}
-              >
-                <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
-                <span>Ordenar A → Z</span>
-              </button>
-              <button
-                type="button"
-                className="emp-filter-sort-btn"
-                onClick={() => {
-                  applySortToColumn(menuFiltroAberto, "desc");
-                  closeColumnOverlays();
-                }}
-              >
-                <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
-                <span>Ordenar Z → A</span>
-              </button>
-              <button
-                type="button"
-                className="emp-filter-sort-btn"
-                disabled={!hasActiveFilter(menuFiltroAberto)}
-                onClick={() => {
-                  clearColumnFilter(menuFiltroAberto);
-                  closeColumnOverlays();
-                }}
-              >
-                <X className="w-4 h-4 mr-2 shrink-0" />
-                <span className="truncate">Limpar Filtro de &apos;{filterColumnLabel}&apos;</span>
-              </button>
-            </div>
-
-            <div className="emp-filter-body">
-              <div className="mg-search-pill-wrap emp-col-filter-popup__search">
-                <div className="mg-search-pill emp-col-filter-popup__search-pill" role="search">
-                  {filterSearchLoading ? (
-                    <Loader2
-                      className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                  )}
-                  <input
-                    type="text"
-                    value={buscaFiltroMenu}
-                    onChange={(event) => setBuscaFiltroMenu(event.target.value)}
-                    placeholder="Pesquisar..."
-                    aria-label={`Pesquisar valores de ${filterColumnLabel}`}
-                    aria-busy={filterSearchLoading}
-                  />
-                </div>
-              </div>
-
-              <div className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options">
-                <>
-                  <label className="mg-cards-config-menu__item emp-filter-value-list-header">
-                    <FilterFieldCheck
-                      checked={filterAllVisibleSelected}
-                      onChange={(event) =>
-                        updateFilterDraft((prev) => {
-                          const currentList = Array.isArray(prev.values) ? prev.values : [];
-                          const rest = currentList.filter((value) => !filteredFilterOptions.includes(value));
-                          return {
-                            ...prev,
-                            values: event.target.checked
-                              ? [...new Set([...rest, ...filteredFilterOptions])]
-                              : rest,
-                          };
-                        })
-                      }
-                    />
-                    <span className="mg-cards-config-menu__label">(Selecionar Tudo)</span>
-                  </label>
-                  {filteredFilterOptions.map((option) => (
-                    <label key={option} className="mg-cards-config-menu__item emp-filter-value-list-item">
-                      <FilterFieldCheck
-                        checked={filterSelectedValues.includes(option)}
-                        onChange={(event) =>
-                          updateFilterDraft((prev) => {
-                            const currentList = Array.isArray(prev.values) ? prev.values : [];
-                            const nextList = event.target.checked
-                              ? [...currentList, option]
-                              : currentList.filter((value) => value !== option);
-                            return { ...prev, values: [...new Set(nextList)] };
-                          })
-                        }
-                      />
-                      <span className="mg-cards-config-menu__label truncate" title={option}>
-                        {option}
-                      </span>
-                    </label>
-                  ))}
-                  {filteredFilterOptions.length === 0 && !filterSearchLoading ? (
-                    <div className="mg-search-dropdown__empty">Nenhum valor encontrado.</div>
-                  ) : null}
-                </>
-              </div>
-            </div>
-
-            <div className="mg-cards-config-menu__footer mg-search-dropdown__config-footer emp-col-filter-popup__footer">
-              <button
-                type="button"
-                className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
-                onClick={closeColumnOverlays}
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
-                onClick={() => {
-                  setValoresFiltro(menuFiltroAberto, filterDraft);
-                  closeColumnOverlays();
-                }}
-              >
-                Filtrar
-              </button>
-            </div>
-          </>
-        ) : null}
-      </MgPortalPanel>
+        columnLabel={filterColumnLabel}
+        showSortSection={Boolean(filterColumn && filterDraft)}
+        hasActiveFilter={Boolean(menuFiltroAberto && hasActiveFilter(menuFiltroAberto))}
+        onSortAsc={() => {
+          applySortToColumn(menuFiltroAberto, "asc");
+          closeColumnOverlays();
+        }}
+        onSortDesc={() => {
+          applySortToColumn(menuFiltroAberto, "desc");
+          closeColumnOverlays();
+        }}
+        onClearColumnFilter={() => {
+          clearColumnFilter(menuFiltroAberto);
+          closeColumnOverlays();
+        }}
+        searchQuery={buscaFiltroMenu}
+        onSearchQueryChange={setBuscaFiltroMenu}
+        searchLoading={filterSearchLoading}
+        filteredOptions={filteredFilterOptions}
+        selectedValues={filterSelectedValues}
+        allVisibleSelected={filterAllVisibleSelected}
+        onToggleAll={(event) =>
+          updateFilterDraft((prev) => {
+            const currentList = Array.isArray(prev.values) ? prev.values : [];
+            const rest = currentList.filter((value) => !filteredFilterOptions.includes(value));
+            return {
+              ...prev,
+              values: event.target.checked
+                ? [...new Set([...rest, ...filteredFilterOptions])]
+                : rest,
+            };
+          })
+        }
+        onToggleOption={(option, checked) =>
+          updateFilterDraft((prev) => {
+            const currentList = Array.isArray(prev.values) ? prev.values : [];
+            const nextList = checked
+              ? [...currentList, option]
+              : currentList.filter((value) => value !== option);
+            return { ...prev, values: [...new Set(nextList)] };
+          })
+        }
+        onCancel={closeColumnOverlays}
+        onApply={() => {
+          setValoresFiltro(menuFiltroAberto, filterDraft);
+          closeColumnOverlays();
+        }}
+        searchAriaLabel={
+          filterColumnLabel ? `Pesquisar valores de ${filterColumnLabel}` : "Pesquisar valores"
+        }
+      />
 
       <div
         ref={tableStageRef}

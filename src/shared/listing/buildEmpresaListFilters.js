@@ -7,6 +7,8 @@ import {
 const STATUS_PANEL_MAP = {
   Ativo: "Ativa",
   Inativo: "Inativa",
+  Ativa: "Ativa",
+  Inativa: "Inativa",
 };
 
 /** Converte filtros do painel lateral em payload `filters` da API de empresas. */

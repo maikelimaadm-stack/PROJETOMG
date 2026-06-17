@@ -6,11 +6,11 @@ export default function MgFilterPanel({
   open,
   values = {},
   appliedValues = {},
+  empresas = [],
   onChange,
   onClose,
   onClear,
   onApply,
-  onRequestDistinctValues,
   disabled = false,
 }) {
   return (
@@ -32,10 +32,10 @@ export default function MgFilterPanel({
           <MgFilterPills
             values={values}
             appliedValues={appliedValues}
+            empresas={empresas}
             onChange={onChange}
             onClear={onClear}
             onApply={onApply}
-            onRequestDistinctValues={onRequestDistinctValues}
             disabled={disabled}
             className="mg-filter-pills--drawer"
           />
