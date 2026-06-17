@@ -1479,10 +1479,8 @@ export default function TBLEMP({
                 type="button"
                 className="emp-th-icon-button emp-th-icon-button--status"
                 aria-label={`Desativar auto ajustar da coluna ${formatHeaderLabel(col)}`}
-                title="Duplo clique para ajuste manual"
-                onClick={(event) => event.stopPropagation()}
-                onDoubleClick={(event) => {
-                  event.preventDefault();
+                title="Clique para ajuste manual"
+                onClick={(event) => {
                   event.stopPropagation();
                   setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
                 }}
@@ -1495,10 +1493,8 @@ export default function TBLEMP({
                 type="button"
                 className="emp-th-icon-button emp-th-icon-button--status"
                 aria-label={`Descongelar coluna ${formatHeaderLabel(col)}`}
-                title="Duplo clique para descongelar coluna"
-                onClick={(event) => event.stopPropagation()}
-                onDoubleClick={(event) => {
-                  event.preventDefault();
+                title="Clique para descongelar coluna"
+                onClick={(event) => {
                   event.stopPropagation();
                   togglePinColumnLeft(colIndex);
                 }}
@@ -1506,35 +1502,39 @@ export default function TBLEMP({
                 <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
               </button>
             ) : null}
-            <button
-              type="button"
-              ref={(element) => {
-                if (element) columnMenuTriggerRefs.current[col.id] = element;
-                else delete columnMenuTriggerRefs.current[col.id];
-              }}
-              className={`emp-th-icon-button emp-th-menu-button${isMenuOpen ? " is-open" : ""}${hasColumnFilter ? " has-filter" : ""}`}
-              aria-label={`Abrir menu da coluna ${formatHeaderLabel(col)}`}
-              aria-expanded={isMenuOpen}
-              onClick={(event) => {
-                event.stopPropagation();
-                toggleColumnMenu(col.id);
-              }}
-            >
-              <MoreVertical className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
-            </button>
-            {hasColumnFilter ? (
+            <div className="emp-th-actions flex shrink-0 items-center gap-1">
               <button
                 type="button"
-                className="emp-th-icon-button emp-th-filter-clear-button"
-                aria-label={`Limpar filtro da coluna ${formatHeaderLabel(col)}`}
+                ref={(element) => {
+                  if (element) columnMenuTriggerRefs.current[col.id] = element;
+                  else delete columnMenuTriggerRefs.current[col.id];
+                }}
+                className={`emp-th-menu-button${isMenuOpen ? " is-open" : ""}`}
+                aria-label={`Abrir menu da coluna ${formatHeaderLabel(col)}`}
+                aria-expanded={isMenuOpen}
                 onClick={(event) => {
+                  event.stopPropagation();
+                  toggleColumnMenu(col.id);
+                }}
+              >
+                <MoreVertical className="emp-th-menu-button__icon" strokeWidth={2.2} aria-hidden="true" />
+              </button>
+              <button
+                type="button"
+                className={`emp-th-icon-button emp-th-filter-clear-button${hasColumnFilter ? "" : " emp-th-icon-button--slot-hidden"}`}
+                aria-label={`Limpar filtro da coluna ${formatHeaderLabel(col)}`}
+                aria-hidden={!hasColumnFilter}
+                tabIndex={hasColumnFilter ? 0 : -1}
+                disabled={!hasColumnFilter}
+                onClick={(event) => {
+                  if (!hasColumnFilter) return;
                   event.stopPropagation();
                   clearColumnFilter(col.id);
                 }}
               >
                 <X className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
               </button>
-            ) : null}
+            </div>
           </div>
           <div
             role="separator"
@@ -1569,10 +1569,6 @@ export default function TBLEMP({
   const filterColumn = menuFiltroAberto
     ? colunasDisponiveis.find((column) => column.id === menuFiltroAberto)
     : null;
-  const filterColumnIndex = menuFiltroAberto
-    ? colunasOrdenadas.findIndex((column) => column.id === menuFiltroAberto)
-    : -1;
-  const isFilterColumnFrozen = isColumnFrozenAtIndex(filterColumnIndex);
   const filterOptions = menuFiltroAberto ? columnOptions[menuFiltroAberto] || [] : [];
   const filterQuery = debouncedBuscaFiltroMenu.trim();
   const filteredFilterOptions = filterQuery
@@ -1813,32 +1809,28 @@ export default function TBLEMP({
           <>
             <div className="emp-filter-sort-section">
               <div className="px-1 text-[11px] font-semibold text-slate-500">{filterColumnLabel}</div>
-              {!isFilterColumnFrozen ? (
-                <>
-                  <button
-                    type="button"
-                    className="emp-filter-sort-btn"
-                    onClick={() => {
-                      applySortToColumn(menuFiltroAberto, "asc");
-                      closeColumnOverlays();
-                    }}
-                  >
-                    <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
-                    <span>Ordenar A → Z</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="emp-filter-sort-btn"
-                    onClick={() => {
-                      applySortToColumn(menuFiltroAberto, "desc");
-                      closeColumnOverlays();
-                    }}
-                  >
-                    <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
-                    <span>Ordenar Z → A</span>
-                  </button>
-                </>
-              ) : null}
+              <button
+                type="button"
+                className="emp-filter-sort-btn"
+                onClick={() => {
+                  applySortToColumn(menuFiltroAberto, "asc");
+                  closeColumnOverlays();
+                }}
+              >
+                <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
+                <span>Ordenar A → Z</span>
+              </button>
+              <button
+                type="button"
+                className="emp-filter-sort-btn"
+                onClick={() => {
+                  applySortToColumn(menuFiltroAberto, "desc");
+                  closeColumnOverlays();
+                }}
+              >
+                <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
+                <span>Ordenar Z → A</span>
+              </button>
               <button
                 type="button"
                 className="emp-filter-sort-btn"
