@@ -87,9 +87,11 @@ export default function MgActionBar({
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchExpanded, setMobileSearchExpanded] = useState(false);
+  const [desktopSearchExpanded, setDesktopSearchExpanded] = useState(false);
   const moreRef = useRef(null);
   const searchRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
+  const desktopSearchInputRef = useRef(null);
   const blurTimeoutRef = useRef(null);
   const isMobile = useIsMobile();
   const showSecondaryTools = !secondaryToolsLocked;
@@ -100,6 +102,7 @@ export default function MgActionBar({
       setMoreOpen(false);
       setSearchOpen(false);
       setMobileSearchExpanded(false);
+      setDesktopSearchExpanded(false);
     }
   }, [secondaryToolsLocked]);
 
@@ -110,24 +113,56 @@ export default function MgActionBar({
     }
   }, []);
 
+  const shouldKeepDesktopSearchExpanded =
+    searchHasFilter || String(searchInputValue || "").trim().length > 0;
+
+  const collapseDesktopSearch = () => {
+    setDesktopSearchExpanded(false);
+    setSearchOpen(false);
+  };
+
+  const expandDesktopSearch = () => {
+    if (actionsLocked) return;
+    setDesktopSearchExpanded(true);
+    window.requestAnimationFrame(() => {
+      desktopSearchInputRef.current?.focus();
+      setSearchOpen(true);
+    });
+  };
+
+  const handleDesktopSearchBlur = () => {
+    window.clearTimeout(blurTimeoutRef.current);
+    blurTimeoutRef.current = window.setTimeout(() => {
+      if (searchRef.current?.contains(document.activeElement)) return;
+      if (shouldKeepDesktopSearchExpanded) return;
+      collapseDesktopSearch();
+    }, 120);
+  };
+
   useEffect(() => {
     if (!searchOpen) return undefined;
     const close = (event) => {
       if (event.target.closest?.(".mg-config-backdrop")) return;
-      if (!searchRef.current?.contains(event.target)) setSearchOpen(false);
+      if (!searchRef.current?.contains(event.target)) {
+        setSearchOpen(false);
+        if (!shouldKeepDesktopSearchExpanded) setDesktopSearchExpanded(false);
+      }
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
-  }, [searchOpen]);
+  }, [searchOpen, shouldKeepDesktopSearchExpanded]);
 
   useEffect(() => {
     if (!searchOpen) return undefined;
     const onKeyDown = (event) => {
-      if (event.key === "Escape") setSearchOpen(false);
+      if (event.key === "Escape") {
+        setSearchOpen(false);
+        if (!shouldKeepDesktopSearchExpanded) setDesktopSearchExpanded(false);
+      }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [searchOpen]);
+  }, [searchOpen, shouldKeepDesktopSearchExpanded]);
 
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -248,6 +283,37 @@ export default function MgActionBar({
     }, 120);
   };
 
+  const renderSearchDropdown = (onClose) => (
+    <MgSearchResultsDropdown
+      open={searchOpen && !actionsLocked}
+      items={searchResults}
+      searchResultsTotal={searchResultsTotal}
+      searchHasFavoritesInResults={searchHasFavoritesInResults}
+      detailFields={searchDetailFields}
+      loading={searchLoading}
+      loadingMore={searchLoadingMore}
+      hasMore={searchHasMore}
+      onLoadMore={onSearchLoadMore}
+      searchQuery={searchInputValue}
+      configFields={searchDropdownConfigFields}
+      onConfigSave={onSearchDropdownConfigSave}
+      onConfigRestoreDefaults={onSearchDropdownConfigRestore}
+      onSelect={(emp) => {
+        onSearchResultSelect?.(emp);
+        onClose?.();
+      }}
+      onApplyAll={() => {
+        onSearchApplyAll?.();
+        onClose?.();
+      }}
+      onApplyFavorites={() => {
+        onSearchApplyFavorites?.();
+        onClose?.();
+      }}
+      isFavoriteRecord={isFavoriteRecord}
+    />
+  );
+
   const renderMobileSearchField = () => (
     <div
       className={`mg-mobile-search${mobileSearchExpanded ? " is-expanded" : ""}`}
@@ -321,113 +387,92 @@ export default function MgActionBar({
               disabled={actionsLocked}
             />
           </div>
-          <MgSearchResultsDropdown
-            open={searchOpen && !actionsLocked}
-            items={searchResults}
-            searchResultsTotal={searchResultsTotal}
-            searchHasFavoritesInResults={searchHasFavoritesInResults}
-            detailFields={searchDetailFields}
-            loading={searchLoading}
-            loadingMore={searchLoadingMore}
-            hasMore={searchHasMore}
-            onLoadMore={onSearchLoadMore}
-            searchQuery={searchInputValue}
-            configFields={searchDropdownConfigFields}
-            onConfigSave={onSearchDropdownConfigSave}
-            onConfigRestoreDefaults={onSearchDropdownConfigRestore}
-            onSelect={(emp) => {
-              onSearchResultSelect?.(emp);
-              collapseMobileSearch();
-            }}
-            onApplyAll={() => {
-              onSearchApplyAll?.();
-              collapseMobileSearch();
-            }}
-            onApplyFavorites={() => {
-              onSearchApplyFavorites?.();
-              collapseMobileSearch();
-            }}
-            isFavoriteRecord={isFavoriteRecord}
-          />
+          {renderSearchDropdown(collapseMobileSearch)}
         </div>
       )}
     </div>
   );
 
   const renderSearchField = () => (
-    <div className="mg-search-pill-wrap" ref={searchRef}>
-      <div className="mg-search-pill" role="search">
-        {searchLoading ? (
-          <Loader2
-            className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
-            aria-hidden="true"
-          />
-        ) : searchHasFilter ? (
-          <button
-            type="button"
-            className="mg-search-pill-clear"
-            aria-label="Limpar pesquisa"
-            disabled={actionsLocked}
-            onClick={() => {
-              onSearchClear?.();
-              setSearchOpen(false);
-            }}
-          >
-            <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          </button>
-        ) : (
-          <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-        )}
-        <input
-          type="text"
-          placeholder="Pesquisar..."
-          value={searchInputValue}
-          onChange={(event) => {
-            const next = event.target.value;
-            onSearchInputChange?.(next);
-            if (!actionsLocked) setSearchOpen(true);
-          }}
-          onFocus={() => {
-            if (!actionsLocked) setSearchOpen(true);
-          }}
+    <div
+      className={`mg-desktop-search${desktopSearchExpanded ? " is-expanded" : ""}`}
+      ref={searchRef}
+    >
+      {!desktopSearchExpanded ? (
+        <button
+          type="button"
+          className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-desktop-search__trigger${
+            searchHasFilter ? " mg-desktop-search__trigger--active" : ""
+          }`}
           onClick={() => {
-            if (!actionsLocked) setSearchOpen(true);
+            if (searchHasFilter) {
+              onSearchClear?.();
+              return;
+            }
+            expandDesktopSearch();
           }}
-          aria-label="Pesquisar"
-          aria-expanded={searchOpen}
-          aria-haspopup="listbox"
           disabled={actionsLocked}
-          tabIndex={actionsLocked ? -1 : 0}
-        />
-      </div>
-      <MgSearchResultsDropdown
-        open={searchOpen && !actionsLocked}
-        items={searchResults}
-        searchResultsTotal={searchResultsTotal}
-        searchHasFavoritesInResults={searchHasFavoritesInResults}
-        detailFields={searchDetailFields}
-        loading={searchLoading}
-        loadingMore={searchLoadingMore}
-        hasMore={searchHasMore}
-        onLoadMore={onSearchLoadMore}
-        searchQuery={searchInputValue}
-        configFields={searchDropdownConfigFields}
-        onConfigSave={onSearchDropdownConfigSave}
-        onConfigRestoreDefaults={onSearchDropdownConfigRestore}
-        onSelect={(emp) => {
-          onSearchResultSelect?.(emp);
-          setSearchOpen(false);
-        }}
-        onApplyAll={() => {
-          onSearchApplyAll?.();
-          setSearchOpen(false);
-        }}
-        onApplyFavorites={() => {
-          onSearchApplyFavorites?.();
-          setSearchOpen(false);
-        }}
-        isFavoriteRecord={isFavoriteRecord}
-      />
+          aria-label={searchHasFilter ? "Pesquisa ativa" : "Pesquisar"}
+          aria-expanded={false}
+        >
+          {searchHasFilter ? (
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          ) : (
+            <Search className="h-3.5 w-3.5" aria-hidden="true" />
+          )}
+        </button>
+      ) : (
+        <div className="mg-search-pill-wrap mg-desktop-search__field">
+          <div className="mg-search-pill" role="search">
+            {searchLoading ? (
+              <Loader2
+                className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+                aria-hidden="true"
+              />
+            ) : searchHasFilter ? (
+              <button
+                type="button"
+                className="mg-search-pill-clear"
+                aria-label="Limpar pesquisa"
+                disabled={actionsLocked}
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => {
+                  onSearchClear?.();
+                  collapseDesktopSearch();
+                }}
+              >
+                <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              </button>
+            ) : (
+              <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+            )}
+            <input
+              ref={desktopSearchInputRef}
+              type="text"
+              placeholder="Pesquisar..."
+              value={searchInputValue}
+              onChange={(event) => {
+                const next = event.target.value;
+                onSearchInputChange?.(next);
+                if (!actionsLocked) setSearchOpen(true);
+              }}
+              onFocus={() => {
+                if (!actionsLocked) setSearchOpen(true);
+              }}
+              onBlur={handleDesktopSearchBlur}
+              aria-label="Pesquisar"
+              aria-expanded={searchOpen}
+              aria-haspopup="listbox"
+              disabled={actionsLocked}
+              tabIndex={actionsLocked ? -1 : 0}
+            />
+          </div>
+          {renderSearchDropdown(() => {
+            if (!shouldKeepDesktopSearchExpanded) collapseDesktopSearch();
+            else setSearchOpen(false);
+          })}
+        </div>
+      )}
     </div>
   );
 
