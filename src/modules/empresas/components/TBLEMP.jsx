@@ -1475,14 +1475,36 @@ export default function TBLEMP({
               </span>
             ) : null}
             {isAutoFitActive ? (
-              <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
-                <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} />
-              </span>
+              <button
+                type="button"
+                className="emp-th-icon-button emp-th-icon-button--status"
+                aria-label={`Desativar auto ajustar da coluna ${formatHeaderLabel(col)}`}
+                title="Duplo clique para ajuste manual"
+                onClick={(event) => event.stopPropagation()}
+                onDoubleClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
+                }}
+              >
+                <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
+              </button>
             ) : null}
             {isFrozenAnchorColumn ? (
-              <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
-                <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} />
-              </span>
+              <button
+                type="button"
+                className="emp-th-icon-button emp-th-icon-button--status"
+                aria-label={`Descongelar coluna ${formatHeaderLabel(col)}`}
+                title="Duplo clique para descongelar coluna"
+                onClick={(event) => event.stopPropagation()}
+                onDoubleClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  togglePinColumnLeft(colIndex);
+                }}
+              >
+                <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
+              </button>
             ) : null}
             <button
               type="button"
