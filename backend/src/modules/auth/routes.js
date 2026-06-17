@@ -8,6 +8,7 @@ import {
 } from "./authService.js";
 import { loadAccessScope } from "./accessScope.js";
 import { getSessionEmpresas } from "./sessionCache.js";
+import { revokeAuthToken } from "./tokenDenylist.js";
 
 const parseLoginBody = (body) => {
   const parsed = loginSchema.safeParse(body || {});
@@ -52,6 +53,13 @@ const buildAuthClearCookieHeader = () => {
   ].join("; ");
 };
 
+const shouldExposeTokenInBody = () => {
+  const explicit = String(process.env.AUTH_EXPOSE_TOKEN_IN_BODY || "").trim().toLowerCase();
+  if (explicit === "true") return true;
+  if (explicit === "false") return false;
+  return String(process.env.NODE_ENV || "").toLowerCase() !== "production";
+};
+
 export const registerAuthRoutes = async (app) => {
   app.post("/api/auth/login", { config: { rateLimit: { max: 10, timeWindow: "1 minute" } } }, async (request, reply) => {
     try {
@@ -62,7 +70,7 @@ export const registerAuthRoutes = async (app) => {
       reply.header("Set-Cookie", buildAuthSetCookieHeader(token));
 
       return {
-        token,
+        ...(shouldExposeTokenInBody() ? { token } : {}),
         user: session.user,
         cliente: session.cliente,
         empresas: session.empresas,
@@ -110,7 +118,12 @@ export const registerAuthRoutes = async (app) => {
     }
   );
 
-  app.post("/api/auth/logout", { preHandler: app.authenticate }, async (_request, reply) => {
+  app.post("/api/auth/logout", { preHandler: app.authenticate }, async (request, reply) => {
+    revokeAuthToken({
+      token: request.authTokenRaw || null,
+      jti: request.user?.jti || null,
+      exp: request.user?.exp || null,
+    });
     reply.header("Set-Cookie", buildAuthClearCookieHeader());
     return { ok: true };
   });

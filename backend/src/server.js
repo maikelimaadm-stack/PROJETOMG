@@ -6,10 +6,12 @@ import multipart from "@fastify/multipart";
 import fastifyJwt from "@fastify/jwt";
 import fastifyRateLimit from "@fastify/rate-limit";
 import fastifyCompress from "@fastify/compress";
+import fastifyHelmet from "@fastify/helmet";
 import { registerRoutes } from "./routes/index.js";
 import { closePrismaClient } from "./database/prismaClient.js";
 import { validateRuntimeEnv } from "./config/env.js";
 import { recordHttpLatency } from "./observability/httpLatencyMetrics.js";
+import { isAuthTokenRevoked } from "./modules/auth/tokenDenylist.js";
 
 dotenv.config();
 try {
@@ -84,6 +86,16 @@ const readCookieToken = (cookieHeader) => {
   }
 };
 
+const readBearerToken = (authorizationHeader) => {
+  const value = String(authorizationHeader || "").trim();
+  if (!value.toLowerCase().startsWith("bearer ")) return null;
+  const token = value.slice(7).trim();
+  return token || null;
+};
+
+const isMutationMethod = (method = "") =>
+  ["POST", "PUT", "PATCH", "DELETE"].includes(String(method).toUpperCase());
+
 const resolveHost = () => {
   const configuredHost = String(process.env.BACKEND_HOST || "")
     .replaceAll('"', "")
@@ -144,13 +156,32 @@ const buildServer = () => {
   app.decorate("authenticate", async function authenticate(request, reply) {
     try {
       const hasAuthorization = Boolean(request.headers.authorization);
-      if (!hasAuthorization) {
+      let authTokenRaw = readBearerToken(request.headers.authorization);
+      let usedCookieToken = false;
+      if (!authTokenRaw) {
         const cookieToken = readCookieToken(request.headers.cookie);
         if (cookieToken) {
+          authTokenRaw = cookieToken;
+          usedCookieToken = true;
           request.headers.authorization = `Bearer ${cookieToken}`;
         }
       }
       await request.jwtVerify();
+      if (
+        isAuthTokenRevoked({
+          token: authTokenRaw,
+          jti: request.user?.jti || null,
+        })
+      ) {
+        return reply.status(401).send({ message: "Sessão expirada." });
+      }
+      request.authTokenRaw = authTokenRaw;
+      if (usedCookieToken && !hasAuthorization && isMutationMethod(request.method)) {
+        const origin = request.headers.origin;
+        if (!origin || !isOriginAllowed(origin, allowedOrigins)) {
+          return reply.status(403).send({ message: "Origin inválida para operação autenticada por cookie." });
+        }
+      }
     } catch {
       return reply.status(401).send({ message: "Não autenticado." });
     }
@@ -164,6 +195,11 @@ const buildServer = () => {
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type", "X-Empresa-Id"],
+  });
+  app.register(fastifyHelmet, {
+    global: true,
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
   });
   app.register(fastifyCompress, {
     threshold: 1024,

@@ -31,9 +31,21 @@ export const registerEmpresasRoutes = async (app) => {
     return result;
   });
 
-  app.get("/api/empresas/export", { preHandler: app.authenticate }, async (request, reply) => {
+  app.get(
+    "/api/empresas/export",
+    {
+      preHandler: app.authenticate,
+      config: {
+        rateLimit: {
+          max: Number(process.env.EMPRESAS_EXPORT_RATE_LIMIT_MAX || 6),
+          timeWindow: "1 minute",
+        },
+      },
+    },
+    async (request, reply) => {
     const scope = await loadAccessScope(request);
     await ensureModuloAtivo(scope, "EMPRESAS");
+    assertRole(scope, ["ADMIN"]);
     reply.hijack();
     await streamEmpresasExport({
       reply,
@@ -41,7 +53,8 @@ export const registerEmpresasRoutes = async (app) => {
       empresaRepository,
       query: request.query || {},
     });
-  });
+    }
+  );
 
   app.get("/api/empresas/selector", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);

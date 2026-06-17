@@ -11,6 +11,7 @@ export const registerMetricsRoutes = async (app) => {
 
   app.get("/api/metrics/contadores", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
+    assertRole(scope, ["ADMIN"]);
     return getContadores(scope);
   });
 
