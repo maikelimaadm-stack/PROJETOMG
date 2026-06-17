@@ -8544,62 +8544,53 @@
   box-shadow: var(--mg-focus-ring) !important;
 }
 
-.erp-filter-range-row--date {
+.erp-filter-date-range {
+  width: 100%;
+  position: relative;
+}
+
+.erp-filter-date-range__fields {
   width: 100%;
 }
 
-.erp-filter-date-range-input {
-  width: 100%;
+.erp-filter-date-field-wrap {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  align-items: center;
 }
 
-.erp-filter-date-range-input.mg-dp {
-  grid-template-rows: var(--mg-btn-height);
+.erp-filter-date-field {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 28px !important;
 }
 
-.erp-filter-date-range-input .mg-dp-field {
-  min-height: var(--mg-btn-height) !important;
-  height: var(--mg-btn-height) !important;
-  padding: 0 32px 0 10px !important;
-  font-size: 12px !important;
-  font-weight: 500 !important;
-  border-radius: var(--mg-search-pill-radius) !important;
-  border: var(--mg-btn-pill-border) !important;
-  background: var(--gray-fill) !important;
-  box-shadow: none !important;
-  transition:
-    background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
-    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.erp-filter-date-range-input.mg-dp.open .mg-dp-field,
-.erp-filter-date-range-input.mg-dp.mg-has-value .mg-dp-field {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.erp-filter-date-range-input.mg-dp.open .mg-dp-field {
-  background: var(--mg-field-idle-bg) !important;
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
-}
-
-.erp-filter-date-range-input .erp-filter-date-range-input__toggle {
-  pointer-events: auto;
+.erp-filter-date-field__icon {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
   border: none;
   background: none;
   padding: 0;
-  cursor: pointer;
   color: var(--text-3);
+  cursor: pointer;
 }
 
-.erp-filter-date-range-input .erp-filter-date-range-input__toggle:hover:not(:disabled) {
+.erp-filter-date-field__icon:hover:not(:disabled) {
   color: var(--accent);
 }
 
-.erp-filter-date-range-input .erp-filter-date-range-input__toggle:disabled {
-  cursor: not-allowed;
+.erp-filter-date-field__icon:disabled {
   opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel.mg-dp-range-panel,

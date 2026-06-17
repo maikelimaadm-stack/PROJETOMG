@@ -6,10 +6,11 @@ import {
   MONTH_SHORT,
   addMonths,
   buildDayCells,
-  commitBrDateRangeText,
   formatBrDate,
-  formatBrDateRangeDisplay,
-  getDayRangeClasses,
+  formatBrDateMaskAsYouType,
+  getSingleSelectedDayClass,
+  isValidBrDate,
+  normalizeBrDateInput,
   parseBrDate,
 } from "@/shared/filters/erpFilterDateUtils";
 
@@ -31,7 +32,83 @@ function resolveAnchorMonth(value, valueTo) {
   return { year: now.getFullYear(), month: now.getMonth() };
 }
 
-function MonthGrid({ year, month, startValue, endValue, onDaySelect }) {
+function ErpFilterDateField({
+  value = "",
+  onChange,
+  placeholder,
+  disabled = false,
+  inputId,
+  onOpenCalendar,
+}) {
+  const [textValue, setTextValue] = useState(value);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) setTextValue(value);
+  }, [isEditing, value]);
+
+  const commit = (nextText = textValue) => {
+    const normalized = normalizeBrDateInput(nextText);
+    const committed = isValidBrDate(normalized) ? normalized : formatBrDateMaskAsYouType(nextText);
+    onChange?.(committed);
+    setTextValue(committed);
+    setIsEditing(false);
+  };
+
+  return (
+    <div className="erp-filter-date-field-wrap">
+      <input
+        id={inputId}
+        type="text"
+        inputMode="numeric"
+        className="erp-filter-field-input erp-filter-date-field"
+        value={textValue}
+        disabled={disabled}
+        placeholder={placeholder}
+        autoComplete="off"
+        spellCheck={false}
+        maxLength={10}
+        onChange={(event) => {
+          setIsEditing(true);
+          setTextValue(formatBrDateMaskAsYouType(event.target.value));
+        }}
+        onFocus={() => setIsEditing(true)}
+        onBlur={() => commit()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commit();
+            event.currentTarget.blur();
+          }
+          if (event.key === "Escape") {
+            setIsEditing(false);
+            setTextValue(value);
+            event.currentTarget.blur();
+          }
+        }}
+      />
+      <button
+        type="button"
+        className="erp-filter-date-field__icon"
+        disabled={disabled}
+        aria-label={`Abrir calendário (${placeholder})`}
+        onMouseDown={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          onOpenCalendar?.();
+        }}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+function MonthGrid({ year, month, value, onDaySelect, disabled }) {
   const today = new Date();
   const dayCells = buildDayCells(year, month);
 
@@ -57,14 +134,14 @@ function MonthGrid({ year, month, startValue, endValue, onDaySelect }) {
           let cls = "mg-dp-day";
           if (!isCurrent) cls += " other";
           if (isToday) cls += " today";
-          if (isCurrent) cls += getDayRangeClasses(year, month, cell.day, startValue, endValue);
+          if (isCurrent) cls += getSingleSelectedDayClass(year, month, cell.day, value);
 
           return (
             <button
               key={cell.key}
               type="button"
               className={cls}
-              disabled={!isCurrent}
+              disabled={disabled || !isCurrent}
               onMouseDown={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -72,7 +149,8 @@ function MonthGrid({ year, month, startValue, endValue, onDaySelect }) {
               onClick={(event) => {
                 event.preventDefault();
                 event.stopPropagation();
-                if (isCurrent) onDaySelect(year, month, cell.day);
+                if (!isCurrent) return;
+                onDaySelect(formatBrDate(cell.day, month, year));
               }}
             >
               {cell.day}
@@ -84,7 +162,7 @@ function MonthGrid({ year, month, startValue, endValue, onDaySelect }) {
   );
 }
 
-/** Campo único de período com calendário duplo para filtros Entre / Não está entre. */
+/** Dois campos + popup flutuante com calendário duplo (esquerda = inicial, direita = final). */
 export default function ErpFilterDateRangeInput({
   value = "",
   valueTo = "",
@@ -96,12 +174,8 @@ export default function ErpFilterDateRangeInput({
   const id = useId();
   const rootRef = useRef(null);
   const panelRef = useRef(null);
-  const inputRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const [textValue, setTextValue] = useState(() => formatBrDateRangeDisplay(value, valueTo));
-  const [isEditing, setIsEditing] = useState(false);
-  const anchor = resolveAnchorMonth(value, valueTo);
-  const [view, setView] = useState(anchor);
+  const [view, setView] = useState(() => resolveAnchorMonth(value, valueTo));
 
   const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
     width: PANEL_WIDTH,
@@ -113,12 +187,6 @@ export default function ErpFilterDateRangeInput({
   useMgPanelCoordinator(rootRef, setOpen);
 
   const rightMonth = addMonths(view.year, view.month, 1);
-
-  useEffect(() => {
-    if (!isEditing) {
-      setTextValue(formatBrDateRangeDisplay(value, valueTo));
-    }
-  }, [isEditing, value, valueTo]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -139,54 +207,10 @@ export default function ErpFilterDateRangeInput({
     }
   }, [open, value, valueTo]);
 
-  const commitTextValue = (nextText = textValue) => {
-    const committed = commitBrDateRangeText(nextText);
-    onValueChange?.(committed.from);
-    onValueToChange?.(committed.to);
-    setTextValue(committed.display || nextText.trim());
-    setIsEditing(false);
-    if (committed.from) {
-      setView(resolveAnchorMonth(committed.from, committed.to));
-    }
-  };
-
-  const toggle = () => {
+  const openCalendar = () => {
     if (disabled) return;
-    setOpen((wasOpen) => {
-      if (!wasOpen) {
-        setView(resolveAnchorMonth(value, valueTo));
-        return true;
-      }
-      return false;
-    });
-  };
-
-  const handleDaySelect = (year, month, day) => {
-    const clicked = formatBrDate(day, month, year);
-    const hasStart = Boolean(String(value || "").trim());
-    const hasEnd = Boolean(String(valueTo || "").trim());
-
-    if (!hasStart || (hasStart && hasEnd)) {
-      onValueChange?.(clicked);
-      onValueToChange?.("");
-      setTextValue(formatBrDateRangeDisplay(clicked, ""));
-      setIsEditing(false);
-      return;
-    }
-
-    const startTs = parseBrDate(value);
-    const clickTs = new Date(year, month, day).getTime();
-    const startDateTs = new Date(startTs.year, startTs.month, startTs.day).getTime();
-
-    if (clickTs < startDateTs) {
-      onValueToChange?.(value);
-      onValueChange?.(clicked);
-      setTextValue(formatBrDateRangeDisplay(clicked, value));
-    } else {
-      onValueToChange?.(clicked);
-      setTextValue(formatBrDateRangeDisplay(value, clicked));
-    }
-    setIsEditing(false);
+    setView(resolveAnchorMonth(value, valueTo));
+    setOpen(true);
   };
 
   const navMonth = (delta) => {
@@ -198,57 +222,26 @@ export default function ErpFilterDateRangeInput({
   };
 
   return (
-    <div
-      ref={rootRef}
-      id={id}
-      className={`mg-dp mg-dp-range erp-filter-date-range-input${open ? " open" : ""}${disabled ? " is-disabled" : ""}${textValue ? " mg-has-value" : ""}`}
-    >
-      <input
-        ref={inputRef}
-        id={inputId}
-        type="text"
-        className="mg-dp-field"
-        value={textValue}
-        disabled={disabled}
-        placeholder="DD/MM/AAAA → DD/MM/AAAA"
-        autoComplete="off"
-        spellCheck={false}
-        onChange={(event) => {
-          setIsEditing(true);
-          setTextValue(event.target.value);
-        }}
-        onFocus={() => setIsEditing(true)}
-        onBlur={() => commitTextValue()}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            commitTextValue();
-            inputRef.current?.blur();
-          }
-          if (event.key === "Escape") {
-            setIsEditing(false);
-            setTextValue(formatBrDateRangeDisplay(value, valueTo));
-            inputRef.current?.blur();
-          }
-        }}
-      />
-      <button
-        type="button"
-        className="mg-dp-icon erp-filter-date-range-input__toggle"
-        disabled={disabled}
-        aria-label="Abrir calendário de período"
-        onMouseDown={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          toggle();
-        }}
-      >
-        <Calendar className="h-3.5 w-3.5" />
-      </button>
+    <div ref={rootRef} id={id} className={`erp-filter-date-range${open ? " is-calendar-open" : ""}`}>
+      <div className="erp-filter-range-row erp-filter-range-row--inputs erp-filter-date-range__fields">
+        <ErpFilterDateField
+          inputId={inputId}
+          value={value}
+          onChange={onValueChange}
+          placeholder="Data inicial"
+          disabled={disabled}
+          onOpenCalendar={openCalendar}
+        />
+        <span className="erp-filter-range-sep">até</span>
+        <ErpFilterDateField
+          value={valueTo}
+          onChange={onValueToChange}
+          placeholder="Data final"
+          disabled={disabled}
+          onOpenCalendar={openCalendar}
+        />
+      </div>
+
       <MgPortalPanel
         open={open}
         panelRef={panelRef}
@@ -276,16 +269,16 @@ export default function ErpFilterDateRangeInput({
             <MonthGrid
               year={view.year}
               month={view.month}
-              startValue={value}
-              endValue={valueTo}
-              onDaySelect={handleDaySelect}
+              value={value}
+              onDaySelect={onValueChange}
+              disabled={disabled}
             />
             <MonthGrid
               year={rightMonth.year}
               month={rightMonth.month}
-              startValue={value}
-              endValue={valueTo}
-              onDaySelect={handleDaySelect}
+              value={valueTo}
+              onDaySelect={onValueToChange}
+              disabled={disabled}
             />
           </div>
         </div>

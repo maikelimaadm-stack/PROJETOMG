@@ -25,15 +25,13 @@ export default function ErpFilterRangeInputs({
 
   if (filterType === "date") {
     return (
-      <div className="erp-filter-range-row erp-filter-range-row--date">
-        <ErpFilterDateRangeInput
-          value={value}
-          valueTo={valueTo}
-          onValueChange={onValueChange}
-          onValueToChange={onValueToChange}
-          disabled={disabled}
-        />
-      </div>
+      <ErpFilterDateRangeInput
+        value={value}
+        valueTo={valueTo}
+        onValueChange={onValueChange}
+        onValueToChange={onValueToChange}
+        disabled={disabled}
+      />
     );
   }
 
