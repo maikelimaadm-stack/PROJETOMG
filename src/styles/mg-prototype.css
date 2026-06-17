@@ -7116,7 +7116,7 @@
   border: none;
   border-radius: 9999px;
   background: rgba(22, 163, 74, 0.08);
-  color: #16a34a;
+  color: var(--accent) !important;
   padding: 0;
   cursor: pointer;
   box-shadow: none;
@@ -7127,7 +7127,8 @@
   width: 12px;
   height: 12px;
   flex-shrink: 0;
-  color: currentColor;
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-icon-button--indicator {
@@ -7161,6 +7162,18 @@
   margin-left: auto;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-trailing .emp-th-icon-button,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-trailing .emp-th-menu-button {
+  color: var(--accent) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-trailing svg,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-trailing .emp-th-icon-button__icon,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-trailing .emp-th-menu-button__icon {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
+}
+
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button {
   display: inline-flex;
   align-items: center;
@@ -7171,7 +7184,7 @@
   border: none;
   border-radius: 9999px;
   background: transparent !important;
-  color: #16a34a;
+  color: var(--accent) !important;
   padding: 0;
   cursor: pointer;
   box-shadow: none !important;
@@ -7181,7 +7194,8 @@
   width: 12px;
   height: 12px;
   flex-shrink: 0;
-  color: currentColor;
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:hover,
@@ -7190,14 +7204,28 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:focus-visible,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:active {
   background: transparent !important;
-  color: #16a34a !important;
+  color: var(--mg-brand-green-hover) !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:hover svg,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button.is-open svg,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:focus svg,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:focus-visible svg,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button:active svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+}
+
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-filter-clear-button:hover {
   background: rgba(22, 163, 74, 0.16);
-  color: #15803d;
+  color: var(--mg-brand-green-hover) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-filter-clear-button:hover svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
 }
 
 .emp-col-popup-backdrop {
