@@ -561,7 +561,7 @@ export default function MgActionBar({
         </ActionLabelBtn>
       </ActionSlot>
       <ActionSlot show={showSave && !!onSave} width={68}>
-        <ActionLabelBtn className="tb-btn-green" onClick={onSave} disabled={actionsLocked} title="Salvar">
+        <ActionLabelBtn className="tb-btn-ghost" onClick={onSave} disabled={actionsLocked} title="Salvar">
           Salvar
         </ActionLabelBtn>
       </ActionSlot>
@@ -610,7 +610,7 @@ export default function MgActionBar({
               </ActionLabelBtn>
             ) : null}
             {isEditing && onSave ? (
-              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
                 Salvar
               </ActionLabelBtn>
             ) : null}
@@ -652,7 +652,7 @@ export default function MgActionBar({
             </ActionLabelBtn>
           </ActionSlot>
           <ActionSlot show={isEditing && !!onSave} width={68}>
-            <ActionLabelBtn className="tb-btn-green" onClick={onSave} disabled={actionsLocked} title="Salvar">
+            <ActionLabelBtn className="tb-btn-ghost" onClick={onSave} disabled={actionsLocked} title="Salvar">
               Salvar
             </ActionLabelBtn>
           </ActionSlot>
@@ -713,7 +713,7 @@ export default function MgActionBar({
               </ActionLabelBtn>
             ) : null}
             {showSave && onSave ? (
-              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
+              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
                 Salvar
               </ActionLabelBtn>
             ) : null}
