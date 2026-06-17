@@ -32,6 +32,63 @@ export function formatBrDateRangeDisplay(from, to) {
   return "";
 }
 
+export function isValidBrDate(value) {
+  const parts = String(value || "").trim().split("/");
+  if (parts.length !== 3 || parts[2].length !== 4) return false;
+  const day = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const year = parseInt(parts[2], 10);
+  if (!Number.isFinite(day) || !Number.isFinite(month) || !Number.isFinite(year)) return false;
+  if (month < 1 || month > 12 || day < 1) return false;
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+}
+
+export function normalizeBrDateInput(text) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed) return "";
+  if (isValidBrDate(trimmed)) return trimmed;
+
+  const digits = trimmed.replace(/\D/g, "");
+  if (digits.length === 8) {
+    const candidate = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4, 8)}`;
+    if (isValidBrDate(candidate)) return candidate;
+  }
+
+  return trimmed;
+}
+
+export function parseBrDateRangeText(text) {
+  const raw = String(text || "").trim();
+  if (!raw) return { from: "", to: "" };
+
+  const separatorMatch = raw.match(/^(.+?)\s*(?:→|->|–|-)\s*(.+)$/);
+  if (separatorMatch) {
+    return {
+      from: normalizeBrDateInput(separatorMatch[1]),
+      to: normalizeBrDateInput(separatorMatch[2]),
+    };
+  }
+
+  const single = normalizeBrDateInput(raw);
+  if (isValidBrDate(single)) {
+    return { from: single, to: "" };
+  }
+
+  return { from: raw, to: "" };
+}
+
+export function commitBrDateRangeText(text) {
+  const parsed = parseBrDateRangeText(text);
+  const from = isValidBrDate(parsed.from) ? parsed.from : "";
+  const to = isValidBrDate(parsed.to) ? parsed.to : "";
+  return {
+    from,
+    to,
+    display: formatBrDateRangeDisplay(from, to),
+  };
+}
+
 export function buildDayCells(year, month) {
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();

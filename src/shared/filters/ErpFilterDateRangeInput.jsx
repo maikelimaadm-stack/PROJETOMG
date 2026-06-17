@@ -6,14 +6,16 @@ import {
   MONTH_SHORT,
   addMonths,
   buildDayCells,
+  commitBrDateRangeText,
   formatBrDate,
   formatBrDateRangeDisplay,
   getDayRangeClasses,
   parseBrDate,
 } from "@/shared/filters/erpFilterDateUtils";
 
-const PANEL_WIDTH = 660;
-const PANEL_HEIGHT = 320;
+const PANEL_WIDTH = 500;
+const PANEL_HEIGHT = 248;
+const PANEL_Z_INDEX = 10002;
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
 function resolveAnchorMonth(value, valueTo) {
@@ -63,7 +65,12 @@ function MonthGrid({ year, month, startValue, endValue, onDaySelect }) {
               type="button"
               className={cls}
               disabled={!isCurrent}
+              onMouseDown={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              }}
               onClick={(event) => {
+                event.preventDefault();
                 event.stopPropagation();
                 if (isCurrent) onDaySelect(year, month, cell.day);
               }}
@@ -89,7 +96,10 @@ export default function ErpFilterDateRangeInput({
   const id = useId();
   const rootRef = useRef(null);
   const panelRef = useRef(null);
+  const inputRef = useRef(null);
   const [open, setOpen] = useState(false);
+  const [textValue, setTextValue] = useState(() => formatBrDateRangeDisplay(value, valueTo));
+  const [isEditing, setIsEditing] = useState(false);
   const anchor = resolveAnchorMonth(value, valueTo);
   const [view, setView] = useState(anchor);
 
@@ -102,8 +112,13 @@ export default function ErpFilterDateRangeInput({
 
   useMgPanelCoordinator(rootRef, setOpen);
 
-  const displayValue = formatBrDateRangeDisplay(value, valueTo);
   const rightMonth = addMonths(view.year, view.month, 1);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setTextValue(formatBrDateRangeDisplay(value, valueTo));
+    }
+  }, [isEditing, value, valueTo]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -124,6 +139,17 @@ export default function ErpFilterDateRangeInput({
     }
   }, [open, value, valueTo]);
 
+  const commitTextValue = (nextText = textValue) => {
+    const committed = commitBrDateRangeText(nextText);
+    onValueChange?.(committed.from);
+    onValueToChange?.(committed.to);
+    setTextValue(committed.display || nextText.trim());
+    setIsEditing(false);
+    if (committed.from) {
+      setView(resolveAnchorMonth(committed.from, committed.to));
+    }
+  };
+
   const toggle = () => {
     if (disabled) return;
     setOpen((wasOpen) => {
@@ -143,6 +169,8 @@ export default function ErpFilterDateRangeInput({
     if (!hasStart || (hasStart && hasEnd)) {
       onValueChange?.(clicked);
       onValueToChange?.("");
+      setTextValue(formatBrDateRangeDisplay(clicked, ""));
+      setIsEditing(false);
       return;
     }
 
@@ -153,10 +181,12 @@ export default function ErpFilterDateRangeInput({
     if (clickTs < startDateTs) {
       onValueToChange?.(value);
       onValueChange?.(clicked);
-      return;
+      setTextValue(formatBrDateRangeDisplay(clicked, value));
+    } else {
+      onValueToChange?.(clicked);
+      setTextValue(formatBrDateRangeDisplay(value, clicked));
     }
-
-    onValueToChange?.(clicked);
+    setIsEditing(false);
   };
 
   const navMonth = (delta) => {
@@ -171,42 +201,74 @@ export default function ErpFilterDateRangeInput({
     <div
       ref={rootRef}
       id={id}
-      className={`mg-dp mg-dp-range erp-filter-date-range-input${open ? " open" : ""}${disabled ? " is-disabled" : ""}${displayValue ? " mg-has-value" : ""}`}
+      className={`mg-dp mg-dp-range erp-filter-date-range-input${open ? " open" : ""}${disabled ? " is-disabled" : ""}${textValue ? " mg-has-value" : ""}`}
     >
       <input
+        ref={inputRef}
         id={inputId}
         type="text"
         className="mg-dp-field"
-        value={displayValue}
-        readOnly
+        value={textValue}
         disabled={disabled}
-        placeholder="Selecionar período"
-        onClick={toggle}
-        onFocus={(event) => {
-          if (!open && event.currentTarget.matches(":focus-visible")) toggle();
+        placeholder="DD/MM/AAAA → DD/MM/AAAA"
+        autoComplete="off"
+        spellCheck={false}
+        onChange={(event) => {
+          setIsEditing(true);
+          setTextValue(event.target.value);
+        }}
+        onFocus={() => setIsEditing(true)}
+        onBlur={() => commitTextValue()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            event.preventDefault();
+            commitTextValue();
+            inputRef.current?.blur();
+          }
+          if (event.key === "Escape") {
+            setIsEditing(false);
+            setTextValue(formatBrDateRangeDisplay(value, valueTo));
+            inputRef.current?.blur();
+          }
         }}
       />
-      <div className="mg-dp-icon"><Calendar className="h-3.5 w-3.5" /></div>
+      <button
+        type="button"
+        className="mg-dp-icon erp-filter-date-range-input__toggle"
+        disabled={disabled}
+        aria-label="Abrir calendário de período"
+        onMouseDown={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+        }}
+        onClick={(event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          toggle();
+        }}
+      >
+        <Calendar className="h-3.5 w-3.5" />
+      </button>
       <MgPortalPanel
         open={open}
         panelRef={panelRef}
         panelClassName="mg-dp-panel mg-dp-range-panel erp-filter-date-panel"
-        style={panelStyle}
+        style={{ ...panelStyle, zIndex: PANEL_Z_INDEX }}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="mg-dp-header mg-dp-range-header">
           <button type="button" className="mg-dp-nav" onClick={() => navYear(-1)} aria-label="Ano anterior">
-            <ChevronsLeft className="h-4 w-4" />
+            <ChevronsLeft className="h-3.5 w-3.5" />
           </button>
           <button type="button" className="mg-dp-nav" onClick={() => navMonth(-1)} aria-label="Mês anterior">
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3.5 w-3.5" />
           </button>
           <div className="mg-dp-range-header__spacer" aria-hidden="true" />
           <button type="button" className="mg-dp-nav" onClick={() => navMonth(1)} aria-label="Próximo mês">
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </button>
           <button type="button" className="mg-dp-nav" onClick={() => navYear(1)} aria-label="Próximo ano">
-            <ChevronsRight className="h-4 w-4" />
+            <ChevronsRight className="h-3.5 w-3.5" />
           </button>
         </div>
         <div className="mg-dp-body mg-dp-range-body">
