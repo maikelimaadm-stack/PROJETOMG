@@ -77,7 +77,7 @@ export function resolveMgActionBarVisibility({
   };
 }
 
-/** Bloqueia pesquisa, filtro, visualização e mais opções durante novo/edição/duplicação. */
+/** Bloqueia pesquisa, filtro, visualização e mais opções durante novo/edição/duplicação (anexo permanece visível). */
 export function resolveMgSecondaryToolsLocked(visibility = {}) {
   return !!visibility.showSave;
 }

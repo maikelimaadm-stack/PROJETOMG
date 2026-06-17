@@ -53,6 +53,7 @@ import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { buildEmpresaExportRows } from "@/modules/empresas/utils/empExportRows";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
+import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 
@@ -157,6 +158,8 @@ export default function PAGEMP() {
   const [formVersion, setFormVersion] = useState(0);
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
   const [attachmentsRecord, setAttachmentsRecord] = useState(null);
+  const [attachmentsOpen, setAttachmentsOpen] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState([]);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
@@ -212,6 +215,13 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
   }, [selectedEmpresaId]);
+
+  useEffect(() => {
+    if (!showForm) {
+      setPendingAttachments([]);
+      setAttachmentsOpen(false);
+    }
+  }, [showForm]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -483,6 +493,26 @@ export default function PAGEMP() {
     upsertEmpresaInSelector(normalized);
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
+  const persistPendingAttachments = useCallback(async (recordId, items) => {
+    if (!recordId || !items?.length) return;
+
+    await Promise.all(
+      items.map((anexo) =>
+        AnexosApi.create({
+          entity_name: anexo.entity_name || empresasModuleDefinition.entityName,
+          record_id: recordId,
+          empresa_id: recordId,
+          attachment_name: anexo.attachment_name,
+          file_name: anexo.file_name,
+          file_url: anexo.file_url,
+          storage_path: anexo.storage_path,
+          file_type: anexo.file_type,
+          file_size: anexo.file_size,
+        })
+      )
+    );
+  }, []);
+
   const handleSubmit = useCallback((data) => {
     if (saveCycle.isSaving) return;
 
@@ -593,6 +623,14 @@ export default function PAGEMP() {
             current.includes(pendingId) ? [normalized.id] : current
           );
           upsertEmpresaInSelector(normalized);
+          if (pendingAttachments.length > 0) {
+            try {
+              await persistPendingAttachments(normalized.id, pendingAttachments);
+              setPendingAttachments([]);
+            } catch {
+              showError("Empresa cadastrada, mas alguns anexos não puderam ser salvos.");
+            }
+          }
           setMetricsCache(queryClient, response?.contadores);
           showSuccess(`${moduleLabels.singular} cadastrada!`);
         })
@@ -634,6 +672,8 @@ export default function PAGEMP() {
   }, [
     editingEmp,
     empresasSelector,
+    pendingAttachments,
+    persistPendingAttachments,
     queryClient,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
@@ -1012,6 +1052,7 @@ export default function PAGEMP() {
 
     if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
       setAttachmentsRecord(null);
+      setAttachmentsOpen(false);
     }
 
     if (deletedCurrentFromForm) {
@@ -1263,11 +1304,16 @@ export default function PAGEMP() {
                 ? () => editingEmp && handleDuplicate(editingEmp)
                 : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
             }
-            onAttach={
-              showForm
-                ? () => editingEmp?.id && setAttachmentsRecord(editingEmp)
-                : () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp)
-            }
+            onAttach={() => {
+              if (showForm) {
+                setAttachmentsOpen(true);
+                return;
+              }
+              if (selectedTableEmp) {
+                setAttachmentsRecord(selectedTableEmp);
+                setAttachmentsOpen(true);
+              }
+            }}
             attachDisabled={!showForm && selectedTableItems.length !== 1}
             onExportExcel={handleExportExcel}
             onExportPdf={handleExportPdf}
@@ -1462,16 +1508,25 @@ export default function PAGEMP() {
           onSaveConfig: (config) => saveEmpExcelExportConfig(config),
         }}
         anexosProps={{
-          open: !!attachmentsRecord?.id,
+          open: attachmentsOpen,
           onOpenChange: (open) => {
-            if (!open) setAttachmentsRecord(null);
+            setAttachmentsOpen(open);
+            if (!open && !showForm) setAttachmentsRecord(null);
           },
           entityName: empresasModuleDefinition.entityName,
-          recordId: attachmentsRecord?.id,
+          recordId:
+            showForm && editingEmp?.id && !isPendingRecordId(editingEmp.id)
+              ? editingEmp.id
+              : !showForm
+                ? attachmentsRecord?.id
+                : undefined,
           title:
-            attachmentsRecord?.razao_social ||
-            attachmentsRecord?.codempresa ||
+            (showForm
+              ? editingEmp?.razao_social || editingEmp?.codempresa
+              : attachmentsRecord?.razao_social || attachmentsRecord?.codempresa) ||
             moduleLabels.singular,
+          pendingAnexos: pendingAttachments,
+          onPendingChange: setPendingAttachments,
         }}
         confirmDeleteProps={{
           open: deleteState.open,
