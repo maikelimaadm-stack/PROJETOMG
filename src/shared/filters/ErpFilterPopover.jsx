@@ -1,6 +1,5 @@
 import React, { useCallback, useMemo } from "react";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
-import MgFilterFieldCheck from "@/modules/empresas/layout/MgFilterFieldCheck";
 import ErpFilterSortSection from "@/shared/filters/ErpFilterSortSection";
 import ErpFilterDateInput from "@/shared/filters/ErpFilterDateInput";
 import ErpFilterMoneyInput from "@/shared/filters/ErpFilterMoneyInput";
@@ -13,24 +12,6 @@ import {
   ERP_OPERATORS_WITH_SINGLE_VALUE,
 } from "@/shared/filters/erpFilterOperators";
 import { cloneErpFilter } from "@/shared/filters/erpFilterState";
-
-const BOOLEAN_OPTIONS = ["Sim", "Não"];
-
-function ErpFilterBooleanContent({ selectedValues = [], onToggle }) {
-  return (
-    <div className="erp-filter-enum-list">
-      {BOOLEAN_OPTIONS.map((option) => (
-        <label key={option} className="mg-cards-config-menu__item erp-filter-enum-item">
-          <MgFilterFieldCheck
-            checked={selectedValues.includes(option)}
-            onChange={(event) => onToggle?.(option, event.target.checked)}
-          />
-          <span className="mg-cards-config-menu__label">{option}</span>
-        </label>
-      ))}
-    </div>
-  );
-}
 
 function ErpFilterValueContent({
   filterType,
@@ -199,11 +180,14 @@ export default function ErpFilterPopover({
   onApply,
 }) {
   const safeDraft = useMemo(() => cloneErpFilter(draft || { type: filterType }), [draft, filterType]);
-  const operator = safeDraft.operator || "";
-  const showOperator = filterType !== "boolean" && filterType !== "enum";
+  const isBoolean = filterType === "boolean";
+  const operator = isBoolean
+    ? (Array.isArray(safeDraft.values) && safeDraft.values.length === 1 ? safeDraft.values[0] : "")
+    : (safeDraft.operator || "");
+  const showOperator = filterType !== "enum";
   const dataListOptions =
     listOptions.length > 0 ? listOptions : enumOptions.length > 0 ? enumOptions : [];
-  const showDataList = filterType !== "boolean";
+  const showDataList = !isBoolean;
   const selectedValues = Array.isArray(safeDraft.values) ? safeDraft.values : [];
 
   const visibleListOptions = useMemo(
@@ -230,6 +214,10 @@ export default function ErpFilterPopover({
   );
 
   const handleOperatorChange = (nextOperator) => {
+    if (isBoolean) {
+      updateDraft({ values: nextOperator ? [nextOperator] : [] });
+      return;
+    }
     updateDraft({
       operator: nextOperator,
       value: "",
@@ -273,10 +261,6 @@ export default function ErpFilterPopover({
       ) : null}
 
       <div className={`emp-filter-body erp-filter-body${showSortSection ? "" : " erp-filter-body--standalone"}`}>
-        {columnLabel && !showSortSection ? (
-          <div className="erp-filter-popover__title">{columnLabel}</div>
-        ) : null}
-
         {showOperator ? (
           <ErpFilterOperatorSelect
             filterType={filterType}
@@ -285,7 +269,7 @@ export default function ErpFilterPopover({
           />
         ) : null}
 
-        {showOperator && filterType !== "enum" ? (
+        {showOperator && filterType !== "enum" && !isBoolean ? (
           <div className="erp-filter-content">
             <ErpFilterValueContent
               filterType={filterType}
@@ -296,13 +280,6 @@ export default function ErpFilterPopover({
               onValueToChange={(nextValue) => updateDraft({ valueTo: nextValue })}
             />
           </div>
-        ) : null}
-
-        {filterType === "boolean" ? (
-          <ErpFilterBooleanContent
-            selectedValues={selectedValues}
-            onToggle={handleToggleValue}
-          />
         ) : null}
 
         {showDataList ? (
