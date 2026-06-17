@@ -3489,74 +3489,6 @@
   color: #b91c1c;
 }
 
-.mg-empresas-scope .mg-filter-pill-popover {
-  padding: 0;
-  overflow: hidden;
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__body {
-  padding: 10px;
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text-2);
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__input-wrap {
-  width: 100%;
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__input.mg-search-pill {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__options {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__option {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  min-height: 28px;
-  padding: 0 10px;
-  border: none;
-  border-radius: var(--mg-search-pill-radius);
-  background: var(--gray-fill);
-  color: var(--text-2);
-  font-size: 11px;
-  font-weight: 500;
-  text-align: left;
-  cursor: pointer;
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__option.is-selected,
-.mg-empresas-scope .mg-filter-pill-popover__option:hover {
-  color: var(--accent);
-  background: rgba(34, 197, 94, 0.08);
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 6px;
-  padding: 8px 10px;
-  border-top: var(--mg-section-divider-border);
-}
-
-.mg-empresas-scope .mg-filter-pill-popover__action {
-  min-width: 64px;
-}
-
 .mg-empresas-scope .mg-subtoolbar-stack:has(.mg-filter-pill.is-open) {
   z-index: 45;
 }
@@ -7842,6 +7774,14 @@
   width: 100%;
   padding: 2px 10px 0;
   box-sizing: border-box;
+}
+
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-body--status-only {
+  padding-top: 8px;
+}
+
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup:not(:has(.emp-filter-sort-section)) .emp-filter-body {
+  padding-top: 8px;
 }
 
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__search,
