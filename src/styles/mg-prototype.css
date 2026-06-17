@@ -7019,19 +7019,26 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__search {
+  width: 100%;
   padding: 0;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__search .mg-search-pill-wrap {
+  width: 100%;
+  flex-shrink: 1;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__search-pill {
   width: 100%;
   min-width: 0;
-  max-width: none;
+  max-width: 100%;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__options {
   min-height: 80px;
   max-height: min(220px, calc(100vh - 280px));
-  padding: 4px 0;
+  padding: 4px 0 14px;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__options .mg-cards-config-menu__item {

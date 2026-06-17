@@ -1578,9 +1578,8 @@ export default function TBLEMP({
   const filterColumnLabel = filterColumn ? formatHeaderLabel(filterColumn) : "";
   const filterSearchPending =
     buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
-  const filterListLoading =
-    (filterSearchPending && filteredFilterOptions.length === 0) ||
-    (serverMode && loadingRemoteColumnOptions && filteredFilterOptions.length === 0);
+  const filterSearchLoading =
+    filterSearchPending || (serverMode && loadingRemoteColumnOptions);
 
   const updateFilterDraft = (updater) => {
     if (!filterColumn || !menuFiltroAberto) return;
@@ -1841,20 +1840,11 @@ export default function TBLEMP({
             <div className="emp-filter-body">
               <div className="mg-search-pill-wrap emp-col-filter-popup__search">
                 <div className="mg-search-pill emp-col-filter-popup__search-pill" role="search">
-                  {filterListLoading ? (
+                  {filterSearchLoading ? (
                     <Loader2
                       className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
                       aria-hidden="true"
                     />
-                  ) : buscaFiltroMenu.trim() ? (
-                    <button
-                      type="button"
-                      className="mg-search-pill-clear"
-                      aria-label="Limpar pesquisa de valores"
-                      onClick={() => setBuscaFiltroMenu("")}
-                    >
-                      <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                    </button>
                   ) : (
                     <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                   )}
@@ -1862,61 +1852,56 @@ export default function TBLEMP({
                     type="text"
                     value={buscaFiltroMenu}
                     onChange={(event) => setBuscaFiltroMenu(event.target.value)}
-                    placeholder="Pesquisar valores"
+                    placeholder="Pesquisar..."
                     aria-label={`Pesquisar valores de ${filterColumnLabel}`}
+                    aria-busy={filterSearchLoading}
                   />
                 </div>
               </div>
 
               <div className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options">
-                {filterListLoading ? (
-                  <div className="mg-search-dropdown__empty" role="status" aria-live="polite">
-                    Carregando...
-                  </div>
-                ) : (
-                  <>
-                    <label className="mg-cards-config-menu__item emp-filter-value-list-header">
+                <>
+                  <label className="mg-cards-config-menu__item emp-filter-value-list-header">
+                    <FilterFieldCheck
+                      checked={filterAllVisibleSelected}
+                      onChange={(event) =>
+                        updateFilterDraft((prev) => {
+                          const currentList = Array.isArray(prev.values) ? prev.values : [];
+                          const rest = currentList.filter((value) => !filteredFilterOptions.includes(value));
+                          return {
+                            ...prev,
+                            values: event.target.checked
+                              ? [...new Set([...rest, ...filteredFilterOptions])]
+                              : rest,
+                          };
+                        })
+                      }
+                    />
+                    <span className="mg-cards-config-menu__label">(Selecionar Tudo)</span>
+                  </label>
+                  {filteredFilterOptions.map((option) => (
+                    <label key={option} className="mg-cards-config-menu__item emp-filter-value-list-item">
                       <FilterFieldCheck
-                        checked={filterAllVisibleSelected}
+                        checked={filterSelectedValues.includes(option)}
                         onChange={(event) =>
                           updateFilterDraft((prev) => {
                             const currentList = Array.isArray(prev.values) ? prev.values : [];
-                            const rest = currentList.filter((value) => !filteredFilterOptions.includes(value));
-                            return {
-                              ...prev,
-                              values: event.target.checked
-                                ? [...new Set([...rest, ...filteredFilterOptions])]
-                                : rest,
-                            };
+                            const nextList = event.target.checked
+                              ? [...currentList, option]
+                              : currentList.filter((value) => value !== option);
+                            return { ...prev, values: [...new Set(nextList)] };
                           })
                         }
                       />
-                      <span className="mg-cards-config-menu__label">(Selecionar Tudo)</span>
+                      <span className="mg-cards-config-menu__label truncate" title={option}>
+                        {option}
+                      </span>
                     </label>
-                    {filteredFilterOptions.map((option) => (
-                      <label key={option} className="mg-cards-config-menu__item emp-filter-value-list-item">
-                        <FilterFieldCheck
-                          checked={filterSelectedValues.includes(option)}
-                          onChange={(event) =>
-                            updateFilterDraft((prev) => {
-                              const currentList = Array.isArray(prev.values) ? prev.values : [];
-                              const nextList = event.target.checked
-                                ? [...currentList, option]
-                                : currentList.filter((value) => value !== option);
-                              return { ...prev, values: [...new Set(nextList)] };
-                            })
-                          }
-                        />
-                        <span className="mg-cards-config-menu__label truncate" title={option}>
-                          {option}
-                        </span>
-                      </label>
-                    ))}
-                    {filteredFilterOptions.length === 0 ? (
-                      <div className="mg-search-dropdown__empty">Nenhum valor encontrado.</div>
-                    ) : null}
-                  </>
-                )}
+                  ))}
+                  {filteredFilterOptions.length === 0 && !filterSearchLoading ? (
+                    <div className="mg-search-dropdown__empty">Nenhum valor encontrado.</div>
+                  ) : null}
+                </>
               </div>
 
               <div className="emp-filter-actions">
