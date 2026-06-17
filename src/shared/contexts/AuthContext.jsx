@@ -38,7 +38,7 @@ const prefetchEmpresasCadastro = () => {
     staleTime: 60_000,
   });
   void queryClientInstance.prefetchQuery({
-    queryKey: ["emp-campos-personalizados"],
+    queryKey: ["emp-campos-personalizados", AuthApi.getSelectedEmpresaId() || "global"],
     queryFn: () => empresasModuleDefinition.repository.listCamposPersonalizados("aplicavel"),
     staleTime: 5 * 60_000,
   });
@@ -191,6 +191,7 @@ export const AuthProvider = ({ children }) => {
     AuthApi.setSelectedEmpresaId(normalizedEmpresaId);
     setSelectedEmpresaId(normalizedEmpresaId);
     void queryClientInstance.invalidateQueries({ queryKey: ["emp-cadastro"] });
+    void queryClientInstance.invalidateQueries({ queryKey: ["emp-campos-personalizados"] });
   }, []);
 
   const mapEmpresaForSelector = useCallback((empresa) => ({

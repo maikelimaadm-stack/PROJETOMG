@@ -30,7 +30,7 @@ export const buildColunasDisponiveis = (
       ...campo,
       id: `custom:${campo.field_name}`,
       label: campo.label,
-      default: false,
+      default: true,
       sortable: campo.ordenavel !== false,
       filtravel: campo.filtravel !== false,
       align:
