@@ -83,6 +83,8 @@ export default function MgCardsPanelStrip({
   onFilterChange,
   onFilterClear,
   onFilterApply,
+  onConfigureFilters = null,
+  filterPanelActive = false,
 }) {
   const fields =
     Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
@@ -265,6 +267,8 @@ export default function MgCardsPanelStrip({
           onClear={onFilterClear}
           onApply={onFilterApply}
           disabled={disabled}
+          onConfigureFilters={onConfigureFilters}
+          filterPanelActive={filterPanelActive}
         />
       </div>
 

@@ -12,6 +12,8 @@ export default function MgTablePanelStrip({
   onFilterChange,
   onFilterClear,
   onFilterApply,
+  onConfigureFilters = null,
+  filterPanelActive = false,
 }) {
   return (
     <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
@@ -25,6 +27,8 @@ export default function MgTablePanelStrip({
           onClear={onFilterClear}
           onApply={onFilterApply}
           disabled={disabled}
+          onConfigureFilters={onConfigureFilters}
+          filterPanelActive={filterPanelActive}
         />
       </div>
       <div className="mg-table-panel-strip__actions">

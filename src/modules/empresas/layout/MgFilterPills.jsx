@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import EmpColFilterPopover from "@/modules/empresas/components/EmpColFilterPopover";
 import { matchesFilterOptionContains } from "@/modules/empresas/components/tblEmp.filters";
@@ -185,6 +185,7 @@ function useFilterPillsScrollRail(enabled = true) {
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
+  const [scrollThumb, setScrollThumb] = useState({ ratio: 0, sizeRatio: 1 });
 
   const updateScrollState = useCallback(() => {
     const viewport = viewportRef.current;
@@ -192,6 +193,7 @@ function useFilterPillsScrollRail(enabled = true) {
       setCanScrollLeft(false);
       setCanScrollRight(false);
       setHasOverflow(false);
+      setScrollThumb({ ratio: 0, sizeRatio: 1 });
       return;
     }
 
@@ -199,10 +201,16 @@ function useFilterPillsScrollRail(enabled = true) {
     const nextLeft = viewport.scrollLeft > 1;
     const nextRight = viewport.scrollLeft < maxScrollLeft - 1;
     const nextOverflow = maxScrollLeft > 1;
+    const sizeRatio =
+      viewport.scrollWidth > 0
+        ? Math.min(1, Math.max(0.12, viewport.clientWidth / viewport.scrollWidth))
+        : 1;
+    const ratio = maxScrollLeft > 0 ? viewport.scrollLeft / maxScrollLeft : 0;
 
     setCanScrollLeft(nextLeft);
     setCanScrollRight(nextRight);
     setHasOverflow(nextOverflow);
+    setScrollThumb({ ratio, sizeRatio });
   }, [enabled]);
 
   useEffect(() => {
@@ -242,14 +250,68 @@ function useFilterPillsScrollRail(enabled = true) {
     });
   }, []);
 
+  const scrollToRatio = useCallback((ratio) => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const maxScrollLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    viewport.scrollTo({
+      left: maxScrollLeft * Math.min(1, Math.max(0, ratio)),
+      behavior: "auto",
+    });
+  }, []);
+
   return {
     viewportRef,
     canScrollLeft,
     canScrollRight,
     hasOverflow,
+    scrollThumb,
     scrollLeft: () => scrollByStep(-1),
     scrollRight: () => scrollByStep(1),
+    scrollToRatio,
   };
+}
+
+function FilterPillsScrollTrack({ scrollThumb, onScrollToRatio, disabled = false }) {
+  const trackRef = useRef(null);
+
+  const jumpToClientX = useCallback(
+    (clientX) => {
+      const track = trackRef.current;
+      if (!track || disabled) return;
+      const rect = track.getBoundingClientRect();
+      if (!rect.width) return;
+      const ratio = (clientX - rect.left) / rect.width;
+      onScrollToRatio?.(ratio);
+    },
+    [disabled, onScrollToRatio]
+  );
+
+  const thumbWidth = `${scrollThumb.sizeRatio * 100}%`;
+  const thumbOffset = `${scrollThumb.ratio * (100 - scrollThumb.sizeRatio * 100)}%`;
+
+  return (
+    <div
+      ref={trackRef}
+      className={`mg-filter-pills-rail__scrollbar${disabled ? " is-disabled" : ""}`}
+      role="scrollbar"
+      aria-orientation="horizontal"
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuenow={Math.round(scrollThumb.ratio * 100)}
+      aria-disabled={disabled}
+      onMouseDown={(event) => {
+        if (disabled) return;
+        event.preventDefault();
+        jumpToClientX(event.clientX);
+      }}
+    >
+      <div
+        className="mg-filter-pills-rail__scrollbar-thumb"
+        style={{ width: thumbWidth, transform: `translateX(${thumbOffset})` }}
+      />
+    </div>
+  );
 }
 
 export default function MgFilterPills({
@@ -262,6 +324,8 @@ export default function MgFilterPills({
   onApply,
   disabled = false,
   className = "",
+  onConfigureFilters = null,
+  filterPanelActive = false,
 }) {
   const useScrollRail = !className.includes("mg-filter-pills--drawer");
   const {
@@ -269,8 +333,10 @@ export default function MgFilterPills({
     canScrollLeft,
     canScrollRight,
     hasOverflow,
+    scrollThumb,
     scrollLeft,
     scrollRight,
+    scrollToRatio,
   } = useFilterPillsScrollRail(useScrollRail);
 
   const hasActiveFilters = useMemo(
@@ -347,6 +413,26 @@ export default function MgFilterPills({
           <ChevronRight className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
         </button>
       ) : null}
+      {onConfigureFilters ? (
+        <button
+          type="button"
+          className={`ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__config${
+            filterPanelActive ? " is-active" : ""
+          }`}
+          onClick={onConfigureFilters}
+          disabled={disabled}
+          aria-label="Configurar filtros"
+          title="Configurar filtros"
+          aria-pressed={filterPanelActive}
+        >
+          <Filter className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
+        </button>
+      ) : null}
+      <FilterPillsScrollTrack
+        scrollThumb={scrollThumb}
+        onScrollToRatio={scrollToRatio}
+        disabled={disabled || !hasOverflow}
+      />
     </div>
   );
 }

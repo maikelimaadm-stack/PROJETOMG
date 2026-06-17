@@ -1441,6 +1441,8 @@ export default function PAGEMP() {
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
                 disabled={filterControlsDisabled}
+                onConfigureFilters={toggleFilterPanel}
+                filterPanelActive={filterPanelOpen}
               />
             </div>
 
@@ -1455,6 +1457,8 @@ export default function PAGEMP() {
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
+                onConfigureFilters={toggleFilterPanel}
+                filterPanelActive={filterPanelOpen}
               />
             </div>
           </div>
