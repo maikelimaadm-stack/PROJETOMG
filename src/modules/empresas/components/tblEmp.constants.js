@@ -47,8 +47,8 @@ export const MIN_COL_WIDTH = 80;
 export const MAX_AUTO_FIT_WIDTH = 520;
 export const AUTO_FIT_MEASURE_LIMIT = 300;
 
-/** Espaço reservado no cabeçalho para padding (px). */
-export const HEADER_PADDING_X = 18;
+/** Espaço reservado no cabeçalho para texto + ícones (px). */
+export const HEADER_PADDING_X = 74;
 export const HEADER_LABEL_MIN_CH = 5;
 export const HEADER_LABEL_CHAR_PX = 7;
 

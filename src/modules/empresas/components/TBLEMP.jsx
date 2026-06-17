@@ -9,13 +9,10 @@ import {
   EyeOff,
   Filter,
   MoreVertical,
-  PanelLeft,
   PanelRight,
-  PinOff,
   ScanLine,
   Trash2,
   X,
-  UsersRound,
 } from "lucide-react";
 import { Checkbox } from "@/shared/ui/checkbox";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
@@ -43,7 +40,6 @@ import {
   FILTERS_KEY,
   FILTER_POPOVER_WIDTH,
   FROZEN_KEY,
-  GROUP_BY_KEY,
   MAX_AUTO_FIT_WIDTH,
   MIN_COL_WIDTH,
   ORDER_KEY,
@@ -135,12 +131,10 @@ export default function TBLEMP({
   const [sortConfig, setSortConfig] = useState(() => {
     const saved = readStorageJSON(SORT_KEY, null);
     if (Array.isArray(saved) && saved.length > 0) {
-      return saved
-        .map((item) => ({
-          key: item?.key,
-          direction: item?.direction === "desc" ? "desc" : "asc",
-        }))
-        .filter((item) => item.key);
+      const first = saved.find((item) => item?.key);
+      if (first?.key) {
+        return [{ key: first.key, direction: first.direction === "desc" ? "desc" : "asc" }];
+      }
     }
     if (saved?.key) {
       return [{ key: saved.key, direction: saved.direction === "desc" ? "desc" : "asc" }];
@@ -155,10 +149,10 @@ export default function TBLEMP({
   const isMobile = useIsMobile();
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
-  const [frozenColumnCount, setFrozenColumnCount] = useState(() => { const s = Number(localStorage.getItem(FROZEN_KEY) || 0); return Number.isFinite(s) ? s : 0; });
+  const [frozenColumnCount, setFrozenColumnCount] = useState(0);
   const [pinnedRightColumnIds, setPinnedRightColumnIds] = useState(() => {
     const saved = readStorageJSON(PINNED_RIGHT_KEY, []);
-    return Array.isArray(saved) ? saved : [];
+    return Array.isArray(saved) && saved.length > 0 ? [saved[saved.length - 1]] : [];
   });
   const [colunasOrdem, setColunasOrdem] = useState(() => loadColumnOrder(ORDER_KEY, COLUNAS_BASE));
   const [colunasVisiveis, setColunasVisiveis] = useState(() => loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE));
@@ -226,10 +220,7 @@ export default function TBLEMP({
   const [remoteColumnOptions, setRemoteColumnOptions] = useState({});
   const [loadingRemoteColumnOptions, setLoadingRemoteColumnOptions] = useState(false);
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
-  const [groupByColumnIds, setGroupByColumnIds] = useState(() => {
-    const saved = readStorageJSON(GROUP_BY_KEY, []);
-    return Array.isArray(saved) ? saved.filter(Boolean) : [];
-  });
+  const [groupByColumnIds, setGroupByColumnIds] = useState([]);
   const [collapsedGroupKeys, setCollapsedGroupKeys] = useState({});
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
@@ -406,11 +397,10 @@ export default function TBLEMP({
   }, [getColumnFilterAnchor, getColumnMenuAnchor]);
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
-  useEffect(() => { localStorage.setItem(FROZEN_KEY, String(frozenColumnCount)); }, [frozenColumnCount]);
+  useEffect(() => { localStorage.setItem(FROZEN_KEY, "0"); }, [frozenColumnCount]);
   useEffect(() => { localStorage.setItem(PINNED_RIGHT_KEY, JSON.stringify(pinnedRightColumnIds)); }, [pinnedRightColumnIds]);
   useEffect(() => { localStorage.setItem(FILTERS_KEY, JSON.stringify(filtrosColunas)); }, [filtrosColunas]);
   useEffect(() => { localStorage.setItem(SORT_KEY, JSON.stringify(sortConfig)); }, [sortConfig]);
-  useEffect(() => { localStorage.setItem(GROUP_BY_KEY, JSON.stringify(groupByColumnIds)); }, [groupByColumnIds]);
   useEffect(() => { const s = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s ? JSON.parse(s) : {}); } catch { setLayoutAggregationConfig({}); } const h = () => { const s2 = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s2 ? JSON.parse(s2) : {}); } catch { setLayoutAggregationConfig({}); } }; window.addEventListener("storage", h); window.addEventListener("emp-layout-updated", h); return () => { window.removeEventListener("storage", h); window.removeEventListener("emp-layout-updated", h); }; }, []);
 
   useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.round(Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX))) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
@@ -445,24 +435,31 @@ export default function TBLEMP({
   useEffect(() => { onSelectionChange?.(selectedItems); }, [selectedItems, onSelectionChange]);
   useEffect(() => { if (!selectedRecordId || selectedIds !== undefined) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId, selectedIds]);
 
-  const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nf }) => {
+  const handleColumnLayoutChange = ({ visiveis, ordem }) => {
     setColunasVisiveis(visiveis);
     setColunasOrdem(ordem);
-    if (nf !== undefined) setFrozenColumnCount(Math.max(0, Math.min(Number(nf) || 0, visiveis.length)));
-    setPinnedRightColumnIds((prev) => prev.filter((id) => visiveis.includes(id)));
+    setFrozenColumnCount(0);
+    setPinnedRightColumnIds((prev) => {
+      const filtered = prev.filter((id) => visiveis.includes(id));
+      if (filtered.length <= 1) return filtered;
+      return [filtered[filtered.length - 1]];
+    });
     setGroupByColumnIds((prev) => prev.filter((id) => visiveis.includes(id)));
     localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis));
     localStorage.setItem(ORDER_KEY, JSON.stringify(ordem));
+    localStorage.setItem(FROZEN_KEY, "0");
     window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
   };
   const handleResetColumnLayout = () => { const def = colunasDisponiveis.filter((c) => !c.fixo); handleColumnLayoutChange({ visiveis: def.filter((c) => c.default).map((c) => c.id), ordem: def.map((c) => c.id) }); };
 
   const colunasTodasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && !c.fixo), [colunasOrdem, colunasDisponiveis]);
-  useEffect(() => { setFrozenColumnCount((c) => Math.min(c, colunasOrdenadas.length)); }, [colunasOrdenadas.length]);
+  useEffect(() => { setFrozenColumnCount(0); }, [colunasOrdenadas.length]);
   useEffect(() => {
-    setPinnedRightColumnIds((prev) =>
-      prev.filter((id) => colunasOrdenadas.some((col) => col.id === id))
-    );
+    setPinnedRightColumnIds((prev) => {
+      const filtered = prev.filter((id) => colunasOrdenadas.some((col) => col.id === id));
+      if (filtered.length <= 1) return filtered;
+      return [filtered[filtered.length - 1]];
+    });
   }, [colunasOrdenadas]);
 
   const columnPixelWidths = useMemo(
@@ -1305,25 +1302,82 @@ export default function TBLEMP({
     return ctx.measureText(String(text ?? "")).width;
   };
 
-  const autoFitColumnWidth = (col) => {
-    const minW = getMinWidth(col);
-    let maxW = measureTextWidth(formatHeaderLabel(col), '600 12px Inter, system-ui, sans-serif') + 38;
-    empresasOrdenadas.slice(0, AUTO_FIT_MEASURE_LIMIT).forEach((emp) => {
-      const cellW = measureTextWidth(getFieldValue(emp, col.id)) + 14;
-      maxW = Math.max(maxW, cellW);
+  const calculateAutoFitWidth = useCallback(
+    (col) => {
+      const minW = getMinWidth(col);
+      let maxW = measureTextWidth(formatHeaderLabel(col), "600 12px Inter, system-ui, sans-serif") + 74;
+      empresasOrdenadas.slice(0, AUTO_FIT_MEASURE_LIMIT).forEach((emp) => {
+        const cellW = measureTextWidth(getFieldValue(emp, col.id)) + 16;
+        maxW = Math.max(maxW, cellW);
+      });
+      if (agregacoes[col.id] !== undefined) {
+        const totalW = measureTextWidth(
+          colunasOrdenadas.findIndex((c) => c.id === col.id) === 0 ? "Totais" : formatTotalValue(agregacoes[col.id], col),
+          "600 10px Inter, system-ui, sans-serif"
+        ) + 16;
+        maxW = Math.max(maxW, totalW);
+      }
+      return Math.round(Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW))));
+    },
+    [agregacoes, colunasOrdenadas, empresasOrdenadas, getFieldValue]
+  );
+
+  const autoFitColumnWidth = useCallback(
+    (col, { keepActive = false } = {}) => {
+      const nextWidth = calculateAutoFitWidth(col);
+      setColumnWidths((previous) => {
+        if (previous[col.id] === nextWidth) return previous;
+        return { ...previous, [col.id]: nextWidth };
+      });
+      if (keepActive) {
+        setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: true }));
+      }
+      setResizeColumnId(null);
+    },
+    [calculateAutoFitWidth]
+  );
+
+  useEffect(() => {
+    const activeColumnIds = Object.entries(autoFitActiveColumns)
+      .filter(([, active]) => Boolean(active))
+      .map(([columnId]) => columnId)
+      .filter((columnId) => colunasOrdenadas.some((column) => column.id === columnId));
+    if (activeColumnIds.length === 0) return;
+    setColumnWidths((previous) => {
+      let changed = false;
+      const next = { ...previous };
+      activeColumnIds.forEach((columnId) => {
+        const column = colunasDisponiveisById.get(columnId);
+        if (!column) return;
+        const nextWidth = calculateAutoFitWidth(column);
+        if (next[columnId] !== nextWidth) {
+          next[columnId] = nextWidth;
+          changed = true;
+        }
+      });
+      return changed ? next : previous;
     });
-    if (agregacoes[col.id] !== undefined) {
-      const totalW = measureTextWidth(
-        colunasOrdenadas.findIndex((c) => c.id === col.id) === 0 ? "Totais" : formatTotalValue(agregacoes[col.id], col),
-        '600 10px Inter, system-ui, sans-serif'
-      ) + 14;
-      maxW = Math.max(maxW, totalW);
-    }
-    const nextWidth = Math.round(Math.min(MAX_AUTO_FIT_WIDTH, Math.max(minW, Math.ceil(maxW))));
-    setColumnWidths((p) => ({ ...p, [col.id]: nextWidth }));
-    setAutoFitActiveColumns((prev) => ({ ...prev, [col.id]: true }));
-    setResizeColumnId(null);
-  };
+  }, [autoFitActiveColumns, calculateAutoFitWidth, colunasDisponiveisById, colunasOrdenadas]);
+
+  useEffect(() => {
+    setAutoFitActiveColumns((previous) => {
+      const visibleIds = new Set(colunasOrdenadas.map((column) => column.id));
+      let changed = false;
+      const next = {};
+      Object.entries(previous).forEach(([columnId, active]) => {
+        if (!active) return;
+        if (!visibleIds.has(columnId)) {
+          changed = true;
+          return;
+        }
+        next[columnId] = true;
+      });
+      if (!changed && Object.keys(next).length === Object.keys(previous).filter((id) => previous[id]).length) {
+        return previous;
+      }
+      return next;
+    });
+  }, [colunasOrdenadas]);
 
   const applyQuickColumnFilter = (col) => {
     openFilterMenu(col.id);
@@ -1332,14 +1386,7 @@ export default function TBLEMP({
   const hideColumn = (col) => {
     if (!colunasVisiveis.includes(col.id) || colunasVisiveis.length <= 1) return;
     const nextVisiveis = colunasVisiveis.filter((id) => id !== col.id);
-    const hiddenIndex = colunasOrdenadas.findIndex((item) => item.id === col.id);
     setColunasVisiveis(nextVisiveis);
-    setFrozenColumnCount((count) => {
-      if (hiddenIndex >= 0 && hiddenIndex < count) {
-        return Math.max(0, count - 1);
-      }
-      return Math.min(count, nextVisiveis.length);
-    });
     setPinnedRightColumnIds((prev) => prev.filter((id) => id !== col.id));
     setGroupByColumnIds((prev) => prev.filter((id) => id !== col.id));
     localStorage.setItem(VISIBLE_KEY, JSON.stringify(nextVisiveis));
@@ -1348,54 +1395,24 @@ export default function TBLEMP({
   };
 
   const applySortToColumn = (columnId, direction) => {
-    setSortConfig((prev) => {
-      const nextDirection = direction === "desc" ? "desc" : "asc";
-      const previous = Array.isArray(prev) ? prev : [];
-      const remaining = previous.filter((rule) => rule.key !== columnId);
-      return [{ key: columnId, direction: nextDirection }, ...remaining];
+    const nextDirection = direction === "desc" ? "desc" : "asc";
+    setSortConfig([{ key: columnId, direction: nextDirection }]);
+  };
+
+  const toggleSortForColumn = useCallback((columnId) => {
+    setSortConfig((previous) => {
+      const currentRule = Array.isArray(previous) ? previous.find((rule) => rule.key === columnId) : null;
+      const nextDirection = currentRule?.direction === "asc" ? "desc" : "asc";
+      return [{ key: columnId, direction: nextDirection }];
     });
-  };
+  }, []);
 
-  const pinColumnLeft = (colIndex, colId) => {
-    setPinnedRightColumnIds((prev) => prev.filter((id) => id !== colId));
-    setFrozenColumnCount((count) => Math.max(Math.min(count, colunasOrdenadas.length), colIndex + 1));
-    closeColumnOverlays();
-  };
-
-  const pinColumnRight = (colId, colIndex) => {
-    setPinnedRightColumnIds((prev) => (prev.includes(colId) ? prev : [...prev, colId]));
-    if (colIndex < frozenColumnCount) {
-      setFrozenColumnCount(Math.max(0, colIndex));
-    }
-    closeColumnOverlays();
-  };
-
-  const unpinColumn = (colId, colIndex) => {
-    setPinnedRightColumnIds((prev) => prev.filter((id) => id !== colId));
-    if (colIndex < frozenColumnCount) {
-      setFrozenColumnCount(Math.max(0, colIndex));
-    }
-    closeColumnOverlays();
-  };
-
-  const toggleGroupByColumn = useCallback((columnId) => {
-    setGroupByColumnIds((previous) => {
-      if (previous.includes(columnId)) {
-        return previous.filter((id) => id !== columnId);
-      }
-      return [...previous, columnId];
-    });
-    setCollapsedGroupKeys({});
+  const togglePinColumnRight = useCallback((columnId) => {
+    setPinnedRightColumnIds((previous) => (previous[0] === columnId ? [] : [columnId]));
     closeColumnOverlays();
   }, [closeColumnOverlays]);
 
-  const clearGrouping = useCallback(() => {
-    setGroupByColumnIds((previous) => (previous.length > 0 ? [] : previous));
-    setCollapsedGroupKeys({});
-    closeColumnOverlays();
-  }, [closeColumnOverlays]);
-
-  const buildColumnMenuItems = (col, colIndex) => [
+  const buildColumnMenuItems = (col) => [
     {
       id: "filter",
       label: "Abrir filtro avançado",
@@ -1414,76 +1431,25 @@ export default function TBLEMP({
       },
     },
     {
-      id: "sort-az",
-      label: "Ordenar A → Z",
-      Icon: ArrowUp,
-      active: Array.isArray(sortConfig) && sortConfig.some((rule) => rule.key === col.id && rule.direction === "asc"),
-      onClick: () => {
-        applySortToColumn(col.id, "asc");
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "sort-za",
-      label: "Ordenar Z → A",
-      Icon: ArrowDown,
-      active: Array.isArray(sortConfig) && sortConfig.some((rule) => rule.key === col.id && rule.direction === "desc"),
-      onClick: () => {
-        applySortToColumn(col.id, "desc");
-        closeColumnOverlays();
-      },
-    },
-    {
-      id: "group-column-toggle",
-      label: groupByColumnIds.includes(col.id)
-        ? "Remover agrupamento desta coluna"
-        : "Agrupar por esta coluna",
-      Icon: UsersRound,
-      active: groupByColumnIds.includes(col.id),
-      onClick: () => toggleGroupByColumn(col.id),
-    },
-    {
-      id: "group-column-clear-all",
-      label: "Limpar agrupamentos",
-      Icon: X,
-      disabled: groupByColumnIds.length === 0,
-      onClick: clearGrouping,
-    },
-    {
       id: "auto-fit",
       label: "Auto ajustar",
       Icon: ScanLine,
       active: Boolean(autoFitActiveColumns[col.id]),
       onClick: () => {
-        autoFitColumnWidth(col);
+        if (autoFitActiveColumns[col.id]) {
+          setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
+        } else {
+          autoFitColumnWidth(col, { keepActive: true });
+        }
         closeColumnOverlays();
       },
-    },
-    {
-      id: "pin-column-left",
-      label: "Fixar esquerda",
-      Icon: PanelLeft,
-      active: colIndex < frozenColumnCount,
-      onClick: () => pinColumnLeft(colIndex, col.id),
     },
     {
       id: "pin-column-right",
       label: "Fixar direita",
       Icon: PanelRight,
-      active: pinnedRightColumnIds.includes(col.id),
-      onClick: () => {
-        pinColumnRight(col.id, colIndex);
-      },
-    },
-    {
-      id: "pin-column-clear",
-      label: "Desfixar",
-      Icon: PinOff,
-      disabled: !(colIndex < frozenColumnCount) && !pinnedRightColumnIds.includes(col.id),
-      onClick: () => {
-        unpinColumn(col.id, colIndex);
-        closeColumnOverlays();
-      },
+      active: pinnedRightColumnIds[0] === col.id,
+      onClick: () => togglePinColumnRight(col.id),
     },
     {
       id: "hide-column",
@@ -1530,7 +1496,6 @@ export default function TBLEMP({
       const hasColumnFilter = hasActiveFilter(col.id);
       const sortRule = Array.isArray(sortConfig) ? sortConfig.find((rule) => rule.key === col.id) : null;
       const isSortActive = Boolean(sortRule);
-      const isGrouped = groupByColumnIds.includes(col.id);
       const hasRightShadow = col.id === lastPinnedLeftId;
       const hasLeftShadow = col.id === firstPinnedRightId;
       return (
@@ -1541,19 +1506,29 @@ export default function TBLEMP({
             right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
           }}
           className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-shadow-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
+          onDoubleClick={(event) => {
+            const interactiveTarget = event.target?.closest?.(
+              "button, [role='separator'], .emp-col-resize-handle"
+            );
+            if (interactiveTarget) return;
+            event.preventDefault();
+            event.stopPropagation();
+            toggleSortForColumn(col.id);
+          }}
         >
           <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 overflow-hidden gap-1">
-            <span className="emp-th-label flex-1 min-w-0 truncate font-semibold whitespace-nowrap text-left">
+            <span
+              className="emp-th-label flex-1 min-w-0 font-semibold whitespace-nowrap text-left"
+              title={formatHeaderLabel(col)}
+            >
               {formatHeaderLabel(col)}
             </span>
-            {isGrouped ? <UsersRound className="h-3.5 w-3.5 text-emerald-600" /> : null}
             {isSortActive ? (
               sortRule?.direction === "desc"
                 ? <ArrowDown className="h-3.5 w-3.5 text-emerald-600" />
                 : <ArrowUp className="h-3.5 w-3.5 text-emerald-600" />
             ) : null}
             {isPinnedRight ? <PanelRight className="h-3.5 w-3.5 text-emerald-600" /> : null}
-            {isPinnedLeft ? <PanelLeft className="h-3.5 w-3.5 text-emerald-600" /> : null}
             <button
               type="button"
               ref={(element) => {
@@ -1611,7 +1586,7 @@ export default function TBLEMP({
     const columnIndex = colunasOrdenadas.findIndex((column) => column.id === columnMenuAnchor.columnId);
     if (columnIndex < 0) return null;
     const column = colunasOrdenadas[columnIndex];
-    const menuItems = buildColumnMenuItems(column, columnIndex);
+    const menuItems = buildColumnMenuItems(column);
     return (
       <div
         ref={columnMenuPanelRef}
