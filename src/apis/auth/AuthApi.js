@@ -36,11 +36,16 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
       },
       body: body ? JSON.stringify(body) : undefined,
     });
-  } catch {
+  } catch (networkError) {
     if (import.meta.env.DEV) {
       throw new Error(backendOfflineMessage());
     }
-    throw new Error(`Falha em ${method} ${path}`);
+    const networkMessage = String(networkError?.message || "").trim();
+    throw new Error(
+      networkMessage
+        ? `Falha em ${method} ${path}: ${networkMessage}`
+        : `Falha em ${method} ${path}`
+    );
   }
 
   const rawBody = await response.text().catch(() => "");

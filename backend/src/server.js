@@ -29,6 +29,10 @@ const parseAllowedOrigins = () =>
     String(process.env.VITE_FRONTEND_URL || ""),
     String(process.env.VERCEL_PROJECT_PRODUCTION_URL || ""),
     String(process.env.VERCEL_URL || ""),
+    // Defaults do projeto para não quebrar login em preview/deploy.
+    "https://projetomg.vercel.app",
+    "https://projetomg-*.vercel.app",
+    "https://projetomg-git-*.vercel.app",
   ]
     .map((item) => item.trim().replaceAll('"', "").replaceAll("'", ""))
     .filter(Boolean)
