@@ -8604,80 +8604,21 @@
   position: relative;
 }
 
-.erp-filter-single-date__row {
-  width: 100%;
+.mg-empresas-scope .erp-filter-single-date .mg-search-pill-wrap,
+.mg-empresas-scope .erp-filter-single-date .mg-search-pill {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
 }
 
-.erp-filter-single-date__search-pill {
-  width: 100%;
-  height: var(--mg-btn-height);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: var(--mg-btn-pill-border);
-  border-radius: var(--mg-search-pill-radius);
-  background: var(--gray-fill);
-  padding: 0 10px;
-  box-sizing: border-box;
-  transition:
-    background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
-    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.erp-filter-single-date__search-pill:focus-within {
-  background: var(--mg-field-idle-bg);
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
-}
-
-.erp-filter-single-date__calendar-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 14px;
-  height: 14px;
-  border: none;
-  background: none;
-  color: var(--accent);
-  padding: 0;
-  cursor: pointer;
-  line-height: 1;
-}
-
-.erp-filter-single-date__calendar-btn:hover:not(:disabled) {
-  color: var(--mg-brand-green-hover);
-}
-
-.erp-filter-single-date__calendar-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.erp-filter-single-date__field {
-  flex: 1 1 auto;
-  min-width: 0;
-  width: 100%;
-  height: 100%;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  color: var(--text-1, #1e293b);
-  font-size: 12px;
-  font-weight: 500;
-  padding: 0 !important;
-}
-
-.erp-filter-single-date__field::placeholder {
-  color: var(--text-3);
-  font-weight: 500;
+.mg-empresas-scope .erp-filter-single-date .mg-search-pill-toggle .mg-search-pill-icon,
+.mg-empresas-scope .erp-filter-single-date .mg-search-pill:focus-within .mg-search-pill-toggle .mg-search-pill-icon {
+  color: var(--accent) !important;
+  stroke: var(--accent) !important;
 }
 
 .erp-filter-date-input .mg-dp-icon,
-.erp-filter-date-range__calendar-btn svg,
-.erp-filter-single-date__calendar-btn svg {
+.erp-filter-date-range__calendar-btn svg {
   color: var(--accent) !important;
   stroke: var(--accent) !important;
 }

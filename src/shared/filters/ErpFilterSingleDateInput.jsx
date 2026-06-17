@@ -54,10 +54,10 @@ function SingleDateField({
   };
 
   return (
-    <div className="erp-filter-single-date__search-pill">
+    <div className="mg-search-pill emp-col-filter-popup__search-pill" role="group">
       <button
         type="button"
-        className="erp-filter-single-date__calendar-btn"
+        className="mg-search-pill-toggle"
         disabled={disabled}
         aria-label="Abrir calendário"
         aria-expanded={open}
@@ -71,16 +71,16 @@ function SingleDateField({
           onOpenCalendar?.();
         }}
       >
-        <Calendar className="h-3.5 w-3.5" />
+        <Calendar className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       </button>
       <input
         id={inputId}
         type="text"
         inputMode="numeric"
-        className="erp-filter-single-date__field"
         value={textValue}
         disabled={disabled}
         placeholder={placeholder}
+        aria-label={placeholder}
         autoComplete="off"
         spellCheck={false}
         maxLength={10}
@@ -230,7 +230,7 @@ export default function ErpFilterSingleDateInput({
 
   return (
     <div ref={rootRef} id={id} className={`erp-filter-single-date${open ? " is-calendar-open" : ""}`}>
-      <div className="erp-filter-single-date__row">
+      <div className="mg-search-pill-wrap emp-col-filter-popup__search">
         <SingleDateField
           inputId={inputId}
           value={value}
