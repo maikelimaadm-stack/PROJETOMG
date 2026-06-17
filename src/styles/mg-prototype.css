@@ -6932,19 +6932,14 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-label-wrap {
   display: flex;
   align-items: center;
+  width: 100%;
   min-width: 0;
+  gap: 0;
   padding-right: 2px;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-label-group {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  min-width: 0;
-  max-width: 100%;
-}
-
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-label {
+  flex: 1 1 auto;
   min-width: 0;
 }
 
@@ -6953,6 +6948,7 @@
   flex-shrink: 0;
   align-items: center;
   gap: 1px;
+  margin-left: auto;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button {

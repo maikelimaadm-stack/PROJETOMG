@@ -1430,14 +1430,13 @@ export default function TBLEMP({
           }}
         >
           <div className="emp-th-label-wrap flex w-full h-full min-w-0 overflow-hidden">
-            <div className="emp-th-label-group flex min-w-0 max-w-full items-center overflow-hidden">
-              <span
-                className="emp-th-label min-w-0 truncate font-semibold whitespace-nowrap text-left"
-                title={formatHeaderLabel(col)}
-              >
-                {formatHeaderLabel(col)}
-              </span>
-              <div className="emp-th-trailing flex shrink-0 items-center">
+            <span
+              className="emp-th-label flex-1 min-w-0 truncate font-semibold whitespace-nowrap text-left"
+              title={formatHeaderLabel(col)}
+            >
+              {formatHeaderLabel(col)}
+            </span>
+            <div className="emp-th-trailing flex shrink-0 items-center">
               {isSortActive ? (
                 <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
                   {sortRule?.direction === "desc" ? (
@@ -1504,7 +1503,6 @@ export default function TBLEMP({
               >
                 <MoreVertical className="emp-th-menu-button__icon" strokeWidth={2.2} aria-hidden="true" />
               </button>
-            </div>
             </div>
           </div>
           <div
