@@ -1466,15 +1466,23 @@ export default function TBLEMP({
               {formatHeaderLabel(col)}
             </span>
             {isSortActive ? (
-              sortRule?.direction === "desc"
-                ? <ArrowDown className="h-3.5 w-3.5 text-emerald-600" />
-                : <ArrowUp className="h-3.5 w-3.5 text-emerald-600" />
+              <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
+                {sortRule?.direction === "desc" ? (
+                  <ArrowDown className="emp-th-icon-button__icon" strokeWidth={2.2} />
+                ) : (
+                  <ArrowUp className="emp-th-icon-button__icon" strokeWidth={2.2} />
+                )}
+              </span>
             ) : null}
             {isAutoFitActive ? (
-              <ScanLine className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+              <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
+                <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} />
+              </span>
             ) : null}
             {isFrozenAnchorColumn ? (
-              <PanelLeft className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+              <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
+                <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} />
+              </span>
             ) : null}
             <button
               type="button"
@@ -1482,7 +1490,7 @@ export default function TBLEMP({
                 if (element) columnMenuTriggerRefs.current[col.id] = element;
                 else delete columnMenuTriggerRefs.current[col.id];
               }}
-              className={`emp-th-menu-button${isMenuOpen ? " is-open" : ""}${hasColumnFilter ? " has-filter" : ""}`}
+              className={`emp-th-icon-button emp-th-menu-button${isMenuOpen ? " is-open" : ""}${hasColumnFilter ? " has-filter" : ""}`}
               aria-label={`Abrir menu da coluna ${formatHeaderLabel(col)}`}
               aria-expanded={isMenuOpen}
               onClick={(event) => {
@@ -1490,21 +1498,19 @@ export default function TBLEMP({
                 toggleColumnMenu(col.id);
               }}
             >
-              <span className="emp-th-menu-icon" aria-hidden="true">
-                <MoreVertical className="h-3.5 w-3.5" strokeWidth={2} />
-              </span>
+              <MoreVertical className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
             </button>
             {hasColumnFilter ? (
               <button
                 type="button"
-                className="emp-th-filter-clear-button"
+                className="emp-th-icon-button emp-th-filter-clear-button"
                 aria-label={`Limpar filtro da coluna ${formatHeaderLabel(col)}`}
                 onClick={(event) => {
                   event.stopPropagation();
                   clearColumnFilter(col.id);
                 }}
               >
-                <X className="h-3 w-3" strokeWidth={2.2} />
+                <X className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
               </button>
             ) : null}
           </div>
