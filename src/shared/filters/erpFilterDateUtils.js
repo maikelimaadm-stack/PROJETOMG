@@ -123,15 +123,6 @@ export function addMonths(year, month, delta) {
   return { year: nextYear, month: nextMonth };
 }
 
-export function getSingleSelectedDayClass(year, month, day, value) {
-  if (!value || !isValidBrDate(value)) return "";
-  const parsed = parseBrDate(value);
-  if (parsed.year === year && parsed.month === month && parsed.day === day) {
-    return " selected";
-  }
-  return "";
-}
-
 export function getDayRangeClasses(year, month, day, startValue, endValue) {
   const startTs = brDateToTimestamp(startValue);
   if (startTs == null) return "";
