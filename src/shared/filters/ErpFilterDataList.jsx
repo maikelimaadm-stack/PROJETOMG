@@ -34,7 +34,9 @@ export default function ErpFilterDataList({
   const isDateSingleOperator =
     filterType === "date" && ERP_DATE_OPERATORS_WITH_SINGLE_DATE.has(operator);
   const isWithoutValueOperator = ERP_OPERATORS_WITHOUT_VALUE.has(operator);
-  const showSearchField = !isRangeOperator && !isDateSingleOperator && !isWithoutValueOperator;
+  const hasOperator = Boolean(String(operator || "").trim());
+  const showSearchField =
+    hasOperator && !isRangeOperator && !isDateSingleOperator && !isWithoutValueOperator;
 
   const filteredOptions = useMemo(
     () =>
@@ -54,7 +56,7 @@ export default function ErpFilterDataList({
 
   return (
     <div className="erp-filter-data-list">
-      {isRangeOperator ? (
+      {hasOperator && isRangeOperator ? (
         <ErpFilterRangeInputs
           filterType={filterType}
           value={rangeValue}
@@ -62,7 +64,7 @@ export default function ErpFilterDataList({
           onValueChange={onRangeValueChange}
           onValueToChange={onRangeValueToChange}
         />
-      ) : isDateSingleOperator ? (
+      ) : hasOperator && isDateSingleOperator ? (
         <ErpFilterSingleDateInput
           value={rangeValue}
           onValueChange={onRangeValueChange}

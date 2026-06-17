@@ -2,7 +2,6 @@ export const ERP_TEXT_OPERATORS = [
   { value: "contains", label: "Contém" },
   { value: "not_contains", label: "Não contém" },
   { value: "equals", label: "Igual a" },
-  { value: "not_equals", label: "Diferente de" },
   { value: "starts_with", label: "Começa com" },
   { value: "ends_with", label: "Termina com" },
   { value: "is_empty", label: "Está vazio" },
@@ -12,7 +11,6 @@ export const ERP_TEXT_OPERATORS = [
 export const ERP_NUMBER_OPERATORS = [
   { value: "contains", label: "Contém" },
   { value: "equals", label: "Igual a" },
-  { value: "not_equals", label: "Diferente de" },
   { value: "gt", label: "Maior que" },
   { value: "gte", label: "Maior ou igual a" },
   { value: "lt", label: "Menor que" },
@@ -82,7 +80,6 @@ export const ERP_OPERATORS_WITH_SINGLE_VALUE = new Set([
   "contains",
   "not_contains",
   "equals",
-  "not_equals",
   "starts_with",
   "ends_with",
   "gt",
