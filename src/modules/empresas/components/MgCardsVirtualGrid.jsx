@@ -92,6 +92,7 @@ function MgCardsVirtualGrid({
       {virtualRows.map((virtualRow) => (
         <MgCardsVirtualRow
           key={virtualRow.key}
+          virtualizer={virtualizer}
           virtualRow={virtualRow}
           items={items}
           cardsPerRow={cardsPerRow}
@@ -108,6 +109,7 @@ function MgCardsVirtualGrid({
 }
 
 const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
+  virtualizer,
   virtualRow,
   items,
   cardsPerRow,
@@ -122,6 +124,7 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
 
   return (
     <div
+      ref={virtualizer?.measureElement}
       data-index={virtualRow.index}
       className={`mg-cards-virtual-row mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
       style={{
@@ -129,8 +132,7 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
         top: 0,
         left: CARDS_LIST_PADDING,
         width: `calc(100% - ${CARDS_LIST_PADDING * 2}px)`,
-        height: `${virtualRow.size}px`,
-        transform: `translateY(${virtualRow.start + CARDS_LIST_PADDING}px)`,
+        transform: `translateY(${virtualRow.start}px)`,
       }}
     >
       {Array.from({ length: Math.min(cardsPerRow, items.length - startIndex) }, (_, colIndex) => {

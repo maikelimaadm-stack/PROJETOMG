@@ -928,6 +928,8 @@
 
 .mg-empresas-scope .mg-cards-virtual-row.mg-cards-grid {
   align-items: start;
+  column-gap: 12px;
+  row-gap: 0;
 }
 .mg-empresas-scope .mg-emp-card--virtual:not(.emp-form-card) {
   padding: 12px 16px !important;
