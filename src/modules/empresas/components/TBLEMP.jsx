@@ -830,6 +830,30 @@ export default function TBLEMP({
   ]);
 
   const linhasExibidas = groupedResult.rows;
+  const groupKeysSignature = useMemo(
+    () => groupedResult.groupKeys.join("||"),
+    [groupedResult.groupKeys]
+  );
+
+  useEffect(() => {
+    if (!groupKeysSignature) {
+      setCollapsedGroupKeys((previous) => (Object.keys(previous).length === 0 ? previous : {}));
+      return;
+    }
+    const allowedKeys = new Set(groupedResult.groupKeys);
+    setCollapsedGroupKeys((previous) => {
+      let changed = false;
+      const nextState = {};
+      Object.entries(previous).forEach(([groupKey, collapsed]) => {
+        if (!allowedKeys.has(groupKey)) {
+          changed = true;
+          return;
+        }
+        nextState[groupKey] = collapsed;
+      });
+      return changed ? nextState : previous;
+    });
+  }, [groupKeysSignature, groupedResult.groupKeys]);
 
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";
