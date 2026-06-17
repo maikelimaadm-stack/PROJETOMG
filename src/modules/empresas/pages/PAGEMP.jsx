@@ -21,6 +21,7 @@ import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
 import MgTablePanelStrip from "@/modules/empresas/layout/MgTablePanelStrip";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
+import MgFilterStrip from "@/modules/empresas/layout/MgFilterStrip";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
 import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
@@ -193,6 +194,8 @@ export default function PAGEMP() {
   } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
   const [filterStatus, setFilterStatus] = useState("Todos");
+  const [appliedFilterValues, setAppliedFilterValues] = useState({});
+  const [appliedFilterStatus, setAppliedFilterStatus] = useState("Todos");
   const [formBridge, setFormBridge] = useState(null);
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
@@ -800,15 +803,20 @@ export default function PAGEMP() {
   const handleFilterClear = useCallback(() => {
     setFilterValues({});
     setFilterStatus("Todos");
+    setAppliedFilterValues({});
+    setAppliedFilterStatus("Todos");
     setAppliedPanelFilters(undefined);
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
+    setQueryPage(1);
   }, []);
 
   const handleFilterApply = useCallback(() => {
+    setAppliedFilterValues({ ...filterValues });
+    setAppliedFilterStatus(filterStatus);
     setAppliedPanelFilters(buildEmpresaPanelFilters(filterValues, filterStatus));
     setQueryPage(1);
     closeFilterPanel();
@@ -1246,6 +1254,8 @@ export default function PAGEMP() {
     editingEmp?.nome_empresa ||
     "Novo registro";
 
+  const showListFilters = !showForm && (mgViewMode === "tabela" || mgViewMode === "cards");
+
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -1286,6 +1296,7 @@ export default function PAGEMP() {
             isFavoriteRecord={empFavorites.isFavorite}
             onToggleFilter={toggleFilterPanel}
             filterActive={hasActiveFilters}
+            showFilterToggle={isMobile}
             onNew={handleNew}
             onSave={formBridge?.onSave}
             onCancel={formBridge?.onCancel ?? formCancel}
@@ -1325,6 +1336,20 @@ export default function PAGEMP() {
             layoutToolbar={formBridge?.layoutToolbar}
             {...actionBarVisibility}
             />
+
+            <div className={`mg-filter-strip-wrap${showListFilters ? " is-visible" : ""}`}>
+              <MgFilterStrip
+                values={filterValues}
+                status={filterStatus}
+                appliedValues={appliedFilterValues}
+                appliedStatus={appliedFilterStatus}
+                onChange={handleFilterChange}
+                onStatusChange={setFilterStatus}
+                onClear={handleFilterClear}
+                onApply={handleFilterApply}
+                disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
+              />
+            </div>
 
             <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
               <MgContextPanel

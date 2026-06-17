@@ -63,6 +63,7 @@ export default function MgActionBar({
   isFavoriteRecord,
   onToggleFilter,
   filterActive = false,
+  showFilterToggle = true,
   onNew,
   onSave,
   onCancel,
@@ -690,7 +691,7 @@ export default function MgActionBar({
       >
         <div className="mg-action-bar-mobile__row">
           <div className={`mg-action-bar-mobile__actions${lockedClass}`}>
-            {showSecondaryTools && onToggleFilter ? (
+            {showSecondaryTools && showFilterToggle && onToggleFilter ? (
               <button
                 type="button"
                 className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon shrink-0${
@@ -762,7 +763,7 @@ export default function MgActionBar({
         }}
       >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
-        <ActionSlot show={showSecondaryTools && !!onToggleFilter} width={28}>
+        <ActionSlot show={showSecondaryTools && showFilterToggle && !!onToggleFilter} width={28}>
           <div className={`mg-action-bar__filter-slot${lockedClass}`}>
             <button
               type="button"

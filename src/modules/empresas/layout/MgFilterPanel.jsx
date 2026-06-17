@@ -1,15 +1,12 @@
 import React from "react";
 import { X } from "lucide-react";
 import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
+import {
+  MG_FILTER_STATUS_OPTIONS,
+  MG_FILTER_TEXT_FIELDS,
+} from "@/modules/empresas/layout/mgFilterFields";
 
-const FILTER_FIELDS = [
-  { key: "razao_social", label: "Razão Social" },
-  { key: "nome_fantasia", label: "Nome Fantasia" },
-  { key: "cnpj", label: "CNPJ" },
-  { key: "telefone", label: "Telefone" },
-  { key: "cidade", label: "Cidade" },
-  { key: "uf", label: "UF" },
-];
+const FILTER_FIELDS = MG_FILTER_TEXT_FIELDS.map(({ key, label }) => ({ key, label }));
 
 export default function MgFilterPanel({
   open,
@@ -52,11 +49,7 @@ export default function MgFilterPanel({
             label="Status"
             value={status}
             onChange={onStatusChange}
-            options={[
-              { value: "Todos", label: "Todos" },
-              { value: "Ativo", label: "Ativo" },
-              { value: "Inativo", label: "Inativo" },
-            ]}
+            options={MG_FILTER_STATUS_OPTIONS}
           />
         </div>
 
