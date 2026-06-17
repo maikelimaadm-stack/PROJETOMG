@@ -6929,33 +6929,30 @@
   cursor: pointer;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-icon-button--slot-hidden {
-  visibility: hidden;
-  pointer-events: none;
-}
-
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-label-wrap {
   display: flex;
   align-items: center;
-  gap: 4px;
   min-width: 0;
   padding-right: 2px;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-label-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-label {
+  min-width: 0;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-trailing {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  gap: 4px;
-  margin-left: auto;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-status-icons {
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 4px;
-  min-width: 0;
+  gap: 1px;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th .emp-th-menu-button {

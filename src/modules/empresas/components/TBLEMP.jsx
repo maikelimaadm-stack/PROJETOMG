@@ -1429,53 +1429,65 @@ export default function TBLEMP({
             toggleSortForColumn(col.id);
           }}
         >
-          <div className="emp-th-label-wrap flex items-center w-full h-full min-w-0 overflow-hidden gap-1">
-            <span
-              className="emp-th-label flex-1 min-w-0 font-semibold whitespace-nowrap text-left"
-              title={formatHeaderLabel(col)}
-            >
-              {formatHeaderLabel(col)}
-            </span>
-            <div className="emp-th-trailing flex shrink-0 items-center gap-1">
-              <div className="emp-th-status-icons flex shrink-0 items-center gap-1 min-w-0">
-                {isSortActive ? (
-                  <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
-                    {sortRule?.direction === "desc" ? (
-                      <ArrowDown className="emp-th-icon-button__icon" strokeWidth={2.2} />
-                    ) : (
-                      <ArrowUp className="emp-th-icon-button__icon" strokeWidth={2.2} />
-                    )}
-                  </span>
-                ) : null}
-                {isAutoFitActive ? (
-                  <button
-                    type="button"
-                    className="emp-th-icon-button emp-th-icon-button--status"
-                    aria-label={`Desativar auto ajustar da coluna ${formatHeaderLabel(col)}`}
-                    title="Clique para ajuste manual"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
-                    }}
-                  >
-                    <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
-                  </button>
-                ) : null}
-                {isFrozenAnchorColumn ? (
-                  <button
-                    type="button"
-                    className="emp-th-icon-button emp-th-icon-button--status"
-                    aria-label={`Descongelar coluna ${formatHeaderLabel(col)}`}
-                    title="Clique para descongelar coluna"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      togglePinColumnLeft(colIndex);
-                    }}
-                  >
-                    <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
-                  </button>
-                ) : null}
-              </div>
+          <div className="emp-th-label-wrap flex w-full h-full min-w-0 overflow-hidden">
+            <div className="emp-th-label-group flex min-w-0 max-w-full items-center overflow-hidden">
+              <span
+                className="emp-th-label min-w-0 truncate font-semibold whitespace-nowrap text-left"
+                title={formatHeaderLabel(col)}
+              >
+                {formatHeaderLabel(col)}
+              </span>
+              <div className="emp-th-trailing flex shrink-0 items-center">
+              {isSortActive ? (
+                <span className="emp-th-icon-button emp-th-icon-button--indicator" aria-hidden="true">
+                  {sortRule?.direction === "desc" ? (
+                    <ArrowDown className="emp-th-icon-button__icon" strokeWidth={2.2} />
+                  ) : (
+                    <ArrowUp className="emp-th-icon-button__icon" strokeWidth={2.2} />
+                  )}
+                </span>
+              ) : null}
+              {isAutoFitActive ? (
+                <button
+                  type="button"
+                  className="emp-th-icon-button emp-th-icon-button--status"
+                  aria-label={`Desativar auto ajustar da coluna ${formatHeaderLabel(col)}`}
+                  title="Clique para ajuste manual"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
+                  }}
+                >
+                  <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
+                </button>
+              ) : null}
+              {isFrozenAnchorColumn ? (
+                <button
+                  type="button"
+                  className="emp-th-icon-button emp-th-icon-button--status"
+                  aria-label={`Descongelar coluna ${formatHeaderLabel(col)}`}
+                  title="Clique para descongelar coluna"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    togglePinColumnLeft(colIndex);
+                  }}
+                >
+                  <PanelLeft className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
+                </button>
+              ) : null}
+              {hasColumnFilter ? (
+                <button
+                  type="button"
+                  className="emp-th-icon-button emp-th-filter-clear-button"
+                  aria-label={`Limpar filtro da coluna ${formatHeaderLabel(col)}`}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    clearColumnFilter(col.id);
+                  }}
+                >
+                  <X className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
+                </button>
+              ) : null}
               <button
                 type="button"
                 ref={(element) => {
@@ -1492,21 +1504,7 @@ export default function TBLEMP({
               >
                 <MoreVertical className="emp-th-menu-button__icon" strokeWidth={2.2} aria-hidden="true" />
               </button>
-              <button
-                type="button"
-                className={`emp-th-icon-button emp-th-filter-clear-button${hasColumnFilter ? "" : " emp-th-icon-button--slot-hidden"}`}
-                aria-label={`Limpar filtro da coluna ${formatHeaderLabel(col)}`}
-                aria-hidden={!hasColumnFilter}
-                tabIndex={hasColumnFilter ? 0 : -1}
-                disabled={!hasColumnFilter}
-                onClick={(event) => {
-                  if (!hasColumnFilter) return;
-                  event.stopPropagation();
-                  clearColumnFilter(col.id);
-                }}
-              >
-                <X className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />
-              </button>
+            </div>
             </div>
           </div>
           <div
