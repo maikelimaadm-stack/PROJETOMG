@@ -84,6 +84,12 @@ export const parseNumberFilterValue = (val) => {
   return Number(s.replace(/\./g, "").replace(",", "."));
 };
 
+export const matchesFilterOptionContains = (option, query) => {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) return true;
+  return String(option ?? "").toLowerCase().includes(normalizedQuery);
+};
+
 export const formatRangeTokenForInput = (token, ft, col) => {
   if (!token) return "";
   const raw = String(token).replace(/^(min:|max:|start:|end:)/, "");

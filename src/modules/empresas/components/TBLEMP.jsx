@@ -57,11 +57,11 @@ import {
   createDefaultColumnFilter,
   evaluateColumnFilter,
   getColumnFilterType,
+  matchesFilterOptionContains,
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
 } from "./tblEmp.filters";
 import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
-import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
@@ -232,8 +232,6 @@ export default function TBLEMP({
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
-  const [remoteColumnOptions, setRemoteColumnOptions] = useState({});
-  const [loadingRemoteColumnOptions, setLoadingRemoteColumnOptions] = useState(false);
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
   const [groupByColumnIds, setGroupByColumnIds] = useState([]);
   const [collapsedGroupKeys, setCollapsedGroupKeys] = useState({});
@@ -594,71 +592,19 @@ export default function TBLEMP({
   }, [serverMode, empresasFiltradas, sortConfig, colunasDisponiveisById, getComparableValue, getFieldValue]);
 
   const columnOptions = useMemo(() => {
-    const opts = {};
-    const sourceRows = serverMode ? empresas.slice(0, 200) : empresas;
-    const targetColumns = serverMode
-      ? colunasDisponiveis.filter((c) => !c.fixo && (!menuFiltroAberto || c.id === menuFiltroAberto))
-      : colunasDisponiveis.filter((c) => !c.fixo);
-    targetColumns.forEach((col) => {
-      const source = sourceRows.filter((emp) => (serverMode ? true : empresaPassaFiltros(emp, col.id)));
-      opts[col.id] = [...new Set(source.map((emp) => getFieldValue(emp, col.id)).filter(Boolean))].sort((a, b) =>
-        String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" })
-      );
-    });
-    return opts;
-  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, serverMode, menuFiltroAberto]);
-
-  useEffect(() => {
-    if (!serverMode || !menuFiltroAberto || typeof onRequestDistinctColumnValues !== "function") {
-      setLoadingRemoteColumnOptions(false);
-      return;
-    }
-    const currentColumnId = menuFiltroAberto;
-    const nextColumnFilters = { ...(filtrosColunas || {}) };
-    delete nextColumnFilters[currentColumnId];
-    const mergedFilters = mergeEmpresaListFilters(
-      serverBaseFilters,
-      buildEmpresaColumnFilters(nextColumnFilters)
-    );
-    let active = true;
-    setLoadingRemoteColumnOptions(true);
-    Promise.resolve(
-      onRequestDistinctColumnValues({
-        column: currentColumnId,
-        search: serverSearchTerm || "",
-        optionSearch: debouncedBuscaFiltroMenu,
-        filters: mergedFilters,
-      })
-    )
-      .then((payload) => {
-        if (!active) return;
-        const items = Array.isArray(payload?.items) ? payload.items : [];
-        setRemoteColumnOptions((prev) => ({ ...prev, [currentColumnId]: items }));
-      })
-      .catch(() => {
-        if (!active) return;
-        setRemoteColumnOptions((prev) => {
-          if (!(currentColumnId in prev)) return prev;
-          const next = { ...prev };
-          delete next[currentColumnId];
-          return next;
-        });
-      })
-      .finally(() => {
-        if (active) setLoadingRemoteColumnOptions(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [
-    serverMode,
-    menuFiltroAberto,
-    onRequestDistinctColumnValues,
-    filtrosColunas,
-    serverBaseFilters,
-    serverSearchTerm,
-    debouncedBuscaFiltroMenu,
-  ]);
+    if (!menuFiltroAberto) return {};
+    const col = colunasDisponiveis.find((column) => column.id === menuFiltroAberto);
+    if (!col || col.fixo) return {};
+    const source = empresas.filter((emp) => empresaPassaFiltros(emp, menuFiltroAberto));
+    const items = [
+      ...new Set(
+        source
+          .map((emp) => getFieldValue(emp, col.id))
+          .filter((value) => value !== null && value !== undefined && String(value).trim() !== "")
+      ),
+    ].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
+    return { [col.id]: items };
+  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, menuFiltroAberto, empresaPassaFiltros, getFieldValue]);
 
   const hasActiveFilter = (id) => {
     const value = filtrosColunas[id];
@@ -1556,14 +1502,10 @@ export default function TBLEMP({
   const filterColumn = menuFiltroAberto
     ? colunasDisponiveis.find((column) => column.id === menuFiltroAberto)
     : null;
-  const filterOptions = filterColumn
-    ? serverMode
-      ? remoteColumnOptions[menuFiltroAberto] || columnOptions[menuFiltroAberto] || []
-      : columnOptions[menuFiltroAberto] || []
-    : [];
-  const filterQuery = debouncedBuscaFiltroMenu.trim().toLowerCase();
+  const filterOptions = menuFiltroAberto ? columnOptions[menuFiltroAberto] || [] : [];
+  const filterQuery = debouncedBuscaFiltroMenu.trim();
   const filteredFilterOptions = filterQuery
-    ? filterOptions.filter((option) => String(option).toLowerCase().includes(filterQuery))
+    ? filterOptions.filter((option) => matchesFilterOptionContains(option, filterQuery))
     : filterOptions;
   const filterDraft =
     filterColumn && filtroTemp.colunaId === menuFiltroAberto && filtroTemp.draft
@@ -1578,8 +1520,7 @@ export default function TBLEMP({
   const filterColumnLabel = filterColumn ? formatHeaderLabel(filterColumn) : "";
   const filterSearchPending =
     buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
-  const filterSearchLoading =
-    filterSearchPending || (serverMode && loadingRemoteColumnOptions);
+  const filterSearchLoading = filterSearchPending;
 
   const updateFilterDraft = (updater) => {
     if (!filterColumn || !menuFiltroAberto) return;
