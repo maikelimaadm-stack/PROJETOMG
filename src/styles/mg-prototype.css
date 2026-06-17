@@ -8327,6 +8327,26 @@
   color: var(--text-2, #64748b);
 }
 
+.erp-filter-operator-field {
+  width: 100%;
+}
+
+.erp-filter-operator-field .cmd-select {
+  width: 100%;
+}
+
+.erp-filter-data-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.erp-filter-data-list__options {
+  max-height: 220px;
+  overflow: auto;
+}
+
 .erp-filter-operator-select,
 .erp-filter-field-input {
   width: 100%;

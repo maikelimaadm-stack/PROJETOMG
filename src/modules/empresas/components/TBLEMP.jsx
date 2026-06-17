@@ -290,6 +290,8 @@ export default function TBLEMP({
   const serverResetSignatureRef = useRef("");
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
+  const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
+  const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
   const [groupByColumnIds, setGroupByColumnIds] = useState([]);
@@ -378,6 +380,7 @@ export default function TBLEMP({
     setColumnMenuAnchor(null);
     setMenuFiltroAberto(null);
     overlayAnchorRef.current = null;
+    setBuscaFiltroMenu("");
     setFiltroTemp({ colunaId: null, draft: null });
   }, []);
 
@@ -410,6 +413,7 @@ export default function TBLEMP({
     overlayAnchorRef.current = trigger;
     setColumnMenuAnchor(null);
     setMenuFiltroAberto(columnId);
+    setBuscaFiltroMenu("");
     setFiltroTemp({
       colunaId: columnId,
       draft: nextDraft,
@@ -1693,12 +1697,16 @@ export default function TBLEMP({
         ? getValoresFiltro(menuFiltroAberto, filterColumn)
         : null;
   const filterColumnLabel = filterColumn ? formatHeaderLabel(filterColumn) : "";
+  const filterListOptions = menuFiltroAberto ? columnOptions[menuFiltroAberto] || [] : [];
   const filterEnumOptions = filterColumn
     ? resolveErpFilterEnumOptions(
         { columnMeta: filterColumn, column: filterColumn.id, key: filterColumn.id },
-        columnOptions[menuFiltroAberto] || []
+        filterListOptions
       )
     : [];
+  const filterSearchPending =
+    buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
+  const filterSearchLoading = filterSearchPending;
 
   const updateFilterDraft = (updater) => {
     if (!filterColumn || !menuFiltroAberto) return;
@@ -1923,7 +1931,11 @@ export default function TBLEMP({
         columnLabel={filterColumnLabel}
         filterType={filterMeta?.filterType || "text"}
         draft={filterDraft}
+        listOptions={filterListOptions}
         enumOptions={filterEnumOptions}
+        searchQuery={buscaFiltroMenu}
+        onSearchQueryChange={setBuscaFiltroMenu}
+        searchLoading={filterSearchLoading}
         showSortSection={Boolean(filterColumn && filterDraft)}
         hasActiveFilter={Boolean(menuFiltroAberto && hasActiveFilter(menuFiltroAberto))}
         onSortAsc={() => {
@@ -1944,7 +1956,6 @@ export default function TBLEMP({
           setValoresFiltro(menuFiltroAberto, appliedDraft || filterDraft);
           closeColumnOverlays();
         }}
-        onClear={(cleared) => updateFilterDraft(cleared)}
       />
 
       <div

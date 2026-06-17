@@ -11,6 +11,7 @@ import {
   resolveErpFilterMeta,
 } from "@/shared/filters";
 import { buildPanelFilterOptions } from "@/modules/empresas/layout/mgPanelFilterOptions";
+import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 
 function useFilterPopover(open, setOpen, rootRef, panelRef) {
@@ -59,6 +60,8 @@ function PanelFilterPill({
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 180);
   const rootRef = useRef(null);
   const panelRef = useRef(null);
 
@@ -83,8 +86,12 @@ function PanelFilterPill({
   useEffect(() => {
     if (!open) {
       setDraft(cloneErpFilter(appliedDraft));
+      setSearchQuery("");
     }
   }, [open, appliedDraft]);
+
+  const searchLoading =
+    searchQuery.trim().toLowerCase() !== debouncedSearchQuery.trim().toLowerCase();
 
   const toggle = () => {
     if (disabled) return;
@@ -154,12 +161,15 @@ function PanelFilterPill({
         columnLabel={field.label}
         filterType={filterMeta.filterType}
         draft={draft || appliedDraft}
+        listOptions={distinctOptions}
         enumOptions={enumOptions}
+        searchQuery={searchQuery}
+        onSearchQueryChange={setSearchQuery}
+        searchLoading={searchLoading}
         showSortSection={false}
         onDraftChange={setDraft}
         onCancel={cancel}
         onApply={apply}
-        onClear={setDraft}
       />
     </div>
   );
