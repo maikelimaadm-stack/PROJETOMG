@@ -2512,17 +2512,16 @@
 }
 
 .mg-empresas-scope .mg-action-bar__tools--visible {
+  width: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
   max-width: var(--mg-btn-icon-size);
   opacity: 1;
   pointer-events: auto;
   overflow: visible;
-  transition:
-    max-width var(--mg-motion-duration) var(--mg-motion-ease),
-    opacity var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-action-bar__tools--visible:has(.mg-desktop-search.is-expanded) {
-  max-width: var(--mg-search-dropdown-width);
+.mg-empresas-scope .mg-action-bar__end:has(.mg-desktop-search.is-expanded) {
+  z-index: 42;
 }
 
 .mg-empresas-scope .mg-action-bar__end {
@@ -2537,7 +2536,8 @@
 }
 
 .mg-empresas-scope .mg-subtoolbar-stack:has(.mg-speed-dial.is-open),
-.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-search-dropdown.is-config-open) {
+.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-search-dropdown.is-config-open),
+.mg-empresas-scope .mg-subtoolbar-stack:has(.mg-desktop-search.is-expanded) {
   z-index: 45;
 }
 
@@ -2807,53 +2807,90 @@
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: center;
+  width: var(--mg-btn-icon-size);
+  height: var(--mg-btn-height);
   flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-desktop-search__trigger {
+  position: relative;
+  z-index: 1;
+  transition: opacity var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-desktop-search__trigger--active {
   color: var(--accent) !important;
 }
 
-.mg-empresas-scope .mg-desktop-search.is-expanded {
+.mg-empresas-scope .mg-desktop-search.is-open .mg-desktop-search__trigger {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-desktop-search__panel {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-desktop-search__panel-inner {
   width: var(--mg-search-dropdown-width);
   min-width: var(--mg-search-dropdown-min-width);
-  animation: mg-desktop-search-expand var(--mg-motion-duration) var(--mg-motion-ease);
+  transform: translateY(-50%) scaleX(0.84);
+  transform-origin: right center;
+  opacity: 0;
+  transition:
+    transform var(--mg-motion-duration) var(--mg-motion-ease),
+    opacity var(--mg-motion-duration) var(--mg-motion-ease);
+  will-change: transform, opacity;
 }
 
-@keyframes mg-desktop-search-expand {
-  from {
-    opacity: 0.72;
-    transform: scaleX(0.35);
-    transform-origin: right center;
-  }
-
-  to {
-    opacity: 1;
-    transform: scaleX(1);
-    transform-origin: right center;
-  }
+.mg-empresas-scope .mg-desktop-search.is-expanded.is-open .mg-desktop-search__panel {
+  pointer-events: auto;
 }
 
-.mg-empresas-scope .mg-desktop-search.is-expanded .mg-desktop-search__field,
-.mg-empresas-scope .mg-desktop-search.is-expanded .mg-search-pill-wrap {
+.mg-empresas-scope .mg-desktop-search.is-expanded.is-open .mg-desktop-search__panel-inner {
+  transform: translateY(-50%) scaleX(1);
+  opacity: 1;
+}
+
+.mg-empresas-scope .mg-desktop-search__field,
+.mg-empresas-scope .mg-desktop-search__field.mg-search-pill-wrap {
+  width: 100%;
+}
+
+.mg-empresas-scope .mg-desktop-search .mg-search-pill {
   width: 100%;
   min-width: 0;
   max-width: none;
 }
 
-.mg-empresas-scope .mg-desktop-search.is-expanded .mg-search-pill {
-  width: 100%;
-  min-width: 0;
-  max-width: none;
-}
-
-.mg-empresas-scope .mg-desktop-search.is-expanded .mg-search-dropdown {
+.mg-empresas-scope .mg-desktop-search .mg-search-dropdown {
   width: 100%;
   min-width: 0;
   max-width: none;
   right: 0;
   left: auto;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    opacity var(--mg-motion-duration) var(--mg-motion-ease),
+    transform var(--mg-motion-duration) var(--mg-motion-ease);
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-desktop-search.is-expanded.is-open .mg-search-dropdown {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+  transition-delay: 40ms;
+}
+
+.mg-empresas-scope .mg-desktop-search:not(.is-open) .mg-search-dropdown {
+  transition-delay: 0ms;
 }
 
 .mg-empresas-scope .mg-subtoolbar-stack:has(.mg-search-pill-wrap:focus-within) {
