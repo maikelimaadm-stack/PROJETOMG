@@ -2,16 +2,22 @@ import React, { useMemo } from "react";
 import { Loader2, Search } from "lucide-react";
 import MgFilterFieldCheck from "@/modules/empresas/layout/MgFilterFieldCheck";
 import { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
+import { ERP_OPERATORS_WITH_RANGE } from "@/shared/filters/erpFilterOperators";
+
+function getSearchPlaceholder(operator = "") {
+  if (ERP_OPERATORS_WITH_RANGE.has(operator)) {
+    return "Pesquisar... (use | ou ; para intervalo)";
+  }
+  return "Pesquisar...";
+}
 
 /**
  * Listagem de dados do filtro — pesquisa + checkboxes.
- * Operador/valor estreitam as opções exibidas antes da seleção.
+ * Operador + pesquisa estreitam as opções exibidas antes da seleção.
  */
 export default function ErpFilterDataList({
   filterType = "text",
   operator = "",
-  value = "",
-  valueTo = "",
   listOptions = [],
   selectedValues = [],
   searchQuery = "",
@@ -26,11 +32,9 @@ export default function ErpFilterDataList({
       filterErpFilterListOptions(listOptions, {
         filterType,
         operator,
-        value,
-        valueTo,
         searchQuery,
       }),
-    [filterType, listOptions, operator, searchQuery, value, valueTo]
+    [filterType, listOptions, operator, searchQuery]
   );
 
   const allVisibleSelected =
@@ -53,7 +57,7 @@ export default function ErpFilterDataList({
             type="text"
             value={searchQuery}
             onChange={(event) => onSearchQueryChange?.(event.target.value)}
-            placeholder="Pesquisar..."
+            placeholder={getSearchPlaceholder(operator)}
             aria-label={searchAriaLabel}
             aria-busy={searchLoading}
           />

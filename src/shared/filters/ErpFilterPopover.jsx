@@ -1,162 +1,15 @@
 import React, { useCallback, useMemo } from "react";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import ErpFilterSortSection from "@/shared/filters/ErpFilterSortSection";
-import ErpFilterDateInput from "@/shared/filters/ErpFilterDateInput";
-import ErpFilterMoneyInput from "@/shared/filters/ErpFilterMoneyInput";
 import ErpFilterOperatorSelect from "@/shared/filters/ErpFilterOperatorSelect";
 import ErpFilterDataList from "@/shared/filters/ErpFilterDataList";
 import { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
-import {
-  ERP_OPERATORS_WITHOUT_VALUE,
-  ERP_OPERATORS_WITH_RANGE,
-  ERP_OPERATORS_WITH_SINGLE_VALUE,
-} from "@/shared/filters/erpFilterOperators";
+import { normalizeErpFilterOperator } from "@/shared/filters/erpFilterOperators";
 import { cloneErpFilter } from "@/shared/filters/erpFilterState";
-
-function ErpFilterValueContent({
-  filterType,
-  operator,
-  value,
-  valueTo,
-  onValueChange,
-  onValueToChange,
-  disabled,
-}) {
-  if (ERP_OPERATORS_WITHOUT_VALUE.has(operator)) {
-    return null;
-  }
-
-  if (filterType === "date") {
-    if (ERP_OPERATORS_WITH_RANGE.has(operator)) {
-      return (
-        <div className="erp-filter-range-row">
-          <ErpFilterDateInput
-            value={value}
-            onChange={(event) => onValueChange?.(event.target.value)}
-            disabled={disabled}
-          />
-          <span className="erp-filter-range-sep">até</span>
-          <ErpFilterDateInput
-            value={valueTo}
-            onChange={(event) => onValueToChange?.(event.target.value)}
-            disabled={disabled}
-          />
-        </div>
-      );
-    }
-
-    if (ERP_OPERATORS_WITH_SINGLE_VALUE.has(operator)) {
-      return (
-        <ErpFilterDateInput
-          value={value}
-          onChange={(event) => onValueChange?.(event.target.value)}
-          disabled={disabled}
-        />
-      );
-    }
-
-    return null;
-  }
-
-  if (filterType === "money") {
-    if (ERP_OPERATORS_WITH_RANGE.has(operator)) {
-      return (
-        <div className="erp-filter-range-row">
-          <ErpFilterMoneyInput
-            value={value}
-            onChange={(event) => onValueChange?.(event.target.value)}
-            disabled={disabled}
-          />
-          <span className="erp-filter-range-sep">até</span>
-          <ErpFilterMoneyInput
-            value={valueTo}
-            onChange={(event) => onValueToChange?.(event.target.value)}
-            disabled={disabled}
-          />
-        </div>
-      );
-    }
-
-    if (ERP_OPERATORS_WITH_SINGLE_VALUE.has(operator)) {
-      return (
-        <ErpFilterMoneyInput
-          value={value}
-          onChange={(event) => onValueChange?.(event.target.value)}
-          disabled={disabled}
-        />
-      );
-    }
-
-    return null;
-  }
-
-  if (filterType === "number") {
-    if (ERP_OPERATORS_WITH_RANGE.has(operator)) {
-      return (
-        <div className="erp-filter-range-row">
-          <input
-            type="text"
-            inputMode="decimal"
-            className="erp-filter-field-input"
-            value={value}
-            onChange={(event) => onValueChange?.(event.target.value)}
-            placeholder="Valor inicial"
-            disabled={disabled}
-            autoComplete="off"
-          />
-          <span className="erp-filter-range-sep">até</span>
-          <input
-            type="text"
-            inputMode="decimal"
-            className="erp-filter-field-input"
-            value={valueTo}
-            onChange={(event) => onValueToChange?.(event.target.value)}
-            placeholder="Valor final"
-            disabled={disabled}
-            autoComplete="off"
-          />
-        </div>
-      );
-    }
-
-    if (ERP_OPERATORS_WITH_SINGLE_VALUE.has(operator)) {
-      return (
-        <input
-          type="text"
-          inputMode="decimal"
-          className="erp-filter-field-input"
-          value={value}
-          onChange={(event) => onValueChange?.(event.target.value)}
-          placeholder="Digite um valor"
-          disabled={disabled}
-          autoComplete="off"
-        />
-      );
-    }
-
-    return null;
-  }
-
-  if (ERP_OPERATORS_WITH_SINGLE_VALUE.has(operator)) {
-    return (
-      <input
-        type="text"
-        className="erp-filter-field-input"
-        value={value}
-        onChange={(event) => onValueChange?.(event.target.value)}
-        placeholder="Digite um valor"
-        disabled={disabled}
-        autoComplete="off"
-      />
-    );
-  }
-
-  return null;
-}
 
 /**
  * Popover global de filtros ERP — mesma UI para colunas de tabela e pills da faixa.
- * Nada é aplicado automaticamente; somente ao clicar em OK.
+ * Operador + Pesquisar filtram a listagem; seleção só aplica ao clicar OK.
  */
 export default function ErpFilterPopover({
   open,
@@ -183,7 +36,7 @@ export default function ErpFilterPopover({
   const isBoolean = filterType === "boolean";
   const operator = isBoolean
     ? (Array.isArray(safeDraft.values) && safeDraft.values.length === 1 ? safeDraft.values[0] : "")
-    : (safeDraft.operator || "");
+    : normalizeErpFilterOperator(safeDraft.operator, filterType);
   const showOperator = filterType !== "enum";
   const dataListOptions =
     listOptions.length > 0 ? listOptions : enumOptions.length > 0 ? enumOptions : [];
@@ -195,11 +48,9 @@ export default function ErpFilterPopover({
       filterErpFilterListOptions(dataListOptions, {
         filterType,
         operator,
-        value: safeDraft.value ?? "",
-        valueTo: safeDraft.valueTo ?? "",
         searchQuery,
       }),
-    [dataListOptions, filterType, operator, safeDraft.value, safeDraft.valueTo, searchQuery]
+    [dataListOptions, filterType, operator, searchQuery]
   );
 
   const updateDraft = useCallback(
@@ -219,7 +70,7 @@ export default function ErpFilterPopover({
       return;
     }
     updateDraft({
-      operator: nextOperator,
+      operator: normalizeErpFilterOperator(nextOperator, filterType),
       value: "",
       valueTo: "",
     });
@@ -240,6 +91,17 @@ export default function ErpFilterPopover({
       return;
     }
     updateDraft({ values: current.filter((item) => !visibleListOptions.includes(item)) });
+  };
+
+  const handleApply = () => {
+    onApply?.({
+      ...safeDraft,
+      type: filterType,
+      operator: isBoolean ? "" : operator,
+      value: "",
+      valueTo: "",
+      values: [...selectedValues],
+    });
   };
 
   return (
@@ -269,25 +131,10 @@ export default function ErpFilterPopover({
           />
         ) : null}
 
-        {showOperator && filterType !== "enum" && !isBoolean ? (
-          <div className="erp-filter-content">
-            <ErpFilterValueContent
-              filterType={filterType}
-              operator={operator}
-              value={safeDraft.value ?? ""}
-              valueTo={safeDraft.valueTo ?? ""}
-              onValueChange={(nextValue) => updateDraft({ value: nextValue })}
-              onValueToChange={(nextValue) => updateDraft({ valueTo: nextValue })}
-            />
-          </div>
-        ) : null}
-
         {showDataList ? (
           <ErpFilterDataList
             filterType={filterType}
             operator={operator}
-            value={safeDraft.value ?? ""}
-            valueTo={safeDraft.valueTo ?? ""}
             listOptions={dataListOptions}
             selectedValues={selectedValues}
             searchQuery={searchQuery}
@@ -313,7 +160,7 @@ export default function ErpFilterPopover({
         <button
           type="button"
           className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
-          onClick={() => onApply?.(safeDraft)}
+          onClick={handleApply}
         >
           OK
         </button>

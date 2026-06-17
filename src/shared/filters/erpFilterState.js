@@ -5,13 +5,15 @@ import {
 
 export function createErpFilter(filterType = "text", overrides = {}) {
   const type = filterType || "text";
+  const operator =
+    overrides.operator !== undefined ? overrides.operator : getErpDefaultOperator(type);
   return {
+    ...overrides,
     type,
-    operator: overrides.operator || getErpDefaultOperator(type),
+    operator,
     value: overrides.value ?? "",
     valueTo: overrides.valueTo ?? "",
     values: Array.isArray(overrides.values) ? [...overrides.values] : [],
-    ...overrides,
   };
 }
 

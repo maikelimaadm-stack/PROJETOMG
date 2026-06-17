@@ -15,6 +15,9 @@ export {
   ERP_DATE_OPERATORS as DATE_FILTER_OPERATORS,
   getErpFilterOperators as getFilterOperators,
   getErpDefaultOperator as getDefaultFilterOperator,
+  getErpListFilterOperators,
+  getErpFilterOperatorLabel,
+  normalizeErpFilterOperator,
 } from "@/shared/filters/erpFilterOperators";
 
 export {
@@ -51,4 +54,4 @@ export { default as ErpFilterSortSection } from "@/shared/filters/ErpFilterSortS
 export { default as ErpFilterDateInput } from "@/shared/filters/ErpFilterDateInput";
 export { default as ErpFilterOperatorSelect } from "@/shared/filters/ErpFilterOperatorSelect";
 export { default as ErpFilterDataList } from "@/shared/filters/ErpFilterDataList";
-export { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
+export { filterErpFilterListOptions, parseErpFilterSearchRange } from "@/shared/filters/erpFilterListOptions";
