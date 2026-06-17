@@ -1,5 +1,6 @@
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import { evaluateErpFilter, isErpFilterActive, normalizePanelFilterValue, resolveErpFilterMeta } from "@/shared/filters";
 import {
   buildMgFilterFields,
   MG_FILTER_STATUS_FIELD,
@@ -45,11 +46,20 @@ export function getPanelFilterFieldValue(emp, field) {
 export function empresaPassesOtherPanelFilters(emp, appliedValues = {}, excludeKey = null, filterFields = MG_PANEL_FILTER_FIELDS) {
   return filterFields.every((field) => {
     if (excludeKey && field.key === excludeKey) return true;
-    const selected = appliedValues[field.key];
-    if (!Array.isArray(selected) || selected.length === 0) return true;
-    const value = getEmpresaPanelFieldValue(emp, field);
-    if (value === "-") return false;
-    return selected.includes(value);
+    const rawFilter = appliedValues[field.key];
+    if (!isErpFilterActive(rawFilter)) return true;
+
+    const filterMeta = resolveErpFilterMeta(field);
+    const filter = normalizePanelFilterValue(rawFilter, filterMeta.filterType);
+    const displayValue = getEmpresaPanelFieldValue(emp, field);
+    const rawValue = displayValue === "-" ? "" : displayValue;
+
+    return evaluateErpFilter({
+      filter,
+      filterType: filterMeta.filterType,
+      rawValue,
+      displayValue,
+    });
   });
 }
 

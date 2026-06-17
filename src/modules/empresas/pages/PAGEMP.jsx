@@ -61,6 +61,11 @@ import {
   buildMgFilterFields,
   buildPanelFilterColumnMap,
 } from "@/modules/empresas/layout/mgFilterFields";
+import {
+  cloneErpFilter,
+  isErpFilterActive,
+  normalizePanelFilterValue,
+} from "@/shared/filters";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -69,23 +74,6 @@ const moduleLabels = {
   singular: empresasModuleDefinition.singularLabel,
   plural: empresasModuleDefinition.pluralLabel,
   title: `Cadastro de ${empresasModuleDefinition.pluralLabel}`,
-};
-
-const normalizeFilterList = (value) => {
-  if (Array.isArray(value)) {
-    return value.map((item) => String(item).trim()).filter(Boolean);
-  }
-  if (value && typeof value === "object") {
-    if (Array.isArray(value.values)) {
-      return value.values.map((item) => String(item).trim()).filter(Boolean);
-    }
-    if (value.value != null && String(value.value).trim() !== "") {
-      return [String(value.value).trim()];
-    }
-    return [];
-  }
-  if (value == null || String(value).trim() === "") return [];
-  return [String(value).trim()];
 };
 
 const syncPanelFiltersIntoColumns = (
@@ -99,9 +87,13 @@ const syncPanelFiltersIntoColumns = (
   });
 
   Object.entries(panelFilterColumnMap).forEach(([panelKey, columnKey]) => {
-    const values = normalizeFilterList(panelValues?.[panelKey]);
-    if (values.length > 0) {
-      next[columnKey] = { values: [...new Set(values)] };
+    const filter = panelValues?.[panelKey];
+    if (isErpFilterActive(filter)) {
+      next[columnKey] = cloneErpFilter(
+        typeof filter === "object" && !Array.isArray(filter)
+          ? filter
+          : normalizePanelFilterValue(filter, "text")
+      );
     }
   });
 
@@ -110,7 +102,11 @@ const syncPanelFiltersIntoColumns = (
 
 const syncColumnsIntoPanelFilters = (columnFilters = {}, panelFilterColumnMap = {}) =>
   Object.entries(panelFilterColumnMap).reduce((acc, [panelKey, columnKey]) => {
-    acc[panelKey] = normalizeFilterList(columnFilters?.[columnKey]);
+    const filter = columnFilters?.[columnKey];
+    acc[panelKey] =
+      filter && typeof filter === "object" && !Array.isArray(filter)
+        ? cloneErpFilter(filter)
+        : normalizePanelFilterValue(filter, "text");
     return acc;
   }, {});
 
@@ -501,15 +497,8 @@ export default function PAGEMP() {
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = Boolean(
     appliedPanelFilters ||
-    Object.values(columnFilters).some((value) => {
-      if (!value) return false;
-      if (Array.isArray(value)) return value.length > 0;
-      if (typeof value !== "object") return false;
-      const hasValues = Array.isArray(value.values) && value.values.length > 0;
-      const hasPrimary = value.value !== null && value.value !== undefined && String(value.value).trim() !== "";
-      const hasSecondary = value.valueTo !== null && value.valueTo !== undefined && String(value.valueTo).trim() !== "";
-      return hasValues || hasPrimary || hasSecondary;
-    }) ||
+    Object.values(columnFilters).some((value) => isErpFilterActive(value)) ||
+    Object.values(appliedFilterValues).some((value) => isErpFilterActive(value)) ||
     searchTerm.trim() ||
     searchFavoritesOnly
   );

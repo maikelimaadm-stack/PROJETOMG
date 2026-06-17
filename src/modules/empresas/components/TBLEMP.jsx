@@ -59,12 +59,16 @@ import {
   filterNeedsClientSideProcessing,
   getColumnFilterType,
   hasClientOnlyColumnFilters,
-  matchesFilterOptionContains,
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
 } from "./tblEmp.filters";
 import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
-import EmpColFilterPopover from "@/modules/empresas/components/EmpColFilterPopover";
+import {
+  ErpFilterPopover,
+  isErpFilterActive,
+  resolveErpFilterEnumOptions,
+  resolveErpFilterMeta,
+} from "@/shared/filters";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
@@ -286,8 +290,6 @@ export default function TBLEMP({
   const serverResetSignatureRef = useRef("");
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
-  const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
-  const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
   const [groupByColumnIds, setGroupByColumnIds] = useState([]);
@@ -376,7 +378,6 @@ export default function TBLEMP({
     setColumnMenuAnchor(null);
     setMenuFiltroAberto(null);
     overlayAnchorRef.current = null;
-    setBuscaFiltroMenu("");
     setFiltroTemp({ colunaId: null, draft: null });
   }, []);
 
@@ -409,7 +410,6 @@ export default function TBLEMP({
     overlayAnchorRef.current = trigger;
     setColumnMenuAnchor(null);
     setMenuFiltroAberto(columnId);
-    setBuscaFiltroMenu("");
     setFiltroTemp({
       colunaId: columnId,
       draft: nextDraft,
@@ -609,10 +609,7 @@ export default function TBLEMP({
       const draft = getNormalizedFilterDraft(col.id, col);
       if (!draft) return true;
       if (clientOnlyFilters && !filterNeedsClientSideProcessing(draft)) return true;
-      const hasListValues = Array.isArray(draft.values) && draft.values.length > 0;
-      const hasPrimaryValue = draft.value !== null && draft.value !== undefined && String(draft.value).trim() !== "";
-      const hasSecondaryValue = draft.valueTo !== null && draft.valueTo !== undefined && String(draft.valueTo).trim() !== "";
-      if (!hasListValues && !hasPrimaryValue && !hasSecondaryValue) return true;
+      if (!isErpFilterActive(draft)) return true;
       const raw = getComparableValue(emp, col);
       const display = getFieldValue(emp, col.id);
       return evaluateColumnFilter({
@@ -693,24 +690,12 @@ export default function TBLEMP({
     return { [col.id]: items };
   }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, menuFiltroAberto, empresaPassaFiltros, getFieldValue]);
 
-  const hasActiveFilter = (id) => {
-    const value = filtrosColunas[id];
-    if (!value) return false;
-    if (Array.isArray(value)) return value.length > 0;
-    if (typeof value !== "object") return false;
-    const hasList = Array.isArray(value.values) && value.values.length > 0;
-    const hasValue = value.value !== null && value.value !== undefined && String(value.value).trim() !== "";
-    const hasValueTo = value.valueTo !== null && value.valueTo !== undefined && String(value.valueTo).trim() !== "";
-    return hasList || hasValue || hasValueTo;
-  };
+  const hasActiveFilter = (id) => isErpFilterActive(filtrosColunas[id]);
   const getValoresFiltro = (id, col) => getNormalizedFilterDraft(id, col) || createDefaultColumnFilter(getColumnFilterType(col));
   const setValoresFiltro = (id, draft) =>
     setFiltrosColunas((prev) => {
       const next = { ...prev };
-      const hasList = Array.isArray(draft?.values) && draft.values.length > 0;
-      const hasValue = draft?.value !== null && draft?.value !== undefined && String(draft.value).trim() !== "";
-      const hasValueTo = draft?.valueTo !== null && draft?.valueTo !== undefined && String(draft.valueTo).trim() !== "";
-      if (!hasList && !hasValue && !hasValueTo) delete next[id];
+      if (!isErpFilterActive(draft)) delete next[id];
       else next[id] = draft;
       return next;
     });
@@ -1695,25 +1680,25 @@ export default function TBLEMP({
   const filterColumn = menuFiltroAberto
     ? colunasDisponiveis.find((column) => column.id === menuFiltroAberto)
     : null;
-  const filterOptions = menuFiltroAberto ? columnOptions[menuFiltroAberto] || [] : [];
-  const filterQuery = debouncedBuscaFiltroMenu.trim();
-  const filteredFilterOptions = filterQuery
-    ? filterOptions.filter((option) => matchesFilterOptionContains(option, filterQuery))
-    : filterOptions;
+  const filterMeta = filterColumn
+    ? resolveErpFilterMeta(
+        { columnMeta: filterColumn, column: filterColumn.id, key: filterColumn.id },
+        columnOptions[menuFiltroAberto] || []
+      )
+    : null;
   const filterDraft =
     filterColumn && filtroTemp.colunaId === menuFiltroAberto && filtroTemp.draft
       ? filtroTemp.draft
       : filterColumn
         ? getValoresFiltro(menuFiltroAberto, filterColumn)
         : null;
-  const filterSelectedValues = Array.isArray(filterDraft?.values) ? filterDraft.values : [];
-  const filterAllVisibleSelected =
-    filteredFilterOptions.length > 0 &&
-    filteredFilterOptions.every((option) => filterSelectedValues.includes(option));
   const filterColumnLabel = filterColumn ? formatHeaderLabel(filterColumn) : "";
-  const filterSearchPending =
-    buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
-  const filterSearchLoading = filterSearchPending;
+  const filterEnumOptions = filterColumn
+    ? resolveErpFilterEnumOptions(
+        { columnMeta: filterColumn, column: filterColumn.id, key: filterColumn.id },
+        columnOptions[menuFiltroAberto] || []
+      )
+    : [];
 
   const updateFilterDraft = (updater) => {
     if (!filterColumn || !menuFiltroAberto) return;
@@ -1724,7 +1709,11 @@ export default function TBLEMP({
           ? prev.draft
           : getValoresFiltro(menuFiltroAberto, filterColumn);
       const nextDraft =
-        typeof updater === "function" ? updater(baseDraft) : { ...baseDraft, ...updater };
+        typeof updater === "function"
+          ? updater(baseDraft)
+          : updater?.type
+            ? updater
+            : { ...baseDraft, ...updater };
       return {
         colunaId: menuFiltroAberto,
         draft: {
@@ -1927,11 +1916,14 @@ export default function TBLEMP({
         </div>
       </MgPortalPanel>
 
-      <EmpColFilterPopover
+      <ErpFilterPopover
         open={Boolean(filterColumn && menuFiltroAberto)}
         panelRef={filterPanelRef}
         style={filterPanelStyle}
         columnLabel={filterColumnLabel}
+        filterType={filterMeta?.filterType || "text"}
+        draft={filterDraft}
+        enumOptions={filterEnumOptions}
         showSortSection={Boolean(filterColumn && filterDraft)}
         hasActiveFilter={Boolean(menuFiltroAberto && hasActiveFilter(menuFiltroAberto))}
         onSortAsc={() => {
@@ -1946,41 +1938,13 @@ export default function TBLEMP({
           clearColumnFilter(menuFiltroAberto);
           closeColumnOverlays();
         }}
-        searchQuery={buscaFiltroMenu}
-        onSearchQueryChange={setBuscaFiltroMenu}
-        searchLoading={filterSearchLoading}
-        filteredOptions={filteredFilterOptions}
-        selectedValues={filterSelectedValues}
-        allVisibleSelected={filterAllVisibleSelected}
-        onToggleAll={(event) =>
-          updateFilterDraft((prev) => {
-            const currentList = Array.isArray(prev.values) ? prev.values : [];
-            const rest = currentList.filter((value) => !filteredFilterOptions.includes(value));
-            return {
-              ...prev,
-              values: event.target.checked
-                ? [...new Set([...rest, ...filteredFilterOptions])]
-                : rest,
-            };
-          })
-        }
-        onToggleOption={(option, checked) =>
-          updateFilterDraft((prev) => {
-            const currentList = Array.isArray(prev.values) ? prev.values : [];
-            const nextList = checked
-              ? [...currentList, option]
-              : currentList.filter((value) => value !== option);
-            return { ...prev, values: [...new Set(nextList)] };
-          })
-        }
+        onDraftChange={(nextDraft) => updateFilterDraft(nextDraft)}
         onCancel={closeColumnOverlays}
-        onApply={() => {
-          setValoresFiltro(menuFiltroAberto, filterDraft);
+        onApply={(appliedDraft) => {
+          setValoresFiltro(menuFiltroAberto, appliedDraft || filterDraft);
           closeColumnOverlays();
         }}
-        searchAriaLabel={
-          filterColumnLabel ? `Pesquisar valores de ${filterColumnLabel}` : "Pesquisar valores"
-        }
+        onClear={(cleared) => updateFilterDraft(cleared)}
       />
 
       <div

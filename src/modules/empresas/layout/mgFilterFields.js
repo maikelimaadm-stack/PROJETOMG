@@ -30,6 +30,7 @@ export function buildMgFilterFields(camposPersonalizados = []) {
     label: col.label,
     column: col.id,
     filtravel: col.filtravel !== false,
+    columnMeta: col,
   }));
 
   const custom = camposPersonalizados

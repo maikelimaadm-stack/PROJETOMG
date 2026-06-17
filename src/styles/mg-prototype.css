@@ -8290,3 +8290,144 @@
   stroke: var(--text-3) !important;
 }
 
+/* ── ERP Global Filter Popover ── */
+.mg-empresas-scope.mg-floating-panel-root .erp-filter-popover,
+.mg-empresas-scope .mg-view-panel .emp-table-root .erp-filter-popover {
+  min-width: 280px;
+  max-width: 320px;
+}
+
+.erp-filter-popover__title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2, #64748b);
+  margin-bottom: 8px;
+}
+
+.erp-filter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px 12px;
+}
+
+.erp-filter-body--standalone {
+  padding-top: 12px;
+}
+
+.erp-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.erp-filter-field__label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-2, #64748b);
+}
+
+.erp-filter-operator-select,
+.erp-filter-field-input {
+  width: 100%;
+  height: 30px;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 6px;
+  background: #fff;
+  padding: 0 10px;
+  font-size: 12px;
+  color: var(--text-1, #1e293b);
+  outline: none;
+}
+
+.erp-filter-operator-select:focus,
+.erp-filter-field-input:focus {
+  border-color: var(--accent, #16a34a);
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.12);
+}
+
+.erp-filter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.erp-filter-range-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.erp-filter-range-row .erp-filter-field-input,
+.erp-filter-range-row .erp-filter-date-input,
+.erp-filter-range-row .erp-filter-money-input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.erp-filter-range-sep {
+  flex: 0 0 auto;
+  font-size: 11px;
+  color: var(--text-2, #64748b);
+}
+
+.erp-filter-enum-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 220px;
+  overflow: auto;
+}
+
+.erp-filter-enum-item {
+  min-height: 28px;
+}
+
+.erp-filter-empty {
+  font-size: 12px;
+  color: var(--text-3, #94a3b8);
+  padding: 8px 2px;
+}
+
+.erp-filter-money-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.erp-filter-money-input__prefix {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2, #64748b);
+  flex: 0 0 auto;
+}
+
+.erp-filter-money-input__field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.erp-filter-date-input .mg-dp {
+  width: 100%;
+}
+
+.erp-filter-date-input .mg-dp-label {
+  display: none;
+}
+
+.erp-filter-date-input .mg-dp-field {
+  height: 30px;
+  font-size: 12px;
+}
+
+.erp-filter-popover__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.erp-filter-popover__footer .mg-search-dropdown__config-action {
+  min-width: 64px;
+}
+
