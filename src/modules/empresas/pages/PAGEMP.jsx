@@ -401,6 +401,19 @@ export default function PAGEMP() {
     fetchNextEmpresasPage,
   ]);
 
+  useEffect(() => {
+    if (queryPage <= loadedPagesCount) return;
+    if (!hasNextEmpresasPage || isFetchingNextEmpresasPage || empresasLoading) return;
+    void fetchNextEmpresasPage();
+  }, [
+    queryPage,
+    loadedPagesCount,
+    hasNextEmpresasPage,
+    isFetchingNextEmpresasPage,
+    empresasLoading,
+    fetchNextEmpresasPage,
+  ]);
+
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
   const { data: metricsContadores } = useQuery({
     queryKey: ["metrics-contadores"],
@@ -1415,7 +1428,7 @@ export default function PAGEMP() {
                       total: totalEmpresas,
                       isLoading: empresasLoading,
                       isFetching: empresasFetching,
-                      page: loadedPagesCount,
+                      page: queryPage,
                       pageSize: queryPageSize,
                       onPageChange: handleServerPageChange,
                       onPageSizeChange: handleServerPageSizeChange,
@@ -1460,7 +1473,7 @@ export default function PAGEMP() {
                     onVisibleDataChange: setVisibleTableData,
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
-                    serverPage: loadedPagesCount,
+                    serverPage: queryPage,
                     serverPageSize: queryPageSize,
                     serverTotal: totalEmpresas,
                     onServerPageChange: handleServerPageChange,
