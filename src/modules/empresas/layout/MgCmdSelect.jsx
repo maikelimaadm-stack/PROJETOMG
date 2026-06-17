@@ -22,6 +22,8 @@ export default function MgCmdSelect({
   disabled = false,
   inputId = undefined,
   labelId = undefined,
+  closeSiblingsOnOpen = true,
+  panelClassName = "cmd-panel",
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -74,7 +76,7 @@ export default function MgCmdSelect({
     setOpen((current) => {
       const next = !current;
       if (next) {
-        closeMgPanels(rootRef.current);
+        if (closeSiblingsOnOpen) closeMgPanels(rootRef.current);
         setQuery("");
         setHighlighted(-1);
       }
@@ -149,7 +151,7 @@ export default function MgCmdSelect({
       <MgPortalPanel
         open={open}
         panelRef={panelRef}
-        panelClassName="cmd-panel"
+        panelClassName={panelClassName}
         style={panelStyle}
         onClick={(event) => event.stopPropagation()}
       >

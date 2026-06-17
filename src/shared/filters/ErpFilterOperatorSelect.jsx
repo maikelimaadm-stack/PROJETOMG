@@ -34,6 +34,8 @@ export default function ErpFilterOperatorSelect({
         onChange={onChange}
         placeholder="Selecionar Operador"
         disabled={disabled}
+        closeSiblingsOnOpen={false}
+        panelClassName="cmd-panel erp-filter-operator-panel"
       />
     </div>
   );

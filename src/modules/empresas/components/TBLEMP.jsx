@@ -71,6 +71,7 @@ import {
 } from "@/shared/filters";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
+import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
 
@@ -1170,7 +1171,8 @@ export default function TBLEMP({
       if (
         menuPanel?.contains(event.target) ||
         filterPanel?.contains(event.target) ||
-        trigger?.contains(event.target)
+        trigger?.contains(event.target) ||
+        isNestedMgFloatingPanelTarget(event.target)
       ) {
         return;
       }

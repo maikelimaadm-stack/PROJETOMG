@@ -8333,6 +8333,53 @@
 
 .erp-filter-operator-field .cmd-select {
   width: 100%;
+  grid-template-rows: 28px !important;
+  row-gap: 0;
+}
+
+.erp-filter-operator-field .cmd-display {
+  min-height: 28px !important;
+  height: 28px !important;
+  padding: 0 26px 0 8px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  align-items: center !important;
+  border-radius: 6px;
+  border: 1px solid var(--border, #e2e8f0);
+  box-shadow: none;
+  background: #fff;
+}
+
+.erp-filter-operator-field .cmd-select.open .cmd-display,
+.erp-filter-operator-field .cmd-select.mg-has-value .cmd-display {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.erp-filter-operator-field .cmd-chevron {
+  width: 12px !important;
+  height: 12px !important;
+  margin-right: 8px !important;
+  align-self: center !important;
+}
+
+.mg-empresas-scope.mg-floating-panel-root > .cmd-panel.erp-filter-operator-panel,
+.mg-empresas-scope .erp-filter-operator-panel.cmd-panel {
+  z-index: 10001 !important;
+}
+
+.mg-empresas-scope.mg-floating-panel-root > .cmd-panel.erp-filter-operator-panel input,
+.mg-empresas-scope .erp-filter-operator-panel.cmd-panel input {
+  height: 28px;
+  font-size: 11px;
+  padding: 0 8px;
+}
+
+.mg-empresas-scope.mg-floating-panel-root > .cmd-panel.erp-filter-operator-panel .cmd-option,
+.mg-empresas-scope .erp-filter-operator-panel.cmd-panel .cmd-option {
+  min-height: 26px;
+  font-size: 11px;
+  padding: 4px 8px;
 }
 
 .erp-filter-data-list {

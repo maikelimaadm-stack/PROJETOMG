@@ -13,6 +13,7 @@ import {
 import { buildPanelFilterOptions } from "@/modules/empresas/layout/mgPanelFilterOptions";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
+import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
 
 function useFilterPopover(open, setOpen, rootRef, panelRef) {
   const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
@@ -38,6 +39,7 @@ function useFilterPopover(open, setOpen, rootRef, panelRef) {
     if (!open) return undefined;
     const close = (event) => {
       if (rootRef.current?.contains(event.target) || panelRef.current?.contains(event.target)) return;
+      if (isNestedMgFloatingPanelTarget(event.target)) return;
       setOpen(false);
     };
     document.addEventListener("mousedown", close);
