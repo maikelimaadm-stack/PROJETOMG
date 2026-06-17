@@ -456,10 +456,7 @@ function FieldFrameCorp({
         ) : null}
         {loteStyle && !bare ? <EmpCustomMarker variant="lote" /> : null}
         <div
-          className={cn(
-            !bare && "emp-form-field-control",
-            !bare && "mg-prototype-field-control--native"
-          )}
+          className={cn(!bare && "emp-form-field-control")}
           role="group"
           aria-labelledby={!bare ? labelId : undefined}
         >
