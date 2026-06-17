@@ -29,6 +29,7 @@
     "audit:post-optimization": "node scripts/auditPostOptimization.mjs",
     "audit:latency-backend": "node scripts/latencyAuditBackend.mjs",
     "audit:enterprise-benchmark": "node scripts/enterpriseBenchmark.mjs",
+    "test:empresas-table-scale": "node scripts/benchmark-emp-table-scale.mjs",
     "audit:stress-scale": "node scripts/stressScaleTest.mjs",
     "audit:post-deploy": "node scripts/postDeployValidation.mjs",
     "smoke:production": "node scripts/productionStabilizationSmoke.mjs"

@@ -64,6 +64,7 @@ import {
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
 } from "./tblEmp.filters";
+import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
 import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 
 function haveSameIds(listA = [], listB = []) {
@@ -269,6 +270,10 @@ export default function TBLEMP({
       return { ...col, agregacao_tipo: "", agregacao: "" };
     });
   }, [camposPersonalizados, layoutAggregationConfig]);
+  const colunasDisponiveisById = useMemo(
+    () => new Map(colunasDisponiveis.map((column) => [column.id, column])),
+    [colunasDisponiveis]
+  );
 
   useEffect(() => {
     if (!colunasDisponiveis.length) return;
@@ -501,7 +506,7 @@ export default function TBLEMP({
     [colunasOrdenadas, columnPixelWidths]
   );
 
-  const getFieldValue = (emp, colId) => {
+  const getFieldValue = useCallback((emp, colId) => {
     if (colId === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "-";
     if (colId === "codempresa") return emp.codempresa ?? "-";
     if (colId === "razao_social") return emp.razao_social || "-";
@@ -526,15 +531,15 @@ export default function TBLEMP({
     if (colId === "estado") return emp.estado || "-";
     if (colId === "observacoes") return emp.observacoes || "-";
     if (colId === "status") return emp.status || "-";
-    const col = colunasDisponiveis.find((c) => c.id === colId);
+    const col = colunasDisponiveisById.get(colId);
     return campoEngine.getValorCampo(emp, col || { id: colId }, {});
-  };
+  }, [colunasDisponiveisById]);
 
-  const getComparableValue = (emp, col) => {
+  const getComparableValue = useCallback((emp, col) => {
     if (col.id === "id_global") return Number(emp.id_global || 0);
     if (col.id === "codempresa") return Number(emp.codempresa || 0);
     return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id);
-  };
+  }, [getFieldValue]);
 
   const getNormalizedFilterDraft = useCallback(
     (columnId, col) => {
@@ -602,7 +607,7 @@ export default function TBLEMP({
     sorted.sort((a, b) => {
       for (const rule of sortRules) {
         const direction = rule.direction === "desc" ? "desc" : "asc";
-        const column = colunasDisponiveis.find((col) => col.id === rule.key);
+        const column = colunasDisponiveisById.get(rule.key);
         if (!column) continue;
         const columnType = getColumnFilterType(column);
         let cmp = 0;
@@ -624,7 +629,7 @@ export default function TBLEMP({
       return 0;
     });
     return sorted;
-  }, [serverMode, empresasFiltradas, sortConfig, colunasDisponiveis]);
+  }, [serverMode, empresasFiltradas, sortConfig, colunasDisponiveisById, getComparableValue, getFieldValue]);
 
   const columnOptions = useMemo(() => {
     const opts = {};
@@ -766,68 +771,22 @@ export default function TBLEMP({
   const groupedColumns = useMemo(
     () =>
       groupByColumnIds
-        .map((columnId) => colunasDisponiveis.find((col) => col.id === columnId))
+        .map((columnId) => colunasDisponiveisById.get(columnId))
         .filter(Boolean),
-    [groupByColumnIds, colunasDisponiveis]
+    [groupByColumnIds, colunasDisponiveisById]
   );
 
-  const groupedResult = useMemo(() => {
-    if (groupedColumns.length === 0) {
-      return {
-        rows: empresasPaginadas.map((empresa) => ({ __type: "row", key: `row:${empresa.id}`, emp: empresa })),
-        groupKeys: [],
-      };
-    }
-    const nextRows = [];
-    const groupKeys = [];
-    const groupRows = (items, level, parentPath) => {
-      if (level >= groupedColumns.length) {
-        items.forEach((empresa) =>
-          nextRows.push({
-            __type: "row",
-            key: `row:${empresa.id}:${parentPath.join("|")}`,
-            emp: empresa,
-            groupKey: parentPath[parentPath.length - 1] || null,
-          })
-        );
-        return;
-      }
-      const currentColumn = groupedColumns[level];
-      const groupsMap = new Map();
-      items.forEach((empresa) => {
-        const rawValue = getFieldValue(empresa, currentColumn.id);
-        const label = String(rawValue ?? "-").trim() || "-";
-        if (!groupsMap.has(label)) groupsMap.set(label, []);
-        groupsMap.get(label).push(empresa);
-      });
-      const sortedGroups = Array.from(groupsMap.entries()).sort((a, b) =>
-        String(a[0]).localeCompare(String(b[0]), "pt-BR", { numeric: true, sensitivity: "base" })
-      );
-      sortedGroups.forEach(([label, groupedItems]) => {
-        const groupKey = `${parentPath.join(">")}|${currentColumn.id}:${label}`;
-        groupKeys.push(groupKey);
-        nextRows.push({
-          __type: "group",
-          key: `group:${groupKey}`,
-          groupKey,
-          level,
-          label,
-          columnId: currentColumn.id,
-          count: groupedItems.length,
-        });
-        if (!collapsedGroupKeys[groupKey]) {
-          groupRows(groupedItems, level + 1, [...parentPath, groupKey]);
-        }
-      });
-    };
-    groupRows(empresasPaginadas, 0, []);
-    return { rows: nextRows, groupKeys };
-  }, [
-    groupedColumns,
-    empresasPaginadas,
-    collapsedGroupKeys,
-    getFieldValue,
-  ]);
+  const groupedResult = useMemo(
+    () =>
+      buildGroupedRows({
+        items: empresasPaginadas,
+        groupedColumns,
+        collapsedGroupKeys,
+        getFieldValue,
+        sortConfig,
+      }),
+    [empresasPaginadas, groupedColumns, collapsedGroupKeys, getFieldValue, sortConfig]
+  );
 
   const linhasExibidas = groupedResult.rows;
   const groupKeysSignature = useMemo(
@@ -836,51 +795,60 @@ export default function TBLEMP({
   );
 
   useEffect(() => {
-    if (!groupKeysSignature) {
-      setCollapsedGroupKeys((previous) => (Object.keys(previous).length === 0 ? previous : {}));
-      return;
-    }
-    const allowedKeys = new Set(groupedResult.groupKeys);
     setCollapsedGroupKeys((previous) => {
-      let changed = false;
-      const nextState = {};
-      Object.entries(previous).forEach(([groupKey, collapsed]) => {
-        if (!allowedKeys.has(groupKey)) {
-          changed = true;
-          return;
-        }
-        nextState[groupKey] = collapsed;
-      });
+      const nextState = pruneCollapsedGroupKeys(previous, groupedResult.groupKeys);
+      const prevKeys = Object.keys(previous || {});
+      const nextKeys = Object.keys(nextState);
+      if (prevKeys.length !== nextKeys.length) return nextState;
+      const changed = prevKeys.some((groupKey) => !Object.prototype.hasOwnProperty.call(nextState, groupKey));
       return changed ? nextState : previous;
     });
   }, [groupKeysSignature, groupedResult.groupKeys]);
 
-  const getRowBgClass = (index, selected) => {
+  const getRowBgClass = useCallback((index, selected) => {
     if (selected) return "emp-row-selected";
     return "emp-row-even";
-  };
+  }, []);
+  const firstGroupingCellColumnId = colunasOrdenadas[0]?.id || null;
 
   const renderVirtualTableRow = useCallback(
     (rowEntry, virtualRowIndex) => {
       if (rowEntry?.__type === "group") {
         const isCollapsed = Boolean(collapsedGroupKeys[rowEntry.groupKey]);
-        return (
-          <TableCell
-            colSpan={colunasOrdenadas.length}
-            className="emp-td emp-group-row-cell py-0 text-left text-[12px] align-middle select-none"
-          >
-            <div className="emp-group-row-content" style={{ paddingLeft: `${(rowEntry.level || 0) * 14}px` }}>
-              {isCollapsed ? (
-                <ChevronRight className="h-3.5 w-3.5 text-emerald-600" />
+        return colunasOrdenadas.map((col, colIndex) => {
+          const isPinnedLeft = colIndex < frozenColumnCount;
+          const isPinnedRight = pinnedRightColumnIds.includes(col.id);
+          const isPinned = isPinnedLeft || isPinnedRight;
+          const hasRightShadow = col.id === lastPinnedLeftId;
+          const hasLeftShadow = col.id === firstPinnedRightId;
+          const isPrimaryGroupCell = col.id === firstGroupingCellColumnId;
+          return (
+            <TableCell
+              key={`group-cell:${rowEntry.groupKey}:${col.id}`}
+              style={{
+                left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
+                right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
+              }}
+              className={`emp-td emp-group-row-cell py-0 text-left text-[12px] align-middle select-none ${
+                isPinned ? "sticky z-20" : ""
+              } ${hasRightShadow ? "emp-pinned-shadow-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
+            >
+              {isPrimaryGroupCell ? (
+                <div className="emp-group-row-content" style={{ paddingLeft: `${(rowEntry.level || 0) * 14}px` }}>
+                  {isCollapsed ? (
+                    <ChevronRight className="h-3.5 w-3.5 text-emerald-600" />
+                  ) : (
+                    <ChevronDown className="h-3.5 w-3.5 text-emerald-600" />
+                  )}
+                  <span className="emp-group-row-label">{rowEntry.label}</span>
+                  <span className="emp-group-row-count">({rowEntry.count})</span>
+                </div>
               ) : (
-                <ChevronDown className="h-3.5 w-3.5 text-emerald-600" />
+                <span aria-hidden="true">&nbsp;</span>
               )}
-              <span className="emp-group-row-label">
-                {rowEntry.label} ({rowEntry.count})
-              </span>
-            </div>
-          </TableCell>
-        );
+            </TableCell>
+          );
+        });
       }
       const emp = rowEntry?.emp ?? rowEntry;
       const isSelected = selectedItemsSet.has(emp.id);
@@ -911,6 +879,7 @@ export default function TBLEMP({
       colunasOrdenadas,
       frozenColumnCount,
       frozenOffsets,
+      firstGroupingCellColumnId,
       pinnedRightColumnIds,
       pinnedRightOffsets,
       firstPinnedRightId,
@@ -1039,7 +1008,18 @@ export default function TBLEMP({
           "aria-expanded": !collapsedGroupKeys[row.groupKey],
           "aria-label": `Alternar grupo ${row.label}`,
           onKeyDown: (event) => {
+            const isExpanded = !collapsedGroupKeys[row.groupKey];
             if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              handleDisplayRowClick(row, event);
+              return;
+            }
+            if (event.key === "ArrowRight" && !isExpanded) {
+              event.preventDefault();
+              handleDisplayRowClick(row, event);
+              return;
+            }
+            if (event.key === "ArrowLeft" && isExpanded) {
               event.preventDefault();
               handleDisplayRowClick(row, event);
             }
@@ -1398,6 +1378,23 @@ export default function TBLEMP({
     closeColumnOverlays();
   };
 
+  const toggleGroupByColumn = useCallback((columnId) => {
+    setGroupByColumnIds((previous) => {
+      if (previous.includes(columnId)) {
+        return previous.filter((id) => id !== columnId);
+      }
+      return [...previous, columnId];
+    });
+    setCollapsedGroupKeys({});
+    closeColumnOverlays();
+  }, [closeColumnOverlays]);
+
+  const clearGrouping = useCallback(() => {
+    setGroupByColumnIds((previous) => (previous.length > 0 ? [] : previous));
+    setCollapsedGroupKeys({});
+    closeColumnOverlays();
+  }, [closeColumnOverlays]);
+
   const buildColumnMenuItems = (col, colIndex) => [
     {
       id: "filter",
@@ -1435,6 +1432,22 @@ export default function TBLEMP({
         applySortToColumn(col.id, "desc");
         closeColumnOverlays();
       },
+    },
+    {
+      id: "group-column-toggle",
+      label: groupByColumnIds.includes(col.id)
+        ? "Remover agrupamento desta coluna"
+        : "Agrupar por esta coluna",
+      Icon: UsersRound,
+      active: groupByColumnIds.includes(col.id),
+      onClick: () => toggleGroupByColumn(col.id),
+    },
+    {
+      id: "group-column-clear-all",
+      label: "Limpar agrupamentos",
+      Icon: X,
+      disabled: groupByColumnIds.length === 0,
+      onClick: clearGrouping,
     },
     {
       id: "auto-fit",
