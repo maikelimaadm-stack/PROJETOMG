@@ -1,5 +1,5 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { X } from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import EmpColFilterPopover from "@/modules/empresas/components/EmpColFilterPopover";
 import { matchesFilterOptionContains } from "@/modules/empresas/components/tblEmp.filters";
@@ -178,6 +178,80 @@ function PanelFilterPill({
   );
 }
 
+const FILTER_PILLS_SCROLL_STEP = 240;
+
+function useFilterPillsScrollRail(enabled = true) {
+  const viewportRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  const [hasOverflow, setHasOverflow] = useState(false);
+
+  const updateScrollState = useCallback(() => {
+    const viewport = viewportRef.current;
+    if (!viewport || !enabled) {
+      setCanScrollLeft(false);
+      setCanScrollRight(false);
+      setHasOverflow(false);
+      return;
+    }
+
+    const maxScrollLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
+    const nextLeft = viewport.scrollLeft > 1;
+    const nextRight = viewport.scrollLeft < maxScrollLeft - 1;
+    const nextOverflow = maxScrollLeft > 1;
+
+    setCanScrollLeft(nextLeft);
+    setCanScrollRight(nextRight);
+    setHasOverflow(nextOverflow);
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled) return undefined;
+    const viewport = viewportRef.current;
+    if (!viewport) return undefined;
+
+    updateScrollState();
+
+    const onScroll = () => updateScrollState();
+    viewport.addEventListener("scroll", onScroll, { passive: true });
+
+    let resizeObserver;
+    if (typeof ResizeObserver !== "undefined") {
+      resizeObserver = new ResizeObserver(() => updateScrollState());
+      resizeObserver.observe(viewport);
+      if (viewport.firstElementChild) {
+        resizeObserver.observe(viewport.firstElementChild);
+      }
+    } else {
+      window.addEventListener("resize", updateScrollState);
+    }
+
+    return () => {
+      viewport.removeEventListener("scroll", onScroll);
+      resizeObserver?.disconnect();
+      window.removeEventListener("resize", updateScrollState);
+    };
+  }, [enabled, updateScrollState]);
+
+  const scrollByStep = useCallback((direction) => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    viewport.scrollBy({
+      left: direction * FILTER_PILLS_SCROLL_STEP,
+      behavior: "smooth",
+    });
+  }, []);
+
+  return {
+    viewportRef,
+    canScrollLeft,
+    canScrollRight,
+    hasOverflow,
+    scrollLeft: () => scrollByStep(-1),
+    scrollRight: () => scrollByStep(1),
+  };
+}
+
 export default function MgFilterPills({
   filterFields = [],
   values = {},
@@ -189,6 +263,16 @@ export default function MgFilterPills({
   disabled = false,
   className = "",
 }) {
+  const useScrollRail = !className.includes("mg-filter-pills--drawer");
+  const {
+    viewportRef,
+    canScrollLeft,
+    canScrollRight,
+    hasOverflow,
+    scrollLeft,
+    scrollRight,
+  } = useFilterPillsScrollRail(useScrollRail);
+
   const hasActiveFilters = useMemo(
     () =>
       filterFields.some(
@@ -197,8 +281,8 @@ export default function MgFilterPills({
     [appliedValues, filterFields]
   );
 
-  return (
-    <div className={`mg-filter-pills${className ? ` ${className}` : ""}`}>
+  const pills = (
+    <>
       {filterFields.map((field) => (
         <PanelFilterPill
           key={field.key}
@@ -221,6 +305,46 @@ export default function MgFilterPills({
           disabled={disabled}
         >
           Limpar filtros
+        </button>
+      ) : null}
+    </>
+  );
+
+  if (!useScrollRail) {
+    return (
+      <div className={`mg-filter-pills${className ? ` ${className}` : ""}`}>
+        {pills}
+      </div>
+    );
+  }
+
+  return (
+    <div className={`mg-filter-pills-rail${className ? ` ${className}` : ""}`}>
+      {hasOverflow ? (
+        <button
+          type="button"
+          className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--prev"
+          onClick={scrollLeft}
+          disabled={disabled || !canScrollLeft}
+          aria-label="Rolar filtros para a esquerda"
+          title="Rolar filtros para a esquerda"
+        >
+          <ChevronLeft className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
+        </button>
+      ) : null}
+      <div ref={viewportRef} className="mg-filter-pills-rail__viewport">
+        <div className="mg-filter-pills">{pills}</div>
+      </div>
+      {hasOverflow ? (
+        <button
+          type="button"
+          className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--next"
+          onClick={scrollRight}
+          disabled={disabled || !canScrollRight}
+          aria-label="Rolar filtros para a direita"
+          title="Rolar filtros para a direita"
+        >
+          <ChevronRight className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
         </button>
       ) : null}
     </div>
