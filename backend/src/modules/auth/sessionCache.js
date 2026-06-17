@@ -1,11 +1,11 @@
-import { globalMemoryCache } from "../../cache/memoryCache.js";
+import { tieredCache } from "../../cache/tieredCache.js";
 
 const SESSION_EMPRESAS_TTL_MS = 8 * 60 * 60 * 1000;
 
 const key = (userId) => `session:empresas:${userId}`;
 
 export const setSessionEmpresas = (userId, payload) => {
-  globalMemoryCache.set(
+  return tieredCache.set(
     key(userId),
     {
       items: payload.items || [],
@@ -16,8 +16,8 @@ export const setSessionEmpresas = (userId, payload) => {
   );
 };
 
-export const getSessionEmpresas = (userId) => globalMemoryCache.get(key(userId));
+export const getSessionEmpresas = (userId) => tieredCache.get(key(userId));
 
 export const clearSessionEmpresas = (userId) => {
-  globalMemoryCache.delete(key(userId));
+  return tieredCache.delete(key(userId));
 };

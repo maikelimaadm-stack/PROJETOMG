@@ -170,7 +170,7 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
       : null;
   const allowAllEmpresas = Boolean(usuarioData.acesso_global);
 
-  setSessionEmpresas(usuarioData.id, { ...empresasResult, total: empresasTotal });
+  await setSessionEmpresas(usuarioData.id, { ...empresasResult, total: empresasTotal });
 
   return {
     cliente: sanitizeCliente(clienteData),
@@ -185,7 +185,7 @@ export const loginWithCredentials = async ({ cliente, usuario, senha }) => {
 };
 
 export const listEmpresasFromSession = async (sessionUser) => {
-  const cached = getSessionEmpresas(sessionUser.id);
+  const cached = await getSessionEmpresas(sessionUser.id);
   if (cached?.items) return cached.items;
   return [];
 };

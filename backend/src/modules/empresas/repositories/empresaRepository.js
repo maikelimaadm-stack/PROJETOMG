@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../../../database/prismaClient.js";
+import crypto from "node:crypto";
 import { auditService } from "../../audit/auditService.js";
 import { svcCps } from "../../cadcps/svcCps.js";
 import { toLegacyCampoList } from "../../cadcps/campoLegacyAdapter.js";
@@ -14,6 +15,7 @@ import {
   ensureCodigoSequenciaFloor,
   reserveNextCodigo,
 } from "../../sequencias/entidadeCodigoService.js";
+import { tieredCache } from "../../../cache/tieredCache.js";
 
 const EMPRESAS_ENTITY_NAME = "EmpresaCadastro";
 
@@ -26,6 +28,11 @@ const toPositiveInt = (value, fallback) => {
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 500;
 const MAX_EXPORT_ROWS = 100_000;
+const DISTINCT_CACHE_TTL_MS = Math.max(
+  0,
+  Number(process.env.EMP_DISTINCT_CACHE_TTL_MS || 30_000)
+);
+const DISTINCT_CACHE_PREFIX = "emp:distinct:";
 
 /** Colunas retornadas em listagens paginadas (sem observações/logo pesados). */
 const LIST_SELECT = {
@@ -249,6 +256,30 @@ const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "") => {
 
   sql += ` ORDER BY value ASC LIMIT $2`;
   return { sql, params };
+};
+
+const buildDistinctScopeHash = (scope) => {
+  const payload = JSON.stringify({
+    clienteId: scope.clienteId,
+    acessoGlobal: Boolean(scope.acessoGlobal),
+    selectedEmpresaId: scope.selectedEmpresaId || null,
+    allowedEmpresaIds: Array.isArray(scope.allowedEmpresaIds)
+      ? [...scope.allowedEmpresaIds].sort()
+      : [],
+  });
+  return crypto.createHash("sha256").update(payload).digest("hex").slice(0, 24);
+};
+
+const buildDistinctCacheKey = ({ scope, column, search, optionSearch, filters, limit }) => {
+  const keyPayload = JSON.stringify({
+    column,
+    search,
+    optionSearch,
+    filters: filters || {},
+    limit: Number(limit) || 5000,
+  });
+  const digest = crypto.createHash("sha256").update(keyPayload).digest("hex").slice(0, 24);
+  return `${DISTINCT_CACHE_PREFIX}${scope.clienteId}:${buildDistinctScopeHash(scope)}:${digest}`;
 };
 
 const TEXT_SEARCH_FIELDS = [
@@ -630,6 +661,23 @@ export const empresaRepository = {
   async distinctColumnValues({ scope, column, search = "", filters = {}, limit = 5000, optionSearch = "" }) {
     const prisma = getPrismaClient();
     const safeLimit = Math.min(5000, Math.max(1, Number(limit) || 5000));
+    const cacheKey =
+      DISTINCT_CACHE_TTL_MS > 0
+        ? buildDistinctCacheKey({
+            scope,
+            column,
+            search,
+            optionSearch,
+            filters,
+            limit: safeLimit,
+          })
+        : null;
+    if (cacheKey) {
+      const cached = await tieredCache.get(cacheKey);
+      if (cached && Array.isArray(cached.items)) {
+        return cached;
+      }
+    }
     const fieldMeta = resolveDistinctField(column);
     if (!fieldMeta) return { items: [] };
 
@@ -655,7 +703,11 @@ export const empresaRepository = {
       const items = rows
         .map((row) => String(row.value || "").trim())
         .filter(Boolean);
-      return { items: [...new Set(items)] };
+      const payload = { items: [...new Set(items)] };
+      if (cacheKey) {
+        await tieredCache.set(cacheKey, payload, DISTINCT_CACHE_TTL_MS);
+      }
+      return payload;
     }
 
     const optionSearchTerm = String(optionSearch || "").trim();
@@ -695,8 +747,11 @@ export const empresaRepository = {
     const items = rows
       .map((row) => formatDistinctValue(column, row[fieldMeta.field]))
       .filter(Boolean);
-
-    return { items: [...new Set(items)] };
+    const payload = { items: [...new Set(items)] };
+    if (cacheKey) {
+      await tieredCache.set(cacheKey, payload, DISTINCT_CACHE_TTL_MS);
+    }
+    return payload;
   },
 
   async getById(id, scope) {
@@ -783,6 +838,7 @@ export const empresaRepository = {
         status: created.status,
       },
     });
+    await tieredCache.invalidatePrefix(`${DISTINCT_CACHE_PREFIX}${scope.clienteId}:`);
     return created;
   },
 
@@ -816,6 +872,7 @@ export const empresaRepository = {
         },
       },
     });
+    await tieredCache.invalidatePrefix(`${DISTINCT_CACHE_PREFIX}${scope.clienteId}:`);
     return updated;
   },
 
@@ -869,6 +926,7 @@ export const empresaRepository = {
         razao_social: current.razao_social,
       },
     });
+    await tieredCache.invalidatePrefix(`${DISTINCT_CACHE_PREFIX}${scope.clienteId}:`);
     return true;
   },
 

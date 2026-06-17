@@ -67,7 +67,7 @@ export const registerAuthRoutes = async (app) => {
     try {
       const credentials = parseLoginBody(request.body);
       const session = await loginWithCredentials(credentials);
-      clearAccessScopeCache(session.user.id);
+      await clearAccessScopeCache(session.user.id);
       const tokenPayload = createSessionTokenPayload(session);
       const token = await reply.jwtSign(tokenPayload, { expiresIn: "8h" });
       reply.header("Set-Cookie", buildAuthSetCookieHeader(token));
@@ -93,7 +93,7 @@ export const registerAuthRoutes = async (app) => {
     { preHandler: app.authenticate },
     async (request) => {
       const scope = await loadAccessScope(request);
-      const cached = getSessionEmpresas(scope.userId);
+      const cached = await getSessionEmpresas(scope.userId);
       const empresas = cached?.items?.length ? cached.items : await listEmpresasFromSession({ id: scope.userId });
       return {
         user: sanitizeSessionUser({
@@ -123,9 +123,9 @@ export const registerAuthRoutes = async (app) => {
 
   app.post("/api/auth/logout", { preHandler: app.authenticate }, async (request, reply) => {
     const userId = request.user?.id || request.user?.sub;
-    clearAccessScopeCache(userId);
-    clearSessionEmpresas(userId);
-    revokeAuthToken({
+    await clearAccessScopeCache(userId);
+    await clearSessionEmpresas(userId);
+    await revokeAuthToken({
       token: request.authTokenRaw || null,
       jti: request.user?.jti || null,
       exp: request.user?.exp || null,
@@ -139,7 +139,7 @@ export const registerAuthRoutes = async (app) => {
     { preHandler: app.authenticate },
     async (request) => {
       const scope = await loadAccessScope(request);
-      const cached = getSessionEmpresas(scope.userId);
+      const cached = await getSessionEmpresas(scope.userId);
       const empresas = cached?.items?.length ? cached.items : await listEmpresasFromSession({ id: scope.userId });
       return {
         empresas,

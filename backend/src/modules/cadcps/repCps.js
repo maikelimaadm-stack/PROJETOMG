@@ -38,8 +38,58 @@ const CADCPS_SORT_WHITELIST = new Set([
   "aplicacao_modo",
   "updatedAt",
 ]);
+const CADCPS_CURSOR_SORT_FIELDS = new Set(["codigo", "id_global"]);
 
 const MAX_PAGE_SIZE = 200;
+
+const encodeCursor = ({ sortField, direction, value, id }) => {
+  const payload = JSON.stringify({
+    s: sortField,
+    d: direction,
+    v: Number(value),
+    i: String(id),
+  });
+  return Buffer.from(payload, "utf8").toString("base64url");
+};
+
+const decodeCursor = (cursor) => {
+  if (!cursor) return null;
+  try {
+    const parsed = JSON.parse(Buffer.from(String(cursor), "base64url").toString("utf8"));
+    if (!parsed || typeof parsed !== "object") return null;
+    const value = Number(parsed.v);
+    if (!Number.isFinite(value) || !parsed.i || !parsed.s || !parsed.d) return null;
+    return {
+      sortField: String(parsed.s),
+      direction: String(parsed.d) === "desc" ? "desc" : "asc",
+      value,
+      id: String(parsed.i),
+    };
+  } catch {
+    return null;
+  }
+};
+
+const buildKeysetCursorWhere = (baseWhere, cursorMeta) => {
+  const comparator = cursorMeta.direction === "desc" ? "lt" : "gt";
+  const sortField = cursorMeta.sortField;
+  return {
+    AND: [
+      baseWhere,
+      {
+        OR: [
+          { [sortField]: { [comparator]: cursorMeta.value } },
+          {
+            AND: [
+              { [sortField]: cursorMeta.value },
+              { id: { [comparator]: cursorMeta.id } },
+            ],
+          },
+        ],
+      },
+    ],
+  };
+};
 
 const mapCampoRow = (row) => {
   if (!row) return null;
@@ -321,25 +371,38 @@ export const repCps = {
     const rawSortBy = String(query.sortBy || "codigo");
     const sortBy = CADCPS_SORT_WHITELIST.has(rawSortBy) ? rawSortBy : "codigo";
     const sortDir = query.sortDir === "desc" ? "desc" : "asc";
-    const orderBy = { [sortBy]: sortDir };
+    const cursorMeta = decodeCursor(query.cursor);
+    const isCursorMode =
+      CADCPS_CURSOR_SORT_FIELDS.has(sortBy) &&
+      cursorMeta &&
+      cursorMeta.sortField === sortBy &&
+      cursorMeta.direction === sortDir;
+    const orderBy = isCursorMode ? [{ [sortBy]: sortDir }, { id: sortDir }] : { [sortBy]: sortDir };
+    const pageWhere = isCursorMode ? buildKeysetCursorWhere(where, cursorMeta) : where;
     const hasHeavyFilter = Boolean(
       String(query.search || "").trim() || (query.filters && Object.keys(query.filters).length)
     );
+    const shouldIncludeTotal =
+      String(query.includeTotal ?? "true").toLowerCase() !== "false" &&
+      String(query.includeTotal ?? "true").toLowerCase() !== "0";
 
     const rows = await prisma.cadCpsCampo.findMany({
-      where,
+      where: pageWhere,
       include: CAMPO_INCLUDE,
-      skip,
+      ...(isCursorMode ? {} : { skip }),
       take: pageSize,
       orderBy,
     });
 
     let total;
-    if (hasHeavyFilter) {
+    if (shouldIncludeTotal && hasHeavyFilter) {
       total = await prisma.cadCpsCampo.count({ where });
-    } else {
+    } else if (shouldIncludeTotal) {
       const cachedTotal = await getCadcpsCampoCount(scope);
       total = cachedTotal ?? rows.length;
+    } else {
+      const baseTotal = (page - 1) * pageSize;
+      total = baseTotal + rows.length + (rows.length === pageSize ? 1 : 0);
     }
 
     return {
@@ -347,7 +410,20 @@ export const repCps = {
       total,
       page,
       pageSize,
-      totalPages: Math.max(1, Math.ceil(total / pageSize)),
+      totalPages: shouldIncludeTotal
+        ? Math.max(1, Math.ceil(total / pageSize))
+        : rows.length < pageSize
+          ? page
+          : page + 1,
+      nextCursor:
+        isCursorMode && rows.length === pageSize
+          ? encodeCursor({
+              sortField: sortBy,
+              direction: sortDir,
+              value: rows[rows.length - 1]?.[sortBy],
+              id: rows[rows.length - 1]?.id,
+            })
+          : null,
     };
   },
 

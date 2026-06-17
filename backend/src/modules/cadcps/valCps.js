@@ -54,6 +54,8 @@ export const cadcpsCampoUpdateSchema = cadcpsCampoBaseSchema.partial().extend({
 export const cadcpsListQuerySchema = z.object({
   page: z.coerce.number().int().positive().optional(),
   pageSize: z.coerce.number().int().positive().max(1000).optional(),
+  cursor: z.string().optional(),
+  includeTotal: z.union([z.boolean(), z.string()]).optional(),
   search: z.string().optional(),
   sortBy: z.string().optional(),
   sortDir: z.enum(["asc", "desc"]).optional(),
