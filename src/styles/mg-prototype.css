@@ -8552,7 +8552,7 @@
 .erp-filter-date-range__fields {
   width: 100%;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   margin-bottom: 0;
 }
 
@@ -8573,33 +8573,11 @@
   min-width: 0;
 }
 
-.erp-filter-date-range__calendar-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.erp-filter-date-range__sep {
   flex: 0 0 auto;
-  width: 28px;
-  height: var(--mg-btn-height);
-  border: none;
-  background: none;
-  padding: 0;
-  color: var(--text-3);
-  cursor: pointer;
-  border-radius: var(--mg-search-pill-radius);
-}
-
-.erp-filter-date-range__calendar-btn:hover:not(:disabled) {
-  color: var(--accent);
-  background: var(--gray-fill);
-}
-
-.erp-filter-date-range.is-calendar-open .erp-filter-date-range__calendar-btn:not(:disabled) {
-  color: var(--accent);
-}
-
-.erp-filter-date-range__calendar-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-2, #64748b);
 }
 
 .mg-empresas-scope.mg-floating-panel-root > .mg-dp-panel.mg-dp-range-panel,
@@ -8611,29 +8589,11 @@
   z-index: 10002 !important;
 }
 
-.mg-empresas-scope .mg-dp-range-header {
-  gap: 0;
-  height: 36px;
-  min-height: 36px;
-  max-height: 36px;
-  padding: 0 4px;
-}
-
-.mg-empresas-scope .mg-dp-range-header .mg-dp-nav {
-  width: 26px;
-  height: 26px;
-}
-
-.mg-empresas-scope .mg-dp-range-header__spacer {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
 .mg-empresas-scope .mg-dp-range-body {
-  height: 212px;
-  min-height: 212px;
-  max-height: 212px;
-  padding: 0 6px 6px;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+  padding: 6px;
   box-sizing: border-box;
 }
 
@@ -8651,9 +8611,43 @@
   height: 100%;
 }
 
+.mg-empresas-scope .mg-dp-range-month__header {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 24px;
+  max-height: 24px;
+}
+
+.mg-empresas-scope .mg-dp-range-month__nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 4px;
+  background: none;
+  color: var(--text-2);
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-dp-range-month__nav:hover:not(:disabled) {
+  color: var(--text-1);
+  background: var(--gray-fill);
+}
+
+.mg-empresas-scope .mg-dp-range-month__nav:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .mg-empresas-scope .mg-dp-range-month__title {
-  flex: 0 0 auto;
-  height: 22px;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;

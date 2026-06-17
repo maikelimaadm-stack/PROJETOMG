@@ -1,5 +1,5 @@
 import React, { useEffect, useId, useRef, useState } from "react";
-import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import {
@@ -19,17 +19,29 @@ const PANEL_HEIGHT = 248;
 const PANEL_Z_INDEX = 10002;
 const WEEKDAYS = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-function resolveAnchorMonth(value, valueTo) {
-  if (value) {
+function resolveStartMonth(value, valueTo) {
+  if (value && isValidBrDate(value)) {
     const parsed = parseBrDate(value);
     return { year: parsed.year, month: parsed.month };
   }
-  if (valueTo) {
+  if (valueTo && isValidBrDate(valueTo)) {
     const parsed = parseBrDate(valueTo);
     return addMonths(parsed.year, parsed.month, -1);
   }
   const now = new Date();
   return { year: now.getFullYear(), month: now.getMonth() };
+}
+
+function resolveEndMonth(value, valueTo, startMonth) {
+  if (valueTo && isValidBrDate(valueTo)) {
+    const parsed = parseBrDate(valueTo);
+    return { year: parsed.year, month: parsed.month };
+  }
+  if (value && isValidBrDate(value)) {
+    const parsed = parseBrDate(value);
+    return addMonths(parsed.year, parsed.month, 1);
+  }
+  return addMonths(startMonth.year, startMonth.month, 1);
 }
 
 function ErpFilterDateField({
@@ -38,6 +50,7 @@ function ErpFilterDateField({
   placeholder,
   disabled = false,
   inputId,
+  onOpenCalendar,
 }) {
   const [textValue, setTextValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
@@ -70,7 +83,10 @@ function ErpFilterDateField({
         setIsEditing(true);
         setTextValue(formatBrDateMaskAsYouType(event.target.value));
       }}
-      onFocus={() => setIsEditing(true)}
+      onFocus={() => {
+        setIsEditing(true);
+        onOpenCalendar?.();
+      }}
       onBlur={() => commit()}
       onKeyDown={(event) => {
         if (event.key === "Enter") {
@@ -88,14 +104,60 @@ function ErpFilterDateField({
   );
 }
 
-function MonthGrid({ year, month, value, onDaySelect, disabled }) {
+function MonthGrid({
+  year,
+  month,
+  value,
+  onDaySelect,
+  onMonthStep,
+  onYearStep,
+  disabled,
+}) {
   const today = new Date();
   const dayCells = buildDayCells(year, month);
 
   return (
     <div className="mg-dp-range-month">
-      <div className="mg-dp-range-month__title">
-        {year} {MONTH_SHORT[month]}
+      <div className="mg-dp-range-month__header">
+        <button
+          type="button"
+          className="mg-dp-range-month__nav"
+          aria-label="Ano anterior"
+          onClick={() => onYearStep?.(-1)}
+          disabled={disabled}
+        >
+          <ChevronsLeft className="h-3 w-3" />
+        </button>
+        <button
+          type="button"
+          className="mg-dp-range-month__nav"
+          aria-label="Mês anterior"
+          onClick={() => onMonthStep?.(-1)}
+          disabled={disabled}
+        >
+          <ChevronLeft className="h-3 w-3" />
+        </button>
+        <div className="mg-dp-range-month__title">
+          {year} {MONTH_SHORT[month]}
+        </div>
+        <button
+          type="button"
+          className="mg-dp-range-month__nav"
+          aria-label="Próximo mês"
+          onClick={() => onMonthStep?.(1)}
+          disabled={disabled}
+        >
+          <ChevronRight className="h-3 w-3" />
+        </button>
+        <button
+          type="button"
+          className="mg-dp-range-month__nav"
+          aria-label="Próximo ano"
+          onClick={() => onYearStep?.(1)}
+          disabled={disabled}
+        >
+          <ChevronsRight className="h-3 w-3" />
+        </button>
       </div>
       <div className="mg-dp-weekdays">
         {WEEKDAYS.map((weekday) => (
@@ -155,7 +217,9 @@ export default function ErpFilterDateRangeInput({
   const rootRef = useRef(null);
   const panelRef = useRef(null);
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState(() => resolveAnchorMonth(value, valueTo));
+  const initialStart = resolveStartMonth(value, valueTo);
+  const [startView, setStartView] = useState(initialStart);
+  const [endView, setEndView] = useState(() => resolveEndMonth(value, valueTo, initialStart));
 
   const panelStyle = useMgPanelPosition(open, rootRef, panelRef, {
     width: PANEL_WIDTH,
@@ -165,8 +229,6 @@ export default function ErpFilterDateRangeInput({
   });
 
   useMgPanelCoordinator(rootRef, setOpen);
-
-  const rightMonth = addMonths(view.year, view.month, 1);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -192,29 +254,19 @@ export default function ErpFilterDateRangeInput({
     };
   }, [open]);
 
-  useEffect(() => {
-    if (open) {
-      setView(resolveAnchorMonth(value, valueTo));
-    }
-  }, [open, value, valueTo]);
-
-  const toggleCalendar = () => {
+  const openCalendar = () => {
     if (disabled) return;
-    setOpen((wasOpen) => {
-      if (!wasOpen) {
-        setView(resolveAnchorMonth(value, valueTo));
-      }
-      return !wasOpen;
-    });
+    if (open) return;
+    const nextStart = resolveStartMonth(value, valueTo);
+    setStartView(nextStart);
+    setEndView(resolveEndMonth(value, valueTo, nextStart));
+    setOpen(true);
   };
 
-  const navMonth = (delta) => {
-    setView((current) => addMonths(current.year, current.month, delta));
-  };
-
-  const navYear = (delta) => {
-    setView((current) => ({ ...current, year: current.year + delta }));
-  };
+  const navStartMonth = (delta) => setStartView((current) => addMonths(current.year, current.month, delta));
+  const navStartYear = (delta) => setStartView((current) => ({ ...current, year: current.year + delta }));
+  const navEndMonth = (delta) => setEndView((current) => addMonths(current.year, current.month, delta));
+  const navEndYear = (delta) => setEndView((current) => ({ ...current, year: current.year + delta }));
 
   return (
     <div ref={rootRef} id={id} className={`erp-filter-date-range${open ? " is-calendar-open" : ""}`}>
@@ -225,30 +277,15 @@ export default function ErpFilterDateRangeInput({
           onChange={onValueChange}
           placeholder="Data inicial"
           disabled={disabled}
+          onOpenCalendar={openCalendar}
         />
-        <button
-          type="button"
-          className="erp-filter-date-range__calendar-btn"
-          disabled={disabled}
-          aria-label="Abrir calendário de período"
-          aria-expanded={open}
-          onMouseDown={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-          }}
-          onClick={(event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            toggleCalendar();
-          }}
-        >
-          <Calendar className="h-3.5 w-3.5" />
-        </button>
+        <span className="erp-filter-range-sep erp-filter-date-range__sep">até</span>
         <ErpFilterDateField
           value={valueTo}
           onChange={onValueToChange}
           placeholder="Data final"
           disabled={disabled}
+          onOpenCalendar={openCalendar}
         />
       </div>
 
@@ -259,35 +296,24 @@ export default function ErpFilterDateRangeInput({
         style={{ ...panelStyle, zIndex: PANEL_Z_INDEX }}
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="mg-dp-header mg-dp-range-header">
-          <button type="button" className="mg-dp-nav" onClick={() => navYear(-1)} aria-label="Ano anterior">
-            <ChevronsLeft className="h-3.5 w-3.5" />
-          </button>
-          <button type="button" className="mg-dp-nav" onClick={() => navMonth(-1)} aria-label="Mês anterior">
-            <ChevronLeft className="h-3.5 w-3.5" />
-          </button>
-          <div className="mg-dp-range-header__spacer" aria-hidden="true" />
-          <button type="button" className="mg-dp-nav" onClick={() => navMonth(1)} aria-label="Próximo mês">
-            <ChevronRight className="h-3.5 w-3.5" />
-          </button>
-          <button type="button" className="mg-dp-nav" onClick={() => navYear(1)} aria-label="Próximo ano">
-            <ChevronsRight className="h-3.5 w-3.5" />
-          </button>
-        </div>
         <div className="mg-dp-body mg-dp-range-body">
           <div className="mg-dp-range-grid">
             <MonthGrid
-              year={view.year}
-              month={view.month}
+              year={startView.year}
+              month={startView.month}
               value={value}
               onDaySelect={onValueChange}
+              onMonthStep={navStartMonth}
+              onYearStep={navStartYear}
               disabled={disabled}
             />
             <MonthGrid
-              year={rightMonth.year}
-              month={rightMonth.month}
+              year={endView.year}
+              month={endView.month}
               value={valueTo}
               onDaySelect={onValueToChange}
+              onMonthStep={navEndMonth}
+              onYearStep={navEndYear}
               disabled={disabled}
             />
           </div>
