@@ -43,7 +43,15 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
     throw new Error(`Falha em ${method} ${path}`);
   }
 
-  const payload = await response.json().catch(() => null);
+  const rawBody = await response.text().catch(() => "");
+  let payload = null;
+  if (rawBody) {
+    try {
+      payload = JSON.parse(rawBody);
+    } catch {
+      payload = null;
+    }
+  }
   if (!response.ok) {
     if (import.meta.env.DEV && response.status >= 500 && !payload?.message) {
       throw new Error(backendOfflineMessage());
@@ -62,7 +70,10 @@ const request = async (path, { method = "GET", body, token, headers: extraHeader
         "backend/.env ainda está com valores de exemplo. Copie as URLs reais do Supabase em DATABASE_URL e DIRECT_URL."
       );
     }
-    const error = new Error(apiMessage || `Falha em ${method} ${path}`);
+    const fallbackMessage = rawBody
+      ? `Falha em ${method} ${path} (HTTP ${response.status})`
+      : `Falha em ${method} ${path}`;
+    const error = new Error(apiMessage || fallbackMessage);
     error.status = response.status;
     throw error;
   }
