@@ -38,7 +38,6 @@ function ErpFilterDateField({
   placeholder,
   disabled = false,
   inputId,
-  onOpenCalendar,
 }) {
   const [textValue, setTextValue] = useState(value);
   const [isEditing, setIsEditing] = useState(false);
@@ -56,55 +55,36 @@ function ErpFilterDateField({
   };
 
   return (
-    <div className="erp-filter-date-field-wrap">
-      <input
-        id={inputId}
-        type="text"
-        inputMode="numeric"
-        className="erp-filter-field-input erp-filter-date-field"
-        value={textValue}
-        disabled={disabled}
-        placeholder={placeholder}
-        autoComplete="off"
-        spellCheck={false}
-        maxLength={10}
-        onChange={(event) => {
-          setIsEditing(true);
-          setTextValue(formatBrDateMaskAsYouType(event.target.value));
-        }}
-        onFocus={() => setIsEditing(true)}
-        onBlur={() => commit()}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            commit();
-            event.currentTarget.blur();
-          }
-          if (event.key === "Escape") {
-            setIsEditing(false);
-            setTextValue(value);
-            event.currentTarget.blur();
-          }
-        }}
-      />
-      <button
-        type="button"
-        className="erp-filter-date-field__icon"
-        disabled={disabled}
-        aria-label={`Abrir calendário (${placeholder})`}
-        onMouseDown={(event) => {
+    <input
+      id={inputId}
+      type="text"
+      inputMode="numeric"
+      className="erp-filter-field-input erp-filter-date-field"
+      value={textValue}
+      disabled={disabled}
+      placeholder={placeholder}
+      autoComplete="off"
+      spellCheck={false}
+      maxLength={10}
+      onChange={(event) => {
+        setIsEditing(true);
+        setTextValue(formatBrDateMaskAsYouType(event.target.value));
+      }}
+      onFocus={() => setIsEditing(true)}
+      onBlur={() => commit()}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
           event.preventDefault();
-          event.stopPropagation();
-        }}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          onOpenCalendar?.();
-        }}
-      >
-        <Calendar className="h-3.5 w-3.5" />
-      </button>
-    </div>
+          commit();
+          event.currentTarget.blur();
+        }
+        if (event.key === "Escape") {
+          setIsEditing(false);
+          setTextValue(value);
+          event.currentTarget.blur();
+        }
+      }}
+    />
   );
 }
 
@@ -230,15 +210,29 @@ export default function ErpFilterDateRangeInput({
           onChange={onValueChange}
           placeholder="Data inicial"
           disabled={disabled}
-          onOpenCalendar={openCalendar}
         />
-        <span className="erp-filter-range-sep">até</span>
+        <button
+          type="button"
+          className="erp-filter-date-range__calendar-btn"
+          disabled={disabled}
+          aria-label="Abrir calendário de período"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openCalendar();
+          }}
+        >
+          <Calendar className="h-3.5 w-3.5" />
+        </button>
         <ErpFilterDateField
           value={valueTo}
           onChange={onValueToChange}
           placeholder="Data final"
           disabled={disabled}
-          onOpenCalendar={openCalendar}
         />
       </div>
 

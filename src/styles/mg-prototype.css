@@ -8551,44 +8551,39 @@
 
 .erp-filter-date-range__fields {
   width: 100%;
-}
-
-.erp-filter-date-field-wrap {
-  position: relative;
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
   align-items: center;
 }
 
 .erp-filter-date-field {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
-  padding-right: 28px !important;
 }
 
-.erp-filter-date-field__icon {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
+.erp-filter-date-range__calendar-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  flex: 0 0 auto;
+  width: 28px;
+  height: var(--mg-btn-height);
   border: none;
   background: none;
   padding: 0;
   color: var(--text-3);
   cursor: pointer;
+  border-radius: var(--mg-search-pill-radius);
 }
 
-.erp-filter-date-field__icon:hover:not(:disabled) {
+.erp-filter-date-range__calendar-btn:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--gray-fill);
+}
+
+.erp-filter-date-range.is-calendar-open .erp-filter-date-range__calendar-btn:not(:disabled) {
   color: var(--accent);
 }
 
-.erp-filter-date-field__icon:disabled {
+.erp-filter-date-range__calendar-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
