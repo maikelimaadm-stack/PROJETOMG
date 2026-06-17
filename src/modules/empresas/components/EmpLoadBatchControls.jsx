@@ -40,7 +40,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
       <button
         ref={triggerRef}
         type="button"
-        className={`mg-records-batch-trigger${open ? " is-open" : ""}`}
+        className={`view-mode-btn mg-records-batch-trigger${open ? " active" : ""}`}
         aria-label="Quantidade de registros por carregamento"
         aria-expanded={open}
         aria-haspopup="listbox"
@@ -55,7 +55,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
         }}
       >
         <span className="mg-records-batch-trigger__value">{value}</span>
-        <ChevronDown className="mg-records-batch-trigger__icon" strokeWidth={2.2} aria-hidden="true" />
+        <ChevronDown className="view-mode-btn__icon mg-records-batch-trigger__chevron" strokeWidth={1.75} aria-hidden="true" />
       </button>
       <MgPortalPanel
         open={open}
@@ -98,20 +98,20 @@ export default function EmpLoadBatchControls({
   const canLoad = hasMoreRows && !isLoadingMoreRows && typeof onLoadMore === "function";
 
   return (
-    <div className="mg-records-load-controls">
+    <div className="view-seg mg-records-load-seg">
       <EmpLoadBatchSelect value={loadBatchSize} onChange={onLoadBatchSizeChange} />
       <button
         type="button"
-        className="emp-th-menu-button mg-records-load-btn"
+        className="view-mode-btn mg-records-load-btn"
         onClick={() => onLoadMore?.()}
         disabled={!canLoad}
         aria-label="Carregar mais registros"
         title="Carregar mais registros"
       >
         {isLoadingMoreRows ? (
-          <Loader2 className="emp-th-menu-button__icon mg-records-load-btn__icon--spin" aria-hidden="true" />
+          <Loader2 className="view-mode-btn__icon mg-records-load-btn__icon--spin" strokeWidth={1.75} aria-hidden="true" />
         ) : (
-          <ChevronsDown className="emp-th-menu-button__icon" strokeWidth={2.2} aria-hidden="true" />
+          <ChevronsDown className="view-mode-btn__icon" strokeWidth={1.75} aria-hidden="true" />
         )}
       </button>
     </div>
