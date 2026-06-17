@@ -11,10 +11,6 @@ import {
   resolveErpFilterMeta,
 } from "@/shared/filters";
 import { buildPanelFilterOptions } from "@/modules/empresas/layout/mgPanelFilterOptions";
-import {
-  buildPredecessorEmpresaListFilters,
-  resolveEmpresaDistinctColumnParam,
-} from "@/shared/listing/buildEmpresaListFilters";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
@@ -62,7 +58,6 @@ function PanelFilterPill({
   filterApplyOrder = [],
   columnFilters = {},
   panelFilterColumnMap = {},
-  onRequestDistinctColumnValues = null,
   active,
   disabled,
   onChange,
@@ -71,8 +66,6 @@ function PanelFilterPill({
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [distinctOptions, setDistinctOptions] = useState([]);
-  const [distinctLoading, setDistinctLoading] = useState(false);
   const debouncedSearchQuery = useDebouncedValue(searchQuery, 180);
   const rootRef = useRef(null);
   const panelRef = useRef(null);
@@ -80,7 +73,7 @@ function PanelFilterPill({
   const panelStyle = useFilterPopover(open, setOpen, rootRef, panelRef);
 
   const filterMeta = useMemo(() => resolveErpFilterMeta(field), [field]);
-  const fallbackOptions = useMemo(
+  const distinctOptions = useMemo(
     () =>
       buildPanelFilterOptions(empresas, appliedValues, field.key, filterFields, {
         filterApplyOrder,
@@ -89,59 +82,9 @@ function PanelFilterPill({
       }),
     [appliedValues, columnFilters, empresas, field.key, filterApplyOrder, filterFields, panelFilterColumnMap]
   );
-
-  useEffect(() => {
-    if (!open || !onRequestDistinctColumnValues) {
-      setDistinctOptions([]);
-      setDistinctLoading(false);
-      return undefined;
-    }
-
-    const column = resolveEmpresaDistinctColumnParam(field.column || field.key, panelFilterColumnMap);
-    const predecessorFilters = buildPredecessorEmpresaListFilters({
-      filterApplyOrder,
-      currentOrderKey: field.key,
-      appliedPanelValues: appliedValues,
-      columnFilters,
-      panelFilterColumnMap,
-    });
-
-    let cancelled = false;
-    setDistinctLoading(true);
-
-    onRequestDistinctColumnValues({
-      column,
-      filters: predecessorFilters,
-    })
-      .then((result) => {
-        if (cancelled) return;
-        setDistinctOptions(Array.isArray(result?.items) ? result.items : []);
-        setDistinctLoading(false);
-      })
-      .catch(() => {
-        if (cancelled) return;
-        setDistinctOptions([]);
-        setDistinctLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [
-    appliedValues,
-    columnFilters,
-    field.column,
-    field.key,
-    filterApplyOrder,
-    onRequestDistinctColumnValues,
-    open,
-    panelFilterColumnMap,
-  ]);
-
-  const listOptions = onRequestDistinctColumnValues ? distinctOptions : fallbackOptions;
   const enumOptions = useMemo(
-    () => resolveErpFilterEnumOptions(field, listOptions),
-    [field, listOptions]
+    () => resolveErpFilterEnumOptions(field, distinctOptions),
+    [distinctOptions, field]
   );
 
   const appliedFilter = values[field.key];
@@ -158,7 +101,6 @@ function PanelFilterPill({
   }, [open, appliedDraft]);
 
   const searchLoading =
-    distinctLoading ||
     searchQuery.trim().toLowerCase() !== debouncedSearchQuery.trim().toLowerCase();
 
   const toggle = () => {
@@ -229,7 +171,7 @@ function PanelFilterPill({
         columnLabel={field.label}
         filterType={filterMeta.filterType}
         draft={draft || appliedDraft}
-        listOptions={listOptions}
+        listOptions={distinctOptions}
         enumOptions={enumOptions}
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
@@ -325,7 +267,6 @@ export default function MgFilterPills({
   filterApplyOrder = [],
   columnFilters = {},
   panelFilterColumnMap = {},
-  onRequestDistinctColumnValues = null,
   onChange,
   onClear,
   onApply,
@@ -362,7 +303,6 @@ export default function MgFilterPills({
           filterApplyOrder={filterApplyOrder}
           columnFilters={columnFilters}
           panelFilterColumnMap={panelFilterColumnMap}
-          onRequestDistinctColumnValues={onRequestDistinctColumnValues}
           active={isErpFilterActive(appliedValues[field.key])}
           disabled={disabled}
           onChange={onChange}

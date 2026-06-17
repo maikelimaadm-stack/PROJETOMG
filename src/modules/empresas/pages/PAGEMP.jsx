@@ -1473,7 +1473,6 @@ export default function PAGEMP() {
                 filterApplyOrder={filterApplyOrder}
                 columnFilters={columnFilters}
                 panelFilterColumnMap={panelFilterColumnMap}
-                onRequestDistinctColumnValues={handleDistinctColumnValues}
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
@@ -1494,7 +1493,6 @@ export default function PAGEMP() {
                 filterApplyOrder={filterApplyOrder}
                 columnFilters={columnFilters}
                 panelFilterColumnMap={panelFilterColumnMap}
-                onRequestDistinctColumnValues={handleDistinctColumnValues}
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
