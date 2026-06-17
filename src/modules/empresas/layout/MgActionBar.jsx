@@ -549,6 +549,13 @@ export default function MgActionBar({
     </div>
   );
 
+  const renderSearchCluster = (attachClassName = "", { mobile = false } = {}) => (
+    <div className="mg-action-bar__search-cluster">
+      {mobile ? renderMobileSearchField() : renderSearchField()}
+      {renderAttachButton(attachClassName)}
+    </div>
+  );
+
   const renderPrimaryActions = () => (
     <>
       <ActionSlot show={showNew && !!onNew} width={64}>
@@ -746,8 +753,7 @@ export default function MgActionBar({
           </div>
           {showSecondaryTools ? (
             <div className={`mg-action-bar-mobile__search-slot${lockedClass}`}>
-              {renderMobileSearchField()}
-              {renderAttachButton("shrink-0")}
+              {renderSearchCluster("shrink-0", { mobile: true })}
             </div>
           ) : null}
         </div>
@@ -788,9 +794,8 @@ export default function MgActionBar({
         {showSecondaryTools ? (
           <>
             <div className={`mg-action-bar__tools mg-action-bar__tools--visible${lockedClass}`}>
-              {renderSearchField()}
+              {renderSearchCluster()}
             </div>
-            {renderAttachButton()}
             <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
             <div className="relative" ref={moreRef}>
               <MgSpeedDialMenu
