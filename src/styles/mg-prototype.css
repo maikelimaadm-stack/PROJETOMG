@@ -8382,6 +8382,17 @@
   padding: 4px 8px;
 }
 
+.erp-filter-range-row--inputs {
+  margin-bottom: 4px;
+}
+
+.erp-filter-range-row--inputs .erp-filter-field-input,
+.erp-filter-range-row--inputs .erp-filter-date-input,
+.erp-filter-range-row--inputs .erp-filter-money-input {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .erp-filter-data-list {
   display: flex;
   flex-direction: column;

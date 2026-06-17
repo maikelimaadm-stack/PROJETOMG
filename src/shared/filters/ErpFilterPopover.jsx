@@ -4,7 +4,7 @@ import ErpFilterSortSection from "@/shared/filters/ErpFilterSortSection";
 import ErpFilterOperatorSelect from "@/shared/filters/ErpFilterOperatorSelect";
 import ErpFilterDataList from "@/shared/filters/ErpFilterDataList";
 import { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
-import { normalizeErpFilterOperator } from "@/shared/filters/erpFilterOperators";
+import { normalizeErpFilterOperator, ERP_OPERATORS_WITH_RANGE } from "@/shared/filters/erpFilterOperators";
 import { cloneErpFilter } from "@/shared/filters/erpFilterState";
 
 /**
@@ -49,8 +49,10 @@ export default function ErpFilterPopover({
         filterType,
         operator,
         searchQuery,
+        rangeValue: safeDraft.value ?? "",
+        rangeValueTo: safeDraft.valueTo ?? "",
       }),
-    [dataListOptions, filterType, operator, searchQuery]
+    [dataListOptions, filterType, operator, safeDraft.value, safeDraft.valueTo, searchQuery]
   );
 
   const updateDraft = useCallback(
@@ -69,12 +71,16 @@ export default function ErpFilterPopover({
       updateDraft({ values: nextOperator ? [nextOperator] : [] });
       return;
     }
+    const normalized = normalizeErpFilterOperator(nextOperator, filterType);
     updateDraft({
-      operator: normalizeErpFilterOperator(nextOperator, filterType),
+      operator: normalized,
       value: "",
       valueTo: "",
     });
+    if (onSearchQueryChange) onSearchQueryChange("");
   };
+
+  const isRangeOperator = ERP_OPERATORS_WITH_RANGE.has(operator);
 
   const handleToggleValue = (option, checked) => {
     const current = Array.isArray(safeDraft.values) ? safeDraft.values : [];
@@ -98,8 +104,8 @@ export default function ErpFilterPopover({
       ...safeDraft,
       type: filterType,
       operator: isBoolean ? "" : operator,
-      value: "",
-      valueTo: "",
+      value: isRangeOperator ? (safeDraft.value ?? "") : "",
+      valueTo: isRangeOperator ? (safeDraft.valueTo ?? "") : "",
       values: [...selectedValues],
     });
   };
@@ -135,6 +141,10 @@ export default function ErpFilterPopover({
           <ErpFilterDataList
             filterType={filterType}
             operator={operator}
+            rangeValue={safeDraft.value ?? ""}
+            rangeValueTo={safeDraft.valueTo ?? ""}
+            onRangeValueChange={(nextValue) => updateDraft({ value: nextValue })}
+            onRangeValueToChange={(nextValue) => updateDraft({ valueTo: nextValue })}
             listOptions={dataListOptions}
             selectedValues={selectedValues}
             searchQuery={searchQuery}

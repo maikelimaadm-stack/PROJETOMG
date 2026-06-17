@@ -36,7 +36,7 @@ export const ERP_DATE_OPERATORS = [
   { value: "equals", label: "Igual a" },
   { value: "before", label: "Antes de" },
   { value: "after", label: "Depois de" },
-  { value: "between", label: "Entre datas" },
+  { value: "between", label: "Entre" },
   { value: "is_empty", label: "Está vazio" },
   { value: "is_not_empty", label: "Não está vazio" },
 ];
@@ -51,7 +51,13 @@ export const ERP_OPERATORS_BY_TYPE = {
 
 /** Operadores usados no popup de listagem (operador + pesquisa). */
 export function getErpListFilterOperators(filterType) {
-  return ERP_OPERATORS_BY_TYPE[filterType] || ERP_TEXT_OPERATORS;
+  const operators = ERP_OPERATORS_BY_TYPE[filterType] || ERP_TEXT_OPERATORS;
+  const seen = new Set();
+  return operators.filter((item) => {
+    if (seen.has(item.value)) return false;
+    seen.add(item.value);
+    return true;
+  });
 }
 
 export const ERP_DEFAULT_OPERATOR_BY_TYPE = {
@@ -128,6 +134,7 @@ export function getErpFilterOperatorLabel(value, filterType = "text") {
 export function normalizeErpFilterOperator(value, filterType = "text") {
   const raw = String(value ?? "").trim();
   if (!raw) return "";
+  if (raw === "Entre datas") return "between";
   const operators = getErpListFilterOperators(filterType);
   const match = operators.find((item) => item.value === raw || item.label === raw);
   if (match) return match.value;

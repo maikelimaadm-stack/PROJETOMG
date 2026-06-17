@@ -54,4 +54,5 @@ export { default as ErpFilterSortSection } from "@/shared/filters/ErpFilterSortS
 export { default as ErpFilterDateInput } from "@/shared/filters/ErpFilterDateInput";
 export { default as ErpFilterOperatorSelect } from "@/shared/filters/ErpFilterOperatorSelect";
 export { default as ErpFilterDataList } from "@/shared/filters/ErpFilterDataList";
-export { filterErpFilterListOptions, parseErpFilterSearchRange } from "@/shared/filters/erpFilterListOptions";
+export { default as ErpFilterRangeInputs } from "@/shared/filters/ErpFilterRangeInputs";
+export { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
