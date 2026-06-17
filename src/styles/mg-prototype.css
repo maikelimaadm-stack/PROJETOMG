@@ -3451,6 +3451,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   box-sizing: border-box;
   height: var(--mg-btn-height);
   min-height: var(--mg-btn-height);
@@ -3469,6 +3470,18 @@
     background var(--mg-motion-duration) var(--mg-motion-ease),
     border-color var(--mg-motion-duration) var(--mg-motion-ease),
     color var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-filter-pill__active-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #16a34a;
+  background: rgba(34, 197, 94, 0.08);
 }
 
 .mg-empresas-scope .mg-filter-pill__trigger:hover:not(:disabled) {

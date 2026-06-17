@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { X } from "lucide-react";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import EmpColFilterPopover from "@/modules/empresas/components/EmpColFilterPopover";
 import { matchesFilterOptionContains } from "@/modules/empresas/components/tblEmp.filters";
@@ -109,9 +110,6 @@ function PanelFilterPill({
     setOpen(false);
   };
 
-  const triggerLabel =
-    active && selectedValues.length > 0 ? `${field.label} (${selectedValues.length})` : field.label;
-
   return (
     <div
       className={`mg-filter-pill${open ? " is-open" : ""}${active ? " is-active" : ""}`}
@@ -125,7 +123,12 @@ function PanelFilterPill({
         aria-expanded={open}
         aria-haspopup="listbox"
       >
-        {triggerLabel}
+        <span>{field.label}</span>
+        {active ? (
+          <span className="mg-filter-pill__active-icon" aria-hidden="true">
+            <X className="h-3 w-3" strokeWidth={2.3} />
+          </span>
+        ) : null}
       </button>
       <EmpColFilterPopover
         open={open}

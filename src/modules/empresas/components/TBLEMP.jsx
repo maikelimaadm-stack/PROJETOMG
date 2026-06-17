@@ -172,6 +172,7 @@ export default function TBLEMP({
   onServerPageChange = null,
   onServerPageSizeChange = null,
   onServerColumnFiltersChange = null,
+  externalColumnFilters = undefined,
   onServerSortChange = null,
   onRequestDistinctColumnValues = null,
   infiniteMode = false,
@@ -207,6 +208,19 @@ export default function TBLEMP({
     if (!saved || typeof saved !== "object") return {};
     return saved;
   });
+  useEffect(() => {
+    if (externalColumnFilters === undefined) return;
+    const normalized =
+      externalColumnFilters && typeof externalColumnFilters === "object"
+        ? externalColumnFilters
+        : {};
+    setFiltrosColunas((prev) => {
+      const prevJson = JSON.stringify(prev || {});
+      const nextJson = JSON.stringify(normalized || {});
+      if (prevJson === nextJson) return prev;
+      return normalized;
+    });
+  }, [externalColumnFilters]);
   const isMobile = useIsMobile();
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });

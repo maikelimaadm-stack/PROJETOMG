@@ -66,6 +66,55 @@ const moduleLabels = {
   title: `Cadastro de ${empresasModuleDefinition.pluralLabel}`,
 };
 
+const PANEL_FILTER_COLUMN_MAP = {
+  razao_social: "razao_social",
+  nome_fantasia: "nome_fantasia",
+  cnpj: "cpf_cnpj",
+  telefone: "telefone",
+  cidade: "cidade",
+  uf: "estado",
+  status: "status",
+};
+
+const normalizeFilterList = (value) => {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item).trim()).filter(Boolean);
+  }
+  if (value && typeof value === "object") {
+    if (Array.isArray(value.values)) {
+      return value.values.map((item) => String(item).trim()).filter(Boolean);
+    }
+    if (value.value != null && String(value.value).trim() !== "") {
+      return [String(value.value).trim()];
+    }
+    return [];
+  }
+  if (value == null || String(value).trim() === "") return [];
+  return [String(value).trim()];
+};
+
+const syncPanelFiltersIntoColumns = (panelValues = {}, baseColumnFilters = {}) => {
+  const next = { ...(baseColumnFilters || {}) };
+  Object.values(PANEL_FILTER_COLUMN_MAP).forEach((columnKey) => {
+    delete next[columnKey];
+  });
+
+  Object.entries(PANEL_FILTER_COLUMN_MAP).forEach(([panelKey, columnKey]) => {
+    const values = normalizeFilterList(panelValues?.[panelKey]);
+    if (values.length > 0) {
+      next[columnKey] = { values: [...new Set(values)] };
+    }
+  });
+
+  return next;
+};
+
+const syncColumnsIntoPanelFilters = (columnFilters = {}) =>
+  Object.entries(PANEL_FILTER_COLUMN_MAP).reduce((acc, [panelKey, columnKey]) => {
+    acc[panelKey] = normalizeFilterList(columnFilters?.[columnKey]);
+    return acc;
+  }, {});
+
 const patchEmpresasCache = (queryClient, updater) => {
   queryClient.setQueriesData({ queryKey: ["emp-cadastro"] }, (previous) => {
     if (previous?.items) {
@@ -168,6 +217,7 @@ export default function PAGEMP() {
   const [loadBatchSize, setLoadBatchSize] = useState(() => readStoredEmpLoadBatchSize());
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
+  const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(false);
   const cardsVisFields = useEmpCardsVisFields();
   const isMobile = useIsMobile();
   const mobileCardsPerRow = 1;
@@ -801,6 +851,8 @@ export default function PAGEMP() {
     setFilterValues({});
     setAppliedFilterValues({});
     setAppliedPanelFilters(undefined);
+    setColumnFiltersHydrated(true);
+    setColumnFilters((prev) => syncPanelFiltersIntoColumns({}, prev));
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
@@ -817,6 +869,8 @@ export default function PAGEMP() {
       }
       setAppliedFilterValues({ ...nextValues });
       setAppliedPanelFilters(buildEmpresaPanelFilters(nextValues));
+      setColumnFiltersHydrated(true);
+      setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev));
       setQueryPage(1);
       closeFilterPanel();
     },
@@ -824,7 +878,13 @@ export default function PAGEMP() {
   );
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
-    setColumnFilters(nextColumnFilters || {});
+    const safeNext = nextColumnFilters || {};
+    const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext);
+    setColumnFiltersHydrated(true);
+    setColumnFilters(safeNext);
+    setFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
+    setAppliedFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
+    setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
   }, []);
 
@@ -1476,6 +1536,7 @@ export default function PAGEMP() {
                     onVisibleDataChange: setVisibleTableData,
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
+                    externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
                     serverPage: queryPage,
                     serverPageSize: queryPageSize,
                     serverTotal: totalEmpresas,
