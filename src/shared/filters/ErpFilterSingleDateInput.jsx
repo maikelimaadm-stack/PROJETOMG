@@ -54,7 +54,7 @@ function SingleDateField({
   };
 
   return (
-    <div className="erp-filter-single-date__field-wrap">
+    <div className="erp-filter-single-date__field-pill">
       <button
         type="button"
         className="erp-filter-single-date__calendar-btn"
@@ -77,7 +77,7 @@ function SingleDateField({
         id={inputId}
         type="text"
         inputMode="numeric"
-        className="erp-filter-field-input erp-filter-date-field erp-filter-single-date__field"
+        className="erp-filter-single-date__field"
         value={textValue}
         disabled={disabled}
         placeholder={placeholder}
