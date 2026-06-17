@@ -297,12 +297,46 @@ export const evaluateColumnFilter = ({ filterDraft, filterType, rawValue, displa
   const listValues = Array.isArray(filterDraft.values) ? filterDraft.values : [];
   if (listValues.length > 0) {
     const sourceValue = displayValue ?? rawValue ?? "";
-    if (!listValues.includes(sourceValue)) return false;
+    const matchesList = listValues.some((option) => {
+      if (filterType === "number") {
+        const optionNumber = parseNumberFilterValue(option);
+        const rawNumber = Number(rawValue);
+        if (Number.isFinite(optionNumber) && Number.isFinite(rawNumber)) {
+          return optionNumber === rawNumber;
+        }
+      }
+      return String(option) === String(sourceValue);
+    });
+    if (!matchesList) return false;
   }
   if (filterType === "number") return evaluateNumberOperator(operator, rawValue, value, valueTo);
   if (filterType === "date") return evaluateDateOperator(operator, rawValue, value, valueTo);
   return evaluateTextOperator(operator, displayValue ?? rawValue ?? "", value);
 };
+
+const SERVER_SUPPORTED_FILTER_OPERATORS = new Set(["equals", "contains", ""]);
+
+/** Indica se o filtro precisa ser reaplicado no cliente (operadores não suportados pela API). */
+export function filterNeedsClientSideProcessing(filterEntry) {
+  if (!filterEntry) return false;
+  if (Array.isArray(filterEntry)) return false;
+  if (typeof filterEntry !== "object") return false;
+
+  const operator = String(filterEntry.operator || "").trim() || "equals";
+  const rawValues = Array.isArray(filterEntry.values) ? filterEntry.values : [];
+  const hasPrimary = filterEntry.value != null && String(filterEntry.value).trim() !== "";
+  const hasSecondary = filterEntry.valueTo != null && String(filterEntry.valueTo).trim() !== "";
+  const hasListValues = rawValues.some((item) => item != null && String(item).trim() !== "");
+
+  if (hasListValues) return false;
+  if (!hasPrimary && !hasSecondary) return false;
+
+  return !SERVER_SUPPORTED_FILTER_OPERATORS.has(operator);
+}
+
+export function hasClientOnlyColumnFilters(filtrosColunas = {}) {
+  return Object.values(filtrosColunas).some(filterNeedsClientSideProcessing);
+}
 
 export const optionPassaRangeTemp = (opt, ft, tempValores) => {
   if (!tempValores?.length) return true;

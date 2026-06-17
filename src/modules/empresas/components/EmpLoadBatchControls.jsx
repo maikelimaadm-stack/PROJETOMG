@@ -40,7 +40,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
       <button
         ref={triggerRef}
         type="button"
-        className={`view-mode-btn mg-records-batch-trigger${open ? " active" : ""}`}
+        className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter mg-records-batch-trigger${open ? " is-open" : ""}`}
         aria-label="Quantidade de registros por carregamento"
         aria-expanded={open}
         aria-haspopup="listbox"
@@ -55,7 +55,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
         }}
       >
         <span className="mg-records-batch-trigger__value">{value}</span>
-        <ChevronDown className="view-mode-btn__icon mg-records-batch-trigger__chevron" strokeWidth={1.75} aria-hidden="true" />
+        <ChevronDown className="mg-records-batch-trigger__chevron" aria-hidden="true" />
       </button>
       <MgPortalPanel
         open={open}
@@ -98,20 +98,20 @@ export default function EmpLoadBatchControls({
   const canLoad = hasMoreRows && !isLoadingMoreRows && typeof onLoadMore === "function";
 
   return (
-    <div className="view-seg mg-records-load-seg">
+    <div className="mg-records-load-controls">
       <EmpLoadBatchSelect value={loadBatchSize} onChange={onLoadBatchSizeChange} />
       <button
         type="button"
-        className="view-mode-btn mg-records-load-btn"
+        className="ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-records-load-btn"
         onClick={() => onLoadMore?.()}
         disabled={!canLoad}
         aria-label="Carregar mais registros"
         title="Carregar mais registros"
       >
         {isLoadingMoreRows ? (
-          <Loader2 className="view-mode-btn__icon mg-records-load-btn__icon--spin" strokeWidth={1.75} aria-hidden="true" />
+          <Loader2 className="mg-records-load-btn__icon mg-records-load-btn__icon--spin" aria-hidden="true" />
         ) : (
-          <ChevronsDown className="view-mode-btn__icon" strokeWidth={1.75} aria-hidden="true" />
+          <ChevronsDown className="mg-records-load-btn__icon" aria-hidden="true" />
         )}
       </button>
     </div>

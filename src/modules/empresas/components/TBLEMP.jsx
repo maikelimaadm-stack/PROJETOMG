@@ -56,7 +56,9 @@ import {
 import {
   createDefaultColumnFilter,
   evaluateColumnFilter,
+  filterNeedsClientSideProcessing,
   getColumnFilterType,
+  hasClientOnlyColumnFilters,
   matchesFilterOptionContains,
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
@@ -520,7 +522,7 @@ export default function TBLEMP({
     [filtrosColunas]
   );
 
-  const empresaPassaFiltros = useCallback((emp, excludeColId = null) => {
+  const empresaPassaFiltros = useCallback((emp, excludeColId = null, clientOnlyFilters = false) => {
     const termo = String(searchTerm || "").toLowerCase().trim();
     if (termo) {
       const m = colunasDisponiveis.filter((c) => !c.fixo).some((col) => String(getFieldValue(emp, col.id) || "").toLowerCase().includes(termo));
@@ -530,6 +532,7 @@ export default function TBLEMP({
       if (excludeColId && col.id === excludeColId) return true;
       const draft = getNormalizedFilterDraft(col.id, col);
       if (!draft) return true;
+      if (clientOnlyFilters && !filterNeedsClientSideProcessing(draft)) return true;
       const hasListValues = Array.isArray(draft.values) && draft.values.length > 0;
       const hasPrimaryValue = draft.value !== null && draft.value !== undefined && String(draft.value).trim() !== "";
       const hasSecondaryValue = draft.valueTo !== null && draft.valueTo !== undefined && String(draft.valueTo).trim() !== "";
@@ -558,7 +561,12 @@ export default function TBLEMP({
       const hasSecondary = item.valueTo !== null && item.valueTo !== undefined && String(item.valueTo).trim() !== "";
       return hasValues || hasPrimary || hasSecondary;
     });
-    if (serverMode && !hasSearch && !hasAnyFilter) return empresas;
+    if (serverMode) {
+      if (!hasSearch && !hasAnyFilter) return empresas;
+      if (!hasSearch && !hasClientOnlyColumnFilters(filtrosColunas)) return empresas;
+      return empresas.filter((emp) => empresaPassaFiltros(emp, null, !hasSearch));
+    }
+    if (!hasSearch && !hasAnyFilter) return empresas;
     return empresas.filter((emp) => empresaPassaFiltros(emp));
   }, [serverMode, empresas, filtrosColunas, searchTerm, empresaPassaFiltros]);
 
