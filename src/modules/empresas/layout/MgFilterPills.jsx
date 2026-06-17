@@ -364,9 +364,6 @@ export default function MgFilterPills({
           <Filter className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
         </button>
       ) : null}
-      {onConfigureFilters ? (
-        <div className="mg-filter-pills-rail__side-border" aria-hidden="true" />
-      ) : null}
     </div>
   );
 }
