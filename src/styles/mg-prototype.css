@@ -3627,33 +3627,14 @@
   border-color: rgba(34, 197, 94, 0.35);
 }
 
-.mg-empresas-scope .mg-filter-pills-rail__scrollbar {
-  flex: 0 1 72px;
-  min-width: 56px;
-  max-width: 96px;
-  height: 6px;
-  position: relative;
-  border-radius: 999px;
+.mg-empresas-scope .mg-filter-pills-rail__side-border {
+  flex-shrink: 0;
+  align-self: stretch;
+  width: 3px;
+  min-height: var(--mg-btn-height);
+  margin-left: 2px;
+  border-radius: 2px;
   background: var(--emp-table-header-side-line, var(--emp-table-line, #e7eaee));
-  cursor: pointer;
-  overflow: hidden;
-  align-self: center;
-}
-
-.mg-empresas-scope .mg-filter-pills-rail__scrollbar-thumb {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  border-radius: 999px;
-  background: #cdd4dc;
-  pointer-events: none;
-  transition: transform 80ms linear, width 80ms linear;
-}
-
-.mg-empresas-scope .mg-filter-pills-rail__scrollbar.is-disabled {
-  cursor: default;
-  opacity: 0.85;
 }
 
 .mg-empresas-scope .mg-filter-pills {
