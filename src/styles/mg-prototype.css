@@ -8604,17 +8604,18 @@
   position: relative;
 }
 
-.mg-empresas-scope .erp-filter-single-date .mg-search-pill-wrap,
-.mg-empresas-scope .erp-filter-single-date .mg-search-pill {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: 100% !important;
+.erp-filter-single-date__fields {
+  grid-template-columns: minmax(0, 1fr) 28px;
 }
 
-.mg-empresas-scope .erp-filter-single-date .mg-search-pill-toggle .mg-search-pill-icon,
-.mg-empresas-scope .erp-filter-single-date .mg-search-pill:focus-within .mg-search-pill-toggle .mg-search-pill-icon {
-  color: var(--accent) !important;
-  stroke: var(--accent) !important;
+.erp-filter-single-date__fields .erp-filter-date-field {
+  text-align: center;
+  font-weight: 500;
+}
+
+.erp-filter-single-date__fields .erp-filter-date-field::placeholder {
+  color: var(--text-3);
+  font-weight: 500;
 }
 
 .erp-filter-date-input .mg-dp-icon,

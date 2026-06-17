@@ -2,15 +2,14 @@ import React, { useEffect, useId, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import ErpFilterDateField from "@/shared/filters/ErpFilterDateField";
 import {
   MONTH_SHORT,
   addMonths,
   buildDayCells,
   formatBrDate,
-  formatBrDateMaskAsYouType,
   getSingleSelectedDayClass,
   isValidBrDate,
-  normalizeBrDateInput,
   parseBrDate,
 } from "@/shared/filters/erpFilterDateUtils";
 
@@ -42,63 +41,6 @@ function resolveEndMonth(value, valueTo, startMonth) {
     return addMonths(parsed.year, parsed.month, 1);
   }
   return addMonths(startMonth.year, startMonth.month, 1);
-}
-
-function ErpFilterDateField({
-  value = "",
-  onChange,
-  placeholder,
-  disabled = false,
-  inputId,
-}) {
-  const [textValue, setTextValue] = useState(value);
-  const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isEditing) setTextValue(value);
-  }, [isEditing, value]);
-
-  const commit = (nextText = textValue) => {
-    const normalized = normalizeBrDateInput(nextText);
-    const committed = isValidBrDate(normalized) ? normalized : formatBrDateMaskAsYouType(nextText);
-    setTextValue(committed);
-    setIsEditing(false);
-    if (committed === String(value || "")) return;
-    onChange?.(committed);
-  };
-
-  return (
-    <input
-      id={inputId}
-      type="text"
-      inputMode="numeric"
-      className="erp-filter-field-input erp-filter-date-field"
-      value={textValue}
-      disabled={disabled}
-      placeholder={placeholder}
-      autoComplete="off"
-      spellCheck={false}
-      maxLength={10}
-      onChange={(event) => {
-        setIsEditing(true);
-        setTextValue(formatBrDateMaskAsYouType(event.target.value));
-      }}
-      onFocus={() => setIsEditing(true)}
-      onBlur={() => commit()}
-      onKeyDown={(event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          commit();
-          event.currentTarget.blur();
-        }
-        if (event.key === "Escape") {
-          setIsEditing(false);
-          setTextValue(value);
-          event.currentTarget.blur();
-        }
-      }}
-    />
-  );
 }
 
 function MonthGrid({

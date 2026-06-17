@@ -2,15 +2,14 @@ import React, { useEffect, useId, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 import { useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import ErpFilterDateField from "@/shared/filters/ErpFilterDateField";
 import {
   MONTH_SHORT,
   addMonths,
   buildDayCells,
   formatBrDate,
-  formatBrDateMaskAsYouType,
   getSingleSelectedDayClass,
   isValidBrDate,
-  normalizeBrDateInput,
   parseBrDate,
 } from "@/shared/filters/erpFilterDateUtils";
 
@@ -26,85 +25,6 @@ function resolveMonth(value) {
   }
   const now = new Date();
   return { year: now.getFullYear(), month: now.getMonth() };
-}
-
-function SingleDateField({
-  value = "",
-  onChange,
-  placeholder = "Data",
-  disabled = false,
-  inputId,
-  onOpenCalendar,
-  open = false,
-}) {
-  const [textValue, setTextValue] = useState(value);
-  const [isEditing, setIsEditing] = useState(false);
-
-  useEffect(() => {
-    if (!isEditing) setTextValue(value);
-  }, [isEditing, value]);
-
-  const commit = (nextText = textValue) => {
-    const normalized = normalizeBrDateInput(nextText);
-    const committed = isValidBrDate(normalized) ? normalized : formatBrDateMaskAsYouType(nextText);
-    setTextValue(committed);
-    setIsEditing(false);
-    if (committed === String(value || "")) return;
-    onChange?.(committed);
-  };
-
-  return (
-    <div className="mg-search-pill emp-col-filter-popup__search-pill" role="group">
-      <button
-        type="button"
-        className="mg-search-pill-toggle"
-        disabled={disabled}
-        aria-label="Abrir calendário"
-        aria-expanded={open}
-        onMouseDown={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-        }}
-        onClick={(event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          onOpenCalendar?.();
-        }}
-      >
-        <Calendar className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      </button>
-      <input
-        id={inputId}
-        type="text"
-        inputMode="numeric"
-        value={textValue}
-        disabled={disabled}
-        placeholder={placeholder}
-        aria-label={placeholder}
-        autoComplete="off"
-        spellCheck={false}
-        maxLength={10}
-        onChange={(event) => {
-          setIsEditing(true);
-          setTextValue(formatBrDateMaskAsYouType(event.target.value));
-        }}
-        onFocus={() => setIsEditing(true)}
-        onBlur={() => commit()}
-        onKeyDown={(event) => {
-          if (event.key === "Enter") {
-            event.preventDefault();
-            commit();
-            event.currentTarget.blur();
-          }
-          if (event.key === "Escape") {
-            setIsEditing(false);
-            setTextValue(value);
-            event.currentTarget.blur();
-          }
-        }}
-      />
-    </div>
-  );
 }
 
 function SingleMonth({ year, month, value, onDaySelect, onMonthStep, onYearStep, disabled }) {
@@ -175,6 +95,7 @@ function SingleMonth({ year, month, value, onDaySelect, onMonthStep, onYearStep,
   );
 }
 
+/** Campo pill + ícone de calendário (mesmo visual do Entre), com popup de um calendário. */
 export default function ErpFilterSingleDateInput({
   value = "",
   onValueChange,
@@ -224,22 +145,39 @@ export default function ErpFilterSingleDateInput({
 
   const openCalendar = () => {
     if (disabled) return;
+    if (open) return;
     setView(resolveMonth(value));
     setOpen(true);
   };
 
   return (
     <div ref={rootRef} id={id} className={`erp-filter-single-date${open ? " is-calendar-open" : ""}`}>
-      <div className="mg-search-pill-wrap emp-col-filter-popup__search">
-        <SingleDateField
+      <div className="erp-filter-range-row erp-filter-range-row--inputs erp-filter-date-range__fields erp-filter-single-date__fields">
+        <ErpFilterDateField
           inputId={inputId}
           value={value}
           onChange={onValueChange}
           placeholder={placeholder}
           disabled={disabled}
-          onOpenCalendar={openCalendar}
-          open={open}
         />
+        <button
+          type="button"
+          className="erp-filter-date-range__calendar-btn"
+          disabled={disabled}
+          aria-label="Abrir calendário"
+          aria-expanded={open}
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            openCalendar();
+          }}
+        >
+          <Calendar className="h-3.5 w-3.5" />
+        </button>
       </div>
       <MgPortalPanel
         open={open}
