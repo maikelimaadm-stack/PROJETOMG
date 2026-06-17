@@ -264,16 +264,6 @@ export default function MgActionBar({
       onClick: () => {},
     });
 
-    if (onAttach && !isMobile) {
-      items.push({
-        id: "attach",
-        label: "Anexos",
-        icon: Paperclip,
-        onClick: onAttach,
-        disabled: attachDisabled,
-      });
-    }
-
     if (onConfigColumns) {
       items.push({
         id: "config",
@@ -303,9 +293,6 @@ export default function MgActionBar({
 
     return items;
   }, [
-    attachDisabled,
-    isMobile,
-    onAttach,
     onConfigColumns,
     onDuplicate,
     onExportExcel,
@@ -337,6 +324,23 @@ export default function MgActionBar({
       collapseMobileSearch();
       blurTimeoutRef.current = null;
     }, 120);
+  };
+
+  const renderAttachButton = (extraClassName = "") => {
+    if (!onAttach) return null;
+
+    return (
+      <button
+        type="button"
+        className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-action-bar__attach-btn${extraClassName ? ` ${extraClassName}` : ""}`}
+        onClick={onAttach}
+        disabled={actionsLocked || attachDisabled}
+        title="Anexos"
+        aria-label="Anexos"
+      >
+        <Paperclip className="h-3.5 w-3.5" />
+      </button>
+    );
   };
 
   const renderSearchDropdown = (onClose) => (
@@ -729,18 +733,6 @@ export default function MgActionBar({
                 Duplicar
               </ActionLabelBtn>
             ) : null}
-            {onAttach ? (
-              <button
-                type="button"
-                className="ios-btn tb-btn tb-btn-ghost tb-btn-icon shrink-0"
-                onClick={onAttach}
-                disabled={actionsLocked || attachDisabled}
-                title="Anexos"
-                aria-label="Anexos"
-              >
-                <Paperclip className="h-3.5 w-3.5" />
-              </button>
-            ) : null}
             {showSecondaryTools ? (
               <div className="relative shrink-0" ref={moreRef}>
                 <MgSpeedDialMenu
@@ -753,7 +745,10 @@ export default function MgActionBar({
             ) : null}
           </div>
           {showSecondaryTools ? (
-            <div className={`mg-action-bar-mobile__search-slot${lockedClass}`}>{renderMobileSearchField()}</div>
+            <div className={`mg-action-bar-mobile__search-slot${lockedClass}`}>
+              {renderMobileSearchField()}
+              {renderAttachButton("shrink-0")}
+            </div>
           ) : null}
         </div>
       </div>
@@ -795,6 +790,7 @@ export default function MgActionBar({
             <div className={`mg-action-bar__tools mg-action-bar__tools--visible${lockedClass}`}>
               {renderSearchField()}
             </div>
+            {renderAttachButton()}
             <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
             <div className="relative" ref={moreRef}>
               <MgSpeedDialMenu
