@@ -82,7 +82,18 @@ function haveSameRecordIds(listA = [], listB = []) {
   return listA.every((item, index) => item?.id === listB[index]?.id);
 }
 
-function FilterFieldCheck({ checked, disabled, onChange }) {
+function ColumnMenuStatusCheck({ checked }) {
+  return (
+    <span
+      className={`mg-cards-config-menu__check emp-col-popup-menu__status-check${checked ? " is-checked" : ""}`}
+      aria-hidden="true"
+    >
+      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} /> : null}
+    </span>
+  );
+}
+
+function FilterFieldCheck({ checked, onChange, disabled = false }) {
   return (
     <span
       className={`mg-cards-config-menu__check${checked ? " is-checked" : ""}${disabled ? " is-locked" : ""}`}
@@ -1300,18 +1311,46 @@ export default function TBLEMP({
     closeColumnOverlays();
   };
 
+  const isColumnFrozenAtIndex = useCallback(
+    (columnIndex) => columnIndex >= 0 && columnIndex < frozenColumnCount,
+    [frozenColumnCount]
+  );
+
+  const isColumnFrozenById = useCallback(
+    (columnId) => {
+      const columnIndex = colunasOrdenadas.findIndex((column) => column.id === columnId);
+      return isColumnFrozenAtIndex(columnIndex);
+    },
+    [colunasOrdenadas, isColumnFrozenAtIndex]
+  );
+
   const applySortToColumn = (columnId, direction) => {
+    if (isColumnFrozenById(columnId)) return;
     const nextDirection = direction === "desc" ? "desc" : "asc";
     setSortConfig([{ key: columnId, direction: nextDirection }]);
   };
 
   const toggleSortForColumn = useCallback((columnId) => {
+    if (isColumnFrozenById(columnId)) return;
     setSortConfig((previous) => {
       const currentRule = Array.isArray(previous) ? previous.find((rule) => rule.key === columnId) : null;
       const nextDirection = currentRule?.direction === "asc" ? "desc" : "asc";
       return [{ key: columnId, direction: nextDirection }];
     });
-  }, []);
+  }, [isColumnFrozenById]);
+
+  useEffect(() => {
+    if (frozenColumnCount <= 0) return;
+    setSortConfig((previous) => {
+      const currentRule = Array.isArray(previous) ? previous.find((rule) => rule?.key) : null;
+      if (!currentRule?.key) return previous;
+      const columnIndex = colunasOrdenadas.findIndex((column) => column.id === currentRule.key);
+      if (!isColumnFrozenAtIndex(columnIndex)) return previous;
+      const fallbackColumn = colunasOrdenadas[frozenColumnCount];
+      if (!fallbackColumn) return previous;
+      return [{ key: fallbackColumn.id, direction: "asc" }];
+    });
+  }, [colunasOrdenadas, frozenColumnCount, isColumnFrozenAtIndex]);
 
   const togglePinColumnLeft = useCallback((columnIndex) => {
     setFrozenColumnCount((previous) => (previous === columnIndex + 1 ? 0 : columnIndex + 1));
@@ -1341,6 +1380,7 @@ export default function TBLEMP({
       label: "Auto ajustar",
       Icon: ScanLine,
       active: Boolean(autoFitActiveColumns[col.id]),
+      showStatusCheck: true,
       onClick: () => {
         if (autoFitActiveColumns[col.id]) {
           setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
@@ -1352,7 +1392,7 @@ export default function TBLEMP({
     },
     {
       id: "pin-column-left",
-      label: "Fixar esquerda",
+      label: colIndex < frozenColumnCount ? "Descongelar coluna" : "Congelar coluna",
       Icon: PanelLeft,
       active: colIndex < frozenColumnCount,
       onClick: () => togglePinColumnLeft(colIndex),
@@ -1401,7 +1441,8 @@ export default function TBLEMP({
       const isMenuOpen = columnMenuAnchor?.columnId === col.id;
       const hasColumnFilter = hasActiveFilter(col.id);
       const sortRule = Array.isArray(sortConfig) ? sortConfig.find((rule) => rule.key === col.id) : null;
-      const isSortActive = Boolean(sortRule);
+      const isSortActive = !isPinnedLeft && Boolean(sortRule);
+      const isAutoFitActive = Boolean(autoFitActiveColumns[col.id]);
       const hasRightShadow = col.id === lastPinnedLeftId;
       const hasLeftShadow = col.id === firstPinnedRightId;
       return (
@@ -1413,6 +1454,7 @@ export default function TBLEMP({
           }}
           className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
           onDoubleClick={(event) => {
+            if (isPinnedLeft) return;
             const interactiveTarget = event.target?.closest?.(
               "button, [role='separator'], .emp-col-resize-handle"
             );
@@ -1434,8 +1476,11 @@ export default function TBLEMP({
                 ? <ArrowDown className="h-3.5 w-3.5 text-emerald-600" />
                 : <ArrowUp className="h-3.5 w-3.5 text-emerald-600" />
             ) : null}
-            {isPinnedLeft && colIndex === frozenColumnCount - 1 ? (
-              <PanelLeft className="h-3.5 w-3.5 text-emerald-600" />
+            {isAutoFitActive ? (
+              <ScanLine className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+            ) : null}
+            {isPinnedLeft ? (
+              <PanelLeft className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
             ) : null}
             <button
               type="button"
@@ -1502,6 +1547,10 @@ export default function TBLEMP({
   const filterColumn = menuFiltroAberto
     ? colunasDisponiveis.find((column) => column.id === menuFiltroAberto)
     : null;
+  const filterColumnIndex = menuFiltroAberto
+    ? colunasOrdenadas.findIndex((column) => column.id === menuFiltroAberto)
+    : -1;
+  const isFilterColumnFrozen = isColumnFrozenAtIndex(filterColumnIndex);
   const filterOptions = menuFiltroAberto ? columnOptions[menuFiltroAberto] || [] : [];
   const filterQuery = debouncedBuscaFiltroMenu.trim();
   const filteredFilterOptions = filterQuery
@@ -1724,6 +1773,7 @@ export default function TBLEMP({
                 >
                   <Icon className="h-4 w-4 shrink-0" />
                   <span className="mg-cards-config-menu__label">{item.label}</span>
+                  {item.showStatusCheck ? <ColumnMenuStatusCheck checked={Boolean(item.active)} /> : null}
                 </button>
               );
             })}
@@ -1742,28 +1792,32 @@ export default function TBLEMP({
           <>
             <div className="emp-filter-sort-section">
               <div className="px-1 text-[11px] font-semibold text-slate-500">{filterColumnLabel}</div>
-              <button
-                type="button"
-                className="emp-filter-sort-btn"
-                onClick={() => {
-                  applySortToColumn(menuFiltroAberto, "asc");
-                  closeColumnOverlays();
-                }}
-              >
-                <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
-                <span>Ordenar A → Z</span>
-              </button>
-              <button
-                type="button"
-                className="emp-filter-sort-btn"
-                onClick={() => {
-                  applySortToColumn(menuFiltroAberto, "desc");
-                  closeColumnOverlays();
-                }}
-              >
-                <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
-                <span>Ordenar Z → A</span>
-              </button>
+              {!isFilterColumnFrozen ? (
+                <>
+                  <button
+                    type="button"
+                    className="emp-filter-sort-btn"
+                    onClick={() => {
+                      applySortToColumn(menuFiltroAberto, "asc");
+                      closeColumnOverlays();
+                    }}
+                  >
+                    <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
+                    <span>Ordenar A → Z</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="emp-filter-sort-btn"
+                    onClick={() => {
+                      applySortToColumn(menuFiltroAberto, "desc");
+                      closeColumnOverlays();
+                    }}
+                  >
+                    <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
+                    <span>Ordenar Z → A</span>
+                  </button>
+                </>
+              ) : null}
               <button
                 type="button"
                 className="emp-filter-sort-btn"
