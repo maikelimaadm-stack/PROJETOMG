@@ -532,7 +532,15 @@ export default function PAGEMP() {
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = Boolean(
     appliedPanelFilters ||
-    Object.values(columnFilters).some((values) => Array.isArray(values) && values.length > 0) ||
+    Object.values(columnFilters).some((value) => {
+      if (!value) return false;
+      if (Array.isArray(value)) return value.length > 0;
+      if (typeof value !== "object") return false;
+      const hasValues = Array.isArray(value.values) && value.values.length > 0;
+      const hasPrimary = value.value !== null && value.value !== undefined && String(value.value).trim() !== "";
+      const hasSecondary = value.valueTo !== null && value.valueTo !== undefined && String(value.valueTo).trim() !== "";
+      return hasValues || hasPrimary || hasSecondary;
+    }) ||
     searchTerm.trim() ||
     searchFavoritesOnly
   );

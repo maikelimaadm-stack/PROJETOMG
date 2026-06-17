@@ -7,7 +7,7 @@ import {
   sanitizeSessionUser,
 } from "./authService.js";
 import { clearAccessScopeCache, loadAccessScope } from "./accessScope.js";
-import { getSessionEmpresas } from "./sessionCache.js";
+import { clearSessionEmpresas, getSessionEmpresas } from "./sessionCache.js";
 import { revokeAuthToken } from "./tokenDenylist.js";
 
 const parseLoginBody = (body) => {
@@ -122,7 +122,9 @@ export const registerAuthRoutes = async (app) => {
   );
 
   app.post("/api/auth/logout", { preHandler: app.authenticate }, async (request, reply) => {
-    clearAccessScopeCache(request.user?.id || request.user?.sub);
+    const userId = request.user?.id || request.user?.sub;
+    clearAccessScopeCache(userId);
+    clearSessionEmpresas(userId);
     revokeAuthToken({
       token: request.authTokenRaw || null,
       jti: request.user?.jti || null,

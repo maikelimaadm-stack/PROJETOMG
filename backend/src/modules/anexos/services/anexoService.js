@@ -84,10 +84,17 @@ const ensureMimeMatchesContent = ({ buffer, mimeType, filename }) => {
 
 export const anexoService = {
   async list(filters) {
+    const tenantPrefix = `${filters?.scope?.clienteId || ""}/`;
     const items = await anexoRepository.list(filters);
     const withSignedUrl = await Promise.all(
       items.map(async (item) => {
         if (!item.storage_path) return item;
+        if (!item.storage_path.startsWith(tenantPrefix)) {
+          return {
+            ...item,
+            file_url: null,
+          };
+        }
         const signedUrl = await createSignedDownloadUrl(item.storage_path);
         return {
           ...item,

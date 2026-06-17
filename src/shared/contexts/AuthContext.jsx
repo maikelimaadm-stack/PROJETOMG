@@ -238,6 +238,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(async () => {
     await AuthApi.logout().catch(() => null);
+    queryClientInstance.clear();
     resetAllLayoutPreferencesSync();
     setUser(null);
     setCliente(null);

@@ -90,6 +90,12 @@ const emitAuthChange = () => {
   window.dispatchEvent(new CustomEvent("erp-auth-changed"));
 };
 
+const normalizeEmpresaSelection = (empresaId) => {
+  if (empresaId == null) return null;
+  const normalized = String(empresaId).trim();
+  return normalized || null;
+};
+
 const isEmpresaScopeError = (error) => {
   if (Number(error?.status) !== 403) return false;
   const message = String(error?.message || "").toLowerCase();
@@ -105,8 +111,11 @@ export const AuthApi = {
   },
 
   setToken(token) {
-    if (!token) return;
-    tokenStore.setToken(token);
+    const nextToken = String(token || "").trim();
+    if (!nextToken) return;
+    const previousToken = tokenStore.getToken();
+    if (previousToken === nextToken) return;
+    tokenStore.setToken(nextToken);
     emitAuthChange();
   },
 
@@ -119,10 +128,17 @@ export const AuthApi = {
   },
 
   setSelectedEmpresaId(empresaId) {
-    if (!empresaId) {
-      localStorage.removeItem(EMPRESA_SELECTION_KEY);
-    } else {
-      localStorage.setItem(EMPRESA_SELECTION_KEY, empresaId);
+    const nextEmpresaId = normalizeEmpresaSelection(empresaId);
+    const previousEmpresaId = normalizeEmpresaSelection(this.getSelectedEmpresaId());
+    if (previousEmpresaId === nextEmpresaId) return;
+    try {
+      if (!nextEmpresaId) {
+        localStorage.removeItem(EMPRESA_SELECTION_KEY);
+      } else {
+        localStorage.setItem(EMPRESA_SELECTION_KEY, nextEmpresaId);
+      }
+    } catch {
+      return;
     }
     emitAuthChange();
   },

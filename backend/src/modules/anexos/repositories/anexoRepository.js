@@ -39,6 +39,15 @@ export const anexoRepository = {
 
   async create(data, scope) {
     const prisma = getPrismaClient();
+    if (data.storage_path) {
+      const normalizedStoragePath = String(data.storage_path).trim();
+      const tenantPrefix = `${scope.clienteId}/`;
+      if (!normalizedStoragePath.startsWith(tenantPrefix)) {
+        const error = new Error("storage_path inválido para este cliente.");
+        error.statusCode = 403;
+        throw error;
+      }
+    }
     const empresaId = data.empresa_id || scope.selectedEmpresaId || null;
     if (!empresaId) {
       const error = new Error("empresa_id é obrigatório para anexos.");
