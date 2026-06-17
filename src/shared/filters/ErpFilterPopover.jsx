@@ -4,7 +4,11 @@ import ErpFilterSortSection from "@/shared/filters/ErpFilterSortSection";
 import ErpFilterOperatorSelect from "@/shared/filters/ErpFilterOperatorSelect";
 import ErpFilterDataList from "@/shared/filters/ErpFilterDataList";
 import { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
-import { normalizeErpFilterOperator, ERP_OPERATORS_WITH_RANGE } from "@/shared/filters/erpFilterOperators";
+import {
+  ERP_DATE_OPERATORS_WITH_SINGLE_DATE,
+  ERP_OPERATORS_WITH_RANGE,
+  normalizeErpFilterOperator,
+} from "@/shared/filters/erpFilterOperators";
 import { cloneErpFilter } from "@/shared/filters/erpFilterState";
 
 /**
@@ -81,6 +85,8 @@ export default function ErpFilterPopover({
   };
 
   const isRangeOperator = ERP_OPERATORS_WITH_RANGE.has(operator);
+  const isDateSingleOperator =
+    filterType === "date" && ERP_DATE_OPERATORS_WITH_SINGLE_DATE.has(operator);
 
   const handleToggleValue = (option, checked) => {
     const current = Array.isArray(safeDraft.values) ? safeDraft.values : [];
@@ -104,7 +110,7 @@ export default function ErpFilterPopover({
       ...safeDraft,
       type: filterType,
       operator: isBoolean ? "" : operator,
-      value: isRangeOperator ? (safeDraft.value ?? "") : "",
+      value: isRangeOperator || isDateSingleOperator ? (safeDraft.value ?? "") : "",
       valueTo: isRangeOperator ? (safeDraft.valueTo ?? "") : "",
       values: [...selectedValues],
     });

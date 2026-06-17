@@ -100,6 +100,9 @@ const evaluateTextOperator = (operator, sourceValue, targetValue) => {
 const evaluateNumberOperator = (operator, sourceValue, targetValue, targetValueTo) => {
   if (operator === "is_empty") return isEmptyValue(sourceValue);
   if (operator === "is_not_empty") return !isEmptyValue(sourceValue);
+  if (operator === "contains") {
+    return evaluateTextOperator("contains", sourceValue, targetValue);
+  }
 
   const source = Number(sourceValue);
   if (!Number.isFinite(source)) return false;
@@ -140,6 +143,9 @@ const evaluateNumberOperator = (operator, sourceValue, targetValue, targetValueT
 const evaluateDateOperator = (operator, sourceValue, targetValue, targetValueTo) => {
   if (operator === "is_empty") return isEmptyValue(sourceValue);
   if (operator === "is_not_empty") return !isEmptyValue(sourceValue);
+  if (operator === "contains") {
+    return evaluateTextOperator("contains", sourceValue, targetValue);
+  }
 
   const sourceTs = parseDateFilterValue(sourceValue);
   if (sourceTs === null) return false;

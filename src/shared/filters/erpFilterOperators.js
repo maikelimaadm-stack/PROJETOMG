@@ -10,6 +10,7 @@ export const ERP_TEXT_OPERATORS = [
 ];
 
 export const ERP_NUMBER_OPERATORS = [
+  { value: "contains", label: "Contém" },
   { value: "equals", label: "Igual a" },
   { value: "not_equals", label: "Diferente de" },
   { value: "gt", label: "Maior que" },
@@ -25,14 +26,7 @@ export const ERP_NUMBER_OPERATORS = [
 export const ERP_MONEY_OPERATORS = [...ERP_NUMBER_OPERATORS];
 
 export const ERP_DATE_OPERATORS = [
-  { value: "today", label: "Hoje" },
-  { value: "yesterday", label: "Ontem" },
-  { value: "this_week", label: "Esta semana" },
-  { value: "last_week", label: "Semana passada" },
-  { value: "this_month", label: "Este mês" },
-  { value: "last_month", label: "Mês passado" },
-  { value: "this_year", label: "Este ano" },
-  { value: "last_year", label: "Ano passado" },
+  { value: "contains", label: "Contém" },
   { value: "equals", label: "Igual a" },
   { value: "before", label: "Antes de" },
   { value: "after", label: "Depois de" },
@@ -44,7 +38,7 @@ export const ERP_DATE_OPERATORS = [
 export const ERP_OPERATORS_BY_TYPE = {
   text: ERP_TEXT_OPERATORS,
   number: ERP_NUMBER_OPERATORS,
-  money: ERP_TEXT_OPERATORS,
+  money: ERP_MONEY_OPERATORS,
   date: ERP_DATE_OPERATORS,
   enum: ERP_TEXT_OPERATORS,
 };
@@ -61,10 +55,10 @@ export function getErpListFilterOperators(filterType) {
 }
 
 export const ERP_DEFAULT_OPERATOR_BY_TYPE = {
-  text: "",
-  number: "",
-  money: "",
-  date: "",
+  text: "contains",
+  number: "contains",
+  money: "contains",
+  date: "contains",
   boolean: "",
   enum: "",
 };
@@ -95,6 +89,12 @@ export const ERP_OPERATORS_WITH_SINGLE_VALUE = new Set([
   "gte",
   "lt",
   "lte",
+  "before",
+  "after",
+]);
+
+export const ERP_DATE_OPERATORS_WITH_SINGLE_DATE = new Set([
+  "equals",
   "before",
   "after",
 ]);

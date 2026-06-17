@@ -2,8 +2,13 @@ import React, { useMemo } from "react";
 import { Loader2, Search } from "lucide-react";
 import MgFilterFieldCheck from "@/modules/empresas/layout/MgFilterFieldCheck";
 import ErpFilterRangeInputs from "@/shared/filters/ErpFilterRangeInputs";
+import ErpFilterSingleDateInput from "@/shared/filters/ErpFilterSingleDateInput";
 import { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";
-import { ERP_OPERATORS_WITH_RANGE } from "@/shared/filters/erpFilterOperators";
+import {
+  ERP_DATE_OPERATORS_WITH_SINGLE_DATE,
+  ERP_OPERATORS_WITHOUT_VALUE,
+  ERP_OPERATORS_WITH_RANGE,
+} from "@/shared/filters/erpFilterOperators";
 
 /**
  * Listagem de dados do filtro — pesquisa ou intervalo + checkboxes.
@@ -26,17 +31,21 @@ export default function ErpFilterDataList({
   searchAriaLabel = "Pesquisar valores",
 }) {
   const isRangeOperator = ERP_OPERATORS_WITH_RANGE.has(operator);
+  const isDateSingleOperator =
+    filterType === "date" && ERP_DATE_OPERATORS_WITH_SINGLE_DATE.has(operator);
+  const isWithoutValueOperator = ERP_OPERATORS_WITHOUT_VALUE.has(operator);
+  const showSearchField = !isRangeOperator && !isDateSingleOperator && !isWithoutValueOperator;
 
   const filteredOptions = useMemo(
     () =>
       filterErpFilterListOptions(listOptions, {
         filterType,
         operator,
-        searchQuery: isRangeOperator ? "" : searchQuery,
+        searchQuery: showSearchField ? searchQuery : "",
         rangeValue,
         rangeValueTo,
       }),
-    [filterType, isRangeOperator, listOptions, operator, rangeValue, rangeValueTo, searchQuery]
+    [filterType, listOptions, operator, rangeValue, rangeValueTo, searchQuery, showSearchField]
   );
 
   const allVisibleSelected =
@@ -53,7 +62,13 @@ export default function ErpFilterDataList({
           onValueChange={onRangeValueChange}
           onValueToChange={onRangeValueToChange}
         />
-      ) : (
+      ) : isDateSingleOperator ? (
+        <ErpFilterSingleDateInput
+          value={rangeValue}
+          onValueChange={onRangeValueChange}
+          placeholder="Data"
+        />
+      ) : showSearchField ? (
         <div className="mg-search-pill-wrap emp-col-filter-popup__search">
           <div className="mg-search-pill emp-col-filter-popup__search-pill" role="search">
             {searchLoading ? (
@@ -74,7 +89,7 @@ export default function ErpFilterDataList({
             />
           </div>
         </div>
-      )}
+      ) : null}
 
       <div className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options erp-filter-data-list__options">
         <label className="mg-cards-config-menu__item emp-filter-value-list-header">

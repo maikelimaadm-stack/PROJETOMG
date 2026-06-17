@@ -1,5 +1,6 @@
 import { evaluateErpFilter, matchesFilterOptionContains } from "@/shared/filters/erpFilterEvaluate";
 import {
+  ERP_DATE_OPERATORS_WITH_SINGLE_DATE,
   ERP_OPERATORS_WITHOUT_VALUE,
   ERP_OPERATORS_WITH_RANGE,
 } from "@/shared/filters/erpFilterOperators";
@@ -21,6 +22,7 @@ export function filterErpFilterListOptions(
   const normalizedOperator = String(operator || "").trim();
   const query = String(searchQuery || "").trim();
   const isRange = ERP_OPERATORS_WITH_RANGE.has(normalizedOperator);
+  const isDateSingle = filterType === "date" && ERP_DATE_OPERATORS_WITH_SINGLE_DATE.has(normalizedOperator);
 
   if (!normalizedOperator) {
     if (!query) return options;
@@ -52,7 +54,24 @@ export function filterErpFilterListOptions(
     );
   }
 
+  if (isDateSingle) {
+    const value = String(rangeValue || "").trim();
+    if (!value) return options;
+    return options.filter((option) =>
+      evaluateErpFilter({
+        filter: { type: filterType, operator: normalizedOperator, value, valueTo: "", values: [] },
+        filterType,
+        rawValue: option,
+        displayValue: option,
+      })
+    );
+  }
+
   if (!query) return options;
+
+  if (normalizedOperator === "contains") {
+    return options.filter((option) => matchesFilterOptionContains(option, query));
+  }
 
   return options.filter((option) =>
     evaluateErpFilter({
