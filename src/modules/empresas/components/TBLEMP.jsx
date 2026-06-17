@@ -69,6 +69,8 @@ import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
 
+const SELECT_COLUMN_WIDTH = 36;
+
 function haveSameIds(listA = [], listB = []) {
   if (listA === listB) return true;
   if (listA.length !== listB.length) return false;
@@ -98,6 +100,41 @@ function FilterFieldCheck({ checked, onChange, disabled = false }) {
         onChange={onChange}
       />
       {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} aria-hidden="true" /> : null}
+    </span>
+  );
+}
+
+function TableSelectCheck({ checked, indeterminate = false, onChange, ariaLabel, disabled = false }) {
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.indeterminate = Boolean(indeterminate) && !checked;
+    }
+  }, [indeterminate, checked]);
+
+  return (
+    <span
+      className={`mg-cards-config-menu__check emp-table-select-check${checked ? " is-checked" : ""}${indeterminate && !checked ? " is-indeterminate" : ""}${disabled ? " is-locked" : ""}`}
+      onClick={(event) => event.stopPropagation()}
+    >
+      <input
+        ref={inputRef}
+        type="checkbox"
+        className="mg-cards-config-menu__checkbox-input"
+        checked={checked}
+        disabled={disabled}
+        aria-label={ariaLabel}
+        onChange={(event) => {
+          event.stopPropagation();
+          onChange?.(event);
+        }}
+        onClick={(event) => event.stopPropagation()}
+      />
+      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} aria-hidden="true" /> : null}
+      {indeterminate && !checked ? (
+        <span className="mg-cards-config-menu__check-dash" aria-hidden="true" />
+      ) : null}
     </span>
   );
 }
@@ -441,8 +478,24 @@ export default function TBLEMP({
       ),
     [colunasOrdenadas, columnWidths]
   );
-  const totalTableWidth = useMemo(() => Math.max(isMobile ? 720 : 900, colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)), [colunasOrdenadas, columnPixelWidths, isMobile]);
-  const frozenOffsets = useMemo(() => { let left = 0; return colunasOrdenadas.reduce((acc, c, i) => { if (i < frozenColumnCount) { acc[c.id] = left; left += columnPixelWidths[c.id] || 160; } return acc; }, {}); }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
+  const totalTableWidth = useMemo(
+    () =>
+      Math.max(
+        isMobile ? 720 : 900,
+        SELECT_COLUMN_WIDTH + colunasOrdenadas.reduce((t, c) => t + (columnPixelWidths[c.id] || 160), 0)
+      ),
+    [colunasOrdenadas, columnPixelWidths, isMobile]
+  );
+  const frozenOffsets = useMemo(() => {
+    let left = SELECT_COLUMN_WIDTH;
+    return colunasOrdenadas.reduce((acc, c, i) => {
+      if (i < frozenColumnCount) {
+        acc[c.id] = left;
+        left += columnPixelWidths[c.id] || 160;
+      }
+      return acc;
+    }, {});
+  }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
   const pinnedRightOrderedIds = useMemo(
     () => colunasOrdenadas.map((col) => col.id).filter((id) => pinnedRightColumnIds.includes(id)),
     [colunasOrdenadas, pinnedRightColumnIds]
@@ -462,6 +515,14 @@ export default function TBLEMP({
   const tableColGroup = useMemo(
     () => (
       <colgroup>
+        <col
+          style={{
+            width: `${SELECT_COLUMN_WIDTH}px`,
+            minWidth: `${SELECT_COLUMN_WIDTH}px`,
+            maxWidth: `${SELECT_COLUMN_WIDTH}px`,
+          }}
+          span={1}
+        />
         {colunasOrdenadas.map((col) => {
           const width = columnPixelWidths[col.id] || 160;
           return <col key={col.id} style={{ width: `${width}px`, minWidth: `${width}px`, maxWidth: `${width}px` }} span={1} />;
@@ -708,6 +769,34 @@ export default function TBLEMP({
   );
 
   const linhasExibidas = groupedResult.rows;
+  const listedEmpresaIds = useMemo(
+    () => empresasPaginadas.map((empresa) => empresa.id).filter(Boolean),
+    [empresasPaginadas]
+  );
+  const allListedSelected = useMemo(
+    () => listedEmpresaIds.length > 0 && listedEmpresaIds.every((id) => selectedItemsSet.has(id)),
+    [listedEmpresaIds, selectedItemsSet]
+  );
+  const someListedSelected = useMemo(
+    () => listedEmpresaIds.some((id) => selectedItemsSet.has(id)),
+    [listedEmpresaIds, selectedItemsSet]
+  );
+  const handleToggleSelectAllListed = useCallback(() => {
+    setSelectedItems((previous) => {
+      if (allListedSelected) {
+        return previous.filter((id) => !listedEmpresaIds.includes(id));
+      }
+      const next = new Set(previous);
+      listedEmpresaIds.forEach((id) => next.add(id));
+      return Array.from(next);
+    });
+  }, [allListedSelected, listedEmpresaIds]);
+  const handleToggleRowCheckbox = useCallback((empId) => {
+    setSelectedItems((previous) =>
+      previous.includes(empId) ? previous.filter((id) => id !== empId) : [...previous, empId]
+    );
+    lastSelectedIdRef.current = empId;
+  }, []);
   const groupKeysSignature = useMemo(
     () => groupedResult.groupKeys.join("||"),
     [groupedResult.groupKeys]
@@ -730,11 +819,85 @@ export default function TBLEMP({
   }, []);
   const firstGroupingCellColumnId = colunasOrdenadas[0]?.id || null;
 
+  const renderSelectHeaderCell = () => (
+    <TableHead
+      key="__select__"
+      style={{
+        left: 0,
+        top: 0,
+        width: SELECT_COLUMN_WIDTH,
+        minWidth: SELECT_COLUMN_WIDTH,
+        maxWidth: SELECT_COLUMN_WIDTH,
+      }}
+      className="emp-th emp-th-select relative align-middle whitespace-nowrap py-0 select-none cursor-default text-center sticky z-[60]"
+    >
+      <div className="emp-table-select-wrap">
+        <TableSelectCheck
+          checked={allListedSelected}
+          indeterminate={someListedSelected && !allListedSelected}
+          disabled={listedEmpresaIds.length === 0}
+          ariaLabel="Selecionar todos os registros listados"
+          onChange={handleToggleSelectAllListed}
+        />
+      </div>
+    </TableHead>
+  );
+
+  const renderSelectFooterCell = () => (
+    <TableHead
+      key="__select__"
+      style={{
+        left: 0,
+        width: SELECT_COLUMN_WIDTH,
+        minWidth: SELECT_COLUMN_WIDTH,
+        maxWidth: SELECT_COLUMN_WIDTH,
+      }}
+      className="emp-th emp-th-select relative align-middle whitespace-nowrap py-0 select-none text-center sticky z-[60]"
+    >
+      <span aria-hidden="true">&nbsp;</span>
+    </TableHead>
+  );
+
+  const renderSelectBodyCell = useCallback(
+    ({ rowKey, emp, isSelected, rowClass, isGroup = false }) => (
+      <TableCell
+        key={rowKey}
+        style={{
+          left: 0,
+          width: SELECT_COLUMN_WIDTH,
+          minWidth: SELECT_COLUMN_WIDTH,
+          maxWidth: SELECT_COLUMN_WIDTH,
+        }}
+        className={`emp-td emp-td-select py-0 text-center align-middle select-none sticky z-[21] ${rowClass}${isGroup ? " emp-group-row-cell" : ""}`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        {isGroup || !emp ? (
+          <span aria-hidden="true">&nbsp;</span>
+        ) : (
+          <div className="emp-table-select-wrap">
+            <TableSelectCheck
+              checked={isSelected}
+              ariaLabel={`Selecionar ${emp.razao_social || emp.codempresa || emp.id}`}
+              onChange={() => handleToggleRowCheckbox(emp.id)}
+            />
+          </div>
+        )}
+      </TableCell>
+    ),
+    [handleToggleRowCheckbox]
+  );
+
   const renderVirtualTableRow = useCallback(
     (rowEntry, virtualRowIndex) => {
       if (rowEntry?.__type === "group") {
         const isCollapsed = Boolean(collapsedGroupKeys[rowEntry.groupKey]);
-        return colunasOrdenadas.map((col, colIndex) => {
+        return [
+          renderSelectBodyCell({
+            rowKey: `select-group:${rowEntry.groupKey}`,
+            isGroup: true,
+            rowClass: "",
+          }),
+          ...colunasOrdenadas.map((col, colIndex) => {
           const isPinnedLeft = colIndex < frozenColumnCount;
           const isPinnedRight = pinnedRightColumnIds.includes(col.id);
           const isPinned = isPinnedLeft || isPinnedRight;
@@ -767,12 +930,20 @@ export default function TBLEMP({
               )}
             </TableCell>
           );
-        });
+        }),
+        ];
       }
       const emp = rowEntry?.emp ?? rowEntry;
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
-      return colunasOrdenadas.map((col, colIndex) => {
+      return [
+        renderSelectBodyCell({
+          rowKey: `select:${emp.id}`,
+          emp,
+          isSelected,
+          rowClass,
+        }),
+        ...colunasOrdenadas.map((col, colIndex) => {
         const isPinnedLeft = colIndex < frozenColumnCount;
         const isPinnedRight = pinnedRightColumnIds.includes(col.id);
         const isPinned = isPinnedLeft || isPinnedRight;
@@ -791,7 +962,8 @@ export default function TBLEMP({
             {getFieldValue(emp, col.id)}
           </TableCell>
         );
-      });
+      }),
+      ];
     },
     [
       collapsedGroupKeys,
@@ -805,6 +977,7 @@ export default function TBLEMP({
       lastPinnedLeftId,
       getFieldValue,
       getRowBgClass,
+      renderSelectBodyCell,
       selectedItemsSet,
     ]
   );
@@ -1073,7 +1246,7 @@ export default function TBLEMP({
     if (e.key === "Escape" && document.fullscreenElement === tableStageRef.current) return;
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "a") {
       e.preventDefault();
-      setSelectedItems(empresasOrdenadas.map((e) => e.id));
+      setSelectedItems(listedEmpresaIds);
       return;
     }
 
@@ -1623,7 +1796,10 @@ export default function TBLEMP({
 
   const tableHeader = (
     <TableHeader>
-      <TableRow className="hover:bg-transparent">{renderHeaderCells()}</TableRow>
+      <TableRow className="hover:bg-transparent">
+        {renderSelectHeaderCell()}
+        {renderHeaderCells()}
+      </TableRow>
     </TableHeader>
   );
 
@@ -1645,7 +1821,7 @@ export default function TBLEMP({
       <TableBody>
         <TableRow>
           <TableCell
-            colSpan={colunasOrdenadas.length}
+            colSpan={colunasOrdenadas.length + 1}
             className="emp-td text-center py-8 text-xs text-slate-500"
             role="status"
             aria-live="polite"
@@ -1662,7 +1838,7 @@ export default function TBLEMP({
       <TableBody>
         <TableRow>
           <TableCell
-            colSpan={colunasOrdenadas.length}
+            colSpan={colunasOrdenadas.length + 1}
             className="emp-td text-center py-8 text-xs text-slate-400"
             role="status"
             aria-live="polite"
@@ -1682,7 +1858,7 @@ export default function TBLEMP({
         bodyTableClass={bodyTableClass}
         colGroup={tableColGroup}
         tableHeader={mgPrototype ? tableHeader : null}
-        colCount={colunasOrdenadas.length}
+        colCount={colunasOrdenadas.length + 1}
         renderRow={renderVirtualTableRow}
         getRowClassName={(row, rowIndex) =>
           row?.__type === "group"
@@ -1930,6 +2106,7 @@ export default function TBLEMP({
                   {tableColGroup}
                   <TableFooter className="emp-table-footer border-0 font-semibold [&>tr]:border-0">
                     <TableRow className="emp-total-row border-0 hover:bg-transparent">
+                      {renderSelectFooterCell()}
                       {renderTotalCells()}
                     </TableRow>
                   </TableFooter>
