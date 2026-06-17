@@ -106,6 +106,16 @@ function PanelFilterPill({
     setOpen(false);
   };
 
+  const clearActive = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (disabled) return;
+    const nextValues = { ...values, [field.key]: [] };
+    onChange?.(field.key, []);
+    onApply?.(nextValues);
+    setOpen(false);
+  };
+
   const cancel = () => {
     setOpen(false);
   };
@@ -117,19 +127,32 @@ function PanelFilterPill({
     >
       <button
         type="button"
-        className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-filter-pill__trigger"
+        className={`ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-filter-pill__trigger${
+          active ? " mg-filter-pill__trigger--has-clear" : ""
+        }`}
         onClick={toggle}
         disabled={disabled}
         aria-expanded={open}
         aria-haspopup="listbox"
       >
         <span>{field.label}</span>
-        {active ? (
-          <span className="mg-filter-pill__active-icon" aria-hidden="true">
-            <X className="h-3 w-3" strokeWidth={2.3} />
-          </span>
-        ) : null}
       </button>
+      {active ? (
+        <button
+          type="button"
+          className="ios-btn mg-filter-pill__clear-btn"
+          onMouseDown={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+          }}
+          onClick={clearActive}
+          disabled={disabled}
+          aria-label={`Limpar filtro ${field.label}`}
+          title={`Limpar filtro ${field.label}`}
+        >
+          <X className="h-3 w-3" strokeWidth={2.3} />
+        </button>
+      ) : null}
       <EmpColFilterPopover
         open={open}
         panelRef={panelRef}

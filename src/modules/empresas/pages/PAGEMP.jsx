@@ -1356,7 +1356,7 @@ export default function PAGEMP() {
             isFavoriteRecord={empFavorites.isFavorite}
             onToggleFilter={toggleFilterPanel}
             filterActive={hasActiveFilters}
-            showFilterToggle={isMobile}
+            showFilterToggle={!showForm}
             onNew={handleNew}
             onSave={formBridge?.onSave}
             onCancel={formBridge?.onCancel ?? formCancel}
