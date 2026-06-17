@@ -90,6 +90,15 @@ const emitAuthChange = () => {
   window.dispatchEvent(new CustomEvent("erp-auth-changed"));
 };
 
+const isEmpresaScopeError = (error) => {
+  if (Number(error?.status) !== 403) return false;
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    message.includes("empresa não permitida") ||
+    message.includes("sem permissão para visualizar todas as empresas")
+  );
+};
+
 export const AuthApi = {
   getToken() {
     return tokenStore.getToken();
@@ -174,6 +183,18 @@ export const AuthApi = {
         headers: selectedEmpresaId ? { "X-Empresa-Id": String(selectedEmpresaId) } : {},
       });
     } catch (error) {
+      if (selectedEmpresaId && isEmpresaScopeError(error)) {
+        this.setSelectedEmpresaId(null);
+        try {
+          return await request("/api/auth/session", {
+            method: "GET",
+            token,
+          });
+        } catch (retryError) {
+          if (Number(retryError?.status) === 401) return null;
+          throw retryError;
+        }
+      }
       if (Number(error?.status) === 401) return null;
       throw error;
     }
@@ -193,6 +214,14 @@ export const AuthApi = {
       });
       return payload?.empresas || [];
     } catch (error) {
+      if (selectedEmpresaId && isEmpresaScopeError(error)) {
+        this.setSelectedEmpresaId(null);
+        const payload = await request("/api/auth/empresas", {
+          method: "GET",
+          token,
+        });
+        return payload?.empresas || [];
+      }
       if (Number(error?.status) === 401) return [];
       throw error;
     }
