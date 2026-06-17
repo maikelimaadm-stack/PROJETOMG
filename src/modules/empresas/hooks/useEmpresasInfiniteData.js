@@ -1,8 +1,16 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 
 export const EMP_INFINITE_PAGE_SIZE = 100;
+export const EMP_LOAD_BATCH_OPTIONS = Object.freeze([100, 200, 300, 400, 500, 1000]);
+export const EMP_LOAD_BATCH_STORAGE_KEY = "emp_infinite_batch_size";
+
+export function readStoredEmpLoadBatchSize(fallback = EMP_LOAD_BATCH_OPTIONS[0]) {
+  if (typeof window === "undefined") return fallback;
+  const saved = Number(window.localStorage.getItem(EMP_LOAD_BATCH_STORAGE_KEY));
+  return EMP_LOAD_BATCH_OPTIONS.includes(saved) ? saved : fallback;
+}
 export const EMP_INFINITE_MAX_ROWS = Math.max(
   EMP_INFINITE_PAGE_SIZE,
   Number(import.meta.env.VITE_EMP_INFINITE_MAX_ROWS || 3000)
@@ -25,8 +33,11 @@ export function useEmpresasInfiniteData({
   favoriteIds,
   queryPage,
   setQueryPage,
+  loadBatchSize = EMP_LOAD_BATCH_OPTIONS[0],
 }) {
   const listFiltersKey = useMemo(() => JSON.stringify(listFilters ?? {}), [listFilters]);
+  const loadBatchSizeRef = useRef(loadBatchSize);
+  loadBatchSizeRef.current = loadBatchSize;
 
   const {
     data: empresasPagesData,
@@ -47,6 +58,7 @@ export function useEmpresasInfiniteData({
       listFiltersKey,
     ],
     queryFn: async ({ pageParam = { page: 1, cursor: null } }) => {
+      const batchSize = loadBatchSizeRef.current;
       const trimmedSearch = normalizeSearchQuery(searchTerm);
       const pageNumber =
         typeof pageParam === "number"
@@ -57,14 +69,14 @@ export function useEmpresasInfiniteData({
         return {
           ...DEFAULT_EMPRESAS_RESPONSE,
           page: pageNumber,
-          pageSize: EMP_INFINITE_PAGE_SIZE,
+          pageSize: batchSize,
           totalPages: 1,
           nextCursor: null,
         };
       }
       return repository.listPage({
         page: pageNumber,
-        pageSize: EMP_INFINITE_PAGE_SIZE,
+        pageSize: batchSize,
         search: trimmedSearch,
         sortBy: querySort.key,
         sortDir: querySort.direction,
@@ -117,20 +129,6 @@ export function useEmpresasInfiniteData({
     if (!hasNextEmpresasPage || !canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
     void fetchNextEmpresasPage();
   }, [
-    hasNextEmpresasPage,
-    canLoadMoreRows,
-    isFetchingNextEmpresasPage,
-    empresasLoading,
-    fetchNextEmpresasPage,
-  ]);
-
-  useEffect(() => {
-    if (queryPage <= loadedPagesCount) return;
-    if (!hasNextEmpresasPage || !canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
-    void fetchNextEmpresasPage();
-  }, [
-    queryPage,
-    loadedPagesCount,
     hasNextEmpresasPage,
     canLoadMoreRows,
     isFetchingNextEmpresasPage,

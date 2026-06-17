@@ -65,6 +65,7 @@ import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
+import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
 
 function haveSameIds(listA = [], listB = []) {
   if (listA === listB) return true;
@@ -137,6 +138,8 @@ export default function TBLEMP({
   hasMoreRows = false,
   isLoadingMoreRows = false,
   onLoadMoreRows = null,
+  loadBatchSize = 100,
+  onLoadBatchSizeChange = null,
   selectedCount,
   listedCount,
   filteredCount,
@@ -1161,38 +1164,6 @@ export default function TBLEMP({
     };
   }, [colunasOrdenadas, columnWidths, agregacoes, mgPrototype]);
 
-  const loadMoreLockRef = useRef(false);
-
-  useEffect(() => {
-    if (!infiniteMode || !serverMode || typeof onLoadMoreRows !== "function") return undefined;
-    const body = scrollContainerRef.current;
-    if (!body) return undefined;
-
-    if (!isLoadingMoreRows) {
-      loadMoreLockRef.current = false;
-    }
-
-    const maybeLoadMore = () => {
-      if (!hasMoreRows || isLoadingMoreRows || isLoadingEmpresas) return;
-      const distanceToBottom = body.scrollHeight - body.scrollTop - body.clientHeight;
-      if (distanceToBottom > 320 || loadMoreLockRef.current) return;
-      loadMoreLockRef.current = true;
-      onLoadMoreRows();
-    };
-
-    body.addEventListener("scroll", maybeLoadMore, { passive: true });
-    maybeLoadMore();
-    return () => body.removeEventListener("scroll", maybeLoadMore);
-  }, [
-    infiniteMode,
-    serverMode,
-    hasMoreRows,
-    isLoadingMoreRows,
-    isLoadingEmpresas,
-    onLoadMoreRows,
-    empresasPaginadas.length,
-  ]);
-
   const formatTotalValue = (valor, col) => {
     const isInt = col.id === "id_global" || col.id === "codempresa";
     const places = col.decimal_places ?? 2;
@@ -1979,11 +1950,20 @@ export default function TBLEMP({
             />
           ) : (
             <div className="mg-records-summary border-t border-slate-200 px-3 py-2 text-xs">
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 md:grid-cols-4 md:gap-2">
-                <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
-                <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
-                <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
-                <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
+              <div className="mg-records-summary__row">
+                <div className="mg-records-summary__counts grid grid-cols-2 gap-x-3 gap-y-1.5 md:grid-cols-4 md:gap-2">
+                  <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
+                  <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
+                  <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
+                  <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
+                </div>
+                <EmpLoadBatchControls
+                  loadBatchSize={loadBatchSize}
+                  onLoadBatchSizeChange={onLoadBatchSizeChange}
+                  onLoadMore={onLoadMoreRows}
+                  hasMoreRows={hasMoreRows}
+                  isLoadingMoreRows={isLoadingMoreRows}
+                />
               </div>
             </div>
           )}

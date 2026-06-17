@@ -4175,9 +4175,19 @@
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
   }
 
-  .mg-empresas-scope .mg-records-summary .grid {
+  .mg-empresas-scope .mg-records-summary__counts.grid {
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     gap: 6px 10px !important;
+  }
+
+  .mg-empresas-scope .mg-records-summary__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .mg-empresas-scope .mg-records-load-controls {
+    margin-left: 0;
+    justify-content: flex-end;
   }
 
   .mg-empresas-scope .mg-records-summary__item {
@@ -6840,6 +6850,158 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item {
   color: #475569 !important;
   font-weight: 600;
+}
+
+.mg-empresas-scope .mg-records-summary__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mg-empresas-scope .mg-records-summary__counts {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.mg-empresas-scope .mg-records-load-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.mg-empresas-scope .emp-load-batch-size {
+  position: relative;
+  min-width: 72px;
+  cursor: pointer;
+}
+
+.mg-empresas-scope .emp-load-batch-size__display {
+  height: 24px;
+  min-width: 72px;
+  padding: 0 28px 0 10px;
+  border: 1px solid var(--mg-field-idle-border, #e2e8f0);
+  border-radius: var(--mg-radius-control, 8px);
+  background: var(--mg-field-idle-bg, #ffffff);
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 22px;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope .emp-load-batch-size.open .emp-load-batch-size__display {
+  border-color: var(--mg-focus-border, #16a34a);
+  box-shadow: var(--mg-focus-ring, 0 0 0 2px rgba(22, 163, 74, 0.18));
+}
+
+.mg-empresas-scope .emp-load-batch-size__chevron {
+  pointer-events: none;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+.mg-empresas-scope .emp-load-batch-size__panel {
+  display: none;
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  z-index: 40;
+  min-width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+}
+
+.mg-empresas-scope .emp-load-batch-size.open .emp-load-batch-size__panel {
+  display: block;
+}
+
+.mg-empresas-scope .emp-load-batch-size__panel-inner {
+  padding: 4px;
+}
+
+.mg-empresas-scope .emp-load-batch-size__option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 8px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+}
+
+.mg-empresas-scope .emp-load-batch-size__option:hover {
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.mg-empresas-scope .emp-load-batch-size__option--selected {
+  color: #16a34a;
+}
+
+.mg-empresas-scope .emp-load-batch-size__check {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-records-load-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 9999px;
+  background: rgba(22, 163, 74, 0.08);
+  color: #16a34a;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: none;
+  transition: background 140ms ease, color 140ms ease, opacity 140ms ease;
+}
+
+.mg-empresas-scope .mg-records-load-btn:hover:not(:disabled) {
+  background: rgba(22, 163, 74, 0.14);
+}
+
+.mg-empresas-scope .mg-records-load-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mg-empresas-scope .mg-records-load-btn__icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-records-load-btn__icon--spin {
+  animation: mg-records-load-spin 900ms linear infinite;
+}
+
+@keyframes mg-records-load-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-header-bar {

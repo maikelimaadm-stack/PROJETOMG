@@ -32,6 +32,8 @@ import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import {
   EMP_INFINITE_MAX_ROWS,
   EMP_INFINITE_PAGE_SIZE,
+  EMP_LOAD_BATCH_STORAGE_KEY,
+  readStoredEmpLoadBatchSize,
   useEmpresasInfiniteData,
 } from "@/modules/empresas/hooks/useEmpresasInfiniteData";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -159,6 +161,7 @@ export default function PAGEMP() {
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(EMP_INFINITE_PAGE_SIZE);
+  const [loadBatchSize, setLoadBatchSize] = useState(() => readStoredEmpLoadBatchSize());
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
   const cardsVisFields = useEmpCardsVisFields();
@@ -322,6 +325,7 @@ export default function PAGEMP() {
     favoriteIds,
     queryPage,
     setQueryPage,
+    loadBatchSize,
   });
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
@@ -779,16 +783,17 @@ export default function PAGEMP() {
     []
   );
 
-  const handleServerPageChange = useCallback(
-    (nextPage) => {
-      const safePage = Math.max(1, Number(nextPage) || 1);
-      setQueryPage(safePage);
-      if (safePage > loadedPagesCount) {
-        handleLoadMoreEmpresas();
-      }
-    },
-    [loadedPagesCount, handleLoadMoreEmpresas]
-  );
+  const handleServerPageChange = useCallback((nextPage) => {
+    const safePage = Math.max(1, Number(nextPage) || 1);
+    setQueryPage(safePage);
+  }, []);
+
+  const handleLoadBatchSizeChange = useCallback((nextBatchSize) => {
+    setLoadBatchSize(nextBatchSize);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(EMP_LOAD_BATCH_STORAGE_KEY, String(nextBatchSize));
+    }
+  }, []);
 
   const handleServerPageSizeChange = useCallback(() => {
     setQueryPageSize(EMP_INFINITE_PAGE_SIZE);
@@ -1365,6 +1370,8 @@ export default function PAGEMP() {
                       hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                       onLoadMoreRows: handleLoadMoreEmpresas,
                       isLoadingMoreRows: isFetchingNextEmpresasPage,
+                      loadBatchSize,
+                      onLoadBatchSizeChange: handleLoadBatchSizeChange,
                       selectedCount: selectedTableItems.length,
                       listedCount: loadedRecordsCount,
                       filteredCount: filteredRecordsCount,
@@ -1409,6 +1416,8 @@ export default function PAGEMP() {
                     hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                     onLoadMoreRows: handleLoadMoreEmpresas,
                     isLoadingMoreRows: isFetchingNextEmpresasPage,
+                    loadBatchSize,
+                    onLoadBatchSizeChange: handleLoadBatchSizeChange,
                     selectedCount: selectedTableItems.length,
                     listedCount: loadedRecordsCount,
                     filteredCount: filteredRecordsCount,
