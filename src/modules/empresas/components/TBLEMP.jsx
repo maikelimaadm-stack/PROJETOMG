@@ -1346,7 +1346,9 @@ export default function TBLEMP({
     closeColumnOverlays();
   }, [closeColumnOverlays]);
 
-  const buildColumnMenuItems = (col, colIndex) => [
+  const buildColumnMenuItems = (col, colIndex) => {
+    const isFrozenAnchorColumn = frozenColumnCount > 0 && colIndex === frozenColumnCount - 1;
+    return [
     {
       id: "filter",
       label: "Abrir filtro avançado",
@@ -1380,9 +1382,9 @@ export default function TBLEMP({
     },
     {
       id: "pin-column-left",
-      label: colIndex < frozenColumnCount ? "Descongelar coluna" : "Congelar coluna",
+      label: isFrozenAnchorColumn ? "Descongelar coluna" : "Congelar coluna",
       Icon: PanelLeft,
-      active: colIndex < frozenColumnCount,
+      active: isFrozenAnchorColumn,
       onClick: () => togglePinColumnLeft(colIndex),
     },
     {
@@ -1393,6 +1395,7 @@ export default function TBLEMP({
       onClick: () => hideColumn(col),
     },
   ];
+  };
 
   useEffect(() => {
     if (!onVisibleDataChange) return undefined;
@@ -1431,7 +1434,8 @@ export default function TBLEMP({
       const sortRule = Array.isArray(sortConfig) ? sortConfig.find((rule) => rule.key === col.id) : null;
       const isSortActive = !isPinnedLeft && Boolean(sortRule);
       const isAutoFitActive = Boolean(autoFitActiveColumns[col.id]);
-      const hasRightShadow = col.id === lastPinnedLeftId;
+      const isFrozenAnchorColumn = frozenColumnCount > 0 && colIndex === frozenColumnCount - 1;
+      const hasRightShadow = isFrozenAnchorColumn;
       const hasLeftShadow = col.id === firstPinnedRightId;
       return (
         <TableHead
@@ -1467,7 +1471,7 @@ export default function TBLEMP({
             {isAutoFitActive ? (
               <ScanLine className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
             ) : null}
-            {isPinnedLeft ? (
+            {isFrozenAnchorColumn ? (
               <PanelLeft className="h-3.5 w-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
             ) : null}
             <button

@@ -7189,28 +7189,6 @@
   margin-left: 4px;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-border-right {
-  box-shadow: inset -5px 0 0 0 var(--mg-brand-green, #16a34a) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-pinned-border-right {
-  box-shadow:
-    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-pinned-border-right {
-  box-shadow:
-    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset 0 -1px 0 0 var(--emp-table-line) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th.emp-pinned-border-right {
-  box-shadow:
-    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset 0 -1px 0 0 var(--emp-table-line) !important;
-}
-
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-shadow-right {
   box-shadow: inset -9px 0 10px -10px rgba(15, 23, 42, 0.42) !important;
 }
@@ -7268,6 +7246,32 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td:not(:last-child) {
   box-shadow:
     inset -1px 0 0 0 var(--emp-table-line),
+    inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+/* Borda verde: apenas na coluna congelada (limite direito do bloco fixo) */
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-pinned-border-right,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-pinned-border-right:not(:last-child) {
+  box-shadow:
+    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
+    inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-pinned-border-right,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-pinned-border-right:not(:last-child),
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th.emp-pinned-border-right,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th.emp-pinned-border-right:not(:last-child),
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td.emp-pinned-border-right,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td.emp-pinned-border-right:not(:last-child) {
+  box-shadow:
+    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
+    inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-group-row-cell.emp-pinned-border-right,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-group-row-cell.emp-pinned-border-right:not(:last-child) {
+  box-shadow:
+    inset -5px 0 0 0 var(--mg-brand-green, #16a34a),
     inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
