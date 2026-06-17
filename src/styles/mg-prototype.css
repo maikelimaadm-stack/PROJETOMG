@@ -7000,33 +7000,21 @@
   z-index: 9999;
   min-width: 280px;
   max-width: min(320px, calc(100vw - 24px));
-  padding: 10px 10px 6px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   box-sizing: border-box;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup.emp-filter-popover {
-  width: 280px !important;
-  max-width: min(320px, calc(100vw - 24px)) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-sort-section {
-  flex-shrink: 0;
-  padding-bottom: 6px;
-  margin-bottom: 2px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   min-height: 0;
   flex: 1 1 auto;
   width: 100%;
-  padding: 0;
+  padding: 2px 10px 0;
   box-sizing: border-box;
 }
 
@@ -7066,15 +7054,26 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-col-filter-popup__footer,
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__footer {
-  margin-top: 6px;
-  padding: 4px 0 0;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-col-filter-popup__footer.mg-search-dropdown__config-footer,
-.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__footer.mg-search-dropdown__config-footer {
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__footer.mg-search-dropdown__config-footer,
+.mg-empresas-scope.mg-floating-panel-root > .dropdown-menu.emp-col-filter-popup .emp-col-filter-popup__footer.mg-search-dropdown__config-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
-  padding: 4px 0 0;
+  width: 100%;
+  margin: 0;
+  padding: 6px 8px 4px;
   border-top: 1px solid var(--border, rgba(148, 163, 184, 0.28));
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup.emp-filter-popover {
+  width: 280px !important;
+  max-width: min(320px, calc(100vw - 24px)) !important;
 }
 
 /* Popup de filtro via portal (fora da árvore da tabela) */
@@ -7083,12 +7082,13 @@
   width: 280px !important;
   min-width: 280px !important;
   max-width: min(320px, calc(100vw - 24px)) !important;
-  padding: 10px 10px 6px !important;
+  padding: 0 !important;
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
   height: auto !important;
   max-height: min(480px, calc(100vh - 96px));
+  gap: 0;
 }
 
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup.emp-filter-popover {
@@ -7096,19 +7096,35 @@
   max-width: min(320px, calc(100vw - 24px)) !important;
 }
 
-.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-sort-section {
-  flex-shrink: 0;
-  padding-bottom: 6px;
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-sort-section > .px-1,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-sort-section > .px-1 {
   margin-bottom: 2px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  line-height: 1.2;
+}
+
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-sort-section,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-sort-section {
+  flex-shrink: 0;
+  padding: 8px 10px 2px;
+  margin: 0;
+  border-bottom: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-sort-section .emp-filter-sort-btn,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-sort-section .emp-filter-sort-btn {
+  min-height: 26px;
+  height: 26px;
 }
 
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-body {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   width: 100%;
-  padding: 0;
+  padding: 2px 10px 0;
   box-sizing: border-box;
 }
 

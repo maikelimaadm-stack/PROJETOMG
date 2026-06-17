@@ -1799,7 +1799,7 @@ export default function TBLEMP({
       >
         {filterColumn && filterDraft ? (
           <>
-            <div className="emp-filter-sort-section space-y-1">
+            <div className="emp-filter-sort-section">
               <div className="px-1 text-[11px] font-semibold text-slate-500">{filterColumnLabel}</div>
               <button
                 type="button"
