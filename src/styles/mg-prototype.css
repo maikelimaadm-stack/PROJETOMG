@@ -7000,21 +7000,26 @@
   z-index: 9999;
   min-width: 280px;
   max-width: min(320px, calc(100vw - 24px));
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__sort-list {
-  max-height: none;
-  overflow: visible;
-  padding-bottom: 0;
-  border-bottom: 1px solid var(--border, rgba(148, 163, 184, 0.3));
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-sort-section {
+  flex-shrink: 0;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__sort-item svg {
-  color: #16a34a;
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__search {
-  padding: 6px 8px 0;
+  padding: 0;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__search-pill {
@@ -7025,12 +7030,33 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__options {
   min-height: 80px;
-  max-height: min(240px, calc(100vh - 280px));
+  max-height: min(220px, calc(100vh - 280px));
+  padding: 4px 0;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__option {
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__options .mg-cards-config-menu__item {
   cursor: pointer;
   margin: 0;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 29px;
+  padding: 0 10px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #334155;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__action.is-primary {
+  border-color: rgba(22, 163, 74, 0.35);
+  background: #ecfdf5;
+  color: #166534;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-group-row .emp-group-row-cell {
@@ -7065,45 +7091,6 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-border-right {
   box-shadow: inset -3px 0 0 0 var(--mg-brand-green, #16a34a) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-active {
-  box-shadow:
-    inset 3px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-col-filter-active:not(:last-child) {
-  box-shadow:
-    inset 3px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset -1px 0 0 0 var(--emp-table-header-side-line, var(--emp-table-line)),
-    inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-td.emp-col-filter-active {
-  box-shadow: inset 3px 0 0 0 var(--mg-brand-green, #16a34a) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-border-right.emp-col-filter-active,
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-td.emp-pinned-border-right.emp-col-filter-active {
-  box-shadow:
-    inset 3px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset -3px 0 0 0 var(--mg-brand-green, #16a34a) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-pinned-border-right.emp-col-filter-active:not(:last-child) {
-  box-shadow:
-    inset 3px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset -3px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset -1px 0 0 0 var(--emp-table-header-side-line, var(--emp-table-line)),
-    inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th.emp-pinned-border-right.emp-col-filter-active:last-child {
-  box-shadow:
-    inset 3px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset -3px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-shadow-right {

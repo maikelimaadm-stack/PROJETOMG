@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import {
   ArrowDown,
   ArrowUp,
@@ -63,6 +62,9 @@ import {
 } from "./tblEmp.filters";
 import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
 import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
+import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
+import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 
 function haveSameIds(listA = [], listB = []) {
   if (listA === listB) return true;
@@ -96,8 +98,6 @@ function FilterFieldCheck({ checked, disabled, onChange }) {
     </span>
   );
 }
-
-const COLUMN_MENU_WIDTH = 228;
 
 const readStorageJSON = (key, fallback) => {
   try {
@@ -220,6 +220,7 @@ export default function TBLEMP({
   const columnMenuTriggerRefs = useRef({});
   const columnMenuPanelRef = useRef(null);
   const filterPanelRef = useRef(null);
+  const overlayAnchorRef = useRef(null);
   const measureCanvasRef = useRef(null);
   const [scrollbarCompensation, setScrollbarCompensation] = useState(0);
   const scrollbarCompensationRef = useRef(0);
@@ -231,7 +232,6 @@ export default function TBLEMP({
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
-  const [filterAnchorRect, setFilterAnchorRect] = useState(null);
   const [remoteColumnOptions, setRemoteColumnOptions] = useState({});
   const [loadingRemoteColumnOptions, setLoadingRemoteColumnOptions] = useState(false);
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
@@ -320,65 +320,28 @@ export default function TBLEMP({
   const closeColumnOverlays = useCallback(() => {
     setColumnMenuAnchor(null);
     setMenuFiltroAberto(null);
-    setFilterAnchorRect(null);
+    overlayAnchorRef.current = null;
     setBuscaFiltroMenu("");
     setFiltroTemp({ colunaId: null, draft: null });
   }, []);
 
-  const getColumnMenuAnchor = useCallback((columnId) => {
-    const triggerEl = columnMenuTriggerRefs.current[columnId];
-    if (!triggerEl) return null;
-    const triggerRect = triggerEl.getBoundingClientRect();
-    const padding = 10;
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-    const preferredLeft = triggerRect.right - COLUMN_MENU_WIDTH;
-    const fallbackLeft = triggerRect.left;
-    const maxLeft = viewportWidth - COLUMN_MENU_WIDTH - padding;
-    const left = Math.max(
-      padding,
-      Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
-    );
-    const preferredTop = triggerRect.bottom + 6;
-    const maxTop = Math.max(padding, viewportHeight - 260);
-    const top = Math.max(padding, Math.min(preferredTop, maxTop));
-    return { columnId, left, top };
-  }, []);
-
-  const getColumnFilterAnchor = useCallback((columnId) => {
-    const triggerEl = columnMenuTriggerRefs.current[columnId];
-    if (!triggerEl) return null;
-    const triggerRect = triggerEl.getBoundingClientRect();
-    const padding = 10;
-    const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
-    const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-    const preferredLeft = triggerRect.right - FILTER_POPOVER_WIDTH;
-    const fallbackLeft = triggerRect.left;
-    const maxLeft = viewportWidth - FILTER_POPOVER_WIDTH - padding;
-    const left = Math.max(
-      padding,
-      Math.min(preferredLeft > maxLeft ? fallbackLeft : preferredLeft, maxLeft)
-    );
-    const preferredTop = triggerRect.bottom + 6;
-    const maxTop = Math.max(padding, viewportHeight - 300);
-    const top = Math.max(padding, Math.min(preferredTop, maxTop));
-    return { left, top };
-  }, []);
-
   const toggleColumnMenu = useCallback((columnId) => {
     setMenuFiltroAberto(null);
-    setFilterAnchorRect(null);
     setColumnMenuAnchor((prev) => {
-      if (prev?.columnId === columnId) return null;
-      return getColumnMenuAnchor(columnId);
+      if (prev?.columnId === columnId) {
+        overlayAnchorRef.current = null;
+        return null;
+      }
+      overlayAnchorRef.current = columnMenuTriggerRefs.current[columnId] || null;
+      return { columnId };
     });
-  }, [getColumnMenuAnchor]);
+  }, []);
 
   const openFilterMenu = useCallback((columnId) => {
-    const position = getColumnFilterAnchor(columnId);
-    if (!position) return;
     const col = colunasDisponiveis.find((column) => column.id === columnId);
     if (!col) return;
+    const trigger = columnMenuTriggerRefs.current[columnId];
+    if (!trigger) return;
     const filterType = getColumnFilterType(col);
     const currentValues = filtrosColunas[columnId];
     const nextDraft = Array.isArray(currentValues)
@@ -388,28 +351,15 @@ export default function TBLEMP({
           ...(currentValues || {}),
           type: filterType,
         };
+    overlayAnchorRef.current = trigger;
     setColumnMenuAnchor(null);
-    setFilterAnchorRect({ columnId, left: position.left, top: position.top });
     setMenuFiltroAberto(columnId);
     setBuscaFiltroMenu("");
     setFiltroTemp({
       colunaId: columnId,
       draft: nextDraft,
     });
-  }, [colunasDisponiveis, filtrosColunas, getColumnFilterAnchor]);
-
-  const updateColumnOverlayAnchorRect = useCallback(() => {
-    setColumnMenuAnchor((prev) => {
-      if (!prev?.columnId) return prev;
-      return getColumnMenuAnchor(prev.columnId);
-    });
-    setFilterAnchorRect((prev) => {
-      if (!prev?.columnId) return prev;
-      const position = getColumnFilterAnchor(prev.columnId);
-      if (!position) return prev;
-      return { ...prev, ...position };
-    });
-  }, [getColumnFilterAnchor, getColumnMenuAnchor]);
+  }, [colunasDisponiveis, filtrosColunas]);
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, "0"); }, [frozenColumnCount]);
@@ -644,36 +594,19 @@ export default function TBLEMP({
   }, [serverMode, empresasFiltradas, sortConfig, colunasDisponiveisById, getComparableValue, getFieldValue]);
 
   const columnOptions = useMemo(() => {
-    if (!menuFiltroAberto) return {};
-    const col = colunasDisponiveis.find((column) => column.id === menuFiltroAberto);
-    if (!col || col.fixo) return {};
+    const opts = {};
     const sourceRows = serverMode ? empresas.slice(0, 200) : empresas;
-    const source = sourceRows.filter((emp) => (serverMode ? true : empresaPassaFiltros(emp, col.id)));
-    const items = [...new Set(source.map((emp) => getFieldValue(emp, col.id)).filter(Boolean))].sort((a, b) =>
-      String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" })
-    );
-    return { [col.id]: items };
+    const targetColumns = serverMode
+      ? colunasDisponiveis.filter((c) => !c.fixo && (!menuFiltroAberto || c.id === menuFiltroAberto))
+      : colunasDisponiveis.filter((c) => !c.fixo);
+    targetColumns.forEach((col) => {
+      const source = sourceRows.filter((emp) => (serverMode ? true : empresaPassaFiltros(emp, col.id)));
+      opts[col.id] = [...new Set(source.map((emp) => getFieldValue(emp, col.id)).filter(Boolean))].sort((a, b) =>
+        String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" })
+      );
+    });
+    return opts;
   }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, serverMode, menuFiltroAberto]);
-
-  const filterSearchPending = useMemo(() => {
-    const draft = buscaFiltroMenu.trim().toLowerCase();
-    const settled = debouncedBuscaFiltroMenu.trim().toLowerCase();
-    return draft !== settled;
-  }, [buscaFiltroMenu, debouncedBuscaFiltroMenu]);
-
-  const openFilterDisplayOptions = useMemo(() => {
-    if (!menuFiltroAberto) return [];
-    const options = serverMode
-      ? remoteColumnOptions[menuFiltroAberto] || columnOptions[menuFiltroAberto] || []
-      : columnOptions[menuFiltroAberto] || [];
-    const query = debouncedBuscaFiltroMenu.trim().toLowerCase();
-    if (!query) return options;
-    return options.filter((option) => String(option).toLowerCase().includes(query));
-  }, [menuFiltroAberto, serverMode, remoteColumnOptions, columnOptions, debouncedBuscaFiltroMenu]);
-
-  const filterOptionsLoading =
-    (filterSearchPending && openFilterDisplayOptions.length === 0) ||
-    (serverMode && loadingRemoteColumnOptions && openFilterDisplayOptions.length === 0);
 
   useEffect(() => {
     if (!serverMode || !menuFiltroAberto || typeof onRequestDistinctColumnValues !== "function") {
@@ -860,7 +793,7 @@ export default function TBLEMP({
               }}
               className={`emp-td emp-group-row-cell py-0 text-left text-[12px] align-middle select-none ${
                 isPinned ? "sticky z-20" : ""
-              } ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""} ${hasActiveFilter(col.id) ? "emp-col-filter-active" : ""}`}
+              } ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
             >
               {isPrimaryGroupCell ? (
                 <div className="emp-group-row-content" style={{ paddingLeft: `${(rowEntry.level || 0) * 14}px` }}>
@@ -895,7 +828,7 @@ export default function TBLEMP({
               left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
               right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
             }}
-            className={`emp-td py-0 text-left text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isPinned ? "sticky z-20" : ""} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""} ${hasActiveFilter(col.id) ? "emp-col-filter-active" : ""} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+            className={`emp-td py-0 text-left text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isPinned ? "sticky z-20" : ""} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
             title={String(getFieldValue(emp, col.id) ?? "")}
           >
             {getFieldValue(emp, col.id)}
@@ -916,7 +849,6 @@ export default function TBLEMP({
       getFieldValue,
       getRowBgClass,
       selectedItemsSet,
-      filtrosColunas,
     ]
   );
 
@@ -1067,22 +999,33 @@ export default function TBLEMP({
   const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
   const isColumnOverlayOpen = Boolean(columnMenuAnchor || menuFiltroAberto);
 
-  useLayoutEffect(() => {
-    if (!overlayColumnId) return undefined;
-    updateColumnOverlayAnchorRect();
-    const onReflow = () => updateColumnOverlayAnchorRect();
-    const scrollRoot = scrollContainerRef.current;
-    const raf = requestAnimationFrame(updateColumnOverlayAnchorRect);
-    scrollRoot?.addEventListener("scroll", onReflow, { passive: true });
-    window.addEventListener("resize", onReflow);
-    window.addEventListener("scroll", onReflow, true);
-    return () => {
-      cancelAnimationFrame(raf);
-      scrollRoot?.removeEventListener("scroll", onReflow);
-      window.removeEventListener("resize", onReflow);
-      window.removeEventListener("scroll", onReflow, true);
-    };
-  }, [overlayColumnId, updateColumnOverlayAnchorRect, colunasOrdenadas, columnWidths]);
+  const columnMenuPanelStyle = useMgPanelPosition(
+    Boolean(columnMenuAnchor?.columnId),
+    overlayAnchorRef,
+    columnMenuPanelRef,
+    {
+      minWidth: 228,
+      width: 280,
+      estimatedHeight: 280,
+      align: "right",
+      scrollable: false,
+    },
+    columnMenuAnchor?.columnId
+  );
+
+  const filterPanelStyle = useMgPanelPosition(
+    Boolean(menuFiltroAberto),
+    overlayAnchorRef,
+    filterPanelRef,
+    {
+      minWidth: FILTER_POPOVER_WIDTH,
+      width: FILTER_POPOVER_WIDTH,
+      estimatedHeight: 420,
+      align: "right",
+      scrollable: false,
+    },
+    menuFiltroAberto
+  );
 
   useEffect(() => {
     if (!overlayColumnId) return undefined;
@@ -1134,13 +1077,9 @@ export default function TBLEMP({
   }, []);
 
   useEffect(() => {
-    const onFullscreenChange = () => {
-      syncTableFullscreen();
-      requestAnimationFrame(() => updateColumnOverlayAnchorRect());
-    };
-    document.addEventListener("fullscreenchange", onFullscreenChange);
-    return () => document.removeEventListener("fullscreenchange", onFullscreenChange);
-  }, [syncTableFullscreen, updateColumnOverlayAnchorRect]);
+    document.addEventListener("fullscreenchange", syncTableFullscreen);
+    return () => document.removeEventListener("fullscreenchange", syncTableFullscreen);
+  }, [syncTableFullscreen]);
 
   const handleToggleTableFullscreen = useCallback(async () => {
     const el = tableStageRef.current;
@@ -1526,7 +1465,7 @@ export default function TBLEMP({
             left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
             right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
           }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""} ${hasColumnFilter ? "emp-col-filter-active" : ""}`}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
           onDoubleClick={(event) => {
             const interactiveTarget = event.target?.closest?.(
               "button, [role='separator'], .emp-col-resize-handle"
@@ -1604,252 +1543,98 @@ export default function TBLEMP({
       );
     });
 
-  const renderColumnMenu = () => {
-    if (!columnMenuAnchor?.columnId) return null;
-    const columnIndex = colunasOrdenadas.findIndex((column) => column.id === columnMenuAnchor.columnId);
-    if (columnIndex < 0) return null;
-    const column = colunasOrdenadas[columnIndex];
-    const menuItems = buildColumnMenuItems(column, columnIndex);
-    return (
-      <div
-        ref={columnMenuPanelRef}
-        className="dropdown-menu mg-cards-config-menu open emp-col-popup-menu"
-        style={{ left: columnMenuAnchor.left, top: columnMenuAnchor.top, position: "fixed" }}
-        role="menu"
-        tabIndex={-1}
-        onKeyDown={(event) => {
-          const panel = columnMenuPanelRef.current;
-          if (!panel) return;
-          const items = Array.from(panel.querySelectorAll("button:not(:disabled)"));
-          if (items.length === 0) return;
-          const currentIndex = items.findIndex((item) => item === document.activeElement);
-          if (event.key === "Escape") {
-            event.preventDefault();
-            closeColumnOverlays();
-            return;
-          }
-          if (event.key === "ArrowDown") {
-            event.preventDefault();
-            const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
-            items[nextIndex]?.focus();
-            return;
-          }
-          if (event.key === "ArrowUp") {
-            event.preventDefault();
-            const nextIndex = currentIndex < 0 ? items.length - 1 : (currentIndex - 1 + items.length) % items.length;
-            items[nextIndex]?.focus();
-            return;
-          }
-          if (event.key === "Home") {
-            event.preventDefault();
-            items[0]?.focus();
-            return;
-          }
-          if (event.key === "End") {
-            event.preventDefault();
-            items[items.length - 1]?.focus();
-          }
-        }}
-      >
-        <div className="mg-cards-config-menu__list">
-          {menuItems.map((item) => {
-            const Icon = item.Icon;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className={`mg-cards-config-menu__item emp-col-popup-menu__item${item.active ? " is-active" : ""}`}
-                disabled={item.disabled}
-                onClick={item.onClick}
-              >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span className="mg-cards-config-menu__label">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-    );
+  const columnMenuColumn = columnMenuAnchor?.columnId
+    ? colunasOrdenadas.find((column) => column.id === columnMenuAnchor.columnId)
+    : null;
+  const columnMenuIndex = columnMenuColumn
+    ? colunasOrdenadas.findIndex((column) => column.id === columnMenuColumn.id)
+    : -1;
+  const columnMenuItems = columnMenuColumn && columnMenuIndex >= 0
+    ? buildColumnMenuItems(columnMenuColumn, columnMenuIndex)
+    : [];
+
+  const filterColumn = menuFiltroAberto
+    ? colunasDisponiveis.find((column) => column.id === menuFiltroAberto)
+    : null;
+  const filterOptions = filterColumn
+    ? serverMode
+      ? remoteColumnOptions[menuFiltroAberto] || columnOptions[menuFiltroAberto] || []
+      : columnOptions[menuFiltroAberto] || []
+    : [];
+  const filterQuery = debouncedBuscaFiltroMenu.trim().toLowerCase();
+  const filteredFilterOptions = filterQuery
+    ? filterOptions.filter((option) => String(option).toLowerCase().includes(filterQuery))
+    : filterOptions;
+  const filterDraft =
+    filterColumn && filtroTemp.colunaId === menuFiltroAberto && filtroTemp.draft
+      ? filtroTemp.draft
+      : filterColumn
+        ? getValoresFiltro(menuFiltroAberto, filterColumn)
+        : null;
+  const filterSelectedValues = Array.isArray(filterDraft?.values) ? filterDraft.values : [];
+  const filterAllVisibleSelected =
+    filteredFilterOptions.length > 0 &&
+    filteredFilterOptions.every((option) => filterSelectedValues.includes(option));
+  const filterColumnLabel = filterColumn ? formatHeaderLabel(filterColumn) : "";
+  const filterSearchPending =
+    buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
+  const filterListLoading =
+    (filterSearchPending && filteredFilterOptions.length === 0) ||
+    (serverMode && loadingRemoteColumnOptions && filteredFilterOptions.length === 0);
+
+  const updateFilterDraft = (updater) => {
+    if (!filterColumn || !menuFiltroAberto) return;
+    const filterType = getColumnFilterType(filterColumn);
+    setFiltroTemp((prev) => {
+      const baseDraft =
+        prev.colunaId === menuFiltroAberto && prev.draft
+          ? prev.draft
+          : getValoresFiltro(menuFiltroAberto, filterColumn);
+      const nextDraft =
+        typeof updater === "function" ? updater(baseDraft) : { ...baseDraft, ...updater };
+      return {
+        colunaId: menuFiltroAberto,
+        draft: {
+          ...createDefaultColumnFilter(filterType),
+          ...nextDraft,
+          type: filterType,
+        },
+      };
+    });
   };
 
-  const renderFilterPopoverContent = (colunaId) => {
-    const col = colunasDisponiveis.find((column) => column.id === colunaId);
-    if (!col) return null;
-    const filteredOptions = openFilterDisplayOptions;
-    const filterType = getColumnFilterType(col);
-    const draft =
-      filtroTemp.colunaId === colunaId && filtroTemp.draft
-        ? filtroTemp.draft
-        : getValoresFiltro(colunaId, col);
-    const selectedValues = Array.isArray(draft.values) ? draft.values : [];
-    const allVisibleSelected =
-      filteredOptions.length > 0 &&
-      filteredOptions.every((option) => selectedValues.includes(option));
-    const columnLabel = formatHeaderLabel(col);
-    const updateDraft = (updater) =>
-      setFiltroTemp((prev) => {
-        const baseDraft =
-          prev.colunaId === colunaId && prev.draft
-            ? prev.draft
-            : getValoresFiltro(colunaId, col);
-        const nextDraft =
-          typeof updater === "function" ? updater(baseDraft) : { ...baseDraft, ...updater };
-        return {
-          colunaId,
-          draft: {
-            ...createDefaultColumnFilter(filterType),
-            ...nextDraft,
-            type: filterType,
-          },
-        };
-      });
-
-    return (
-      <div
-        ref={filterPanelRef}
-        className="dropdown-menu mg-cards-config-menu open emp-col-filter-popup"
-        style={{ left: filterAnchorRect?.left ?? 0, top: filterAnchorRect?.top ?? 0, position: "fixed", zIndex: 9999 }}
-      >
-        <div className="mg-cards-config-menu__list emp-col-filter-popup__sort-list">
-          <button
-            type="button"
-            className="mg-cards-config-menu__item emp-col-filter-popup__sort-item"
-            onClick={() => {
-              applySortToColumn(colunaId, "asc");
-              closeColumnOverlays();
-            }}
-          >
-            <ArrowUp className="h-4 w-4 shrink-0" />
-            <span className="mg-cards-config-menu__label">Ordenar A → Z</span>
-          </button>
-          <button
-            type="button"
-            className="mg-cards-config-menu__item emp-col-filter-popup__sort-item"
-            onClick={() => {
-              applySortToColumn(colunaId, "desc");
-              closeColumnOverlays();
-            }}
-          >
-            <ArrowDown className="h-4 w-4 shrink-0" />
-            <span className="mg-cards-config-menu__label">Ordenar Z → A</span>
-          </button>
-          <button
-            type="button"
-            className="mg-cards-config-menu__item emp-col-filter-popup__sort-item"
-            disabled={!hasActiveFilter(colunaId)}
-            onClick={() => {
-              clearColumnFilter(colunaId);
-              closeColumnOverlays();
-            }}
-          >
-            <X className="h-4 w-4 shrink-0" />
-            <span className="mg-cards-config-menu__label truncate">Limpar filtro de &apos;{columnLabel}&apos;</span>
-          </button>
-        </div>
-
-        <div className="emp-col-filter-popup__search">
-          <div className="mg-search-pill-wrap">
-            <div className="mg-search-pill emp-col-filter-popup__search-pill" role="search">
-              {filterOptionsLoading ? (
-                <Loader2
-                  className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
-                  aria-hidden="true"
-                />
-              ) : buscaFiltroMenu.trim() ? (
-                <button
-                  type="button"
-                  className="mg-search-pill-clear"
-                  aria-label="Limpar pesquisa de valores"
-                  onClick={() => setBuscaFiltroMenu("")}
-                >
-                  <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                </button>
-              ) : (
-                <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-              )}
-              <input
-                type="text"
-                value={buscaFiltroMenu}
-                onChange={(event) => setBuscaFiltroMenu(event.target.value)}
-                placeholder="Pesquisar valores"
-                aria-label={`Pesquisar valores de ${columnLabel}`}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="mg-cards-config-menu__list emp-col-filter-popup__options">
-          {filterOptionsLoading ? (
-            <div className="mg-search-dropdown__empty" role="status" aria-live="polite">
-              Carregando...
-            </div>
-          ) : (
-            <>
-              <label className="mg-cards-config-menu__item emp-col-filter-popup__option">
-                <FilterFieldCheck
-                  checked={allVisibleSelected}
-                  onChange={(event) =>
-                    updateDraft((prev) => {
-                      const currentList = Array.isArray(prev.values) ? prev.values : [];
-                      const rest = currentList.filter((value) => !filteredOptions.includes(value));
-                      return {
-                        ...prev,
-                        values: event.target.checked
-                          ? [...new Set([...rest, ...filteredOptions])]
-                          : rest,
-                      };
-                    })
-                  }
-                />
-                <span className="mg-cards-config-menu__label">(Selecionar tudo)</span>
-              </label>
-              {filteredOptions.map((option) => (
-                <label key={option} className="mg-cards-config-menu__item emp-col-filter-popup__option">
-                  <FilterFieldCheck
-                    checked={selectedValues.includes(option)}
-                    onChange={(event) =>
-                      updateDraft((prev) => {
-                        const currentList = Array.isArray(prev.values) ? prev.values : [];
-                        const nextList = event.target.checked
-                          ? [...currentList, option]
-                          : currentList.filter((value) => value !== option);
-                        return { ...prev, values: [...new Set(nextList)] };
-                      })
-                    }
-                  />
-                  <span className="mg-cards-config-menu__label truncate" title={option}>
-                    {option}
-                  </span>
-                </label>
-              ))}
-              {filteredOptions.length === 0 ? (
-                <div className="mg-search-dropdown__empty">Nenhum valor encontrado.</div>
-              ) : null}
-            </>
-          )}
-        </div>
-
-        <div className="mg-cards-config-menu__footer mg-search-dropdown__config-footer">
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
-            onClick={closeColumnOverlays}
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
-            onClick={() => {
-              setValoresFiltro(colunaId, draft);
-              closeColumnOverlays();
-            }}
-          >
-            Ok
-          </button>
-        </div>
-      </div>
-    );
+  const handleColumnMenuKeyDown = (event) => {
+    const panel = columnMenuPanelRef.current;
+    if (!panel) return;
+    const items = Array.from(panel.querySelectorAll("button:not(:disabled)"));
+    if (items.length === 0) return;
+    const currentIndex = items.findIndex((item) => item === document.activeElement);
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeColumnOverlays();
+      return;
+    }
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      const nextIndex = currentIndex < 0 ? 0 : (currentIndex + 1) % items.length;
+      items[nextIndex]?.focus();
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      const nextIndex = currentIndex < 0 ? items.length - 1 : (currentIndex - 1 + items.length) % items.length;
+      items[nextIndex]?.focus();
+      return;
+    }
+    if (event.key === "Home") {
+      event.preventDefault();
+      items[0]?.focus();
+      return;
+    }
+    if (event.key === "End") {
+      event.preventDefault();
+      items[items.length - 1]?.focus();
+    }
   };
 
   const renderTotalCells = () =>
@@ -1866,7 +1651,7 @@ export default function TBLEMP({
             left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
             right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
           }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""} ${hasActiveFilter(col.id) ? "emp-col-filter-active" : ""}`}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
         >
           <div className="emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden">
             <span className="emp-th-label truncate font-semibold text-left">
@@ -1966,28 +1751,200 @@ export default function TBLEMP({
     </>
   );
 
-  const columnOverlayLayer =
-    typeof document !== "undefined" && isColumnOverlayOpen
-      ? createPortal(
-          <>
-            <button
-              type="button"
-              className="emp-col-popup-backdrop"
-              aria-label="Fechar opções da coluna"
-              tabIndex={-1}
-              onClick={closeColumnOverlays}
-            />
-            {renderColumnMenu()}
-            {menuFiltroAberto && filterAnchorRect?.columnId === menuFiltroAberto
-              ? renderFilterPopoverContent(menuFiltroAberto)
-              : null}
-          </>,
-          document.body
-        )
-      : null;
-
   return (
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
+      <MgConfigBackdrop
+        open={isColumnOverlayOpen}
+        onClose={closeColumnOverlays}
+        ariaLabel="Fechar opções da coluna"
+      />
+
+      <MgPortalPanel
+        open={Boolean(columnMenuColumn)}
+        panelRef={columnMenuPanelRef}
+        panelClassName="dropdown-menu mg-cards-config-menu open emp-col-popup-menu"
+        style={columnMenuPanelStyle}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div
+          role="menu"
+          tabIndex={-1}
+          onKeyDown={handleColumnMenuKeyDown}
+        >
+          <div className="mg-cards-config-menu__list">
+            {columnMenuItems.map((item) => {
+              const Icon = item.Icon;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  className={`mg-cards-config-menu__item emp-col-popup-menu__item${item.active ? " is-active" : ""}`}
+                  disabled={item.disabled}
+                  onClick={item.onClick}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="mg-cards-config-menu__label">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </MgPortalPanel>
+
+      <MgPortalPanel
+        open={Boolean(filterColumn && menuFiltroAberto)}
+        panelRef={filterPanelRef}
+        panelClassName="dropdown-menu mg-cards-config-menu open emp-col-filter-popup emp-filter-popover"
+        style={filterPanelStyle}
+        onClick={(event) => event.stopPropagation()}
+      >
+        {filterColumn && filterDraft ? (
+          <>
+            <div className="emp-filter-sort-section space-y-1">
+              <div className="px-1 text-[11px] font-semibold text-slate-500">{filterColumnLabel}</div>
+              <button
+                type="button"
+                className="emp-filter-sort-btn"
+                onClick={() => {
+                  applySortToColumn(menuFiltroAberto, "asc");
+                  closeColumnOverlays();
+                }}
+              >
+                <ArrowUp className="w-4 h-4 mr-2 shrink-0" />
+                <span>Ordenar A → Z</span>
+              </button>
+              <button
+                type="button"
+                className="emp-filter-sort-btn"
+                onClick={() => {
+                  applySortToColumn(menuFiltroAberto, "desc");
+                  closeColumnOverlays();
+                }}
+              >
+                <ArrowDown className="w-4 h-4 mr-2 shrink-0" />
+                <span>Ordenar Z → A</span>
+              </button>
+              <button
+                type="button"
+                className="emp-filter-sort-btn"
+                disabled={!hasActiveFilter(menuFiltroAberto)}
+                onClick={() => {
+                  clearColumnFilter(menuFiltroAberto);
+                  closeColumnOverlays();
+                }}
+              >
+                <X className="w-4 h-4 mr-2 shrink-0" />
+                <span className="truncate">Limpar Filtro de &apos;{filterColumnLabel}&apos;</span>
+              </button>
+            </div>
+
+            <div className="emp-filter-body">
+              <div className="mg-search-pill-wrap emp-col-filter-popup__search">
+                <div className="mg-search-pill emp-col-filter-popup__search-pill" role="search">
+                  {filterListLoading ? (
+                    <Loader2
+                      className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+                      aria-hidden="true"
+                    />
+                  ) : buscaFiltroMenu.trim() ? (
+                    <button
+                      type="button"
+                      className="mg-search-pill-clear"
+                      aria-label="Limpar pesquisa de valores"
+                      onClick={() => setBuscaFiltroMenu("")}
+                    >
+                      <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                    </button>
+                  ) : (
+                    <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  )}
+                  <input
+                    type="text"
+                    value={buscaFiltroMenu}
+                    onChange={(event) => setBuscaFiltroMenu(event.target.value)}
+                    placeholder="Pesquisar valores"
+                    aria-label={`Pesquisar valores de ${filterColumnLabel}`}
+                  />
+                </div>
+              </div>
+
+              <div className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options">
+                {filterListLoading ? (
+                  <div className="mg-search-dropdown__empty" role="status" aria-live="polite">
+                    Carregando...
+                  </div>
+                ) : (
+                  <>
+                    <label className="mg-cards-config-menu__item emp-filter-value-list-header">
+                      <FilterFieldCheck
+                        checked={filterAllVisibleSelected}
+                        onChange={(event) =>
+                          updateFilterDraft((prev) => {
+                            const currentList = Array.isArray(prev.values) ? prev.values : [];
+                            const rest = currentList.filter((value) => !filteredFilterOptions.includes(value));
+                            return {
+                              ...prev,
+                              values: event.target.checked
+                                ? [...new Set([...rest, ...filteredFilterOptions])]
+                                : rest,
+                            };
+                          })
+                        }
+                      />
+                      <span className="mg-cards-config-menu__label">(Selecionar Tudo)</span>
+                    </label>
+                    {filteredFilterOptions.map((option) => (
+                      <label key={option} className="mg-cards-config-menu__item emp-filter-value-list-item">
+                        <FilterFieldCheck
+                          checked={filterSelectedValues.includes(option)}
+                          onChange={(event) =>
+                            updateFilterDraft((prev) => {
+                              const currentList = Array.isArray(prev.values) ? prev.values : [];
+                              const nextList = event.target.checked
+                                ? [...currentList, option]
+                                : currentList.filter((value) => value !== option);
+                              return { ...prev, values: [...new Set(nextList)] };
+                            })
+                          }
+                        />
+                        <span className="mg-cards-config-menu__label truncate" title={option}>
+                          {option}
+                        </span>
+                      </label>
+                    ))}
+                    {filteredFilterOptions.length === 0 ? (
+                      <div className="mg-search-dropdown__empty">Nenhum valor encontrado.</div>
+                    ) : null}
+                  </>
+                )}
+              </div>
+
+              <div className="emp-filter-actions">
+                <button
+                  type="button"
+                  title="Aplicar filtro"
+                  className="emp-col-filter-popup__action is-primary"
+                  onClick={() => {
+                    setValoresFiltro(menuFiltroAberto, filterDraft);
+                    closeColumnOverlays();
+                  }}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  title="Cancelar"
+                  className="emp-col-filter-popup__action"
+                  onClick={closeColumnOverlays}
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          </>
+        ) : null}
+      </MgPortalPanel>
+
       <div
         ref={tableStageRef}
         className={`emp-table-stage relative min-h-0 ${isColumnOverlayOpen ? "overflow-visible" : "overflow-hidden"}`}
@@ -2083,7 +2040,6 @@ export default function TBLEMP({
         onChange={handleColumnLayoutChange}
         onResetDefault={handleResetColumnLayout}
       />
-      {columnOverlayLayer}
     </div>
   );
 }
