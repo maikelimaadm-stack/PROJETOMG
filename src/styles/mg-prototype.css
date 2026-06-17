@@ -8552,6 +8552,20 @@
 .erp-filter-date-range__fields {
   width: 100%;
   align-items: center;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.erp-filter-date-range__fields .erp-filter-date-field {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-weight: 500;
+}
+
+.erp-filter-date-range__fields .erp-filter-date-field::placeholder {
+  color: var(--text-3);
+  font-weight: 500;
 }
 
 .erp-filter-date-field {

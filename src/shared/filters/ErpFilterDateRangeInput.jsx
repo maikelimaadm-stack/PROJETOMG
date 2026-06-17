@@ -172,13 +172,24 @@ export default function ErpFilterDateRangeInput({
     if (!open) return undefined;
 
     const close = (event) => {
-      if (rootRef.current?.contains(event.target)) return;
-      if (panelRef.current?.contains(event.target)) return;
+      const target = event.target;
+      if (rootRef.current?.contains(target)) return;
+      if (panelRef.current?.contains(target)) return;
       setOpen(false);
     };
 
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("mousedown", close, true);
+    document.addEventListener("touchstart", close, true);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", close, true);
+      document.removeEventListener("touchstart", close, true);
+      document.removeEventListener("keydown", onKeyDown);
+    };
   }, [open]);
 
   useEffect(() => {
@@ -187,10 +198,14 @@ export default function ErpFilterDateRangeInput({
     }
   }, [open, value, valueTo]);
 
-  const openCalendar = () => {
+  const toggleCalendar = () => {
     if (disabled) return;
-    setView(resolveAnchorMonth(value, valueTo));
-    setOpen(true);
+    setOpen((wasOpen) => {
+      if (!wasOpen) {
+        setView(resolveAnchorMonth(value, valueTo));
+      }
+      return !wasOpen;
+    });
   };
 
   const navMonth = (delta) => {
@@ -216,6 +231,7 @@ export default function ErpFilterDateRangeInput({
           className="erp-filter-date-range__calendar-btn"
           disabled={disabled}
           aria-label="Abrir calendário de período"
+          aria-expanded={open}
           onMouseDown={(event) => {
             event.preventDefault();
             event.stopPropagation();
@@ -223,7 +239,7 @@ export default function ErpFilterDateRangeInput({
           onClick={(event) => {
             event.preventDefault();
             event.stopPropagation();
-            openCalendar();
+            toggleCalendar();
           }}
         >
           <Calendar className="h-3.5 w-3.5" />
