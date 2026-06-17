@@ -1,5 +1,32 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
 
+const ACCESS_SCOPE_CACHE_TTL_MS = Math.max(
+  0,
+  Number(process.env.ACCESS_SCOPE_CACHE_TTL_MS || 5_000)
+);
+
+const freshUserCache = new Map();
+const allowedEmpresaIdsCache = new Map();
+
+const readCache = (cache, key) => {
+  if (ACCESS_SCOPE_CACHE_TTL_MS <= 0) return null;
+  const entry = cache.get(key);
+  if (!entry) return null;
+  if (entry.expiresAt <= Date.now()) {
+    cache.delete(key);
+    return null;
+  }
+  return entry.value;
+};
+
+const writeCache = (cache, key, value) => {
+  if (ACCESS_SCOPE_CACHE_TTL_MS <= 0) return;
+  cache.set(key, {
+    value,
+    expiresAt: Date.now() + ACCESS_SCOPE_CACHE_TTL_MS,
+  });
+};
+
 const normalizeEmpresaHeader = (value) => {
   const parsed = String(value || "").trim();
   if (!parsed) return null;
@@ -19,15 +46,21 @@ const withStatus = (message, statusCode) => {
 };
 
 const loadAllowedEmpresaIdsFromDb = async (userId) => {
+  const cached = readCache(allowedEmpresaIdsCache, userId);
+  if (cached) return cached;
   const prisma = getPrismaClient();
   const rows = await prisma.permissaoEmpresa.findMany({
     where: { usuario_id: userId },
     select: { empresa_id: true },
   });
-  return rows.map((row) => row.empresa_id);
+  const allowedIds = rows.map((row) => row.empresa_id);
+  writeCache(allowedEmpresaIdsCache, userId, allowedIds);
+  return allowedIds;
 };
 
 const loadFreshUserState = async (userId) => {
+  const cached = readCache(freshUserCache, userId);
+  if (cached) return cached;
   const prisma = getPrismaClient();
   const user = await prisma.usuario.findUnique({
     where: { id: userId },
@@ -48,6 +81,7 @@ const loadFreshUserState = async (userId) => {
   if (!user || user.ativo === false) {
     throw withStatus("Usuário sem acesso.", 401);
   }
+  writeCache(freshUserCache, userId, user);
   return user;
 };
 
@@ -114,4 +148,15 @@ export const assertRole = (scope, roles = []) => {
     error.statusCode = 403;
     throw error;
   }
+};
+
+export const clearAccessScopeCache = (userId) => {
+  if (!userId) {
+    freshUserCache.clear();
+    allowedEmpresaIdsCache.clear();
+    return;
+  }
+  const key = String(userId);
+  freshUserCache.delete(key);
+  allowedEmpresaIdsCache.delete(key);
 };
