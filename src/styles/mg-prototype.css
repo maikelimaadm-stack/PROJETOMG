@@ -8550,14 +8550,16 @@
 }
 
 .erp-filter-date-range__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 28px minmax(0, 1fr);
   width: 100%;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 0;
 }
 
 .erp-filter-date-range__fields .erp-filter-date-field {
-  flex: 1 1 0;
+  width: 100%;
   min-width: 0;
   text-align: center;
   font-weight: 500;
@@ -8569,27 +8571,23 @@
 }
 
 .erp-filter-date-field {
-  flex: 1 1 0;
+  width: 100%;
   min-width: 0;
-}
-
-.erp-filter-date-range__sep {
-  flex: 0 0 auto;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-2, #64748b);
 }
 
 .erp-filter-date-range__calendar-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: 28px;
+  height: var(--mg-btn-height);
   border: none;
   background: none;
-  color: var(--text-2, #64748b);
+  color: var(--accent);
   padding: 0;
   cursor: pointer;
   line-height: 1;
+  border-radius: var(--mg-search-pill-radius);
 }
 
 .erp-filter-date-range__calendar-btn:hover:not(:disabled) {

@@ -290,7 +290,7 @@ export default function ErpFilterDateRangeInput({
         />
         <button
           type="button"
-          className="erp-filter-range-sep erp-filter-date-range__calendar-btn"
+          className="erp-filter-date-range__calendar-btn"
           disabled={disabled}
           aria-label="Abrir calendário de período"
           aria-expanded={open}
