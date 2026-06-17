@@ -8608,27 +8608,12 @@
   width: 100%;
 }
 
-.erp-filter-single-date__field-pill {
+.erp-filter-single-date__field-row {
   width: 100%;
-  height: var(--mg-btn-height);
   display: flex;
   align-items: center;
   gap: 6px;
-  border: var(--mg-btn-pill-border);
-  border-radius: var(--mg-search-pill-radius);
-  background: var(--gray-fill);
-  padding: 0 10px;
   box-sizing: border-box;
-  transition:
-    background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
-    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.erp-filter-single-date__field-pill:focus-within {
-  background: var(--mg-field-idle-bg);
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
 }
 
 .erp-filter-single-date__calendar-btn {
@@ -8659,15 +8644,7 @@
   flex: 1 1 auto;
   min-width: 0;
   width: 100%;
-  height: 100%;
-  border: none !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  color: var(--text-1, #1e293b);
-  font-size: 12px;
   font-weight: 500;
-  padding: 0 !important;
 }
 
 .erp-filter-single-date__field::placeholder {
