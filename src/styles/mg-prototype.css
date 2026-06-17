@@ -3543,8 +3543,9 @@
 }
 
 .mg-empresas-scope .mg-panel-strip__filters {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
+  max-width: min(100%, 52%);
   overflow: hidden;
 }
 
