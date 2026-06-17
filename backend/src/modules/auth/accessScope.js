@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { tieredCache } from "../../cache/tieredCache.js";
 
 const ACCESS_SCOPE_CACHE_TTL_MS = Math.max(
   0,
@@ -7,8 +8,10 @@ const ACCESS_SCOPE_CACHE_TTL_MS = Math.max(
 
 const freshUserCache = new Map();
 const allowedEmpresaIdsCache = new Map();
+const FRESH_USER_CACHE_PREFIX = "auth:scope:fresh-user:";
+const ALLOWED_EMPRESAS_CACHE_PREFIX = "auth:scope:allowed-empresas:";
 
-const readCache = (cache, key) => {
+const readLocalCache = (cache, key) => {
   if (ACCESS_SCOPE_CACHE_TTL_MS <= 0) return null;
   const entry = cache.get(key);
   if (!entry) return null;
@@ -19,12 +22,28 @@ const readCache = (cache, key) => {
   return entry.value;
 };
 
-const writeCache = (cache, key, value) => {
+const writeLocalCache = (cache, key, value) => {
   if (ACCESS_SCOPE_CACHE_TTL_MS <= 0) return;
   cache.set(key, {
     value,
     expiresAt: Date.now() + ACCESS_SCOPE_CACHE_TTL_MS,
   });
+};
+
+const readCache = async (cache, key, remoteKey) => {
+  const local = readLocalCache(cache, key);
+  if (local) return local;
+  if (ACCESS_SCOPE_CACHE_TTL_MS <= 0) return null;
+  const distributed = await tieredCache.get(remoteKey);
+  if (distributed == null) return null;
+  writeLocalCache(cache, key, distributed);
+  return distributed;
+};
+
+const writeCache = async (cache, key, remoteKey, value) => {
+  writeLocalCache(cache, key, value);
+  if (ACCESS_SCOPE_CACHE_TTL_MS <= 0) return;
+  await tieredCache.set(remoteKey, value, ACCESS_SCOPE_CACHE_TTL_MS);
 };
 
 const normalizeEmpresaHeader = (value) => {
@@ -46,7 +65,11 @@ const withStatus = (message, statusCode) => {
 };
 
 const loadAllowedEmpresaIdsFromDb = async (userId) => {
-  const cached = readCache(allowedEmpresaIdsCache, userId);
+  const cached = await readCache(
+    allowedEmpresaIdsCache,
+    userId,
+    `${ALLOWED_EMPRESAS_CACHE_PREFIX}${userId}`
+  );
   if (cached) return cached;
   const prisma = getPrismaClient();
   const rows = await prisma.permissaoEmpresa.findMany({
@@ -54,12 +77,21 @@ const loadAllowedEmpresaIdsFromDb = async (userId) => {
     select: { empresa_id: true },
   });
   const allowedIds = rows.map((row) => row.empresa_id);
-  writeCache(allowedEmpresaIdsCache, userId, allowedIds);
+  await writeCache(
+    allowedEmpresaIdsCache,
+    userId,
+    `${ALLOWED_EMPRESAS_CACHE_PREFIX}${userId}`,
+    allowedIds
+  );
   return allowedIds;
 };
 
 const loadFreshUserState = async (userId) => {
-  const cached = readCache(freshUserCache, userId);
+  const cached = await readCache(
+    freshUserCache,
+    userId,
+    `${FRESH_USER_CACHE_PREFIX}${userId}`
+  );
   if (cached) return cached;
   const prisma = getPrismaClient();
   const user = await prisma.usuario.findUnique({
@@ -81,7 +113,12 @@ const loadFreshUserState = async (userId) => {
   if (!user || user.ativo === false) {
     throw withStatus("Usuário sem acesso.", 401);
   }
-  writeCache(freshUserCache, userId, user);
+  await writeCache(
+    freshUserCache,
+    userId,
+    `${FRESH_USER_CACHE_PREFIX}${userId}`,
+    user
+  );
   return user;
 };
 
@@ -150,13 +187,21 @@ export const assertRole = (scope, roles = []) => {
   }
 };
 
-export const clearAccessScopeCache = (userId) => {
+export const clearAccessScopeCache = async (userId) => {
   if (!userId) {
     freshUserCache.clear();
     allowedEmpresaIdsCache.clear();
+    await Promise.allSettled([
+      tieredCache.invalidatePrefix(FRESH_USER_CACHE_PREFIX),
+      tieredCache.invalidatePrefix(ALLOWED_EMPRESAS_CACHE_PREFIX),
+    ]);
     return;
   }
   const key = String(userId);
   freshUserCache.delete(key);
   allowedEmpresaIdsCache.delete(key);
+  await Promise.allSettled([
+    tieredCache.delete(`${FRESH_USER_CACHE_PREFIX}${key}`),
+    tieredCache.delete(`${ALLOWED_EMPRESAS_CACHE_PREFIX}${key}`),
+  ]);
 };

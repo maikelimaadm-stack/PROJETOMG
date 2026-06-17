@@ -130,7 +130,37 @@ const resolvePort = () => {
   return parsed;
 };
 
-const buildServer = () => {
+const createRateLimitRedisClient = async (app) => {
+  const redisUrl = String(process.env.REDIS_URL || "").trim();
+  if (!redisUrl) return null;
+  try {
+    const { default: Redis } = await import("ioredis");
+    const client = new Redis(redisUrl, {
+      maxRetriesPerRequest: 2,
+      enableOfflineQueue: false,
+      lazyConnect: true,
+      connectTimeout: 2_000,
+    });
+    await client.connect();
+    app.addHook("onClose", async () => {
+      try {
+        await client.quit();
+      } catch {
+        /* ignore */
+      }
+    });
+    app.log.info("[rate-limit] Redis distribuído habilitado.");
+    return client;
+  } catch (error) {
+    app.log.warn(
+      { err: error },
+      "[rate-limit] Redis indisponível, fallback para memória local."
+    );
+    return null;
+  }
+};
+
+const buildServer = async () => {
   const pluginTimeout = Number(process.env.FASTIFY_PLUGIN_TIMEOUT_MS || 120_000);
   const app = Fastify({ logger: true, pluginTimeout });
   const allowedOrigins = parseAllowedOrigins();
@@ -157,10 +187,17 @@ const buildServer = () => {
     }
   });
 
+  const rateLimitRedisClient = await createRateLimitRedisClient(app);
   app.register(fastifyRateLimit, {
     max: Number(process.env.RATE_LIMIT_MAX || 240),
     timeWindow: "1 minute",
     allowList: ["127.0.0.1", "::1"],
+    ...(rateLimitRedisClient
+      ? {
+          redis: rateLimitRedisClient,
+          nameSpace: String(process.env.RATE_LIMIT_NAMESPACE || "mak-gestao:rate-limit"),
+        }
+      : {}),
   });
 
   app.register(fastifyJwt, {
@@ -182,7 +219,7 @@ const buildServer = () => {
       }
       await request.jwtVerify();
       if (
-        isAuthTokenRevoked({
+        await isAuthTokenRevoked({
           token: authTokenRaw,
           jti: request.user?.jti || null,
         })
@@ -286,7 +323,7 @@ const runBlockingBootTasks = async (log) => {
 };
 
 const start = async () => {
-  const app = buildServer();
+  const app = await buildServer();
   const host = resolveHost();
   const port = resolvePort();
   const backgroundBootDelayMs = Math.max(
