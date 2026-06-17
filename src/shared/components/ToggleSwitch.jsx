@@ -7,6 +7,7 @@ export default function ToggleSwitch({
   className = "",
   checkedClassName = "bg-white hover:bg-slate-50",
   variant = "default",
+  ariaLabelledby = undefined,
 }) {
   const loteVariant = variant === "lote";
   const activeTrackClass = loteVariant ? "bg-[#2899f5] hover:bg-[#2899f5]" : checkedClassName;
@@ -22,6 +23,7 @@ export default function ToggleSwitch({
       onClick={() => !disabled && onChange?.(!checked)}
       className={`!h-4 !w-8 relative inline-flex items-center transition-colors !border !border-slate-300 shadow-none rounded-[1px] ${checked ? activeTrackClass : inactiveTrackClass} ${disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer"} ${className}`}
       aria-pressed={checked}
+      aria-labelledby={ariaLabelledby}
     >
       <span className={thumbClass} />
     </button>

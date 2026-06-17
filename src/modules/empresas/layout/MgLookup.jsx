@@ -13,6 +13,8 @@ export default function MgLookup({
   searchFields = ["nome"],
   readOnly = false,
   disabled = false,
+  inputId = undefined,
+  labelId = undefined,
 }) {
   const rootRef = useRef(null);
   const displayRef = useRef(null);
@@ -102,9 +104,10 @@ export default function MgLookup({
       ref={rootRef}
       className={`mg-lookup${open ? " open" : ""}${disabled || readOnly ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
     >
-      {label ? <span className={`mg-lookup-label${required ? " req" : ""}`}>{label}</span> : null}
+      {label ? <span id={labelId} className={`mg-lookup-label${required ? " req" : ""}`}>{label}</span> : null}
       <div
         ref={displayRef}
+        id={inputId}
         className="mg-lookup-display"
         tabIndex={disabled || readOnly ? -1 : 0}
         onKeyDown={onKeyDown}
@@ -123,6 +126,7 @@ export default function MgLookup({
           toggle();
         }}
         role="combobox"
+        aria-labelledby={labelId}
         aria-expanded={open}
         aria-disabled={disabled || readOnly}
       >

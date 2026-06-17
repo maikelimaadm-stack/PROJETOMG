@@ -15,6 +15,8 @@ export default function MgTimePicker({
   onChange,
   readOnly = false,
   disabled = false,
+  inputId = undefined,
+  labelId = undefined,
 }) {
   const rootRef = useRef(null);
   const panelRef = useRef(null);
@@ -146,8 +148,10 @@ export default function MgTimePicker({
 
   return (
     <div ref={rootRef} className={`mg-tp${open ? " open" : ""}${disabled || readOnly ? " is-disabled" : ""}${display ? " mg-has-value" : ""}`}>
-      {label ? <label className="mg-tp-label">{label}</label> : null}
+      {label ? <label id={labelId} htmlFor={inputId} className="mg-tp-label">{label}</label> : null}
       <input
+        id={inputId}
+        aria-labelledby={labelId}
         type="text"
         className="mg-tp-field"
         value={display}

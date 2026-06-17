@@ -178,16 +178,10 @@ export const registerRoutes = async (app) => {
         connected: status.db.connected,
         error: status.db.connected ? null : status.db.error,
       },
-      auth: {
-        jwtConfigured: status.auth.jwtConfigured,
-      },
       supabase: {
         authConfigured: status.supabase.authConfigured,
         storageConfigured: status.supabase.storageConfigured,
         storageConnected: status.supabase.storageConnected,
-      },
-      migration: {
-        restructureApplied: status.migration.restructureApplied,
       },
     };
 

@@ -20,6 +20,8 @@ export default function MgCmdSelect({
   onChange,
   placeholder = "Pesquisar...",
   disabled = false,
+  inputId = undefined,
+  labelId = undefined,
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -120,9 +122,10 @@ export default function MgCmdSelect({
       ref={rootRef}
       className={`cmd-select${open ? " open" : ""}${disabled ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
     >
-      {label ? <span className={`cmd-label${required ? " req" : ""}`}>{label}</span> : null}
+      {label ? <span id={labelId} className={`cmd-label${required ? " req" : ""}`}>{label}</span> : null}
       <div
         ref={displayRef}
+        id={inputId}
         className="cmd-display"
         tabIndex={disabled ? -1 : 0}
         onKeyDown={onKeyDown}
@@ -136,6 +139,7 @@ export default function MgCmdSelect({
           toggle();
         }}
         role="combobox"
+        aria-labelledby={labelId}
         aria-expanded={open}
         aria-disabled={disabled}
       >

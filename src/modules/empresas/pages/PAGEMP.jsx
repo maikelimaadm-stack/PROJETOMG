@@ -843,6 +843,11 @@ export default function PAGEMP() {
     setQueryPage(1);
   }, []);
 
+  const handleDistinctColumnValues = useCallback(
+    (params) => moduleRepository.listDistinctColumnValues(params),
+    []
+  );
+
   const handleServerPageChange = useCallback(
     (nextPage) => {
       const safePage = Math.max(1, Number(nextPage) || 1);
@@ -1466,6 +1471,7 @@ export default function PAGEMP() {
                       setQuerySort(nextSort);
                       setQueryPage(1);
                     },
+                    onRequestDistinctColumnValues: handleDistinctColumnValues,
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
                     infiniteMode: true,

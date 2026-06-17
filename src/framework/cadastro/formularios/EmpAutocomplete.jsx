@@ -38,6 +38,8 @@ export default function EmpAutocomplete({
   variant: variantProp,
   createNewLabel,
   onCreateNew,
+  inputId,
+  ariaLabelledby,
 }) {
   const variant = resolveEmpAutocompleteVariant({ variant: variantProp, showSearchButton });
   const isLookup = variant === "lookup";
@@ -410,6 +412,8 @@ export default function EmpAutocomplete({
         ) : null}
         <Input
           ref={inputRef}
+          id={inputId}
+          aria-labelledby={ariaLabelledby}
           value={displayValue}
           onChange={(e) => {
             if (!isLookup) return;

@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import { randomUUID } from "node:crypto";
 import { getPrismaClient } from "../../database/prismaClient.js";
 import { setSessionEmpresas, getSessionEmpresas } from "./sessionCache.js";
 
@@ -190,6 +191,7 @@ export const listEmpresasFromSession = async (sessionUser) => {
 };
 
 export const createSessionTokenPayload = (session) => ({
+  jti: randomUUID(),
   sub: session.user.id,
   id: session.user.id,
   cliente_id: session.user.cliente_id,
