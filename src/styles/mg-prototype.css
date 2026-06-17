@@ -7000,7 +7000,7 @@
   z-index: 9999;
   min-width: 280px;
   max-width: min(320px, calc(100vw - 24px));
-  padding: 10px;
+  padding: 10px 10px 6px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -7022,7 +7022,7 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   min-height: 0;
   flex: 1 1 auto;
   width: 100%;
@@ -7049,8 +7049,8 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-value-list.emp-col-filter-popup__options {
   min-height: 80px;
   max-height: min(220px, calc(100vh - 280px));
-  margin: 2px 0 10px;
-  padding: 4px 4px 18px;
+  margin: 2px 0 0;
+  padding: 4px 4px 10px;
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
@@ -7064,34 +7064,17 @@
   margin: 0;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-filter-actions {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 4px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(148, 163, 184, 0.28);
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-col-filter-popup__footer,
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__footer {
+  margin-top: 6px;
+  padding: 4px 0 0;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__action {
-  display: inline-flex;
-  align-items: center;
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup .emp-col-filter-popup__footer.mg-search-dropdown__config-footer,
+.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__footer.mg-search-dropdown__config-footer {
   gap: 6px;
-  min-height: 29px;
-  padding: 0 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #fff;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-col-filter-popup__action.is-primary {
-  border-color: rgba(22, 163, 74, 0.35);
-  background: #ecfdf5;
-  color: #166534;
+  padding: 4px 0 0;
+  border-top: 1px solid var(--border, rgba(148, 163, 184, 0.28));
 }
 
 /* Popup de filtro via portal (fora da árvore da tabela) */
@@ -7100,7 +7083,7 @@
   width: 280px !important;
   min-width: 280px !important;
   max-width: min(320px, calc(100vw - 24px)) !important;
-  padding: 10px 10px 12px !important;
+  padding: 10px 10px 6px !important;
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
@@ -7123,7 +7106,7 @@
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-body {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
   padding: 0;
   box-sizing: border-box;
@@ -7144,8 +7127,8 @@
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-value-list.emp-col-filter-popup__options {
   min-height: 80px;
   max-height: min(220px, calc(100vh - 280px));
-  margin: 2px 0 10px;
-  padding: 4px 4px 18px;
+  margin: 2px 0 0;
+  padding: 4px 4px 10px;
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
@@ -7158,37 +7141,6 @@
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-value-list .mg-cards-config-menu__item {
   cursor: pointer;
   margin: 0;
-}
-
-.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-filter-actions {
-  flex-shrink: 0;
-  display: flex;
-  justify-content: flex-end;
-  gap: 6px;
-  margin-top: 2px;
-  padding-top: 10px;
-  padding-bottom: 2px;
-  border-top: 1px solid rgba(148, 163, 184, 0.28);
-}
-
-.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__action {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  min-height: 29px;
-  padding: 0 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  background: #fff;
-  color: #334155;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__action.is-primary {
-  border-color: rgba(22, 163, 74, 0.35);
-  background: #ecfdf5;
-  color: #166534;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-group-row .emp-group-row-cell {

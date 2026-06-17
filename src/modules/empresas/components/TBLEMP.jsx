@@ -1903,28 +1903,26 @@ export default function TBLEMP({
                   ) : null}
                 </>
               </div>
+            </div>
 
-              <div className="emp-filter-actions">
-                <button
-                  type="button"
-                  title="Aplicar filtro"
-                  className="emp-col-filter-popup__action is-primary"
-                  onClick={() => {
-                    setValoresFiltro(menuFiltroAberto, filterDraft);
-                    closeColumnOverlays();
-                  }}
-                >
-                  <Check className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  type="button"
-                  title="Cancelar"
-                  className="emp-col-filter-popup__action"
-                  onClick={closeColumnOverlays}
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              </div>
+            <div className="mg-cards-config-menu__footer mg-search-dropdown__config-footer emp-col-filter-popup__footer">
+              <button
+                type="button"
+                className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
+                onClick={closeColumnOverlays}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
+                onClick={() => {
+                  setValoresFiltro(menuFiltroAberto, filterDraft);
+                  closeColumnOverlays();
+                }}
+              >
+                Filtrar
+              </button>
             </div>
           </>
         ) : null}
