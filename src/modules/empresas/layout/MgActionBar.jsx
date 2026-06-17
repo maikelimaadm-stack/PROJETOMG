@@ -556,12 +556,12 @@ export default function MgActionBar({
   const renderPrimaryActions = () => (
     <>
       <ActionSlot show={showNew && !!onNew} width={64}>
-        <ActionLabelBtn className="tb-btn-ghost" onClick={onNew} disabled={actionsLocked} title="Novo">
+        <ActionLabelBtn className="tb-btn-green" onClick={onNew} disabled={actionsLocked} title="Novo">
           Novo
         </ActionLabelBtn>
       </ActionSlot>
       <ActionSlot show={showSave && !!onSave} width={68}>
-        <ActionLabelBtn className="tb-btn-ghost" onClick={onSave} disabled={actionsLocked} title="Salvar">
+        <ActionLabelBtn className="tb-btn-green" onClick={onSave} disabled={actionsLocked} title="Salvar">
           Salvar
         </ActionLabelBtn>
       </ActionSlot>
@@ -610,7 +610,7 @@ export default function MgActionBar({
               </ActionLabelBtn>
             ) : null}
             {isEditing && onSave ? (
-              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
+              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
                 Salvar
               </ActionLabelBtn>
             ) : null}
@@ -652,7 +652,7 @@ export default function MgActionBar({
             </ActionLabelBtn>
           </ActionSlot>
           <ActionSlot show={isEditing && !!onSave} width={68}>
-            <ActionLabelBtn className="tb-btn-ghost" onClick={onSave} disabled={actionsLocked} title="Salvar">
+            <ActionLabelBtn className="tb-btn-green" onClick={onSave} disabled={actionsLocked} title="Salvar">
               Salvar
             </ActionLabelBtn>
           </ActionSlot>
@@ -708,12 +708,12 @@ export default function MgActionBar({
               </button>
             ) : null}
             {showNew && onNew ? (
-              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onNew} disabled={actionsLocked} title="Novo">
+              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onNew} disabled={actionsLocked} title="Novo">
                 Novo
               </ActionLabelBtn>
             ) : null}
             {showSave && onSave ? (
-              <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
+              <ActionLabelBtn className="tb-btn-green shrink-0" onClick={onSave} disabled={actionsLocked} title="Salvar">
                 Salvar
               </ActionLabelBtn>
             ) : null}
