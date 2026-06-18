@@ -154,7 +154,7 @@ export default function RegistroAnexosDialog({
               {anexo.file_size ? (
                 <span className="shrink-0 text-[#94a3b8]">{formatSize(anexo.file_size)}</span>
               ) : null}
-              <ExternalLink className="h-3 w-3 shrink-0 opacity-60" />
+              <ExternalLink className="h-3 w-3 shrink-0" />
             </a>,
             <div key="action" className="emp-config-list-table__action flex w-full items-center justify-center">
               <EmpConfigPlainIconBtn

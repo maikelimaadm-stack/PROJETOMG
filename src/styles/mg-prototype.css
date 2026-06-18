@@ -9006,7 +9006,7 @@
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-header__chevron {
-  color: var(--text-3, #9ca3af);
+  color: #000000;
   stroke: currentColor;
 }
 
@@ -9028,21 +9028,21 @@
   width: var(--mg-btn-icon-size, 28px);
   height: var(--mg-btn-icon-size, 28px);
   min-width: var(--mg-btn-icon-size, 28px);
-  color: var(--mg-brand-green, #40de63) !important;
+  color: #000000 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-restore-btn svg {
-  color: var(--mg-brand-green, #40de63) !important;
-  stroke: var(--mg-brand-green, #40de63) !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-restore-btn:hover:not(:disabled) {
-  color: var(--mg-brand-green-hover, #36c956) !important;
+  color: #000000 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-restore-btn:hover:not(:disabled) svg {
-  color: var(--mg-brand-green-hover, #36c956) !important;
-  stroke: var(--mg-brand-green-hover, #36c956) !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-close {
@@ -9055,7 +9055,7 @@
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-layout-presets-close-icon {
   width: var(--mg-btn-icon-size, 28px);
   height: var(--mg-btn-icon-size, 28px);
-  color: var(--text-2, #6b7280);
+  color: #000000;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-search-pill--compact {
@@ -9224,8 +9224,8 @@
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn svg {
-  color: var(--accent, #40de63) !important;
-  stroke: var(--accent, #40de63) !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn:hover:not(:disabled) {
@@ -9293,28 +9293,28 @@
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  color: var(--accent, #40de63);
+  color: #000000;
   border-radius: var(--mg-btn-icon-radius, 999px);
   cursor: pointer;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn svg,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-remove-btn svg {
-  color: var(--accent, #40de63) !important;
-  stroke: var(--accent, #40de63) !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
   flex-shrink: 0;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn:hover:not(:disabled),
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-remove-btn:hover:not(:disabled) {
   background: transparent !important;
-  color: var(--mg-brand-green-hover, #36c956) !important;
+  color: #000000 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn:hover:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-remove-btn:hover:not(:disabled) svg {
-  color: var(--mg-brand-green-hover, #36c956) !important;
-  stroke: var(--mg-brand-green-hover, #36c956) !important;
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn:disabled,
@@ -9530,5 +9530,26 @@
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .tb-btn-labeled svg {
   width: 14px;
   height: 14px;
+}
+
+/* Ícones pretos em todos os diálogos de configuração */
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .tb-btn-ghost.tb-btn-icon:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .tb-btn-ghost.tb-btn-icon:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .tb-btn-green.tb-btn-icon:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .tb-btn-green:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .tb-btn-green:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-nav-btn:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-nav-btn:not(:disabled):hover svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-search-pill-icon,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-search-pill:focus-within .mg-search-pill-icon,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__link svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-freeze svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-toolbar-action-icon,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-toolbar-nav-icon,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-toolbar-btn svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-toolbar-btn-new svg,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-layout-presets-close-icon svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
 }
 

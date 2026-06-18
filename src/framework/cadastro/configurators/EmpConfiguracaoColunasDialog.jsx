@@ -258,15 +258,7 @@ export default function EmpConfiguracaoColunasDialog({
             disabled={index > draftFrozenColumnCount}
             className="emp-config-transfer-freeze flex h-5 w-5 shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
           >
-            <Columns3
-              className={`h-3.5 w-3.5 transition-colors ${
-                index < draftFrozenColumnCount
-                  ? "text-[var(--mg-brand-green,#40de63)]"
-                  : index === draftFrozenColumnCount
-                    ? "text-[var(--text-3,#9ca3af)]"
-                    : "text-[var(--text-3,#9ca3af)] opacity-50"
-              }`}
-            />
+            <Columns3 className="h-3.5 w-3.5 text-black" />
           </button>
         )}
         footer={
