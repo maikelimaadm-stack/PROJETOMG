@@ -11,10 +11,6 @@ export function readStoredEmpLoadBatchSize(fallback = EMP_LOAD_BATCH_OPTIONS[0])
   const saved = Number(window.localStorage.getItem(EMP_LOAD_BATCH_STORAGE_KEY));
   return EMP_LOAD_BATCH_OPTIONS.includes(saved) ? saved : fallback;
 }
-export const EMP_INFINITE_MAX_ROWS = Math.max(
-  EMP_INFINITE_PAGE_SIZE,
-  Number(import.meta.env.VITE_EMP_INFINITE_MAX_ROWS || 3000)
-);
 
 const DEFAULT_EMPRESAS_RESPONSE = {
   items: [],
@@ -51,7 +47,7 @@ export function useEmpresasInfiniteData({
     queryKey: [
       "emp-cadastro",
       "infinite",
-      EMP_INFINITE_PAGE_SIZE,
+      loadBatchSize,
       searchTerm,
       querySort.key,
       querySort.direction,
@@ -111,7 +107,7 @@ export function useEmpresasInfiniteData({
         merged.push(item);
       });
     });
-    return merged.slice(0, EMP_INFINITE_MAX_ROWS);
+    return merged;
   }, [empresasPages]);
   const empresasResponseTotal = Number(empresasPages[0]?.total || 0);
   const empresasLoading =
@@ -123,25 +119,19 @@ export function useEmpresasInfiniteData({
     1,
     empresasPages.length || (empresasLoading ? 0 : 1)
   );
-  const canLoadMoreRows = empresas.length < EMP_INFINITE_MAX_ROWS;
+  const canLoadMoreRows = Boolean(hasNextEmpresasPage);
 
   const handleLoadMoreEmpresas = useCallback(() => {
-    if (!hasNextEmpresasPage || !canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
+    if (!hasNextEmpresasPage || isFetchingNextEmpresasPage || empresasLoading) return;
     void fetchNextEmpresasPage();
-  }, [
-    hasNextEmpresasPage,
-    canLoadMoreRows,
-    isFetchingNextEmpresasPage,
-    empresasLoading,
-    fetchNextEmpresasPage,
-  ]);
+  }, [hasNextEmpresasPage, isFetchingNextEmpresasPage, empresasLoading, fetchNextEmpresasPage]);
 
   useEffect(() => {
-    if (canLoadMoreRows) return;
+    if (hasNextEmpresasPage) return;
     if (queryPage > loadedPagesCount) {
       setQueryPage(loadedPagesCount);
     }
-  }, [canLoadMoreRows, queryPage, loadedPagesCount, setQueryPage]);
+  }, [hasNextEmpresasPage, queryPage, loadedPagesCount, setQueryPage]);
 
   return {
     empresas,
