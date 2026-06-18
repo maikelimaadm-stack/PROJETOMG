@@ -237,6 +237,8 @@ html *::-webkit-scrollbar-button:double-button:horizontal:increment {
 
 :root {
   --mg-icon-color: #000000;
+  --mg-icon-on-accent-color: #ffffff;
+  --mg-icon-danger-color: var(--red, #dc2626);
 }
 
 html body svg.lucide,
@@ -251,10 +253,6 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
 ) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost,
-  .tb-btn-green,
-  .tb-btn-blue,
-  .tb-btn-red,
-  .tb-btn-danger,
   .tb-btn-icon,
   .tb-btn-filter,
   .tb-btn-more,
@@ -262,9 +260,6 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
   .mg-nav-btn,
   .mg-accent-icon-btn,
   .emp-toolbar-btn,
-  .emp-toolbar-btn-new,
-  .emp-toolbar-btn-delete,
-  .emp-toolbar-btn-save,
   .emp-toolbar-nav-btn,
   .mg-search-pill,
   .mg-action-bar,
@@ -279,7 +274,9 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
   .erp-sidebar-group-trigger,
   .mg-desktop-header__logo,
   .mg-speed-dial__action,
-  .emp-layout-config-field-action
+  .emp-layout-config-field-action,
+  .emp-config-plain-icon-btn,
+  .emp-config-anexos-attach-btn
 ) svg.lucide {
   color: var(--mg-icon-color) !important;
   stroke: var(--mg-icon-color) !important;
@@ -297,23 +294,18 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
 ):focus-visible:not(:disabled) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost,
-  .tb-btn-green,
-  .tb-btn-blue,
-  .tb-btn-red,
-  .tb-btn-danger,
   .tb-btn-icon,
   .tb-btn-filter,
   .tb-btn-more,
   .mg-nav-btn,
-  .emp-toolbar-btn,
-  .emp-toolbar-btn-new,
-  .emp-toolbar-btn-delete,
   .mg-search-pill,
   .mg-topbar-icon-btn,
   .emp-header-filter-icon,
   .mg-filter-pills-rail__nav,
   .view-mode-btn,
-  .seg-tab
+  .seg-tab,
+  .emp-config-plain-icon-btn,
+  .emp-config-anexos-attach-btn
 ):hover:not(:disabled) svg.lucide {
   color: var(--mg-icon-color) !important;
   stroke: var(--mg-icon-color) !important;
@@ -334,4 +326,42 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
 html body .mg-search-pill:focus-within .mg-search-pill-icon {
   color: var(--mg-icon-color) !important;
   stroke: var(--mg-icon-color) !important;
+}
+
+/* Branco — botões com fundo verde/primário, fundo vermelho sólido e checkbox marcado */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-green,
+  .tb-btn-blue,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-save,
+  .tb-btn-red,
+  .emp-toolbar-btn-delete
+) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-green,
+  .tb-btn-blue,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-save,
+  .tb-btn-red,
+  .emp-toolbar-btn-delete
+):hover:not(:disabled) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) svg.lucide,
+html body .emp-filter-checkbox[data-state="checked"] svg.lucide {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
+}
+
+/* Vermelho — ícones de lixeira/excluir em botões sem fundo vermelho sólido */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-danger,
+  .tb-btn-ghost.tb-btn-danger,
+  .emp-config-anexos-remove-btn
+) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-danger,
+  .tb-btn-ghost.tb-btn-danger,
+  .emp-config-anexos-remove-btn
+):hover:not(:disabled) svg.lucide {
+  color: var(--mg-icon-danger-color) !important;
+  stroke: var(--mg-icon-danger-color) !important;
 }
