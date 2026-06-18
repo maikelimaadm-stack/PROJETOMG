@@ -8309,6 +8309,12 @@
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
+.erp-filter-operator-field .cmd-display-placeholder,
+.mg-empresas-scope .cmd-display-placeholder {
+  color: var(--text-3);
+  font-weight: 500;
+}
+
 .erp-filter-operator-field .cmd-select.open .cmd-display,
 .erp-filter-operator-field .cmd-select.mg-has-value .cmd-display {
   padding-top: 0 !important;
