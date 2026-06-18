@@ -1248,9 +1248,13 @@
 
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-red svg,
 .mg-empresas-scope .tb-btn-red svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete svg,
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
-.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
+.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete svg,
 .cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete:hover:not(:disabled) svg {
   color: var(--red, #dc2626) !important;
   stroke: var(--red, #dc2626) !important;
