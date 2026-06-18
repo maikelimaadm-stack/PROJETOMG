@@ -9088,6 +9088,67 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn {
   flex-shrink: 0;
+  background: var(--gray-fill, #f1f3f4) !important;
+  border: var(--mg-btn-pill-border, 1px solid transparent) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn svg {
+  color: var(--accent, #40de63) !important;
+  stroke: var(--accent, #40de63) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn:hover:not(:disabled) {
+  background: var(--gray-fill2, #e8eaed) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field .emp-config-anexos-field__surface {
+  grid-row: 1;
+  grid-column: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  min-height: var(--mg-field-height, 38px);
+  background: var(--mg-field-filled-bg, #ffffff) !important;
+  border: var(--mg-field-surface-border, 1px solid #e7eaee) !important;
+  border-radius: var(--mg-radius-control, 8px);
+  box-shadow: none !important;
+  padding: 0 4px 0 0;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field:focus-within .emp-config-anexos-field__surface {
+  box-shadow: var(--mg-focus-ring) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field .emp-config-anexos-field__input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-1, #111827);
+  text-transform: uppercase;
+  min-height: calc(var(--mg-field-height, 38px) - 2px);
+  padding: 0 10px;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field .emp-config-anexos-field__input::placeholder {
+  color: transparent !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field:is(.mg-has-value, :focus-within) .emp-config-anexos-field__input {
+  padding: var(--mg-field-value-top-inset, 11px) 10px var(--mg-field-value-bottom-inset, 3px);
+  line-height: 1.2;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field .fg-label {
+  z-index: 3;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn,
@@ -9134,7 +9195,7 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
   .emp-config-launch-form-row.mg-prototype-form--edit
-  .emp-config-launch-form-row__field
+  .emp-config-launch-form-row__field:not(.emp-config-anexos-field)
   > input:not([type="hidden"]) {
   width: 100%;
   text-transform: uppercase;
@@ -9142,7 +9203,7 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
   .emp-config-launch-form-row.mg-prototype-form--edit
-  .emp-config-launch-form-row__field:not(.mg-field-locked)
+  .emp-config-launch-form-row__field:not(.emp-config-anexos-field):not(.mg-field-locked)
   > input:not([disabled]):not([readonly]) {
   background: var(--mg-field-filled-bg, #ffffff) !important;
   border: var(--mg-field-surface-border) !important;
@@ -9151,7 +9212,7 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
   .emp-config-launch-form-row.mg-prototype-form--edit
-  .emp-config-launch-form-row__field:not(.mg-field-locked)
+  .emp-config-launch-form-row__field:not(.emp-config-anexos-field):not(.mg-field-locked)
   > input:not([disabled]):not([readonly]):focus {
   box-shadow: var(--mg-focus-ring) !important;
   outline: none;
@@ -9159,7 +9220,7 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
   .emp-config-launch-form-row.mg-prototype-form--edit
-  .emp-config-launch-form-row__field
+  .emp-config-launch-form-row__field:not(.emp-config-anexos-field)
   > input::placeholder {
   color: transparent !important;
 }
@@ -9188,6 +9249,7 @@
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__scroll {
   max-height: 320px;
   overflow: auto;
+  padding-top: 8px;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro {
@@ -9216,15 +9278,20 @@
   line-height: var(--emp-table-header-height, 30px) !important;
   font-size: 12px !important;
   font-weight: 600 !important;
-  box-shadow:
-    inset 0 1px 0 0 var(--emp-table-line, #e7eaee),
-    inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro thead .emp-th:first-child {
+  border-top-left-radius: var(--mg-radius-control, 8px);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro thead .emp-th:last-child {
+  border-top-right-radius: var(--mg-radius-control, 8px);
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro thead .emp-th:not(:last-child) {
   box-shadow:
     inset -1px 0 0 0 var(--emp-table-line, #e7eaee),
-    inset 0 1px 0 0 var(--emp-table-line, #e7eaee),
     inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
 }
 

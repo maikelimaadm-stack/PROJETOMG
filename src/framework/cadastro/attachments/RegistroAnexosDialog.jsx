@@ -103,11 +103,19 @@ export default function RegistroAnexosDialog({
         formRow={{
           variant: "launch",
           fieldName: "attachment-name",
+          fieldClassName: "emp-config-anexos-field",
           label: "Nome do anexo",
           required: true,
           hasValue: Boolean(attachmentName.trim()),
-          trailing: (
-            <>
+          control: (
+            <div className="emp-config-anexos-field__surface">
+              <input
+                type="text"
+                className="emp-config-anexos-field__input"
+                value={attachmentName}
+                onChange={(event) => setAttachmentName(event.target.value)}
+                placeholder=" "
+              />
               <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
               <EmpConfigGhostIconBtn
                 className="emp-config-anexos-attach-btn"
@@ -122,15 +130,7 @@ export default function RegistroAnexosDialog({
                   <Plus className="h-3 w-3" strokeWidth={2.5} />
                 )}
               </EmpConfigGhostIconBtn>
-            </>
-          ),
-          control: (
-            <input
-              type="text"
-              value={attachmentName}
-              onChange={(event) => setAttachmentName(event.target.value)}
-              placeholder=" "
-            />
+            </div>
           ),
         }}
         columns={[

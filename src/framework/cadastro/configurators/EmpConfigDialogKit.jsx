@@ -467,7 +467,7 @@ export function EmpConfigListTable({
                 ) : null}
                 <div
                   data-field={formRow.fieldName || "config-field"}
-                  className={`fg mg-prototype-field emp-config-launch-form-row__field${formRow.hasValue ? " mg-has-value" : ""}`}
+                  className={`fg mg-prototype-field emp-config-launch-form-row__field${formRow.fieldClassName ? ` ${formRow.fieldClassName}` : ""}${formRow.hasValue ? " mg-has-value" : ""}`}
                 >
                   <label className={`fg-label${formRow.required ? " required" : ""}`}>
                     {formRow.label}
