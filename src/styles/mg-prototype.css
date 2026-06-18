@@ -85,7 +85,7 @@
   --mg-btn-pill-radius: 999px;
   --mg-btn-icon-radius: var(--mg-search-pill-radius);
   --mg-btn-pill-border: 1px solid transparent;
-  --mg-filter-pill-height: 32px;
+  --mg-filter-pill-height: var(--mg-btn-height);
   --mg-search-pill-radius: var(--mg-btn-pill-radius);
   --mg-search-dropdown-width: min(300px, calc(100vw - 24px));
   --mg-search-dropdown-min-width: 240px;
@@ -4642,7 +4642,6 @@
   .mg-empresas-scope {
     --mg-btn-height: 36px;
     --mg-btn-icon-size: 36px;
-    --mg-filter-pill-height: 38px;
     --mg-toolbar-row-height: 44px;
     --mg-subtoolbar-row-height: 50px;
     --mg-view-seg-inner-height: calc(var(--mg-btn-height) - (var(--mg-view-seg-track-padding) * 2));
