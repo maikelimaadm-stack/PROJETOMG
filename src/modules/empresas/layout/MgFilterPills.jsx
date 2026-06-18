@@ -322,7 +322,7 @@ export default function MgFilterPills({
         title="Configurar filtros"
         aria-pressed={filterPanelActive}
       >
-        <FilterConfigIcon className="mg-filter-pills-rail__config-icon h-3.5 w-3.5" strokeWidth={2.2} />
+        <FilterConfigIcon strokeWidth={2} />
       </button>
     </div>
   ) : null;

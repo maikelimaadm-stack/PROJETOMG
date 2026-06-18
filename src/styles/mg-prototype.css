@@ -3598,8 +3598,8 @@
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__config-icon {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   flex-shrink: 0;
   color: var(--accent);
   stroke: var(--accent);

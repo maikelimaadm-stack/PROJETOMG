@@ -5,8 +5,8 @@ import React from "react";
  * Usa currentColor para herdar a cor dos demais ícones da toolbar.
  */
 export default function FilterConfigIcon({
-  className = "h-3.5 w-3.5",
-  strokeWidth = 2.2,
+  className = "mg-filter-pills-rail__config-icon",
+  strokeWidth = 2,
   ...props
 }) {
   return (
