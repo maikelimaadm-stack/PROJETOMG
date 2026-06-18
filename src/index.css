@@ -327,7 +327,9 @@ input[type="number"] {
   .mg-topbar-icon-btn,
   .mg-accent-icon-btn,
   .filter-panel__close,
-  .ios-btn
+  .ios-btn,
+  .emp-th-icon-button,
+  .emp-th-menu-button
 ) {
   border-radius: var(--emp-button-radius, 5px) !important;
 }
