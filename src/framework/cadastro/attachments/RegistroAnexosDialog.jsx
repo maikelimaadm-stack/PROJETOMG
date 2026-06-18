@@ -6,8 +6,8 @@ import { showSuccess, showError } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
   EmpConfigListTable,
-  EmpConfigMoveBtn,
-  EmpConfigPrimaryIconBtn,
+  EmpConfigGhostIconBtn,
+  EmpConfigPlainIconBtn,
   EMP_CONFIG_LIST_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
 
@@ -109,7 +109,7 @@ export default function RegistroAnexosDialog({
           trailing: (
             <>
               <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
-              <EmpConfigPrimaryIconBtn
+              <EmpConfigGhostIconBtn
                 className="emp-config-anexos-attach-btn"
                 onClick={() => inputRef.current?.click()}
                 disabled={uploading || !attachmentName.trim()}
@@ -121,7 +121,7 @@ export default function RegistroAnexosDialog({
                 ) : (
                   <Plus className="h-3 w-3" strokeWidth={2.5} />
                 )}
-              </EmpConfigPrimaryIconBtn>
+              </EmpConfigGhostIconBtn>
             </>
           ),
           control: (
@@ -157,16 +157,18 @@ export default function RegistroAnexosDialog({
               <ExternalLink className="h-3 w-3 shrink-0" />
             </a>,
             <div key="action" className="emp-config-list-table__action flex w-full items-center justify-center">
-              <EmpConfigMoveBtn
+              <EmpConfigPlainIconBtn
+                className="emp-config-anexos-remove-btn"
                 onClick={() =>
                   recordId
                     ? deleteMutation.mutate(anexo.id)
                     : onPendingChange?.(pendingAnexos.filter((item) => item.id !== anexo.id))
                 }
                 title="Remover anexo"
+                aria-label="Remover anexo"
               >
                 <X className="h-3 w-3" />
-              </EmpConfigMoveBtn>
+              </EmpConfigPlainIconBtn>
             </div>,
           ],
         }))}

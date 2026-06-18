@@ -60,6 +60,18 @@ export const EmpConfigPrimaryIconBtn = ({ children, className = "", ...props }) 
   </button>
 );
 
+export const EmpConfigGhostIconBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon ${className}`} {...props}>
+    {children}
+  </button>
+);
+
+export const EmpConfigPlainIconBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`emp-config-plain-icon-btn ${className}`} {...props}>
+    {children}
+  </button>
+);
+
 export const EmpConfigMoveBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`ios-btn mg-nav-btn emp-config-transfer-btn ${className}`} {...props}>
     {children}
