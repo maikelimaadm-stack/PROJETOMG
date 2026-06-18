@@ -14,12 +14,22 @@ export const mergeSavedFilterFieldOrder = (savedOrder, catalogKeys) => {
 };
 
 export const mergeSavedVisibleFilterFields = (savedVisible, catalogKeys) => {
-  const parsed = Array.isArray(savedVisible)
-    ? savedVisible.filter((key) => catalogKeys.includes(key))
+  if (!Array.isArray(savedVisible)) return [...catalogKeys];
+  return savedVisible.filter((key) => catalogKeys.includes(key));
+};
+
+/** Novos campos do catálogo entram em uso por padrão, sem reativar os removidos pelo usuário. */
+export const mergeVisibleFilterFieldsWithCatalog = (
+  savedVisible,
+  catalogKeys,
+  savedOrder = []
+) => {
+  const base = mergeSavedVisibleFilterFields(savedVisible, catalogKeys);
+  const knownKeys = Array.isArray(savedOrder)
+    ? savedOrder.filter((key) => catalogKeys.includes(key))
     : [];
-  if (parsed.length === 0) return [...catalogKeys];
-  const missing = catalogKeys.filter((key) => !parsed.includes(key));
-  return [...parsed, ...missing];
+  const brandNewKeys = catalogKeys.filter((key) => !knownKeys.includes(key));
+  return brandNewKeys.length ? [...base, ...brandNewKeys] : base;
 };
 
 export const loadFilterFieldsLayout = (catalogKeys = []) => {

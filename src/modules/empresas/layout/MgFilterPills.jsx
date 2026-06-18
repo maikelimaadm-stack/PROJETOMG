@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, ListFilter, X } from "lucide-react";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import {
   ErpFilterPopover,
@@ -308,9 +308,28 @@ export default function MgFilterPills({
     </>
   );
 
+  const configButton = onConfigureFilters ? (
+    <div className="mg-filter-pills-rail__config-slot">
+      <button
+        type="button"
+        className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
+          filterPanelActive ? " tb-btn-filter-active is-active" : ""
+        }`}
+        onClick={onConfigureFilters}
+        disabled={disabled}
+        aria-label="Configurar filtros"
+        title="Configurar filtros"
+        aria-pressed={filterPanelActive}
+      >
+        <ListFilter className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+      </button>
+    </div>
+  ) : null;
+
   if (!useScrollRail) {
     return (
       <div className={`mg-filter-pills${className ? ` ${className}` : ""}`}>
+        {configButton}
         {pills}
       </div>
     );
@@ -318,6 +337,7 @@ export default function MgFilterPills({
 
   return (
     <div className={`mg-filter-pills-rail mg-filter-pills-rail--track${className ? ` ${className}` : ""}`}>
+      {configButton}
       {hasOverflow ? (
         <button
           type="button"
@@ -343,21 +363,6 @@ export default function MgFilterPills({
           title="Rolar filtros para a direita"
         >
           <ChevronRight className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
-        </button>
-      ) : null}
-      {onConfigureFilters ? (
-        <button
-          type="button"
-          className={`ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__config${
-            filterPanelActive ? " is-active" : ""
-          }`}
-          onClick={onConfigureFilters}
-          disabled={disabled}
-          aria-label="Configurar filtros"
-          title="Configurar filtros"
-          aria-pressed={filterPanelActive}
-        >
-          <Filter className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
         </button>
       ) : null}
     </div>

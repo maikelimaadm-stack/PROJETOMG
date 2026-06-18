@@ -748,7 +748,7 @@ export default function EmpConfiguracaoCamposDialog({
                                 }}
                                 role="button"
                                 tabIndex={0}
-                                className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-[#2899f5] ${isColFiltered || isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"}`}
+                                className={`emp-header-filter-icon inline-flex h-3 w-3 shrink-0 items-center justify-center cursor-pointer text-black ${isColFiltered || isFilterOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto"}`}
                                 title={isColFiltered ? "Duplo clique para limpar filtro" : "Filtrar coluna"}
                                 onClick={(event) => {
                                   event.stopPropagation();

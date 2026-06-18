@@ -247,6 +247,7 @@ input[type="number"] {
 .cadastro-emp-scope {
   --emp-text: var(--text-primary);
   --emp-text-strong: var(--text-primary);
+  --mg-icon-color: #000000;
   --emp-control-radius: 8px;
   --emp-button-radius: 5px;
   --emp-form-control-height: 26px;
@@ -327,7 +328,9 @@ input[type="number"] {
   .mg-topbar-icon-btn,
   .mg-accent-icon-btn,
   .filter-panel__close,
-  .ios-btn
+  .ios-btn,
+  .emp-th-icon-button,
+  .emp-th-menu-button
 ) {
   border-radius: var(--emp-button-radius, 5px) !important;
 }
@@ -391,8 +394,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) svg {
-  color: var(--emp-text-strong) !important;
-  stroke: var(--emp-text-strong) !important;
+  color: var(--mg-icon-color, #000000) !important;
+  stroke: var(--mg-icon-color, #000000) !important;
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover {
@@ -400,7 +403,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover svg {
-  color: var(--emp-text-strong) !important;
+  color: var(--mg-icon-color, #000000) !important;
+  stroke: var(--mg-icon-color, #000000) !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-nav-end {

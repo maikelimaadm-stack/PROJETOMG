@@ -5,6 +5,7 @@ import {
   loadFilterFieldsLayout,
   mergeSavedFilterFieldOrder,
   mergeSavedVisibleFilterFields,
+  mergeVisibleFilterFieldsWithCatalog,
   saveFilterFieldsLayout,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
 
@@ -35,7 +36,11 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   useEffect(() => {
     setLayout((current) => {
       const ordem = mergeSavedFilterFieldOrder(current.ordem, catalogKeys);
-      const visiveis = mergeSavedVisibleFilterFields(current.visiveis, catalogKeys);
+      const visiveis = mergeVisibleFilterFieldsWithCatalog(
+        current.visiveis,
+        catalogKeys,
+        current.ordem
+      );
       if (
         ordem.join("|") === current.ordem.join("|") &&
         visiveis.join("|") === current.visiveis.join("|")
