@@ -362,12 +362,12 @@ export function EmpConfigListTable({
   const gridTemplate = columns.map((column) => column.width || "1fr").join(" ");
 
   const renderLaunchTable = () => (
-    <div className="mg-view-panel emp-config-list-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-      <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="emp-table-root emp-config-list-table-root mg-grid-wrapper flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none">
-          <div className="emp-table-stage relative min-h-0 flex-1 overflow-hidden">
-            <div className="emp-table-shell flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="emp-table-body-scroll emp-config-list-table__scroll relative min-h-0 flex-1 overflow-y-auto overflow-x-hidden mg-grid-scroll">
+    <div className="mg-view-panel emp-config-list-table-panel emp-config-list-table-panel--fit flex flex-col overflow-hidden">
+      <div className="emp-table-panel flex flex-col overflow-hidden">
+        <div className="emp-table-root emp-config-list-table-root mg-grid-wrapper flex flex-col overflow-hidden select-none">
+          <div className="emp-table-stage relative overflow-hidden">
+            <div className="emp-table-shell flex flex-col overflow-hidden">
+              <div className="emp-table-body-scroll emp-config-list-table__scroll relative overflow-y-auto overflow-x-hidden mg-grid-scroll">
                   <Table className="mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none">
                 <colgroup>
                   {columns.map((column) => (
