@@ -1876,6 +1876,24 @@ input[type="number"] {
   stroke: #ffffff !important;
 }
 
+/* Seleção de cards/configuração — check branco quando selecionado */
+.cadastro-emp-scope .mg-cards-config-menu__check.is-checked,
+.cadastro-emp-scope .mg-cards-config-menu__check.is-indeterminate,
+.cadastro-emp-scope .mg-cards-config-menu__check--radio.is-checked {
+  background: var(--mg-brand-green, #40de63) !important;
+  border-color: var(--mg-brand-green, #40de63) !important;
+}
+
+.cadastro-emp-scope .mg-cards-config-menu__check.is-checked .mg-cards-config-menu__check-icon,
+.cadastro-emp-scope .mg-cards-config-menu__check.is-indeterminate .mg-cards-config-menu__check-icon {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope .mg-cards-config-menu__check--radio.is-checked .mg-cards-config-menu__radio-dot {
+  background: #ffffff !important;
+}
+
 .emp-filter-actions {
   display: flex;
   align-items: center;
@@ -2079,6 +2097,35 @@ input[type="number"] {
   border: none !important;
   color: #ffffff !important;
   box-shadow: none !important;
+}
+
+/* Anexos — botão + sempre verde com ícone branco */
+.cadastro-emp-scope .emp-config-anexos-attach-btn {
+  background: var(--mg-brand-green, #40de63) !important;
+  border: none !important;
+  color: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-config-anexos-attach-btn :is(span, svg) {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-config-anexos-attach-btn:hover:not(:disabled) {
+  background: var(--mg-brand-green-hover, #36c956) !important;
+}
+
+.cadastro-emp-scope .emp-config-anexos-remove-btn {
+  color: var(--red, #dc2626) !important;
+}
+
+.cadastro-emp-scope .emp-config-anexos-remove-btn svg {
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
+}
+
+.cadastro-emp-scope .emp-config-anexos-remove-btn:hover:not(:disabled) {
+  background: var(--red-light, #fee2e2) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-nav-btn {
@@ -2316,17 +2363,75 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete:hover:not(:disabled) {
-  background: var(--emp-accent-danger) !important;
-  border: none !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
+  color: var(--red, #dc2626) !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete svg,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete .emp-toolbar-action-icon,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete .emp-toolbar-nav-icon,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete:hover:not(:disabled) svg {
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
+}
+
+/* Configuração de layout — botões + verdes com ícone branco e lixeiras vermelhas */
+.cadastro-emp-scope .emp-layout-configurator :is(
+  .emp-layout-config-panel-actions .tb-btn-green,
+  .emp-layout-config-card-actions .tb-btn-green,
+  .emp-layout-config-row-draft-add.tb-btn-green
+) {
+  background: var(--mg-brand-green, #40de63) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator :is(
+  .emp-layout-config-panel-actions .tb-btn-green,
+  .emp-layout-config-card-actions .tb-btn-green,
+  .emp-layout-config-row-draft-add.tb-btn-green
+) svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator :is(
+  .emp-layout-config-panel-actions .tb-btn-green,
+  .emp-layout-config-card-actions .tb-btn-green,
+  .emp-layout-config-row-draft-add.tb-btn-green
+):hover:not(:disabled) {
+  background: var(--mg-brand-green-hover, #36c956) !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator :is(
+  .emp-layout-config-panel-actions .tb-btn-danger,
+  .emp-layout-config-card-actions .tb-btn-danger,
+  .emp-layout-config-row-actions .tb-btn-danger,
+  .emp-layout-config-row-preview .tb-btn-danger
+) {
+  background: #ffffff !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
+  color: var(--red, #dc2626) !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator :is(
+  .emp-layout-config-panel-actions .tb-btn-danger,
+  .emp-layout-config-card-actions .tb-btn-danger,
+  .emp-layout-config-row-actions .tb-btn-danger,
+  .emp-layout-config-row-preview .tb-btn-danger
+) svg {
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
+}
+
+.cadastro-emp-scope .emp-layout-configurator :is(
+  .emp-layout-config-panel-actions .tb-btn-danger,
+  .emp-layout-config-card-actions .tb-btn-danger,
+  .emp-layout-config-row-actions .tb-btn-danger,
+  .emp-layout-config-row-preview .tb-btn-danger
+):hover:not(:disabled) {
+  background: var(--red-light, #fee2e2) !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-inactive,
