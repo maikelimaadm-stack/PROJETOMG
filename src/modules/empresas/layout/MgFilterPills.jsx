@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import FilterConfigIcon from "@/shared/icons/FilterConfigIcon";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import {
   ErpFilterPopover,
@@ -321,7 +322,7 @@ export default function MgFilterPills({
         title="Configurar filtros"
         aria-pressed={filterPanelActive}
       >
-        <Filter className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+        <FilterConfigIcon className="mg-filter-pills-rail__config-icon h-3.5 w-3.5" strokeWidth={2.2} />
       </button>
     </div>
   ) : null;

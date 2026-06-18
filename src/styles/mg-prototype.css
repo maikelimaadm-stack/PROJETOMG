@@ -3597,6 +3597,20 @@
   padding: 0 !important;
 }
 
+.mg-empresas-scope .mg-filter-pills-rail__config-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--accent);
+  stroke: var(--accent);
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config:hover:not(:disabled) .mg-filter-pills-rail__config-icon,
+.mg-empresas-scope .mg-filter-pills-rail__config.is-active .mg-filter-pills-rail__config-icon {
+  color: var(--mg-brand-green-hover);
+  stroke: var(--mg-brand-green-hover);
+}
+
 .mg-empresas-scope .mg-filter-pills-rail__config.is-active {
   color: var(--mg-brand-green-hover);
   border-color: var(--mg-focus-border) !important;
