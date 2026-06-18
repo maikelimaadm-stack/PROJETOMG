@@ -8958,10 +8958,10 @@
   --emp-table-header-line: #ffffff;
   --emp-table-header-side-line: #e7eaee;
   --emp-table-header-height: 30px;
-  border: none !important;
+  border: 1px solid var(--emp-table-line, #e7eaee) !important;
   box-shadow: none !important;
   background: transparent !important;
-  border-radius: var(--mg-radius-control, 8px) var(--mg-radius-control, 8px) 0 0 !important;
+  border-radius: var(--mg-radius-control, 8px) !important;
   overflow: hidden;
 }
 
@@ -9384,12 +9384,12 @@
   max-height: 320px;
 }
 
-/* Tabela de anexos — grade emp-table-pro (sem card no shell) */
+/* Tabela de anexos — grade emp-table-pro (borda externa igual em cima e embaixo) */
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-shell {
-  border: none !important;
+  border: 1px solid var(--emp-table-line, #e7eaee) !important;
   box-shadow: none !important;
   background: transparent !important;
-  border-radius: var(--mg-radius-control, 8px) var(--mg-radius-control, 8px) 0 0 !important;
+  border-radius: var(--mg-radius-control, 8px) !important;
   overflow: hidden;
 }
 
@@ -9432,6 +9432,14 @@
   box-shadow:
     inset -1px 0 0 0 var(--emp-table-line),
     inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro tbody tr:last-child .emp-td {
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro tbody tr:last-child .emp-td:not(:last-child) {
+  box-shadow: inset -1px 0 0 0 var(--emp-table-line) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro.mg-grid thead {
