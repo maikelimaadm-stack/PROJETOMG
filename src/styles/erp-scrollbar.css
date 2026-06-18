@@ -237,6 +237,8 @@ html *::-webkit-scrollbar-button:double-button:horizontal:increment {
 
 :root {
   --mg-icon-color: #000000;
+  --mg-icon-on-accent-color: #ffffff;
+  --mg-icon-danger-color: var(--red, #dc2626);
 }
 
 html body svg.lucide,
@@ -251,10 +253,6 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
 ) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost,
-  .tb-btn-green,
-  .tb-btn-blue,
-  .tb-btn-red,
-  .tb-btn-danger,
   .tb-btn-icon,
   .tb-btn-filter,
   .tb-btn-more,
@@ -262,9 +260,6 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
   .mg-nav-btn,
   .mg-accent-icon-btn,
   .emp-toolbar-btn,
-  .emp-toolbar-btn-new,
-  .emp-toolbar-btn-delete,
-  .emp-toolbar-btn-save,
   .emp-toolbar-nav-btn,
   .mg-search-pill,
   .mg-action-bar,
@@ -297,17 +292,10 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
 ):focus-visible:not(:disabled) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost,
-  .tb-btn-green,
-  .tb-btn-blue,
-  .tb-btn-red,
-  .tb-btn-danger,
   .tb-btn-icon,
   .tb-btn-filter,
   .tb-btn-more,
   .mg-nav-btn,
-  .emp-toolbar-btn,
-  .emp-toolbar-btn-new,
-  .emp-toolbar-btn-delete,
   .mg-search-pill,
   .mg-topbar-icon-btn,
   .emp-header-filter-icon,
@@ -334,4 +322,178 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
 html body .mg-search-pill:focus-within .mg-search-pill-icon {
   color: var(--mg-icon-color) !important;
   stroke: var(--mg-icon-color) !important;
+}
+
+/* Fundo verde — botões com ícone + e ações primárias */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-green,
+  .tb-btn-blue,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-save,
+  .emp-config-anexos-attach-btn
+) {
+  background: var(--mg-brand-green, #40de63) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-green,
+  .tb-btn-blue,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-save,
+  .emp-config-anexos-attach-btn
+):hover:not(:disabled) {
+  background: var(--mg-brand-green-hover, #36c956) !important;
+}
+
+/* Branco — ícones em botões coloridos, checkbox marcado e toasts */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-save,
+  .emp-config-anexos-attach-btn
+) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-save,
+  .emp-config-anexos-attach-btn
+):hover:not(:disabled) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) svg.lucide,
+html body .emp-filter-checkbox[data-state="checked"] svg.lucide,
+html body .erp-toast-panel__icon-badge svg.lucide,
+html body .erp-toast-panel__icon-badge svg,
+html body [data-sonner-toast] .erp-toast-panel__icon-badge svg.lucide,
+html body [data-sonner-toast] .erp-toast-panel__icon-badge svg {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
+}
+
+/* Branco obrigatório — qualquer botão com ícone de + */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+) :is(svg.lucide-plus, svg[data-lucide="plus"]) {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
+}
+
+/* Fundo verde obrigatório — qualquer botão com ícone de + */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):has(:is(svg.lucide-plus, svg[data-lucide="plus"])):not(:disabled) {
+  background: var(--mg-brand-green, #40de63) !important;
+  border-color: transparent !important;
+  color: var(--mg-icon-on-accent-color) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):has(:is(svg.lucide-plus, svg[data-lucide="plus"])):not(:disabled):hover,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):has(:is(svg.lucide-plus, svg[data-lucide="plus"])):not(:disabled):focus-visible {
+  background: var(--mg-brand-green-hover, #36c956) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+) svg.lucide-plus,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):hover:not(:disabled) svg.lucide-plus,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):focus-visible:not(:disabled) svg.lucide-plus {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch),
+html body .emp-filter-checkbox[data-state="checked"] {
+  background-color: var(--mg-brand-green, #40de63) !important;
+  border-color: var(--mg-brand-green, #40de63) !important;
+  color: var(--mg-icon-on-accent-color) !important;
+}
+
+/* Branco obrigatório — ícones de checkbox marcado (claro/escuro) */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) :is(svg, svg.lucide),
+html body .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.tema-escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) :is(svg, svg.lucide),
+html.tema-escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.tema-escuro .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) :is(svg, svg.lucide),
+html.escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.escuro .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide) {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
+}
+
+/* Checkboxes de listas/configurações — selecionado com fundo verde + ícone branco */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .mg-cards-config-menu__check.is-checked,
+  .mg-cards-config-menu__check.is-indeterminate,
+  .mg-cards-config-menu__check--radio.is-checked
+) {
+  background: var(--mg-brand-green, #40de63) !important;
+  border-color: var(--mg-brand-green, #40de63) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .mg-cards-config-menu__check.is-checked .mg-cards-config-menu__check-icon,
+  .mg-cards-config-menu__check.is-indeterminate .mg-cards-config-menu__check-icon
+) {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell)
+  .mg-cards-config-menu__check--radio.is-checked
+  .mg-cards-config-menu__radio-dot {
+  background: var(--mg-icon-on-accent-color) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) input[type="checkbox"] {
+  accent-color: var(--mg-brand-green, #40de63) !important;
+}
+
+/* Vermelho — ícones de excluir/lixeira (botões neutros, não fundo sólido vermelho) */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-ghost.tb-btn-danger,
+  .tb-btn-danger.tb-btn-labeled,
+  .tb-btn-danger.tb-btn-icon:not(.tb-btn-green),
+  .emp-toolbar-btn-delete,
+  .emp-config-anexos-remove-btn,
+  .emp-config-plain-icon-btn
+) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-ghost.tb-btn-danger,
+  .tb-btn-danger.tb-btn-labeled,
+  .tb-btn-danger.tb-btn-icon:not(.tb-btn-green),
+  .emp-toolbar-btn-delete,
+  .emp-config-anexos-remove-btn,
+  .emp-config-plain-icon-btn
+):hover:not(:disabled) svg.lucide,
+html body .mg-action-bar :is(.tb-btn-ghost.tb-btn-danger, .tb-btn-danger) svg.lucide,
+html body .mg-action-bar :is(.tb-btn-ghost.tb-btn-danger, .tb-btn-danger):hover:not(:disabled) svg.lucide {
+  color: var(--mg-icon-danger-color) !important;
+  stroke: var(--mg-icon-danger-color) !important;
 }
