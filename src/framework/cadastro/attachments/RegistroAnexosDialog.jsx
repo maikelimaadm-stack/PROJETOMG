@@ -105,7 +105,7 @@ export default function RegistroAnexosDialog({
           label: "Nome do arquivo",
           required: true,
           hasValue: Boolean(attachmentName.trim()),
-          leading: (
+          trailing: (
             <>
               <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
               <EmpConfigPrimaryIconBtn

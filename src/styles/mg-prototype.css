@@ -9073,10 +9073,12 @@
   border-bottom: 1px solid var(--emp-table-line, #e7eaee);
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__leading {
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__leading,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__trailing {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  overflow: visible;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__field {
@@ -9085,7 +9087,26 @@
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  background: var(--mg-brand-green) !important;
+  color: #fff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn svg {
+  color: #fff !important;
+  stroke: #fff !important;
   flex-shrink: 0;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn:hover:not(:disabled) {
+  background: var(--mg-brand-green-hover) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn:disabled {
+  opacity: 0.45;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
@@ -9098,22 +9119,9 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
   .emp-config-launch-form-row.mg-prototype-form--edit
-  .emp-config-launch-form-row__field:not(.mg-has-value):not(.mg-field-locked):not(:focus-within):not(:has(> input:not(:placeholder-shown)))
+  .emp-config-launch-form-row__field:not(.mg-field-locked)
   > input:not([disabled]):not([readonly]) {
-  background: var(--mg-field-empty-bg) !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
-  .emp-config-launch-form-row.mg-prototype-form--edit
-  .emp-config-launch-form-row__field:is(
-    .mg-has-value,
-    :focus-within,
-    :has(> input:not(:placeholder-shown))
-  ):not(.mg-field-locked)
-  > input:not([disabled]):not([readonly]) {
-  background: var(--mg-field-filled-bg) !important;
+  background: var(--mg-field-filled-bg, #ffffff) !important;
   border: var(--mg-field-surface-border) !important;
   box-shadow: none !important;
 }

@@ -358,6 +358,9 @@ export function EmpConfigListTable({
                   </label>
                   {formRow.control}
                 </div>
+                {formRow.trailing ? (
+                  <div className="emp-config-launch-form-row__trailing">{formRow.trailing}</div>
+                ) : null}
               </div>
             ) : (
               <div className="emp-config-list-form-row">
