@@ -1205,13 +1205,10 @@
 
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-green svg,
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue svg,
-.cadastro-emp-scope.mg-empresas-scope .tb-btn-red svg,
 .mg-empresas-scope .tb-btn-green svg,
 .mg-empresas-scope .tb-btn-blue svg,
-.mg-empresas-scope .tb-btn-red svg,
 .cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete svg {
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }
@@ -1241,15 +1238,22 @@
 
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-green:hover:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:hover:not(:disabled) svg,
-.cadastro-emp-scope.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
 .mg-empresas-scope .tb-btn-green:hover:not(:disabled) svg,
 .mg-empresas-scope .tb-btn-blue:hover:not(:disabled) svg,
-.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new:hover:not(:disabled) svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save:hover:not(:disabled) svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete:hover:not(:disabled) svg {
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save:hover:not(:disabled) svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red svg,
+.mg-empresas-scope .tb-btn-red svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
+.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete:hover:not(:disabled) svg {
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
 }
 
 .mg-empresas-scope .tb-btn-ghost {
@@ -9222,18 +9226,18 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn {
   flex-shrink: 0;
-  background: var(--gray-fill, #f1f3f4) !important;
+  background: var(--mg-brand-green, #40de63) !important;
   border: var(--mg-btn-pill-border, 1px solid transparent) !important;
   box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn svg {
-  color: #000000 !important;
-  stroke: #000000 !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn:hover:not(:disabled) {
-  background: var(--gray-fill2, #e8eaed) !important;
+  background: var(--mg-brand-green-hover, #36c956) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field .emp-config-anexos-field__surface {
