@@ -1,9 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { Columns3, RotateCcw } from "lucide-react";
+import { Columns3 } from "lucide-react";
 import { showWarning } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
-  EmpConfigRestoreBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -176,11 +175,7 @@ export default function EmpConfiguracaoColunasDialog({
       badgeLabel="Colunas"
       infoTitle={`Configuração das colunas - ${moduleTitle}`}
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
-      toolbar={
-        <EmpConfigRestoreBtn onClick={onResetDefault} title="Restaurar padrão" aria-label="Restaurar padrão">
-          <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
-        </EmpConfigRestoreBtn>
-      }
+      onRestoreDefault={onResetDefault}
     >
       <EmpConfigTransferPanel
         availableLabel="Colunas disponíveis"

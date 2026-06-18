@@ -9,6 +9,7 @@ import {
   ChevronsRight,
   Search,
   X,
+  RotateCcw,
 } from "lucide-react";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import {
@@ -82,6 +83,7 @@ export function EmpConfigDialogFrame({
   badgeLabel,
   infoTitle,
   dialogClassName = "",
+  onRestoreDefault = null,
   toolbar,
   children,
 }) {
@@ -113,20 +115,29 @@ export function EmpConfigDialogFrame({
               />
               <span className="emp-config-dialog-header__name min-w-0 truncate">{infoTitle}</span>
             </div>
-            <button
-              type="button"
-              onClick={handleClose}
-              className={`${EMP_CONFIG_DIALOG_CLOSE_BUTTON} ios-btn mg-nav-btn emp-config-dialog-close`}
-              title="Fechar"
-              aria-label="Fechar"
-            >
-              <X className="h-3.5 w-3.5" strokeWidth={2.25} />
-            </button>
+            <div className="emp-config-dialog-header__actions flex shrink-0 items-center gap-1">
+              {onRestoreDefault ? (
+                <EmpConfigRestoreBtn
+                  onClick={onRestoreDefault}
+                  title="Restaurar padrão"
+                  aria-label="Restaurar padrão"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
+                </EmpConfigRestoreBtn>
+              ) : null}
+              <button
+                type="button"
+                onClick={handleClose}
+                className={`${EMP_CONFIG_DIALOG_CLOSE_BUTTON} ios-btn mg-nav-btn emp-config-dialog-close`}
+                title="Fechar"
+                aria-label="Fechar"
+              >
+                <X className="h-3.5 w-3.5" strokeWidth={2.25} />
+              </button>
+            </div>
           </div>
 
-          <EmpSplitToolbarLayout
-            toolbar={toolbar ? <div className={EMP_CONFIG_DIALOG_TOOLBAR}>{toolbar}</div> : null}
-          >
+          <EmpSplitToolbarLayout toolbar={toolbar ? <div className={EMP_CONFIG_DIALOG_TOOLBAR}>{toolbar}</div> : null}>
             {children}
           </EmpSplitToolbarLayout>
         </div>
