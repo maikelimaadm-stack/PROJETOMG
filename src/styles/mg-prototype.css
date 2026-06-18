@@ -8875,8 +8875,17 @@
   flex-shrink: 0;
 }
 
-/* Mesmo recuo lateral e inferior do campo Nome do anexo (10px) */
+/* Mesmo recuo lateral e inferior do campo Nome do anexo (10px) — no emp-table-panel como PAGEMP */
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel {
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-panel {
   padding: 0 10px 10px !important;
   margin: 0 !important;
   flex: 1;
@@ -8885,8 +8894,7 @@
   box-sizing: border-box;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-root,
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-panel {
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-root {
   padding: 0 !important;
   margin: 0 !important;
   flex: 1;
@@ -8900,18 +8908,36 @@
   min-height: 120px;
 }
 
-/* Cabeçalho da tabela com cantos superiores arredondados */
+/* Sem card interno — shell transparente, só a grade emp-table-pro (igual TBLEMP) */
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog
   .mg-view-panel.emp-config-list-table-panel
-  .emp-config-list-table-root
+  .emp-table-root
+  .emp-table-shell,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog.emp-layout-presets-dialog
+  .mg-view-panel.emp-config-list-table-panel
+  .emp-table-root
   .emp-table-shell,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog.emp-layout-presets-dialog
   .emp-config-list-table-panel
   .emp-table-shell {
-  border-radius: var(--mg-radius-control, 8px) var(--mg-radius-control, 8px) 0 0 !important;
+  --emp-table-line: #e7eaee;
+  --emp-table-header-bg: #ffffff;
+  --emp-table-header-line: #ffffff;
+  --emp-table-header-side-line: #e7eaee;
+  --emp-table-header-height: 30px;
   border: none !important;
   box-shadow: none !important;
+  background: transparent !important;
+  border-radius: var(--mg-radius-control, 8px) var(--mg-radius-control, 8px) 0 0 !important;
   overflow: hidden;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog
+  .mg-view-panel.emp-config-list-table-panel
+  .emp-table-root
+  .emp-table-body-scroll {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell--with-footer {
@@ -9325,16 +9351,11 @@
   max-height: 320px;
 }
 
-/* Tabela de anexos — espelha TBLEMP / emp-table-pro de lançamento */
+/* Tabela de anexos — grade emp-table-pro (sem card no shell) */
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-shell {
-  --emp-table-line: #e7eaee;
-  --emp-table-header-bg: #ffffff;
-  --emp-table-header-line: #ffffff;
-  --emp-table-header-side-line: #e7eaee;
-  --emp-table-header-height: 30px;
-  background: #ffffff !important;
   border: none !important;
   box-shadow: none !important;
+  background: transparent !important;
   border-radius: var(--mg-radius-control, 8px) var(--mg-radius-control, 8px) 0 0 !important;
   overflow: hidden;
 }
