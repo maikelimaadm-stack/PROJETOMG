@@ -8827,12 +8827,11 @@
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell--with-footer {
   display: flex;
   flex-direction: column;
-  min-height: 0;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell--with-footer .emp-config-transfer-grid {
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 0 0 auto;
+  height: 430px;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-footer {
