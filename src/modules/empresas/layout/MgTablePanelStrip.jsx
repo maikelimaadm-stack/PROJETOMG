@@ -1,0 +1,50 @@
+import React from "react";
+import { Settings2 } from "lucide-react";
+import MgFilterPills from "@/modules/empresas/layout/MgFilterPills";
+
+export default function MgTablePanelStrip({
+  onConfigColumns,
+  disabled = false,
+  empresas = [],
+  filterFields = [],
+  filterValues = {},
+  appliedFilterValues = {},
+  onFilterChange,
+  onFilterClear,
+  onFilterApply,
+  onConfigureFilters = null,
+  filterPanelActive = false,
+}) {
+  return (
+    <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
+      <div className="mg-panel-strip__filters">
+        <MgFilterPills
+          filterFields={filterFields}
+          values={filterValues}
+          appliedValues={appliedFilterValues}
+          empresas={empresas}
+          onChange={onFilterChange}
+          onClear={onFilterClear}
+          onApply={onFilterApply}
+          disabled={disabled}
+          onConfigureFilters={onConfigureFilters}
+          filterPanelActive={filterPanelActive}
+        />
+      </div>
+      <div className="mg-table-panel-strip__actions">
+        <div className="mg-table-panel-strip__action">
+          <button
+            type="button"
+            className="mg-nav-btn ios-btn mg-table-panel-strip__config-btn"
+            onClick={onConfigColumns}
+            disabled={disabled || !onConfigColumns}
+            title="Configurar colunas da tabela"
+            aria-label="Configurar colunas da tabela"
+          >
+            <Settings2 className="mg-table-panel-strip__config-icon" strokeWidth={2.1} />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

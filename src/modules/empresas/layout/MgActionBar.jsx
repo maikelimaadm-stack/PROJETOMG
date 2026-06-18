@@ -17,6 +17,8 @@ import MgSpeedDialMenu from "@/modules/empresas/layout/MgSpeedDialMenu";
 import MgSearchResultsDropdown from "@/modules/empresas/layout/MgSearchResultsDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+const DESKTOP_SEARCH_ANIM_MS = 220;
+
 function ActionLabelBtn({ className = "", children, ...props }) {
   return (
     <button type="button" className={`ios-btn tb-btn tb-btn-labeled ${className}`} {...props}>
@@ -61,6 +63,7 @@ export default function MgActionBar({
   isFavoriteRecord,
   onToggleFilter,
   filterActive = false,
+  showFilterToggle = true,
   onNew,
   onSave,
   onCancel,
@@ -87,10 +90,16 @@ export default function MgActionBar({
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchExpanded, setMobileSearchExpanded] = useState(false);
+  const [desktopSearchExpanded, setDesktopSearchExpanded] = useState(false);
+  const [desktopSearchOpen, setDesktopSearchOpen] = useState(false);
   const moreRef = useRef(null);
   const searchRef = useRef(null);
   const mobileSearchInputRef = useRef(null);
+  const desktopSearchInputRef = useRef(null);
   const blurTimeoutRef = useRef(null);
+  const searchAnimTimeoutRef = useRef(null);
+  const desktopSearchExpandedRef = useRef(false);
+  const desktopSearchOpenRef = useRef(false);
   const isMobile = useIsMobile();
   const showSecondaryTools = !secondaryToolsLocked;
   const lockedClass = actionsLocked ? " mg-action-bar__zone--locked" : "";
@@ -100,6 +109,8 @@ export default function MgActionBar({
       setMoreOpen(false);
       setSearchOpen(false);
       setMobileSearchExpanded(false);
+      setDesktopSearchExpanded(false);
+      setDesktopSearchOpen(false);
     }
   }, [secondaryToolsLocked]);
 
@@ -108,26 +119,107 @@ export default function MgActionBar({
       window.clearTimeout(blurTimeoutRef.current);
       blurTimeoutRef.current = null;
     }
+    if (searchAnimTimeoutRef.current) {
+      window.clearTimeout(searchAnimTimeoutRef.current);
+      searchAnimTimeoutRef.current = null;
+    }
   }, []);
 
   useEffect(() => {
-    if (!searchOpen) return undefined;
+    desktopSearchExpandedRef.current = desktopSearchExpanded;
+    desktopSearchOpenRef.current = desktopSearchOpen;
+  }, [desktopSearchExpanded, desktopSearchOpen]);
+
+  const shouldKeepDesktopSearchExpanded =
+    searchHasFilter || String(searchInputValue || "").trim().length > 0;
+
+  const clearDesktopSearchAnimTimeout = () => {
+    if (searchAnimTimeoutRef.current) {
+      window.clearTimeout(searchAnimTimeoutRef.current);
+      searchAnimTimeoutRef.current = null;
+    }
+  };
+
+  const beginCollapseDesktopSearch = () => {
+    if (searchAnimTimeoutRef.current) return;
+
+    if (!desktopSearchExpandedRef.current) {
+      setSearchOpen(false);
+      setDesktopSearchOpen(false);
+      return;
+    }
+
+    setSearchOpen(false);
+    setDesktopSearchOpen(false);
+    clearDesktopSearchAnimTimeout();
+    searchAnimTimeoutRef.current = window.setTimeout(() => {
+      setDesktopSearchExpanded(false);
+      searchAnimTimeoutRef.current = null;
+    }, DESKTOP_SEARCH_ANIM_MS);
+  };
+
+  const toggleDesktopSearch = () => {
+    if (actionsLocked) return;
+    if (searchHasFilter) {
+      onSearchClear?.();
+      return;
+    }
+    if (desktopSearchExpandedRef.current && desktopSearchOpenRef.current) {
+      beginCollapseDesktopSearch();
+      return;
+    }
+    clearDesktopSearchAnimTimeout();
+    expandDesktopSearch();
+  };
+
+  const expandDesktopSearch = () => {
+    if (actionsLocked) return;
+    clearDesktopSearchAnimTimeout();
+    setDesktopSearchExpanded(true);
+    setDesktopSearchOpen(false);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        setDesktopSearchOpen(true);
+        desktopSearchInputRef.current?.focus();
+        setSearchOpen(true);
+      });
+    });
+  };
+
+  const handleDesktopSearchBlur = () => {
+    window.clearTimeout(blurTimeoutRef.current);
+    blurTimeoutRef.current = window.setTimeout(() => {
+      if (searchRef.current?.contains(document.activeElement)) return;
+      if (shouldKeepDesktopSearchExpanded) return;
+      if (searchAnimTimeoutRef.current) return;
+      beginCollapseDesktopSearch();
+    }, 120);
+  };
+
+  useEffect(() => {
+    if (!searchOpen && !desktopSearchExpanded) return undefined;
     const close = (event) => {
       if (event.target.closest?.(".mg-config-backdrop")) return;
-      if (!searchRef.current?.contains(event.target)) setSearchOpen(false);
+      if (!searchRef.current?.contains(event.target)) {
+        if (!shouldKeepDesktopSearchExpanded) beginCollapseDesktopSearch();
+        else setSearchOpen(false);
+      }
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
-  }, [searchOpen]);
+  }, [searchOpen, desktopSearchExpanded, desktopSearchOpen, shouldKeepDesktopSearchExpanded]);
 
   useEffect(() => {
-    if (!searchOpen) return undefined;
+    if (!searchOpen && !desktopSearchExpanded) return undefined;
     const onKeyDown = (event) => {
-      if (event.key === "Escape") setSearchOpen(false);
+      if (event.key === "Escape") {
+        if (!shouldKeepDesktopSearchExpanded) beginCollapseDesktopSearch();
+        else setSearchOpen(false);
+      }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [searchOpen]);
+  }, [searchOpen, desktopSearchExpanded, desktopSearchOpen, shouldKeepDesktopSearchExpanded]);
 
   useEffect(() => {
     if (!moreOpen) return undefined;
@@ -173,16 +265,6 @@ export default function MgActionBar({
       onClick: () => {},
     });
 
-    if (onAttach && !isMobile) {
-      items.push({
-        id: "attach",
-        label: "Anexos",
-        icon: Paperclip,
-        onClick: onAttach,
-        disabled: attachDisabled,
-      });
-    }
-
     if (onConfigColumns) {
       items.push({
         id: "config",
@@ -212,9 +294,6 @@ export default function MgActionBar({
 
     return items;
   }, [
-    attachDisabled,
-    isMobile,
-    onAttach,
     onConfigColumns,
     onDuplicate,
     onExportExcel,
@@ -247,6 +326,54 @@ export default function MgActionBar({
       blurTimeoutRef.current = null;
     }, 120);
   };
+
+  const renderAttachButton = (extraClassName = "") => {
+    if (!onAttach) return null;
+
+    return (
+      <button
+        type="button"
+        className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-action-bar__attach-btn${extraClassName ? ` ${extraClassName}` : ""}`}
+        onClick={onAttach}
+        disabled={actionsLocked || attachDisabled}
+        title="Anexos"
+        aria-label="Anexos"
+      >
+        <Paperclip className="h-3.5 w-3.5" />
+      </button>
+    );
+  };
+
+  const renderSearchDropdown = (onClose) => (
+    <MgSearchResultsDropdown
+      open={searchOpen && !actionsLocked}
+      items={searchResults}
+      searchResultsTotal={searchResultsTotal}
+      searchHasFavoritesInResults={searchHasFavoritesInResults}
+      detailFields={searchDetailFields}
+      loading={searchLoading}
+      loadingMore={searchLoadingMore}
+      hasMore={searchHasMore}
+      onLoadMore={onSearchLoadMore}
+      searchQuery={searchInputValue}
+      configFields={searchDropdownConfigFields}
+      onConfigSave={onSearchDropdownConfigSave}
+      onConfigRestoreDefaults={onSearchDropdownConfigRestore}
+      onSelect={(emp) => {
+        onSearchResultSelect?.(emp);
+        onClose?.();
+      }}
+      onApplyAll={() => {
+        onSearchApplyAll?.();
+        onClose?.();
+      }}
+      onApplyFavorites={() => {
+        onSearchApplyFavorites?.();
+        onClose?.();
+      }}
+      isFavoriteRecord={isFavoriteRecord}
+    />
+  );
 
   const renderMobileSearchField = () => (
     <div
@@ -321,115 +448,110 @@ export default function MgActionBar({
               disabled={actionsLocked}
             />
           </div>
-          <MgSearchResultsDropdown
-            open={searchOpen && !actionsLocked}
-            items={searchResults}
-            searchResultsTotal={searchResultsTotal}
-            searchHasFavoritesInResults={searchHasFavoritesInResults}
-            detailFields={searchDetailFields}
-            loading={searchLoading}
-            loadingMore={searchLoadingMore}
-            hasMore={searchHasMore}
-            onLoadMore={onSearchLoadMore}
-            searchQuery={searchInputValue}
-            configFields={searchDropdownConfigFields}
-            onConfigSave={onSearchDropdownConfigSave}
-            onConfigRestoreDefaults={onSearchDropdownConfigRestore}
-            onSelect={(emp) => {
-              onSearchResultSelect?.(emp);
-              collapseMobileSearch();
-            }}
-            onApplyAll={() => {
-              onSearchApplyAll?.();
-              collapseMobileSearch();
-            }}
-            onApplyFavorites={() => {
-              onSearchApplyFavorites?.();
-              collapseMobileSearch();
-            }}
-            isFavoriteRecord={isFavoriteRecord}
-          />
+          {renderSearchDropdown(collapseMobileSearch)}
         </div>
       )}
     </div>
   );
 
   const renderSearchField = () => (
-    <div className="mg-search-pill-wrap" ref={searchRef}>
-      <div className="mg-search-pill" role="search">
-        {searchLoading ? (
-          <Loader2
-            className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
-            aria-hidden="true"
-          />
-        ) : searchHasFilter ? (
-          <button
-            type="button"
-            className="mg-search-pill-clear"
-            aria-label="Limpar pesquisa"
-            disabled={actionsLocked}
-            onClick={() => {
-              onSearchClear?.();
-              setSearchOpen(false);
-            }}
-          >
-            <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          </button>
+    <div
+      className={`mg-desktop-search${desktopSearchExpanded ? " is-expanded" : ""}${desktopSearchOpen ? " is-open" : ""}`}
+      ref={searchRef}
+    >
+      <button
+        type="button"
+        className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon mg-desktop-search__trigger${
+          searchHasFilter ? " mg-desktop-search__trigger--active" : ""
+        }`}
+        onClick={toggleDesktopSearch}
+        disabled={actionsLocked}
+        aria-label={searchHasFilter ? "Pesquisa ativa" : "Pesquisar"}
+        aria-expanded={desktopSearchOpen}
+        tabIndex={desktopSearchOpen ? -1 : 0}
+      >
+        {searchHasFilter ? (
+          <X className="h-3.5 w-3.5" aria-hidden="true" />
         ) : (
-          <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <Search className="h-3.5 w-3.5" aria-hidden="true" />
         )}
-        <input
-          type="text"
-          placeholder="Pesquisar..."
-          value={searchInputValue}
-          onChange={(event) => {
-            const next = event.target.value;
-            onSearchInputChange?.(next);
-            if (!actionsLocked) setSearchOpen(true);
-          }}
-          onFocus={() => {
-            if (!actionsLocked) setSearchOpen(true);
-          }}
-          onClick={() => {
-            if (!actionsLocked) setSearchOpen(true);
-          }}
-          aria-label="Pesquisar"
-          aria-expanded={searchOpen}
-          aria-haspopup="listbox"
-          disabled={actionsLocked}
-          tabIndex={actionsLocked ? -1 : 0}
-        />
-      </div>
-      <MgSearchResultsDropdown
-        open={searchOpen && !actionsLocked}
-        items={searchResults}
-        searchResultsTotal={searchResultsTotal}
-        searchHasFavoritesInResults={searchHasFavoritesInResults}
-        detailFields={searchDetailFields}
-        loading={searchLoading}
-        loadingMore={searchLoadingMore}
-        hasMore={searchHasMore}
-        onLoadMore={onSearchLoadMore}
-        searchQuery={searchInputValue}
-        configFields={searchDropdownConfigFields}
-        onConfigSave={onSearchDropdownConfigSave}
-        onConfigRestoreDefaults={onSearchDropdownConfigRestore}
-        onSelect={(emp) => {
-          onSearchResultSelect?.(emp);
-          setSearchOpen(false);
-        }}
-        onApplyAll={() => {
-          onSearchApplyAll?.();
-          setSearchOpen(false);
-        }}
-        onApplyFavorites={() => {
-          onSearchApplyFavorites?.();
-          setSearchOpen(false);
-        }}
-        isFavoriteRecord={isFavoriteRecord}
-      />
+      </button>
+      {desktopSearchExpanded ? (
+        <div className="mg-desktop-search__panel" aria-hidden={!desktopSearchOpen}>
+          <div className="mg-desktop-search__panel-inner">
+            <div className="mg-search-pill-wrap mg-desktop-search__field">
+              <div className="mg-search-pill" role="search">
+                {searchLoading ? (
+                  <Loader2
+                    className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
+                    aria-hidden="true"
+                  />
+                ) : searchHasFilter ? (
+                  <button
+                    type="button"
+                    className="mg-search-pill-clear"
+                    aria-label="Limpar pesquisa"
+                    disabled={actionsLocked}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      onSearchClear?.();
+                      beginCollapseDesktopSearch();
+                    }}
+                  >
+                    <X className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="mg-search-pill-toggle"
+                    aria-label="Fechar pesquisa"
+                    disabled={actionsLocked}
+                    onMouseDown={(event) => event.preventDefault()}
+                    onClick={() => {
+                      if (shouldKeepDesktopSearchExpanded) {
+                        setSearchOpen(false);
+                        return;
+                      }
+                      beginCollapseDesktopSearch();
+                    }}
+                  >
+                    <Search className="mg-search-pill-icon h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  </button>
+                )}
+                <input
+                  ref={desktopSearchInputRef}
+                  type="text"
+                  placeholder="Pesquisar..."
+                  value={searchInputValue}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    onSearchInputChange?.(next);
+                    if (!actionsLocked) setSearchOpen(true);
+                  }}
+                  onFocus={() => {
+                    if (!actionsLocked) setSearchOpen(true);
+                  }}
+                  onBlur={handleDesktopSearchBlur}
+                  aria-label="Pesquisar"
+                  aria-expanded={searchOpen}
+                  aria-haspopup="listbox"
+                  disabled={actionsLocked}
+                  tabIndex={desktopSearchOpen ? 0 : -1}
+                />
+              </div>
+              {renderSearchDropdown(() => {
+                if (!shouldKeepDesktopSearchExpanded) beginCollapseDesktopSearch();
+                else setSearchOpen(false);
+              })}
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
+
+  const renderSearchCluster = ({ mobile = false } = {}) =>
+    mobile ? renderMobileSearchField() : renderSearchField();
 
   const renderPrimaryActions = () => (
     <>
@@ -569,7 +691,7 @@ export default function MgActionBar({
       >
         <div className="mg-action-bar-mobile__row">
           <div className={`mg-action-bar-mobile__actions${lockedClass}`}>
-            {showSecondaryTools && onToggleFilter ? (
+            {showSecondaryTools && showFilterToggle && onToggleFilter ? (
               <button
                 type="button"
                 className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon shrink-0${
@@ -615,18 +737,6 @@ export default function MgActionBar({
                 Duplicar
               </ActionLabelBtn>
             ) : null}
-            {onAttach ? (
-              <button
-                type="button"
-                className="ios-btn tb-btn tb-btn-ghost tb-btn-icon shrink-0"
-                onClick={onAttach}
-                disabled={actionsLocked || attachDisabled}
-                title="Anexos"
-                aria-label="Anexos"
-              >
-                <Paperclip className="h-3.5 w-3.5" />
-              </button>
-            ) : null}
             {showSecondaryTools ? (
               <div className="relative shrink-0" ref={moreRef}>
                 <MgSpeedDialMenu
@@ -638,9 +748,10 @@ export default function MgActionBar({
               </div>
             ) : null}
           </div>
-          {showSecondaryTools ? (
-            <div className={`mg-action-bar-mobile__search-slot${lockedClass}`}>{renderMobileSearchField()}</div>
-          ) : null}
+          <div className={`mg-action-bar-mobile__tools-slot${lockedClass}`}>
+            {showSecondaryTools ? renderSearchCluster({ mobile: true }) : null}
+            {renderAttachButton("shrink-0")}
+          </div>
         </div>
       </div>
 
@@ -652,7 +763,7 @@ export default function MgActionBar({
         }}
       >
       <div className="mg-action-bar__actions flex min-w-0 items-center">
-        <ActionSlot show={showSecondaryTools && !!onToggleFilter} width={28}>
+        <ActionSlot show={showSecondaryTools && showFilterToggle && !!onToggleFilter} width={28}>
           <div className={`mg-action-bar__filter-slot${lockedClass}`}>
             <button
               type="button"
@@ -679,8 +790,9 @@ export default function MgActionBar({
         {showSecondaryTools ? (
           <>
             <div className={`mg-action-bar__tools mg-action-bar__tools--visible${lockedClass}`}>
-              {renderSearchField()}
+              {renderSearchCluster()}
             </div>
+            {renderAttachButton()}
             <MgViewSeg value={viewMode} onChange={onViewModeChange} disabled={actionsLocked} />
             <div className="relative" ref={moreRef}>
               <MgSpeedDialMenu
@@ -691,7 +803,9 @@ export default function MgActionBar({
               />
             </div>
           </>
-        ) : null}
+        ) : (
+          renderAttachButton()
+        )}
       </div>
     </div>
     </>

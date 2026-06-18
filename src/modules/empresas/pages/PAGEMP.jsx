@@ -19,6 +19,7 @@ import {
 } from "./PAGEMP.sections";
 import MgActionBar from "@/modules/empresas/layout/MgActionBar";
 import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
+import MgTablePanelStrip from "@/modules/empresas/layout/MgTablePanelStrip";
 import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
 import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
 import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
@@ -32,6 +33,8 @@ import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import {
   EMP_INFINITE_MAX_ROWS,
   EMP_INFINITE_PAGE_SIZE,
+  EMP_LOAD_BATCH_STORAGE_KEY,
+  readStoredEmpLoadBatchSize,
   useEmpresasInfiniteData,
 } from "@/modules/empresas/hooks/useEmpresasInfiniteData";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -50,8 +53,19 @@ import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { buildEmpresaExportRows } from "@/modules/empresas/utils/empExportRows";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
+import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
+import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import {
+  buildMgFilterFields,
+  buildPanelFilterColumnMap,
+} from "@/modules/empresas/layout/mgFilterFields";
+import {
+  cloneErpFilter,
+  isErpFilterActive,
+  normalizePanelFilterValue,
+} from "@/shared/filters";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -61,6 +75,40 @@ const moduleLabels = {
   plural: empresasModuleDefinition.pluralLabel,
   title: `Cadastro de ${empresasModuleDefinition.pluralLabel}`,
 };
+
+const syncPanelFiltersIntoColumns = (
+  panelValues = {},
+  baseColumnFilters = {},
+  panelFilterColumnMap = {}
+) => {
+  const next = { ...(baseColumnFilters || {}) };
+  Object.values(panelFilterColumnMap).forEach((columnKey) => {
+    delete next[columnKey];
+  });
+
+  Object.entries(panelFilterColumnMap).forEach(([panelKey, columnKey]) => {
+    const filter = panelValues?.[panelKey];
+    if (isErpFilterActive(filter)) {
+      next[columnKey] = cloneErpFilter(
+        typeof filter === "object" && !Array.isArray(filter)
+          ? filter
+          : normalizePanelFilterValue(filter, "text")
+      );
+    }
+  });
+
+  return next;
+};
+
+const syncColumnsIntoPanelFilters = (columnFilters = {}, panelFilterColumnMap = {}) =>
+  Object.entries(panelFilterColumnMap).reduce((acc, [panelKey, columnKey]) => {
+    const filter = columnFilters?.[columnKey];
+    acc[panelKey] =
+      filter && typeof filter === "object" && !Array.isArray(filter)
+        ? cloneErpFilter(filter)
+        : normalizePanelFilterValue(filter, "text");
+    return acc;
+  }, {});
 
 const patchEmpresasCache = (queryClient, updater) => {
   queryClient.setQueriesData({ queryKey: ["emp-cadastro"] }, (previous) => {
@@ -154,14 +202,27 @@ export default function PAGEMP() {
   const [formVersion, setFormVersion] = useState(0);
   const [returnRecordAfterNew, setReturnRecordAfterNew] = useState(null);
   const [attachmentsRecord, setAttachmentsRecord] = useState(null);
+  const [attachmentsOpen, setAttachmentsOpen] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState([]);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
   const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(EMP_INFINITE_PAGE_SIZE);
+  const [loadBatchSize, setLoadBatchSize] = useState(() => readStoredEmpLoadBatchSize());
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
+  const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(false);
   const cardsVisFields = useEmpCardsVisFields();
+  const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
+  const filterFields = useMemo(
+    () => buildMgFilterFields(camposPersonalizados),
+    [camposPersonalizados]
+  );
+  const panelFilterColumnMap = useMemo(
+    () => buildPanelFilterColumnMap(filterFields),
+    [filterFields]
+  );
   const isMobile = useIsMobile();
   const mobileCardsPerRow = 1;
   const effectiveCardsPerRow = isMobile ? mobileCardsPerRow : cardsVisFields.layoutConfig.cardsPerRow;
@@ -185,7 +246,7 @@ export default function PAGEMP() {
     setBreadcrumbSuffix,
   } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
-  const [filterStatus, setFilterStatus] = useState("Todos");
+  const [appliedFilterValues, setAppliedFilterValues] = useState({});
   const [formBridge, setFormBridge] = useState(null);
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
@@ -208,6 +269,13 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
   }, [selectedEmpresaId]);
+
+  useEffect(() => {
+    if (!showForm) {
+      setPendingAttachments([]);
+      setAttachmentsOpen(false);
+    }
+  }, [showForm]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -322,6 +390,7 @@ export default function PAGEMP() {
     favoriteIds,
     queryPage,
     setQueryPage,
+    loadBatchSize,
   });
 
   const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
@@ -428,15 +497,8 @@ export default function PAGEMP() {
   const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = Boolean(
     appliedPanelFilters ||
-    Object.values(columnFilters).some((value) => {
-      if (!value) return false;
-      if (Array.isArray(value)) return value.length > 0;
-      if (typeof value !== "object") return false;
-      const hasValues = Array.isArray(value.values) && value.values.length > 0;
-      const hasPrimary = value.value !== null && value.value !== undefined && String(value.value).trim() !== "";
-      const hasSecondary = value.valueTo !== null && value.valueTo !== undefined && String(value.valueTo).trim() !== "";
-      return hasValues || hasPrimary || hasSecondary;
-    }) ||
+    Object.values(columnFilters).some((value) => isErpFilterActive(value)) ||
+    Object.values(appliedFilterValues).some((value) => isErpFilterActive(value)) ||
     searchTerm.trim() ||
     searchFavoritesOnly
   );
@@ -477,6 +539,26 @@ export default function PAGEMP() {
 
     upsertEmpresaInSelector(normalized);
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
+
+  const persistPendingAttachments = useCallback(async (recordId, items) => {
+    if (!recordId || !items?.length) return;
+
+    await Promise.all(
+      items.map((anexo) =>
+        AnexosApi.create({
+          entity_name: anexo.entity_name || empresasModuleDefinition.entityName,
+          record_id: recordId,
+          empresa_id: recordId,
+          attachment_name: anexo.attachment_name,
+          file_name: anexo.file_name,
+          file_url: anexo.file_url,
+          storage_path: anexo.storage_path,
+          file_type: anexo.file_type,
+          file_size: anexo.file_size,
+        })
+      )
+    );
+  }, []);
 
   const handleSubmit = useCallback((data) => {
     if (saveCycle.isSaving) return;
@@ -588,6 +670,14 @@ export default function PAGEMP() {
             current.includes(pendingId) ? [normalized.id] : current
           );
           upsertEmpresaInSelector(normalized);
+          if (pendingAttachments.length > 0) {
+            try {
+              await persistPendingAttachments(normalized.id, pendingAttachments);
+              setPendingAttachments([]);
+            } catch {
+              showError("Empresa cadastrada, mas alguns anexos não puderam ser salvos.");
+            }
+          }
           setMetricsCache(queryClient, response?.contadores);
           showSuccess(`${moduleLabels.singular} cadastrada!`);
         })
@@ -629,6 +719,8 @@ export default function PAGEMP() {
   }, [
     editingEmp,
     empresasSelector,
+    pendingAttachments,
+    persistPendingAttachments,
     queryClient,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
@@ -754,41 +846,61 @@ export default function PAGEMP() {
 
   const handleFilterClear = useCallback(() => {
     setFilterValues({});
-    setFilterStatus("Todos");
+    setAppliedFilterValues({});
     setAppliedPanelFilters(undefined);
+    setColumnFiltersHydrated(true);
+    setColumnFilters((prev) => syncPanelFiltersIntoColumns({}, prev, panelFilterColumnMap));
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
-  }, []);
-
-  const handleFilterApply = useCallback(() => {
-    setAppliedPanelFilters(buildEmpresaPanelFilters(filterValues, filterStatus));
     setQueryPage(1);
-    closeFilterPanel();
-  }, [closeFilterPanel, filterStatus, filterValues]);
+  }, [panelFilterColumnMap]);
+
+  const handleFilterApply = useCallback(
+    (snapshot) => {
+      const nextValues = snapshot ?? filterValues;
+      if (snapshot) {
+        setFilterValues(snapshot);
+      }
+      setAppliedFilterValues({ ...nextValues });
+      setAppliedPanelFilters(buildEmpresaPanelFilters(nextValues));
+      setColumnFiltersHydrated(true);
+      setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
+      setQueryPage(1);
+      closeFilterPanel();
+    },
+    [closeFilterPanel, filterValues, panelFilterColumnMap]
+  );
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
-    setColumnFilters(nextColumnFilters || {});
+    const safeNext = nextColumnFilters || {};
+    const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext, panelFilterColumnMap);
+    setColumnFiltersHydrated(true);
+    setColumnFilters(safeNext);
+    setFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
+    setAppliedFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
+    setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
-  }, []);
+  }, [panelFilterColumnMap]);
 
   const handleDistinctColumnValues = useCallback(
     (params) => moduleRepository.listDistinctColumnValues(params),
     []
   );
 
-  const handleServerPageChange = useCallback(
-    (nextPage) => {
-      const safePage = Math.max(1, Number(nextPage) || 1);
-      setQueryPage(safePage);
-      if (safePage > loadedPagesCount) {
-        handleLoadMoreEmpresas();
-      }
-    },
-    [loadedPagesCount, handleLoadMoreEmpresas]
-  );
+  const handleServerPageChange = useCallback((nextPage) => {
+    const safePage = Math.max(1, Number(nextPage) || 1);
+    setQueryPage(safePage);
+  }, []);
+
+  const handleLoadBatchSizeChange = useCallback((nextBatchSize) => {
+    setLoadBatchSize(nextBatchSize);
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(EMP_LOAD_BATCH_STORAGE_KEY, String(nextBatchSize));
+    }
+  }, []);
 
   const handleServerPageSizeChange = useCallback(() => {
     setQueryPageSize(EMP_INFINITE_PAGE_SIZE);
@@ -1006,6 +1118,7 @@ export default function PAGEMP() {
 
     if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
       setAttachmentsRecord(null);
+      setAttachmentsOpen(false);
     }
 
     if (deletedCurrentFromForm) {
@@ -1199,6 +1312,8 @@ export default function PAGEMP() {
     editingEmp?.nome_empresa ||
     "Novo registro";
 
+  const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
+
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -1209,8 +1324,7 @@ export default function PAGEMP() {
           onClose={closeFilterPanel}
           onClear={handleFilterClear}
           onApply={handleFilterApply}
-          status={filterStatus}
-          onStatusChange={setFilterStatus}
+          disabled={filterControlsDisabled}
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
@@ -1239,6 +1353,7 @@ export default function PAGEMP() {
             isFavoriteRecord={empFavorites.isFavorite}
             onToggleFilter={toggleFilterPanel}
             filterActive={hasActiveFilters}
+            showFilterToggle={!showForm}
             onNew={handleNew}
             onSave={formBridge?.onSave}
             onCancel={formBridge?.onCancel ?? formCancel}
@@ -1257,11 +1372,16 @@ export default function PAGEMP() {
                 ? () => editingEmp && handleDuplicate(editingEmp)
                 : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
             }
-            onAttach={
-              showForm
-                ? () => editingEmp?.id && setAttachmentsRecord(editingEmp)
-                : () => selectedTableEmp && setAttachmentsRecord(selectedTableEmp)
-            }
+            onAttach={() => {
+              if (showForm) {
+                setAttachmentsOpen(true);
+                return;
+              }
+              if (selectedTableEmp) {
+                setAttachmentsRecord(selectedTableEmp);
+                setAttachmentsOpen(true);
+              }
+            }}
             attachDisabled={!showForm && selectedTableItems.length !== 1}
             onExportExcel={handleExportExcel}
             onExportPdf={handleExportPdf}
@@ -1302,6 +1422,32 @@ export default function PAGEMP() {
                 layout={cardsVisFields.layoutConfig}
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
+                filterFields={filterFields}
+                empresas={empresasFiltradasPainel}
+                filterValues={filterValues}
+                appliedFilterValues={appliedFilterValues}
+                onFilterChange={handleFilterChange}
+                onFilterClear={handleFilterClear}
+                onFilterApply={handleFilterApply}
+                disabled={filterControlsDisabled}
+                onConfigureFilters={toggleFilterPanel}
+                filterPanelActive={filterPanelOpen}
+              />
+            </div>
+
+            <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
+              <MgTablePanelStrip
+                onConfigColumns={() => setShowConfigColunas(true)}
+                disabled={filterControlsDisabled}
+                filterFields={filterFields}
+                empresas={empresasFiltradasPainel}
+                filterValues={filterValues}
+                appliedFilterValues={appliedFilterValues}
+                onFilterChange={handleFilterChange}
+                onFilterClear={handleFilterClear}
+                onFilterApply={handleFilterApply}
+                onConfigureFilters={toggleFilterPanel}
+                filterPanelActive={filterPanelOpen}
               />
             </div>
           </div>
@@ -1365,6 +1511,8 @@ export default function PAGEMP() {
                       hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                       onLoadMoreRows: handleLoadMoreEmpresas,
                       isLoadingMoreRows: isFetchingNextEmpresasPage,
+                      loadBatchSize,
+                      onLoadBatchSizeChange: handleLoadBatchSizeChange,
                       selectedCount: selectedTableItems.length,
                       listedCount: loadedRecordsCount,
                       filteredCount: filteredRecordsCount,
@@ -1391,6 +1539,7 @@ export default function PAGEMP() {
                     onVisibleDataChange: setVisibleTableData,
                     onFilteredEmpresasChange: handleFilteredEmpresasChange,
                     onServerColumnFiltersChange: handleColumnFiltersChange,
+                    externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
                     serverPage: queryPage,
                     serverPageSize: queryPageSize,
                     serverTotal: totalEmpresas,
@@ -1409,6 +1558,8 @@ export default function PAGEMP() {
                     hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                     onLoadMoreRows: handleLoadMoreEmpresas,
                     isLoadingMoreRows: isFetchingNextEmpresasPage,
+                    loadBatchSize,
+                    onLoadBatchSizeChange: handleLoadBatchSizeChange,
                     selectedCount: selectedTableItems.length,
                     listedCount: loadedRecordsCount,
                     filteredCount: filteredRecordsCount,
@@ -1445,16 +1596,25 @@ export default function PAGEMP() {
           onSaveConfig: (config) => saveEmpExcelExportConfig(config),
         }}
         anexosProps={{
-          open: !!attachmentsRecord?.id,
+          open: attachmentsOpen,
           onOpenChange: (open) => {
-            if (!open) setAttachmentsRecord(null);
+            setAttachmentsOpen(open);
+            if (!open && !showForm) setAttachmentsRecord(null);
           },
           entityName: empresasModuleDefinition.entityName,
-          recordId: attachmentsRecord?.id,
+          recordId:
+            showForm && editingEmp?.id && !isPendingRecordId(editingEmp.id)
+              ? editingEmp.id
+              : !showForm
+                ? attachmentsRecord?.id
+                : undefined,
           title:
-            attachmentsRecord?.razao_social ||
-            attachmentsRecord?.codempresa ||
+            (showForm
+              ? editingEmp?.razao_social || editingEmp?.codempresa
+              : attachmentsRecord?.razao_social || attachmentsRecord?.codempresa) ||
             moduleLabels.singular,
+          pendingAnexos: pendingAttachments,
+          onPendingChange: setPendingAttachments,
         }}
         confirmDeleteProps={{
           open: deleteState.open,

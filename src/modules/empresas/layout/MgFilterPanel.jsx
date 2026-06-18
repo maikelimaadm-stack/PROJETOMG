@@ -1,14 +1,12 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { X } from "lucide-react";
 import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
+import { MG_FILTER_SIDEBAR_FIELDS } from "@/modules/empresas/layout/mgFilterFields";
 
-const FILTER_FIELDS = [
-  { key: "razao_social", label: "Razão Social" },
-  { key: "nome_fantasia", label: "Nome Fantasia" },
-  { key: "cnpj", label: "CNPJ" },
-  { key: "telefone", label: "Telefone" },
-  { key: "cidade", label: "Cidade" },
-  { key: "uf", label: "UF" },
+const STATUS_OPTIONS = [
+  { value: "Todos", label: "Todos" },
+  { value: "Ativa", label: "Ativa" },
+  { value: "Inativa", label: "Inativa" },
 ];
 
 export default function MgFilterPanel({
@@ -18,9 +16,18 @@ export default function MgFilterPanel({
   onClose,
   onClear,
   onApply,
-  status = "Todos",
-  onStatusChange,
+  disabled = false,
 }) {
+  const statusValue = useMemo(() => {
+    const current = values.status;
+    if (Array.isArray(current) && current.length > 0) {
+      if (current[0] === "Ativo") return "Ativa";
+      if (current[0] === "Inativo") return "Inativa";
+      return current[0];
+    }
+    return "Todos";
+  }, [values.status]);
+
   return (
     <aside id="filter-panel" className={`filter-panel${open ? " open" : ""}`} aria-hidden={!open}>
       <div className="filter-panel__inner">
@@ -37,34 +44,38 @@ export default function MgFilterPanel({
         </div>
 
         <div className="filter-panel__body">
-          {FILTER_FIELDS.map((field) => (
-            <div key={field.key} className="fg">
-              <label className="fg-label">{field.label}</label>
-              <input
-                type="text"
-                value={values[field.key] || ""}
-                onChange={(event) => onChange?.(field.key, event.target.value)}
-              />
-            </div>
-          ))}
+          {MG_FILTER_SIDEBAR_FIELDS.map((field) => {
+            const fieldValue = Array.isArray(values[field.key]) ? values[field.key][0] || "" : "";
+            return (
+              <div key={field.key} className="fg">
+                <label className="fg-label">{field.label}</label>
+                <input
+                  type="text"
+                  value={fieldValue}
+                  disabled={disabled}
+                  onChange={(event) => {
+                    const next = event.target.value;
+                    onChange?.(field.key, next ? [next] : []);
+                  }}
+                />
+              </div>
+            );
+          })}
 
           <MgCmdSelect
             label="Status"
-            value={status}
-            onChange={onStatusChange}
-            options={[
-              { value: "Todos", label: "Todos" },
-              { value: "Ativo", label: "Ativo" },
-              { value: "Inativo", label: "Inativo" },
-            ]}
+            value={statusValue}
+            onChange={(nextValue) => onChange?.("status", nextValue === "Todos" ? [] : [nextValue])}
+            options={STATUS_OPTIONS}
+            disabled={disabled}
           />
         </div>
 
         <div className="filter-panel__footer">
-          <button type="button" className="tb-btn tb-btn-ghost" onClick={onClear}>
+          <button type="button" className="tb-btn tb-btn-ghost" onClick={onClear} disabled={disabled}>
             Limpar
           </button>
-          <button type="button" className="tb-btn tb-btn-blue" onClick={onApply}>
+          <button type="button" className="tb-btn tb-btn-blue" onClick={() => onApply?.()} disabled={disabled}>
             Aplicar
           </button>
         </div>

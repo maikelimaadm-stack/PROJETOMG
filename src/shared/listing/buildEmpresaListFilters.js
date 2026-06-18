@@ -3,37 +3,99 @@ import {
   mapEmpresaColumnIdToFilterKey,
   normalizeEmpresaColumnFilterValue,
 } from "@/shared/listing/normalizeEmpresaColumnFilter";
+import { isErpFilterActive } from "@/shared/filters";
 
 const STATUS_PANEL_MAP = {
   Ativo: "Ativa",
   Inativo: "Inativa",
+  Ativa: "Ativa",
+  Inativa: "Inativa",
 };
 
-/** Converte filtros do painel lateral em payload `filters` da API de empresas. */
-export function buildEmpresaPanelFilters(filterValues = {}, filterStatus = "Todos") {
+const normalizePanelFilterValues = (values) =>
+  (Array.isArray(values) ? values : [values])
+    .map((item) => String(item).trim())
+    .filter(Boolean);
+
+function extractFilterPayload(filterEntry) {
+  if (!filterEntry) return { values: [], operator: "", value: "", valueTo: "" };
+  if (Array.isArray(filterEntry)) {
+    return { values: normalizePanelFilterValues(filterEntry), operator: "", value: "", valueTo: "" };
+  }
+  if (typeof filterEntry !== "object") {
+    const text = String(filterEntry).trim();
+    return text ? { values: [text], operator: "", value: "", valueTo: "" } : { values: [], operator: "", value: "", valueTo: "" };
+  }
+  return {
+    values: normalizePanelFilterValues(filterEntry.values),
+    operator: String(filterEntry.operator || "").trim(),
+    value: filterEntry.value != null ? String(filterEntry.value).trim() : "",
+    valueTo: filterEntry.valueTo != null ? String(filterEntry.valueTo).trim() : "",
+  };
+}
+
+/** Converte filtros do painel lateral/pills em payload `filters` da API de empresas. */
+export function buildEmpresaPanelFilters(filterValues = {}) {
   const filters = {};
 
-  const razao = normalizeSearchQuery(filterValues.razao_social);
-  if (razao) filters.razao_social = razao;
+  const setArrayFilter = (apiKey, values, { normalizeValue } = {}) => {
+    const normalized = normalizePanelFilterValues(values)
+      .map((item) => (normalizeValue ? normalizeValue(item) : normalizeSearchQuery(String(item))))
+      .filter((item) => item != null && item !== "");
+    if (normalized.length === 0) return;
+    if (normalized.length === 1) {
+      filters[apiKey] = normalized[0];
+      return;
+    }
+    filters[`${apiKey}__in`] = normalized;
+  };
 
-  const fantasia = normalizeSearchQuery(filterValues.nome_fantasia);
-  if (fantasia) filters.nome_fantasia = fantasia;
+  Object.entries(filterValues || {}).forEach(([key, rawFilter]) => {
+    if (!isErpFilterActive(rawFilter)) return;
 
-  const doc = normalizeSearchQuery(filterValues.cnpj);
-  if (doc) filters.cpf_cnpj = doc;
+    const { values, operator, value } = extractFilterPayload(rawFilter);
+    const effectiveValues = values.length > 0 ? values : value ? [value] : [];
 
-  const telefone = normalizeSearchQuery(filterValues.telefone);
-  if (telefone) filters.telefone = telefone;
+    if (key === "status") {
+      const mapped = effectiveValues.map((item) => STATUS_PANEL_MAP[item] || item).filter(Boolean);
+      if (mapped.length === 1) {
+        filters.status = mapped[0];
+      } else if (mapped.length > 1) {
+        filters.status__in = mapped;
+      }
+      return;
+    }
 
-  const cidade = normalizeSearchQuery(filterValues.cidade);
-  if (cidade) filters.cidade = cidade;
+    if (key.startsWith("custom:")) {
+      setArrayFilter(key, effectiveValues, {
+        normalizeValue: (item) => normalizeSearchQuery(String(item)),
+      });
+      return;
+    }
 
-  const uf = normalizeSearchQuery(filterValues.uf);
-  if (uf) filters.estado = uf;
+    const apiKey = key === "cnpj" ? "cpf_cnpj" : key === "uf" ? "estado" : key;
 
-  if (filterStatus && filterStatus !== "Todos") {
-    filters.status = STATUS_PANEL_MAP[filterStatus] || filterStatus;
-  }
+    if (apiKey === "tipo_vinculo" || apiKey === "codempresa" || apiKey === "id_global") {
+      setArrayFilter(apiKey, effectiveValues, {
+        normalizeValue: (item) => normalizeEmpresaColumnFilterValue(apiKey, item),
+      });
+      return;
+    }
+
+    if (effectiveValues.length > 1) {
+      setArrayFilter(apiKey, effectiveValues);
+      return;
+    }
+
+    if (effectiveValues.length === 1) {
+      filters[apiKey] = normalizeSearchQuery(String(effectiveValues[0]));
+      return;
+    }
+
+    if (value && (!operator || operator === "equals" || operator === "contains")) {
+      filters[apiKey] = normalizeSearchQuery(String(value));
+    }
+  });
 
   return Object.keys(filters).length > 0 ? filters : undefined;
 }
@@ -59,12 +121,10 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
     }
 
     if (!values || typeof values !== "object") return;
-    const operator = String(values.operator || "").trim();
-    const rawValue = values.value;
-    const rawValues = Array.isArray(values.values) ? values.values : [];
-    const normalizedList = rawValues
-      .map((value) => normalizeEmpresaColumnFilterValue(key, value))
-      .filter((value) => value != null && value !== "");
+    const { operator, value, valueTo, values: listValues } = extractFilterPayload(values);
+    const normalizedList = listValues
+      .map((item) => normalizeEmpresaColumnFilterValue(key, item))
+      .filter((item) => item != null && item !== "");
     if (normalizedList.length > 1) {
       filters[`${filterKey}__in`] = normalizedList;
       return;
@@ -73,13 +133,15 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
       filters[filterKey] = normalizedList[0];
       return;
     }
-    if (rawValue == null || rawValue === "") return;
-    const normalizedValue = normalizeEmpresaColumnFilterValue(key, rawValue);
+    const primary = value || "";
+    if (!primary) return;
+    const normalizedValue = normalizeEmpresaColumnFilterValue(key, primary);
     if (normalizedValue == null || normalizedValue === "") return;
-    // A API de listagem ainda suporta apenas equals/contains (e __in).
-    // Para operadores avançados, mantemos o filtro no cliente.
     if (!operator || operator === "equals" || operator === "contains") {
       filters[filterKey] = normalizedValue;
+    }
+    if (operator === "between" && valueTo) {
+      // Intervalos avançados permanecem no cliente por enquanto.
     }
   });
 

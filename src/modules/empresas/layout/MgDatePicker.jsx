@@ -63,6 +63,8 @@ export default function MgDatePicker({
   disabled = false,
   inputId = undefined,
   labelId = undefined,
+  closeSiblingsOnOpen = true,
+  panelClassName = "mg-dp-panel",
 }) {
   const id = useId();
   const rootRef = useRef(null);
@@ -107,7 +109,7 @@ export default function MgDatePicker({
     if (readOnly || disabled) return;
     setOpen((wasOpen) => {
       if (!wasOpen) {
-        closeMgPanels(rootRef.current);
+        if (closeSiblingsOnOpen) closeMgPanels(rootRef.current);
         setState((s) => ({ ...s, view: "days" }));
         return true;
       }
@@ -301,7 +303,7 @@ export default function MgDatePicker({
       <MgPortalPanel
         open={open}
         panelRef={panelRef}
-        panelClassName="mg-dp-panel"
+        panelClassName={panelClassName}
         style={panelStyle}
         onClick={(event) => event.stopPropagation()}
       >

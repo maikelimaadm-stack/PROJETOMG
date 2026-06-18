@@ -16,6 +16,7 @@ import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar
 import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import { LIST_PAGE_SIZE_OPTIONS } from "@/shared/listing/listQueryConfig";
+import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
 import "./empSearchView.css";
 
 function SearchPageSizeSelect({ value, onChange }) {
@@ -202,6 +203,8 @@ export default function SRCHEMP({
   hasMoreRows = false,
   isLoadingMoreRows = false,
   onLoadMoreRows = null,
+  loadBatchSize = 100,
+  onLoadBatchSizeChange = null,
   selectedCount,
   listedCount,
   filteredCount,
@@ -229,39 +232,6 @@ export default function SRCHEMP({
 
   const cardsLayoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
   const cardsScrollResetKey = `${infiniteMode ? "infinite" : page}:${showOnlyFavorites}:${cardsLayoutKey}`;
-
-  const loadMoreLockRef = useRef(false);
-
-  useEffect(() => {
-    if (!mgPrototype || !infiniteMode || typeof onLoadMoreRows !== "function") return undefined;
-    const scrollEl = cardsScrollRef.current;
-    if (!scrollEl) return undefined;
-
-    if (!isLoadingMoreRows) {
-      loadMoreLockRef.current = false;
-    }
-
-    const maybeLoadMore = () => {
-      if (!hasMoreRows || isLoadingMoreRows || isLoading) return;
-      const distanceToBottom =
-        scrollEl.scrollHeight - scrollEl.scrollTop - scrollEl.clientHeight;
-      if (distanceToBottom > 320 || loadMoreLockRef.current) return;
-      loadMoreLockRef.current = true;
-      onLoadMoreRows();
-    };
-
-    scrollEl.addEventListener("scroll", maybeLoadMore, { passive: true });
-    maybeLoadMore();
-    return () => scrollEl.removeEventListener("scroll", maybeLoadMore);
-  }, [
-    mgPrototype,
-    infiniteMode,
-    hasMoreRows,
-    isLoadingMoreRows,
-    isLoading,
-    onLoadMoreRows,
-    filteredEmpresas.length,
-  ]);
 
   useEffect(() => {
     selectedIdsRef.current = selectedIds;
@@ -468,11 +438,20 @@ export default function SRCHEMP({
           />
         ) : (
           <div className="mg-records-summary border-t border-slate-200 px-3 py-2 text-xs">
-            <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 md:grid-cols-4 md:gap-2">
-              <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
-              <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
-              <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
-              <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
+            <div className="mg-records-summary__row">
+              <div className="mg-records-summary__counts grid grid-cols-2 gap-x-3 gap-y-1.5 md:grid-cols-4 md:gap-2">
+                <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
+                <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
+                <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
+                <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
+              </div>
+              <EmpLoadBatchControls
+                loadBatchSize={loadBatchSize}
+                onLoadBatchSizeChange={onLoadBatchSizeChange}
+                onLoadMore={onLoadMoreRows}
+                hasMoreRows={hasMoreRows}
+                isLoadingMoreRows={isLoadingMoreRows}
+              />
             </div>
           </div>
         )}

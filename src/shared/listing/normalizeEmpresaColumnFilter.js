@@ -13,7 +13,8 @@ export function normalizeEmpresaColumnFilterValue(columnId, value) {
     return TIPO_VINCULO_TO_RAW[text.toUpperCase()] || text.toLowerCase();
   }
   if (columnId === "codempresa" || columnId === "id_global") {
-    const numeric = Number(text);
+    const cleaned = text.replace(/\./g, "").replace(",", ".");
+    const numeric = Number(cleaned);
     return Number.isFinite(numeric) ? numeric : text;
   }
   return text;

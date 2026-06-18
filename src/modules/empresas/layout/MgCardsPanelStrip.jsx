@@ -8,6 +8,7 @@ import {
 } from "@/modules/empresas/components/empSearchView.constants";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
+import MgFilterPills from "@/modules/empresas/layout/MgFilterPills";
 import {
   closeMgPanels,
   useMgPanelCoordinator,
@@ -75,6 +76,15 @@ export default function MgCardsPanelStrip({
   onRestoreLayoutDefaults,
   disabled = false,
   hideConfig = false,
+  filterFields = [],
+  empresas = [],
+  filterValues = {},
+  appliedFilterValues = {},
+  onFilterChange,
+  onFilterClear,
+  onFilterApply,
+  onConfigureFilters = null,
+  filterPanelActive = false,
 }) {
   const fields =
     Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
@@ -246,6 +256,21 @@ export default function MgCardsPanelStrip({
         onClose={closeConfigPanels}
         ariaLabel="Fechar configuração dos cards"
       />
+
+      <div className="mg-panel-strip__filters">
+        <MgFilterPills
+          filterFields={filterFields}
+          values={filterValues}
+          appliedValues={appliedFilterValues}
+          empresas={empresas}
+          onChange={onFilterChange}
+          onClear={onFilterClear}
+          onApply={onFilterApply}
+          disabled={disabled}
+          onConfigureFilters={onConfigureFilters}
+          filterPanelActive={filterPanelActive}
+        />
+      </div>
 
       {showConfig ? (
         <div className="mg-cards-panel-strip__actions">
