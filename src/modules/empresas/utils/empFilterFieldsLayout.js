@@ -18,8 +18,14 @@ export const mergeSavedVisibleFilterFields = (savedVisible, catalogKeys) => {
     ? savedVisible.filter((key) => catalogKeys.includes(key))
     : [];
   if (parsed.length === 0) return [...catalogKeys];
-  const missing = catalogKeys.filter((key) => !parsed.includes(key));
-  return [...parsed, ...missing];
+  return parsed;
+};
+
+/** Novos campos do catálogo entram em uso por padrão, sem reativar os removidos pelo usuário. */
+export const mergeVisibleFilterFieldsWithCatalog = (savedVisible, catalogKeys) => {
+  const base = mergeSavedVisibleFilterFields(savedVisible, catalogKeys);
+  const missing = catalogKeys.filter((key) => !base.includes(key));
+  return missing.length ? [...base, ...missing] : base;
 };
 
 export const loadFilterFieldsLayout = (catalogKeys = []) => {
