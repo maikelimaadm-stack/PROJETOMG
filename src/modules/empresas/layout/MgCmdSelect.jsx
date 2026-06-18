@@ -18,7 +18,8 @@ export default function MgCmdSelect({
   value,
   options = [],
   onChange,
-  placeholder = "Pesquisar...",
+  placeholder = "",
+  searchPlaceholder = "Pesquisar...",
   disabled = false,
   inputId = undefined,
   labelId = undefined,
@@ -32,12 +33,17 @@ export default function MgCmdSelect({
   const displayRef = useRef(null);
   const panelRef = useRef(null);
 
+  const selectableOptions = useMemo(
+    () => options.filter((option) => String(option.value ?? "") !== ""),
+    [options]
+  );
+
   const filtered = useMemo(
     () =>
-      options.filter((option) =>
+      selectableOptions.filter((option) =>
         option.label.toLowerCase().includes(query.toLowerCase())
       ),
-    [options, query]
+    [selectableOptions, query]
   );
 
   const panelStyle = useMgPanelPosition(
@@ -51,7 +57,8 @@ export default function MgCmdSelect({
   useMgPanelCoordinator(rootRef, setOpen);
 
   const selected = resolveOption(options, value);
-  const display = selected?.label ?? (value ? String(value) : "");
+  const hasValue = String(value ?? "").trim() !== "";
+  const display = hasValue ? (selected?.label ?? String(value)) : "";
 
   useEffect(() => {
     if (!open) return undefined;
@@ -122,7 +129,7 @@ export default function MgCmdSelect({
   return (
     <div
       ref={rootRef}
-      className={`cmd-select${open ? " open" : ""}${disabled ? " disabled" : ""}${display ? " mg-has-value" : ""}`}
+      className={`cmd-select${open ? " open" : ""}${disabled ? " disabled" : ""}${hasValue ? " mg-has-value" : ""}`}
     >
       {label ? <span id={labelId} className={`cmd-label${required ? " req" : ""}`}>{label}</span> : null}
       <div
@@ -145,7 +152,11 @@ export default function MgCmdSelect({
         aria-expanded={open}
         aria-disabled={disabled}
       >
-        {display}
+        {display ? (
+          display
+        ) : placeholder ? (
+          <span className="cmd-display-placeholder">{placeholder}</span>
+        ) : null}
       </div>
       <ChevronDown className="cmd-chevron h-3 w-3" />
       <MgPortalPanel
@@ -157,7 +168,7 @@ export default function MgCmdSelect({
       >
         <input
           type="text"
-          placeholder={placeholder}
+          placeholder={searchPlaceholder}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);

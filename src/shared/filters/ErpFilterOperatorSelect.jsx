@@ -7,7 +7,6 @@ import {
 } from "@/shared/filters/erpFilterOperators";
 
 const BOOLEAN_OPERATOR_OPTIONS = [
-  { value: "", label: "Selecionar Operador" },
   { value: "Sim", label: "Sim" },
   { value: "Não", label: "Não" },
 ];
@@ -23,13 +22,10 @@ export default function ErpFilterOperatorSelect({
 
   const options = useMemo(() => {
     if (filterType === "boolean") return BOOLEAN_OPERATOR_OPTIONS;
-    const base = [
-      { value: "", label: "Selecionar Operador" },
-      ...getErpListFilterOperators(filterType).map((item) => ({
-        value: item.value,
-        label: item.label,
-      })),
-    ];
+    const base = getErpListFilterOperators(filterType).map((item) => ({
+      value: item.value,
+      label: item.label,
+    }));
     if (
       normalizedOperator &&
       !base.some((item) => item.value === normalizedOperator)
@@ -49,6 +45,7 @@ export default function ErpFilterOperatorSelect({
         options={options}
         onChange={onChange}
         placeholder="Selecionar Operador"
+        searchPlaceholder="Pesquisar..."
         disabled={disabled}
         closeSiblingsOnOpen={false}
         panelClassName="cmd-panel erp-filter-operator-panel"
