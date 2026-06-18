@@ -461,45 +461,55 @@ export function EmpConfigListTable({
     </div>
   );
 
+  const renderFormRow = () => {
+    if (!formRow) return null;
+
+    if (formRow.variant === "launch") {
+      return (
+        <div className="emp-config-launch-form-row mg-prototype-form mg-prototype-form--edit">
+          {formRow.leading ? (
+            <div className="emp-config-launch-form-row__leading">{formRow.leading}</div>
+          ) : null}
+          <div
+            data-field={formRow.fieldName || "config-field"}
+            className={`fg mg-prototype-field emp-config-launch-form-row__field${formRow.fieldClassName ? ` ${formRow.fieldClassName}` : ""}${formRow.hasValue ? " mg-has-value" : ""}`}
+          >
+            <label className={`fg-label${formRow.required ? " required" : ""}`}>
+              {formRow.label}
+            </label>
+            {formRow.control}
+          </div>
+          {formRow.trailing ? (
+            <div className="emp-config-launch-form-row__trailing">{formRow.trailing}</div>
+          ) : null}
+        </div>
+      );
+    }
+
+    return (
+      <div className="emp-config-list-form-row">
+        <label className="emp-config-list-form-row__label">
+          {formRow.label}
+          {formRow.required ? <span className="emp-config-list-form-row__required">*</span> : null}
+        </label>
+        <div className="emp-config-list-form-row__control">{formRow.control}</div>
+      </div>
+    );
+  };
+
   return (
     <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
-      <div
-        className={`${EMP_CONFIG_DIALOG_TABLE_SHELL}${
-          tableVariant === "launch" ? " emp-config-dialog-table-shell--list-launch" : ""
-        }`}
-      >
-          {formRow ? (
-            formRow.variant === "launch" ? (
-              <div className="emp-config-launch-form-row mg-prototype-form mg-prototype-form--edit">
-                {formRow.leading ? (
-                  <div className="emp-config-launch-form-row__leading">{formRow.leading}</div>
-                ) : null}
-                <div
-                  data-field={formRow.fieldName || "config-field"}
-                  className={`fg mg-prototype-field emp-config-launch-form-row__field${formRow.fieldClassName ? ` ${formRow.fieldClassName}` : ""}${formRow.hasValue ? " mg-has-value" : ""}`}
-                >
-                  <label className={`fg-label${formRow.required ? " required" : ""}`}>
-                    {formRow.label}
-                  </label>
-                  {formRow.control}
-                </div>
-                {formRow.trailing ? (
-                  <div className="emp-config-launch-form-row__trailing">{formRow.trailing}</div>
-                ) : null}
-              </div>
-            ) : (
-              <div className="emp-config-list-form-row">
-                <label className="emp-config-list-form-row__label">
-                  {formRow.label}
-                  {formRow.required ? <span className="emp-config-list-form-row__required">*</span> : null}
-                </label>
-                <div className="emp-config-list-form-row__control">{formRow.control}</div>
-              </div>
-            )
-          ) : null}
-
-          {tableVariant === "launch" ? renderLaunchTable() : renderGridTable()}
-      </div>
+      {tableVariant === "launch" ? (
+        <div className="emp-config-list-launch-body flex flex-col">
+          {formRow ? <div className="emp-config-list-form-shell">{renderFormRow()}</div> : null}
+          <div className="emp-config-list-table-shell">{renderLaunchTable()}</div>
+        </div>
+      ) : (
+        <div className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
+          {renderFormRow()}
+          {renderGridTable()}
+        </div>
+      )}
     </div>
   );
 }

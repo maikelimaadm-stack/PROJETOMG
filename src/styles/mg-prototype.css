@@ -8860,21 +8860,32 @@
   flex-direction: column;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-dialog-table-shell,
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-dialog-table-shell--list-launch {
-  border: none !important;
-  border-radius: 0 !important;
-  flex: 0 0 auto;
-  min-height: 0;
+/* Campo e tabela em blocos separados — não compartilham o mesmo card */
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-launch-body {
   display: flex;
   flex-direction: column;
-  padding: 0 10px 10px !important;
+  gap: 8px;
+  padding: 8px 10px 10px !important;
   box-sizing: border-box;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-launch-form-row {
-  padding: 8px 0;
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-form-shell {
   flex-shrink: 0;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-shell {
+  flex: 0 0 auto;
+  min-height: 0;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-launch-body .emp-config-launch-form-row {
+  padding: 0;
+  border-bottom: 0 !important;
 }
 
 /* Mesmo recuo lateral e inferior do campo Nome do anexo (10px) — no emp-table-panel como PAGEMP */
