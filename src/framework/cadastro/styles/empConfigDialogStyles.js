@@ -18,6 +18,9 @@ export const EMP_CONFIG_DIALOG_CLOSE_BUTTON = "emp-layout-presets-close-icon";
 export const EMP_CONFIG_DIALOG_TOOLBAR =
   "emp-config-dialog-toolbar flex items-center gap-1 bg-transparent px-1 py-1";
 
+export const EMP_CONFIG_DIALOG_FOOTER =
+  "emp-config-dialog-footer flex items-center justify-end gap-2 border-t border-[var(--mg-container-border,#E7EAEE)] px-3 py-2";
+
 export const EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN = "text-[12px] font-medium";
 
 export const EMP_CONFIG_DIALOG_TABLE_WRAP =

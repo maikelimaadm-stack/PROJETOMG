@@ -1604,7 +1604,7 @@ export default function PAGEMP() {
         camposVisiveis={filterFieldsLayout.visiveis}
         camposOrdem={filterFieldsLayout.ordem}
         onChange={saveFilterFieldsLayout}
-        onResetDefault={() => saveFilterFieldsLayout(getRestoreFilterFieldsLayout())}
+        getRestoreDefaults={getRestoreFilterFieldsLayout}
       />
 
       <EmpresasDialogs

@@ -8824,6 +8824,15 @@
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-footer {
+  background: var(--bg-card, #ffffff);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-footer .tb-btn-labeled {
+  min-width: 72px;
+  justify-content: center;
+}
+
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-header__badge {
   flex-shrink: 0;
   font-size: 12px;
@@ -8895,7 +8904,7 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-grid {
   display: grid;
-  grid-template-columns: 1fr 44px 1.15fr 36px;
+  grid-template-columns: 1fr 44px 1.15fr;
   height: 430px;
   min-height: 0;
 }
@@ -8961,14 +8970,12 @@
   color: var(--text-2, #6b7280);
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-controls,
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-sort {
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-controls {
   background: var(--bg-card, #ffffff);
   gap: 6px;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-controls .mg-nav-btn,
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-sort .mg-nav-btn {
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-controls .mg-nav-btn {
   width: var(--mg-btn-icon-size, 28px);
   height: var(--mg-btn-icon-size, 28px);
   min-width: var(--mg-btn-icon-size, 28px);

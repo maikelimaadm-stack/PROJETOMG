@@ -1,10 +1,8 @@
 import React from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import {
-  ChevronDown,
   ChevronLeft,
   ChevronRight,
-  ChevronUp,
   Search,
   SkipBack,
   SkipForward,
@@ -16,6 +14,7 @@ import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
   EMP_CONFIG_DIALOG_HEADER,
   EMP_CONFIG_DIALOG_CONTENT,
+  EMP_CONFIG_DIALOG_FOOTER,
   EMP_CONFIG_DIALOG_LIST_DIALOG,
   EMP_CONFIG_DIALOG_SHELL,
   EMP_CONFIG_DIALOG_TABLE_SHELL,
@@ -85,6 +84,7 @@ export function EmpConfigDialogFrame({
   dialogClassName = "",
   onRestoreDefault = null,
   toolbar,
+  footer,
   children,
 }) {
   const handleClose = () => {
@@ -140,6 +140,8 @@ export function EmpConfigDialogFrame({
           <EmpSplitToolbarLayout toolbar={toolbar ? <div className={EMP_CONFIG_DIALOG_TOOLBAR}>{toolbar}</div> : null}>
             {children}
           </EmpSplitToolbarLayout>
+
+          {footer ? <div className={EMP_CONFIG_DIALOG_FOOTER}>{footer}</div> : null}
         </div>
       </DialogContent>
     </Dialog>
@@ -168,8 +170,6 @@ export function EmpConfigTransferPanel({
   onAddAll,
   onRemoveSelected,
   onRemoveAll,
-  onMoveUp,
-  onMoveDown,
   onDropToAvailable,
   onDropToUsed,
   draggedItemId = null,
@@ -313,23 +313,6 @@ export function EmpConfigTransferPanel({
                 )}
               </div>
             </main>
-
-            <section className="emp-config-transfer-sort emp-config-transfer-border-l flex flex-col items-center justify-center gap-1">
-              <EmpConfigMoveBtn
-                disabled={selectedUsedIds.length !== 1}
-                onClick={onMoveUp}
-                title="Subir"
-              >
-                <ChevronUp className="w-3.5 h-3.5" />
-              </EmpConfigMoveBtn>
-              <EmpConfigMoveBtn
-                disabled={selectedUsedIds.length !== 1}
-                onClick={onMoveDown}
-                title="Descer"
-              >
-                <ChevronDown className="w-3.5 h-3.5" />
-              </EmpConfigMoveBtn>
-            </section>
           </div>
       </div>
     </div>

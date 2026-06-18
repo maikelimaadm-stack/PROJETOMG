@@ -1,7 +1,8 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { showWarning } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
+  EmpConfigPrimaryBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -14,8 +15,10 @@ export default function EmpConfiguracaoFiltrosDialog({
   camposVisiveis = [],
   camposOrdem = [],
   onChange,
-  onResetDefault,
+  getRestoreDefaults,
 }) {
+  const [draftVisiveis, setDraftVisiveis] = useState([]);
+  const [draftOrdem, setDraftOrdem] = useState([]);
   const [selectedAvailableIds, setSelectedAvailableIds] = useState([]);
   const [selectedUsedIds, setSelectedUsedIds] = useState([]);
   const [search, setSearch] = useState("");
@@ -23,16 +26,28 @@ export default function EmpConfiguracaoFiltrosDialog({
   const [draggedFieldId, setDraggedFieldId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
 
+  useEffect(() => {
+    if (!open) return;
+    setDraftVisiveis(camposVisiveis);
+    setDraftOrdem(camposOrdem);
+    setSelectedAvailableIds([]);
+    setSelectedUsedIds([]);
+    setSearch("");
+    setSearchUsed("");
+    setDraggedFieldId(null);
+    setDraggedFrom(null);
+  }, [open, camposVisiveis, camposOrdem]);
+
   const orderedFields = useMemo(() => {
     const byId = new Map(camposDisponiveis.map((field) => [field.id, field]));
-    const orderedIds = [...camposOrdem, ...camposDisponiveis.map((field) => field.id)].filter(
+    const orderedIds = [...draftOrdem, ...camposDisponiveis.map((field) => field.id)].filter(
       (id, index, arr) => byId.has(id) && arr.indexOf(id) === index
     );
     return orderedIds.map((id) => byId.get(id)).filter(Boolean);
-  }, [camposDisponiveis, camposOrdem]);
+  }, [camposDisponiveis, draftOrdem]);
 
-  const usedFields = orderedFields.filter((field) => camposVisiveis.includes(field.id));
-  const availableFields = orderedFields.filter((field) => !camposVisiveis.includes(field.id));
+  const usedFields = orderedFields.filter((field) => draftVisiveis.includes(field.id));
+  const availableFields = orderedFields.filter((field) => !draftVisiveis.includes(field.id));
   const filteredAvailable = availableFields.filter((field) =>
     String(field.label || "").toLowerCase().includes(search.toLowerCase())
   );
@@ -40,14 +55,12 @@ export default function EmpConfiguracaoFiltrosDialog({
     String(field.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const commitLayout = (nextVisible, nextUsedOrder) => {
+  const updateDraftLayout = (nextVisible, nextUsedOrder) => {
     const remainingIds = orderedFields
       .map((field) => field.id)
       .filter((id) => !nextUsedOrder.includes(id));
-    onChange?.({
-      visiveis: nextVisible,
-      ordem: [...nextUsedOrder, ...remainingIds],
-    });
+    setDraftVisiveis(nextVisible);
+    setDraftOrdem([...nextUsedOrder, ...remainingIds]);
   };
 
   const selectAvailable = (fieldId, event) => {
@@ -74,29 +87,19 @@ export default function EmpConfiguracaoFiltrosDialog({
 
   const addFields = (ids) => {
     if (!ids.length) return;
-    const nextVisible = Array.from(new Set([...camposVisiveis, ...ids]));
+    const nextVisible = Array.from(new Set([...draftVisiveis, ...ids]));
     const nextUsedOrder = [
       ...usedFields.map((field) => field.id),
-      ...ids.filter((id) => !camposVisiveis.includes(id)),
+      ...ids.filter((id) => !draftVisiveis.includes(id)),
     ];
-    commitLayout(nextVisible, nextUsedOrder);
+    updateDraftLayout(nextVisible, nextUsedOrder);
   };
 
   const removeFields = (ids) => {
     if (!ids.length) return;
-    const nextVisible = camposVisiveis.filter((id) => !ids.includes(id));
+    const nextVisible = draftVisiveis.filter((id) => !ids.includes(id));
     const nextUsedOrder = usedFields.map((field) => field.id).filter((id) => !ids.includes(id));
-    commitLayout(nextVisible, nextUsedOrder);
-  };
-
-  const moveSelected = (direction) => {
-    if (selectedUsedIds.length !== 1) return;
-    const currentOrder = usedFields.map((field) => field.id);
-    const index = currentOrder.indexOf(selectedUsedIds[0]);
-    const nextIndex = index + direction;
-    if (index < 0 || nextIndex < 0 || nextIndex >= currentOrder.length) return;
-    [currentOrder[index], currentOrder[nextIndex]] = [currentOrder[nextIndex], currentOrder[index]];
-    commitLayout(currentOrder, currentOrder);
+    updateDraftLayout(nextVisible, nextUsedOrder);
   };
 
   const startDrag = (fieldId, origem) => {
@@ -142,14 +145,31 @@ export default function EmpConfiguracaoFiltrosDialog({
     if (from < 0 || to < 0) return;
     const [moved] = currentOrder.splice(from, 1);
     currentOrder.splice(to, 0, moved);
-    commitLayout(currentOrder, currentOrder);
+    updateDraftLayout(currentOrder, currentOrder);
+  };
+
+  const handleRestoreDefault = () => {
+    const defaults = getRestoreDefaults?.();
+    if (!defaults) return;
+    setDraftVisiveis(defaults.visiveis ?? []);
+    setDraftOrdem(defaults.ordem ?? []);
+    setSelectedAvailableIds([]);
+    setSelectedUsedIds([]);
+  };
+
+  const handleSave = () => {
+    if (usedFields.length === 0) {
+      showWarning("É necessário manter pelo menos um filtro em uso.");
+      return;
+    }
+    onChange?.({
+      visiveis: draftVisiveis,
+      ordem: draftOrdem,
+    });
+    onOpenChange(false);
   };
 
   const requestClose = () => {
-    if (usedFields.length === 0) {
-      showWarning("É necessário manter pelo menos um filtro em uso para fechar a configuração.");
-      return;
-    }
     onOpenChange(false);
   };
 
@@ -162,7 +182,12 @@ export default function EmpConfiguracaoFiltrosDialog({
       badgeLabel="Filtros"
       infoTitle={`Configuração dos filtros - ${moduleTitle}`}
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
-      onRestoreDefault={onResetDefault}
+      onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
+      footer={
+        <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
+          <span>OK</span>
+        </EmpConfigPrimaryBtn>
+      }
     >
       <EmpConfigTransferPanel
         availableLabel="Campos disponíveis"
@@ -188,7 +213,7 @@ export default function EmpConfiguracaoFiltrosDialog({
         }}
         onAddAll={() => {
           const allIds = orderedFields.map((field) => field.id);
-          commitLayout(allIds, allIds);
+          updateDraftLayout(allIds, allIds);
           setSelectedAvailableIds([]);
         }}
         onRemoveSelected={() => {
@@ -196,11 +221,9 @@ export default function EmpConfiguracaoFiltrosDialog({
           setSelectedUsedIds([]);
         }}
         onRemoveAll={() => {
-          commitLayout([], []);
+          updateDraftLayout([], []);
           setSelectedUsedIds([]);
         }}
-        onMoveUp={() => moveSelected(-1)}
-        onMoveDown={() => moveSelected(1)}
         onDropToAvailable={dropToAvailable}
         onDropToUsed={dropToUsed}
         draggedItemId={draggedFieldId}

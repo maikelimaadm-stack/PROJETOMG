@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Columns3 } from "lucide-react";
 import { showWarning } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
+  EmpConfigPrimaryBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -16,8 +17,11 @@ export default function EmpConfiguracaoColunasDialog({
   colunasOrdem = [],
   frozenColumnCount = 0,
   onChange,
-  onResetDefault,
+  getRestoreDefaults,
 }) {
+  const [draftVisiveis, setDraftVisiveis] = useState([]);
+  const [draftOrdem, setDraftOrdem] = useState([]);
+  const [draftFrozenColumnCount, setDraftFrozenColumnCount] = useState(0);
   const [selectedAvailableIds, setSelectedAvailableIds] = useState([]);
   const [selectedUsedIds, setSelectedUsedIds] = useState([]);
   const [search, setSearch] = useState("");
@@ -25,16 +29,29 @@ export default function EmpConfiguracaoColunasDialog({
   const [draggedColumnId, setDraggedColumnId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
 
+  useEffect(() => {
+    if (!open) return;
+    setDraftVisiveis(colunasVisiveis);
+    setDraftOrdem(colunasOrdem);
+    setDraftFrozenColumnCount(frozenColumnCount);
+    setSelectedAvailableIds([]);
+    setSelectedUsedIds([]);
+    setSearch("");
+    setSearchUsed("");
+    setDraggedColumnId(null);
+    setDraggedFrom(null);
+  }, [open, colunasVisiveis, colunasOrdem, frozenColumnCount]);
+
   const orderedColumns = useMemo(() => {
     const byId = new Map(colunasDisponiveis.filter((col) => !col.fixo).map((col) => [col.id, col]));
-    const orderedIds = [...colunasOrdem, ...colunasDisponiveis.map((col) => col.id)].filter(
+    const orderedIds = [...draftOrdem, ...colunasDisponiveis.map((col) => col.id)].filter(
       (id, index, arr) => byId.has(id) && arr.indexOf(id) === index
     );
     return orderedIds.map((id) => byId.get(id)).filter(Boolean);
-  }, [colunasDisponiveis, colunasOrdem]);
+  }, [colunasDisponiveis, draftOrdem]);
 
-  const usedColumns = orderedColumns.filter((col) => colunasVisiveis.includes(col.id));
-  const availableColumns = orderedColumns.filter((col) => !colunasVisiveis.includes(col.id));
+  const usedColumns = orderedColumns.filter((col) => draftVisiveis.includes(col.id));
+  const availableColumns = orderedColumns.filter((col) => !draftVisiveis.includes(col.id));
   const filteredAvailable = availableColumns.filter((col) =>
     String(col.label || "").toLowerCase().includes(search.toLowerCase())
   );
@@ -42,15 +59,13 @@ export default function EmpConfiguracaoColunasDialog({
     String(col.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const commitLayout = (nextVisible, nextUsedOrder, nextFrozenCount = frozenColumnCount) => {
+  const updateDraftLayout = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
     const remainingIds = orderedColumns
       .map((col) => col.id)
       .filter((id) => !nextUsedOrder.includes(id));
-    onChange?.({
-      visiveis: nextVisible,
-      ordem: [...nextUsedOrder, ...remainingIds],
-      frozenColumnCount: Math.min(nextFrozenCount, nextUsedOrder.length),
-    });
+    setDraftVisiveis(nextVisible);
+    setDraftOrdem([...nextUsedOrder, ...remainingIds]);
+    setDraftFrozenColumnCount(Math.min(nextFrozenCount, nextUsedOrder.length));
   };
 
   const selectAvailable = (colId, event) => {
@@ -77,29 +92,19 @@ export default function EmpConfiguracaoColunasDialog({
 
   const addColumns = (ids) => {
     if (!ids.length) return;
-    const nextVisible = Array.from(new Set([...colunasVisiveis, ...ids]));
+    const nextVisible = Array.from(new Set([...draftVisiveis, ...ids]));
     const nextUsedOrder = [
       ...usedColumns.map((col) => col.id),
-      ...ids.filter((id) => !colunasVisiveis.includes(id)),
+      ...ids.filter((id) => !draftVisiveis.includes(id)),
     ];
-    commitLayout(nextVisible, nextUsedOrder);
+    updateDraftLayout(nextVisible, nextUsedOrder);
   };
 
   const removeColumns = (ids) => {
     if (!ids.length) return;
-    const nextVisible = colunasVisiveis.filter((id) => !ids.includes(id));
+    const nextVisible = draftVisiveis.filter((id) => !ids.includes(id));
     const nextUsedOrder = usedColumns.map((col) => col.id).filter((id) => !ids.includes(id));
-    commitLayout(nextVisible, nextUsedOrder);
-  };
-
-  const moveSelected = (direction) => {
-    if (selectedUsedIds.length !== 1) return;
-    const currentOrder = usedColumns.map((col) => col.id);
-    const index = currentOrder.indexOf(selectedUsedIds[0]);
-    const nextIndex = index + direction;
-    if (index < 0 || nextIndex < 0 || nextIndex >= currentOrder.length) return;
-    [currentOrder[index], currentOrder[nextIndex]] = [currentOrder[nextIndex], currentOrder[index]];
-    commitLayout(currentOrder, currentOrder);
+    updateDraftLayout(nextVisible, nextUsedOrder, Math.min(draftFrozenColumnCount, nextUsedOrder.length));
   };
 
   const startDrag = (colId, origem) => {
@@ -145,24 +150,43 @@ export default function EmpConfiguracaoColunasDialog({
     if (from < 0 || to < 0) return;
     const [moved] = currentOrder.splice(from, 1);
     currentOrder.splice(to, 0, moved);
-    commitLayout(currentOrder, currentOrder);
+    updateDraftLayout(currentOrder, currentOrder);
+  };
+
+  const handleRestoreDefault = () => {
+    const defaults = getRestoreDefaults?.();
+    if (!defaults) return;
+    setDraftVisiveis(defaults.visiveis ?? []);
+    setDraftOrdem(defaults.ordem ?? []);
+    setDraftFrozenColumnCount(defaults.frozenColumnCount ?? 0);
+    setSelectedAvailableIds([]);
+    setSelectedUsedIds([]);
+  };
+
+  const handleSave = () => {
+    if (usedColumns.length === 0) {
+      showWarning("É necessário manter pelo menos uma coluna em uso.");
+      return;
+    }
+    onChange?.({
+      visiveis: draftVisiveis,
+      ordem: draftOrdem,
+      frozenColumnCount: Math.min(draftFrozenColumnCount, usedColumns.length),
+    });
+    onOpenChange(false);
   };
 
   const requestClose = () => {
-    if (usedColumns.length === 0) {
-      showWarning("É necessário manter pelo menos uma coluna em uso para fechar a configuração.");
-      return;
-    }
     onOpenChange(false);
   };
 
   const toggleFreezeColumn = (index, event) => {
     event.stopPropagation();
-    if (index === frozenColumnCount) {
-      commitLayout(colunasVisiveis, usedColumns.map((col) => col.id), frozenColumnCount + 1);
+    if (index === draftFrozenColumnCount) {
+      setDraftFrozenColumnCount(draftFrozenColumnCount + 1);
     }
-    if (index === frozenColumnCount - 1) {
-      commitLayout(colunasVisiveis, usedColumns.map((col) => col.id), frozenColumnCount - 1);
+    if (index === draftFrozenColumnCount - 1) {
+      setDraftFrozenColumnCount(draftFrozenColumnCount - 1);
     }
   };
 
@@ -175,7 +199,12 @@ export default function EmpConfiguracaoColunasDialog({
       badgeLabel="Colunas"
       infoTitle={`Configuração das colunas - ${moduleTitle}`}
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
-      onRestoreDefault={onResetDefault}
+      onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
+      footer={
+        <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
+          <span>OK</span>
+        </EmpConfigPrimaryBtn>
+      }
     >
       <EmpConfigTransferPanel
         availableLabel="Colunas disponíveis"
@@ -201,7 +230,7 @@ export default function EmpConfiguracaoColunasDialog({
         }}
         onAddAll={() => {
           const allIds = orderedColumns.map((col) => col.id);
-          commitLayout(allIds, allIds);
+          updateDraftLayout(allIds, allIds, draftFrozenColumnCount);
           setSelectedAvailableIds([]);
         }}
         onRemoveSelected={() => {
@@ -209,11 +238,9 @@ export default function EmpConfiguracaoColunasDialog({
           setSelectedUsedIds([]);
         }}
         onRemoveAll={() => {
-          commitLayout([], []);
+          updateDraftLayout([], [], 0);
           setSelectedUsedIds([]);
         }}
-        onMoveUp={() => moveSelected(-1)}
-        onMoveDown={() => moveSelected(1)}
         onDropToAvailable={dropToAvailable}
         onDropToUsed={dropToUsed}
         draggedItemId={draggedColumnId}
@@ -226,21 +253,21 @@ export default function EmpConfiguracaoColunasDialog({
           <button
             type="button"
             title={
-              index < frozenColumnCount
+              index < draftFrozenColumnCount
                 ? "Coluna congelada"
-                : index === frozenColumnCount
+                : index === draftFrozenColumnCount
                   ? "Congelar coluna"
                   : "Congele as colunas anteriores primeiro"
             }
             onClick={(event) => toggleFreezeColumn(index, event)}
-            disabled={index > frozenColumnCount}
+            disabled={index > draftFrozenColumnCount}
             className="emp-config-transfer-freeze flex h-5 w-5 shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
           >
             <Columns3
               className={`h-3.5 w-3.5 transition-colors ${
-                index < frozenColumnCount
+                index < draftFrozenColumnCount
                   ? "text-[var(--mg-brand-green,#40de63)]"
-                  : index === frozenColumnCount
+                  : index === draftFrozenColumnCount
                     ? "text-[var(--text-3,#9ca3af)]"
                     : "text-[var(--text-3,#9ca3af)] opacity-50"
               }`}
