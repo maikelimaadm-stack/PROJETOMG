@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { showWarning } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
   EmpConfigPrimaryBtn,
@@ -158,10 +157,6 @@ export default function EmpConfiguracaoFiltrosDialog({
   };
 
   const handleSave = () => {
-    if (usedFields.length === 0) {
-      showWarning("É necessário manter pelo menos um filtro em uso.");
-      return;
-    }
     onChange?.({
       visiveis: draftVisiveis,
       ordem: draftOrdem,
