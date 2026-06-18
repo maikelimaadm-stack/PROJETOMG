@@ -31,7 +31,6 @@ import { getFieldsPerRowForLayout } from "@/modules/empresas/components/empSearc
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
 import { useEmpFavorites } from "@/modules/empresas/hooks/useEmpFavorites";
 import {
-  EMP_INFINITE_MAX_ROWS,
   EMP_INFINITE_PAGE_SIZE,
   EMP_LOAD_BATCH_STORAGE_KEY,
   readStoredEmpLoadBatchSize,
@@ -897,6 +896,7 @@ export default function PAGEMP() {
 
   const handleLoadBatchSizeChange = useCallback((nextBatchSize) => {
     setLoadBatchSize(nextBatchSize);
+    setQueryPage(1);
     if (typeof window !== "undefined") {
       window.localStorage.setItem(EMP_LOAD_BATCH_STORAGE_KEY, String(nextBatchSize));
     }

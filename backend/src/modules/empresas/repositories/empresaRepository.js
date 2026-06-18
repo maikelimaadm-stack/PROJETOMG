@@ -26,7 +26,10 @@ const toPositiveInt = (value, fallback) => {
 };
 
 const DEFAULT_PAGE_SIZE = 50;
-const MAX_PAGE_SIZE = 500;
+const MAX_PAGE_SIZE = Math.max(
+  1000,
+  Number(process.env.EMP_MAX_PAGE_SIZE) || 1000
+);
 const MAX_EXPORT_ROWS = 100_000;
 const DISTINCT_CACHE_TTL_MS = Math.max(
   0,
