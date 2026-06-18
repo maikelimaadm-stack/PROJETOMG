@@ -8758,8 +8758,48 @@
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-header__badge {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mg-brand-green, #40de63);
+  letter-spacing: 0.01em;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-header__chevron {
+  color: var(--text-3, #9ca3af);
+  stroke: currentColor;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-header__name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-1, #111827);
+}
+
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-toolbar {
   min-height: var(--mg-toolbar-row-height, 36px);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-restore-btn {
+  width: var(--mg-btn-icon-size, 28px);
+  height: var(--mg-btn-icon-size, 28px);
+  min-width: var(--mg-btn-icon-size, 28px);
+  color: var(--mg-brand-green, #40de63) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-restore-btn svg {
+  color: var(--mg-brand-green, #40de63) !important;
+  stroke: var(--mg-brand-green, #40de63) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-restore-btn:hover:not(:disabled) {
+  color: var(--mg-brand-green-hover, #36c956) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-restore-btn:hover:not(:disabled) svg {
+  color: var(--mg-brand-green-hover, #36c956) !important;
+  stroke: var(--mg-brand-green-hover, #36c956) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-close {
@@ -8773,13 +8813,6 @@
   width: var(--mg-btn-icon-size, 28px);
   height: var(--mg-btn-icon-size, 28px);
   color: var(--text-2, #6b7280);
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-counter {
-  border-radius: var(--mg-search-pill-radius, 999px) !important;
-  border: var(--mg-btn-pill-border, 1px solid #e7eaee) !important;
-  background: var(--gray-fill, #f1f3f4) !important;
-  color: var(--text-2, #6b7280) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-search-pill--compact {

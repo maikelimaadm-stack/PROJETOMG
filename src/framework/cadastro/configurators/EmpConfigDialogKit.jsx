@@ -10,8 +10,6 @@ import {
   Search,
   X,
 } from "lucide-react";
-import ErpInfoPill from "@/shared/ui/ErpInfoPill";
-import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
@@ -27,6 +25,16 @@ import {
 
 export const EmpConfigToolbarBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`ios-btn tb-btn tb-btn-ghost tb-btn-labeled ${className}`} {...props}>
+    {children}
+  </button>
+);
+
+export const EmpConfigRestoreBtn = ({ children, className = "", ...props }) => (
+  <button
+    type="button"
+    className={`ios-btn tb-btn tb-btn-ghost tb-btn-icon emp-config-restore-btn ${className}`}
+    {...props}
+  >
     {children}
   </button>
 );
@@ -75,8 +83,6 @@ export function EmpConfigDialogFrame({
   infoTitle,
   dialogClassName = "",
   toolbar,
-  counterValue,
-  counterTitle,
   children,
 }) {
   const handleClose = () => {
@@ -99,9 +105,13 @@ export function EmpConfigDialogFrame({
         <div className={EMP_CONFIG_DIALOG_SHELL}>
           <div className={EMP_CONFIG_DIALOG_HEADER}>
             <div className="emp-config-dialog-header__title flex min-w-0 flex-1 items-center gap-1.5">
-              <ErpInfoPill className="shrink-0">{titleCase(badgeLabel)}</ErpInfoPill>
-              <ChevronRight className="h-3 w-3 shrink-0 text-[var(--text-3,#9ca3af)]" strokeWidth={2} aria-hidden="true" />
-              <ErpInfoPill className="min-w-0 max-w-full truncate">{infoTitle}</ErpInfoPill>
+              <span className="emp-config-dialog-header__badge">{titleCase(badgeLabel)}</span>
+              <ChevronRight
+                className="emp-config-dialog-header__chevron h-3 w-3 shrink-0"
+                strokeWidth={2}
+                aria-hidden="true"
+              />
+              <span className="emp-config-dialog-header__name min-w-0 truncate">{infoTitle}</span>
             </div>
             <button
               type="button"
@@ -115,21 +125,7 @@ export function EmpConfigDialogFrame({
           </div>
 
           <EmpSplitToolbarLayout
-            toolbar={
-              <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
-                {toolbar}
-                {counterValue !== undefined ? (
-                  <div className="ml-auto flex items-center gap-1 pr-1">
-                    <EmpBubbleCounter
-                      value={String(counterValue)}
-                      title={counterTitle}
-                      variant="toolbar"
-                      className="emp-toolbar-bubble-counter emp-config-dialog-counter"
-                    />
-                  </div>
-                ) : null}
-              </div>
-            }
+            toolbar={toolbar ? <div className={EMP_CONFIG_DIALOG_TOOLBAR}>{toolbar}</div> : null}
           >
             {children}
           </EmpSplitToolbarLayout>

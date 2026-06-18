@@ -98,8 +98,6 @@ export default function RegistroAnexosDialog({
       badgeLabel="Anexos"
       infoTitle={title || "Lote"}
       dialogClassName={EMP_CONFIG_LIST_DIALOG_CLASS}
-      counterValue={anexos.length}
-      counterTitle="Total de anexos"
       toolbar={
         <>
           <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
