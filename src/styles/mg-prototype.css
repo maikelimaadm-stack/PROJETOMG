@@ -7949,44 +7949,6 @@
   flex: 0 1 auto;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-group-row .emp-group-row-cell {
-  background: #f8fafc !important;
-  font-weight: 600;
-  height: 26px !important;
-  line-height: 26px !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-group-row-content {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 26px;
-  line-height: 26px;
-  white-space: nowrap;
-  color: #0f172a;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-group-row-count {
-  color: #334155;
-  font-weight: 700;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-group-row-metrics {
-  color: #475569;
-  font-weight: 500;
-  margin-left: 4px;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-shadow-right {
-  box-shadow: inset -9px 0 10px -10px rgba(15, 23, 42, 0.42) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-pinned-shadow-left {
-  box-shadow: inset 9px 0 10px -10px rgba(15, 23, 42, 0.42) !important;
-}
-
 /* Cabeçalho: fundo branco, linha inferior branca grossa e bordas laterais */
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro thead .emp-th {
   border: none !important;
@@ -8053,13 +8015,6 @@
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tfoot.emp-table-footer .emp-th.emp-pinned-border-right:not(:last-child),
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td.emp-pinned-border-right,
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td.emp-pinned-border-right:not(:last-child) {
-  box-shadow:
-    inset -1px 0 0 0 var(--mg-brand-green, #16a34a),
-    inset 0 -1px 0 0 var(--emp-table-line) !important;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-group-row-cell.emp-pinned-border-right,
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tbody .emp-td.emp-group-row-cell.emp-pinned-border-right:not(:last-child) {
   box-shadow:
     inset -1px 0 0 0 var(--mg-brand-green, #16a34a),
     inset 0 -1px 0 0 var(--emp-table-line) !important;
