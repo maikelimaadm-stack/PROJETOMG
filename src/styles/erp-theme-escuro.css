@@ -1942,7 +1942,7 @@ html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-save:not(:disab
   border-color: #6e7681 !important;
 }
 
-/* Checkboxes globais — selecionado em verde com ícone branco (config, listagens, filtros) */
+/* Checkboxes globais — borda clara + ícone verde (config, listagens, filtros) */
 html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check,
 html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check--radio,
 html.escuro .mg-empresas-scope .mg-cards-config-menu__check,
@@ -1956,19 +1956,19 @@ html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked,
 html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked,
 html.escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked,
 html.escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked {
-  background: var(--mg-brand-green, #40de63) !important;
-  border-color: var(--mg-brand-green, #40de63) !important;
+  background: #21262d !important;
+  border-color: var(--erp-border-line, #484f58) !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked .mg-cards-config-menu__check-icon,
 html.escuro .mg-empresas-scope .mg-cards-config-menu__check.is-checked .mg-cards-config-menu__check-icon {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
+  color: #40de63 !important;
+  stroke: #40de63 !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked .mg-cards-config-menu__radio-dot,
 html.escuro .mg-empresas-scope .mg-cards-config-menu__check--radio.is-checked .mg-cards-config-menu__radio-dot {
-  background: #ffffff !important;
+  background: #40de63 !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-cards-config-modal .emp-search-config-checkbox,
@@ -1989,92 +1989,4 @@ html.escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp
 html.escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"],
 html.escuro .emp-filter-checkbox[data-state="checked"] {
   border-color: var(--erp-border-line, #484f58) !important;
-}
-
-/* Ajustes solicitados — + verde com ícone branco e lixeiras em vermelho */
-html.tema-escuro .cadastro-emp-scope .emp-config-anexos-attach-btn:not(:disabled),
-html.escuro .cadastro-emp-scope .emp-config-anexos-attach-btn:not(:disabled),
-html.tema-escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-green,
-  .emp-layout-config-card-actions .tb-btn-green,
-  .emp-layout-config-row-draft-add.tb-btn-green
-):not(:disabled),
-html.escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-green,
-  .emp-layout-config-card-actions .tb-btn-green,
-  .emp-layout-config-row-draft-add.tb-btn-green
-):not(:disabled) {
-  background: var(--mg-brand-green, #40de63) !important;
-  border-color: transparent !important;
-  color: #ffffff !important;
-}
-
-html.tema-escuro .cadastro-emp-scope .emp-config-anexos-attach-btn:not(:disabled) :is(span, svg),
-html.escuro .cadastro-emp-scope .emp-config-anexos-attach-btn:not(:disabled) :is(span, svg),
-html.tema-escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-green,
-  .emp-layout-config-card-actions .tb-btn-green,
-  .emp-layout-config-row-draft-add.tb-btn-green
-):not(:disabled) svg,
-html.escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-green,
-  .emp-layout-config-card-actions .tb-btn-green,
-  .emp-layout-config-row-draft-add.tb-btn-green
-):not(:disabled) svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-html.tema-escuro .cadastro-emp-scope .emp-config-anexos-attach-btn:not(:disabled):is(:hover, :focus-visible),
-html.escuro .cadastro-emp-scope .emp-config-anexos-attach-btn:not(:disabled):is(:hover, :focus-visible),
-html.tema-escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-green,
-  .emp-layout-config-card-actions .tb-btn-green,
-  .emp-layout-config-row-draft-add.tb-btn-green
-):not(:disabled):is(:hover, :focus-visible),
-html.escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-green,
-  .emp-layout-config-card-actions .tb-btn-green,
-  .emp-layout-config-row-draft-add.tb-btn-green
-):not(:disabled):is(:hover, :focus-visible) {
-  background: var(--mg-brand-green-hover, #36c956) !important;
-  border-color: transparent !important;
-  color: #ffffff !important;
-}
-
-html.tema-escuro .cadastro-emp-scope .emp-config-anexos-remove-btn,
-html.escuro .cadastro-emp-scope .emp-config-anexos-remove-btn,
-html.tema-escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-danger,
-  .emp-layout-config-card-actions .tb-btn-danger,
-  .emp-layout-config-row-actions .tb-btn-danger,
-  .emp-layout-config-row-preview .tb-btn-danger
-),
-html.escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-danger,
-  .emp-layout-config-card-actions .tb-btn-danger,
-  .emp-layout-config-row-actions .tb-btn-danger,
-  .emp-layout-config-row-preview .tb-btn-danger
-) {
-  background: #21262d !important;
-  border-color: var(--erp-border-line, #484f58) !important;
-  color: #ef4444 !important;
-}
-
-html.tema-escuro .cadastro-emp-scope .emp-config-anexos-remove-btn svg,
-html.escuro .cadastro-emp-scope .emp-config-anexos-remove-btn svg,
-html.tema-escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-danger,
-  .emp-layout-config-card-actions .tb-btn-danger,
-  .emp-layout-config-row-actions .tb-btn-danger,
-  .emp-layout-config-row-preview .tb-btn-danger
-) svg,
-html.escuro .cadastro-emp-scope .emp-layout-configurator :is(
-  .emp-layout-config-panel-actions .tb-btn-danger,
-  .emp-layout-config-card-actions .tb-btn-danger,
-  .emp-layout-config-row-actions .tb-btn-danger,
-  .emp-layout-config-row-preview .tb-btn-danger
-) svg {
-  color: #ef4444 !important;
-  stroke: #ef4444 !important;
 }

@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/shared/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
-import { Plus, X, ExternalLink, Loader2, Trash2 } from "lucide-react";
+import { Plus, X, ExternalLink, Loader2 } from "lucide-react";
 import { showSuccess, showError } from "@/shared/feedback";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
@@ -116,12 +116,7 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
           <EmpSplitToolbarLayout
             toolbar={
               <div className={EMP_CONFIG_DIALOG_TOOLBAR}>
-                <ToolbarBtn
-                  onClick={() => inputRef.current?.click()}
-                  disabled={uploading || !attachmentName.trim()}
-                  className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-config-anexos-attach-btn`}
-                  title="Anexar arquivo"
-                >
+                <ToolbarBtn onClick={() => inputRef.current?.click()} disabled={uploading || !attachmentName.trim()} className={`${EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN} emp-toolbar-btn-new`} title="Anexar arquivo">
                   {uploading ? <Loader2 className="emp-toolbar-action-icon h-3.5 w-3.5 animate-spin" /> : <EmpToolbarIcon icon={Plus} strokeWidth={2.5} />}
                   <span>Anexar</span>
                 </ToolbarBtn>
@@ -170,18 +165,8 @@ export default function RegistroAnexosDialog({ open, onOpenChange, entityName, r
                             <ExternalLink className="w-3 h-3 shrink-0" />
                           </a>
                           <div className="h-[26px] flex items-center justify-center overflow-hidden">
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="icon"
-                              className="emp-toolbar-btn emp-config-anexos-remove-btn h-[24px] w-[24px] rounded-[5px] border-0 bg-white shadow-none p-0"
-                              onClick={() =>
-                                recordId
-                                  ? deleteMutation.mutate(anexo.id)
-                                  : onPendingChange?.(pendingAnexos.filter((item) => item.id !== anexo.id))
-                              }
-                            >
-                              <Trash2 className="w-3 h-3" />
+                            <Button type="button" variant="ghost" size="icon" className="emp-toolbar-btn h-[24px] w-[24px] rounded-[5px] border-0 bg-[#eaf2ff] text-[#334155] hover:bg-[#dde9fb] shadow-none p-0" onClick={() => recordId ? deleteMutation.mutate(anexo.id) : onPendingChange?.(pendingAnexos.filter((item) => item.id !== anexo.id))}>
+                              <X className="w-3 h-3" />
                             </Button>
                           </div>
                         </div>
