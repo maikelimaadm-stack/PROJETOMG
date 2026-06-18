@@ -178,11 +178,6 @@ export default function EmpConfiguracaoFiltrosDialog({
       infoTitle={`Configuração dos filtros - ${moduleTitle}`}
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
-      footer={
-        <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
-          <span>OK</span>
-        </EmpConfigPrimaryBtn>
-      }
     >
       <EmpConfigTransferPanel
         availableLabel="Campos disponíveis"
@@ -227,6 +222,11 @@ export default function EmpConfiguracaoFiltrosDialog({
         onReorderUsedByDrop={reorderUsedByDrop}
         emptyAvailableMessage="Nenhum campo disponível."
         emptyUsedMessage="Nenhum campo em uso encontrado."
+        footer={
+          <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
+            <span>OK</span>
+          </EmpConfigPrimaryBtn>
+        }
       />
     </EmpConfigDialogFrame>
   );

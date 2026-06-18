@@ -8824,8 +8824,24 @@
   box-shadow: none !important;
 }
 
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell--with-footer {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell--with-footer .emp-config-transfer-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-footer {
+  flex-shrink: 0;
+  min-height: var(--mg-subtoolbar-row-height, 42px);
   background: var(--bg-card, #ffffff);
+  border-top: 1px solid var(--emp-table-line, #e7eaee);
+  padding-top: calc(var(--mg-subtoolbar-row-padding-y, 7px));
+  padding-bottom: calc(var(--mg-subtoolbar-row-padding-y, 7px));
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-footer .tb-btn-labeled {

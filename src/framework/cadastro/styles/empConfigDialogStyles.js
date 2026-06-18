@@ -19,7 +19,7 @@ export const EMP_CONFIG_DIALOG_TOOLBAR =
   "emp-config-dialog-toolbar flex items-center gap-1 bg-transparent px-1 py-1";
 
 export const EMP_CONFIG_DIALOG_FOOTER =
-  "emp-config-dialog-footer flex items-center justify-end gap-2 border-t border-[var(--mg-container-border,#E7EAEE)] px-3 py-2";
+  "emp-config-dialog-footer flex items-center justify-end gap-2 px-3";
 
 export const EMP_CONFIG_DIALOG_TOOLBAR_LABELED_BTN = "text-[12px] font-medium";
 
@@ -28,6 +28,9 @@ export const EMP_CONFIG_DIALOG_TABLE_WRAP =
 
 export const EMP_CONFIG_DIALOG_TABLE_SHELL =
   "emp-config-dialog-table-shell overflow-hidden rounded-[var(--mg-radius-card,12px)] !border !border-[var(--mg-container-border,#E7EAEE)] bg-white !shadow-none";
+
+export const EMP_CONFIG_DIALOG_TABLE_SHELL_WITH_FOOTER =
+  "emp-config-dialog-table-shell emp-config-dialog-table-shell--with-footer";
 
 export const EMP_CONFIG_FIELD_WRAP =
   "emp-config-dialog-field h-[var(--mg-btn-height,28px)] rounded-[var(--mg-search-pill-radius,999px)] border border-[var(--mg-container-border,#E7EAEE)] bg-[var(--gray-fill,#f1f3f4)] px-3 text-xs shadow-none focus-visible:ring-0 focus-visible:border-[var(--mg-focus-border)] focus-visible:shadow-[var(--mg-focus-ring)]";

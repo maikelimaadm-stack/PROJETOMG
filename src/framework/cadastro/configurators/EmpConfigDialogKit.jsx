@@ -18,6 +18,7 @@ import {
   EMP_CONFIG_DIALOG_LIST_DIALOG,
   EMP_CONFIG_DIALOG_SHELL,
   EMP_CONFIG_DIALOG_TABLE_SHELL,
+  EMP_CONFIG_DIALOG_TABLE_SHELL_WITH_FOOTER,
   EMP_CONFIG_DIALOG_TABLE_WRAP,
   EMP_CONFIG_DIALOG_TOOLBAR,
   EMP_CONFIG_DIALOG_TRANSFER_DIALOG,
@@ -177,6 +178,7 @@ export function EmpConfigTransferPanel({
   onFinishDrag,
   onReorderUsedByDrop,
   renderUsedItemExtra,
+  footer = null,
   emptyAvailableMessage = "Nenhum item disponível.",
   emptyUsedMessage = "Nenhum item em uso encontrado.",
 }) {
@@ -210,7 +212,11 @@ export function EmpConfigTransferPanel({
 
   return (
     <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
-      <div className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
+      <div
+        className={
+          footer ? EMP_CONFIG_DIALOG_TABLE_SHELL_WITH_FOOTER : EMP_CONFIG_DIALOG_TABLE_SHELL
+        }
+      >
         <div className="emp-config-transfer-grid">
             <aside
               className="emp-config-transfer-panel overflow-hidden flex flex-col"
@@ -314,6 +320,7 @@ export function EmpConfigTransferPanel({
               </div>
             </main>
           </div>
+        {footer ? <div className={EMP_CONFIG_DIALOG_FOOTER}>{footer}</div> : null}
       </div>
     </div>
   );

@@ -200,11 +200,6 @@ export default function EmpConfiguracaoColunasDialog({
       infoTitle={`Configuração das colunas - ${moduleTitle}`}
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
-      footer={
-        <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
-          <span>OK</span>
-        </EmpConfigPrimaryBtn>
-      }
     >
       <EmpConfigTransferPanel
         availableLabel="Colunas disponíveis"
@@ -274,6 +269,11 @@ export default function EmpConfiguracaoColunasDialog({
             />
           </button>
         )}
+        footer={
+          <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
+            <span>OK</span>
+          </EmpConfigPrimaryBtn>
+        }
       />
     </EmpConfigDialogFrame>
   );
