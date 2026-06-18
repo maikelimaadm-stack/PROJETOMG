@@ -362,66 +362,69 @@ export function EmpConfigListTable({
   const gridTemplate = columns.map((column) => column.width || "1fr").join(" ");
 
   const renderLaunchTable = () => (
-    <div className="emp-config-list-table__scroll emp-table-body-scroll">
-      <div className="emp-table-root emp-config-list-table-root min-h-0">
-        <Table className="mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none">
-          <colgroup>
-            {columns.map((column) => (
-              <col
-                key={column.key}
-                style={column.tableWidth ? { width: column.tableWidth } : undefined}
-              />
-            ))}
-          </colgroup>
-          <TableHeader>
-            <TableRow className="hover:bg-transparent">
-              {columns.map((column) => (
-                <TableHead
-                  key={column.key}
-                  className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left${
-                    column.align === "center" ? " emp-config-list-table__th--center" : ""
-                  }`}
-                >
-                  {column.label ? (
-                    <div className="emp-th-label-wrap flex w-full h-full min-w-0 overflow-hidden">
-                      <span className="emp-th-label truncate font-semibold text-left">{column.label}</span>
-                    </div>
-                  ) : null}
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="emp-td emp-config-list-table__empty">
-                  {emptyMessage}
-                </TableCell>
-              </TableRow>
-            ) : (
-              rows.map((row, rowIndex) => (
-                <TableRow
-                  key={row.key}
-                  className={`emp-table-data-row hover:bg-transparent${rowIndex % 2 === 1 ? " emp-row-even" : " emp-row-odd"}`}
-                >
-                  {row.cells.map((cell, index) => {
-                    const column = columns[index] || {};
-                    return (
-                      <TableCell
-                        key={`${row.key}-${index}`}
-                        className={`emp-td align-middle whitespace-nowrap py-0 text-left${
-                          column.align === "center" ? " emp-config-list-table__td--center" : ""
-                        }${column.key === "name" ? " emp-config-list-table__td--name" : ""}`}
+    <div className="mg-view-panel emp-config-list-table-panel min-h-0">
+      <div className="emp-table-root emp-config-list-table-root flex min-h-0 flex-col overflow-hidden">
+        <div className="emp-table-panel min-h-0 flex-1">
+          <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
+            <div className="emp-table-body-scroll emp-config-list-table__scroll relative min-h-0 flex-1 overflow-auto mg-grid-scroll">
+              <Table className="mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none">
+                <colgroup>
+                  {columns.map((column) => (
+                    <col
+                      key={column.key}
+                      style={column.tableWidth ? { width: column.tableWidth } : undefined}
+                    />
+                  ))}
+                </colgroup>
+                <TableHeader>
+                  <TableRow className="hover:bg-transparent">
+                    {columns.map((column) => (
+                      <TableHead
+                        key={column.key}
+                        className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left${
+                          column.align === "center" ? " emp-config-list-table__th--center" : ""
+                        }`}
                       >
-                        {cell}
+                        {column.label ? (
+                          <div className="emp-th-label-wrap flex w-full h-full min-w-0 overflow-hidden">
+                            <span className="emp-th-label truncate font-semibold text-left">{column.label}</span>
+                          </div>
+                        ) : null}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={columns.length} className="emp-td emp-config-list-table__empty">
+                        {emptyMessage}
                       </TableCell>
-                    );
-                  })}
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+                    </TableRow>
+                  ) : (
+                    rows.map((row) => (
+                      <TableRow key={row.key} className="emp-table-data-row hover:bg-transparent emp-row-even">
+                        {row.cells.map((cell, index) => {
+                          const column = columns[index] || {};
+                          return (
+                            <TableCell
+                              key={`${row.key}-${index}`}
+                              className={`emp-td py-0 text-left text-[12px] align-middle whitespace-nowrap overflow-hidden select-none${
+                                column.align === "center" ? " emp-config-list-table__td--center" : ""
+                              }`}
+                            >
+                              {cell}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
