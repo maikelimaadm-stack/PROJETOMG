@@ -317,7 +317,11 @@ export default function MgFilterPills({
   }
 
   return (
-    <div className={`mg-filter-pills-rail mg-filter-pills-rail--track${className ? ` ${className}` : ""}`}>
+    <div
+      className={`mg-filter-pills-rail mg-filter-pills-rail--track${
+        filterFields.length === 0 ? " mg-filter-pills-rail--empty" : ""
+      }${className ? ` ${className}` : ""}`}
+    >
       {hasOverflow ? (
         <button
           type="button"

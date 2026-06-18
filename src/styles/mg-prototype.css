@@ -3578,6 +3578,25 @@
   overflow: hidden;
 }
 
+.mg-empresas-scope .mg-filter-pills-rail--track.mg-filter-pills-rail--empty {
+  width: auto;
+  max-width: none;
+  justify-content: flex-start;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail--track.mg-filter-pills-rail--empty .mg-filter-pills-rail__viewport {
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
+  padding-inline: 0;
+  overflow: hidden;
+}
+
+.mg-empresas-scope .mg-panel-strip__filters:has(.mg-filter-pills-rail--empty) {
+  flex: 0 0 auto;
+  max-width: none;
+}
+
 .mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pills-rail__viewport {
   padding-inline: 1px;
 }
