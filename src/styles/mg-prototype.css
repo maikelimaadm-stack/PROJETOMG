@@ -8875,7 +8875,16 @@
   flex-shrink: 0;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel,
+/* Mesmo recuo lateral e inferior do campo Nome do anexo (10px) */
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel {
+  padding: 0 10px 10px !important;
+  margin: 0 !important;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-root,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-panel {
   padding: 0 !important;
@@ -8891,15 +8900,18 @@
   min-height: 120px;
 }
 
+/* Cabeçalho da tabela com cantos superiores arredondados */
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog
   .mg-view-panel.emp-config-list-table-panel
   .emp-config-list-table-root
   .emp-table-shell,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog.emp-layout-presets-dialog
+  .emp-config-list-table-panel
   .emp-table-shell {
-  border-radius: 0 !important;
+  border-radius: var(--mg-radius-control, 8px) var(--mg-radius-control, 8px) 0 0 !important;
   border: none !important;
   box-shadow: none !important;
+  overflow: hidden;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell--with-footer {
@@ -9323,7 +9335,7 @@
   background: #ffffff !important;
   border: none !important;
   box-shadow: none !important;
-  border-radius: 0 !important;
+  border-radius: var(--mg-radius-control, 8px) var(--mg-radius-control, 8px) 0 0 !important;
   overflow: hidden;
 }
 
