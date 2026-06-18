@@ -362,10 +362,10 @@ export function EmpConfigListTable({
   const gridTemplate = columns.map((column) => column.width || "1fr").join(" ");
 
   const renderLaunchTable = () => (
-    <div className="mg-view-panel emp-config-list-table-panel min-h-0">
-      <div className="emp-table-root emp-config-list-table-root mg-grid-wrapper flex min-h-0 flex-col overflow-hidden">
-        <div className="emp-table-panel min-h-0 flex-1">
-          <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
+    <div className="mg-view-panel emp-config-list-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="emp-table-root emp-config-list-table-root mg-grid-wrapper flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="emp-table-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="emp-table-shell flex min-h-0 flex-1 flex-col overflow-hidden bg-white">
             <div className="emp-table-body-scroll emp-config-list-table__scroll relative min-h-0 flex-1 overflow-auto mg-grid-scroll">
               <Table className="mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none">
                 <colgroup>
@@ -461,7 +461,11 @@ export function EmpConfigListTable({
 
   return (
     <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
-      <div className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
+      <div
+        className={`${EMP_CONFIG_DIALOG_TABLE_SHELL}${
+          tableVariant === "launch" ? " emp-config-dialog-table-shell--list-launch" : ""
+        }`}
+      >
           {formRow ? (
             formRow.variant === "launch" ? (
               <div className="emp-config-launch-form-row mg-prototype-form mg-prototype-form--edit">

@@ -8843,6 +8843,65 @@
   box-shadow: none !important;
 }
 
+/* Diálogo de lista (anexos): tabela colada nas bordas do popup */
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-dialog-shell {
+  padding: 0 !important;
+  gap: 0 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-dialog-shell .emp-split-view {
+  gap: 0 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-layout-presets-table-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-dialog-table-shell,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-dialog-table-shell--list-launch {
+  border: none !important;
+  border-radius: 0 !important;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-launch-form-row {
+  padding: 8px 10px;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-root,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table-panel .emp-table-panel {
+  padding: 0 !important;
+  margin: 0 !important;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog .emp-config-list-table__scroll {
+  max-height: none;
+  flex: 1;
+  min-height: 120px;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog
+  .mg-view-panel.emp-config-list-table-panel
+  .emp-config-list-table-root
+  .emp-table-shell,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-config-list-dialog.emp-layout-presets-dialog
+  .emp-table-shell {
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell--with-footer {
   display: flex;
   flex-direction: column;
@@ -9264,7 +9323,7 @@
   background: #ffffff !important;
   border: none !important;
   box-shadow: none !important;
-  border-radius: 12px !important;
+  border-radius: 0 !important;
   overflow: hidden;
 }
 
