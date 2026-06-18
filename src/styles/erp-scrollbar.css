@@ -229,3 +229,109 @@ html *::-webkit-scrollbar-button:double-button:horizontal:increment {
 [data-radix-scroll-area-thumb]:active {
   background: var(--erp-scrollbar-thumb-active) !important;
 }
+
+/* ==========================================================================
+   ERP Ícones — cor preta em todo o sistema
+   Carregado por último para sobrescrever tokens accent/verde/branco.
+   ========================================================================== */
+
+:root {
+  --mg-icon-color: #000000;
+}
+
+html body svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"],
+  label,
+  span,
+  div
+) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-danger,
+  .tb-btn-icon,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .tb-btn-labeled,
+  .mg-nav-btn,
+  .mg-accent-icon-btn,
+  .emp-toolbar-btn,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-delete,
+  .emp-toolbar-btn-save,
+  .emp-toolbar-nav-btn,
+  .mg-search-pill,
+  .mg-action-bar,
+  .mg-topbar-icon-btn,
+  .emp-header-filter-icon,
+  .emp-table-fullscreen-btn,
+  .emp-config-restore-btn,
+  .emp-layout-presets-close-icon,
+  .mg-filter-pills-rail__nav,
+  .view-mode-btn,
+  .seg-tab,
+  .erp-sidebar-group-trigger,
+  .mg-desktop-header__logo,
+  .mg-speed-dial__action,
+  .emp-layout-config-field-action
+) svg.lucide {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):hover:not(:disabled) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):focus-visible:not(:disabled) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  .tb-btn-ghost,
+  .tb-btn-green,
+  .tb-btn-blue,
+  .tb-btn-red,
+  .tb-btn-danger,
+  .tb-btn-icon,
+  .tb-btn-filter,
+  .tb-btn-more,
+  .mg-nav-btn,
+  .emp-toolbar-btn,
+  .emp-toolbar-btn-new,
+  .emp-toolbar-btn-delete,
+  .mg-search-pill,
+  .mg-topbar-icon-btn,
+  .emp-header-filter-icon,
+  .mg-filter-pills-rail__nav,
+  .view-mode-btn,
+  .seg-tab
+):hover:not(:disabled) svg.lucide {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+/* Ícones SVG customizados (sem classe lucide) */
+html body .emp-table-fullscreen-btn svg,
+html body .emp-toolbar-search-icon,
+html body .mg-search-pill-icon,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) .emp-table-fullscreen-btn svg,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) .emp-toolbar-search-icon,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) .mg-search-pill-icon {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(button, a, [role="button"]):hover:not(:disabled) :is(.emp-table-fullscreen-btn svg, .emp-toolbar-search-icon, .mg-search-pill-icon),
+html body .mg-search-pill:focus-within .mg-search-pill-icon {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
