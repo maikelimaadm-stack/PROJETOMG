@@ -9254,8 +9254,70 @@
   max-height: 320px;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel .emp-config-list-table-root .emp-table-shell {
-  border-radius: var(--mg-radius-control, 8px) !important;
+/* Tabela de anexos — espelha TBLEMP / emp-table-pro de lançamento */
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-shell {
+  --emp-table-line: #e7eaee;
+  --emp-table-header-bg: #ffffff;
+  --emp-table-header-line: #ffffff;
+  --emp-table-header-side-line: #e7eaee;
+  --emp-table-header-height: 30px;
+  background: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro {
+  table-layout: fixed !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro thead .emp-th,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro tbody .emp-td {
+  box-sizing: border-box !important;
+  padding: 0 9px !important;
+  overflow: hidden !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  border: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro thead .emp-th {
+  background: var(--emp-table-header-bg, #ffffff) !important;
+  color: #334155 !important;
+  height: var(--emp-table-header-height, 30px) !important;
+  line-height: var(--emp-table-header-height, 30px) !important;
+  box-shadow: inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro thead .emp-th:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-header-side-line, var(--emp-table-line)),
+    inset 0 -2px 0 0 var(--emp-table-header-line, #ffffff) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro tbody .emp-td {
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
+  color: #5b6b80 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro tbody .emp-td:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-line),
+    inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-pro.mg-grid thead {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .mg-view-panel.emp-config-list-table-panel .emp-config-list-table-root .emp-table-data-row {
+  height: 26px;
+  max-height: 26px;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro .emp-config-list-table__th--center,
@@ -9270,33 +9332,15 @@
   padding: 16px 9px !important;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__link {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 6px;
-  color: inherit;
-  text-decoration: none;
-}
-
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__link:hover {
-  color: var(--text-1, #111827);
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__name {
-  font-weight: inherit;
-  color: inherit;
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__meta {
-  flex-shrink: 0;
-  color: var(--text-3, #9ca3af);
+  color: #5b6b80 !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__action {
   justify-content: center;
 }
 
+/* Variante grid legada (não-launch) */
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__head,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__row {
   display: grid;
@@ -9341,33 +9385,6 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__row:last-child {
   border-bottom: 0;
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__link {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  gap: 6px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__link:hover {
-  color: var(--text-1, #111827);
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__name {
-  font-weight: 600;
-  color: var(--text-1, #111827);
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__meta {
-  flex-shrink: 0;
-  color: var(--text-3, #9ca3af);
-}
-
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__action {
-  justify-content: center;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .tb-btn-labeled,

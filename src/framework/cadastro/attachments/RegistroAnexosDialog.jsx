@@ -142,19 +142,19 @@ export default function RegistroAnexosDialog({
         rows={anexos.map((anexo) => ({
           key: anexo.id,
           cells: [
-            <span key="name" className="emp-config-list-table__name block w-full truncate text-left">
-              {anexo.attachment_name || anexo.file_name}
-            </span>,
+            anexo.attachment_name || anexo.file_name,
             <a
               key="file"
               href={anexo.file_url}
               target="_blank"
               rel="noreferrer"
-              className="emp-config-list-table__link"
+              className="emp-config-list-table__link flex min-w-0 items-center gap-1.5 text-inherit no-underline"
             >
               <span className="truncate">{anexo.file_name}</span>
-              <span className="emp-config-list-table__meta">{formatSize(anexo.file_size)}</span>
-              <ExternalLink className="h-3 w-3 shrink-0" />
+              {anexo.file_size ? (
+                <span className="shrink-0 text-[#94a3b8]">{formatSize(anexo.file_size)}</span>
+              ) : null}
+              <ExternalLink className="h-3 w-3 shrink-0 opacity-60" />
             </a>,
             <div key="action" className="emp-config-list-table__action flex w-full items-center justify-center">
               <EmpConfigPlainIconBtn

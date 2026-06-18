@@ -363,7 +363,7 @@ export function EmpConfigListTable({
 
   const renderLaunchTable = () => (
     <div className="mg-view-panel emp-config-list-table-panel min-h-0">
-      <div className="emp-table-root emp-config-list-table-root flex min-h-0 flex-col overflow-hidden">
+      <div className="emp-table-root emp-config-list-table-root mg-grid-wrapper flex min-h-0 flex-col overflow-hidden">
         <div className="emp-table-panel min-h-0 flex-1">
           <div className="emp-table-shell flex min-h-0 flex-col overflow-hidden bg-white">
             <div className="emp-table-body-scroll emp-config-list-table__scroll relative min-h-0 flex-1 overflow-auto mg-grid-scroll">
