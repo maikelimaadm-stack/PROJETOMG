@@ -116,9 +116,9 @@ export default function RegistroAnexosDialog({
                 aria-label="Anexar arquivo"
               >
                 {uploading ? (
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.2} />
+                  <Loader2 className="h-3 w-3 animate-spin" strokeWidth={2.2} />
                 ) : (
-                  <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                  <Plus className="h-3 w-3" strokeWidth={2.5} />
                 )}
               </EmpConfigPrimaryIconBtn>
             </>
@@ -128,9 +128,7 @@ export default function RegistroAnexosDialog({
               type="text"
               value={attachmentName}
               onChange={(event) => setAttachmentName(event.target.value)}
-              placeholder="EX: CONTRATO, NOTA FISCAL, GTA..."
-              className="w-full uppercase"
-              style={{ textTransform: "uppercase" }}
+              placeholder=" "
             />
           ),
         }}

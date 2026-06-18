@@ -345,20 +345,18 @@ export function EmpConfigListTable({
       <div className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
           {formRow ? (
             formRow.variant === "launch" ? (
-              <div className="emp-config-launch-form-row">
+              <div className="emp-config-launch-form-row mg-prototype-form mg-prototype-form--edit">
                 {formRow.leading ? (
                   <div className="emp-config-launch-form-row__leading">{formRow.leading}</div>
                 ) : null}
-                <div className="mg-prototype-form mg-prototype-form--edit emp-config-launch-form-row__field">
-                  <div
-                    data-field={formRow.fieldName || "config-field"}
-                    className={`fg mg-prototype-field${formRow.hasValue ? " mg-has-value" : ""}`}
-                  >
-                    <label className={`fg-label${formRow.required ? " required" : ""}`}>
-                      {formRow.label}
-                    </label>
-                    {formRow.control}
-                  </div>
+                <div
+                  data-field={formRow.fieldName || "config-field"}
+                  className={`fg mg-prototype-field emp-config-launch-form-row__field${formRow.hasValue ? " mg-has-value" : ""}`}
+                >
+                  <label className={`fg-label${formRow.required ? " required" : ""}`}>
+                    {formRow.label}
+                  </label>
+                  {formRow.control}
                 </div>
               </div>
             ) : (

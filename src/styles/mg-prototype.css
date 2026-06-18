@@ -9067,7 +9067,7 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 8px;
   padding: 8px;
   border-bottom: 1px solid var(--emp-table-line, #e7eaee);
@@ -9075,6 +9075,8 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__leading {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__field {
@@ -9083,11 +9085,52 @@
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn {
-  width: var(--mg-field-height);
-  height: var(--mg-field-height);
-  min-width: var(--mg-field-height);
-  min-height: var(--mg-field-height);
-  padding: 0;
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
+  .emp-config-launch-form-row.mg-prototype-form--edit
+  .emp-config-launch-form-row__field
+  > input:not([type="hidden"]) {
+  width: 100%;
+  text-transform: uppercase;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
+  .emp-config-launch-form-row.mg-prototype-form--edit
+  .emp-config-launch-form-row__field:not(.mg-has-value):not(.mg-field-locked):not(:focus-within):not(:has(> input:not(:placeholder-shown)))
+  > input:not([disabled]):not([readonly]) {
+  background: var(--mg-field-empty-bg) !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
+  .emp-config-launch-form-row.mg-prototype-form--edit
+  .emp-config-launch-form-row__field:is(
+    .mg-has-value,
+    :focus-within,
+    :has(> input:not(:placeholder-shown))
+  ):not(.mg-field-locked)
+  > input:not([disabled]):not([readonly]) {
+  background: var(--mg-field-filled-bg) !important;
+  border: var(--mg-field-surface-border) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
+  .emp-config-launch-form-row.mg-prototype-form--edit
+  .emp-config-launch-form-row__field:not(.mg-field-locked)
+  > input:not([disabled]):not([readonly]):focus {
+  box-shadow: var(--mg-focus-ring) !important;
+  outline: none;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog
+  .emp-config-launch-form-row.mg-prototype-form--edit
+  .emp-config-launch-form-row__field
+  > input::placeholder {
+  color: transparent !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-form-row {
