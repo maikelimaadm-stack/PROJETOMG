@@ -3562,8 +3562,8 @@
   height: var(--mg-btn-height);
   padding: var(--mg-view-seg-track-padding);
   gap: 4px;
-  background: #ffffff;
-  border: 1px solid var(--emp-table-header-side-line, var(--emp-table-line, #e7eaee));
+  background: transparent;
+  border: none;
   border-radius: var(--mg-search-pill-radius);
   overflow: hidden;
 }
