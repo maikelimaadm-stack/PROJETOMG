@@ -8274,6 +8274,21 @@
   stroke: var(--text-3) !important;
 }
 
+/* Rolar filtros — só ícone, sem plano de fundo */
+.cadastro-emp-scope.mg-empresas-scope :is(.mg-filter-pills-rail__nav--prev, .mg-filter-pills-rail__nav--next),
+.mg-empresas-scope :is(.mg-filter-pills-rail__nav--prev, .mg-filter-pills-rail__nav--next) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope :is(.mg-filter-pills-rail__nav--prev, .mg-filter-pills-rail__nav--next):hover:not(:disabled),
+.mg-empresas-scope :is(.mg-filter-pills-rail__nav--prev, .mg-filter-pills-rail__nav--next):hover:not(:disabled) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
 /* ── ERP Global Filter Popover ── */
 .mg-empresas-scope.mg-floating-panel-root .erp-filter-popover,
 .mg-empresas-scope .mg-view-panel .emp-table-root .erp-filter-popover {
