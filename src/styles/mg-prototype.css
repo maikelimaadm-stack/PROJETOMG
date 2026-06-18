@@ -3578,23 +3578,29 @@
   overflow: hidden;
 }
 
-.mg-empresas-scope .mg-filter-pills-rail--track.mg-filter-pills-rail--empty {
-  width: auto;
-  max-width: none;
-  justify-content: flex-start;
+.mg-empresas-scope .mg-filter-pills-rail__config-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  max-width: var(--mg-btn-icon-size);
+  flex-shrink: 0;
 }
 
-.mg-empresas-scope .mg-filter-pills-rail--track.mg-filter-pills-rail--empty .mg-filter-pills-rail__viewport {
-  flex: 0 0 0;
-  width: 0;
-  min-width: 0;
-  padding-inline: 0;
-  overflow: hidden;
+.mg-empresas-scope .mg-filter-pills-rail__config-slot .mg-filter-pills-rail__config {
+  width: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  max-width: var(--mg-btn-icon-size);
+  height: var(--mg-filter-pill-height);
+  min-height: var(--mg-filter-pill-height);
+  padding: 0 !important;
 }
 
-.mg-empresas-scope .mg-panel-strip__filters:has(.mg-filter-pills-rail--empty) {
-  flex: 0 0 auto;
-  max-width: none;
+.mg-empresas-scope .mg-filter-pills-rail__config.is-active {
+  color: var(--mg-brand-green-hover);
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pills-rail__viewport {
@@ -3652,12 +3658,6 @@
 .mg-empresas-scope .mg-filter-pills-rail__nav:disabled .mg-filter-pills-rail__nav-icon {
   color: var(--text-3);
   stroke: var(--text-3);
-}
-
-.mg-empresas-scope .mg-filter-pills-rail__config.is-active {
-  color: var(--mg-brand-green-hover);
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
 }
 
 .mg-empresas-scope .mg-filter-pills {

@@ -308,20 +308,36 @@ export default function MgFilterPills({
     </>
   );
 
+  const configButton = onConfigureFilters ? (
+    <div className="mg-filter-pills-rail__config-slot">
+      <button
+        type="button"
+        className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
+          filterPanelActive ? " tb-btn-filter-active is-active" : ""
+        }`}
+        onClick={onConfigureFilters}
+        disabled={disabled}
+        aria-label="Configurar filtros"
+        title="Configurar filtros"
+        aria-pressed={filterPanelActive}
+      >
+        <Filter className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+      </button>
+    </div>
+  ) : null;
+
   if (!useScrollRail) {
     return (
       <div className={`mg-filter-pills${className ? ` ${className}` : ""}`}>
+        {configButton}
         {pills}
       </div>
     );
   }
 
   return (
-    <div
-      className={`mg-filter-pills-rail mg-filter-pills-rail--track${
-        filterFields.length === 0 ? " mg-filter-pills-rail--empty" : ""
-      }${className ? ` ${className}` : ""}`}
-    >
+    <div className={`mg-filter-pills-rail mg-filter-pills-rail--track${className ? ` ${className}` : ""}`}>
+      {configButton}
       {hasOverflow ? (
         <button
           type="button"
@@ -347,21 +363,6 @@ export default function MgFilterPills({
           title="Rolar filtros para a direita"
         >
           <ChevronRight className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
-        </button>
-      ) : null}
-      {onConfigureFilters ? (
-        <button
-          type="button"
-          className={`ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__config${
-            filterPanelActive ? " is-active" : ""
-          }`}
-          onClick={onConfigureFilters}
-          disabled={disabled}
-          aria-label="Configurar filtros"
-          title="Configurar filtros"
-          aria-pressed={filterPanelActive}
-        >
-          <Filter className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
         </button>
       ) : null}
     </div>
