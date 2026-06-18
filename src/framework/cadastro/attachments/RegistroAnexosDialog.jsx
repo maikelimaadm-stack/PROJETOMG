@@ -3,12 +3,11 @@ import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ExternalLink, Loader2, Plus, X } from "lucide-react";
 import { showSuccess, showError } from "@/shared/feedback";
-import { EMP_CONFIG_FIELD_WRAP } from "@/framework/cadastro/styles/empConfigDialogStyles";
 import {
   EmpConfigDialogFrame,
   EmpConfigListTable,
   EmpConfigMoveBtn,
-  EmpConfigPrimaryBtn,
+  EmpConfigPrimaryIconBtn,
   EMP_CONFIG_LIST_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
 
@@ -98,35 +97,39 @@ export default function RegistroAnexosDialog({
       badgeLabel="Anexos"
       infoTitle={title || "Lote"}
       dialogClassName={EMP_CONFIG_LIST_DIALOG_CLASS}
-      toolbar={
-        <>
-          <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
-          <EmpConfigPrimaryBtn
-            onClick={() => inputRef.current?.click()}
-            disabled={uploading || !attachmentName.trim()}
-            title="Anexar arquivo"
-          >
-            {uploading ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.2} />
-            ) : (
-              <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
-            )}
-            <span>Anexar</span>
-          </EmpConfigPrimaryBtn>
-        </>
-      }
     >
       <EmpConfigListTable
         formRow={{
-          label: "Nome do arquivo:",
+          variant: "launch",
+          fieldName: "attachment-name",
+          label: "Nome do arquivo",
           required: true,
+          hasValue: Boolean(attachmentName.trim()),
+          leading: (
+            <>
+              <input ref={inputRef} type="file" multiple className="hidden" onChange={handleFiles} />
+              <EmpConfigPrimaryIconBtn
+                className="emp-config-anexos-attach-btn"
+                onClick={() => inputRef.current?.click()}
+                disabled={uploading || !attachmentName.trim()}
+                title="Anexar arquivo"
+                aria-label="Anexar arquivo"
+              >
+                {uploading ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={2.2} />
+                ) : (
+                  <Plus className="h-3.5 w-3.5" strokeWidth={2.5} />
+                )}
+              </EmpConfigPrimaryIconBtn>
+            </>
+          ),
           control: (
             <input
               type="text"
               value={attachmentName}
               onChange={(event) => setAttachmentName(event.target.value)}
               placeholder="EX: CONTRATO, NOTA FISCAL, GTA..."
-              className={`${EMP_CONFIG_FIELD_WRAP} w-full uppercase`}
+              className="w-full uppercase"
               style={{ textTransform: "uppercase" }}
             />
           ),

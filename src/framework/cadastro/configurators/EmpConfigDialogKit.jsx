@@ -46,6 +46,12 @@ export const EmpConfigPrimaryBtn = ({ children, className = "", ...props }) => (
   </button>
 );
 
+export const EmpConfigPrimaryIconBtn = ({ children, className = "", ...props }) => (
+  <button type="button" className={`ios-btn tb-btn tb-btn-green tb-btn-icon ${className}`} {...props}>
+    {children}
+  </button>
+);
+
 export const EmpConfigMoveBtn = ({ children, className = "", ...props }) => (
   <button type="button" className={`ios-btn mg-nav-btn emp-config-transfer-btn ${className}`} {...props}>
     {children}
@@ -338,13 +344,32 @@ export function EmpConfigListTable({
     <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
       <div className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
           {formRow ? (
-            <div className="emp-config-list-form-row">
-              <label className="emp-config-list-form-row__label">
-                {formRow.label}
-                {formRow.required ? <span className="emp-config-list-form-row__required">*</span> : null}
-              </label>
-              <div className="emp-config-list-form-row__control">{formRow.control}</div>
-            </div>
+            formRow.variant === "launch" ? (
+              <div className="emp-config-launch-form-row">
+                {formRow.leading ? (
+                  <div className="emp-config-launch-form-row__leading">{formRow.leading}</div>
+                ) : null}
+                <div className="mg-prototype-form mg-prototype-form--edit emp-config-launch-form-row__field">
+                  <div
+                    data-field={formRow.fieldName || "config-field"}
+                    className={`fg mg-prototype-field${formRow.hasValue ? " mg-has-value" : ""}`}
+                  >
+                    <label className={`fg-label${formRow.required ? " required" : ""}`}>
+                      {formRow.label}
+                    </label>
+                    {formRow.control}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="emp-config-list-form-row">
+                <label className="emp-config-list-form-row__label">
+                  {formRow.label}
+                  {formRow.required ? <span className="emp-config-list-form-row__required">*</span> : null}
+                </label>
+                <div className="emp-config-list-form-row__control">{formRow.control}</div>
+              </div>
+            )
           ) : null}
 
           <div className="emp-config-list-table__scroll">

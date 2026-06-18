@@ -9065,6 +9065,31 @@
   display: none;
 }
 
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid var(--emp-table-line, #e7eaee);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__leading {
+  flex-shrink: 0;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-launch-form-row__field {
+  flex: 1;
+  min-width: 0;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn {
+  width: var(--mg-field-height);
+  height: var(--mg-field-height);
+  min-width: var(--mg-field-height);
+  min-height: var(--mg-field-height);
+  padding: 0;
+}
+
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-form-row {
   display: grid;
   grid-template-columns: 210px minmax(0, 1fr);
