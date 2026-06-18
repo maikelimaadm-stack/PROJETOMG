@@ -3,8 +3,6 @@ import {
   ArrowDown,
   ArrowUp,
   Check,
-  ChevronDown,
-  ChevronRight,
   EyeOff,
   Filter,
   Loader2,
@@ -44,7 +42,6 @@ import {
   MIN_COL_WIDTH,
   ORDER_KEY,
   PAGE_SIZE_KEY,
-  PINNED_RIGHT_KEY,
   ROW_DBLCLICK_OPEN_MS,
   ROW_DBLCLICK_PAIR_MS,
   SORT_KEY,
@@ -62,7 +59,6 @@ import {
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
 } from "./tblEmp.filters";
-import { buildGroupedRows, pruneCollapsedGroupKeys } from "./tblEmp.grouping";
 import {
   ErpFilterPopover,
   isErpFilterActive,
@@ -230,7 +226,6 @@ export default function TBLEMP({
 
   const [columnWidths, setColumnWidths] = useState(() => { const def = Object.fromEntries(COLUNAS_BASE.map((c) => [c.id, c.width || 160])); const saved = localStorage.getItem(WIDTHS_KEY); if (!saved) return def; try { return { ...def, ...JSON.parse(saved) }; } catch { return def; } });
   const [frozenColumnCount, setFrozenColumnCount] = useState(0);
-  const [pinnedRightColumnIds, setPinnedRightColumnIds] = useState([]);
   const [colunasOrdem, setColunasOrdem] = useState(() => loadColumnOrder(ORDER_KEY, COLUNAS_BASE));
   const [colunasVisiveis, setColunasVisiveis] = useState(() => loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE));
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() => { const s = localStorage.getItem(AGGR_KEY); if (!s) return {}; try { return JSON.parse(s); } catch { return {}; } });
@@ -295,8 +290,6 @@ export default function TBLEMP({
   const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
-  const [groupByColumnIds, setGroupByColumnIds] = useState([]);
-  const [collapsedGroupKeys, setCollapsedGroupKeys] = useState({});
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
 
@@ -423,7 +416,6 @@ export default function TBLEMP({
 
   useEffect(() => { localStorage.setItem(WIDTHS_KEY, JSON.stringify(columnWidths)); }, [columnWidths]);
   useEffect(() => { localStorage.setItem(FROZEN_KEY, "0"); }, [frozenColumnCount]);
-  useEffect(() => { localStorage.setItem(PINNED_RIGHT_KEY, JSON.stringify(pinnedRightColumnIds)); }, [pinnedRightColumnIds]);
   useEffect(() => { localStorage.setItem(FILTERS_KEY, JSON.stringify(filtrosColunas)); }, [filtrosColunas]);
   useEffect(() => { localStorage.setItem(SORT_KEY, JSON.stringify(sortConfig)); }, [sortConfig]);
   useEffect(() => { const s = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s ? JSON.parse(s) : {}); } catch { setLayoutAggregationConfig({}); } const h = () => { const s2 = localStorage.getItem(AGGR_KEY); try { setLayoutAggregationConfig(s2 ? JSON.parse(s2) : {}); } catch { setLayoutAggregationConfig({}); } }; window.addEventListener("storage", h); window.addEventListener("emp-layout-updated", h); return () => { window.removeEventListener("storage", h); window.removeEventListener("emp-layout-updated", h); }; }, []);
@@ -460,16 +452,15 @@ export default function TBLEMP({
   useEffect(() => { onSelectionChange?.(selectedItems); }, [selectedItems, onSelectionChange]);
   useEffect(() => { if (!selectedRecordId || selectedIds !== undefined) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId, selectedIds]);
 
+  useEffect(() => {
+    localStorage.removeItem("emp_col_pinned_right");
+    localStorage.removeItem("emp_group_by_columns_v1");
+  }, []);
+
   const handleColumnLayoutChange = ({ visiveis, ordem }) => {
     setColunasVisiveis(visiveis);
     setColunasOrdem(ordem);
     setFrozenColumnCount(0);
-    setPinnedRightColumnIds((prev) => {
-      const filtered = prev.filter((id) => visiveis.includes(id));
-      if (filtered.length <= 1) return filtered;
-      return [filtered[filtered.length - 1]];
-    });
-    setGroupByColumnIds((prev) => prev.filter((id) => visiveis.includes(id)));
     localStorage.setItem(VISIBLE_KEY, JSON.stringify(visiveis));
     localStorage.setItem(ORDER_KEY, JSON.stringify(ordem));
     localStorage.setItem(FROZEN_KEY, "0");
@@ -479,13 +470,6 @@ export default function TBLEMP({
 
   const colunasTodasOrdenadas = useMemo(() => colunasOrdem.map((id) => colunasDisponiveis.find((c) => c.id === id)).filter((c) => c && !c.fixo), [colunasOrdem, colunasDisponiveis]);
   useEffect(() => { setFrozenColumnCount(0); }, [colunasOrdenadas.length]);
-  useEffect(() => {
-    setPinnedRightColumnIds((prev) => {
-      const filtered = prev.filter((id) => colunasOrdenadas.some((col) => col.id === id));
-      if (filtered.length <= 1) return filtered;
-      return [filtered[filtered.length - 1]];
-    });
-  }, [colunasOrdenadas]);
 
   const columnPixelWidths = useMemo(
     () =>
@@ -516,22 +500,7 @@ export default function TBLEMP({
       return acc;
     }, {});
   }, [colunasOrdenadas, columnPixelWidths, frozenColumnCount]);
-  const pinnedRightOrderedIds = useMemo(
-    () => colunasOrdenadas.map((col) => col.id).filter((id) => pinnedRightColumnIds.includes(id)),
-    [colunasOrdenadas, pinnedRightColumnIds]
-  );
-  const pinnedRightOffsets = useMemo(() => {
-    let right = 0;
-    const next = {};
-    for (let i = pinnedRightOrderedIds.length - 1; i >= 0; i -= 1) {
-      const columnId = pinnedRightOrderedIds[i];
-      next[columnId] = right;
-      right += columnPixelWidths[columnId] || 160;
-    }
-    return next;
-  }, [columnPixelWidths, pinnedRightOrderedIds]);
   const lastPinnedLeftId = frozenColumnCount > 0 ? colunasOrdenadas[frozenColumnCount - 1]?.id : null;
-  const firstPinnedRightId = pinnedRightOrderedIds.length > 0 ? pinnedRightOrderedIds[0] : null;
   const tableColGroup = useMemo(
     () => (
       <colgroup>
@@ -753,27 +722,7 @@ export default function TBLEMP({
     return empresasOrdenadas.slice(start, start + pageSize);
   }, [infiniteMode, serverMode, empresasOrdenadas, safeCurrentPage, pageSize]);
 
-  const groupedColumns = useMemo(
-    () =>
-      groupByColumnIds
-        .map((columnId) => colunasDisponiveisById.get(columnId))
-        .filter(Boolean),
-    [groupByColumnIds, colunasDisponiveisById]
-  );
-
-  const groupedResult = useMemo(
-    () =>
-      buildGroupedRows({
-        items: empresasPaginadas,
-        groupedColumns,
-        collapsedGroupKeys,
-        getFieldValue,
-        sortConfig,
-      }),
-    [empresasPaginadas, groupedColumns, collapsedGroupKeys, getFieldValue, sortConfig]
-  );
-
-  const linhasExibidas = groupedResult.rows;
+  const linhasExibidas = empresasPaginadas;
   const listedEmpresaIds = useMemo(
     () => empresasPaginadas.map((empresa) => empresa.id).filter(Boolean),
     [empresasPaginadas]
@@ -802,28 +751,10 @@ export default function TBLEMP({
     );
     lastSelectedIdRef.current = empId;
   }, []);
-  const groupKeysSignature = useMemo(
-    () => groupedResult.groupKeys.join("||"),
-    [groupedResult.groupKeys]
-  );
-
-  useEffect(() => {
-    setCollapsedGroupKeys((previous) => {
-      const nextState = pruneCollapsedGroupKeys(previous, groupedResult.groupKeys);
-      const prevKeys = Object.keys(previous || {});
-      const nextKeys = Object.keys(nextState);
-      if (prevKeys.length !== nextKeys.length) return nextState;
-      const changed = prevKeys.some((groupKey) => !Object.prototype.hasOwnProperty.call(nextState, groupKey));
-      return changed ? nextState : previous;
-    });
-  }, [groupKeysSignature, groupedResult.groupKeys]);
-
   const getRowBgClass = useCallback((index, selected) => {
     if (selected) return "emp-row-selected";
     return "emp-row-even";
   }, []);
-  const firstGroupingCellColumnId = colunasOrdenadas[0]?.id || null;
-
   const renderSelectHeaderCell = () => (
     <TableHead
       key="__select__"
@@ -864,7 +795,7 @@ export default function TBLEMP({
   );
 
   const renderSelectBodyCell = useCallback(
-    ({ rowKey, emp, isSelected, rowClass, isGroup = false }) => (
+    ({ rowKey, emp, isSelected, rowClass }) => (
       <TableCell
         key={rowKey}
         style={{
@@ -873,72 +804,23 @@ export default function TBLEMP({
           minWidth: SELECT_COLUMN_WIDTH,
           maxWidth: SELECT_COLUMN_WIDTH,
         }}
-        className={`emp-td emp-td-select py-0 text-center align-middle select-none sticky z-[21] ${rowClass}${isGroup ? " emp-group-row-cell" : ""}`}
+        className={`emp-td emp-td-select py-0 text-center align-middle select-none sticky z-[21] ${rowClass}`}
         onClick={(event) => event.stopPropagation()}
       >
-        {isGroup || !emp ? (
-          <span aria-hidden="true">&nbsp;</span>
-        ) : (
-          <div className="emp-table-select-wrap">
-            <TableSelectCheck
-              checked={isSelected}
-              ariaLabel={`Selecionar ${emp.razao_social || emp.codempresa || emp.id}`}
-              onChange={() => handleToggleRowCheckbox(emp.id)}
-            />
-          </div>
-        )}
+        <div className="emp-table-select-wrap">
+          <TableSelectCheck
+            checked={isSelected}
+            ariaLabel={`Selecionar ${emp.razao_social || emp.codempresa || emp.id}`}
+            onChange={() => handleToggleRowCheckbox(emp.id)}
+          />
+        </div>
       </TableCell>
     ),
     [handleToggleRowCheckbox]
   );
 
   const renderVirtualTableRow = useCallback(
-    (rowEntry, virtualRowIndex) => {
-      if (rowEntry?.__type === "group") {
-        const isCollapsed = Boolean(collapsedGroupKeys[rowEntry.groupKey]);
-        return [
-          renderSelectBodyCell({
-            rowKey: `select-group:${rowEntry.groupKey}`,
-            isGroup: true,
-            rowClass: "",
-          }),
-          ...colunasOrdenadas.map((col, colIndex) => {
-          const isPinnedLeft = colIndex < frozenColumnCount;
-          const isPinnedRight = pinnedRightColumnIds.includes(col.id);
-          const isPinned = isPinnedLeft || isPinnedRight;
-          const hasRightShadow = col.id === lastPinnedLeftId;
-          const hasLeftShadow = col.id === firstPinnedRightId;
-          const isPrimaryGroupCell = col.id === firstGroupingCellColumnId;
-          return (
-            <TableCell
-              key={`group-cell:${rowEntry.groupKey}:${col.id}`}
-              style={{
-                left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
-                right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
-              }}
-              className={`emp-td emp-group-row-cell py-0 text-left text-[12px] align-middle select-none ${
-                isPinned ? "sticky z-20" : ""
-              } ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
-            >
-              {isPrimaryGroupCell ? (
-                <div className="emp-group-row-content" style={{ paddingLeft: `${(rowEntry.level || 0) * 14}px` }}>
-                  {isCollapsed ? (
-                    <ChevronRight className="h-3.5 w-3.5 text-emerald-600" />
-                  ) : (
-                    <ChevronDown className="h-3.5 w-3.5 text-emerald-600" />
-                  )}
-                  <span className="emp-group-row-label">{rowEntry.label}</span>
-                  <span className="emp-group-row-count">({rowEntry.count})</span>
-                </div>
-              ) : (
-                <span aria-hidden="true">&nbsp;</span>
-              )}
-            </TableCell>
-          );
-        }),
-        ];
-      }
-      const emp = rowEntry?.emp ?? rowEntry;
+    (emp, virtualRowIndex) => {
       const isSelected = selectedItemsSet.has(emp.id);
       const rowClass = getRowBgClass(virtualRowIndex, isSelected);
       return [
@@ -949,36 +831,27 @@ export default function TBLEMP({
           rowClass,
         }),
         ...colunasOrdenadas.map((col, colIndex) => {
-        const isPinnedLeft = colIndex < frozenColumnCount;
-        const isPinnedRight = pinnedRightColumnIds.includes(col.id);
-        const isPinned = isPinnedLeft || isPinnedRight;
-        const hasRightShadow = col.id === lastPinnedLeftId;
-        const hasLeftShadow = col.id === firstPinnedRightId;
-        return (
-          <TableCell
-            key={`${emp.id}-${col.id}`}
-            style={{
-              left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
-              right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
-            }}
-            className={`emp-td py-0 text-left text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isPinned ? "sticky z-20" : ""} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
-            title={String(getFieldValue(emp, col.id) ?? "")}
-          >
-            {getFieldValue(emp, col.id)}
-          </TableCell>
-        );
-      }),
+          const isPinnedLeft = colIndex < frozenColumnCount;
+          const hasRightShadow = col.id === lastPinnedLeftId;
+          return (
+            <TableCell
+              key={`${emp.id}-${col.id}`}
+              style={{
+                left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
+              }}
+              className={`emp-td py-0 text-left text-[12px] align-middle whitespace-nowrap overflow-hidden select-none ${rowClass} ${isPinnedLeft ? "sticky z-20" : ""} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${col.id === "id_global" ? "text-[#64748B] font-medium" : ""} ${isSelected && col.id !== "id_global" ? "font-semibold" : ""}`}
+              title={String(getFieldValue(emp, col.id) ?? "")}
+            >
+              {getFieldValue(emp, col.id)}
+            </TableCell>
+          );
+        }),
       ];
     },
     [
-      collapsedGroupKeys,
       colunasOrdenadas,
       frozenColumnCount,
       frozenOffsets,
-      firstGroupingCellColumnId,
-      pinnedRightColumnIds,
-      pinnedRightOffsets,
-      firstPinnedRightId,
       lastPinnedLeftId,
       getFieldValue,
       getRowBgClass,
@@ -1085,50 +958,11 @@ export default function TBLEMP({
     handleRowSelect(emp, event);
   };
 
-  const handleDisplayRowClick = (row, event) => {
-    if (row?.__type === "group") {
-      setCollapsedGroupKeys((prev) => ({
-        ...prev,
-        [row.groupKey]: !prev[row.groupKey],
-      }));
-      return;
-    }
-    handleRowClick(row?.emp || row, event);
-  };
-
   const getVirtualRowProps = useCallback(
-    (row) => {
-      if (row?.__type === "group") {
-        return {
-          role: "button",
-          tabIndex: 0,
-          "aria-expanded": !collapsedGroupKeys[row.groupKey],
-          "aria-label": `Alternar grupo ${row.label}`,
-          onKeyDown: (event) => {
-            const isExpanded = !collapsedGroupKeys[row.groupKey];
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              handleDisplayRowClick(row, event);
-              return;
-            }
-            if (event.key === "ArrowRight" && !isExpanded) {
-              event.preventDefault();
-              handleDisplayRowClick(row, event);
-              return;
-            }
-            if (event.key === "ArrowLeft" && isExpanded) {
-              event.preventDefault();
-              handleDisplayRowClick(row, event);
-            }
-          },
-        };
-      }
-      const emp = row?.emp || row;
-      return {
-        "aria-selected": selectedItemsSet.has(emp?.id),
-      };
-    },
-    [collapsedGroupKeys, handleDisplayRowClick, selectedItemsSet]
+    (emp) => ({
+      "aria-selected": selectedItemsSet.has(emp?.id),
+    }),
+    [selectedItemsSet]
   );
 
   const overlayColumnId = columnMenuAnchor?.columnId || menuFiltroAberto;
@@ -1259,9 +1093,7 @@ export default function TBLEMP({
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       if (selectedItemsRef.current.length === 0) return;
       const step = e.key === "ArrowDown" ? 1 : -1;
-      const navegaveis = linhasExibidas
-        .map((item) => item?.emp || item)
-        .filter((item) => item?.id);
+      const navegaveis = linhasExibidas.filter((item) => item?.id);
       const anchorId =
         (lastSelectedIdRef.current && selectedItemsRef.current.includes(lastSelectedIdRef.current))
           ? lastSelectedIdRef.current
@@ -1280,7 +1112,7 @@ export default function TBLEMP({
       requestAnimationFrame(() => {
         const body = scrollContainerRef.current;
         if (!body) return;
-        const visibleIndex = linhasExibidas.findIndex((item) => (item?.emp || item)?.id === nextRecord.id);
+        const visibleIndex = linhasExibidas.findIndex((item) => item?.id === nextRecord.id);
         const row = body.querySelector(`.emp-table-data-row[data-index="${visibleIndex}"]`);
         if (row instanceof HTMLElement) {
           row.scrollIntoView({ block: "nearest" });
@@ -1301,9 +1133,7 @@ export default function TBLEMP({
         (lastSelectedIdRef.current && selectedItemsRef.current.includes(lastSelectedIdRef.current))
           ? lastSelectedIdRef.current
           : selectedItemsRef.current[selectedItemsRef.current.length - 1];
-      const selectedRecord = linhasExibidas
-        .map((item) => item?.emp || item)
-        .find((item) => item?.id === anchorId);
+      const selectedRecord = linhasExibidas.find((item) => item?.id === anchorId);
       if (!selectedRecord) return;
       e.preventDefault();
       onEdit?.(selectedRecord);
@@ -1451,8 +1281,6 @@ export default function TBLEMP({
     if (!colunasVisiveis.includes(col.id) || colunasVisiveis.length <= 1) return;
     const nextVisiveis = colunasVisiveis.filter((id) => id !== col.id);
     setColunasVisiveis(nextVisiveis);
-    setPinnedRightColumnIds((prev) => prev.filter((id) => id !== col.id));
-    setGroupByColumnIds((prev) => prev.filter((id) => id !== col.id));
     localStorage.setItem(VISIBLE_KEY, JSON.stringify(nextVisiveis));
     window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
     closeColumnOverlays();
@@ -1546,8 +1374,6 @@ export default function TBLEMP({
   const renderHeaderCells = () =>
     colunasOrdenadas.map((col, colIndex) => {
       const isPinnedLeft = colIndex < frozenColumnCount;
-      const isPinnedRight = pinnedRightColumnIds.includes(col.id);
-      const isPinned = isPinnedLeft || isPinnedRight;
       const isResizing = resizeColumnId === col.id;
       const isMenuOpen = columnMenuAnchor?.columnId === col.id;
       const hasColumnFilter = hasActiveFilter(col.id);
@@ -1556,17 +1382,15 @@ export default function TBLEMP({
       const isAutoFitActive = Boolean(autoFitActiveColumns[col.id]);
       const isFrozenAnchorColumn = frozenColumnCount > 0 && colIndex === frozenColumnCount - 1;
       const hasRightShadow = isFrozenAnchorColumn;
-      const hasLeftShadow = col.id === firstPinnedRightId;
       return (
         <TableHead
           key={col.id}
           style={{
             left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
-            right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
-            top: isPinned ? 0 : undefined,
-            zIndex: isPinnedLeft ? 51 + colIndex : isPinnedRight ? 51 : undefined,
+            top: isPinnedLeft ? 0 : undefined,
+            zIndex: isPinnedLeft ? 51 + colIndex : undefined,
           }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinned ? "sticky z-50 emp-th-pinned" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none cursor-default text-left ${isPinnedLeft ? "sticky z-50 emp-th-pinned" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""}`}
           onDoubleClick={(event) => {
             const interactiveTarget = event.target?.closest?.(
               "button, [role='separator'], .emp-col-resize-handle"
@@ -1772,18 +1596,14 @@ export default function TBLEMP({
   const renderTotalCells = () =>
     colunasOrdenadas.map((col, ci) => {
       const isPinnedLeft = ci < frozenColumnCount;
-      const isPinnedRight = pinnedRightColumnIds.includes(col.id);
-      const isPinned = isPinnedLeft || isPinnedRight;
       const hasRightShadow = col.id === lastPinnedLeftId;
-      const hasLeftShadow = col.id === firstPinnedRightId;
       return (
         <TableHead
           key={`total-${col.id}`}
           style={{
             left: isPinnedLeft ? frozenOffsets[col.id] : undefined,
-            right: isPinnedRight ? pinnedRightOffsets[col.id] : undefined,
           }}
-          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left ${isPinned ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""} ${hasLeftShadow ? "emp-pinned-shadow-left" : ""}`}
+          className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left ${isPinnedLeft ? "sticky z-50" : "z-40"} ${hasRightShadow ? "emp-pinned-border-right" : ""}`}
         >
           <div className="emp-th-label-wrap flex items-center w-full h-full leading-[26px] whitespace-nowrap overflow-hidden">
             <span className="emp-th-label truncate font-semibold text-left">
@@ -1875,12 +1695,10 @@ export default function TBLEMP({
         colCount={colunasOrdenadas.length + 1}
         renderRow={renderVirtualTableRow}
         getRowClassName={(row, rowIndex) =>
-          row?.__type === "group"
-            ? "emp-group-row"
-            : getRowBgClass(rowIndex, selectedItemsSet.has((row?.emp || row)?.id))
+          getRowBgClass(rowIndex, selectedItemsSet.has(row?.id))
         }
         getRowProps={getVirtualRowProps}
-        onRowClick={handleDisplayRowClick}
+        onRowClick={handleRowClick}
       />
       {infiniteMode && isLoadingMoreRows ? <div className="py-1" aria-hidden="true" /> : null}
     </>
