@@ -1,5 +1,4 @@
 import React from "react";
-import { Card, CardContent } from "@/shared/ui/card";
 import { Dialog, DialogContent, DialogTitle } from "@/shared/ui/dialog";
 import {
   ChevronDown,
@@ -11,12 +10,12 @@ import {
   Search,
   X,
 } from "lucide-react";
+import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
-import EmpToolbarInfoBar from "@/framework/cadastro/toolbars/EmpToolbarInfoBar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
-  EMP_CONFIG_DIALOG_CLOSE_ROW,
+  EMP_CONFIG_DIALOG_HEADER,
   EMP_CONFIG_DIALOG_CONTENT,
   EMP_CONFIG_DIALOG_LIST_DIALOG,
   EMP_CONFIG_DIALOG_SHELL,
@@ -62,6 +61,11 @@ export const EmpConfigSearchField = ({
   </div>
 );
 
+const titleCase = (value) =>
+  String(value || "")
+    .toLowerCase()
+    .replace(/(^|\s)([a-záàâãéèêíóôõúç])/g, (match) => match.toUpperCase());
+
 export function EmpConfigDialogFrame({
   open,
   onOpenChange,
@@ -69,7 +73,6 @@ export function EmpConfigDialogFrame({
   title,
   badgeLabel,
   infoTitle,
-  operationLabel = "Configuração",
   dialogClassName = "",
   toolbar,
   counterValue,
@@ -94,7 +97,12 @@ export function EmpConfigDialogFrame({
         <DialogTitle className="sr-only">{title}</DialogTitle>
 
         <div className={EMP_CONFIG_DIALOG_SHELL}>
-          <div className={EMP_CONFIG_DIALOG_CLOSE_ROW}>
+          <div className={EMP_CONFIG_DIALOG_HEADER}>
+            <div className="emp-config-dialog-header__title flex min-w-0 flex-1 items-center gap-1.5">
+              <ErpInfoPill className="shrink-0">{titleCase(badgeLabel)}</ErpInfoPill>
+              <ChevronRight className="h-3 w-3 shrink-0 text-[var(--text-3,#9ca3af)]" strokeWidth={2} aria-hidden="true" />
+              <ErpInfoPill className="min-w-0 max-w-full truncate">{infoTitle}</ErpInfoPill>
+            </div>
             <button
               type="button"
               onClick={handleClose}
@@ -116,19 +124,13 @@ export function EmpConfigDialogFrame({
                       value={String(counterValue)}
                       title={counterTitle}
                       variant="toolbar"
-                      className={`emp-toolbar-bubble-counter emp-config-dialog-counter`}
+                      className="emp-toolbar-bubble-counter emp-config-dialog-counter"
                     />
                   </div>
                 ) : null}
               </div>
             }
           >
-            <EmpToolbarInfoBar
-              badgeLabel={badgeLabel}
-              title={infoTitle}
-              operationLabel={operationLabel}
-              className="emp-config-dialog-info-bar"
-            />
             {children}
           </EmpSplitToolbarLayout>
         </div>
@@ -201,9 +203,8 @@ export function EmpConfigTransferPanel({
 
   return (
     <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
-      <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
-        <CardContent className="p-0">
-          <div className="emp-config-transfer-grid">
+      <div className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
+        <div className="emp-config-transfer-grid">
             <aside
               className="emp-config-transfer-panel overflow-hidden flex flex-col"
               onDragOver={(event) => event.preventDefault()}
@@ -323,8 +324,7 @@ export function EmpConfigTransferPanel({
               </EmpConfigMoveBtn>
             </section>
           </div>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }
@@ -339,8 +339,7 @@ export function EmpConfigListTable({
 
   return (
     <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
-      <Card className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
-        <CardContent className="p-0">
+      <div className={EMP_CONFIG_DIALOG_TABLE_SHELL}>
           {formRow ? (
             <div className="emp-config-list-form-row">
               <label className="emp-config-list-form-row__label">
@@ -381,8 +380,7 @@ export function EmpConfigListTable({
               ))
             )}
           </div>
-        </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }

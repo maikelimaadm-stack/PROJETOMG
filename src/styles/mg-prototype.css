@@ -8725,8 +8725,20 @@
 }
 
 /* ── Diálogos de configuração (colunas, filtros, anexos) — padrão MG ── */
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog {
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog.emp-layout-presets-dialog {
   font-family: var(--mg-font-family, "DM Sans", sans-serif);
+  border: 1px solid var(--mg-container-border, #e7eaee) !important;
+  box-shadow: var(--mg-launch-card-shadow, 0 1px 2px rgba(15, 23, 42, 0.04)) !important;
+  outline: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-header {
+  min-height: var(--mg-toolbar-row-height, 36px);
+  border-bottom: 1px solid var(--mg-container-border, #e7eaee);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-header__title {
+  min-width: 0;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-shell .emp-split-view {
@@ -8735,10 +8747,15 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-shell .emp-toolbar-card,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-shell .emp-content-card {
-  background: var(--bg-card, #ffffff) !important;
-  border-radius: var(--mg-radius-card, 12px) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-table-shell {
   border: 1px solid var(--mg-container-border, #e7eaee) !important;
-  box-shadow: var(--mg-launch-card-shadow, 0 1px 2px rgba(15, 23, 42, 0.04)) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-toolbar {
@@ -8749,10 +8766,13 @@
   width: var(--mg-btn-icon-size, 28px);
   height: var(--mg-btn-icon-size, 28px);
   min-width: var(--mg-btn-icon-size, 28px);
+  flex-shrink: 0;
 }
 
-.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-info-bar {
-  border-bottom: 1px solid var(--mg-container-border, #e7eaee) !important;
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-layout-presets-close-icon {
+  width: var(--mg-btn-icon-size, 28px);
+  height: var(--mg-btn-icon-size, 28px);
+  color: var(--text-2, #6b7280);
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-dialog-counter {
@@ -8814,13 +8834,15 @@
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-transfer-index {
   display: flex;
   height: 20px;
-  width: 24px;
+  width: 20px;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 50%;
   background: var(--gray-fill, #f1f3f4);
   font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
   color: var(--text-2, #6b7280);
 }
 
