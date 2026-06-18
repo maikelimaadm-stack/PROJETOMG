@@ -9167,6 +9167,106 @@
   overflow: auto;
 }
 
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro {
+  table-layout: fixed !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro thead .emp-th,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro tbody .emp-td {
+  box-sizing: border-box !important;
+  padding: 0 9px !important;
+  overflow: hidden !important;
+  text-align: left !important;
+  vertical-align: middle !important;
+  border: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro thead .emp-th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--emp-table-header-bg, #ffffff) !important;
+  color: #334155 !important;
+  height: var(--emp-table-header-height, 30px) !important;
+  line-height: var(--emp-table-header-height, 30px) !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro thead .emp-th:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-line, #e7eaee),
+    inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro tbody .emp-td {
+  height: 26px !important;
+  max-height: 26px !important;
+  color: #5b6b80 !important;
+  background: #ffffff !important;
+  box-shadow: inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro tbody .emp-td:not(:last-child) {
+  box-shadow:
+    inset -1px 0 0 0 var(--emp-table-line, #e7eaee),
+    inset 0 -1px 0 0 var(--emp-table-line, #e7eaee) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro tbody tr.emp-row-even .emp-td {
+  background: #fafbfc !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro tbody tr:hover .emp-td {
+  background: #eef6ff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro .emp-config-list-table__th--center,
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro .emp-config-list-table__td--center {
+  text-align: center !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table-root .emp-table-pro .emp-config-list-table__td--name {
+  text-align: left !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__empty {
+  text-align: center !important;
+  color: var(--text-3, #9ca3af) !important;
+  font-size: 12px !important;
+  padding: 16px 9px !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__link {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__link:hover {
+  color: var(--text-1, #111827);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__name {
+  font-weight: 500;
+  color: var(--text-1, #111827);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__meta {
+  flex-shrink: 0;
+  color: var(--text-3, #9ca3af);
+}
+
+.cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__action {
+  justify-content: center;
+}
+
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__head,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-list-table__row {
   display: grid;

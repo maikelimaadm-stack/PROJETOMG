@@ -54,7 +54,7 @@ export default function RegistroAnexosDialog({
     const files = Array.from(event.target.files || []);
     if (!files.length) return;
     if (!attachmentName.trim()) {
-      showError("Informe o nome do arquivo antes de anexar.");
+      showError("Informe o nome do anexo antes de anexar.");
       event.target.value = "";
       return;
     }
@@ -99,10 +99,11 @@ export default function RegistroAnexosDialog({
       dialogClassName={EMP_CONFIG_LIST_DIALOG_CLASS}
     >
       <EmpConfigListTable
+        tableVariant="launch"
         formRow={{
           variant: "launch",
           fieldName: "attachment-name",
-          label: "Nome do arquivo",
+          label: "Nome do anexo",
           required: true,
           hasValue: Boolean(attachmentName.trim()),
           trailing: (
@@ -133,15 +134,15 @@ export default function RegistroAnexosDialog({
           ),
         }}
         columns={[
-          { key: "name", label: "Nome do arquivo:", width: "1fr" },
-          { key: "file", label: "Arquivo", width: "1.4fr" },
-          { key: "action", label: "", width: "36px" },
+          { key: "name", label: "Nome do anexo", width: "1fr", tableWidth: "38%" },
+          { key: "file", label: "Arquivo", width: "1.4fr", tableWidth: "calc(62% - 36px)" },
+          { key: "action", label: "", width: "36px", tableWidth: "36px", align: "center" },
         ]}
         emptyMessage="Nenhum arquivo anexado."
         rows={anexos.map((anexo) => ({
           key: anexo.id,
           cells: [
-            <span key="name" className="emp-config-list-table__name truncate">
+            <span key="name" className="emp-config-list-table__name block w-full truncate text-left">
               {anexo.attachment_name || anexo.file_name}
             </span>,
             <a

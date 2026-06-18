@@ -9,6 +9,14 @@ import {
   X,
   RotateCcw,
 } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/shared/ui/table";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import {
   EMP_CONFIG_DIALOG_CLOSE_BUTTON,
@@ -337,8 +345,104 @@ export function EmpConfigListTable({
   columns = [],
   rows = [],
   emptyMessage = "Nenhum registro encontrado.",
+  tableVariant = "grid",
 }) {
   const gridTemplate = columns.map((column) => column.width || "1fr").join(" ");
+
+  const renderLaunchTable = () => (
+    <div className="emp-config-list-table__scroll emp-table-body-scroll">
+      <div className="emp-table-root emp-config-list-table-root min-h-0">
+        <Table className="mg-grid emp-table-pro emp-table-pro-body w-full border-separate border-spacing-0 table-fixed select-none">
+          <colgroup>
+            {columns.map((column) => (
+              <col
+                key={column.key}
+                style={column.tableWidth ? { width: column.tableWidth } : undefined}
+              />
+            ))}
+          </colgroup>
+          <TableHeader>
+            <TableRow className="hover:bg-transparent">
+              {columns.map((column) => (
+                <TableHead
+                  key={column.key}
+                  className={`emp-th relative align-middle whitespace-nowrap py-0 select-none text-left${
+                    column.align === "center" ? " emp-config-list-table__th--center" : ""
+                  }`}
+                >
+                  {column.label ? (
+                    <div className="emp-th-label-wrap flex w-full h-full min-w-0 overflow-hidden">
+                      <span className="emp-th-label truncate font-semibold text-left">{column.label}</span>
+                    </div>
+                  ) : null}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length} className="emp-td emp-config-list-table__empty">
+                  {emptyMessage}
+                </TableCell>
+              </TableRow>
+            ) : (
+              rows.map((row, rowIndex) => (
+                <TableRow
+                  key={row.key}
+                  className={`emp-table-data-row hover:bg-transparent${rowIndex % 2 === 1 ? " emp-row-even" : " emp-row-odd"}`}
+                >
+                  {row.cells.map((cell, index) => {
+                    const column = columns[index] || {};
+                    return (
+                      <TableCell
+                        key={`${row.key}-${index}`}
+                        className={`emp-td align-middle whitespace-nowrap py-0 text-left${
+                          column.align === "center" ? " emp-config-list-table__td--center" : ""
+                        }${column.key === "name" ? " emp-config-list-table__td--name" : ""}`}
+                      >
+                        {cell}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  );
+
+  const renderGridTable = () => (
+    <div className="emp-config-list-table__scroll">
+      <div className="emp-config-list-table__head" style={{ gridTemplateColumns: gridTemplate }}>
+        {columns.map((column) => (
+          <div key={column.key} className="emp-config-list-table__th">
+            {column.label}
+          </div>
+        ))}
+      </div>
+
+      {rows.length === 0 ? (
+        <div className="emp-config-transfer-empty">{emptyMessage}</div>
+      ) : (
+        rows.map((row) => (
+          <div
+            key={row.key}
+            className={`emp-config-list-table__row ${row.className || ""}`}
+            style={{ gridTemplateColumns: gridTemplate }}
+          >
+            {row.cells.map((cell, index) => (
+              <div key={`${row.key}-${index}`} className="emp-config-list-table__td">
+                {cell}
+              </div>
+            ))}
+          </div>
+        ))
+      )}
+    </div>
+  );
 
   return (
     <div className={EMP_CONFIG_DIALOG_TABLE_WRAP}>
@@ -373,36 +477,7 @@ export function EmpConfigListTable({
             )
           ) : null}
 
-          <div className="emp-config-list-table__scroll">
-            <div
-              className="emp-config-list-table__head"
-              style={{ gridTemplateColumns: gridTemplate }}
-            >
-              {columns.map((column) => (
-                <div key={column.key} className="emp-config-list-table__th">
-                  {column.label}
-                </div>
-              ))}
-            </div>
-
-            {rows.length === 0 ? (
-              <div className="emp-config-transfer-empty">{emptyMessage}</div>
-            ) : (
-              rows.map((row) => (
-                <div
-                  key={row.key}
-                  className={`emp-config-list-table__row ${row.className || ""}`}
-                  style={{ gridTemplateColumns: gridTemplate }}
-                >
-                  {row.cells.map((cell, index) => (
-                    <div key={`${row.key}-${index}`} className="emp-config-list-table__td">
-                      {cell}
-                    </div>
-                  ))}
-                </div>
-              ))
-            )}
-          </div>
+          {tableVariant === "launch" ? renderLaunchTable() : renderGridTable()}
       </div>
     </div>
   );
