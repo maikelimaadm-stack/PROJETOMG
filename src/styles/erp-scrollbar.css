@@ -374,11 +374,44 @@ html body [data-sonner-toast] .erp-toast-panel__icon-badge svg {
   stroke: var(--mg-icon-on-accent-color) !important;
 }
 
+/* Branco obrigatório — qualquer botão com ícone de + */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+) svg.lucide-plus,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):hover:not(:disabled) svg.lucide-plus,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
+  button,
+  a,
+  [role="button"]
+):focus-visible:not(:disabled) svg.lucide-plus {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
+}
+
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch),
 html body .emp-filter-checkbox[data-state="checked"] {
   background-color: var(--mg-brand-green, #40de63) !important;
   border-color: var(--mg-brand-green, #40de63) !important;
   color: var(--mg-icon-on-accent-color) !important;
+}
+
+/* Branco obrigatório — ícones de checkbox marcado (claro/escuro) */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) :is(svg, svg.lucide),
+html body .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.tema-escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) :is(svg, svg.lucide),
+html.tema-escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.tema-escuro .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.escuro .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) :is(svg, svg.lucide),
+html.escuro .cadastro-emp-scope .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide),
+html.escuro .emp-filter-checkbox[data-state="checked"] :is(svg, svg.lucide) {
+  color: var(--mg-icon-on-accent-color) !important;
+  stroke: var(--mg-icon-on-accent-color) !important;
 }
 
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) input[type="checkbox"] {
