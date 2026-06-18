@@ -56,6 +56,8 @@ import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import { useEmpFilterFieldsLayout } from "@/modules/empresas/hooks/useEmpFilterFieldsLayout";
+import EmpConfiguracaoFiltrosDialog from "@/modules/empresas/components/EmpConfiguracaoFiltrosDialog";
 import {
   buildMgFilterFields,
   buildPanelFilterColumnMap,
@@ -186,6 +188,7 @@ export default function PAGEMP() {
   const [editingEmp, setEditingEmp] = useState(null);
   const [deleteState, setDeleteState] = useState({ open: false, ids: [] });
   const [showConfigColunas, setShowConfigColunas] = useState(false);
+  const [showConfigFiltros, setShowConfigFiltros] = useState(false);
   const [showConfigPdf, setShowConfigPdf] = useState(false);
   const [showConfigExcel, setShowConfigExcel] = useState(false);
   const [viewMode, setViewMode] = useState("table");
@@ -214,9 +217,24 @@ export default function PAGEMP() {
   const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(false);
   const cardsVisFields = useEmpCardsVisFields();
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
-  const filterFields = useMemo(
+  const catalogFilterFields = useMemo(
     () => buildMgFilterFields(camposPersonalizados),
     [camposPersonalizados]
+  );
+  const {
+    filterFields,
+    layout: filterFieldsLayout,
+    saveLayout: saveFilterFieldsLayout,
+    getRestoreDefaults: getRestoreFilterFieldsLayout,
+    catalogFields: filterFieldsCatalog,
+  } = useEmpFilterFieldsLayout(catalogFilterFields);
+  const filterFieldsConfigCatalog = useMemo(
+    () =>
+      filterFieldsCatalog.map((field) => ({
+        id: field.key,
+        label: field.label,
+      })),
+    [filterFieldsCatalog]
   );
   const panelFilterColumnMap = useMemo(
     () => buildPanelFilterColumnMap(filterFields),
@@ -1430,8 +1448,8 @@ export default function PAGEMP() {
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
                 disabled={filterControlsDisabled}
-                onConfigureFilters={toggleFilterPanel}
-                filterPanelActive={filterPanelOpen}
+                onConfigureFilters={() => setShowConfigFiltros(true)}
+                filterPanelActive={showConfigFiltros}
               />
             </div>
 
@@ -1446,8 +1464,8 @@ export default function PAGEMP() {
                 onFilterChange={handleFilterChange}
                 onFilterClear={handleFilterClear}
                 onFilterApply={handleFilterApply}
-                onConfigureFilters={toggleFilterPanel}
-                filterPanelActive={filterPanelOpen}
+                onConfigureFilters={() => setShowConfigFiltros(true)}
+                filterPanelActive={showConfigFiltros}
               />
             </div>
           </div>
@@ -1576,6 +1594,17 @@ export default function PAGEMP() {
         value={mgViewMode}
         onChange={handleMgViewModeChange}
         disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
+      />
+
+      <EmpConfiguracaoFiltrosDialog
+        open={showConfigFiltros}
+        onOpenChange={setShowConfigFiltros}
+        moduleTitle={moduleLabels.title}
+        camposDisponiveis={filterFieldsConfigCatalog}
+        camposVisiveis={filterFieldsLayout.visiveis}
+        camposOrdem={filterFieldsLayout.ordem}
+        onChange={saveFilterFieldsLayout}
+        onResetDefault={() => saveFilterFieldsLayout(getRestoreFilterFieldsLayout())}
       />
 
       <EmpresasDialogs
