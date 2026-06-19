@@ -649,7 +649,7 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
-  background: transparent !important;
+  background: var(--background-page, var(--bg-page)) !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
