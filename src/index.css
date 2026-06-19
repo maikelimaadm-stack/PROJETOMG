@@ -1854,8 +1854,8 @@ input[type="number"] {
 }
 
 .emp-filter-checkbox[data-state="checked"] {
-  background-color: var(--emp-accent-primary) !important;
-  border-color: var(--emp-accent-primary) !important;
+  background-color: var(--mg-brand-green, #40de63) !important;
+  border-color: var(--mg-brand-green, #40de63) !important;
   color: #ffffff !important;
 }
 
@@ -1866,12 +1866,12 @@ input[type="number"] {
 
 .emp-filter-checkbox:focus-visible {
   outline: none !important;
-  box-shadow: 0 0 0 1px var(--emp-accent-primary) !important;
+  box-shadow: 0 0 0 1px var(--mg-brand-green, #40de63) !important;
 }
 
 .cadastro-emp-scope [role="checkbox"][data-state="checked"]:not(.emp-form-toggle-switch) {
-  background-color: var(--emp-accent-primary) !important;
-  border-color: var(--emp-accent-primary) !important;
+  background-color: var(--mg-brand-green, #40de63) !important;
+  border-color: var(--mg-brand-green, #40de63) !important;
   color: #ffffff !important;
 }
 
@@ -2058,7 +2058,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new {
-  background: var(--emp-accent-primary) !important;
+  background: var(--mg-brand-green, #40de63) !important;
   border: none !important;
   color: #ffffff !important;
 }
@@ -2079,7 +2079,7 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-new:hover:not(:disabled) {
-  background: var(--emp-accent-primary-hover) !important;
+  background: var(--mg-brand-green-hover, #36c956) !important;
   border: none !important;
   color: #ffffff !important;
   box-shadow: none !important;
@@ -2106,37 +2106,37 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete {
-  background: var(--emp-accent-danger) !important;
-  border: none !important;
-  color: #ffffff !important;
+  background: var(--emp-toolbar-btn-bg) !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
+  color: var(--red, #dc2626) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete span,
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete .emp-toolbar-action-icon,
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete .emp-toolbar-nav-icon {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete svg,
 .cadastro-emp-scope .emp-toolbar .emp-toolbar-btn.emp-toolbar-btn-delete svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) {
-  color: #ffffff !important;
-  background: var(--emp-accent-danger-hover) !important;
-  border: none !important;
+  color: #b91c1c !important;
+  background: var(--emp-toolbar-btn-bg-hover) !important;
+  border-color: var(--emp-toolbar-btn-border) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) span {
-  color: #ffffff !important;
+  color: #b91c1c !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-delete:hover:not(:disabled) svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
+  color: #b91c1c !important;
+  stroke: #b91c1c !important;
 }
 
 .cadastro-emp-scope .emp-toolbar input::placeholder {
@@ -2320,17 +2320,17 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete:hover:not(:disabled) {
-  background: var(--emp-accent-danger) !important;
-  border: none !important;
-  color: #ffffff !important;
+  background: var(--emp-toolbar-btn-bg) !important;
+  border: var(--emp-toolbar-btn-border-width) solid var(--emp-toolbar-btn-border) !important;
+  color: var(--red, #dc2626) !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete svg,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete .emp-toolbar-action-icon,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete .emp-toolbar-nav-icon,
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-actions .emp-toolbar-btn-delete:hover:not(:disabled) svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-form-tabs-launch .emp-form-tab-inactive,
@@ -4130,6 +4130,12 @@ select.erp-field-invalid {
   border-radius: 999px;
   color: #ffffff;
   flex-shrink: 0;
+}
+
+.erp-toast-panel__icon-badge svg,
+.erp-toast-panel__icon-badge svg.lucide {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .erp-toast-panel__icon-badge--success {
