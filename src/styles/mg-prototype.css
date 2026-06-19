@@ -3471,11 +3471,13 @@
   max-height: var(--mg-subtoolbar-row-height);
   opacity: 1;
   overflow: visible;
-  border-radius: 0 0 var(--mg-table-panel-strip-bottom-radius) var(--mg-table-panel-strip-bottom-radius);
+  box-sizing: border-box;
+  border-left: var(--mg-section-divider-border);
+  border-right: var(--mg-section-divider-border);
   border-bottom: var(--mg-section-divider-border);
-  box-shadow:
-    var(--mg-section-divider-shadow),
-    var(--mg-table-panel-strip-bottom-glow);
+  border-bottom-left-radius: var(--mg-table-panel-strip-bottom-radius);
+  border-bottom-right-radius: var(--mg-table-panel-strip-bottom-radius);
+  box-shadow: var(--mg-table-panel-strip-bottom-glow);
 }
 
 .mg-empresas-scope .mg-table-panel-wrap.is-visible .mg-table-panel-strip {
