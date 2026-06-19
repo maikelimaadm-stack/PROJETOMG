@@ -90,6 +90,7 @@
   --mg-panel-tab-indicator-color: #7aed99;
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
+  --mg-subtoolbar-bottom-gap: 12px;
   --mg-cards-layout-gap: 9px;
   --mg-btn-font: 13px;
   --mg-btn-font-compact: 12px;
@@ -3348,6 +3349,10 @@
   position: relative;
   z-index: 30;
   background: var(--bg-page);
+}
+
+.mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-subtoolbar-stack {
+  margin-bottom: var(--mg-subtoolbar-bottom-gap);
 }
 
 .mg-empresas-scope .mg-context-panel-wrap {
