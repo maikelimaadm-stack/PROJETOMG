@@ -1206,15 +1206,12 @@
 
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-green svg,
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue svg,
-.cadastro-emp-scope.mg-empresas-scope .tb-btn-red svg,
 .mg-empresas-scope .tb-btn-green svg,
 .mg-empresas-scope .tb-btn-blue svg,
-.mg-empresas-scope .tb-btn-red svg,
 .cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .mg-empresas-scope .tb-btn-ghost.tb-btn-labeled {
@@ -1242,15 +1239,26 @@
 
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-green:hover:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:hover:not(:disabled) svg,
-.cadastro-emp-scope.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
 .mg-empresas-scope .tb-btn-green:hover:not(:disabled) svg,
 .mg-empresas-scope .tb-btn-blue:hover:not(:disabled) svg,
-.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-new:hover:not(:disabled) svg,
-.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save:hover:not(:disabled) svg,
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-save:hover:not(:disabled) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red svg,
+.mg-empresas-scope .tb-btn-red svg,
+.cadastro-emp-scope.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg,
+.mg-empresas-scope .tb-btn-red:hover:not(:disabled) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete svg,
 .cadastro-emp-scope.mg-empresas-scope .emp-toolbar-btn-delete:hover:not(:disabled) svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
 }
 
 .mg-empresas-scope .tb-btn-ghost {
@@ -2646,6 +2654,14 @@
 .mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-danger:hover:not(:disabled),
 .mg-empresas-scope .mg-action-bar .tb-btn-danger:hover:not(:disabled) {
   color: #b91c1c !important;
+}
+
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-danger svg,
+.mg-empresas-scope .mg-action-bar .tb-btn-danger svg,
+.mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-danger:hover:not(:disabled) svg,
+.mg-empresas-scope .mg-action-bar .tb-btn-danger:hover:not(:disabled) svg {
+  color: var(--red) !important;
+  stroke: var(--red) !important;
 }
 
 .mg-empresas-scope .mg-action-bar .tb-btn-ghost.tb-btn-icon:hover:not(:disabled),
@@ -6196,8 +6212,8 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger {
@@ -6207,7 +6223,7 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger svg {
   color: var(--red) !important;
-  stroke: var(--mg-icon-color) !important;
+  stroke: var(--red) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger:hover:not(:disabled) {
@@ -6267,8 +6283,8 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger {
@@ -6278,7 +6294,7 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger svg {
   color: var(--red) !important;
-  stroke: var(--mg-icon-color) !important;
+  stroke: var(--red) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger:hover:not(:disabled) {
@@ -6548,18 +6564,13 @@
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-green:not(:disabled) svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
-}
-
-.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger:not(:disabled) {
-  background: var(--gray-fill) !important;
-  color: var(--red) !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger:not(:disabled) svg {
   color: var(--red) !important;
-  stroke: var(--mg-icon-color) !important;
+  stroke: var(--red) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger):not(:disabled):hover {
@@ -6722,8 +6733,8 @@
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-green:not(:disabled):hover svg,
 .cadastro-emp-scope.mg-empresas-scope .tb-btn-blue:not(:disabled):hover svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-table-pagination-btn.emp-table-pagination-page-active:hover:not(:disabled) {
@@ -9226,18 +9237,18 @@
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn {
   flex-shrink: 0;
-  background: var(--gray-fill, #f1f3f4) !important;
+  background: var(--mg-brand-green, #40de63) !important;
   border: var(--mg-btn-pill-border, 1px solid transparent) !important;
   box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn svg {
-  color: var(--mg-icon-color, #5b6b80) !important;
-  stroke: var(--mg-icon-color, #5b6b80) !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-attach-btn:hover:not(:disabled) {
-  background: var(--gray-fill2, #e8eaed) !important;
+  background: var(--mg-brand-green-hover, #36c956) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-field .emp-config-anexos-field__surface {
@@ -9301,28 +9312,28 @@
   border: none !important;
   background: transparent !important;
   box-shadow: none !important;
-  color: var(--mg-ink, #1a1f26);
+  color: var(--red, #dc2626);
   border-radius: var(--mg-btn-icon-radius, 999px);
   cursor: pointer;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn svg,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-remove-btn svg {
-  color: var(--mg-icon-color, #5b6b80) !important;
-  stroke: var(--mg-icon-color, #5b6b80) !important;
+  color: var(--red, #dc2626) !important;
+  stroke: var(--red, #dc2626) !important;
   flex-shrink: 0;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn:hover:not(:disabled),
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-remove-btn:hover:not(:disabled) {
   background: transparent !important;
-  color: var(--mg-ink, #1a1f26) !important;
+  color: #b91c1c !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn:hover:not(:disabled) svg,
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-anexos-remove-btn:hover:not(:disabled) svg {
-  color: var(--mg-icon-color, #5b6b80) !important;
-  stroke: var(--mg-icon-color, #5b6b80) !important;
+  color: #b91c1c !important;
+  stroke: #b91c1c !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope.mg-config-dialog .emp-config-plain-icon-btn:disabled,
