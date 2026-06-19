@@ -811,7 +811,14 @@ html.escuro .mg-empresas-scope .mg-cards-panel-strip {
 
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg,
 html.escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
-  background: var(--background-page, var(--bg-page)) !important;
+  background: var(--bg-page) !important;
+}
+
+html.tema-escuro .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-view-stack,
+html.escuro .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-view-stack,
+html.tema-escuro .mg-empresas-scope #mode-registro,
+html.escuro .mg-empresas-scope #mode-registro {
+  background: var(--bg-page);
 }
 
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip::after,

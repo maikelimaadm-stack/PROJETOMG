@@ -22,7 +22,7 @@
 }
 
 .mg-empresas-scope {
-  --bg-page: #f0f2f5;
+  --bg-page: var(--background-page, #f0f2f5);
   --bg-card: #ffffff;
   --bg-surface: #ffffff;
   --border: var(--gray-fill);
@@ -658,7 +658,15 @@
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
-  background: var(--background-page, var(--bg-page)) !important;
+  background: var(--bg-page) !important;
+}
+
+.mg-empresas-scope #mode-registro {
+  background: var(--bg-page);
+}
+
+.mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-view-stack {
+  background: var(--bg-page);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
