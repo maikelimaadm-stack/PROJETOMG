@@ -805,6 +805,11 @@ html.escuro .mg-empresas-scope .mg-cards-panel-strip {
   box-shadow: var(--mg-card-shadow) !important;
 }
 
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
+  background: transparent !important;
+}
+
 html.tema-escuro .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible,
 html.escuro .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
   border-bottom-color: rgba(72, 79, 88, 0.92);

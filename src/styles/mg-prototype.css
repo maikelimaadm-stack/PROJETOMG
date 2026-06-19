@@ -648,6 +648,10 @@
   contain: layout style;
 }
 
+.mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
+  background: transparent !important;
+}
+
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
   border-bottom: none !important;
   overflow: visible;
