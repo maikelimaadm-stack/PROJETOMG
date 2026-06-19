@@ -3337,14 +3337,14 @@
   flex-shrink: 0;
   position: relative;
   z-index: 30;
-  background: var(--bg-card);
+  background: var(--bg-page);
 }
 
 .mg-empresas-scope .mg-context-panel-wrap {
   flex-shrink: 0;
   max-height: 0;
   overflow: hidden;
-  background: var(--bg-card);
+  background: transparent;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -3441,7 +3441,7 @@
   flex-shrink: 0;
   max-height: 0;
   overflow: hidden;
-  background: var(--bg-card);
+  background: transparent;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -3463,7 +3463,7 @@
   flex-shrink: 0;
   max-height: 0;
   overflow: hidden;
-  background: var(--bg-card);
+  background: transparent;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -3482,6 +3482,7 @@
 }
 
 .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
+  background: transparent;
   overflow: hidden;
   box-sizing: border-box;
   border-left: 1px solid transparent;
