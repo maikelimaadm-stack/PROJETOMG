@@ -2406,17 +2406,16 @@
 }
 
 .mg-empresas-scope .mg-emp-card__field-line {
-  display: flex;
-  align-items: flex-start;
-  gap: 4px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 6px;
+  align-items: baseline;
   font-size: 11px;
   line-height: 1.25;
 }
 
 .mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-line {
-  display: grid;
-  grid-template-columns: 108px minmax(0, 1fr);
-  column-gap: 6px;
+  grid-template-columns: minmax(96px, max-content) minmax(0, 1fr);
 }
 
 .mg-empresas-scope .mg-emp-card__field-label {
@@ -2426,47 +2425,24 @@
   font-weight: 500;
 }
 
-.mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-label {
-  display: inline-block;
-  width: 100%;
-  text-align: left;
-}
-
 .mg-empresas-scope .mg-emp-card__field-value {
   flex: 1 1 auto;
   min-width: 0;
   font-weight: 600;
   color: var(--mg-card-value-color);
+  text-align: left;
   word-break: break-word;
   overflow-wrap: anywhere;
 }
 
-.mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-value {
-  text-align: left;
-}
-
-.mg-empresas-scope .mg-emp-card__field-value--align-left {
-  text-align: left;
-}
-
-.mg-empresas-scope .mg-emp-card__field-value--align-center {
-  text-align: center;
-}
-
+.mg-empresas-scope .mg-emp-card__field-value--align-left,
+.mg-empresas-scope .mg-emp-card__field-value--align-center,
 .mg-empresas-scope .mg-emp-card__field-value--align-right {
-  text-align: right;
+  text-align: left;
 }
 
-.mg-empresas-scope .mg-emp-card__fields--per-row-5 .mg-emp-card__field-line,
-.mg-empresas-scope .mg-emp-card__fields--per-row-2 .mg-emp-card__field-line {
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-}
-
-.mg-empresas-scope .mg-emp-card__fields--per-row-5 .mg-emp-card__field-value,
-.mg-empresas-scope .mg-emp-card__fields--per-row-2 .mg-emp-card__field-value {
-  width: 100%;
+.mg-empresas-scope .mg-emp-card__field--id-global .mg-emp-card__field-value {
+  font-variant-numeric: tabular-nums;
 }
 
 .mg-empresas-scope .mg-emp-card:not(.emp-form-card):active:not(.mg-emp-card--selected) {
