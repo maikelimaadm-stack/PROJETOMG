@@ -196,6 +196,7 @@ const buildKeysetCursorWhere = (baseWhere, cursorMeta) => {
 };
 
 const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {}) => {
+  const { cleanedFilters, customAdvancedFilters } = extractCustomAdvancedFilters(filters);
   const searchTerm = String(search || "").trim();
   const baseSearchWhere = buildSearchWhere(searchTerm);
   const customFieldIds = searchTerm
@@ -208,10 +209,16 @@ const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {})
     ...customFieldIds,
     ...numericContainsIds,
   ]);
-  const filtersWhere = buildFiltersWhere(filters);
+  const filtersWhere = buildFiltersWhere(cleanedFilters);
+  const customAdvancedIds = await findIdsMatchingCustomAdvancedFilters(prisma, scope, customAdvancedFilters);
   const scopedClauses = [];
   if (searchWhere) scopedClauses.push(searchWhere);
   if (filtersWhere) scopedClauses.push(filtersWhere);
+  if (customAdvancedFilters.length > 0) {
+    scopedClauses.push({
+      id: { in: customAdvancedIds && customAdvancedIds.length > 0 ? customAdvancedIds : [EMPTY_RESULT_COMPANY_ID] },
+    });
+  }
   return buildCadastroScopeWhere(
     scope,
     scopedClauses.length === 0
@@ -421,15 +428,212 @@ const FILTER_FIELD_MAP = {
   logo_url: { field: "logo_url", match: "contains" },
   codempresa: { field: "codempresa", match: "number" },
   id_global: { field: "id_global", match: "number" },
+  createdAt: { field: "createdAt", match: "date" },
+  updatedAt: { field: "updatedAt", match: "date" },
 };
 
-const buildFilterClause = (config, value) => {
+const ADVANCED_FILTER_OPERATORS = new Set([
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "between",
+  "not_between",
+  "equals",
+  "before",
+  "after",
+  "today",
+  "yesterday",
+  "this_month",
+  "last_month",
+]);
+
+const parseNumericFilterValue = (value) => {
+  const text = String(value ?? "").trim();
+  if (!text) return NaN;
+  const cleaned = text.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+  const parsed = Number(cleaned);
+  return Number.isFinite(parsed) ? parsed : NaN;
+};
+
+const parseDateFilterValue = (value) => {
+  const text = String(value ?? "").trim();
+  if (!text) return null;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+    const [day, month, year] = text.split("/");
+    const parsed = new Date(Number(year), Number(month) - 1, Number(day));
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  const isoDate = text.match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+  if (isoDate) {
+    const [year, month, day] = isoDate.split("-");
+    const parsed = new Date(Number(year), Number(month) - 1, Number(day));
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  const fallback = new Date(text);
+  return Number.isNaN(fallback.getTime()) ? null : fallback;
+};
+
+const startOfDay = (dateLike) => {
+  const base = new Date(dateLike);
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate());
+};
+
+const endOfDay = (dateLike) => {
+  const base = new Date(dateLike);
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate(), 23, 59, 59, 999);
+};
+
+const normalizeBetweenValue = (value) => {
+  if (value == null) return { from: null, to: null };
+  if (Array.isArray(value)) return { from: value[0] ?? null, to: value[1] ?? null };
+  if (typeof value === "object") return { from: value.from ?? null, to: value.to ?? null };
+  return { from: value, to: null };
+};
+
+const parseAdvancedFilterKey = (key) => {
+  if (!key || typeof key !== "string") return null;
+  const customNumericMarker = "__num_";
+  const customDateMarker = "__date_";
+  if (key.startsWith("custom:") && key.includes(customNumericMarker)) {
+    const markerIndex = key.indexOf(customNumericMarker);
+    const fieldName = key.slice("custom:".length, markerIndex).trim();
+    const operator = key.slice(markerIndex + customNumericMarker.length).trim();
+    if (!fieldName || !ADVANCED_FILTER_OPERATORS.has(operator)) return null;
+    return { baseKey: `custom:${fieldName}`, operator, customType: "number" };
+  }
+  if (key.startsWith("custom:") && key.includes(customDateMarker)) {
+    const markerIndex = key.indexOf(customDateMarker);
+    const fieldName = key.slice("custom:".length, markerIndex).trim();
+    const operator = key.slice(markerIndex + customDateMarker.length).trim();
+    if (!fieldName || !ADVANCED_FILTER_OPERATORS.has(operator)) return null;
+    return { baseKey: `custom:${fieldName}`, operator, customType: "date" };
+  }
+  const match = key.match(/^(.*)__(gt|gte|lt|lte|between|not_between|equals|before|after|today|yesterday|this_month|last_month)$/);
+  if (!match) return null;
+  return { baseKey: match[1], operator: match[2], customType: null };
+};
+
+const buildNumberOperatorClause = (field, operator, value) => {
+  const numeric = parseNumericFilterValue(value);
+  if (!Number.isFinite(numeric)) return null;
+  return { [field]: { [operator]: numeric } };
+};
+
+const buildNumberBetweenClause = (field, value, invert = false) => {
+  const { from, to } = normalizeBetweenValue(value);
+  const min = parseNumericFilterValue(from);
+  const max = parseNumericFilterValue(to);
+  const hasMin = Number.isFinite(min);
+  const hasMax = Number.isFinite(max);
+  if (!hasMin && !hasMax) return null;
+
+  if (!invert) {
+    const clause = {};
+    if (hasMin) clause.gte = min;
+    if (hasMax) clause.lte = max;
+    return { [field]: clause };
+  }
+
+  if (hasMin && hasMax) {
+    return {
+      OR: [
+        { [field]: { lt: min } },
+        { [field]: { gt: max } },
+      ],
+    };
+  }
+  if (hasMin) return { [field]: { lt: min } };
+  return { [field]: { gt: max } };
+};
+
+const buildDateOperatorClause = (field, operator, value) => {
+  const parsed = parseDateFilterValue(value);
+  if (!parsed) return null;
+  if (operator === "equals") {
+    return { [field]: { gte: startOfDay(parsed), lte: endOfDay(parsed) } };
+  }
+  if (operator === "before") {
+    return { [field]: { lt: startOfDay(parsed) } };
+  }
+  if (operator === "after") {
+    return { [field]: { gt: endOfDay(parsed) } };
+  }
+  return null;
+};
+
+const buildDatePresetClause = (field, operator) => {
+  const now = new Date();
+  if (operator === "today") {
+    return { [field]: { gte: startOfDay(now), lte: endOfDay(now) } };
+  }
+  if (operator === "yesterday") {
+    const date = new Date(now);
+    date.setDate(date.getDate() - 1);
+    return { [field]: { gte: startOfDay(date), lte: endOfDay(date) } };
+  }
+  if (operator === "this_month") {
+    const start = new Date(now.getFullYear(), now.getMonth(), 1);
+    const end = endOfDay(new Date(now.getFullYear(), now.getMonth() + 1, 0));
+    return { [field]: { gte: start, lte: end } };
+  }
+  if (operator === "last_month") {
+    const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const end = endOfDay(new Date(now.getFullYear(), now.getMonth(), 0));
+    return { [field]: { gte: start, lte: end } };
+  }
+  return null;
+};
+
+const buildDateBetweenClause = (field, value) => {
+  const { from, to } = normalizeBetweenValue(value);
+  const start = parseDateFilterValue(from);
+  const end = parseDateFilterValue(to);
+  if (!start && !end) return null;
+  const clause = {};
+  if (start) clause.gte = startOfDay(start);
+  if (end) clause.lte = endOfDay(end);
+  return { [field]: clause };
+};
+
+const buildFilterClause = (config, value, operator = "") => {
   if (value == null || value === "") return null;
 
+  const normalizedOperator = String(operator || "").trim();
+
   if (config.match === "number") {
-    const numeric = Number(value);
+    if (normalizedOperator === "gt" || normalizedOperator === "gte" || normalizedOperator === "lt" || normalizedOperator === "lte") {
+      return buildNumberOperatorClause(config.field, normalizedOperator, value);
+    }
+    if (normalizedOperator === "between") {
+      return buildNumberBetweenClause(config.field, value, false);
+    }
+    if (normalizedOperator === "not_between") {
+      return buildNumberBetweenClause(config.field, value, true);
+    }
+    const numeric = parseNumericFilterValue(value);
     if (!Number.isFinite(numeric)) return null;
     return { [config.field]: Math.floor(numeric) };
+  }
+
+  if (config.match === "date") {
+    if (normalizedOperator === "between") {
+      return buildDateBetweenClause(config.field, value);
+    }
+    if (
+      normalizedOperator === "today" ||
+      normalizedOperator === "yesterday" ||
+      normalizedOperator === "this_month" ||
+      normalizedOperator === "last_month"
+    ) {
+      return buildDatePresetClause(config.field, normalizedOperator);
+    }
+    if (normalizedOperator === "equals" || normalizedOperator === "before" || normalizedOperator === "after") {
+      return buildDateOperatorClause(config.field, normalizedOperator, value);
+    }
+    const parsed = parseDateFilterValue(value);
+    if (!parsed) return null;
+    return { [config.field]: { gte: startOfDay(parsed), lte: endOfDay(parsed) } };
   }
 
   if (Array.isArray(value)) {
@@ -459,6 +663,185 @@ const buildFilterClause = (config, value) => {
   };
 };
 
+const buildScopeSqlClauses = (scope, startingIndex = 2) => {
+  const params = [];
+  let sql = "";
+  let nextIndex = startingIndex;
+
+  if (!scope.acessoGlobal) {
+    const allowed = scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID];
+    const placeholders = allowed.map((_, offset) => `$${nextIndex + offset}`).join(", ");
+    sql += ` AND id IN (${placeholders})`;
+    params.push(...allowed);
+    nextIndex += allowed.length;
+  }
+
+  if (scope.selectedEmpresaId) {
+    sql += ` AND id = $${nextIndex}`;
+    params.push(scope.selectedEmpresaId);
+    nextIndex += 1;
+  }
+
+  return { sql, params };
+};
+
+const escapeCustomFieldName = (fieldName) => String(fieldName || "").replace(/[^a-zA-Z0-9_]/g, "");
+
+const buildCustomNumericExpression = (safeField) => `
+  CASE
+    WHEN REGEXP_REPLACE(TRIM(campos_personalizados->>'${safeField}'), '[^0-9,.-]', '', 'g') ~ '^-?\\d+(\\.\\d+)?$'
+    THEN REPLACE(REPLACE(REGEXP_REPLACE(TRIM(campos_personalizados->>'${safeField}'), '[^0-9,.-]', '', 'g'), '.', ''), ',', '.')::numeric
+    ELSE NULL
+  END
+`;
+
+const buildCustomDateExpression = (safeField) => `
+  CASE
+    WHEN TRIM(campos_personalizados->>'${safeField}') ~ '^\\d{4}-\\d{2}-\\d{2}'
+      THEN TO_DATE(SUBSTRING(TRIM(campos_personalizados->>'${safeField}'), 1, 10), 'YYYY-MM-DD')
+    WHEN TRIM(campos_personalizados->>'${safeField}') ~ '^\\d{2}/\\d{2}/\\d{4}$'
+      THEN TO_DATE(TRIM(campos_personalizados->>'${safeField}'), 'DD/MM/YYYY')
+    ELSE NULL
+  END
+`;
+
+const queryCustomAdvancedFilterIds = async (prisma, scope, filter) => {
+  const safeField = escapeCustomFieldName(filter.fieldName);
+  if (!safeField) return [];
+  const params = [scope.clienteId];
+  let sql = `
+    SELECT id
+    FROM "Empresa"
+    WHERE cliente_id = $1
+      AND campos_personalizados IS NOT NULL
+      AND campos_personalizados ? '${safeField}'
+  `;
+
+  const scopeClause = buildScopeSqlClauses(scope, params.length + 1);
+  if (scopeClause.sql) {
+    sql += scopeClause.sql;
+    params.push(...scopeClause.params);
+  }
+
+  const isNumeric = filter.customType === "number";
+  const expression = isNumeric ? buildCustomNumericExpression(safeField) : buildCustomDateExpression(safeField);
+  const appendParam = (value) => {
+    params.push(value);
+    return `$${params.length}`;
+  };
+
+  if (isNumeric) {
+    if (filter.operator === "gt" || filter.operator === "gte" || filter.operator === "lt" || filter.operator === "lte") {
+      const numeric = parseNumericFilterValue(filter.value);
+      if (!Number.isFinite(numeric)) return [];
+      sql += ` AND (${expression}) IS NOT NULL AND (${expression}) ${filter.operator === "gt" ? ">" : filter.operator === "gte" ? ">=" : filter.operator === "lt" ? "<" : "<="} ${appendParam(numeric)}`;
+    } else if (filter.operator === "between" || filter.operator === "not_between") {
+      const { from, to } = normalizeBetweenValue(filter.value);
+      const min = parseNumericFilterValue(from);
+      const max = parseNumericFilterValue(to);
+      const hasMin = Number.isFinite(min);
+      const hasMax = Number.isFinite(max);
+      if (!hasMin && !hasMax) return [];
+      if (filter.operator === "between") {
+        if (hasMin) sql += ` AND (${expression}) >= ${appendParam(min)}`;
+        if (hasMax) sql += ` AND (${expression}) <= ${appendParam(max)}`;
+      } else if (hasMin && hasMax) {
+        sql += ` AND ((${expression}) < ${appendParam(min)} OR (${expression}) > ${appendParam(max)})`;
+      } else if (hasMin) {
+        sql += ` AND (${expression}) < ${appendParam(min)}`;
+      } else {
+        sql += ` AND (${expression}) > ${appendParam(max)}`;
+      }
+    } else {
+      return [];
+    }
+  } else {
+    const now = new Date();
+    const startEndForPreset = () => {
+      if (filter.operator === "today") return [startOfDay(now), endOfDay(now)];
+      if (filter.operator === "yesterday") {
+        const date = new Date(now);
+        date.setDate(date.getDate() - 1);
+        return [startOfDay(date), endOfDay(date)];
+      }
+      if (filter.operator === "this_month") {
+        return [new Date(now.getFullYear(), now.getMonth(), 1), endOfDay(new Date(now.getFullYear(), now.getMonth() + 1, 0))];
+      }
+      if (filter.operator === "last_month") {
+        return [new Date(now.getFullYear(), now.getMonth() - 1, 1), endOfDay(new Date(now.getFullYear(), now.getMonth(), 0))];
+      }
+      return null;
+    };
+
+    if (filter.operator === "today" || filter.operator === "yesterday" || filter.operator === "this_month" || filter.operator === "last_month") {
+      const [start, end] = startEndForPreset();
+      sql += ` AND (${expression}) >= ${appendParam(start.toISOString().slice(0, 10))}::date`;
+      sql += ` AND (${expression}) <= ${appendParam(end.toISOString().slice(0, 10))}::date`;
+    } else if (filter.operator === "equals" || filter.operator === "before" || filter.operator === "after") {
+      const parsed = parseDateFilterValue(filter.value);
+      if (!parsed) return [];
+      if (filter.operator === "equals") {
+        sql += ` AND (${expression}) = ${appendParam(startOfDay(parsed).toISOString().slice(0, 10))}::date`;
+      } else if (filter.operator === "before") {
+        sql += ` AND (${expression}) < ${appendParam(startOfDay(parsed).toISOString().slice(0, 10))}::date`;
+      } else {
+        sql += ` AND (${expression}) > ${appendParam(endOfDay(parsed).toISOString().slice(0, 10))}::date`;
+      }
+    } else if (filter.operator === "between") {
+      const { from, to } = normalizeBetweenValue(filter.value);
+      const start = parseDateFilterValue(from);
+      const end = parseDateFilterValue(to);
+      if (!start && !end) return [];
+      if (start) sql += ` AND (${expression}) >= ${appendParam(startOfDay(start).toISOString().slice(0, 10))}::date`;
+      if (end) sql += ` AND (${expression}) <= ${appendParam(endOfDay(end).toISOString().slice(0, 10))}::date`;
+    } else {
+      return [];
+    }
+  }
+
+  const rows = await prisma.$queryRawUnsafe(sql, ...params);
+  return rows.map((row) => row.id).filter(Boolean);
+};
+
+const extractCustomAdvancedFilters = (filters = {}) => {
+  const cleanedFilters = {};
+  const customAdvancedFilters = [];
+
+  Object.entries(filters || {}).forEach(([key, value]) => {
+    const parsed = parseAdvancedFilterKey(key);
+    if (!parsed || !parsed.baseKey.startsWith("custom:") || !parsed.customType) {
+      cleanedFilters[key] = value;
+      return;
+    }
+    customAdvancedFilters.push({
+      fieldName: parsed.baseKey.slice("custom:".length),
+      operator: parsed.operator,
+      customType: parsed.customType,
+      value,
+    });
+  });
+
+  return { cleanedFilters, customAdvancedFilters };
+};
+
+const findIdsMatchingCustomAdvancedFilters = async (prisma, scope, customFilters = []) => {
+  if (!Array.isArray(customFilters) || customFilters.length === 0) return null;
+  let intersection = null;
+
+  for (const filter of customFilters) {
+    const ids = await queryCustomAdvancedFilterIds(prisma, scope, filter);
+    const idSet = new Set(ids);
+    if (intersection === null) {
+      intersection = idSet;
+      continue;
+    }
+    intersection = new Set([...intersection].filter((id) => idSet.has(id)));
+    if (intersection.size === 0) break;
+  }
+
+  return intersection ? [...intersection] : null;
+};
+
 const buildFiltersWhere = (filters = {}) => {
   const and = [];
   const rawIds = filters.ids;
@@ -479,6 +862,15 @@ const buildFiltersWhere = (filters = {}) => {
   Object.entries(filters || {}).forEach(([key, value]) => {
     if (key === "ids") return;
     if (value == null || value === "") return;
+
+    const advanced = parseAdvancedFilterKey(key);
+    if (advanced && !advanced.baseKey.startsWith("custom:")) {
+      const config = FILTER_FIELD_MAP[advanced.baseKey];
+      if (!config) return;
+      const clause = buildFilterClause(config, value, advanced.operator);
+      if (clause) and.push(clause);
+      return;
+    }
 
     if (key.endsWith("__in")) {
       const baseKey = key.slice(0, -4);

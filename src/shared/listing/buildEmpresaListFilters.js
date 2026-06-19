@@ -12,25 +12,129 @@ const STATUS_PANEL_MAP = {
   Inativa: "Inativa",
 };
 
+const NUMERIC_ADVANCED_OPERATORS = new Set(["gt", "gte", "lt", "lte", "between", "not_between"]);
+const DATE_ADVANCED_OPERATORS = new Set([
+  "equals",
+  "before",
+  "after",
+  "between",
+  "today",
+  "yesterday",
+  "this_month",
+  "last_month",
+]);
+
 const normalizePanelFilterValues = (values) =>
   (Array.isArray(values) ? values : [values])
     .map((item) => String(item).trim())
     .filter(Boolean);
 
+const normalizeDateFilterInput = (value) => {
+  const text = String(value ?? "").trim();
+  if (!text) return "";
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
+    const [day, month, year] = text.split("/");
+    return `${year}-${month}-${day}`;
+  }
+  if (/^\d{4}-\d{2}-\d{2}/.test(text)) {
+    return text.slice(0, 10);
+  }
+  return text;
+};
+
+const normalizeFilterScalarValue = ({ key, filterType, value }) => {
+  if (value == null || value === "") return "";
+  if (filterType === "date") return normalizeDateFilterInput(value);
+  if (filterType === "number" || filterType === "money" || key === "codempresa" || key === "id_global") {
+    const normalized = normalizeEmpresaColumnFilterValue(key, value);
+    return normalized == null ? "" : normalized;
+  }
+  return normalizeSearchQuery(String(value));
+};
+
+const buildOperatorFilterKey = ({ filterKey, operator, filterType }) => {
+  const customField = String(filterKey || "").startsWith("custom:");
+  if (!customField) {
+    return `${filterKey}__${operator}`;
+  }
+  if (filterType === "date") {
+    return `${filterKey}__date_${operator}`;
+  }
+  if (filterType === "number" || filterType === "money") {
+    return `${filterKey}__num_${operator}`;
+  }
+  return null;
+};
+
+const applyAdvancedOperatorFilter = ({
+  filters,
+  filterKey,
+  filterType,
+  operator,
+  value,
+  valueTo,
+}) => {
+  const op = String(operator || "").trim();
+  if (!op) return false;
+
+  if (NUMERIC_ADVANCED_OPERATORS.has(op)) {
+    if (!(filterType === "number" || filterType === "money" || filterKey === "codempresa" || filterKey === "id_global")) {
+      return false;
+    }
+    const opKey = buildOperatorFilterKey({ filterKey, operator: op, filterType });
+    if (!opKey) return false;
+    const primary = normalizeFilterScalarValue({ key: filterKey, filterType, value });
+    const secondary = normalizeFilterScalarValue({ key: filterKey, filterType, value: valueTo });
+    if (op === "between" || op === "not_between") {
+      if (primary === "" && secondary === "") return false;
+      filters[opKey] = { from: primary === "" ? null : primary, to: secondary === "" ? null : secondary };
+      return true;
+    }
+    if (primary === "") return false;
+    filters[opKey] = primary;
+    return true;
+  }
+
+  if (DATE_ADVANCED_OPERATORS.has(op)) {
+    if (filterType !== "date") return false;
+    const opKey = buildOperatorFilterKey({ filterKey, operator: op, filterType });
+    if (!opKey) return false;
+    if (op === "today" || op === "yesterday" || op === "this_month" || op === "last_month") {
+      filters[opKey] = true;
+      return true;
+    }
+    const primary = normalizeFilterScalarValue({ key: filterKey, filterType, value });
+    const secondary = normalizeFilterScalarValue({ key: filterKey, filterType, value: valueTo });
+    if (op === "between") {
+      if (primary === "" && secondary === "") return false;
+      filters[opKey] = { from: primary === "" ? null : primary, to: secondary === "" ? null : secondary };
+      return true;
+    }
+    if (primary === "") return false;
+    filters[opKey] = primary;
+    return true;
+  }
+
+  return false;
+};
+
 function extractFilterPayload(filterEntry) {
-  if (!filterEntry) return { values: [], operator: "", value: "", valueTo: "" };
+  if (!filterEntry) return { values: [], operator: "", value: "", valueTo: "", type: "" };
   if (Array.isArray(filterEntry)) {
-    return { values: normalizePanelFilterValues(filterEntry), operator: "", value: "", valueTo: "" };
+    return { values: normalizePanelFilterValues(filterEntry), operator: "", value: "", valueTo: "", type: "" };
   }
   if (typeof filterEntry !== "object") {
     const text = String(filterEntry).trim();
-    return text ? { values: [text], operator: "", value: "", valueTo: "" } : { values: [], operator: "", value: "", valueTo: "" };
+    return text
+      ? { values: [text], operator: "", value: "", valueTo: "", type: "" }
+      : { values: [], operator: "", value: "", valueTo: "", type: "" };
   }
   return {
     values: normalizePanelFilterValues(filterEntry.values),
     operator: String(filterEntry.operator || "").trim(),
     value: filterEntry.value != null ? String(filterEntry.value).trim() : "",
     valueTo: filterEntry.valueTo != null ? String(filterEntry.valueTo).trim() : "",
+    type: String(filterEntry.type || "").trim(),
   };
 }
 
@@ -53,7 +157,7 @@ export function buildEmpresaPanelFilters(filterValues = {}) {
   Object.entries(filterValues || {}).forEach(([key, rawFilter]) => {
     if (!isErpFilterActive(rawFilter)) return;
 
-    const { values, operator, value } = extractFilterPayload(rawFilter);
+    const { values, operator, value, valueTo, type } = extractFilterPayload(rawFilter);
     const effectiveValues = values.length > 0 ? values : value ? [value] : [];
 
     if (key === "status") {
@@ -67,8 +171,17 @@ export function buildEmpresaPanelFilters(filterValues = {}) {
     }
 
     if (key.startsWith("custom:")) {
+      const usedAdvancedOperator = applyAdvancedOperatorFilter({
+        filters,
+        filterKey: key,
+        filterType: type,
+        operator,
+        value,
+        valueTo,
+      });
+      if (usedAdvancedOperator) return;
       setArrayFilter(key, effectiveValues, {
-        normalizeValue: (item) => normalizeSearchQuery(String(item)),
+        normalizeValue: (item) => normalizeFilterScalarValue({ key, filterType: type, value: item }),
       });
       return;
     }
@@ -77,10 +190,20 @@ export function buildEmpresaPanelFilters(filterValues = {}) {
 
     if (apiKey === "tipo_vinculo" || apiKey === "codempresa" || apiKey === "id_global") {
       setArrayFilter(apiKey, effectiveValues, {
-        normalizeValue: (item) => normalizeEmpresaColumnFilterValue(apiKey, item),
+        normalizeValue: (item) => normalizeFilterScalarValue({ key: apiKey, filterType: type, value: item }),
       });
       return;
     }
+
+    const usedAdvancedOperator = applyAdvancedOperatorFilter({
+      filters,
+      filterKey: apiKey,
+      filterType: type,
+      operator,
+      value,
+      valueTo,
+    });
+    if (usedAdvancedOperator) return;
 
     if (effectiveValues.length > 1) {
       setArrayFilter(apiKey, effectiveValues);
@@ -93,7 +216,7 @@ export function buildEmpresaPanelFilters(filterValues = {}) {
     }
 
     if (value && (!operator || operator === "equals" || operator === "contains")) {
-      filters[apiKey] = normalizeSearchQuery(String(value));
+      filters[apiKey] = normalizeFilterScalarValue({ key: apiKey, filterType: type, value });
     }
   });
 
@@ -121,9 +244,9 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
     }
 
     if (!values || typeof values !== "object") return;
-    const { operator, value, valueTo, values: listValues } = extractFilterPayload(values);
+    const { operator, value, valueTo, values: listValues, type } = extractFilterPayload(values);
     const normalizedList = listValues
-      .map((item) => normalizeEmpresaColumnFilterValue(key, item))
+      .map((item) => normalizeFilterScalarValue({ key, filterType: type, value: item }))
       .filter((item) => item != null && item !== "");
     if (normalizedList.length > 1) {
       filters[`${filterKey}__in`] = normalizedList;
@@ -133,9 +256,19 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
       filters[filterKey] = normalizedList[0];
       return;
     }
+    const usedAdvancedOperator = applyAdvancedOperatorFilter({
+      filters,
+      filterKey,
+      filterType: type,
+      operator,
+      value,
+      valueTo,
+    });
+    if (usedAdvancedOperator) return;
+
     const primary = value || "";
     if (!primary) return;
-    const normalizedValue = normalizeEmpresaColumnFilterValue(key, primary);
+    const normalizedValue = normalizeFilterScalarValue({ key, filterType: type, value: primary });
     if (normalizedValue == null || normalizedValue === "") return;
     if (!operator || operator === "equals" || operator === "contains") {
       filters[filterKey] = normalizedValue;
