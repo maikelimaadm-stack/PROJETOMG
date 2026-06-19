@@ -66,6 +66,10 @@
   --mg-section-divider-border: 1px solid rgba(231, 234, 238, 0.82);
   --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --mg-section-divider-shadow-top: inset 0 1px 0 rgba(231, 234, 238, 0.82), inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --mg-table-panel-strip-bottom-radius: 12px;
+  --mg-table-panel-strip-bottom-glow:
+    0 2px 8px rgba(15, 23, 42, 0.04),
+    0 6px 18px rgba(255, 255, 255, 0.38);
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
@@ -530,7 +534,7 @@
   position: relative;
 }
 
-.mg-empresas-scope :is(.mg-context-panel, .mg-cards-panel-strip, .mg-table-panel-strip, .mg-panel-tabs-strip)::after,
+.mg-empresas-scope :is(.mg-context-panel, .mg-cards-panel-strip, .mg-panel-tabs-strip)::after,
 .mg-empresas-scope
   .mg-action-bar:not(:has(+ .mg-context-panel-wrap.is-visible)):not(
     :has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
@@ -3466,6 +3470,16 @@
   pointer-events: auto;
   max-height: var(--mg-subtoolbar-row-height);
   opacity: 1;
+  overflow: visible;
+  border-radius: 0 0 var(--mg-table-panel-strip-bottom-radius) var(--mg-table-panel-strip-bottom-radius);
+  border-bottom: var(--mg-section-divider-border);
+  box-shadow:
+    var(--mg-section-divider-shadow),
+    var(--mg-table-panel-strip-bottom-glow);
+}
+
+.mg-empresas-scope .mg-table-panel-wrap.is-visible .mg-table-panel-strip {
+  border-radius: inherit;
 }
 
 .mg-empresas-scope .mg-filter-pill {
