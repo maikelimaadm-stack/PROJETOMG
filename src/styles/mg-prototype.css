@@ -66,6 +66,8 @@
   --mg-section-divider-border: 1px solid rgba(231, 234, 238, 0.82);
   --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --mg-section-divider-shadow-top: inset 0 1px 0 rgba(231, 234, 238, 0.82), inset 0 -1px 0 rgba(255, 255, 255, 0.9);
+  --mg-card-label-color: #5f6b7a;
+  --mg-card-value-color: #1f2a37;
   --mg-table-panel-strip-bottom-radius: 18px;
   --mg-table-panel-strip-bottom-glow:
     0 0 0 1px rgba(255, 255, 255, 0.8),
@@ -2213,7 +2215,7 @@
   text-overflow: ellipsis;
   line-height: 16px;
   min-width: 0;
-  color: var(--text-1);
+  color: var(--mg-card-value-color);
 }
 
 .mg-empresas-scope .mg-emp-card__meta-row {
@@ -2346,10 +2348,11 @@
 
 .mg-empresas-scope .mg-emp-card__name {
   font-weight: 600;
+  color: var(--mg-card-value-color);
 }
 
 .mg-empresas-scope .mg-emp-card__sep {
-  color: var(--text-3);
+  color: var(--mg-card-label-color);
 }
 
 .mg-empresas-scope .mg-cards-grid {
@@ -2408,7 +2411,8 @@
 .mg-empresas-scope .mg-emp-card__field-label {
   flex: 0 0 auto;
   white-space: nowrap;
-  color: var(--text-3);
+  color: var(--mg-card-label-color);
+  font-weight: 500;
 }
 
 .mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-label {
@@ -2420,8 +2424,8 @@
 .mg-empresas-scope .mg-emp-card__field-value {
   flex: 1 1 auto;
   min-width: 0;
-  font-weight: 500;
-  color: var(--text-1);
+  font-weight: 600;
+  color: var(--mg-card-value-color);
   word-break: break-word;
   overflow-wrap: anywhere;
 }
