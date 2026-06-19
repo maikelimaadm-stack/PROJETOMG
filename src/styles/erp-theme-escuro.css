@@ -16,7 +16,7 @@ html.dark {
   --text-primary: #e6edf3;
   --text-secondary: #848d97;
   --mg-ink: var(--text-primary);
-  --mg-icon-color: var(--mg-ink);
+  --mg-icon-color: var(--text-secondary);
   --erp-border-line: #484f58;
   --erp-border-line-strong: #6e7681;
 
@@ -60,7 +60,7 @@ html.escuro .mg-empresas-scope {
   --text-2: #848d97;
   --text-3: #6e7681;
   --mg-ink: var(--text-1);
-  --mg-icon-color: var(--mg-ink);
+  --mg-icon-color: var(--text-2);
   --gray-fill: #21262d;
   --gray-fill2: #30363d;
   --mg-container-border: 1px solid #484f58;
@@ -116,7 +116,7 @@ html.escuro .cadastro-emp-scope {
   --emp-card-header-bg: #21262d;
   --emp-form-border-color: #484f58;
   --mg-ink: var(--text-primary);
-  --mg-icon-color: var(--mg-ink);
+  --mg-icon-color: var(--text-secondary);
   --emp-form-label-color: var(--mg-ink);
 }
 

@@ -248,7 +248,7 @@ input[type="number"] {
   --emp-text: var(--text-primary);
   --emp-text-strong: var(--text-primary);
   --mg-ink: #1a1f26;
-  --mg-icon-color: var(--mg-ink);
+  --mg-icon-color: #5b6b80;
   --emp-form-label-color: var(--mg-ink);
   --emp-control-radius: 8px;
   --emp-button-radius: 5px;
@@ -395,8 +395,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button) svg {
-  color: var(--mg-icon-color, var(--mg-ink, #1a1f26)) !important;
-  stroke: var(--mg-icon-color, var(--mg-ink, #1a1f26)) !important;
+  color: var(--mg-icon-color, var(--mg-ink, #5b6b80)) !important;
+  stroke: var(--mg-icon-color, var(--mg-ink, #5b6b80)) !important;
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover {
@@ -404,8 +404,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope button:not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-delete):not(.emp-form-tab-inactive):not(.emp-form-tab-active):not(.emp-layout-config-field-action):not(.tb-btn-green):not(.tb-btn-blue):not(.tb-btn-red):not(.emp-toolbar-btn-save):not(.tb-btn-ghost):not(.tb-btn-filter):not(.tb-btn-more):not(.view-mode-btn):not(.mg-nav-btn):not(.mg-filter-pills-rail__nav):not(.seg-tab):not(.emp-th-icon-button):not(.emp-th-menu-button):hover svg {
-  color: var(--mg-icon-color, var(--mg-ink, #1a1f26)) !important;
-  stroke: var(--mg-icon-color, var(--mg-ink, #1a1f26)) !important;
+  color: var(--mg-icon-color, var(--mg-ink, #5b6b80)) !important;
+  stroke: var(--mg-icon-color, var(--mg-ink, #5b6b80)) !important;
 }
 
 .cadastro-emp-scope .emp-form-tab-nav-end {
@@ -1342,8 +1342,8 @@ input[type="number"] {
   height: 14px !important;
   min-width: 14px !important;
   min-height: 14px !important;
-  color: var(--mg-ink, #1a1f26) !important;
-  stroke: var(--mg-ink, #1a1f26) !important;
+  color: var(--mg-icon-color, #5b6b80) !important;
+  stroke: var(--mg-icon-color, #5b6b80) !important;
   fill: none !important;
   opacity: 1 !important;
   flex-shrink: 0;
@@ -1351,8 +1351,8 @@ input[type="number"] {
 
 .cadastro-emp-scope .erp-field-lookup-inline-icon {
   z-index: 3;
-  color: var(--mg-ink, #1a1f26) !important;
-  stroke: var(--mg-ink, #1a1f26) !important;
+  color: var(--mg-icon-color, #5b6b80) !important;
+  stroke: var(--mg-icon-color, #5b6b80) !important;
 }
 
 .cadastro-emp-scope .emp-form-fields-corp .emp-form-field-corp .emp-form-field-control:has(.erp-field-select) {
@@ -1439,8 +1439,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-table-fullscreen-btn svg {
-  color: var(--mg-ink, #1a1f26) !important;
-  stroke: var(--mg-ink, #1a1f26) !important;
+  color: var(--mg-icon-color, #5b6b80) !important;
+  stroke: var(--mg-icon-color, #5b6b80) !important;
 }
 
 .cadastro-emp-scope .emp-table-fullscreen-btn:hover:not(:disabled) svg {
@@ -2015,8 +2015,8 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):hover:not(:disabled) svg.emp-toolbar-action-icon,
 .cadastro-emp-scope .emp-toolbar-btn:not(.emp-toolbar-btn-new):hover:not(:disabled) svg.emp-toolbar-nav-icon {
-  color: var(--mg-ink, #1a1f26) !important;
-  stroke: var(--mg-ink, #1a1f26) !important;
+  color: var(--mg-icon-color, #5b6b80) !important;
+  stroke: var(--mg-icon-color, #5b6b80) !important;
 }
 
 .cadastro-emp-scope .emp-toolbar-counter {
