@@ -74,7 +74,7 @@
     inset 0 -1px 0 rgba(255, 255, 255, 0.98),
     inset 1px 0 0 rgba(255, 255, 255, 0.94),
     inset -1px 0 0 rgba(255, 255, 255, 0.94);
-  --mg-table-panel-strip-border-color: rgba(255, 255, 255, 0.9);
+  --mg-table-panel-strip-border-color: rgba(255, 255, 255, 0.82);
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
@@ -3491,9 +3491,11 @@
   background: transparent;
   overflow: hidden;
   box-sizing: border-box;
-  border-left: 1px solid var(--mg-table-panel-strip-border-color);
-  border-right: 1px solid var(--mg-table-panel-strip-border-color);
-  border-bottom: 1px solid var(--mg-table-panel-strip-border-color);
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  outline: 1px solid var(--mg-table-panel-strip-border-color);
+  outline-offset: -1px;
   border-bottom-left-radius: var(--mg-table-panel-strip-bottom-radius);
   border-bottom-right-radius: var(--mg-table-panel-strip-bottom-radius);
   box-shadow:
