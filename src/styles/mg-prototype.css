@@ -3621,6 +3621,17 @@
   box-shadow: var(--mg-focus-ring) !important;
 }
 
+.mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active {
+  color: var(--red);
+  border-color: rgba(220, 38, 38, 0.28) !important;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:hover:not(:disabled) {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.08) !important;
+  border-color: rgba(220, 38, 38, 0.38) !important;
+}
+
 .mg-empresas-scope .mg-filter-pills-rail--track .mg-filter-pills-rail__viewport {
   padding-inline: 1px;
 }
