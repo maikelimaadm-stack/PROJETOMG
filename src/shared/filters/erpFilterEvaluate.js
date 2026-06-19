@@ -287,7 +287,23 @@ export function evaluateColumnFilter({ filterDraft, filterType, rawValue, displa
   });
 }
 
-const SERVER_SUPPORTED_FILTER_OPERATORS = new Set(["equals", "contains", ""]);
+const SERVER_SUPPORTED_FILTER_OPERATORS = new Set([
+  "equals",
+  "contains",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "between",
+  "not_between",
+  "before",
+  "after",
+  "today",
+  "yesterday",
+  "this_month",
+  "last_month",
+  "",
+]);
 
 export function filterNeedsClientSideProcessing(filterEntry) {
   if (!filterEntry) return false;
