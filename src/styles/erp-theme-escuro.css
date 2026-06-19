@@ -74,8 +74,8 @@ html.escuro .mg-empresas-scope {
   --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   --mg-section-divider-shadow-top: inset 0 1px 0 rgba(72, 79, 88, 0.92), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
   --mg-table-panel-strip-bottom-glow:
-    0 4px 10px rgba(0, 0, 0, 0.36),
-    0 12px 24px rgba(0, 0, 0, 0.42),
+    0 3px 8px rgba(0, 0, 0, 0.36),
+    0 7px 16px rgba(0, 0, 0, 0.42),
     0 0 0 1px rgba(72, 79, 88, 0.35);
   --mg-table-panel-strip-border-softener:
     inset 0 -1px 0 rgba(255, 255, 255, 0.1),
@@ -808,11 +808,6 @@ html.escuro .mg-empresas-scope .mg-cards-panel-strip {
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg,
 html.escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
   background: transparent !important;
-}
-
-html.tema-escuro .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible,
-html.escuro .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
-  border-bottom-color: rgba(72, 79, 88, 0.92);
 }
 
 html.tema-escuro .mg-empresas-scope .view-seg-slider,

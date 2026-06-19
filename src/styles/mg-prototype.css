@@ -66,12 +66,12 @@
   --mg-section-divider-border: 1px solid rgba(231, 234, 238, 0.82);
   --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
   --mg-section-divider-shadow-top: inset 0 1px 0 rgba(231, 234, 238, 0.82), inset 0 -1px 0 rgba(255, 255, 255, 0.9);
-  --mg-table-panel-strip-bottom-radius: 16px;
+  --mg-table-panel-strip-bottom-radius: 18px;
   --mg-table-panel-strip-bottom-glow:
-    0 4px 10px rgba(15, 23, 42, 0.11),
-    0 10px 24px rgba(15, 23, 42, 0.13),
-    0 0 0 1px rgba(148, 163, 184, 0.2),
-    0 3px 12px rgba(255, 255, 255, 0.2);
+    0 3px 8px rgba(15, 23, 42, 0.11),
+    0 6px 14px rgba(15, 23, 42, 0.13),
+    0 0 0 1px rgba(148, 163, 184, 0.18),
+    0 2px 7px rgba(255, 255, 255, 0.18);
   --mg-table-panel-strip-border-softener:
     inset 0 -1px 0 rgba(255, 255, 255, 0.95),
     inset 1px 0 0 rgba(255, 255, 255, 0.9),
@@ -540,7 +540,7 @@
   position: relative;
 }
 
-.mg-empresas-scope :is(.mg-context-panel, .mg-cards-panel-strip, .mg-panel-tabs-strip)::after,
+.mg-empresas-scope .mg-panel-tabs-strip::after,
 .mg-empresas-scope
   .mg-action-bar:not(:has(+ .mg-context-panel-wrap.is-visible)):not(
     :has(+ .mg-context-panel-wrap + .mg-cards-panel-wrap.is-visible)
@@ -3484,7 +3484,7 @@
 }
 
 .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
-  overflow: visible;
+  overflow: hidden;
   box-sizing: border-box;
   border-left: 1px solid transparent;
   border-right: 1px solid transparent;
