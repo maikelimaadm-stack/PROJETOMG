@@ -236,7 +236,8 @@ html *::-webkit-scrollbar-button:double-button:horizontal:increment {
    ========================================================================== */
 
 :root {
-  --mg-icon-color: #000000;
+  --mg-ink: #1a1f26;
+  --mg-icon-color: var(--mg-ink);
   --mg-icon-on-accent-color: #ffffff;
   --mg-icon-danger-color: var(--red, #dc2626);
 }
