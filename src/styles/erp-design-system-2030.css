@@ -12,6 +12,10 @@
   --border-color: #E5E7EB;
   --text-primary: #374151;
   --text-secondary: #6B7280;
+  /* Preto padrão do ERP — mesma cor dos cabeçalhos (emp-th, labels, toolbar) */
+  --mg-ink: #1a1f26;
+  /* Ícones — tom levemente mais claro que textos/cabeçalhos */
+  --mg-icon-color: #5b6b80;
 
   --erp-menu-bg: var(--background-card);
   --erp-menu-border: var(--border-color);
@@ -737,7 +741,7 @@
   padding-right: 8px !important;
   font-size: 12px !important;
   font-weight: 400 !important;
-  color: #1a1f26 !important;
+  color: var(--mg-icon-color, #5b6b80) !important;
   background-color: #ffffff !important;
 }
 
@@ -773,7 +777,7 @@
   box-shadow: none !important;
   cursor: pointer;
   z-index: 1;
-  color: #1a1f26 !important;
+  color: var(--mg-icon-color, #5b6b80) !important;
   overflow: visible !important;
 }
 
@@ -790,8 +794,8 @@
 .cadastro-emp-scope .erp-field-select-chevron-btn svg {
   width: 14px !important;
   height: 14px !important;
-  color: #1a1f26 !important;
-  stroke: #1a1f26 !important;
+  color: var(--mg-icon-color, #5b6b80) !important;
+  stroke: var(--mg-icon-color, #5b6b80) !important;
   opacity: 1 !important;
 }
 

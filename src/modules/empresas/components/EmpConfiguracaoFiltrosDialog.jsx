@@ -9,7 +9,6 @@ import {
 export default function EmpConfiguracaoFiltrosDialog({
   open,
   onOpenChange,
-  moduleTitle = "Cadastro",
   camposDisponiveis = [],
   camposVisiveis = [],
   camposOrdem = [],
@@ -173,9 +172,8 @@ export default function EmpConfiguracaoFiltrosDialog({
       open={open}
       onOpenChange={onOpenChange}
       onRequestClose={requestClose}
-      title={`Configuração dos filtros - ${moduleTitle}`}
-      badgeLabel="Filtros"
-      infoTitle={`Configuração dos filtros - ${moduleTitle}`}
+      title="Configurar campos de filtros"
+      infoTitle="Configurar campos de filtros"
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
     >

@@ -134,12 +134,16 @@ export function EmpConfigDialogFrame({
         <div className={EMP_CONFIG_DIALOG_SHELL}>
           <div className={EMP_CONFIG_DIALOG_HEADER}>
             <div className="emp-config-dialog-header__title flex min-w-0 flex-1 items-center gap-1.5">
-              <span className="emp-config-dialog-header__badge">{titleCase(badgeLabel)}</span>
-              <ChevronRight
-                className="emp-config-dialog-header__chevron h-3 w-3 shrink-0"
-                strokeWidth={2}
-                aria-hidden="true"
-              />
+              {badgeLabel ? (
+                <>
+                  <span className="emp-config-dialog-header__badge">{titleCase(badgeLabel)}</span>
+                  <ChevronRight
+                    className="emp-config-dialog-header__chevron h-3 w-3 shrink-0"
+                    strokeWidth={2}
+                    aria-hidden="true"
+                  />
+                </>
+              ) : null}
               <span className="emp-config-dialog-header__name min-w-0 truncate">{infoTitle}</span>
             </div>
             <div className="emp-config-dialog-header__actions flex shrink-0 items-center gap-1">

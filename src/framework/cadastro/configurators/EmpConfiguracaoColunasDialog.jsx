@@ -11,7 +11,6 @@ import {
 export default function EmpConfiguracaoColunasDialog({
   open,
   onOpenChange,
-  moduleTitle = "Cadastro",
   colunasDisponiveis = [],
   colunasVisiveis = [],
   colunasOrdem = [],
@@ -195,9 +194,8 @@ export default function EmpConfiguracaoColunasDialog({
       open={open}
       onOpenChange={onOpenChange}
       onRequestClose={requestClose}
-      title={`Configuração das colunas - ${moduleTitle}`}
-      badgeLabel="Colunas"
-      infoTitle={`Configuração das colunas - ${moduleTitle}`}
+      title="Configuração de colunas"
+      infoTitle="Configuração de colunas"
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
     >
