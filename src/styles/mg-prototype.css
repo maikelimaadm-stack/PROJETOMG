@@ -72,6 +72,10 @@
     0 10px 24px rgba(15, 23, 42, 0.13),
     0 0 0 1px rgba(148, 163, 184, 0.2),
     0 3px 12px rgba(255, 255, 255, 0.2);
+  --mg-table-panel-strip-border-softener:
+    inset 0 -1px 0 rgba(255, 255, 255, 0.95),
+    inset 1px 0 0 rgba(255, 255, 255, 0.9),
+    inset -1px 0 0 rgba(255, 255, 255, 0.9);
   --mg-focus-border: rgba(64, 222, 99, 0.35);
   --mg-focus-ring: inset 0 0 0 1px rgba(64, 222, 99, 0.12);
   --mg-focus-bg: #fff;
@@ -3478,12 +3482,14 @@
 .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
   overflow: visible;
   box-sizing: border-box;
-  border-left: var(--mg-section-divider-border);
-  border-right: var(--mg-section-divider-border);
-  border-bottom: var(--mg-section-divider-border);
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid transparent;
   border-bottom-left-radius: var(--mg-table-panel-strip-bottom-radius);
   border-bottom-right-radius: var(--mg-table-panel-strip-bottom-radius);
-  box-shadow: var(--mg-table-panel-strip-bottom-glow);
+  box-shadow:
+    var(--mg-table-panel-strip-border-softener),
+    var(--mg-table-panel-strip-bottom-glow);
 }
 
 .mg-empresas-scope
