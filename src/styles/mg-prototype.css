@@ -8294,7 +8294,7 @@
   .emp-layout-configurator .tb-btn-ghost.tb-btn-icon.tb-btn-danger
 ):not(:disabled) svg {
   color: var(--red) !important;
-  stroke: var(--mg-icon-color) !important;
+  stroke: var(--red) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope :is(

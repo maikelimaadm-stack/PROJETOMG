@@ -476,14 +476,15 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
   accent-color: var(--mg-brand-green, #40de63) !important;
 }
 
-/* Vermelho — ícones de excluir/lixeira (botões neutros, não fundo sólido vermelho) */
+/* Vermelho — ícones de excluir/lixeira e limpar filtros (botões neutros, não fundo sólido vermelho) */
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost.tb-btn-danger,
   .tb-btn-danger.tb-btn-labeled,
   .tb-btn-danger.tb-btn-icon:not(.tb-btn-green),
   .emp-toolbar-btn-delete,
   .emp-config-anexos-remove-btn,
-  .emp-config-plain-icon-btn
+  .emp-config-plain-icon-btn,
+  .mg-filter-pills-rail__config.is-clear-active
 ) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost.tb-btn-danger,
@@ -491,10 +492,25 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
   .tb-btn-danger.tb-btn-icon:not(.tb-btn-green),
   .emp-toolbar-btn-delete,
   .emp-config-anexos-remove-btn,
-  .emp-config-plain-icon-btn
+  .emp-config-plain-icon-btn,
+  .mg-filter-pills-rail__config.is-clear-active
 ):hover:not(:disabled) svg.lucide,
 html body .mg-action-bar :is(.tb-btn-ghost.tb-btn-danger, .tb-btn-danger) svg.lucide,
 html body .mg-action-bar :is(.tb-btn-ghost.tb-btn-danger, .tb-btn-danger):hover:not(:disabled) svg.lucide {
   color: var(--mg-icon-danger-color) !important;
   stroke: var(--mg-icon-danger-color) !important;
+}
+
+/* Limpar filtros — override final sobre .tb-btn-filter svg global */
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell)
+  .mg-filter-pills-rail__config.is-clear-active.tb-btn-filter:not(:disabled) {
+  border-color: rgba(220, 38, 38, 0.28) !important;
+}
+
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell)
+  .mg-filter-pills-rail__config.is-clear-active.tb-btn-filter:not(:disabled) svg.lucide,
+html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell)
+  .mg-filter-pills-rail__config.is-clear-active.tb-btn-filter:not(:disabled):hover svg.lucide {
+  color: var(--mg-icon-danger-color, #dc2626) !important;
+  stroke: var(--mg-icon-danger-color, #dc2626) !important;
 }

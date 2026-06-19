@@ -323,8 +323,8 @@ export default function MgFilterPills({
       <button
         type="button"
         className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
-          filterPanelActive && !hasActiveFilters ? " tb-btn-filter-active is-active" : ""
-        }${hasActiveFilters ? " is-clear-active" : ""}`}
+          hasActiveFilters ? " is-clear-active tb-btn-danger" : filterPanelActive ? " tb-btn-filter-active is-active" : ""
+        }`}
         onClick={handleConfigButtonClick}
         disabled={disabled}
         aria-label={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
