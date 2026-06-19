@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Check, LayoutGrid, Settings2 } from "lucide-react";
+import { Check, Columns3Cog, Combine } from "lucide-react";
 import {
   EMP_CARDS_LAYOUT_DEFAULT,
   EMP_CARDS_LAYOUT_OPTIONS,
@@ -288,7 +288,7 @@ export default function MgCardsPanelStrip({
             aria-expanded={layoutOpen}
             aria-haspopup="dialog"
           >
-            <LayoutGrid className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
+            <Combine className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
           </button>
 
           <MgPortalPanel
@@ -330,7 +330,7 @@ export default function MgCardsPanelStrip({
             aria-expanded={fieldsOpen}
             aria-haspopup="dialog"
           >
-            <Settings2 className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
+            <Columns3Cog className="mg-cards-panel-strip__config-icon" strokeWidth={2.1} />
           </button>
 
           <MgPortalPanel

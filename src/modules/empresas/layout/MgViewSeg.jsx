@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
-import { FileText, LayoutGrid, Table } from "lucide-react";
+import { FileText, LayoutDashboard, TableProperties } from "lucide-react";
 import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
 
 const MODES = [
   { id: "registro", icon: FileText, title: "Registro" },
-  { id: "tabela", icon: Table, title: "Tabela" },
-  { id: "cards", icon: LayoutGrid, title: "Cards" },
+  { id: "tabela", icon: TableProperties, title: "Tabela" },
+  { id: "cards", icon: LayoutDashboard, title: "Cards" },
 ];
 
 export default function MgViewSeg({ value, onChange, disabled = false }) {

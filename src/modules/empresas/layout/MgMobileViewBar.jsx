@@ -1,10 +1,10 @@
 import React from "react";
-import { FileText, LayoutGrid, Table } from "lucide-react";
+import { FileText, LayoutDashboard, TableProperties } from "lucide-react";
 
 const ITEMS = [
   { id: "registro", label: "Registro", icon: FileText },
-  { id: "tabela", label: "Tabela", icon: Table },
-  { id: "cards", label: "Cards", icon: LayoutGrid },
+  { id: "tabela", label: "Tabela", icon: TableProperties },
+  { id: "cards", label: "Cards", icon: LayoutDashboard },
 ];
 
 export default function MgMobileViewBar({ value, onChange, disabled = false }) {
