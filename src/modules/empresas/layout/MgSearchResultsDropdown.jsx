@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Settings2 } from "lucide-react";
+import { Check, Columns3Cog } from "lucide-react";
 import {
   countSearchDropdownVisibleFields,
   EMP_SEARCH_DROPDOWN_MAX_FIELDS,
@@ -308,7 +308,7 @@ export default function MgSearchResultsDropdown({
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => setConfigOpen(true)}
             >
-              <Settings2 className="mg-search-dropdown__config-icon" strokeWidth={2.1} aria-hidden="true" />
+              <Columns3Cog className="mg-search-dropdown__config-icon" strokeWidth={2.1} aria-hidden="true" />
             </button>
           </div>
         ) : null}
