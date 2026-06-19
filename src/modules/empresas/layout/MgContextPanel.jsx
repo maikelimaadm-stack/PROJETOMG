@@ -1,5 +1,5 @@
 import React from "react";
-import { ChevronLeft, ChevronRight, SkipBack, SkipForward } from "lucide-react";
+import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCadastroRecordPosition } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 
@@ -52,7 +52,7 @@ export default function MgContextPanel({
       </div>
       <div className={`mg-context-panel__nav${showNavigation ? " is-visible" : ""}`}>
         <button type="button" className="mg-nav-btn ios-btn" onClick={onFirst} disabled={navDisabled || currentIndex <= 0} title="Primeiro">
-          <SkipBack className="h-3 w-3" />
+          <ChevronFirst className="h-3 w-3" />
         </button>
         <button type="button" className="mg-nav-btn ios-btn" onClick={onPrevious} disabled={navDisabled || currentIndex <= 0} title="Anterior">
           <ChevronLeft className="h-3 w-3" />
@@ -66,7 +66,7 @@ export default function MgContextPanel({
           <ChevronRight className="h-3 w-3" />
         </button>
         <button type="button" className="mg-nav-btn ios-btn" onClick={onLast} disabled={navDisabled || currentIndex >= total - 1} title="Último">
-          <SkipForward className="h-3 w-3" />
+          <ChevronLast className="h-3 w-3" />
         </button>
       </div>
     </div>
