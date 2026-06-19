@@ -4,8 +4,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  SkipBack,
-  SkipForward,
+  ChevronFirst,
+  ChevronLast,
   X,
   RotateCcw,
 } from "lucide-react";
@@ -286,7 +286,7 @@ export function EmpConfigTransferPanel({
                 onClick={onRemoveAll}
                 title="Remover todos"
               >
-                <SkipBack className="h-3 w-3" />
+                <ChevronFirst className="h-3 w-3" />
               </EmpConfigMoveBtn>
               <EmpConfigMoveBtn
                 disabled={selectedUsedIds.length === 0}
@@ -307,7 +307,7 @@ export function EmpConfigTransferPanel({
                 onClick={onAddAll}
                 title="Adicionar todos"
               >
-                <SkipForward className="h-3 w-3" />
+                <ChevronLast className="h-3 w-3" />
               </EmpConfigMoveBtn>
             </section>
 

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight } from "lucide-react";
+import { ChevronFirst, ChevronLast, ChevronLeft, ChevronRight } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/ui/select";
 import { EMP_TOOLBAR_BTN_SHAPE, EMP_TOOLBAR_FIELD_BORDER } from "@/framework/cadastro/toolbars/empToolbarStyles";
 
@@ -58,7 +58,7 @@ export default function EmpTablePagination({
     <div className={`emp-table-pagination flex shrink-0 items-center justify-end gap-2 border-t border-[#e8ecef] bg-white px-2 py-1${paginationDisabled ? " emp-table-pagination--busy" : ""}`}>
       <div className="flex shrink-0 items-center justify-end gap-1">
       <PaginationBtn onClick={() => onPageChange?.(1)} disabled={safePage <= 1 || paginationDisabled} className="w-6 min-w-6 p-0" title="Primeira página" aria-label="Primeira página">
-        <ChevronsLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
+        <ChevronFirst className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
       <PaginationBtn onClick={() => onPageChange?.(safePage - 1)} disabled={safePage <= 1 || paginationDisabled} className="w-6 min-w-6 p-0" title="Página anterior" aria-label="Página anterior">
         <ChevronLeft className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
@@ -89,7 +89,7 @@ export default function EmpTablePagination({
         <ChevronRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
       <PaginationBtn onClick={() => onPageChange?.(totalPages)} disabled={safePage >= totalPages || paginationDisabled} className="w-6 min-w-6 p-0" title="Última página" aria-label="Última página">
-        <ChevronsRight className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
+        <ChevronLast className="h-2.5 w-2.5 shrink-0" strokeWidth={2} />
       </PaginationBtn>
 
       <Select value={String(pageSize)} onValueChange={(value) => onPageSizeChange?.(Number(value))} disabled={paginationDisabled}>

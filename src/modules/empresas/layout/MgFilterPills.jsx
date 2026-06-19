@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, ListFilter, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FunnelPlus, FunnelX, X } from "lucide-react";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import {
   ErpFilterPopover,
@@ -263,6 +263,7 @@ export default function MgFilterPills({
   className = "",
   onConfigureFilters = null,
   filterPanelActive = false,
+  hasActiveFilters: hasActiveFiltersProp = null,
 }) {
   const useScrollRail = !className.includes("mg-filter-pills--drawer");
   const {
@@ -274,10 +275,19 @@ export default function MgFilterPills({
     scrollRight,
   } = useFilterPillsScrollRail(useScrollRail);
 
-  const hasActiveFilters = useMemo(
-    () => filterFields.some((field) => isErpFilterActive(appliedValues[field.key])),
-    [appliedValues, filterFields]
-  );
+  const hasActiveFilters = useMemo(() => {
+    if (hasActiveFiltersProp != null) return Boolean(hasActiveFiltersProp);
+    return filterFields.some((field) => isErpFilterActive(appliedValues[field.key]));
+  }, [appliedValues, filterFields, hasActiveFiltersProp]);
+
+  const handleConfigButtonClick = () => {
+    if (disabled) return;
+    if (hasActiveFilters) {
+      onClear?.();
+      return;
+    }
+    onConfigureFilters?.();
+  };
 
   const pills = (
     <>
@@ -308,20 +318,24 @@ export default function MgFilterPills({
     </>
   );
 
-  const configButton = onConfigureFilters ? (
+  const configButton = onConfigureFilters || onClear ? (
     <div className="mg-filter-pills-rail__config-slot">
       <button
         type="button"
         className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
-          filterPanelActive ? " tb-btn-filter-active is-active" : ""
+          hasActiveFilters ? " is-clear-active tb-btn-danger" : filterPanelActive ? " tb-btn-filter-active is-active" : ""
         }`}
-        onClick={onConfigureFilters}
+        onClick={handleConfigButtonClick}
         disabled={disabled}
-        aria-label="Configurar filtros"
-        title="Configurar filtros"
-        aria-pressed={filterPanelActive}
+        aria-label={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
+        title={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
+        aria-pressed={hasActiveFilters ? false : filterPanelActive}
       >
-        <ListFilter className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+        {hasActiveFilters ? (
+          <FunnelX className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+        ) : (
+          <FunnelPlus className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+        )}
       </button>
     </div>
   ) : null;

@@ -67,12 +67,24 @@ html.escuro .mg-empresas-scope {
   --mg-container-bg: #161b22;
   --mg-container-edge-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04), inset 0 1px 2px rgba(0, 0, 0, 0.24);
   --mg-container-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
-  --mg-launch-card-border: 1px solid #484f58;
-  --mg-launch-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(72, 79, 88, 0.8);
+  --mg-launch-card-border: 1px solid rgba(255, 255, 255, 0.24);
+  --mg-launch-card-shadow: none;
   --mg-section-divider-color: #484f58;
   --mg-section-divider-border: 1px solid rgba(72, 79, 88, 0.92);
   --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   --mg-section-divider-shadow-top: inset 0 1px 0 rgba(72, 79, 88, 0.92), inset 0 -1px 0 rgba(255, 255, 255, 0.03);
+  --mg-card-label-color: #9aa5b1;
+  --mg-card-value-color: #e6edf3;
+  --mg-panel-tabs-strip-divider-color: #21262d;
+  --mg-panel-tabs-strip-divider-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.28);
+  --mg-table-panel-strip-bottom-glow:
+    0 0 0 1px rgba(255, 255, 255, 0.28),
+    0 0 10px rgba(255, 255, 255, 0.08);
+  --mg-table-panel-strip-border-softener:
+    inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+    inset 1px 0 0 rgba(255, 255, 255, 0.22),
+    inset -1px 0 0 rgba(255, 255, 255, 0.22);
+  --mg-table-panel-strip-border-color: rgba(255, 255, 255, 0.26);
   --mg-field-edge-shadow: none;
   --mg-focus-bg: #21262d;
   --mg-invalid-bg: #21262d;
@@ -383,8 +395,8 @@ html.escuro .mg-empresas-scope .erp-card,
 html.escuro .mg-empresas-scope .mg-emp-card,
 html.escuro .mg-empresas-scope .emp-form-card {
   background: var(--bg-card) !important;
-  border-color: var(--border) !important;
-  box-shadow: var(--mg-card-shadow) !important;
+  border-color: rgba(255, 255, 255, 0.24) !important;
+  box-shadow: none !important;
 }
 
 html.tema-escuro .mg-empresas-scope .filter-panel__inner,
@@ -795,6 +807,24 @@ html.escuro .mg-empresas-scope .mg-cards-panel-strip {
   background: var(--bg-card) !important;
   border-color: #30363d !important;
   box-shadow: var(--mg-card-shadow) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
+  background: var(--bg-page) !important;
+}
+
+html.tema-escuro .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-view-stack,
+html.escuro .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-view-stack,
+html.tema-escuro .mg-empresas-scope #mode-registro,
+html.escuro .mg-empresas-scope #mode-registro {
+  background: var(--bg-page);
+}
+
+html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip::after,
+html.escuro .mg-empresas-scope .mg-panel-tabs-strip::after {
+  border-bottom-color: var(--mg-panel-tabs-strip-divider-color);
+  box-shadow: var(--mg-panel-tabs-strip-divider-shadow);
 }
 
 html.tema-escuro .mg-empresas-scope .view-seg-slider,

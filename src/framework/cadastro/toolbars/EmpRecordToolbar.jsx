@@ -1,5 +1,5 @@
 import React from "react";
-import { Filter, List, Check, X, Paperclip, MoreHorizontal, Plus, ChevronsLeft, ChevronLeft, ChevronRight, ChevronsRight, Trash2, Copy, Pencil, Search } from "lucide-react";
+import { Filter, List, Check, X, Link2, Link2Off, MoreHorizontal, Plus, ChevronFirst, ChevronLeft, ChevronRight, ChevronLast, Trash2, Copy, Pencil, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
@@ -111,7 +111,7 @@ export default function EmpRecordToolbar({
           {showRecordNavigation && (
             <div className="emp-toolbar-actions-nav flex items-center gap-1 shrink-0">
               <ToolbarBtn onClick={onFirst} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Primeiro">
-                <EmpToolbarIcon icon={ChevronsLeft} nav />
+                <EmpToolbarIcon icon={ChevronFirst} nav />
               </ToolbarBtn>
               <ToolbarBtn onClick={onPrevious} disabled={!canNavigate || isFirst} className={NAV_BTN_CLASS} title="Anterior">
                 <EmpToolbarIcon icon={ChevronLeft} nav />
@@ -120,7 +120,7 @@ export default function EmpRecordToolbar({
                 <EmpToolbarIcon icon={ChevronRight} nav />
               </ToolbarBtn>
               <ToolbarBtn onClick={onLast} disabled={!canNavigate || isLast} className={NAV_BTN_CLASS} title="Último">
-                <EmpToolbarIcon icon={ChevronsRight} nav />
+                <EmpToolbarIcon icon={ChevronLast} nav />
               </ToolbarBtn>
             </div>
           )}
@@ -156,7 +156,7 @@ export default function EmpRecordToolbar({
           )}
           {showUtilityActions && (
             <ToolbarBtn onClick={onAttachClick} disabled={attachDisabled} title={attachDisabled ? "Salve o registro antes de anexar" : "Anexos"}>
-              <EmpToolbarIcon icon={Paperclip} />
+              <EmpToolbarIcon icon={attachDisabled ? Link2Off : Link2} />
             </ToolbarBtn>
           )}
           {showUtilityActions && (

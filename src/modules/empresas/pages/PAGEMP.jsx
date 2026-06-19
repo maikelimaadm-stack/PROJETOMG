@@ -1450,6 +1450,7 @@ export default function PAGEMP() {
                 disabled={filterControlsDisabled}
                 onConfigureFilters={() => setShowConfigFiltros(true)}
                 filterPanelActive={showConfigFiltros}
+                hasActiveFilters={hasActiveFilters}
               />
             </div>
 
@@ -1466,6 +1467,7 @@ export default function PAGEMP() {
                 onFilterApply={handleFilterApply}
                 onConfigureFilters={() => setShowConfigFiltros(true)}
                 filterPanelActive={showConfigFiltros}
+                hasActiveFilters={hasActiveFilters}
               />
             </div>
           </div>

@@ -196,7 +196,10 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
             {detailFields.length > 0 ? (
               <div className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}>
                 {detailFields.map((field) => (
-                  <div key={field.key} className="mg-emp-card__field">
+                  <div
+                    key={field.key}
+                    className={`mg-emp-card__field${field.key === "id_global" ? " mg-emp-card__field--id-global" : ""}`}
+                  >
                     <div className="mg-emp-card__field-line">
                       <span className="mg-emp-card__field-label">{field.label}:</span>
                       <span

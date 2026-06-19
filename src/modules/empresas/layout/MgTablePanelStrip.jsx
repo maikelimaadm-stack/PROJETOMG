@@ -1,5 +1,5 @@
 import React from "react";
-import { Settings2 } from "lucide-react";
+import { Columns3Cog } from "lucide-react";
 import MgFilterPills from "@/modules/empresas/layout/MgFilterPills";
 
 export default function MgTablePanelStrip({
@@ -14,6 +14,7 @@ export default function MgTablePanelStrip({
   onFilterApply,
   onConfigureFilters = null,
   filterPanelActive = false,
+  hasActiveFilters = false,
 }) {
   return (
     <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
@@ -29,6 +30,7 @@ export default function MgTablePanelStrip({
           disabled={disabled}
           onConfigureFilters={onConfigureFilters}
           filterPanelActive={filterPanelActive}
+          hasActiveFilters={hasActiveFilters}
         />
       </div>
       <div className="mg-table-panel-strip__actions">
@@ -41,7 +43,7 @@ export default function MgTablePanelStrip({
             title="Configurar colunas da tabela"
             aria-label="Configurar colunas da tabela"
           >
-            <Settings2 className="mg-table-panel-strip__config-icon" strokeWidth={2.1} />
+            <Columns3Cog className="mg-table-panel-strip__config-icon" strokeWidth={2.1} />
           </button>
         </div>
       </div>

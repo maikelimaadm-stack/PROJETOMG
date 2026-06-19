@@ -1,6 +1,7 @@
 import { formatDateValue } from "./tblEmp.constants";
 import { COLUNAS_BASE } from "./tblEmp.constants";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
+import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 
 /** Compatível com protótipo HTML (`erp_vis_config`). */
 export const EMP_SEARCH_VIS_KEY = "erp_vis_config";
@@ -302,6 +303,7 @@ export const formatEmpSearchCode = (codempresa) => {
 export const getEmpSearchFieldValue = (emp, key) => {
   if (!emp) return "—";
   if (key === "codempresa") return formatEmpSearchCode(emp.codempresa);
+  if (key === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "—";
   if (key === "createdAt") return formatDateValue(emp.createdAt);
   if (key === "tipo_vinculo") {
     if (emp.tipo_vinculo === "proprietario") return "PROPRIETÁRIO";

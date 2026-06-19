@@ -6,8 +6,8 @@ import {
   Reply,
   Search,
   Settings,
-  SkipBack,
-  SkipForward,
+  ChevronFirst,
+  ChevronLast,
   Trash2,
   X,
 } from "lucide-react";
@@ -1491,7 +1491,7 @@ export default function EmpLayoutConfiguratorDialog({
               onClick={removeAllFields}
               title="Remover todos"
             >
-              <SkipBack className="h-3 w-3" />
+              <ChevronFirst className="h-3 w-3" />
             </button>
             <button
               type="button"
@@ -1500,7 +1500,7 @@ export default function EmpLayoutConfiguratorDialog({
               onClick={addAllFields}
               title="Adicionar todos"
             >
-              <SkipForward className="h-3 w-3" />
+              <ChevronLast className="h-3 w-3" />
             </button>
           </section>
 

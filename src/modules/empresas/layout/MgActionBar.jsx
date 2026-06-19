@@ -5,7 +5,8 @@ import {
   Filter,
   History,
   Loader2,
-  Paperclip,
+  Link2,
+  Link2Off,
   Printer,
   RotateCcw,
   Search,
@@ -339,7 +340,11 @@ export default function MgActionBar({
         title="Anexos"
         aria-label="Anexos"
       >
-        <Paperclip className="h-3.5 w-3.5" />
+        {actionsLocked || attachDisabled ? (
+          <Link2Off className="h-3.5 w-3.5" />
+        ) : (
+          <Link2 className="h-3.5 w-3.5" />
+        )}
       </button>
     );
   };
