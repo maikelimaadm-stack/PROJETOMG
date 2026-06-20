@@ -12,25 +12,48 @@ const STATUS_PANEL_MAP = {
   Inativa: "Inativa",
 };
 
-const NUMERIC_ADVANCED_OPERATORS = new Set(["gt", "gte", "lt", "lte", "between", "not_between"]);
+const INVALID_LITERAL_VALUES = new Set(["undefined", "null"]);
+const NUMERIC_ADVANCED_OPERATORS = new Set([
+  "not_equals",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "between",
+  "not_between",
+]);
 const DATE_ADVANCED_OPERATORS = new Set([
   "equals",
+  "not_equals",
   "before",
   "after",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
   "between",
+  "not_between",
   "today",
   "yesterday",
   "this_month",
   "last_month",
 ]);
 
+const sanitizeScalarFilterValue = (value) => {
+  if (value == null) return "";
+  const text = String(value).trim();
+  if (!text) return "";
+  if (INVALID_LITERAL_VALUES.has(text.toLowerCase())) return "";
+  return text;
+};
+
 const normalizePanelFilterValues = (values) =>
-  (Array.isArray(values) ? values : [values])
-    .map((item) => String(item).trim())
+  (Array.isArray(values) ? values : values == null ? [] : [values])
+    .map((item) => sanitizeScalarFilterValue(item))
     .filter(Boolean);
 
 const normalizeDateFilterInput = (value) => {
-  const text = String(value ?? "").trim();
+  const text = sanitizeScalarFilterValue(value);
   if (!text) return "";
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) {
     const [day, month, year] = text.split("/");
@@ -43,24 +66,29 @@ const normalizeDateFilterInput = (value) => {
 };
 
 const normalizeFilterScalarValue = ({ key, filterType, value }) => {
-  if (value == null || value === "") return "";
-  if (filterType === "date") return normalizeDateFilterInput(value);
-  if (filterType === "number" || filterType === "money" || key === "codempresa" || key === "id_global") {
-    const normalized = normalizeEmpresaColumnFilterValue(key, value);
-    return normalized == null ? "" : normalized;
+  const sanitized = sanitizeScalarFilterValue(value);
+  if (!sanitized) return "";
+  const normalizedType = String(filterType || "").trim().toLowerCase();
+  if (normalizedType === "date" || normalizedType === "datetime") return normalizeDateFilterInput(sanitized);
+  if (normalizedType === "number" || normalizedType === "money" || key === "codempresa" || key === "id_global") {
+    const normalized = normalizeEmpresaColumnFilterValue(key, sanitized);
+    if (typeof normalized === "number" && Number.isFinite(normalized)) return normalized;
+    const fallback = Number(sanitized.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", "."));
+    return Number.isFinite(fallback) ? fallback : "";
   }
-  return normalizeSearchQuery(String(value));
+  return normalizeSearchQuery(sanitized);
 };
 
 const buildOperatorFilterKey = ({ filterKey, operator, filterType }) => {
   const customField = String(filterKey || "").startsWith("custom:");
+  const normalizedType = String(filterType || "").trim().toLowerCase();
   if (!customField) {
     return `${filterKey}__${operator}`;
   }
-  if (filterType === "date") {
+  if (normalizedType === "date" || normalizedType === "datetime") {
     return `${filterKey}__date_${operator}`;
   }
-  if (filterType === "number" || filterType === "money") {
+  if (normalizedType === "number" || normalizedType === "money") {
     return `${filterKey}__num_${operator}`;
   }
   return null;
@@ -76,15 +104,23 @@ const applyAdvancedOperatorFilter = ({
 }) => {
   const op = String(operator || "").trim();
   if (!op) return false;
+  const normalizedType = String(filterType || "").trim().toLowerCase();
+  const isNumericField =
+    normalizedType === "number" ||
+    normalizedType === "money" ||
+    filterKey === "codempresa" ||
+    filterKey === "id_global";
+  const isDateField = normalizedType === "date" || normalizedType === "datetime";
 
-  if (NUMERIC_ADVANCED_OPERATORS.has(op)) {
-    if (!(filterType === "number" || filterType === "money" || filterKey === "codempresa" || filterKey === "id_global")) {
-      return false;
-    }
+  if (DATE_ADVANCED_OPERATORS.has(op) && isDateField) {
     const opKey = buildOperatorFilterKey({ filterKey, operator: op, filterType });
     if (!opKey) return false;
     const primary = normalizeFilterScalarValue({ key: filterKey, filterType, value });
     const secondary = normalizeFilterScalarValue({ key: filterKey, filterType, value: valueTo });
+    if (op === "today" || op === "yesterday" || op === "this_month" || op === "last_month") {
+      filters[opKey] = true;
+      return true;
+    }
     if (op === "between" || op === "not_between") {
       if (primary === "" && secondary === "") return false;
       filters[opKey] = { from: primary === "" ? null : primary, to: secondary === "" ? null : secondary };
@@ -95,17 +131,12 @@ const applyAdvancedOperatorFilter = ({
     return true;
   }
 
-  if (DATE_ADVANCED_OPERATORS.has(op)) {
-    if (filterType !== "date") return false;
+  if (NUMERIC_ADVANCED_OPERATORS.has(op) && isNumericField) {
     const opKey = buildOperatorFilterKey({ filterKey, operator: op, filterType });
     if (!opKey) return false;
-    if (op === "today" || op === "yesterday" || op === "this_month" || op === "last_month") {
-      filters[opKey] = true;
-      return true;
-    }
     const primary = normalizeFilterScalarValue({ key: filterKey, filterType, value });
     const secondary = normalizeFilterScalarValue({ key: filterKey, filterType, value: valueTo });
-    if (op === "between") {
+    if (op === "between" || op === "not_between") {
       if (primary === "" && secondary === "") return false;
       filters[opKey] = { from: primary === "" ? null : primary, to: secondary === "" ? null : secondary };
       return true;
@@ -132,8 +163,8 @@ function extractFilterPayload(filterEntry) {
   return {
     values: normalizePanelFilterValues(filterEntry.values),
     operator: String(filterEntry.operator || "").trim(),
-    value: filterEntry.value != null ? String(filterEntry.value).trim() : "",
-    valueTo: filterEntry.valueTo != null ? String(filterEntry.valueTo).trim() : "",
+    value: sanitizeScalarFilterValue(filterEntry.value),
+    valueTo: sanitizeScalarFilterValue(filterEntry.valueTo),
     type: String(filterEntry.type || "").trim(),
   };
 }
@@ -211,7 +242,9 @@ export function buildEmpresaPanelFilters(filterValues = {}) {
     }
 
     if (effectiveValues.length === 1) {
-      filters[apiKey] = normalizeSearchQuery(String(effectiveValues[0]));
+      const normalized = normalizeFilterScalarValue({ key: apiKey, filterType: type, value: effectiveValues[0] });
+      if (normalized === "" || normalized == null) return;
+      filters[apiKey] = normalized;
       return;
     }
 
@@ -272,9 +305,6 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
     if (normalizedValue == null || normalizedValue === "") return;
     if (!operator || operator === "equals" || operator === "contains") {
       filters[filterKey] = normalizedValue;
-    }
-    if (operator === "between" && valueTo) {
-      // Intervalos avançados permanecem no cliente por enquanto.
     }
   });
 

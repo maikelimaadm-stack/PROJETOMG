@@ -433,6 +433,7 @@ const FILTER_FIELD_MAP = {
 };
 
 const ADVANCED_FILTER_OPERATORS = new Set([
+  "not_equals",
   "gt",
   "gte",
   "lt",
@@ -442,6 +443,10 @@ const ADVANCED_FILTER_OPERATORS = new Set([
   "equals",
   "before",
   "after",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
   "today",
   "yesterday",
   "this_month",
@@ -451,7 +456,9 @@ const ADVANCED_FILTER_OPERATORS = new Set([
 const parseNumericFilterValue = (value) => {
   const text = String(value ?? "").trim();
   if (!text) return NaN;
+  if (text.toLowerCase() === "undefined" || text.toLowerCase() === "null") return NaN;
   const cleaned = text.replace(/[^\d,.-]/g, "").replace(/\./g, "").replace(",", ".");
+  if (!cleaned || cleaned === "-" || cleaned === "." || cleaned === "-.") return NaN;
   const parsed = Number(cleaned);
   return Number.isFinite(parsed) ? parsed : NaN;
 };
@@ -484,6 +491,14 @@ const endOfDay = (dateLike) => {
   return new Date(base.getFullYear(), base.getMonth(), base.getDate(), 23, 59, 59, 999);
 };
 
+const formatDateToken = (dateLike) => {
+  const date = new Date(dateLike);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
+
 const normalizeBetweenValue = (value) => {
   if (value == null) return { from: null, to: null };
   if (Array.isArray(value)) return { from: value[0] ?? null, to: value[1] ?? null };
@@ -509,7 +524,9 @@ const parseAdvancedFilterKey = (key) => {
     if (!fieldName || !ADVANCED_FILTER_OPERATORS.has(operator)) return null;
     return { baseKey: `custom:${fieldName}`, operator, customType: "date" };
   }
-  const match = key.match(/^(.*)__(gt|gte|lt|lte|between|not_between|equals|before|after|today|yesterday|this_month|last_month)$/);
+  const match = key.match(
+    /^(.*)__(not_equals|gt|gte|lt|lte|between|not_between|equals|before|after|today|yesterday|this_month|last_month)$/
+  );
   if (!match) return null;
   return { baseKey: match[1], operator: match[2], customType: null };
 };
@@ -517,6 +534,9 @@ const parseAdvancedFilterKey = (key) => {
 const buildNumberOperatorClause = (field, operator, value) => {
   const numeric = parseNumericFilterValue(value);
   if (!Number.isFinite(numeric)) return null;
+  if (operator === "not_equals") {
+    return { [field]: { not: numeric } };
+  }
   return { [field]: { [operator]: numeric } };
 };
 
@@ -550,6 +570,14 @@ const buildNumberBetweenClause = (field, value, invert = false) => {
 const buildDateOperatorClause = (field, operator, value) => {
   const parsed = parseDateFilterValue(value);
   if (!parsed) return null;
+  if (operator === "not_equals") {
+    return {
+      OR: [
+        { [field]: { lt: startOfDay(parsed) } },
+        { [field]: { gt: endOfDay(parsed) } },
+      ],
+    };
+  }
   if (operator === "equals") {
     return { [field]: { gte: startOfDay(parsed), lte: endOfDay(parsed) } };
   }
@@ -558,6 +586,18 @@ const buildDateOperatorClause = (field, operator, value) => {
   }
   if (operator === "after") {
     return { [field]: { gt: endOfDay(parsed) } };
+  }
+  if (operator === "gt") {
+    return { [field]: { gt: endOfDay(parsed) } };
+  }
+  if (operator === "gte") {
+    return { [field]: { gte: startOfDay(parsed) } };
+  }
+  if (operator === "lt") {
+    return { [field]: { lt: startOfDay(parsed) } };
+  }
+  if (operator === "lte") {
+    return { [field]: { lte: endOfDay(parsed) } };
   }
   return null;
 };
@@ -585,11 +625,23 @@ const buildDatePresetClause = (field, operator) => {
   return null;
 };
 
-const buildDateBetweenClause = (field, value) => {
+const buildDateBetweenClause = (field, value, invert = false) => {
   const { from, to } = normalizeBetweenValue(value);
   const start = parseDateFilterValue(from);
   const end = parseDateFilterValue(to);
   if (!start && !end) return null;
+  if (invert) {
+    if (start && end) {
+      return {
+        OR: [
+          { [field]: { lt: startOfDay(start) } },
+          { [field]: { gt: endOfDay(end) } },
+        ],
+      };
+    }
+    if (start) return { [field]: { lt: startOfDay(start) } };
+    return { [field]: { gt: endOfDay(end) } };
+  }
   const clause = {};
   if (start) clause.gte = startOfDay(start);
   if (end) clause.lte = endOfDay(end);
@@ -602,7 +654,13 @@ const buildFilterClause = (config, value, operator = "") => {
   const normalizedOperator = String(operator || "").trim();
 
   if (config.match === "number") {
-    if (normalizedOperator === "gt" || normalizedOperator === "gte" || normalizedOperator === "lt" || normalizedOperator === "lte") {
+    if (
+      normalizedOperator === "not_equals" ||
+      normalizedOperator === "gt" ||
+      normalizedOperator === "gte" ||
+      normalizedOperator === "lt" ||
+      normalizedOperator === "lte"
+    ) {
       return buildNumberOperatorClause(config.field, normalizedOperator, value);
     }
     if (normalizedOperator === "between") {
@@ -620,6 +678,9 @@ const buildFilterClause = (config, value, operator = "") => {
     if (normalizedOperator === "between") {
       return buildDateBetweenClause(config.field, value);
     }
+    if (normalizedOperator === "not_between") {
+      return buildDateBetweenClause(config.field, value, true);
+    }
     if (
       normalizedOperator === "today" ||
       normalizedOperator === "yesterday" ||
@@ -628,7 +689,16 @@ const buildFilterClause = (config, value, operator = "") => {
     ) {
       return buildDatePresetClause(config.field, normalizedOperator);
     }
-    if (normalizedOperator === "equals" || normalizedOperator === "before" || normalizedOperator === "after") {
+    if (
+      normalizedOperator === "equals" ||
+      normalizedOperator === "not_equals" ||
+      normalizedOperator === "before" ||
+      normalizedOperator === "after" ||
+      normalizedOperator === "gt" ||
+      normalizedOperator === "gte" ||
+      normalizedOperator === "lt" ||
+      normalizedOperator === "lte"
+    ) {
       return buildDateOperatorClause(config.field, normalizedOperator, value);
     }
     const parsed = parseDateFilterValue(value);
@@ -731,10 +801,20 @@ const queryCustomAdvancedFilterIds = async (prisma, scope, filter) => {
   };
 
   if (isNumeric) {
-    if (filter.operator === "gt" || filter.operator === "gte" || filter.operator === "lt" || filter.operator === "lte") {
+    if (
+      filter.operator === "not_equals" ||
+      filter.operator === "gt" ||
+      filter.operator === "gte" ||
+      filter.operator === "lt" ||
+      filter.operator === "lte"
+    ) {
       const numeric = parseNumericFilterValue(filter.value);
       if (!Number.isFinite(numeric)) return [];
-      sql += ` AND (${expression}) IS NOT NULL AND (${expression}) ${filter.operator === "gt" ? ">" : filter.operator === "gte" ? ">=" : filter.operator === "lt" ? "<" : "<="} ${appendParam(numeric)}`;
+      if (filter.operator === "not_equals") {
+        sql += ` AND (${expression}) IS NOT NULL AND (${expression}) <> ${appendParam(numeric)}`;
+      } else {
+        sql += ` AND (${expression}) IS NOT NULL AND (${expression}) ${filter.operator === "gt" ? ">" : filter.operator === "gte" ? ">=" : filter.operator === "lt" ? "<" : "<="} ${appendParam(numeric)}`;
+      }
     } else if (filter.operator === "between" || filter.operator === "not_between") {
       const { from, to } = normalizeBetweenValue(filter.value);
       const min = parseNumericFilterValue(from);
@@ -775,25 +855,54 @@ const queryCustomAdvancedFilterIds = async (prisma, scope, filter) => {
 
     if (filter.operator === "today" || filter.operator === "yesterday" || filter.operator === "this_month" || filter.operator === "last_month") {
       const [start, end] = startEndForPreset();
-      sql += ` AND (${expression}) >= ${appendParam(start.toISOString().slice(0, 10))}::date`;
-      sql += ` AND (${expression}) <= ${appendParam(end.toISOString().slice(0, 10))}::date`;
-    } else if (filter.operator === "equals" || filter.operator === "before" || filter.operator === "after") {
+      sql += ` AND (${expression}) >= ${appendParam(formatDateToken(start))}::date`;
+      sql += ` AND (${expression}) <= ${appendParam(formatDateToken(end))}::date`;
+    } else if (
+      filter.operator === "equals" ||
+      filter.operator === "not_equals" ||
+      filter.operator === "before" ||
+      filter.operator === "after" ||
+      filter.operator === "gt" ||
+      filter.operator === "gte" ||
+      filter.operator === "lt" ||
+      filter.operator === "lte"
+    ) {
       const parsed = parseDateFilterValue(filter.value);
       if (!parsed) return [];
       if (filter.operator === "equals") {
-        sql += ` AND (${expression}) = ${appendParam(startOfDay(parsed).toISOString().slice(0, 10))}::date`;
+        sql += ` AND (${expression}) = ${appendParam(formatDateToken(startOfDay(parsed)))}::date`;
+      } else if (filter.operator === "not_equals") {
+        sql += ` AND (${expression}) <> ${appendParam(formatDateToken(startOfDay(parsed)))}::date`;
       } else if (filter.operator === "before") {
-        sql += ` AND (${expression}) < ${appendParam(startOfDay(parsed).toISOString().slice(0, 10))}::date`;
+        sql += ` AND (${expression}) < ${appendParam(formatDateToken(startOfDay(parsed)))}::date`;
+      } else if (filter.operator === "gt") {
+        sql += ` AND (${expression}) > ${appendParam(formatDateToken(endOfDay(parsed)))}::date`;
+      } else if (filter.operator === "gte") {
+        sql += ` AND (${expression}) >= ${appendParam(formatDateToken(startOfDay(parsed)))}::date`;
+      } else if (filter.operator === "lt") {
+        sql += ` AND (${expression}) < ${appendParam(formatDateToken(startOfDay(parsed)))}::date`;
+      } else if (filter.operator === "lte") {
+        sql += ` AND (${expression}) <= ${appendParam(formatDateToken(endOfDay(parsed)))}::date`;
       } else {
-        sql += ` AND (${expression}) > ${appendParam(endOfDay(parsed).toISOString().slice(0, 10))}::date`;
+        sql += ` AND (${expression}) > ${appendParam(formatDateToken(endOfDay(parsed)))}::date`;
       }
-    } else if (filter.operator === "between") {
+    } else if (filter.operator === "between" || filter.operator === "not_between") {
       const { from, to } = normalizeBetweenValue(filter.value);
       const start = parseDateFilterValue(from);
       const end = parseDateFilterValue(to);
       if (!start && !end) return [];
-      if (start) sql += ` AND (${expression}) >= ${appendParam(startOfDay(start).toISOString().slice(0, 10))}::date`;
-      if (end) sql += ` AND (${expression}) <= ${appendParam(endOfDay(end).toISOString().slice(0, 10))}::date`;
+      const startToken = start ? formatDateToken(startOfDay(start)) : null;
+      const endToken = end ? formatDateToken(endOfDay(end)) : null;
+      if (filter.operator === "between") {
+        if (startToken) sql += ` AND (${expression}) >= ${appendParam(startToken)}::date`;
+        if (endToken) sql += ` AND (${expression}) <= ${appendParam(endToken)}::date`;
+      } else if (startToken && endToken) {
+        sql += ` AND ((${expression}) < ${appendParam(startToken)}::date OR (${expression}) > ${appendParam(endToken)}::date)`;
+      } else if (startToken) {
+        sql += ` AND (${expression}) < ${appendParam(startToken)}::date`;
+      } else if (endToken) {
+        sql += ` AND (${expression}) > ${appendParam(endToken)}::date`;
+      }
     } else {
       return [];
     }
