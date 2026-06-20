@@ -648,6 +648,71 @@ const buildDateBetweenClause = (field, value, invert = false) => {
   return { [field]: clause };
 };
 
+const FILTER_OBJECT_SELECTION_KEYS = [
+  "values",
+  "selectedValues",
+  "checkedValues",
+  "selected",
+  "options",
+];
+
+const extractFilterObjectSelectionValues = (value) => {
+  if (!value || typeof value !== "object") return [];
+  for (const key of FILTER_OBJECT_SELECTION_KEYS) {
+    const candidate = value[key];
+    if (Array.isArray(candidate)) {
+      return candidate
+        .map((item) => String(item ?? "").trim())
+        .filter((item) => item && item !== "undefined" && item !== "null");
+    }
+    if (candidate && typeof candidate === "object") {
+      return Object.entries(candidate)
+        .filter(([, checked]) => Boolean(checked))
+        .map(([item]) => String(item ?? "").trim())
+        .filter((item) => item && item !== "undefined" && item !== "null");
+    }
+  }
+  return [];
+};
+
+const buildNestedOperatorClause = (key, value) => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const operator = String(value.operator || "").trim().toLowerCase();
+  if (!operator) return null;
+
+  if (operator === "in") {
+    const selectedValues = extractFilterObjectSelectionValues(value);
+    if (selectedValues.length === 0) return null;
+    if (key.startsWith("custom:")) {
+      return buildCustomFieldFilterClause(key.slice(7), selectedValues);
+    }
+    const config = FILTER_FIELD_MAP[key];
+    if (!config) return null;
+    return buildFilterClause(config, selectedValues);
+  }
+
+  if (operator === "equals") {
+    const scalar = value.value ?? extractFilterObjectSelectionValues(value)[0] ?? null;
+    if (scalar == null || scalar === "") return null;
+    if (key.startsWith("custom:")) {
+      return buildCustomFieldFilterClause(key.slice(7), scalar);
+    }
+    const config = FILTER_FIELD_MAP[key];
+    if (!config) return null;
+    return buildFilterClause(config, scalar, "equals");
+  }
+
+  return null;
+};
+
+const hasNestedOperatorObject = (value) =>
+  Boolean(
+    value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      String(value.operator || "").trim()
+  );
+
 const buildFilterClause = (config, value, operator = "") => {
   if (value == null || value === "") return null;
 
@@ -971,6 +1036,13 @@ const buildFiltersWhere = (filters = {}) => {
   Object.entries(filters || {}).forEach(([key, value]) => {
     if (key === "ids") return;
     if (value == null || value === "") return;
+
+    const nestedClause = buildNestedOperatorClause(key, value);
+    if (nestedClause) {
+      and.push(nestedClause);
+      return;
+    }
+    if (hasNestedOperatorObject(value)) return;
 
     const advanced = parseAdvancedFilterKey(key);
     if (advanced && !advanced.baseKey.startsWith("custom:")) {
