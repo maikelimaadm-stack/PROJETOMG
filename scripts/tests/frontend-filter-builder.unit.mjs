@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
-import { buildEmpresaColumnFilters, buildEmpresaPanelFilters } from "@/shared/listing/buildEmpresaListFilters";
+import {
+  buildEmpresaColumnFilters,
+  buildEmpresaPanelFilters,
+  mergeEmpresaListFilters,
+} from "@/shared/listing/buildEmpresaListFilters";
 
 const walkSerialized = (value, callback, path = "$") => {
   callback(value, path);
@@ -98,6 +102,66 @@ const run = () => {
     "custom:teste": { type: "date", operator: "between", values: undefined, value: undefined, valueTo: undefined },
   });
   assert.equal(panelInvalidPayloadIgnored, undefined);
+
+  const singleSelection = buildEmpresaColumnFilters({
+    estado: { type: "text", operator: "contains", values: ["MT"] },
+  });
+  assert.deepEqual(singleSelection, { estado__in: ["MT"] });
+  assertNoInvalidLiterals(singleSelection, "singleSelection");
+
+  const multiSelection = buildEmpresaColumnFilters({
+    estado: { type: "text", operator: "contains", values: ["MT", "SP"] },
+  });
+  assert.deepEqual(multiSelection, { estado__in: ["MT", "SP"] });
+  assertNoInvalidLiterals(multiSelection, "multiSelection");
+
+  const selectedValuesAlias = buildEmpresaColumnFilters({
+    estado: { type: "text", operator: "contains", selectedValues: ["MT", "SP"] },
+  });
+  assert.deepEqual(selectedValuesAlias, { estado__in: ["MT", "SP"] });
+
+  const checkedValuesAlias = buildEmpresaColumnFilters({
+    estado: {
+      type: "text",
+      operator: "contains",
+      checkedValues: { MT: true, SP: true, RJ: false },
+    },
+  });
+  assert.deepEqual(checkedValuesAlias, { estado__in: ["MT", "SP"] });
+
+  const selectionPriority = buildEmpresaColumnFilters({
+    estado: { type: "text", operator: "contains", value: "RJ", values: ["MT"] },
+  });
+  assert.deepEqual(selectionPriority, { estado__in: ["MT"] });
+
+  const selectionPriorityWithSelectedValues = buildEmpresaColumnFilters({
+    estado: {
+      type: "text",
+      operator: "contains",
+      value: "M",
+      selectedValues: ["MT", "SP"],
+    },
+  });
+  assert.deepEqual(selectionPriorityWithSelectedValues, {
+    estado__in: ["MT", "SP"],
+  });
+  assertNoInvalidLiterals(selectionPriorityWithSelectedValues, "selectionPriorityWithSelectedValues");
+
+  const clearedSelection = buildEmpresaColumnFilters({
+    estado: { type: "text", operator: "contains", values: [] },
+  });
+  assert.equal(clearedSelection, undefined);
+
+  const combinedSelectionAndOtherFilter = mergeEmpresaListFilters(
+    buildEmpresaColumnFilters({
+      estado: { type: "text", operator: "contains", values: ["MT", "SP"] },
+      status: { type: "enum", operator: "equals", values: ["Ativa"] },
+    })
+  );
+  assert.deepEqual(combinedSelectionAndOtherFilter, {
+    estado__in: ["MT", "SP"],
+    status__in: ["Ativa"],
+  });
 
   console.log("frontend-filter-builder.unit: OK");
 };

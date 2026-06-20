@@ -100,6 +100,81 @@ const run = async () => {
     "between de data deve converter para início/fim do dia"
   );
 
+  const singleSelectionWhere = await buildWhere({
+    estado: { operator: "in", values: ["MT"] },
+  });
+  assert.equal(
+    findInTree(
+      singleSelectionWhere.where,
+      (node) => node && typeof node === "object" && Array.isArray(node.estado?.in) && node.estado.in.includes("MT")
+    ),
+    true,
+    "formato { operator: 'in', values: [...] } deve virar clause in no backend"
+  );
+
+  const multiSelectionWhere = await buildWhere({
+    estado: { operator: "in", values: ["MT", "SP"] },
+  });
+  assert.equal(
+    findInTree(
+      multiSelectionWhere.where,
+      (node) =>
+        node &&
+        typeof node === "object" &&
+        Array.isArray(node.estado?.in) &&
+        node.estado.in.includes("MT") &&
+        node.estado.in.includes("SP")
+    ),
+    true,
+    "seleção múltipla deve virar in com todos os valores"
+  );
+
+  const selectedAliasWhere = await buildWhere({
+    estado: { operator: "in", selectedValues: ["MT", "SP"] },
+  });
+  assert.equal(
+    findInTree(
+      selectedAliasWhere.where,
+      (node) =>
+        node &&
+        typeof node === "object" &&
+        Array.isArray(node.estado?.in) &&
+        node.estado.in.length === 2
+    ),
+    true,
+    "backend deve aceitar alias selectedValues para filtros de seleção"
+  );
+
+  const checkedAliasWhere = await buildWhere({
+    estado: { operator: "in", checkedValues: { MT: true, SP: true, RJ: false } },
+  });
+  assert.equal(
+    findInTree(
+      checkedAliasWhere.where,
+      (node) =>
+        node &&
+        typeof node === "object" &&
+        Array.isArray(node.estado?.in) &&
+        node.estado.in.includes("MT") &&
+        node.estado.in.includes("SP") &&
+        !node.estado.in.includes("RJ")
+    ),
+    true,
+    "backend deve aceitar alias checkedValues em formato mapa"
+  );
+
+  const clearedSelectionWhere = await buildWhere({
+    estado: { operator: "in", values: [] },
+  });
+  assert.equal(
+    findInTree(
+      clearedSelectionWhere.where,
+      (node) => node && typeof node === "object" && Object.prototype.hasOwnProperty.call(node, "estado")
+    ),
+    false,
+    "limpar seleção deve remover clause da coluna"
+  );
+
   const customDateBetweenPrisma = mockPrisma();
   await buildWhere(
     {
