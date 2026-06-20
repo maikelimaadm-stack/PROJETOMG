@@ -289,6 +289,7 @@ export function evaluateColumnFilter({ filterDraft, filterType, rawValue, displa
 
 const SERVER_SUPPORTED_FILTER_OPERATORS = new Set([
   "equals",
+  "not_equals",
   "contains",
   "gt",
   "gte",

@@ -32,7 +32,11 @@
     "test:empresas-table-scale": "node scripts/benchmark-emp-table-scale.mjs",
     "audit:stress-scale": "node scripts/stressScaleTest.mjs",
     "audit:post-deploy": "node scripts/postDeployValidation.mjs",
-    "smoke:production": "node scripts/productionStabilizationSmoke.mjs"
+    "smoke:production": "node scripts/productionStabilizationSmoke.mjs",
+    "test:filters:frontend": "npx vite-node scripts/tests/frontend-filter-builder.unit.mjs",
+    "test:filters:backend": "npm --prefix backend run test:filters:semantics",
+    "test:filters:e2e": "npx vite-node scripts/tests/e2e-filtros-avancados-consistency.mjs",
+    "test:filters:all": "npm run test:filters:frontend && npm run test:filters:backend && npm run test:filters:e2e"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",
