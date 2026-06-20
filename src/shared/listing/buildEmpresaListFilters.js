@@ -308,12 +308,10 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
     const normalizedList = listValues
       .map((item) => normalizeFilterScalarValue({ key, filterType: type, value: item }))
       .filter((item) => item != null && item !== "");
-    if (normalizedList.length > 1) {
+    if (normalizedList.length > 0) {
+      // Regra oficial: seleção por lista (values/selectedValues/checkedValues) tem prioridade e vira IN.
+      // Operador/valor da mesma coluna não é aplicado em paralelo.
       filters[`${filterKey}__in`] = normalizedList;
-      return;
-    }
-    if (normalizedList.length === 1) {
-      filters[filterKey] = normalizedList[0];
       return;
     }
     const usedAdvancedOperator = applyAdvancedOperatorFilter({

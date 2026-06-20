@@ -106,7 +106,7 @@ const run = () => {
   const singleSelection = buildEmpresaColumnFilters({
     estado: { type: "text", operator: "contains", values: ["MT"] },
   });
-  assert.deepEqual(singleSelection, { estado: "MT" });
+  assert.deepEqual(singleSelection, { estado__in: ["MT"] });
   assertNoInvalidLiterals(singleSelection, "singleSelection");
 
   const multiSelection = buildEmpresaColumnFilters({
@@ -132,7 +132,20 @@ const run = () => {
   const selectionPriority = buildEmpresaColumnFilters({
     estado: { type: "text", operator: "contains", value: "RJ", values: ["MT"] },
   });
-  assert.deepEqual(selectionPriority, { estado: "MT" });
+  assert.deepEqual(selectionPriority, { estado__in: ["MT"] });
+
+  const selectionPriorityWithSelectedValues = buildEmpresaColumnFilters({
+    estado: {
+      type: "text",
+      operator: "contains",
+      value: "M",
+      selectedValues: ["MT", "SP"],
+    },
+  });
+  assert.deepEqual(selectionPriorityWithSelectedValues, {
+    estado__in: ["MT", "SP"],
+  });
+  assertNoInvalidLiterals(selectionPriorityWithSelectedValues, "selectionPriorityWithSelectedValues");
 
   const clearedSelection = buildEmpresaColumnFilters({
     estado: { type: "text", operator: "contains", values: [] },
@@ -147,7 +160,7 @@ const run = () => {
   );
   assert.deepEqual(combinedSelectionAndOtherFilter, {
     estado__in: ["MT", "SP"],
-    status: "Ativa",
+    status__in: ["Ativa"],
   });
 
   console.log("frontend-filter-builder.unit: OK");
