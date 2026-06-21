@@ -401,8 +401,8 @@ export default function SRCHEMP({
         <ErpScrollNav
           ref={cardsScrollRef}
           tabIndex={0}
-          className="emp-table-body-scroll emp-cards-body-scroll relative min-h-0 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 mg-grid-scroll"
-          viewportClassName="overflow-auto"
+          className="relative min-h-0 flex-1"
+          viewportClassName="overflow-y-auto"
           onKeyDown={handleCardsKeyDown}
         >
           {showCardsLoading ? (
