@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from "react";
+import React, { memo, useEffect, useLayoutEffect, useRef } from "react";
 import { Check } from "lucide-react";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import {
@@ -7,7 +7,6 @@ import {
   getEmpSearchInitials,
 } from "@/modules/empresas/components/empSearchView.constants";
 import {
-  CARDS_LIST_PADDING,
   estimateCardRowHeight,
   useGridVirtualizer,
 } from "@/shared/hooks/useGridVirtualizer";
@@ -36,11 +35,22 @@ function MgCardsVirtualGrid({
     enabled: items.length > 0,
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const scrollEl = scrollRef.current;
-    if (!scrollEl) return;
-    scrollEl.scrollTop = 0;
+    if (!scrollEl) return undefined;
+
+    const resetScrollTop = () => {
+      scrollEl.scrollTop = 0;
+    };
+
+    resetScrollTop();
     skipInitialSelectionScrollRef.current = true;
+
+    const frameId = requestAnimationFrame(() => {
+      resetScrollTop();
+    });
+
+    return () => cancelAnimationFrame(frameId);
   }, [scrollResetKey, scrollRef]);
 
   useEffect(() => {
@@ -64,7 +74,6 @@ function MgCardsVirtualGrid({
       className="mg-cards-virtual-shell"
       style={{
         "--mg-card-row-height": `${fixedRowHeight}px`,
-        "--mg-cards-list-padding": `${CARDS_LIST_PADDING}px`,
         height: totalSize,
         position: "relative",
         width: "100%",
