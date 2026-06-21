@@ -3,18 +3,21 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const CARD_GRID_GAP = 12;
 export const CARDS_LIST_PADDING = 16;
+export const CARD_VERTICAL_PADDING = 24;
+export const CARD_HEADER_HEIGHT = 48;
+export const CARD_FIELD_LINE_HEIGHT = 20;
+export const CARD_FIELD_ROW_GAP = 4;
 const DEFAULT_OVERSCAN = 3;
 
-/** Estima altura de uma linha virtual de cards com base nos campos visíveis. */
+/** Altura fixa de card/linha virtual com base nos campos visíveis (1 linha por valor). */
 export function estimateCardRowHeight(detailFieldCount = 0, fieldsPerRow = 1) {
   const safeFieldsPerRow = Math.max(1, Number(fieldsPerRow) || 1);
   const safeFieldCount = Math.max(0, Number(detailFieldCount) || 0);
-  const verticalPadding = 24;
-  const headerBlock = 48;
-  const fieldRowHeight = safeFieldsPerRow >= 2 ? 32 : 16;
   const detailRows = Math.ceil(safeFieldCount / safeFieldsPerRow);
-  const fieldGridGap = detailRows > 1 ? (detailRows - 1) * 4 : 0;
-  return verticalPadding + headerBlock + detailRows * fieldRowHeight + fieldGridGap;
+  const fieldGridGap = detailRows > 1 ? (detailRows - 1) * CARD_FIELD_ROW_GAP : 0;
+  const fieldsHeight =
+    detailRows > 0 ? detailRows * CARD_FIELD_LINE_HEIGHT + fieldGridGap : 0;
+  return CARD_VERTICAL_PADDING + CARD_HEADER_HEIGHT + fieldsHeight;
 }
 
 /**
