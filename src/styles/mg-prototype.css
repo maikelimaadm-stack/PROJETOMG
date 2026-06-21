@@ -999,7 +999,12 @@
 .mg-empresas-scope .mg-cards-virtual-shell {
   width: 100%;
   box-sizing: border-box;
+  padding: var(--mg-cards-list-padding, 16px);
   contain: layout style;
+}
+
+.mg-empresas-scope #mode-cards .erp-scroll-nav__viewport {
+  scroll-padding-top: var(--mg-cards-list-padding, 16px);
 }
 
 .mg-empresas-scope .mg-cards-virtual-list {
@@ -7304,7 +7309,6 @@
 /* Superfície corporativa — painéis, tabelas e containers internos            */
 /* -------------------------------------------------------------------------- */
 .mg-empresas-scope .mg-view-panel .emp-search-view,
-.mg-empresas-scope .mg-view-panel .emp-cards-panel,
 .mg-empresas-scope .mg-view-panel .emp-table-root,
 .mg-empresas-scope .mg-view-panel .emp-table-panel {
   background: transparent !important;
@@ -7314,11 +7318,6 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-panel {
-  padding: 8px 10px 10px !important;
-  box-sizing: border-box;
-}
-
-.mg-empresas-scope .mg-view-panel .emp-cards-panel {
   padding: 8px 10px 10px !important;
   box-sizing: border-box;
 }

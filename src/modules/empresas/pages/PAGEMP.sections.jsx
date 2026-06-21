@@ -62,9 +62,7 @@ export const EmpresasTablePanel = ({ tableProps }) => {
 };
 
 export const EmpresasSearchPanel = ({ searchProps }) => (
-  <div className="emp-cards-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-    <SRCHEMP {...searchProps} />
-  </div>
+  <SRCHEMP {...searchProps} />
 );
 
 export const EmpresasDialogs = ({
