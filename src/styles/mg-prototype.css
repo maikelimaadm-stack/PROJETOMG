@@ -7363,11 +7363,6 @@
   border-radius: 12px 12px 0 0 !important;
 }
 
-.mg-empresas-scope #mode-cards .emp-cards-shell .erp-scroll-nav__viewport {
-  box-sizing: border-box;
-  padding: 16px 16px 10px !important;
-}
-
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock,
 .mg-empresas-scope #mode-cards .emp-cards-bottom-dock {
   --emp-table-band-bg: #ffffff;
