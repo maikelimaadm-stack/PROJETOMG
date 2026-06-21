@@ -7,7 +7,6 @@ import {
   getEmpSearchInitials,
 } from "@/modules/empresas/components/empSearchView.constants";
 import {
-  CARDS_LIST_PADDING,
   estimateCardRowHeight,
   useGridVirtualizer,
 } from "@/shared/hooks/useGridVirtualizer";
@@ -76,9 +75,8 @@ function MgCardsVirtualGrid({
       style={{
         "--mg-card-row-height": `${fixedRowHeight}px`,
         height: totalSize,
-        margin: `${CARDS_LIST_PADDING}px ${CARDS_LIST_PADDING}px 0`,
         position: "relative",
-        width: `calc(100% - ${CARDS_LIST_PADDING * 2}px)`,
+        width: "100%",
       }}
     >
       {virtualRows.map((virtualRow) => (
