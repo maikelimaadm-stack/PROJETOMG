@@ -998,6 +998,8 @@
 
 .mg-empresas-scope .mg-cards-virtual-shell {
   width: 100%;
+  box-sizing: border-box;
+  padding: var(--mg-cards-list-padding, 16px);
   contain: layout style;
 }
 

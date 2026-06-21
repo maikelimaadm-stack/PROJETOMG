@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { Check } from "lucide-react";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import {
@@ -25,6 +25,7 @@ function MgCardsVirtualGrid({
   activeSelectionId = null,
   scrollResetKey = "",
 }) {
+  const skipInitialSelectionScrollRef = useRef(true);
   const fixedRowHeight = estimateCardRowHeight(detailFields.length, fieldsPerRow);
 
   const { virtualizer, virtualRows, totalSize } = useGridVirtualizer({
@@ -32,7 +33,6 @@ function MgCardsVirtualGrid({
     itemCount: items.length,
     columnsPerRow: cardsPerRow,
     estimateRowHeight: fixedRowHeight,
-    scrollMargin: CARDS_LIST_PADDING,
     enabled: items.length > 0,
   });
 
@@ -40,10 +40,14 @@ function MgCardsVirtualGrid({
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
     scrollEl.scrollTop = 0;
-    virtualizer?.scrollToIndex?.(0, { align: "start" });
-  }, [scrollResetKey, scrollRef, virtualizer]);
+    skipInitialSelectionScrollRef.current = true;
+  }, [scrollResetKey, scrollRef]);
 
   useEffect(() => {
+    if (skipInitialSelectionScrollRef.current) {
+      skipInitialSelectionScrollRef.current = false;
+      return;
+    }
     if (!virtualizer || !activeSelectionId) return;
     const itemIndex = items.findIndex((item) => item?.id === activeSelectionId);
     if (itemIndex < 0) return;
@@ -60,7 +64,8 @@ function MgCardsVirtualGrid({
       className="mg-cards-virtual-shell"
       style={{
         "--mg-card-row-height": `${fixedRowHeight}px`,
-        height: totalSize + CARDS_LIST_PADDING * 2,
+        "--mg-cards-list-padding": `${CARDS_LIST_PADDING}px`,
+        height: totalSize,
         position: "relative",
         width: "100%",
       }}
@@ -103,8 +108,8 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
       style={{
         position: "absolute",
         top: 0,
-        left: CARDS_LIST_PADDING,
-        width: `calc(100% - ${CARDS_LIST_PADDING * 2}px)`,
+        left: 0,
+        width: "100%",
         transform: `translateY(${virtualRow.start}px)`,
       }}
     >
