@@ -972,18 +972,24 @@
 }
 
 .mg-empresas-scope .mg-emp-card--virtual {
-  min-height: 0;
-  height: auto;
+  height: var(--mg-card-row-height, auto);
+  min-height: var(--mg-card-row-height, auto);
+  max-height: var(--mg-card-row-height, auto);
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .mg-cards-virtual-row.mg-cards-grid {
-  align-items: start;
+  align-items: stretch;
   column-gap: 12px;
   row-gap: 0;
+  height: var(--mg-card-row-height, auto);
+  min-height: var(--mg-card-row-height, auto);
+  max-height: var(--mg-card-row-height, auto);
 }
 .mg-empresas-scope .mg-emp-card--virtual:not(.emp-form-card) {
   padding: 12px 16px !important;
-  align-self: start;
+  align-self: stretch;
 }
 
 .mg-empresas-scope .mg-emp-card__header {
@@ -1015,9 +1021,9 @@
 .mg-empresas-scope .mg-cards-virtual-row {
   width: 100%;
   box-sizing: border-box;
-  align-items: start;
+  align-items: stretch;
   flex-shrink: 0;
-  overflow: visible;
+  overflow: hidden;
   contain: layout style;
   will-change: transform;
 }
@@ -2409,9 +2415,13 @@
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   column-gap: 6px;
-  align-items: baseline;
+  align-items: center;
+  height: 20px;
+  min-height: 20px;
+  max-height: 20px;
   font-size: 11px;
-  line-height: 1.25;
+  line-height: 1;
+  overflow: hidden;
 }
 
 .mg-empresas-scope .mg-emp-card__fields--per-row-1 .mg-emp-card__field-line {
@@ -2431,8 +2441,11 @@
   font-weight: 600;
   color: var(--mg-card-value-color);
   text-align: left;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .mg-empresas-scope .mg-emp-card__field-value--align-left,
@@ -4731,7 +4744,8 @@
     min-width: 100% !important;
   }
 
-  .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock {
+  .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock,
+  .mg-empresas-scope #mode-cards .emp-cards-bottom-dock {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
@@ -4870,6 +4884,8 @@
 .mg-empresas-scope .mg-prototype-form .emp-form-body,
 .mg-empresas-scope .mg-prototype-form .emp-form-section-panel--corp,
 .mg-empresas-scope .mg-prototype-form .emp-form-fields-corp,
+.mg-empresas-scope #mode-cards,
+.mg-empresas-scope #mode-cards .emp-cards-panel,
 .mg-empresas-scope #mode-cards .flex-1.overflow-y-auto,
 .mg-empresas-scope #mode-cards .erp-scroll-nav,
 .mg-empresas-scope #mode-cards .erp-scroll-nav__viewport,
@@ -7290,6 +7306,7 @@
 /* Superfície corporativa — painéis, tabelas e containers internos            */
 /* -------------------------------------------------------------------------- */
 .mg-empresas-scope .mg-view-panel .emp-search-view,
+.mg-empresas-scope .mg-view-panel .emp-cards-panel,
 .mg-empresas-scope .mg-view-panel .emp-table-root,
 .mg-empresas-scope .mg-view-panel .emp-table-panel {
   background: transparent !important;
@@ -7300,6 +7317,11 @@
 
 .mg-empresas-scope .mg-view-panel .emp-table-panel {
   padding: 8px 10px 10px !important;
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-cards-panel {
+  padding: 16px 10px 10px !important;
   box-sizing: border-box;
 }
 
@@ -7332,7 +7354,8 @@
   border-radius: 12px 12px 0 0 !important;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock {
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock,
+.mg-empresas-scope #mode-cards .emp-cards-bottom-dock {
   --emp-table-band-bg: #ffffff;
   --emp-table-band-edge: #e7eaee;
   border: none !important;
@@ -7342,7 +7365,8 @@
   box-shadow: none !important;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary {
+.mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary,
+.mg-empresas-scope #mode-cards .emp-cards-bottom-dock .mg-records-summary {
   border-top: 0 !important;
   border-left: 0 !important;
   border-right: 0 !important;
@@ -7351,7 +7375,8 @@
   background: #ffffff !important;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item {
+.mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item,
+.mg-empresas-scope #mode-cards .emp-cards-bottom-dock .mg-records-summary__item {
   color: #475569 !important;
   font-weight: 600;
 }

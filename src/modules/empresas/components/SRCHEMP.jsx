@@ -439,23 +439,25 @@ export default function SRCHEMP({
             isBusy={isFetching}
           />
         ) : (
-          <div className="mg-records-summary border-t border-slate-200 px-3 py-2 text-xs">
-            <div className="mg-records-summary__row">
-              <div className="mg-records-summary__counts grid grid-cols-2 gap-x-3 gap-y-1.5 md:grid-cols-4 md:gap-2">
-                <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
-                <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
-                <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
-                <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
+          <div className="emp-cards-bottom-dock flex-shrink-0">
+            <div className="mg-records-summary border-t border-slate-200 px-3 py-2 text-xs">
+              <div className="mg-records-summary__row">
+                <div className="mg-records-summary__counts grid grid-cols-2 gap-x-3 gap-y-1.5 md:grid-cols-4 md:gap-2">
+                  <span className="mg-records-summary__item truncate text-left">Selecionados: {summarySelected}</span>
+                  <span className="mg-records-summary__item truncate text-left">Listados: {summaryListed}</span>
+                  <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
+                  <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
+                </div>
+                <EmpLoadBatchControls
+                  loadBatchSize={loadBatchSize}
+                  onLoadBatchSizeChange={onLoadBatchSizeChange}
+                  onLoadMore={onLoadMoreRows}
+                  hasMoreRows={hasMoreRows}
+                  isLoadingMoreRows={isLoadingMoreRows}
+                  loadedRowsLimitReached={loadedRowsLimitReached}
+                  maxLoadedRows={maxLoadedRows}
+                />
               </div>
-              <EmpLoadBatchControls
-                loadBatchSize={loadBatchSize}
-                onLoadBatchSizeChange={onLoadBatchSizeChange}
-                onLoadMore={onLoadMoreRows}
-                hasMoreRows={hasMoreRows}
-                isLoadingMoreRows={isLoadingMoreRows}
-                loadedRowsLimitReached={loadedRowsLimitReached}
-                maxLoadedRows={maxLoadedRows}
-              />
             </div>
           </div>
         )}

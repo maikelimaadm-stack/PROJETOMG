@@ -1,4 +1,4 @@
-import React, { memo, useEffect } from "react";
+import React, { memo, useEffect, useLayoutEffect, useRef } from "react";
 import { Check } from "lucide-react";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import {
@@ -7,7 +7,7 @@ import {
   getEmpSearchInitials,
 } from "@/modules/empresas/components/empSearchView.constants";
 import {
-  CARDS_LIST_PADDING,
+  estimateCardRowHeight,
   useGridVirtualizer,
 } from "@/shared/hooks/useGridVirtualizer";
 
@@ -24,51 +24,40 @@ function MgCardsVirtualGrid({
   activeSelectionId = null,
   scrollResetKey = "",
 }) {
-  const layoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
+  const skipInitialSelectionScrollRef = useRef(true);
+  const fixedRowHeight = estimateCardRowHeight(detailFields.length, fieldsPerRow);
 
   const { virtualizer, virtualRows, totalSize } = useGridVirtualizer({
     scrollRef,
     itemCount: items.length,
     columnsPerRow: cardsPerRow,
-    detailFieldCount: detailFields.length,
-    fieldsPerRow,
-    scrollMargin: CARDS_LIST_PADDING,
+    estimateRowHeight: fixedRowHeight,
     enabled: items.length > 0,
   });
 
-  useEffect(() => {
-    if (!virtualizer) return;
-    const frame = requestAnimationFrame(() => virtualizer.measure());
-    return () => cancelAnimationFrame(frame);
-  }, [virtualizer, items.length, layoutKey]);
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     const scrollEl = scrollRef.current;
-    if (!scrollEl || !virtualizer) return undefined;
+    if (!scrollEl) return undefined;
 
-    let frame = 0;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => virtualizer.measure());
+    const resetScrollTop = () => {
+      scrollEl.scrollTop = 0;
     };
-    measure();
 
-    const observer = new ResizeObserver(measure);
-    observer.observe(scrollEl);
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-    };
-  }, [scrollRef, virtualizer]);
+    resetScrollTop();
+    skipInitialSelectionScrollRef.current = true;
+
+    const frameId = requestAnimationFrame(() => {
+      resetScrollTop();
+    });
+
+    return () => cancelAnimationFrame(frameId);
+  }, [scrollResetKey, scrollRef]);
 
   useEffect(() => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl) return;
-    scrollEl.scrollTop = 0;
-    virtualizer?.scrollToIndex?.(0, { align: "start" });
-  }, [scrollResetKey, scrollRef, virtualizer]);
-
-  useEffect(() => {
+    if (skipInitialSelectionScrollRef.current) {
+      skipInitialSelectionScrollRef.current = false;
+      return;
+    }
     if (!virtualizer || !activeSelectionId) return;
     const itemIndex = items.findIndex((item) => item?.id === activeSelectionId);
     if (itemIndex < 0) return;
@@ -84,7 +73,8 @@ function MgCardsVirtualGrid({
     <div
       className="mg-cards-virtual-shell"
       style={{
-        height: totalSize + CARDS_LIST_PADDING * 2,
+        "--mg-card-row-height": `${fixedRowHeight}px`,
+        height: totalSize,
         position: "relative",
         width: "100%",
       }}
@@ -92,7 +82,6 @@ function MgCardsVirtualGrid({
       {virtualRows.map((virtualRow) => (
         <MgCardsVirtualRow
           key={virtualRow.key}
-          virtualizer={virtualizer}
           virtualRow={virtualRow}
           items={items}
           cardsPerRow={cardsPerRow}
@@ -109,7 +98,6 @@ function MgCardsVirtualGrid({
 }
 
 const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
-  virtualizer,
   virtualRow,
   items,
   cardsPerRow,
@@ -124,14 +112,13 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
 
   return (
     <div
-      ref={virtualizer?.measureElement}
       data-index={virtualRow.index}
       className={`mg-cards-virtual-row mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
       style={{
         position: "absolute",
         top: 0,
-        left: CARDS_LIST_PADDING,
-        width: `calc(100% - ${CARDS_LIST_PADDING * 2}px)`,
+        left: 0,
+        width: "100%",
         transform: `translateY(${virtualRow.start}px)`,
       }}
     >
@@ -195,7 +182,9 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
             </div>
             {detailFields.length > 0 ? (
               <div className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}>
-                {detailFields.map((field) => (
+                {detailFields.map((field) => {
+                  const fieldValue = getEmpSearchFieldValue(emp, field.key);
+                  return (
                   <div
                     key={field.key}
                     className={`mg-emp-card__field${field.key === "id_global" ? " mg-emp-card__field--id-global" : ""}`}
@@ -204,12 +193,14 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
                       <span className="mg-emp-card__field-label">{field.label}:</span>
                       <span
                         className={`mg-emp-card__field-value${field.align ? ` mg-emp-card__field-value--align-${field.align}` : ""}`}
+                        title={String(fieldValue ?? "")}
                       >
-                        {getEmpSearchFieldValue(emp, field.key)}
+                        {fieldValue}
                       </span>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : null}
           </div>
