@@ -202,8 +202,6 @@ export default function SRCHEMP({
   infiniteMode = false,
   hasMoreRows = false,
   isLoadingMoreRows = false,
-  loadedRowsLimitReached = false,
-  maxLoadedRows = null,
   onLoadMoreRows = null,
   loadBatchSize = 100,
   onLoadBatchSizeChange = null,
@@ -399,38 +397,36 @@ export default function SRCHEMP({
     const showCardsLoading = isLoading && filteredEmpresas.length === 0;
 
     return (
-      <div className="emp-cards-stage relative min-h-0 flex-1 overflow-hidden">
-        <div className="emp-cards-shell flex min-h-0 flex-1 flex-col overflow-hidden">
-          <ErpScrollNav
-            ref={cardsScrollRef}
-            tabIndex={0}
-            className="emp-table-body-scroll emp-cards-body-scroll relative min-h-0 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 mg-grid-scroll"
-            viewportClassName="overflow-auto"
-            onKeyDown={handleCardsKeyDown}
-          >
-            {showCardsLoading ? (
-              <div className="py-8" aria-hidden="true" />
-            ) : filteredEmpresas.length === 0 ? (
-              <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
-                Nenhum registro encontrado
-              </div>
-            ) : (
-              <MgCardsVirtualGrid
-                scrollRef={cardsScrollRef}
-                items={filteredEmpresas}
-                cardsPerRow={cardsPerRow}
-                fieldsPerRow={fieldsPerRow}
-                detailFields={detailFields}
-                selectedIds={selectedIds}
-                isFavoriteRecord={isFavoriteRecord}
-                onToggleFavorite={onToggleFavorite}
-                onCardClick={handleCardClick}
-                activeSelectionId={activeSelectionId}
-                scrollResetKey={cardsScrollResetKey}
-              />
-            )}
-          </ErpScrollNav>
-        </div>
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <ErpScrollNav
+          ref={cardsScrollRef}
+          tabIndex={0}
+          className="relative min-h-0 flex-1"
+          viewportClassName="overflow-y-auto"
+          onKeyDown={handleCardsKeyDown}
+        >
+          {showCardsLoading ? (
+            <div className="py-8" aria-hidden="true" />
+          ) : filteredEmpresas.length === 0 ? (
+            <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
+              Nenhum registro encontrado
+            </div>
+          ) : (
+            <MgCardsVirtualGrid
+              scrollRef={cardsScrollRef}
+              items={filteredEmpresas}
+              cardsPerRow={cardsPerRow}
+              fieldsPerRow={fieldsPerRow}
+              detailFields={detailFields}
+              selectedIds={selectedIds}
+              isFavoriteRecord={isFavoriteRecord}
+              onToggleFavorite={onToggleFavorite}
+              onCardClick={handleCardClick}
+              activeSelectionId={activeSelectionId}
+              scrollResetKey={cardsScrollResetKey}
+            />
+          )}
+        </ErpScrollNav>
         {!infiniteMode ? (
           <EmpTablePagination
             currentPage={page}
@@ -456,8 +452,6 @@ export default function SRCHEMP({
                   onLoadMore={onLoadMoreRows}
                   hasMoreRows={hasMoreRows}
                   isLoadingMoreRows={isLoadingMoreRows}
-                  loadedRowsLimitReached={loadedRowsLimitReached}
-                  maxLoadedRows={maxLoadedRows}
                 />
               </div>
             </div>

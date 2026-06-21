@@ -7315,9 +7315,13 @@
   border-radius: 0 !important;
 }
 
-.mg-empresas-scope .mg-view-panel .emp-table-panel,
-.mg-empresas-scope .mg-view-panel .emp-cards-panel {
+.mg-empresas-scope .mg-view-panel .emp-table-panel {
   padding: 8px 10px 10px !important;
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-cards-panel {
+  padding: 16px 10px 10px !important;
   box-sizing: border-box;
 }
 
@@ -7345,19 +7349,6 @@
   --emp-table-header-line: #ffffff;
   --emp-table-header-side-line: #e7eaee;
   --emp-table-header-height: 30px;
-  border: none !important;
-  box-shadow: none !important;
-  border-radius: 12px 12px 0 0 !important;
-}
-
-.mg-empresas-scope #mode-cards .emp-cards-stage {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.mg-empresas-scope #mode-cards .emp-cards-shell {
-  background: var(--bg-page) !important;
   border: none !important;
   box-shadow: none !important;
   border-radius: 12px 12px 0 0 !important;
