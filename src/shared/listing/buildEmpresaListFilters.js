@@ -48,9 +48,28 @@ const sanitizeScalarFilterValue = (value) => {
   return text;
 };
 
+const extractOptionScalarValue = (value) => {
+  if (value == null) return value;
+  if (typeof value !== "object" || Array.isArray(value)) return value;
+  const candidates = [
+    value.value,
+    value.id,
+    value.key,
+    value.code,
+    value.codigo,
+    value.label,
+    value.nome,
+    value.name,
+  ];
+  for (const candidate of candidates) {
+    if (candidate != null && String(candidate).trim() !== "") return candidate;
+  }
+  return "";
+};
+
 const normalizePanelFilterValues = (values) =>
   (Array.isArray(values) ? values : values == null ? [] : [values])
-    .map((item) => sanitizeScalarFilterValue(item))
+    .map((item) => sanitizeScalarFilterValue(extractOptionScalarValue(item)))
     .filter(Boolean);
 
 const extractSelectionValues = (filterEntry) => {
@@ -64,10 +83,17 @@ const extractSelectionValues = (filterEntry) => {
       continue;
     }
     if (candidate && typeof candidate === "object") {
-      const selectedKeys = Object.entries(candidate)
-        .filter(([, checked]) => Boolean(checked))
-        .map(([option]) => option);
-      const normalized = normalizePanelFilterValues(selectedKeys);
+      const selectedValues = Object.entries(candidate).flatMap(([option, checked]) => {
+        if (checked == null || checked === false) return [];
+        if (checked === true) return [option];
+        if (typeof checked === "object") {
+          if (checked.checked === false || checked.selected === false) return [];
+          const nested = extractOptionScalarValue(checked);
+          return nested == null || String(nested).trim() === "" ? [option] : [nested];
+        }
+        return [option];
+      });
+      const normalized = normalizePanelFilterValues(selectedValues);
       if (normalized.length > 0) return normalized;
     }
   }
@@ -182,14 +208,20 @@ function extractFilterPayload(filterEntry) {
     return { values: normalizePanelFilterValues(filterEntry), operator: "", value: "", valueTo: "", type: "" };
   }
   if (typeof filterEntry !== "object") {
-    const text = String(filterEntry).trim();
+    const text = sanitizeScalarFilterValue(filterEntry);
     return text
       ? { values: [text], operator: "", value: "", valueTo: "", type: "" }
       : { values: [], operator: "", value: "", valueTo: "", type: "" };
   }
+  const operator = String(filterEntry.operator || "").trim();
+  const extractedValues = extractSelectionValues(filterEntry);
+  const fallbackInValues =
+    extractedValues.length === 0 && operator.toLowerCase() === "in"
+      ? normalizePanelFilterValues(String(filterEntry.value || "").split(/[;,]/))
+      : [];
   return {
-    values: extractSelectionValues(filterEntry),
-    operator: String(filterEntry.operator || "").trim(),
+    values: extractedValues.length > 0 ? extractedValues : fallbackInValues,
+    operator,
     value: sanitizeScalarFilterValue(filterEntry.value),
     valueTo: sanitizeScalarFilterValue(filterEntry.valueTo),
     type: String(filterEntry.type || "").trim(),
@@ -305,9 +337,9 @@ export function buildEmpresaColumnFilters(filtrosColunas = {}) {
 
     if (!values || typeof values !== "object") return;
     const { operator, value, valueTo, values: listValues, type } = extractFilterPayload(values);
-    const normalizedList = listValues
+    const normalizedList = [...new Set(listValues
       .map((item) => normalizeFilterScalarValue({ key, filterType: type, value: item }))
-      .filter((item) => item != null && item !== "");
+      .filter((item) => item != null && item !== ""))];
     if (normalizedList.length > 0) {
       // Regra oficial: seleção por lista (values/selectedValues/checkedValues) tem prioridade e vira IN.
       // Operador/valor da mesma coluna não é aplicado em paralelo.
