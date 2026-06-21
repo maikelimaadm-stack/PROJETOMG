@@ -866,14 +866,15 @@ export default function PAGEMP() {
     setAppliedFilterValues({});
     setAppliedPanelFilters(undefined);
     setColumnFiltersHydrated(true);
-    setColumnFilters((prev) => syncPanelFiltersIntoColumns({}, prev, panelFilterColumnMap));
+    // Limpeza global (ícone FunnelX): remove também filtros de coluna fora do layout de pills.
+    setColumnFilters({});
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
     setQueryPage(1);
-  }, [panelFilterColumnMap]);
+  }, []);
 
   const handleFilterApply = useCallback(
     (snapshot) => {
