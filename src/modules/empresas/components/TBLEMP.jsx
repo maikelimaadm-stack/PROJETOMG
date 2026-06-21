@@ -152,6 +152,9 @@ const readStorageJSON = (key, fallback) => {
   }
 };
 
+const normalizeExternalColumnFilters = (filters) =>
+  filters && typeof filters === "object" ? filters : {};
+
 export default function TBLEMP({
   empresas = [],
   isLoadingEmpresas = false,
@@ -207,16 +210,16 @@ export default function TBLEMP({
     return [{ key: "codempresa", direction: "asc" }];
   });
   const [filtrosColunas, setFiltrosColunas] = useState(() => {
+    if (externalColumnFilters !== undefined) {
+      return normalizeExternalColumnFilters(externalColumnFilters);
+    }
     const saved = readStorageJSON(FILTERS_KEY, {});
     if (!saved || typeof saved !== "object") return {};
     return saved;
   });
   useEffect(() => {
     if (externalColumnFilters === undefined) return;
-    const normalized =
-      externalColumnFilters && typeof externalColumnFilters === "object"
-        ? externalColumnFilters
-        : {};
+    const normalized = normalizeExternalColumnFilters(externalColumnFilters);
     setFiltrosColunas((prev) => {
       const prevJson = JSON.stringify(prev || {});
       const nextJson = JSON.stringify(normalized || {});

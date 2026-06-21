@@ -897,13 +897,18 @@ export default function PAGEMP() {
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
     const safeNext = nextColumnFilters || {};
     const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext, panelFilterColumnMap);
+    const sameColumnFilters =
+      JSON.stringify(columnFilters || {}) === JSON.stringify(safeNext || {});
+    const samePanelFilters =
+      JSON.stringify(appliedFilterValues || {}) === JSON.stringify(syncedPanelValues || {});
+    if (sameColumnFilters && samePanelFilters) return;
     setColumnFiltersHydrated(true);
     setColumnFilters(safeNext);
     setFilterValues(syncedPanelValues);
     setAppliedFilterValues(syncedPanelValues);
     setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
-  }, [panelFilterColumnMap]);
+  }, [panelFilterColumnMap, columnFilters, appliedFilterValues]);
 
   const handleDistinctColumnValues = useCallback(
     (params) => moduleRepository.listDistinctColumnValues(params),
