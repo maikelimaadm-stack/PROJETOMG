@@ -376,36 +376,3 @@ export function mergeEmpresaListFilters(...parts) {
   });
   return Object.keys(merged).length > 0 ? merged : undefined;
 }
-
-/** Monta payload de filtros para /distinct excluindo o campo em edição. */
-export function buildDistinctListFilters({
-  appliedFilterValues = {},
-  columnFilters = {},
-  panelFilterColumnMap = {},
-  excludePanelKey = null,
-  excludeColumnId = null,
-  extraFilters,
-} = {}) {
-  const panelValues = { ...(appliedFilterValues || {}) };
-  const cols = { ...(columnFilters || {}) };
-
-  if (excludePanelKey) {
-    delete panelValues[excludePanelKey];
-    const mappedColumn = panelFilterColumnMap[excludePanelKey];
-    if (mappedColumn) delete cols[mappedColumn];
-  }
-
-  if (excludeColumnId) {
-    delete cols[excludeColumnId];
-    const syncedPanelKey = Object.entries(panelFilterColumnMap).find(
-      ([, columnKey]) => columnKey === excludeColumnId
-    )?.[0];
-    if (syncedPanelKey) delete panelValues[syncedPanelKey];
-  }
-
-  return mergeEmpresaListFilters(
-    buildEmpresaPanelFilters(panelValues),
-    buildEmpresaColumnFilters(cols),
-    extraFilters
-  );
-}
