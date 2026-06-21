@@ -4883,6 +4883,8 @@
 .mg-empresas-scope .mg-prototype-form .emp-form-body,
 .mg-empresas-scope .mg-prototype-form .emp-form-section-panel--corp,
 .mg-empresas-scope .mg-prototype-form .emp-form-fields-corp,
+.mg-empresas-scope #mode-cards,
+.mg-empresas-scope #mode-cards .emp-cards-panel,
 .mg-empresas-scope #mode-cards .flex-1.overflow-y-auto,
 .mg-empresas-scope #mode-cards .erp-scroll-nav,
 .mg-empresas-scope #mode-cards .erp-scroll-nav__viewport,
