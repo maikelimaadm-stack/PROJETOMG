@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import {
   buildEmpresaColumnFilters,
   buildEmpresaPanelFilters,
+  buildDistinctListFilters,
   mergeEmpresaListFilters,
 } from "@/shared/listing/buildEmpresaListFilters";
 
@@ -179,6 +180,27 @@ const run = () => {
   assert.deepEqual(combinedSelectionAndOtherFilter, {
     estado__in: ["MT", "SP"],
     status__in: ["Ativa"],
+  });
+
+  const distinctFilters = buildDistinctListFilters({
+    appliedFilterValues: {
+      cidade: { type: "text", operator: "contains", values: ["Cuiaba"] },
+      status: { type: "enum", operator: "equals", values: ["Ativo"] },
+    },
+    columnFilters: {
+      estado: { type: "text", operator: "contains", values: ["MT"] },
+    },
+    panelFilterColumnMap: {
+      cidade: "cidade",
+      status: "status",
+    },
+    excludePanelKey: "cidade",
+    extraFilters: { ids: [1, 2, 3] },
+  });
+  assert.deepEqual(distinctFilters, {
+    status: "Ativa",
+    estado__in: ["MT"],
+    ids: [1, 2, 3],
   });
 
   console.log("frontend-filter-builder.unit: OK");

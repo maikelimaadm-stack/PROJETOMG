@@ -76,13 +76,48 @@ export function buildPanelFilterOptions(
     empresaPassesOtherPanelFilters(emp, appliedValues, fieldKey, filterFields)
   );
 
-  return [
+  return formatDistinctFilterItems(
+    field,
+    source
+      .map((emp) => getEmpresaPanelFieldValue(emp, field))
+      .filter((value) => value !== null && value !== undefined && String(value).trim() !== "" && value !== "-")
+  );
+}
+
+const STATUS_DISTINCT_DISPLAY = {
+  Ativa: "Ativo",
+  Inativa: "Inativo",
+  Ativo: "Ativo",
+  Inativo: "Inativo",
+};
+
+/** Normaliza valores distintos da API para exibição/seleção nos filtros do painel. */
+export function formatDistinctFilterItems(field, items = []) {
+  if (!field) return [];
+  const column = field.column || field.key;
+  const unique = [
     ...new Set(
-      source
-        .map((emp) => getEmpresaPanelFieldValue(emp, field))
-        .filter((value) => value !== null && value !== undefined && String(value).trim() !== "" && value !== "-")
+      (Array.isArray(items) ? items : [])
+        .map((value) => (value == null ? "" : String(value).trim()))
+        .filter(Boolean)
     ),
-  ].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
+  ];
+
+  let formatted = unique;
+  if (column === "id_global" || field.key === "id_global") {
+    formatted = unique
+      .map((value) => {
+        const numeric = Number(String(value).replace(/\./g, ""));
+        return Number.isFinite(numeric) && numeric > 0 ? formatIdGlobal(numeric) : value;
+      })
+      .filter(Boolean);
+  } else if (column === "status" || field.key === "status") {
+    formatted = unique.map((value) => STATUS_DISTINCT_DISPLAY[value] || value);
+  }
+
+  return formatted.sort((a, b) =>
+    String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" })
+  );
 }
 
 export { buildMgFilterFields };

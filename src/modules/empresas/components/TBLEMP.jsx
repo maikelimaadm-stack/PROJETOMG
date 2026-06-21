@@ -23,6 +23,10 @@ import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { useDistinctFilterOptions } from "@/shared/hooks/useDistinctFilterOptions";
+import { buildDistinctListFilters } from "@/shared/listing/buildEmpresaListFilters";
+import { mapEmpresaColumnIdToFilterKey } from "@/shared/listing/normalizeEmpresaColumnFilter";
+import { formatDistinctFilterItems } from "@/modules/empresas/layout/mgPanelFilterOptions";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -656,7 +660,7 @@ export default function TBLEMP({
     return sorted;
   }, [serverMode, empresasFiltradas, sortConfig, colunasDisponiveisById, getComparableValue, getFieldValue]);
 
-  const columnOptions = useMemo(() => {
+  const localColumnOptions = useMemo(() => {
     if (!menuFiltroAberto) return {};
     const col = colunasDisponiveis.find((column) => column.id === menuFiltroAberto);
     if (!col || col.fixo) return {};
@@ -670,6 +674,66 @@ export default function TBLEMP({
     ].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
     return { [col.id]: items };
   }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, menuFiltroAberto, empresaPassaFiltros, getFieldValue]);
+
+  const openFilterColumn = useMemo(
+    () => colunasDisponiveis.find((column) => column.id === menuFiltroAberto),
+    [colunasDisponiveis, menuFiltroAberto]
+  );
+
+  const distinctFilters = useMemo(
+    () =>
+      buildDistinctListFilters({
+        columnFilters: filtrosColunas,
+        excludeColumnId: menuFiltroAberto,
+        extraFilters: serverBaseFilters,
+      }),
+    [filtrosColunas, menuFiltroAberto, serverBaseFilters]
+  );
+
+  const formatTableDistinctItems = useCallback(
+    (rawItems) => {
+      if (!openFilterColumn) return rawItems;
+      return formatDistinctFilterItems(
+        {
+          key: openFilterColumn.id,
+          column: mapEmpresaColumnIdToFilterKey(openFilterColumn.id),
+          columnMeta: openFilterColumn,
+        },
+        rawItems
+      );
+    },
+    [openFilterColumn]
+  );
+
+  const { items: remoteFilterListOptions, loading: remoteDistinctLoading } = useDistinctFilterOptions({
+    enabled: Boolean(
+      menuFiltroAberto &&
+        onRequestDistinctColumnValues &&
+        serverMode &&
+        openFilterColumn &&
+        !openFilterColumn.fixo
+    ),
+    onRequest: onRequestDistinctColumnValues,
+    column: openFilterColumn ? mapEmpresaColumnIdToFilterKey(openFilterColumn.id) : "",
+    filters: distinctFilters,
+    search: serverSearchTerm,
+    optionSearch: debouncedBuscaFiltroMenu,
+    formatItems: formatTableDistinctItems,
+  });
+
+  const columnOptions = useMemo(() => {
+    if (!menuFiltroAberto) return {};
+    if (onRequestDistinctColumnValues && serverMode) {
+      return { [menuFiltroAberto]: remoteFilterListOptions };
+    }
+    return localColumnOptions;
+  }, [
+    menuFiltroAberto,
+    onRequestDistinctColumnValues,
+    serverMode,
+    remoteFilterListOptions,
+    localColumnOptions,
+  ]);
 
   const hasActiveFilter = (id) => isErpFilterActive(filtrosColunas[id]);
   const getValoresFiltro = (id, col) => getNormalizedFilterDraft(id, col) || createDefaultColumnFilter(getColumnFilterType(col));
@@ -1544,7 +1608,8 @@ export default function TBLEMP({
       )
     : [];
   const filterSearchPending =
-    buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
+    buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase() ||
+    remoteDistinctLoading;
   const filterSearchLoading = filterSearchPending;
 
   const updateFilterDraft = (updater) => {
@@ -1781,7 +1846,13 @@ export default function TBLEMP({
         }}
         onClearColumnFilter={() => {
           clearColumnFilter(menuFiltroAberto);
-          closeColumnOverlays();
+          if (filterColumn) {
+            setFiltroTemp({
+              colunaId: menuFiltroAberto,
+              draft: createDefaultColumnFilter(getColumnFilterType(filterColumn)),
+            });
+          }
+          setBuscaFiltroMenu("");
         }}
         onDraftChange={(nextDraft) => updateFilterDraft(nextDraft)}
         onCancel={closeColumnOverlays}

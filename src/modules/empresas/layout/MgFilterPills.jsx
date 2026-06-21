@@ -10,8 +10,10 @@ import {
   resolveErpFilterEnumOptions,
   resolveErpFilterMeta,
 } from "@/shared/filters";
-import { buildPanelFilterOptions } from "@/modules/empresas/layout/mgPanelFilterOptions";
+import { buildPanelFilterOptions, formatDistinctFilterItems } from "@/modules/empresas/layout/mgPanelFilterOptions";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { useDistinctFilterOptions } from "@/shared/hooks/useDistinctFilterOptions";
+import { buildDistinctListFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
 
@@ -59,6 +61,11 @@ function PanelFilterPill({
   disabled,
   onChange,
   onApply,
+  onRequestDistinctColumnValues = null,
+  columnFilters = {},
+  panelFilterColumnMap = {},
+  searchTerm = "",
+  extraListFilters,
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(null);
@@ -70,10 +77,40 @@ function PanelFilterPill({
   const panelStyle = useFilterPopover(open, setOpen, rootRef, panelRef);
 
   const filterMeta = useMemo(() => resolveErpFilterMeta(field), [field]);
-  const distinctOptions = useMemo(
+
+  const distinctFilters = useMemo(
+    () =>
+      buildDistinctListFilters({
+        appliedFilterValues: appliedValues,
+        columnFilters,
+        panelFilterColumnMap,
+        excludePanelKey: field.key,
+        extraFilters: extraListFilters,
+      }),
+    [appliedValues, columnFilters, panelFilterColumnMap, extraListFilters, field.key]
+  );
+
+  const formatItems = useCallback(
+    (rawItems) => formatDistinctFilterItems(field, rawItems),
+    [field]
+  );
+
+  const { items: remoteDistinctOptions, loading: remoteDistinctLoading } = useDistinctFilterOptions({
+    enabled: open && Boolean(onRequestDistinctColumnValues),
+    onRequest: onRequestDistinctColumnValues,
+    column: field.column || field.key,
+    filters: distinctFilters,
+    search: searchTerm,
+    optionSearch: debouncedSearchQuery,
+    formatItems,
+  });
+
+  const localDistinctOptions = useMemo(
     () => buildPanelFilterOptions(empresas, appliedValues, field.key, filterFields),
     [appliedValues, empresas, field.key, filterFields]
   );
+
+  const distinctOptions = onRequestDistinctColumnValues ? remoteDistinctOptions : localDistinctOptions;
   const enumOptions = useMemo(
     () => resolveErpFilterEnumOptions(field, distinctOptions),
     [distinctOptions, field]
@@ -93,7 +130,8 @@ function PanelFilterPill({
   }, [open, appliedDraft]);
 
   const searchLoading =
-    searchQuery.trim().toLowerCase() !== debouncedSearchQuery.trim().toLowerCase();
+    searchQuery.trim().toLowerCase() !== debouncedSearchQuery.trim().toLowerCase() ||
+    remoteDistinctLoading;
 
   const toggle = () => {
     if (disabled) return;
@@ -112,15 +150,24 @@ function PanelFilterPill({
     setOpen(false);
   };
 
+  const clearFilterValue = () => {
+    const cleared = clearErpFilter(filterMeta.filterType);
+    setDraft(cleared);
+    const nextValues = { ...values, [field.key]: cleared };
+    onChange?.(field.key, cleared);
+    onApply?.(nextValues);
+  };
+
   const clearActive = (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (disabled) return;
-    const cleared = clearErpFilter(filterMeta.filterType);
-    const nextValues = { ...values, [field.key]: cleared };
-    onChange?.(field.key, cleared);
-    onApply?.(nextValues);
-    setOpen(false);
+    clearFilterValue();
+  };
+
+  const clearInPopup = () => {
+    if (disabled) return;
+    clearFilterValue();
   };
 
   const cancel = () => {
@@ -168,7 +215,10 @@ function PanelFilterPill({
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         searchLoading={searchLoading}
-        showSortSection={false}
+        showSortSection
+        showSortActions={false}
+        hasActiveFilter={active || isErpFilterActive(draft || appliedDraft)}
+        onClearColumnFilter={clearInPopup}
         onDraftChange={setDraft}
         onCancel={cancel}
         onApply={apply}
@@ -264,6 +314,11 @@ export default function MgFilterPills({
   onConfigureFilters = null,
   filterPanelActive = false,
   hasActiveFilters: hasActiveFiltersProp = null,
+  onRequestDistinctColumnValues = null,
+  columnFilters = {},
+  panelFilterColumnMap = {},
+  searchTerm = "",
+  extraListFilters,
 }) {
   const useScrollRail = !className.includes("mg-filter-pills--drawer");
   const {
@@ -303,6 +358,11 @@ export default function MgFilterPills({
           disabled={disabled}
           onChange={onChange}
           onApply={onApply}
+          onRequestDistinctColumnValues={onRequestDistinctColumnValues}
+          columnFilters={columnFilters}
+          panelFilterColumnMap={panelFilterColumnMap}
+          searchTerm={searchTerm}
+          extraListFilters={extraListFilters}
         />
       ))}
       {hasActiveFilters ? (

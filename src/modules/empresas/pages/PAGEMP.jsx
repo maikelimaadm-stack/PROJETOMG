@@ -1452,6 +1452,11 @@ export default function PAGEMP() {
                 onConfigureFilters={() => setShowConfigFiltros(true)}
                 filterPanelActive={showConfigFiltros}
                 hasActiveFilters={hasActiveFilters}
+                onRequestDistinctColumnValues={handleDistinctColumnValues}
+                columnFilters={columnFilters}
+                panelFilterColumnMap={panelFilterColumnMap}
+                searchTerm={searchTerm}
+                extraListFilters={searchFavoritesOnly ? { ids: favoriteIds } : undefined}
               />
             </div>
 
@@ -1469,6 +1474,11 @@ export default function PAGEMP() {
                 onConfigureFilters={() => setShowConfigFiltros(true)}
                 filterPanelActive={showConfigFiltros}
                 hasActiveFilters={hasActiveFilters}
+                onRequestDistinctColumnValues={handleDistinctColumnValues}
+                columnFilters={columnFilters}
+                panelFilterColumnMap={panelFilterColumnMap}
+                searchTerm={searchTerm}
+                extraListFilters={searchFavoritesOnly ? { ids: favoriteIds } : undefined}
               />
             </div>
           </div>
