@@ -875,14 +875,8 @@ export default function TBLEMP({
 
   useEffect(() => {
     if (!serverMode) return;
-    if (externalColumnFilters !== undefined) {
-      const localJson = JSON.stringify(filtrosColunas || {});
-      const externalJson = JSON.stringify(externalColumnFilters || {});
-      // Evita propagar estado local stale (ex.: vindo do localStorage) antes da hidratação externa.
-      if (localJson !== externalJson) return;
-    }
     onServerColumnFiltersChange?.(filtrosColunas);
-  }, [serverMode, filtrosColunas, onServerColumnFiltersChange, externalColumnFilters]);
+  }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
     if (!serverMode) return;
