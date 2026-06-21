@@ -8,6 +8,7 @@ import {
 } from "@/modules/empresas/components/empSearchView.constants";
 import {
   CARDS_LIST_PADDING,
+  estimateCardRowHeight,
   useGridVirtualizer,
 } from "@/shared/hooks/useGridVirtualizer";
 
@@ -24,42 +25,16 @@ function MgCardsVirtualGrid({
   activeSelectionId = null,
   scrollResetKey = "",
 }) {
-  const layoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
+  const fixedRowHeight = estimateCardRowHeight(detailFields.length, fieldsPerRow);
 
   const { virtualizer, virtualRows, totalSize } = useGridVirtualizer({
     scrollRef,
     itemCount: items.length,
     columnsPerRow: cardsPerRow,
-    detailFieldCount: detailFields.length,
-    fieldsPerRow,
+    estimateRowHeight: fixedRowHeight,
     scrollMargin: CARDS_LIST_PADDING,
     enabled: items.length > 0,
   });
-
-  useEffect(() => {
-    if (!virtualizer) return;
-    const frame = requestAnimationFrame(() => virtualizer.measure());
-    return () => cancelAnimationFrame(frame);
-  }, [virtualizer, items.length, layoutKey]);
-
-  useEffect(() => {
-    const scrollEl = scrollRef.current;
-    if (!scrollEl || !virtualizer) return undefined;
-
-    let frame = 0;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => virtualizer.measure());
-    };
-    measure();
-
-    const observer = new ResizeObserver(measure);
-    observer.observe(scrollEl);
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(frame);
-    };
-  }, [scrollRef, virtualizer]);
 
   useEffect(() => {
     const scrollEl = scrollRef.current;
@@ -84,6 +59,7 @@ function MgCardsVirtualGrid({
     <div
       className="mg-cards-virtual-shell"
       style={{
+        "--mg-card-row-height": `${fixedRowHeight}px`,
         height: totalSize + CARDS_LIST_PADDING * 2,
         position: "relative",
         width: "100%",
@@ -92,7 +68,6 @@ function MgCardsVirtualGrid({
       {virtualRows.map((virtualRow) => (
         <MgCardsVirtualRow
           key={virtualRow.key}
-          virtualizer={virtualizer}
           virtualRow={virtualRow}
           items={items}
           cardsPerRow={cardsPerRow}
@@ -109,7 +84,6 @@ function MgCardsVirtualGrid({
 }
 
 const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
-  virtualizer,
   virtualRow,
   items,
   cardsPerRow,
@@ -124,7 +98,6 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
 
   return (
     <div
-      ref={virtualizer?.measureElement}
       data-index={virtualRow.index}
       className={`mg-cards-virtual-row mg-cards-grid mg-cards-grid--cards-${cardsPerRow}`}
       style={{
@@ -195,7 +168,9 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
             </div>
             {detailFields.length > 0 ? (
               <div className={`mg-emp-card__fields mg-emp-card__fields--per-row-${fieldsPerRow}`}>
-                {detailFields.map((field) => (
+                {detailFields.map((field) => {
+                  const fieldValue = getEmpSearchFieldValue(emp, field.key);
+                  return (
                   <div
                     key={field.key}
                     className={`mg-emp-card__field${field.key === "id_global" ? " mg-emp-card__field--id-global" : ""}`}
@@ -204,12 +179,14 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
                       <span className="mg-emp-card__field-label">{field.label}:</span>
                       <span
                         className={`mg-emp-card__field-value${field.align ? ` mg-emp-card__field-value--align-${field.align}` : ""}`}
+                        title={String(fieldValue ?? "")}
                       >
-                        {getEmpSearchFieldValue(emp, field.key)}
+                        {fieldValue}
                       </span>
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             ) : null}
           </div>
