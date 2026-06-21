@@ -32,7 +32,6 @@ function MgCardsVirtualGrid({
     itemCount: items.length,
     columnsPerRow: cardsPerRow,
     estimateRowHeight: fixedRowHeight,
-    scrollMargin: CARDS_LIST_PADDING,
     enabled: items.length > 0,
   });
 
@@ -40,8 +39,7 @@ function MgCardsVirtualGrid({
     const scrollEl = scrollRef.current;
     if (!scrollEl) return;
     scrollEl.scrollTop = 0;
-    virtualizer?.scrollToIndex?.(0, { align: "start" });
-  }, [scrollResetKey, scrollRef, virtualizer]);
+  }, [scrollResetKey, scrollRef]);
 
   useEffect(() => {
     if (!virtualizer || !activeSelectionId) return;
@@ -60,7 +58,8 @@ function MgCardsVirtualGrid({
       className="mg-cards-virtual-shell"
       style={{
         "--mg-card-row-height": `${fixedRowHeight}px`,
-        height: totalSize + CARDS_LIST_PADDING * 2,
+        "--mg-cards-list-padding": `${CARDS_LIST_PADDING}px`,
+        height: totalSize,
         position: "relative",
         width: "100%",
       }}
@@ -103,8 +102,8 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
       style={{
         position: "absolute",
         top: 0,
-        left: CARDS_LIST_PADDING,
-        width: `calc(100% - ${CARDS_LIST_PADDING * 2}px)`,
+        left: 0,
+        width: "100%",
         transform: `translateY(${virtualRow.start}px)`,
       }}
     >
