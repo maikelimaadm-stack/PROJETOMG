@@ -28,6 +28,7 @@ export default function ErpFilterPopover({
   onSearchQueryChange,
   searchLoading = false,
   showSortSection = false,
+  showSortActions = true,
   hasActiveFilter = false,
   onSortAsc,
   onSortDesc,
@@ -128,6 +129,7 @@ export default function ErpFilterPopover({
         <ErpFilterSortSection
           columnLabel={columnLabel}
           hasActiveFilter={hasActiveFilter}
+          showSortActions={showSortActions}
           onSortAsc={onSortAsc}
           onSortDesc={onSortDesc}
           onClearColumnFilter={onClearColumnFilter}

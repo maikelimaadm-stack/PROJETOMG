@@ -237,8 +237,8 @@ export default function PAGEMP() {
     [filterFieldsCatalog]
   );
   const panelFilterColumnMap = useMemo(
-    () => buildPanelFilterColumnMap(filterFields),
-    [filterFields]
+    () => buildPanelFilterColumnMap(filterFieldsCatalog),
+    [filterFieldsCatalog]
   );
   const isMobile = useIsMobile();
   const mobileCardsPerRow = 1;
@@ -395,6 +395,8 @@ export default function PAGEMP() {
     isFetching,
     loadedPagesCount,
     canLoadMoreRows,
+    loadedRowsLimitReached,
+    maxLoadedRows,
     hasNextEmpresasPage,
     isFetchingNextEmpresasPage,
     handleLoadMoreEmpresas,
@@ -897,8 +899,8 @@ export default function PAGEMP() {
     const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext, panelFilterColumnMap);
     setColumnFiltersHydrated(true);
     setColumnFilters(safeNext);
-    setFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
-    setAppliedFilterValues((prev) => ({ ...prev, ...syncedPanelValues }));
+    setFilterValues(syncedPanelValues);
+    setAppliedFilterValues(syncedPanelValues);
     setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
   }, [panelFilterColumnMap]);
@@ -1532,6 +1534,8 @@ export default function PAGEMP() {
                       hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                       onLoadMoreRows: handleLoadMoreEmpresas,
                       isLoadingMoreRows: isFetchingNextEmpresasPage,
+                      loadedRowsLimitReached,
+                      maxLoadedRows,
                       loadBatchSize,
                       onLoadBatchSizeChange: handleLoadBatchSizeChange,
                       selectedCount: selectedTableItems.length,
@@ -1579,6 +1583,8 @@ export default function PAGEMP() {
                     hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
                     onLoadMoreRows: handleLoadMoreEmpresas,
                     isLoadingMoreRows: isFetchingNextEmpresasPage,
+                    loadedRowsLimitReached,
+                    maxLoadedRows,
                     loadBatchSize,
                     onLoadBatchSizeChange: handleLoadBatchSizeChange,
                     selectedCount: selectedTableItems.length,

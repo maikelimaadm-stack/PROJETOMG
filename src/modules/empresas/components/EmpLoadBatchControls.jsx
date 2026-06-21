@@ -94,8 +94,14 @@ export default function EmpLoadBatchControls({
   onLoadMore,
   hasMoreRows = false,
   isLoadingMoreRows = false,
+  loadedRowsLimitReached = false,
+  maxLoadedRows = null,
 }) {
   const canLoad = hasMoreRows && !isLoadingMoreRows && typeof onLoadMore === "function";
+  const limitTitle =
+    loadedRowsLimitReached && maxLoadedRows
+      ? `Limite de ${maxLoadedRows.toLocaleString("pt-BR")} registros carregados atingido. Refine os filtros para manter a tela rápida.`
+      : "Carregar mais registros";
 
   return (
     <div className="mg-records-load-controls">
@@ -106,7 +112,7 @@ export default function EmpLoadBatchControls({
         onClick={() => onLoadMore?.()}
         disabled={!canLoad}
         aria-label="Carregar mais registros"
-        title="Carregar mais registros"
+        title={limitTitle}
       >
         {isLoadingMoreRows ? (
           <Loader2 className="mg-records-load-btn__icon mg-records-load-btn__icon--spin" strokeWidth={2.2} aria-hidden="true" />

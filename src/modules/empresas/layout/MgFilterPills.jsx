@@ -112,15 +112,24 @@ function PanelFilterPill({
     setOpen(false);
   };
 
+  const clearFilterValue = () => {
+    const cleared = clearErpFilter(filterMeta.filterType);
+    setDraft(cleared);
+    const nextValues = { ...values, [field.key]: cleared };
+    onChange?.(field.key, cleared);
+    onApply?.(nextValues);
+  };
+
   const clearActive = (event) => {
     event.preventDefault();
     event.stopPropagation();
     if (disabled) return;
-    const cleared = clearErpFilter(filterMeta.filterType);
-    const nextValues = { ...values, [field.key]: cleared };
-    onChange?.(field.key, cleared);
-    onApply?.(nextValues);
-    setOpen(false);
+    clearFilterValue();
+  };
+
+  const clearInPopup = () => {
+    if (disabled) return;
+    clearFilterValue();
   };
 
   const cancel = () => {
@@ -168,7 +177,10 @@ function PanelFilterPill({
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         searchLoading={searchLoading}
-        showSortSection={false}
+        showSortSection
+        showSortActions={false}
+        hasActiveFilter={active || isErpFilterActive(draft || appliedDraft)}
+        onClearColumnFilter={clearInPopup}
         onDraftChange={setDraft}
         onCancel={cancel}
         onApply={apply}

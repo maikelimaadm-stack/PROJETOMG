@@ -179,6 +179,8 @@ export default function TBLEMP({
   infiniteMode = false,
   hasMoreRows = false,
   isLoadingMoreRows = false,
+  loadedRowsLimitReached = false,
+  maxLoadedRows = null,
   onLoadMoreRows = null,
   loadBatchSize = 100,
   onLoadBatchSizeChange = null,
@@ -1775,7 +1777,13 @@ export default function TBLEMP({
         }}
         onClearColumnFilter={() => {
           clearColumnFilter(menuFiltroAberto);
-          closeColumnOverlays();
+          if (filterColumn) {
+            setFiltroTemp({
+              colunaId: menuFiltroAberto,
+              draft: createDefaultColumnFilter(getColumnFilterType(filterColumn)),
+            });
+          }
+          setBuscaFiltroMenu("");
         }}
         onDraftChange={(nextDraft) => updateFilterDraft(nextDraft)}
         onCancel={closeColumnOverlays}
@@ -1873,6 +1881,8 @@ export default function TBLEMP({
                   onLoadMore={onLoadMoreRows}
                   hasMoreRows={hasMoreRows}
                   isLoadingMoreRows={isLoadingMoreRows}
+                  loadedRowsLimitReached={loadedRowsLimitReached}
+                  maxLoadedRows={maxLoadedRows}
                 />
               </div>
             </div>
