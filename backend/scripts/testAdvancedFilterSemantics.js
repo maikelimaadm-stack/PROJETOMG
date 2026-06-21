@@ -163,6 +163,44 @@ const run = async () => {
     "backend deve aceitar alias checkedValues em formato mapa"
   );
 
+  const idGlobalFormattedInWhere = await buildWhere({
+    id_global__in: ["2.573", "2.574", "2.575"],
+  });
+  assert.equal(
+    findInTree(
+      idGlobalFormattedInWhere.where,
+      (node) =>
+        node &&
+        typeof node === "object" &&
+        Array.isArray(node.id_global?.in) &&
+        node.id_global.in.includes(2573) &&
+        node.id_global.in.includes(2574) &&
+        node.id_global.in.includes(2575)
+    ),
+    true,
+    "id_global__in deve normalizar valores numéricos formatados"
+  );
+
+  const nestedObjectSelectionWhere = await buildWhere({
+    id_global: {
+      operator: "in",
+      values: [{ value: "2.573", label: "2.573" }, { id: "2.574" }],
+    },
+  });
+  assert.equal(
+    findInTree(
+      nestedObjectSelectionWhere.where,
+      (node) =>
+        node &&
+        typeof node === "object" &&
+        Array.isArray(node.id_global?.in) &&
+        node.id_global.in.includes(2573) &&
+        node.id_global.in.includes(2574)
+    ),
+    true,
+    "backend deve aceitar seleção com objetos value/id"
+  );
+
   const clearedSelectionWhere = await buildWhere({
     estado: { operator: "in", values: [] },
   });

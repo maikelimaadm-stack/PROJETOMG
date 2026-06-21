@@ -656,19 +656,53 @@ const FILTER_OBJECT_SELECTION_KEYS = [
   "options",
 ];
 
+const extractOptionScalarValue = (value) => {
+  if (value == null) return value;
+  if (typeof value !== "object" || Array.isArray(value)) return value;
+  const candidates = [
+    value.value,
+    value.id,
+    value.key,
+    value.code,
+    value.codigo,
+    value.label,
+    value.nome,
+    value.name,
+  ];
+  for (const candidate of candidates) {
+    if (candidate != null && String(candidate).trim() !== "") return candidate;
+  }
+  return "";
+};
+
 const extractFilterObjectSelectionValues = (value) => {
   if (!value || typeof value !== "object") return [];
   for (const key of FILTER_OBJECT_SELECTION_KEYS) {
     const candidate = value[key];
     if (Array.isArray(candidate)) {
       return candidate
-        .map((item) => String(item ?? "").trim())
+        .map((item) => String(extractOptionScalarValue(item) ?? "").trim())
         .filter((item) => item && item !== "undefined" && item !== "null");
     }
     if (candidate && typeof candidate === "object") {
       return Object.entries(candidate)
-        .filter(([, checked]) => Boolean(checked))
-        .map(([item]) => String(item ?? "").trim())
+        .filter(([, checked]) => checked != null && checked !== false)
+        .map(([item, checked]) => {
+          if (checked === true) return String(item).trim();
+          const extracted = extractOptionScalarValue(checked);
+          return String(
+            extracted == null || String(extracted).trim() === "" ? item : extracted
+          ).trim();
+        })
+        .filter((item) => item && item !== "undefined" && item !== "null");
+    }
+  }
+  if (String(value.operator || "").trim().toLowerCase() === "in") {
+    const fallback = String(value.value ?? "").trim();
+    if (fallback) {
+      return fallback
+        .split(/[;,]/)
+        .map((item) => item.trim())
         .filter((item) => item && item !== "undefined" && item !== "null");
     }
   }
@@ -717,6 +751,30 @@ const buildFilterClause = (config, value, operator = "") => {
   if (value == null || value === "") return null;
 
   const normalizedOperator = String(operator || "").trim();
+
+  if (Array.isArray(value)) {
+    const normalized = value
+      .map((item) => String(extractOptionScalarValue(item) ?? "").trim())
+      .filter(Boolean);
+    if (normalized.length === 0) return null;
+    if (config.match === "number") {
+      const numericValues = normalized
+        .map((item) => parseNumericFilterValue(item))
+        .filter(Number.isFinite)
+        .map((item) => Math.floor(item));
+      if (numericValues.length === 0) return null;
+      return {
+        [config.field]: {
+          in: [...new Set(numericValues)],
+        },
+      };
+    }
+    return {
+      [config.field]: {
+        in: [...new Set(normalized)],
+      },
+    };
+  }
 
   if (config.match === "number") {
     if (
@@ -769,16 +827,6 @@ const buildFilterClause = (config, value, operator = "") => {
     const parsed = parseDateFilterValue(value);
     if (!parsed) return null;
     return { [config.field]: { gte: startOfDay(parsed), lte: endOfDay(parsed) } };
-  }
-
-  if (Array.isArray(value)) {
-    const normalized = value.map((item) => String(item).trim()).filter(Boolean);
-    if (normalized.length === 0) return null;
-    return {
-      [config.field]: {
-        in: config.match === "number" ? normalized.map(Number).filter(Number.isFinite) : normalized,
-      },
-    };
   }
 
   if (config.match === "contains") {

@@ -147,6 +147,24 @@ const run = () => {
   });
   assertNoInvalidLiterals(selectionPriorityWithSelectedValues, "selectionPriorityWithSelectedValues");
 
+  const idGlobalSelectionAsOptionObjects = buildEmpresaColumnFilters({
+    id_global: {
+      type: "number",
+      operator: "contains",
+      values: [{ value: "2.573", label: "2.573" }, { id: "2.574" }],
+    },
+  });
+  assert.deepEqual(idGlobalSelectionAsOptionObjects, { id_global__in: [2573, 2574] });
+
+  const inOperatorFallbackFromScalar = buildEmpresaColumnFilters({
+    id_global: {
+      type: "number",
+      operator: "in",
+      value: "2573, 2574;2575",
+    },
+  });
+  assert.deepEqual(inOperatorFallbackFromScalar, { id_global__in: [2573, 2574, 2575] });
+
   const clearedSelection = buildEmpresaColumnFilters({
     estado: { type: "text", operator: "contains", values: [] },
   });
