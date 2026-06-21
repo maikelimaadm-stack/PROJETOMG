@@ -5,6 +5,10 @@ import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 export const EMP_INFINITE_PAGE_SIZE = 100;
 export const EMP_LOAD_BATCH_OPTIONS = Object.freeze([100, 200, 300, 400, 500, 1000]);
 export const EMP_LOAD_BATCH_STORAGE_KEY = "emp_infinite_batch_size";
+export const EMP_MAX_LOADED_ROWS = Math.max(
+  1000,
+  Number(import.meta.env.VITE_EMP_MAX_LOADED_ROWS) || 10000
+);
 
 export function readStoredEmpLoadBatchSize(fallback = EMP_LOAD_BATCH_OPTIONS[0]) {
   if (typeof window === "undefined") return fallback;
@@ -102,6 +106,7 @@ export function useEmpresasInfiniteData({
     const merged = [];
     empresasPages.forEach((page) => {
       (page?.items || []).forEach((item) => {
+        if (merged.length >= EMP_MAX_LOADED_ROWS) return;
         if (!item?.id || seen.has(item.id)) return;
         seen.add(item.id);
         merged.push(item);
@@ -119,12 +124,13 @@ export function useEmpresasInfiniteData({
     1,
     empresasPages.length || (empresasLoading ? 0 : 1)
   );
-  const canLoadMoreRows = Boolean(hasNextEmpresasPage);
+  const loadedRowsLimitReached = empresas.length >= EMP_MAX_LOADED_ROWS;
+  const canLoadMoreRows = Boolean(hasNextEmpresasPage) && !loadedRowsLimitReached;
 
   const handleLoadMoreEmpresas = useCallback(() => {
-    if (!hasNextEmpresasPage || isFetchingNextEmpresasPage || empresasLoading) return;
+    if (!canLoadMoreRows || isFetchingNextEmpresasPage || empresasLoading) return;
     void fetchNextEmpresasPage();
-  }, [hasNextEmpresasPage, isFetchingNextEmpresasPage, empresasLoading, fetchNextEmpresasPage]);
+  }, [canLoadMoreRows, isFetchingNextEmpresasPage, empresasLoading, fetchNextEmpresasPage]);
 
   useEffect(() => {
     if (hasNextEmpresasPage) return;
@@ -143,6 +149,8 @@ export function useEmpresasInfiniteData({
     isFetching,
     loadedPagesCount,
     canLoadMoreRows,
+    loadedRowsLimitReached,
+    maxLoadedRows: EMP_MAX_LOADED_ROWS,
     hasNextEmpresasPage,
     isFetchingNextEmpresasPage,
     handleLoadMoreEmpresas,

@@ -144,13 +144,14 @@ const resolveOrderBy = (sortBy = "codempresa", sortDir = "asc") => {
   return { [key]: direction };
 };
 
-const CURSOR_SORT_FIELDS = new Set(["codempresa", "id_global"]);
+const CURSOR_SORT_FIELDS = new Set(Object.keys(ORDER_BY_MAP));
 
 const encodeCursor = ({ sortField, direction, value, id }) => {
+  if (value == null || !id) return null;
   const payload = JSON.stringify({
     s: sortField,
     d: direction,
-    v: Number(value),
+    v: value instanceof Date ? value.toISOString() : value,
     i: String(id),
   });
   return Buffer.from(payload, "utf8").toString("base64url");
@@ -161,10 +162,12 @@ const decodeCursor = (cursor) => {
   try {
     const parsed = JSON.parse(Buffer.from(String(cursor), "base64url").toString("utf8"));
     if (!parsed || typeof parsed !== "object") return null;
-    const value = Number(parsed.v);
-    if (!Number.isFinite(value) || !parsed.i || !parsed.s || !parsed.d) return null;
+    if (parsed.v == null || !parsed.i || !parsed.s || !parsed.d) return null;
+    const sortField = String(parsed.s);
+    const value = sortField === "updatedAt" ? new Date(parsed.v) : parsed.v;
+    if (sortField === "updatedAt" && Number.isNaN(value.getTime())) return null;
     return {
-      sortField: String(parsed.s),
+      sortField,
       direction: String(parsed.d) === "desc" ? "desc" : "asc",
       value,
       id: String(parsed.i),
@@ -199,12 +202,12 @@ const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {})
   const { cleanedFilters, customAdvancedFilters } = extractCustomAdvancedFilters(filters);
   const searchTerm = String(search || "").trim();
   const baseSearchWhere = buildSearchWhere(searchTerm);
-  const customFieldIds = searchTerm
-    ? await findIdsMatchingCustomFields(prisma, scope, searchTerm)
-    : [];
-  const numericContainsIds = searchTerm
-    ? await findIdsMatchingNumericContains(prisma, scope, searchTerm)
-    : [];
+  const [customFieldIds, numericContainsIds] = searchTerm
+    ? await Promise.all([
+        findIdsMatchingCustomFields(prisma, scope, searchTerm),
+        findIdsMatchingNumericContains(prisma, scope, searchTerm),
+      ])
+    : [[], []];
   const searchWhere = mergeSearchWhere(baseSearchWhere, [
     ...customFieldIds,
     ...numericContainsIds,

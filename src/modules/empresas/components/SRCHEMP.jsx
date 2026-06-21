@@ -202,6 +202,8 @@ export default function SRCHEMP({
   infiniteMode = false,
   hasMoreRows = false,
   isLoadingMoreRows = false,
+  loadedRowsLimitReached = false,
+  maxLoadedRows = null,
   onLoadMoreRows = null,
   loadBatchSize = 100,
   onLoadBatchSizeChange = null,
@@ -451,6 +453,8 @@ export default function SRCHEMP({
                 onLoadMore={onLoadMoreRows}
                 hasMoreRows={hasMoreRows}
                 isLoadingMoreRows={isLoadingMoreRows}
+                loadedRowsLimitReached={loadedRowsLimitReached}
+                maxLoadedRows={maxLoadedRows}
               />
             </div>
           </div>
