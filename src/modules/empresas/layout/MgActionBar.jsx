@@ -409,8 +409,8 @@ export default function MgActionBar({
           )}
         </button>
       ) : (
-        <div className="mg-search-pill-wrap mg-mobile-search__field">
-          <div className="mg-search-pill" role="search">
+        <div className="mg-search-pill-wrap emp-col-filter-popup__search mg-mobile-search__field">
+          <div className="mg-search-pill emp-col-filter-popup__search-pill" role="search">
             {searchLoading ? (
               <Loader2
                 className="mg-search-pill-icon mg-search-pill-icon--loading h-3.5 w-3.5 shrink-0 animate-spin"
