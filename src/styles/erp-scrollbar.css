@@ -501,16 +501,3 @@ html body .mg-action-bar :is(.tb-btn-ghost.tb-btn-danger, .tb-btn-danger):hover:
   stroke: var(--mg-icon-danger-color) !important;
 }
 
-/* Limpar filtros — override final sobre .tb-btn-filter svg global */
-html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell)
-  .mg-filter-pills-rail__config.is-clear-active.tb-btn-filter:not(:disabled) {
-  border-color: rgba(220, 38, 38, 0.28) !important;
-}
-
-html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell)
-  .mg-filter-pills-rail__config.is-clear-active.tb-btn-filter:not(:disabled) svg.lucide,
-html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell)
-  .mg-filter-pills-rail__config.is-clear-active.tb-btn-filter:not(:disabled):hover svg.lucide {
-  color: var(--mg-icon-danger-color, #dc2626) !important;
-  stroke: var(--mg-icon-danger-color, #dc2626) !important;
-}

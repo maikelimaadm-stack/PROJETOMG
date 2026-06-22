@@ -3111,7 +3111,10 @@
   height: 22px;
   min-height: 22px;
   padding: 0;
-  color: var(--accent);
+  color: var(--mg-icon-color);
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .mg-empresas-scope .mg-search-dropdown__config-btn svg {
@@ -3120,7 +3123,8 @@
 }
 
 .mg-empresas-scope .mg-search-dropdown__config-btn:hover:not(:disabled) {
-  color: var(--mg-brand-green-hover);
+  color: var(--mg-icon-color);
+  background: transparent !important;
 }
 
 .mg-empresas-scope .mg-search-dropdown__config-btn:hover:not(:disabled) svg {
@@ -3662,16 +3666,53 @@
   padding: 0 !important;
 }
 
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only,
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: var(--mg-icon-color);
+  cursor: pointer;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only svg,
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only svg {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only:hover:not(:disabled),
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only:hover:not(:disabled),
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only:active:not(:disabled),
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only:active:not(:disabled) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--mg-icon-color);
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only:hover:not(:disabled) svg,
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only:hover:not(:disabled) svg {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
 .mg-empresas-scope .mg-filter-pills-rail__config.is-active {
   color: var(--mg-brand-green-hover);
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config.is-active svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active,
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:not(:disabled) {
   color: var(--red) !important;
-  border-color: rgba(220, 38, 38, 0.28) !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active svg,
@@ -3683,8 +3724,7 @@
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:hover:not(:disabled),
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:not(:disabled):hover {
   color: #b91c1c !important;
-  background: rgba(220, 38, 38, 0.08) !important;
-  border-color: rgba(220, 38, 38, 0.38) !important;
+  background: transparent !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:hover:not(:disabled) svg,
@@ -4648,14 +4688,23 @@
     height: 100%;
   }
 
-  .mg-empresas-scope .mg-mobile-search.is-expanded .mg-search-pill {
+  .mg-empresas-scope .mg-mobile-search.is-expanded .mg-search-pill,
+  .mg-empresas-scope .mg-mobile-search.is-expanded .emp-col-filter-popup__search-pill {
     width: 100%;
     min-width: 0;
     max-width: none;
     height: var(--mg-btn-height);
-    background: var(--bg-card);
-    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.12);
-    border-color: rgba(34, 197, 94, 0.35);
+    background: var(--gray-fill);
+    box-shadow: none;
+    border: var(--mg-btn-pill-border);
+    border-radius: var(--mg-search-pill-radius);
+  }
+
+  .mg-empresas-scope .mg-mobile-search.is-expanded .mg-search-pill:focus-within,
+  .mg-empresas-scope .mg-mobile-search.is-expanded .emp-col-filter-popup__search-pill:focus-within {
+    background: var(--mg-field-idle-bg);
+    border-color: var(--mg-focus-border);
+    box-shadow: var(--mg-focus-ring);
   }
 
   .mg-empresas-scope .mg-mobile-search.is-expanded .mg-search-pill input {
