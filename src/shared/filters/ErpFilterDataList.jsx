@@ -57,13 +57,14 @@ export default function ErpFilterDataList({
     filteredOptions.length > 0 &&
     filteredOptions.every((option) => selectedValues.includes(option));
   const optionsScrollRef = useRef(null);
+  const loadMoreSentinelRef = useRef(null);
 
   const tryLoadMoreByScroll = useCallback(
     (element) => {
       if (!element) return;
       if (!hasMoreOptions || loadingMoreOptions) return;
       const remaining = element.scrollHeight - element.scrollTop - element.clientHeight;
-      if (remaining <= 24) {
+      if (remaining <= 64) {
         onLoadMoreOptions?.();
       }
     },
@@ -79,6 +80,29 @@ export default function ErpFilterDataList({
     if (element.scrollHeight <= element.clientHeight + 1) {
       onLoadMoreOptions?.();
     }
+  }, [filteredOptions.length, hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]);
+
+  useEffect(() => {
+    const root = optionsScrollRef.current;
+    const sentinel = loadMoreSentinelRef.current;
+    if (!root || !sentinel) return undefined;
+    if (!hasMoreOptions || loadingMoreOptions) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (!target?.isIntersecting) return;
+        onLoadMoreOptions?.();
+      },
+      {
+        root,
+        rootMargin: "0px 0px 96px 0px",
+        threshold: 0.01,
+      }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
   }, [filteredOptions.length, hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]);
 
   return (
@@ -160,6 +184,11 @@ export default function ErpFilterDataList({
             <span>{loadingMoreOptions ? "Carregando..." : "Carregar mais opções"}</span>
           </button>
         ) : null}
+        <div
+          ref={loadMoreSentinelRef}
+          aria-hidden="true"
+          style={{ width: "100%", height: 1 }}
+        />
       </div>
     </div>
   );
