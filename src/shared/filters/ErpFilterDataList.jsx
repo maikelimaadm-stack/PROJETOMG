@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Loader2, Search } from "lucide-react";
 import MgFilterFieldCheck from "@/modules/empresas/layout/MgFilterFieldCheck";
 import ErpFilterRangeInputs from "@/shared/filters/ErpFilterRangeInputs";
@@ -56,6 +56,30 @@ export default function ErpFilterDataList({
   const allVisibleSelected =
     filteredOptions.length > 0 &&
     filteredOptions.every((option) => selectedValues.includes(option));
+  const optionsScrollRef = useRef(null);
+
+  const tryLoadMoreByScroll = useCallback(
+    (element) => {
+      if (!element) return;
+      if (!hasMoreOptions || loadingMoreOptions) return;
+      const remaining = element.scrollHeight - element.scrollTop - element.clientHeight;
+      if (remaining <= 24) {
+        onLoadMoreOptions?.();
+      }
+    },
+    [hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]
+  );
+
+  useEffect(() => {
+    // Se a lista não tiver área de rolagem visível, continua carregando
+    // até completar o viewport do popover.
+    const element = optionsScrollRef.current;
+    if (!element) return;
+    if (!hasMoreOptions || loadingMoreOptions) return;
+    if (element.scrollHeight <= element.clientHeight + 1) {
+      onLoadMoreOptions?.();
+    }
+  }, [filteredOptions.length, hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]);
 
   return (
     <div className="erp-filter-data-list">
@@ -96,7 +120,11 @@ export default function ErpFilterDataList({
         </div>
       ) : null}
 
-      <div className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options erp-filter-data-list__options">
+      <div
+        ref={optionsScrollRef}
+        className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options erp-filter-data-list__options"
+        onScroll={(event) => tryLoadMoreByScroll(event.currentTarget)}
+      >
         <label className="mg-cards-config-menu__item emp-filter-value-list-header">
           <MgFilterFieldCheck
             checked={allVisibleSelected}
