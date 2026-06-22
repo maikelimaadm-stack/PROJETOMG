@@ -74,7 +74,7 @@ import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/lis
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
-const FILTER_OPTIONS_REQUEST_TIMEOUT_MS = 12_000;
+const FILTER_OPTIONS_REQUEST_TIMEOUT_MS = 45_000;
 const FILTER_OPTIONS_MODE_GLOBAL = "global";
 const FILTER_OPTIONS_MODE_CASCADE = "cascade";
 const REMOTE_DISTINCT_FILTER_TYPES = new Set(["text", "enum", "number", "money", "date"]);
@@ -1722,6 +1722,7 @@ export default function TBLEMP({
         }
         setFilterOptionsRemoteState((prev) => ({
           ...prev,
+          nextCursor: append ? null : prev.nextCursor,
           loadingInitial: false,
           loadingMore: false,
         }));
