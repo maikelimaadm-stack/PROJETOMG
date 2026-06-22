@@ -1690,15 +1690,17 @@ export default function TBLEMP({
         const mergedItems = append
           ? mergeFilterOptionsWithSelected(fetchedItems, baseItems)
           : fetchedItems;
+        const noProgressOnAppend = append && mergedItems.length <= (baseItems?.length || 0);
+        const resolvedNextCursor = noProgressOnAppend ? null : nextCursor;
         filterOptionsCacheRef.current.set(cacheKey, {
           items: mergedItems,
-          nextCursor,
+          nextCursor: resolvedNextCursor,
         });
         setFilterOptionsRemoteState({
           columnId: expectedColumn,
           cacheKey,
           items: mergedItems,
-          nextCursor,
+          nextCursor: resolvedNextCursor,
           loadingInitial: false,
           loadingMore: false,
         });

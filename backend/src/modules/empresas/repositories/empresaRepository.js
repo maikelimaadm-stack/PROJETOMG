@@ -1375,11 +1375,13 @@ export const empresaRepository = {
         .map((row) => String(row.value || "").trim())
         .filter(Boolean);
       const uniqueItems = [...new Set(items)];
-      const hasMore = uniqueItems.length > safeLimit;
-      const pageItems = hasMore ? uniqueItems.slice(0, safeLimit) : uniqueItems;
+      const hasMore = uniqueItems.length >= safeLimit;
+      const pageItems = uniqueItems.slice(0, safeLimit);
       const payload = {
         items: pageItems,
-        nextCursor: hasMore ? encodeDistinctCursor(safeOffset + pageItems.length) : null,
+        nextCursor: hasMore && pageItems.length > 0
+          ? encodeDistinctCursor(safeOffset + pageItems.length)
+          : null,
         hasMore,
         total: safeOffset + pageItems.length + (hasMore ? 1 : 0),
       };
@@ -1428,11 +1430,13 @@ export const empresaRepository = {
       .map((row) => formatDistinctValue(column, row[fieldMeta.field]))
       .filter(Boolean);
     const uniqueItems = [...new Set(items)];
-    const hasMore = uniqueItems.length > safeLimit;
-    const pageItems = hasMore ? uniqueItems.slice(0, safeLimit) : uniqueItems;
+    const hasMore = uniqueItems.length >= safeLimit;
+    const pageItems = uniqueItems.slice(0, safeLimit);
     const payload = {
       items: pageItems,
-      nextCursor: hasMore ? encodeDistinctCursor(safeOffset + pageItems.length) : null,
+      nextCursor: hasMore && pageItems.length > 0
+        ? encodeDistinctCursor(safeOffset + pageItems.length)
+        : null,
       hasMore,
       total: safeOffset + pageItems.length + (hasMore ? 1 : 0),
     };
