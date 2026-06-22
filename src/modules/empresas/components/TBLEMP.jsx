@@ -74,6 +74,7 @@ import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/lis
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
+const FILTER_OPTIONS_REQUEST_TIMEOUT_MS = 45_000;
 const FILTER_OPTIONS_MODE_GLOBAL = "global";
 const FILTER_OPTIONS_MODE_CASCADE = "cascade";
 const REMOTE_DISTINCT_FILTER_TYPES = new Set(["text", "enum", "number", "money", "date"]);
@@ -320,6 +321,7 @@ export default function TBLEMP({
   const serverResetSignatureRef = useRef("");
   const filterOptionsCacheRef = useRef(new Map());
   const filterOptionsRequestIdRef = useRef(0);
+  const filterOptionsInFlightCountRef = useRef(0);
   const activeFilterColumnRef = useRef(null);
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
@@ -1667,8 +1669,10 @@ export default function TBLEMP({
   const fetchRemoteFilterOptions = useCallback(
     async ({ cacheKey, params, append = false, baseItems = [] }) => {
       if (typeof onRequestDistinctColumnValues !== "function" || !params?.column) return;
+      if (append && filterOptionsInFlightCountRef.current > 0) return;
       const requestId = ++filterOptionsRequestIdRef.current;
       const expectedColumn = params.column;
+      filterOptionsInFlightCountRef.current += 1;
       setFilterOptionsRemoteState((prev) => ({
         columnId: expectedColumn,
         cacheKey,
@@ -1678,7 +1682,12 @@ export default function TBLEMP({
         loadingMore: append,
       }));
       try {
-        const payload = await onRequestDistinctColumnValues(params);
+        const payload = await Promise.race([
+          onRequestDistinctColumnValues(params),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error("timeout")), FILTER_OPTIONS_REQUEST_TIMEOUT_MS)
+          ),
+        ]);
         if (
           requestId !== filterOptionsRequestIdRef.current ||
           activeFilterColumnRef.current !== expectedColumn
@@ -1688,7 +1697,7 @@ export default function TBLEMP({
         const fetchedItems = normalizeOptionValues(payload?.items || []);
         const nextCursor = payload?.nextCursor || null;
         const mergedItems = append
-          ? mergeFilterOptionsWithSelected(fetchedItems, baseItems)
+          ? mergeFilterOptionsWithSelected(baseItems, fetchedItems)
           : fetchedItems;
         const noProgressOnAppend = append && mergedItems.length <= (baseItems?.length || 0);
         const resolvedNextCursor = noProgressOnAppend ? null : nextCursor;
@@ -1713,9 +1722,15 @@ export default function TBLEMP({
         }
         setFilterOptionsRemoteState((prev) => ({
           ...prev,
+          nextCursor: append ? null : prev.nextCursor,
           loadingInitial: false,
           loadingMore: false,
         }));
+      } finally {
+        filterOptionsInFlightCountRef.current = Math.max(
+          0,
+          filterOptionsInFlightCountRef.current - 1
+        );
       }
     },
     [onRequestDistinctColumnValues]
@@ -1747,6 +1762,7 @@ export default function TBLEMP({
   ]);
   const handleLoadMoreFilterOptions = useCallback(() => {
     if (!remoteFilterRequest) return;
+    if (filterOptionsInFlightCountRef.current > 0) return;
     if (filterOptionsRemoteState.loadingMore || filterOptionsRemoteState.loadingInitial) return;
     if (!filterOptionsRemoteState.nextCursor) return;
     void fetchRemoteFilterOptions({

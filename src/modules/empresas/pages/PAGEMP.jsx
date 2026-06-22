@@ -385,6 +385,11 @@ export default function PAGEMP() {
     [appliedPanelFilters, searchFavoritesOnly, favoriteIds]
   );
 
+  const selectorOptionsBaseFilters = useMemo(
+    () => mergeEmpresaListFilters(searchFavoritesOnly ? { ids: favoriteIds } : undefined),
+    [searchFavoritesOnly, favoriteIds]
+  );
+
   const listFilters = useMemo(
     () =>
       mergeEmpresaListFilters(
@@ -1471,6 +1476,11 @@ export default function PAGEMP() {
                 onConfigureFilters={() => setShowConfigFiltros(true)}
                 filterPanelActive={showConfigFiltros}
                 hasActiveFilters={hasActiveFilters}
+                onRequestDistinctColumnValues={handleDistinctColumnValues}
+                selectorOptionsContextFilters={selectorOptionsBaseFilters}
+                columnFilters={columnFilters}
+                serverSearchTerm={searchTerm}
+                selectorOptionsMode="cascade"
               />
             </div>
 
@@ -1488,6 +1498,11 @@ export default function PAGEMP() {
                 onConfigureFilters={() => setShowConfigFiltros(true)}
                 filterPanelActive={showConfigFiltros}
                 hasActiveFilters={hasActiveFilters}
+                onRequestDistinctColumnValues={handleDistinctColumnValues}
+                selectorOptionsContextFilters={selectorOptionsBaseFilters}
+                columnFilters={columnFilters}
+                serverSearchTerm={searchTerm}
+                selectorOptionsMode="cascade"
               />
             </div>
           </div>

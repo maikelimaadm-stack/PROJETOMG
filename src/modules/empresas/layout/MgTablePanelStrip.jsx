@@ -15,6 +15,11 @@ export default function MgTablePanelStrip({
   onConfigureFilters = null,
   filterPanelActive = false,
   hasActiveFilters = false,
+  onRequestDistinctColumnValues = null,
+  selectorOptionsContextFilters = undefined,
+  columnFilters = {},
+  serverSearchTerm = "",
+  selectorOptionsMode = "cascade",
 }) {
   return (
     <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
@@ -31,6 +36,11 @@ export default function MgTablePanelStrip({
           onConfigureFilters={onConfigureFilters}
           filterPanelActive={filterPanelActive}
           hasActiveFilters={hasActiveFilters}
+          onRequestDistinctColumnValues={onRequestDistinctColumnValues}
+          selectorOptionsContextFilters={selectorOptionsContextFilters}
+          columnFilters={columnFilters}
+          serverSearchTerm={serverSearchTerm}
+          selectorOptionsMode={selectorOptionsMode}
         />
       </div>
       <div className="mg-table-panel-strip__actions">

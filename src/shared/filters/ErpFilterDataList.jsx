@@ -189,13 +189,8 @@ export default function ErpFilterDataList({
             {loadingMoreOptions ? (
               <Loader2 className="w-4 h-4 mr-2 shrink-0 animate-spin" aria-hidden="true" />
             ) : null}
-            <span>{loadingMoreOptions ? "Carregando..." : "Carregar mais opções"}</span>
+            <span>{loadingMoreOptions ? "Carregando mais opções..." : "Carregar mais opções"}</span>
           </button>
-        ) : null}
-        {loadingMoreOptions ? (
-          <div className="mg-search-dropdown__empty" aria-live="polite">
-            Carregando mais opções...
-          </div>
         ) : null}
         <div
           ref={loadMoreSentinelRef}
