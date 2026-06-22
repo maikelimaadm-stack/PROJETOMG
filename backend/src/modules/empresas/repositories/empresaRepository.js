@@ -38,7 +38,6 @@ const DISTINCT_CACHE_TTL_MS = Math.max(
 const DISTINCT_CACHE_PREFIX = "emp:distinct:";
 const DISTINCT_DEFAULT_PAGE_SIZE = 80;
 const DISTINCT_MAX_PAGE_SIZE = 250;
-const DISTINCT_FETCH_LIMIT = 5000;
 
 /** Colunas retornadas em listagens paginadas (sem observações/logo pesados). */
 const LIST_SELECT = {
@@ -235,10 +234,10 @@ const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {})
   );
 };
 
-const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "") => {
+const buildCustomDistinctSql = (scope, fieldName, limit, offset = 0, optionSearch = "") => {
   const safeField = String(fieldName || "").replace(/[^a-zA-Z0-9_]/g, "");
   if (!safeField) return null;
-  const params = [scope.clienteId, limit];
+  const params = [scope.clienteId];
   let sql = `
     SELECT DISTINCT TRIM(campos_personalizados->>'${safeField}') AS value
     FROM "Empresa"
@@ -260,7 +259,7 @@ const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "") => {
 
   if (!scope.acessoGlobal) {
     const allowed = scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID];
-    const placeholders = allowed.map((_, index) => `$${index + 3}`).join(", ");
+    const placeholders = allowed.map((_, index) => `$${params.length + index + 1}`).join(", ");
     sql += ` AND id IN (${placeholders})`;
     params.push(...allowed);
   }
@@ -270,7 +269,8 @@ const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "") => {
     params.push(scope.selectedEmpresaId);
   }
 
-  sql += ` ORDER BY value ASC LIMIT $2`;
+  sql += ` ORDER BY value ASC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+  params.push(limit, Math.max(0, Number(offset) || 0));
   return { sql, params };
 };
 
@@ -286,12 +286,14 @@ const buildDistinctScopeHash = (scope) => {
   return crypto.createHash("sha256").update(payload).digest("hex").slice(0, 24);
 };
 
-const buildDistinctCacheKey = ({ scope, column, search, optionSearch, filters }) => {
+const buildDistinctCacheKey = ({ scope, column, search, optionSearch, filters, limit, cursor }) => {
   const keyPayload = JSON.stringify({
     column,
     search,
     optionSearch,
     filters: filters || {},
+    limit: Number(limit) || DISTINCT_DEFAULT_PAGE_SIZE,
+    cursor: cursor || null,
   });
   const digest = crypto.createHash("sha256").update(keyPayload).digest("hex").slice(0, 24);
   return `${DISTINCT_CACHE_PREFIX}${scope.clienteId}:${buildDistinctScopeHash(scope)}:${digest}`;
@@ -311,23 +313,6 @@ const decodeDistinctCursor = (cursor) => {
   } catch {
     return 0;
   }
-};
-
-const paginateDistinctItems = (items = [], { cursor, pageSize }) => {
-  const safePageSize = Math.min(
-    DISTINCT_MAX_PAGE_SIZE,
-    Math.max(1, Number(pageSize) || DISTINCT_DEFAULT_PAGE_SIZE)
-  );
-  const offset = decodeDistinctCursor(cursor);
-  const sliced = items.slice(offset, offset + safePageSize);
-  const nextOffset = offset + sliced.length;
-  const hasMore = nextOffset < items.length;
-  return {
-    items: sliced,
-    nextCursor: hasMore ? encodeDistinctCursor(nextOffset) : null,
-    hasMore,
-    total: items.length,
-  };
 };
 
 const TEXT_SEARCH_FIELDS = [
@@ -1338,7 +1323,8 @@ export const empresaRepository = {
       DISTINCT_MAX_PAGE_SIZE,
       Math.max(1, Number(limit) || DISTINCT_DEFAULT_PAGE_SIZE)
     );
-    const fetchLimit = DISTINCT_FETCH_LIMIT;
+    const safeOffset = decodeDistinctCursor(cursor);
+    const queryTake = safeLimit + 1;
     const cacheKey =
       DISTINCT_CACHE_TTL_MS > 0
         ? buildDistinctCacheKey({
@@ -1347,12 +1333,14 @@ export const empresaRepository = {
             search,
             optionSearch,
             filters,
+            limit: safeLimit,
+            cursor: safeOffset,
           })
         : null;
     if (cacheKey) {
       const cached = await tieredCache.get(cacheKey);
-      if (cached && Array.isArray(cached.items)) {
-        return paginateDistinctItems(cached.items, { cursor, pageSize: safeLimit });
+      if (cached && Array.isArray(cached.items) && typeof cached.hasMore === "boolean") {
+        return cached;
       }
     }
     const fieldMeta = resolveDistinctField(column);
@@ -1374,17 +1362,31 @@ export const empresaRepository = {
     );
 
     if (fieldMeta.type === "custom") {
-      const distinctSql = buildCustomDistinctSql(scope, fieldMeta.field, fetchLimit, optionSearch);
+      const distinctSql = buildCustomDistinctSql(
+        scope,
+        fieldMeta.field,
+        queryTake,
+        safeOffset,
+        optionSearch
+      );
       if (!distinctSql) return { items: [], nextCursor: null, hasMore: false, total: 0 };
       const rows = await prisma.$queryRawUnsafe(distinctSql.sql, ...distinctSql.params);
       const items = rows
         .map((row) => String(row.value || "").trim())
         .filter(Boolean);
-      const payload = { items: [...new Set(items)] };
+      const uniqueItems = [...new Set(items)];
+      const hasMore = uniqueItems.length > safeLimit;
+      const pageItems = hasMore ? uniqueItems.slice(0, safeLimit) : uniqueItems;
+      const payload = {
+        items: pageItems,
+        nextCursor: hasMore ? encodeDistinctCursor(safeOffset + pageItems.length) : null,
+        hasMore,
+        total: safeOffset + pageItems.length + (hasMore ? 1 : 0),
+      };
       if (cacheKey) {
         await tieredCache.set(cacheKey, payload, DISTINCT_CACHE_TTL_MS);
       }
-      return paginateDistinctItems(payload.items, { cursor, pageSize: safeLimit });
+      return payload;
     }
 
     const optionSearchTerm = String(optionSearch || "").trim();
@@ -1418,17 +1420,26 @@ export const empresaRepository = {
       select: { [fieldMeta.field]: true },
       distinct: [fieldMeta.field],
       orderBy: { [fieldMeta.field]: "asc" },
-      take: fetchLimit,
+      skip: safeOffset,
+      take: queryTake,
     });
 
     const items = rows
       .map((row) => formatDistinctValue(column, row[fieldMeta.field]))
       .filter(Boolean);
-    const payload = { items: [...new Set(items)] };
+    const uniqueItems = [...new Set(items)];
+    const hasMore = uniqueItems.length > safeLimit;
+    const pageItems = hasMore ? uniqueItems.slice(0, safeLimit) : uniqueItems;
+    const payload = {
+      items: pageItems,
+      nextCursor: hasMore ? encodeDistinctCursor(safeOffset + pageItems.length) : null,
+      hasMore,
+      total: safeOffset + pageItems.length + (hasMore ? 1 : 0),
+    };
     if (cacheKey) {
       await tieredCache.set(cacheKey, payload, DISTINCT_CACHE_TTL_MS);
     }
-    return paginateDistinctItems(payload.items, { cursor, pageSize: safeLimit });
+    return payload;
   },
 
   async getById(id, scope) {
