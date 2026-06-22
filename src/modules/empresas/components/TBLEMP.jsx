@@ -76,6 +76,7 @@ const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
 const FILTER_OPTIONS_MODE_GLOBAL = "global";
 const FILTER_OPTIONS_MODE_CASCADE = "cascade";
+const REMOTE_DISTINCT_FILTER_TYPES = new Set(["text", "enum", "number", "money", "date"]);
 
 function haveSameIds(listA = [], listB = []) {
   if (listA === listB) return true;
@@ -721,7 +722,7 @@ export default function TBLEMP({
     const shouldUseRemoteOptionsForColumn =
       serverMode &&
       typeof onRequestDistinctColumnValues === "function" &&
-      (filterType === "text" || filterType === "enum");
+      REMOTE_DISTINCT_FILTER_TYPES.has(filterType);
     if (shouldUseRemoteOptionsForColumn) return {};
     const source = empresas.filter((emp) => empresaPassaFiltros(emp, menuFiltroAberto));
     const items = [
@@ -1596,7 +1597,7 @@ export default function TBLEMP({
     menuFiltroAberto &&
     filterColumn &&
     typeof onRequestDistinctColumnValues === "function" &&
-    (filterColumnType === "text" || filterColumnType === "enum")
+    REMOTE_DISTINCT_FILTER_TYPES.has(filterColumnType)
   );
   const resolveDistinctFilters = useCallback(
     (activeColumnId) => {
