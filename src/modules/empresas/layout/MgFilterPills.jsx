@@ -11,6 +11,12 @@ import {
   resolveErpFilterMeta,
 } from "@/shared/filters";
 import { buildPanelFilterOptions } from "@/modules/empresas/layout/mgPanelFilterOptions";
+import {
+  buildPanelCascadeFilters,
+  FILTER_OPTIONS_MODE_CASCADE,
+  useRemoteFilterOptions,
+} from "@/shared/filters/useRemoteFilterOptions";
+import { buildEmpresaPanelFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
@@ -59,6 +65,11 @@ function PanelFilterPill({
   disabled,
   onChange,
   onApply,
+  onRequestDistinctColumnValues = null,
+  selectorOptionsContextFilters = undefined,
+  columnFilters = {},
+  serverSearchTerm = "",
+  selectorOptionsMode = FILTER_OPTIONS_MODE_CASCADE,
 }) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(null);
@@ -70,19 +81,43 @@ function PanelFilterPill({
   const panelStyle = useFilterPopover(open, setOpen, rootRef, panelRef);
 
   const filterMeta = useMemo(() => resolveErpFilterMeta(field), [field]);
-  const distinctOptions = useMemo(
-    () => buildPanelFilterOptions(empresas, appliedValues, field.key, filterFields),
-    [appliedValues, empresas, field.key, filterFields]
-  );
-  const enumOptions = useMemo(
-    () => resolveErpFilterEnumOptions(field, distinctOptions),
-    [distinctOptions, field]
-  );
-
   const appliedFilter = values[field.key];
   const appliedDraft = useMemo(
     () => normalizePanelFilterValue(appliedFilter, filterMeta.filterType),
     [appliedFilter, filterMeta.filterType]
+  );
+  const localDistinctOptions = useMemo(
+    () => buildPanelFilterOptions(empresas, appliedValues, field.key, filterFields),
+    [appliedValues, empresas, field.key, filterFields]
+  );
+  const cascadeFilters = useMemo(
+    () =>
+      buildPanelCascadeFilters({
+        activeFieldKey: field.key,
+        appliedPanelValues: appliedValues,
+        columnFilters,
+        buildPanelFilters: buildEmpresaPanelFilters,
+      }),
+    [appliedValues, columnFilters, field.key]
+  );
+  const remoteFilterOptions = useRemoteFilterOptions({
+    enabled: open,
+    columnId: field.column || field.key,
+    filterType: filterMeta.filterType,
+    optionSearch: debouncedSearchQuery,
+    selectedValues: Array.isArray((draft || appliedDraft)?.values) ? (draft || appliedDraft).values : [],
+    onRequestDistinctColumnValues,
+    contextFilters: selectorOptionsContextFilters,
+    cascadeFilters,
+    optionsMode: selectorOptionsMode,
+    serverSearchTerm,
+  });
+  const distinctOptions = remoteFilterOptions.shouldUseRemote
+    ? remoteFilterOptions.listOptions
+    : localDistinctOptions;
+  const enumOptions = useMemo(
+    () => resolveErpFilterEnumOptions(field, distinctOptions),
+    [distinctOptions, field]
   );
 
   useEffect(() => {
@@ -93,7 +128,8 @@ function PanelFilterPill({
   }, [open, appliedDraft]);
 
   const searchLoading =
-    searchQuery.trim().toLowerCase() !== debouncedSearchQuery.trim().toLowerCase();
+    searchQuery.trim().toLowerCase() !== debouncedSearchQuery.trim().toLowerCase() ||
+    (remoteFilterOptions.shouldUseRemote && remoteFilterOptions.searchLoading);
 
   const toggle = () => {
     if (disabled) return;
@@ -177,6 +213,9 @@ function PanelFilterPill({
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         searchLoading={searchLoading}
+        hasMoreOptions={remoteFilterOptions.hasMoreOptions}
+        loadingMoreOptions={remoteFilterOptions.loadingMoreOptions}
+        onLoadMoreOptions={remoteFilterOptions.onLoadMoreOptions}
         showSortSection
         showSortActions={false}
         hasActiveFilter={active || isErpFilterActive(draft || appliedDraft)}
@@ -276,6 +315,11 @@ export default function MgFilterPills({
   onConfigureFilters = null,
   filterPanelActive = false,
   hasActiveFilters: hasActiveFiltersProp = null,
+  onRequestDistinctColumnValues = null,
+  selectorOptionsContextFilters = undefined,
+  columnFilters = {},
+  serverSearchTerm = "",
+  selectorOptionsMode = FILTER_OPTIONS_MODE_CASCADE,
 }) {
   const useScrollRail = !className.includes("mg-filter-pills--drawer");
   const {
@@ -315,6 +359,11 @@ export default function MgFilterPills({
           disabled={disabled}
           onChange={onChange}
           onApply={onApply}
+          onRequestDistinctColumnValues={onRequestDistinctColumnValues}
+          selectorOptionsContextFilters={selectorOptionsContextFilters}
+          columnFilters={columnFilters}
+          serverSearchTerm={serverSearchTerm}
+          selectorOptionsMode={selectorOptionsMode}
         />
       ))}
       {hasActiveFilters ? (

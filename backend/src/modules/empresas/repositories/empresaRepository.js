@@ -234,7 +234,7 @@ const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {})
   );
 };
 
-const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "", cursorValue = null) => {
+const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "", cursorValue = null, allowedIds = null) => {
   const safeField = String(fieldName || "").replace(/[^a-zA-Z0-9_]/g, "");
   if (!safeField) return null;
   const params = [scope.clienteId];
@@ -261,6 +261,13 @@ const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "", curs
   if (safeCursorValue) {
     sql += ` AND TRIM(campos_personalizados->>'${safeField}') > $${params.length + 1}`;
     params.push(safeCursorValue);
+  }
+
+  if (Array.isArray(allowedIds)) {
+    if (allowedIds.length === 0) return null;
+    const placeholders = allowedIds.map((_, index) => `$${params.length + index + 1}`).join(", ");
+    sql += ` AND id IN (${placeholders})`;
+    params.push(...allowedIds);
   }
 
   if (!scope.acessoGlobal) {
@@ -1372,12 +1379,27 @@ export const empresaRepository = {
     );
 
     if (fieldMeta.type === "custom") {
+      const hasScopedFilters =
+        Boolean(searchTerm) ||
+        Boolean(filtersWhere && Object.keys(filtersWhere).length > 0);
+      let allowedIds = null;
+      if (hasScopedFilters) {
+        const idRows = await prisma.empresa.findMany({
+          where,
+          select: { id: true },
+        });
+        allowedIds = idRows.map((row) => row.id);
+        if (allowedIds.length === 0) {
+          return { items: [], nextCursor: null, hasMore: false, total: 0 };
+        }
+      }
       const distinctSql = buildCustomDistinctSql(
         scope,
         fieldMeta.field,
         queryTake,
         optionSearch,
-        cursorValue
+        cursorValue,
+        allowedIds
       );
       if (!distinctSql) return { items: [], nextCursor: null, hasMore: false, total: 0 };
       const rows = await prisma.$queryRawUnsafe(distinctSql.sql, ...distinctSql.params);

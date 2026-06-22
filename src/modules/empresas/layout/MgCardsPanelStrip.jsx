@@ -86,6 +86,11 @@ export default function MgCardsPanelStrip({
   onConfigureFilters = null,
   filterPanelActive = false,
   hasActiveFilters = false,
+  onRequestDistinctColumnValues = null,
+  selectorOptionsContextFilters = undefined,
+  columnFilters = {},
+  serverSearchTerm = "",
+  selectorOptionsMode = "cascade",
 }) {
   const fields =
     Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
@@ -271,6 +276,11 @@ export default function MgCardsPanelStrip({
           onConfigureFilters={onConfigureFilters}
           filterPanelActive={filterPanelActive}
           hasActiveFilters={hasActiveFilters}
+          onRequestDistinctColumnValues={onRequestDistinctColumnValues}
+          selectorOptionsContextFilters={selectorOptionsContextFilters}
+          columnFilters={columnFilters}
+          serverSearchTerm={serverSearchTerm}
+          selectorOptionsMode={selectorOptionsMode}
         />
       </div>
 

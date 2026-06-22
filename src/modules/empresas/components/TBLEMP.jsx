@@ -1697,7 +1697,7 @@ export default function TBLEMP({
         const fetchedItems = normalizeOptionValues(payload?.items || []);
         const nextCursor = payload?.nextCursor || null;
         const mergedItems = append
-          ? mergeFilterOptionsWithSelected(fetchedItems, baseItems)
+          ? mergeFilterOptionsWithSelected(baseItems, fetchedItems)
           : fetchedItems;
         const noProgressOnAppend = append && mergedItems.length <= (baseItems?.length || 0);
         const resolvedNextCursor = noProgressOnAppend ? null : nextCursor;
