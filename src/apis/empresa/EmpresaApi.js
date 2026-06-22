@@ -77,6 +77,9 @@ export const EmpresaApi = {
     const payload = await apiClient.get(`${EMPRESAS_PATH}/distinct${toQuery(params)}`, CADASTRO_LIST_SCOPE);
     return {
       items: payload?.items || [],
+      total: Number(payload?.total || 0),
+      hasMore: Boolean(payload?.hasMore),
+      nextCursor: payload?.nextCursor || null,
     };
   },
 

@@ -85,7 +85,7 @@ export const registerEmpresasRoutes = async (app) => {
   app.get("/api/empresas/distinct", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
     await ensureModuloAtivo(scope, "EMPRESAS");
-    const column = String(request.query?.column || "").trim();
+    const column = String(request.query?.column || request.query?.field || "").trim();
     if (!column) {
       return reply.status(400).send({ message: "Parâmetro column é obrigatório." });
     }
@@ -101,9 +101,10 @@ export const registerEmpresasRoutes = async (app) => {
       {
         column,
         search: request.query?.search || "",
-        optionSearch: request.query?.optionSearch || "",
+        optionSearch: request.query?.q || request.query?.optionSearch || "",
         filters: parsedFilters,
         limit: request.query?.limit,
+        cursor: request.query?.cursor || null,
       },
       scope
     );
