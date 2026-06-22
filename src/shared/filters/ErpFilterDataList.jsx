@@ -83,6 +83,14 @@ export default function ErpFilterDataList({
   }, [filteredOptions.length, hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]);
 
   useEffect(() => {
+    // Se o usuário já está no fim e chegaram novos itens,
+    // continua paginando automaticamente sem exigir novo scroll.
+    const element = optionsScrollRef.current;
+    if (!element) return;
+    tryLoadMoreByScroll(element);
+  }, [filteredOptions.length, tryLoadMoreByScroll]);
+
+  useEffect(() => {
     const root = optionsScrollRef.current;
     const sentinel = loadMoreSentinelRef.current;
     if (!root || !sentinel) return undefined;
@@ -183,6 +191,11 @@ export default function ErpFilterDataList({
             ) : null}
             <span>{loadingMoreOptions ? "Carregando..." : "Carregar mais opções"}</span>
           </button>
+        ) : null}
+        {loadingMoreOptions ? (
+          <div className="mg-search-dropdown__empty" aria-live="polite">
+            Carregando mais opções...
+          </div>
         ) : null}
         <div
           ref={loadMoreSentinelRef}

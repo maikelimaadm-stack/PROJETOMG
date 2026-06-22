@@ -1589,7 +1589,8 @@ export default function PAGEMP() {
                     onServerPageSizeChange: handleServerPageSizeChange,
                     serverSearchTerm: searchTerm,
                     serverBaseFilters,
-                    selectorOptionsMode: "global",
+                    selectorOptionsMode: "cascade",
+                    selectorOptionsContextFilters: serverBaseFilters,
                     onServerSortChange: (nextSort) => {
                       setQuerySort(nextSort);
                       setQueryPage(1);

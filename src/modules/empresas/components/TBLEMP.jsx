@@ -168,7 +168,7 @@ const normalizeFilterOptionsMode = (mode) =>
 const mergeFilterOptionsWithSelected = (options = [], selected = []) => {
   const merged = [];
   const seen = new Set();
-  [...selected, ...options].forEach((value) => {
+  [...options, ...selected].forEach((value) => {
     const normalized = String(value ?? "").trim();
     if (!normalized || seen.has(normalized)) return;
     seen.add(normalized);
