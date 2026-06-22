@@ -70,8 +70,12 @@ import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
+import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 
 const SELECT_COLUMN_WIDTH = 36;
+const FILTER_OPTIONS_PAGE_SIZE = 80;
+const FILTER_OPTIONS_MODE_GLOBAL = "global";
+const FILTER_OPTIONS_MODE_CASCADE = "cascade";
 
 function haveSameIds(listA = [], listB = []) {
   if (listA === listB) return true;
@@ -155,6 +159,28 @@ const readStorageJSON = (key, fallback) => {
 const normalizeExternalColumnFilters = (filters) =>
   filters && typeof filters === "object" ? filters : {};
 
+const normalizeFilterOptionsMode = (mode) =>
+  String(mode || FILTER_OPTIONS_MODE_GLOBAL).toLowerCase() === FILTER_OPTIONS_MODE_CASCADE
+    ? FILTER_OPTIONS_MODE_CASCADE
+    : FILTER_OPTIONS_MODE_GLOBAL;
+
+const mergeFilterOptionsWithSelected = (options = [], selected = []) => {
+  const merged = [];
+  const seen = new Set();
+  [...selected, ...options].forEach((value) => {
+    const normalized = String(value ?? "").trim();
+    if (!normalized || seen.has(normalized)) return;
+    seen.add(normalized);
+    merged.push(normalized);
+  });
+  return merged;
+};
+
+const normalizeOptionValues = (values = []) =>
+  values
+    .map((value) => String(value ?? "").trim())
+    .filter(Boolean);
+
 export default function TBLEMP({
   empresas = [],
   isLoadingEmpresas = false,
@@ -173,6 +199,8 @@ export default function TBLEMP({
   serverTotal = null,
   serverSearchTerm = "",
   serverBaseFilters = undefined,
+  selectorOptionsMode = FILTER_OPTIONS_MODE_GLOBAL,
+  selectorOptionsContextFilters = undefined,
   onServerPageChange = null,
   onServerPageSizeChange = null,
   onServerColumnFiltersChange = null,
@@ -289,11 +317,22 @@ export default function TBLEMP({
   const columnsInUseSignatureRef = useRef("");
   const filteredEmpresasSignatureRef = useRef("");
   const serverResetSignatureRef = useRef("");
+  const filterOptionsCacheRef = useRef(new Map());
+  const filterOptionsRequestIdRef = useRef(0);
+  const activeFilterColumnRef = useRef(null);
   const [columnMenuAnchor, setColumnMenuAnchor] = useState(null);
   const [menuFiltroAberto, setMenuFiltroAberto] = useState(null);
   const [buscaFiltroMenu, setBuscaFiltroMenu] = useState("");
   const debouncedBuscaFiltroMenu = useDebouncedValue(buscaFiltroMenu, 180);
   const [filtroTemp, setFiltroTemp] = useState({ colunaId: null, draft: null });
+  const [filterOptionsRemoteState, setFilterOptionsRemoteState] = useState({
+    columnId: null,
+    cacheKey: "",
+    items: [],
+    nextCursor: null,
+    loadingInitial: false,
+    loadingMore: false,
+  });
   const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
@@ -376,12 +415,25 @@ export default function TBLEMP({
   }, [colunasOrdenadas, onColumnsInUseChange]);
 
   const closeColumnOverlays = useCallback(() => {
+    filterOptionsRequestIdRef.current += 1;
     setColumnMenuAnchor(null);
     setMenuFiltroAberto(null);
     overlayAnchorRef.current = null;
     setBuscaFiltroMenu("");
     setFiltroTemp({ colunaId: null, draft: null });
+    setFilterOptionsRemoteState({
+      columnId: null,
+      cacheKey: "",
+      items: [],
+      nextCursor: null,
+      loadingInitial: false,
+      loadingMore: false,
+    });
   }, []);
+
+  useEffect(() => {
+    activeFilterColumnRef.current = menuFiltroAberto;
+  }, [menuFiltroAberto]);
 
   const toggleColumnMenu = useCallback((columnId) => {
     setMenuFiltroAberto(null);
@@ -661,7 +713,7 @@ export default function TBLEMP({
     return sorted;
   }, [serverMode, empresasFiltradas, sortConfig, colunasDisponiveisById, getComparableValue, getFieldValue]);
 
-  const columnOptions = useMemo(() => {
+  const localColumnOptions = useMemo(() => {
     if (!menuFiltroAberto) return {};
     const col = colunasDisponiveis.find((column) => column.id === menuFiltroAberto);
     if (!col || col.fixo) return {};
@@ -1522,10 +1574,37 @@ export default function TBLEMP({
   const filterColumn = menuFiltroAberto
     ? colunasDisponiveis.find((column) => column.id === menuFiltroAberto)
     : null;
+  const filterColumnType = filterColumn ? getColumnFilterType(filterColumn) : "";
+  const normalizedFilterOptionsMode = normalizeFilterOptionsMode(selectorOptionsMode);
+  const shouldUseRemoteFilterOptions = Boolean(
+    menuFiltroAberto &&
+    filterColumn &&
+    typeof onRequestDistinctColumnValues === "function" &&
+    (filterColumnType === "text" || filterColumnType === "enum")
+  );
+  const resolveDistinctFilters = useCallback(
+    (activeColumnId) => {
+      const contextFilters =
+        selectorOptionsContextFilters && typeof selectorOptionsContextFilters === "object"
+          ? selectorOptionsContextFilters
+          : {};
+      if (normalizedFilterOptionsMode !== FILTER_OPTIONS_MODE_CASCADE) {
+        return contextFilters;
+      }
+      const cascadedColumnFilters = Object.entries(filtrosColunas || {}).reduce((acc, [columnId, value]) => {
+        if (columnId === activeColumnId) return acc;
+        acc[columnId] = value;
+        return acc;
+      }, {});
+      const cascadedFilters = buildEmpresaColumnFilters(cascadedColumnFilters);
+      return mergeEmpresaListFilters(contextFilters, cascadedFilters);
+    },
+    [normalizedFilterOptionsMode, selectorOptionsContextFilters, filtrosColunas]
+  );
   const filterMeta = filterColumn
     ? resolveErpFilterMeta(
         { columnMeta: filterColumn, column: filterColumn.id, key: filterColumn.id },
-        columnOptions[menuFiltroAberto] || []
+        localColumnOptions[menuFiltroAberto] || []
       )
     : null;
   const filterDraft =
@@ -1534,8 +1613,154 @@ export default function TBLEMP({
       : filterColumn
         ? getValoresFiltro(menuFiltroAberto, filterColumn)
         : null;
+  const selectedFilterValues = useMemo(
+    () => normalizeOptionValues(Array.isArray(filterDraft?.values) ? filterDraft.values : []),
+    [filterDraft?.values]
+  );
+  const remoteFilterRequest = useMemo(() => {
+    if (!shouldUseRemoteFilterOptions || !menuFiltroAberto) return null;
+    const optionSearch = String(debouncedBuscaFiltroMenu || "").trim();
+    const requestFilters = resolveDistinctFilters(menuFiltroAberto);
+    const search =
+      normalizedFilterOptionsMode === FILTER_OPTIONS_MODE_CASCADE
+        ? String(serverSearchTerm || "").trim()
+        : "";
+    const params = {
+      column: menuFiltroAberto,
+      optionSearch,
+      q: optionSearch,
+      search,
+      filters: requestFilters,
+      limit: FILTER_OPTIONS_PAGE_SIZE,
+      cursor: null,
+    };
+    const cacheKey = JSON.stringify({
+      mode: normalizedFilterOptionsMode,
+      ...params,
+    });
+    return { cacheKey, params };
+  }, [
+    shouldUseRemoteFilterOptions,
+    menuFiltroAberto,
+    debouncedBuscaFiltroMenu,
+    resolveDistinctFilters,
+    normalizedFilterOptionsMode,
+    serverSearchTerm,
+  ]);
+  const fetchRemoteFilterOptions = useCallback(
+    async ({ cacheKey, params, append = false, baseItems = [] }) => {
+      if (typeof onRequestDistinctColumnValues !== "function" || !params?.column) return;
+      const requestId = ++filterOptionsRequestIdRef.current;
+      const expectedColumn = params.column;
+      setFilterOptionsRemoteState((prev) => ({
+        columnId: expectedColumn,
+        cacheKey,
+        items: append ? prev.items : prev.columnId === expectedColumn && prev.cacheKey === cacheKey ? prev.items : [],
+        nextCursor: append ? prev.nextCursor : null,
+        loadingInitial: !append,
+        loadingMore: append,
+      }));
+      try {
+        const payload = await onRequestDistinctColumnValues(params);
+        if (
+          requestId !== filterOptionsRequestIdRef.current ||
+          activeFilterColumnRef.current !== expectedColumn
+        ) {
+          return;
+        }
+        const fetchedItems = normalizeOptionValues(payload?.items || []);
+        const nextCursor = payload?.nextCursor || null;
+        const mergedItems = append
+          ? mergeFilterOptionsWithSelected(fetchedItems, baseItems)
+          : fetchedItems;
+        filterOptionsCacheRef.current.set(cacheKey, {
+          items: mergedItems,
+          nextCursor,
+        });
+        setFilterOptionsRemoteState({
+          columnId: expectedColumn,
+          cacheKey,
+          items: mergedItems,
+          nextCursor,
+          loadingInitial: false,
+          loadingMore: false,
+        });
+      } catch {
+        if (
+          requestId !== filterOptionsRequestIdRef.current ||
+          activeFilterColumnRef.current !== expectedColumn
+        ) {
+          return;
+        }
+        setFilterOptionsRemoteState((prev) => ({
+          ...prev,
+          loadingInitial: false,
+          loadingMore: false,
+        }));
+      }
+    },
+    [onRequestDistinctColumnValues]
+  );
+  useEffect(() => {
+    if (!remoteFilterRequest || !menuFiltroAberto || !shouldUseRemoteFilterOptions) return;
+    const cached = filterOptionsCacheRef.current.get(remoteFilterRequest.cacheKey);
+    if (cached && Array.isArray(cached.items)) {
+      setFilterOptionsRemoteState({
+        columnId: menuFiltroAberto,
+        cacheKey: remoteFilterRequest.cacheKey,
+        items: cached.items,
+        nextCursor: cached.nextCursor || null,
+        loadingInitial: false,
+        loadingMore: false,
+      });
+      return;
+    }
+    void fetchRemoteFilterOptions({
+      cacheKey: remoteFilterRequest.cacheKey,
+      params: remoteFilterRequest.params,
+      append: false,
+    });
+  }, [
+    remoteFilterRequest,
+    menuFiltroAberto,
+    shouldUseRemoteFilterOptions,
+    fetchRemoteFilterOptions,
+  ]);
+  const handleLoadMoreFilterOptions = useCallback(() => {
+    if (!remoteFilterRequest) return;
+    if (filterOptionsRemoteState.loadingMore || filterOptionsRemoteState.loadingInitial) return;
+    if (!filterOptionsRemoteState.nextCursor) return;
+    void fetchRemoteFilterOptions({
+      cacheKey: remoteFilterRequest.cacheKey,
+      params: {
+        ...remoteFilterRequest.params,
+        cursor: filterOptionsRemoteState.nextCursor,
+      },
+      append: true,
+      baseItems: filterOptionsRemoteState.items,
+    });
+  }, [
+    remoteFilterRequest,
+    filterOptionsRemoteState.loadingMore,
+    filterOptionsRemoteState.loadingInitial,
+    filterOptionsRemoteState.nextCursor,
+    filterOptionsRemoteState.items,
+    fetchRemoteFilterOptions,
+  ]);
   const filterColumnLabel = filterColumn ? formatHeaderLabel(filterColumn) : "";
-  const filterListOptions = menuFiltroAberto ? columnOptions[menuFiltroAberto] || [] : [];
+  const localFilterListOptions = menuFiltroAberto ? localColumnOptions[menuFiltroAberto] || [] : [];
+  const remoteFilterListOptions =
+    shouldUseRemoteFilterOptions &&
+    filterOptionsRemoteState.columnId === menuFiltroAberto
+      ? filterOptionsRemoteState.items
+      : [];
+  const baseFilterListOptions = shouldUseRemoteFilterOptions
+    ? remoteFilterListOptions
+    : localFilterListOptions;
+  const filterListOptions = useMemo(
+    () => mergeFilterOptionsWithSelected(baseFilterListOptions, selectedFilterValues),
+    [baseFilterListOptions, selectedFilterValues]
+  );
   const filterEnumOptions = filterColumn
     ? resolveErpFilterEnumOptions(
         { columnMeta: filterColumn, column: filterColumn.id, key: filterColumn.id },
@@ -1544,7 +1769,18 @@ export default function TBLEMP({
     : [];
   const filterSearchPending =
     buscaFiltroMenu.trim().toLowerCase() !== debouncedBuscaFiltroMenu.trim().toLowerCase();
-  const filterSearchLoading = filterSearchPending;
+  const filterSearchLoading =
+    filterSearchPending ||
+    (shouldUseRemoteFilterOptions &&
+      (filterOptionsRemoteState.loadingInitial || filterOptionsRemoteState.loadingMore));
+  const hasMoreFilterOptions =
+    shouldUseRemoteFilterOptions &&
+    filterOptionsRemoteState.columnId === menuFiltroAberto &&
+    Boolean(filterOptionsRemoteState.nextCursor);
+  const loadingMoreFilterOptions =
+    shouldUseRemoteFilterOptions &&
+    filterOptionsRemoteState.columnId === menuFiltroAberto &&
+    filterOptionsRemoteState.loadingMore;
 
   const updateFilterDraft = (updater) => {
     if (!filterColumn || !menuFiltroAberto) return;
@@ -1768,6 +2004,9 @@ export default function TBLEMP({
         searchQuery={buscaFiltroMenu}
         onSearchQueryChange={setBuscaFiltroMenu}
         searchLoading={filterSearchLoading}
+        hasMoreOptions={hasMoreFilterOptions}
+        loadingMoreOptions={loadingMoreFilterOptions}
+        onLoadMoreOptions={handleLoadMoreFilterOptions}
         showSortSection={Boolean(filterColumn && filterDraft)}
         hasActiveFilter={Boolean(menuFiltroAberto && hasActiveFilter(menuFiltroAberto))}
         onSortAsc={() => {

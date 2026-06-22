@@ -29,6 +29,9 @@ export default function ErpFilterDataList({
   onToggleAll,
   onToggleOption,
   searchAriaLabel = "Pesquisar valores",
+  hasMoreOptions = false,
+  loadingMoreOptions = false,
+  onLoadMoreOptions,
 }) {
   const isRangeOperator = ERP_OPERATORS_WITH_RANGE.has(operator);
   const isDateSingleOperator =
@@ -115,6 +118,19 @@ export default function ErpFilterDataList({
         ))}
         {filteredOptions.length === 0 && !searchLoading ? (
           <div className="mg-search-dropdown__empty">Nenhum valor encontrado.</div>
+        ) : null}
+        {hasMoreOptions ? (
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            onClick={() => onLoadMoreOptions?.()}
+            disabled={loadingMoreOptions}
+          >
+            {loadingMoreOptions ? (
+              <Loader2 className="w-4 h-4 mr-2 shrink-0 animate-spin" aria-hidden="true" />
+            ) : null}
+            <span>{loadingMoreOptions ? "Carregando..." : "Carregar mais opções"}</span>
+          </button>
         ) : null}
       </div>
     </div>

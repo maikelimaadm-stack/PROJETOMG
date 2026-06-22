@@ -36,6 +36,9 @@ export default function ErpFilterPopover({
   onDraftChange,
   onCancel,
   onApply,
+  hasMoreOptions = false,
+  loadingMoreOptions = false,
+  onLoadMoreOptions,
 }) {
   const safeDraft = useMemo(() => cloneErpFilter(draft || { type: filterType }), [draft, filterType]);
   const isBoolean = filterType === "boolean";
@@ -160,6 +163,9 @@ export default function ErpFilterPopover({
             searchLoading={searchLoading}
             onToggleAll={handleToggleAll}
             onToggleOption={handleToggleValue}
+            hasMoreOptions={hasMoreOptions}
+            loadingMoreOptions={loadingMoreOptions}
+            onLoadMoreOptions={onLoadMoreOptions}
             searchAriaLabel={
               columnLabel ? `Pesquisar valores de ${columnLabel}` : "Pesquisar valores"
             }
