@@ -215,6 +215,8 @@ export default function PAGEMP() {
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
   const [columnFilters, setColumnFilters] = useState({});
   const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(false);
+  const columnFiltersRef = useRef({});
+  const appliedFilterValuesRef = useRef({});
   const cardsVisFields = useEmpCardsVisFields();
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
   const catalogFilterFields = useMemo(
@@ -293,6 +295,14 @@ export default function PAGEMP() {
       setAttachmentsOpen(false);
     }
   }, [showForm]);
+
+  useEffect(() => {
+    columnFiltersRef.current = columnFilters || {};
+  }, [columnFilters]);
+
+  useEffect(() => {
+    appliedFilterValuesRef.current = appliedFilterValues || {};
+  }, [appliedFilterValues]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -898,17 +908,19 @@ export default function PAGEMP() {
     const safeNext = nextColumnFilters || {};
     const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext, panelFilterColumnMap);
     const sameColumnFilters =
-      JSON.stringify(columnFilters || {}) === JSON.stringify(safeNext || {});
+      JSON.stringify(columnFiltersRef.current || {}) === JSON.stringify(safeNext || {});
     const samePanelFilters =
-      JSON.stringify(appliedFilterValues || {}) === JSON.stringify(syncedPanelValues || {});
+      JSON.stringify(appliedFilterValuesRef.current || {}) === JSON.stringify(syncedPanelValues || {});
     if (sameColumnFilters && samePanelFilters) return;
+    columnFiltersRef.current = safeNext;
+    appliedFilterValuesRef.current = syncedPanelValues;
     setColumnFiltersHydrated(true);
     setColumnFilters(safeNext);
     setFilterValues(syncedPanelValues);
     setAppliedFilterValues(syncedPanelValues);
     setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
-  }, [panelFilterColumnMap, columnFilters, appliedFilterValues]);
+  }, [panelFilterColumnMap]);
 
   const handleDistinctColumnValues = useCallback(
     (params) => moduleRepository.listDistinctColumnValues(params),
@@ -1577,6 +1589,8 @@ export default function PAGEMP() {
                     onServerPageSizeChange: handleServerPageSizeChange,
                     serverSearchTerm: searchTerm,
                     serverBaseFilters,
+                    selectorOptionsMode: "cascade",
+                    selectorOptionsContextFilters: serverBaseFilters,
                     onServerSortChange: (nextSort) => {
                       setQuerySort(nextSort);
                       setQueryPage(1);

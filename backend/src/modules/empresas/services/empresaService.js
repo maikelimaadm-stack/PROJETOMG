@@ -59,6 +59,7 @@ export const empresaService = {
       optionSearch: query.optionSearch,
       filters: query.filters,
       limit: query.limit,
+      cursor: query.cursor,
     });
   },
 

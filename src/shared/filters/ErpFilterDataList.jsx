@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Loader2, Search } from "lucide-react";
 import MgFilterFieldCheck from "@/modules/empresas/layout/MgFilterFieldCheck";
 import ErpFilterRangeInputs from "@/shared/filters/ErpFilterRangeInputs";
@@ -29,6 +29,9 @@ export default function ErpFilterDataList({
   onToggleAll,
   onToggleOption,
   searchAriaLabel = "Pesquisar valores",
+  hasMoreOptions = false,
+  loadingMoreOptions = false,
+  onLoadMoreOptions,
 }) {
   const isRangeOperator = ERP_OPERATORS_WITH_RANGE.has(operator);
   const isDateSingleOperator =
@@ -53,6 +56,62 @@ export default function ErpFilterDataList({
   const allVisibleSelected =
     filteredOptions.length > 0 &&
     filteredOptions.every((option) => selectedValues.includes(option));
+  const optionsScrollRef = useRef(null);
+  const loadMoreSentinelRef = useRef(null);
+
+  const tryLoadMoreByScroll = useCallback(
+    (element) => {
+      if (!element) return;
+      if (!hasMoreOptions || loadingMoreOptions) return;
+      const remaining = element.scrollHeight - element.scrollTop - element.clientHeight;
+      if (remaining <= 64) {
+        onLoadMoreOptions?.();
+      }
+    },
+    [hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]
+  );
+
+  useEffect(() => {
+    // Se a lista não tiver área de rolagem visível, continua carregando
+    // até completar o viewport do popover.
+    const element = optionsScrollRef.current;
+    if (!element) return;
+    if (!hasMoreOptions || loadingMoreOptions) return;
+    if (element.scrollHeight <= element.clientHeight + 1) {
+      onLoadMoreOptions?.();
+    }
+  }, [filteredOptions.length, hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]);
+
+  useEffect(() => {
+    // Se o usuário já está no fim e chegaram novos itens,
+    // continua paginando automaticamente sem exigir novo scroll.
+    const element = optionsScrollRef.current;
+    if (!element) return;
+    tryLoadMoreByScroll(element);
+  }, [filteredOptions.length, tryLoadMoreByScroll]);
+
+  useEffect(() => {
+    const root = optionsScrollRef.current;
+    const sentinel = loadMoreSentinelRef.current;
+    if (!root || !sentinel) return undefined;
+    if (!hasMoreOptions || loadingMoreOptions) return undefined;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (!target?.isIntersecting) return;
+        onLoadMoreOptions?.();
+      },
+      {
+        root,
+        rootMargin: "0px 0px 96px 0px",
+        threshold: 0.01,
+      }
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [filteredOptions.length, hasMoreOptions, loadingMoreOptions, onLoadMoreOptions]);
 
   return (
     <div className="erp-filter-data-list">
@@ -93,7 +152,11 @@ export default function ErpFilterDataList({
         </div>
       ) : null}
 
-      <div className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options erp-filter-data-list__options">
+      <div
+        ref={optionsScrollRef}
+        className="mg-cards-config-menu__list emp-filter-value-list emp-col-filter-popup__options erp-filter-data-list__options"
+        onScroll={(event) => tryLoadMoreByScroll(event.currentTarget)}
+      >
         <label className="mg-cards-config-menu__item emp-filter-value-list-header">
           <MgFilterFieldCheck
             checked={allVisibleSelected}
@@ -116,6 +179,29 @@ export default function ErpFilterDataList({
         {filteredOptions.length === 0 && !searchLoading ? (
           <div className="mg-search-dropdown__empty">Nenhum valor encontrado.</div>
         ) : null}
+        {hasMoreOptions ? (
+          <button
+            type="button"
+            className="emp-filter-sort-btn"
+            onClick={() => onLoadMoreOptions?.()}
+            disabled={loadingMoreOptions}
+          >
+            {loadingMoreOptions ? (
+              <Loader2 className="w-4 h-4 mr-2 shrink-0 animate-spin" aria-hidden="true" />
+            ) : null}
+            <span>{loadingMoreOptions ? "Carregando..." : "Carregar mais opções"}</span>
+          </button>
+        ) : null}
+        {loadingMoreOptions ? (
+          <div className="mg-search-dropdown__empty" aria-live="polite">
+            Carregando mais opções...
+          </div>
+        ) : null}
+        <div
+          ref={loadMoreSentinelRef}
+          aria-hidden="true"
+          style={{ width: "100%", height: 1 }}
+        />
       </div>
     </div>
   );
