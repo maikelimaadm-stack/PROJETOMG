@@ -234,7 +234,7 @@ const buildListWhere = async (prisma, scope, { search = "", filters = {} } = {})
   );
 };
 
-const buildCustomDistinctSql = (scope, fieldName, limit, offset = 0, optionSearch = "") => {
+const buildCustomDistinctSql = (scope, fieldName, limit, optionSearch = "", cursorValue = null) => {
   const safeField = String(fieldName || "").replace(/[^a-zA-Z0-9_]/g, "");
   if (!safeField) return null;
   const params = [scope.clienteId];
@@ -257,6 +257,12 @@ const buildCustomDistinctSql = (scope, fieldName, limit, offset = 0, optionSearc
     );
   }
 
+  const safeCursorValue = cursorValue == null ? "" : String(cursorValue).trim();
+  if (safeCursorValue) {
+    sql += ` AND TRIM(campos_personalizados->>'${safeField}') > $${params.length + 1}`;
+    params.push(safeCursorValue);
+  }
+
   if (!scope.acessoGlobal) {
     const allowed = scope.allowedEmpresaIds.length > 0 ? scope.allowedEmpresaIds : [EMPTY_RESULT_COMPANY_ID];
     const placeholders = allowed.map((_, index) => `$${params.length + index + 1}`).join(", ");
@@ -269,8 +275,8 @@ const buildCustomDistinctSql = (scope, fieldName, limit, offset = 0, optionSearc
     params.push(scope.selectedEmpresaId);
   }
 
-  sql += ` ORDER BY value ASC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-  params.push(limit, Math.max(0, Number(offset) || 0));
+  sql += ` ORDER BY value ASC LIMIT $${params.length + 1}`;
+  params.push(limit);
   return { sql, params };
 };
 
@@ -293,25 +299,29 @@ const buildDistinctCacheKey = ({ scope, column, search, optionSearch, filters, l
     optionSearch,
     filters: filters || {},
     limit: Number(limit) || DISTINCT_DEFAULT_PAGE_SIZE,
-    cursor: cursor || null,
+    cursor: cursor ?? null,
   });
   const digest = crypto.createHash("sha256").update(keyPayload).digest("hex").slice(0, 24);
   return `${DISTINCT_CACHE_PREFIX}${scope.clienteId}:${buildDistinctScopeHash(scope)}:${digest}`;
 };
 
-const encodeDistinctCursor = (offset) => {
-  const safeOffset = Number.isFinite(Number(offset)) ? Math.max(0, Math.floor(Number(offset))) : 0;
-  return Buffer.from(String(safeOffset), "utf8").toString("base64url");
+const encodeDistinctCursor = (value) => {
+  if (value == null || String(value).trim() === "") return null;
+  const payload = JSON.stringify({ v: value });
+  return Buffer.from(payload, "utf8").toString("base64url");
 };
 
 const decodeDistinctCursor = (cursor) => {
-  if (!cursor) return 0;
+  if (!cursor) return null;
   try {
-    const parsed = Number(Buffer.from(String(cursor), "base64url").toString("utf8"));
-    if (!Number.isFinite(parsed)) return 0;
-    return Math.max(0, Math.floor(parsed));
+    const decoded = Buffer.from(String(cursor), "base64url").toString("utf8");
+    const parsed = JSON.parse(decoded);
+    if (parsed && Object.prototype.hasOwnProperty.call(parsed, "v")) {
+      return parsed.v;
+    }
+    return decoded;
   } catch {
-    return 0;
+    return null;
   }
 };
 
@@ -1323,7 +1333,7 @@ export const empresaRepository = {
       DISTINCT_MAX_PAGE_SIZE,
       Math.max(1, Number(limit) || DISTINCT_DEFAULT_PAGE_SIZE)
     );
-    const safeOffset = decodeDistinctCursor(cursor);
+    const cursorValue = decodeDistinctCursor(cursor);
     const queryTake = safeLimit + 1;
     const cacheKey =
       DISTINCT_CACHE_TTL_MS > 0
@@ -1334,7 +1344,7 @@ export const empresaRepository = {
             optionSearch,
             filters,
             limit: safeLimit,
-            cursor: safeOffset,
+            cursor: cursorValue,
           })
         : null;
     if (cacheKey) {
@@ -1366,8 +1376,8 @@ export const empresaRepository = {
         scope,
         fieldMeta.field,
         queryTake,
-        safeOffset,
-        optionSearch
+        optionSearch,
+        cursorValue
       );
       if (!distinctSql) return { items: [], nextCursor: null, hasMore: false, total: 0 };
       const rows = await prisma.$queryRawUnsafe(distinctSql.sql, ...distinctSql.params);
@@ -1375,15 +1385,15 @@ export const empresaRepository = {
         .map((row) => String(row.value || "").trim())
         .filter(Boolean);
       const uniqueItems = [...new Set(items)];
-      const hasMore = uniqueItems.length >= safeLimit;
+      const hasMore = uniqueItems.length > safeLimit;
       const pageItems = uniqueItems.slice(0, safeLimit);
       const payload = {
         items: pageItems,
         nextCursor: hasMore && pageItems.length > 0
-          ? encodeDistinctCursor(safeOffset + pageItems.length)
+          ? encodeDistinctCursor(pageItems[pageItems.length - 1])
           : null,
         hasMore,
-        total: safeOffset + pageItems.length + (hasMore ? 1 : 0),
+        total: pageItems.length + (hasMore ? 1 : 0),
       };
       if (cacheKey) {
         await tieredCache.set(cacheKey, payload, DISTINCT_CACHE_TTL_MS);
@@ -1417,28 +1427,51 @@ export const empresaRepository = {
         }
       : where;
 
+    const numericFields = new Set(["codempresa", "id_global"]);
+    const cursorWhere = (() => {
+      if (cursorValue == null || String(cursorValue).trim() === "") return null;
+      if (numericFields.has(fieldMeta.field)) {
+        const asNumber = Number(cursorValue);
+        if (!Number.isFinite(asNumber)) return null;
+        return { [fieldMeta.field]: { gt: Math.floor(asNumber) } };
+      }
+      return { [fieldMeta.field]: { gt: String(cursorValue) } };
+    })();
+
+    const finalWhereWithCursor = cursorWhere
+      ? {
+          AND: [finalWhere, cursorWhere],
+        }
+      : finalWhere;
+
     const rows = await prisma.empresa.findMany({
-      where: finalWhere,
+      where: finalWhereWithCursor,
       select: { [fieldMeta.field]: true },
       distinct: [fieldMeta.field],
       orderBy: { [fieldMeta.field]: "asc" },
-      skip: safeOffset,
       take: queryTake,
     });
 
-    const items = rows
-      .map((row) => formatDistinctValue(column, row[fieldMeta.field]))
-      .filter(Boolean);
-    const uniqueItems = [...new Set(items)];
-    const hasMore = uniqueItems.length >= safeLimit;
-    const pageItems = uniqueItems.slice(0, safeLimit);
+    const uniquePairs = [];
+    const seenFormatted = new Set();
+    rows.forEach((row) => {
+      const rawValue = row[fieldMeta.field];
+      const formattedValue = formatDistinctValue(column, rawValue);
+      if (!formattedValue) return;
+      if (seenFormatted.has(formattedValue)) return;
+      seenFormatted.add(formattedValue);
+      uniquePairs.push({ rawValue, formattedValue });
+    });
+    const hasMore = uniquePairs.length > safeLimit;
+    const pagePairs = uniquePairs.slice(0, safeLimit);
+    const pageItems = pagePairs.map((pair) => pair.formattedValue);
     const payload = {
       items: pageItems,
       nextCursor: hasMore && pageItems.length > 0
-        ? encodeDistinctCursor(safeOffset + pageItems.length)
+        ? encodeDistinctCursor(pagePairs[pagePairs.length - 1].rawValue)
         : null,
       hasMore,
-      total: safeOffset + pageItems.length + (hasMore ? 1 : 0),
+      total: pageItems.length + (hasMore ? 1 : 0),
     };
     if (cacheKey) {
       await tieredCache.set(cacheKey, payload, DISTINCT_CACHE_TTL_MS);
