@@ -36,7 +36,7 @@ const DISTINCT_CACHE_TTL_MS = Math.max(
   Number(process.env.EMP_DISTINCT_CACHE_TTL_MS || 30_000)
 );
 const DISTINCT_CACHE_PREFIX = "emp:distinct:";
-const DISTINCT_DEFAULT_PAGE_SIZE = 80;
+const DISTINCT_DEFAULT_PAGE_SIZE = 100;
 const DISTINCT_MAX_PAGE_SIZE = 250;
 
 /** Colunas retornadas em listagens paginadas (sem observações/logo pesados). */

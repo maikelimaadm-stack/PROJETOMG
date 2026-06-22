@@ -73,7 +73,7 @@ import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchCont
 import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 
 const SELECT_COLUMN_WIDTH = 36;
-const FILTER_OPTIONS_PAGE_SIZE = 40;
+const FILTER_OPTIONS_PAGE_SIZE = 100;
 const FILTER_OPTIONS_MODE_GLOBAL = "global";
 const FILTER_OPTIONS_MODE_CASCADE = "cascade";
 
