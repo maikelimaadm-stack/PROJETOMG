@@ -73,7 +73,7 @@ import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchCont
 import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 
 const SELECT_COLUMN_WIDTH = 36;
-const FILTER_OPTIONS_PAGE_SIZE = 80;
+const FILTER_OPTIONS_PAGE_SIZE = 40;
 const FILTER_OPTIONS_MODE_GLOBAL = "global";
 const FILTER_OPTIONS_MODE_CASCADE = "cascade";
 
@@ -717,6 +717,12 @@ export default function TBLEMP({
     if (!menuFiltroAberto) return {};
     const col = colunasDisponiveis.find((column) => column.id === menuFiltroAberto);
     if (!col || col.fixo) return {};
+    const filterType = getColumnFilterType(col);
+    const shouldUseRemoteOptionsForColumn =
+      serverMode &&
+      typeof onRequestDistinctColumnValues === "function" &&
+      (filterType === "text" || filterType === "enum");
+    if (shouldUseRemoteOptionsForColumn) return {};
     const source = empresas.filter((emp) => empresaPassaFiltros(emp, menuFiltroAberto));
     const items = [
       ...new Set(
@@ -726,7 +732,17 @@ export default function TBLEMP({
       ),
     ].sort((a, b) => String(a).localeCompare(String(b), "pt-BR", { numeric: true, sensitivity: "base" }));
     return { [col.id]: items };
-  }, [colunasDisponiveis, empresas, filtrosColunas, searchTerm, menuFiltroAberto, empresaPassaFiltros, getFieldValue]);
+  }, [
+    colunasDisponiveis,
+    empresas,
+    filtrosColunas,
+    searchTerm,
+    menuFiltroAberto,
+    empresaPassaFiltros,
+    getFieldValue,
+    serverMode,
+    onRequestDistinctColumnValues,
+  ]);
 
   const hasActiveFilter = (id) => isErpFilterActive(filtrosColunas[id]);
   const getValoresFiltro = (id, col) => getNormalizedFilterDraft(id, col) || createDefaultColumnFilter(getColumnFilterType(col));
