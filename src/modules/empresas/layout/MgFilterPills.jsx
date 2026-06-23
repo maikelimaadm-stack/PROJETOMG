@@ -18,6 +18,7 @@ import {
 } from "@/shared/filters/useRemoteFilterOptions";
 import { buildEmpresaPanelFilters } from "@/shared/listing/buildEmpresaListFilters";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
+import { useHorizontalScrollRail } from "@/shared/hooks/useHorizontalScrollRail";
 import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
 
@@ -232,80 +233,7 @@ function PanelFilterPill({
   );
 }
 
-const FILTER_PILLS_SCROLL_STEP = 240;
 const FILTER_PILLS_TOGGLE_ANIM_MS = 220;
-
-function useFilterPillsScrollRail(enabled = true) {
-  const viewportRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const [hasOverflow, setHasOverflow] = useState(false);
-
-  const updateScrollState = useCallback(() => {
-    const viewport = viewportRef.current;
-    if (!viewport || !enabled) {
-      setCanScrollLeft(false);
-      setCanScrollRight(false);
-      setHasOverflow(false);
-      return;
-    }
-
-    const maxScrollLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-    const nextLeft = viewport.scrollLeft > 1;
-    const nextRight = viewport.scrollLeft < maxScrollLeft - 1;
-    const nextOverflow = maxScrollLeft > 1;
-
-    setCanScrollLeft(nextLeft);
-    setCanScrollRight(nextRight);
-    setHasOverflow(nextOverflow);
-  }, [enabled]);
-
-  useEffect(() => {
-    if (!enabled) return undefined;
-    const viewport = viewportRef.current;
-    if (!viewport) return undefined;
-
-    updateScrollState();
-
-    const onScroll = () => updateScrollState();
-    viewport.addEventListener("scroll", onScroll, { passive: true });
-
-    let resizeObserver;
-    if (typeof ResizeObserver !== "undefined") {
-      resizeObserver = new ResizeObserver(() => updateScrollState());
-      resizeObserver.observe(viewport);
-      if (viewport.firstElementChild) {
-        resizeObserver.observe(viewport.firstElementChild);
-      }
-    } else {
-      window.addEventListener("resize", updateScrollState);
-    }
-
-    return () => {
-      viewport.removeEventListener("scroll", onScroll);
-      resizeObserver?.disconnect();
-      window.removeEventListener("resize", updateScrollState);
-    };
-  }, [enabled, updateScrollState]);
-
-  const scrollByStep = useCallback((direction) => {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-    viewport.scrollBy({
-      left: direction * FILTER_PILLS_SCROLL_STEP,
-      behavior: "smooth",
-    });
-  }, []);
-
-  return {
-    viewportRef,
-    canScrollLeft,
-    canScrollRight,
-    hasOverflow,
-    scrollLeft: () => scrollByStep(-1),
-    scrollRight: () => scrollByStep(1),
-  };
-}
 
 export default function MgFilterPills({
   filterFields = [],
@@ -405,7 +333,7 @@ export default function MgFilterPills({
     hasOverflow,
     scrollLeft,
     scrollRight,
-  } = useFilterPillsScrollRail(useScrollRail && filtersExpanded);
+  } = useHorizontalScrollRail({ enabled: useScrollRail && filtersExpanded });
 
   const handleConfigButtonClick = () => {
     if (disabled) return;

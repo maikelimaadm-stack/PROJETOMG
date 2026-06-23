@@ -654,13 +654,65 @@
   align-items: stretch;
   border-top: none !important;
   background: var(--bg-card) !important;
-  overflow-x: auto;
-  overflow-y: hidden;
+  overflow: hidden;
   flex-shrink: 0;
   z-index: 2;
   contain: layout style;
   padding-top: 0;
   padding-bottom: 0;
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail__viewport {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail__viewport::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail__viewport .seg-control {
+  flex: unset;
+  min-width: max-content;
+  width: max-content;
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail__nav {
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail__nav-icon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+  color: var(--mg-icon-color);
+  stroke: var(--mg-icon-color);
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail__nav:hover:not(:disabled) .mg-panel-tabs-rail__nav-icon {
+  color: var(--mg-brand-green-hover);
+  stroke: var(--mg-brand-green-hover);
+}
+
+.mg-empresas-scope .mg-panel-tabs-rail__nav:disabled .mg-panel-tabs-rail__nav-icon {
+  color: var(--text-3);
+  stroke: var(--text-3);
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip.mg-panel-tabs-strip--no-bg {
@@ -724,17 +776,6 @@
   z-index: 3;
   height: var(--mg-panel-tab-indicator-height);
   background: var(--mg-panel-tab-indicator-color);
-}
-
-.mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar {
-  height: var(--erp-scrollbar-size) !important;
-  -webkit-appearance: none !important;
-}
-
-.mg-empresas-scope .mg-panel-tabs-strip::-webkit-scrollbar-button {
-  display: none !important;
-  width: 0 !important;
-  height: 0 !important;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll {
@@ -1520,6 +1561,7 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-accent-icon-btn,
 .cadastro-emp-scope.mg-empresas-scope .mg-nav-btn,
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__nav,
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail__nav,
 .cadastro-emp-scope.mg-empresas-scope .mg-topbar-icon-btn,
 .cadastro-emp-scope.mg-empresas-scope .filter-panel__close,
 .cadastro-emp-scope.mg-empresas-scope .mobile-header .ios-btn,
@@ -1531,6 +1573,7 @@
 .mg-empresas-scope .mg-accent-icon-btn,
 .mg-empresas-scope .mg-nav-btn,
 .mg-empresas-scope .mg-filter-pills-rail__nav,
+.mg-empresas-scope .mg-panel-tabs-rail__nav,
 .mg-empresas-scope .mg-topbar-icon-btn,
 .mg-empresas-scope .filter-panel__close,
 .mg-empresas-scope .mobile-header .ios-btn,
