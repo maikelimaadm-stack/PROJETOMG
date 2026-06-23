@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, FunnelPlus, FunnelX, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, FunnelPlus, FunnelX, ListPlus, ListX, X } from "lucide-react";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import {
   ErpFilterPopover,
@@ -179,9 +179,7 @@ function PanelFilterPill({
     >
       <button
         type="button"
-        className={`ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-filter-pill__trigger${
-          active ? " mg-filter-pill__trigger--has-clear" : ""
-        }`}
+        className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-filter-pill__trigger"
         onClick={toggle}
         disabled={disabled}
         aria-expanded={open}
@@ -192,15 +190,21 @@ function PanelFilterPill({
       {active ? (
         <button
           type="button"
-          className="ios-btn mg-filter-pill__clear-btn"
+          className="mg-filter-pill__icon mg-filter-pill__icon--clear"
           onClick={clearActive}
           disabled={disabled}
           aria-label={`Limpar filtro ${field.label}`}
           title={`Limpar filtro ${field.label}`}
         >
-          <X className="h-3 w-3" strokeWidth={2.3} />
+          <X strokeWidth={2.2} aria-hidden="true" />
         </button>
-      ) : null}
+      ) : (
+        <ChevronDown
+          className="mg-filter-pill__icon mg-filter-pill__icon--chevron"
+          strokeWidth={2.2}
+          aria-hidden="true"
+        />
+      )}
       <ErpFilterPopover
         open={open}
         panelRef={panelRef}
@@ -229,6 +233,7 @@ function PanelFilterPill({
 }
 
 const FILTER_PILLS_SCROLL_STEP = 240;
+const FILTER_PILLS_TOGGLE_ANIM_MS = 220;
 
 function useFilterPillsScrollRail(enabled = true) {
   const viewportRef = useRef(null);
@@ -322,6 +327,77 @@ export default function MgFilterPills({
   selectorOptionsMode = FILTER_OPTIONS_MODE_CASCADE,
 }) {
   const useScrollRail = !className.includes("mg-filter-pills--drawer");
+  const hasActiveFilters = useMemo(() => {
+    if (hasActiveFiltersProp != null) return Boolean(hasActiveFiltersProp);
+    return filterFields.some((field) => isErpFilterActive(appliedValues[field.key]));
+  }, [appliedValues, filterFields, hasActiveFiltersProp]);
+  const [filtersExpanded, setFiltersExpanded] = useState(() => !useScrollRail || hasActiveFilters);
+  const [filtersOpen, setFiltersOpen] = useState(() => !useScrollRail || hasActiveFilters);
+  const filterAnimTimeoutRef = useRef(null);
+  const filtersExpandedRef = useRef(filtersExpanded);
+  const filtersOpenRef = useRef(filtersOpen);
+
+  const clearRailAnimTimeout = useCallback(() => {
+    if (filterAnimTimeoutRef.current) {
+      window.clearTimeout(filterAnimTimeoutRef.current);
+      filterAnimTimeoutRef.current = null;
+    }
+  }, []);
+
+  const expandFilterRail = useCallback(() => {
+    if (!useScrollRail) return;
+    clearRailAnimTimeout();
+    setFiltersExpanded(true);
+    setFiltersOpen(false);
+    window.requestAnimationFrame(() => {
+      window.requestAnimationFrame(() => {
+        setFiltersOpen(true);
+      });
+    });
+  }, [clearRailAnimTimeout, useScrollRail]);
+
+  const beginCollapseFilterRail = useCallback(() => {
+    if (!useScrollRail) return;
+    if (!filtersExpandedRef.current) {
+      setFiltersOpen(false);
+      return;
+    }
+    setFiltersOpen(false);
+    clearRailAnimTimeout();
+    filterAnimTimeoutRef.current = window.setTimeout(() => {
+      setFiltersExpanded(false);
+      filterAnimTimeoutRef.current = null;
+    }, FILTER_PILLS_TOGGLE_ANIM_MS);
+  }, [clearRailAnimTimeout, useScrollRail]);
+
+  const toggleFilterRail = useCallback(() => {
+    if (disabled || !useScrollRail) return;
+    if (filtersExpandedRef.current && filtersOpenRef.current) {
+      beginCollapseFilterRail();
+      return;
+    }
+    expandFilterRail();
+  }, [beginCollapseFilterRail, disabled, expandFilterRail, useScrollRail]);
+
+  useEffect(() => {
+    filtersExpandedRef.current = filtersExpanded;
+    filtersOpenRef.current = filtersOpen;
+  }, [filtersExpanded, filtersOpen]);
+
+  useEffect(
+    () => () => {
+      clearRailAnimTimeout();
+    },
+    [clearRailAnimTimeout]
+  );
+
+  useEffect(() => {
+    if (!useScrollRail) return;
+    if (hasActiveFilters && !filtersExpandedRef.current) {
+      expandFilterRail();
+    }
+  }, [expandFilterRail, hasActiveFilters, useScrollRail]);
+
   const {
     viewportRef,
     canScrollLeft,
@@ -329,12 +405,7 @@ export default function MgFilterPills({
     hasOverflow,
     scrollLeft,
     scrollRight,
-  } = useFilterPillsScrollRail(useScrollRail);
-
-  const hasActiveFilters = useMemo(() => {
-    if (hasActiveFiltersProp != null) return Boolean(hasActiveFiltersProp);
-    return filterFields.some((field) => isErpFilterActive(appliedValues[field.key]));
-  }, [appliedValues, filterFields, hasActiveFiltersProp]);
+  } = useFilterPillsScrollRail(useScrollRail && filtersExpanded);
 
   const handleConfigButtonClick = () => {
     if (disabled) return;
@@ -380,65 +451,93 @@ export default function MgFilterPills({
   );
 
   const configButton = onConfigureFilters || onClear ? (
-    <div className="mg-filter-pills-rail__config-slot">
-      <button
-        type="button"
-        className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
-          hasActiveFilters ? " is-clear-active tb-btn-danger" : filterPanelActive ? " tb-btn-filter-active is-active" : ""
-        }`}
-        onClick={handleConfigButtonClick}
-        disabled={disabled}
-        aria-label={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
-        title={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
-        aria-pressed={hasActiveFilters ? false : filterPanelActive}
-      >
-        {hasActiveFilters ? (
-          <FunnelX className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
-        ) : (
-          <FunnelPlus className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
-        )}
-      </button>
-    </div>
+    <button
+      type="button"
+      className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
+        hasActiveFilters ? " is-clear-active tb-btn-danger" : filterPanelActive ? " tb-btn-filter-active is-active" : ""
+      }`}
+      onClick={handleConfigButtonClick}
+      disabled={disabled}
+      aria-label={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
+      title={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
+      aria-pressed={hasActiveFilters ? false : filterPanelActive}
+    >
+      {hasActiveFilters ? (
+        <FunnelX className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+      ) : (
+        <FunnelPlus className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+      )}
+    </button>
   ) : null;
 
   if (!useScrollRail) {
     return (
       <div className={`mg-filter-pills${className ? ` ${className}` : ""}`}>
-        {configButton}
+        {configButton ? (
+          <div className="mg-filter-pills-rail__config-slot">{configButton}</div>
+        ) : null}
         {pills}
       </div>
     );
   }
 
   return (
-    <div className={`mg-filter-pills-rail mg-filter-pills-rail--track${className ? ` ${className}` : ""}`}>
-      {configButton}
-      {hasOverflow ? (
-        <button
-          type="button"
-          className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--prev"
-          onClick={scrollLeft}
-          disabled={disabled || !canScrollLeft}
-          aria-label="Rolar filtros para a esquerda"
-          title="Rolar filtros para a esquerda"
-        >
-          <ChevronLeft className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
-        </button>
-      ) : null}
-      <div ref={viewportRef} className="mg-filter-pills-rail__viewport">
-        <div className="mg-filter-pills">{pills}</div>
-      </div>
-      {hasOverflow ? (
-        <button
-          type="button"
-          className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--next"
-          onClick={scrollRight}
-          disabled={disabled || !canScrollRight}
-          aria-label="Rolar filtros para a direita"
-          title="Rolar filtros para a direita"
-        >
-          <ChevronRight className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
-        </button>
+    <div
+      className={`mg-filter-pills-rail mg-filter-pills-rail--track${filtersExpanded ? " is-expanded" : ""}${
+        filtersOpen ? " is-open" : ""
+      }${className ? ` ${className}` : ""}`}
+    >
+      <button
+        type="button"
+        className={`ios-btn mg-nav-btn mg-filter-pills-rail__toggle${filtersExpanded ? " is-active" : ""}`}
+        onClick={toggleFilterRail}
+        disabled={disabled}
+        aria-label={filtersExpanded ? "Recolher faixa de filtros" : "Mostrar faixa de filtros"}
+        title={filtersExpanded ? "Recolher faixa de filtros" : "Mostrar faixa de filtros"}
+        aria-expanded={filtersExpanded && filtersOpen}
+      >
+        {filtersExpanded ? (
+          <ListX className="mg-filter-pills-rail__toggle-icon" strokeWidth={2.2} aria-hidden="true" />
+        ) : (
+          <ListPlus className="mg-filter-pills-rail__toggle-icon" strokeWidth={2.2} aria-hidden="true" />
+        )}
+      </button>
+      {filtersExpanded ? (
+        <div className="mg-filter-pills-rail__content" aria-hidden={!filtersOpen}>
+          {hasOverflow ? (
+            <button
+              type="button"
+              className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--prev"
+              onClick={scrollLeft}
+              disabled={disabled || !canScrollLeft}
+              aria-label="Rolar filtros para a esquerda"
+              title="Rolar filtros para a esquerda"
+            >
+              <ChevronLeft className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
+            </button>
+          ) : null}
+          <div ref={viewportRef} className="mg-filter-pills-rail__viewport">
+            <div className="mg-filter-pills">{pills}</div>
+          </div>
+          {hasOverflow ? (
+            <button
+              type="button"
+              className="ios-btn mg-nav-btn mg-filter-pills-rail__nav mg-filter-pills-rail__nav--next"
+              onClick={scrollRight}
+              disabled={disabled || !canScrollRight}
+              aria-label="Rolar filtros para a direita"
+              title="Rolar filtros para a direita"
+            >
+              <ChevronRight className="mg-filter-pills-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
+            </button>
+          ) : null}
+          {configButton ? (
+            <>
+              <span className="mg-filter-pills-rail__divider" aria-hidden="true" />
+              <div className="mg-filter-pills-rail__config-slot">{configButton}</div>
+            </>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );
