@@ -801,18 +801,25 @@
 
 .mg-empresas-scope #mode-registro .mg-form-scroll .erp-scroll-nav__viewport {
   overflow-y: auto;
-  padding-bottom: 6px;
+  padding: 3px 3px 12px;
   box-sizing: border-box;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll.erp-scroll-nav,
+.mg-empresas-scope .mg-panel-sidebar-layout__scroll.erp-scroll-nav {
+  overflow: visible;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
   padding-top: 8px;
   padding-left: 8px;
+  padding-bottom: 4px;
   display: flex;
   flex-direction: column;
   min-height: 0;
   flex: 1 1 auto;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .mg-panel-sidebar-body,
@@ -841,11 +848,12 @@
   border-radius: 12px;
   background: var(--mg-container-bg);
   box-shadow: var(--mg-launch-card-shadow);
-  padding: 8px;
+  padding: 8px 8px 12px;
   align-self: stretch;
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout__content {
@@ -872,7 +880,7 @@
 .mg-empresas-scope .mg-panel-sidebar-layout__scroll .erp-scroll-nav__viewport {
   min-height: 0;
   flex: 1 1 auto;
-  padding-bottom: 6px;
+  padding: 3px 3px 12px;
   box-sizing: border-box;
 }
 
@@ -1713,7 +1721,7 @@
   grid-template-columns: 1fr;
   gap: var(--mg-cards-layout-gap);
   width: 100%;
-  padding-bottom: 2px;
+  padding: 2px 2px 4px;
   box-sizing: border-box;
 }
 
@@ -1730,6 +1738,8 @@
 .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-slot {
   grid-column: span 1;
   min-width: 0;
+  padding: 2px;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-body {
