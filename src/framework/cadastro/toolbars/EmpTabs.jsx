@@ -97,10 +97,10 @@ export default function EmpTabs({
     return (
       <div className="mg-panel-tabs-rail">
         {leading ? <div className="mg-panel-tabs-rail__leading">{leading}</div> : null}
-        {hasOverflow && canScrollLeft ? (
+        {hasOverflow ? (
           <MgPanelScrollNavButton
             direction="prev"
-            disabled={false}
+            disabled={!canScrollLeft}
             onClick={scrollLeft}
             label="Rolar painéis para a esquerda"
           />
@@ -108,10 +108,10 @@ export default function EmpTabs({
         <div ref={viewportRef} className="mg-panel-tabs-rail__viewport">
           {segControl}
         </div>
-        {hasOverflow && canScrollRight ? (
+        {hasOverflow ? (
           <MgPanelScrollNavButton
             direction="next"
-            disabled={false}
+            disabled={!canScrollRight}
             onClick={scrollRight}
             label="Rolar painéis para a direita"
           />
