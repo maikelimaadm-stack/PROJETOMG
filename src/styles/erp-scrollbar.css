@@ -7,12 +7,12 @@
 :root,
 .tema-claro,
 [data-tema="claro"] {
-  --erp-scrollbar-size: 10px;
-  --erp-scrollbar-thumb: #6f7d8a;
-  --erp-scrollbar-thumb-hover: #62717d;
-  --erp-scrollbar-thumb-active: #57646f;
-  --erp-scrollbar-track: #e9ecef;
-  --erp-scrollbar-bg: #e9ecef;
+  --erp-scrollbar-size: 9px;
+  --erp-scrollbar-thumb: #657485;
+  --erp-scrollbar-thumb-hover: #5b6a7a;
+  --erp-scrollbar-thumb-active: #515f6e;
+  --erp-scrollbar-track: #e6eaee;
+  --erp-scrollbar-bg: #e6eaee;
   --erp-scrollbar-radius: 999px;
   --erp-scrollbar-min-thumb-size: 24px;
 }
