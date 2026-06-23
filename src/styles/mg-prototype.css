@@ -7396,17 +7396,19 @@
   --emp-table-header-line: #ffffff;
   --emp-table-header-side-line: #e7eaee;
   --emp-table-header-height: 30px;
-  border: none !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border-bottom: 0 !important;
   box-shadow: none !important;
-  border-radius: 12px 12px 0 0 !important;
+  border-radius: 14px 14px 0 0 !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock,
 .mg-empresas-scope #mode-cards .emp-cards-bottom-dock {
   --emp-table-band-bg: #ffffff;
   --emp-table-band-edge: #e7eaee;
-  border: none !important;
-  border-radius: 0 0 12px 12px !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 14px 14px !important;
   overflow: hidden !important;
   background: #ffffff !important;
   box-shadow: none !important;
