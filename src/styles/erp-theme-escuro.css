@@ -913,6 +913,7 @@ html.tema-escuro .mg-empresas-scope .mg-panel-list__tab.is-active,
 html.escuro .mg-empresas-scope .mg-panel-list__tab.is-active {
   color: #e6edf3;
   background: rgba(64, 222, 99, 0.2);
+  font-weight: 700;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip::after,
