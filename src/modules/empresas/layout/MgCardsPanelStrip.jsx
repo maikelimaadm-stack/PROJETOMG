@@ -292,7 +292,7 @@ export default function MgCardsPanelStrip({
         >
           <button
             type="button"
-            className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${layoutOpen ? " is-open" : ""}`}
+            className={`botao-icone-soft botao-icone-soft--sm ios-btn mg-nav-btn mg-cards-panel-strip__config-btn${layoutOpen ? " is-open" : ""}`}
             onClick={toggleLayout}
             disabled={disabled}
             title="Configurar layout dos cards"
@@ -334,7 +334,7 @@ export default function MgCardsPanelStrip({
         >
           <button
             type="button"
-            className={`mg-nav-btn ios-btn mg-cards-panel-strip__config-btn${fieldsOpen ? " is-open" : ""}`}
+            className={`botao-icone-soft botao-icone-soft--sm ios-btn mg-nav-btn mg-cards-panel-strip__config-btn${fieldsOpen ? " is-open" : ""}`}
             onClick={toggleFields}
             disabled={disabled}
             title="Configurar campos dos cards"

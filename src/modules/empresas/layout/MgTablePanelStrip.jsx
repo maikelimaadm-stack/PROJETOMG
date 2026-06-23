@@ -47,7 +47,7 @@ export default function MgTablePanelStrip({
         <div className="mg-table-panel-strip__action">
           <button
             type="button"
-            className="mg-nav-btn ios-btn mg-table-panel-strip__config-btn"
+            className="botao-icone-soft botao-icone-soft--sm ios-btn mg-nav-btn mg-table-panel-strip__config-btn"
             onClick={onConfigColumns}
             disabled={disabled || !onConfigColumns}
             title="Configurar colunas da tabela"

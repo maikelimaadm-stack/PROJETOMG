@@ -302,7 +302,7 @@ export default function MgSearchResultsDropdown({
             </button>
             <button
               type="button"
-              className="ios-btn mg-search-dropdown__config-btn mg-search-dropdown__config-btn--icon-only"
+              className="ios-btn botao-icone-soft botao-icone-soft--xs mg-search-dropdown__config-btn mg-search-dropdown__config-btn--icon-only"
               aria-label="Configurar campos da pesquisa"
               aria-expanded={false}
               onMouseDown={(event) => event.preventDefault()}

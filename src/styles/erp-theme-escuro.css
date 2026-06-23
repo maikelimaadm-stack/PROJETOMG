@@ -98,6 +98,14 @@ html.escuro .mg-empresas-scope {
   --mg-field-view-text: #848d97;
   --mg-field-surface-border: 1px solid #484f58;
   --mg-btn-pill-border: 1px solid #484f58;
+  --mg-btn-icon-soft-bg: #21262d;
+  --mg-btn-icon-soft-border: #484f58;
+  --mg-btn-icon-soft-color: #848d97;
+  --mg-btn-icon-soft-shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 4px 10px rgba(0, 0, 0, 0.15);
+  --mg-btn-icon-soft-bg-hover: #30363d;
+  --mg-btn-icon-soft-border-hover: #6e7681;
+  --mg-btn-icon-soft-color-hover: #e6edf3;
+  --mg-btn-icon-soft-shadow-hover: 0 2px 4px rgba(0, 0, 0, 0.24), 0 8px 18px rgba(0, 0, 0, 0.2);
   --erp-border-line: #484f58;
   --mg-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
   --mg-card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.32);
@@ -1681,6 +1689,7 @@ html.tema-escuro .mg-empresas-scope :is(
   .tb-btn-more,
   .mg-topbar-icon-btn,
   .mg-accent-icon-btn,
+  .botao-icone-soft,
   .mg-nav-btn,
   .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete),
   .emp-header-ctrl,
@@ -1695,6 +1704,7 @@ html.escuro .mg-empresas-scope :is(
   .tb-btn-more,
   .mg-topbar-icon-btn,
   .mg-accent-icon-btn,
+  .botao-icone-soft,
   .mg-nav-btn,
   .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete),
   .emp-header-ctrl,
@@ -1711,6 +1721,7 @@ html.tema-escuro .cadastro-emp-scope.mg-empresas-scope :is(
   .tb-btn-filter,
   .tb-btn-more,
   .mg-accent-icon-btn,
+  .botao-icone-soft,
   .mg-nav-btn,
   .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete),
   .emp-header-ctrl,
@@ -1723,6 +1734,7 @@ html.escuro .cadastro-emp-scope.mg-empresas-scope :is(
   .tb-btn-filter,
   .tb-btn-more,
   .mg-accent-icon-btn,
+  .botao-icone-soft,
   .mg-nav-btn,
   .emp-toolbar-btn:not(.emp-toolbar-btn-new):not(.emp-toolbar-btn-save):not(.emp-toolbar-btn-delete),
   .emp-header-ctrl,

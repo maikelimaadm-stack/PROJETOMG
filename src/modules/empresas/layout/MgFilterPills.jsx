@@ -383,7 +383,7 @@ export default function MgFilterPills({
     <div className="mg-filter-pills-rail__config-slot">
       <button
         type="button"
-        className={`ios-btn mg-filter-pills-rail__config mg-filter-pills-rail__config--icon-only${
+        className={`ios-btn botao-icone-soft botao-icone-soft--sm mg-filter-pills-rail__config mg-filter-pills-rail__config--icon-only${
           hasActiveFilters ? " is-clear-active" : filterPanelActive ? " is-active" : ""
         }`}
         onClick={handleConfigButtonClick}
