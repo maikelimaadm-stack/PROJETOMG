@@ -1192,18 +1192,16 @@ export default function TBLEMP({
       if (!nextRecord?.id) return;
       e.preventDefault();
       lastSelectedIdRef.current = nextRecord.id;
-      setSelectedItems([nextRecord.id]);
       const visibleIndex = linhasExibidas.findIndex((item) => item?.id === nextRecord.id);
-      const scrollDirection = step < 0 ? "up" : "down";
-      requestAnimationFrame(() => {
-        const body = scrollContainerRef.current;
-        if (!body || visibleIndex < 0) return;
+      const body = scrollContainerRef.current;
+      if (body && visibleIndex >= 0) {
         scrollVirtualRowIntoView(body, visibleIndex, {
           itemSize: EMP_TABLE_ROW_HEIGHT,
-          direction: scrollDirection,
+          direction: step < 0 ? "up" : "down",
           stickyHeaderOffset: EMP_TABLE_ROW_HEIGHT,
         });
-      });
+      }
+      setSelectedItems([nextRecord.id]);
       return;
     }
 

@@ -7,12 +7,15 @@ import {
   getEmpSearchInitials,
 } from "@/modules/empresas/components/empSearchView.constants";
 import {
+  CARD_GRID_GAP,
+  CARDS_TOP_PADDING,
   estimateCardRowHeight,
   useGridVirtualizer,
 } from "@/shared/hooks/useGridVirtualizer";
-import { resolveVirtualScrollAlign } from "@/shared/utils/virtualScrollIntoView";
-
-const CARDS_TOP_PADDING = 8;
+import {
+  resolveSelectionScrollDirection,
+  scrollVirtualRowIntoView,
+} from "@/shared/utils/virtualScrollIntoView";
 
 function MgCardsVirtualGrid({
   scrollRef,
@@ -75,11 +78,20 @@ function MgCardsVirtualGrid({
     const previousIndex = previousSelectionIndexRef.current;
     previousSelectionIndexRef.current = itemIndex;
 
-    const rowIndex = Math.floor(itemIndex / Math.max(1, cardsPerRow));
-    const align = resolveVirtualScrollAlign(previousIndex, itemIndex);
+    const direction = resolveSelectionScrollDirection(previousIndex, itemIndex);
+    if (!direction) return;
 
-    virtualizer.scrollToIndex(rowIndex, { align });
-  }, [virtualizer, activeSelectionId, items, cardsPerRow]);
+    const scrollEl = scrollRef.current;
+    if (!scrollEl) return;
+
+    const rowIndex = Math.floor(itemIndex / Math.max(1, cardsPerRow));
+    scrollVirtualRowIntoView(scrollEl, rowIndex, {
+      itemSize: fixedRowHeight + CARD_GRID_GAP,
+      rowSize: fixedRowHeight,
+      scrollOffset: CARDS_TOP_PADDING,
+      direction,
+    });
+  }, [activeSelectionId, items, cardsPerRow, fixedRowHeight, scrollRef]);
 
   if (items.length === 0) return null;
 
