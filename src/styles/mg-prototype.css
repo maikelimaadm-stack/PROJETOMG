@@ -705,23 +705,6 @@
   align-self: center;
 }
 
-.mg-empresas-scope .mg-panel-tabs-rail__nav:not(:disabled),
-.mg-empresas-scope .mg-panel-tabs-rail__leading .mg-panel-style-toggle:not(:disabled) {
-  background: #ffffff !important;
-  border: var(--mg-btn-pill-border) !important;
-  box-shadow: none !important;
-}
-
-.mg-empresas-scope .mg-panel-tabs-rail__nav:not(:disabled):hover,
-.mg-empresas-scope .mg-panel-tabs-rail__leading .mg-panel-style-toggle:not(:disabled):hover {
-  background: #ffffff !important;
-}
-
-.mg-empresas-scope .mg-panel-tabs-rail__nav.is-active:not(:disabled),
-.mg-empresas-scope .mg-panel-tabs-rail__leading .mg-panel-style-toggle.is-active:not(:disabled) {
-  background: #ffffff !important;
-}
-
 .mg-empresas-scope .mg-panel-tabs-rail__nav-icon {
   width: 13px;
   height: 13px;
@@ -8801,6 +8784,28 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
+}
+
+/* Painéis — botões da faixa (toggle + scroll) com fundo branco */
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled),
+.mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled) {
+  background: #ffffff !important;
+  border: var(--mg-btn-pill-border) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled):hover,
+.mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled):hover {
+  background: #ffffff !important;
+  border: var(--mg-btn-pill-border) !important;
+  box-shadow: none !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail .mg-panel-style-toggle.is-active:not(:disabled),
+.mg-empresas-scope .mg-panel-tabs-rail .mg-panel-style-toggle.is-active:not(:disabled) {
+  background: #ffffff !important;
+  border-color: var(--mg-focus-border) !important;
+  box-shadow: var(--mg-focus-ring) !important;
 }
 
 /* ── ERP Global Filter Popover ── */

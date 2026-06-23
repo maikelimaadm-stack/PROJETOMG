@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
@@ -57,7 +57,13 @@ export default function EmpTabs({
     hasOverflow,
     scrollLeft,
     scrollRight,
+    updateScrollState,
   } = useHorizontalScrollRail({ enabled: variant === "mg" });
+
+  useLayoutEffect(() => {
+    if (variant !== "mg") return;
+    updateScrollState();
+  }, [variant, tabs, activeTab, leading, updateScrollState]);
 
   if (!tabs.length) return null;
 
@@ -91,10 +97,10 @@ export default function EmpTabs({
     return (
       <div className="mg-panel-tabs-rail">
         {leading ? <div className="mg-panel-tabs-rail__leading">{leading}</div> : null}
-        {hasOverflow ? (
+        {hasOverflow && canScrollLeft ? (
           <MgPanelScrollNavButton
             direction="prev"
-            disabled={!canScrollLeft}
+            disabled={false}
             onClick={scrollLeft}
             label="Rolar painéis para a esquerda"
           />
@@ -102,10 +108,10 @@ export default function EmpTabs({
         <div ref={viewportRef} className="mg-panel-tabs-rail__viewport">
           {segControl}
         </div>
-        {hasOverflow ? (
+        {hasOverflow && canScrollRight ? (
           <MgPanelScrollNavButton
             direction="next"
-            disabled={!canScrollRight}
+            disabled={false}
             onClick={scrollRight}
             label="Rolar painéis para a direita"
           />
