@@ -437,7 +437,6 @@ html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-c
   border: var(--mg-launch-card-border) !important;
   box-shadow: var(--mg-launch-card-shadow) !important;
   overflow: visible !important;
-  padding-bottom: 18px !important;
 }
 
 html.tema-escuro .mg-empresas-scope .filter-panel__inner,

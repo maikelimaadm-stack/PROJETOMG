@@ -801,7 +801,7 @@
 
 .mg-empresas-scope #mode-registro .mg-form-scroll .erp-scroll-nav__viewport {
   overflow-y: auto;
-  padding: 3px 3px 12px;
+  padding-bottom: 12px;
   box-sizing: border-box;
 }
 
@@ -880,7 +880,7 @@
 .mg-empresas-scope .mg-panel-sidebar-layout__scroll .erp-scroll-nav__viewport {
   min-height: 0;
   flex: 1 1 auto;
-  padding: 3px 3px 12px;
+  padding-bottom: 12px;
   box-sizing: border-box;
 }
 
@@ -1721,7 +1721,7 @@
   grid-template-columns: 1fr;
   gap: var(--mg-cards-layout-gap);
   width: 100%;
-  padding: 2px 2px 4px;
+  padding-bottom: 4px;
   box-sizing: border-box;
 }
 
@@ -1738,8 +1738,6 @@
 .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-slot {
   grid-column: span 1;
   min-width: 0;
-  padding: 2px;
-  box-sizing: border-box;
 }
 
 .mg-empresas-scope .mg-prototype-cards-layout .emp-form-card-body {
