@@ -417,15 +417,29 @@ html.escuro .mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card):hover 
   box-shadow: var(--mg-selection-panel-shadow) !important;
 }
 
-html.tema-escuro .mg-empresas-scope .erp-card,
-html.tema-escuro .mg-empresas-scope .mg-emp-card,
-html.tema-escuro .mg-empresas-scope .emp-form-card,
-html.escuro .mg-empresas-scope .erp-card,
-html.escuro .mg-empresas-scope .mg-emp-card,
-html.escuro .mg-empresas-scope .emp-form-card {
+html.tema-escuro .mg-empresas-scope .erp-card:not(.mg-emp-card):not(.emp-form-card),
+html.tema-escuro .mg-empresas-scope .mg-emp-card:not(.emp-form-card),
+html.tema-escuro .mg-empresas-scope .emp-form-card:not(.mg-emp-card),
+html.escuro .mg-empresas-scope .erp-card:not(.mg-emp-card):not(.emp-form-card),
+html.escuro .mg-empresas-scope .mg-emp-card:not(.emp-form-card),
+html.escuro .mg-empresas-scope .emp-form-card:not(.mg-emp-card) {
   background: var(--bg-card) !important;
   border-color: rgba(255, 255, 255, 0.24) !important;
   box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.tema-escuro .mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+html.escuro .mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.escuro .mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card {
+  background: var(--mg-container-bg) !important;
+  border: var(--mg-launch-card-border) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
+  overflow: visible !important;
 }
 
 html.tema-escuro .mg-empresas-scope .filter-panel__inner,
@@ -441,6 +455,16 @@ html.escuro .mg-empresas-scope .mg-cards-config-menu {
   background: var(--bg-card) !important;
   border-color: var(--border) !important;
   color: var(--text-1);
+}
+
+html.tema-escuro .mg-empresas-scope .filter-panel.open,
+html.escuro .mg-empresas-scope .filter-panel.open {
+  padding-bottom: 4px;
+}
+
+html.tema-escuro .mg-empresas-scope .filter-panel__footer,
+html.escuro .mg-empresas-scope .filter-panel__footer {
+  padding-bottom: 14px;
 }
 
 html.tema-escuro .mg-empresas-scope .filter-panel__inner input,
@@ -891,6 +915,7 @@ html.escuro .mg-empresas-scope .mg-panel-sidebar-layout__tabs {
   background: var(--mg-container-bg);
   border-color: transparent;
   box-shadow: var(--mg-launch-card-shadow);
+  padding-bottom: 10px;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-panel-list__leading,
@@ -1110,10 +1135,10 @@ html.escuro .cadastro-emp-scope :where(.text-slate-400) {
 }
 
 html.tema-escuro .cadastro-emp-scope .emp-form-section-panel,
-html.tema-escuro .cadastro-emp-scope .emp-form-card,
+html.tema-escuro .cadastro-emp-scope .emp-form-card:not(.mg-emp-card),
 html.tema-escuro .cadastro-emp-scope .emp-form-fields-grid,
 html.escuro .cadastro-emp-scope .emp-form-section-panel,
-html.escuro .cadastro-emp-scope .emp-form-card,
+html.escuro .cadastro-emp-scope .emp-form-card:not(.mg-emp-card),
 html.escuro .cadastro-emp-scope .emp-form-fields-grid {
   background: transparent !important;
   border-color: #30363d !important;

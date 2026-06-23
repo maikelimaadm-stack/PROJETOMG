@@ -280,6 +280,12 @@
   overflow: hidden;
 }
 
+.mg-empresas-scope .mg-prototype-form .mg-motion-panel,
+.mg-empresas-scope .mg-prototype-form .mg-motion-panel__content {
+  overflow: visible;
+  min-height: auto;
+}
+
 .mg-empresas-scope .mg-motion-panel__content {
   flex: 1 1 auto;
   min-height: 0;
@@ -795,6 +801,8 @@
 
 .mg-empresas-scope #mode-registro .mg-form-scroll .erp-scroll-nav__viewport {
   overflow-y: auto;
+  padding-bottom: 6px;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
@@ -850,7 +858,7 @@
   border-radius: 0;
   box-shadow: none;
   background: transparent;
-  overflow: hidden;
+  overflow: visible;
   padding: 0;
 }
 
@@ -864,6 +872,8 @@
 .mg-empresas-scope .mg-panel-sidebar-layout__scroll .erp-scroll-nav__viewport {
   min-height: 0;
   flex: 1 1 auto;
+  padding-bottom: 6px;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .mg-panel-list {
@@ -1703,6 +1713,8 @@
   grid-template-columns: 1fr;
   gap: var(--mg-cards-layout-gap);
   width: 100%;
+  padding-bottom: 2px;
+  box-sizing: border-box;
 }
 
 @media (min-width: 768px) {
@@ -2255,6 +2267,9 @@
   opacity: 1;
   border-right-width: var(--mg-divider-width);
   overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 2px;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .filter-panel__inner {
@@ -2265,6 +2280,8 @@
   flex-direction: column;
   transform: translateX(-10px);
   opacity: 0;
+  overflow: visible;
+  box-sizing: border-box;
   transition:
     transform var(--mg-motion-duration) var(--mg-motion-ease),
     opacity var(--mg-motion-duration) var(--mg-motion-ease);
@@ -3823,7 +3840,8 @@
   flex: 0 1 auto;
   min-width: 0;
   max-width: min(100%, 52%);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail {
@@ -3843,7 +3861,8 @@
   background: transparent;
   border: none;
   border-radius: var(--mg-search-pill-radius);
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__toggle {
@@ -8332,7 +8351,7 @@
   width: 280px !important;
   min-width: 280px !important;
   max-width: min(320px, calc(100vw - 24px)) !important;
-  padding: 0 !important;
+  padding: 0 0 4px !important;
   box-sizing: border-box;
   overflow-x: hidden;
   overflow-y: auto;
