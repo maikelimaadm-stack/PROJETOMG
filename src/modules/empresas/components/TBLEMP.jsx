@@ -836,7 +836,7 @@ export default function TBLEMP({
   }, []);
   const getRowBgClass = useCallback((index, selected) => {
     if (selected) return "emp-row-selected";
-    return "emp-row-even";
+    return index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
   }, []);
   const renderSelectHeaderCell = () => (
     <TableHead
@@ -1235,6 +1235,7 @@ export default function TBLEMP({
     const footer = footerScrollRef.current;
     const header = headerScrollRef.current;
     if (!body) return undefined;
+
     const syncHorizontalScroll = () => {
       // Evita subpixel na rolagem horizontal para manter as linhas da grade alinhadas.
       const rawLeft = body.scrollLeft;
@@ -1243,23 +1244,36 @@ export default function TBLEMP({
         body.scrollLeft = snappedLeft;
       }
       const left = body.scrollLeft;
+      if (footer) footer.scrollLeft = left;
+      if (header && !mgPrototype) header.scrollLeft = left;
+    };
+
+    const syncScrollbarCompensation = () => {
       const nextCompensation = Math.max(0, body.offsetWidth - body.clientWidth);
       if (Math.abs(scrollbarCompensationRef.current - nextCompensation) >= 1) {
         scrollbarCompensationRef.current = nextCompensation;
         setScrollbarCompensation(nextCompensation);
       }
-      if (footer) footer.scrollLeft = left;
-      if (header && !mgPrototype) header.scrollLeft = left;
     };
+
+    const onScroll = () => {
+      syncHorizontalScroll();
+    };
+
+    const onResize = () => {
+      syncHorizontalScroll();
+      syncScrollbarCompensation();
+    };
+
     const resizeObserver =
       typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(syncHorizontalScroll)
+        ? new ResizeObserver(onResize)
         : null;
     resizeObserver?.observe(body);
-    body.addEventListener("scroll", syncHorizontalScroll, { passive: true });
-    syncHorizontalScroll();
+    body.addEventListener("scroll", onScroll, { passive: true });
+    onResize();
     return () => {
-      body.removeEventListener("scroll", syncHorizontalScroll);
+      body.removeEventListener("scroll", onScroll);
       resizeObserver?.disconnect();
     };
   }, [colunasOrdenadas, columnWidths, agregacoes, mgPrototype]);

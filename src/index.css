@@ -282,7 +282,8 @@ input[type="number"] {
   --emp-table-bg: var(--background-card);
   --emp-table-band-bg: #f2f5f9;
   --emp-table-row-selected-bg: #d9e0e8;
-  --emp-table-row-alt-bg: var(--background-card);
+  --emp-table-row-alt-bg: #fafbfc;
+  --emp-table-row-hover-bg: #eef6ff;
   --emp-table-line: #d9e1eb;
   --emp-table-band-edge: #d1d9e5;
   --emp-table-data-height: 26px;
@@ -1618,10 +1619,19 @@ input[type="number"] {
   text-align: left !important;
 }
 
-.cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td,
-.cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
-  background: #ffffff !important;
+.cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
+  background: var(--emp-table-bg, #ffffff) !important;
   color: #344054 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
+  background: var(--emp-table-row-alt-bg, #fafbfc) !important;
+  color: #344054 !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+.cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td {
+  background: var(--emp-table-row-hover-bg, #eef6ff) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
