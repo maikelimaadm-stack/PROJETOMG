@@ -67,7 +67,6 @@ export default function EmpTabs({
   if (isMg) {
     const segControl = (
       <div className="seg-control" role="tablist" ref={segRef}>
-        {leading ? <div className="seg-control__leading">{leading}</div> : null}
         <div className="seg-tab-slider" ref={sliderRef} aria-hidden="true" />
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
@@ -91,6 +90,7 @@ export default function EmpTabs({
 
     return (
       <div className="mg-panel-tabs-rail">
+        {leading ? <div className="mg-panel-tabs-rail__leading">{leading}</div> : null}
         {hasOverflow ? (
           <MgPanelScrollNavButton
             direction="prev"
