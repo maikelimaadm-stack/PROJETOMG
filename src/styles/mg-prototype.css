@@ -282,27 +282,18 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  opacity: 0;
-  transform: translateY(6px);
-  transition:
-    opacity var(--mg-motion-duration) var(--mg-motion-ease),
-    transform var(--mg-motion-duration) var(--mg-motion-ease);
+  opacity: 1;
+  transform: none;
 }
 
-.mg-empresas-scope .mg-motion-panel__content.mg-motion-panel--visible {
-  opacity: 1;
-  transform: translateY(0);
+.mg-empresas-scope .mg-motion-panel__content.mg-motion-panel--animate {
+  animation: mg-motion-panel-fade var(--mg-motion-duration) var(--mg-motion-ease) both;
 }
 
 .mg-empresas-scope .mg-motion-panel__content.mg-motion-panel--instant {
   opacity: 1;
   transform: none;
-  transition: none;
-}
-
-.mg-empresas-scope .mg-motion-panel--visible {
-  opacity: 1;
-  transform: none;
+  animation: none;
 }
 
 .mg-empresas-scope .mg-motion-swap--text {
@@ -325,6 +316,18 @@
   from {
     opacity: 0;
     transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes mg-motion-panel-fade {
+  from {
+    opacity: 0.55;
+    transform: translateY(2px);
   }
 
   to {
@@ -739,8 +742,16 @@
   z-index: 1;
 }
 
+.mg-empresas-scope #mode-registro .mg-form-scroll .erp-scroll-nav__viewport {
+  scrollbar-gutter: stable both-edges;
+}
+
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
   padding-top: 8px;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll--panel-sidebar .erp-scroll-nav__viewport {
+  overflow-y: scroll;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout {
@@ -768,6 +779,7 @@
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout__content {
