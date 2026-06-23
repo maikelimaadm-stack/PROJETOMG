@@ -3678,7 +3678,7 @@
 .mg-empresas-scope .mg-filter-pills-rail {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   min-width: 0;
   width: 100%;
 }
