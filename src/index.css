@@ -3312,7 +3312,7 @@ select.erp-field-invalid {
   min-width: 0;
 }
 
-.cadastro-emp-scope .emp-form-card:not(.emp-form-card--virtual) {
+.cadastro-emp-scope .emp-form-card:not(.emp-form-card--virtual):not(.mg-emp-card) {
   overflow: hidden;
 }
 

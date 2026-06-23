@@ -67,11 +67,8 @@ html.escuro .mg-empresas-scope {
   --mg-container-bg: #161b22;
   --mg-container-edge-glow: inset 0 1px 0 rgba(255, 255, 255, 0.04), inset 0 1px 2px rgba(0, 0, 0, 0.24);
   --mg-container-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
-  --mg-launch-card-border: 1px solid transparent;
-  --mg-launch-card-shadow:
-    0 1px 2px rgba(0, 0, 0, 0.34),
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 0 0 2px rgba(72, 79, 88, 0.58);
+  --mg-launch-card-border: 1px solid rgba(72, 79, 88, 0.98);
+  --mg-launch-card-shadow: 0 1px 3px rgba(0, 0, 0, 0.32);
   --mg-section-divider-color: #484f58;
   --mg-section-divider-border: 1px solid rgba(72, 79, 88, 0.92);
   --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
@@ -102,6 +99,7 @@ html.escuro .mg-empresas-scope {
   --mg-field-view-text: #848d97;
   --mg-field-surface-border: 1px solid #484f58;
   --mg-btn-pill-border: 1px solid #484f58;
+  --mg-panel-rail-btn-border: 1px solid #21262d;
   --erp-border-line: #484f58;
   --mg-card-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
   --mg-card-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.32);
@@ -416,15 +414,29 @@ html.escuro .mg-empresas-scope .mg-emp-card--selected:not(.emp-form-card):hover 
   box-shadow: var(--mg-selection-panel-shadow) !important;
 }
 
-html.tema-escuro .mg-empresas-scope .erp-card,
-html.tema-escuro .mg-empresas-scope .mg-emp-card,
-html.tema-escuro .mg-empresas-scope .emp-form-card,
-html.escuro .mg-empresas-scope .erp-card,
-html.escuro .mg-empresas-scope .mg-emp-card,
-html.escuro .mg-empresas-scope .emp-form-card {
+html.tema-escuro .mg-empresas-scope .erp-card:not(.mg-emp-card):not(.emp-form-card),
+html.tema-escuro .mg-empresas-scope .mg-emp-card:not(.emp-form-card),
+html.tema-escuro .mg-empresas-scope .emp-form-card:not(.mg-emp-card),
+html.escuro .mg-empresas-scope .erp-card:not(.mg-emp-card):not(.emp-form-card),
+html.escuro .mg-empresas-scope .mg-emp-card:not(.emp-form-card),
+html.escuro .mg-empresas-scope .emp-form-card:not(.mg-emp-card) {
   background: var(--bg-card) !important;
   border-color: rgba(255, 255, 255, 0.24) !important;
   box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.tema-escuro .mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.tema-escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+html.escuro .mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.escuro .mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
+html.escuro .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card {
+  background: var(--mg-container-bg) !important;
+  border: var(--mg-launch-card-border) !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
+  overflow: visible !important;
 }
 
 html.tema-escuro .mg-empresas-scope .filter-panel__inner,
@@ -440,6 +452,16 @@ html.escuro .mg-empresas-scope .mg-cards-config-menu {
   background: var(--bg-card) !important;
   border-color: var(--border) !important;
   color: var(--text-1);
+}
+
+html.tema-escuro .mg-empresas-scope .filter-panel.open,
+html.escuro .mg-empresas-scope .filter-panel.open {
+  padding-bottom: 6px;
+}
+
+html.tema-escuro .mg-empresas-scope .filter-panel__footer,
+html.escuro .mg-empresas-scope .filter-panel__footer {
+  padding-bottom: 14px;
 }
 
 html.tema-escuro .mg-empresas-scope .filter-panel__inner input,
@@ -888,8 +910,9 @@ html.escuro .mg-empresas-scope #mode-registro {
 html.tema-escuro .mg-empresas-scope .mg-panel-sidebar-layout__tabs,
 html.escuro .mg-empresas-scope .mg-panel-sidebar-layout__tabs {
   background: var(--mg-container-bg);
-  border-color: transparent;
+  border: var(--mg-launch-card-border);
   box-shadow: var(--mg-launch-card-shadow);
+  padding-bottom: 12px;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-panel-list__leading,
@@ -912,6 +935,7 @@ html.tema-escuro .mg-empresas-scope .mg-panel-list__tab.is-active,
 html.escuro .mg-empresas-scope .mg-panel-list__tab.is-active {
   color: #e6edf3;
   background: rgba(64, 222, 99, 0.2);
+  font-weight: 700;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-panel-tabs-strip::after,
@@ -1108,10 +1132,10 @@ html.escuro .cadastro-emp-scope :where(.text-slate-400) {
 }
 
 html.tema-escuro .cadastro-emp-scope .emp-form-section-panel,
-html.tema-escuro .cadastro-emp-scope .emp-form-card,
+html.tema-escuro .cadastro-emp-scope .emp-form-card:not(.mg-emp-card),
 html.tema-escuro .cadastro-emp-scope .emp-form-fields-grid,
 html.escuro .cadastro-emp-scope .emp-form-section-panel,
-html.escuro .cadastro-emp-scope .emp-form-card,
+html.escuro .cadastro-emp-scope .emp-form-card:not(.mg-emp-card),
 html.escuro .cadastro-emp-scope .emp-form-fields-grid {
   background: transparent !important;
   border-color: #30363d !important;

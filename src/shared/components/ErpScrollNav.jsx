@@ -1,12 +1,23 @@
 import React, { forwardRef, useCallback, useEffect, useRef } from "react";
 import { cn } from "@/shared/utils/utils";
-import { isolateScrollWheel } from "@/shared/utils/scrollWheelBoundary";
+import { isolateScrollWheel, isPointerOverScrollbar } from "@/shared/utils/scrollWheelBoundary";
 
 /**
  * Container rolável com scrollbar nativa padronizada (.erp-scrollbar).
+ *
+ * wheelScrollMode:
+ * - "default": rolagem normal com wheel sobre o conteúdo.
+ * - "scrollbar-only": wheel só rola quando o cursor está sobre a barra nativa.
  */
 const ErpScrollNav = forwardRef(function ErpScrollNav(
-  { className, viewportClassName, children, onWheel, ...viewportProps },
+  {
+    className,
+    viewportClassName,
+    children,
+    onWheel,
+    wheelScrollMode = "default",
+    ...viewportProps
+  },
   ref
 ) {
   const viewportRef = useRef(null);
@@ -26,14 +37,21 @@ const ErpScrollNav = forwardRef(function ErpScrollNav(
     const viewport = viewportRef.current;
     if (!viewport) return undefined;
 
+    const scrollbarOnly = wheelScrollMode === "scrollbar-only";
     const handleWheel = (event) => {
+      if (scrollbarOnly && !isPointerOverScrollbar(viewport, event.clientX)) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+
       onWheelRef.current?.(event);
       if (!event.defaultPrevented) isolateScrollWheel(event);
     };
 
-    viewport.addEventListener("wheel", handleWheel, { passive: true });
+    viewport.addEventListener("wheel", handleWheel, { passive: !scrollbarOnly });
     return () => viewport.removeEventListener("wheel", handleWheel);
-  }, []);
+  }, [wheelScrollMode]);
 
   return (
     <div className={cn("erp-scroll-nav", className)}>

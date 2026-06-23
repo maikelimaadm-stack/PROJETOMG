@@ -930,7 +930,15 @@ export default function FORMEMP({
                   leading={panelStyleToggle}
                 />
               </aside>
-              <div className="mg-panel-sidebar-layout__content">{renderMotionPanel()}</div>
+              <div className="mg-panel-sidebar-layout__content">
+                <ErpScrollNav
+                  className="mg-panel-sidebar-layout__scroll min-h-0 flex-1"
+                  viewportClassName="overflow-y-auto"
+                  wheelScrollMode="scrollbar-only"
+                >
+                  {renderMotionPanel()}
+                </ErpScrollNav>
+              </div>
             </div>
           ) : (
             renderMotionPanel()
@@ -1034,14 +1042,25 @@ export default function FORMEMP({
                 />
               </div>
             ) : null}
-            <ErpScrollNav
-              className={`mg-form-scroll mg-prototype-form${
-                isReadOnly ? " mg-prototype-form--readonly" : ""
-              }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}${isSidebarPanelStyle ? " mg-form-scroll--panel-sidebar" : ""}`}
-              viewportClassName="overflow-y-auto"
-            >
-              {renderFormBody(true, launchPanelStyle, launchPanelStyleToggle)}
-            </ErpScrollNav>
+            {isSidebarPanelStyle ? (
+              <div
+                className={`mg-form-scroll mg-prototype-form${
+                  isReadOnly ? " mg-prototype-form--readonly" : ""
+                }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""} mg-form-scroll--panel-sidebar`}
+              >
+                {renderFormBody(true, launchPanelStyle, launchPanelStyleToggle)}
+              </div>
+            ) : (
+              <ErpScrollNav
+                className={`mg-form-scroll mg-prototype-form${
+                  isReadOnly ? " mg-prototype-form--readonly" : ""
+                }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}`}
+                viewportClassName="overflow-y-auto"
+                wheelScrollMode="scrollbar-only"
+              >
+                {renderFormBody(true, launchPanelStyle, launchPanelStyleToggle)}
+              </ErpScrollNav>
+            )}
           </div>
         ) : null}
         {hideToolbar && !editMode && total > 0 && initialData?.id ? (

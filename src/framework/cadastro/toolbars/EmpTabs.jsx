@@ -1,6 +1,8 @@
-import React, { useRef } from "react";
+import React, { useLayoutEffect, useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
+import { useHorizontalScrollRail } from "@/shared/hooks/useHorizontalScrollRail";
 
 export const EMP_SYSTEM_PANEL_IDS = [
   "principais",
@@ -18,6 +20,22 @@ const formatPanelLabel = (value) =>
 
 const isCustomPanel = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 
+function MgPanelScrollNavButton({ direction, disabled, onClick, label }) {
+  const Icon = direction === "prev" ? ChevronLeft : ChevronRight;
+  return (
+    <button
+      type="button"
+      className={`ios-btn mg-nav-btn mg-panel-tabs-rail__nav mg-panel-tabs-rail__nav--${direction}`}
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      title={label}
+    >
+      <Icon className="mg-panel-tabs-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
+    </button>
+  );
+}
+
 export default function EmpTabs({
   tabs = [],
   activeTab,
@@ -32,15 +50,29 @@ export default function EmpTabs({
 
   useMgSegSlider(segRef, sliderRef, ".seg-tab.active", [activeTab, tabs, variant]);
 
+  const {
+    viewportRef,
+    canScrollLeft,
+    canScrollRight,
+    hasOverflow,
+    scrollLeft,
+    scrollRight,
+    updateScrollState,
+  } = useHorizontalScrollRail({ enabled: variant === "mg" });
+
+  useLayoutEffect(() => {
+    if (variant !== "mg") return;
+    updateScrollState();
+  }, [variant, tabs, activeTab, leading, updateScrollState]);
+
   if (!tabs.length) return null;
 
   const isMg = variant === "mg";
   const isMgSidebar = variant === "mg-sidebar";
 
   if (isMg) {
-    return (
+    const segControl = (
       <div className="seg-control" role="tablist" ref={segRef}>
-        {leading ? <div className="seg-control__leading">{leading}</div> : null}
         <div className="seg-tab-slider" ref={sliderRef} aria-hidden="true" />
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
@@ -59,6 +91,31 @@ export default function EmpTabs({
             </button>
           );
         })}
+      </div>
+    );
+
+    return (
+      <div className="mg-panel-tabs-rail">
+        {leading ? <div className="mg-panel-tabs-rail__leading">{leading}</div> : null}
+        {hasOverflow ? (
+          <MgPanelScrollNavButton
+            direction="prev"
+            disabled={!canScrollLeft}
+            onClick={scrollLeft}
+            label="Rolar painéis para a esquerda"
+          />
+        ) : null}
+        <div ref={viewportRef} className="mg-panel-tabs-rail__viewport">
+          {segControl}
+        </div>
+        {hasOverflow ? (
+          <MgPanelScrollNavButton
+            direction="next"
+            disabled={!canScrollRight}
+            onClick={scrollRight}
+            label="Rolar painéis para a direita"
+          />
+        ) : null}
       </div>
     );
   }
