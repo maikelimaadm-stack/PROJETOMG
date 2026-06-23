@@ -3352,6 +3352,8 @@
   position: relative;
   z-index: 30;
   background: var(--bg-page);
+  padding-inline: var(--mg-toolbar-gutter);
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-subtoolbar-stack {
