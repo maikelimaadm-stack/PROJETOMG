@@ -745,12 +745,10 @@
   margin-top: 0;
   position: relative;
   z-index: 1;
-  overflow: hidden;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll .erp-scroll-nav__viewport {
   overflow-y: auto;
-  padding-top: 1px;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
@@ -780,16 +778,9 @@
   top: 0;
   align-self: flex-start;
   max-height: calc(100dvh - 190px);
-  overflow: hidden;
-  overflow-x: hidden;
-  overscroll-behavior: contain;
-}
-
-.mg-empresas-scope .mg-panel-sidebar-layout__tabs .mg-panel-list {
-  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-top: 1px;
+  overscroll-behavior: contain;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout__content {
