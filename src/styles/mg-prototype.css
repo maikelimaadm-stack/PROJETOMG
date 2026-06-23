@@ -3503,14 +3503,12 @@
   background: transparent;
   overflow: hidden;
   box-sizing: border-box;
-  border-left: 1px solid var(--mg-table-panel-strip-border-color);
-  border-right: 1px solid var(--mg-table-panel-strip-border-color);
-  border-bottom: 1px solid var(--mg-table-panel-strip-border-color);
-  border-bottom-left-radius: var(--mg-table-panel-strip-bottom-radius);
-  border-bottom-right-radius: var(--mg-table-panel-strip-bottom-radius);
-  box-shadow:
-    var(--mg-table-panel-strip-border-softener),
-    var(--mg-table-panel-strip-bottom-glow);
+  border-left: 1px solid #f3f4f6;
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .mg-empresas-scope
