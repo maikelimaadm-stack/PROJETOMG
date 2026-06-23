@@ -764,8 +764,10 @@
   position: sticky;
   top: 0;
   align-self: flex-start;
+  max-height: calc(100dvh - 190px);
   overflow-y: auto;
   overflow-x: hidden;
+  overscroll-behavior: contain;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout__content {
