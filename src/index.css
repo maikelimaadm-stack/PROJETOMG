@@ -1506,6 +1506,15 @@ input[type="number"] {
   background: var(--emp-table-bg) !important;
 }
 
+/* Teclado ↑/↓: remove outline nativo do viewport (evita linhas pretas nas laterais) */
+.cadastro-emp-scope .emp-table-body-scroll .erp-scroll-nav__viewport:focus,
+.cadastro-emp-scope .emp-table-body-scroll .erp-scroll-nav__viewport:focus-visible,
+.mg-empresas-scope .emp-cards-body-scroll .erp-scroll-nav__viewport:focus,
+.mg-empresas-scope .emp-cards-body-scroll .erp-scroll-nav__viewport:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .cadastro-emp-scope .emp-table-pro-header thead .emp-th {
   position: relative !important;
   top: auto !important;
