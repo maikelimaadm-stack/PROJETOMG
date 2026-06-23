@@ -453,8 +453,8 @@ export default function MgFilterPills({
   const configButton = onConfigureFilters || onClear ? (
     <button
       type="button"
-      className={`ios-btn mg-filter-pills-rail__config mg-filter-pills-rail__config--icon-only${
-        hasActiveFilters ? " is-clear-active" : filterPanelActive ? " is-active" : ""
+      className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
+        hasActiveFilters ? " is-clear-active tb-btn-danger" : filterPanelActive ? " tb-btn-filter-active is-active" : ""
       }`}
       onClick={handleConfigButtonClick}
       disabled={disabled}
@@ -489,9 +489,7 @@ export default function MgFilterPills({
     >
       <button
         type="button"
-        className={`ios-btn mg-filter-pills-rail__config mg-filter-pills-rail__config--icon-only mg-filter-pills-rail__toggle${
-          filtersExpanded ? " is-active" : ""
-        }`}
+        className={`ios-btn mg-nav-btn mg-filter-pills-rail__toggle${filtersExpanded ? " is-active" : ""}`}
         onClick={toggleFilterRail}
         disabled={disabled}
         aria-label={filtersExpanded ? "Recolher faixa de filtros" : "Mostrar faixa de filtros"}
