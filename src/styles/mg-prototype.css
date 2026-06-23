@@ -3384,7 +3384,7 @@
   margin-bottom: var(--mg-subtoolbar-bottom-gap);
 }
 
-.mg-empresas-scope .mg-context-panel-wrap {
+.mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap) {
   flex-shrink: 0;
   max-height: 0;
   overflow: hidden;
@@ -3398,12 +3398,20 @@
     visibility var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-context-panel-wrap.is-visible {
+.mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
   visibility: visible;
   pointer-events: auto;
   max-height: var(--mg-subtoolbar-row-height);
   opacity: 1;
-  pointer-events: auto;
+  background: transparent;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-left: 1px solid #f3f4f6;
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .mg-empresas-scope .mg-context-panel {
@@ -3479,62 +3487,6 @@
   text-align: center;
   display: inline-block;
   line-height: 16px;
-}
-
-.mg-empresas-scope .mg-cards-panel-wrap {
-  flex-shrink: 0;
-  max-height: 0;
-  overflow: hidden;
-  background: transparent;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    max-height var(--mg-motion-duration) var(--mg-motion-ease),
-    opacity var(--mg-motion-duration) var(--mg-motion-ease),
-    visibility var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.mg-empresas-scope .mg-cards-panel-wrap.is-visible {
-  visibility: visible;
-  pointer-events: auto;
-  max-height: var(--mg-subtoolbar-row-height);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.mg-empresas-scope .mg-table-panel-wrap {
-  flex-shrink: 0;
-  max-height: 0;
-  overflow: hidden;
-  background: transparent;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition:
-    max-height var(--mg-motion-duration) var(--mg-motion-ease),
-    opacity var(--mg-motion-duration) var(--mg-motion-ease),
-    visibility var(--mg-motion-duration) var(--mg-motion-ease);
-}
-
-.mg-empresas-scope .mg-table-panel-wrap.is-visible {
-  visibility: visible;
-  pointer-events: auto;
-  max-height: var(--mg-subtoolbar-row-height);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
-  background: transparent;
-  overflow: hidden;
-  box-sizing: border-box;
-  border-left: 1px solid #f3f4f6;
-  border-right: 1px solid #f3f4f6;
-  border-bottom: 1px solid #f3f4f6;
-  border-bottom-left-radius: 16px;
-  border-bottom-right-radius: 16px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .mg-empresas-scope
@@ -3732,19 +3684,15 @@
   max-width: 0;
   overflow: hidden;
   opacity: 0;
-  transform: scaleX(0.88);
-  transform-origin: left center;
   pointer-events: none;
   transition:
     max-width var(--mg-motion-duration) var(--mg-motion-ease),
-    transform var(--mg-motion-duration) var(--mg-motion-ease),
     opacity var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-filter-pills-rail.is-expanded.is-open .mg-filter-pills-rail__content {
   max-width: 100%;
   opacity: 1;
-  transform: scaleX(1);
   pointer-events: auto;
 }
 
