@@ -7807,7 +7807,7 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td-select {
-  background: #eef4fa !important;
+  background: var(--emp-table-row-selected-bg, var(--mg-selection-bg, #eef4fa)) !important;
   box-shadow:
     inset -1px 0 0 0 var(--mg-brand-green, #16a34a),
     inset 0 -1px 0 0 var(--emp-table-line) !important;
@@ -8105,11 +8105,12 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro .emp-td {
-  color: #5b6b80 !important;
+  color: var(--text-2, #5b6b80) !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-selected .emp-td {
-  background: #eef4fa !important;
+  background: var(--emp-table-row-selected-bg, var(--mg-selection-bg, #eef4fa)) !important;
+  color: var(--text-1, #111827) !important;
   box-shadow: inset 0 -1px 0 0 var(--emp-table-line) !important;
 }
 
