@@ -3,7 +3,8 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const CARD_GRID_GAP = 12;
 export const CARDS_LIST_PADDING = 16;
-export const CARDS_TOP_PADDING = 8;
+// Mantém o início da rolagem dos cards alinhado ao topo da tabela.
+export const CARDS_TOP_PADDING = 0;
 export const CARD_VERTICAL_PADDING = 24;
 export const CARD_HEADER_HEIGHT = 48;
 export const CARD_FIELD_LINE_HEIGHT = 20;
