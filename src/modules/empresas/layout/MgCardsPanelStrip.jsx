@@ -91,7 +91,6 @@ export default function MgCardsPanelStrip({
   columnFilters = {},
   serverSearchTerm = "",
   selectorOptionsMode = "cascade",
-  panelVisible = false,
 }) {
   const fields =
     Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
@@ -282,7 +281,6 @@ export default function MgCardsPanelStrip({
           columnFilters={columnFilters}
           serverSearchTerm={serverSearchTerm}
           selectorOptionsMode={selectorOptionsMode}
-          panelVisible={panelVisible}
         />
       </div>
 

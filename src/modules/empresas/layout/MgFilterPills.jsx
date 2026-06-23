@@ -325,7 +325,6 @@ export default function MgFilterPills({
   columnFilters = {},
   serverSearchTerm = "",
   selectorOptionsMode = FILTER_OPTIONS_MODE_CASCADE,
-  panelVisible = false,
 }) {
   const useScrollRail = !className.includes("mg-filter-pills--drawer");
   const hasActiveFilters = useMemo(() => {
@@ -398,16 +397,6 @@ export default function MgFilterPills({
       expandFilterRail();
     }
   }, [expandFilterRail, hasActiveFilters, useScrollRail]);
-
-  useEffect(() => {
-    if (!useScrollRail) return undefined;
-    if (panelVisible) {
-      expandFilterRail();
-      return undefined;
-    }
-    beginCollapseFilterRail();
-    return undefined;
-  }, [beginCollapseFilterRail, expandFilterRail, panelVisible, useScrollRail]);
 
   const {
     viewportRef,

@@ -20,7 +20,6 @@ export default function MgTablePanelStrip({
   columnFilters = {},
   serverSearchTerm = "",
   selectorOptionsMode = "cascade",
-  panelVisible = false,
 }) {
   return (
     <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
@@ -42,7 +41,6 @@ export default function MgTablePanelStrip({
           columnFilters={columnFilters}
           serverSearchTerm={serverSearchTerm}
           selectorOptionsMode={selectorOptionsMode}
-          panelVisible={panelVisible}
         />
       </div>
       <div className="mg-table-panel-strip__actions">

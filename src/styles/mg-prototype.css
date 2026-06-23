@@ -3392,10 +3392,6 @@
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  transition:
-    max-height var(--mg-motion-duration) var(--mg-motion-ease),
-    opacity var(--mg-motion-duration) var(--mg-motion-ease),
-    visibility var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
@@ -3466,10 +3462,6 @@
   opacity: 0;
   overflow: hidden;
   pointer-events: none;
-  transition:
-    max-width var(--mg-motion-duration) var(--mg-motion-ease),
-    opacity var(--mg-motion-duration) var(--mg-motion-ease),
-    margin-left var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .mg-context-panel__nav.is-visible {

@@ -1459,7 +1459,6 @@ export default function PAGEMP() {
 
             <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
               <MgCardsPanelStrip
-                panelVisible={!showForm && mgViewMode === "cards"}
                 fields={cardsVisFields.configFields}
                 onSave={cardsVisFields.saveConfig}
                 onRestoreDefaults={cardsVisFields.getRestoreDefaults}
@@ -1487,7 +1486,6 @@ export default function PAGEMP() {
 
             <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
               <MgTablePanelStrip
-                panelVisible={!showForm && mgViewMode === "tabela"}
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
                 filterFields={filterFields}
