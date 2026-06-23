@@ -62,6 +62,12 @@
   --mg-container-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 2px 6px rgba(15, 23, 42, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 1px 2px rgba(100, 116, 139, 0.05), inset 1px 0 1px rgba(148, 163, 184, 0.07), inset -1px 0 1px rgba(148, 163, 184, 0.07);
   --mg-launch-card-border: 1px solid rgba(255, 255, 255, 0.9);
   --mg-launch-card-shadow: none;
+  --mg-launch-form-card-bg: #ffffff;
+  --mg-launch-form-card-border: 1px solid #f3f4f6;
+  --mg-launch-form-card-radius: 16px;
+  --mg-launch-form-card-padding: 24px;
+  --mg-launch-form-page-bg: #f1f5f9;
+  --mg-launch-form-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   --mg-section-divider-color: #E7EAEE;
   --mg-section-divider-border: 1px solid rgba(231, 234, 238, 0.82);
   --mg-section-divider-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
@@ -662,11 +668,11 @@
 }
 
 .mg-empresas-scope #mode-registro {
-  background: var(--bg-page);
+  background: var(--mg-launch-form-page-bg, var(--bg-page));
 }
 
 .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-view-stack {
-  background: var(--bg-page);
+  background: var(--mg-launch-form-page-bg, var(--bg-page));
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control {
@@ -1471,7 +1477,7 @@
 .mg-empresas-scope .mg-prototype-cards-layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: var(--mg-cards-layout-gap);
+  gap: 24px;
   width: 100%;
 }
 
@@ -2145,16 +2151,16 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly section.emp-form-card.mg-emp-card {
-  border: var(--mg-launch-card-border) !important;
-  border-radius: var(--mg-radius-card) !important;
-  background: var(--mg-container-bg) !important;
-  box-shadow: var(--mg-launch-card-shadow) !important;
+  border: var(--mg-launch-form-card-border) !important;
+  border-radius: var(--mg-launch-form-card-radius) !important;
+  background: var(--mg-launch-form-card-bg) !important;
+  box-shadow: var(--mg-launch-form-card-shadow) !important;
   overflow: visible !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card {
-  padding: 10px 16px 16px !important;
+  padding: var(--mg-launch-form-card-padding) !important;
   cursor: default !important;
   transform: none !important;
 }
@@ -2167,8 +2173,8 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form .emp-form-card--collapsible.mg-emp-card:active,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card.mg-emp-card:active,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card:active {
-  box-shadow: var(--mg-launch-card-shadow) !important;
-  background: var(--mg-container-bg) !important;
+  box-shadow: var(--mg-launch-form-card-shadow) !important;
+  background: var(--mg-launch-form-card-bg) !important;
   transform: none !important;
 }
 
@@ -4900,10 +4906,10 @@
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly .emp-form-card--collapsible.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form section.emp-form-card.mg-emp-card,
 .cadastro-emp-scope.mg-empresas-scope .mg-prototype-form--readonly section.emp-form-card.mg-emp-card {
-  border: var(--mg-launch-card-border) !important;
-  border-radius: var(--mg-radius-card) !important;
-  box-shadow: var(--mg-launch-card-shadow) !important;
-  background: var(--mg-container-bg) !important;
+  border: var(--mg-launch-form-card-border) !important;
+  border-radius: var(--mg-launch-form-card-radius) !important;
+  box-shadow: var(--mg-launch-form-card-shadow) !important;
+  background: var(--mg-launch-form-card-bg) !important;
 }
 
 .mg-empresas-scope .mg-prototype-form .emp-form-card .emp-form-card-body,
