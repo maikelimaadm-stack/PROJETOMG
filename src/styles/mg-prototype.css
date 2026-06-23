@@ -765,10 +765,10 @@
   min-width: 226px;
   max-width: 272px;
   min-height: 0;
-  border: 1px solid #e7eaee;
+  border: var(--mg-launch-card-border);
   border-radius: 12px;
-  background: var(--bg-card);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  background: var(--mg-container-bg);
+  box-shadow: var(--mg-launch-card-shadow);
   padding: 8px;
   position: sticky;
   top: 0;
