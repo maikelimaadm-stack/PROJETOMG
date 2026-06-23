@@ -44,7 +44,7 @@ class EmpresasFormErrorBoundary extends React.Component {
 }
 
 export const EmpresasFormPanel = ({ formProps }) => (
-  <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
+  <div className="emp-form-panel flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
     <EmpresasFormErrorBoundary key={formProps.key}>
       <FORMEMP {...formProps} />
     </EmpresasFormErrorBoundary>
