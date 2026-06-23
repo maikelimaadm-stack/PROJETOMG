@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, FunnelPlus, FunnelX, ListPlus, ListX, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, FunnelPlus, FunnelX, ListPlus, ListX, X } from "lucide-react";
 import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
 import {
   ErpFilterPopover,
@@ -179,9 +179,7 @@ function PanelFilterPill({
     >
       <button
         type="button"
-        className={`ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-filter-pill__trigger${
-          active ? " mg-filter-pill__trigger--has-clear" : ""
-        }`}
+        className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-filter-pill__trigger"
         onClick={toggle}
         disabled={disabled}
         aria-expanded={open}
@@ -192,15 +190,21 @@ function PanelFilterPill({
       {active ? (
         <button
           type="button"
-          className="ios-btn mg-filter-pill__clear-btn"
+          className="mg-filter-pill__icon mg-filter-pill__icon--clear"
           onClick={clearActive}
           disabled={disabled}
           aria-label={`Limpar filtro ${field.label}`}
           title={`Limpar filtro ${field.label}`}
         >
-          <X className="h-3 w-3" strokeWidth={2.3} />
+          <X strokeWidth={2.2} aria-hidden="true" />
         </button>
-      ) : null}
+      ) : (
+        <ChevronDown
+          className="mg-filter-pill__icon mg-filter-pill__icon--chevron"
+          strokeWidth={2.2}
+          aria-hidden="true"
+        />
+      )}
       <ErpFilterPopover
         open={open}
         panelRef={panelRef}
