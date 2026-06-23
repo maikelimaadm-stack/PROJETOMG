@@ -1,4 +1,17 @@
 /**
+ * Verifica se o ponteiro está sobre a barra de rolagem nativa do elemento.
+ */
+export function isPointerOverScrollbar(element, clientX) {
+  if (!(element instanceof HTMLElement)) return false;
+
+  const scrollbarWidth = element.offsetWidth - element.clientWidth;
+  if (scrollbarWidth <= 0) return false;
+
+  const rect = element.getBoundingClientRect();
+  return clientX >= rect.right - scrollbarWidth - 1;
+}
+
+/**
  * Isola wheel no container rolável: rola normalmente e só bloqueia chain nos limites.
  */
 export function isolateScrollWheel(event) {
