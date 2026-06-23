@@ -104,6 +104,7 @@
   --mg-btn-pill-radius: 999px;
   --mg-btn-icon-radius: var(--mg-search-pill-radius);
   --mg-btn-pill-border: 1px solid transparent;
+  --mg-panel-rail-btn-border: 1px solid #dfe2e7;
   --mg-filter-pill-height: var(--mg-btn-height);
   --mg-search-pill-radius: var(--mg-btn-pill-radius);
   --mg-search-dropdown-width: min(300px, calc(100vw - 24px));
@@ -8786,26 +8787,33 @@
   box-shadow: none !important;
 }
 
-/* Painéis — botões da faixa (toggle + scroll) com fundo branco */
+/* Painéis — botões da faixa (toggle + scroll) no padrão MG com borda sutil */
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled),
 .mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled) {
-  background: #ffffff !important;
-  border: var(--mg-btn-pill-border) !important;
+  background: var(--gray-fill) !important;
+  border: var(--mg-panel-rail-btn-border) !important;
   box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled):hover,
 .mg-empresas-scope .mg-panel-tabs-rail :is(.mg-panel-tabs-rail__nav, .mg-panel-style-toggle).mg-nav-btn:not(:disabled):hover {
-  background: #ffffff !important;
-  border: var(--mg-btn-pill-border) !important;
+  background: var(--gray-fill2) !important;
+  border: var(--mg-panel-rail-btn-border) !important;
   box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail .mg-panel-style-toggle.is-active:not(:disabled),
 .mg-empresas-scope .mg-panel-tabs-rail .mg-panel-style-toggle.is-active:not(:disabled) {
-  background: #ffffff !important;
+  background: var(--gray-fill) !important;
   border-color: var(--mg-focus-border) !important;
   box-shadow: var(--mg-focus-ring) !important;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .mg-panel-tabs-rail .mg-panel-tabs-rail__nav.mg-nav-btn:disabled,
+.mg-empresas-scope .mg-panel-tabs-rail .mg-panel-tabs-rail__nav.mg-nav-btn:disabled {
+  background: var(--gray-fill) !important;
+  border: var(--mg-panel-rail-btn-border) !important;
+  opacity: 0.45;
 }
 
 /* ── ERP Global Filter Popover ── */
