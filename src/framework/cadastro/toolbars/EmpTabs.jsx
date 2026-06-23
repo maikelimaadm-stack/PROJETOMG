@@ -24,6 +24,7 @@ export default function EmpTabs({
   onChange,
   systemPanelIds = EMP_SYSTEM_PANEL_IDS,
   trailing = null,
+  leading = null,
   variant = "default",
 }) {
   const segRef = useRef(null);
@@ -34,10 +35,12 @@ export default function EmpTabs({
   if (!tabs.length) return null;
 
   const isMg = variant === "mg";
+  const isMgSidebar = variant === "mg-sidebar";
 
   if (isMg) {
     return (
       <div className="seg-control" role="tablist" ref={segRef}>
+        {leading ? <div className="seg-control__leading">{leading}</div> : null}
         <div className="seg-tab-slider" ref={sliderRef} aria-hidden="true" />
         {tabs.map((tab) => {
           const active = tab.id === activeTab;
@@ -50,6 +53,31 @@ export default function EmpTabs({
               aria-selected={active}
               onClick={() => onChange?.(tab.id)}
               className={`seg-tab${active ? " active" : ""}`}
+            >
+              {custom ? <EmpCustomMarker /> : null}
+              {formatPanelLabel(tab.label)}
+            </button>
+          );
+        })}
+      </div>
+    );
+  }
+
+  if (isMgSidebar) {
+    return (
+      <div className="mg-panel-list" role="tablist" ref={segRef}>
+        {leading ? <div className="mg-panel-list__leading">{leading}</div> : null}
+        {tabs.map((tab) => {
+          const active = tab.id === activeTab;
+          const custom = isCustomPanel(tab, systemPanelIds);
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => onChange?.(tab.id)}
+              className={`mg-panel-list__tab${active ? " is-active" : ""}`}
             >
               {custom ? <EmpCustomMarker /> : null}
               {formatPanelLabel(tab.label)}

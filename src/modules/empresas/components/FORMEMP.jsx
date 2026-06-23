@@ -15,7 +15,7 @@ import MgMotionPanel from "@/modules/empresas/layout/MgMotionPanel";
 import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import ErpScrollNav from "@/shared/components/ErpScrollNav";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, PanelLeft } from "lucide-react";
 import { formatCadastroRecordPosition } from "@/framework/cadastro/toolbars/formatCadastroRecordCount";
 import { reportRequiredFieldErrors, clearRequiredFieldErrors, showError } from "@/shared/feedback";
 import { resolveRecordOperationLabel } from "@/shared/layouts/recordOperationLabel";
@@ -73,6 +73,7 @@ export default function FORMEMP({
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [layoutToolbarBridge, setLayoutToolbarBridge] = useState(null);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
+  const [launchPanelStyle, setLaunchPanelStyle] = useState("tabs");
   const nativeLayoutFieldIdsSet = useMemo(
     () => new Set(Object.values(EMP_FORM_DEFAULT_LAYOUT).flat().filter(Boolean)),
     []
@@ -789,6 +790,28 @@ export default function FORMEMP({
   );
 
   const showRequiredCounter = !isReadOnly && !layoutConfigOpen;
+  const isSidebarPanelStyle = launchPanelStyle === "sidebar";
+
+  const toggleLaunchPanelStyle = useCallback(() => {
+    setLaunchPanelStyle((prev) => (prev === "tabs" ? "sidebar" : "tabs"));
+  }, []);
+
+  const launchPanelStyleToggleLabel = isSidebarPanelStyle
+    ? "Mostrar painéis em abas horizontais"
+    : "Mostrar painéis em lista lateral";
+  const LaunchPanelStyleToggleIcon = isSidebarPanelStyle ? LayoutGrid : PanelLeft;
+  const launchPanelStyleToggle = (
+    <button
+      type="button"
+      className={`mg-nav-btn ios-btn mg-panel-style-toggle${isSidebarPanelStyle ? " is-active" : ""}`}
+      onClick={toggleLaunchPanelStyle}
+      title={launchPanelStyleToggleLabel}
+      aria-label={launchPanelStyleToggleLabel}
+      aria-pressed={isSidebarPanelStyle}
+    >
+      <LaunchPanelStyleToggleIcon className="mg-panel-style-toggle__icon" strokeWidth={2.1} />
+    </button>
+  );
 
   useCadastroPageHeader({
     enabled: !hideToolbar,
@@ -837,61 +860,85 @@ export default function FORMEMP({
     startEditMode,
   ]);
 
-  const renderFormBody = (mgVariant = false) => (
-    <div className="emp-form-body flex min-h-0 flex-1 flex-col">
-      <div className="emp-form-panels-zone flex min-h-0 flex-1 flex-col">
-        {!mgVariant ? (
-          <CadTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onChange={setActiveTab}
-            systemPanelIds={empresasCadastroConfig.systemPanelIds}
-            trailing={
-              <FormValidationStatus
-                visible={showRequiredCounter}
-                filled={requiredFieldStats.filled}
-                total={requiredFieldStats.total}
-                pendingFields={requiredFieldStats.pendingFields}
-                className="emp-form-tabs-required-desktop"
-              />
-            }
-          />
-        ) : null}
+  const renderFormBody = (mgVariant = false, panelStyle = "tabs", panelStyleToggle = null) => {
+    const showSidebarPanels = mgVariant && panelStyle === "sidebar";
 
-        <MgMotionPanel
-          panelKey={`${activeTab}-${resetSeed}`}
-          instant={!isEditing || isDuplicating}
-          className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none"
-        >
-          {() => (
-            <fieldset
-              className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}
-            >
-              <RenderEngine
-                recordKey={recordKey}
-                panels={tabs}
-                fields={dynamicFields}
-                layout={activeLayoutConfig.layout}
-                defaultLayout={defaultLayout}
-                hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
-                lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
-                requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
-                visibilityRules={activeLayoutConfig.visibilityRules || {}}
-                fieldSizes={activeLayoutConfig.fieldSizes || {}}
-                fieldLayoutConfig={fieldLayoutConfig}
-                activePanelId={activeTab}
-                values={formData}
-                errors={errors}
-                onChange={handleDynamicFieldChange}
-                readOnly={isReadOnly}
-                fieldClassName={mgVariant ? "mg-prototype-field" : ""}
-              />
-            </fieldset>
+    const renderMotionPanel = () => (
+      <MgMotionPanel
+        panelKey={`${activeTab}-${resetSeed}`}
+        instant={!isEditing || isDuplicating}
+        className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none"
+      >
+        {() => (
+          <fieldset
+            className={`emp-form-fieldset m-0 min-w-0 border-0 p-0 ${isReadOnly ? "pointer-events-none [&_input]:cursor-default [&_textarea]:cursor-default [&_button]:cursor-default" : ""}`}
+          >
+            <RenderEngine
+              recordKey={recordKey}
+              panels={tabs}
+              fields={dynamicFields}
+              layout={activeLayoutConfig.layout}
+              defaultLayout={defaultLayout}
+              hiddenFieldIds={activeLayoutConfig.hiddenFieldIds || []}
+              lockedFieldIds={activeLayoutConfig.lockedFieldIds || []}
+              requiredFieldIds={activeLayoutConfig.requiredFieldIds || []}
+              visibilityRules={activeLayoutConfig.visibilityRules || {}}
+              fieldSizes={activeLayoutConfig.fieldSizes || {}}
+              fieldLayoutConfig={fieldLayoutConfig}
+              activePanelId={activeTab}
+              values={formData}
+              errors={errors}
+              onChange={handleDynamicFieldChange}
+              readOnly={isReadOnly}
+              fieldClassName={mgVariant ? "mg-prototype-field" : ""}
+            />
+          </fieldset>
+        )}
+      </MgMotionPanel>
+    );
+
+    return (
+      <div className={`emp-form-body flex min-h-0 flex-1 flex-col${showSidebarPanels ? " mg-panel-sidebar-body" : ""}`}>
+        <div className={`emp-form-panels-zone flex min-h-0 flex-1 flex-col${showSidebarPanels ? " mg-panel-sidebar-zone" : ""}`}>
+          {!mgVariant ? (
+            <CadTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onChange={setActiveTab}
+              systemPanelIds={empresasCadastroConfig.systemPanelIds}
+              trailing={
+                <FormValidationStatus
+                  visible={showRequiredCounter}
+                  filled={requiredFieldStats.filled}
+                  total={requiredFieldStats.total}
+                  pendingFields={requiredFieldStats.pendingFields}
+                  className="emp-form-tabs-required-desktop"
+                />
+              }
+            />
+          ) : null}
+
+          {showSidebarPanels ? (
+            <div className="mg-panel-sidebar-layout">
+              <aside className="mg-panel-sidebar-layout__tabs">
+                <CadTabs
+                  tabs={tabs}
+                  activeTab={activeTab}
+                  onChange={setActiveTab}
+                  systemPanelIds={empresasCadastroConfig.systemPanelIds}
+                  variant="mg-sidebar"
+                  leading={panelStyleToggle}
+                />
+              </aside>
+              <div className="mg-panel-sidebar-layout__content">{renderMotionPanel()}</div>
+            </div>
+          ) : (
+            renderMotionPanel()
           )}
-        </MgMotionPanel>
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   if (layoutConfigOpen) {
     return (
@@ -975,22 +1022,25 @@ export default function FORMEMP({
         )}
         {hideToolbar ? (
           <div id="mode-registro" className="flex min-h-0 flex-1 flex-col overflow-hidden">
-            <div className="mg-panel-tabs-strip mg-panel-tabs-strip--no-bg shrink-0 px-3 md:px-5">
-              <CadTabs
-                tabs={tabs}
-                activeTab={activeTab}
-                onChange={setActiveTab}
-                systemPanelIds={empresasCadastroConfig.systemPanelIds}
-                variant="mg"
-              />
-            </div>
+            {!isSidebarPanelStyle ? (
+              <div className="mg-panel-tabs-strip mg-panel-tabs-strip--no-bg shrink-0 px-3 md:px-5">
+                <CadTabs
+                  tabs={tabs}
+                  activeTab={activeTab}
+                  onChange={setActiveTab}
+                  systemPanelIds={empresasCadastroConfig.systemPanelIds}
+                  variant="mg"
+                  leading={launchPanelStyleToggle}
+                />
+              </div>
+            ) : null}
             <ErpScrollNav
               className={`mg-form-scroll mg-prototype-form${
                 isReadOnly ? " mg-prototype-form--readonly" : ""
-              }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}`}
+              }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}${isSidebarPanelStyle ? " mg-form-scroll--panel-sidebar" : ""}`}
               viewportClassName="overflow-y-auto"
             >
-              {renderFormBody(true)}
+              {renderFormBody(true, launchPanelStyle, launchPanelStyleToggle)}
             </ErpScrollNav>
           </div>
         ) : null}
