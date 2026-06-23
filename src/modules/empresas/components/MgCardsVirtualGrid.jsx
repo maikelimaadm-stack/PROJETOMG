@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useLayoutEffect, useRef } from "react";
+import React, { memo, useLayoutEffect, useRef } from "react";
 import { Check } from "lucide-react";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import {
@@ -10,6 +10,7 @@ import {
   estimateCardRowHeight,
   useGridVirtualizer,
 } from "@/shared/hooks/useGridVirtualizer";
+import { resolveVirtualScrollAlign } from "@/shared/utils/virtualScrollIntoView";
 
 const CARDS_TOP_PADDING = 8;
 
@@ -27,6 +28,7 @@ function MgCardsVirtualGrid({
   scrollResetKey = "",
 }) {
   const skipInitialSelectionScrollRef = useRef(true);
+  const previousSelectionIndexRef = useRef(null);
   const fixedRowHeight = estimateCardRowHeight(detailFields.length, fieldsPerRow);
 
   const { virtualizer, virtualRows, totalSize } = useGridVirtualizer({
@@ -35,6 +37,7 @@ function MgCardsVirtualGrid({
     columnsPerRow: cardsPerRow,
     estimateRowHeight: fixedRowHeight,
     enabled: items.length > 0,
+    scrollMargin: CARDS_TOP_PADDING,
   });
 
   useLayoutEffect(() => {
@@ -47,6 +50,7 @@ function MgCardsVirtualGrid({
 
     resetScrollTop();
     skipInitialSelectionScrollRef.current = true;
+    previousSelectionIndexRef.current = null;
 
     const frameId = requestAnimationFrame(() => {
       resetScrollTop();
@@ -55,18 +59,26 @@ function MgCardsVirtualGrid({
     return () => cancelAnimationFrame(frameId);
   }, [scrollResetKey, scrollRef]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (skipInitialSelectionScrollRef.current) {
       skipInitialSelectionScrollRef.current = false;
+      if (activeSelectionId) {
+        previousSelectionIndexRef.current = items.findIndex((item) => item?.id === activeSelectionId);
+      }
       return;
     }
     if (!virtualizer || !activeSelectionId) return;
+
     const itemIndex = items.findIndex((item) => item?.id === activeSelectionId);
     if (itemIndex < 0) return;
+
+    const previousIndex = previousSelectionIndexRef.current;
+    previousSelectionIndexRef.current = itemIndex;
+
     const rowIndex = Math.floor(itemIndex / Math.max(1, cardsPerRow));
-    requestAnimationFrame(() => {
-      virtualizer.scrollToIndex(rowIndex, { align: "auto" });
-    });
+    const align = resolveVirtualScrollAlign(previousIndex, itemIndex);
+
+    virtualizer.scrollToIndex(rowIndex, { align });
   }, [virtualizer, activeSelectionId, items, cardsPerRow]);
 
   if (items.length === 0) return null;

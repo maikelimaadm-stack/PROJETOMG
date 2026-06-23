@@ -24,6 +24,7 @@ import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCampo
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
+import { scrollVirtualRowIntoView } from "@/shared/utils/virtualScrollIntoView";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -1192,19 +1193,15 @@ export default function TBLEMP({
       e.preventDefault();
       lastSelectedIdRef.current = nextRecord.id;
       setSelectedItems([nextRecord.id]);
+      const visibleIndex = linhasExibidas.findIndex((item) => item?.id === nextRecord.id);
+      const scrollDirection = step < 0 ? "up" : "down";
       requestAnimationFrame(() => {
         const body = scrollContainerRef.current;
-        if (!body) return;
-        const visibleIndex = linhasExibidas.findIndex((item) => item?.id === nextRecord.id);
-        const row = body.querySelector(`.emp-table-data-row[data-index="${visibleIndex}"]`);
-        if (row instanceof HTMLElement) {
-          row.scrollIntoView({ block: "nearest" });
-          return;
-        }
-        const maxTop = Math.max(0, body.scrollHeight - body.clientHeight);
-        body.scrollTo({
-          top: Math.min(Math.max(0, visibleIndex) * EMP_TABLE_ROW_HEIGHT, maxTop),
-          behavior: "auto",
+        if (!body || visibleIndex < 0) return;
+        scrollVirtualRowIntoView(body, visibleIndex, {
+          itemSize: EMP_TABLE_ROW_HEIGHT,
+          direction: scrollDirection,
+          stickyHeaderOffset: EMP_TABLE_ROW_HEIGHT,
         });
       });
       return;
