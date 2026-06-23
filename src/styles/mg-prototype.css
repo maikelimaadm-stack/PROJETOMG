@@ -96,7 +96,7 @@
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-subtoolbar-bottom-gap: 0;
-  --mg-cards-layout-gap: 9px;
+  --mg-cards-layout-gap: 12px;
   --mg-btn-font: 13px;
   --mg-btn-font-compact: 12px;
   --mg-btn-height: 28px;
@@ -2552,7 +2552,7 @@
 
 .mg-empresas-scope .mg-cards-grid {
   display: grid;
-  gap: 12px;
+  gap: var(--mg-cards-layout-gap);
 }
 
 .mg-empresas-scope .mg-cards-grid--cards-1 {
