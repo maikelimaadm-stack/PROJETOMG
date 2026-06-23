@@ -196,12 +196,12 @@ function PanelFilterPill({
           aria-label={`Limpar filtro ${field.label}`}
           title={`Limpar filtro ${field.label}`}
         >
-          <X strokeWidth={2} aria-hidden="true" />
+          <X strokeWidth={2.2} aria-hidden="true" />
         </button>
       ) : (
         <ChevronDown
           className="mg-filter-pill__icon mg-filter-pill__icon--chevron"
-          strokeWidth={2}
+          strokeWidth={2.2}
           aria-hidden="true"
         />
       )}
