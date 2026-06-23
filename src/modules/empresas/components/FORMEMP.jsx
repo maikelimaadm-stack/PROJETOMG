@@ -921,14 +921,19 @@ export default function FORMEMP({
           {showSidebarPanels ? (
             <div className="mg-panel-sidebar-layout">
               <aside className="mg-panel-sidebar-layout__tabs">
-                <CadTabs
-                  tabs={tabs}
-                  activeTab={activeTab}
-                  onChange={setActiveTab}
-                  systemPanelIds={empresasCadastroConfig.systemPanelIds}
-                  variant="mg-sidebar"
-                  leading={panelStyleToggle}
-                />
+                <ErpScrollNav
+                  className="mg-panel-sidebar-layout__tabs-scroll"
+                  viewportClassName="mg-panel-sidebar-layout__tabs-viewport overflow-y-auto"
+                >
+                  <CadTabs
+                    tabs={tabs}
+                    activeTab={activeTab}
+                    onChange={setActiveTab}
+                    systemPanelIds={empresasCadastroConfig.systemPanelIds}
+                    variant="mg-sidebar"
+                    leading={panelStyleToggle}
+                  />
+                </ErpScrollNav>
               </aside>
               <div className="mg-panel-sidebar-layout__content">{renderMotionPanel()}</div>
             </div>
@@ -1038,7 +1043,7 @@ export default function FORMEMP({
               className={`mg-form-scroll mg-prototype-form${
                 isReadOnly ? " mg-prototype-form--readonly" : ""
               }${editMode && !isReadOnly ? " mg-prototype-form--edit" : ""}${isSidebarPanelStyle ? " mg-form-scroll--panel-sidebar" : ""}`}
-              viewportClassName="overflow-y-auto"
+              viewportClassName={`overflow-y-auto${isSidebarPanelStyle ? " mg-form-scroll__viewport--panel-sidebar" : ""}`}
             >
               {renderFormBody(true, launchPanelStyle, launchPanelStyleToggle)}
             </ErpScrollNav>
