@@ -92,7 +92,7 @@
   --mg-panel-tabs-strip-divider-shadow: inset 0 1px 0 rgba(15, 23, 42, 0.05);
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
-  --mg-subtoolbar-bottom-gap: 12px;
+  --mg-subtoolbar-bottom-gap: 0;
   --mg-cards-layout-gap: 9px;
   --mg-btn-font: 13px;
   --mg-btn-font-compact: 12px;
@@ -107,9 +107,9 @@
   --mg-search-dropdown-min-width: 240px;
   --mg-toolbar-gutter: 12px;
   --mg-toolbar-row-height: 36px;
-  --mg-subtoolbar-row-height: 42px;
+  --mg-subtoolbar-row-height: var(--mg-toolbar-row-height);
   --mg-toolbar-row-padding-y: calc((var(--mg-toolbar-row-height) - var(--mg-btn-height)) / 2);
-  --mg-subtoolbar-row-padding-y: calc((var(--mg-subtoolbar-row-height) - var(--mg-filter-pill-height)) / 2);
+  --mg-subtoolbar-row-padding-y: var(--mg-toolbar-row-padding-y);
   --mg-toolbar-cluster-gap: 8px;
   --mg-action-slot-gap: 4px;
   --mg-view-seg-track-padding: 3px;
@@ -4886,7 +4886,7 @@
     --mg-btn-height: 36px;
     --mg-btn-icon-size: 36px;
     --mg-toolbar-row-height: 44px;
-    --mg-subtoolbar-row-height: 50px;
+    --mg-subtoolbar-row-height: var(--mg-toolbar-row-height);
     --mg-view-seg-inner-height: calc(var(--mg-btn-height) - (var(--mg-view-seg-track-padding) * 2));
   }
 
