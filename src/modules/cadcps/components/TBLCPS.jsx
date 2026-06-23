@@ -433,7 +433,7 @@ export default function TBLCPS({
 
   const getRowBgClass = (index, selected) => {
     if (selected) return "emp-row-selected";
-    return "emp-row-even";
+    return index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
   };
 
   const renderVirtualTableRow = useCallback(

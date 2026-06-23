@@ -24,6 +24,7 @@ import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCampo
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
+import { scrollVirtualRowIntoView } from "@/shared/utils/virtualScrollIntoView";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
@@ -836,7 +837,7 @@ export default function TBLEMP({
   }, []);
   const getRowBgClass = useCallback((index, selected) => {
     if (selected) return "emp-row-selected";
-    return "emp-row-even";
+    return index % 2 === 0 ? "emp-row-even" : "emp-row-odd";
   }, []);
   const renderSelectHeaderCell = () => (
     <TableHead
@@ -1191,22 +1192,16 @@ export default function TBLEMP({
       if (!nextRecord?.id) return;
       e.preventDefault();
       lastSelectedIdRef.current = nextRecord.id;
-      setSelectedItems([nextRecord.id]);
-      requestAnimationFrame(() => {
-        const body = scrollContainerRef.current;
-        if (!body) return;
-        const visibleIndex = linhasExibidas.findIndex((item) => item?.id === nextRecord.id);
-        const row = body.querySelector(`.emp-table-data-row[data-index="${visibleIndex}"]`);
-        if (row instanceof HTMLElement) {
-          row.scrollIntoView({ block: "nearest" });
-          return;
-        }
-        const maxTop = Math.max(0, body.scrollHeight - body.clientHeight);
-        body.scrollTo({
-          top: Math.min(Math.max(0, visibleIndex) * EMP_TABLE_ROW_HEIGHT, maxTop),
-          behavior: "auto",
+      const visibleIndex = linhasExibidas.findIndex((item) => item?.id === nextRecord.id);
+      const body = scrollContainerRef.current;
+      if (body && visibleIndex >= 0) {
+        scrollVirtualRowIntoView(body, visibleIndex, {
+          itemSize: EMP_TABLE_ROW_HEIGHT,
+          direction: step < 0 ? "up" : "down",
+          stickyHeaderOffset: EMP_TABLE_ROW_HEIGHT,
         });
-      });
+      }
+      setSelectedItems([nextRecord.id]);
       return;
     }
 
@@ -1235,6 +1230,7 @@ export default function TBLEMP({
     const footer = footerScrollRef.current;
     const header = headerScrollRef.current;
     if (!body) return undefined;
+
     const syncHorizontalScroll = () => {
       // Evita subpixel na rolagem horizontal para manter as linhas da grade alinhadas.
       const rawLeft = body.scrollLeft;
@@ -1243,23 +1239,36 @@ export default function TBLEMP({
         body.scrollLeft = snappedLeft;
       }
       const left = body.scrollLeft;
+      if (footer) footer.scrollLeft = left;
+      if (header && !mgPrototype) header.scrollLeft = left;
+    };
+
+    const syncScrollbarCompensation = () => {
       const nextCompensation = Math.max(0, body.offsetWidth - body.clientWidth);
       if (Math.abs(scrollbarCompensationRef.current - nextCompensation) >= 1) {
         scrollbarCompensationRef.current = nextCompensation;
         setScrollbarCompensation(nextCompensation);
       }
-      if (footer) footer.scrollLeft = left;
-      if (header && !mgPrototype) header.scrollLeft = left;
     };
+
+    const onScroll = () => {
+      syncHorizontalScroll();
+    };
+
+    const onResize = () => {
+      syncHorizontalScroll();
+      syncScrollbarCompensation();
+    };
+
     const resizeObserver =
       typeof ResizeObserver !== "undefined"
-        ? new ResizeObserver(syncHorizontalScroll)
+        ? new ResizeObserver(onResize)
         : null;
     resizeObserver?.observe(body);
-    body.addEventListener("scroll", syncHorizontalScroll, { passive: true });
-    syncHorizontalScroll();
+    body.addEventListener("scroll", onScroll, { passive: true });
+    onResize();
     return () => {
-      body.removeEventListener("scroll", syncHorizontalScroll);
+      body.removeEventListener("scroll", onScroll);
       resizeObserver?.disconnect();
     };
   }, [colunasOrdenadas, columnWidths, agregacoes, mgPrototype]);

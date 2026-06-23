@@ -964,11 +964,23 @@
 .cadastro-emp-scope .emp-table-pro .emp-td {
   color: var(--erp-color-text) !important;
   background: #ffffff !important;
-  transition: background var(--erp-ds-transition);
 }
 
-.cadastro-emp-scope .emp-table-pro tbody tr:hover .emp-td {
-  background: var(--erp-color-row-hover) !important;
+.cadastro-emp-scope .emp-table-pro tr.emp-table-data-row .emp-td {
+  transition: none !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
+  background: var(--emp-table-bg, #ffffff) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
+  background: var(--emp-table-row-alt-bg, #fafbfc) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+.cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td {
+  background: var(--emp-table-row-hover-bg, var(--erp-color-row-hover)) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {

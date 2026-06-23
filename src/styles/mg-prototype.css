@@ -1011,6 +1011,24 @@
 .mg-empresas-scope .emp-table-data-row {
   height: 26px;
   max-height: 26px;
+  transition: none !important;
+}
+
+.mg-empresas-scope .emp-table-data-row .emp-td {
+  transition: none !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-even .emp-td {
+  background: var(--emp-table-bg, #ffffff) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-odd .emp-td {
+  background: var(--emp-table-row-alt-bg, #fafbfc) !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+.mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td {
+  background: var(--emp-table-row-hover-bg, #eef6ff) !important;
 }
 
 .mg-empresas-scope .emp-table-virtual-body,
@@ -1073,16 +1091,21 @@
   color: var(--text-1);
 }
 
-.mg-empresas-scope .mg-grid tbody tr {
-  transition: background 0.1s;
+.mg-empresas-scope .mg-grid tbody tr.emp-table-data-row {
+  transition: none;
 }
 
-.mg-empresas-scope .mg-grid tbody tr:nth-child(even) {
-  background: #fafbfc;
+.mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-even {
+  background: var(--emp-table-bg, #ffffff);
 }
 
-.mg-empresas-scope .mg-grid tbody tr:hover {
-  background: #eef6ff;
+.mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-odd {
+  background: var(--emp-table-row-alt-bg, #fafbfc);
+}
+
+.mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-even:hover,
+.mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-odd:hover {
+  background: var(--emp-table-row-hover-bg, #eef6ff);
 }
 
 .mg-empresas-scope .mg-grid tbody tr.selected,

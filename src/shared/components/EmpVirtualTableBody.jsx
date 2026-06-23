@@ -60,7 +60,7 @@ function EmpVirtualTableBody({
               <TableRow
                 key={virtualRow.key}
                 data-index={virtualRow.index}
-                className={`emp-table-data-row ${getRowClassName?.(row, virtualRow.index) ?? ""} cursor-pointer select-none hover:brightness-[0.98]`}
+                className={`emp-table-data-row ${getRowClassName?.(row, virtualRow.index) ?? ""} cursor-pointer select-none hover:bg-transparent transition-none`}
                 style={{ height: EMP_TABLE_ROW_HEIGHT, maxHeight: EMP_TABLE_ROW_HEIGHT }}
                 onClick={(event) => onRowClick?.(row, event)}
                 {...rowProps}
@@ -119,7 +119,7 @@ function EmpVirtualTableBody({
               <TableBody>
                 <TableRow
                   data-index={virtualRow.index}
-                  className={`emp-table-data-row ${getRowClassName?.(row, virtualRow.index) ?? ""} cursor-pointer select-none hover:brightness-[0.98]`}
+                  className={`emp-table-data-row ${getRowClassName?.(row, virtualRow.index) ?? ""} cursor-pointer select-none hover:bg-transparent transition-none`}
                   style={{ height: EMP_TABLE_ROW_HEIGHT, maxHeight: EMP_TABLE_ROW_HEIGHT }}
                   onClick={(event) => onRowClick?.(row, event)}
                   {...rowProps}

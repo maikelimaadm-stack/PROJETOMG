@@ -510,12 +510,17 @@ body,
   background: var(--mg-bg-card) !important;
 }
 
-.cadastro-emp-scope .emp-table-pro tbody tr:nth-child(even) .emp-td {
-  background: #fafbfc !important;
+.cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
+  background: var(--emp-table-bg, var(--mg-bg-card)) !important;
 }
 
-.cadastro-emp-scope .emp-table-pro tbody tr:hover .emp-td {
-  background: #eef6ff !important;
+.cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
+  background: var(--emp-table-row-alt-bg, #fafbfc) !important;
+}
+
+.cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+.cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td {
+  background: var(--emp-table-row-hover-bg, #eef6ff) !important;
 }
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {

@@ -23,7 +23,7 @@ export function useTableVirtualizer({
     estimateSize: () => estimateSize,
     overscan,
     scrollMargin,
-    isScrollingResetDelay: 150,
+    isScrollingResetDelay: 0,
   });
 
   if (!enabled) {

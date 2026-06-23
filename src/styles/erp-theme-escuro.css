@@ -114,7 +114,8 @@ html.tema-escuro .cadastro-emp-scope,
 html.escuro .cadastro-emp-scope {
   --emp-table-bg: var(--background-card);
   --emp-table-band-bg: #21262d;
-  --emp-table-row-alt-bg: rgba(255, 255, 255, 0.02);
+  --emp-table-row-alt-bg: #1c2128;
+  --emp-table-row-hover-bg: #21262d;
   --emp-table-row-selected-bg: rgba(64, 222, 99, 0.12);
   --emp-table-line: var(--border-color);
   --emp-table-band-edge: var(--border-color);
@@ -202,14 +203,21 @@ html.escuro .mg-empresas-scope .mg-grid td {
   border-bottom-color: #30363d !important;
 }
 
-html.tema-escuro .mg-empresas-scope .mg-grid tbody tr:nth-child(even),
-html.escuro .mg-empresas-scope .mg-grid tbody tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.02);
+html.tema-escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-even,
+html.escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-even {
+  background: var(--emp-table-bg, #161b22);
 }
 
-html.tema-escuro .mg-empresas-scope .mg-grid tbody tr:hover,
-html.escuro .mg-empresas-scope .mg-grid tbody tr:hover {
-  background: rgba(64, 222, 99, 0.08) !important;
+html.tema-escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-odd,
+html.escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-odd {
+  background: var(--emp-table-row-alt-bg, #1c2128);
+}
+
+html.tema-escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-even:hover,
+html.tema-escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-odd:hover,
+html.escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-even:hover,
+html.escuro .mg-empresas-scope .mg-grid tbody tr.emp-table-data-row.emp-row-odd:hover {
+  background: var(--emp-table-row-hover-bg, #21262d) !important;
 }
 
 html.tema-escuro .cadastro-emp-scope .emp-table-pro,
@@ -240,9 +248,25 @@ html.escuro .cadastro-emp-scope .emp-table-pro tfoot .emp-th {
   border-color: #30363d !important;
 }
 
-html.tema-escuro .cadastro-emp-scope .emp-table-pro tbody tr:nth-child(even) .emp-td,
-html.escuro .cadastro-emp-scope .emp-table-pro tbody tr:nth-child(even) .emp-td {
-  background: rgba(255, 255, 255, 0.02) !important;
+html.tema-escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td,
+html.escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td {
+  background: #161b22 !important;
+  color: #e6edf3 !important;
+  border-color: #30363d !important;
+}
+
+html.tema-escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td,
+html.escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
+  background: var(--emp-table-row-alt-bg, #1c2128) !important;
+  color: #e6edf3 !important;
+  border-color: #30363d !important;
+}
+
+html.tema-escuro .cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+html.tema-escuro .cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td,
+html.escuro .cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+html.escuro .cadastro-emp-scope .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td {
+  background: var(--emp-table-row-hover-bg, #21262d) !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-table-loading-overlay,
@@ -519,7 +543,8 @@ html.escuro .cadastro-scope,
 html.escuro .cadastro-emp-scope {
   --emp-accent-primary-muted: rgba(64, 222, 99, 0.14);
   --emp-table-row-selected-bg: rgba(64, 222, 99, 0.12);
-  --emp-table-row-alt-bg: rgba(255, 255, 255, 0.02);
+  --emp-table-row-alt-bg: #1c2128;
+  --emp-table-row-hover-bg: #21262d;
   --erp-color-surface: #0d1117;
   --erp-color-row-hover: #21262d;
   --erp-color-row-selected: rgba(64, 222, 99, 0.12);
@@ -646,12 +671,7 @@ html.escuro .cadastro-emp-scope .emp-form-tabs:not(.emp-form-tabs-launch) .emp-f
 
 /* —— Células de tabela (index.css !important) —— */
 html.tema-escuro .cadastro-emp-scope .emp-table-pro .emp-td,
-html.tema-escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td,
-html.tema-escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td,
-html.escuro .cadastro-emp-scope .emp-table-pro .emp-td,
-html.escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-even .emp-td,
-html.escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-odd .emp-td {
-  background: #161b22 !important;
+html.escuro .cadastro-emp-scope .emp-table-pro .emp-td {
   color: #e6edf3 !important;
   border-color: #30363d !important;
 }
@@ -660,11 +680,6 @@ html.tema-escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td,
 html.escuro .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
   background: rgba(64, 222, 99, 0.12) !important;
   color: #e6edf3 !important;
-}
-
-html.tema-escuro .cadastro-emp-scope .emp-table-pro tbody tr:nth-child(even) .emp-td,
-html.escuro .cadastro-emp-scope .emp-table-pro tbody tr:nth-child(even) .emp-td {
-  background: rgba(255, 255, 255, 0.02) !important;
 }
 
 html.tema-escuro .cadastro-emp-scope .emp-table-header-bar,
@@ -781,6 +796,23 @@ html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.
   box-shadow:
     inset -1px 0 0 0 var(--emp-table-line),
     inset 0 -1px 0 0 var(--emp-table-line) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-even .emp-td,
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-even .emp-td {
+  background: #161b22 !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-odd .emp-td,
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-row-odd .emp-td {
+  background: var(--emp-table-row-alt-bg, #1c2128) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td,
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-table-data-row.emp-row-even:hover .emp-td,
+html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-pro tr.emp-table-data-row.emp-row-odd:hover .emp-td {
+  background: var(--emp-table-row-hover-bg, #21262d) !important;
 }
 
 html.tema-escuro .mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item,

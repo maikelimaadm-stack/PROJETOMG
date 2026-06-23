@@ -3,6 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const CARD_GRID_GAP = 12;
 export const CARDS_LIST_PADDING = 16;
+export const CARDS_TOP_PADDING = 8;
 export const CARD_VERTICAL_PADDING = 24;
 export const CARD_HEADER_HEIGHT = 48;
 export const CARD_FIELD_LINE_HEIGHT = 20;
@@ -52,7 +53,7 @@ export function useGridVirtualizer({
     overscan,
     gap: rowGap,
     scrollMargin,
-    isScrollingResetDelay: 150,
+    isScrollingResetDelay: 0,
   });
 
   if (!enabled) {

@@ -14,6 +14,12 @@ import {
 } from "./empSearchView.constants";
 import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import ErpScrollNav from "@/shared/components/ErpScrollNav";
+import {
+  CARD_GRID_GAP,
+  CARDS_TOP_PADDING,
+  estimateCardRowHeight,
+} from "@/shared/hooks/useGridVirtualizer";
+import { scrollVirtualRowIntoView } from "@/shared/utils/virtualScrollIntoView";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import { LIST_PAGE_SIZE_OPTIONS } from "@/shared/listing/listQueryConfig";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
@@ -372,6 +378,17 @@ export default function SRCHEMP({
         const nextRecord = filteredEmpresas[nextIndex];
         if (!nextRecord?.id) return;
         event.preventDefault();
+        const scrollEl = cardsScrollRef.current;
+        if (scrollEl) {
+          const rowHeight = estimateCardRowHeight(detailFields.length, fieldsPerRow);
+          const rowIndex = Math.floor(nextIndex / Math.max(1, cardsPerRow));
+          scrollVirtualRowIntoView(scrollEl, rowIndex, {
+            itemSize: rowHeight + CARD_GRID_GAP,
+            rowSize: rowHeight,
+            scrollOffset: CARDS_TOP_PADDING,
+            direction: step < 0 ? "up" : "down",
+          });
+        }
         lastSelectedIdRef.current = nextRecord.id;
         onSelectionChange?.([nextRecord.id]);
         cardsScrollRef.current?.focus?.({ preventScroll: true });
@@ -390,7 +407,7 @@ export default function SRCHEMP({
         onEdit?.(selectedRecord);
       }
     },
-    [filteredEmpresas, onSelectionChange, onEdit]
+    [filteredEmpresas, onSelectionChange, onEdit, cardsPerRow, fieldsPerRow, detailFields]
   );
 
   if (mgPrototype) {
