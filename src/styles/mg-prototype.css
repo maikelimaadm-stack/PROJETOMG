@@ -3675,24 +3675,8 @@
   width: 13px;
   height: 13px;
   flex-shrink: 0;
-  color: var(--mg-icon-color);
-  stroke: var(--mg-icon-color);
-}
-
-.mg-empresas-scope .mg-filter-pills-rail__toggle:hover:not(:disabled) .mg-filter-pills-rail__toggle-icon {
-  color: var(--mg-brand-green-hover);
-  stroke: var(--mg-brand-green-hover);
-}
-
-.mg-empresas-scope .mg-filter-pills-rail__toggle:disabled .mg-filter-pills-rail__toggle-icon {
-  color: var(--text-3);
-  stroke: var(--text-3);
-}
-
-.mg-empresas-scope .mg-filter-pills-rail__toggle.is-active {
-  color: var(--mg-brand-green-hover);
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
+  color: inherit !important;
+  stroke: inherit !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__content {
@@ -3746,16 +3730,89 @@
   padding: 0 !important;
 }
 
-.mg-empresas-scope .mg-filter-pills-rail__config.is-active {
-  color: var(--mg-brand-green-hover);
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-fill) !important;
+  border: var(--mg-btn-pill-border) !important;
+  border-radius: var(--mg-search-pill-radius) !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: var(--text-2);
+  cursor: pointer;
+  transition:
+    background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
+    box-shadow var(--mg-motion-duration) var(--mg-motion-ease),
+    color var(--mg-motion-duration) var(--mg-motion-ease);
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  color: var(--mg-icon-color);
+  cursor: pointer;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only svg {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only svg {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only:hover:not(:disabled) {
+  background: var(--gray-fill2) !important;
+  border: var(--mg-btn-pill-border) !important;
+  box-shadow: none !important;
+  color: var(--text-1);
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only:hover:not(:disabled),
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only:active:not(:disabled) {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: var(--mg-icon-color);
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config--icon-only:hover:not(:disabled) svg {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-btn--icon-only:hover:not(:disabled) svg {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+.mg-empresas-scope .mg-filter-pills-rail__config.is-active,
+.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__config.is-active:not(:disabled) {
+  background: var(--gray-fill) !important;
+  color: var(--accent);
   border-color: var(--mg-focus-border) !important;
   box-shadow: var(--mg-focus-ring) !important;
 }
 
+.mg-empresas-scope .mg-filter-pills-rail__config.is-active svg,
+.cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__config.is-active:not(:disabled) svg {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+}
+
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active,
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:not(:disabled) {
+  background: var(--gray-fill) !important;
   color: var(--red) !important;
-  border-color: rgba(220, 38, 38, 0.28) !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active svg,
@@ -3767,8 +3824,7 @@
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:hover:not(:disabled),
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:not(:disabled):hover {
   color: #b91c1c !important;
-  background: rgba(220, 38, 38, 0.08) !important;
-  border-color: rgba(220, 38, 38, 0.38) !important;
+  background: var(--gray-fill2) !important;
 }
 
 .mg-empresas-scope .mg-filter-pills-rail__config.is-clear-active:hover:not(:disabled) svg,
