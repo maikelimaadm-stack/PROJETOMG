@@ -1645,7 +1645,7 @@ input[type="number"] {
 
 .cadastro-emp-scope .emp-table-pro tr.emp-row-selected .emp-td {
   background: var(--emp-table-row-selected-bg) !important;
-  color: var(--mg-ink, #1a1f26) !important;
+  color: var(--emp-table-row-selected-text, #334155) !important;
   font-weight: 600;
 }
 
