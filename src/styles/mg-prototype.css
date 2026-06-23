@@ -2702,7 +2702,10 @@
 
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-more,
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .mg-accent-icon-btn,
-.cadastro-emp-scope.mg-empresas-scope .mg-action-bar #more-btn,
+.cadastro-emp-scope.mg-empresas-scope .mg-action-bar #more-btn {
+  color: var(--accent) !important;
+}
+
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-more svg,
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .mg-accent-icon-btn svg,
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar #more-btn svg {

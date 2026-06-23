@@ -683,7 +683,7 @@ html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell {
   --emp-table-band-bg: #20262e;
   --emp-table-band-edge: #2d333b;
   --emp-table-line: #2d333b;
-  --emp-table-header-line: #434b56;
+  --emp-table-header-line: #20262e;
   --emp-table-header-side-line: #2d333b;
   --emp-table-header-height: 30px;
   border-color: rgba(230, 237, 243, 0.12) !important;
