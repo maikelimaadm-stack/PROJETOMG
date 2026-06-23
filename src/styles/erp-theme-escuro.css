@@ -840,14 +840,6 @@ html.escuro .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap,
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.28) !important;
 }
 
-html.tema-escuro .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-context-panel-wrap.is-visible,
-html.escuro .mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-context-panel-wrap.is-visible {
-  border-bottom: none !important;
-  border-bottom-left-radius: 0 !important;
-  border-bottom-right-radius: 0 !important;
-  box-shadow: none !important;
-}
-
 html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-active,
 html.escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-active {
   background: rgba(64, 222, 99, 0.12) !important;

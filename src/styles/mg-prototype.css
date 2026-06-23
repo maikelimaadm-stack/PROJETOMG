@@ -3413,13 +3413,6 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
-.mg-empresas-scope:has(.mg-view-layer--form.mg-view-layer--active) .mg-context-panel-wrap.is-visible {
-  border-bottom: none;
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  box-shadow: none;
-}
-
 .mg-empresas-scope .mg-context-panel {
   align-items: center;
   justify-content: space-between;
