@@ -3555,7 +3555,7 @@
   box-sizing: border-box;
   height: var(--mg-filter-pill-height);
   min-height: var(--mg-filter-pill-height);
-  padding: 0 12px;
+  padding: 0 22px 0 12px;
   border-radius: var(--mg-search-pill-radius);
   background: var(--gray-fill) !important;
   border: var(--mg-btn-pill-border);
@@ -3573,29 +3573,53 @@
     color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-filter-pill__trigger--has-clear {
-  padding-right: 18px;
-}
-
-.mg-empresas-scope .mg-filter-pill__clear-btn {
+.mg-empresas-scope .mg-filter-pill__icon {
   position: absolute;
-  right: 1px;
-  top: 0;
-  bottom: 0;
+  right: 9px;
+  top: 50%;
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  border: none;
-  color: var(--mg-brand-green);
-  background: transparent;
+  width: 12px;
+  height: 12px;
+  margin: 0;
   padding: 0;
-  z-index: 2;
-  pointer-events: auto;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition: transform 0.2s, color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
-.mg-empresas-scope .mg-filter-pill__clear-btn:hover:not(:disabled) {
-  color: var(--mg-brand-green-hover);
+.mg-empresas-scope .mg-filter-pill__icon svg {
+  width: 10px !important;
+  height: 10px !important;
+  flex-shrink: 0;
+}
+
+.mg-empresas-scope .mg-filter-pill__icon--chevron {
+  pointer-events: none;
+}
+
+.mg-empresas-scope .mg-filter-pill.is-open .mg-filter-pill__icon--chevron {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.mg-empresas-scope .mg-filter-pill__icon--clear {
+  pointer-events: auto;
+  cursor: pointer;
+  color: var(--mg-icon-color);
+}
+
+.mg-empresas-scope .mg-filter-pill__icon--clear:hover:not(:disabled) {
+  color: var(--mg-icon-danger-color, #dc2626);
+}
+
+.mg-empresas-scope .mg-filter-pill__icon--clear svg {
+  color: inherit !important;
+  stroke: inherit !important;
 }
 
 .mg-empresas-scope.mg-floating-panel-root .emp-col-filter-popup .emp-col-filter-popup__search .mg-search-pill,
