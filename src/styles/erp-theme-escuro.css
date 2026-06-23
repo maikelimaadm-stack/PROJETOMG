@@ -686,7 +686,9 @@ html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-shell {
   --emp-table-header-line: #434b56;
   --emp-table-header-side-line: #2d333b;
   --emp-table-header-height: 30px;
-  border-color: transparent !important;
+  border-color: rgba(230, 237, 243, 0.12) !important;
+  border-bottom: 0 !important;
+  border-radius: 14px 14px 0 0 !important;
   box-shadow: none !important;
 }
 
@@ -696,7 +698,9 @@ html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-
 html.escuro .mg-empresas-scope #mode-cards .emp-cards-bottom-dock {
   --emp-table-band-bg: #20262e;
   --emp-table-band-edge: #2d333b;
-  border-color: transparent !important;
+  border: 1px solid rgba(230, 237, 243, 0.12) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 14px 14px !important;
   background: #161b22 !important;
   box-shadow: none !important;
 }
@@ -784,6 +788,16 @@ html.tema-escuro .mg-empresas-scope #mode-cards .emp-cards-bottom-dock .mg-recor
 html.escuro .mg-empresas-scope .mg-view-panel .emp-table-root .mg-records-summary__item,
 html.escuro .mg-empresas-scope #mode-cards .emp-cards-bottom-dock .mg-records-summary__item {
   color: #9aa4af !important;
+}
+
+html.tema-escuro .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible,
+html.escuro .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
+  border-left: 1px solid rgba(230, 237, 243, 0.12) !important;
+  border-right: 1px solid rgba(230, 237, 243, 0.12) !important;
+  border-bottom: 1px solid rgba(230, 237, 243, 0.12) !important;
+  border-bottom-left-radius: 16px !important;
+  border-bottom-right-radius: 16px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.28) !important;
 }
 
 html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn.emp-toolbar-btn-active,
