@@ -1510,7 +1510,7 @@ export default function PAGEMP() {
           <div className="mg-view-stack flex min-h-0 flex-1 flex-col overflow-hidden">
             {showForm ? (
               <div
-                className="mg-view-layer mg-view-layer--form mg-view-layer--active flex min-h-0 flex-1 flex-col overflow-hidden"
+                className="mg-view-layer mg-view-layer--form mg-view-layer--active mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden"
                 aria-hidden={false}
               >
                 <EmpresasFormPanel

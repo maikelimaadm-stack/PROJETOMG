@@ -818,7 +818,7 @@
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
-  padding: var(--mg-view-panel-inset) !important;
+  padding: 0 !important;
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -826,6 +826,7 @@
   overflow-x: hidden;
   overflow-y: visible;
   box-sizing: border-box;
+  background: transparent !important;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .mg-panel-sidebar-layout__scroll .erp-scroll-nav__viewport {
@@ -842,6 +843,18 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .emp-form-body,
+.mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .emp-form-panels-zone {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .mg-panel-sidebar-layout {
+  margin: 0;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout {
@@ -7690,6 +7703,7 @@
 /* -------------------------------------------------------------------------- */
 .mg-empresas-scope .mg-view-panel .emp-search-view,
 .mg-empresas-scope .mg-view-panel .emp-cards-panel,
+.mg-empresas-scope .mg-view-panel .emp-form-panel,
 .mg-empresas-scope .mg-view-panel .emp-table-root,
 .mg-empresas-scope .mg-view-panel .emp-table-panel {
   background: transparent !important;
@@ -7701,6 +7715,22 @@
 .mg-empresas-scope .mg-view-panel .emp-table-panel {
   padding: var(--mg-view-panel-inset) !important;
   box-sizing: border-box;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-form-panel {
+  padding: var(--mg-view-panel-inset) !important;
+  box-sizing: border-box;
+  background: transparent !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-form-panel .mg-form-scroll {
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.mg-empresas-scope .mg-view-panel .emp-form-panel #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
+  padding: 0 !important;
+  background: transparent !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-cards-panel {
