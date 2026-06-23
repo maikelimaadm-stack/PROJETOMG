@@ -825,9 +825,9 @@
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout__tabs {
-  flex: 0 0 248px;
-  min-width: 226px;
-  max-width: 272px;
+  flex: 0 0 268px;
+  min-width: 246px;
+  max-width: 292px;
   min-height: 0;
   border: var(--mg-launch-card-border);
   border-radius: 12px;
@@ -892,7 +892,7 @@
   border-radius: 7px;
   padding: 8px 10px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 400;
   line-height: 1.2;
   transition:
     background-color var(--mg-motion-duration) var(--mg-motion-ease),
