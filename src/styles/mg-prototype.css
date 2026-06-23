@@ -326,13 +326,11 @@
 
 @keyframes mg-motion-panel-fade {
   from {
-    opacity: 0.55;
-    transform: translateY(2px);
+    opacity: 0.88;
   }
 
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -743,15 +741,11 @@
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll .erp-scroll-nav__viewport {
-  scrollbar-gutter: stable both-edges;
+  overflow-y: auto;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
   padding-top: 8px;
-}
-
-.mg-empresas-scope #mode-registro .mg-form-scroll--panel-sidebar .erp-scroll-nav__viewport {
-  overflow-y: scroll;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout {
@@ -779,7 +773,6 @@
   overflow-y: auto;
   overflow-x: hidden;
   overscroll-behavior: contain;
-  scrollbar-gutter: stable;
 }
 
 .mg-empresas-scope .mg-panel-sidebar-layout__content {
