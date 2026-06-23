@@ -2089,7 +2089,7 @@ export default function TBLEMP({
               ref={scrollContainerRef}
               tabIndex={0}
               onKeyDown={handleTableKeyDown}
-              className="emp-table-body-scroll relative min-h-0 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 mg-grid-scroll"
+              className="emp-table-body-scroll relative min-h-0 flex-1 outline-none mg-grid-scroll"
               viewportClassName="overflow-auto"
               aria-busy={isLoadingEmpresas || isFetchingEmpresas}
             >
@@ -2104,7 +2104,7 @@ export default function TBLEMP({
                 ref={scrollContainerRef}
                 tabIndex={0}
                 onKeyDown={handleTableKeyDown}
-                className="emp-table-body-scroll relative min-h-0 flex-1 outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2"
+                className="emp-table-body-scroll relative min-h-0 flex-1 outline-none"
                 viewportClassName="overflow-auto"
                 aria-busy={isLoadingEmpresas || isFetchingEmpresas}
               >
