@@ -2702,7 +2702,10 @@
 
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-more,
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .mg-accent-icon-btn,
-.cadastro-emp-scope.mg-empresas-scope .mg-action-bar #more-btn,
+.cadastro-emp-scope.mg-empresas-scope .mg-action-bar #more-btn {
+  color: var(--accent) !important;
+}
+
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .tb-btn-more svg,
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar .mg-accent-icon-btn svg,
 .cadastro-emp-scope.mg-empresas-scope .mg-action-bar #more-btn svg {
@@ -3503,14 +3506,12 @@
   background: transparent;
   overflow: hidden;
   box-sizing: border-box;
-  border-left: 1px solid var(--mg-table-panel-strip-border-color);
-  border-right: 1px solid var(--mg-table-panel-strip-border-color);
-  border-bottom: 1px solid var(--mg-table-panel-strip-border-color);
-  border-bottom-left-radius: var(--mg-table-panel-strip-bottom-radius);
-  border-bottom-right-radius: var(--mg-table-panel-strip-bottom-radius);
-  box-shadow:
-    var(--mg-table-panel-strip-border-softener),
-    var(--mg-table-panel-strip-bottom-glow);
+  border-left: 1px solid #f3f4f6;
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
 .mg-empresas-scope
@@ -7398,17 +7399,19 @@
   --emp-table-header-line: #ffffff;
   --emp-table-header-side-line: #e7eaee;
   --emp-table-header-height: 30px;
-  border: none !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border-bottom: 0 !important;
   box-shadow: none !important;
-  border-radius: 12px 12px 0 0 !important;
+  border-radius: 14px 14px 0 0 !important;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-root .emp-table-bottom-dock,
 .mg-empresas-scope #mode-cards .emp-cards-bottom-dock {
   --emp-table-band-bg: #ffffff;
   --emp-table-band-edge: #e7eaee;
-  border: none !important;
-  border-radius: 0 0 12px 12px !important;
+  border: 1px solid rgba(15, 23, 42, 0.06) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 14px 14px !important;
   overflow: hidden !important;
   background: #ffffff !important;
   box-shadow: none !important;
