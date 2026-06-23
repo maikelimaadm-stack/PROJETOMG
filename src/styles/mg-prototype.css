@@ -96,6 +96,10 @@
   --mg-field-label-font: 11px;
   --mg-card-row-gap: 10px;
   --mg-subtoolbar-bottom-gap: 0;
+  --mg-view-panel-inset-top: 8px;
+  --mg-view-panel-inset-x: 10px;
+  --mg-view-panel-inset-bottom: 10px;
+  --mg-view-panel-inset: var(--mg-view-panel-inset-top) var(--mg-view-panel-inset-x) var(--mg-view-panel-inset-bottom);
   --mg-cards-layout-gap: 12px;
   --mg-btn-font: 13px;
   --mg-btn-font-compact: 12px;
@@ -801,8 +805,11 @@
 
 .mg-empresas-scope #mode-registro .mg-form-scroll .erp-scroll-nav__viewport {
   overflow-y: auto;
-  padding-bottom: 12px;
   box-sizing: border-box;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll.erp-scroll-nav:not(.mg-form-scroll--panel-sidebar) .erp-scroll-nav__viewport {
+  padding-bottom: 2px;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.erp-scroll-nav,
@@ -811,15 +818,22 @@
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar {
-  padding-top: 8px;
-  padding-left: 8px;
-  padding-bottom: 4px;
+  padding: var(--mg-view-panel-inset) !important;
   display: flex;
   flex-direction: column;
   min-height: 0;
   flex: 1 1 auto;
   overflow-x: hidden;
   overflow-y: visible;
+  box-sizing: border-box;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .mg-panel-sidebar-layout__scroll .erp-scroll-nav__viewport {
+  padding-bottom: 2px;
+}
+
+.mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .mg-prototype-cards-layout {
+  padding-bottom: 0;
 }
 
 .mg-empresas-scope #mode-registro .mg-form-scroll.mg-form-scroll--panel-sidebar .mg-panel-sidebar-body,
@@ -880,7 +894,6 @@
 .mg-empresas-scope .mg-panel-sidebar-layout__scroll .erp-scroll-nav__viewport {
   min-height: 0;
   flex: 1 1 auto;
-  padding-bottom: 12px;
   box-sizing: border-box;
 }
 
@@ -7686,12 +7699,12 @@
 }
 
 .mg-empresas-scope .mg-view-panel .emp-table-panel {
-  padding: 8px 10px 10px !important;
+  padding: var(--mg-view-panel-inset) !important;
   box-sizing: border-box;
 }
 
 .mg-empresas-scope .mg-view-panel .emp-cards-panel {
-  padding: 8px 10px 10px !important;
+  padding: var(--mg-view-panel-inset) !important;
   box-sizing: border-box;
 }
 
