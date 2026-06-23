@@ -23,7 +23,7 @@ import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
-import { EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
+import { EMP_TABLE_HEADER_HEIGHT, EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
 import { scrollVirtualRowIntoView } from "@/shared/utils/virtualScrollIntoView";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
@@ -1195,10 +1195,12 @@ export default function TBLEMP({
       const visibleIndex = linhasExibidas.findIndex((item) => item?.id === nextRecord.id);
       const body = scrollContainerRef.current;
       if (body && visibleIndex >= 0) {
+        const tableHeaderOffset = mgPrototype ? EMP_TABLE_HEADER_HEIGHT : 0;
         scrollVirtualRowIntoView(body, visibleIndex, {
           itemSize: EMP_TABLE_ROW_HEIGHT,
           direction: step < 0 ? "up" : "down",
-          stickyHeaderOffset: EMP_TABLE_ROW_HEIGHT,
+          scrollOffset: tableHeaderOffset,
+          stickyHeaderOffset: tableHeaderOffset,
         });
       }
       setSelectedItems([nextRecord.id]);
