@@ -7077,6 +7077,16 @@
   margin-left: 2px;
 }
 
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-status-icons svg.lucide,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-status-icons .emp-layout-config-field-status-icon {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-status-icons span {
+  color: #ffffff !important;
+}
+
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-actions {
   gap: 2px;
   margin-left: 2px;

@@ -127,11 +127,11 @@ export default function EmpLayoutFieldSettingsPopover({
           <span className="truncate text-xs font-semibold">{field.label}</span>
           <button
             type="button"
-            className="inline-flex h-5 w-5 items-center justify-center rounded-sm text-white hover:bg-white/10"
+            className="emp-layout-field-settings-close inline-flex h-5 w-5 items-center justify-center rounded-sm text-white hover:bg-white/10"
             title="Fechar"
             onClick={onClose}
           >
-            <ChevronUp className="h-3.5 w-3.5" />
+            <ChevronUp className="h-3.5 w-3.5 text-white" />
           </button>
         </div>
         <div className="space-y-2.5 px-4 py-3">
