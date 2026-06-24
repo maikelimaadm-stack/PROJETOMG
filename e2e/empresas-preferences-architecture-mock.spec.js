@@ -460,6 +460,19 @@ test.describe("Empresas preferences architecture (mock)", () => {
     await expect(page.locator(".emp-th-pinned")).toHaveCount(1);
   });
 
+  test("viewMode record salvo sem registro ativo não deixa tela vazia", async ({ page }) => {
+    const seed = bootstrapSeed();
+    seed[scopeKey("cliente-a", "user-a", "empresas", "listagem")] = seedListagemRecord({
+      viewMode: "record",
+    });
+    const server = buildPreferencesServer(seed);
+    await server.route(page);
+
+    await openEmpresasPage(page, TOKENS.userA);
+    await expect(page.locator(".mg-table-panel-wrap.is-visible")).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator(".mg-cards-panel-wrap.is-visible")).toHaveCount(0);
+  });
+
   test("resize contínuo de coluna consolida em no máximo 1 PUT", async ({ page }) => {
     const seed = bootstrapSeed();
     seed[scopeKey("cliente-a", "user-a", "empresas", "listagem")] = seedListagemRecord({
@@ -471,9 +484,7 @@ test.describe("Empresas preferences architecture (mock)", () => {
     await openEmpresasPage(page, TOKENS.userA);
     await expect(page.locator(".mg-table-panel-wrap.is-visible")).toBeVisible();
 
-    const handle = page
-      .locator(".emp-col-resize-handle, [role='separator'][aria-orientation='vertical']")
-      .first();
+    const handle = page.locator(".mg-view-layer--table .emp-col-resize-handle").first();
     await expect(handle).toBeVisible();
     const box = await handle.boundingBox();
     if (!box) throw new Error("Resize handle não encontrado.");

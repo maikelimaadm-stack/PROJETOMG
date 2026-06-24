@@ -74,8 +74,13 @@ import {
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import {
   subscribeEmpPreferencesCache,
+  readEmpPreferencesJson,
   writeEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  FILTERS_KEY,
+  SORT_KEY,
+} from "@/modules/empresas/components/tblEmp.constants";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -286,12 +291,14 @@ export default function PAGEMP() {
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
+  const preferencesHydratedRef = useRef(false);
   const queryClient = useQueryClient();
   const saveCycle = useSaveCycle();
 
   useEffect(() => {
     if (previousScopeEmpresaIdRef.current === selectedEmpresaId) return;
     previousScopeEmpresaIdRef.current = selectedEmpresaId;
+    preferencesHydratedRef.current = false;
     setShowForm(false);
     setEditingEmp(null);
     setViewMode("table");
@@ -306,6 +313,10 @@ export default function PAGEMP() {
   }, [selectedEmpresaId]);
 
   useEffect(() => {
+    preferencesHydratedRef.current = false;
+  }, [user?.id]);
+
+  useEffect(() => {
     if (!preferencesSyncError?.message) return;
     const signature = `${preferencesSyncError.status || "err"}:${preferencesSyncError.message}`;
     if (lastPreferencesErrorRef.current === signature) return;
@@ -314,8 +325,46 @@ export default function PAGEMP() {
   }, [preferencesSyncError]);
 
   useEffect(() => {
+    if (!preferencesReady || !preferencesHydratedRef.current) return;
     writeStoredEmpViewMode(viewMode);
-  }, [viewMode]);
+  }, [preferencesReady, viewMode]);
+
+  useEffect(() => {
+    if (!preferencesReady || preferencesHydratedRef.current) return;
+    preferencesHydratedRef.current = true;
+
+    const storedMode = readStoredEmpViewMode();
+    const hydratedMode = storedMode === "record" ? "table" : storedMode;
+    setViewMode((current) => (current === hydratedMode ? current : hydratedMode));
+
+    const storedSort = readEmpPreferencesJson(SORT_KEY, null);
+    const primarySort = Array.isArray(storedSort)
+      ? storedSort.find((item) => item?.key)
+      : storedSort?.key
+        ? storedSort
+        : null;
+    if (primarySort?.key) {
+      setQuerySort({
+        key: primarySort.key,
+        direction: primarySort.direction === "desc" ? "desc" : "asc",
+      });
+    }
+
+    const storedColumnFilters = readEmpPreferencesJson(FILTERS_KEY, {});
+    const safeColumnFilters =
+      storedColumnFilters && typeof storedColumnFilters === "object" && !Array.isArray(storedColumnFilters)
+        ? storedColumnFilters
+        : {};
+    columnFiltersRef.current = safeColumnFilters;
+    setColumnFilters(safeColumnFilters);
+    setColumnFiltersHydrated(true);
+
+    const syncedPanelValues = syncColumnsIntoPanelFilters(safeColumnFilters, panelFilterColumnMap);
+    appliedFilterValuesRef.current = syncedPanelValues;
+    setFilterValues(syncedPanelValues);
+    setAppliedFilterValues(syncedPanelValues);
+    setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
+  }, [panelFilterColumnMap, preferencesReady]);
 
   useEffect(() => {
     if (!showForm) {

@@ -145,13 +145,24 @@ export const buildListagemPreferencesFromStorage = () => {
         visiveis: [],
         ordem: [],
       }),
+      columnFilters: table.columnFilters || {},
+      operatorsByField: Object.fromEntries(
+        Object.entries(table.columnFilters || {})
+          .filter(([, filter]) => filter && typeof filter === "object" && filter.operator)
+          .map(([field, filter]) => [field, filter.operator])
+      ),
       dropdownVisibleFields: safeParseJson(readStorage(EMP_SEARCH_DROPDOWN_VIS_KEY), {}),
       favorites: safeParseJson(readStorage(EMP_SEARCH_FAV_KEY), []),
     },
     table,
     cards: {
       visibleFields: safeParseJson(visibleCardsRaw, {}),
+      fieldOrder: Object.keys(safeParseJson(visibleCardsRaw, {}) || {}),
+      cardsPerRow: Number(
+        safeParseJson(readStorage(EMP_CARDS_LAYOUT_KEY), { cardsPerRow: 3 })?.cardsPerRow || 3
+      ),
       layoutConfig: safeParseJson(readStorage(EMP_CARDS_LAYOUT_KEY), { cardsPerRow: 3 }),
+      density: "normal",
     },
     panels: {
       launchPanelStyle: readStoredLaunchPanelStyle(),
@@ -183,6 +194,9 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
       );
     }
     if (table.columnFilters) writeStorage(FILTERS_KEY, safeStringify(table.columnFilters), "listagem:table");
+    if (!table.columnFilters && preferences.filters?.columnFilters) {
+      writeStorage(FILTERS_KEY, safeStringify(preferences.filters.columnFilters), "listagem:filters");
+    }
     if (table.sort) writeStorage(SORT_KEY, safeStringify(table.sort), "listagem:table");
     if (table.pageSize != null) {
       writeStorage(PAGE_SIZE_KEY, String(Number(table.pageSize) || 100), "listagem:table");
@@ -219,8 +233,16 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
     if (preferences.cards?.visibleFields) {
       writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(preferences.cards.visibleFields), "listagem:cards");
     }
-    if (preferences.cards?.layoutConfig) {
-      writeStorage(EMP_CARDS_LAYOUT_KEY, safeStringify(preferences.cards.layoutConfig), "listagem:cards");
+    if (preferences.cards?.layoutConfig || preferences.cards?.cardsPerRow) {
+      writeStorage(
+        EMP_CARDS_LAYOUT_KEY,
+        safeStringify(
+          preferences.cards.layoutConfig || {
+            cardsPerRow: Number(preferences.cards.cardsPerRow) || 3,
+          }
+        ),
+        "listagem:cards"
+      );
     }
   }, "bootstrap:apply-listagem");
 

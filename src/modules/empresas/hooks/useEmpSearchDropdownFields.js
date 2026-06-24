@@ -10,6 +10,7 @@ import {
   sortCardConfigFieldsAlphabetically,
 } from "@/modules/empresas/components/empSearchView.constants";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 export function useEmpSearchDropdownFields() {
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
@@ -20,6 +21,15 @@ export function useEmpSearchDropdownFields() {
   );
 
   const [visFields, setVisFields] = useState(() => loadSearchDropdownVisFields(EMP_SEARCH_DEFAULT_FIELDS));
+
+  useEffect(() => {
+    const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
+    setVisFields(loadSearchDropdownVisFields(sourceCatalog));
+    const unsubscribe = subscribeEmpPreferencesCache(() => {
+      setVisFields(loadSearchDropdownVisFields(sourceCatalog));
+    });
+    return unsubscribe;
+  }, [catalog]);
 
   useEffect(() => {
     if (catalog.length === 0) return;
