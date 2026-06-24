@@ -1,5 +1,5 @@
 import React from "react";
-import { Filter, List, Check, X, Link2, Link2Off, MoreHorizontal, Plus, ChevronFirst, ChevronLeft, ChevronRight, ChevronLast, Trash2, Copy, Pencil, Search } from "lucide-react";
+import { Filter, List, Check, X, Link2, Link2Off, MoreHorizontal, Plus, ChevronFirst, ChevronLeft, ChevronRight, ChevronLast, Trash, Copy, Pencil, Search } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/shared/ui/dropdown-menu";
 import { EMP_TOOLBAR_BTN, EMP_TOOLBAR_SEARCH_INPUT, EMP_TOOLBAR_SEARCH_WRAP } from "@/framework/cadastro/toolbars/empToolbarStyles";
 import EmpBubbleCounter from "@/framework/cadastro/toolbars/EmpBubbleCounter";
@@ -85,7 +85,7 @@ export default function EmpRecordToolbar({
           )}
           {showDeleteDuplicateActions && (
             <ToolbarBtn onClick={onDelete} className={`${LABELED_BTN_CLASS} emp-toolbar-btn-delete`} disabled={!canNavigate} title="Excluir">
-              <EmpToolbarIcon icon={Trash2} />
+              <EmpToolbarIcon icon={Trash} />
               <span>Excluir</span>
             </ToolbarBtn>
           )}

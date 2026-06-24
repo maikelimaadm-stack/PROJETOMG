@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ExternalLink, Loader2, Plus, X } from "lucide-react";
+import { ExternalLink, Loader2, Plus, Trash } from "lucide-react";
 import { showSuccess, showError } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
@@ -167,7 +167,7 @@ export default function RegistroAnexosDialog({
                 title="Remover anexo"
                 aria-label="Remover anexo"
               >
-                <X className="h-3 w-3" />
+                <Trash className="h-3 w-3" />
               </EmpConfigPlainIconBtn>
             </div>,
           ],
