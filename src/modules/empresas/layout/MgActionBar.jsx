@@ -598,12 +598,13 @@ export default function MgActionBar({
 
     return (
       <>
-        <div
-          data-template-id="action-bar-mobile"
-          className="mg-action-bar-mobile mg-action-bar-mobile--layout-config canva-section flex w-full shrink-0 flex-col md:hidden"
-          style={{ background: "var(--bg-card)" }}
-        >
-          <div className="mg-action-bar-mobile__actions">
+        <div className="mg-layout-config-toolbar-wrap is-visible md:hidden">
+          <div
+            data-template-id="action-bar-mobile"
+            className="mg-action-bar-mobile mg-action-bar-mobile--layout-config canva-section flex w-full shrink-0 flex-col"
+            style={{ background: "var(--bg-card)" }}
+          >
+            <div className="mg-action-bar-mobile__actions">
             {onBack ? (
               <ActionLabelBtn className="tb-btn-ghost shrink-0" onClick={onBack} disabled={actionsLocked} title="Voltar">
                 Voltar
@@ -637,10 +638,12 @@ export default function MgActionBar({
             ) : null}
           </div>
         </div>
+        </div>
 
+        <div className="mg-layout-config-toolbar-wrap is-visible hidden md:block">
         <div
           data-template-id="action-bar"
-          className="mg-action-bar mg-action-bar--layout-config canva-section hidden w-full shrink-0 items-center md:flex"
+          className="mg-action-bar mg-action-bar--layout-config canva-section flex w-full shrink-0 items-center"
           style={{
             background: "var(--bg-card)",
           }}
@@ -681,6 +684,7 @@ export default function MgActionBar({
           ) : null}
         </div>
       </div>
+        </div>
       </>
     );
   }

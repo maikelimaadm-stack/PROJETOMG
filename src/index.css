@@ -2435,11 +2435,21 @@ input[type="number"] {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  background: #ffffff;
-  margin-top: -1px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  background: var(--bg-page, #f0f2f5);
+  margin-top: 0;
+  padding: 6px 10px 10px;
   border-top: none;
+}
+
+@media (min-width: 768px) {
+  .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-body {
+    padding: 4px 12px 8px;
+  }
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
+  background: var(--bg-page, #f0f2f5) !important;
+  margin-top: 0 !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-fields {

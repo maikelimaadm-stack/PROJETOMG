@@ -1005,20 +1005,55 @@ html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-
   border-color: #30363d !important;
 }
 
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
+  background: var(--mg-container-bg) !important;
+  border-color: #30363d !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell {
+  background: var(--mg-container-bg) !important;
+  border-color: #30363d !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-split-view,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-content-card,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-content,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-split-view,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-content-card,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
+html.escuro .mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip {
+  background: var(--bg-card) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
+  background: var(--bg-page) !important;
+}
+
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator,
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-shell,
-html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar,
 html.escuro .mg-empresas-scope .emp-layout-configurator,
-html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-shell,
-html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
-  background: #161b22 !important;
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-shell {
+  background: var(--bg-page) !important;
   border-color: #30363d !important;
 }
 
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list {
-  background: var(--mg-container-bg) !important;
-  border-color: #30363d !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip,
@@ -1035,10 +1070,12 @@ html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip.emp-layout-config-field-selected,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip.emp-layout-config-field-selected {
   background: rgba(64, 222, 99, 0.2) !important;
-  border-color: var(--mg-focus-border) !important;
+  border: none !important;
   color: #e6edf3 !important;
 }
 
+html.tema-escuro .mg-empresas-scope .mg-layout-config-toolbar-wrap.is-visible,
+html.escuro .mg-empresas-scope .mg-layout-config-toolbar-wrap.is-visible,
 html.tema-escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
 html.escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
 html.tema-escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config,
@@ -1047,6 +1084,13 @@ html.escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layou
   border-right-color: rgba(230, 237, 243, 0.12) !important;
   border-bottom-color: rgba(230, 237, 243, 0.12) !important;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.28) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
+html.escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
+html.tema-escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config,
+html.escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config {
+  box-shadow: none !important;
 }
 
 html.tema-escuro .mg-empresas-scope .cmd-palette,
