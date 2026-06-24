@@ -2486,6 +2486,13 @@ input[type="number"] {
   z-index: 5;
 }
 
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-status-icons svg.lucide,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-status-icons .emp-layout-config-field-status-icon,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-status-icons span {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional {
   background: var(--mg-brand-green, #40de63);
   color: #ffffff;

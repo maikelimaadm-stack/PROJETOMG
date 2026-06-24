@@ -25,7 +25,8 @@ export default function EmpLayoutFieldStatusIcons({
 
   if (!isHidden && !isLocked && !clearOnDuplicate && !isAggregated) return null;
 
-  const iconClass = "h-3 w-3 shrink-0 text-white";
+  const iconClass =
+    "emp-layout-config-field-status-icon h-3 w-3 shrink-0 text-white stroke-white";
 
   return (
     <span className="emp-layout-config-field-status-icons flex shrink-0 items-center gap-px">

@@ -542,3 +542,18 @@ html body .emp-layout-field-settings-popover
   stroke: #ffffff !important;
 }
 
+/* Ícones de status nos campos — bloqueado, oculto, limpar ao duplicar (sempre brancos) */
+html body .cadastro-emp-scope.mg-empresas-scope.emp-layout-configurator
+  .emp-layout-config-field-status-icons
+  :is(svg.lucide, .emp-layout-config-field-status-icon),
+html body .cadastro-emp-scope.mg-empresas-scope.emp-layout-configurator
+  .emp-layout-config-field
+  .emp-layout-config-field-status-icons
+  :is(svg.lucide, .emp-layout-config-field-status-icon),
+html body .cadastro-emp-scope.mg-empresas-scope.emp-layout-configurator
+  .emp-layout-config-field-status-icons
+  span {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
