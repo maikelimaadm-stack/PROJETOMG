@@ -531,9 +531,6 @@
 .cadastro-emp-scope.mg-empresas-scope .emp-form-tabs.emp-form-tabs-launch,
 .cadastro-emp-scope.mg-empresas-scope .emp-search-bar,
 .cadastro-emp-scope.mg-empresas-scope .emp-search-view-wrap > .emp-toolbar-card,
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search,
 .mg-empresas-scope .filter-panel__header,
 .mg-empresas-scope .erp-menu-search-field {
   border-bottom: var(--mg-section-divider-border) !important;
@@ -6538,34 +6535,50 @@
 .mg-empresas-scope .emp-layout-configurator {
   background: var(--bg-page);
   color: var(--text-1);
+  min-height: 0;
+  flex: 1 1 auto;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-grid {
   min-height: 0;
-  background: var(--bg-page);
-  padding: var(--mg-view-panel-inset);
+  background: transparent;
+  padding: 0;
   gap: 12px;
   box-sizing: border-box;
+  height: 100%;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
   background: var(--mg-container-bg);
   border: var(--mg-launch-card-border);
-  border-radius: var(--mg-radius-card);
+  border-radius: 12px;
   box-shadow: var(--mg-launch-card-shadow);
-  padding: 8px;
+  padding: 8px 8px 12px;
   box-sizing: border-box;
   min-height: 0;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  gap: 8px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-title {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search {
   width: 100% !important;
   max-width: 100% !important;
   min-width: 0 !important;
+  flex-shrink: 0;
   border-radius: 999px !important;
-  padding-bottom: 8px !important;
   margin-bottom: 6px !important;
+  padding-bottom: 0 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search input {
@@ -6574,44 +6587,45 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list {
-  gap: 4px;
+  gap: 5px;
   min-height: 0;
-  overflow-y: auto !important;
-  overflow-x: hidden !important;
-  padding: 4px;
-  border: var(--mg-launch-card-border);
-  border-radius: 10px;
-  background: var(--mg-container-bg);
-  box-shadow: var(--mg-launch-card-shadow);
+  flex: 1 1 auto;
+  overflow: visible;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   box-sizing: border-box;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip {
-  min-height: 30px;
-  padding: 7px 10px;
-  border-radius: var(--mg-radius-control);
+  min-height: 0;
+  padding: 8px 10px;
+  border-radius: 7px;
   background: transparent;
-  color: var(--text-2);
+  color: #4f6278;
+  font-size: 13px;
   font-weight: 400;
-  border: 1px solid transparent;
+  line-height: 1.2;
+  border: none;
   box-shadow: none;
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
-    border-color var(--mg-motion-duration) var(--mg-motion-ease),
-    box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
+    color var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip:hover {
-  background: var(--gray-fill);
-  color: var(--text-1);
+  background: #f3f6fa;
+  color: #3b4e63;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip.emp-layout-config-field-selected {
-  background: var(--accent-light);
-  color: var(--text-1);
+  background: #d8ece7;
+  color: #2f7a5b;
   font-weight: 700;
-  border-color: var(--mg-focus-border);
-  box-shadow: var(--mg-focus-ring);
+  border: none;
+  box-shadow: none;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip .emp-layout-config-field-action {
@@ -6628,77 +6642,81 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer {
   background: transparent;
   gap: 8px;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) {
-  width: var(--mg-btn-icon-size);
-  height: var(--mg-btn-icon-size);
-  min-width: var(--mg-btn-icon-size);
-  background: var(--gray-fill) !important;
-  border: var(--mg-btn-pill-border) !important;
-  box-shadow: none;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled):hover svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
+  padding: 0;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main {
-  background: var(--mg-container-bg);
-  border: var(--mg-launch-card-border);
-  border-radius: var(--mg-radius-card);
-  box-shadow: var(--mg-launch-card-shadow);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: 0;
+  gap: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs {
+  background: var(--bg-card) !important;
+  border-radius: 0 !important;
+  flex-shrink: 0;
+  height: var(--mg-toolbar-row-height);
+  min-height: var(--mg-toolbar-row-height);
+  max-height: var(--mg-toolbar-row-height);
+  padding: var(--mg-toolbar-row-padding-y) var(--mg-toolbar-gutter) !important;
+  position: relative;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs::after,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-bottom: var(--mg-section-divider-border);
+  box-shadow: var(--mg-section-divider-shadow);
+  border-bottom-color: var(--mg-panel-tabs-strip-divider-color);
+  box-shadow: var(--mg-panel-tabs-strip-divider-shadow);
+  pointer-events: none;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs {
-  background: var(--bg-card) !important;
-  border-radius: 0 !important;
-  flex-shrink: 0;
-  height: var(--mg-subtoolbar-row-height);
-  min-height: var(--mg-subtoolbar-row-height);
-  max-height: var(--mg-subtoolbar-row-height);
-  padding: var(--mg-subtoolbar-row-padding-y) var(--mg-toolbar-gutter) !important;
-  border-bottom: var(--mg-section-divider-border) !important;
-  box-shadow: var(--mg-section-divider-shadow);
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs {
-  background: var(--bg-card) !important;
   border-top: none !important;
-  border-radius: 0 !important;
-  flex-shrink: 0;
-  height: var(--mg-subtoolbar-row-height);
-  min-height: var(--mg-subtoolbar-row-height);
-  max-height: var(--mg-subtoolbar-row-height);
-  padding: var(--mg-subtoolbar-row-padding-y) var(--mg-toolbar-gutter) !important;
-  border-bottom: var(--mg-section-divider-border) !important;
-  box-shadow: var(--mg-section-divider-shadow);
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .mg-panel-tabs-rail,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .mg-panel-tabs-rail {
+  height: 100%;
+  min-height: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-tab,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab {
+  min-height: 0;
+  height: 100%;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-tab-slider,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab-slider {
+  bottom: 0;
+  z-index: 3;
   height: var(--mg-panel-tab-indicator-height);
   background: var(--mg-panel-tab-indicator-color);
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab.active::after {
-  height: 1px;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab {
   font-size: 12px;
   font-weight: 500;
-  padding: 4px 10px;
-  min-height: var(--mg-btn-height);
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-tab {
-  border-radius: var(--mg-btn-pill-radius);
 }
 
 .mg-empresas-scope .emp-layout-configurator :is(.emp-layout-config-panel-tabs, .emp-layout-config-card-tabs) .seg-tab.active {
@@ -6855,14 +6873,31 @@
   background: var(--bg-card);
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
-  background: var(--bg-page) !important;
-  padding: var(--mg-view-panel-inset) !important;
-  box-sizing: border-box;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) {
+  width: var(--mg-btn-icon-size);
+  height: var(--mg-btn-icon-size);
+  min-width: var(--mg-btn-icon-size);
+  background: var(--gray-fill) !important;
+  border: var(--mg-btn-pill-border) !important;
+  box-shadow: none;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-rows {
-  gap: var(--mg-cards-layout-gap);
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) svg {
+  color: var(--mg-icon-color) !important;
+  stroke: var(--mg-icon-color) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
+  background: var(--bg-page) !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  min-height: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-help {
+  color: var(--text-2);
+  margin: 0 0 8px;
+  padding: 0;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell {
@@ -6871,31 +6906,30 @@
   box-shadow: var(--mg-launch-card-shadow) !important;
   background: var(--mg-container-bg) !important;
   padding: 10px 16px 16px !important;
+  box-sizing: border-box;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--draft.emp-layout-config-card-shell {
-  padding: 8px 16px 12px !important;
-  border: var(--mg-launch-card-border) !important;
-  box-shadow: var(--mg-launch-card-shadow) !important;
-  background: var(--bg-card) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--full.emp-layout-config-card-shell {
-  border: var(--mg-launch-card-border) !important;
-  box-shadow: var(--mg-launch-card-shadow) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-help {
-  color: var(--text-2);
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-rows {
+  gap: var(--mg-card-row-gap);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row {
   background: transparent;
   border: none;
+  box-shadow: none;
+  padding: 0;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--full {
-  border-color: transparent;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--draft {
+  padding-top: 4px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-header {
+  margin-bottom: 6px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-fields {
+  gap: var(--mg-card-row-gap);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required,
@@ -6961,18 +6995,20 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer {
-  margin-top: 12px;
+  margin-top: 10px;
   padding-top: 10px;
-  background: var(--bg-card);
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-bottom: 10px;
+  background: transparent;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
 }
 
-.mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config {
-  margin: 0 var(--mg-view-panel-inset-x);
+.mg-empresas-scope .mg-layout-config-toolbar-wrap.is-visible {
+  flex-shrink: 0;
+  overflow: hidden;
+  box-sizing: border-box;
   border-left: 1px solid #f3f4f6;
   border-right: 1px solid #f3f4f6;
   border-bottom: 1px solid #f3f4f6;
@@ -6981,14 +7017,24 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
 }
 
+.mg-empresas-scope .mg-layout-config-toolbar-wrap.is-visible > :is(.mg-action-bar, .mg-action-bar-mobile) {
+  border-radius: inherit;
+}
+
+.mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config {
+  margin: 0;
+  border: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  box-shadow: none;
+}
+
 .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config {
-  margin: 0 10px;
-  border-left: 1px solid #f3f4f6;
-  border-right: 1px solid #f3f4f6;
-  border-bottom: 1px solid #f3f4f6;
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  margin: 0;
+  border: none;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  box-shadow: none;
   overflow: hidden;
 }
 

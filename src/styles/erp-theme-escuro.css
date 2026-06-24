@@ -1017,8 +1017,8 @@ html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sideb
 
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list {
-  background: var(--mg-container-bg) !important;
-  border-color: #30363d !important;
+  background: transparent !important;
+  border: none !important;
 }
 
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip,
@@ -1035,10 +1035,12 @@ html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip.emp-layout-config-field-selected,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip.emp-layout-config-field-selected {
   background: rgba(64, 222, 99, 0.2) !important;
-  border-color: var(--mg-focus-border) !important;
+  border: none !important;
   color: #e6edf3 !important;
 }
 
+html.tema-escuro .mg-empresas-scope .mg-layout-config-toolbar-wrap.is-visible,
+html.escuro .mg-empresas-scope .mg-layout-config-toolbar-wrap.is-visible,
 html.tema-escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
 html.escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
 html.tema-escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config,
@@ -1047,6 +1049,13 @@ html.escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layou
   border-right-color: rgba(230, 237, 243, 0.12) !important;
   border-bottom-color: rgba(230, 237, 243, 0.12) !important;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.28) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
+html.escuro .mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config,
+html.tema-escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config,
+html.escuro .mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config {
+  box-shadow: none !important;
 }
 
 html.tema-escuro .mg-empresas-scope .cmd-palette,
