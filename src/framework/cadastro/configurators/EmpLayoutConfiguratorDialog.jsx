@@ -1242,15 +1242,12 @@ export default function EmpLayoutConfiguratorDialog({
     return () => onLayoutToolbarBridge?.(null);
   }, [open, isEditing, onLayoutToolbarBridge]);
 
-  const fieldItemClass = (field, selected, readOnly = false, variant = "panel") => {
+  const fieldItemClass = (field, selected, readOnly = false) => {
     const required = isFieldRequired(field);
-    const toneClass =
-      variant === "sidebar"
-        ? "emp-layout-config-field-chip"
-        : required
-          ? "emp-layout-config-field-required"
-          : "emp-layout-config-field-optional";
-    return `emp-layout-config-field group relative flex items-center justify-between gap-2 overflow-hidden text-left transition-colors focus-visible:outline-none ${toneClass} ${
+    const toneClass = required
+      ? "emp-layout-config-field-required"
+      : "emp-layout-config-field-optional";
+    return `emp-layout-config-field group relative flex items-center gap-1 overflow-hidden text-left transition-colors focus-visible:outline-none ${toneClass} ${
       selected ? "emp-layout-config-field-selected" : ""
     } ${readOnly ? "emp-layout-config-field-readonly" : ""}`;
   };
@@ -1271,7 +1268,7 @@ export default function EmpLayoutConfiguratorDialog({
     const addAction = variant === "available";
 
     return (
-      <span className="emp-layout-config-field-actions ml-1 flex shrink-0 items-center gap-1">
+      <span className="emp-layout-config-field-actions flex shrink-0 items-center gap-0.5">
         {addAction ? (
           <button
             type="button"
@@ -1347,12 +1344,12 @@ export default function EmpLayoutConfiguratorDialog({
       onDoubleClick={(event) => {
         if (isEditing) openFieldSettings(field, event);
       }}
-      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing, "sidebar")} emp-layout-config-field-available emp-layout-config-field-transition w-full cursor-pointer${draggedFieldId === field.id ? " emp-layout-config-field--dragging" : ""}`}
+      className={`${fieldItemClass(field, selectedAvailableIds.includes(field.id), !isEditing)} emp-layout-config-field-available emp-layout-config-field-transition w-full cursor-pointer${draggedFieldId === field.id ? " emp-layout-config-field--dragging" : ""}`}
     >
-      {isCustomField(field) && <EmpCustomMarker />}
+      {isCustomField(field) && <EmpCustomMarker variant="white" />}
       <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-semibold">{field.label}</div>
-        <div className="truncate text-[10px]" style={{ color: "var(--text-3)" }}>
+        <div className="truncate text-xs font-semibold text-white">{field.label}</div>
+        <div className="truncate text-[10px] text-white/75">
           {getAvailableFieldOriginLabel(field.id)}
         </div>
       </div>

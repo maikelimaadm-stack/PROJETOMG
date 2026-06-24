@@ -28,7 +28,7 @@ export default function EmpLayoutFieldStatusIcons({
   const iconClass = "h-3 w-3 shrink-0 text-white/95";
 
   return (
-    <span className="emp-layout-config-field-status-icons ml-1 flex shrink-0 items-center gap-0.5">
+    <span className="emp-layout-config-field-status-icons flex shrink-0 items-center gap-px">
       {isLocked && (
         <Lock className={iconClass} title="Bloqueado" aria-label="Bloqueado" />
       )}

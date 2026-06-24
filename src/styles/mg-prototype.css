@@ -7007,24 +7007,110 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional {
   min-height: var(--mg-field-height);
-  height: var(--mg-field-height);
-  padding: 0 10px;
+  height: auto;
+  padding: 0 4px 0 8px;
   border-radius: var(--mg-radius-control);
   font-size: var(--mg-field-label-size-empty);
-  font-weight: 500;
+  font-weight: 600;
   border: none !important;
-  background: var(--mg-field-idle-bg) !important;
-  color: var(--text-3) !important;
-  box-shadow: var(--mg-field-edge-shadow) !important;
+  color: #ffffff !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required {
+  background: var(--red) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required:hover:not(.emp-layout-config-field-readonly) {
+  filter: brightness(0.95);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional {
+  background: var(--mg-brand-green) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional:hover:not(.emp-layout-config-field-readonly) {
+  background: var(--mg-brand-green-hover) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel {
-  background: var(--mg-field-idle-bg) !important;
+  min-height: var(--mg-field-height);
+  height: var(--mg-field-height);
+  padding: 0 4px 0 8px;
   border: none !important;
   border-radius: var(--mg-radius-control) !important;
-  color: var(--text-3) !important;
-  font-weight: 500;
-  box-shadow: var(--mg-field-edge-shadow) !important;
+  font-weight: 600;
+  color: #ffffff !important;
+  box-shadow: var(--mg-launch-card-shadow) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-available {
+  min-height: 36px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+.mg-empresas-scope .emp-layout-configurator
+  :is(.emp-layout-config-field-required, .emp-layout-config-field-optional)
+  :is(span, svg, .emp-layout-config-field-status-icons) {
+  color: #ffffff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator
+  :is(.emp-layout-config-field-required, .emp-layout-config-field-optional)
+  svg {
+  stroke: #ffffff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-status-icons {
+  gap: 1px;
+  margin-left: 2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-actions {
+  gap: 2px;
+  margin-left: 2px;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-selected {
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.88), var(--mg-launch-card-shadow) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-selected.emp-layout-config-field-required {
+  background: var(--red) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-selected.emp-layout-config-field-optional {
+  background: var(--mg-brand-green) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action {
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: var(--mg-btn-icon-radius) !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action svg {
+  width: 12px !important;
+  height: 12px !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.28) !important;
+  color: #ffffff !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-label {
@@ -7127,51 +7213,6 @@
   color: var(--text-1);
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required {
-  background: var(--mg-field-idle-bg) !important;
-  color: var(--text-3) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional {
-  background: var(--mg-field-idle-bg) !important;
-  color: var(--text-3) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-required:not(.emp-layout-config-field-selected) span,
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-optional:not(.emp-layout-config-field-selected) span {
-  color: var(--text-3) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected,
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected.emp-layout-config-field-required,
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected.emp-layout-config-field-optional {
-  outline: none !important;
-  background: var(--mg-field-idle-bg) !important;
-  border: 1px solid var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
-  color: var(--text-1) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected span {
-  color: var(--text-1) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-selected:not(.emp-layout-config-field-panel) {
-  outline: none;
-  border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
-  background: var(--gray-fill2) !important;
-  color: var(--mg-brand-green-hover) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) svg {
-  color: var(--mg-icon-color) !important;
-  stroke: var(--mg-icon-color) !important;
-}
-
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer-btn:disabled {
   opacity: 0.4;
 }
@@ -7183,19 +7224,6 @@
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-labeled:not(.tb-btn-danger):hover:not(:disabled) {
   background: var(--gray-fill2) !important;
-}
-
-.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-required:not(.emp-layout-config-field-selected) span,
-.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-optional:not(.emp-layout-config-field-selected) span {
-  color: var(--text-3) !important;
-}
-
-.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-panel.emp-layout-config-field-selected span {
-  color: var(--text-1) !important;
-}
-
-.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-selected.emp-layout-config-field-panel {
-  box-shadow: var(--mg-focus-ring) !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger):not(:disabled) {
@@ -8882,18 +8910,23 @@
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action {
-  width: var(--mg-btn-icon-size) !important;
-  height: var(--mg-btn-icon-size) !important;
-  min-width: var(--mg-btn-icon-size) !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
   padding: 0 !important;
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-action svg {
-  width: 14px !important;
-  height: 14px !important;
+  width: 12px !important;
+  height: 12px !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cadastro-emp-scope.mg-empresas-scope :is(
