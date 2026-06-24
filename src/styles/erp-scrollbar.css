@@ -245,7 +245,7 @@ html *::-webkit-scrollbar-button:double-button:horizontal:increment {
 html body svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
-  button:not(.emp-layout-config-field-action),
+  button:not(.emp-layout-config-field-action):not(.emp-layout-field-settings-close),
   a,
   [role="button"]:not(.emp-layout-config-field),
   label,
@@ -281,12 +281,12 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
 }
 
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
-  button:not(.emp-layout-config-field-action),
+  button:not(.emp-layout-config-field-action):not(.emp-layout-field-settings-close),
   a,
   [role="button"]:not(.emp-layout-config-field)
 ):hover:not(:disabled) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
-  button:not(.emp-layout-config-field-action),
+  button:not(.emp-layout-config-field-action):not(.emp-layout-field-settings-close),
   a,
   [role="button"]:not(.emp-layout-config-field)
 ):focus-visible:not(:disabled) svg.lucide,
@@ -536,7 +536,17 @@ html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
 /* Popover de configuração do campo — ícone fechar branco no header colorido */
 html body .emp-layout-field-settings-popover
   :is(.emp-layout-config-field-required, .emp-layout-config-field-optional)
+  .emp-layout-field-settings-close,
+html body .emp-layout-field-settings-popover
+  :is(.emp-layout-config-field-required, .emp-layout-config-field-optional)
+  .emp-layout-field-settings-close:is(:hover, :focus-visible, :active),
+html body .emp-layout-field-settings-popover
+  :is(.emp-layout-config-field-required, .emp-layout-config-field-optional)
   .emp-layout-field-settings-close
+  svg.lucide,
+html body .emp-layout-field-settings-popover
+  :is(.emp-layout-config-field-required, .emp-layout-config-field-optional)
+  .emp-layout-field-settings-close:is(:hover, :focus-visible, :active)
   svg.lucide {
   color: #ffffff !important;
   stroke: #ffffff !important;
