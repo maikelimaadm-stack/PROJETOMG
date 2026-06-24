@@ -20,16 +20,21 @@ import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/emp
 
 export function useEmpCardsVisFields() {
   const [columnLayoutVersion, setColumnLayoutVersion] = useState(0);
+  const [preferencesVersion, setPreferencesVersion] = useState(0);
 
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
 
   useEffect(() => {
-    const refresh = () => setColumnLayoutVersion((current) => current + 1);
-    const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
-    window.addEventListener("emp-column-layout-updated", refresh);
+    const refreshColumns = () => setColumnLayoutVersion((current) => current + 1);
+    const refreshPreferences = () => setPreferencesVersion((current) => current + 1);
+    const unsubscribeCache = subscribeEmpPreferencesCache(({ reason } = {}) => {
+      refreshPreferences();
+      if (String(reason || "").includes("table")) refreshColumns();
+    });
+    window.addEventListener("emp-column-layout-updated", refreshColumns);
     return () => {
       unsubscribeCache();
-      window.removeEventListener("emp-column-layout-updated", refresh);
+      window.removeEventListener("emp-column-layout-updated", refreshColumns);
     };
   }, []);
 
@@ -45,6 +50,12 @@ export function useEmpCardsVisFields() {
 
   const [visFields, setVisFields] = useState(() => loadSearchVisFields(EMP_SEARCH_DEFAULT_FIELDS));
   const [layoutConfig, setLayoutConfig] = useState(() => loadCardsLayoutConfig());
+
+  useEffect(() => {
+    const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
+    setVisFields(loadSearchVisFields(sourceCatalog));
+    setLayoutConfig(loadCardsLayoutConfig());
+  }, [catalog, preferencesVersion]);
 
   const fieldsPerRow = useMemo(
     () => getFieldsPerRowForLayout(layoutConfig.cardsPerRow),

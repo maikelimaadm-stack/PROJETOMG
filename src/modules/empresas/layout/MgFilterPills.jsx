@@ -259,11 +259,13 @@ export default function MgFilterPills({
     if (hasActiveFiltersProp != null) return Boolean(hasActiveFiltersProp);
     return filterFields.some((field) => isErpFilterActive(appliedValues[field.key]));
   }, [appliedValues, filterFields, hasActiveFiltersProp]);
-  const [filtersExpanded, setFiltersExpanded] = useState(() => !useScrollRail || hasActiveFilters);
-  const [filtersOpen, setFiltersOpen] = useState(() => !useScrollRail || hasActiveFilters);
+  const shouldOpenInitialRail = !useScrollRail || hasActiveFilters || filterFields.length > 0;
+  const [filtersExpanded, setFiltersExpanded] = useState(() => shouldOpenInitialRail);
+  const [filtersOpen, setFiltersOpen] = useState(() => shouldOpenInitialRail);
   const filterAnimTimeoutRef = useRef(null);
   const filtersExpandedRef = useRef(filtersExpanded);
   const filtersOpenRef = useRef(filtersOpen);
+  const userToggledRailRef = useRef(false);
 
   const clearRailAnimTimeout = useCallback(() => {
     if (filterAnimTimeoutRef.current) {
@@ -300,6 +302,7 @@ export default function MgFilterPills({
 
   const toggleFilterRail = useCallback(() => {
     if (disabled || !useScrollRail) return;
+    userToggledRailRef.current = true;
     if (filtersExpandedRef.current && filtersOpenRef.current) {
       beginCollapseFilterRail();
       return;
@@ -321,10 +324,10 @@ export default function MgFilterPills({
 
   useEffect(() => {
     if (!useScrollRail) return;
-    if (hasActiveFilters && !filtersExpandedRef.current) {
+    if ((hasActiveFilters || filterFields.length > 0) && !filtersExpandedRef.current && !userToggledRailRef.current) {
       expandFilterRail();
     }
-  }, [expandFilterRail, hasActiveFilters, useScrollRail]);
+  }, [expandFilterRail, filterFields.length, hasActiveFilters, useScrollRail]);
 
   const {
     viewportRef,
