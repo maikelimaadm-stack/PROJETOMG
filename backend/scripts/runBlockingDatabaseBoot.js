@@ -204,6 +204,23 @@ export const runBlockingDatabaseBoot = async (log = console) => {
   const indexResult = await ensurePerformanceIndexes();
   report.steps.push({ step: "ensure_performance_indexes", ok: true, result: indexResult });
 
+  try {
+    const { ensureUsuarioPreferenciaTable } = await import("./ensureUsuarioPreferenciaTable.js");
+    await ensureUsuarioPreferenciaTable();
+    report.steps.push({ step: "ensure_usuario_preferencia_table", ok: true });
+  } catch (error) {
+    logMessage(
+      log,
+      "warn",
+      `[boot-blocking] ensureUsuarioPreferenciaTable falhou (modo compatibilidade): ${error.message}`
+    );
+    report.steps.push({
+      step: "ensure_usuario_preferencia_table",
+      ok: false,
+      error: error.message,
+    });
+  }
+
   if (!indexResult.applied) {
     logMessage(
       log,
