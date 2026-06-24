@@ -6900,11 +6900,19 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body.mg-form-scroll,
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
   background: var(--bg-page) !important;
-  padding: 0 !important;
+  padding: 6px 10px 10px !important;
   box-sizing: border-box;
   min-height: 0;
   margin-top: 0 !important;
   border-top: none !important;
+}
+
+@media (min-width: 768px) {
+  .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body,
+  .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body.mg-form-scroll,
+  .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
+    padding: 4px 12px 8px !important;
+  }
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-main {
