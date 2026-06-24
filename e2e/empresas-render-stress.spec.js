@@ -141,8 +141,17 @@ const hideTelefoneColumn = async (page) => {
   await page.getByRole("button", { name: "Configurar colunas da tabela" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("heading", { name: "Configuração de colunas" })).toBeVisible();
-  await dialog.locator(".emp-config-transfer-item").filter({ hasText: "Telefone" }).first().click();
-  await dialog.getByRole("button", { name: "Remover selecionados" }).click();
+  const usedPanel = dialog.locator(".emp-config-transfer-panel").nth(1);
+  let telefoneItem = usedPanel.locator(".emp-config-transfer-item").filter({ hasText: "Telefone" }).first();
+  if (!(await telefoneItem.count())) {
+    telefoneItem = dialog.locator(".emp-config-transfer-item").filter({ hasText: "Telefone" }).first();
+  }
+  await expect(telefoneItem).toBeVisible({ timeout: 8_000 });
+  await telefoneItem.click();
+  await expect(telefoneItem).toHaveClass(/emp-config-transfer-item--selected/, { timeout: 5_000 });
+  const removeBtn = dialog.getByRole("button", { name: "Remover selecionados" });
+  await expect(removeBtn).toBeEnabled({ timeout: 5_000 });
+  await removeBtn.click();
   await dialog.getByRole("button", { name: "OK" }).click();
   await page.waitForTimeout(900);
 };

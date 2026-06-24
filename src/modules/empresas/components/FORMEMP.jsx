@@ -861,8 +861,25 @@ export default function FORMEMP({
       : null,
   });
 
+  const toolbarBridgeSigRef = useRef("");
+
   useEffect(() => {
     if (!onToolbarBridge) return;
+    const recordMetaKey = recordMeta
+      ? `${recordMeta.codigo ?? ""}|${recordMeta.nome ?? ""}`
+      : "";
+    const bridgeSig = [
+      editMode,
+      isReadOnly,
+      isEditing,
+      isDuplicating,
+      layoutConfigOpen,
+      layoutToolbarBridge ? "layout-toolbar" : "",
+      recordMetaKey,
+      filterOpen,
+    ].join("|");
+    if (toolbarBridgeSigRef.current === bridgeSig) return;
+    toolbarBridgeSigRef.current = bridgeSig;
     onToolbarBridge({
       editMode,
       isReadOnly,
