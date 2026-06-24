@@ -379,25 +379,23 @@ export default function MgFilterPills({
   );
 
   const configButton = onConfigureFilters || onClear ? (
-    <div className="mg-filter-pills-rail__config-slot">
-      <button
-        type="button"
-        className={`ios-btn mg-filter-pills-rail__config mg-filter-pills-rail__config--icon-only${
-          hasActiveFilters ? " is-clear-active" : filterPanelActive ? " is-active" : ""
-        }`}
-        onClick={handleConfigButtonClick}
-        disabled={disabled}
-        aria-label={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
-        title={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
-        aria-pressed={hasActiveFilters ? false : filterPanelActive}
-      >
-        {hasActiveFilters ? (
-          <FunnelX className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
-        ) : (
-          <FunnelPlus className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
-        )}
-      </button>
-    </div>
+    <button
+      type="button"
+      className={`ios-btn tb-btn tb-btn-ghost tb-btn-filter tb-btn-icon mg-filter-pills-rail__config${
+        hasActiveFilters ? " is-clear-active tb-btn-danger" : filterPanelActive ? " tb-btn-filter-active is-active" : ""
+      }`}
+      onClick={handleConfigButtonClick}
+      disabled={disabled}
+      aria-label={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
+      title={hasActiveFilters ? "Limpar todos os filtros" : "Configurar filtros"}
+      aria-pressed={hasActiveFilters ? false : filterPanelActive}
+    >
+      {hasActiveFilters ? (
+        <FunnelX className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+      ) : (
+        <FunnelPlus className="h-3.5 w-3.5" strokeWidth={2.2} aria-hidden="true" />
+      )}
+    </button>
   ) : null;
 
   if (!useScrollRail) {
