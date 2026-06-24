@@ -2435,11 +2435,18 @@ input[type="number"] {
   flex: 1;
   min-height: 0;
   overflow: auto;
-  background: #ffffff;
-  margin-top: -1px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  background: var(--bg-page, #f0f2f5);
+  margin-top: 0;
+  padding-top: 0;
+  padding-bottom: 0;
   border-top: none;
+}
+
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
+  background: var(--bg-page, #f0f2f5) !important;
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-panel-fields {
