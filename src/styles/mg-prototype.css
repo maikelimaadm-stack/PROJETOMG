@@ -6928,18 +6928,46 @@
   background: var(--bg-card);
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) {
-  width: var(--mg-btn-icon-size);
-  height: var(--mg-btn-icon-size);
-  min-width: var(--mg-btn-icon-size);
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled),
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled) {
+  width: var(--mg-btn-icon-size) !important;
+  height: var(--mg-btn-icon-size) !important;
+  min-width: var(--mg-btn-icon-size) !important;
+  min-height: var(--mg-btn-icon-size) !important;
+  max-width: var(--mg-btn-icon-size) !important;
+  max-height: var(--mg-btn-icon-size) !important;
+  padding: 0 !important;
   background: var(--gray-fill) !important;
-  border: var(--mg-btn-pill-border) !important;
-  box-shadow: none;
+  border: var(--mg-panel-rail-btn-border) !important;
+  box-shadow: none !important;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled) svg {
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled):hover,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled):hover {
+  background: var(--gray-fill2) !important;
+  border: var(--mg-panel-rail-btn-border) !important;
+  box-shadow: none !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled) .mg-panel-tabs-rail__nav-icon,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled) .mg-panel-tabs-rail__nav-icon {
+  width: 13px !important;
+  height: 13px !important;
   color: var(--mg-icon-color) !important;
   stroke: var(--mg-icon-color) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled):hover .mg-panel-tabs-rail__nav-icon,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:not(:disabled):hover .mg-panel-tabs-rail__nav-icon {
+  color: var(--mg-brand-green-hover) !important;
+  stroke: var(--mg-brand-green-hover) !important;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:disabled,
+.cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:disabled {
+  background: var(--gray-fill) !important;
+  border: var(--mg-panel-rail-btn-border) !important;
+  opacity: 0.45;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body,
@@ -7235,8 +7263,8 @@
   color: var(--text-1);
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer-btn:disabled {
-  opacity: 0.4;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer .emp-layout-config-transfer-btn:disabled {
+  opacity: 0.45;
 }
 
 .cadastro-emp-scope.mg-empresas-scope .emp-layout-configurator .tb-btn-ghost.tb-btn-labeled:not(.tb-btn-danger) {
@@ -8849,8 +8877,7 @@
   .mg-topbar-icon-btn,
   .mg-desktop-search__trigger,
   .filter-panel__close,
-  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
-  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger)
 ) {
   background: var(--gray-fill) !important;
   border: var(--mg-btn-pill-border) !important;
@@ -8867,8 +8894,7 @@
   .mg-topbar-icon-btn,
   .mg-desktop-search__trigger,
   .filter-panel__close,
-  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
-  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger)
 ) svg {
   color: var(--mg-icon-color) !important;
   stroke: var(--mg-icon-color) !important;
@@ -8885,8 +8911,7 @@
   .mg-topbar-icon-btn,
   .mg-desktop-search__trigger,
   .filter-panel__close,
-  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
-  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger)
 ):hover:not(:disabled) {
   background: var(--gray-fill2) !important;
 }
@@ -8902,8 +8927,7 @@
   .mg-topbar-icon-btn,
   .mg-desktop-search__trigger,
   .filter-panel__close,
-  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
-  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger)
 ).is-open:not(:disabled),
 .cadastro-emp-scope.mg-empresas-scope :is(
   .tb-btn-icon,
@@ -8916,8 +8940,7 @@
   .mg-topbar-icon-btn,
   .mg-desktop-search__trigger,
   .filter-panel__close,
-  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger),
-  .emp-layout-configurator .emp-layout-config-transfer .mg-nav-btn:not(:disabled)
+  .emp-layout-configurator .tb-btn-icon:not(.tb-btn-green):not(.tb-btn-danger)
 ).is-active:not(:disabled),
 .cadastro-emp-scope.mg-empresas-scope .mg-desktop-search__trigger--active:not(:disabled),
 .cadastro-emp-scope.mg-empresas-scope .mg-filter-pills-rail__config.is-active:not(:disabled) {

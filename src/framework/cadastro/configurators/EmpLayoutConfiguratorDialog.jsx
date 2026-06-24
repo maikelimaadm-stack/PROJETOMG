@@ -12,6 +12,8 @@ import {
   ChevronRight,
   Trash,
   X,
+  RectangleHorizontal,
+  BetweenHorizontalStart,
 } from "lucide-react";
 import { useHorizontalScrollRail } from "@/shared/hooks/useHorizontalScrollRail";
 import EmpLayoutFieldSettingsPopover from "@/framework/cadastro/layouts/EmpLayoutFieldSettingsPopover";
@@ -91,12 +93,6 @@ const LayoutIconBtn = ({ className = "", children, ...props }) => (
   </LayoutToolbarBtn>
 );
 
-const LayoutLabeledBtn = ({ className = "", children, ...props }) => (
-  <LayoutToolbarBtn className={`tb-btn-ghost tb-btn-labeled ${className}`} {...props}>
-    {children}
-  </LayoutToolbarBtn>
-);
-
 const LayoutTabsScrollBtn = ({ direction, disabled, onClick, label }) => {
   const Icon = direction === "prev" ? ChevronLeft : ChevronRight;
   return (
@@ -112,6 +108,19 @@ const LayoutTabsScrollBtn = ({ direction, disabled, onClick, label }) => {
     </button>
   );
 };
+
+const isCardColSpanSplit = (colSpan) => (Number(colSpan) || 12) <= 6;
+
+const CardColSpanIcon = ({ colSpan, className = "h-3 w-3 shrink-0" }) => {
+  const Icon = isCardColSpanSplit(colSpan) ? BetweenHorizontalStart : RectangleHorizontal;
+  return <Icon className={className} strokeWidth={2.1} aria-hidden="true" />;
+};
+
+const LayoutTransferBtn = ({ children, ...props }) => (
+  <button type="button" className="ios-btn mg-nav-btn mg-panel-tabs-rail__nav emp-layout-config-transfer-btn" {...props}>
+    {children}
+  </button>
+);
 
 const LayoutConfigTabsRail = ({ leading = null, viewportRef, canScrollLeft, canScrollRight, hasOverflow, scrollLeft, scrollRight, children }) => (
   <div className="mg-panel-tabs-rail">
@@ -1530,24 +1539,22 @@ export default function EmpLayoutConfiguratorDialog({
           </aside>
 
           <section className="emp-layout-config-transfer flex flex-col items-center justify-center gap-2">
-            <button
-              type="button"
-              className="mg-nav-btn ios-btn"
+            <LayoutTransferBtn
               disabled={!isEditing || panelFieldIds.length === 0}
               onClick={removeAllFields}
               title="Remover todos"
+              aria-label="Remover todos"
             >
-              <ChevronFirst className="h-3 w-3" />
-            </button>
-            <button
-              type="button"
-              className="mg-nav-btn ios-btn"
+              <ChevronFirst className="mg-panel-tabs-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
+            </LayoutTransferBtn>
+            <LayoutTransferBtn
               disabled={!isEditing || availableFields.length === 0}
               onClick={addAllFields}
               title="Adicionar todos"
+              aria-label="Adicionar todos"
             >
-              <ChevronLast className="h-3 w-3" />
-            </button>
+              <ChevronLast className="mg-panel-tabs-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
+            </LayoutTransferBtn>
           </section>
 
           <main
@@ -1681,17 +1688,16 @@ export default function EmpLayoutConfiguratorDialog({
                         </LayoutIconBtn>
                       ) : null}
                       {activeCard ? (
-                        <LayoutLabeledBtn
+                        <LayoutIconBtn
                           onClick={() => toggleCardColSpan(activeCard.id)}
-                          className="h-7 px-2 text-[10px]"
                           title={
                             CARD_COL_SPAN_OPTIONS.find(
-                              (o) => o.value === (Number(activeCard.colSpan) <= 6 ? 12 : 6)
+                              (o) => o.value === (isCardColSpanSplit(activeCard.colSpan) ? 12 : 6)
                             )?.label || "Alternar largura do card"
                           }
                         >
-                          {(Number(activeCard.colSpan) || 12) <= 6 ? "½→⬛" : "⬛→½"}
-                        </LayoutLabeledBtn>
+                          <CardColSpanIcon colSpan={activeCard.colSpan} className="h-3.5 w-3.5" />
+                        </LayoutIconBtn>
                       ) : null}
                     </div>
                   ) : null
@@ -1766,8 +1772,8 @@ export default function EmpLayoutConfiguratorDialog({
                         ) : (
                           <>
                             {card.label}
-                            <span className="ml-1 text-[9px] opacity-70">
-                              {(Number(card.colSpan) || 12) <= 6 ? "½" : "⬛"}
+                            <span className="ml-1 inline-flex opacity-70">
+                              <CardColSpanIcon colSpan={card.colSpan} className="h-2.5 w-2.5" />
                             </span>
                           </>
                         )}
