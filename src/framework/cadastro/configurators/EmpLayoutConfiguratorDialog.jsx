@@ -1872,7 +1872,7 @@ export default function EmpLayoutConfiguratorDialog({
                         ) : null}
                         <div
                           className={cn(
-                            "emp-layout-config-panel-fields flex min-h-[48px] w-full min-w-0 flex-nowrap items-stretch gap-2",
+                            "emp-layout-config-panel-fields flex min-h-[48px] w-full min-w-0 flex-nowrap items-stretch",
                             dragOverRowId === layoutRow.id && draggedFieldId && !draggedRowId
                               ? "emp-layout-config-row-drop--active"
                               : ""
@@ -1972,7 +1972,7 @@ export default function EmpLayoutConfiguratorDialog({
                           }}
                         >
                           {isDraftRow ? (
-                            <div className="emp-layout-config-row-draft flex min-h-[var(--mg-field-height)] flex-1 items-center justify-center gap-2 bg-white px-2">
+                            <div className="emp-layout-config-row-draft flex min-h-[var(--mg-field-height)] flex-1 items-center justify-center gap-2 px-2">
                               {isEditing ? (
                                 <>
                                   <button
