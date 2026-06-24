@@ -2459,7 +2459,8 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field {
   box-sizing: border-box;
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   border: 0;
   border-radius: var(--mg-radius-control, var(--emp-control-radius)) !important;
   box-shadow: none !important;
@@ -2607,16 +2608,16 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-panel {
-  height: var(--mg-field-height, 32px);
-  min-height: var(--mg-field-height, 32px);
-  padding: 0 4px 0 8px;
+  height: var(--mg-field-height, 38px);
+  min-height: var(--mg-field-height, 38px);
+  padding: 0 10px;
   border-radius: var(--mg-radius-control, var(--emp-control-radius)) !important;
   box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available {
-  min-height: 36px;
-  padding: 5px 4px 5px 8px;
+  min-height: var(--mg-field-height, 38px);
+  padding: 4px 10px;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-in-use {
