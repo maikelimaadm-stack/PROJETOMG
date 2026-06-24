@@ -606,11 +606,16 @@
 }
 
 /* Divisores superiores (rodapés de painel) */
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer,
 .mg-empresas-scope .filter-panel__footer {
   border-top: var(--mg-section-divider-border) !important;
   border-bottom: none !important;
   box-shadow: var(--mg-section-divider-shadow-top);
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer {
+  border-top: 1px solid var(--mg-panel-tabs-strip-divider-color) !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
 }
 
 .mg-empresas-scope .mg-panel-tabs-strip .seg-control,
@@ -6675,18 +6680,14 @@
   position: relative;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs::after,
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-bottom: var(--mg-section-divider-border);
-  box-shadow: var(--mg-section-divider-shadow);
-  border-bottom-color: var(--mg-panel-tabs-strip-divider-color);
-  box-shadow: var(--mg-panel-tabs-strip-divider-shadow);
-  pointer-events: none;
+/* Faixas empilhadas: sem linha entre painéis/cards; uma só borda antes da área cinza */
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs.mg-panel-tabs-strip:has(+ .emp-layout-config-card-tabs)::after {
+  content: none;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs.mg-panel-tabs-strip::after {
+  border-bottom: 1px solid var(--mg-panel-tabs-strip-divider-color);
+  box-shadow: none;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs {
@@ -6732,26 +6733,27 @@
   font-weight: 700;
 }
 
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green {
   background: var(--mg-brand-green) !important;
   color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green svg,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger {
-  background: #ffffff !important;
-  color: var(--red) !important;
-}
-
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger svg,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger svg {
   color: var(--red) !important;
   stroke: var(--red) !important;
 }
 
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger:hover:not(:disabled),
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger:hover:not(:disabled) {
   background: var(--red-light) !important;
   color: #b91c1c !important;
@@ -6803,29 +6805,12 @@
   border-top: none !important;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green {
-  background: var(--mg-brand-green) !important;
-  color: #fff !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-green svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger {
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-danger {
   background: #ffffff !important;
   color: var(--red) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger svg {
-  color: var(--red) !important;
-  stroke: var(--red) !important;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-actions .tb-btn-danger:hover:not(:disabled) {
-  background: var(--red-light) !important;
-  color: #b91c1c !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-cards-bar {
@@ -7196,7 +7181,7 @@
   color: var(--mg-brand-green) !important;
   background: var(--accent-light) !important;
   border-color: var(--mg-focus-border) !important;
-  box-shadow: var(--mg-focus-ring);
+  box-shadow: none;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
