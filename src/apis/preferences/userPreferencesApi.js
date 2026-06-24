@@ -4,18 +4,58 @@ export const USER_PREFERENCE_SCREENS = {
   empresasFormLayout: "empresas.form_layout",
 };
 
+const parseScopeFromScreenKey = (screenKey) => {
+  const normalized = String(screenKey || "").trim().toLowerCase();
+  if (!normalized) return { modulo: "legacy", tela: "default" };
+  const [modulo, ...rest] = normalized.split(".");
+  if (rest.length === 0) return { modulo: "legacy", tela: normalized };
+  return {
+    modulo: modulo || "legacy",
+    tela: rest.join(".") || "default",
+  };
+};
+
 export const userPreferencesApi = {
-  get(screenKey) {
-    return apiClient.get(`/api/preferences/${encodeURIComponent(screenKey)}`, {
+  bootstrap() {
+    return apiClient.get("/api/user/preferences/bootstrap", {
       empresaHeader: false,
     });
   },
 
-  save(screenKey, config) {
-    return apiClient.put(
-      `/api/preferences/${encodeURIComponent(screenKey)}`,
-      { config },
+  getByScope(modulo, tela) {
+    return apiClient.get(
+      `/api/user/preferences/${encodeURIComponent(modulo)}/${encodeURIComponent(tela)}`,
       { empresaHeader: false }
     );
+  },
+
+  saveByScope(modulo, tela, payload) {
+    return apiClient.put(
+      `/api/user/preferences/${encodeURIComponent(modulo)}/${encodeURIComponent(tela)}`,
+      payload,
+      { empresaHeader: false }
+    );
+  },
+
+  get(screenKey) {
+    const { modulo, tela } = parseScopeFromScreenKey(screenKey);
+    return this.getByScope(modulo, tela).then((response) => ({
+      screenKey,
+      config: response?.preferencias,
+      updatedAt: response?.updatedAt,
+    }));
+  },
+
+  save(screenKey, config, options = {}) {
+    const { modulo, tela } = parseScopeFromScreenKey(screenKey);
+    return this.saveByScope(modulo, tela, {
+      preferencias: config,
+      expectedUpdatedAt: options.expectedUpdatedAt,
+      versao_schema: options.versao_schema ?? config?.version ?? 1,
+    }).then((response) => ({
+      screenKey,
+      config: response?.preferencias,
+      updatedAt: response?.updatedAt,
+    }));
   },
 };

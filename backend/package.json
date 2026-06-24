@@ -12,6 +12,7 @@
     "prisma:validate": "prisma validate",
     "prisma:normalize-codes": "node scripts/normalizeEmpresaCodes.js",
     "seed": "node scripts/seedBootstrap.js",
+    "seed:maike-users": "node scripts/seedMaikeExtraUsers.js",
     "db:reset-all": "node scripts/resetAllDataAndSeed.js",
     "db:reset-maike": "node scripts/resetAllDataAndSeed.js",
     "repair:sequencias": "node scripts/repairCodigoSequencias.js",
@@ -44,7 +45,8 @@
     "check:deploy": "npm run prisma:validate && npm run prisma:generate",
     "check:prod": "npm run check:deploy && npm run validate:connections && npm run ensure:schema && npm run seed && npm run smoke:e2e && npm run smoke:auth-permissoes && npm run smoke:cadcps && npm run smoke:campos && npm run security:multiempresa",
     "docker:build": "docker build -t mak-gestao-backend .",
-    "test:filters:semantics": "node scripts/testAdvancedFilterSemantics.js"
+    "test:filters:semantics": "node scripts/testAdvancedFilterSemantics.js",
+    "test:preferences:backend": "node scripts/testPreferencesValidators.js"
   },
   "dependencies": {
     "@fastify/compress": "^9.0.0",
