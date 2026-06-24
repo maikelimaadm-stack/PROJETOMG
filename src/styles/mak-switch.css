@@ -12,14 +12,20 @@
   --mak-border-active: color-mix(in srgb, var(--mg-brand-green, #40de63) 50%, #ffffff);
   --mak-off: #edf3ef;
   --mak-elastic: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  --mak-switch-width: 40px;
+  --mak-switch-height: 18px;
+  --mak-track-height: 10px;
+  --mak-thumb-size: 17px;
+  --mak-thumb-travel: calc(var(--mak-switch-width) - var(--mak-thumb-size));
+  --mak-thumb-lift: calc((var(--mak-track-height) - var(--mak-thumb-size)) / 2);
 }
 
 .mak-switch {
   position: relative;
   display: inline-flex;
   align-items: center;
-  width: 48px;
-  height: 22px;
+  width: var(--mak-switch-width);
+  height: var(--mak-switch-height);
   cursor: pointer;
   user-select: none;
   flex-shrink: 0;
@@ -37,8 +43,8 @@
 .mak-switch .mak-track {
   position: relative;
   display: block;
-  width: 48px;
-  height: 12px;
+  width: var(--mak-switch-width);
+  height: var(--mak-track-height);
   background: var(--mak-off);
   border: 1px solid var(--mak-border);
   border-radius: 999px;
@@ -51,14 +57,14 @@
 
 .mak-switch .mak-thumb {
   position: absolute;
-  top: -6px;
+  top: var(--mak-thumb-lift);
   left: 0;
-  width: 22px;
-  height: 22px;
+  width: var(--mak-thumb-size);
+  height: var(--mak-thumb-size);
   border-radius: 50%;
   background: #ffffff;
   box-shadow:
-    0 2px 6px rgba(15, 55, 30, 0.2),
+    0 1px 4px rgba(15, 55, 30, 0.18),
     0 1px 1px rgba(15, 55, 30, 0.1);
   transition:
     transform 0.42s var(--mak-elastic),
@@ -75,16 +81,16 @@
 }
 
 .mak-switch input:checked + .mak-track .mak-thumb {
-  transform: translateX(26px);
+  transform: translateX(var(--mak-thumb-travel));
   background: var(--mak-green);
   box-shadow:
-    0 3px 8px color-mix(in srgb, var(--mak-green) 30%, transparent),
+    0 2px 6px color-mix(in srgb, var(--mak-green) 30%, transparent),
     0 1px 1px color-mix(in srgb, var(--mak-green) 18%, transparent);
 }
 
 .mak-switch:has(input:focus-visible) .mak-track {
-  outline: 3px solid color-mix(in srgb, var(--mak-green) 20%, transparent);
-  outline-offset: 3px;
+  outline: 2px solid color-mix(in srgb, var(--mak-green) 20%, transparent);
+  outline-offset: 2px;
 }
 
 .mak-switch:hover .mak-thumb {
@@ -92,7 +98,7 @@
 }
 
 .mak-switch:hover input:checked + .mak-track .mak-thumb {
-  transform: translateX(26px) scale(1.04);
+  transform: translateX(var(--mak-thumb-travel)) scale(1.04);
 }
 
 .mak-switch:has(input:disabled) {
@@ -109,10 +115,10 @@
 /* Legado: neutraliza overrides antigos do botão-toggle */
 .cadastro-emp-scope .emp-form-toggle-switch.mak-switch,
 .cadastro-emp-scope .cad-form-toggle-switch.mak-switch {
-  height: 22px !important;
-  width: 48px !important;
-  min-height: 22px !important;
-  min-width: 48px !important;
+  height: var(--mak-switch-height) !important;
+  width: var(--mak-switch-width) !important;
+  min-height: var(--mak-switch-height) !important;
+  min-width: var(--mak-switch-width) !important;
   padding: 0 !important;
   border: none !important;
   background: transparent !important;
