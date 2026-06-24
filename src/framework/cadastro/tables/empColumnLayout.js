@@ -15,8 +15,10 @@ export const mergeSavedColumnOrder = (savedOrder, baseColumns) => {
 
 export const mergeSavedVisibleColumns = (savedVisible, baseColumns) => {
   const defaultVisible = baseColumns.filter((col) => col.default).map((col) => col.id);
-  const parsed = Array.isArray(savedVisible) ? savedVisible : [];
-  return Array.from(new Set([...parsed, ...defaultVisible]));
+  if (!Array.isArray(savedVisible)) return defaultVisible;
+  const baseIds = new Set(baseColumns.map((col) => col.id));
+  const parsed = [...new Set(savedVisible.filter((id) => baseIds.has(id)))];
+  return parsed.length > 0 ? parsed : defaultVisible;
 };
 
 export const loadColumnOrder = (storageKey, baseColumns) => {
