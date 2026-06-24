@@ -1557,7 +1557,7 @@ export default function EmpLayoutConfiguratorDialog({
             className="emp-layout-config-main flex min-w-0 flex-col overflow-hidden"
             data-active-card-span={String(activeCardSpan)}
           >
-            <div className="mg-panel-tabs-strip mg-panel-tabs-strip--no-bg emp-layout-config-panel-tabs shrink-0">
+            <div className="mg-panel-tabs-strip emp-layout-config-panel-tabs shrink-0">
               <LayoutConfigTabsRail
                 leading={
                   isEditing ? (
@@ -1666,7 +1666,7 @@ export default function EmpLayoutConfiguratorDialog({
               </LayoutConfigTabsRail>
             </div>
 
-            <div className="mg-panel-tabs-strip mg-panel-tabs-strip--no-bg emp-layout-config-card-tabs shrink-0">
+            <div className="mg-panel-tabs-strip emp-layout-config-card-tabs shrink-0">
               <LayoutConfigTabsRail
                 leading={
                   isEditing ? (
