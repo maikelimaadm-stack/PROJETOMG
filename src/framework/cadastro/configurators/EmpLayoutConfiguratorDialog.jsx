@@ -1484,7 +1484,11 @@ export default function EmpLayoutConfiguratorDialog({
         </DialogHeader>
       )}
 
-      <EmpSplitToolbarLayout className="min-h-0 flex-1" toolbar={null}>
+      <EmpSplitToolbarLayout
+        className="emp-layout-config-split min-h-0 flex-1"
+        contentClassName="emp-layout-config-content"
+        toolbar={null}
+      >
         <div className="emp-layout-config-grid grid min-h-0 h-full flex-1 grid-cols-[268px_40px_minmax(0,1fr)]">
           <aside className="emp-layout-config-sidebar flex flex-col overflow-hidden">
             <div className="emp-layout-config-sidebar-title text-sm font-semibold" style={{ color: "var(--text-1)" }}>
@@ -1786,10 +1790,9 @@ export default function EmpLayoutConfiguratorDialog({
                 <strong>4</strong>. Os campos da mesma linha ficam lado a lado e o espaço é redistribuído
                 automaticamente (como no formulário).
               </p>
-              <div className="emp-layout-config-card-shell">
-                <div className="emp-layout-config-rows flex min-h-[120px] flex-col">
+              <div className="emp-layout-config-rows flex min-h-[120px] flex-col">
                 {displayRows.length === 0 ? (
-                  <div className="p-4 text-xs" style={{ color: "var(--text-3)" }}>
+                  <div className="emp-layout-config-card-shell emp-layout-config-card-shell--empty p-4 text-xs" style={{ color: "var(--text-3)" }}>
                     Card vazio. Arraste campos ou use os botões de transferência.
                   </div>
                 ) : (
@@ -1818,7 +1821,7 @@ export default function EmpLayoutConfiguratorDialog({
                       <div
                         key={layoutRow.id}
                         className={cn(
-                          "emp-layout-config-row relative emp-layout-config-field-transition",
+                          "emp-layout-config-row emp-layout-config-card-shell relative emp-layout-config-field-transition",
                           rowFull ? "emp-layout-config-row--full" : "",
                           isDraftRow ? "emp-layout-config-row--draft" : "",
                           draggedRowId === layoutRow.id ? "emp-layout-config-field--dragging" : ""
@@ -2012,8 +2015,8 @@ export default function EmpLayoutConfiguratorDialog({
                     );
                   })
                 )}
-                </div>
-                {isEditing && selectedPanelFieldIds.length === 1 && (
+              </div>
+              {isEditing && selectedPanelFieldIds.length === 1 && (
                   <div className="emp-layout-config-footer flex flex-wrap items-center gap-2">
                     <span className="emp-layout-config-footer-label text-[11px] font-semibold">Tipo de largura:</span>
                     {FIELD_WIDTH_TYPE_OPTIONS.map(({ value, label }) => (
@@ -2039,7 +2042,6 @@ export default function EmpLayoutConfiguratorDialog({
                     </button>
                   </div>
                 )}
-              </div>
             </div>
           </main>
         </div>

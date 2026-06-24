@@ -1005,13 +1005,43 @@ html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-
   border-color: #30363d !important;
 }
 
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
+  background: var(--mg-container-bg) !important;
+  border-color: #30363d !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell {
+  background: var(--mg-container-bg) !important;
+  border-color: #30363d !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-split-view,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-content-card,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-content,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-split-view,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-content-card,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
+  background: var(--bg-page) !important;
+}
+
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator,
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-shell,
-html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar,
 html.escuro .mg-empresas-scope .emp-layout-configurator,
-html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-shell,
-html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
-  background: #161b22 !important;
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-shell {
+  background: var(--bg-page) !important;
   border-color: #30363d !important;
 }
 

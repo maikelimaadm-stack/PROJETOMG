@@ -6539,11 +6539,20 @@
   flex: 1 1 auto;
 }
 
+.mg-empresas-scope .emp-layout-configurator .emp-split-view,
+.mg-empresas-scope .emp-layout-configurator .emp-content-card,
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-content {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-grid {
   min-height: 0;
   background: transparent;
   padding: 0;
-  gap: 12px;
+  gap: var(--mg-cards-layout-gap);
   box-sizing: border-box;
   height: 100%;
 }
@@ -6656,7 +6665,7 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs {
-  background: var(--bg-card) !important;
+  background: var(--bg-page) !important;
   border-radius: 0 !important;
   flex-shrink: 0;
   height: var(--mg-toolbar-row-height);
@@ -6785,7 +6794,7 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip {
-  background: var(--bg-card) !important;
+  background: var(--bg-page) !important;
   border-radius: 0 !important;
 }
 
@@ -6896,8 +6905,16 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-help {
   color: var(--text-2);
-  margin: 0 0 8px;
+  margin: 0 0 var(--mg-cards-layout-gap);
   padding: 0;
+}
+
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mg-cards-layout-gap);
+  width: 100%;
+  min-height: 0;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-shell {
@@ -6909,23 +6926,17 @@
   box-sizing: border-box;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-rows {
-  gap: var(--mg-card-row-gap);
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row.emp-layout-config-card-shell {
+  background: var(--mg-container-bg) !important;
 }
 
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row {
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  padding: 0;
-}
-
-.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--draft {
-  padding-top: 4px;
+.mg-empresas-scope .emp-layout-configurator .emp-layout-config-row--draft.emp-layout-config-card-shell {
+  padding: 8px 16px 12px !important;
+  background: var(--mg-container-bg) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-header {
-  margin-bottom: 6px;
+  margin-bottom: var(--mg-card-row-gap);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-fields {
