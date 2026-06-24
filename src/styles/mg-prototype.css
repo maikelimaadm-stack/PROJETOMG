@@ -6543,6 +6543,9 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-grid {
   min-height: 0;
   background: var(--bg-page);
+  padding: var(--mg-view-panel-inset);
+  gap: 12px;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar {
@@ -6550,7 +6553,10 @@
   border: var(--mg-launch-card-border);
   border-radius: var(--mg-radius-card);
   box-shadow: var(--mg-launch-card-shadow);
-  padding: 10px 12px;
+  padding: 8px;
+  box-sizing: border-box;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search {
@@ -6558,8 +6564,8 @@
   max-width: 100% !important;
   min-width: 0 !important;
   border-radius: 999px !important;
-  padding-bottom: 12px !important;
-  margin-bottom: 8px !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 6px !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-sidebar-search input {
@@ -6568,29 +6574,42 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-available-list {
-  gap: 6px;
+  gap: 4px;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 4px;
+  border: var(--mg-launch-card-border);
+  border-radius: 10px;
+  background: var(--mg-container-bg);
+  box-shadow: var(--mg-launch-card-shadow);
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip {
-  min-height: var(--mg-field-height);
-  padding: 6px 10px;
+  min-height: 30px;
+  padding: 7px 10px;
   border-radius: var(--mg-radius-control);
-  background: var(--mg-field-idle-bg);
-  color: var(--text-3);
-  font-weight: 500;
-  border: none;
-  box-shadow: var(--mg-field-edge-shadow);
+  background: transparent;
+  color: var(--text-2);
+  font-weight: 400;
+  border: 1px solid transparent;
+  box-shadow: none;
   transition:
     background var(--mg-motion-duration) var(--mg-motion-ease),
+    border-color var(--mg-motion-duration) var(--mg-motion-ease),
     box-shadow var(--mg-motion-duration) var(--mg-motion-ease);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip:hover {
-  background: var(--gray-fill2);
+  background: var(--gray-fill);
+  color: var(--text-1);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip.emp-layout-config-field-selected {
-  background: #fff;
+  background: var(--accent-light);
+  color: var(--text-1);
+  font-weight: 700;
   border-color: var(--mg-focus-border);
   box-shadow: var(--mg-focus-ring);
 }
@@ -6607,8 +6626,7 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-transfer {
-  background: var(--bg-page);
-  border-right: 1px solid #ffffff;
+  background: transparent;
   gap: 8px;
 }
 
@@ -6642,9 +6660,12 @@
   background: var(--bg-card) !important;
   border-radius: 0 !important;
   flex-shrink: 0;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  min-height: 36px;
+  height: var(--mg-subtoolbar-row-height);
+  min-height: var(--mg-subtoolbar-row-height);
+  max-height: var(--mg-subtoolbar-row-height);
+  padding: var(--mg-subtoolbar-row-padding-y) var(--mg-toolbar-gutter) !important;
+  border-bottom: var(--mg-section-divider-border) !important;
+  box-shadow: var(--mg-section-divider-shadow);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs {
@@ -6652,9 +6673,12 @@
   border-top: none !important;
   border-radius: 0 !important;
   flex-shrink: 0;
-  padding-top: 6px !important;
-  padding-bottom: 2px !important;
-  min-height: 32px;
+  height: var(--mg-subtoolbar-row-height);
+  min-height: var(--mg-subtoolbar-row-height);
+  max-height: var(--mg-subtoolbar-row-height);
+  padding: var(--mg-subtoolbar-row-padding-y) var(--mg-toolbar-gutter) !important;
+  border-bottom: var(--mg-section-divider-border) !important;
+  box-shadow: var(--mg-section-divider-shadow);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab-slider {
@@ -6667,14 +6691,18 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs .seg-tab {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 4px 10px 6px;
-  min-height: 28px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  min-height: var(--mg-btn-height);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs .seg-tab {
-  border-radius: 0;
+  border-radius: var(--mg-btn-pill-radius);
+}
+
+.mg-empresas-scope .emp-layout-configurator :is(.emp-layout-config-panel-tabs, .emp-layout-config-card-tabs) .seg-tab.active {
+  font-weight: 700;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-actions .tb-btn-green {
@@ -6829,7 +6857,8 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
   background: var(--bg-page) !important;
-  padding: 6px 12px 10px !important;
+  padding: var(--mg-view-panel-inset) !important;
+  box-sizing: border-box;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-rows {
@@ -6902,22 +6931,22 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-dropzone {
   border: none;
-  background: #ffffff;
+  background: var(--mg-container-bg);
   color: var(--text-3);
-  border-radius: 0;
+  border-radius: var(--mg-radius-control);
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-draft {
-  border: var(--mg-divider-width) dashed var(--mg-divider);
-  border-radius: 0;
-  background: #ffffff !important;
+  border: var(--mg-divider-width) dashed var(--mg-divider) !important;
+  border-radius: var(--mg-radius-control);
+  background: var(--mg-container-bg) !important;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-row-draft-add {
   width: var(--mg-btn-icon-size);
   height: var(--mg-btn-icon-size);
   min-width: var(--mg-btn-icon-size);
-  border-radius: 0;
+  border-radius: var(--mg-btn-icon-radius);
   background: var(--mg-brand-green) !important;
   color: #fff !important;
 }
@@ -6934,6 +6963,33 @@
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer {
   margin-top: 12px;
   padding-top: 10px;
+  background: var(--bg-card);
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+}
+
+.mg-empresas-scope .mg-action-bar.mg-action-bar--layout-config {
+  margin: 0 var(--mg-view-panel-inset-x);
+  border-left: 1px solid #f3f4f6;
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+}
+
+.mg-empresas-scope .mg-action-bar-mobile.mg-action-bar-mobile--layout-config {
+  margin: 0 10px;
+  border-left: 1px solid #f3f4f6;
+  border-right: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
+  border-bottom-left-radius: 14px;
+  border-bottom-right-radius: 14px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
 }
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-footer-btn {

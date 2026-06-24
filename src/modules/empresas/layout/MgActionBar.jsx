@@ -600,7 +600,7 @@ export default function MgActionBar({
       <>
         <div
           data-template-id="action-bar-mobile"
-          className="mg-action-bar-mobile canva-section flex w-full shrink-0 flex-col md:hidden"
+          className="mg-action-bar-mobile mg-action-bar-mobile--layout-config canva-section flex w-full shrink-0 flex-col md:hidden"
           style={{ background: "var(--bg-card)" }}
         >
           <div className="mg-action-bar-mobile__actions">
@@ -640,7 +640,7 @@ export default function MgActionBar({
 
         <div
           data-template-id="action-bar"
-          className="mg-action-bar canva-section hidden w-full shrink-0 items-center md:flex"
+          className="mg-action-bar mg-action-bar--layout-config canva-section hidden w-full shrink-0 items-center md:flex"
           style={{
             background: "var(--bg-card)",
           }}
