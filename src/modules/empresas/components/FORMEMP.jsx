@@ -39,6 +39,10 @@ import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
+  readStoredLaunchPanelStyle,
+  writeStoredLaunchPanelStyle,
+} from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import {
   ESTADOS_BR,
   UPPER_FIELDS,
   REQUIRED_FIELDS,
@@ -73,7 +77,9 @@ export default function FORMEMP({
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [layoutToolbarBridge, setLayoutToolbarBridge] = useState(null);
   const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
-  const [launchPanelStyle, setLaunchPanelStyle] = useState("tabs");
+  const [launchPanelStyle, setLaunchPanelStyle] = useState(() =>
+    readStoredLaunchPanelStyle()
+  );
   const nativeLayoutFieldIdsSet = useMemo(
     () => new Set(Object.values(EMP_FORM_DEFAULT_LAYOUT).flat().filter(Boolean)),
     []
@@ -804,6 +810,10 @@ export default function FORMEMP({
     ? "Mostrar painéis em abas horizontais"
     : "Mostrar painéis em lista lateral";
   const LaunchPanelStyleToggleIcon = isSidebarPanelStyle ? LayoutGrid : PanelLeft;
+
+  useEffect(() => {
+    writeStoredLaunchPanelStyle(launchPanelStyle);
+  }, [launchPanelStyle]);
   const launchPanelStyleToggle = (
     <button
       type="button"

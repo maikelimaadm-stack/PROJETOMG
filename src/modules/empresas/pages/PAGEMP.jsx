@@ -67,6 +67,11 @@ import {
   isErpFilterActive,
   normalizePanelFilterValue,
 } from "@/shared/filters";
+import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
+import {
+  readStoredEmpViewMode,
+  writeStoredEmpViewMode,
+} from "@/modules/empresas/preferences/empresasPreferencesStorage";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -171,12 +176,18 @@ const patchEmpresasCache = (queryClient, updater) => {
 
 export default function PAGEMP() {
   const {
+    user,
     empresas: empresasSelector,
     selectedEmpresaId,
     upsertEmpresaInSelector,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
   } = useAuth();
+  const {
+    isReady: preferencesReady,
+    error: preferencesSyncError,
+    scheduleListagemSync,
+  } = useEmpresasPreferencesBootstrap(user?.id);
 
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
@@ -191,7 +202,7 @@ export default function PAGEMP() {
   const [showConfigFiltros, setShowConfigFiltros] = useState(false);
   const [showConfigPdf, setShowConfigPdf] = useState(false);
   const [showConfigExcel, setShowConfigExcel] = useState(false);
-  const [viewMode, setViewMode] = useState("table");
+  const [viewMode, setViewMode] = useState(() => readStoredEmpViewMode());
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -267,6 +278,7 @@ export default function PAGEMP() {
   const [filterValues, setFilterValues] = useState({});
   const [appliedFilterValues, setAppliedFilterValues] = useState({});
   const [formBridge, setFormBridge] = useState(null);
+  const lastPreferencesErrorRef = useRef(null);
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
@@ -288,6 +300,20 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
   }, [selectedEmpresaId]);
+
+  useEffect(() => {
+    if (!preferencesSyncError?.message) return;
+    const signature = `${preferencesSyncError.status || "err"}:${preferencesSyncError.message}`;
+    if (lastPreferencesErrorRef.current === signature) return;
+    lastPreferencesErrorRef.current = signature;
+    showError(`Preferências: ${preferencesSyncError.message}`);
+  }, [preferencesSyncError]);
+
+  useEffect(() => {
+    writeStoredEmpViewMode(viewMode);
+    if (!preferencesReady) return;
+    scheduleListagemSync();
+  }, [viewMode, preferencesReady, scheduleListagemSync]);
 
   useEffect(() => {
     if (!showForm) {
@@ -891,7 +917,10 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
     setQueryPage(1);
-  }, []);
+    if (preferencesReady) {
+      scheduleListagemSync({ immediate: true });
+    }
+  }, [preferencesReady, scheduleListagemSync]);
 
   const handleFilterApply = useCallback(
     (snapshot) => {
@@ -905,8 +934,11 @@ export default function PAGEMP() {
       setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
       setQueryPage(1);
       closeFilterPanel();
+      if (preferencesReady) {
+        scheduleListagemSync({ immediate: true });
+      }
     },
-    [closeFilterPanel, filterValues, panelFilterColumnMap]
+    [closeFilterPanel, filterValues, panelFilterColumnMap, preferencesReady, scheduleListagemSync]
   );
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
@@ -943,7 +975,10 @@ export default function PAGEMP() {
     if (typeof window !== "undefined") {
       window.localStorage.setItem(EMP_LOAD_BATCH_STORAGE_KEY, String(nextBatchSize));
     }
-  }, []);
+    if (preferencesReady) {
+      scheduleListagemSync({ immediate: true });
+    }
+  }, [preferencesReady, scheduleListagemSync]);
 
   const handleServerPageSizeChange = useCallback(() => {
     setQueryPageSize(EMP_INFINITE_PAGE_SIZE);
@@ -1043,6 +1078,38 @@ export default function PAGEMP() {
       viewMode,
     ]
   );
+
+  useEffect(() => {
+    if (!preferencesReady) return undefined;
+    const schedule = () => scheduleListagemSync();
+    window.addEventListener("emp-column-layout-updated", schedule);
+    window.addEventListener("emp-filter-fields-layout-updated", schedule);
+    window.addEventListener("emp-favorites-updated", schedule);
+    window.addEventListener("emp-view-mode-updated", schedule);
+    window.addEventListener("emp-launch-panel-style-updated", schedule);
+    window.addEventListener("storage", schedule);
+    return () => {
+      window.removeEventListener("emp-column-layout-updated", schedule);
+      window.removeEventListener("emp-filter-fields-layout-updated", schedule);
+      window.removeEventListener("emp-favorites-updated", schedule);
+      window.removeEventListener("emp-view-mode-updated", schedule);
+      window.removeEventListener("emp-launch-panel-style-updated", schedule);
+      window.removeEventListener("storage", schedule);
+    };
+  }, [preferencesReady, scheduleListagemSync]);
+
+  useEffect(() => {
+    if (!preferencesReady) return;
+    scheduleListagemSync();
+  }, [
+    preferencesReady,
+    scheduleListagemSync,
+    cardsVisFields.visFields,
+    cardsVisFields.layoutConfig,
+    filterFieldsLayout,
+    querySort,
+    loadBatchSize,
+  ]);
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
@@ -1356,6 +1423,19 @@ export default function PAGEMP() {
     "Novo registro";
 
   const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
+
+  if (!preferencesReady) {
+    return (
+      <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden p-3 md:p-5">
+        <div className="animate-pulse rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
+          <div className="mb-3 h-6 w-52 rounded bg-slate-200" />
+          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
+          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
+          <div className="h-64 w-full rounded bg-slate-100" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">

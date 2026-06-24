@@ -406,6 +406,10 @@ model UsuarioPreferencia {
   cliente_id String   @db.VarChar(64)
   screen_key String   @db.VarChar(128)
   config     Json
+  modulo     String   @default("legacy") @db.VarChar(64)
+  tela       String   @default("legacy") @db.VarChar(64)
+  versao_schema Int   @default(1)
+  preferencias_json Json @default(dbgenerated("'{}'::jsonb"))
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
@@ -413,5 +417,6 @@ model UsuarioPreferencia {
   cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
 
   @@unique([usuario_id, screen_key])
+  @@unique([cliente_id, usuario_id, modulo, tela])
   @@index([cliente_id, usuario_id])
 }
