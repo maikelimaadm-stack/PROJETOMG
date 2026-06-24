@@ -1,0 +1,275 @@
+{
+  "generatedAt": "2026-06-24T20:05:19.350Z",
+  "results": [
+    {
+      "cenario": "8. Preferência vazia (colunas [])",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "9. Preferência corrompida localStorage",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10a. Mobile — primeira abertura",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10b.1 Mobile reload 1/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10b.2 Mobile reload 2/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10b.3 Mobile reload 3/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10b.4 Mobile reload 4/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10b.5 Mobile reload 5/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.1a Mobile Cards 1/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 1,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.1b Mobile Tabela 1/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.2a Mobile Cards 2/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 1,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.2b Mobile Tabela 2/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.3a Mobile Cards 3/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 1,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.3b Mobile Tabela 3/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.4a Mobile Cards 4/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 1,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.4b Mobile Tabela 4/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.5a Mobile Cards 5/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 1,
+        "consoleErrorCount": 0
+      }
+    },
+    {
+      "cenario": "10c.5b Mobile Tabela 5/5",
+      "consoleSemErro": true,
+      "semLoopRender": true,
+      "semLoopGetPut": true,
+      "telaUtilizavel": true,
+      "status": "PASS",
+      "detalhes": {
+        "reactDepthErrors": [],
+        "crashUi": false,
+        "getsDelta": 0,
+        "putsDelta": 0,
+        "consoleErrorCount": 0
+      }
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 # PR #222 — Classificação de testes e status de validação
 
 **Branch:** `cursor/stabilize-empresas-preferences-railway`  
-**Commit:** `c0b7ca84` (ou posterior na mesma branch)  
+**Commit:** `0a2aa151` (ou posterior na mesma branch)  
 **Status:** BLOQUEADA para merge
 
 ---
@@ -34,7 +34,7 @@ frontend PR + backend PR + staging  = E2E real (único critério de aprovação)
 
 ---
 
-## Etapa 1 — Stress render TBLEMP
+## Etapa 1 — Stress render TBLEMP/FORMEMP
 
 Executar:
 
@@ -43,11 +43,35 @@ cp .env.local.example .env.local   # se necessário
 npx playwright test --config=playwright.stress.config.js
 ```
 
-Resultados: `e2e/empresas-render-stress.results.json`
+Resultados: `e2e/empresas-render-stress.results.json`  
+Última execução: `2026-06-24T20:04:39Z` (commit `0a2aa151`+)
+
+### Correções aplicadas nesta branch
+
+| Commit | Correção |
+| ------ | -------- |
+| `c0b7ca84` | Loop TBLEMP hidratação colunas |
+| `ee54761b` | Loop server-sort/filters TBLEMP + guards PAGEMP |
+| `805b3619` | Loop auto-repair FORMEMP (layoutDiffers) |
+| `0a2aa151` | Loop useCadastroForm layoutPersistedRef + auto-repair once/mount |
+| posterior | Loop useCadastroPageHeader + toolbarBridge signature guard |
+
+### Tabela Etapa 1 (evidência frontend PR — proxy produção)
 
 | Cenário | Console sem erro | Sem loop render | Sem loop GET/PUT | Tela utilizável | Status |
 | ------- | ---------------- | --------------- | ---------------- | --------------- | ------ |
-| *(preencher após execução)* | | | | | |
+| 1. Primeira abertura Empresas | ✅ | ✅ | ✅ | ✅ | **PASS** |
+| 2. Reload ×10 | ✅ | ✅ | ✅ | ✅ | **PASS** |
+| 3. Tabela↔Cards ×10 | ✅ | ✅ | ✅ | ✅ | **PASS** |
+| 4. Abrir/fechar formulário ×10 | ✅ | ✅ | ✅ | ✅ | **PASS** |
+| 5. Alterar preferência coluna + reload | ✅ | ✅ | ✅ | ✅ | **PASS** |
+| 6. Alterar preferência cards + reload | — | — | — | — | **PENDENTE** (flaky seletor Ok no menu cards — corrigido no spec, reexecutar) |
+| 7. Alterar preferência filtros + reload | — | — | — | — | **PENDENTE** (não alcançado na última run) |
+| 8. Preferência vazia `[]` | ✅ | ✅ | ✅ | ✅ | **PASS** |
+| 9. Preferência corrompida localStorage | ✅ | ✅ | ✅ | ✅ | **PASS** |
+| 10. Mobile (abertura + reload + toggle) | ✅ | ✅ | ✅ | ✅ | **PASS** |
+
+**Critério crash `Maximum update depth exceeded`:** eliminado nos cenários 1–5, 8–10 comprovados. Nenhum erro React nos asserts; nenhum crash UI.
 
 ---
 
@@ -61,21 +85,39 @@ Script pós-deploy:
 VALIDATE_BASE_URL=https://SEU-STAGING.up.railway.app node backend/scripts/validateRailwayPreferencesDeployment.js
 ```
 
+**Status:** procedimento documentado; deploy manual pendente (sem `RAILWAY_TOKEN` no ambiente cloud).
+
 ---
 
-## Pendências para desbloquear merge
+## Etapas 4–7 — Pendências
 
-- [ ] Backend staging da branch no Railway com logs de boot
-- [ ] Frontend preview → backend staging (não produção)
-- [ ] Etapas 4–7 (tabela, cards, filtros, formulário, faixa filtros, GET/PUT)
-- [ ] Evidência visual 10 cenários faixa filtros
-- [ ] E2E real completo (reload, logout/login, nova aba, tenant diferente)
+| Etapa | Status |
+| ----- | ------ |
+| 4 — Persistência tabela (11 cenários) | Bloqueada — requer backend staging da branch |
+| 5 — Cards, filtros, formulário | Bloqueada — requer backend staging |
+| 6 — Faixa filtros (10 capturas) | Pendente evidência visual |
+| 7 — Medição GET/PUT final | Parcial no stress UI; E2E real pendente |
+
+---
+
+## Build / lint
+
+| Comando | Resultado |
+| ------- | --------- |
+| `npm run lint` | exit 0 |
+| `npm run build` | exit 0 |
 
 ---
 
 ## Declaração de aprovação
 
 **Não emitida.** PR #222 permanece bloqueada.
+
+Motivos:
+
+- Backend staging da branch não deployado/validado
+- Etapas 6–7 do stress desktop pendentes de reexecução
+- Etapas 4–7 (persistência real, faixa filtros, GET/PUT E2E) pendentes
 
 Frase só após todos os critérios:
 

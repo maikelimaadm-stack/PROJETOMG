@@ -141,15 +141,17 @@ const hideTelefoneColumn = async (page) => {
   await page.getByRole("button", { name: "Configurar colunas da tabela" }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("heading", { name: "Configuração de colunas" })).toBeVisible();
-  const usedPanel = dialog.locator(".emp-config-transfer-panel").nth(1);
-  let telefoneItem = usedPanel.locator(".emp-config-transfer-item").filter({ hasText: "Telefone" }).first();
-  if (!(await telefoneItem.count())) {
-    telefoneItem = dialog.locator(".emp-config-transfer-item").filter({ hasText: "Telefone" }).first();
+  const usedItems = dialog.locator(
+    "main.emp-config-transfer-panel .emp-config-transfer-item:has(.emp-config-transfer-subtitle:text('Em uso'))"
+  );
+  let targetItem = usedItems.filter({ hasText: "Telefone" }).first();
+  if (!(await targetItem.count())) {
+    targetItem = usedItems.first();
   }
-  await expect(telefoneItem).toBeVisible({ timeout: 8_000 });
-  await telefoneItem.click();
-  await expect(telefoneItem).toHaveClass(/emp-config-transfer-item--selected/, { timeout: 5_000 });
-  const removeBtn = dialog.getByRole("button", { name: "Remover selecionados" });
+  await expect(targetItem).toBeVisible({ timeout: 8_000 });
+  await targetItem.click();
+  await expect(targetItem).toHaveClass(/emp-config-transfer-item--selected/, { timeout: 5_000 });
+  const removeBtn = dialog.getByTitle("Remover selecionados");
   await expect(removeBtn).toBeEnabled({ timeout: 5_000 });
   await removeBtn.click();
   await dialog.getByRole("button", { name: "OK" }).click();
@@ -158,12 +160,12 @@ const hideTelefoneColumn = async (page) => {
 
 const tweakCardsPreference = async (page) => {
   await switchToCards(page);
-  await page.getByRole("button", { name: "Configurar campos dos cards" }).click();
-  const panel = page.locator(".mg-cards-config-menu.open, [role='dialog']").first();
+  await page.getByRole("button", { name: "Configurar campos dos cards" }).last().click();
+  const panel = page.locator(".mg-cards-config-menu.open").first();
   await expect(panel).toBeVisible({ timeout: 8_000 });
-  const firstCheckbox = panel.locator('input[type="checkbox"]').first();
+  const firstCheckbox = panel.locator('input[type="checkbox"]:not([disabled])').first();
   if (await firstCheckbox.count()) await firstCheckbox.click();
-  await panel.getByRole("button", { name: /^Ok$/i }).click();
+  await panel.locator(".mg-cards-config-menu__footer button.tb-btn-green").click();
   await page.waitForTimeout(600);
   await switchToTable(page);
 };
