@@ -42,6 +42,7 @@ import {
   readStoredLaunchPanelStyle,
   writeStoredLaunchPanelStyle,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import { readEmpPreferencesJson } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import {
   ESTADOS_BR,
   UPPER_FIELDS,
@@ -86,6 +87,7 @@ export default function FORMEMP({
   );
 
   const {
+    isLayoutReady,
     formLayoutConfig,
     activeLayoutConfig,
     layoutConfigOpen,
@@ -133,14 +135,10 @@ export default function FORMEMP({
       const layoutKey = user?.id
         ? getLayoutStorageKeysForModule(empresasCadastroConfig, user.id).layoutKey
         : null;
-      const saved = layoutKey ? localStorage.getItem(layoutKey) : null;
       let clearIds = formLayoutConfig?.clearOnDuplicateFieldIds || [];
-      if (!clearIds.length && saved) {
-        try {
-          clearIds = JSON.parse(saved).clearOnDuplicateFieldIds || [];
-        } catch {
-          clearIds = [];
-        }
+      if (!clearIds.length && layoutKey) {
+        const saved = readEmpPreferencesJson(layoutKey, null);
+        clearIds = saved?.clearOnDuplicateFieldIds || [];
       }
       next = applyDuplicateFieldClears(next, clearIds);
     }
@@ -961,6 +959,19 @@ export default function FORMEMP({
       </div>
     );
   };
+
+  if (!isLayoutReady || !activeLayoutConfig) {
+    return (
+      <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="m-3 animate-pulse rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm md:m-5">
+          <div className="mb-3 h-6 w-56 rounded bg-slate-200" />
+          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
+          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
+          <div className="h-64 w-full rounded bg-slate-100" />
+        </div>
+      </div>
+    );
+  }
 
   if (layoutConfigOpen) {
     return (

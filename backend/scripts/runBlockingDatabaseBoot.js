@@ -54,6 +54,13 @@ const shouldAutoBaseline = () => {
   return !["false", "0", "no", "off"].includes(raw);
 };
 
+const isPreferencesCompatibilityAllowed = () =>
+  ["1", "true", "yes", "on"].includes(
+    String(process.env.BOOT_ALLOW_PREFERENCES_COMPAT_MODE || "")
+      .trim()
+      .toLowerCase()
+  );
+
 const listMigrationNames = async () => {
   const entries = await readdir(prismaMigrationsPath, { withFileTypes: true });
   return entries
@@ -155,6 +162,50 @@ const runAutoBaselineIfNeeded = async (log) => {
   }
 };
 
+const verifyUserPreferencesSchemaReady = async () => {
+  const { createMigrationPrisma } = await import("./migrationPrisma.js");
+  const prisma = createMigrationPrisma();
+  try {
+    const tableRows = await prisma.$queryRaw`
+      SELECT to_regclass('"UsuarioPreferencia"') IS NOT NULL AS "tableExists"
+    `;
+    const tableExists = Boolean(tableRows?.[0]?.tableExists);
+    if (!tableExists) {
+      return { ready: false, reason: "table_missing" };
+    }
+
+    const requiredColumns = ["modulo", "tela", "versao_schema", "preferencias_json"];
+    const columnRows = await prisma.$queryRaw`
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'UsuarioPreferencia'
+        AND column_name IN ('modulo', 'tela', 'versao_schema', 'preferencias_json')
+    `;
+    const foundColumns = new Set((columnRows || []).map((row) => row.column_name));
+    const missingColumns = requiredColumns.filter((column) => !foundColumns.has(column));
+    if (missingColumns.length > 0) {
+      return { ready: false, reason: "columns_missing", missingColumns };
+    }
+
+    const indexRows = await prisma.$queryRaw`
+      SELECT indexname
+      FROM pg_indexes
+      WHERE schemaname = 'public'
+        AND tablename = 'UsuarioPreferencia'
+        AND indexname = 'UsuarioPreferencia_cliente_usuario_modulo_tela_key'
+    `;
+    const hasScopedUniqueIndex = Array.isArray(indexRows) && indexRows.length > 0;
+    if (!hasScopedUniqueIndex) {
+      return { ready: false, reason: "scoped_unique_index_missing" };
+    }
+
+    return { ready: true };
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
 export const runBlockingDatabaseBoot = async (log = console) => {
   if (String(process.env.BOOT_SKIP_MIGRATIONS || "").toLowerCase() === "true") {
     logMessage(log, "warn", "[boot-blocking] BOOT_SKIP_MIGRATIONS=true — pulando migrations.");
@@ -167,6 +218,7 @@ export const runBlockingDatabaseBoot = async (log = console) => {
 
   const report = { steps: [] };
 
+  let migrateRecovered = false;
   const migrateOk = await runCommand("Prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"], { allowFailure: true });
   report.steps.push({ step: "migrate_deploy", ok: migrateOk });
   if (!migrateOk) {
@@ -185,6 +237,7 @@ export const runBlockingDatabaseBoot = async (log = console) => {
         ["prisma", "migrate", "deploy"],
         { allowFailure: true }
       );
+      migrateRecovered = retryMigrateOk;
       report.steps.push({ step: "migrate_deploy_after_baseline", ok: retryMigrateOk });
       if (!retryMigrateOk) {
         logMessage(
@@ -195,6 +248,11 @@ export const runBlockingDatabaseBoot = async (log = console) => {
       }
     }
   }
+  if (!migrateOk && !migrateRecovered && !isPreferencesCompatibilityAllowed()) {
+    throw new Error(
+      "Prisma migrate deploy falhou e o modo de compatibilidade de preferências está desativado. Corrija a migration antes do deploy ou habilite BOOT_ALLOW_PREFERENCES_COMPAT_MODE=true temporariamente."
+    );
+  }
 
   const { ensureCounterColumns } = await import("../scripts/ensureCounterColumns.js");
   const counterResult = await ensureCounterColumns();
@@ -203,6 +261,42 @@ export const runBlockingDatabaseBoot = async (log = console) => {
   const { ensurePerformanceIndexes } = await import("../scripts/ensurePerformanceIndexes.js");
   const indexResult = await ensurePerformanceIndexes();
   report.steps.push({ step: "ensure_performance_indexes", ok: true, result: indexResult });
+
+  try {
+    const { ensureUsuarioPreferenciaTable } = await import("./ensureUsuarioPreferenciaTable.js");
+    await ensureUsuarioPreferenciaTable();
+    report.steps.push({ step: "ensure_usuario_preferencia_table", ok: true });
+  } catch (error) {
+    logMessage(
+      log,
+      "warn",
+      `[boot-blocking] ensureUsuarioPreferenciaTable falhou (modo compatibilidade): ${error.message}`
+    );
+    report.steps.push({
+      step: "ensure_usuario_preferencia_table",
+      ok: false,
+      error: error.message,
+    });
+  }
+
+  const preferencesSchema = await verifyUserPreferencesSchemaReady();
+  report.steps.push({
+    step: "verify_usuario_preferencia_schema",
+    ok: Boolean(preferencesSchema.ready),
+    result: preferencesSchema,
+  });
+  if (!preferencesSchema.ready && !isPreferencesCompatibilityAllowed()) {
+    throw new Error(
+      `Schema de preferências incompleto (${preferencesSchema.reason}). Execute a migration 20260624140500_user_screen_preferences antes de iniciar a aplicação.`
+    );
+  }
+  if (!preferencesSchema.ready) {
+    logMessage(
+      log,
+      "warn",
+      `[boot-blocking] Schema de preferências incompleto (${preferencesSchema.reason}) com compatibilidade temporária habilitada.`
+    );
+  }
 
   if (!indexResult.applied) {
     logMessage(

@@ -6,12 +6,16 @@ import {
 } from "../core/CadastroModuleConfig.js";
 import {
   pickLayoutConfig,
-  readStoredLayoutConfig as readStoredLayoutConfigLegacy,
-  writeStoredLayoutConfig as writeStoredLayoutConfigLegacy,
   bindLayoutStoreUser,
   getLayoutStorageKeys,
 } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
 import { migrateStoredLayoutConfig } from "./layoutMigration.js";
+import {
+  readEmpPreferencesJson,
+  readEmpPreferencesText,
+  writeEmpPreferencesJson,
+  writeEmpPreferencesText,
+} from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 const engines = new Map();
 let boundUserId = null;
@@ -20,32 +24,20 @@ const syncTimers = new Map();
 export const isLocalPersonalizacoesMode = () =>
   import.meta.env.DEV && String(import.meta.env.VITE_LOCAL_PERSONALIZACOES || "").toLowerCase() === "true";
 
-const readJson = (key) => {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
+const parseScopeFromScreenKey = (screenKey) => {
+  const normalized = String(screenKey || "").trim().toLowerCase();
+  if (!normalized) {
+    return { modulo: "legacy", tela: "default" };
   }
+  const [modulo, ...rest] = normalized.split(".");
+  if (rest.length === 0) {
+    return { modulo: "legacy", tela: normalized };
+  }
+  return {
+    modulo: modulo || "legacy",
+    tela: rest.join(".") || "default",
+  };
 };
-
-const readText = (key) => {
-  try {
-    return localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-};
-
-function layoutConfigsEqual(a, b) {
-  if (!a && !b) return true;
-  if (!a || !b) return false;
-  try {
-    return JSON.stringify(pickLayoutConfig(a)) === JSON.stringify(pickLayoutConfig(b));
-  } catch {
-    return false;
-  }
-}
 
 export class LayoutPreferencesEngine {
   /** @param {import('../core/CadastroModuleConfig.js').CadastroModuleConfig} config */
@@ -75,45 +67,48 @@ export class LayoutPreferencesEngine {
   migrateLegacyKeys(userId) {
     if (!userId) return;
     const { layoutKey, legacyKey } = this.getStorageKeys(userId);
-    if (localStorage.getItem(layoutKey)) return;
+    if (readEmpPreferencesText(layoutKey, null)) return;
 
     const globalLegacy = this.config.legacyGlobalStorageKey
-      ? localStorage.getItem(this.config.legacyGlobalStorageKey)
+      ? readEmpPreferencesText(this.config.legacyGlobalStorageKey, null)
       : null;
     if (globalLegacy) {
-      localStorage.setItem(layoutKey, globalLegacy);
+      writeEmpPreferencesText(layoutKey, globalLegacy, { reason: "form-layout:migrate-legacy" });
       return;
     }
 
     const oldKeys = getLayoutStorageKeys(userId);
-    const legacyConfig = localStorage.getItem(oldKeys.legacyKey);
-    if (legacyConfig) localStorage.setItem(layoutKey, legacyConfig);
+    const legacyConfig = readEmpPreferencesText(oldKeys.legacyKey, null);
+    if (legacyConfig) {
+      writeEmpPreferencesText(layoutKey, legacyConfig, { reason: "form-layout:migrate-legacy" });
+    }
   }
 
   readLocal(userId) {
     this.bindUser(userId);
     this.migrateLegacyKeys(userId);
     const keys = this.getStorageKeys(userId);
-    try {
-      const raw = localStorage.getItem(keys.layoutKey);
-      const parsed = raw ? JSON.parse(raw) : null;
-      if (!parsed || typeof parsed !== "object") return null;
-      const defaults = this.config.getDefaultLayoutConfig();
-      const upgraded = migrateStoredLayoutConfig(parsed, defaults);
-      return upgraded || parsed;
-    } catch {
-      return null;
-    }
+    const parsed = readEmpPreferencesJson(keys.layoutKey, null);
+    if (!parsed || typeof parsed !== "object") return null;
+    const defaults = this.config.getDefaultLayoutConfig();
+    const upgraded = migrateStoredLayoutConfig(parsed, defaults);
+    return upgraded || parsed;
   }
 
   writeLocal(userId, config) {
     if (!config) return;
     this.bindUser(userId);
     const keys = this.getStorageKeys(userId);
-    localStorage.setItem(keys.layoutKey, JSON.stringify(pickLayoutConfig(config)));
-    localStorage.setItem(`${keys.layoutKey}__updatedAt`, new Date().toISOString());
+    writeEmpPreferencesJson(keys.layoutKey, pickLayoutConfig(config), {
+      reason: "form-layout:local-write",
+    });
+    writeEmpPreferencesText(`${keys.layoutKey}__updatedAt`, new Date().toISOString(), {
+      reason: "form-layout:local-write",
+    });
     if (config.aggregationConfig) {
-      localStorage.setItem(keys.aggregationKey, JSON.stringify(config.aggregationConfig || {}));
+      writeEmpPreferencesJson(keys.aggregationKey, config.aggregationConfig || {}, {
+        reason: "form-layout:local-write",
+      });
     }
     window.dispatchEvent(new Event(this.updatedEvent));
   }
@@ -137,10 +132,11 @@ export class LayoutPreferencesEngine {
   async syncRemote(userId = boundUserId) {
     if (!userId || isLocalPersonalizacoesMode()) return;
     this.bindUser(userId);
+    const { modulo, tela } = parseScopeFromScreenKey(this.config.screenKey);
 
     try {
-      const remote = await userPreferencesApi.get(this.config.screenKey);
-      const activeConfig = remote?.config?.activeConfig;
+      const remote = await userPreferencesApi.getByScope(modulo, tela);
+      const activeConfig = remote?.preferencias?.activeConfig;
       if (!activeConfig) return;
 
       const defaults = this.config.getDefaultLayoutConfig();
@@ -148,14 +144,16 @@ export class LayoutPreferencesEngine {
       if (!upgraded) return;
 
       const keys = this.getStorageKeys(userId);
-      const localUpdatedAt = readJson(`${keys.layoutKey}__updatedAt`);
+      const localUpdatedAt = readEmpPreferencesText(`${keys.layoutKey}__updatedAt`, null);
       const remoteUpdatedAt = remote?.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
       const localTime = localUpdatedAt ? new Date(localUpdatedAt).getTime() : 0;
 
       if (remoteUpdatedAt >= localTime) {
         this.writeLocal(userId, upgraded);
         if (remote?.updatedAt) {
-          localStorage.setItem(`${keys.layoutKey}__serverUpdatedAt`, remote.updatedAt);
+          writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, remote.updatedAt, {
+            reason: "form-layout:remote-hydrate",
+          });
         }
         window.dispatchEvent(
           new CustomEvent(this.hydratedEvent, { detail: { userId, moduleId: this.moduleId } })
@@ -180,16 +178,20 @@ export class LayoutPreferencesEngine {
       if (!activeConfig) return;
       try {
         const keys = this.getStorageKeys(userId);
-        const expectedUpdatedAt = readText(`${keys.layoutKey}__serverUpdatedAt`);
-        const saved = await userPreferencesApi.save(this.config.screenKey, {
-          version: 3,
-          activeConfig: pickLayoutConfig(activeConfig),
-        }, {
+        const { modulo, tela } = parseScopeFromScreenKey(this.config.screenKey);
+        const expectedUpdatedAt = readEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, null);
+        const saved = await userPreferencesApi.saveByScope(modulo, tela, {
+          preferencias: {
+            version: 3,
+            activeConfig: pickLayoutConfig(activeConfig),
+          },
           expectedUpdatedAt,
           versao_schema: 3,
         });
         if (saved?.updatedAt) {
-          localStorage.setItem(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt);
+          writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt, {
+            reason: "form-layout:remote-sync",
+          });
         }
       } catch (error) {
         if (Number(error?.status) === 409) {
@@ -198,7 +200,7 @@ export class LayoutPreferencesEngine {
         }
         console.warn(`[${this.moduleId}] Falha ao sincronizar layout:`, error);
       }
-    }, 700);
+    }, 800);
 
     syncTimers.set(timerKey, timer);
   }

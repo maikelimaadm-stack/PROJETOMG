@@ -5,8 +5,8 @@ dotenv.config();
 
 const prisma = new PrismaClient();
 
-const ensureUsuarioPreferenciaTable = async () => {
-  await prisma.$executeRawUnsafe(`
+export const ensureUsuarioPreferenciaTable = async (db = prisma) => {
+  await db.$executeRawUnsafe(`
     CREATE TABLE IF NOT EXISTS "UsuarioPreferencia" (
       "id" TEXT NOT NULL,
       "usuario_id" VARCHAR(64) NOT NULL,
@@ -23,7 +23,7 @@ const ensureUsuarioPreferenciaTable = async () => {
     );
   `);
 
-  await prisma.$executeRawUnsafe(`
+  await db.$executeRawUnsafe(`
     ALTER TABLE "UsuarioPreferencia"
       ADD COLUMN IF NOT EXISTS "modulo" VARCHAR(64) NOT NULL DEFAULT 'legacy',
       ADD COLUMN IF NOT EXISTS "tela" VARCHAR(64) NOT NULL DEFAULT 'legacy',
@@ -31,7 +31,7 @@ const ensureUsuarioPreferenciaTable = async () => {
       ADD COLUMN IF NOT EXISTS "preferencias_json" JSONB NOT NULL DEFAULT '{}'::jsonb;
   `);
 
-  await prisma.$executeRawUnsafe(`
+  await db.$executeRawUnsafe(`
     UPDATE "UsuarioPreferencia"
     SET
       "modulo" = COALESCE(NULLIF(split_part("screen_key", '.', 1), ''), 'legacy'),
@@ -48,22 +48,22 @@ const ensureUsuarioPreferenciaTable = async () => {
       OR "preferencias_json" = '{}'::jsonb;
   `);
 
-  await prisma.$executeRawUnsafe(`
+  await db.$executeRawUnsafe(`
     CREATE UNIQUE INDEX IF NOT EXISTS "UsuarioPreferencia_usuario_id_screen_key_key"
     ON "UsuarioPreferencia"("usuario_id", "screen_key");
   `);
 
-  await prisma.$executeRawUnsafe(`
+  await db.$executeRawUnsafe(`
     CREATE UNIQUE INDEX IF NOT EXISTS "UsuarioPreferencia_cliente_usuario_modulo_tela_key"
     ON "UsuarioPreferencia"("cliente_id", "usuario_id", "modulo", "tela");
   `);
 
-  await prisma.$executeRawUnsafe(`
+  await db.$executeRawUnsafe(`
     CREATE INDEX IF NOT EXISTS "UsuarioPreferencia_cliente_id_usuario_id_idx"
     ON "UsuarioPreferencia"("cliente_id", "usuario_id");
   `);
 
-  await prisma.$executeRawUnsafe(`
+  await db.$executeRawUnsafe(`
     DO $$
     BEGIN
       IF NOT EXISTS (
@@ -80,14 +80,18 @@ const ensureUsuarioPreferenciaTable = async () => {
   `);
 };
 
-ensureUsuarioPreferenciaTable()
-  .then(() => {
-    console.log("Tabela UsuarioPreferencia garantida.");
-  })
-  .catch((error) => {
-    console.error("Falha ao garantir tabela UsuarioPreferencia:", error.message);
-    process.exit(0);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+const isDirectRun = process.argv[1]?.includes("ensureUsuarioPreferenciaTable");
+
+if (isDirectRun) {
+  ensureUsuarioPreferenciaTable()
+    .then(() => {
+      console.log("Tabela UsuarioPreferencia garantida.");
+    })
+    .catch((error) => {
+      console.error("Falha ao garantir tabela UsuarioPreferencia:", error.message);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await prisma.$disconnect();
+    });
+}
