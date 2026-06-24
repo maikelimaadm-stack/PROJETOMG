@@ -478,6 +478,7 @@ export default function FORMEMP({
 
   const tabIdsKey = useMemo(() => tabs.map((panel) => panel.id).join("|"), [tabs]);
   const lastAutoRepairSigRef = useRef("");
+  const autoRepairAttemptedRef = useRef(false);
   const knownLayoutFieldIdsKey = useMemo(
     () => [...knownLayoutFieldIds].sort().join("|"),
     [knownLayoutFieldIds]
@@ -493,8 +494,8 @@ export default function FORMEMP({
   }, [formLayoutConfig, tabIdsKey, tabs, activeTab, layoutConfigOpen]);
 
   useEffect(() => {
+    if (autoRepairAttemptedRef.current) return;
     if (!user?.id || !formLayoutConfig || layoutConfigOpen) return;
-    if (layoutPersistedRef.current) return;
 
     const repaired =
       ensureLayoutFields(formLayoutConfig, defaultConfigFull, {
@@ -511,17 +512,14 @@ export default function FORMEMP({
     const repairedSig = JSON.stringify(pickLayoutConfig(repaired));
     const currentSig = JSON.stringify(pickLayoutConfig(formLayoutConfig));
 
-    if (lastAutoRepairSigRef.current === repairedSig || lastAutoRepairSigRef.current === currentSig) {
-      layoutPersistedRef.current = true;
-      return;
-    }
+    autoRepairAttemptedRef.current = true;
 
     const needsRepair =
       storedKnownCount === 0 ||
       repairedKnownCount > storedKnownCount ||
       hasHiddenSystemPanels;
 
-    if (!needsRepair) {
+    if (!needsRepair || repairedSig === currentSig) {
       lastAutoRepairSigRef.current = currentSig;
       layoutPersistedRef.current = true;
       return;

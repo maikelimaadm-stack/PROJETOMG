@@ -97,9 +97,12 @@ const assertHealthy = async (page, monitor, label) => {
   return row;
 };
 
+const EMPRESAS_READY_SELECTOR =
+  "table, .mg-table-panel-wrap.is-visible, .mg-table-panel-strip, .mg-cards-panel-wrap.is-visible, .emp-cards-panel, .mg-emp-card";
+
 const waitEmpresasReady = async (page) => {
   await page.goto("/CadastroEmpresas");
-  await page.waitForSelector("table, .mg-table-panel, .mg-cards-panel", { timeout: 45_000 });
+  await page.waitForSelector(EMPRESAS_READY_SELECTOR, { timeout: 45_000 });
   await expect(page.getByRole("heading", { name: /ocorreu um erro/i })).toHaveCount(0);
 };
 
@@ -196,7 +199,7 @@ test.describe("PR #222 render stress — TBLEMP hydration", () => {
 
     for (let i = 1; i <= 10; i += 1) {
       await page.reload();
-      await page.waitForSelector("table, .mg-table-panel, .mg-cards-panel", { timeout: 45_000 });
+      await page.waitForSelector(EMPRESAS_READY_SELECTOR, { timeout: 45_000 });
       await ensureTableView(page);
       await assertHealthy(page, monitor, `2.${i} Reload ${i}/10`);
     }
@@ -216,20 +219,20 @@ test.describe("PR #222 render stress — TBLEMP hydration", () => {
     await hideTelefoneColumn(page);
     await assertHealthy(page, monitor, "5. Alterar preferência coluna");
     await page.reload();
-    await page.waitForSelector("table, .mg-table-panel, .mg-cards-panel", { timeout: 45_000 });
+    await page.waitForSelector(EMPRESAS_READY_SELECTOR, { timeout: 45_000 });
     await ensureTableView(page);
     await assertHealthy(page, monitor, "5b. Reload após coluna");
 
     await tweakCardsPreference(page);
     await assertHealthy(page, monitor, "6. Alterar preferência cards");
     await page.reload();
-    await page.waitForSelector("table, .mg-cards-panel", { timeout: 45_000 });
+    await page.waitForSelector(EMPRESAS_READY_SELECTOR, { timeout: 45_000 });
     await assertHealthy(page, monitor, "6b. Reload após cards");
 
     await tweakFilterPreference(page);
     await assertHealthy(page, monitor, "7. Alterar preferência filtros");
     await page.reload();
-    await page.waitForSelector("table, .mg-cards-panel", { timeout: 45_000 });
+    await page.waitForSelector(EMPRESAS_READY_SELECTOR, { timeout: 45_000 });
     await assertHealthy(page, monitor, "7b. Reload após filtros");
   });
 
@@ -255,7 +258,7 @@ test.describe("PR #222 render stress — TBLEMP hydration", () => {
     const monitorCorrupt = createMonitor();
     await attachMonitor(page, monitorCorrupt);
     await page.reload();
-    await page.waitForSelector("table, .mg-table-panel, .mg-cards-panel", { timeout: 45_000 });
+    await page.waitForSelector(EMPRESAS_READY_SELECTOR, { timeout: 45_000 });
     await ensureTableView(page);
     await assertHealthy(page, monitorCorrupt, "9. Preferência corrompida localStorage");
   });
@@ -271,7 +274,7 @@ test.describe("PR #222 render stress — TBLEMP hydration", () => {
 
     for (let i = 1; i <= 5; i += 1) {
       await page.reload();
-      await page.waitForSelector("table, .mg-cards-panel, .mg-table-panel", { timeout: 45_000 });
+      await page.waitForSelector(EMPRESAS_READY_SELECTOR, { timeout: 45_000 });
       await assertHealthy(page, monitor, `10b.${i} Mobile reload ${i}/5`);
     }
 

@@ -89,7 +89,7 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
         const previousSig = JSON.stringify(pickLayoutConfig(previous));
         const nextSig = JSON.stringify(pickLayoutConfig(next));
         if (previousSig === nextSig) return previous;
-        layoutPersistedRef.current = false;
+        layoutPersistedRef.current = true;
         return next;
       });
       setIsLayoutReady(true);
@@ -102,7 +102,7 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
         const previousSig = JSON.stringify(pickLayoutConfig(previous));
         const nextSig = JSON.stringify(pickLayoutConfig(repaired));
         if (previousSig === nextSig) return previous;
-        layoutPersistedRef.current = false;
+        layoutPersistedRef.current = true;
         return repaired;
       });
       setIsLayoutReady(true);
