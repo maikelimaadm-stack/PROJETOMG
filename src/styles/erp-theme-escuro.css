@@ -1030,9 +1030,14 @@ html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-conte
 
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
-html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body,
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs,
+html.escuro .mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip {
+  background: var(--bg-card) !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-body {
   background: var(--bg-page) !important;
 }

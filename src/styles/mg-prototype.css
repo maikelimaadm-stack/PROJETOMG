@@ -6665,7 +6665,7 @@
 
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-panel-tabs,
 .mg-empresas-scope .emp-layout-configurator .emp-layout-config-card-tabs {
-  background: var(--bg-page) !important;
+  background: var(--bg-card) !important;
   border-radius: 0 !important;
   flex-shrink: 0;
   height: var(--mg-toolbar-row-height);
@@ -6794,7 +6794,7 @@
 }
 
 .mg-empresas-scope .emp-layout-configurator .mg-panel-tabs-strip {
-  background: var(--bg-page) !important;
+  background: var(--bg-card) !important;
   border-radius: 0 !important;
 }
 
