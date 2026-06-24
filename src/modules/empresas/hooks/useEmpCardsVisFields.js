@@ -16,6 +16,7 @@ import {
 } from "@/modules/empresas/components/empSearchView.constants";
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 export function useEmpCardsVisFields() {
   const [columnLayoutVersion, setColumnLayoutVersion] = useState(0);
@@ -24,10 +25,10 @@ export function useEmpCardsVisFields() {
 
   useEffect(() => {
     const refresh = () => setColumnLayoutVersion((current) => current + 1);
-    window.addEventListener("storage", refresh);
+    const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
     window.addEventListener("emp-column-layout-updated", refresh);
     return () => {
-      window.removeEventListener("storage", refresh);
+      unsubscribeCache();
       window.removeEventListener("emp-column-layout-updated", refresh);
     };
   }, []);

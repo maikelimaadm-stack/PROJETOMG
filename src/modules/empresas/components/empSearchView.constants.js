@@ -2,6 +2,11 @@ import { formatDateValue } from "./tblEmp.constants";
 import { COLUNAS_BASE } from "./tblEmp.constants";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
+import {
+  readEmpPreferencesJson,
+  readEmpPreferencesText,
+  writeEmpPreferencesJson,
+} from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 /** Compatível com protótipo HTML (`erp_vis_config`). */
 export const EMP_SEARCH_VIS_KEY = "erp_vis_config";
@@ -32,20 +37,16 @@ export const getFieldsPerRowForLayout = (cardsPerRow) => {
 };
 
 export const loadCardsLayoutConfig = () => {
-  try {
-    const saved = localStorage.getItem(EMP_CARDS_LAYOUT_KEY);
-    if (!saved) return { ...EMP_CARDS_LAYOUT_DEFAULT };
-    const parsed = JSON.parse(saved);
-    return { cardsPerRow: normalizeCardsPerRow(parsed?.cardsPerRow) };
-  } catch {
-    return { ...EMP_CARDS_LAYOUT_DEFAULT };
-  }
+  const parsed = readEmpPreferencesJson(EMP_CARDS_LAYOUT_KEY, null);
+  if (!parsed || typeof parsed !== "object") return { ...EMP_CARDS_LAYOUT_DEFAULT };
+  return { cardsPerRow: normalizeCardsPerRow(parsed?.cardsPerRow) };
 };
 
 export const saveCardsLayoutConfig = (config) => {
-  localStorage.setItem(
+  writeEmpPreferencesJson(
     EMP_CARDS_LAYOUT_KEY,
-    JSON.stringify({ cardsPerRow: normalizeCardsPerRow(config?.cardsPerRow) })
+    { cardsPerRow: normalizeCardsPerRow(config?.cardsPerRow) },
+    { reason: "listagem:cards-layout" }
   );
 };
 
@@ -224,17 +225,13 @@ export const buildSearchDropdownDetailFields = (catalog = [], visFields = []) =>
 };
 
 export const loadSearchDropdownVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
-  try {
-    const saved = localStorage.getItem(EMP_SEARCH_DROPDOWN_VIS_KEY);
-    if (!saved) return catalog.map((field) => ({ ...field }));
-    const config = normalizeVisConfig(JSON.parse(saved));
-    return catalog.map((field) => ({
-      ...field,
-      visible: config[field.key] !== undefined ? Boolean(config[field.key]) : field.visible,
-    }));
-  } catch {
-    return catalog.map((field) => ({ ...field }));
-  }
+  const saved = readEmpPreferencesJson(EMP_SEARCH_DROPDOWN_VIS_KEY, null);
+  if (!saved || typeof saved !== "object") return catalog.map((field) => ({ ...field }));
+  const config = normalizeVisConfig(saved);
+  return catalog.map((field) => ({
+    ...field,
+    visible: config[field.key] !== undefined ? Boolean(config[field.key]) : field.visible,
+  }));
 };
 
 export const saveSearchDropdownVisFields = (fields) => {
@@ -243,17 +240,18 @@ export const saveSearchDropdownVisFields = (fields) => {
     const storageKey = REVERSE_FIELD_ALIASES[field.key] || field.key;
     obj[storageKey] = field.visible;
   });
-  localStorage.setItem(EMP_SEARCH_DROPDOWN_VIS_KEY, JSON.stringify(obj));
+  writeEmpPreferencesJson(EMP_SEARCH_DROPDOWN_VIS_KEY, obj, {
+    reason: "listagem:dropdown-fields",
+  });
 };
 
 export const loadSearchVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
+  const savedRaw =
+    readEmpPreferencesText(EMP_SEARCH_VIS_KEY, null) ??
+    readEmpPreferencesText(EMP_SEARCH_VIS_KEY_LEGACY, null);
+  if (!savedRaw) return catalog.map((field) => ({ ...field }));
   try {
-    let saved = localStorage.getItem(EMP_SEARCH_VIS_KEY);
-    if (!saved) {
-      saved = localStorage.getItem(EMP_SEARCH_VIS_KEY_LEGACY);
-    }
-    if (!saved) return catalog.map((field) => ({ ...field }));
-    const config = normalizeVisConfig(JSON.parse(saved));
+    const config = normalizeVisConfig(JSON.parse(savedRaw));
     return catalog.map((field) => ({
       ...field,
       visible: config[field.key] !== undefined ? Boolean(config[field.key]) : field.visible,
@@ -273,24 +271,21 @@ export const saveSearchVisFields = (fields) => {
     const storageKey = REVERSE_FIELD_ALIASES[field.key] || field.key;
     obj[storageKey] = field.visible;
   });
-  localStorage.setItem(EMP_SEARCH_VIS_KEY, JSON.stringify(obj));
+  writeEmpPreferencesJson(EMP_SEARCH_VIS_KEY, obj, {
+    reason: "listagem:cards-fields",
+  });
 };
 
 export const loadSearchFavorites = () => {
-  try {
-    const saved = localStorage.getItem(EMP_SEARCH_FAV_KEY);
-    if (!saved) return new Set();
-    const ids = JSON.parse(saved);
-    return new Set(Array.isArray(ids) ? ids.map((id) => String(id)) : []);
-  } catch {
-    return new Set();
-  }
+  const ids = readEmpPreferencesJson(EMP_SEARCH_FAV_KEY, []);
+  return new Set(Array.isArray(ids) ? ids.map((id) => String(id)) : []);
 };
 
 export const saveSearchFavorites = (favorites) => {
-  localStorage.setItem(
+  writeEmpPreferencesJson(
     EMP_SEARCH_FAV_KEY,
-    JSON.stringify([...favorites].map((id) => String(id)))
+    [...favorites].map((id) => String(id)),
+    { reason: "listagem:favorites" }
   );
 };
 

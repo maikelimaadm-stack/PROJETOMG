@@ -1,3 +1,8 @@
+import {
+  readEmpPreferencesJson,
+  writeEmpPreferencesJson,
+} from "@/modules/empresas/preferences/empresasPreferencesCache";
+
 export const EMP_FILTER_FIELDS_LAYOUT_KEY = "emp_filter_fields_layout_v1";
 
 const dispatchLayoutUpdated = () => {
@@ -38,28 +43,22 @@ export const loadFilterFieldsLayout = (catalogKeys = []) => {
     ordem: [...catalogKeys],
   };
 
-  if (typeof localStorage === "undefined" || catalogKeys.length === 0) {
+  if (catalogKeys.length === 0) {
     return defaultLayout;
   }
 
-  const saved = localStorage.getItem(EMP_FILTER_FIELDS_LAYOUT_KEY);
-  if (!saved) return defaultLayout;
-
-  try {
-    const parsed = JSON.parse(saved);
-    const ordem = mergeSavedFilterFieldOrder(parsed?.ordem, catalogKeys);
-    const visiveis = mergeSavedVisibleFilterFields(parsed?.visiveis, catalogKeys);
-    return { visiveis, ordem };
-  } catch {
-    return defaultLayout;
-  }
+  const parsed = readEmpPreferencesJson(EMP_FILTER_FIELDS_LAYOUT_KEY, null);
+  if (!parsed || typeof parsed !== "object") return defaultLayout;
+  const ordem = mergeSavedFilterFieldOrder(parsed?.ordem, catalogKeys);
+  const visiveis = mergeSavedVisibleFilterFields(parsed?.visiveis, catalogKeys);
+  return { visiveis, ordem };
 };
 
 export const saveFilterFieldsLayout = ({ visiveis = [], ordem = [] } = {}) => {
-  if (typeof localStorage === "undefined") return;
-  localStorage.setItem(
+  writeEmpPreferencesJson(
     EMP_FILTER_FIELDS_LAYOUT_KEY,
-    JSON.stringify({ visiveis, ordem })
+    { visiveis, ordem },
+    { reason: "listagem:filter-layout" }
   );
   dispatchLayoutUpdated();
 };

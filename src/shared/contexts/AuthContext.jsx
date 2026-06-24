@@ -56,8 +56,8 @@ const prefetchEmpresasCadastro = async (userId) => {
     const bootstrap = await queryClientInstance.fetchQuery({
       queryKey: ["user-preferences-bootstrap", userId],
       queryFn: () => userPreferencesApi.bootstrap(),
-      staleTime: 60_000,
-      gcTime: 10 * 60_000,
+      staleTime: 10 * 60_000,
+      gcTime: 30 * 60_000,
     });
     const mapped = mapBootstrapPreferences(bootstrap);
     const listagem = mapped[`${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`];

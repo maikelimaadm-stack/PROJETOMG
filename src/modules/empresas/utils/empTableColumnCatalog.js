@@ -8,14 +8,12 @@ import {
   ORDER_KEY,
   VISIBLE_KEY,
 } from "@/modules/empresas/components/tblEmp.constants";
+import {
+  readEmpPreferencesJson,
+} from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 export const loadLayoutAggregationConfig = () => {
-  try {
-    const saved = localStorage.getItem(AGGR_KEY);
-    return saved ? JSON.parse(saved) : {};
-  } catch {
-    return {};
-  }
+  return readEmpPreferencesJson(AGGR_KEY, {});
 };
 
 /** Mesma origem de colunas da tabela (base + personalizadas visíveis na tabela). */
@@ -71,14 +69,8 @@ export const resolveColumnsInUse = (disponiveis = [], ordem = [], visiveis = [])
     .filter((col) => col && visiveis.includes(col.id));
 
 export const loadSavedVisibleColumns = (storageKey) => {
-  try {
-    const saved = localStorage.getItem(storageKey);
-    if (!saved) return null;
-    const parsed = JSON.parse(saved);
-    return Array.isArray(parsed) ? parsed : null;
-  } catch {
-    return null;
-  }
+  const parsed = readEmpPreferencesJson(storageKey, null);
+  return Array.isArray(parsed) ? parsed : null;
 };
 
 /** Respeita colunas ocultas pelo usuário; só inclui defaults para colunas novas no catálogo. */

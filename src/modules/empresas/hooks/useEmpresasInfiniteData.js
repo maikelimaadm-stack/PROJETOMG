@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
+import { readEmpPreferencesText } from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 export const EMP_INFINITE_PAGE_SIZE = 100;
 export const EMP_LOAD_BATCH_OPTIONS = Object.freeze([100, 200, 300, 400, 500, 1000]);
@@ -11,8 +12,7 @@ export const EMP_MAX_LOADED_ROWS = Math.max(
 );
 
 export function readStoredEmpLoadBatchSize(fallback = EMP_LOAD_BATCH_OPTIONS[0]) {
-  if (typeof window === "undefined") return fallback;
-  const saved = Number(window.localStorage.getItem(EMP_LOAD_BATCH_STORAGE_KEY));
+  const saved = Number(readEmpPreferencesText(EMP_LOAD_BATCH_STORAGE_KEY, null));
   return EMP_LOAD_BATCH_OPTIONS.includes(saved) ? saved : fallback;
 }
 
