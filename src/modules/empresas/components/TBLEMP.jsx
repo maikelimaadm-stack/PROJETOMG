@@ -347,6 +347,12 @@ export default function TBLEMP({
     () => new Map(colunasDisponiveis.map((column) => [column.id, column])),
     [colunasDisponiveis]
   );
+  const colunasCatalogSignature = useMemo(
+    () => colunasDisponiveis.map((column) => column.id).join("|"),
+    [colunasDisponiveis]
+  );
+  const colunasDisponiveisRef = useRef(colunasDisponiveis);
+  colunasDisponiveisRef.current = colunasDisponiveis;
 
   const applyTablePreferencesFromCache = useCallback(
     (columns) => {
@@ -354,18 +360,43 @@ export default function TBLEMP({
       suppressPersistenceRef.current = true;
       const snapshot = readEmpTablePreferencesSnapshot(columns);
       columnSizingModeRef.current = snapshot.columnSizingMode;
-      setColunasOrdem(snapshot.colunasOrdem);
-      setColunasVisiveis(snapshot.colunasVisiveis);
-      setColumnWidths(snapshot.columnWidths);
-      setFrozenColumnCount(
-        Math.min(snapshot.frozenColumnCount, snapshot.colunasVisiveis.length)
+      setColunasOrdem((current) =>
+        haveSameIds(current, snapshot.colunasOrdem) ? current : snapshot.colunasOrdem
       );
-      setSortConfig(snapshot.sortConfig);
+      setColunasVisiveis((current) =>
+        haveSameIds(current, snapshot.colunasVisiveis) ? current : snapshot.colunasVisiveis
+      );
+      setColumnWidths((current) => {
+        const nextJson = JSON.stringify(snapshot.columnWidths || {});
+        const currentJson = JSON.stringify(current || {});
+        return nextJson === currentJson ? current : snapshot.columnWidths;
+      });
+      setFrozenColumnCount((current) => {
+        const next = Math.min(snapshot.frozenColumnCount, snapshot.colunasVisiveis.length);
+        return current === next ? current : next;
+      });
+      setSortConfig((current) => {
+        const nextJson = JSON.stringify(snapshot.sortConfig || []);
+        const currentJson = JSON.stringify(current || []);
+        return nextJson === currentJson ? current : snapshot.sortConfig;
+      });
       if (externalColumnFilters === undefined) {
-        setFiltrosColunas(snapshot.filtrosColunas);
+        setFiltrosColunas((current) => {
+          const nextJson = JSON.stringify(snapshot.filtrosColunas || {});
+          const currentJson = JSON.stringify(current || {});
+          return nextJson === currentJson ? current : snapshot.filtrosColunas;
+        });
       }
-      setLayoutAggregationConfig(snapshot.layoutAggregationConfig);
-      setAutoFitActiveColumns(snapshot.autoFitActiveColumns);
+      setLayoutAggregationConfig((current) => {
+        const nextJson = JSON.stringify(snapshot.layoutAggregationConfig || {});
+        const currentJson = JSON.stringify(current || {});
+        return nextJson === currentJson ? current : snapshot.layoutAggregationConfig;
+      });
+      setAutoFitActiveColumns((current) => {
+        const nextJson = JSON.stringify(snapshot.autoFitActiveColumns || {});
+        const currentJson = JSON.stringify(current || {});
+        return nextJson === currentJson ? current : snapshot.autoFitActiveColumns;
+      });
       tableHydratedRef.current = true;
       suppressPersistenceRef.current = false;
     },
@@ -373,9 +404,9 @@ export default function TBLEMP({
   );
 
   useLayoutEffect(() => {
-    if (!preferencesReady || !colunasDisponiveis.length) return;
-    applyTablePreferencesFromCache(colunasDisponiveis);
-  }, [preferencesReady, colunasDisponiveis, preferencesVersion, applyTablePreferencesFromCache]);
+    if (!preferencesReady || !colunasCatalogSignature) return;
+    applyTablePreferencesFromCache(colunasDisponiveisRef.current);
+  }, [preferencesReady, colunasCatalogSignature, preferencesVersion, applyTablePreferencesFromCache]);
 
   useEffect(() => {
     if (!preferencesReady) return undefined;
