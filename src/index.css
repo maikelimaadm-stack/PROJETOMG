@@ -332,7 +332,9 @@ input[type="number"] {
   .filter-panel__close,
   .ios-btn,
   .emp-th-icon-button,
-  .emp-th-menu-button
+  .emp-th-menu-button,
+  .emp-layout-config-field,
+  .emp-layout-config-field-action
 ) {
   border-radius: var(--emp-button-radius, 5px) !important;
 }
@@ -2462,7 +2464,8 @@ input[type="number"] {
   font-size: 13px;
   font-weight: 500;
   border: 0;
-  border-radius: var(--mg-radius-control, var(--emp-control-radius)) !important;
+  border-radius: var(--mg-radius-control, 8px) !important;
+  overflow: hidden;
   box-shadow: none !important;
   transition: background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
   cursor: pointer;
@@ -2611,7 +2614,7 @@ input[type="number"] {
   height: var(--mg-field-height, 38px);
   min-height: var(--mg-field-height, 38px);
   padding: 0 10px;
-  border-radius: var(--mg-radius-control, var(--emp-control-radius)) !important;
+  border-radius: var(--mg-radius-control, 8px) !important;
   box-shadow: none !important;
 }
 

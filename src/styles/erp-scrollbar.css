@@ -519,3 +519,17 @@ html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
   stroke: var(--mg-icon-on-accent-color, #ffffff) !important;
 }
 
+/* Configurador de layout — mesmo arredondamento dos campos de lançamento (8px) */
+html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
+  :is(
+    .emp-layout-config-field,
+    .emp-layout-config-field-required,
+    .emp-layout-config-field-optional,
+    .emp-layout-config-field-panel,
+    .emp-layout-config-field-available,
+    .emp-layout-config-field-available-item
+  ) {
+  border-radius: var(--mg-radius-control, 8px) !important;
+  overflow: hidden;
+}
+
