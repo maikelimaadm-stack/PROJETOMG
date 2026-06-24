@@ -29,6 +29,14 @@ const readJson = (key) => {
   }
 };
 
+const readText = (key) => {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+};
+
 function layoutConfigsEqual(a, b) {
   if (!a && !b) return true;
   if (!a || !b) return false;
@@ -146,6 +154,9 @@ export class LayoutPreferencesEngine {
 
       if (remoteUpdatedAt >= localTime) {
         this.writeLocal(userId, upgraded);
+        if (remote?.updatedAt) {
+          localStorage.setItem(`${keys.layoutKey}__serverUpdatedAt`, remote.updatedAt);
+        }
         window.dispatchEvent(
           new CustomEvent(this.hydratedEvent, { detail: { userId, moduleId: this.moduleId } })
         );
@@ -168,11 +179,23 @@ export class LayoutPreferencesEngine {
       const activeConfig = this.readLocal(userId);
       if (!activeConfig) return;
       try {
-        await userPreferencesApi.save(this.config.screenKey, {
+        const keys = this.getStorageKeys(userId);
+        const expectedUpdatedAt = readText(`${keys.layoutKey}__serverUpdatedAt`);
+        const saved = await userPreferencesApi.save(this.config.screenKey, {
           version: 3,
           activeConfig: pickLayoutConfig(activeConfig),
+        }, {
+          expectedUpdatedAt,
+          versao_schema: 3,
         });
+        if (saved?.updatedAt) {
+          localStorage.setItem(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt);
+        }
       } catch (error) {
+        if (Number(error?.status) === 409) {
+          // Em conflito entre abas, reidrata remoto e preserva edição local para novo retry.
+          this.syncRemote(userId);
+        }
         console.warn(`[${this.moduleId}] Falha ao sincronizar layout:`, error);
       }
     }, 700);

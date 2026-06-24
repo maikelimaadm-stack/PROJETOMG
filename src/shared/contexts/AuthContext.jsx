@@ -6,8 +6,16 @@ import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefini
 import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
+import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
+import {
+  EMPRESAS_FORM_SCOPE,
+  EMPRESAS_LISTAGEM_SCOPE,
+  applyFormLayoutPreferencesToStorage,
+  applyListagemPreferencesToStorage,
+  mapBootstrapPreferences,
+} from "@/modules/empresas/preferences/empresasPreferencesStorage";
 
-const prefetchEmpresasCadastro = () => {
+const prefetchEmpresasCadastro = async (userId) => {
   void queryClientInstance.prefetchQuery({
     queryKey: ["emp-cadastro", 1, LIST_DEFAULT_PAGE_SIZE, "", "codempresa", "asc", "{}"],
     queryFn: () =>
@@ -42,6 +50,27 @@ const prefetchEmpresasCadastro = () => {
     queryFn: () => empresasModuleDefinition.repository.listCamposPersonalizados("aplicavel"),
     staleTime: 5 * 60_000,
   });
+
+  if (!userId) return;
+  try {
+    const bootstrap = await queryClientInstance.fetchQuery({
+      queryKey: ["user-preferences-bootstrap", userId],
+      queryFn: () => userPreferencesApi.bootstrap(),
+      staleTime: 60_000,
+      gcTime: 10 * 60_000,
+    });
+    const mapped = mapBootstrapPreferences(bootstrap);
+    const listagem = mapped[`${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`];
+    const formLayout = mapped[`${EMPRESAS_FORM_SCOPE.modulo}.${EMPRESAS_FORM_SCOPE.tela}`];
+    if (listagem?.preferencias) {
+      applyListagemPreferencesToStorage(listagem.preferencias);
+    }
+    if (formLayout?.preferencias) {
+      applyFormLayoutPreferencesToStorage(userId, formLayout.preferencias, formLayout.updatedAt);
+    }
+  } catch {
+    // Falha de preferência não deve bloquear login.
+  }
 };
 
 const AuthContext = createContext();
@@ -68,7 +97,7 @@ export const AuthProvider = ({ children }) => {
   const [appPublicSettings, setAppPublicSettings] = useState(null);
 
   const checkAppState = useCallback(async () => {
-    const applySession = (session) => {
+    const applySession = async (session) => {
       if (!session?.user) {
         setUser(null);
         setCliente(null);
@@ -97,9 +126,9 @@ export const AuthProvider = ({ children }) => {
         : session.selectedEmpresaId ?? null;
       AuthApi.setSelectedEmpresaId(nextEmpresaId);
       setSelectedEmpresaId(nextEmpresaId);
+      await prefetchEmpresasCadastro(session.user?.id);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
-      prefetchEmpresasCadastro();
       return true;
     };
 
@@ -114,14 +143,14 @@ export const AuthProvider = ({ children }) => {
 
       try {
         const session = await AuthApi.getSession();
-        if (applySession(session)) return;
+        if (await applySession(session)) return;
         return;
       } catch (sessionError) {
         if (!isDevAutoLoginEnabled()) throw sessionError;
         AuthApi.clearSession();
         await AuthApi.login(getDevAutoLoginCredentials());
         const session = await AuthApi.getSession();
-        if (applySession(session)) return;
+        if (await applySession(session)) return;
       }
     } catch (error) {
       setAuthError({
@@ -172,7 +201,9 @@ export const AuthProvider = ({ children }) => {
       setSelectedEmpresaId(nextEmpresaId);
       setIsAuthenticated(Boolean(payload.user));
       setIsLoadingAuth(false);
-      if (payload.user) prefetchEmpresasCadastro();
+      if (payload.user) {
+        await prefetchEmpresasCadastro(payload.user.id);
+      }
       return payload;
     } catch (error) {
       setAuthError({ type: "auth_error", message: error.message || "Falha no login." });
