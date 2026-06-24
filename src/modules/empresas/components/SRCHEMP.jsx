@@ -23,6 +23,7 @@ import { scrollVirtualRowIntoView } from "@/shared/utils/virtualScrollIntoView";
 import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "./tblEmp.constants";
 import { LIST_PAGE_SIZE_OPTIONS } from "@/shared/listing/listQueryConfig";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
+import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import "./empSearchView.css";
 
 function SearchPageSizeSelect({ value, onChange }) {
@@ -251,6 +252,19 @@ export default function SRCHEMP({
   useEffect(() => {
     setLocalSearch(searchValue);
   }, [searchValue]);
+
+  useEffect(() => {
+    const refresh = () => {
+      setVisFields(loadSearchVisFields());
+      setFavorites(loadSearchFavorites());
+    };
+    const unsubscribe = subscribeEmpPreferencesCache(refresh);
+    window.addEventListener("emp-favorites-updated", refresh);
+    return () => {
+      unsubscribe();
+      window.removeEventListener("emp-favorites-updated", refresh);
+    };
+  }, []);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {

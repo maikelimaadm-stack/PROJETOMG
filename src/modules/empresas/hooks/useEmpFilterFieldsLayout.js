@@ -25,14 +25,17 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   );
 
   useEffect(() => {
-    const refresh = () => setLayoutVersion((current) => current + 1);
+    const refresh = () => {
+      setLayout(loadFilterFieldsLayout(catalogKeys));
+      setLayoutVersion((current) => current + 1);
+    };
     const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
     window.addEventListener("emp-filter-fields-layout-updated", refresh);
     return () => {
       unsubscribeCache();
       window.removeEventListener("emp-filter-fields-layout-updated", refresh);
     };
-  }, []);
+  }, [catalogKey, catalogKeys]);
 
   useEffect(() => {
     setLayout((current) => {
