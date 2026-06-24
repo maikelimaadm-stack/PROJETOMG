@@ -10,7 +10,7 @@ import {
   ChevronLast,
   ChevronLeft,
   ChevronRight,
-  Trash2,
+  Trash,
   X,
 } from "lucide-react";
 import { useHorizontalScrollRail } from "@/shared/hooks/useHorizontalScrollRail";
@@ -1571,7 +1571,7 @@ export default function EmpLayoutConfiguratorDialog({
                         onClick={deletePanel}
                         title="Excluir painel"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash className="h-3.5 w-3.5" />
                       </LayoutIconBtn>
                     </div>
                   ) : null
@@ -1680,7 +1680,7 @@ export default function EmpLayoutConfiguratorDialog({
                           onClick={() => deleteCard(activeCard.id)}
                           title="Excluir card"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash className="h-3.5 w-3.5" />
                         </LayoutIconBtn>
                       ) : null}
                       {activeCard ? (
@@ -1865,7 +1865,7 @@ export default function EmpLayoutConfiguratorDialog({
                                 onClick={() => removeLayoutRowById(layoutRow.id)}
                                 title="Excluir linha"
                               >
-                                <Trash2 className="h-3.5 w-3.5" />
+                                <Trash className="h-3.5 w-3.5" />
                               </LayoutIconBtn>
                             )}
                           </div>

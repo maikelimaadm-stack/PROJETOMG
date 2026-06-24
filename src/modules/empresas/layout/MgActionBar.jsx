@@ -11,6 +11,7 @@ import {
   RotateCcw,
   Search,
   Settings,
+  Trash,
   X,
 } from "lucide-react";
 import MgViewSeg from "@/modules/empresas/layout/MgViewSeg";
@@ -582,6 +583,7 @@ export default function MgActionBar({
       </ActionSlot>
       <ActionSlot show={showDelete && !!onDelete} width={68}>
         <ActionLabelBtn className="tb-btn-ghost tb-btn-danger" onClick={onDelete} disabled={actionsLocked} title="Excluir">
+          <Trash className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           Excluir
         </ActionLabelBtn>
       </ActionSlot>
@@ -738,6 +740,7 @@ export default function MgActionBar({
             ) : null}
             {showDelete && onDelete ? (
               <ActionLabelBtn className="tb-btn-ghost tb-btn-danger shrink-0" onClick={onDelete} disabled={actionsLocked} title="Excluir">
+                <Trash className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
                 Excluir
               </ActionLabelBtn>
             ) : null}

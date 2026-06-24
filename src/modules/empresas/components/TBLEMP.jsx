@@ -10,7 +10,6 @@ import {
   PanelLeft,
   ScanLine,
   Search,
-  Trash2,
   X,
 } from "lucide-react";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/shared/ui/table";
