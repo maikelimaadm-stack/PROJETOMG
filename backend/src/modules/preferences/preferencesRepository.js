@@ -1,4 +1,5 @@
 import { getPrismaClient } from "../../database/prismaClient.js";
+import { randomUUID } from "node:crypto";
 import {
   buildScreenKey,
   parseScopeFromScreenKey,
@@ -11,7 +12,8 @@ const withStatus = (message, statusCode) => {
   return error;
 };
 
-const MISSING_COLUMNS_REGEX = /Usuari[oó]Preferencia\.(modulo|tela|versao_schema|preferencias_json)/i;
+const MISSING_COLUMNS_REGEX =
+  /(Usuari[oó]Preferencia\.(modulo|tela|versao_schema|preferencias_json))|(column [`"]?(modulo|tela|versao_schema|preferencias_json)[`"]? does not exist)/i;
 
 const isMissingScopedColumnsError = (error) => {
   if (!error) return false;
@@ -54,6 +56,92 @@ const selectMostRecentByScope = (records = []) => {
   return [...map.values()];
 };
 
+const LEGACY_SELECT_COLUMNS = `
+  "id",
+  "screen_key",
+  "config",
+  "updatedAt"
+`;
+
+const findLegacyByScreenKey = async (prisma, { scope, screenKey }) => {
+  const rows = await prisma.$queryRawUnsafe(
+    `
+      SELECT ${LEGACY_SELECT_COLUMNS}
+      FROM "UsuarioPreferencia"
+      WHERE "cliente_id" = $1
+        AND "usuario_id" = $2
+        AND "screen_key" = $3
+      ORDER BY "updatedAt" DESC
+      LIMIT 1
+    `,
+    scope.clienteId,
+    scope.userId,
+    screenKey
+  );
+  return Array.isArray(rows) && rows.length ? rows[0] : null;
+};
+
+const listAllLegacyByScope = async (prisma, { scope }) => {
+  const rows = await prisma.$queryRawUnsafe(
+    `
+      SELECT ${LEGACY_SELECT_COLUMNS}
+      FROM "UsuarioPreferencia"
+      WHERE "cliente_id" = $1
+        AND "usuario_id" = $2
+      ORDER BY "screen_key" ASC
+    `,
+    scope.clienteId,
+    scope.userId
+  );
+  return Array.isArray(rows) ? rows : [];
+};
+
+const saveLegacyByScreenKey = async ({
+  prisma,
+  scope,
+  screenKey,
+  validatedConfig,
+  expectedUpdatedAt,
+}) => {
+  const existing = await findLegacyByScreenKey(prisma, { scope, screenKey });
+  if (existing && expectedUpdatedAt) {
+    const expectedTime = new Date(expectedUpdatedAt).getTime();
+    const currentTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
+    if (!Number.isFinite(expectedTime)) {
+      throw withStatus("Marca de concorrência inválida.", 400);
+    }
+    if (expectedTime !== currentTime) {
+      throw withStatus("Preferência foi alterada em outra aba/sessão.", 409);
+    }
+  }
+
+  const recordId =
+    (existing?.id && String(existing.id).trim()) ||
+    `pref_${randomUUID().replace(/-/g, "")}`;
+  const configJson = JSON.stringify(validatedConfig);
+
+  await prisma.$executeRawUnsafe(
+    `
+      INSERT INTO "UsuarioPreferencia"
+      ("id", "usuario_id", "cliente_id", "screen_key", "config", "createdAt", "updatedAt")
+      VALUES ($1, $2, $3, $4, $5::jsonb, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      ON CONFLICT ("usuario_id", "screen_key")
+      DO UPDATE
+      SET
+        "config" = EXCLUDED."config",
+        "cliente_id" = EXCLUDED."cliente_id",
+        "updatedAt" = CURRENT_TIMESTAMP
+    `,
+    recordId,
+    scope.userId,
+    scope.clienteId,
+    screenKey,
+    configJson
+  );
+
+  return findLegacyByScreenKey(prisma, { scope, screenKey });
+};
+
 export const preferencesRepository = {
   async get({ scope, screenKey }) {
     const parsed = parseScopeFromScreenKey(screenKey);
@@ -93,17 +181,9 @@ export const preferencesRepository = {
       return record;
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
-      const legacy = await prisma.usuarioPreferencia.findFirst({
-        where: {
-          cliente_id: scope.clienteId,
-          usuario_id: scope.userId,
-          screen_key: toScreenKey(normalizedModulo, normalizedTela),
-        },
-        select: {
-          screen_key: true,
-          config: true,
-          updatedAt: true,
-        },
+      const legacy = await findLegacyByScreenKey(prisma, {
+        scope,
+        screenKey: toScreenKey(normalizedModulo, normalizedTela),
       });
       if (!legacy) return null;
       return mapLegacyRecordToScoped(legacy);
@@ -130,18 +210,7 @@ export const preferencesRepository = {
       return records;
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
-      const legacy = await prisma.usuarioPreferencia.findMany({
-        where: {
-          cliente_id: scope.clienteId,
-          usuario_id: scope.userId,
-        },
-        orderBy: [{ screen_key: "asc" }],
-        select: {
-          screen_key: true,
-          config: true,
-          updatedAt: true,
-        },
-      });
+      const legacy = await listAllLegacyByScope(prisma, { scope });
       return selectMostRecentByScope(legacy.map(mapLegacyRecordToScoped));
     }
   },
@@ -257,58 +326,15 @@ export const preferencesRepository = {
       });
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
-      const existingLegacy = await prisma.usuarioPreferencia.findFirst({
-        where: {
-          cliente_id: scope.clienteId,
-          usuario_id: scope.userId,
-          screen_key: scopedScreenKey,
-        },
-        select: {
-          id: true,
-          updatedAt: true,
-        },
+      const legacyRecord = await saveLegacyByScreenKey({
+        prisma,
+        scope,
+        screenKey: scopedScreenKey,
+        validatedConfig,
+        expectedUpdatedAt,
       });
-
-      if (existingLegacy && expectedUpdatedAt) {
-        const expectedTime = new Date(expectedUpdatedAt).getTime();
-        const currentTime = existingLegacy.updatedAt ? new Date(existingLegacy.updatedAt).getTime() : 0;
-        if (!Number.isFinite(expectedTime)) {
-          throw withStatus("Marca de concorrência inválida.", 400);
-        }
-        if (expectedTime !== currentTime) {
-          throw withStatus("Preferência foi alterada em outra aba/sessão.", 409);
-        }
-      }
-
-      let legacyRecord;
-      if (existingLegacy) {
-        legacyRecord = await prisma.usuarioPreferencia.update({
-          where: { id: existingLegacy.id },
-          data: {
-            config: validatedConfig,
-            screen_key: scopedScreenKey,
-            cliente_id: scope.clienteId,
-          },
-          select: {
-            screen_key: true,
-            config: true,
-            updatedAt: true,
-          },
-        });
-      } else {
-        legacyRecord = await prisma.usuarioPreferencia.create({
-          data: {
-            usuario_id: scope.userId,
-            cliente_id: scope.clienteId,
-            screen_key: scopedScreenKey,
-            config: validatedConfig,
-          },
-          select: {
-            screen_key: true,
-            config: true,
-            updatedAt: true,
-          },
-        });
+      if (!legacyRecord) {
+        throw withStatus("Falha ao salvar preferência no modo legado.", 500);
       }
 
       const mapped = mapLegacyRecordToScoped(legacyRecord);
