@@ -1333,19 +1333,6 @@ html.escuro .cadastro-emp-scope .emp-form-fields .emp-form-field-label-top {
   color: #848d97 !important;
 }
 
-html.tema-escuro .cadastro-emp-scope .emp-form-toggle-switch,
-html.tema-escuro .cadastro-emp-scope .emp-form-toggle-switch:hover:not(:disabled),
-html.escuro .cadastro-emp-scope .emp-form-toggle-switch,
-html.escuro .cadastro-emp-scope .emp-form-toggle-switch:hover:not(:disabled) {
-  background: #21262d !important;
-  border-color: #30363d !important;
-}
-
-html.tema-escuro .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] > span,
-html.escuro .cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] > span {
-  background: #e6edf3 !important;
-}
-
 html.tema-escuro .cadastro-emp-scope .emp-toolbar-btn,
 html.tema-escuro .cadastro-emp-scope .emp-header-ctrl,
 html.tema-escuro .cadastro-emp-scope .emp-table-pagination-btn:not(.emp-table-pagination-page-active),

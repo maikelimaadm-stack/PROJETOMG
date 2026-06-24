@@ -6523,7 +6523,8 @@
   opacity: 1 !important;
 }
 
-.mg-empresas-scope .mg-prototype-form--readonly .emp-form-toggle-switch {
+.mg-empresas-scope .mg-prototype-form--readonly .emp-form-toggle-switch,
+.mg-empresas-scope .mg-prototype-form--readonly .mak-switch {
   opacity: 0.72;
 }
 

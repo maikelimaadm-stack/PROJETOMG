@@ -605,6 +605,8 @@ export default function FORMEMP({
           ".cmd-display[tabindex]:not([tabindex='-1'])",
           ".mg-lookup-display[tabindex]:not([tabindex='-1'])",
           "button.emp-form-toggle-switch:not([disabled])",
+          ".mak-switch input:not([disabled])",
+          ".emp-form-toggle-switch input:not([disabled])",
         ].join(", ")
       )
     ).filter((node) => node instanceof HTMLElement && node.getClientRects().length > 0);
@@ -654,6 +656,8 @@ export default function FORMEMP({
             ".cmd-display[tabindex]:not([tabindex='-1'])",
             ".mg-lookup-display[tabindex]:not([tabindex='-1'])",
             "button.emp-form-toggle-switch:not([disabled])",
+          ".mak-switch input:not([disabled])",
+          ".emp-form-toggle-switch input:not([disabled])",
           ].join(", ")
         )
       ).filter((node) => node instanceof HTMLElement && node.getClientRects().length > 0);

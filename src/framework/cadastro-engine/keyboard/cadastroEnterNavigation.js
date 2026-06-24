@@ -4,6 +4,8 @@ const FOCUSABLE_SELECTOR = [
   "select:not([disabled])",
   '[contenteditable="true"]',
   "button.emp-form-toggle-switch:not([disabled])",
+  ".mak-switch input:not([disabled])",
+  ".emp-form-toggle-switch input:not([disabled])",
 ].join(", ");
 
 const isVisibleElement = (element) => {

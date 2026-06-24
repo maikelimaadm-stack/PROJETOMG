@@ -345,11 +345,6 @@ input[type="number"] {
   border-radius: 0 !important;
 }
 
-.cadastro-emp-scope .emp-form-toggle-switch,
-.cadastro-emp-scope .emp-form-toggle-switch > span {
-  border-radius: 9999px !important;
-}
-
 .cadastro-emp-scope :where(.text-black):not(.text-red-500):not(.text-red-600):not(.text-red-700):not(.text-white):not([class*="text-red"]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-amber"]) {
   color: var(--mg-ink, #1a1f26) !important;
 }
@@ -1214,51 +1209,7 @@ input[type="number"] {
   min-height: var(--emp-form-control-height);
 }
 
-.cadastro-emp-scope .emp-form-toggle-switch {
-  height: 1rem !important;
-  width: 2rem !important;
-  min-height: 1rem !important;
-  min-width: 2rem !important;
-  border-radius: 9999px !important;
-  border: 1px solid var(--emp-form-border-color) !important;
-  background: #ffffff !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch:hover:not(:disabled) {
-  background: #ffffff !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch.emp-form-toggle-switch-on,
-.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] {
-  background: var(--emp-accent-primary) !important;
-  border-color: var(--emp-accent-primary) !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"]:hover:not(:disabled) {
-  background: var(--emp-accent-primary-hover) !important;
-  border-color: var(--emp-accent-primary-hover) !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch > span {
-  top: 1px !important;
-  width: 0.75rem !important;
-  height: 0.75rem !important;
-  border-radius: 9999px !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] > span {
-  right: 1px !important;
-  left: auto !important;
-  background: #ffffff !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="false"] > span {
-  left: 1px !important;
-  right: auto !important;
-  background: #94a3b8 !important;
-}
+/* Toggle — ver src/styles/mak-switch.css (Switch 30 MAK Gestão) */
 
 .cadastro-emp-scope .emp-form-image-control {
   padding: 0;
