@@ -66,6 +66,8 @@
   box-shadow:
     0 1px 4px rgba(15, 55, 30, 0.18),
     0 1px 1px rgba(15, 55, 30, 0.1);
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
   transition:
     transform 0.42s var(--mak-elastic),
     background 0.22s ease,
@@ -81,7 +83,7 @@
 }
 
 .mak-switch input:checked + .mak-track .mak-thumb {
-  transform: translateX(var(--mak-thumb-travel));
+  transform: translate3d(var(--mak-thumb-travel), 0, 0);
   background: var(--mak-green);
   box-shadow:
     0 2px 6px color-mix(in srgb, var(--mak-green) 30%, transparent),
@@ -94,11 +96,15 @@
 }
 
 .mak-switch:hover .mak-thumb {
-  transform: scale(1.04);
+  box-shadow:
+    0 2px 5px rgba(15, 55, 30, 0.22),
+    0 1px 2px rgba(15, 55, 30, 0.12);
 }
 
 .mak-switch:hover input:checked + .mak-track .mak-thumb {
-  transform: translateX(var(--mak-thumb-travel)) scale(1.04);
+  box-shadow:
+    0 3px 7px color-mix(in srgb, var(--mak-green) 34%, transparent),
+    0 1px 2px color-mix(in srgb, var(--mak-green) 20%, transparent);
 }
 
 .mak-switch:has(input:disabled) {
