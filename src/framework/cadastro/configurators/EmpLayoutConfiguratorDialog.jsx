@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/shared/ui/di
 import { Input } from "@/shared/ui/input";
 import {
   Plus,
-  Reply,
+  Redo2,
   Search,
   Settings,
   ChevronFirst,
@@ -1280,7 +1280,7 @@ export default function EmpLayoutConfiguratorDialog({
               addFieldById(field.id);
             }}
           >
-            <Reply className="h-3.5 w-3.5 text-white" />
+            <Redo2 className="h-3.5 w-3.5 text-white" />
           </button>
         ) : (
           <>

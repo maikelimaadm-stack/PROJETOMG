@@ -1,5 +1,5 @@
 import React from "react";
-import { EyeOff, Lock, RotateCcw, Sigma } from "lucide-react";
+import { CopyX, EyeOff, LockKeyhole, Sigma } from "lucide-react";
 
 const AGGREGATION_SHORT = {
   sum: "Σ",
@@ -25,12 +25,12 @@ export default function EmpLayoutFieldStatusIcons({
 
   if (!isHidden && !isLocked && !clearOnDuplicate && !isAggregated) return null;
 
-  const iconClass = "h-3 w-3 shrink-0 text-white/95";
+  const iconClass = "h-3 w-3 shrink-0 text-white";
 
   return (
     <span className="emp-layout-config-field-status-icons flex shrink-0 items-center gap-px">
       {isLocked && (
-        <Lock className={iconClass} title="Bloqueado" aria-label="Bloqueado" />
+        <LockKeyhole className={iconClass} title="Bloqueado" aria-label="Bloqueado" />
       )}
       {isHidden && (
         <EyeOff className={iconClass} title="Oculto" aria-label="Oculto" />
@@ -38,13 +38,13 @@ export default function EmpLayoutFieldStatusIcons({
       {isAggregated && (
         <span className="inline-flex items-center gap-0.5" title={`Totalizar: ${AGGREGATION_SHORT[aggregation?.type] || "Σ"}`}>
           <Sigma className={iconClass} aria-hidden="true" />
-          <span className="text-[9px] font-semibold leading-none text-white/95">
+          <span className="text-[9px] font-semibold leading-none text-white">
             {AGGREGATION_SHORT[aggregation?.type] || "Σ"}
           </span>
         </span>
       )}
       {clearOnDuplicate && (
-        <RotateCcw className={iconClass} title="Limpar ao duplicar" aria-label="Limpar ao duplicar" />
+        <CopyX className={iconClass} title="Limpar ao duplicar" aria-label="Limpar ao duplicar" />
       )}
     </span>
   );

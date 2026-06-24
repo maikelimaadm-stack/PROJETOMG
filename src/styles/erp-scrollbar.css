@@ -533,3 +533,12 @@ html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
   overflow: hidden;
 }
 
+/* Popover de configuração do campo — ícone fechar branco no header colorido */
+html body .emp-layout-field-settings-popover
+  :is(.emp-layout-config-field-required, .emp-layout-config-field-optional)
+  .emp-layout-field-settings-close
+  svg.lucide {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
