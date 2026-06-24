@@ -332,7 +332,9 @@ input[type="number"] {
   .filter-panel__close,
   .ios-btn,
   .emp-th-icon-button,
-  .emp-th-menu-button
+  .emp-th-menu-button,
+  .emp-layout-config-field,
+  .emp-layout-config-field-action
 ) {
   border-radius: var(--emp-button-radius, 5px) !important;
 }
@@ -2459,21 +2461,24 @@ input[type="number"] {
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field {
   box-sizing: border-box;
   flex-shrink: 0;
-  font-size: 12px;
+  font-size: 13px;
+  font-weight: 500;
   border: 0;
-  border-radius: var(--emp-control-radius) !important;
-  box-shadow: none;
+  border-radius: var(--mg-radius-control, 8px) !important;
+  overflow: hidden;
+  box-shadow: none !important;
   transition: background-color 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
   cursor: pointer;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required {
-  background: var(--emp-accent-danger);
+  background: var(--red, #dc2626);
   color: #ffffff;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required:hover {
-  background: var(--emp-accent-danger-hover);
+  background: #b91c1c;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-status-icons {
@@ -2482,21 +2487,21 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional {
-  background: var(--emp-accent-primary);
-  color: var(--emp-accent-primary-foreground);
+  background: var(--mg-brand-green, #40de63);
+  color: #ffffff;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-optional:hover {
-  background: var(--emp-accent-primary-hover);
+  background: var(--mg-brand-green-hover, #36c956);
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item {
-  background: var(--emp-accent-primary);
-  color: var(--emp-accent-primary-foreground);
+  background: var(--mg-brand-green, #40de63);
+  color: #ffffff;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available-item:hover {
-  background: var(--emp-accent-primary-hover);
+  background: var(--mg-brand-green-hover, #36c956);
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-required,
@@ -2560,10 +2565,10 @@ input[type="number"] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: auto;
+  height: auto;
   border: 0;
-  border-radius: 3px;
+  border-radius: 0;
   background: transparent;
   color: #ffffff !important;
   cursor: pointer;
@@ -2587,7 +2592,8 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope:not(.mg-empresas-scope) .emp-layout-configurator .emp-layout-config-field-action:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.18);
+  background: transparent;
+  opacity: 0.85;
   color: #ffffff !important;
 }
 
@@ -2605,16 +2611,16 @@ input[type="number"] {
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-panel {
-  height: 32px;
-  min-height: 32px;
-  padding-top: 0;
-  padding-bottom: 0;
+  height: var(--mg-field-height, 38px);
+  min-height: var(--mg-field-height, 38px);
+  padding: 0 10px;
+  border-radius: var(--mg-radius-control, 8px) !important;
+  box-shadow: none !important;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-available {
-  min-height: 36px;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  min-height: var(--mg-field-height, 38px);
+  padding: 4px 10px;
 }
 
 .cadastro-emp-scope .emp-layout-configurator .emp-layout-config-field-in-use {

@@ -1056,6 +1056,18 @@ html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-avail
   border: none !important;
 }
 
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-required {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional,
+html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-optional {
+  background: var(--mg-brand-green) !important;
+  color: #ffffff !important;
+}
+
 html.tema-escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip,
 html.escuro .mg-empresas-scope .emp-layout-configurator .emp-layout-config-field-chip {
   color: #9aa4af !important;

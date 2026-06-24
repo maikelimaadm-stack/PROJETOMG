@@ -245,12 +245,12 @@ html *::-webkit-scrollbar-button:double-button:horizontal:increment {
 html body svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
-  button,
+  button:not(.emp-layout-config-field-action),
   a,
-  [role="button"],
+  [role="button"]:not(.emp-layout-config-field),
   label,
-  span,
-  div
+  span:not(.emp-layout-config-field-status-icons):not(.emp-layout-config-field-actions),
+  div:not(.emp-layout-config-field)
 ) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost,
@@ -274,22 +274,21 @@ html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-she
   .seg-tab,
   .erp-sidebar-group-trigger,
   .mg-desktop-header__logo,
-  .mg-speed-dial__action,
-  .emp-layout-config-field-action
+  .mg-speed-dial__action
 ) svg.lucide {
   color: var(--mg-icon-color) !important;
   stroke: var(--mg-icon-color) !important;
 }
 
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
-  button,
+  button:not(.emp-layout-config-field-action),
   a,
-  [role="button"]
+  [role="button"]:not(.emp-layout-config-field)
 ):hover:not(:disabled) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
-  button,
+  button:not(.emp-layout-config-field-action),
   a,
-  [role="button"]
+  [role="button"]:not(.emp-layout-config-field)
 ):focus-visible:not(:disabled) svg.lucide,
 html body :is(.cadastro-emp-scope, .cadastro-scope, .mg-empresas-scope, .erp-shell) :is(
   .tb-btn-ghost,
@@ -499,5 +498,38 @@ html body .mg-action-bar :is(.tb-btn-ghost.tb-btn-danger, .tb-btn-danger) svg.lu
 html body .mg-action-bar :is(.tb-btn-ghost.tb-btn-danger, .tb-btn-danger):hover:not(:disabled) svg.lucide {
   color: var(--mg-icon-danger-color) !important;
   stroke: var(--mg-icon-danger-color) !important;
+}
+
+/* Configurador de layout — ícones brancos nos campos coloridos (neutraliza regras globais acima) */
+html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
+  :is(
+    .emp-layout-config-field,
+    .emp-layout-config-field-action,
+    .emp-layout-config-field-status-icons,
+    .emp-layout-config-field-actions
+  )
+  svg.lucide,
+html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
+  .emp-layout-config-field:is(:hover, :focus, :focus-within, :active)
+  svg.lucide,
+html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
+  .emp-layout-config-field-action:is(:hover, :focus, :focus-visible, :active)
+  svg.lucide {
+  color: var(--mg-icon-on-accent-color, #ffffff) !important;
+  stroke: var(--mg-icon-on-accent-color, #ffffff) !important;
+}
+
+/* Configurador de layout — mesmo arredondamento dos campos de lançamento (8px) */
+html body :is(.cadastro-emp-scope, .mg-empresas-scope).emp-layout-configurator
+  :is(
+    .emp-layout-config-field,
+    .emp-layout-config-field-required,
+    .emp-layout-config-field-optional,
+    .emp-layout-config-field-panel,
+    .emp-layout-config-field-available,
+    .emp-layout-config-field-available-item
+  ) {
+  border-radius: var(--mg-radius-control, 8px) !important;
+  overflow: hidden;
 }
 
