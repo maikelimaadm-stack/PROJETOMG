@@ -477,6 +477,7 @@ export default function FORMEMP({
   const applyLayoutConfig = (source, options) => applyLayoutConfigFromEngine(source, options);
 
   const tabIdsKey = useMemo(() => tabs.map((panel) => panel.id).join("|"), [tabs]);
+  const lastAutoRepairSigRef = useRef("");
 
   useEffect(() => {
     if (!formLayoutConfig || layoutConfigOpen) return;
@@ -502,8 +503,11 @@ export default function FORMEMP({
         panel.hidden &&
         getPanelFieldIdsFromLayout(formLayoutConfig?.layout, panel.id).length > 0
     );
-    const layoutDiffers =
-      JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(formLayoutConfig));
+    const repairedSig = JSON.stringify(pickLayoutConfig(repaired));
+    const currentSig = JSON.stringify(pickLayoutConfig(formLayoutConfig));
+    const layoutDiffers = repairedSig !== currentSig;
+
+    if (lastAutoRepairSigRef.current === repairedSig && layoutPersistedRef.current) return;
 
     if (
       storedKnownCount === 0 ||
@@ -511,6 +515,7 @@ export default function FORMEMP({
       hasHiddenSystemPanels ||
       layoutDiffers
     ) {
+      lastAutoRepairSigRef.current = repairedSig;
       layoutPersistedRef.current = true;
       applyLayoutConfig(repaired, { updateActiveTab: true });
     }

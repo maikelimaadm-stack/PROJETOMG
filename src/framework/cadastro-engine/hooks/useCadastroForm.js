@@ -65,6 +65,11 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
     return ids;
   }, [nativeLayoutFieldIds, camposPersonalizadosForm]);
 
+  const knownLayoutFieldIdsKey = useMemo(
+    () => [...knownLayoutFieldIds].sort().join("|"),
+    [knownLayoutFieldIds]
+  );
+
   useEffect(() => {
     if (!userId) {
       setFormLayoutConfig(null);
@@ -77,20 +82,30 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
     const local = prefs.readLocal(userId);
     const onHydrated = () => {
       const stored = prefs.readLocal(userId);
-      layoutPersistedRef.current = false;
       const next = stored
         ? engine.layout.ensureFields(stored, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull
         : defaultConfigFull;
-      setFormLayoutConfig(next);
+      setFormLayoutConfig((previous) => {
+        const previousSig = JSON.stringify(pickLayoutConfig(previous));
+        const nextSig = JSON.stringify(pickLayoutConfig(next));
+        if (previousSig === nextSig) return previous;
+        layoutPersistedRef.current = false;
+        return next;
+      });
       setIsLayoutReady(true);
     };
 
     if (local) {
       const repaired =
         engine.layout.ensureFields(local, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull;
-      setFormLayoutConfig(repaired);
+      setFormLayoutConfig((previous) => {
+        const previousSig = JSON.stringify(pickLayoutConfig(previous));
+        const nextSig = JSON.stringify(pickLayoutConfig(repaired));
+        if (previousSig === nextSig) return previous;
+        layoutPersistedRef.current = false;
+        return repaired;
+      });
       setIsLayoutReady(true);
-      layoutPersistedRef.current = false;
     } else {
       setFormLayoutConfig(null);
       setIsLayoutReady(false);
@@ -99,7 +114,7 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
 
     window.addEventListener(engine.preferences.hydratedEvent, onHydrated);
     return () => window.removeEventListener(engine.preferences.hydratedEvent, onHydrated);
-  }, [userId, moduleConfig.moduleId, defaultConfigFull, knownLayoutFieldIds, engine]);
+  }, [userId, moduleConfig.moduleId, defaultConfigFull, knownLayoutFieldIdsKey, engine, knownLayoutFieldIds]);
 
   const resolveActiveLayoutConfig = useCallback(
     (source) => {

@@ -1039,6 +1039,16 @@ export default function PAGEMP() {
     setQueryPage(1);
   }, []);
 
+  const handleServerSortChange = useCallback((nextSort) => {
+    setQuerySort((previous) => {
+      const key = nextSort?.key || "codempresa";
+      const direction = nextSort?.direction === "desc" ? "desc" : "asc";
+      if (previous.key === key && previous.direction === direction) return previous;
+      return { key, direction };
+    });
+    setQueryPage(1);
+  }, []);
+
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
   const searchHasFilter = Boolean(
     searchDraft.trim() || searchTerm.trim() || pinnedRecord || searchFavoritesOnly
@@ -1728,10 +1738,7 @@ export default function PAGEMP() {
                     serverBaseFilters,
                     selectorOptionsMode: "cascade",
                     selectorOptionsContextFilters: serverBaseFilters,
-                    onServerSortChange: (nextSort) => {
-                      setQuerySort(nextSort);
-                      setQueryPage(1);
-                    },
+                    onServerSortChange: handleServerSortChange,
                     onRequestDistinctColumnValues: handleDistinctColumnValues,
                     preferencesReady,
                     moduleTitle: moduleLabels.title,

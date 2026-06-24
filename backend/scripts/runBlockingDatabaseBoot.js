@@ -155,7 +155,7 @@ const runAutoBaselineIfNeeded = async (log) => {
   }
 };
 
-const verifyUserPreferencesSchemaReady = async () => {
+export const verifyUserPreferencesSchemaReady = async () => {
   const { createMigrationPrisma } = await import("./migrationPrisma.js");
   const prisma = createMigrationPrisma();
   try {

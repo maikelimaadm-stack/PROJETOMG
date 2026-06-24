@@ -242,13 +242,19 @@ export default function TBLEMP({
   const defaultSortConfig = [{ key: "codempresa", direction: "asc" }];
   const [sortConfig, setSortConfig] = useState(defaultSortConfig);
   const [filtrosColunas, setFiltrosColunas] = useState({});
+  const lastExternalFiltersSigRef = useRef(null);
+  const lastServerFiltersSigRef = useRef(null);
+  const lastServerSortSigRef = useRef(null);
   useEffect(() => {
     if (externalColumnFilters === undefined) return;
     const normalized = normalizeExternalColumnFilters(externalColumnFilters);
+    const nextSig = JSON.stringify(normalized || {});
+    if (lastExternalFiltersSigRef.current === nextSig) return;
+    lastExternalFiltersSigRef.current = nextSig;
+    lastServerFiltersSigRef.current = nextSig;
     setFiltrosColunas((prev) => {
       const prevJson = JSON.stringify(prev || {});
-      const nextJson = JSON.stringify(normalized || {});
-      if (prevJson === nextJson) return prev;
+      if (prevJson === nextSig) return prev;
       return normalized;
     });
   }, [externalColumnFilters]);
@@ -386,7 +392,13 @@ export default function TBLEMP({
           const currentJson = JSON.stringify(current || {});
           return nextJson === currentJson ? current : snapshot.filtrosColunas;
         });
+        lastServerFiltersSigRef.current = JSON.stringify(snapshot.filtrosColunas || {});
       }
+      const primarySort = snapshot.sortConfig?.[0] || { key: "codempresa", direction: "asc" };
+      lastServerSortSigRef.current = JSON.stringify({
+        key: primarySort.key || "codempresa",
+        direction: primarySort.direction === "desc" ? "desc" : "asc",
+      });
       setLayoutAggregationConfig((current) => {
         const nextJson = JSON.stringify(snapshot.layoutAggregationConfig || {});
         const currentJson = JSON.stringify(current || {});
@@ -1009,23 +1021,34 @@ export default function TBLEMP({
   );
 
   useEffect(() => {
-    writeEmpPreferencesText(PAGE_SIZE_KEY, String(pageSize), { reason: "listagem:table-page-size" });
+    if (suppressPersistenceRef.current || !tableHydratedRef.current) return;
+    writeEmpPreferencesText(PAGE_SIZE_KEY, String(pageSize), {
+      reason: "listagem:table-page-size",
+      emit: false,
+    });
   }, [pageSize]);
 
   useEffect(() => {
-    if (!serverMode) return;
+    if (!serverMode || suppressPersistenceRef.current || !tableHydratedRef.current) return;
+    const sig = JSON.stringify(filtrosColunas || {});
+    if (lastServerFiltersSigRef.current === sig) return;
+    lastServerFiltersSigRef.current = sig;
     onServerColumnFiltersChange?.(filtrosColunas);
   }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
-    if (!serverMode) return;
+    if (!serverMode || suppressPersistenceRef.current || !tableHydratedRef.current) return;
     const primarySort = Array.isArray(sortConfig) && sortConfig.length > 0
       ? sortConfig[0]
       : { key: "codempresa", direction: "asc" };
-    onServerSortChange?.({
+    const nextSort = {
       key: primarySort.key || "codempresa",
       direction: primarySort.direction === "desc" ? "desc" : "asc",
-    });
+    };
+    const sig = JSON.stringify(nextSort);
+    if (lastServerSortSigRef.current === sig) return;
+    lastServerSortSigRef.current = sig;
+    onServerSortChange?.(nextSort);
   }, [serverMode, sortConfig, onServerSortChange]);
 
   useEffect(() => {
