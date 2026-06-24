@@ -3,6 +3,7 @@ import {
   loadSearchFavorites,
   saveSearchFavorites,
 } from "@/modules/empresas/components/empSearchView.constants";
+import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 const normalizeFavoriteId = (recordId) => {
   if (recordId == null || recordId === "") return "";
@@ -14,10 +15,10 @@ export function useEmpFavorites() {
 
   useEffect(() => {
     const sync = () => setFavorites(loadSearchFavorites());
-    window.addEventListener("storage", sync);
+    const unsubscribeCache = subscribeEmpPreferencesCache(sync);
     window.addEventListener("emp-favorites-updated", sync);
     return () => {
-      window.removeEventListener("storage", sync);
+      unsubscribeCache();
       window.removeEventListener("emp-favorites-updated", sync);
     };
   }, []);

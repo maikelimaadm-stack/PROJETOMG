@@ -15,10 +15,25 @@ const withStatus = (message, statusCode) => {
 const MISSING_COLUMNS_REGEX =
   /(Usuari[oó]Preferencia\.(modulo|tela|versao_schema|preferencias_json))|(column [`"]?(modulo|tela|versao_schema|preferencias_json)[`"]? does not exist)/i;
 
+const isLegacyFallbackEnabled = () =>
+  ["1", "true", "yes", "on"].includes(
+    String(process.env.PREFERENCES_ALLOW_LEGACY_FALLBACK || "")
+      .trim()
+      .toLowerCase()
+  );
+
 const isMissingScopedColumnsError = (error) => {
   if (!error) return false;
   if (String(error.code || "") === "P2022") return true;
   return MISSING_COLUMNS_REGEX.test(String(error.message || ""));
+};
+
+const assertLegacyFallbackAllowed = () => {
+  if (isLegacyFallbackEnabled()) return;
+  throw withStatus(
+    "Schema de preferências desatualizado. Execute a migration 20260624140500_user_screen_preferences e desative o fallback legado.",
+    503
+  );
 };
 
 const toScreenKey = (modulo, tela) =>
@@ -181,6 +196,7 @@ export const preferencesRepository = {
       return record;
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
+      assertLegacyFallbackAllowed();
       const legacy = await findLegacyByScreenKey(prisma, {
         scope,
         screenKey: toScreenKey(normalizedModulo, normalizedTela),
@@ -210,6 +226,7 @@ export const preferencesRepository = {
       return records;
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
+      assertLegacyFallbackAllowed();
       const legacy = await listAllLegacyByScope(prisma, { scope });
       return selectMostRecentByScope(legacy.map(mapLegacyRecordToScoped));
     }
@@ -326,6 +343,7 @@ export const preferencesRepository = {
       });
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
+      assertLegacyFallbackAllowed();
       const legacyRecord = await saveLegacyByScreenKey({
         prisma,
         scope,

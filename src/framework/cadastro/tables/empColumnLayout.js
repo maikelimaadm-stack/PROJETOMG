@@ -1,3 +1,5 @@
+import { readEmpPreferencesText } from "@/modules/empresas/preferences/empresasPreferencesCache";
+
 const PRIORITY_FIRST_COLUMNS = ["id_global"];
 
 export const mergeSavedColumnOrder = (savedOrder, baseColumns) => {
@@ -18,7 +20,7 @@ export const mergeSavedVisibleColumns = (savedVisible, baseColumns) => {
 };
 
 export const loadColumnOrder = (storageKey, baseColumns) => {
-  const saved = localStorage.getItem(storageKey);
+  const saved = readEmpPreferencesText(storageKey, null);
   if (!saved) return baseColumns.map((col) => col.id);
   try {
     return mergeSavedColumnOrder(JSON.parse(saved), baseColumns);
@@ -28,7 +30,7 @@ export const loadColumnOrder = (storageKey, baseColumns) => {
 };
 
 export const loadVisibleColumns = (storageKey, baseColumns) => {
-  const saved = localStorage.getItem(storageKey);
+  const saved = readEmpPreferencesText(storageKey, null);
   if (!saved) return baseColumns.filter((col) => col.default).map((col) => col.id);
   try {
     return mergeSavedVisibleColumns(JSON.parse(saved), baseColumns);

@@ -25,18 +25,25 @@ const withStatus = (message, statusCode) => {
 
 export function useEmpresasPreferencesBootstrap(userId) {
   const queryClient = useQueryClient();
-  const [isReady, setIsReady] = useState(false);
+  const [isReady, setIsReady] = useState(() =>
+    Boolean(userId) &&
+    Boolean(queryClient.getQueryData([BOOTSTRAP_QUERY_PREFIX, userId]))
+  );
   const [syncError, setSyncError] = useState(null);
   const listagemUpdatedAtRef = useRef(null);
   const listagemSyncTimerRef = useRef(null);
+  const listagemRetryTimerRef = useRef(null);
   const syncInFlightRef = useRef(false);
 
   const bootstrapQuery = useQuery({
     queryKey: [BOOTSTRAP_QUERY_PREFIX, userId],
     queryFn: () => userPreferencesApi.bootstrap(),
     enabled: Boolean(userId),
-    staleTime: 60_000,
-    gcTime: 10 * 60_000,
+    staleTime: 10 * 60_000,
+    gcTime: 30 * 60_000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
     retry: 1,
   });
 
@@ -114,9 +121,10 @@ export function useEmpresasPreferencesBootstrap(userId) {
       listagemUpdatedAtRef.current = null;
       return;
     }
-    setIsReady(false);
+    const hasWarmCache = Boolean(queryClient.getQueryData([BOOTSTRAP_QUERY_PREFIX, userId]));
+    setIsReady(hasWarmCache);
     setSyncError(null);
-  }, [userId]);
+  }, [queryClient, userId]);
 
   useEffect(() => {
     if (!bootstrapQuery.isError) return;
@@ -148,10 +156,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
         }
 
         if (!isMounted) return;
-        requestAnimationFrame(() => {
-          if (!isMounted) return;
-          setIsReady(true);
-        });
+        setIsReady(true);
       } catch (error) {
         if (!isMounted) return;
         setSyncError(error);
@@ -179,6 +184,25 @@ export function useEmpresasPreferencesBootstrap(userId) {
         }
       );
       listagemUpdatedAtRef.current = response?.updatedAt || null;
+      queryClient.setQueryData([BOOTSTRAP_QUERY_PREFIX, userId], (previous) => {
+        const records = Array.isArray(previous?.preferences)
+          ? [...previous.preferences]
+          : [];
+        const key = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
+        const index = records.findIndex(
+          (record) => `${record?.modulo}.${record?.tela}` === key
+        );
+        const nextRecord = {
+          modulo: EMPRESAS_LISTAGEM_SCOPE.modulo,
+          tela: EMPRESAS_LISTAGEM_SCOPE.tela,
+          versao_schema: Number(payload?.version) || 1,
+          preferencias: payload,
+          updatedAt: response?.updatedAt || new Date().toISOString(),
+        };
+        if (index >= 0) records[index] = nextRecord;
+        else records.push(nextRecord);
+        return { ...(previous || {}), preferences: records };
+      });
       setSyncError(null);
     } catch (error) {
       if (Number(error?.status) === 409) {
@@ -195,7 +219,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
     } finally {
       syncInFlightRef.current = false;
     }
-  }, [applyBootstrapToStorage, queryClient, userId]);
+  }, [queryClient, userId]);
 
   const scheduleListagemSync = useCallback(
     ({ immediate = false } = {}) => {
@@ -203,12 +227,20 @@ export function useEmpresasPreferencesBootstrap(userId) {
         clearTimeout(listagemSyncTimerRef.current);
         listagemSyncTimerRef.current = null;
       }
+      if (listagemRetryTimerRef.current) {
+        clearTimeout(listagemRetryTimerRef.current);
+        listagemRetryTimerRef.current = null;
+      }
 
       const runner = async () => {
         try {
           await persistListagemPreferences();
-        } catch {
-          // Erro já capturado em syncError; UI permanece funcional.
+        } catch (error) {
+          if (Number(error?.status) === 409) return;
+          listagemRetryTimerRef.current = setTimeout(() => {
+            listagemRetryTimerRef.current = null;
+            scheduleListagemSync();
+          }, 2_500);
         }
       };
 
@@ -220,7 +252,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
       listagemSyncTimerRef.current = setTimeout(() => {
         listagemSyncTimerRef.current = null;
         void runner();
-      }, 700);
+      }, 800);
     },
     [persistListagemPreferences]
   );
@@ -230,6 +262,10 @@ export function useEmpresasPreferencesBootstrap(userId) {
       if (listagemSyncTimerRef.current) {
         clearTimeout(listagemSyncTimerRef.current);
         listagemSyncTimerRef.current = null;
+      }
+      if (listagemRetryTimerRef.current) {
+        clearTimeout(listagemRetryTimerRef.current);
+        listagemRetryTimerRef.current = null;
       }
     },
     []

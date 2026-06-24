@@ -8,6 +8,7 @@ import {
   mergeVisibleFilterFieldsWithCatalog,
   saveFilterFieldsLayout,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
+import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 export function useEmpFilterFieldsLayout(catalogFields = []) {
   const [layoutVersion, setLayoutVersion] = useState(0);
@@ -25,10 +26,10 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
 
   useEffect(() => {
     const refresh = () => setLayoutVersion((current) => current + 1);
-    window.addEventListener("storage", refresh);
+    const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
     window.addEventListener("emp-filter-fields-layout-updated", refresh);
     return () => {
-      window.removeEventListener("storage", refresh);
+      unsubscribeCache();
       window.removeEventListener("emp-filter-fields-layout-updated", refresh);
     };
   }, []);

@@ -72,6 +72,10 @@ import {
   readStoredEmpViewMode,
   writeStoredEmpViewMode,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import {
+  subscribeEmpPreferencesCache,
+  writeEmpPreferencesText,
+} from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 const DROPDOWN_PAGE_SIZE = 30;
 
@@ -311,9 +315,7 @@ export default function PAGEMP() {
 
   useEffect(() => {
     writeStoredEmpViewMode(viewMode);
-    if (!preferencesReady) return;
-    scheduleListagemSync();
-  }, [viewMode, preferencesReady, scheduleListagemSync]);
+  }, [viewMode]);
 
   useEffect(() => {
     if (!showForm) {
@@ -973,7 +975,9 @@ export default function PAGEMP() {
     setLoadBatchSize(nextBatchSize);
     setQueryPage(1);
     if (typeof window !== "undefined") {
-      window.localStorage.setItem(EMP_LOAD_BATCH_STORAGE_KEY, String(nextBatchSize));
+      writeEmpPreferencesText(EMP_LOAD_BATCH_STORAGE_KEY, String(nextBatchSize), {
+        reason: "listagem:table-batch-size",
+      });
     }
     if (preferencesReady) {
       scheduleListagemSync({ immediate: true });
@@ -1081,35 +1085,13 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!preferencesReady) return undefined;
-    const schedule = () => scheduleListagemSync();
-    window.addEventListener("emp-column-layout-updated", schedule);
-    window.addEventListener("emp-filter-fields-layout-updated", schedule);
-    window.addEventListener("emp-favorites-updated", schedule);
-    window.addEventListener("emp-view-mode-updated", schedule);
-    window.addEventListener("emp-launch-panel-style-updated", schedule);
-    window.addEventListener("storage", schedule);
+    const unsubscribe = subscribeEmpPreferencesCache(() => {
+      scheduleListagemSync();
+    });
     return () => {
-      window.removeEventListener("emp-column-layout-updated", schedule);
-      window.removeEventListener("emp-filter-fields-layout-updated", schedule);
-      window.removeEventListener("emp-favorites-updated", schedule);
-      window.removeEventListener("emp-view-mode-updated", schedule);
-      window.removeEventListener("emp-launch-panel-style-updated", schedule);
-      window.removeEventListener("storage", schedule);
+      unsubscribe();
     };
   }, [preferencesReady, scheduleListagemSync]);
-
-  useEffect(() => {
-    if (!preferencesReady) return;
-    scheduleListagemSync();
-  }, [
-    preferencesReady,
-    scheduleListagemSync,
-    cardsVisFields.visFields,
-    cardsVisFields.layoutConfig,
-    filterFieldsLayout,
-    querySort,
-    loadBatchSize,
-  ]);
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
