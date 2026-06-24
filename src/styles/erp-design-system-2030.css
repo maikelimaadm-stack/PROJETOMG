@@ -988,36 +988,7 @@
   color: var(--erp-color-text) !important;
 }
 
-/* —— Toggle 36×20 —— */
-.cadastro-emp-scope .emp-form-toggle-switch {
-  width: var(--erp-toggle-width) !important;
-  height: var(--erp-toggle-height) !important;
-  min-width: var(--erp-toggle-width) !important;
-  min-height: var(--erp-toggle-height) !important;
-  border: 1px solid var(--erp-color-input-border) !important;
-  background: #e2e8f0 !important;
-  transition: background var(--erp-ds-transition), border-color var(--erp-ds-transition);
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch.emp-form-toggle-switch-on,
-.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] {
-  background: var(--erp-color-primary) !important;
-  border-color: var(--erp-color-primary) !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch > span {
-  width: 16px !important;
-  height: 16px !important;
-  top: 1px !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="true"] > span {
-  right: 1px !important;
-}
-
-.cadastro-emp-scope .emp-form-toggle-switch[aria-pressed="false"] > span {
-  left: 1px !important;
-}
+/* —— Toggle — ver src/styles/mak-switch.css —— */
 
 /* —— Checkbox 14px —— */
 .cadastro-emp-scope [role="checkbox"]:not(.emp-form-toggle-switch) {

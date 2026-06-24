@@ -1,0 +1,151 @@
+/**
+ * MAK Gestão — switch elástico (Switch 30)
+ * Verde ativo: --mg-brand-green (mesmo do botão Novo)
+ */
+
+.cadastro-emp-scope,
+.mg-empresas-scope,
+.cadastro-scope {
+  --mak-green: var(--mg-brand-green, #40de63);
+  --mak-green-light: color-mix(in srgb, var(--mg-brand-green, #40de63) 16%, #ffffff);
+  --mak-border: #dce6df;
+  --mak-border-active: color-mix(in srgb, var(--mg-brand-green, #40de63) 50%, #ffffff);
+  --mak-off: #edf3ef;
+  --mak-elastic: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.mak-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 48px;
+  height: 22px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.mak-switch input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+  margin: 0;
+}
+
+.mak-switch .mak-track {
+  position: relative;
+  display: block;
+  width: 48px;
+  height: 12px;
+  background: var(--mak-off);
+  border: 1px solid var(--mak-border);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 1px rgba(15, 55, 30, 0.04);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.mak-switch .mak-thumb {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow:
+    0 2px 6px rgba(15, 55, 30, 0.2),
+    0 1px 1px rgba(15, 55, 30, 0.1);
+  transition:
+    transform 0.42s var(--mak-elastic),
+    background 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.mak-switch input:checked + .mak-track {
+  background: var(--mak-green-light);
+  border-color: var(--mak-border-active);
+  box-shadow:
+    0 3px 9px color-mix(in srgb, var(--mak-green) 12%, transparent),
+    inset 0 1px 1px color-mix(in srgb, var(--mak-green) 6%, transparent);
+}
+
+.mak-switch input:checked + .mak-track .mak-thumb {
+  transform: translateX(26px);
+  background: var(--mak-green);
+  box-shadow:
+    0 3px 8px color-mix(in srgb, var(--mak-green) 30%, transparent),
+    0 1px 1px color-mix(in srgb, var(--mak-green) 18%, transparent);
+}
+
+.mak-switch:has(input:focus-visible) .mak-track {
+  outline: 3px solid color-mix(in srgb, var(--mak-green) 20%, transparent);
+  outline-offset: 3px;
+}
+
+.mak-switch:hover .mak-thumb {
+  transform: scale(1.04);
+}
+
+.mak-switch:hover input:checked + .mak-track .mak-thumb {
+  transform: translateX(26px) scale(1.04);
+}
+
+.mak-switch:has(input:disabled) {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.mak-switch--lote {
+  --mak-green: #2899f5;
+  --mak-green-light: color-mix(in srgb, #2899f5 16%, #ffffff);
+  --mak-border-active: color-mix(in srgb, #2899f5 50%, #ffffff);
+}
+
+/* Legado: neutraliza overrides antigos do botão-toggle */
+.cadastro-emp-scope .emp-form-toggle-switch.mak-switch,
+.cadastro-emp-scope .cad-form-toggle-switch.mak-switch {
+  height: 22px !important;
+  width: 48px !important;
+  min-height: 22px !important;
+  min-width: 48px !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+.cadastro-emp-scope .emp-form-toggle-switch.mak-switch > .mak-track,
+.cadastro-emp-scope .cad-form-toggle-switch.mak-switch > .mak-track {
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+}
+
+.mg-empresas-scope .mg-prototype-form--readonly .mak-switch {
+  opacity: 0.72;
+}
+
+/* Modo escuro */
+html.tema-escuro .mak-switch,
+html.escuro .mak-switch {
+  --mak-off: #21262d;
+  --mak-border: #30363d;
+  --mak-green-light: color-mix(in srgb, var(--mg-brand-green, #40de63) 22%, #21262d);
+  --mak-border-active: color-mix(in srgb, var(--mg-brand-green, #40de63) 45%, #30363d);
+}
+
+html.tema-escuro .mak-switch .mak-thumb,
+html.escuro .mak-switch .mak-thumb {
+  background: #e6edf3;
+}
+
+html.tema-escuro .mak-switch input:checked + .mak-track .mak-thumb,
+html.escuro .mak-switch input:checked + .mak-track .mak-thumb {
+  background: var(--mak-green);
+}
