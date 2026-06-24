@@ -1,0 +1,249 @@
+{
+  "config": {
+    "configFile": "/workspace/playwright.stress.config.js",
+    "rootDir": "/workspace/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/workspace/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/empresas-render-stress.spec.js"
+        ],
+        "timeout": 600000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "e2e/empresas-render-stress.playwright.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.60.0",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --host 127.0.0.1 --port 5173",
+      "url": "http://127.0.0.1:5173",
+      "reuseExistingServer": true,
+      "timeout": 120000
+    }
+  },
+  "suites": [
+    {
+      "title": "empresas-render-stress.spec.js",
+      "file": "empresas-render-stress.spec.js",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "PR #222 render stress — TBLEMP hydration",
+          "file": "empresas-render-stress.spec.js",
+          "line": 194,
+          "column": 6,
+          "specs": [
+            {
+              "title": "stress completo desktop",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 600000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 612960,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 600000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 600000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 600000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/workspace/e2e/empresas-render-stress.spec.js",
+                            "column": 54,
+                            "line": 168
+                          },
+                          "message": "Error: locator.click: Test timeout of 600000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('.mg-cards-config-menu.open, [role=\\'dialog\\']').first().getByRole('button', { name: /^Ok$/i })\u001b[22m\n\n\n  166 |   const firstCheckbox = panel.locator('input[type=\"checkbox\"]').first();\n  167 |   if (await firstCheckbox.count()) await firstCheckbox.click();\n> 168 |   await panel.getByRole(\"button\", { name: /^Ok$/i }).click();\n      |                                                      ^\n  169 |   await page.waitForTimeout(600);\n  170 |   await switchToTable(page);\n  171 | };\n    at tweakCardsPreference (/workspace/e2e/empresas-render-stress.spec.js:168:54)\n    at /workspace/e2e/empresas-render-stress.spec.js:237:5"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-24T19:54:26.345Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/empresas-render-stress-PR--b2380-ion-stress-completo-desktop-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/workspace/test-results/empresas-render-stress-PR--b2380-ion-stress-completo-desktop-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/workspace/test-results/empresas-render-stress-PR--b2380-ion-stress-completo-desktop-chromium/error-context.md"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/workspace/test-results/empresas-render-stress-PR--b2380-ion-stress-completo-desktop-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/workspace/test-results/empresas-render-stress-PR--b2380-ion-stress-completo-desktop-chromium/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b16653ca68c36d78c7aa-7b0879a3c4d7f70a686b",
+              "file": "empresas-render-stress.spec.js",
+              "line": 202,
+              "column": 3
+            },
+            {
+              "title": "preferência vazia e corrompida",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9332,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-24T20:04:41.945Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/empresas-render-stress-PR--3b8fe-ferência-vazia-e-corrompida-chromium/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b16653ca68c36d78c7aa-ef0cc850740eaeff21a9",
+              "file": "empresas-render-stress.spec.js",
+              "line": 250,
+              "column": 3
+            },
+            {
+              "title": "stress mobile viewport",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 27943,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-06-24T20:04:51.389Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/workspace/test-results/empresas-render-stress-PR--307bd-tion-stress-mobile-viewport-chromium/test-finished-1.png"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b16653ca68c36d78c7aa-185a39396558bb4b2893",
+              "file": "empresas-render-stress.spec.js",
+              "line": 277,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-06-24T19:54:25.676Z",
+    "duration": 653744.098,
+    "expected": 2,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

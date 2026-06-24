@@ -28,7 +28,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import {
   loadColumnOrder,
-  loadVisibleColumns,
+  markVisibleColumnsInitialized,
 } from "@/framework/cadastro/tables/empColumnLayout";
 import { loadSavedVisibleColumns, mergeEffectiveColumnLayout } from "@/modules/empresas/utils/empTableColumnCatalog";
 import {
@@ -44,6 +44,7 @@ import {
   PAGE_SIZE_KEY,
   ROW_DBLCLICK_OPEN_MS,
   ROW_DBLCLICK_PAIR_MS,
+  SIZING_MODE_KEY,
   SORT_KEY,
   VISIBLE_KEY,
   WIDTHS_KEY,
@@ -76,9 +77,15 @@ import {
   readEmpPreferencesJson,
   readEmpPreferencesText,
   removeEmpPreferencesKey,
+  subscribeEmpPreferencesCache,
   writeEmpPreferencesJson,
   writeEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  buildColumnSizingModeFromAutoFit,
+  mergeColumnSizingMode,
+  readEmpTablePreferencesSnapshot,
+} from "@/modules/empresas/preferences/empTablePreferencesHydration";
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
@@ -226,89 +233,44 @@ export default function TBLEMP({
   moduleTitle = "Cadastro",
   mgPrototype = false,
   onColumnsInUseChange,
+  preferencesReady = true,
 }) {
+  const suppressPersistenceRef = useRef(true);
+  const tableHydratedRef = useRef(false);
+  const [preferencesVersion, setPreferencesVersion] = useState(0);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [sortConfig, setSortConfig] = useState(() => {
-    const saved = readStorageJSON(SORT_KEY, null);
-    if (Array.isArray(saved) && saved.length > 0) {
-      const first = saved.find((item) => item?.key);
-      if (first?.key) {
-        return [{ key: first.key, direction: first.direction === "desc" ? "desc" : "asc" }];
-      }
-    }
-    if (saved?.key) {
-      return [{ key: saved.key, direction: saved.direction === "desc" ? "desc" : "asc" }];
-    }
-    return [{ key: "codempresa", direction: "asc" }];
-  });
-  const [filtrosColunas, setFiltrosColunas] = useState(() => {
-    if (externalColumnFilters !== undefined) {
-      return normalizeExternalColumnFilters(externalColumnFilters);
-    }
-    const saved = readStorageJSON(FILTERS_KEY, {});
-    if (!saved || typeof saved !== "object") return {};
-    return saved;
-  });
+  const defaultSortConfig = [{ key: "codempresa", direction: "asc" }];
+  const [sortConfig, setSortConfig] = useState(defaultSortConfig);
+  const [filtrosColunas, setFiltrosColunas] = useState({});
+  const lastExternalFiltersSigRef = useRef(null);
+  const lastServerFiltersSigRef = useRef(null);
+  const lastServerSortSigRef = useRef(null);
   useEffect(() => {
     if (externalColumnFilters === undefined) return;
     const normalized = normalizeExternalColumnFilters(externalColumnFilters);
+    const nextSig = JSON.stringify(normalized || {});
+    if (lastExternalFiltersSigRef.current === nextSig) return;
+    lastExternalFiltersSigRef.current = nextSig;
+    lastServerFiltersSigRef.current = nextSig;
     setFiltrosColunas((prev) => {
       const prevJson = JSON.stringify(prev || {});
-      const nextJson = JSON.stringify(normalized || {});
-      if (prevJson === nextJson) return prev;
+      if (prevJson === nextSig) return prev;
       return normalized;
     });
   }, [externalColumnFilters]);
   const isMobile = useIsMobile();
 
-  const [columnWidths, setColumnWidths] = useState(() => {
-    const defaults = Object.fromEntries(COLUNAS_BASE.map((column) => [column.id, column.width || 160]));
-    const saved = readEmpPreferencesJson(WIDTHS_KEY, null);
-    if (!saved || typeof saved !== "object") return defaults;
-    return { ...defaults, ...saved };
-  });
-  const [frozenColumnCount, setFrozenColumnCount] = useState(() => {
-    const saved = Number(readEmpPreferencesText(FROZEN_KEY, "0"));
-    return Number.isFinite(saved) ? Math.max(0, saved) : 0;
-  });
-  const [colunasOrdem, setColunasOrdem] = useState(() => loadColumnOrder(ORDER_KEY, COLUNAS_BASE));
-  const [colunasVisiveis, setColunasVisiveis] = useState(() => loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE));
-  const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(() =>
-    readEmpPreferencesJson(AGGR_KEY, {})
+  const [columnWidths, setColumnWidths] = useState(() =>
+    Object.fromEntries(COLUNAS_BASE.map((column) => [column.id, column.width || 160]))
   );
-
-  useEffect(() => {
-    const mergedOrder = loadColumnOrder(ORDER_KEY, COLUNAS_BASE);
-    const mergedVisible = loadVisibleColumns(VISIBLE_KEY, COLUNAS_BASE);
-    const savedOrder = readEmpPreferencesText(ORDER_KEY, null);
-    const savedVisible = readEmpPreferencesText(VISIBLE_KEY, null);
-    let shouldPersist = false;
-
-    if (savedOrder) {
-      try {
-        const parsed = JSON.parse(savedOrder);
-        if (!parsed.includes("id_global") || parsed[0] !== "id_global") shouldPersist = true;
-      } catch {
-        shouldPersist = true;
-      }
-    }
-
-    if (savedVisible) {
-      try {
-        const parsed = JSON.parse(savedVisible);
-        if (!parsed.includes("id_global")) shouldPersist = true;
-      } catch {
-        shouldPersist = true;
-      }
-    }
-
-    if (shouldPersist) {
-      writeEmpPreferencesJson(ORDER_KEY, mergedOrder, { reason: "listagem:table-order" });
-      writeEmpPreferencesJson(VISIBLE_KEY, mergedVisible, { reason: "listagem:table-visible" });
-      setColunasOrdem(mergedOrder);
-      setColunasVisiveis(mergedVisible);
-    }
-  }, []);
+  const [frozenColumnCount, setFrozenColumnCount] = useState(0);
+  const [colunasOrdem, setColunasOrdem] = useState(() => COLUNAS_BASE.map((col) => col.id));
+  const [colunasVisiveis, setColunasVisiveis] = useState(() =>
+    COLUNAS_BASE.filter((col) => col.default).map((col) => col.id)
+  );
+  const [layoutAggregationConfig, setLayoutAggregationConfig] = useState({});
+  const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
+  const columnSizingModeRef = useRef({});
 
   const lastRowClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const rowClickSuppressRef = useRef({ id: null, until: 0 });
@@ -348,7 +310,6 @@ export default function TBLEMP({
     loadingInitial: false,
     loadingMore: false,
   });
-  const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
   const [resizeColumnId, setResizeColumnId] = useState(null);
   const serverMode = typeof onServerPageChange === "function";
 
@@ -392,26 +353,88 @@ export default function TBLEMP({
     () => new Map(colunasDisponiveis.map((column) => [column.id, column])),
     [colunasDisponiveis]
   );
+  const colunasCatalogSignature = useMemo(
+    () => colunasDisponiveis.map((column) => column.id).join("|"),
+    [colunasDisponiveis]
+  );
+  const colunasDisponiveisRef = useRef(colunasDisponiveis);
+  colunasDisponiveisRef.current = colunasDisponiveis;
+
+  const applyTablePreferencesFromCache = useCallback(
+    (columns) => {
+      if (!columns?.length) return;
+      suppressPersistenceRef.current = true;
+      const snapshot = readEmpTablePreferencesSnapshot(columns);
+      columnSizingModeRef.current = snapshot.columnSizingMode;
+      setColunasOrdem((current) =>
+        haveSameIds(current, snapshot.colunasOrdem) ? current : snapshot.colunasOrdem
+      );
+      setColunasVisiveis((current) =>
+        haveSameIds(current, snapshot.colunasVisiveis) ? current : snapshot.colunasVisiveis
+      );
+      setColumnWidths((current) => {
+        const nextJson = JSON.stringify(snapshot.columnWidths || {});
+        const currentJson = JSON.stringify(current || {});
+        return nextJson === currentJson ? current : snapshot.columnWidths;
+      });
+      setFrozenColumnCount((current) => {
+        const next = Math.min(snapshot.frozenColumnCount, snapshot.colunasVisiveis.length);
+        return current === next ? current : next;
+      });
+      setSortConfig((current) => {
+        const nextJson = JSON.stringify(snapshot.sortConfig || []);
+        const currentJson = JSON.stringify(current || []);
+        return nextJson === currentJson ? current : snapshot.sortConfig;
+      });
+      if (externalColumnFilters === undefined) {
+        setFiltrosColunas((current) => {
+          const nextJson = JSON.stringify(snapshot.filtrosColunas || {});
+          const currentJson = JSON.stringify(current || {});
+          return nextJson === currentJson ? current : snapshot.filtrosColunas;
+        });
+        lastServerFiltersSigRef.current = JSON.stringify(snapshot.filtrosColunas || {});
+      }
+      const primarySort = snapshot.sortConfig?.[0] || { key: "codempresa", direction: "asc" };
+      lastServerSortSigRef.current = JSON.stringify({
+        key: primarySort.key || "codempresa",
+        direction: primarySort.direction === "desc" ? "desc" : "asc",
+      });
+      setLayoutAggregationConfig((current) => {
+        const nextJson = JSON.stringify(snapshot.layoutAggregationConfig || {});
+        const currentJson = JSON.stringify(current || {});
+        return nextJson === currentJson ? current : snapshot.layoutAggregationConfig;
+      });
+      setAutoFitActiveColumns((current) => {
+        const nextJson = JSON.stringify(snapshot.autoFitActiveColumns || {});
+        const currentJson = JSON.stringify(current || {});
+        return nextJson === currentJson ? current : snapshot.autoFitActiveColumns;
+      });
+      tableHydratedRef.current = true;
+      suppressPersistenceRef.current = false;
+    },
+    [externalColumnFilters]
+  );
+
+  useLayoutEffect(() => {
+    if (!preferencesReady || !colunasCatalogSignature) return;
+    applyTablePreferencesFromCache(colunasDisponiveisRef.current);
+  }, [preferencesReady, colunasCatalogSignature, preferencesVersion, applyTablePreferencesFromCache]);
 
   useEffect(() => {
-    if (!colunasDisponiveis.length) return;
-    const savedOrdem = loadColumnOrder(ORDER_KEY, colunasDisponiveis);
-    const savedVisiveis = loadSavedVisibleColumns(VISIBLE_KEY);
-    const { ordem, visiveis } = mergeEffectiveColumnLayout(
-      colunasDisponiveis,
-      savedOrdem,
-      savedVisiveis
-    );
-    const ordemChanged = !haveSameIds(colunasOrdem, ordem);
-    const visiveisChanged = !haveSameIds(colunasVisiveis, visiveis);
-    if (!ordemChanged && !visiveisChanged) return;
+    if (!preferencesReady) return undefined;
+    return subscribeEmpPreferencesCache(({ reason } = {}) => {
+      const normalized = String(reason || "").toLowerCase();
+      if (!normalized.includes("hydrate") && !normalized.includes("bootstrap")) return;
+      setPreferencesVersion((current) => current + 1);
+    });
+  }, [preferencesReady]);
 
-    setColunasOrdem(ordem);
-    setColunasVisiveis(visiveis);
-    writeEmpPreferencesJson(ORDER_KEY, ordem, { reason: "listagem:table-order" });
-    writeEmpPreferencesJson(VISIBLE_KEY, visiveis, { reason: "listagem:table-visible" });
-    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
-  }, [colunasDisponiveis, colunasOrdem, colunasVisiveis]);
+  const persistSizingMode = useCallback((nextAutoFitMap) => {
+    if (suppressPersistenceRef.current || !tableHydratedRef.current || !preferencesReady) return;
+    const nextMode = buildColumnSizingModeFromAutoFit(nextAutoFitMap);
+    columnSizingModeRef.current = nextMode;
+    writeEmpPreferencesJson(SIZING_MODE_KEY, nextMode, { reason: "listagem:table-sizing-mode" });
+  }, [preferencesReady]);
 
   const colunasOrdenadas = useMemo(
     () =>
@@ -487,22 +510,26 @@ export default function TBLEMP({
   }, [colunasDisponiveis, filtrosColunas]);
 
   useEffect(() => {
+    if (suppressPersistenceRef.current || !tableHydratedRef.current || !preferencesReady) return;
     writeEmpPreferencesJson(WIDTHS_KEY, columnWidths, {
       reason: "listagem:table-widths",
       emit: false,
     });
-  }, [columnWidths]);
+  }, [columnWidths, preferencesReady]);
   useEffect(() => {
+    if (suppressPersistenceRef.current || !tableHydratedRef.current || !preferencesReady) return;
     writeEmpPreferencesText(FROZEN_KEY, String(frozenColumnCount), {
       reason: "listagem:table-frozen",
     });
-  }, [frozenColumnCount]);
+  }, [frozenColumnCount, preferencesReady]);
   useEffect(() => {
+    if (suppressPersistenceRef.current || !tableHydratedRef.current || !preferencesReady) return;
     writeEmpPreferencesJson(FILTERS_KEY, filtrosColunas, { reason: "listagem:table-filters" });
-  }, [filtrosColunas]);
+  }, [filtrosColunas, preferencesReady]);
   useEffect(() => {
+    if (suppressPersistenceRef.current || !tableHydratedRef.current || !preferencesReady) return;
     writeEmpPreferencesJson(SORT_KEY, sortConfig, { reason: "listagem:table-sort" });
-  }, [sortConfig]);
+  }, [sortConfig, preferencesReady]);
   useEffect(() => {
     setLayoutAggregationConfig(readEmpPreferencesJson(AGGR_KEY, {}));
     const refresh = () => {
@@ -529,7 +556,12 @@ export default function TBLEMP({
       startWidth: columnWidths[col.id] || col.width || 160,
       minWidth: getMinWidth(col),
     };
-    setAutoFitActiveColumns((prev) => ({ ...prev, [col.id]: false }));
+    setAutoFitActiveColumns((prev) => {
+      const next = { ...prev, [col.id]: false };
+      columnSizingModeRef.current = mergeColumnSizingMode(columnSizingModeRef.current, col.id, "manual");
+      persistSizingMode(next);
+      return next;
+    });
     setResizeColumnId(col.id);
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
@@ -561,6 +593,7 @@ export default function TBLEMP({
     setColunasVisiveis(visiveis);
     setColunasOrdem(ordem);
     setFrozenColumnCount(normalizedFrozenCount);
+    markVisibleColumnsInitialized();
     writeEmpPreferencesJson(VISIBLE_KEY, visiveis, { reason: "listagem:table-visible" });
     writeEmpPreferencesJson(ORDER_KEY, ordem, { reason: "listagem:table-order" });
     writeEmpPreferencesText(FROZEN_KEY, String(normalizedFrozenCount), {
@@ -988,23 +1021,34 @@ export default function TBLEMP({
   );
 
   useEffect(() => {
-    writeEmpPreferencesText(PAGE_SIZE_KEY, String(pageSize), { reason: "listagem:table-page-size" });
+    if (suppressPersistenceRef.current || !tableHydratedRef.current) return;
+    writeEmpPreferencesText(PAGE_SIZE_KEY, String(pageSize), {
+      reason: "listagem:table-page-size",
+      emit: false,
+    });
   }, [pageSize]);
 
   useEffect(() => {
-    if (!serverMode) return;
+    if (!serverMode || suppressPersistenceRef.current || !tableHydratedRef.current) return;
+    const sig = JSON.stringify(filtrosColunas || {});
+    if (lastServerFiltersSigRef.current === sig) return;
+    lastServerFiltersSigRef.current = sig;
     onServerColumnFiltersChange?.(filtrosColunas);
   }, [serverMode, filtrosColunas, onServerColumnFiltersChange]);
 
   useEffect(() => {
-    if (!serverMode) return;
+    if (!serverMode || suppressPersistenceRef.current || !tableHydratedRef.current) return;
     const primarySort = Array.isArray(sortConfig) && sortConfig.length > 0
       ? sortConfig[0]
       : { key: "codempresa", direction: "asc" };
-    onServerSortChange?.({
+    const nextSort = {
       key: primarySort.key || "codempresa",
       direction: primarySort.direction === "desc" ? "desc" : "asc",
-    });
+    };
+    const sig = JSON.stringify(nextSort);
+    if (lastServerSortSigRef.current === sig) return;
+    lastServerSortSigRef.current = sig;
+    onServerSortChange?.(nextSort);
   }, [serverMode, sortConfig, onServerSortChange]);
 
   useEffect(() => {
@@ -1361,11 +1405,16 @@ export default function TBLEMP({
         return { ...previous, [col.id]: nextWidth };
       });
       if (keepActive) {
-        setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: true }));
+        setAutoFitActiveColumns((previous) => {
+          const next = { ...previous, [col.id]: true };
+          columnSizingModeRef.current = mergeColumnSizingMode(columnSizingModeRef.current, col.id, "auto");
+          persistSizingMode(next);
+          return next;
+        });
       }
       setResizeColumnId(null);
     },
-    [calculateAutoFitWidth]
+    [calculateAutoFitWidth, persistSizingMode]
   );
 
   useEffect(() => {
@@ -1418,6 +1467,7 @@ export default function TBLEMP({
     if (!colunasVisiveis.includes(col.id) || colunasVisiveis.length <= 1) return;
     const nextVisiveis = colunasVisiveis.filter((id) => id !== col.id);
     setColunasVisiveis(nextVisiveis);
+    markVisibleColumnsInitialized();
     writeEmpPreferencesJson(VISIBLE_KEY, nextVisiveis, { reason: "listagem:table-visible" });
     window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
     closeColumnOverlays();
@@ -1458,7 +1508,12 @@ export default function TBLEMP({
       active: Boolean(autoFitActiveColumns[col.id]),
       onClick: () => {
         if (autoFitActiveColumns[col.id]) {
-          setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
+          setAutoFitActiveColumns((previous) => {
+            const next = { ...previous, [col.id]: false };
+            columnSizingModeRef.current = mergeColumnSizingMode(columnSizingModeRef.current, col.id, "manual");
+            persistSizingMode(next);
+            return next;
+          });
         } else {
           autoFitColumnWidth(col, { keepActive: true });
         }
@@ -1563,7 +1618,16 @@ export default function TBLEMP({
                   title="Clique para ajuste manual"
                   onClick={(event) => {
                     event.stopPropagation();
-                    setAutoFitActiveColumns((previous) => ({ ...previous, [col.id]: false }));
+                    setAutoFitActiveColumns((previous) => {
+                      const next = { ...previous, [col.id]: false };
+                      columnSizingModeRef.current = mergeColumnSizingMode(
+                        columnSizingModeRef.current,
+                        col.id,
+                        "manual"
+                      );
+                      persistSizingMode(next);
+                      return next;
+                    });
                   }}
                 >
                   <ScanLine className="emp-th-icon-button__icon" strokeWidth={2.2} aria-hidden="true" />

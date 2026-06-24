@@ -1,0 +1,90 @@
+{
+  "apiBase": "https://projetomg-production.up.railway.app",
+  "startedAt": "2026-06-24T18:39:55.602Z",
+  "checks": [
+    {
+      "name": "healthcheck",
+      "status": "PASS",
+      "health": {
+        "ok": true,
+        "alive": true,
+        "ready": true,
+        "service": "erp-backend",
+        "db": {
+          "configured": true,
+          "connected": true,
+          "error": null
+        },
+        "supabase": {
+          "authConfigured": true,
+          "storageConfigured": true,
+          "storageConnected": true
+        }
+      }
+    },
+    {
+      "name": "login",
+      "status": "PASS",
+      "userId": "usr_maike_seed_001",
+      "clienteId": "cl_maike_seed_001"
+    },
+    {
+      "name": "api_empresas",
+      "status": "PASS",
+      "total": 69997,
+      "items": 5
+    },
+    {
+      "name": "bootstrap_get",
+      "status": "PASS",
+      "count": 2,
+      "scopes": [
+        "empresas.form_layout",
+        "empresas.listagem"
+      ]
+    },
+    {
+      "name": "listagem_get_before",
+      "status": "PASS",
+      "hasPreferencias": true,
+      "updatedAt": "2026-06-24T17:50:47.132Z"
+    },
+    {
+      "name": "listagem_put",
+      "status": "PASS",
+      "updatedAt": "2026-06-24T18:40:08.799Z",
+      "visibleColumns": [
+        "codempresa",
+        "razao_social"
+      ]
+    },
+    {
+      "name": "listagem_persist_after_put",
+      "status": "PASS",
+      "visibleColumns": [
+        "codempresa",
+        "razao_social"
+      ]
+    },
+    {
+      "name": "listagem_put_restore",
+      "status": "PASS",
+      "updatedAt": "2026-06-24T18:40:10.629Z"
+    },
+    {
+      "name": "bootstrap_idempotent",
+      "status": "PASS",
+      "count": 2
+    }
+  ],
+  "metrics": {
+    "bootstrapGets": 2,
+    "scopeGets": 2,
+    "listagemPuts": 2,
+    "totalRequests": 9
+  },
+  "failures": [],
+  "finishedAt": "2026-06-24T18:40:12.499Z",
+  "durationMs": 16920,
+  "approved": true
+}

@@ -1,6 +1,7 @@
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import {
   loadColumnOrder,
+  isVisibleColumnsInitialized,
 } from "@/framework/cadastro/tables/empColumnLayout";
 import {
   AGGR_KEY,
@@ -81,14 +82,18 @@ export const resolveEffectiveVisibleColumns = (
 ) => {
   const baseIds = new Set(disponiveis.map((col) => col.id));
   const defaults = disponiveis.filter((col) => col.default).map((col) => col.id);
+  const initialized = isVisibleColumnsInitialized();
 
   if (!Array.isArray(savedVisiveis)) {
-    return defaults;
+    return initialized ? [] : defaults;
   }
 
   const persisted = savedVisiveis.filter((id) => baseIds.has(id));
-  if (persisted.length === 0) {
+  if (!initialized && persisted.length === 0) {
     return defaults;
+  }
+  if (initialized && persisted.length === 0) {
+    return [];
   }
 
   const knownIds = new Set(

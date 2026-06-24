@@ -3657,10 +3657,10 @@
 .mg-empresas-scope :is(.mg-context-panel-wrap, .mg-cards-panel-wrap, .mg-table-panel-wrap).is-visible {
   visibility: visible;
   pointer-events: auto;
-  max-height: var(--mg-subtoolbar-row-height);
+  max-height: calc(var(--mg-subtoolbar-row-height) + 2px);
   opacity: 1;
   background: transparent;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
   border-left: 1px solid #f3f4f6;
   border-right: 1px solid #f3f4f6;

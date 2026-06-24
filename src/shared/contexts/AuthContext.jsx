@@ -7,13 +7,6 @@ import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
-import {
-  EMPRESAS_FORM_SCOPE,
-  EMPRESAS_LISTAGEM_SCOPE,
-  applyFormLayoutPreferencesToStorage,
-  applyListagemPreferencesToStorage,
-  mapBootstrapPreferences,
-} from "@/modules/empresas/preferences/empresasPreferencesStorage";
 
 const prefetchEmpresasCadastro = async (userId) => {
   void queryClientInstance.prefetchQuery({
@@ -53,23 +46,14 @@ const prefetchEmpresasCadastro = async (userId) => {
 
   if (!userId) return;
   try {
-    const bootstrap = await queryClientInstance.fetchQuery({
+    await queryClientInstance.prefetchQuery({
       queryKey: ["user-preferences-bootstrap", userId],
       queryFn: () => userPreferencesApi.bootstrap(),
       staleTime: 10 * 60_000,
       gcTime: 30 * 60_000,
     });
-    const mapped = mapBootstrapPreferences(bootstrap);
-    const listagem = mapped[`${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`];
-    const formLayout = mapped[`${EMPRESAS_FORM_SCOPE.modulo}.${EMPRESAS_FORM_SCOPE.tela}`];
-    if (listagem?.preferencias) {
-      applyListagemPreferencesToStorage(listagem.preferencias);
-    }
-    if (formLayout?.preferencias) {
-      applyFormLayoutPreferencesToStorage(userId, formLayout.preferencias, formLayout.updatedAt);
-    }
   } catch {
-    // Falha de preferência não deve bloquear login.
+    // Falha de preferência não deve bloquear login — useEmpresasPreferencesBootstrap aplica o cache.
   }
 };
 
