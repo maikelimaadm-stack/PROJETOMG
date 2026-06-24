@@ -478,6 +478,10 @@ export default function FORMEMP({
 
   const tabIdsKey = useMemo(() => tabs.map((panel) => panel.id).join("|"), [tabs]);
   const lastAutoRepairSigRef = useRef("");
+  const knownLayoutFieldIdsKey = useMemo(
+    () => [...knownLayoutFieldIds].sort().join("|"),
+    [knownLayoutFieldIds]
+  );
 
   useEffect(() => {
     if (!formLayoutConfig || layoutConfigOpen) return;
@@ -489,7 +493,8 @@ export default function FORMEMP({
   }, [formLayoutConfig, tabIdsKey, tabs, activeTab, layoutConfigOpen]);
 
   useEffect(() => {
-    if (!user?.id || !formLayoutConfig || layoutConfigOpen || layoutPersistedRef.current) return;
+    if (!user?.id || !formLayoutConfig || layoutConfigOpen) return;
+    if (layoutPersistedRef.current) return;
 
     const repaired =
       ensureLayoutFields(formLayoutConfig, defaultConfigFull, {
@@ -505,21 +510,35 @@ export default function FORMEMP({
     );
     const repairedSig = JSON.stringify(pickLayoutConfig(repaired));
     const currentSig = JSON.stringify(pickLayoutConfig(formLayoutConfig));
-    const layoutDiffers = repairedSig !== currentSig;
 
-    if (lastAutoRepairSigRef.current === repairedSig && layoutPersistedRef.current) return;
+    if (lastAutoRepairSigRef.current === repairedSig || lastAutoRepairSigRef.current === currentSig) {
+      layoutPersistedRef.current = true;
+      return;
+    }
 
-    if (
+    const needsRepair =
       storedKnownCount === 0 ||
       repairedKnownCount > storedKnownCount ||
-      hasHiddenSystemPanels ||
-      layoutDiffers
-    ) {
-      lastAutoRepairSigRef.current = repairedSig;
+      hasHiddenSystemPanels;
+
+    if (!needsRepair) {
+      lastAutoRepairSigRef.current = currentSig;
       layoutPersistedRef.current = true;
-      applyLayoutConfig(repaired, { updateActiveTab: true });
+      return;
     }
-  }, [user?.id, formLayoutConfig, layoutConfigOpen, defaultConfigFull, knownLayoutFieldIds]);
+
+    lastAutoRepairSigRef.current = repairedSig;
+    layoutPersistedRef.current = true;
+    applyLayoutConfigFromEngine(repaired, { updateActiveTab: true });
+  }, [
+    user?.id,
+    formLayoutConfig,
+    layoutConfigOpen,
+    defaultConfigFull,
+    knownLayoutFieldIdsKey,
+    knownLayoutFieldIds,
+    applyLayoutConfigFromEngine,
+  ]);
 
   const handleDynamicFieldChange = (fieldName, value) => {
     const field = dynamicFields.find((item) => item.name === fieldName);
