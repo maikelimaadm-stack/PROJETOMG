@@ -157,6 +157,13 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
         if (!isMounted) return;
         setIsReady(true);
+        if (userId && !mapped[FORM_SCOPE_KEY]) {
+          window.dispatchEvent(
+            new CustomEvent("cadastro-layout-hydrated:empresas", {
+              detail: { userId, moduleId: "empresas" },
+            })
+          );
+        }
       } catch (error) {
         if (!isMounted) return;
         setSyncError(error);

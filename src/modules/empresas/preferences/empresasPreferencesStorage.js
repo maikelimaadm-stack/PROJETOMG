@@ -1,13 +1,17 @@
 import {
   AGGR_KEY,
+  DEFAULT_FILTER_MAX_VISIBLE,
   FILTERS_KEY,
+  FILTER_MAX_VISIBLE_KEY,
   FROZEN_KEY,
   ORDER_KEY,
   PAGE_SIZE_KEY,
+  SIZING_MODE_KEY,
   SORT_KEY,
   VISIBLE_KEY,
   WIDTHS_KEY,
 } from "@/modules/empresas/components/tblEmp.constants";
+import { markVisibleColumnsInitialized } from "@/framework/cadastro/tables/empColumnLayout";
 import {
   EMP_CARDS_LAYOUT_KEY,
   EMP_SEARCH_DROPDOWN_VIS_KEY,
@@ -127,6 +131,7 @@ export const buildListagemPreferencesFromStorage = () => {
     columnOrder: safeParseJson(readStorage(ORDER_KEY), []),
     visibleColumns: safeParseJson(readStorage(VISIBLE_KEY), []),
     columnWidths: safeParseJson(readStorage(WIDTHS_KEY), {}),
+    columnSizingMode: safeParseJson(readStorage(SIZING_MODE_KEY), {}),
     frozenLeftColumnCount: Number(readStorage(FROZEN_KEY) || 0) || 0,
     columnFilters: safeParseJson(readStorage(FILTERS_KEY), {}),
     sort: safeParseJson(readStorage(SORT_KEY), [{ key: "codempresa", direction: "asc" }]),
@@ -144,7 +149,11 @@ export const buildListagemPreferencesFromStorage = () => {
       filterFieldsLayout: safeParseJson(readStorage(EMP_FILTER_FIELDS_LAYOUT_KEY), {
         visiveis: [],
         ordem: [],
+        maxVisible: DEFAULT_FILTER_MAX_VISIBLE,
       }),
+      maxVisibleFields:
+        Number(readStorage(FILTER_MAX_VISIBLE_KEY) || DEFAULT_FILTER_MAX_VISIBLE) ||
+        DEFAULT_FILTER_MAX_VISIBLE,
       columnFilters: table.columnFilters || {},
       operatorsByField: Object.fromEntries(
         Object.entries(table.columnFilters || {})
@@ -183,32 +192,38 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
     }
 
     const table = sanitizeTablePreferences(preferences.table || {});
-    if (table.columnOrder) writeStorage(ORDER_KEY, safeStringify(table.columnOrder), "listagem:table");
-    if (table.visibleColumns) writeStorage(VISIBLE_KEY, safeStringify(table.visibleColumns), "listagem:table");
-    if (table.columnWidths) writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), "listagem:table");
+    if (table.columnOrder) writeStorage(ORDER_KEY, safeStringify(table.columnOrder), "listagem:hydrate");
+    if (table.visibleColumns) {
+      writeStorage(VISIBLE_KEY, safeStringify(table.visibleColumns), "listagem:hydrate");
+      markVisibleColumnsInitialized();
+    }
+    if (table.columnWidths) writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), "listagem:hydrate");
+    if (table.columnSizingMode) {
+      writeStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), "listagem:hydrate");
+    }
     if (table.frozenLeftColumnCount != null) {
       writeStorage(
         FROZEN_KEY,
         String(Number(table.frozenLeftColumnCount) || 0),
-        "listagem:table"
+        "listagem:hydrate"
       );
     }
-    if (table.columnFilters) writeStorage(FILTERS_KEY, safeStringify(table.columnFilters), "listagem:table");
+    if (table.columnFilters) writeStorage(FILTERS_KEY, safeStringify(table.columnFilters), "listagem:hydrate");
     if (!table.columnFilters && preferences.filters?.columnFilters) {
-      writeStorage(FILTERS_KEY, safeStringify(preferences.filters.columnFilters), "listagem:filters");
+      writeStorage(FILTERS_KEY, safeStringify(preferences.filters.columnFilters), "listagem:hydrate");
     }
-    if (table.sort) writeStorage(SORT_KEY, safeStringify(table.sort), "listagem:table");
+    if (table.sort) writeStorage(SORT_KEY, safeStringify(table.sort), "listagem:hydrate");
     if (table.pageSize != null) {
-      writeStorage(PAGE_SIZE_KEY, String(Number(table.pageSize) || 100), "listagem:table");
+      writeStorage(PAGE_SIZE_KEY, String(Number(table.pageSize) || 100), "listagem:hydrate");
     }
     if (table.aggregationConfig) {
-      writeStorage(AGGR_KEY, safeStringify(table.aggregationConfig), "listagem:table");
+      writeStorage(AGGR_KEY, safeStringify(table.aggregationConfig), "listagem:hydrate");
     }
     if (table.loadBatchSize != null) {
       writeStorage(
         EMP_LOAD_BATCH_STORAGE_KEY,
         String(Number(table.loadBatchSize) || 100),
-        "listagem:table"
+        "listagem:hydrate"
       );
     }
 
@@ -216,22 +231,38 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
       writeStorage(
         EMP_FILTER_FIELDS_LAYOUT_KEY,
         safeStringify(preferences.filters.filterFieldsLayout),
-        "listagem:filters"
+        "listagem:hydrate"
+      );
+      if (preferences.filters.filterFieldsLayout.maxVisible != null) {
+        writeStorage(
+          FILTER_MAX_VISIBLE_KEY,
+          String(
+            Number(preferences.filters.filterFieldsLayout.maxVisible) || DEFAULT_FILTER_MAX_VISIBLE
+          ),
+          "listagem:hydrate"
+        );
+      }
+    }
+    if (preferences.filters?.maxVisibleFields != null) {
+      writeStorage(
+        FILTER_MAX_VISIBLE_KEY,
+        String(Number(preferences.filters.maxVisibleFields) || DEFAULT_FILTER_MAX_VISIBLE),
+        "listagem:hydrate"
       );
     }
     if (preferences.filters?.dropdownVisibleFields) {
       writeStorage(
         EMP_SEARCH_DROPDOWN_VIS_KEY,
         safeStringify(preferences.filters.dropdownVisibleFields),
-        "listagem:filters"
+        "listagem:hydrate"
       );
     }
     if (preferences.filters?.favorites) {
-      writeStorage(EMP_SEARCH_FAV_KEY, safeStringify(preferences.filters.favorites), "listagem:filters");
+      writeStorage(EMP_SEARCH_FAV_KEY, safeStringify(preferences.filters.favorites), "listagem:hydrate");
     }
 
     if (preferences.cards?.visibleFields) {
-      writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(preferences.cards.visibleFields), "listagem:cards");
+      writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(preferences.cards.visibleFields), "listagem:hydrate");
     }
     if (preferences.cards?.layoutConfig || preferences.cards?.cardsPerRow) {
       writeStorage(
@@ -241,7 +272,7 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
             cardsPerRow: Number(preferences.cards.cardsPerRow) || 3,
           }
         ),
-        "listagem:cards"
+        "listagem:hydrate"
       );
     }
   }, "bootstrap:apply-listagem");

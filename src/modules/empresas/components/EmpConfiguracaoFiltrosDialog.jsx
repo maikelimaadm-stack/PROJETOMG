@@ -12,11 +12,13 @@ export default function EmpConfiguracaoFiltrosDialog({
   camposDisponiveis = [],
   camposVisiveis = [],
   camposOrdem = [],
+  maxVisibleFields = 5,
   onChange,
   getRestoreDefaults,
 }) {
   const [draftVisiveis, setDraftVisiveis] = useState([]);
   const [draftOrdem, setDraftOrdem] = useState([]);
+  const [draftMaxVisible, setDraftMaxVisible] = useState(maxVisibleFields);
   const [selectedAvailableIds, setSelectedAvailableIds] = useState([]);
   const [selectedUsedIds, setSelectedUsedIds] = useState([]);
   const [search, setSearch] = useState("");
@@ -28,13 +30,14 @@ export default function EmpConfiguracaoFiltrosDialog({
     if (!open) return;
     setDraftVisiveis(camposVisiveis);
     setDraftOrdem(camposOrdem);
+    setDraftMaxVisible(maxVisibleFields);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
     setSearch("");
     setSearchUsed("");
     setDraggedFieldId(null);
     setDraggedFrom(null);
-  }, [open, camposVisiveis, camposOrdem]);
+  }, [open, camposVisiveis, camposOrdem, maxVisibleFields]);
 
   const orderedFields = useMemo(() => {
     const byId = new Map(camposDisponiveis.map((field) => [field.id, field]));
@@ -151,6 +154,7 @@ export default function EmpConfiguracaoFiltrosDialog({
     if (!defaults) return;
     setDraftVisiveis(defaults.visiveis ?? []);
     setDraftOrdem(defaults.ordem ?? []);
+    setDraftMaxVisible(defaults.maxVisible ?? 5);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
   };
@@ -159,6 +163,7 @@ export default function EmpConfiguracaoFiltrosDialog({
     onChange?.({
       visiveis: draftVisiveis,
       ordem: draftOrdem,
+      maxVisible: draftMaxVisible,
     });
     onOpenChange(false);
   };
@@ -177,6 +182,20 @@ export default function EmpConfiguracaoFiltrosDialog({
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
     >
+      <div className="mb-3 flex items-center gap-3 px-1">
+        <label className="text-sm text-slate-600" htmlFor="emp-filter-max-visible">
+          Máximo de filtros rápidos visíveis
+        </label>
+        <input
+          id="emp-filter-max-visible"
+          type="number"
+          min={1}
+          max={12}
+          value={draftMaxVisible}
+          onChange={(event) => setDraftMaxVisible(Number(event.target.value) || 5)}
+          className="w-20 rounded-md border border-slate-200 px-2 py-1 text-sm"
+        />
+      </div>
       <EmpConfigTransferPanel
         availableLabel="Campos disponíveis"
         usedLabel="Campos em uso"

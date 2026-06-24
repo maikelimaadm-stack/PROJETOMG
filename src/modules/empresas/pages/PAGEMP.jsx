@@ -246,6 +246,7 @@ export default function PAGEMP() {
   const {
     filterFields,
     layout: filterFieldsLayout,
+    maxVisibleFields,
     saveLayout: saveFilterFieldsLayout,
     getRestoreDefaults: getRestoreFilterFieldsLayout,
     catalogFields: filterFieldsCatalog,
@@ -1134,7 +1135,17 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!preferencesReady) return undefined;
-    const unsubscribe = subscribeEmpPreferencesCache(() => {
+    const shouldSkipSync = (reason = "") => {
+      const normalized = String(reason || "").toLowerCase();
+      return (
+        normalized.includes("hydrate") ||
+        normalized.includes("bootstrap") ||
+        normalized.includes("batch") ||
+        normalized.includes("migration")
+      );
+    };
+    const unsubscribe = subscribeEmpPreferencesCache(({ reason } = {}) => {
+      if (shouldSkipSync(reason)) return;
       scheduleListagemSync();
     });
     return () => {
@@ -1722,6 +1733,7 @@ export default function PAGEMP() {
                       setQueryPage(1);
                     },
                     onRequestDistinctColumnValues: handleDistinctColumnValues,
+                    preferencesReady,
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
                     infiniteMode: true,
@@ -1757,6 +1769,7 @@ export default function PAGEMP() {
         camposDisponiveis={filterFieldsConfigCatalog}
         camposVisiveis={filterFieldsLayout.visiveis}
         camposOrdem={filterFieldsLayout.ordem}
+        maxVisibleFields={maxVisibleFields}
         onChange={saveFilterFieldsLayout}
         getRestoreDefaults={getRestoreFilterFieldsLayout}
       />

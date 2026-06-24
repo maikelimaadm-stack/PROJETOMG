@@ -61,15 +61,16 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   }, [catalogFields, layout, layoutVersion]);
 
   const saveLayout = useCallback(
-    ({ visiveis, ordem }) => {
+    ({ visiveis, ordem, maxVisible }) => {
       const nextLayout = {
         visiveis: mergeSavedVisibleFilterFields(visiveis, catalogKeys),
         ordem: mergeSavedFilterFieldOrder(ordem, catalogKeys),
+        maxVisible: maxVisible ?? layout.maxVisible,
       };
       setLayout(nextLayout);
       saveFilterFieldsLayout(nextLayout);
     },
-    [catalogKeys]
+    [catalogKeys, layout.maxVisible]
   );
 
   const getRestoreDefaults = useCallback(
@@ -80,6 +81,7 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   return {
     filterFields,
     layout,
+    maxVisibleFields: layout.maxVisible,
     saveLayout,
     getRestoreDefaults,
     catalogFields,

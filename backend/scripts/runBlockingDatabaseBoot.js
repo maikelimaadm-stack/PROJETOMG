@@ -54,13 +54,6 @@ const shouldAutoBaseline = () => {
   return !["false", "0", "no", "off"].includes(raw);
 };
 
-const isPreferencesCompatibilityAllowed = () =>
-  ["1", "true", "yes", "on"].includes(
-    String(process.env.BOOT_ALLOW_PREFERENCES_COMPAT_MODE || "")
-      .trim()
-      .toLowerCase()
-  );
-
 const listMigrationNames = async () => {
   const entries = await readdir(prismaMigrationsPath, { withFileTypes: true });
   return entries
@@ -218,14 +211,13 @@ export const runBlockingDatabaseBoot = async (log = console) => {
 
   const report = { steps: [] };
 
-  let migrateRecovered = false;
   const migrateOk = await runCommand("Prisma migrate deploy", "npx", ["prisma", "migrate", "deploy"], { allowFailure: true });
   report.steps.push({ step: "migrate_deploy", ok: migrateOk });
   if (!migrateOk) {
     logMessage(
       log,
       "warn",
-      "[boot-blocking] prisma migrate deploy falhou (P3005? baseline necessário). Continuando boot..."
+      "[boot-blocking] prisma migrate deploy falhou (histórico inconsistente ou P3005). Continuando boot com ensure* e verificação de schema real..."
     );
 
     const baselineResult = await runAutoBaselineIfNeeded(log);
@@ -237,21 +229,15 @@ export const runBlockingDatabaseBoot = async (log = console) => {
         ["prisma", "migrate", "deploy"],
         { allowFailure: true }
       );
-      migrateRecovered = retryMigrateOk;
       report.steps.push({ step: "migrate_deploy_after_baseline", ok: retryMigrateOk });
       if (!retryMigrateOk) {
         logMessage(
           log,
           "warn",
-          "[boot-blocking] migrate deploy pós-baseline falhou. Mantendo boot em modo compatibilidade."
+          "[boot-blocking] migrate deploy pós-baseline falhou. Prosseguindo — schema real será verificado abaixo."
         );
       }
     }
-  }
-  if (!migrateOk && !migrateRecovered && !isPreferencesCompatibilityAllowed()) {
-    throw new Error(
-      "Prisma migrate deploy falhou e o modo de compatibilidade de preferências está desativado. Corrija a migration antes do deploy ou habilite BOOT_ALLOW_PREFERENCES_COMPAT_MODE=true temporariamente."
-    );
   }
 
   const { ensureCounterColumns } = await import("../scripts/ensureCounterColumns.js");
@@ -285,16 +271,25 @@ export const runBlockingDatabaseBoot = async (log = console) => {
     ok: Boolean(preferencesSchema.ready),
     result: preferencesSchema,
   });
-  if (!preferencesSchema.ready && !isPreferencesCompatibilityAllowed()) {
-    throw new Error(
-      `Schema de preferências incompleto (${preferencesSchema.reason}). Execute a migration 20260624140500_user_screen_preferences antes de iniciar a aplicação.`
-    );
-  }
+  report.preferencesSchema = preferencesSchema;
+  report.migrateDeployOk = migrateOk;
+
   if (!preferencesSchema.ready) {
     logMessage(
       log,
+      "error",
+      `[boot-blocking] Schema de preferências incompleto (${preferencesSchema.reason}). migrate deploy ok=${migrateOk}.`
+    );
+    throw new Error(
+      `Schema de preferências incompleto (${preferencesSchema.reason}). Execute a migration 20260624140500_user_screen_preferences ou scripts/ensureUsuarioPreferenciaTable.js antes de iniciar a aplicação.`
+    );
+  }
+
+  if (!migrateOk) {
+    logMessage(
+      log,
       "warn",
-      `[boot-blocking] Schema de preferências incompleto (${preferencesSchema.reason}) com compatibilidade temporária habilitada.`
+      "[boot-blocking] Servidor iniciará apesar de migrate deploy falhar — schema de preferências verificado como completo. Corrija o histórico Prisma com `prisma migrate resolve` quando possível."
     );
   }
 

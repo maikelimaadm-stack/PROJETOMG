@@ -73,31 +73,29 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
       return undefined;
     }
 
-    const local = engine.preferences.initLocal(userId);
-    const repaired =
-      engine.layout.ensureFields(local, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull;
-    const current = engine.preferences.readLocal(userId);
     const prefs = engine.preferences;
-    if (
-      repaired &&
-      current &&
-      JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(current))
-    ) {
-      prefs.writeLocal(userId, repaired);
-    }
-    layoutPersistedRef.current = true;
-    setFormLayoutConfig(repaired || defaultConfigFull);
-    setIsLayoutReady(true);
-
+    const local = prefs.readLocal(userId);
     const onHydrated = () => {
       const stored = prefs.readLocal(userId);
-      if (!stored) return;
       layoutPersistedRef.current = false;
-      const next =
-        engine.layout.ensureFields(stored, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull;
+      const next = stored
+        ? engine.layout.ensureFields(stored, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull
+        : defaultConfigFull;
       setFormLayoutConfig(next);
       setIsLayoutReady(true);
     };
+
+    if (local) {
+      const repaired =
+        engine.layout.ensureFields(local, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull;
+      setFormLayoutConfig(repaired);
+      setIsLayoutReady(true);
+      layoutPersistedRef.current = false;
+    } else {
+      setFormLayoutConfig(null);
+      setIsLayoutReady(false);
+      layoutPersistedRef.current = false;
+    }
 
     window.addEventListener(engine.preferences.hydratedEvent, onHydrated);
     return () => window.removeEventListener(engine.preferences.hydratedEvent, onHydrated);
