@@ -3,6 +3,7 @@ import { Columns3 } from "lucide-react";
 import { showWarning } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
+  EmpConfigPrimaryBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -27,18 +28,33 @@ export default function EmpConfiguracaoColunasDialog({
   const [draggedColumnId, setDraggedColumnId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
   const wasOpenRef = useRef(false);
+  const committedRef = useRef({
+    visiveis: colunasVisiveis,
+    ordem: colunasOrdem,
+    frozenColumnCount,
+  });
+
+  const resetDraftFromCommitted = () => {
+    const committed = committedRef.current;
+    setDraftVisiveis(committed.visiveis);
+    setDraftOrdem(committed.ordem);
+    setDraftFrozenColumnCount(committed.frozenColumnCount);
+    setSelectedAvailableIds([]);
+    setSelectedUsedIds([]);
+    setSearch("");
+    setSearchUsed("");
+    setDraggedColumnId(null);
+    setDraggedFrom(null);
+  };
 
   useEffect(() => {
     if (open && !wasOpenRef.current) {
-      setDraftVisiveis(colunasVisiveis);
-      setDraftOrdem(colunasOrdem);
-      setDraftFrozenColumnCount(frozenColumnCount);
-      setSelectedAvailableIds([]);
-      setSelectedUsedIds([]);
-      setSearch("");
-      setSearchUsed("");
-      setDraggedColumnId(null);
-      setDraggedFrom(null);
+      committedRef.current = {
+        visiveis: colunasVisiveis,
+        ordem: colunasOrdem,
+        frozenColumnCount,
+      };
+      resetDraftFromCommitted();
     }
     wasOpenRef.current = open;
   }, [open, colunasVisiveis, colunasOrdem, frozenColumnCount]);
@@ -60,7 +76,7 @@ export default function EmpConfiguracaoColunasDialog({
     String(col.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const applyLayoutChange = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
+  const syncDraftState = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
     const remainingIds = orderedColumns
       .map((col) => col.id)
       .filter((id) => !nextUsedOrder.includes(id));
@@ -69,17 +85,10 @@ export default function EmpConfiguracaoColunasDialog({
     setDraftVisiveis(nextVisible);
     setDraftOrdem(nextOrdem);
     setDraftFrozenColumnCount(normalizedFrozen);
-    if (nextUsedOrder.length > 0) {
-      onChange?.({
-        visiveis: nextVisible,
-        ordem: nextOrdem,
-        frozenColumnCount: normalizedFrozen,
-      });
-    }
   };
 
   const updateDraftLayout = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
-    applyLayoutChange(nextVisible, nextUsedOrder, nextFrozenCount);
+    syncDraftState(nextVisible, nextUsedOrder, nextFrozenCount);
   };
 
   const selectAvailable = (colId, event) => {
@@ -174,17 +183,41 @@ export default function EmpConfiguracaoColunasDialog({
   const handleRestoreDefault = () => {
     const defaults = getRestoreDefaults?.();
     if (!defaults) return;
-    applyLayoutChange(
-      defaults.visiveis ?? [],
-      defaults.ordem ?? [],
-      defaults.frozenColumnCount ?? 0
-    );
+    syncDraftState(defaults.visiveis ?? [], defaults.ordem ?? [], defaults.frozenColumnCount ?? 0);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
   };
 
-  const requestClose = () => {
+  const handleOk = () => {
+    const nextUsedOrder = usedColumns.map((col) => col.id);
+    if (nextUsedOrder.length === 0) {
+      showWarning("É necessário manter pelo menos uma coluna em uso.");
+      return;
+    }
+    onChange?.({
+      visiveis: draftVisiveis,
+      ordem: draftOrdem,
+      frozenColumnCount: draftFrozenColumnCount,
+    });
+    committedRef.current = {
+      visiveis: draftVisiveis,
+      ordem: draftOrdem,
+      frozenColumnCount: draftFrozenColumnCount,
+    };
     onOpenChange(false);
+  };
+
+  const requestClose = () => {
+    resetDraftFromCommitted();
+    onOpenChange(false);
+  };
+
+  const handleOpenChange = (nextOpen) => {
+    if (!nextOpen) {
+      requestClose();
+      return;
+    }
+    onOpenChange?.(nextOpen);
   };
 
   const toggleFreezeColumn = (index, event) => {
@@ -196,19 +229,24 @@ export default function EmpConfiguracaoColunasDialog({
           ? draftFrozenColumnCount - 1
           : draftFrozenColumnCount;
     if (nextFrozen !== draftFrozenColumnCount) {
-      applyLayoutChange(draftVisiveis, usedColumns.map((col) => col.id), nextFrozen);
+      syncDraftState(draftVisiveis, usedColumns.map((col) => col.id), nextFrozen);
     }
   };
 
   return (
     <EmpConfigDialogFrame
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       onRequestClose={requestClose}
       title="Configuração de colunas"
       infoTitle="Configuração de colunas"
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
+      footer={
+        <div className="flex w-full justify-end gap-2 px-1">
+          <EmpConfigPrimaryBtn onClick={handleOk}>Ok</EmpConfigPrimaryBtn>
+        </div>
+      }
     >
       <EmpConfigTransferPanel
         availableLabel="Colunas disponíveis"
