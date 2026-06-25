@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-06-25T18:42:16.716Z",
+  "metrics": [
+    {
+      "event": "Abrir Empresas",
+      "uiMs": 873,
+      "localStorageMs": null,
+      "apiMs": null,
+      "uiChangedAfterResponse": false,
+      "result": "pass"
+    },
+    {
+      "event": "Reload",
+      "uiMs": 577,
+      "localStorageMs": null,
+      "apiMs": null,
+      "uiChangedAfterResponse": false,
+      "result": "pass"
+    },
+    {
+      "event": "Ocultar coluna",
+      "uiMs": null,
+      "localStorageMs": null,
+      "apiMs": null,
+      "uiChangedAfterResponse": false,
+      "result": "not_run_selector",
+      "note": "Dialog selector pendente — validar manualmente em staging"
+    }
+  ],
+  "depthErrors": [],
+  "prefRequestCount": 2,
+  "prefRequests": [
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
+      "at": "2026-06-25T18:42:15.801Z"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
+      "at": "2026-06-25T18:42:16.414Z"
+    }
+  ],
+  "scenarios": {
+    "A": "partial",
+    "B": "fail",
+    "C": "not_run",
+    "D": "not_run",
+    "E": "not_run_v2_disabled",
+    "F": "not_run",
+    "G": "not_run"
+  },
+  "notTested": [
+    "C logout/login completo",
+    "D throttle 3s simulado",
+    "E duas abas",
+    "F dois usuários A/B",
+    "G API 500 simulado",
+    "Cards por linha, campo card, filtro rápido, operador (manual pendente)"
+  ]
+}

@@ -9,6 +9,7 @@ import {
   applyFormLayoutPreferencesToStorage,
   applyListagemPreferencesPatchToStorage,
   applyListagemPreferencesToStorage,
+  applyRemoteListagemPreferencesToStorage,
   buildFormLayoutPreferencesFromStorage,
   buildListagemPreferencesFromStorage,
   hasScopedListagemPreferences,
@@ -22,6 +23,12 @@ import {
   subscribeEmpPreferencesCrossTab,
 } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
 import { registerEmpPreferencesFlushHandler } from "@/modules/empresas/preferences/empresasPreferencesFlush";
+import {
+  clearEmpPreferencesSectionDirty,
+  setEmpPreferencesHydrationSource,
+  setEmpPreferencesRemoteRevision,
+  setEmpPreferencesSyncStatus,
+} from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import {
   EMPRESAS_PREFERENCES_BOOTSTRAP_TIMEOUT_MS,
   isEmpresasPreferencesV2Enabled,
@@ -218,10 +225,15 @@ export function useEmpresasPreferencesBootstrap(userId) {
         lastSyncedPreferencesRef.current = toObject(record.preferencias);
         return false;
       }
-      applyListagemPreferencesToStorage(record.preferencias);
+      const hasLocalSnapshot = hasScopedListagemPreferences();
+      const visualChange = hasLocalSnapshot
+        ? applyRemoteListagemPreferencesToStorage(record.preferencias)
+        : applyListagemPreferencesToStorage(record.preferencias, { reason: "listagem:hydrate" });
       listagemUpdatedAtRef.current = record.updatedAt || null;
       listagemRevisionRef.current = extractRevision(record);
       lastSyncedPreferencesRef.current = toObject(record.preferencias);
+      setEmpPreferencesRemoteRevision(listagemRevisionRef.current, listagemUpdatedAtRef.current);
+      if (!visualChange) return false;
       if (emitCrossTab && isEmpresasPreferencesV2Enabled()) {
         broadcastEmpPreferencesCrossTab({
           clienteId,
@@ -345,6 +357,8 @@ export function useEmpresasPreferencesBootstrap(userId) {
     if (hasLocal) {
       lastSyncedPreferencesRef.current = buildListagemPreferencesFromStorage();
     }
+    setEmpPreferencesHydrationSource(hasLocal ? "local" : "defaults");
+    setEmpPreferencesSyncStatus("idle");
     // P0: nunca bloquear a UI — liberar imediatamente com snapshot local ou defaults.
     markPreferencesReady(hasLocal ? "local_applied" : "defaults", {
       emitGeneration: isEmpresasPreferencesV2Enabled() && hasLocal,
@@ -399,8 +413,10 @@ export function useEmpresasPreferencesBootstrap(userId) {
         markPreferencesReady("remote_applied", {
           emitGeneration:
             isEmpresasPreferencesV2Enabled() &&
-            (!hadLocalSnapshotRef.current || remoteListagemChanged),
+            remoteListagemChanged &&
+            !hadLocalSnapshotRef.current,
         });
+        setEmpPreferencesHydrationSource(hadLocalSnapshotRef.current ? "local" : "remote");
         if (userId && !mapped[FORM_SCOPE_KEY]) {
           window.dispatchEvent(
             new CustomEvent("cadastro-layout-hydrated:empresas", {
@@ -549,13 +565,24 @@ export function useEmpresasPreferencesBootstrap(userId) {
         revision: Number(response?.revision) || listagemRevisionRef.current + 1,
       };
 
-      hydrateListagemRecord(normalizedRecord, {
-        emitCrossTab: true,
-        sectionsChanged: Object.keys(patchToSend),
-      });
+      listagemUpdatedAtRef.current = normalizedRecord.updatedAt;
+      listagemRevisionRef.current = extractRevision(normalizedRecord);
+      lastSyncedPreferencesRef.current = toObject(normalizedRecord.preferencias);
+      setEmpPreferencesRemoteRevision(listagemRevisionRef.current, listagemUpdatedAtRef.current);
+      Object.keys(patchToSend).forEach((section) => clearEmpPreferencesSectionDirty(section));
+      setEmpPreferencesSyncStatus("saved");
       patchBootstrapCache(normalizedRecord);
       conflictRetryCountRef.current = 0;
       setSyncError(null);
+      if (isEmpresasPreferencesV2Enabled()) {
+        broadcastEmpPreferencesCrossTab({
+          clienteId,
+          userId,
+          revision: listagemRevisionRef.current,
+          sectionsChanged: Object.keys(patchToSend),
+          reason: "remote-sync",
+        });
+      }
     } catch (error) {
       pendingPatchRef.current = mergePatchState(patchToSend, pendingPatchRef.current);
 
@@ -566,7 +593,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
         if (Object.keys(currentPreferences).length > 0) {
           const reconciled = toObject(deepMergeObjects(currentPreferences, patchToSend));
-          applyListagemPreferencesPatchToStorage(reconciled);
+          applyRemoteListagemPreferencesToStorage(reconciled);
           pendingPatchRef.current = mergePatchState(patchToSend, pendingPatchRef.current);
 
           const nextRevision = Number.isFinite(currentRevision)
