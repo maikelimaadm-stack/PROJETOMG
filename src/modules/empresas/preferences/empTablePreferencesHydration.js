@@ -10,7 +10,6 @@ import {
 import {
   AGGR_KEY,
   COLUNAS_BASE,
-  FILTERS_KEY,
   FROZEN_KEY,
   ORDER_KEY,
   SIZING_MODE_KEY,
@@ -22,6 +21,7 @@ import {
   readEmpPreferencesJson,
   readEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { readStoredTempListagemFilters } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 
 const readSortConfig = () => {
   const saved = readEmpPreferencesJson(SORT_KEY, null);
@@ -61,7 +61,7 @@ export const readEmpTablePreferencesSnapshot = (colunasDisponiveis = COLUNAS_BAS
     columnWidths: savedWidths && typeof savedWidths === "object" ? { ...defaults, ...savedWidths } : defaults,
     frozenColumnCount: Math.max(0, Number(readEmpPreferencesText(FROZEN_KEY, "0")) || 0),
     sortConfig: readSortConfig(),
-    filtrosColunas: readEmpPreferencesJson(FILTERS_KEY, {}) || {},
+    filtrosColunas: readStoredTempListagemFilters(),
     layoutAggregationConfig: readEmpPreferencesJson(AGGR_KEY, {}) || {},
     autoFitActiveColumns: Object.fromEntries(
       Object.entries(columnSizingMode)

@@ -37,6 +37,14 @@ export const userPreferencesApi = {
     );
   },
 
+  patchByScope(modulo, tela, payload) {
+    return apiClient.patch(
+      `/api/user/preferences/${encodeURIComponent(modulo)}/${encodeURIComponent(tela)}`,
+      payload,
+      { empresaHeader: false }
+    );
+  },
+
   get(screenKey) {
     const { modulo, tela } = parseScopeFromScreenKey(screenKey);
     return this.getByScope(modulo, tela).then((response) => ({
@@ -51,11 +59,13 @@ export const userPreferencesApi = {
     return this.saveByScope(modulo, tela, {
       preferencias: config,
       expectedUpdatedAt: options.expectedUpdatedAt,
+      expectedRevision: options.expectedRevision,
       versao_schema: options.versao_schema ?? config?.version ?? 1,
     }).then((response) => ({
       screenKey,
       config: response?.preferencias,
       updatedAt: response?.updatedAt,
+      revision: response?.revision,
     }));
   },
 };

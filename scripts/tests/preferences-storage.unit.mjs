@@ -67,15 +67,14 @@ setActiveUserPreferencesScope({ clienteId: "cli_test", userId: "usr_test" });
 resetEmpPreferencesMemoryCache();
 
 applyListagemPreferencesToStorage({
-  viewMode: "search",
+  view: { mode: "search" },
   table: {
     columnOrder: ["codempresa", "razao_social"],
     visibleColumns: ["codempresa"],
     grouping: ["status"],
   },
-  panels: {
-    launchPanelStyle: "sidebar",
-  },
+  viewMode: "search",
+  panels: { launchPanelStyle: "sidebar" },
 });
 
 const scopedKeys = [];
@@ -88,8 +87,8 @@ assert.ok(
   "deve gravar em chave scoped por cliente+usuário"
 );
 const snapshot = buildListagemPreferencesFromStorage();
-assert.equal(snapshot.viewMode, "search");
-assert.equal(snapshot.panels.launchPanelStyle, "sidebar");
+assert.equal(snapshot.view.mode, "search");
+assert.equal(snapshot.view.launchPanelStyle, "sidebar");
 assert.equal("grouping" in (snapshot.table || {}), false);
 
 console.log("OK: preferences-storage.unit");

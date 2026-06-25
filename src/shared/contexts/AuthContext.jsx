@@ -265,6 +265,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(async () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
+    }
     await AuthApi.logout().catch(() => null);
     queryClientInstance.clear();
     resetAllLayoutPreferencesSync();
@@ -279,6 +282,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const navigateToLogin = useCallback(() => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
+    }
     queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
     resetEmpPreferencesMemoryCache();
     clearActiveUserPreferencesScope();

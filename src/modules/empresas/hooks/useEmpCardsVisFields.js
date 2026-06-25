@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  EMP_CARDS_LAYOUT_KEY,
+  EMP_SEARCH_VIS_KEY,
+  EMP_SEARCH_VIS_KEY_LEGACY,
   EMP_SEARCH_DEFAULT_FIELDS,
   buildCardCatalogFromColumnsInUse,
   buildCardDetailFieldsFromColumns,
@@ -17,6 +20,26 @@ import {
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
+
+const shouldRefreshCardsByCacheEvent = ({ reason = "", keys = [] } = {}) => {
+  const normalizedReason = String(reason || "").toLowerCase();
+  if (!normalizedReason) return false;
+  if (normalizedReason.includes("cards")) return true;
+  if (normalizedReason.includes("listagem:hydrate")) return true;
+  if (normalizedReason === "storage") {
+    const keyList = Array.isArray(keys) ? keys : [keys];
+    return keyList.some((key) => {
+      const normalizedKey = String(key || "").toLowerCase();
+      return (
+        normalizedKey.includes(EMP_SEARCH_VIS_KEY.toLowerCase()) ||
+        normalizedKey.includes(EMP_SEARCH_VIS_KEY_LEGACY.toLowerCase()) ||
+        normalizedKey.includes(EMP_CARDS_LAYOUT_KEY.toLowerCase())
+      );
+    });
+  }
+  return false;
+};
 
 export function useEmpCardsVisFields() {
   const [columnLayoutVersion, setColumnLayoutVersion] = useState(0);
@@ -27,8 +50,9 @@ export function useEmpCardsVisFields() {
   useEffect(() => {
     const refreshColumns = () => setColumnLayoutVersion((current) => current + 1);
     const refreshPreferences = () => setPreferencesVersion((current) => current + 1);
-    const unsubscribeCache = subscribeEmpPreferencesCache(({ reason } = {}) => {
-      refreshPreferences();
+    const unsubscribeCache = subscribeEmpPreferencesCache((detail = {}) => {
+      const { reason } = detail;
+      if (shouldRefreshCardsByCacheEvent(detail)) refreshPreferences();
       if (String(reason || "").includes("table")) refreshColumns();
     });
     window.addEventListener("emp-column-layout-updated", refreshColumns);
@@ -38,14 +62,15 @@ export function useEmpCardsVisFields() {
     };
   }, []);
 
-  const columnsInUse = useMemo(() => {
+  const columnsForCards = useMemo(() => {
     void columnLayoutVersion;
-    return getColumnsInUse(camposPersonalizados).inUse;
+    const { disponiveis } = getColumnsInUse(camposPersonalizados);
+    return Array.isArray(disponiveis) ? disponiveis : [];
   }, [camposPersonalizados, columnLayoutVersion]);
 
   const catalog = useMemo(
-    () => buildCardCatalogFromColumnsInUse(columnsInUse),
-    [columnsInUse]
+    () => buildCardCatalogFromColumnsInUse(columnsForCards),
+    [columnsForCards]
   );
 
   const [visFields, setVisFields] = useState(() => loadSearchVisFields(EMP_SEARCH_DEFAULT_FIELDS));
@@ -53,8 +78,10 @@ export function useEmpCardsVisFields() {
 
   useEffect(() => {
     const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
-    setVisFields(loadSearchVisFields(sourceCatalog));
-    setLayoutConfig(loadCardsLayoutConfig());
+    const nextVisFields = loadSearchVisFields(sourceCatalog);
+    const nextLayout = loadCardsLayoutConfig();
+    setVisFields((current) => (stableJsonEqual(current, nextVisFields) ? current : nextVisFields));
+    setLayoutConfig((current) => (stableJsonEqual(current, nextLayout) ? current : nextLayout));
   }, [catalog, preferencesVersion]);
 
   const fieldsPerRow = useMemo(
@@ -64,7 +91,10 @@ export function useEmpCardsVisFields() {
 
   useEffect(() => {
     if (catalog.length === 0) return;
-    setVisFields((current) => mergeSearchVisFields(catalog, current));
+    setVisFields((current) => {
+      const merged = mergeSearchVisFields(catalog, current);
+      return stableJsonEqual(current, merged) ? current : merged;
+    });
   }, [catalog]);
 
   const configFields = useMemo(() => {
@@ -76,8 +106,8 @@ export function useEmpCardsVisFields() {
   }, [catalog, visFields]);
 
   const detailFields = useMemo(
-    () => buildCardDetailFieldsFromColumns(columnsInUse, configFields),
-    [columnsInUse, configFields]
+    () => buildCardDetailFieldsFromColumns(columnsForCards, configFields),
+    [columnsForCards, configFields]
   );
 
   const saveConfig = useCallback(

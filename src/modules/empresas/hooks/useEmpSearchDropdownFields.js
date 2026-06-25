@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   EMP_SEARCH_DEFAULT_FIELDS,
+  EMP_SEARCH_DROPDOWN_VIS_KEY,
   buildEmpCardFieldCatalog,
   buildSearchDropdownDetailFields,
   getDefaultCardVisFields,
@@ -11,6 +12,21 @@ import {
 } from "@/modules/empresas/components/empSearchView.constants";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
+
+const shouldRefreshDropdownByCacheEvent = ({ reason = "", keys = [] } = {}) => {
+  const normalizedReason = String(reason || "").toLowerCase();
+  if (!normalizedReason) return false;
+  if (normalizedReason.includes("dropdown-fields")) return true;
+  if (normalizedReason.includes("listagem:hydrate")) return true;
+  if (normalizedReason === "storage") {
+    const keyList = Array.isArray(keys) ? keys : [keys];
+    return keyList.some((key) =>
+      String(key || "").toLowerCase().includes(EMP_SEARCH_DROPDOWN_VIS_KEY.toLowerCase())
+    );
+  }
+  return false;
+};
 
 export function useEmpSearchDropdownFields() {
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
@@ -24,16 +40,26 @@ export function useEmpSearchDropdownFields() {
 
   useEffect(() => {
     const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
-    setVisFields(loadSearchDropdownVisFields(sourceCatalog));
-    const unsubscribe = subscribeEmpPreferencesCache(() => {
-      setVisFields(loadSearchDropdownVisFields(sourceCatalog));
+    setVisFields((current) => {
+      const next = loadSearchDropdownVisFields(sourceCatalog);
+      return stableJsonEqual(current, next) ? current : next;
+    });
+    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
+      if (!shouldRefreshDropdownByCacheEvent(detail)) return;
+      setVisFields((current) => {
+        const next = loadSearchDropdownVisFields(sourceCatalog);
+        return stableJsonEqual(current, next) ? current : next;
+      });
     });
     return unsubscribe;
   }, [catalog]);
 
   useEffect(() => {
     if (catalog.length === 0) return;
-    setVisFields((current) => mergeSearchVisFields(catalog, current));
+    setVisFields((current) => {
+      const merged = mergeSearchVisFields(catalog, current);
+      return stableJsonEqual(current, merged) ? current : merged;
+    });
   }, [catalog]);
 
   const configFields = useMemo(() => {

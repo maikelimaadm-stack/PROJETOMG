@@ -73,7 +73,7 @@
         {
           "title": "Empresas preferences real (API remota)",
           "file": "empresas-preferences-real.spec.js",
-          "line": 25,
+          "line": 37,
           "column": 6,
           "specs": [
             {
@@ -92,12 +92,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 8443,
+                      "duration": 3571,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-06-24T18:49:22.764Z",
+                      "startTime": "2026-06-25T14:31:11.402Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -113,7 +113,7 @@
               ],
               "id": "79e5d16b1ea03bd00b76-d18f48aacf81e65df316",
               "file": "empresas-preferences-real.spec.js",
-              "line": 45,
+              "line": 57,
               "column": 3
             },
             {
@@ -132,12 +132,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 6623,
+                      "duration": 7373,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-06-24T18:49:31.294Z",
+                      "startTime": "2026-06-25T14:31:15.054Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -153,7 +153,7 @@
               ],
               "id": "79e5d16b1ea03bd00b76-f8b589382fa67317dff7",
               "file": "empresas-preferences-real.spec.js",
-              "line": 87,
+              "line": 103,
               "column": 3
             },
             {
@@ -172,12 +172,12 @@
                       "workerIndex": 0,
                       "parallelIndex": 0,
                       "status": "passed",
-                      "duration": 4533,
+                      "duration": 5799,
                       "errors": [],
                       "stdout": [],
                       "stderr": [],
                       "retry": 0,
-                      "startTime": "2026-06-24T18:49:37.929Z",
+                      "startTime": "2026-06-25T14:31:22.435Z",
                       "annotations": [],
                       "attachments": [
                         {
@@ -193,7 +193,7 @@
               ],
               "id": "79e5d16b1ea03bd00b76-e35a80753cf36e43ed20",
               "file": "empresas-preferences-real.spec.js",
-              "line": 95,
+              "line": 111,
               "column": 3
             }
           ]
@@ -203,8 +203,8 @@
   ],
   "errors": [],
   "stats": {
-    "startTime": "2026-06-24T18:49:22.342Z",
-    "duration": 20193.541,
+    "startTime": "2026-06-25T14:31:10.982Z",
+    "duration": 17298.309999999998,
     "expected": 3,
     "skipped": 0,
     "unexpected": 0,

@@ -17,16 +17,21 @@ export function useHorizontalScrollRail({
   const updateScrollState = useCallback(() => {
     const viewport = viewportRef.current;
     if (!viewport || !enabled) {
-      setCanScrollLeft(false);
-      setCanScrollRight(false);
-      setHasOverflow(false);
+      setCanScrollLeft((previous) => (previous ? false : previous));
+      setCanScrollRight((previous) => (previous ? false : previous));
+      setHasOverflow((previous) => (previous ? false : previous));
       return;
     }
 
     const maxScrollLeft = Math.max(0, viewport.scrollWidth - viewport.clientWidth);
-    setCanScrollLeft(viewport.scrollLeft > 1);
-    setCanScrollRight(viewport.scrollLeft < maxScrollLeft - 1);
-    setHasOverflow(maxScrollLeft > 1);
+    const nextCanScrollLeft = viewport.scrollLeft > 1;
+    const nextCanScrollRight = viewport.scrollLeft < maxScrollLeft - 1;
+    const nextHasOverflow = maxScrollLeft > 1;
+    setCanScrollLeft((previous) => (previous === nextCanScrollLeft ? previous : nextCanScrollLeft));
+    setCanScrollRight((previous) =>
+      previous === nextCanScrollRight ? previous : nextCanScrollRight
+    );
+    setHasOverflow((previous) => (previous === nextHasOverflow ? previous : nextHasOverflow));
   }, [enabled]);
 
   useEffect(() => {

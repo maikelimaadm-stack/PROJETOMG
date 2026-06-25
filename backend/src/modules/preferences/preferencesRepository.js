@@ -5,10 +5,23 @@ import {
   parseScopeFromScreenKey,
   validatePreferenceConfig,
 } from "./layoutValidators/index.js";
+import {
+  buildSectionPatch,
+  deepMergePreferenceObjects,
+  getPreferenceRevision,
+  stampPreferenceMetadata,
+  toObjectOrEmpty,
+} from "./preferencesMerge.js";
 
 const withStatus = (message, statusCode) => {
   const error = new Error(message);
   error.statusCode = statusCode;
+  return error;
+};
+
+const withConflictDetails = (message, details) => {
+  const error = withStatus(message, 409);
+  error.details = details;
   return error;
 };
 
@@ -41,7 +54,7 @@ const toScreenKey = (modulo, tela) =>
 
 const mapLegacyRecordToScoped = (record) => {
   const parsed = parseScopeFromScreenKey(record?.screen_key);
-  const config = record?.config && typeof record.config === "object" ? record.config : {};
+  const config = toObjectOrEmpty(record?.config);
   return {
     modulo: parsed.modulo,
     tela: parsed.tela,
@@ -49,7 +62,10 @@ const mapLegacyRecordToScoped = (record) => {
       Number(config?.version) ||
       Number(config?.activeConfig?.version) ||
       1,
-    preferencias_json: config,
+    preferencias_json: stampPreferenceMetadata(config, {
+      revision: getPreferenceRevision(config),
+      updatedAt: config?.meta?.updatedAt || record?.updatedAt || null,
+    }),
     updatedAt: record?.updatedAt || null,
   };
 };
@@ -115,10 +131,28 @@ const saveLegacyByScreenKey = async ({
   prisma,
   scope,
   screenKey,
-  validatedConfig,
+  mergedConfig,
   expectedUpdatedAt,
+  expectedRevision,
 }) => {
   const existing = await findLegacyByScreenKey(prisma, { scope, screenKey });
+  const existingConfig = toObjectOrEmpty(existing?.config);
+  const currentRevision = getPreferenceRevision(existingConfig);
+
+  if (existing && expectedRevision != null) {
+    const parsedExpectedRevision = Number(expectedRevision);
+    if (!Number.isFinite(parsedExpectedRevision) || parsedExpectedRevision < 0) {
+      throw withStatus("Revisão esperada inválida.", 400);
+    }
+    if (currentRevision !== Math.floor(parsedExpectedRevision)) {
+      throw withConflictDetails("Preferência foi alterada em outra aba/sessão.", {
+        currentPreferences: existingConfig,
+        currentRevision,
+        currentUpdatedAt: existing.updatedAt || null,
+      });
+    }
+  }
+
   if (existing && expectedUpdatedAt) {
     const expectedTime = new Date(expectedUpdatedAt).getTime();
     const currentTime = existing.updatedAt ? new Date(existing.updatedAt).getTime() : 0;
@@ -126,14 +160,23 @@ const saveLegacyByScreenKey = async ({
       throw withStatus("Marca de concorrência inválida.", 400);
     }
     if (expectedTime !== currentTime) {
-      throw withStatus("Preferência foi alterada em outra aba/sessão.", 409);
+      throw withConflictDetails("Preferência foi alterada em outra aba/sessão.", {
+        currentPreferences: existingConfig,
+        currentRevision,
+        currentUpdatedAt: existing.updatedAt || null,
+      });
     }
   }
 
+  const nextRevision = existing ? currentRevision + 1 : 1;
+  const nextConfig = stampPreferenceMetadata(mergedConfig, {
+    revision: nextRevision,
+    updatedAt: new Date().toISOString(),
+  });
   const recordId =
     (existing?.id && String(existing.id).trim()) ||
     `pref_${randomUUID().replace(/-/g, "")}`;
-  const configJson = JSON.stringify(validatedConfig);
+  const configJson = JSON.stringify(nextConfig);
 
   await prisma.$executeRawUnsafe(
     `
@@ -162,9 +205,11 @@ export const preferencesRepository = {
     const parsed = parseScopeFromScreenKey(screenKey);
     const record = await this.getByScope({ scope, ...parsed });
     if (!record) return null;
+    const revision = getPreferenceRevision(record.preferencias_json);
     return {
       config: record.preferencias_json,
       updatedAt: record.updatedAt,
+      revision,
     };
   },
 
@@ -193,7 +238,12 @@ export const preferencesRepository = {
         },
       });
       if (!record) return null;
-      return record;
+      const config = toObjectOrEmpty(record.preferencias_json);
+      return {
+        ...record,
+        preferencias_json: config,
+        revision: getPreferenceRevision(config),
+      };
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
       assertLegacyFallbackAllowed();
@@ -202,7 +252,11 @@ export const preferencesRepository = {
         screenKey: toScreenKey(normalizedModulo, normalizedTela),
       });
       if (!legacy) return null;
-      return mapLegacyRecordToScoped(legacy);
+      const mapped = mapLegacyRecordToScoped(legacy);
+      return {
+        ...mapped,
+        revision: getPreferenceRevision(mapped.preferencias_json),
+      };
     }
   },
 
@@ -223,27 +277,67 @@ export const preferencesRepository = {
           updatedAt: true,
         },
       });
-      return records;
+      return records.map((record) => {
+        const config = toObjectOrEmpty(record.preferencias_json);
+        return {
+          ...record,
+          preferencias_json: config,
+          revision: getPreferenceRevision(config),
+        };
+      });
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
       assertLegacyFallbackAllowed();
       const legacy = await listAllLegacyByScope(prisma, { scope });
-      return selectMostRecentByScope(legacy.map(mapLegacyRecordToScoped));
+      return selectMostRecentByScope(legacy.map(mapLegacyRecordToScoped)).map((record) => ({
+        ...record,
+        revision: getPreferenceRevision(record.preferencias_json),
+      }));
     }
   },
 
-  async upsert({ scope, screenKey, config, expectedUpdatedAt }) {
+  async upsert({ scope, screenKey, config, expectedUpdatedAt, expectedRevision }) {
     const parsed = parseScopeFromScreenKey(screenKey);
     const record = await this.upsertByScope({
       scope,
       ...parsed,
       preferencias: config,
       expectedUpdatedAt,
+      expectedRevision,
     });
     return {
       config: record.preferencias_json,
       updatedAt: record.updatedAt,
+      revision: record.revision,
     };
+  },
+
+  async patchByScope({
+    scope,
+    modulo,
+    tela,
+    section,
+    patch,
+    expectedUpdatedAt,
+    expectedRevision,
+    versaoSchema,
+  }) {
+    const normalizedSection = String(section || "").trim();
+    if (!normalizedSection) {
+      throw withStatus("Seção de patch inválida.", 400);
+    }
+    if (patch == null || typeof patch !== "object" || Array.isArray(patch)) {
+      throw withStatus("Patch inválido.", 400);
+    }
+    return this.upsertByScope({
+      scope,
+      modulo,
+      tela,
+      preferencias: buildSectionPatch({ section: normalizedSection, patch }),
+      expectedUpdatedAt,
+      expectedRevision,
+      versaoSchema,
+    });
   },
 
   async upsertByScope({
@@ -253,6 +347,7 @@ export const preferencesRepository = {
     preferencias,
     versaoSchema,
     expectedUpdatedAt,
+    expectedRevision,
   }) {
     const prisma = getPrismaClient();
     const normalizedModulo = String(modulo || "").trim().toLowerCase();
@@ -260,21 +355,15 @@ export const preferencesRepository = {
     if (!normalizedModulo || !normalizedTela) {
       throw withStatus("Escopo de preferência inválido.", 400);
     }
-    if (preferencias == null || typeof preferencias !== "object") {
+    if (preferencias == null || typeof preferencias !== "object" || Array.isArray(preferencias)) {
       throw withStatus("Configuração inválida.", 400);
     }
-
-    const validatedConfig = validatePreferenceConfig({
+    const incomingPatch = toObjectOrEmpty(preferencias);
+    const validatedPatch = validatePreferenceConfig({
       modulo: normalizedModulo,
       tela: normalizedTela,
-      config: preferencias,
+      config: incomingPatch,
     });
-
-    const detectedVersion =
-      Number(versaoSchema) ||
-      Number(validatedConfig?.version) ||
-      Number(validatedConfig?.activeConfig?.version) ||
-      1;
 
     const scopedScreenKey = toScreenKey(normalizedModulo, normalizedTela);
     try {
@@ -288,8 +377,25 @@ export const preferencesRepository = {
         select: {
           id: true,
           updatedAt: true,
+          preferencias_json: true,
         },
       });
+      const currentConfig = toObjectOrEmpty(existing?.preferencias_json);
+      const currentRevision = getPreferenceRevision(currentConfig);
+
+      if (existing && expectedRevision != null) {
+        const parsedExpectedRevision = Number(expectedRevision);
+        if (!Number.isFinite(parsedExpectedRevision) || parsedExpectedRevision < 0) {
+          throw withStatus("Revisão esperada inválida.", 400);
+        }
+        if (currentRevision !== Math.floor(parsedExpectedRevision)) {
+          throw withConflictDetails("Preferência foi alterada em outra aba/sessão.", {
+            currentPreferences: currentConfig,
+            currentRevision,
+            currentUpdatedAt: existing.updatedAt || null,
+          });
+        }
+      }
 
       if (existing && expectedUpdatedAt) {
         const expectedTime = new Date(expectedUpdatedAt).getTime();
@@ -298,20 +404,60 @@ export const preferencesRepository = {
           throw withStatus("Marca de concorrência inválida.", 400);
         }
         if (expectedTime !== currentTime) {
-          throw withStatus("Preferência foi alterada em outra aba/sessão.", 409);
+          throw withConflictDetails("Preferência foi alterada em outra aba/sessão.", {
+            currentPreferences: currentConfig,
+            currentRevision,
+            currentUpdatedAt: existing.updatedAt || null,
+          });
         }
       }
 
+      const mergedConfig = toObjectOrEmpty(
+        deepMergePreferenceObjects(currentConfig, validatedPatch)
+      );
+      const nextRevision = existing ? currentRevision + 1 : 1;
+      const persistedConfig = stampPreferenceMetadata(mergedConfig, {
+        revision: nextRevision,
+        updatedAt: new Date().toISOString(),
+      });
+      const detectedVersion =
+        Number(versaoSchema) ||
+        Number(persistedConfig?.version) ||
+        Number(persistedConfig?.activeConfig?.version) ||
+        1;
+
       if (existing) {
-        return prisma.usuarioPreferencia.update({
-          where: { id: existing.id },
+        const updateAttempt = await prisma.usuarioPreferencia.updateMany({
+          where: {
+            id: existing.id,
+            updatedAt: existing.updatedAt || undefined,
+          },
           data: {
             versao_schema: detectedVersion,
-            preferencias_json: validatedConfig,
-            config: validatedConfig,
+            preferencias_json: persistedConfig,
+            config: persistedConfig,
             screen_key: scopedScreenKey,
             cliente_id: scope.clienteId,
           },
+        });
+        if (updateAttempt.count === 0) {
+          const latest = await prisma.usuarioPreferencia.findUnique({
+            where: { id: existing.id },
+            select: {
+              preferencias_json: true,
+              updatedAt: true,
+            },
+          });
+          const latestConfig = toObjectOrEmpty(latest?.preferencias_json);
+          throw withConflictDetails("Preferência foi alterada em outra aba/sessão.", {
+            currentPreferences: latestConfig,
+            currentRevision: getPreferenceRevision(latestConfig),
+            currentUpdatedAt: latest?.updatedAt || null,
+          });
+        }
+
+        const updated = await prisma.usuarioPreferencia.findUnique({
+          where: { id: existing.id },
           select: {
             modulo: true,
             tela: true,
@@ -320,18 +466,25 @@ export const preferencesRepository = {
             updatedAt: true,
           },
         });
+        if (!updated) {
+          throw withStatus("Falha ao salvar preferência.", 500);
+        }
+        return {
+          ...updated,
+          revision: getPreferenceRevision(updated.preferencias_json),
+        };
       }
 
-      return prisma.usuarioPreferencia.create({
+      const created = await prisma.usuarioPreferencia.create({
         data: {
           usuario_id: scope.userId,
           cliente_id: scope.clienteId,
           modulo: normalizedModulo,
           tela: normalizedTela,
           versao_schema: detectedVersion,
-          preferencias_json: validatedConfig,
+          preferencias_json: persistedConfig,
           screen_key: scopedScreenKey,
-          config: validatedConfig,
+          config: persistedConfig,
         },
         select: {
           modulo: true,
@@ -341,22 +494,54 @@ export const preferencesRepository = {
           updatedAt: true,
         },
       });
+      return {
+        ...created,
+        revision: getPreferenceRevision(created.preferencias_json),
+      };
     } catch (error) {
       if (!isMissingScopedColumnsError(error)) throw error;
       assertLegacyFallbackAllowed();
+      const legacyExisting = await findLegacyByScreenKey(prisma, {
+        scope,
+        screenKey: scopedScreenKey,
+      });
+      const legacyCurrentConfig = toObjectOrEmpty(legacyExisting?.config);
+      const legacyCurrentRevision = getPreferenceRevision(legacyCurrentConfig);
+      if (legacyExisting && expectedRevision != null) {
+        const parsedExpectedRevision = Number(expectedRevision);
+        if (!Number.isFinite(parsedExpectedRevision) || parsedExpectedRevision < 0) {
+          throw withStatus("Revisão esperada inválida.", 400);
+        }
+        if (legacyCurrentRevision !== Math.floor(parsedExpectedRevision)) {
+          throw withConflictDetails("Preferência foi alterada em outra aba/sessão.", {
+            currentPreferences: legacyCurrentConfig,
+            currentRevision: legacyCurrentRevision,
+            currentUpdatedAt: legacyExisting.updatedAt || null,
+          });
+        }
+      }
+      const mergedLegacyConfig = toObjectOrEmpty(
+        deepMergePreferenceObjects(legacyCurrentConfig, validatedPatch)
+      );
       const legacyRecord = await saveLegacyByScreenKey({
         prisma,
         scope,
         screenKey: scopedScreenKey,
-        validatedConfig,
+        mergedConfig: mergedLegacyConfig,
         expectedUpdatedAt,
+        expectedRevision,
       });
       if (!legacyRecord) {
         throw withStatus("Falha ao salvar preferência no modo legado.", 500);
       }
 
       const mapped = mapLegacyRecordToScoped(legacyRecord);
-      mapped.versao_schema = detectedVersion;
+      mapped.versao_schema =
+        Number(versaoSchema) ||
+        Number(mapped.preferencias_json?.version) ||
+        Number(mapped.preferencias_json?.activeConfig?.version) ||
+        1;
+      mapped.revision = getPreferenceRevision(mapped.preferencias_json);
       return mapped;
     }
   },

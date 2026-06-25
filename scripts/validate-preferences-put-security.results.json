@@ -1,6 +1,6 @@
 {
   "baseUrl": "http://127.0.0.1:3001",
-  "startedAt": "2026-06-25T12:27:30.204Z",
+  "startedAt": "2026-06-25T14:32:56.913Z",
   "forbiddenFields": [
     "usuario_id",
     "userId",
@@ -11,43 +11,8 @@
     "empresa_id",
     "empresaId"
   ],
-  "cases": [
-    {
-      "label": "usuario_id injetado",
-      "status": 400,
-      "pass": true,
-      "message": "Campos de identidade não são aceitos no payload: usuario_id. Use o token autenticado."
-    },
-    {
-      "label": "cliente_id injetado",
-      "status": 400,
-      "pass": true,
-      "message": "Campos de identidade não são aceitos no payload: cliente_id. Use o token autenticado."
-    },
-    {
-      "label": "tenant_id injetado",
-      "status": 400,
-      "pass": true,
-      "message": "Campos de identidade não são aceitos no payload: tenant_id. Use o token autenticado."
-    },
-    {
-      "label": "empresa_id injetado",
-      "status": 400,
-      "pass": true,
-      "message": "Campos de identidade não são aceitos no payload: empresa_id. Use o token autenticado."
-    },
-    {
-      "label": "payload legado com modulo/tela/preferences + usuario_id",
-      "status": 400,
-      "pass": true,
-      "message": "Campos de identidade não são aceitos no payload: usuario_id. Use o token autenticado."
-    }
-  ],
-  "approved": true,
-  "login": {
-    "cliente": "tenant1",
-    "usuario": "usera",
-    "userIdMasked": "cmqt…"
-  },
-  "finishedAt": "2026-06-25T12:27:30.337Z"
+  "cases": [],
+  "approved": false,
+  "fatal": "Login falhou: HTTP 401 — Cliente inválido.",
+  "finishedAt": "2026-06-25T14:32:56.941Z"
 }

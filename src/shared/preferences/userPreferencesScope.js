@@ -5,6 +5,7 @@
 
 const PREF_STORAGE_VERSION = "v2";
 const PREF_STORAGE_PREFIX = `mg_pref_${PREF_STORAGE_VERSION}`;
+const TEMP_FILTER_STORAGE_PREFIX = "mg_temp_filter_v1";
 
 let activeScope = {
   clienteId: null,
@@ -41,6 +42,19 @@ export const buildUserPrefStorageKey = ({
   const t = String(tela || "default").trim().toLowerCase();
   const f = String(field || "").trim();
   return `${PREF_STORAGE_PREFIX}:${c}:${u}:${m}:${t}:${f}`;
+};
+
+export const buildScopedTempFilterStorageKey = ({
+  clienteId,
+  userId,
+  modulo = EMPRESAS_LISTAGEM_MODULO,
+  tela = EMPRESAS_LISTAGEM_TELA,
+} = {}) => {
+  const c = String(clienteId || activeScope.clienteId || "anon").trim();
+  const u = String(userId || activeScope.userId || "anon").trim();
+  const m = String(modulo || EMPRESAS_LISTAGEM_MODULO).trim().toLowerCase();
+  const t = String(tela || EMPRESAS_LISTAGEM_TELA).trim().toLowerCase();
+  return `${TEMP_FILTER_STORAGE_PREFIX}:${c}:${u}:${m}:${t}`;
 };
 
 export const buildUserScreenPreferencesQueryKey = ({
