@@ -436,7 +436,15 @@ export default function TBLEMP({
     return subscribeEmpPreferencesCache((detail) => {
       const reason = detail?.reason;
       const normalized = String(reason || "").toLowerCase();
-      if (!normalized.includes("storage") && !normalized.includes("bootstrap")) return;
+      if (
+        !normalized.includes("storage") &&
+        !normalized.includes("bootstrap") &&
+        !normalized.includes("listagem:hydrate") &&
+        !normalized.includes("remote-tab") &&
+        !normalized.includes("remote-sync")
+      ) {
+        return;
+      }
       setPreferencesVersion((current) => current + 1);
     });
   }, [preferencesReady]);

@@ -1,4 +1,7 @@
 import {
+  getEmpPreferencesTabId,
+} from "@/modules/empresas/preferences/empresasPreferencesCrossTab.js";
+import {
   getActiveUserPreferencesScope,
   isListagemLegacyPreferenceField,
   preferenceEventMatchesScope,
@@ -76,6 +79,7 @@ const emitCacheUpdate = (keys, reason = "update") => {
         clienteId: scope.clienteId,
         userId: scope.userId,
         version: "v2",
+        originTabId: getEmpPreferencesTabId(),
       },
     })
   );

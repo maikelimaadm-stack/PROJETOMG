@@ -150,29 +150,54 @@ export const sortCardConfigFieldsAlphabetically = (fields = []) =>
     String(a.label || "").localeCompare(String(b.label || ""), "pt-BR", { sensitivity: "base" })
   );
 
-/** Campos visíveis no corpo do card, na ordem das colunas em uso. */
-export const buildCardDetailFieldsFromColumns = (columnsInUse = [], visFields = []) => {
-  const visibleMap = new Map(
-    visFields.filter((field) => field.visible && !field.primary).map((field) => [field.key, field])
-  );
+export const sortCardConfigFieldsByOrder = (fields = [], orderKeys = []) => {
+  const normalizedOrder = Array.isArray(orderKeys)
+    ? orderKeys.map((key) => String(key || "").trim()).filter(Boolean)
+    : [];
+  if (normalizedOrder.length === 0) {
+    return sortCardConfigFieldsAlphabetically(fields);
+  }
+  const fieldMap = new Map(fields.map((field) => [field.key, field]));
+  const ordered = normalizedOrder.map((key) => fieldMap.get(key)).filter(Boolean);
+  const remaining = fields.filter((field) => !normalizedOrder.includes(field.key));
+  return [...ordered, ...remaining];
+};
 
-  return columnsInUse
+export const loadCardFieldOrder = () => {
+  const savedRaw =
+    readEmpPreferencesText(EMP_SEARCH_VIS_KEY, null) ??
+    readEmpPreferencesText(EMP_SEARCH_VIS_KEY_LEGACY, null);
+  if (!savedRaw) return [];
+  try {
+    const parsed = JSON.parse(savedRaw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return [];
+    return Object.keys(parsed);
+  } catch {
+    return [];
+  }
+};
+
+/** Campos visíveis no corpo do card, respeitando ordem salva em visFields. */
+export const buildCardDetailFieldsFromColumns = (columnsInUse = [], visFields = []) => {
+  const columnMap = new Map(columnsInUse.map((column) => [column.id, column]));
+
+  return visFields
     .filter(
-      (col) =>
-        !EMP_CARD_PRIMARY_KEYS.has(col.id) &&
-        !EMP_CARD_BODY_SKIP.has(col.id) &&
-        !EMP_CARD_DETAIL_SKIP.has(col.id)
+      (field) =>
+        field.visible &&
+        !field.primary &&
+        !EMP_CARD_PRIMARY_KEYS.has(field.key) &&
+        !EMP_CARD_BODY_SKIP.has(field.key) &&
+        !EMP_CARD_DETAIL_SKIP.has(field.key)
     )
-    .map((col) => {
-      const vis = visibleMap.get(col.id);
-      if (!vis) return null;
+    .map((field) => {
+      const column = columnMap.get(field.key);
       return {
-        ...vis,
-        label: col.label,
-        align: col.align || "left",
+        ...field,
+        label: column?.label || field.label,
+        align: column?.align || "left",
       };
-    })
-    .filter(Boolean);
+    });
 };
 
 export const mergeSearchVisFields = (catalog = [], saved = []) => {
@@ -253,10 +278,23 @@ export const loadSearchVisFields = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
   if (!savedRaw) return catalog.map((field) => ({ ...field }));
   try {
     const config = normalizeVisConfig(JSON.parse(savedRaw));
-    return catalog.map((field) => ({
-      ...field,
-      visible: config[field.key] !== undefined ? Boolean(config[field.key]) : field.visible,
-    }));
+    const orderedKeys = Object.keys(config);
+    const catalogMap = new Map(catalog.map((field) => [field.key, field]));
+    const ordered = orderedKeys
+      .map((storageKey) => {
+        const modelKey = EMP_SEARCH_FIELD_ALIASES[storageKey] || storageKey;
+        const field = catalogMap.get(modelKey);
+        if (!field) return null;
+        return {
+          ...field,
+          visible: config[storageKey] !== undefined ? Boolean(config[storageKey]) : field.visible,
+        };
+      })
+      .filter(Boolean);
+    const remaining = catalog
+      .filter((field) => !ordered.some((item) => item.key === field.key))
+      .map((field) => ({ ...field }));
+    return [...ordered, ...remaining];
   } catch {
     return catalog.map((field) => ({ ...field }));
   }

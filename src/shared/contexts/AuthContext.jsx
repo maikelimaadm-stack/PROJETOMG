@@ -5,6 +5,7 @@ import { empresasPreferencesBootstrapQueryKey } from "@/modules/empresas/prefere
 import { resetEmpPreferencesMemoryCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import {
   clearActiveUserPreferencesScope,
+  getActiveUserPreferencesScope,
   setActiveUserPreferencesScope,
 } from "@/shared/preferences/userPreferencesScope.js";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
@@ -13,6 +14,7 @@ import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
+import { flushEmpPreferencesNow } from "@/modules/empresas/preferences/empresasPreferencesFlush";
 
 const prefetchEmpresasCadastro = async (userId, clienteId) => {
   void queryClientInstance.prefetchQuery({
@@ -103,10 +105,19 @@ export const AuthProvider = ({ children }) => {
       setCliente(session.cliente || null);
       setEmpresas(session.empresas || []);
       setAllowAllEmpresas(Boolean(session.allowAllEmpresas));
-      setActiveUserPreferencesScope({
+      const previousScope = getActiveUserPreferencesScope();
+      const nextScope = {
         clienteId: session.cliente?.id,
         userId: session.user?.id,
-      });
+      };
+      if (
+        String(previousScope.userId || "") !== String(nextScope.userId || "") ||
+        String(previousScope.clienteId || "") !== String(nextScope.clienteId || "")
+      ) {
+        queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
+        resetEmpPreferencesMemoryCache();
+      }
+      setActiveUserPreferencesScope(nextScope);
       const persistedEmpresaId = AuthApi.getSelectedEmpresaId();
       const normalizedPersistedEmpresaId =
         persistedEmpresaId != null && String(persistedEmpresaId).trim() !== ""
@@ -188,6 +199,12 @@ export const AuthProvider = ({ children }) => {
         usuario,
         senha,
       });
+      queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
+      resetEmpPreferencesMemoryCache();
+      setActiveUserPreferencesScope({
+        clienteId: payload.cliente?.id,
+        userId: payload.user?.id,
+      });
       setUser(payload.user || null);
       setCliente(payload.cliente || null);
       setEmpresas(payload.empresas || []);
@@ -198,7 +215,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(Boolean(payload.user));
       setIsLoadingAuth(false);
       if (payload.user) {
-        await prefetchEmpresasCadastro(payload.user.id);
+        await prefetchEmpresasCadastro(payload.user.id, payload.cliente?.id);
       }
       return payload;
     } catch (error) {
@@ -267,8 +284,10 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
+      await flushEmpPreferencesNow();
     }
     await AuthApi.logout().catch(() => null);
+    queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
     queryClientInstance.clear();
     resetAllLayoutPreferencesSync();
     resetEmpPreferencesMemoryCache();
@@ -281,9 +300,10 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   }, []);
 
-  const navigateToLogin = useCallback(() => {
+  const navigateToLogin = useCallback(async () => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
+      await flushEmpPreferencesNow();
     }
     queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
     resetEmpPreferencesMemoryCache();

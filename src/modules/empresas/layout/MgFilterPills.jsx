@@ -278,12 +278,7 @@ export default function MgFilterPills({
     if (!useScrollRail) return;
     clearRailAnimTimeout();
     setFiltersExpanded(true);
-    setFiltersOpen(false);
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        setFiltersOpen(true);
-      });
-    });
+    setFiltersOpen(true);
   }, [clearRailAnimTimeout, useScrollRail]);
 
   const beginCollapseFilterRail = useCallback(() => {
