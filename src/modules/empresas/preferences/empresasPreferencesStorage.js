@@ -38,6 +38,7 @@ import {
   markEmpPreferencesSectionDirty,
 } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
+import { normalizeEmpListViewMode } from "@/modules/empresas/layout/mgViewMode";
 
 export const EMPRESAS_LISTAGEM_SCOPE = Object.freeze({
   modulo: "empresas",
@@ -135,11 +136,8 @@ const writeStorage = (key, value, reason = "listagem:update") => {
   return changed;
 };
 
-const normalizeViewMode = (value) => {
-  if (value === "search") return "search";
-  if (value === "record") return "record";
-  return "table";
-};
+const normalizeViewMode = (value) =>
+  normalizeEmpListViewMode(value, { allowRecord: true });
 
 const normalizeLaunchPanelStyle = (value) => (value === "sidebar" ? "sidebar" : "tabs");
 
@@ -151,7 +149,8 @@ const sanitizeTablePreferences = (table = {}) => {
   return next;
 };
 
-export const readStoredEmpViewMode = () => normalizeViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY));
+export const readStoredEmpViewMode = () =>
+  normalizeEmpListViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY), { allowRecord: false });
 
 export const writeStoredEmpViewMode = (mode, reason = "listagem:view-mode") => {
   writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(mode), reason);

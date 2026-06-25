@@ -86,14 +86,6 @@ export function useEmpCardsVisFields() {
     };
   }, [catalog]);
 
-  useEffect(() => {
-    if (catalog.length === 0) return;
-    setVisFields((current) => {
-      const merged = mergeSearchVisFields(catalog, current);
-      return stableJsonEqual(current, merged) ? current : merged;
-    });
-  }, [catalog]);
-
   const fieldsPerRow = useMemo(
     () => getFieldsPerRowForLayout(layoutConfig.cardsPerRow),
     [layoutConfig.cardsPerRow]
