@@ -444,6 +444,7 @@ export default function SRCHEMP({
             </div>
           ) : (
             <MgCardsVirtualGrid
+              key={cardsLayoutKey}
               scrollRef={cardsScrollRef}
               items={filteredEmpresas}
               cardsPerRow={cardsPerRow}

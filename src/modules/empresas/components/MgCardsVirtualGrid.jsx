@@ -33,15 +33,26 @@ function MgCardsVirtualGrid({
   const skipInitialSelectionScrollRef = useRef(true);
   const previousSelectionIndexRef = useRef(null);
   const fixedRowHeight = estimateCardRowHeight(detailFields.length, fieldsPerRow);
+  const layoutKey = `${cardsPerRow}:${fieldsPerRow}:${detailFields.map((field) => field.key).join(",")}`;
 
   const { virtualizer, virtualRows, totalSize } = useGridVirtualizer({
     scrollRef,
     itemCount: items.length,
     columnsPerRow: cardsPerRow,
     estimateRowHeight: fixedRowHeight,
+    layoutKey,
     enabled: items.length > 0,
     scrollMargin: CARDS_TOP_PADDING,
   });
+
+  useLayoutEffect(() => {
+    if (!virtualizer) return undefined;
+    const rowCount = Math.ceil(items.length / Math.max(1, cardsPerRow));
+    for (let rowIndex = 0; rowIndex < rowCount; rowIndex += 1) {
+      virtualizer.resizeItem(rowIndex, fixedRowHeight);
+    }
+    return undefined;
+  }, [virtualizer, fixedRowHeight, items.length, cardsPerRow, layoutKey]);
 
   useLayoutEffect(() => {
     const scrollEl = scrollRef.current;

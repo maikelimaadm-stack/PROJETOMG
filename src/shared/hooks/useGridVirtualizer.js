@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 
 export const CARD_GRID_GAP = 12;
@@ -36,6 +36,7 @@ export function useGridVirtualizer({
   scrollMargin = 0,
   overscan = DEFAULT_OVERSCAN,
   enabled = true,
+  layoutKey = "",
 }) {
   const safeColumns = Math.max(1, Number(columnsPerRow) || 1);
   const rowCount = enabled ? Math.ceil(Math.max(0, itemCount) / safeColumns) : 0;
@@ -47,10 +48,13 @@ export function useGridVirtualizer({
     return estimateCardRowHeight(detailFieldCount, fieldsPerRow);
   }, [estimateRowHeight, detailFieldCount, fieldsPerRow]);
 
+  const getItemKey = useCallback((index) => `${layoutKey}:${index}`, [layoutKey]);
+
   const virtualizer = useVirtualizer({
     count: rowCount,
     getScrollElement: () => scrollRef.current,
     estimateSize: () => resolvedEstimate,
+    getItemKey,
     overscan,
     gap: rowGap,
     scrollMargin,
