@@ -22,6 +22,10 @@ import {
   subscribeEmpPreferencesCrossTab,
 } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
 import { registerEmpPreferencesFlushHandler } from "@/modules/empresas/preferences/empresasPreferencesFlush";
+import {
+  EMPRESAS_PREFERENCES_BOOTSTRAP_TIMEOUT_MS,
+  isEmpresasPreferencesV2Enabled,
+} from "@/modules/empresas/preferences/empresasPreferencesFeatureFlags";
 import { useAuth } from "@/shared/contexts/AuthContext";
 
 const LISTAGEM_SCOPE_KEY = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
@@ -166,6 +170,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
   const bumpBootstrapGeneration = useCallback(
     (status) => {
+      if (!isEmpresasPreferencesV2Enabled()) return;
       setBootstrapGeneration((current) => {
         const next = current + 1;
         dispatchEmpPreferencesBootstrapApplied({
@@ -184,7 +189,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
   const markPreferencesReady = useCallback((status, { emitGeneration = false } = {}) => {
     setBootstrapStatus(status);
     setPreferencesReady(true);
-    if (emitGeneration) {
+    if (emitGeneration && isEmpresasPreferencesV2Enabled()) {
       bumpBootstrapGeneration(status);
     }
   }, [bumpBootstrapGeneration]);
@@ -217,7 +222,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
       listagemUpdatedAtRef.current = record.updatedAt || null;
       listagemRevisionRef.current = extractRevision(record);
       lastSyncedPreferencesRef.current = toObject(record.preferencias);
-      if (emitCrossTab) {
+      if (emitCrossTab && isEmpresasPreferencesV2Enabled()) {
         broadcastEmpPreferencesCrossTab({
           clienteId,
           userId,
@@ -339,10 +344,13 @@ export function useEmpresasPreferencesBootstrap(userId) {
     hadLocalSnapshotRef.current = hasLocal;
     if (hasLocal) {
       lastSyncedPreferencesRef.current = buildListagemPreferencesFromStorage();
-      markPreferencesReady("local_applied", { emitGeneration: true });
-    } else {
+    }
+    // P0: nunca bloquear a UI — liberar imediatamente com snapshot local ou defaults.
+    markPreferencesReady(hasLocal ? "local_applied" : "defaults", {
+      emitGeneration: isEmpresasPreferencesV2Enabled() && hasLocal,
+    });
+    if (!hasLocal) {
       setBootstrapStatus("remote_loading");
-      setPreferencesReady(false);
     }
     setSyncError(null);
   }, [bootstrapQueryKey, clienteId, markPreferencesReady, userId]);
@@ -389,7 +397,9 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
         if (!isMounted) return;
         markPreferencesReady("remote_applied", {
-          emitGeneration: !hadLocalSnapshotRef.current || remoteListagemChanged,
+          emitGeneration:
+            isEmpresasPreferencesV2Enabled() &&
+            (!hadLocalSnapshotRef.current || remoteListagemChanged),
         });
         if (userId && !mapped[FORM_SCOPE_KEY]) {
           window.dispatchEvent(
@@ -401,8 +411,9 @@ export function useEmpresasPreferencesBootstrap(userId) {
       } catch (error) {
         if (!isMounted) return;
         setSyncError(error);
-        markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "error", {
-          emitGeneration: !hadLocalSnapshotRef.current,
+        markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "defaults", {
+          emitGeneration:
+            isEmpresasPreferencesV2Enabled() && !hadLocalSnapshotRef.current,
         });
       }
     })();
@@ -424,25 +435,26 @@ export function useEmpresasPreferencesBootstrap(userId) {
   useEffect(() => {
     if (!userId || !clienteId || preferencesReady) return undefined;
     const timeoutId = window.setTimeout(() => {
-      markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "fallback_local", {
-        emitGeneration: true,
+      markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "defaults", {
+        emitGeneration: isEmpresasPreferencesV2Enabled(),
       });
-    }, 12_000);
+    }, EMPRESAS_PREFERENCES_BOOTSTRAP_TIMEOUT_MS);
     return () => window.clearTimeout(timeoutId);
   }, [clienteId, markPreferencesReady, preferencesReady, userId]);
 
   useEffect(() => {
     if (!bootstrapQuery.isError) return;
     if (!preferencesReady) {
-      markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "error", {
-        emitGeneration: !hadLocalSnapshotRef.current,
+      markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "defaults", {
+        emitGeneration:
+          isEmpresasPreferencesV2Enabled() && !hadLocalSnapshotRef.current,
       });
     }
     setSyncError(bootstrapQuery.error);
   }, [bootstrapQuery.error, bootstrapQuery.isError, markPreferencesReady, preferencesReady]);
 
   useEffect(() => {
-    if (!userId || !clienteId) return undefined;
+    if (!isEmpresasPreferencesV2Enabled() || !userId || !clienteId) return undefined;
     return subscribeEmpPreferencesCrossTab(async (payload = {}) => {
       try {
         const remoteRevision = Number(payload.revision);
@@ -572,7 +584,9 @@ export function useEmpresasPreferencesBootstrap(userId) {
             updatedAt: listagemUpdatedAtRef.current,
             revision: listagemRevisionRef.current,
           });
-          bumpBootstrapGeneration("remote_applied");
+          if (isEmpresasPreferencesV2Enabled()) {
+            bumpBootstrapGeneration("remote_applied");
+          }
         }
 
         conflictRetryCountRef.current += 1;
@@ -583,7 +597,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
       }
 
       setSyncError(error);
-      throw error;
+      if (isEmpresasPreferencesV2Enabled()) throw error;
     } finally {
       syncInFlightRef.current = false;
     }
@@ -645,6 +659,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
   );
 
   useEffect(() => {
+    if (!isEmpresasPreferencesV2Enabled()) return undefined;
     registerEmpPreferencesFlushHandler(async () => {
       scheduleListagemSync({ immediate: true, reason: "listagem:flush-all" });
       await persistQueuedPatches();
@@ -692,10 +707,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
     scheduleListagemSync({ immediate: true, reason: "listagem:flush-all" });
   }, [scheduleListagemSync]);
 
-  const isLoading =
-    Boolean(userId && clienteId) &&
-    !preferencesReady &&
-    (bootstrapStatus === "idle" || bootstrapStatus === "remote_loading");
+  const isLoading = false;
 
   return {
     isReady: preferencesReady,
