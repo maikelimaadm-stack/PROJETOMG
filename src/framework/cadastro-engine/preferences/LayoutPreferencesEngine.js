@@ -148,6 +148,11 @@ export class LayoutPreferencesEngine {
             reason: "form-layout:remote-hydrate",
           });
         }
+        if (remote?.revision != null) {
+          writeEmpPreferencesText(`${keys.layoutKey}__serverRevision`, String(remote.revision), {
+            reason: "form-layout:remote-hydrate",
+          });
+        }
         window.dispatchEvent(
           new CustomEvent(this.hydratedEvent, { detail: { userId, moduleId: this.moduleId } })
         );
@@ -173,16 +178,24 @@ export class LayoutPreferencesEngine {
         const keys = this.getStorageKeys(userId);
         const { modulo, tela } = parseScopeFromScreenKey(this.config.screenKey);
         const expectedUpdatedAt = readEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, null);
+        const expectedRevisionRaw = readEmpPreferencesText(`${keys.layoutKey}__serverRevision`, null);
+        const expectedRevision = Number(expectedRevisionRaw);
         const saved = await userPreferencesApi.saveByScope(modulo, tela, {
           preferencias: {
             version: 3,
             activeConfig: pickLayoutConfig(activeConfig),
           },
           expectedUpdatedAt,
+          expectedRevision: Number.isFinite(expectedRevision) ? expectedRevision : undefined,
           versao_schema: 3,
         });
         if (saved?.updatedAt) {
           writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt, {
+            reason: "form-layout:remote-sync",
+          });
+        }
+        if (saved?.revision != null) {
+          writeEmpPreferencesText(`${keys.layoutKey}__serverRevision`, String(saved.revision), {
             reason: "form-layout:remote-sync",
           });
         }
@@ -193,7 +206,7 @@ export class LayoutPreferencesEngine {
         }
         console.warn(`[${this.moduleId}] Falha ao sincronizar layout:`, error);
       }
-    }, 800);
+    }, 350);
 
     syncTimers.set(timerKey, timer);
   }

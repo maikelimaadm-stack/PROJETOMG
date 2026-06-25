@@ -23,6 +23,7 @@ import { EMP_FILTER_FIELDS_LAYOUT_KEY } from "@/modules/empresas/utils/empFilter
 import { EMP_LOAD_BATCH_STORAGE_KEY } from "@/modules/empresas/hooks/useEmpresasInfiniteData";
 import { getLayoutStorageKeysForModule } from "@/framework/cadastro-engine/core/CadastroModuleConfig";
 import { empresasCadastroConfig } from "@/modules/empresas/config/empresasCadastroConfig";
+import { buildScopedTempFilterStorageKey } from "@/shared/preferences/userPreferencesScope";
 import {
   readEmpPreferencesJson,
   readEmpPreferencesText,
@@ -45,6 +46,9 @@ export const EMPRESAS_FORM_SCOPE = Object.freeze({
 export const EMP_VIEW_MODE_STORAGE_KEY = "emp_view_mode_v1";
 export const EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY = "emp_launch_panel_style_v1";
 export const EMP_PREFS_MIGRATION_MARKER_PREFIX = "emp_user_preferences_migrated_v1";
+export const EMP_FILTER_OPERATORS_KEY = "emp_filter_operators_v1";
+
+const LISTAGEM_DOCUMENT_VERSION = 2;
 
 const FORBIDDEN_TABLE_KEYS = new Set([
   "groupBy",
@@ -72,6 +76,32 @@ const safeStringify = (value) => {
   }
 };
 
+const toObject = (value, fallback = {}) =>
+  value && typeof value === "object" && !Array.isArray(value) ? value : fallback;
+
+const TEMP_FILTERS_FALLBACK = {};
+
+export const getEmpresasTempFilterStorageKey = () => buildScopedTempFilterStorageKey();
+
+export const readStoredTempListagemFilters = () =>
+  toObject(readEmpPreferencesJson(getEmpresasTempFilterStorageKey(), TEMP_FILTERS_FALLBACK), {});
+
+export const writeStoredTempListagemFilters = (filters) =>
+  writeEmpPreferencesJson(getEmpresasTempFilterStorageKey(), toObject(filters, {}), {
+    reason: "listagem:temp-filters",
+  });
+
+export const clearStoredTempListagemFilters = () =>
+  writeStoredTempListagemFilters(TEMP_FILTERS_FALLBACK);
+
+export const readStoredFilterOperators = () =>
+  toObject(readEmpPreferencesJson(EMP_FILTER_OPERATORS_KEY, {}), {});
+
+export const writeStoredFilterOperators = (operatorsByField = {}) =>
+  writeEmpPreferencesJson(EMP_FILTER_OPERATORS_KEY, toObject(operatorsByField, {}), {
+    reason: "listagem:filter-operators",
+  });
+
 const readStorage = (key) => readEmpPreferencesText(key, null);
 
 const writeStorage = (key, value, reason = "listagem:update") => {
@@ -97,8 +127,8 @@ const sanitizeTablePreferences = (table = {}) => {
 
 export const readStoredEmpViewMode = () => normalizeViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY));
 
-export const writeStoredEmpViewMode = (mode) => {
-  writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(mode), "listagem:view-mode");
+export const writeStoredEmpViewMode = (mode, reason = "listagem:view-mode") => {
+  writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(mode), reason);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("emp-view-mode-updated"));
   }
@@ -107,11 +137,11 @@ export const writeStoredEmpViewMode = (mode) => {
 export const readStoredLaunchPanelStyle = () =>
   normalizeLaunchPanelStyle(readStorage(EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY));
 
-export const writeStoredLaunchPanelStyle = (style) => {
+export const writeStoredLaunchPanelStyle = (style, reason = "listagem:panel-style") => {
   writeStorage(
     EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY,
     normalizeLaunchPanelStyle(style),
-    "listagem:panel-style"
+    reason
   );
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("emp-launch-panel-style-updated"));
@@ -137,6 +167,7 @@ const LISTAGEM_SCOPED_FIELD_KEYS = [
   EMP_CARDS_LAYOUT_KEY,
   EMP_SEARCH_VIS_KEY,
   EMP_FILTER_FIELDS_LAYOUT_KEY,
+  EMP_FILTER_OPERATORS_KEY,
 ];
 
 export const hasScopedListagemPreferences = () =>
@@ -149,7 +180,6 @@ export const buildListagemPreferencesFromStorage = () => {
     columnWidths: safeParseJson(readStorage(WIDTHS_KEY), {}),
     columnSizingMode: safeParseJson(readStorage(SIZING_MODE_KEY), {}),
     frozenLeftColumnCount: Number(readStorage(FROZEN_KEY) || 0) || 0,
-    columnFilters: safeParseJson(readStorage(FILTERS_KEY), {}),
     sort: safeParseJson(readStorage(SORT_KEY), [{ key: "codempresa", direction: "asc" }]),
     pageSize: Number(readStorage(PAGE_SIZE_KEY) || 100) || 100,
     aggregationConfig: safeParseJson(readStorage(AGGR_KEY), {}),
@@ -159,26 +189,7 @@ export const buildListagemPreferencesFromStorage = () => {
   const visibleCardsRaw = readStorage(EMP_SEARCH_VIS_KEY) || readStorage(EMP_SEARCH_VIS_KEY_LEGACY);
 
   return {
-    version: 1,
-    viewMode: readStoredEmpViewMode(),
-    filters: {
-      filterFieldsLayout: safeParseJson(readStorage(EMP_FILTER_FIELDS_LAYOUT_KEY), {
-        visiveis: [],
-        ordem: [],
-        maxVisible: DEFAULT_FILTER_MAX_VISIBLE,
-      }),
-      maxVisibleFields:
-        Number(readStorage(FILTER_MAX_VISIBLE_KEY) || DEFAULT_FILTER_MAX_VISIBLE) ||
-        DEFAULT_FILTER_MAX_VISIBLE,
-      columnFilters: table.columnFilters || {},
-      operatorsByField: Object.fromEntries(
-        Object.entries(table.columnFilters || {})
-          .filter(([, filter]) => filter && typeof filter === "object" && filter.operator)
-          .map(([field, filter]) => [field, filter.operator])
-      ),
-      dropdownVisibleFields: safeParseJson(readStorage(EMP_SEARCH_DROPDOWN_VIS_KEY), {}),
-      favorites: safeParseJson(readStorage(EMP_SEARCH_FAV_KEY), []),
-    },
+    version: LISTAGEM_DOCUMENT_VERSION,
     table,
     cards: {
       visibleFields: safeParseJson(visibleCardsRaw, {}),
@@ -189,25 +200,72 @@ export const buildListagemPreferencesFromStorage = () => {
       layoutConfig: safeParseJson(readStorage(EMP_CARDS_LAYOUT_KEY), { cardsPerRow: 3 }),
       density: "normal",
     },
-    panels: {
+    filtersConfig: {
+      filterFieldsLayout: safeParseJson(readStorage(EMP_FILTER_FIELDS_LAYOUT_KEY), {
+        visiveis: [],
+        ordem: [],
+        maxVisible: DEFAULT_FILTER_MAX_VISIBLE,
+      }),
+      maxVisibleFields:
+        Number(readStorage(FILTER_MAX_VISIBLE_KEY) || DEFAULT_FILTER_MAX_VISIBLE) ||
+        DEFAULT_FILTER_MAX_VISIBLE,
+      operatorsByField: readStoredFilterOperators(),
+      dropdownVisibleFields: safeParseJson(readStorage(EMP_SEARCH_DROPDOWN_VIS_KEY), {}),
+      favorites: safeParseJson(readStorage(EMP_SEARCH_FAV_KEY), []),
+    },
+    view: {
+      mode: readStoredEmpViewMode(),
       launchPanelStyle: readStoredLaunchPanelStyle(),
+    },
+    meta: {
+      revision: 0,
+      updatedAt: null,
     },
   };
 };
 
+const normalizeListagemDocument = (preferences = {}) => {
+  const incoming = toObject(preferences, {});
+  const legacyFilters = toObject(incoming.filters, {});
+  const normalized = {
+    version: Number(incoming.version) || LISTAGEM_DOCUMENT_VERSION,
+    table: sanitizeTablePreferences(toObject(incoming.table, {})),
+    cards: toObject(incoming.cards, {}),
+    filtersConfig: toObject(incoming.filtersConfig, {}),
+    view: toObject(incoming.view, {}),
+    meta: toObject(incoming.meta, {}),
+  };
+
+  if (!normalized.view.mode && incoming.viewMode) normalized.view.mode = incoming.viewMode;
+  if (!normalized.view.launchPanelStyle && incoming.panels?.launchPanelStyle) {
+    normalized.view.launchPanelStyle = incoming.panels.launchPanelStyle;
+  }
+  if (!Object.keys(normalized.filtersConfig).length && Object.keys(legacyFilters).length) {
+    normalized.filtersConfig = {
+      filterFieldsLayout: legacyFilters.filterFieldsLayout,
+      maxVisibleFields: legacyFilters.maxVisibleFields,
+      operatorsByField: legacyFilters.operatorsByField,
+      dropdownVisibleFields: legacyFilters.dropdownVisibleFields,
+      favorites: legacyFilters.favorites,
+    };
+  }
+  return normalized;
+};
+
 export const applyListagemPreferencesToStorage = (preferences = {}) => {
   if (typeof window === "undefined" || !preferences || typeof preferences !== "object") return;
+  const normalized = normalizeListagemDocument(preferences);
 
   withEmpPreferencesCacheBatch(() => {
-    if (preferences.viewMode) {
-      writeStoredEmpViewMode(preferences.viewMode);
+    if (normalized.view.mode) {
+      writeStoredEmpViewMode(normalized.view.mode, "listagem:hydrate");
     }
 
-    if (preferences.panels?.launchPanelStyle) {
-      writeStoredLaunchPanelStyle(preferences.panels.launchPanelStyle);
+    if (normalized.view.launchPanelStyle) {
+      writeStoredLaunchPanelStyle(normalized.view.launchPanelStyle, "listagem:hydrate");
     }
 
-    const table = sanitizeTablePreferences(preferences.table || {});
+    const table = /** @type {any} */ (sanitizeTablePreferences(normalized.table || {}));
     if (table.columnOrder) writeStorage(ORDER_KEY, safeStringify(table.columnOrder), "listagem:hydrate");
     if (table.visibleColumns) {
       writeStorage(VISIBLE_KEY, safeStringify(table.visibleColumns), "listagem:hydrate");
@@ -224,10 +282,6 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
         "listagem:hydrate"
       );
     }
-    if (table.columnFilters) writeStorage(FILTERS_KEY, safeStringify(table.columnFilters), "listagem:hydrate");
-    if (!table.columnFilters && preferences.filters?.columnFilters) {
-      writeStorage(FILTERS_KEY, safeStringify(preferences.filters.columnFilters), "listagem:hydrate");
-    }
     if (table.sort) writeStorage(SORT_KEY, safeStringify(table.sort), "listagem:hydrate");
     if (table.pageSize != null) {
       writeStorage(PAGE_SIZE_KEY, String(Number(table.pageSize) || 100), "listagem:hydrate");
@@ -243,49 +297,53 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
       );
     }
 
-    if (preferences.filters?.filterFieldsLayout) {
+    const filtersConfig = toObject(normalized.filtersConfig, {});
+    if (filtersConfig.filterFieldsLayout) {
       writeStorage(
         EMP_FILTER_FIELDS_LAYOUT_KEY,
-        safeStringify(preferences.filters.filterFieldsLayout),
+        safeStringify(filtersConfig.filterFieldsLayout),
         "listagem:hydrate"
       );
-      if (preferences.filters.filterFieldsLayout.maxVisible != null) {
+      if (filtersConfig.filterFieldsLayout.maxVisible != null) {
         writeStorage(
           FILTER_MAX_VISIBLE_KEY,
           String(
-            Number(preferences.filters.filterFieldsLayout.maxVisible) || DEFAULT_FILTER_MAX_VISIBLE
+            Number(filtersConfig.filterFieldsLayout.maxVisible) || DEFAULT_FILTER_MAX_VISIBLE
           ),
           "listagem:hydrate"
         );
       }
     }
-    if (preferences.filters?.maxVisibleFields != null) {
+    if (filtersConfig.maxVisibleFields != null) {
       writeStorage(
         FILTER_MAX_VISIBLE_KEY,
-        String(Number(preferences.filters.maxVisibleFields) || DEFAULT_FILTER_MAX_VISIBLE),
+        String(Number(filtersConfig.maxVisibleFields) || DEFAULT_FILTER_MAX_VISIBLE),
         "listagem:hydrate"
       );
     }
-    if (preferences.filters?.dropdownVisibleFields) {
+    if (filtersConfig.dropdownVisibleFields) {
       writeStorage(
         EMP_SEARCH_DROPDOWN_VIS_KEY,
-        safeStringify(preferences.filters.dropdownVisibleFields),
+        safeStringify(filtersConfig.dropdownVisibleFields),
         "listagem:hydrate"
       );
     }
-    if (preferences.filters?.favorites) {
-      writeStorage(EMP_SEARCH_FAV_KEY, safeStringify(preferences.filters.favorites), "listagem:hydrate");
+    if (filtersConfig.favorites) {
+      writeStorage(EMP_SEARCH_FAV_KEY, safeStringify(filtersConfig.favorites), "listagem:hydrate");
+    }
+    if (filtersConfig.operatorsByField) {
+      writeStoredFilterOperators(filtersConfig.operatorsByField);
     }
 
-    if (preferences.cards?.visibleFields) {
-      writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(preferences.cards.visibleFields), "listagem:hydrate");
+    if (normalized.cards?.visibleFields) {
+      writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(normalized.cards.visibleFields), "listagem:hydrate");
     }
-    if (preferences.cards?.layoutConfig || preferences.cards?.cardsPerRow) {
+    if (normalized.cards?.layoutConfig || normalized.cards?.cardsPerRow) {
       writeStorage(
         EMP_CARDS_LAYOUT_KEY,
         safeStringify(
-          preferences.cards.layoutConfig || {
-            cardsPerRow: Number(preferences.cards.cardsPerRow) || 3,
+          normalized.cards.layoutConfig || {
+            cardsPerRow: Number(normalized.cards.cardsPerRow) || 3,
           }
         ),
         "listagem:hydrate"
@@ -296,6 +354,11 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
   window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
   window.dispatchEvent(new CustomEvent("emp-filter-fields-layout-updated"));
   window.dispatchEvent(new CustomEvent("emp-favorites-updated"));
+};
+
+export const applyListagemPreferencesPatchToStorage = (patch = {}) => {
+  const normalizedPatch = normalizeListagemDocument(patch);
+  applyListagemPreferencesToStorage(normalizedPatch);
 };
 
 export const buildFormLayoutPreferencesFromStorage = (userId, clienteId) => {

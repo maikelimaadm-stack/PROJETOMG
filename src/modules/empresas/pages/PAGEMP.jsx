@@ -70,7 +70,9 @@ import {
 import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
 import {
   readStoredEmpViewMode,
+  readStoredTempListagemFilters,
   writeStoredEmpViewMode,
+  writeStoredTempListagemFilters,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import {
   subscribeEmpPreferencesCache,
@@ -78,7 +80,6 @@ import {
   writeEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import {
-  FILTERS_KEY,
   SORT_KEY,
 } from "@/modules/empresas/components/tblEmp.constants";
 
@@ -196,6 +197,7 @@ export default function PAGEMP() {
     isReady: preferencesReady,
     error: preferencesSyncError,
     scheduleListagemSync,
+    flushListagemSync,
   } = useEmpresasPreferencesBootstrap(user?.id);
 
   const resolveErrorMessage = (error, fallback) => {
@@ -292,6 +294,7 @@ export default function PAGEMP() {
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
+  const hasUserInteractedRef = useRef(false);
   const preferencesHydratedRef = useRef(false);
   const queryClient = useQueryClient();
   const saveCycle = useSaveCycle();
@@ -351,7 +354,7 @@ export default function PAGEMP() {
       });
     }
 
-    const storedColumnFilters = readEmpPreferencesJson(FILTERS_KEY, {});
+    const storedColumnFilters = readStoredTempListagemFilters();
     const safeColumnFilters =
       storedColumnFilters && typeof storedColumnFilters === "object" && !Array.isArray(storedColumnFilters)
         ? storedColumnFilters
@@ -377,6 +380,11 @@ export default function PAGEMP() {
   useEffect(() => {
     columnFiltersRef.current = columnFilters || {};
   }, [columnFilters]);
+
+  useEffect(() => {
+    if (!columnFiltersHydrated) return;
+    writeStoredTempListagemFilters(columnFilters || {});
+  }, [columnFilters, columnFiltersHydrated]);
 
   useEffect(() => {
     appliedFilterValuesRef.current = appliedFilterValues || {};
@@ -969,10 +977,7 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
     setQueryPage(1);
-    if (preferencesReady) {
-      scheduleListagemSync({ immediate: true });
-    }
-  }, [preferencesReady, scheduleListagemSync]);
+  }, []);
 
   const handleFilterApply = useCallback(
     (snapshot) => {
@@ -986,11 +991,8 @@ export default function PAGEMP() {
       setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
       setQueryPage(1);
       closeFilterPanel();
-      if (preferencesReady) {
-        scheduleListagemSync({ immediate: true });
-      }
     },
-    [closeFilterPanel, filterValues, panelFilterColumnMap, preferencesReady, scheduleListagemSync]
+    [closeFilterPanel, filterValues, panelFilterColumnMap]
   );
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
@@ -1030,7 +1032,11 @@ export default function PAGEMP() {
       });
     }
     if (preferencesReady) {
-      scheduleListagemSync({ immediate: true });
+      scheduleListagemSync({
+        immediate: true,
+        reason: "listagem:table-batch-size",
+        sections: ["table"],
+      });
     }
   }, [preferencesReady, scheduleListagemSync]);
 
@@ -1105,6 +1111,7 @@ export default function PAGEMP() {
   const handleMgViewModeChange = useCallback(
     (mode) => {
       if (saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked) return;
+      flushListagemSync();
       applyMgViewMode(mode, {
         onOpenRegistro: () => {
           if (showForm && viewMode === "record") return;
@@ -1134,6 +1141,7 @@ export default function PAGEMP() {
       empresasNavegacao,
       handleEdit,
       handleNew,
+      flushListagemSync,
       saveCycle,
       actionBarVisibility.secondaryToolsLocked,
       selectedIndex,
@@ -1154,14 +1162,43 @@ export default function PAGEMP() {
         normalized.includes("migration")
       );
     };
-    const unsubscribe = subscribeEmpPreferencesCache(({ reason } = {}) => {
+    const shouldTrackSyncReason = (reason = "") => {
+      const normalized = String(reason || "").toLowerCase();
+      if (!normalized) return false;
+      if (normalized === "storage") return true;
+      if (!normalized.startsWith("listagem:")) return false;
+      return !normalized.includes("temp-filters");
+    };
+    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
+      if (!hasUserInteractedRef.current) return;
+      const reason = detail?.reason;
       if (shouldSkipSync(reason)) return;
-      scheduleListagemSync();
+      if (!shouldTrackSyncReason(reason)) return;
+      scheduleListagemSync({ reason });
     });
     return () => {
       unsubscribe();
     };
   }, [preferencesReady, scheduleListagemSync]);
+
+  useEffect(() => {
+    const markInteraction = () => {
+      hasUserInteractedRef.current = true;
+    };
+    window.addEventListener("pointerdown", markInteraction, { passive: true });
+    window.addEventListener("keydown", markInteraction);
+    return () => {
+      window.removeEventListener("pointerdown", markInteraction);
+      window.removeEventListener("keydown", markInteraction);
+    };
+  }, []);
+
+  useEffect(
+    () => () => {
+      flushListagemSync();
+    },
+    [flushListagemSync]
+  );
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;

@@ -35,7 +35,6 @@ import {
   AGGR_KEY,
   AUTO_FIT_MEASURE_LIMIT,
   COLUNAS_BASE,
-  FILTERS_KEY,
   FILTER_POPOVER_WIDTH,
   FROZEN_KEY,
   MAX_AUTO_FIT_WIDTH,
@@ -51,6 +50,11 @@ import {
   formatHeaderLabel,
   getMinWidth,
 } from "./tblEmp.constants";
+import {
+  readStoredFilterOperators,
+  writeStoredFilterOperators,
+  writeStoredTempListagemFilters,
+} from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import {
   createDefaultColumnFilter,
   evaluateColumnFilter,
@@ -410,7 +414,13 @@ export default function TBLEMP({
         return nextJson === currentJson ? current : snapshot.autoFitActiveColumns;
       });
       tableHydratedRef.current = true;
-      suppressPersistenceRef.current = false;
+      if (typeof window !== "undefined") {
+        window.setTimeout(() => {
+          suppressPersistenceRef.current = false;
+        }, 0);
+      } else {
+        suppressPersistenceRef.current = false;
+      }
     },
     [externalColumnFilters]
   );
@@ -422,9 +432,10 @@ export default function TBLEMP({
 
   useEffect(() => {
     if (!preferencesReady) return undefined;
-    return subscribeEmpPreferencesCache(({ reason } = {}) => {
+    return subscribeEmpPreferencesCache((detail) => {
+      const reason = detail?.reason;
       const normalized = String(reason || "").toLowerCase();
-      if (!normalized.includes("hydrate") && !normalized.includes("bootstrap")) return;
+      if (!normalized.includes("storage") && !normalized.includes("bootstrap")) return;
       setPreferencesVersion((current) => current + 1);
     });
   }, [preferencesReady]);
@@ -524,7 +535,7 @@ export default function TBLEMP({
   }, [frozenColumnCount, preferencesReady]);
   useEffect(() => {
     if (suppressPersistenceRef.current || !tableHydratedRef.current || !preferencesReady) return;
-    writeEmpPreferencesJson(FILTERS_KEY, filtrosColunas, { reason: "listagem:table-filters" });
+    writeStoredTempListagemFilters(filtrosColunas);
   }, [filtrosColunas, preferencesReady]);
   useEffect(() => {
     if (suppressPersistenceRef.current || !tableHydratedRef.current || !preferencesReady) return;
@@ -831,6 +842,12 @@ export default function TBLEMP({
       const next = { ...prev };
       if (!isErpFilterActive(draft)) delete next[id];
       else next[id] = draft;
+      if (draft?.operator) {
+        const currentOperators = readStoredFilterOperators();
+        if (currentOperators[id] !== draft.operator) {
+          writeStoredFilterOperators({ ...currentOperators, [id]: draft.operator });
+        }
+      }
       return next;
     });
   const clearColumnFilter = (id) =>

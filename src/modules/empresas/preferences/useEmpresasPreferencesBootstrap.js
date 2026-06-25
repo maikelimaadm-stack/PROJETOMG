@@ -6,6 +6,7 @@ import {
   EMPRESAS_FORM_SCOPE,
   EMPRESAS_LISTAGEM_SCOPE,
   applyFormLayoutPreferencesToStorage,
+  applyListagemPreferencesPatchToStorage,
   applyListagemPreferencesToStorage,
   buildFormLayoutPreferencesFromStorage,
   buildListagemPreferencesFromStorage,
@@ -18,11 +19,118 @@ import { useAuth } from "@/shared/contexts/AuthContext";
 
 const LISTAGEM_SCOPE_KEY = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
 const FORM_SCOPE_KEY = `${EMPRESAS_FORM_SCOPE.modulo}.${EMPRESAS_FORM_SCOPE.tela}`;
+const LISTAGEM_SECTIONS = ["table", "cards", "filtersConfig", "view"];
+const PREFERENCES_SYNC_DEBOUNCE_MS = 350;
+const PREFERENCES_SYNC_RETRY_MS = 1_500;
+const MAX_CONFLICT_RETRIES = 3;
 
 const withStatus = (message, statusCode) => {
-  const error = new Error(message);
+  const error = /** @type {any} */ (new Error(message));
   error.status = statusCode;
   return error;
+};
+
+const toObject = (value) =>
+  value && typeof value === "object" && !Array.isArray(value) ? value : {};
+
+const deepMergeObjects = (baseValue, patchValue) => {
+  if (patchValue === undefined) return baseValue;
+  if (patchValue === null) return undefined;
+  if (Array.isArray(patchValue)) return [...patchValue];
+  if (!patchValue || typeof patchValue !== "object") return patchValue;
+
+  const base = toObject(baseValue);
+  const merged = { ...base };
+  Object.entries(patchValue).forEach(([key, value]) => {
+    const next = deepMergeObjects(base[key], value);
+    if (next === undefined) {
+      delete merged[key];
+      return;
+    }
+    merged[key] = next;
+  });
+  return merged;
+};
+
+const mergePatchState = (currentPatch, nextPatch) =>
+  toObject(deepMergeObjects(toObject(currentPatch), toObject(nextPatch)));
+
+const shouldIgnoreReason = (reason = "") => {
+  const normalized = String(reason || "").toLowerCase();
+  return (
+    normalized.includes("hydrate") ||
+    normalized.includes("bootstrap") ||
+    normalized.includes("batch") ||
+    normalized.includes("migration")
+  );
+};
+
+const sectionsFromReason = (reason = "") => {
+  const normalized = String(reason || "").toLowerCase();
+  if (!normalized || normalized.includes("flush-all")) return [...LISTAGEM_SECTIONS];
+  if (normalized === "storage") return [...LISTAGEM_SECTIONS];
+  if (normalized.includes("temp-filters")) return [];
+  if (normalized.includes("cards")) return ["cards"];
+  if (
+    normalized.includes("filter-fields") ||
+    normalized.includes("filter-layout") ||
+    normalized.includes("filter-max") ||
+    normalized.includes("dropdown") ||
+    normalized.includes("favorites") ||
+    normalized.includes("filter-operators")
+  ) {
+    return ["filtersConfig"];
+  }
+  if (normalized.includes("view-mode") || normalized.includes("panel-style")) return ["view"];
+  if (normalized.includes("table") || normalized.includes("load-batch") || normalized.includes("page-size")) {
+    return ["table"];
+  }
+  return [];
+};
+
+const normalizeSections = (sections = []) => {
+  const raw = Array.isArray(sections) ? sections : [sections];
+  return [
+    ...new Set(
+      raw
+        .map((section) => String(section || "").trim())
+        .filter((section) => LISTAGEM_SECTIONS.includes(section))
+    ),
+  ];
+};
+
+const extractRevision = (record) => {
+  const revision = Number(record?.revision ?? record?.preferencias?.meta?.revision);
+  if (!Number.isFinite(revision) || revision < 0) return 0;
+  return Math.floor(revision);
+};
+
+const normalizeForStableCompare = (value) => {
+  if (Array.isArray(value)) return value.map((item) => normalizeForStableCompare(item));
+  if (value && typeof value === "object") {
+    return Object.keys(value)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = normalizeForStableCompare(value[key]);
+        return acc;
+      }, {});
+  }
+  return value;
+};
+
+const sameJson = (left, right) =>
+  JSON.stringify(normalizeForStableCompare(left ?? null)) ===
+  JSON.stringify(normalizeForStableCompare(right ?? null));
+
+const isListagemSyncReason = (reason = "") => {
+  const normalized = String(reason || "").toLowerCase();
+  if (!normalized) return false;
+  return (
+    normalized === "storage" ||
+    normalized.startsWith("listagem:") ||
+    normalized.includes("flush-all") ||
+    normalized.includes("retry")
+  );
 };
 
 export function useEmpresasPreferencesBootstrap(userId) {
@@ -32,14 +140,18 @@ export function useEmpresasPreferencesBootstrap(userId) {
   const bootstrapQueryKey = empresasPreferencesBootstrapQueryKey(clienteId, userId);
 
   const [isReady, setIsReady] = useState(() =>
-    Boolean(userId && clienteId) &&
-    Boolean(queryClient.getQueryData(bootstrapQueryKey))
+    Boolean(userId && clienteId)
   );
   const [syncError, setSyncError] = useState(null);
+
   const listagemUpdatedAtRef = useRef(null);
+  const listagemRevisionRef = useRef(0);
   const listagemSyncTimerRef = useRef(null);
   const listagemRetryTimerRef = useRef(null);
   const syncInFlightRef = useRef(false);
+  const pendingPatchRef = useRef({});
+  const conflictRetryCountRef = useRef(0);
+  const lastSyncedPreferencesRef = useRef({});
 
   const bootstrapQuery = useQuery({
     queryKey: bootstrapQueryKey,
@@ -53,6 +165,33 @@ export function useEmpresasPreferencesBootstrap(userId) {
     retry: 1,
   });
 
+  const hydrateListagemRecord = useCallback((record) => {
+    if (!record?.preferencias) return;
+    applyListagemPreferencesToStorage(record.preferencias);
+    listagemUpdatedAtRef.current = record.updatedAt || null;
+    listagemRevisionRef.current = extractRevision(record);
+    lastSyncedPreferencesRef.current = toObject(record.preferencias);
+  }, []);
+
+  const patchBootstrapCache = useCallback(
+    (record) => {
+      queryClient.setQueryData(bootstrapQueryKey, (previous) => {
+        const previousData =
+          previous && typeof previous === "object" && !Array.isArray(previous) ? previous : {};
+        const records = Array.isArray(previousData.preferences)
+          ? [...previousData.preferences]
+          : [];
+        const index = records.findIndex(
+          (item) => `${item?.modulo}.${item?.tela}` === LISTAGEM_SCOPE_KEY
+        );
+        if (index >= 0) records[index] = record;
+        else records.push(record);
+        return { ...previousData, preferences: records };
+      });
+    },
+    [bootstrapQueryKey, queryClient]
+  );
+
   const applyBootstrapToStorage = useCallback(
     (payload) => {
       const mapped = mapBootstrapPreferences(payload);
@@ -60,8 +199,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
       const formRecord = mapped[FORM_SCOPE_KEY];
 
       if (listagemRecord?.preferencias) {
-        applyListagemPreferencesToStorage(listagemRecord.preferencias);
-        listagemUpdatedAtRef.current = listagemRecord.updatedAt || null;
+        hydrateListagemRecord(listagemRecord);
       }
 
       if (formRecord?.preferencias) {
@@ -75,7 +213,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
       return mapped;
     },
-    [clienteId, userId]
+    [clienteId, hydrateListagemRecord, userId]
   );
 
   const migrateScopedLocalPreferencesIfNeeded = useCallback(
@@ -128,10 +266,11 @@ export function useEmpresasPreferencesBootstrap(userId) {
     if (!userId || !clienteId) {
       setIsReady(false);
       listagemUpdatedAtRef.current = null;
+      listagemRevisionRef.current = 0;
+      pendingPatchRef.current = {};
       return;
     }
-    const hasWarmCache = Boolean(queryClient.getQueryData(bootstrapQueryKey));
-    setIsReady(hasWarmCache);
+    setIsReady(true);
     setSyncError(null);
   }, [bootstrapQueryKey, clienteId, queryClient, userId]);
 
@@ -152,8 +291,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
           const listagemRecord = migratedMap[LISTAGEM_SCOPE_KEY];
           const formRecord = migratedMap[FORM_SCOPE_KEY];
           if (listagemRecord?.preferencias) {
-            applyListagemPreferencesToStorage(listagemRecord.preferencias);
-            listagemUpdatedAtRef.current = listagemRecord.updatedAt || null;
+            hydrateListagemRecord(listagemRecord);
           }
           if (formRecord?.preferencias) {
             applyFormLayoutPreferencesToStorage(
@@ -189,64 +327,122 @@ export function useEmpresasPreferencesBootstrap(userId) {
     bootstrapQuery.data,
     bootstrapQuery.isSuccess,
     clienteId,
+    hydrateListagemRecord,
     migrateScopedLocalPreferencesIfNeeded,
     userId,
   ]);
 
-  const persistListagemPreferences = useCallback(async () => {
-    if (!userId || !clienteId || syncInFlightRef.current) return;
+  const queueSectionsPatch = useCallback((sections = []) => {
+    const normalizedSections = normalizeSections(sections);
+    if (normalizedSections.length === 0) return;
+    const snapshot = buildListagemPreferencesFromStorage();
+    const nextPatch = normalizedSections.reduce((acc, section) => {
+      if (snapshot?.[section] === undefined) return acc;
+      if (sameJson(snapshot[section], lastSyncedPreferencesRef.current?.[section])) return acc;
+      acc[section] = snapshot[section];
+      return acc;
+    }, {});
+    if (Object.keys(nextPatch).length === 0) return;
+    pendingPatchRef.current = mergePatchState(pendingPatchRef.current, nextPatch);
+  }, []);
+
+  const persistQueuedPatches = useCallback(async () => {
+    if (!userId || !clienteId) return;
+    if (syncInFlightRef.current) return;
+
+    const queuedPatch = toObject(pendingPatchRef.current);
+    const patchToSend = Object.entries(queuedPatch).reduce((acc, [section, value]) => {
+      if (sameJson(value, lastSyncedPreferencesRef.current?.[section])) return acc;
+      acc[section] = value;
+      return acc;
+    }, {});
+    if (Object.keys(patchToSend).length === 0) {
+      pendingPatchRef.current = {};
+      return;
+    }
+    pendingPatchRef.current = {};
     syncInFlightRef.current = true;
+
     try {
-      const payload = buildListagemPreferencesFromStorage();
       const response = await userPreferencesApi.saveByScope(
         EMPRESAS_LISTAGEM_SCOPE.modulo,
         EMPRESAS_LISTAGEM_SCOPE.tela,
         {
-          versao_schema: Number(payload?.version) || 1,
-          preferencias: payload,
+          versao_schema: 2,
+          preferencias: patchToSend,
           expectedUpdatedAt: listagemUpdatedAtRef.current,
+          expectedRevision: listagemRevisionRef.current,
         }
       );
-      listagemUpdatedAtRef.current = response?.updatedAt || null;
-      queryClient.setQueryData(bootstrapQueryKey, (previous) => {
-        const records = Array.isArray(previous?.preferences)
-          ? [...previous.preferences]
-          : [];
-        const key = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
-        const index = records.findIndex(
-          (record) => `${record?.modulo}.${record?.tela}` === key
-        );
-        const nextRecord = {
-          modulo: EMPRESAS_LISTAGEM_SCOPE.modulo,
-          tela: EMPRESAS_LISTAGEM_SCOPE.tela,
-          versao_schema: Number(payload?.version) || 1,
-          preferencias: payload,
-          updatedAt: response?.updatedAt || new Date().toISOString(),
-        };
-        if (index >= 0) records[index] = nextRecord;
-        else records.push(nextRecord);
-        return { ...(previous || {}), preferences: records };
-      });
+
+      const normalizedRecord = {
+        modulo: EMPRESAS_LISTAGEM_SCOPE.modulo,
+        tela: EMPRESAS_LISTAGEM_SCOPE.tela,
+        versao_schema: Number(response?.versao_schema) || 2,
+        preferencias: response?.preferencias || buildListagemPreferencesFromStorage(),
+        updatedAt: response?.updatedAt || new Date().toISOString(),
+        revision: Number(response?.revision) || listagemRevisionRef.current + 1,
+      };
+
+      hydrateListagemRecord(normalizedRecord);
+      patchBootstrapCache(normalizedRecord);
+      conflictRetryCountRef.current = 0;
       setSyncError(null);
     } catch (error) {
+      pendingPatchRef.current = mergePatchState(patchToSend, pendingPatchRef.current);
+
       if (Number(error?.status) === 409) {
-        const refreshed = await queryClient.fetchQuery({
-          queryKey: bootstrapQueryKey,
-          queryFn: () => userPreferencesApi.bootstrap(),
-        });
-        const mapped = mapBootstrapPreferences(refreshed);
-        const remoteListagem = mapped[LISTAGEM_SCOPE_KEY];
-        listagemUpdatedAtRef.current = remoteListagem?.updatedAt || null;
+        const currentPreferences = toObject(error?.data?.currentPreferences);
+        const currentRevision = Number(error?.data?.currentRevision);
+        const currentUpdatedAt = error?.data?.currentUpdatedAt;
+
+        if (Object.keys(currentPreferences).length > 0) {
+          const reconciled = toObject(deepMergeObjects(currentPreferences, patchToSend));
+          applyListagemPreferencesPatchToStorage(reconciled);
+          pendingPatchRef.current = mergePatchState(pendingPatchRef.current, patchToSend);
+
+          const nextRevision = Number.isFinite(currentRevision)
+            ? Math.max(0, Math.floor(currentRevision))
+            : Number(reconciled?.meta?.revision) || 0;
+
+          listagemRevisionRef.current = nextRevision;
+          listagemUpdatedAtRef.current = currentUpdatedAt || reconciled?.meta?.updatedAt || null;
+          patchBootstrapCache({
+            modulo: EMPRESAS_LISTAGEM_SCOPE.modulo,
+            tela: EMPRESAS_LISTAGEM_SCOPE.tela,
+            versao_schema: Number(reconciled?.version) || 2,
+            preferencias: reconciled,
+            updatedAt: listagemUpdatedAtRef.current,
+            revision: listagemRevisionRef.current,
+          });
+        }
+
+        conflictRetryCountRef.current += 1;
+        if (conflictRetryCountRef.current <= MAX_CONFLICT_RETRIES) {
+          setSyncError(null);
+          return;
+        }
       }
+
       setSyncError(error);
       throw error;
     } finally {
       syncInFlightRef.current = false;
     }
-  }, [bootstrapQueryKey, clienteId, queryClient, userId]);
+  }, [clienteId, hydrateListagemRecord, patchBootstrapCache, userId]);
 
   const scheduleListagemSync = useCallback(
-    ({ immediate = false } = {}) => {
+    ({ immediate = false, reason = "", sections = [] } = {}) => {
+      if (shouldIgnoreReason(reason)) return;
+      const hasExplicitSections = Array.isArray(sections) ? sections.length > 0 : Boolean(sections);
+      if (!hasExplicitSections && !isListagemSyncReason(reason)) return;
+
+      const resolvedSections = normalizeSections(
+        sections.length > 0 ? sections : sectionsFromReason(reason)
+      );
+      if (resolvedSections.length === 0) return;
+      queueSectionsPatch(resolvedSections);
+
       if (listagemSyncTimerRef.current) {
         clearTimeout(listagemSyncTimerRef.current);
         listagemSyncTimerRef.current = null;
@@ -258,13 +454,16 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
       const runner = async () => {
         try {
-          await persistListagemPreferences();
+          await persistQueuedPatches();
+          if (Object.keys(toObject(pendingPatchRef.current)).length > 0) {
+            await persistQueuedPatches();
+          }
         } catch (error) {
-          if (Number(error?.status) === 409) return;
           listagemRetryTimerRef.current = setTimeout(() => {
             listagemRetryTimerRef.current = null;
-            scheduleListagemSync();
-          }, 2_500);
+            scheduleListagemSync({ immediate: true, reason: "listagem:retry" });
+          }, PREFERENCES_SYNC_RETRY_MS);
+          if (Number(error?.status) === 409) return;
         }
       };
 
@@ -276,10 +475,32 @@ export function useEmpresasPreferencesBootstrap(userId) {
       listagemSyncTimerRef.current = setTimeout(() => {
         listagemSyncTimerRef.current = null;
         void runner();
-      }, 800);
+      }, PREFERENCES_SYNC_DEBOUNCE_MS);
     },
-    [persistListagemPreferences]
+    [persistQueuedPatches, queueSectionsPatch]
   );
+
+  useEffect(() => {
+    if (!userId || !clienteId) return undefined;
+
+    const flushNow = () => {
+      scheduleListagemSync({ immediate: true, reason: "listagem:flush-all" });
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") flushNow();
+    };
+
+    window.addEventListener("beforeunload", flushNow);
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("emp-preferences-flush", flushNow);
+
+    return () => {
+      window.removeEventListener("beforeunload", flushNow);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("emp-preferences-flush", flushNow);
+    };
+  }, [clienteId, scheduleListagemSync, userId]);
 
   useEffect(
     () => () => {
@@ -300,6 +521,8 @@ export function useEmpresasPreferencesBootstrap(userId) {
     isLoading: Boolean(userId && clienteId) && (!isReady || bootstrapQuery.isLoading),
     error: bootstrapQuery.error || syncError,
     scheduleListagemSync,
+    flushListagemSync: () =>
+      scheduleListagemSync({ immediate: true, reason: "listagem:flush-all" }),
     refresh: bootstrapQuery.refetch,
   };
 }

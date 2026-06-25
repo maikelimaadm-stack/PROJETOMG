@@ -120,6 +120,10 @@ export const apiClient = {
     return this.request(path, { ...options, method: "PUT", body });
   },
 
+  patch(path, body, options) {
+    return this.request(path, { ...options, method: "PATCH", body });
+  },
+
   delete(path, options) {
     return this.request(path, { ...options, method: "DELETE" });
   },

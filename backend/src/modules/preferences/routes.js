@@ -47,12 +47,14 @@ export const registerPreferencesRoutes = async (app) => {
             versao_schema: record.versao_schema,
             preferencias: record.preferencias_json,
             updatedAt: record.updatedAt,
+            revision: record.revision,
           })),
         };
       } catch (error) {
         const statusCode = error.statusCode || 500;
         return reply.status(statusCode).send({
           message: error.message || "Falha ao carregar preferências.",
+          ...(error.details ? error.details : {}),
         });
       }
     }
@@ -76,11 +78,13 @@ export const registerPreferencesRoutes = async (app) => {
           versao_schema: record.versao_schema,
           preferencias: record.preferencias_json,
           updatedAt: record.updatedAt,
+          revision: record.revision,
         };
       } catch (error) {
         const statusCode = error.statusCode || 500;
         return reply.status(statusCode).send({
           message: error.message || "Falha ao carregar preferência.",
+          ...(error.details ? error.details : {}),
         });
       }
     }
@@ -98,6 +102,7 @@ export const registerPreferencesRoutes = async (app) => {
         const preferencias = request.body?.preferencias || request.body?.config;
         const versaoSchema = request.body?.versao_schema || request.body?.version;
         const expectedUpdatedAt = request.body?.expectedUpdatedAt || request.body?.updatedAt;
+        const expectedRevision = request.body?.expectedRevision;
         const record = await preferencesRepository.upsertByScope({
           scope,
           modulo,
@@ -105,6 +110,7 @@ export const registerPreferencesRoutes = async (app) => {
           preferencias,
           versaoSchema,
           expectedUpdatedAt,
+          expectedRevision,
         });
         return {
           modulo: record.modulo,
@@ -112,11 +118,55 @@ export const registerPreferencesRoutes = async (app) => {
           versao_schema: record.versao_schema,
           preferencias: record.preferencias_json,
           updatedAt: record.updatedAt,
+          revision: record.revision,
         };
       } catch (error) {
         const statusCode = error.statusCode || 500;
         return reply.status(statusCode).send({
           message: error.message || "Falha ao salvar preferência.",
+          ...(error.details ? error.details : {}),
+        });
+      }
+    }
+  );
+
+  app.patch(
+    "/api/user/preferences/:modulo/:tela",
+    { preHandler: app.authenticate },
+    async (request, reply) => {
+      try {
+        const scope = await loadAccessScope(request);
+        rejectClientControlledIdentityFields(request.body);
+        const modulo = parseScopeSegment(request.params.modulo, "Módulo");
+        const tela = parseScopeSegment(request.params.tela, "Tela");
+        const section = request.body?.section;
+        const patch = request.body?.patch;
+        const versaoSchema = request.body?.versao_schema || request.body?.version;
+        const expectedUpdatedAt = request.body?.expectedUpdatedAt || request.body?.updatedAt;
+        const expectedRevision = request.body?.expectedRevision;
+        const record = await preferencesRepository.patchByScope({
+          scope,
+          modulo,
+          tela,
+          section,
+          patch,
+          versaoSchema,
+          expectedUpdatedAt,
+          expectedRevision,
+        });
+        return {
+          modulo: record.modulo,
+          tela: record.tela,
+          versao_schema: record.versao_schema,
+          preferencias: record.preferencias_json,
+          updatedAt: record.updatedAt,
+          revision: record.revision,
+        };
+      } catch (error) {
+        const statusCode = error.statusCode || 500;
+        return reply.status(statusCode).send({
+          message: error.message || "Falha ao aplicar patch de preferência.",
+          ...(error.details ? error.details : {}),
         });
       }
     }
@@ -137,11 +187,13 @@ export const registerPreferencesRoutes = async (app) => {
           screenKey,
           config: record.config,
           updatedAt: record.updatedAt,
+          revision: record.revision,
         };
       } catch (error) {
         const statusCode = error.statusCode || 500;
         return reply.status(statusCode).send({
           message: error.message || "Falha ao carregar preferência.",
+          ...(error.details ? error.details : {}),
         });
       }
     }
@@ -157,21 +209,25 @@ export const registerPreferencesRoutes = async (app) => {
         const screenKey = parseScreenKey(request.params.screenKey);
         const config = request.body?.config;
         const expectedUpdatedAt = request.body?.expectedUpdatedAt || request.body?.updatedAt;
+        const expectedRevision = request.body?.expectedRevision;
         const record = await preferencesRepository.upsert({
           scope,
           screenKey,
           config,
           expectedUpdatedAt,
+          expectedRevision,
         });
         return {
           screenKey,
           config: record.config,
           updatedAt: record.updatedAt,
+          revision: record.revision,
         };
       } catch (error) {
         const statusCode = error.statusCode || 500;
         return reply.status(statusCode).send({
           message: error.message || "Falha ao salvar preferência.",
+          ...(error.details ? error.details : {}),
         });
       }
     }

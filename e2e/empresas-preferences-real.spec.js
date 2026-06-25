@@ -22,6 +22,18 @@ const requestCounts = {
   listagemPuts: 0,
 };
 
+const loginIfNeeded = async (page) => {
+  const loginHeading = page.getByRole("heading", { name: /login do sistema/i });
+  if (!(await loginHeading.isVisible().catch(() => false))) return;
+  await page.getByRole("textbox", { name: "Cliente" }).fill(LOGIN.cliente);
+  await page.getByRole("textbox", { name: "Usuário" }).fill(LOGIN.usuario);
+  await page.getByRole("textbox", { name: "Senha" }).fill(LOGIN.senha);
+  await page.getByRole("button", { name: "Entrar" }).click();
+  await page.waitForFunction(() => !window.location.pathname.toLowerCase().includes("login"), {
+    timeout: 45_000,
+  });
+};
+
 test.describe("Empresas preferences real (API remota)", () => {
   test.beforeEach(async ({ page }) => {
     requestCounts.bootstrapGets = 0;
@@ -46,6 +58,10 @@ test.describe("Empresas preferences real (API remota)", () => {
     test.setTimeout(120_000);
 
     await page.goto("/CadastroEmpresas");
+    await loginIfNeeded(page);
+    if (!page.url().toLowerCase().includes("cadastroempresas")) {
+      await page.goto("/CadastroEmpresas");
+    }
     await page.waitForSelector('[data-testid="emp-table"], .mg-table-panel, table', {
       timeout: 45_000,
     });
