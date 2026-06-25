@@ -243,8 +243,10 @@ export default function EmpConfiguracaoColunasDialog({
         emptyAvailableMessage="Nenhuma coluna disponível."
         emptyUsedMessage="Nenhuma coluna em uso encontrada."
         renderUsedItemExtra={(_col, index) => (
-          <button
-            type="button"
+          <span
+            role="button"
+            tabIndex={index > draftFrozenColumnCount ? -1 : 0}
+            aria-disabled={index > draftFrozenColumnCount}
             title={
               index < draftFrozenColumnCount
                 ? "Coluna congelada"
@@ -252,12 +254,22 @@ export default function EmpConfiguracaoColunasDialog({
                   ? "Congelar coluna"
                   : "Congele as colunas anteriores primeiro"
             }
-            onClick={(event) => toggleFreezeColumn(index, event)}
-            disabled={index > draftFrozenColumnCount}
-            className="emp-config-transfer-freeze flex h-5 w-5 shrink-0 items-center justify-center disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={(event) => {
+              if (index > draftFrozenColumnCount) return;
+              toggleFreezeColumn(index, event);
+            }}
+            onKeyDown={(event) => {
+              if (index > draftFrozenColumnCount) return;
+              if (event.key === "Enter" || event.key === " ") {
+                toggleFreezeColumn(index, event);
+              }
+            }}
+            className={`emp-config-transfer-freeze flex h-5 w-5 shrink-0 items-center justify-center ${
+              index > draftFrozenColumnCount ? "cursor-not-allowed opacity-40" : "cursor-pointer"
+            }`}
           >
             <Columns3 className="h-3.5 w-3.5 text-black" />
-          </button>
+          </span>
         )}
         footer={
           <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">

@@ -37,9 +37,7 @@ export function useCadastroPageHeader({
     clearPageHeader,
     enabled,
     operationLabel,
-    recordMeta,
     recordMetaKey,
-    requiredStatus,
     requiredStatusKey,
     setPageHeader,
   ]);

@@ -68,16 +68,49 @@ import {
   normalizePanelFilterValue,
 } from "@/shared/filters";
 import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
+import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
 import {
   readStoredEmpViewMode,
+  readStoredTempListagemFilters,
   writeStoredEmpViewMode,
+  writeStoredTempListagemFilters,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import {
   subscribeEmpPreferencesCache,
+  readEmpPreferencesJson,
   writeEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  SORT_KEY,
+} from "@/modules/empresas/components/tblEmp.constants";
 
 const DROPDOWN_PAGE_SIZE = 30;
+
+const readInitialQuerySort = () => {
+  const storedSort = readEmpPreferencesJson(SORT_KEY, null);
+  const primarySort = Array.isArray(storedSort)
+    ? storedSort.find((item) => item?.key)
+    : storedSort?.key
+      ? storedSort
+      : null;
+  if (primarySort?.key) {
+    return {
+      key: primarySort.key,
+      direction: primarySort.direction === "desc" ? "desc" : "asc",
+    };
+  }
+  return { key: "codempresa", direction: "asc" };
+};
+
+const readInitialColumnFiltersState = () => {
+  const stored = readStoredTempListagemFilters();
+  if (stored && typeof stored === "object" && !Array.isArray(stored)) {
+    return stored;
+  }
+  return {};
+};
 
 const moduleRepository = empresasModuleDefinition.repository;
 const moduleLabels = {
@@ -188,7 +221,8 @@ export default function PAGEMP() {
     replaceEmpresasInSelector,
   } = useAuth();
   const {
-    isReady: preferencesReady,
+    preferencesReady,
+    bootstrapStatus,
     error: preferencesSyncError,
     scheduleListagemSync,
   } = useEmpresasPreferencesBootstrap(user?.id);
@@ -223,14 +257,15 @@ export default function PAGEMP() {
   const [pendingAttachments, setPendingAttachments] = useState([]);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
-  const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const [querySort, setQuerySort] = useState(readInitialQuerySort);
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(EMP_INFINITE_PAGE_SIZE);
   const [loadBatchSize, setLoadBatchSize] = useState(() => readStoredEmpLoadBatchSize());
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
-  const [columnFilters, setColumnFilters] = useState({});
-  const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(false);
-  const columnFiltersRef = useRef({});
+  const panelFiltersSyncedRef = useRef(false);
+  const [columnFilters, setColumnFilters] = useState(readInitialColumnFiltersState);
+  const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(true);
+  const columnFiltersRef = useRef(readInitialColumnFiltersState());
   const appliedFilterValuesRef = useRef({});
   const cardsVisFields = useEmpCardsVisFields();
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
@@ -241,6 +276,7 @@ export default function PAGEMP() {
   const {
     filterFields,
     layout: filterFieldsLayout,
+    maxVisibleFields,
     saveLayout: saveFilterFieldsLayout,
     getRestoreDefaults: getRestoreFilterFieldsLayout,
     catalogFields: filterFieldsCatalog,
@@ -286,12 +322,16 @@ export default function PAGEMP() {
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
+  const hasUserInteractedRef = useRef(false);
+  const suppressColumnFilterPersistRef = useRef(true);
+  const formBridgeSignatureRef = useRef("");
   const queryClient = useQueryClient();
   const saveCycle = useSaveCycle();
 
   useEffect(() => {
     if (previousScopeEmpresaIdRef.current === selectedEmpresaId) return;
     previousScopeEmpresaIdRef.current = selectedEmpresaId;
+    suppressColumnFilterPersistRef.current = true;
     setShowForm(false);
     setEditingEmp(null);
     setViewMode("table");
@@ -306,6 +346,30 @@ export default function PAGEMP() {
   }, [selectedEmpresaId]);
 
   useEffect(() => {
+    if (!preferencesReady || catalogFilterFields.length === 0) return;
+    if (panelFiltersSyncedRef.current) return;
+    if (isEmpPreferencesSectionDirty("view") || isEmpPreferencesSectionDirty("table")) return;
+
+    const storedColumnFilters = readInitialColumnFiltersState();
+    const syncedPanelValues = syncColumnsIntoPanelFilters(
+      storedColumnFilters,
+      panelFilterColumnMap
+    );
+    panelFiltersSyncedRef.current = true;
+    appliedFilterValuesRef.current = syncedPanelValues;
+    setFilterValues((current) =>
+      stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
+    );
+    setAppliedFilterValues((current) =>
+      stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
+    );
+    setAppliedPanelFilters((current) => {
+      const next = buildEmpresaPanelFilters(syncedPanelValues);
+      return stableJsonEqual(current, next) ? current : next;
+    });
+  }, [catalogFilterFields.length, panelFilterColumnMap, preferencesReady]);
+
+  useEffect(() => {
     if (!preferencesSyncError?.message) return;
     const signature = `${preferencesSyncError.status || "err"}:${preferencesSyncError.message}`;
     if (lastPreferencesErrorRef.current === signature) return;
@@ -314,8 +378,9 @@ export default function PAGEMP() {
   }, [preferencesSyncError]);
 
   useEffect(() => {
+    if (!preferencesReady) return;
     writeStoredEmpViewMode(viewMode);
-  }, [viewMode]);
+  }, [preferencesReady, viewMode]);
 
   useEffect(() => {
     if (!showForm) {
@@ -327,6 +392,11 @@ export default function PAGEMP() {
   useEffect(() => {
     columnFiltersRef.current = columnFilters || {};
   }, [columnFilters]);
+
+  useEffect(() => {
+    if (!columnFiltersHydrated || suppressColumnFilterPersistRef.current) return;
+    writeStoredTempListagemFilters(columnFilters || {});
+  }, [columnFilters, columnFiltersHydrated]);
 
   useEffect(() => {
     appliedFilterValuesRef.current = appliedFilterValues || {};
@@ -919,10 +989,7 @@ export default function PAGEMP() {
     setSearchFavoritesOnly(false);
     setDropdownSearch("");
     setQueryPage(1);
-    if (preferencesReady) {
-      scheduleListagemSync({ immediate: true });
-    }
-  }, [preferencesReady, scheduleListagemSync]);
+  }, []);
 
   const handleFilterApply = useCallback(
     (snapshot) => {
@@ -936,20 +1003,18 @@ export default function PAGEMP() {
       setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
       setQueryPage(1);
       closeFilterPanel();
-      if (preferencesReady) {
-        scheduleListagemSync({ immediate: true });
-      }
     },
-    [closeFilterPanel, filterValues, panelFilterColumnMap, preferencesReady, scheduleListagemSync]
+    [closeFilterPanel, filterValues, panelFilterColumnMap]
   );
 
   const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
     const safeNext = nextColumnFilters || {};
     const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext, panelFilterColumnMap);
-    const sameColumnFilters =
-      JSON.stringify(columnFiltersRef.current || {}) === JSON.stringify(safeNext || {});
-    const samePanelFilters =
-      JSON.stringify(appliedFilterValuesRef.current || {}) === JSON.stringify(syncedPanelValues || {});
+    const sameColumnFilters = stableJsonEqual(columnFiltersRef.current || {}, safeNext || {});
+    const samePanelFilters = stableJsonEqual(
+      appliedFilterValuesRef.current || {},
+      syncedPanelValues || {}
+    );
     if (sameColumnFilters && samePanelFilters) return;
     columnFiltersRef.current = safeNext;
     appliedFilterValuesRef.current = syncedPanelValues;
@@ -980,12 +1045,26 @@ export default function PAGEMP() {
       });
     }
     if (preferencesReady) {
-      scheduleListagemSync({ immediate: true });
+      scheduleListagemSync({
+        immediate: true,
+        reason: "listagem:table-batch-size",
+        sections: ["table"],
+      });
     }
   }, [preferencesReady, scheduleListagemSync]);
 
   const handleServerPageSizeChange = useCallback(() => {
     setQueryPageSize(EMP_INFINITE_PAGE_SIZE);
+    setQueryPage(1);
+  }, []);
+
+  const handleServerSortChange = useCallback((nextSort) => {
+    setQuerySort((previous) => {
+      const key = nextSort?.key || "codempresa";
+      const direction = nextSort?.direction === "desc" ? "desc" : "asc";
+      if (previous.key === key && previous.direction === direction) return previous;
+      return { key, direction };
+    });
     setQueryPage(1);
   }, []);
 
@@ -1021,8 +1100,27 @@ export default function PAGEMP() {
   }, [actionBarVisibility.secondaryToolsLocked, closeFilterPanel]);
 
   useEffect(() => {
-    if (!showForm) setFormBridge(null);
+    if (!showForm) {
+      formBridgeSignatureRef.current = "";
+      setFormBridge(null);
+    }
   }, [showForm]);
+
+  const handleToolbarBridge = useCallback((bridge) => {
+    const sig = [
+      bridge?.editMode,
+      bridge?.isReadOnly,
+      bridge?.isEditing,
+      bridge?.isDuplicating,
+      bridge?.layoutConfigOpen,
+      bridge?.recordMeta?.codigo ?? "",
+      bridge?.recordMeta?.nome ?? "",
+      bridge?.layoutToolbar ? "1" : "0",
+    ].join("|");
+    if (formBridgeSignatureRef.current === sig) return;
+    formBridgeSignatureRef.current = sig;
+    setFormBridge(bridge);
+  }, []);
 
   useEffect(() => {
     if (showForm && formBridge?.layoutConfigOpen) {
@@ -1033,20 +1131,29 @@ export default function PAGEMP() {
     return undefined;
   }, [showForm, formBridge?.layoutConfigOpen, setBreadcrumbSuffix]);
 
+  const closeTransientDialogs = useCallback(() => {
+    setShowConfigColunas(false);
+    setShowConfigFiltros(false);
+    setShowConfigPdf(false);
+    setShowConfigExcel(false);
+  }, []);
+
   const handleOpenTableView = useCallback(() => {
+    closeTransientDialogs();
     if (showForm) {
       setShowForm(false);
       setEditingEmp(null);
       setSelectedTableItems([]);
     }
     setViewMode("table");
-  }, [showForm]);
+  }, [closeTransientDialogs, showForm]);
 
   const handleMgViewModeChange = useCallback(
     (mode) => {
       if (saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked) return;
       applyMgViewMode(mode, {
         onOpenRegistro: () => {
+          closeTransientDialogs();
           if (showForm && viewMode === "record") return;
           const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
           if (!emp) {
@@ -1056,12 +1163,14 @@ export default function PAGEMP() {
           handleEdit(emp);
         },
         onOpenTabela: () => {
+          closeTransientDialogs();
           setShowForm(false);
           setEditingEmp(null);
           setSelectedTableItems([]);
           setViewMode("table");
         },
         onOpenCards: () => {
+          closeTransientDialogs();
           if (!saveCycle.guardAction()) return;
           setShowForm(false);
           setEditingEmp(null);
@@ -1072,6 +1181,7 @@ export default function PAGEMP() {
     },
     [
       empresasNavegacao,
+      closeTransientDialogs,
       handleEdit,
       handleNew,
       saveCycle,
@@ -1085,13 +1195,49 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!preferencesReady) return undefined;
-    const unsubscribe = subscribeEmpPreferencesCache(() => {
-      scheduleListagemSync();
+    const shouldSkipSync = (reason = "", detail = {}) => {
+      const normalized = String(reason || "").toLowerCase();
+      if (isRemoteTabPreferenceEvent(detail)) return true;
+      return (
+        normalized.includes("hydrate") ||
+        normalized.includes("bootstrap") ||
+        normalized.includes("batch") ||
+        normalized.includes("migration") ||
+        normalized.includes("remote-tab") ||
+        normalized.includes("remote-sync")
+      );
+    };
+    const shouldTrackSyncReason = (reason = "") => {
+      const normalized = String(reason || "").toLowerCase();
+      if (!normalized) return false;
+      if (normalized === "storage") return false;
+      if (!normalized.startsWith("listagem:")) return false;
+      if (normalized.includes("view-mode") || normalized.includes("panel-style")) return false;
+      return !normalized.includes("temp-filters");
+    };
+    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
+      if (!hasUserInteractedRef.current) return;
+      const reason = detail?.reason;
+      if (shouldSkipSync(reason, detail)) return;
+      if (!shouldTrackSyncReason(reason)) return;
+      scheduleListagemSync({ reason });
     });
     return () => {
       unsubscribe();
     };
   }, [preferencesReady, scheduleListagemSync]);
+
+  useEffect(() => {
+    const markInteraction = () => {
+      hasUserInteractedRef.current = true;
+    };
+    window.addEventListener("pointerdown", markInteraction, { passive: true });
+    window.addEventListener("keydown", markInteraction);
+    return () => {
+      window.removeEventListener("pointerdown", markInteraction);
+      window.removeEventListener("keydown", markInteraction);
+    };
+  }, []);
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
@@ -1138,15 +1284,17 @@ export default function PAGEMP() {
       handleOpenTableView();
       return;
     }
+    closeTransientDialogs();
     setShowForm(false);
     setEditingEmp(null);
     setViewMode("search");
-  }, [handleOpenTableView, saveCycle, viewMode]);
+  }, [closeTransientDialogs, handleOpenTableView, saveCycle, viewMode]);
 
   const handleToggleView = () => {
     if (!saveCycle.guardAction()) return;
     if (viewMode === "search") {
       if (selectedTableItems.length > 1) return;
+      closeTransientDialogs();
       const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
       if (!emp) return;
       const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
@@ -1161,6 +1309,7 @@ export default function PAGEMP() {
       return;
     }
     if (selectedTableItems.length > 1) return;
+    closeTransientDialogs();
     const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
     if (!emp) return;
     const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
@@ -1405,22 +1554,16 @@ export default function PAGEMP() {
     "Novo registro";
 
   const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
-
-  if (!preferencesReady) {
-    return (
-      <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden p-3 md:p-5">
-        <div className="animate-pulse rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-          <div className="mb-3 h-6 w-52 rounded bg-slate-200" />
-          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
-          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
-          <div className="h-64 w-full rounded bg-slate-100" />
-        </div>
-      </div>
-    );
-  }
+  const preferencesDegraded =
+    bootstrapStatus === "fallback_local" || Boolean(preferencesSyncError?.message);
 
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      {preferencesDegraded ? (
+        <div className="border-b border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900">
+          Preferências remotas indisponíveis no momento. A tela continua com configurações locais.
+        </div>
+      ) : null}
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MgFilterPanel
           open={filterPanelOpen}
@@ -1584,7 +1727,7 @@ export default function PAGEMP() {
                     onSubmit: handleSubmit,
                     onCancel: formCancel,
                     hideToolbar: true,
-                    onToolbarBridge: setFormBridge,
+                    onToolbarBridge: handleToolbarBridge,
                     total: recordNav.effectiveTotal,
                     currentIndex: recordNav.globalIndex,
                     onFirst: () => navigateRecord("first"),
@@ -1668,11 +1811,9 @@ export default function PAGEMP() {
                     serverBaseFilters,
                     selectorOptionsMode: "cascade",
                     selectorOptionsContextFilters: serverBaseFilters,
-                    onServerSortChange: (nextSort) => {
-                      setQuerySort(nextSort);
-                      setQueryPage(1);
-                    },
+                    onServerSortChange: handleServerSortChange,
                     onRequestDistinctColumnValues: handleDistinctColumnValues,
+                    preferencesReady,
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
                     infiniteMode: true,
@@ -1708,6 +1849,7 @@ export default function PAGEMP() {
         camposDisponiveis={filterFieldsConfigCatalog}
         camposVisiveis={filterFieldsLayout.visiveis}
         camposOrdem={filterFieldsLayout.ordem}
+        maxVisibleFields={maxVisibleFields}
         onChange={saveFilterFieldsLayout}
         getRestoreDefaults={getRestoreFilterFieldsLayout}
       />

@@ -1,0 +1,317 @@
+{
+  "meta": {
+    "baseUrl": "http://127.0.0.1:3101",
+    "startedAt": "2026-06-25T14:33:37.428Z",
+    "login": "maike",
+    "finishedAt": "2026-06-25T14:33:37.867Z"
+  },
+  "metrics": [
+    {
+      "event": "Ocultar coluna",
+      "uiOptimista": "N/A (API)",
+      "debounceMs": 0,
+      "requests": 1,
+      "apiMs": 6,
+      "persistenciaFinal": true,
+      "resetReload": false,
+      "status": "ok"
+    },
+    {
+      "event": "Cards por linha",
+      "uiOptimista": "N/A (API)",
+      "debounceMs": 0,
+      "requests": 1,
+      "apiMs": 6,
+      "persistenciaFinal": true,
+      "resetReload": false,
+      "status": "ok"
+    },
+    {
+      "event": "Filtro rápido",
+      "uiOptimista": "N/A (API)",
+      "debounceMs": 0,
+      "requests": 1,
+      "apiMs": 5,
+      "persistenciaFinal": true,
+      "resetReload": false,
+      "status": "ok"
+    }
+  ],
+  "scenarios": [
+    {
+      "name": "Cenário A — Persistência por categoria",
+      "status": "pass",
+      "evidence": {
+        "hideTelefoneMs": 6,
+        "cardsMs": 6,
+        "filtersMs": 5,
+        "formMs": null,
+        "persisted": {
+          "telefoneHidden": true,
+          "cardsPerRow": true,
+          "maxVisible": true
+        },
+        "revisionAfter": 581,
+        "reloginRevision": 581
+      },
+      "durationMs": 96
+    },
+    {
+      "name": "Cenário B — Alterações rápidas consolidadas",
+      "status": "pass",
+      "evidence": {
+        "finalVisibleSample": [],
+        "finalCards": 4,
+        "columnsPersisted": true,
+        "cardsPersisted": true,
+        "requestStatuses": [
+          409,
+          409,
+          200
+        ]
+      },
+      "durationMs": 40
+    },
+    {
+      "name": "Cenário C — Conflito controlado em duas abas",
+      "status": "pass",
+      "evidence": {
+        "saveAStatus": 409,
+        "saveBStatus": 200,
+        "telefoneHidden": true,
+        "cardsPerRow": 4,
+        "bothPersisted": true
+      },
+      "durationMs": 157
+    },
+    {
+      "name": "Cenário D — Separação filtros temporários x configuração",
+      "status": "pass",
+      "evidence": {
+        "maxVisible": 6,
+        "operator": "startsWith",
+        "hasPermanentColumnFilters": false,
+        "separated": true,
+        "saveConfigMs": 6
+      },
+      "durationMs": 11
+    },
+    {
+      "name": "Cenário E — Persistência de layout de formulário",
+      "status": "pass",
+      "evidence": {
+        "skipped": true,
+        "reason": "preferência de form_layout ausente"
+      },
+      "durationMs": 2
+    },
+    {
+      "name": "Cenário F — Isolamento entre usuários",
+      "status": "pass",
+      "evidence": {
+        "pending": true,
+        "reason": "AUDIT_CLIENTE_B/AUDIT_USUARIO_B/AUDIT_SENHA_B não configurados no ambiente."
+      },
+      "durationMs": 0
+    }
+  ],
+  "restore": {
+    "listagem": "ok",
+    "form": "skipped:no-baseline"
+  },
+  "network": [
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "elapsedMs": 113
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 5
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/form_layout",
+      "status": 404,
+      "elapsedMs": 3
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 6
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 6
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 5
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 2
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "elapsedMs": 68
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 5
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 3
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 10
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 409,
+      "elapsedMs": 12
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 409,
+      "elapsedMs": 13
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 5
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 2
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 4
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 4
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 4
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 2
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "elapsedMs": 70
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "elapsedMs": 67
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 4
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 5
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 409,
+      "elapsedMs": 6
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 4
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 2
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 6
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/form_layout",
+      "status": 404,
+      "elapsedMs": 1
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 409,
+      "elapsedMs": 2
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 5
+    }
+  ],
+  "errors": []
+}

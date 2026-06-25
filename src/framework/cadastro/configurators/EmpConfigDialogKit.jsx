@@ -123,10 +123,8 @@ export function EmpConfigDialogFrame({
   };
 
   return (
-    <Dialog open={open} onOpenChange={(nextOpen) => nextOpen && onOpenChange?.(nextOpen)}>
+    <Dialog open={open} onOpenChange={(nextOpen) => onOpenChange?.(nextOpen)}>
       <DialogContent
-        onInteractOutside={(event) => event.preventDefault()}
-        onEscapeKeyDown={(event) => event.preventDefault()}
         className={`${EMP_CONFIG_DIALOG_CONTENT} ${dialogClassName}`}
       >
         <DialogTitle className="sr-only">{title}</DialogTitle>

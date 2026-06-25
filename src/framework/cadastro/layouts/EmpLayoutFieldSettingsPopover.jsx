@@ -131,7 +131,7 @@ export default function EmpLayoutFieldSettingsPopover({
             title="Fechar"
             onClick={onClose}
           >
-            <ChevronUp className="h-3.5 w-3.5 text-white" />
+            <ChevronUp className="emp-layout-field-settings-close-icon h-3.5 w-3.5 shrink-0 text-white" strokeWidth={2} />
           </button>
         </div>
         <div className="space-y-2.5 px-4 py-3">

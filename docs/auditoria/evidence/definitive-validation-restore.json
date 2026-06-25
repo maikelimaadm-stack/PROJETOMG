@@ -1,0 +1,6 @@
+{
+  "scope": "cliente_id=cmqtl2enp0000js5f4a5bcoc8, usuario_id=cmqtl2enu0002js5f2sgwqcxx, modulo=empresas",
+  "deletedPreferenceRows": 1,
+  "restoredAt": "2026-06-25T14:17:02Z",
+  "note": "Baseline inicial não tinha documento de preferência; restauração concluída removendo os documentos criados nos testes locais."
+}

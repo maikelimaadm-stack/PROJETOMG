@@ -1,0 +1,303 @@
+{
+  "meta": {
+    "baseUrl": "https://projetomg-production.up.railway.app",
+    "cliente": "maike",
+    "usuario": "maike",
+    "startedAt": "2026-06-25T13:39:15.654Z",
+    "finishedAt": "2026-06-25T13:39:40.375Z"
+  },
+  "scenarios": [
+    {
+      "name": "Cenário 1 — Ocultar coluna telefone + reload backend",
+      "status": "pass",
+      "evidence": {
+        "putMs": 1198,
+        "totalMs": 1809,
+        "telefoneHidden": true,
+        "visibleCountBefore": 22,
+        "visibleCountAfter": 21,
+        "updatedAt": "2026-06-25T13:39:22.541Z"
+      },
+      "durationMs": 1809
+    },
+    {
+      "name": "Cenário 2 — Cards por linha",
+      "status": "pass",
+      "evidence": {
+        "putMs": 1776,
+        "cardsPerRow": 2,
+        "layoutConfig": {
+          "cardsPerRow": 2
+        },
+        "persisted": true
+      },
+      "durationMs": 3616
+    },
+    {
+      "name": "Cenário 3 — Filtros rápidos maxVisible",
+      "status": "pass",
+      "evidence": {
+        "putMs": 1194,
+        "maxVisible": 7,
+        "layoutMax": 7,
+        "persisted": true
+      },
+      "durationMs": 2418
+    },
+    {
+      "name": "Cenário 4 — Operador padrão vs filtro temporário",
+      "status": "pass",
+      "evidence": {
+        "putMs": 1313,
+        "defaultOperator": "startsWith",
+        "tempFilter": {
+          "type": "text",
+          "value": "TESTE_AUDIT",
+          "operator": "contains"
+        },
+        "operatorsSeparated": true
+      },
+      "durationMs": 3120
+    },
+    {
+      "name": "Cenário 6 — PUTs rápidos coluna + cards (race)",
+      "status": "pass",
+      "evidence": {
+        "put1": {
+          "status": "ok",
+          "elapsedMs": 1195
+        },
+        "put2": {
+          "status": "ok",
+          "elapsedMs": 1382
+        },
+        "emailHidden": true,
+        "cardsPerRow": 1,
+        "bothPersisted": true,
+        "finalVisibleColumns": [
+          "id_global",
+          "inscricao_estadual",
+          "cpf_cnpj",
+          "codempresa",
+          "whatsapp"
+        ]
+      },
+      "durationMs": 2659
+    },
+    {
+      "name": "Backend — PUT parcial substitui JSON inteiro?",
+      "status": "pass",
+      "evidence": {
+        "putMs": 1195,
+        "partialPayloadKeys": [
+          "version",
+          "cards"
+        ],
+        "afterKeys": [
+          "cards",
+          "version"
+        ],
+        "tableLost": true,
+        "tableVisibleCount": 0,
+        "critical": true
+      },
+      "durationMs": 3000
+    }
+  ],
+  "delays": [
+    {
+      "event": "GET bootstrap (3x)",
+      "samplesMs": [
+        612,
+        611,
+        611
+      ],
+      "avgMs": 612
+    }
+  ],
+  "network": [
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200,
+      "elapsedMs": 3245,
+      "bodySize": 4566
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1194,
+      "bodySize": 2976
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/bootstrap",
+      "status": 200,
+      "elapsedMs": 612,
+      "bodySize": 5035
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/bootstrap",
+      "status": 200,
+      "elapsedMs": 611,
+      "bodySize": 5035
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/bootstrap",
+      "status": 200,
+      "elapsedMs": 611,
+      "bodySize": 5035
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1198,
+      "bodySize": 2965
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 609,
+      "bodySize": 2965
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 610,
+      "bodySize": 2965
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 614,
+      "bodySize": 2965
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1776,
+      "bodySize": 2965
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 612,
+      "bodySize": 2965
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 611,
+      "bodySize": 2965
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1194,
+      "bodySize": 2980
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 610,
+      "bodySize": 2980
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 610,
+      "bodySize": 2980
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1313,
+      "bodySize": 3155
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1194,
+      "bodySize": 3155
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 611,
+      "bodySize": 3155
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1195,
+      "bodySize": 3147
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1382,
+      "bodySize": 3147
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 613,
+      "bodySize": 3147
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 613,
+      "bodySize": 3147
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1195,
+      "bodySize": 184
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1191,
+      "bodySize": 184
+    },
+    {
+      "method": "GET",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 609,
+      "bodySize": 184
+    },
+    {
+      "method": "PUT",
+      "path": "/api/user/preferences/empresas/listagem",
+      "status": 200,
+      "elapsedMs": 1204,
+      "bodySize": 2976
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,116 @@
+{
+  "Abrir Empresas": {
+    "firstPaintCorrect": "pass",
+    "instantUi": null,
+    "localImmediate": null,
+    "patchBackground": null,
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Reload": {
+    "firstPaintCorrect": "pass",
+    "instantUi": null,
+    "localImmediate": null,
+    "patchBackground": null,
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Colunas": {
+    "firstPaintCorrect": null,
+    "instantUi": "warn",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "warn"
+  },
+  "Cards por linha": {
+    "firstPaintCorrect": null,
+    "instantUi": "pass",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Campos/ordem cards": {
+    "firstPaintCorrect": null,
+    "instantUi": "pass",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Campos rápidos": {
+    "firstPaintCorrect": null,
+    "instantUi": "pass",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Operadores": {
+    "firstPaintCorrect": null,
+    "instantUi": "skip",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "partial"
+  },
+  "Layout formulário": {
+    "firstPaintCorrect": "pass",
+    "instantUi": "skip",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Ordem/largura": {
+    "firstPaintCorrect": "pass",
+    "instantUi": null,
+    "localImmediate": null,
+    "patchBackground": null,
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Frozen/auto-ajuste": {
+    "firstPaintCorrect": null,
+    "instantUi": null,
+    "localImmediate": null,
+    "patchBackground": null,
+    "resetAfterResponse": null,
+    "status": "partial",
+    "note": "Não medido — sem interação E2E dedicada"
+  },
+  "Logout/login": {
+    "firstPaintCorrect": "pass",
+    "instantUi": null,
+    "localImmediate": "pass",
+    "patchBackground": null,
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "API lenta 3s": {
+    "firstPaintCorrect": "pass",
+    "instantUi": "pass",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "pass"
+  },
+  "Usuário A/B": {
+    "firstPaintCorrect": "pass",
+    "instantUi": null,
+    "localImmediate": "pass",
+    "patchBackground": null,
+    "resetAfterResponse": "pass",
+    "status": "pass",
+    "note": "A=1 cols, B=1 cols"
+  },
+  "Reload pós-coluna": {
+    "firstPaintCorrect": null,
+    "instantUi": "warn",
+    "localImmediate": "pass",
+    "patchBackground": "pass",
+    "resetAfterResponse": "pass",
+    "status": "warn"
+  }
+}

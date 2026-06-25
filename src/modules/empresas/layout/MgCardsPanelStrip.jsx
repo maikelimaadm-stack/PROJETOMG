@@ -7,13 +7,29 @@ import {
   getDefaultCardVisFields,
 } from "@/modules/empresas/components/empSearchView.constants";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
-import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import MgFilterPills from "@/modules/empresas/layout/MgFilterPills";
 import {
   closeMgPanels,
   useMgPanelCoordinator,
   useMgPanelPosition,
 } from "@/modules/empresas/layout/useMgPanelPosition";
+
+const cloneFieldsDraft = (fields = []) => fields.map((field) => ({ ...field }));
+
+const sameFieldsDraft = (left = [], right = []) => {
+  if (!Array.isArray(left) || !Array.isArray(right)) return false;
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    const leftField = left[index];
+    const rightField = right[index];
+    if (!leftField || !rightField) return false;
+    if (leftField.key !== rightField.key) return false;
+    if (leftField.visible !== rightField.visible) return false;
+    if (leftField.primary !== rightField.primary) return false;
+    if (leftField.label !== rightField.label) return false;
+  }
+  return true;
+};
 
 function CardsFieldCheck({ checked, disabled, onChange }) {
   return (
@@ -161,7 +177,8 @@ export default function MgCardsPanelStrip({
   useMgPanelCoordinator(fieldsRootRef, setFieldsOpen);
 
   useEffect(() => {
-    setFieldsDraft(fields.map((field) => ({ ...field })));
+    const nextDraft = cloneFieldsDraft(fields);
+    setFieldsDraft((current) => (sameFieldsDraft(current, nextDraft) ? current : nextDraft));
   }, [fields]);
 
   useEffect(() => {
@@ -169,7 +186,9 @@ export default function MgCardsPanelStrip({
   }, [layout?.cardsPerRow]);
 
   useEffect(() => {
-    if (fieldsOpen) setFieldsDraft(fields.map((field) => ({ ...field })));
+    if (!fieldsOpen) return;
+    const nextDraft = cloneFieldsDraft(fields);
+    setFieldsDraft((current) => (sameFieldsDraft(current, nextDraft) ? current : nextDraft));
   }, [fieldsOpen, fields]);
 
   useEffect(() => {
@@ -246,23 +265,10 @@ export default function MgCardsPanelStrip({
     setLayoutDraft(defaults.cardsPerRow);
   };
 
-  const configOpen = fieldsOpen || layoutOpen;
-
-  const closeConfigPanels = () => {
-    setFieldsOpen(false);
-    setLayoutOpen(false);
-  };
-
   const showConfig = !hideConfig;
 
   return (
     <div data-template-id="cards-panel" className="mg-cards-panel-strip hidden md:flex">
-      <MgConfigBackdrop
-        open={configOpen}
-        onClose={closeConfigPanels}
-        ariaLabel="Fechar configuração dos cards"
-      />
-
       <div className="mg-panel-strip__filters">
         <MgFilterPills
           filterFields={filterFields}

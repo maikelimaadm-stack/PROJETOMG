@@ -1,0 +1,18 @@
+{
+  "baseUrl": "http://127.0.0.1:3001",
+  "startedAt": "2026-06-25T14:32:56.913Z",
+  "forbiddenFields": [
+    "usuario_id",
+    "userId",
+    "cliente_id",
+    "clienteId",
+    "tenant_id",
+    "tenantId",
+    "empresa_id",
+    "empresaId"
+  ],
+  "cases": [],
+  "approved": false,
+  "fatal": "Login falhou: HTTP 401 — Cliente inválido.",
+  "finishedAt": "2026-06-25T14:32:56.941Z"
+}

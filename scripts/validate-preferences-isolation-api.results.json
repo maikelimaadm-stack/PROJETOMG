@@ -1,0 +1,38 @@
+{
+  "baseUrl": "http://127.0.0.1:3001",
+  "startedAt": "2026-06-25T14:34:21.879Z",
+  "users": {
+    "A": {
+      "label": "Usuário A (Tenant 1)",
+      "status": "login_failed",
+      "error": "Usuário A (Tenant 1): login falhou (401) — Cliente inválido."
+    },
+    "B": {
+      "label": "Usuário B (Tenant 1)",
+      "status": "login_failed",
+      "error": "Usuário B (Tenant 1): login falhou (401) — Cliente inválido."
+    },
+    "C": {
+      "label": "Usuário C (Tenant 2)",
+      "status": "login_failed",
+      "error": "Usuário C (Tenant 2): login falhou (401) — Cliente inválido."
+    }
+  },
+  "isolationMatrix": [],
+  "identityRejection": {
+    "status": 401,
+    "rejected": false,
+    "message": "Não autenticado."
+  },
+  "approved": false,
+  "health": {
+    "ok": true,
+    "db": {
+      "configured": true,
+      "connected": true,
+      "error": null
+    }
+  },
+  "snapshots": {},
+  "finishedAt": "2026-06-25T14:34:21.940Z"
+}

@@ -1,21 +1,24 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from "react";
 import { AuthApi } from "@/apis/auth/AuthApi";
 import { resetAllLayoutPreferencesSync } from "@/framework/cadastro-engine/preferences/LayoutPreferencesEngine.js";
+import { resetEmpPreferencesMemoryCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  clearActiveUserPreferencesScope,
+  getActiveUserPreferencesScope,
+  setActiveUserPreferencesScope,
+} from "@/shared/preferences/userPreferencesScope.js";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
-import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
+import { flushEmpPreferencesNow } from "@/modules/empresas/preferences/empresasPreferencesFlush";
 import {
-  EMPRESAS_FORM_SCOPE,
-  EMPRESAS_LISTAGEM_SCOPE,
-  applyFormLayoutPreferencesToStorage,
-  applyListagemPreferencesToStorage,
-  mapBootstrapPreferences,
-} from "@/modules/empresas/preferences/empresasPreferencesStorage";
+  bindEmpPreferencesScopeState,
+  resetEmpPreferencesScopeState,
+} from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 
-const prefetchEmpresasCadastro = async (userId) => {
+const prefetchEmpresasCadastro = async (userId, clienteId) => {
   void queryClientInstance.prefetchQuery({
     queryKey: ["emp-cadastro", 1, LIST_DEFAULT_PAGE_SIZE, "", "codempresa", "asc", "{}"],
     queryFn: () =>
@@ -50,27 +53,6 @@ const prefetchEmpresasCadastro = async (userId) => {
     queryFn: () => empresasModuleDefinition.repository.listCamposPersonalizados("aplicavel"),
     staleTime: 5 * 60_000,
   });
-
-  if (!userId) return;
-  try {
-    const bootstrap = await queryClientInstance.fetchQuery({
-      queryKey: ["user-preferences-bootstrap", userId],
-      queryFn: () => userPreferencesApi.bootstrap(),
-      staleTime: 10 * 60_000,
-      gcTime: 30 * 60_000,
-    });
-    const mapped = mapBootstrapPreferences(bootstrap);
-    const listagem = mapped[`${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`];
-    const formLayout = mapped[`${EMPRESAS_FORM_SCOPE.modulo}.${EMPRESAS_FORM_SCOPE.tela}`];
-    if (listagem?.preferencias) {
-      applyListagemPreferencesToStorage(listagem.preferencias);
-    }
-    if (formLayout?.preferencias) {
-      applyFormLayoutPreferencesToStorage(userId, formLayout.preferencias, formLayout.updatedAt);
-    }
-  } catch {
-    // Falha de preferência não deve bloquear login.
-  }
 };
 
 const AuthContext = createContext();
@@ -103,6 +85,9 @@ export const AuthProvider = ({ children }) => {
         setCliente(null);
         setEmpresas([]);
         setAllowAllEmpresas(false);
+        clearActiveUserPreferencesScope();
+        resetEmpPreferencesMemoryCache();
+        resetEmpPreferencesScopeState();
         setIsAuthenticated(false);
         setIsLoadingAuth(false);
         return false;
@@ -111,6 +96,20 @@ export const AuthProvider = ({ children }) => {
       setCliente(session.cliente || null);
       setEmpresas(session.empresas || []);
       setAllowAllEmpresas(Boolean(session.allowAllEmpresas));
+      const previousScope = getActiveUserPreferencesScope();
+      const nextScope = {
+        clienteId: session.cliente?.id,
+        userId: session.user?.id,
+      };
+      if (
+        String(previousScope.userId || "") !== String(nextScope.userId || "") ||
+        String(previousScope.clienteId || "") !== String(nextScope.clienteId || "")
+      ) {
+        queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
+        resetEmpPreferencesMemoryCache();
+      }
+      setActiveUserPreferencesScope(nextScope);
+      bindEmpPreferencesScopeState(nextScope);
       const persistedEmpresaId = AuthApi.getSelectedEmpresaId();
       const normalizedPersistedEmpresaId =
         persistedEmpresaId != null && String(persistedEmpresaId).trim() !== ""
@@ -126,7 +125,7 @@ export const AuthProvider = ({ children }) => {
         : session.selectedEmpresaId ?? null;
       AuthApi.setSelectedEmpresaId(nextEmpresaId);
       setSelectedEmpresaId(nextEmpresaId);
-      await prefetchEmpresasCadastro(session.user?.id);
+      await prefetchEmpresasCadastro(session.user?.id, session.cliente?.id);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       return true;
@@ -192,6 +191,16 @@ export const AuthProvider = ({ children }) => {
         usuario,
         senha,
       });
+      queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
+      resetEmpPreferencesMemoryCache();
+      setActiveUserPreferencesScope({
+        clienteId: payload.cliente?.id,
+        userId: payload.user?.id,
+      });
+      bindEmpPreferencesScopeState({
+        clienteId: payload.cliente?.id,
+        userId: payload.user?.id,
+      });
       setUser(payload.user || null);
       setCliente(payload.cliente || null);
       setEmpresas(payload.empresas || []);
@@ -202,7 +211,7 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(Boolean(payload.user));
       setIsLoadingAuth(false);
       if (payload.user) {
-        await prefetchEmpresasCadastro(payload.user.id);
+        await prefetchEmpresasCadastro(payload.user.id, payload.cliente?.id);
       }
       return payload;
     } catch (error) {
@@ -269,9 +278,17 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(async () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
+      void flushEmpPreferencesNow();
+    }
     await AuthApi.logout().catch(() => null);
+    queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
     queryClientInstance.clear();
     resetAllLayoutPreferencesSync();
+    resetEmpPreferencesMemoryCache();
+    resetEmpPreferencesScopeState();
+    clearActiveUserPreferencesScope();
     setUser(null);
     setCliente(null);
     setEmpresas([]);
@@ -280,7 +297,15 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(false);
   }, []);
 
-  const navigateToLogin = useCallback(() => {
+  const navigateToLogin = useCallback(async () => {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
+      void flushEmpPreferencesNow();
+    }
+    queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
+    resetEmpPreferencesMemoryCache();
+    resetEmpPreferencesScopeState();
+    clearActiveUserPreferencesScope();
     setIsAuthenticated(false);
     setUser(null);
     setCliente(null);

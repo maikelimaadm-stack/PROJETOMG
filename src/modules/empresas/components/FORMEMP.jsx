@@ -27,6 +27,7 @@ import {
   getPanelFieldIdsFromLayout,
   pickLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
+import { stableStringify } from "@/shared/utils/stableStringify";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
 import {
   buildRequiredFormFieldErrors,
@@ -477,6 +478,12 @@ export default function FORMEMP({
   const applyLayoutConfig = (source, options) => applyLayoutConfigFromEngine(source, options);
 
   const tabIdsKey = useMemo(() => tabs.map((panel) => panel.id).join("|"), [tabs]);
+  const lastAutoRepairSigRef = useRef("");
+  const autoRepairAttemptedRef = useRef(false);
+  const knownLayoutFieldIdsKey = useMemo(
+    () => [...knownLayoutFieldIds].sort().join("|"),
+    [knownLayoutFieldIds]
+  );
 
   useEffect(() => {
     if (!formLayoutConfig || layoutConfigOpen) return;
@@ -488,7 +495,8 @@ export default function FORMEMP({
   }, [formLayoutConfig, tabIdsKey, tabs, activeTab, layoutConfigOpen]);
 
   useEffect(() => {
-    if (!user?.id || !formLayoutConfig || layoutConfigOpen || layoutPersistedRef.current) return;
+    if (autoRepairAttemptedRef.current) return;
+    if (!user?.id || !formLayoutConfig || layoutConfigOpen) return;
 
     const repaired =
       ensureLayoutFields(formLayoutConfig, defaultConfigFull, {
@@ -502,19 +510,37 @@ export default function FORMEMP({
         panel.hidden &&
         getPanelFieldIdsFromLayout(formLayoutConfig?.layout, panel.id).length > 0
     );
-    const layoutDiffers =
-      JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(formLayoutConfig));
+    const repairedSig = stableStringify(pickLayoutConfig(repaired));
+    const currentSig = stableStringify(pickLayoutConfig(formLayoutConfig));
 
-    if (
+    autoRepairAttemptedRef.current = true;
+
+    const needsRepair =
       storedKnownCount === 0 ||
       repairedKnownCount > storedKnownCount ||
-      hasHiddenSystemPanels ||
-      layoutDiffers
-    ) {
+      hasHiddenSystemPanels;
+
+    if (!needsRepair || repairedSig === currentSig) {
+      lastAutoRepairSigRef.current = currentSig;
       layoutPersistedRef.current = true;
-      applyLayoutConfig(repaired, { updateActiveTab: true });
+      return;
     }
-  }, [user?.id, formLayoutConfig, layoutConfigOpen, defaultConfigFull, knownLayoutFieldIds]);
+
+    lastAutoRepairSigRef.current = repairedSig;
+    layoutPersistedRef.current = true;
+    applyLayoutConfigFromEngine(repaired, {
+      updateActiveTab: true,
+      persistenceOrigin: "migration",
+    });
+  }, [
+    user?.id,
+    formLayoutConfig,
+    layoutConfigOpen,
+    defaultConfigFull,
+    knownLayoutFieldIdsKey,
+    knownLayoutFieldIds,
+    applyLayoutConfigFromEngine,
+  ]);
 
   const handleDynamicFieldChange = (fieldName, value) => {
     const field = dynamicFields.find((item) => item.name === fieldName);
@@ -529,7 +555,7 @@ export default function FORMEMP({
     applyLayoutConfig({
       ...activeLayoutConfig,
       ...nextConfig,
-    });
+    }, { persistenceOrigin: "user-action" });
   };
 
   const validateForm = () => {
@@ -810,7 +836,7 @@ export default function FORMEMP({
   const LaunchPanelStyleToggleIcon = isSidebarPanelStyle ? LayoutGrid : PanelLeft;
 
   useEffect(() => {
-    writeStoredLaunchPanelStyle(launchPanelStyle);
+    writeStoredLaunchPanelStyle(launchPanelStyle, "form-layout:panel-style-local");
   }, [launchPanelStyle]);
   const launchPanelStyleToggle = (
     <button
@@ -839,8 +865,25 @@ export default function FORMEMP({
       : null,
   });
 
+  const toolbarBridgeSigRef = useRef("");
+
   useEffect(() => {
     if (!onToolbarBridge) return;
+    const recordMetaKey = recordMeta
+      ? `${recordMeta.codigo ?? ""}|${recordMeta.nome ?? ""}`
+      : "";
+    const bridgeSig = [
+      editMode,
+      isReadOnly,
+      isEditing,
+      isDuplicating,
+      layoutConfigOpen,
+      layoutToolbarBridge ? "layout-toolbar" : "",
+      recordMetaKey,
+      filterOpen,
+    ].join("|");
+    if (toolbarBridgeSigRef.current === bridgeSig) return;
+    toolbarBridgeSigRef.current = bridgeSig;
     onToolbarBridge({
       editMode,
       isReadOnly,

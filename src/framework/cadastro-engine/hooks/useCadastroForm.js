@@ -5,12 +5,16 @@ import { registerCadastroModule } from "../core/ModuleRegistry.js";
 import { LAYOUT_MAIN_TAB_ID } from "../preferences/layoutMigration.js";
 import { ensureBuiltinFieldTypes } from "../field/registerBuiltinFieldTypes.js";
 import { pickLayoutConfig } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import {
   getDefaultFlatLayoutFromConfig,
   getPanelFieldIdsFromLayout,
 } from "@/framework/cadastro/layouts/layoutConfigV3.js";
 
 ensureBuiltinFieldTypes();
+
+const sameLayoutConfig = (left, right) =>
+  stableJsonEqual(pickLayoutConfig(left), pickLayoutConfig(right));
 
 /**
  * Hook central do motor de cadastro — layout, sync, campos personalizados.
@@ -26,7 +30,7 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
   );
 
   const [formLayoutConfig, setFormLayoutConfig] = useState(() => initialLocalLayout);
-  const [isLayoutReady, setIsLayoutReady] = useState(() => Boolean(initialLocalLayout));
+  const [isLayoutReady, setIsLayoutReady] = useState(() => Boolean(initialLocalLayout || userId));
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(moduleConfig.mainTabId || LAYOUT_MAIN_TAB_ID);
   const layoutPersistedRef = useRef(false);
@@ -65,6 +69,11 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
     return ids;
   }, [nativeLayoutFieldIds, camposPersonalizadosForm]);
 
+  const knownLayoutFieldIdsKey = useMemo(
+    () => [...knownLayoutFieldIds].sort().join("|"),
+    [knownLayoutFieldIds]
+  );
+
   useEffect(() => {
     if (!userId) {
       setFormLayoutConfig(null);
@@ -73,35 +82,39 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
       return undefined;
     }
 
-    const local = engine.preferences.initLocal(userId);
-    const repaired =
-      engine.layout.ensureFields(local, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull;
-    const current = engine.preferences.readLocal(userId);
     const prefs = engine.preferences;
-    if (
-      repaired &&
-      current &&
-      JSON.stringify(pickLayoutConfig(repaired)) !== JSON.stringify(pickLayoutConfig(current))
-    ) {
-      prefs.writeLocal(userId, repaired);
-    }
-    layoutPersistedRef.current = true;
-    setFormLayoutConfig(repaired || defaultConfigFull);
-    setIsLayoutReady(true);
-
+    const local = prefs.readLocal(userId);
     const onHydrated = () => {
       const stored = prefs.readLocal(userId);
-      if (!stored) return;
-      layoutPersistedRef.current = false;
-      const next =
-        engine.layout.ensureFields(stored, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull;
-      setFormLayoutConfig(next);
+      const next = stored
+        ? engine.layout.ensureFields(stored, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull
+        : defaultConfigFull;
+      setFormLayoutConfig((previous) => {
+        if (sameLayoutConfig(previous, next)) return previous;
+        layoutPersistedRef.current = true;
+        return next;
+      });
       setIsLayoutReady(true);
     };
 
+    if (local) {
+      const repaired =
+        engine.layout.ensureFields(local, { knownFieldIds: knownLayoutFieldIds }) || defaultConfigFull;
+      setFormLayoutConfig((previous) => {
+        if (sameLayoutConfig(previous, repaired)) return previous;
+        layoutPersistedRef.current = true;
+        return repaired;
+      });
+      setIsLayoutReady(true);
+    } else {
+      setFormLayoutConfig((previous) => previous || defaultConfigFull);
+      setIsLayoutReady(true);
+      layoutPersistedRef.current = false;
+    }
+
     window.addEventListener(engine.preferences.hydratedEvent, onHydrated);
     return () => window.removeEventListener(engine.preferences.hydratedEvent, onHydrated);
-  }, [userId, moduleConfig.moduleId, defaultConfigFull, knownLayoutFieldIds, engine]);
+  }, [userId, moduleConfig.moduleId, defaultConfigFull, knownLayoutFieldIdsKey, engine, knownLayoutFieldIds]);
 
   const resolveActiveLayoutConfig = useCallback(
     (source) => {
@@ -121,8 +134,11 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
   );
 
   const activeLayoutConfig = useMemo(
-    () => (isLayoutReady ? resolveActiveLayoutConfig(formLayoutConfig) : null),
-    [formLayoutConfig, isLayoutReady, resolveActiveLayoutConfig]
+    () =>
+      isLayoutReady
+        ? resolveActiveLayoutConfig(formLayoutConfig || defaultConfigFull)
+        : null,
+    [formLayoutConfig, isLayoutReady, resolveActiveLayoutConfig, defaultConfigFull]
   );
 
   const tabs = useMemo(() => {
@@ -148,7 +164,7 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
   }, [activeLayoutConfig, camposPersonalizadosForm.length, defaultLayout, isLayoutReady]);
 
   const applyLayoutConfig = useCallback(
-    (source, { updateActiveTab = true } = {}) => {
+    (source, { updateActiveTab = true, persistenceOrigin = "user-action" } = {}) => {
       const ensured =
         engine.layout.ensureFields(source, { knownFieldIds: knownLayoutFieldIds }) ||
         defaultConfigFull;
@@ -157,11 +173,17 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
         defaultLayout,
         mergeNewCustomFields: false,
       });
-      setFormLayoutConfig(normalized);
+      setFormLayoutConfig((previous) => (sameLayoutConfig(previous, normalized) ? previous : normalized));
       setIsLayoutReady(true);
       if (userId) {
-        engine.preferences.writeLocal(userId, normalized);
-        engine.preferences.scheduleSync(userId);
+        const localSnapshot = engine.preferences.readLocal(userId);
+        if (!sameLayoutConfig(localSnapshot, normalized)) {
+          engine.preferences.writeLocal(userId, normalized, { origin: persistenceOrigin });
+          engine.preferences.scheduleSync(userId, {
+            origin: persistenceOrigin,
+            config: normalized,
+          });
+        }
       }
       if (updateActiveTab) {
         const visiblePanels = normalized.panels.filter((p) => !p.hidden && p.id !== "principal");
@@ -171,7 +193,16 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
       }
       return normalized;
     },
-    [engine, defaultConfigFull, knownLayoutFieldIds, basePanels, defaultLayout, userId, activeTab, moduleConfig.mainTabId]
+    [
+      engine,
+      defaultConfigFull,
+      knownLayoutFieldIds,
+      basePanels,
+      defaultLayout,
+      userId,
+      activeTab,
+      moduleConfig.mainTabId,
+    ]
   );
 
   const dynamicFields = useMemo(() => {

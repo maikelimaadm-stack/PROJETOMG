@@ -1,0 +1,2132 @@
+{
+  "meta": {
+    "startedAt": "2026-06-25T15:00:16.693Z",
+    "uiBaseUrl": "http://127.0.0.1:5173",
+    "apiBaseUrl": "http://127.0.0.1:3001",
+    "userA": {
+      "cliente": "maike",
+      "usuario": "maike"
+    },
+    "userBConfigured": false,
+    "userAId": "cmqtl2enu0002js5f2sgwqcxx",
+    "finishedAt": "2026-06-25T15:01:27.211Z"
+  },
+  "branchAudit": {},
+  "scenarioE": {
+    "steps": [
+      {
+        "etapa": "salvar-alteracao-layout",
+        "valorSalvo": "Validação Temporária",
+        "revision": 3,
+        "status": "ok"
+      },
+      {
+        "etapa": "fechar-formulario",
+        "status": "ok"
+      },
+      {
+        "etapa": "reabrir-formulario",
+        "status": "ok"
+      },
+      {
+        "etapa": "apos-reload",
+        "status": "ok"
+      },
+      {
+        "etapa": "apos-logout-login",
+        "status": "fail",
+        "details": "Botão Sair não encontrado."
+      }
+    ],
+    "openCycleMs": [
+      20,
+      16,
+      22,
+      15,
+      15,
+      19,
+      18,
+      20,
+      19,
+      20,
+      20,
+      19
+    ],
+    "requestMetrics": {
+      "openClose10": {
+        "requestCount": 128,
+        "averageApiMs": 10,
+        "entries": [
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:18.695Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:18.979Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.003Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:19.026Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.061Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.097Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.124Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:19.154Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.183Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:19.210Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.237Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:19.316Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 22,
+            "at": "2026-06-25T15:00:19.357Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:19.646Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:19.671Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:19.699Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.726Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.759Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:19.793Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:19.821Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:19.849Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.881Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:19.906Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.979Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.008Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:20.049Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:20.317Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:20.350Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 4,
+            "at": "2026-06-25T15:00:20.383Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.408Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:20.449Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.475Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:20.504Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:20.528Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:20.565Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:20.637Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:20.669Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.702Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:21.010Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:21.047Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.075Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.106Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.134Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.166Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:21.199Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.226Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.253Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:21.279Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 34,
+            "at": "2026-06-25T15:00:21.340Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:21.373Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:21.400Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:21.429Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 21,
+            "at": "2026-06-25T15:00:21.712Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:21.741Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.769Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:21.794Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:21.833Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:21.859Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:21.896Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.924Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.953Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.979Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:22.057Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:22.086Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:22.128Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:22.352Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 17,
+            "at": "2026-06-25T15:00:22.384Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:22.412Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.444Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:22.471Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.504Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.544Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:22.572Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:22.599Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.625Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 34,
+            "at": "2026-06-25T15:00:22.683Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.715Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:22.755Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:23.062Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 17,
+            "at": "2026-06-25T15:00:23.098Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.131Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:23.158Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:23.197Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.225Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:23.258Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:23.290Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:23.317Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:23.391Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.425Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:23.456Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:23.746Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:23.779Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:23.807Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 19,
+            "at": "2026-06-25T15:00:23.844Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:23.885Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.911Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:23.944Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:23.971Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:23.997Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 45,
+            "at": "2026-06-25T15:00:24.060Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:24.104Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:24.132Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:24.161Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:24.415Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 20,
+            "at": "2026-06-25T15:00:24.453Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:24.481Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:24.508Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:24.535Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:24.565Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:24.600Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:24.628Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:24.656Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:24.679Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:24.706Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:24.771Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:24.809Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:24.837Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:25.083Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:25.117Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:25.145Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:25.173Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:25.208Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:25.234Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:25.275Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:25.298Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:25.326Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 47,
+            "at": "2026-06-25T15:00:25.390Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:25.438Z"
+          }
+        ]
+      },
+      "total": {
+        "requestCount": 146,
+        "averageApiMs": 10,
+        "entries": [
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:17.646Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:17.672Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 19,
+            "at": "2026-06-25T15:00:17.707Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:17.741Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:17.774Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:17.808Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:17.830Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 57,
+            "at": "2026-06-25T15:00:17.916Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:17.950Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 18,
+            "at": "2026-06-25T15:00:18.393Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:18.429Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 3,
+            "at": "2026-06-25T15:00:18.460Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:18.489Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:18.523Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:18.557Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:18.574Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 47,
+            "at": "2026-06-25T15:00:18.636Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 3,
+            "at": "2026-06-25T15:00:18.672Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:18.695Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:18.979Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.003Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:19.026Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.061Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.097Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.124Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:19.154Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.183Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:19.210Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.237Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:19.316Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 22,
+            "at": "2026-06-25T15:00:19.357Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:19.646Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:19.671Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:19.699Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:19.726Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.759Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:19.793Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:19.821Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:19.849Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.881Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:19.906Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:19.979Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.008Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:20.049Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:20.317Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:20.350Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 4,
+            "at": "2026-06-25T15:00:20.383Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.408Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:20.449Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.475Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:20.504Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:20.528Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:20.565Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:20.637Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:20.669Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:20.702Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:21.010Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:21.047Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.075Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.106Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.134Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.166Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:21.199Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.226Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.253Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:21.279Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 34,
+            "at": "2026-06-25T15:00:21.340Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:21.373Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:21.400Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:21.429Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 21,
+            "at": "2026-06-25T15:00:21.712Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:21.741Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.769Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:21.794Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:21.833Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:21.859Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:21.896Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.924Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:21.953Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:21.979Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:22.057Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:22.086Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:22.128Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:22.352Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 17,
+            "at": "2026-06-25T15:00:22.384Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:22.412Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.444Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:22.471Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.504Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.544Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:22.572Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:22.599Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.625Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 34,
+            "at": "2026-06-25T15:00:22.683Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:22.715Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:22.755Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:23.062Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 17,
+            "at": "2026-06-25T15:00:23.098Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.131Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:23.158Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:23.197Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.225Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:23.258Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:23.290Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:23.317Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:23.391Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.425Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:23.456Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 14,
+            "at": "2026-06-25T15:00:23.746Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:23.779Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:23.807Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 19,
+            "at": "2026-06-25T15:00:23.844Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:23.885Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:23.911Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:23.944Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:23.971Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:23.997Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 45,
+            "at": "2026-06-25T15:00:24.060Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:24.104Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:24.132Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:24.161Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 15,
+            "at": "2026-06-25T15:00:24.415Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 20,
+            "at": "2026-06-25T15:00:24.453Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:24.481Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:24.508Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:24.535Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 10,
+            "at": "2026-06-25T15:00:24.565Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 2,
+            "at": "2026-06-25T15:00:24.600Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:24.628Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:24.656Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:24.679Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:24.706Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:24.771Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:24.809Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:24.837Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:25.083Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 16,
+            "at": "2026-06-25T15:00:25.117Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 1,
+            "at": "2026-06-25T15:00:25.145Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 8,
+            "at": "2026-06-25T15:00:25.173Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 7,
+            "at": "2026-06-25T15:00:25.208Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 9,
+            "at": "2026-06-25T15:00:25.234Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 13,
+            "at": "2026-06-25T15:00:25.275Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 11,
+            "at": "2026-06-25T15:00:25.298Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 0,
+            "at": "2026-06-25T15:00:25.326Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 47,
+            "at": "2026-06-25T15:00:25.390Z"
+          },
+          {
+            "method": "PUT",
+            "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+            "status": 200,
+            "elapsedMs": 12,
+            "at": "2026-06-25T15:00:25.438Z"
+          }
+        ]
+      }
+    },
+    "status": "fail",
+    "issues": [
+      "Alteração de form_layout afetou seções listagem (table/cards/filtersConfig).",
+      "Foram detectadas 128 requests ao abrir/fechar formulário."
+    ],
+    "noMaxUpdateDepth": true,
+    "noInfiniteSkeleton": true,
+    "noRepeatedPutOpenClose": false
+  },
+  "scenarioCards": {
+    "metrics": [
+      {
+        "event": "Cards por linha (2→3→4)",
+        "uiOptimistic": false,
+        "requests": 0,
+        "avgApiMs": 0,
+        "reload": false,
+        "logoutLogin": false,
+        "newTab": false,
+        "status": "fail",
+        "details": {
+          "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: /^ok$/i }).last()\n"
+        }
+      },
+      {
+        "event": "Campo visível (E-mail)",
+        "uiOptimistic": false,
+        "requests": 0,
+        "avgApiMs": 0,
+        "reload": false,
+        "logoutLogin": false,
+        "newTab": false,
+        "status": "fail",
+        "details": {
+          "error": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for getByRole('button', { name: 'Configurar campos dos cards' })\n    - locator resolved to <button type=\"button\" aria-expanded=\"false\" aria-haspopup=\"dialog\" title=\"Configurar campos dos cards\" aria-label=\"Configurar campos dos cards\" class=\"mg-nav-btn ios-btn mg-cards-panel-strip__config-btn\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    26 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n"
+        }
+      },
+      {
+        "event": "Ordem de campos",
+        "uiOptimistic": false,
+        "requests": 41,
+        "avgApiMs": 5,
+        "reload": true,
+        "logoutLogin": true,
+        "newTab": true,
+        "status": "ok",
+        "details": {
+          "firstField": null
+        }
+      }
+    ],
+    "combinedSequence": {},
+    "status": "fail",
+    "issues": [
+      "Falha no fluxo principal de cards: locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('.view-mode-btn[data-view=\"tabela\"]').first()\n    - locator resolved to <button type=\"button\" title=\"Tabela\" data-view=\"tabela\" aria-pressed=\"false\" class=\"view-mode-btn\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    26 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n"
+    ]
+  },
+  "isolation": {},
+  "restore": {
+    "listagem": "fail_or_not_executed",
+    "formLayout": "fail_or_not_executed"
+  },
+  "consoleFindings": {
+    "maxUpdateDepthErrors": [],
+    "otherErrors": [
+      "Failed to load resource: the server responded with a status of 409 (Conflict)",
+      "Failed to load resource: the server responded with a status of 409 (Conflict)",
+      "Failed to load resource: the server responded with a status of 409 (Conflict)"
+    ]
+  },
+  "network": {
+    "preferenceRequests": []
+  },
+  "errors": [
+    {
+      "message": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('.view-mode-btn[data-view=\"cards\"]').first()\n    - locator resolved to <button type=\"button\" title=\"Cards\" data-view=\"cards\" aria-pressed=\"true\" class=\"view-mode-btn active\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    26 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n",
+      "status": null,
+      "data": null,
+      "stack": "locator.click: Timeout 15000ms exceeded.\nCall log:\n  - waiting for locator('.view-mode-btn[data-view=\"cards\"]').first()\n    - locator resolved to <button type=\"button\" title=\"Cards\" data-view=\"cards\" aria-pressed=\"true\" class=\"view-mode-btn active\">…</button>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n    - retrying click action\n      - waiting 100ms\n    26 × waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" tabindex=\"-1\" class=\"mg-config-backdrop\" aria-label=\"Fechar configuração dos cards\"></button> from <div class=\"mg-empresas-scope\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n\n    at clickViewMode (/workspace/scripts/audit/empresas-preferences-final-validation.mjs:156:21)\n    at async main (/workspace/scripts/audit/empresas-preferences-final-validation.mjs:705:5)"
+    },
+    {
+      "message": "Falha restore listagem: Preferência foi alterada em outra aba/sessão.",
+      "status": 409,
+      "data": {
+        "message": "Preferência foi alterada em outra aba/sessão.",
+        "currentPreferences": {
+          "meta": {
+            "revision": 2780,
+            "updatedAt": "2026-06-25T15:01:27.135Z"
+          },
+          "view": {
+            "mode": "table",
+            "launchPanelStyle": "tabs"
+          },
+          "cards": {
+            "density": "normal",
+            "fieldOrder": [],
+            "legacyFlag": true,
+            "cardsPerRow": 2,
+            "layoutConfig": {
+              "cardsPerRow": 2
+            },
+            "visibleFields": {},
+            "_backendAuditMarker": 1782399601089
+          },
+          "table": {
+            "sort": [
+              {
+                "key": "codempresa",
+                "direction": "asc"
+              }
+            ],
+            "pageSize": 101,
+            "columnOrder": [],
+            "columnWidths": {},
+            "loadBatchSize": 100,
+            "visibleColumns": [],
+            "columnSizingMode": {},
+            "aggregationConfig": {},
+            "frozenLeftColumnCount": 0
+          },
+          "filtersConfig": {
+            "favorites": [],
+            "maxVisibleFields": 5,
+            "operatorsByField": {},
+            "filterFieldsLayout": {
+              "ordem": [],
+              "visiveis": [],
+              "maxVisible": 5
+            },
+            "dropdownVisibleFields": {}
+          }
+        },
+        "currentRevision": 2780,
+        "currentUpdatedAt": "2026-06-25T15:01:27.136Z"
+      }
+    },
+    {
+      "message": "Falha restore form_layout: Layout referencia painel desconhecido: \"validacao_1782399617625\".",
+      "status": 400,
+      "data": {
+        "message": "Layout referencia painel desconhecido: \"validacao_1782399617625\"."
+      }
+    }
+  ]
+}

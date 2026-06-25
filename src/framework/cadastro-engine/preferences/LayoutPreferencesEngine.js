@@ -7,7 +7,6 @@ import {
 import {
   pickLayoutConfig,
   bindLayoutStoreUser,
-  getLayoutStorageKeys,
 } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
 import { migrateStoredLayoutConfig } from "./layoutMigration.js";
 import {
@@ -19,7 +18,54 @@ import {
 
 const engines = new Map();
 let boundUserId = null;
-const syncTimers = new Map();
+const syncStates = new Map();
+const REMOTE_SYNC_ALLOWED_ORIGINS = new Set(["user-action", "migration"]);
+const SYNC_DEBOUNCE_MS = 350;
+const SYNC_RETRY_MS = 1_500;
+const FORM_LAYOUT_MIGRATION_MARKER_SUFFIX = "__migrationHashV1";
+const FORM_LAYOUT_SERVER_HASH_SUFFIX = "__serverHash";
+
+const normalizeOrigin = (origin) => {
+  const normalized = String(origin || "").trim().toLowerCase();
+  if (!normalized) return "default-init";
+  return normalized;
+};
+
+const toObject = (value) =>
+  value && typeof value === "object" && !Array.isArray(value) ? value : {};
+
+const normalizeForStableCompare = (value) => {
+  if (Array.isArray(value)) return value.map((item) => normalizeForStableCompare(item));
+  if (value && typeof value === "object") {
+    return Object.keys(value)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = normalizeForStableCompare(value[key]);
+        return acc;
+      }, {});
+  }
+  return value;
+};
+
+const stableStringify = (value) => {
+  try {
+    return JSON.stringify(normalizeForStableCompare(value ?? null));
+  } catch {
+    return null;
+  }
+};
+
+const getSyncState = (timerKey) => {
+  if (!syncStates.has(timerKey)) {
+    syncStates.set(timerKey, {
+      timer: null,
+      inFlight: false,
+      pendingConfig: null,
+      pendingOrigin: null,
+    });
+  }
+  return syncStates.get(timerKey);
+};
 
 export const isLocalPersonalizacoesMode = () =>
   import.meta.env.DEV && String(import.meta.env.VITE_LOCAL_PERSONALIZACOES || "").toLowerCase() === "true";
@@ -65,49 +111,45 @@ export class LayoutPreferencesEngine {
   }
 
   migrateLegacyKeys(userId) {
-    if (!userId) return;
-    const { layoutKey, legacyKey } = this.getStorageKeys(userId);
-    if (readEmpPreferencesText(layoutKey, null)) return;
-
-    const globalLegacy = this.config.legacyGlobalStorageKey
-      ? readEmpPreferencesText(this.config.legacyGlobalStorageKey, null)
-      : null;
-    if (globalLegacy) {
-      writeEmpPreferencesText(layoutKey, globalLegacy, { reason: "form-layout:migrate-legacy" });
-      return;
-    }
-
-    const oldKeys = getLayoutStorageKeys(userId);
-    const legacyConfig = readEmpPreferencesText(oldKeys.legacyKey, null);
-    if (legacyConfig) {
-      writeEmpPreferencesText(layoutKey, legacyConfig, { reason: "form-layout:migrate-legacy" });
-    }
+    // Migração de escrita desativada — legado é fallback somente leitura em readLocal().
+    void userId;
   }
 
   readLocal(userId) {
     this.bindUser(userId);
-    this.migrateLegacyKeys(userId);
     const keys = this.getStorageKeys(userId);
-    const parsed = readEmpPreferencesJson(keys.layoutKey, null);
+    let parsed = readEmpPreferencesJson(keys.layoutKey, null);
+
+    if (!parsed || typeof parsed !== "object") {
+      const userLegacy = readEmpPreferencesJson(keys.legacyKey, null);
+      if (userLegacy && typeof userLegacy === "object") {
+        parsed = userLegacy;
+      } else if (this.config.legacyGlobalStorageKey) {
+        parsed = readEmpPreferencesJson(this.config.legacyGlobalStorageKey, null);
+      }
+    }
+
     if (!parsed || typeof parsed !== "object") return null;
     const defaults = this.config.getDefaultLayoutConfig();
     const upgraded = migrateStoredLayoutConfig(parsed, defaults);
     return upgraded || parsed;
   }
 
-  writeLocal(userId, config) {
+  writeLocal(userId, config, { origin = "default-init" } = {}) {
     if (!config) return;
     this.bindUser(userId);
+    const normalizedOrigin = normalizeOrigin(origin);
+    const reason = `form-layout:${normalizedOrigin}:local-write`;
     const keys = this.getStorageKeys(userId);
     writeEmpPreferencesJson(keys.layoutKey, pickLayoutConfig(config), {
-      reason: "form-layout:local-write",
+      reason,
     });
     writeEmpPreferencesText(`${keys.layoutKey}__updatedAt`, new Date().toISOString(), {
-      reason: "form-layout:local-write",
+      reason,
     });
     if (config.aggregationConfig) {
       writeEmpPreferencesJson(keys.aggregationKey, config.aggregationConfig || {}, {
-        reason: "form-layout:local-write",
+        reason,
       });
     }
     window.dispatchEvent(new Event(this.updatedEvent));
@@ -119,11 +161,11 @@ export class LayoutPreferencesEngine {
     const local = this.readLocal(userId);
     const upgraded = migrateStoredLayoutConfig(local, defaults);
     if (upgraded) {
-      this.writeLocal(userId, upgraded);
+      this.writeLocal(userId, upgraded, { origin: "migration" });
       return upgraded;
     }
     if (!local) {
-      this.writeLocal(userId, defaults);
+      this.writeLocal(userId, defaults, { origin: "default-init" });
       return defaults;
     }
     return local;
@@ -149,70 +191,169 @@ export class LayoutPreferencesEngine {
       const localTime = localUpdatedAt ? new Date(localUpdatedAt).getTime() : 0;
 
       if (remoteUpdatedAt >= localTime) {
-        this.writeLocal(userId, upgraded);
+        this.writeLocal(userId, upgraded, { origin: "hydrate" });
+        const stableConfigHash = stableStringify(pickLayoutConfig(upgraded));
         if (remote?.updatedAt) {
           writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, remote.updatedAt, {
+            reason: "form-layout:remote-hydrate",
+          });
+        }
+        if (remote?.revision != null) {
+          writeEmpPreferencesText(`${keys.layoutKey}__serverRevision`, String(remote.revision), {
+            reason: "form-layout:remote-hydrate",
+          });
+        }
+        if (stableConfigHash) {
+          writeEmpPreferencesText(`${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`, stableConfigHash, {
             reason: "form-layout:remote-hydrate",
           });
         }
         window.dispatchEvent(
           new CustomEvent(this.hydratedEvent, { detail: { userId, moduleId: this.moduleId } })
         );
-      } else if (this.readLocal(userId)) {
-        this.scheduleSync(userId);
       }
     } catch (error) {
-      if (error?.status !== 404 && this.readLocal(userId)) {
-        this.scheduleSync(userId);
+      if (error?.status !== 404) {
+        console.warn(`[${this.moduleId}] Falha ao hidratar layout remoto:`, error);
       }
     }
   }
 
-  scheduleSync(userId = boundUserId) {
-    if (!userId || isLocalPersonalizacoesMode()) return;
-    const timerKey = `${this.moduleId}:${userId}`;
-    if (syncTimers.has(timerKey)) clearTimeout(syncTimers.get(timerKey));
+  async flushSyncState(userId, timerKey) {
+    const syncState = syncStates.get(timerKey);
+    if (!syncState || syncState.inFlight) return;
+    const pendingConfig = syncState.pendingConfig;
+    const pendingOrigin = normalizeOrigin(syncState.pendingOrigin);
+    if (!pendingConfig || !REMOTE_SYNC_ALLOWED_ORIGINS.has(pendingOrigin)) return;
 
-    const timer = setTimeout(async () => {
-      const activeConfig = this.readLocal(userId);
-      if (!activeConfig) return;
-      try {
-        const keys = this.getStorageKeys(userId);
-        const { modulo, tela } = parseScopeFromScreenKey(this.config.screenKey);
-        const expectedUpdatedAt = readEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, null);
-        const saved = await userPreferencesApi.saveByScope(modulo, tela, {
-          preferencias: {
-            version: 3,
-            activeConfig: pickLayoutConfig(activeConfig),
-          },
-          expectedUpdatedAt,
-          versao_schema: 3,
-        });
-        if (saved?.updatedAt) {
-          writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt, {
-            reason: "form-layout:remote-sync",
-          });
-        }
-      } catch (error) {
-        if (Number(error?.status) === 409) {
-          // Em conflito entre abas, reidrata remoto e preserva edição local para novo retry.
-          this.syncRemote(userId);
-        }
-        console.warn(`[${this.moduleId}] Falha ao sincronizar layout:`, error);
+    syncState.pendingConfig = null;
+    syncState.pendingOrigin = null;
+    syncState.inFlight = true;
+
+    try {
+      const keys = this.getStorageKeys(userId);
+      const configToSave = pickLayoutConfig(toObject(pendingConfig));
+      const configHash = stableStringify(configToSave);
+      if (!configHash) return;
+
+      const serverHashKey = `${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`;
+      const migrationHashKey = `${keys.layoutKey}${FORM_LAYOUT_MIGRATION_MARKER_SUFFIX}`;
+      const serverHash = readEmpPreferencesText(serverHashKey, null);
+      if (serverHash && serverHash === configHash) return;
+
+      if (pendingOrigin === "migration") {
+        const migrationHash = readEmpPreferencesText(migrationHashKey, null);
+        if (migrationHash && migrationHash === configHash) return;
       }
-    }, 800);
 
-    syncTimers.set(timerKey, timer);
+      const { modulo, tela } = parseScopeFromScreenKey(this.config.screenKey);
+      const expectedUpdatedAt = readEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, null);
+      const expectedRevisionRaw = readEmpPreferencesText(`${keys.layoutKey}__serverRevision`, null);
+      const expectedRevision = Number(expectedRevisionRaw);
+      const saved = await userPreferencesApi.saveByScope(modulo, tela, {
+        preferencias: {
+          version: 3,
+          activeConfig: configToSave,
+        },
+        expectedUpdatedAt,
+        expectedRevision: Number.isFinite(expectedRevision) ? expectedRevision : undefined,
+        versao_schema: 3,
+      });
+
+      if (saved?.updatedAt) {
+        writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt, {
+          reason: `form-layout:remote-sync:${pendingOrigin}`,
+        });
+      }
+      if (saved?.revision != null) {
+        writeEmpPreferencesText(`${keys.layoutKey}__serverRevision`, String(saved.revision), {
+          reason: `form-layout:remote-sync:${pendingOrigin}`,
+        });
+      }
+      writeEmpPreferencesText(serverHashKey, configHash, {
+        reason: `form-layout:remote-sync:${pendingOrigin}`,
+      });
+      if (pendingOrigin === "migration") {
+        writeEmpPreferencesText(migrationHashKey, configHash, {
+          reason: "form-layout:migration-marker",
+        });
+      }
+    } catch (error) {
+      if (Number(error?.status) === 409) {
+        // Reidrata em caso de conflito e mantém patch pendente para um único retry.
+        await this.syncRemote(userId);
+      }
+      syncState.pendingConfig = syncState.pendingConfig || pendingConfig;
+      syncState.pendingOrigin =
+        syncState.pendingOrigin === "user-action" || pendingOrigin === "user-action"
+          ? "user-action"
+          : pendingOrigin;
+      if (!syncState.timer) {
+        syncState.timer = setTimeout(() => {
+          syncState.timer = null;
+          void this.flushSyncState(userId, timerKey);
+        }, SYNC_RETRY_MS);
+      }
+      console.warn(`[${this.moduleId}] Falha ao sincronizar layout:`, error);
+    } finally {
+      syncState.inFlight = false;
+      if (!syncState.timer && syncState.pendingConfig) {
+        syncState.timer = setTimeout(() => {
+          syncState.timer = null;
+          void this.flushSyncState(userId, timerKey);
+        }, SYNC_DEBOUNCE_MS);
+      }
+    }
+  }
+
+  scheduleSync(userId = boundUserId, { origin = "user-action", config = null } = {}) {
+    if (!userId || isLocalPersonalizacoesMode()) return;
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (!REMOTE_SYNC_ALLOWED_ORIGINS.has(normalizedOrigin)) return;
+    const sourceConfig = config && typeof config === "object" ? config : this.readLocal(userId);
+    if (!sourceConfig || typeof sourceConfig !== "object") return;
+    const activeConfig = pickLayoutConfig(sourceConfig);
+    const stableConfigHash = stableStringify(activeConfig);
+    if (!stableConfigHash) return;
+
+    const keys = this.getStorageKeys(userId);
+    const serverHash = readEmpPreferencesText(`${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`, null);
+    if (serverHash && serverHash === stableConfigHash) return;
+
+    if (normalizedOrigin === "migration") {
+      const migrationHash = readEmpPreferencesText(
+        `${keys.layoutKey}${FORM_LAYOUT_MIGRATION_MARKER_SUFFIX}`,
+        null
+      );
+      if (migrationHash && migrationHash === stableConfigHash) return;
+    }
+
+    const timerKey = `${this.moduleId}:${userId}`;
+    const syncState = getSyncState(timerKey);
+    syncState.pendingConfig = activeConfig;
+    syncState.pendingOrigin =
+      syncState.pendingOrigin === "user-action" || normalizedOrigin === "user-action"
+        ? "user-action"
+        : normalizedOrigin;
+
+    if (syncState.inFlight) return;
+    if (syncState.timer) clearTimeout(syncState.timer);
+    syncState.timer = setTimeout(() => {
+      syncState.timer = null;
+      void this.flushSyncState(userId, timerKey);
+    }, SYNC_DEBOUNCE_MS);
   }
 
   resetSyncState() {
-    syncTimers.forEach((t) => clearTimeout(t));
-    syncTimers.clear();
+    syncStates.forEach((state) => {
+      if (state.timer) clearTimeout(state.timer);
+    });
+    syncStates.clear();
     boundUserId = null;
     bindLayoutStoreUser(null);
   }
 
-  apply(userId, config, layoutEngine) {
+  apply(userId, config, layoutEngine, { origin = "user-action" } = {}) {
     const defaults = this.config.getDefaultLayoutConfig();
     const ensured =
       layoutEngine.ensureFields(config, { knownFieldIds: config.knownFieldIds }) || defaults;
@@ -220,7 +361,7 @@ export class LayoutPreferencesEngine {
       basePanels: this.config.basePanels,
       defaultLayout: this.config.defaultFlatLayout,
     });
-    this.writeLocal(userId, normalized);
+    this.writeLocal(userId, normalized, { origin });
     return normalized;
   }
 }

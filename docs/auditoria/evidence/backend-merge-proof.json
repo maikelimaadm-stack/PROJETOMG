@@ -1,0 +1,27 @@
+{
+  "beforeKeys": [
+    "meta",
+    "cards",
+    "table",
+    "filtersConfig"
+  ],
+  "partialPayload": {
+    "cards": {
+      "cardsPerRow": 2,
+      "layoutConfig": {
+        "cardsPerRow": 2
+      }
+    }
+  },
+  "putStatus": 200,
+  "afterKeys": [
+    "meta",
+    "cards",
+    "table",
+    "filtersConfig"
+  ],
+  "tablePreserved": true,
+  "cardsPerRow": 2,
+  "revisionBefore": 9,
+  "revisionAfter": 10
+}
