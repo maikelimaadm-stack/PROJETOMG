@@ -29,6 +29,7 @@ import {
   withEmpPreferencesCacheBatch,
   writeEmpPreferencesJson,
   writeEmpPreferencesText,
+  hasScopedPreferenceValue,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
 
 export const EMPRESAS_LISTAGEM_SCOPE = Object.freeze({
@@ -125,6 +126,21 @@ export const markEmpPreferencesMigrated = (userId) => {
 };
 
 export const isEmpPreferencesMigrated = (userId) => Boolean(readStorage(getEmpPreferencesMigrationMarkerKey(userId)));
+
+const LISTAGEM_SCOPED_FIELD_KEYS = [
+  VISIBLE_KEY,
+  ORDER_KEY,
+  WIDTHS_KEY,
+  FILTERS_KEY,
+  SORT_KEY,
+  EMP_VIEW_MODE_STORAGE_KEY,
+  EMP_CARDS_LAYOUT_KEY,
+  EMP_SEARCH_VIS_KEY,
+  EMP_FILTER_FIELDS_LAYOUT_KEY,
+];
+
+export const hasScopedListagemPreferences = () =>
+  LISTAGEM_SCOPED_FIELD_KEYS.some((fieldKey) => hasScopedPreferenceValue(fieldKey));
 
 export const buildListagemPreferencesFromStorage = () => {
   const table = sanitizeTablePreferences({
@@ -282,9 +298,9 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
   window.dispatchEvent(new CustomEvent("emp-favorites-updated"));
 };
 
-export const buildFormLayoutPreferencesFromStorage = (userId) => {
+export const buildFormLayoutPreferencesFromStorage = (userId, clienteId) => {
   if (!userId || typeof window === "undefined") return null;
-  const { layoutKey } = getLayoutStorageKeysForModule(empresasCadastroConfig, userId);
+  const { layoutKey } = getLayoutStorageKeysForModule(empresasCadastroConfig, userId, clienteId);
   const parsedLayout = readEmpPreferencesJson(layoutKey, null);
   if (!parsedLayout || typeof parsedLayout !== "object") return null;
   return {
@@ -293,9 +309,9 @@ export const buildFormLayoutPreferencesFromStorage = (userId) => {
   };
 };
 
-export const applyFormLayoutPreferencesToStorage = (userId, preferences, updatedAt) => {
+export const applyFormLayoutPreferencesToStorage = (userId, preferences, updatedAt, clienteId) => {
   if (!userId || typeof window === "undefined") return;
-  const { layoutKey } = getLayoutStorageKeysForModule(empresasCadastroConfig, userId);
+  const { layoutKey } = getLayoutStorageKeysForModule(empresasCadastroConfig, userId, clienteId);
   const activeConfig =
     preferences && typeof preferences === "object" && preferences.activeConfig
       ? preferences.activeConfig
@@ -317,7 +333,7 @@ export const applyFormLayoutPreferencesToStorage = (userId, preferences, updated
   window.dispatchEvent(new Event("cadastro-layout-updated:empresas"));
   window.dispatchEvent(
     new CustomEvent("cadastro-layout-hydrated:empresas", {
-      detail: { userId, moduleId: "empresas" },
+      detail: { userId, clienteId, moduleId: "empresas" },
     })
   );
 };

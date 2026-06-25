@@ -7,7 +7,6 @@ import {
 import {
   pickLayoutConfig,
   bindLayoutStoreUser,
-  getLayoutStorageKeys,
 } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
 import { migrateStoredLayoutConfig } from "./layoutMigration.js";
 import {
@@ -65,30 +64,24 @@ export class LayoutPreferencesEngine {
   }
 
   migrateLegacyKeys(userId) {
-    if (!userId) return;
-    const { layoutKey, legacyKey } = this.getStorageKeys(userId);
-    if (readEmpPreferencesText(layoutKey, null)) return;
-
-    const globalLegacy = this.config.legacyGlobalStorageKey
-      ? readEmpPreferencesText(this.config.legacyGlobalStorageKey, null)
-      : null;
-    if (globalLegacy) {
-      writeEmpPreferencesText(layoutKey, globalLegacy, { reason: "form-layout:migrate-legacy" });
-      return;
-    }
-
-    const oldKeys = getLayoutStorageKeys(userId);
-    const legacyConfig = readEmpPreferencesText(oldKeys.legacyKey, null);
-    if (legacyConfig) {
-      writeEmpPreferencesText(layoutKey, legacyConfig, { reason: "form-layout:migrate-legacy" });
-    }
+    // Migração de escrita desativada — legado é fallback somente leitura em readLocal().
+    void userId;
   }
 
   readLocal(userId) {
     this.bindUser(userId);
-    this.migrateLegacyKeys(userId);
     const keys = this.getStorageKeys(userId);
-    const parsed = readEmpPreferencesJson(keys.layoutKey, null);
+    let parsed = readEmpPreferencesJson(keys.layoutKey, null);
+
+    if (!parsed || typeof parsed !== "object") {
+      const userLegacy = readEmpPreferencesJson(keys.legacyKey, null);
+      if (userLegacy && typeof userLegacy === "object") {
+        parsed = userLegacy;
+      } else if (this.config.legacyGlobalStorageKey) {
+        parsed = readEmpPreferencesJson(this.config.legacyGlobalStorageKey, null);
+      }
+    }
+
     if (!parsed || typeof parsed !== "object") return null;
     const defaults = this.config.getDefaultLayoutConfig();
     const upgraded = migrateStoredLayoutConfig(parsed, defaults);

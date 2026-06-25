@@ -38,7 +38,7 @@
     "test:filters:e2e": "npx vite-node scripts/tests/e2e-filtros-avancados-consistency.mjs",
     "test:filters:all": "npm run test:filters:frontend && npm run test:filters:backend && npm run test:filters:e2e",
     "test:filters:selection": "npx vite-node scripts/tests/e2e-filtros-selecao-valores.mjs",
-    "test:preferences:frontend": "npx vite-node scripts/tests/preferences-storage.unit.mjs && npx vite-node scripts/tests/emp-column-layout.unit.mjs"
+    "test:preferences:frontend": "npx vite-node scripts/tests/user-preferences-scope.unit.mjs && npx vite-node scripts/tests/preferences-storage.unit.mjs && npx vite-node scripts/tests/emp-column-layout.unit.mjs"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

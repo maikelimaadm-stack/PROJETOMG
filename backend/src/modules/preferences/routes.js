@@ -31,6 +31,18 @@ const parseScopeSegment = (value, label) => {
   return normalized;
 };
 
+const rejectClientControlledIdentityFields = (body = {}) => {
+  const forbidden = ["usuario_id", "userId", "cliente_id", "clienteId", "tenant_id", "tenantId"];
+  const found = forbidden.filter((field) => body[field] != null && String(body[field]).trim() !== "");
+  if (found.length > 0) {
+    const error = new Error(
+      `Campos de identidade não são aceitos no payload: ${found.join(", ")}. Use o token autenticado.`
+    );
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
 export const registerPreferencesRoutes = async (app) => {
   app.get(
     "/api/user/preferences/bootstrap",
@@ -91,6 +103,7 @@ export const registerPreferencesRoutes = async (app) => {
     async (request, reply) => {
       try {
         const scope = await loadAccessScope(request);
+        rejectClientControlledIdentityFields(request.body);
         const modulo = parseScopeSegment(request.params.modulo, "Módulo");
         const tela = parseScopeSegment(request.params.tela, "Tela");
         const preferencias = request.body?.preferencias || request.body?.config;
@@ -151,6 +164,7 @@ export const registerPreferencesRoutes = async (app) => {
     async (request, reply) => {
       try {
         const scope = await loadAccessScope(request);
+        rejectClientControlledIdentityFields(request.body);
         const screenKey = parseScreenKey(request.params.screenKey);
         const config = request.body?.config;
         const expectedUpdatedAt = request.body?.expectedUpdatedAt || request.body?.updatedAt;

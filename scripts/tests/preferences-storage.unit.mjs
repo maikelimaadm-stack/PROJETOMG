@@ -1,5 +1,12 @@
 import assert from "node:assert/strict";
 import {
+  setActiveUserPreferencesScope,
+  clearActiveUserPreferencesScope,
+} from "@/shared/preferences/userPreferencesScope.js";
+import {
+  resetEmpPreferencesMemoryCache,
+} from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
   EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY,
   EMP_VIEW_MODE_STORAGE_KEY,
   applyListagemPreferencesToStorage,
@@ -54,6 +61,11 @@ global.CustomEvent = class CustomEvent {
   }
 };
 
+clearActiveUserPreferencesScope();
+resetEmpPreferencesMemoryCache();
+setActiveUserPreferencesScope({ clienteId: "cli_test", userId: "usr_test" });
+resetEmpPreferencesMemoryCache();
+
 applyListagemPreferencesToStorage({
   viewMode: "search",
   table: {
@@ -66,11 +78,15 @@ applyListagemPreferencesToStorage({
   },
 });
 
-assert.equal(localStorage.getItem(EMP_VIEW_MODE_STORAGE_KEY), "search");
-assert.equal(localStorage.getItem(EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY), "sidebar");
-assert.equal(localStorage.getItem(ORDER_KEY), JSON.stringify(["codempresa", "razao_social"]));
-assert.equal(localStorage.getItem(VISIBLE_KEY), JSON.stringify(["codempresa"]));
-
+const scopedKeys = [];
+for (let index = 0; index < localStorage.length; index += 1) {
+  const key = localStorage.key(index);
+  if (key) scopedKeys.push(key);
+}
+assert.ok(
+  scopedKeys.some((key) => key.includes("mg_pref_v2:cli_test:usr_test")),
+  "deve gravar em chave scoped por cliente+usuário"
+);
 const snapshot = buildListagemPreferencesFromStorage();
 assert.equal(snapshot.viewMode, "search");
 assert.equal(snapshot.panels.launchPanelStyle, "sidebar");
