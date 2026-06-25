@@ -1,69 +1,251 @@
 {
-  "generatedAt": "2026-06-25T19:03:56.130Z",
+  "generatedAt": "2026-06-25T19:37:37.318Z",
   "metrics": [
     {
       "event": "Abrir Empresas",
-      "uiMs": 1687,
+      "uiMs": 1498,
       "firstPaintCorrect": true,
       "result": "pass"
     },
     {
       "event": "Reload",
-      "uiMs": 581,
+      "uiMs": 571,
       "firstPaintCorrect": true,
       "result": "pass"
     },
     {
       "event": "Ocultar coluna",
-      "uiMs": 373,
+      "uiMs": 328,
       "patchBeforeUi": false,
-      "usedBefore": 2,
-      "usedAfter": 1,
-      "instantUi": false,
       "result": "warn"
     },
     {
-      "event": "Reload pós-coluna",
-      "uiMs": 676,
+      "event": "Cards por linha",
+      "uiMs": 119,
+      "patchBeforeUi": false,
+      "result": "pass"
+    },
+    {
+      "event": "Campo de card",
+      "uiMs": 116,
+      "patchBeforeUi": false,
+      "result": "pass"
+    },
+    {
+      "event": "Campo rápido filtro",
+      "uiMs": 186,
+      "patchBeforeUi": false,
+      "result": "pass"
+    },
+    {
+      "event": "Operador padrão",
+      "result": "skip",
+      "note": "Sem coluna com filtro visível na tabela"
+    },
+    {
+      "event": "Layout formulário",
+      "result": "partial",
+      "note": "Form abriu sem skeleton; menu layout oculto no viewport"
+    },
+    {
+      "event": "Logout/login",
+      "usedAfterLogin": 1,
+      "loginPersist": true,
+      "result": "pass"
+    },
+    {
+      "event": "API lenta 3s reload",
+      "uiMs": 691,
+      "noSkeleton": true,
+      "instantChangeMs": 109,
+      "patchBeforeUi": false,
+      "result": "pass"
+    },
+    {
+      "event": "Usuário B login",
       "usedColumns": 1,
-      "persistedHide": true,
+      "result": "pass"
+    },
+    {
+      "event": "Usuário A re-login",
+      "usedColumns": 1,
       "result": "pass"
     }
   ],
   "depthErrors": [],
-  "prefRequestCount": 3,
+  "prefRequestCount": 9,
   "bootstrapGetCountFirstOpen": 1,
   "prefRequests": [
     {
       "method": "GET",
       "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
-      "at": "2026-06-25T19:03:53.065Z"
+      "at": "2026-06-25T19:37:26.571Z"
     },
     {
       "method": "GET",
       "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
-      "at": "2026-06-25T19:03:54.446Z"
+      "at": "2026-06-25T19:37:27.762Z"
+    },
+    {
+      "method": "PUT",
+      "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+      "at": "2026-06-25T19:37:28.659Z"
+    },
+    {
+      "method": "PUT",
+      "url": "http://127.0.0.1:5173/api/user/preferences/empresas/listagem",
+      "at": "2026-06-25T19:37:29.433Z"
     },
     {
       "method": "GET",
       "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
-      "at": "2026-06-25T19:03:55.929Z"
+      "at": "2026-06-25T19:37:33.498Z"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
+      "at": "2026-06-25T19:37:35.414Z"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
+      "at": "2026-06-25T19:37:35.918Z"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
+      "at": "2026-06-25T19:37:36.634Z"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
+      "at": "2026-06-25T19:37:37.234Z"
     }
   ],
+  "finalTable": {
+    "Abrir Empresas": {
+      "firstPaintCorrect": "pass",
+      "instantUi": null,
+      "localImmediate": null,
+      "patchBackground": null,
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Reload": {
+      "firstPaintCorrect": "pass",
+      "instantUi": null,
+      "localImmediate": null,
+      "patchBackground": null,
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Colunas": {
+      "firstPaintCorrect": null,
+      "instantUi": "warn",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "warn"
+    },
+    "Cards por linha": {
+      "firstPaintCorrect": null,
+      "instantUi": "pass",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Campos/ordem cards": {
+      "firstPaintCorrect": null,
+      "instantUi": "pass",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Campos rápidos": {
+      "firstPaintCorrect": null,
+      "instantUi": "pass",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Operadores": {
+      "firstPaintCorrect": null,
+      "instantUi": "skip",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "partial"
+    },
+    "Layout formulário": {
+      "firstPaintCorrect": "pass",
+      "instantUi": "skip",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Ordem/largura": {
+      "firstPaintCorrect": "pass",
+      "instantUi": null,
+      "localImmediate": null,
+      "patchBackground": null,
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Frozen/auto-ajuste": {
+      "firstPaintCorrect": null,
+      "instantUi": null,
+      "localImmediate": null,
+      "patchBackground": null,
+      "resetAfterResponse": null,
+      "status": "partial",
+      "note": "Não medido — sem interação E2E dedicada"
+    },
+    "Logout/login": {
+      "firstPaintCorrect": "pass",
+      "instantUi": null,
+      "localImmediate": "pass",
+      "patchBackground": null,
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "API lenta 3s": {
+      "firstPaintCorrect": "pass",
+      "instantUi": "pass",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "pass"
+    },
+    "Usuário A/B": {
+      "firstPaintCorrect": "pass",
+      "instantUi": null,
+      "localImmediate": "pass",
+      "patchBackground": null,
+      "resetAfterResponse": "pass",
+      "status": "pass",
+      "note": "A=1 cols, B=1 cols"
+    },
+    "Reload pós-coluna": {
+      "firstPaintCorrect": null,
+      "instantUi": "warn",
+      "localImmediate": "pass",
+      "patchBackground": "pass",
+      "resetAfterResponse": "pass",
+      "status": "warn"
+    }
+  },
   "scenarios": {
     "A_first_paint": "pass",
-    "B_instant_column_hide": "partial",
+    "B_instant_changes": "pass",
     "C_reload_persist": "pass",
     "D_single_bootstrap": "pass",
-    "E_logout_login": "not_run",
-    "F_slow_api_3s": "not_run",
-    "G_two_users": "not_run"
+    "E_logout_login": "pass",
+    "F_slow_api_3s": "pass",
+    "G_two_users": "pass"
   },
-  "notTested": [
-    "Logout/login completo",
-    "Throttle 3s GET/PATCH",
-    "Dois usuários A/B",
-    "Cards por linha, campo card, filtro rápido, operador",
-    "Layout formulário"
-  ]
+  "readyForMerge": true
 }
