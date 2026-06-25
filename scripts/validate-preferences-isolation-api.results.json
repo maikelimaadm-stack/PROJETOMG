@@ -1,95 +1,10 @@
 {
-  "baseUrl": "https://projetomg-production.up.railway.app",
-  "startedAt": "2026-06-25T11:56:58.961Z",
-  "users": {
-    "A": {
-      "label": "Usuário A (Tenant 1)",
-      "userId": "usr_maike_seed_001",
-      "clienteId": "cl_maike_seed_001",
-      "login": {
-        "cliente": "maike",
-        "usuario": "maike",
-        "senha": "123"
-      },
-      "status": "logged_in",
-      "putStatus": 200
-    },
-    "B": {
-      "label": "Usuário B (Tenant 1)",
-      "status": "login_failed",
-      "error": "Usuário B (Tenant 1): login falhou (401) — Usuário ou senha inválidos."
-    },
-    "C": {
-      "label": "Usuário C (Tenant 2)",
-      "status": "login_failed",
-      "error": "Usuário C (Tenant 2): login falhou (401) — Cliente inválido."
-    }
-  },
-  "isolationMatrix": [
-    {
-      "check": "A mantém marker após B salvar",
-      "pass": true,
-      "markerA": "pr223-isolation-user-a"
-    }
-  ],
-  "identityRejection": {
-    "status": 200,
-    "rejected": false
-  },
+  "baseUrl": "",
+  "startedAt": "2026-06-25T12:17:08.474Z",
+  "users": {},
+  "isolationMatrix": [],
+  "identityRejection": null,
   "approved": false,
-  "health": {
-    "ok": true,
-    "db": {
-      "configured": true,
-      "connected": true,
-      "error": null
-    }
-  },
-  "snapshots": {
-    "A": {
-      "before": {
-        "version": 1
-      },
-      "updatedAt": "2026-06-25T11:57:14.106Z",
-      "after": {
-        "cards": {
-          "layoutConfig": {
-            "cardsPerRow": 2
-          }
-        },
-        "table": {
-          "_marker": "pr223-isolation-user-a",
-          "visibleColumns": [
-            "codempresa",
-            "telefone"
-          ]
-        },
-        "version": 1,
-        "viewMode": "search"
-      },
-      "record": {
-        "modulo": "empresas",
-        "tela": "listagem",
-        "versao_schema": 1,
-        "preferencias": {
-          "cards": {
-            "layoutConfig": {
-              "cardsPerRow": 2
-            }
-          },
-          "table": {
-            "_marker": "pr223-isolation-user-a",
-            "visibleColumns": [
-              "codempresa",
-              "telefone"
-            ]
-          },
-          "version": 1,
-          "viewMode": "search"
-        },
-        "updatedAt": "2026-06-25T11:57:16.277Z"
-      }
-    }
-  },
-  "finishedAt": "2026-06-25T11:57:18.375Z"
+  "fatal": "VALIDATE_BASE_URL é obrigatório (backend staging da PR #223).",
+  "finishedAt": "2026-06-25T12:17:08.475Z"
 }

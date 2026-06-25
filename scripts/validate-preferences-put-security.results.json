@@ -1,0 +1,18 @@
+{
+  "baseUrl": "",
+  "startedAt": "2026-06-25T12:17:08.349Z",
+  "forbiddenFields": [
+    "usuario_id",
+    "userId",
+    "cliente_id",
+    "clienteId",
+    "tenant_id",
+    "tenantId",
+    "empresa_id",
+    "empresaId"
+  ],
+  "cases": [],
+  "approved": false,
+  "fatal": "VALIDATE_BASE_URL é obrigatório (backend staging da PR #223).",
+  "finishedAt": "2026-06-25T12:17:08.349Z"
+}
