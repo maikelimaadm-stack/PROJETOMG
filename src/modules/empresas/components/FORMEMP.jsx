@@ -27,6 +27,7 @@ import {
   getPanelFieldIdsFromLayout,
   pickLayoutConfig,
 } from "@/framework/cadastro/layouts/empFormLayoutStore";
+import { stableStringify } from "@/shared/utils/stableStringify";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
 import {
   buildRequiredFormFieldErrors,
@@ -509,8 +510,8 @@ export default function FORMEMP({
         panel.hidden &&
         getPanelFieldIdsFromLayout(formLayoutConfig?.layout, panel.id).length > 0
     );
-    const repairedSig = JSON.stringify(pickLayoutConfig(repaired));
-    const currentSig = JSON.stringify(pickLayoutConfig(formLayoutConfig));
+    const repairedSig = stableStringify(pickLayoutConfig(repaired));
+    const currentSig = stableStringify(pickLayoutConfig(formLayoutConfig));
 
     autoRepairAttemptedRef.current = true;
 
@@ -527,7 +528,10 @@ export default function FORMEMP({
 
     lastAutoRepairSigRef.current = repairedSig;
     layoutPersistedRef.current = true;
-    applyLayoutConfigFromEngine(repaired, { updateActiveTab: true });
+    applyLayoutConfigFromEngine(repaired, {
+      updateActiveTab: true,
+      persistenceOrigin: "migration",
+    });
   }, [
     user?.id,
     formLayoutConfig,
@@ -551,7 +555,7 @@ export default function FORMEMP({
     applyLayoutConfig({
       ...activeLayoutConfig,
       ...nextConfig,
-    });
+    }, { persistenceOrigin: "user-action" });
   };
 
   const validateForm = () => {
@@ -832,7 +836,7 @@ export default function FORMEMP({
   const LaunchPanelStyleToggleIcon = isSidebarPanelStyle ? LayoutGrid : PanelLeft;
 
   useEffect(() => {
-    writeStoredLaunchPanelStyle(launchPanelStyle);
+    writeStoredLaunchPanelStyle(launchPanelStyle, "form-layout:panel-style-local");
   }, [launchPanelStyle]);
   const launchPanelStyleToggle = (
     <button

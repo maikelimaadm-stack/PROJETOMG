@@ -85,6 +85,7 @@ import {
   writeEmpPreferencesJson,
   writeEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { stableJsonEqual, stableStringify } from "@/shared/utils/stableStringify";
 import {
   buildColumnSizingModeFromAutoFit,
   mergeColumnSizingMode,
@@ -252,12 +253,12 @@ export default function TBLEMP({
   useEffect(() => {
     if (externalColumnFilters === undefined) return;
     const normalized = normalizeExternalColumnFilters(externalColumnFilters);
-    const nextSig = JSON.stringify(normalized || {});
+    const nextSig = stableStringify(normalized || {});
     if (lastExternalFiltersSigRef.current === nextSig) return;
     lastExternalFiltersSigRef.current = nextSig;
     lastServerFiltersSigRef.current = nextSig;
     setFiltrosColunas((prev) => {
-      const prevJson = JSON.stringify(prev || {});
+      const prevJson = stableStringify(prev || {});
       if (prevJson === nextSig) return prev;
       return normalized;
     });
@@ -377,41 +378,41 @@ export default function TBLEMP({
         haveSameIds(current, snapshot.colunasVisiveis) ? current : snapshot.colunasVisiveis
       );
       setColumnWidths((current) => {
-        const nextJson = JSON.stringify(snapshot.columnWidths || {});
-        const currentJson = JSON.stringify(current || {});
-        return nextJson === currentJson ? current : snapshot.columnWidths;
+        return stableJsonEqual(snapshot.columnWidths || {}, current || {})
+          ? current
+          : snapshot.columnWidths;
       });
       setFrozenColumnCount((current) => {
         const next = Math.min(snapshot.frozenColumnCount, snapshot.colunasVisiveis.length);
         return current === next ? current : next;
       });
       setSortConfig((current) => {
-        const nextJson = JSON.stringify(snapshot.sortConfig || []);
-        const currentJson = JSON.stringify(current || []);
-        return nextJson === currentJson ? current : snapshot.sortConfig;
+        return stableJsonEqual(snapshot.sortConfig || [], current || [])
+          ? current
+          : snapshot.sortConfig;
       });
       if (externalColumnFilters === undefined) {
         setFiltrosColunas((current) => {
-          const nextJson = JSON.stringify(snapshot.filtrosColunas || {});
-          const currentJson = JSON.stringify(current || {});
-          return nextJson === currentJson ? current : snapshot.filtrosColunas;
+          return stableJsonEqual(snapshot.filtrosColunas || {}, current || {})
+            ? current
+            : snapshot.filtrosColunas;
         });
-        lastServerFiltersSigRef.current = JSON.stringify(snapshot.filtrosColunas || {});
+        lastServerFiltersSigRef.current = stableStringify(snapshot.filtrosColunas || {});
       }
       const primarySort = snapshot.sortConfig?.[0] || { key: "codempresa", direction: "asc" };
-      lastServerSortSigRef.current = JSON.stringify({
+      lastServerSortSigRef.current = stableStringify({
         key: primarySort.key || "codempresa",
         direction: primarySort.direction === "desc" ? "desc" : "asc",
       });
       setLayoutAggregationConfig((current) => {
-        const nextJson = JSON.stringify(snapshot.layoutAggregationConfig || {});
-        const currentJson = JSON.stringify(current || {});
-        return nextJson === currentJson ? current : snapshot.layoutAggregationConfig;
+        return stableJsonEqual(snapshot.layoutAggregationConfig || {}, current || {})
+          ? current
+          : snapshot.layoutAggregationConfig;
       });
       setAutoFitActiveColumns((current) => {
-        const nextJson = JSON.stringify(snapshot.autoFitActiveColumns || {});
-        const currentJson = JSON.stringify(current || {});
-        return nextJson === currentJson ? current : snapshot.autoFitActiveColumns;
+        return stableJsonEqual(snapshot.autoFitActiveColumns || {}, current || {})
+          ? current
+          : snapshot.autoFitActiveColumns;
       });
       tableHydratedRef.current = true;
       if (typeof window !== "undefined") {
@@ -1047,7 +1048,7 @@ export default function TBLEMP({
 
   useEffect(() => {
     if (!serverMode || suppressPersistenceRef.current || !tableHydratedRef.current) return;
-    const sig = JSON.stringify(filtrosColunas || {});
+    const sig = stableStringify(filtrosColunas || {});
     if (lastServerFiltersSigRef.current === sig) return;
     lastServerFiltersSigRef.current = sig;
     onServerColumnFiltersChange?.(filtrosColunas);
@@ -1062,7 +1063,7 @@ export default function TBLEMP({
       key: primarySort.key || "codempresa",
       direction: primarySort.direction === "desc" ? "desc" : "asc",
     };
-    const sig = JSON.stringify(nextSort);
+    const sig = stableStringify(nextSort);
     if (lastServerSortSigRef.current === sig) return;
     lastServerSortSigRef.current = sig;
     onServerSortChange?.(nextSort);
@@ -1070,7 +1071,7 @@ export default function TBLEMP({
 
   useEffect(() => {
     if (!serverMode) return;
-    const signature = JSON.stringify({ filtrosColunas, searchTerm, pageSize, sortConfig });
+    const signature = stableStringify({ filtrosColunas, searchTerm, pageSize, sortConfig });
     if (serverResetSignatureRef.current === signature) return;
     serverResetSignatureRef.current = signature;
     setCurrentPage(1);

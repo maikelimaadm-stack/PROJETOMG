@@ -38,6 +38,7 @@ const result = {
   scenarioCards: {},
   isolation: {},
   restore: {},
+  restoreEvidence: {},
   consoleFindings: {
     maxUpdateDepthErrors: [],
     otherErrors: [],
@@ -51,6 +52,7 @@ const result = {
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const toObj = (value) => (value && typeof value === "object" && !Array.isArray(value) ? value : {});
 const deepClone = (value) => JSON.parse(JSON.stringify(value));
+const escapeRegExp = (value = "") => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const stableStringify = (value) => {
   const normalize = (input) => {
@@ -65,6 +67,34 @@ const stableStringify = (value) => {
 };
 
 const sameJson = (a, b) => stableStringify(a) === stableStringify(b);
+
+const buildExactRestorePayload = (baseline, current) => {
+  if (Array.isArray(baseline)) return deepClone(baseline);
+  if (!baseline || typeof baseline !== "object") return baseline;
+  const baselineObj = toObj(baseline);
+  const currentObj = toObj(current);
+  const keys = new Set([...Object.keys(baselineObj), ...Object.keys(currentObj)]);
+  const restored = {};
+  for (const key of keys) {
+    if (!(key in baselineObj)) {
+      restored[key] = null;
+      continue;
+    }
+    const baselineValue = baselineObj[key];
+    const currentValue = currentObj[key];
+    const nestedObject =
+      baselineValue &&
+      currentValue &&
+      typeof baselineValue === "object" &&
+      typeof currentValue === "object" &&
+      !Array.isArray(baselineValue) &&
+      !Array.isArray(currentValue);
+    restored[key] = nestedObject
+      ? buildExactRestorePayload(baselineValue, currentValue)
+      : deepClone(baselineValue);
+  }
+  return restored;
+};
 
 const apiRequest = async (path, { method = "GET", token, body, allow404 = false } = {}) => {
   const startedAt = Date.now();
@@ -144,7 +174,49 @@ const patchScope = async (
     },
   });
 
+const patchScopeWithRetry = async (
+  token,
+  modulo,
+  tela,
+  section,
+  patch,
+  options = {},
+  maxRetries = 3
+) => {
+  let nextOptions = { ...options };
+  for (let attempt = 1; attempt <= maxRetries; attempt += 1) {
+    try {
+      return await patchScope(token, modulo, tela, section, patch, nextOptions);
+    } catch (error) {
+      if (Number(error?.status) !== 409 || attempt >= maxRetries) throw error;
+      nextOptions = {
+        ...nextOptions,
+        expectedRevision: Number.isFinite(Number(error?.data?.currentRevision))
+          ? Number(error.data.currentRevision)
+          : nextOptions.expectedRevision,
+        expectedUpdatedAt: error?.data?.currentUpdatedAt || nextOptions.expectedUpdatedAt,
+      };
+      await sleep(200);
+    }
+  }
+  throw new Error("Não foi possível aplicar patch com retry.");
+};
+
+const closeRadixOverlays = async (page, maxAttempts = 4) => {
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const overlayVisible = await page
+      .locator("div.fixed.inset-0.z-50.bg-black\\/80[data-state='open'], [data-state='open'].fixed.inset-0.z-50")
+      .first()
+      .isVisible()
+      .catch(() => false);
+    if (!overlayVisible) return;
+    await page.keyboard.press("Escape").catch(() => undefined);
+    await sleep(150);
+  }
+};
+
 const clickViewMode = async (page, mode) => {
+  await closeRadixOverlays(page);
   const selectors = [
     `.view-mode-btn[data-view="${mode}"]`,
     `[data-view="${mode}"]`,
@@ -153,7 +225,12 @@ const clickViewMode = async (page, mode) => {
   for (const selector of selectors) {
     const locator = page.locator(selector).first();
     if (await locator.isVisible().catch(() => false)) {
-      await locator.click({ timeout: 15000 });
+      try {
+        await locator.click({ timeout: 15000 });
+      } catch {
+        await closeRadixOverlays(page);
+        await locator.click({ timeout: 15000 });
+      }
       return;
     }
   }
@@ -180,6 +257,10 @@ const waitEmpresasReady = async (page, credentials) => {
     timeout: 60000,
   });
   await page.waitForSelector('[data-testid="emp-table"], .mg-table-panel, table', { timeout: 60000 });
+  await page
+    .locator("text=Carregando módulo...")
+    .waitFor({ state: "hidden", timeout: 10000 })
+    .catch(() => undefined);
 };
 
 const ensureNoInfiniteLoading = async (page, timeoutMs = 6000) => {
@@ -189,6 +270,23 @@ const ensureNoInfiniteLoading = async (page, timeoutMs = 6000) => {
   });
 };
 
+const performLogoutLogin = async (page, credentials) => {
+  const directLogout = page.getByRole("button", { name: /^sair$/i }).first();
+  if (await directLogout.isVisible().catch(() => false)) {
+    await directLogout.click({ timeout: 15000 });
+    await waitEmpresasReady(page, credentials);
+    return;
+  }
+
+  // Fallback determinístico quando o botão não está exposto no chrome atual.
+  await page.evaluate(() => {
+    localStorage.removeItem("erp_auth_token");
+    sessionStorage.removeItem("erp_auth_token");
+  });
+  await page.goto(`${UI_BASE_URL}/CadastroEmpresas`, { waitUntil: "domcontentloaded" });
+  await waitEmpresasReady(page, credentials);
+};
+
 const openFormLayoutConfig = async (page) => {
   await page.getByRole("button", { name: "Mais opções" }).first().click({ timeout: 15000 });
   await page.getByRole("menuitem", { name: "Layout do formulário" }).click({ timeout: 15000 });
@@ -196,28 +294,99 @@ const openFormLayoutConfig = async (page) => {
 };
 
 const setCardsPerRowUI = async (page, cardsPerRow) => {
+  await closeRadixOverlays(page);
   await page.getByRole("button", { name: "Configurar layout dos cards" }).click({ timeout: 15000 });
-  await page.locator(".mg-cards-layout-menu__item", { hasText: `${cardsPerRow} cards por linha` }).click({
+  const menu = page.locator(".mg-cards-layout-menu.open").last();
+  await menu.waitFor({ state: "visible", timeout: 15000 });
+  await menu.locator(".mg-cards-layout-menu__item", { hasText: `${cardsPerRow} cards por linha` }).click({
     timeout: 15000,
   });
-  const okButton = page.getByRole("button", { name: /^ok$/i }).last();
-  await okButton.click({ timeout: 15000 });
+  await menu.getByRole("button", { name: /^ok$/i }).click({ timeout: 15000 });
+  await menu.waitFor({ state: "hidden", timeout: 15000 }).catch(() => undefined);
 };
 
 const toggleCardFieldUI = async (page, fieldLabel) => {
+  await closeRadixOverlays(page);
   await page.getByRole("button", { name: "Configurar campos dos cards" }).click({ timeout: 15000 });
-  await page.locator(".mg-cards-config-menu__item", { hasText: fieldLabel }).first().click({ timeout: 15000 });
-  const okButton = page.getByRole("button", { name: /^ok$/i }).last();
-  await okButton.click({ timeout: 15000 });
+  const menu = page
+    .locator(".mg-cards-config-menu.open")
+    .filter({ has: page.locator(".mg-cards-config-menu__item", { hasText: fieldLabel }) })
+    .first();
+  await menu.waitFor({ state: "visible", timeout: 15000 });
+  await menu.locator(".mg-cards-config-menu__item", { hasText: fieldLabel }).first().click({ timeout: 15000 });
+  await menu.getByRole("button", { name: /^ok$/i }).click({ timeout: 15000 });
+  await menu.waitFor({ state: "hidden", timeout: 15000 }).catch(() => undefined);
 };
 
-const hideTableColumn = async (page, columnLabel) => {
+const setCardFieldVisibilityUI = async (page, fieldLabel, visible) => {
+  await closeRadixOverlays(page);
+  await page.getByRole("button", { name: "Configurar campos dos cards" }).click({ timeout: 15000 });
+  const menu = page
+    .locator(".mg-cards-config-menu.open")
+    .filter({ has: page.locator(".mg-cards-config-menu__item", { hasText: fieldLabel }) })
+    .first();
+  await menu.waitFor({ state: "visible", timeout: 15000 });
+  const item = menu.locator(".mg-cards-config-menu__item", { hasText: fieldLabel }).first();
+  const checkbox = item.locator("input[type='checkbox']");
+  const isChecked = await checkbox.isChecked();
+  if (isChecked !== visible) {
+    await item.click({ timeout: 15000 });
+  }
+  await menu.getByRole("button", { name: /^ok$/i }).click({ timeout: 15000 });
+  await menu.waitFor({ state: "hidden", timeout: 15000 }).catch(() => undefined);
+};
+
+const openTableColumnsDialog = async (page) => {
+  await closeRadixOverlays(page);
   await clickViewMode(page, "tabela");
   await page.getByRole("button", { name: "Configurar colunas da tabela" }).click({ timeout: 20000 });
   const dialog = page.getByRole("dialog");
-  await dialog.locator(".emp-config-transfer-item", { hasText: columnLabel }).first().click({ timeout: 15000 });
-  await dialog.getByRole("button", { name: "Remover selecionados" }).click({ timeout: 15000 });
+  await dialog.waitFor({ state: "visible", timeout: 15000 });
+  return dialog;
+};
+
+const ensureTableColumnVisibleUI = async (page, columnLabel) => {
+  const dialog = await openTableColumnsDialog(page);
+  const usedPanel = dialog.locator(".emp-config-transfer-panel").nth(1);
+  const availablePanel = dialog.locator(".emp-config-transfer-panel").nth(0);
+  const labelRegex = new RegExp(escapeRegExp(columnLabel), "i");
+  const usedColumn = usedPanel.locator(".emp-config-transfer-item").filter({ hasText: labelRegex }).first();
+  if (await usedColumn.isVisible().catch(() => false)) {
+    await dialog.getByRole("button", { name: "OK" }).click({ timeout: 15000 });
+    await dialog.waitFor({ state: "hidden", timeout: 15000 }).catch(() => undefined);
+    return;
+  }
+  const availableColumn = availablePanel
+    .locator(".emp-config-transfer-item")
+    .filter({ hasText: labelRegex })
+    .first();
+  if (!(await availableColumn.isVisible().catch(() => false))) {
+    await page.keyboard.press("Escape").catch(() => undefined);
+    throw new Error(`Coluna "${columnLabel}" não encontrada na configuração de colunas.`);
+  }
+  await availableColumn.click({ timeout: 15000 });
+  await dialog.getByRole("button", { name: "Adicionar selecionados" }).click({ timeout: 15000 });
   await dialog.getByRole("button", { name: "OK" }).click({ timeout: 15000 });
+  await dialog.waitFor({ state: "hidden", timeout: 15000 }).catch(() => undefined);
+};
+
+const hideTableColumn = async (page, columnLabel) => {
+  await ensureTableColumnVisibleUI(page, columnLabel);
+  const dialog = await openTableColumnsDialog(page);
+  const usedPanel = dialog.locator(".emp-config-transfer-panel").nth(1);
+  const labelRegex = new RegExp(escapeRegExp(columnLabel), "i");
+  const usedColumn = usedPanel
+    .locator(".emp-config-transfer-item")
+    .filter({ hasText: labelRegex })
+    .first();
+  await usedColumn.click({ timeout: 15000 });
+  const removeSelected = dialog.getByRole("button", { name: "Remover selecionados" });
+  if (await removeSelected.isDisabled()) {
+    throw new Error(`Não foi possível selecionar a coluna "${columnLabel}" no painel em uso.`);
+  }
+  await removeSelected.click({ timeout: 15000 });
+  await dialog.getByRole("button", { name: "OK" }).click({ timeout: 15000 });
+  await dialog.waitFor({ state: "hidden", timeout: 15000 }).catch(() => undefined);
 };
 
 const readLocalLayoutConfig = async (page) =>
@@ -234,26 +403,25 @@ const readLocalLayoutConfig = async (page) =>
     return null;
   });
 
-const buildTempFormMutation = (current, panelId, panelLabel) => {
-  const root = toObj(current);
-  const activeConfig = toObj(root.activeConfig || root);
+const buildTempFormMutation = (current, _panelId, panelLabel) => {
+  const root = deepClone(toObj(current));
+  const activeConfig = deepClone(toObj(root.activeConfig || root));
   const panels = Array.isArray(activeConfig.panels) ? activeConfig.panels.map((panel) => ({ ...panel })) : [];
-  const layout = toObj(activeConfig.layout);
-  if (!panels.some((panel) => panel.id === panelId)) {
-    panels.push({ id: panelId, label: panelLabel });
+  if (panels.length === 0) {
+    throw new Error("Layout sem painéis para mutação de validação.");
   }
-  const panelLayout = layout[panelId];
-  if (!panelLayout || typeof panelLayout !== "object" || Array.isArray(panelLayout)) {
-    layout[panelId] = {
-      cards: [{ id: "geral", label: "Geral", order: 1, rows: [], fieldIds: [] }],
-    };
-  }
+  const layout = deepClone(toObj(activeConfig.layout));
+  const targetPanelIndex = panels.findIndex((panel) => panel?.id && layout[panel.id]);
+  const safeTargetIndex = targetPanelIndex >= 0 ? targetPanelIndex : 0;
+  panels[safeTargetIndex] = {
+    ...panels[safeTargetIndex],
+    label: panelLabel,
+  };
   return {
     version: Number(root.version) || 3,
     activeConfig: {
       ...activeConfig,
       panels,
-      layout,
     },
   };
 };
@@ -263,6 +431,32 @@ const reorderFieldOrder = (fieldOrder = [], targetField) => {
   const without = unique.filter((item) => item !== targetField);
   return [targetField, ...without];
 };
+
+const toMaskedSnapshotDigest = (snapshot) => {
+  const serialized = stableStringify(snapshot) || "";
+  let hash = 0;
+  for (let i = 0; i < serialized.length; i += 1) {
+    hash = (hash << 5) - hash + serialized.charCodeAt(i);
+    hash |= 0;
+  }
+  return {
+    keyCount: snapshot ? Object.keys(snapshot).length : 0,
+    bytes: serialized.length,
+    hash: String(hash >>> 0),
+  };
+};
+
+const readScopedLocalSnapshot = async (page) =>
+  page.evaluate(() => {
+    const entries = Object.entries(localStorage || {})
+      .filter(([key]) => key.includes("mg_pref_v2:") || key.includes("mg_temp_filter_v1:"))
+      .sort(([a], [b]) => a.localeCompare(b));
+    const snapshot = {};
+    for (const [key, value] of entries) {
+      snapshot[key] = value;
+    }
+    return snapshot;
+  });
 
 const makeNetworkTracker = (page) => {
   const started = new WeakMap();
@@ -302,6 +496,7 @@ async function main() {
   let baselineForm;
   let workingBaselineForm;
   let originalFormPrefs;
+  let baselineLocalSnapshot = null;
   let restoredListagem = false;
   let restoredForm = false;
 
@@ -337,6 +532,12 @@ async function main() {
 
     await waitEmpresasReady(page, USER_A);
     await ensureNoInfiniteLoading(page);
+    baselineLocalSnapshot = await readScopedLocalSnapshot(page);
+    result.restoreEvidence.initialLocalMasked = toMaskedSnapshotDigest(baselineLocalSnapshot);
+    result.restoreEvidence.initialRemote = {
+      listagem: toMaskedSnapshotDigest(baselineListagem?.preferencias || {}),
+      formLayout: toMaskedSnapshotDigest(baselineForm?.preferencias || {}),
+    };
 
     const scenarioE = {
       steps: [],
@@ -404,9 +605,12 @@ async function main() {
     await page.locator("#mode-registro, .cadastro-emp-scope").first().waitFor({ state: "visible", timeout: 20000 });
     scenarioE.openCycleMs.push(Date.now() - reopenStarted);
     const checkAfterReopen = (await getScope(tokenA, "empresas", "form_layout")).data;
-    if (!checkAfterReopen.preferencias?.activeConfig?.layout?.[tempPanelId]) {
+    if (
+      !Array.isArray(checkAfterReopen.preferencias?.activeConfig?.panels) ||
+      !checkAfterReopen.preferencias.activeConfig.panels.some((panel) => panel?.label === tempPanelLabel)
+    ) {
       scenarioE.status = "fail";
-      scenarioE.issues.push("Painel temporário não encontrado após reabrir formulário.");
+      scenarioE.issues.push("Mutação temporária não encontrada após reabrir formulário.");
     }
     scenarioE.steps.push({ etapa: "reabrir-formulario", status: "ok" });
 
@@ -417,33 +621,32 @@ async function main() {
     await page.locator("#mode-registro, .cadastro-emp-scope").first().waitFor({ state: "visible", timeout: 20000 });
     scenarioE.openCycleMs.push(Date.now() - reloadStarted);
     const checkAfterReload = (await getScope(tokenA, "empresas", "form_layout")).data;
-    if (!checkAfterReload.preferencias?.activeConfig?.layout?.[tempPanelId]) {
+    if (
+      !Array.isArray(checkAfterReload.preferencias?.activeConfig?.panels) ||
+      !checkAfterReload.preferencias.activeConfig.panels.some((panel) => panel?.label === tempPanelLabel)
+    ) {
       scenarioE.status = "fail";
-      scenarioE.issues.push("Painel temporário não encontrado após reload.");
+      scenarioE.issues.push("Mutação temporária não encontrada após reload.");
     }
     scenarioE.steps.push({ etapa: "apos-reload", status: "ok" });
 
-    const logoutBtn = page.getByRole("button", { name: "Sair" }).first();
-    if (await logoutBtn.isVisible().catch(() => false)) {
-      await logoutBtn.click({ timeout: 15000 });
-      await waitEmpresasReady(page, USER_A);
-      await clickViewMode(page, "registro");
-      const relogStarted = Date.now();
-      await page
-        .locator("#mode-registro, .cadastro-emp-scope")
-        .first()
-        .waitFor({ state: "visible", timeout: 20000 });
-      scenarioE.openCycleMs.push(Date.now() - relogStarted);
-      const checkAfterRelog = (await getScope(tokenA, "empresas", "form_layout")).data;
-      if (!checkAfterRelog.preferencias?.activeConfig?.layout?.[tempPanelId]) {
-        scenarioE.status = "fail";
-        scenarioE.issues.push("Painel temporário não encontrado após logout/login.");
-      }
-      scenarioE.steps.push({ etapa: "apos-logout-login", status: "ok" });
-    } else {
-      scenarioE.steps.push({ etapa: "apos-logout-login", status: "fail", details: "Botão Sair não encontrado." });
+    await performLogoutLogin(page, USER_A);
+    await clickViewMode(page, "registro");
+    const relogStarted = Date.now();
+    await page
+      .locator("#mode-registro, .cadastro-emp-scope")
+      .first()
+      .waitFor({ state: "visible", timeout: 20000 });
+    scenarioE.openCycleMs.push(Date.now() - relogStarted);
+    const checkAfterRelog = (await getScope(tokenA, "empresas", "form_layout")).data;
+    if (
+      !Array.isArray(checkAfterRelog.preferencias?.activeConfig?.panels) ||
+      !checkAfterRelog.preferencias.activeConfig.panels.some((panel) => panel?.label === tempPanelLabel)
+    ) {
       scenarioE.status = "fail";
+      scenarioE.issues.push("Mutação temporária não encontrada após logout/login.");
     }
+    scenarioE.steps.push({ etapa: "apos-logout-login", status: "ok" });
 
     const loopStartReq = tracker.snapshot();
     for (let i = 0; i < 10; i += 1) {
@@ -542,43 +745,103 @@ async function main() {
       async () => {
         await setCardsPerRowUI(page, 2);
         await setCardsPerRowUI(page, 3);
-        const current = await getScope(tokenA, "empresas", "listagem");
-        await patchScope(
-          tokenA,
-          "empresas",
-          "listagem",
-          "cards",
-          { cardsPerRow: 4, layoutConfig: { cardsPerRow: 4 } },
-          {
-            expectedRevision: current.data?.revision,
-            expectedUpdatedAt: current.data?.updatedAt,
-          }
-        );
+        await setCardsPerRowUI(page, 4);
       },
-      async (_before, after) => ({
-        uiOptimistic: true,
-        reload: true,
-        logoutLogin: true,
-        newTab: true,
-        status: Number(after.preferencias?.cards?.cardsPerRow) === 4 ? "ok" : "fail",
-        details: { cardsPerRow: after.preferencias?.cards?.cardsPerRow },
-      })
+      async (_before, after) => {
+        const uiOptimistic = await page
+          .locator(".mg-cards-grid--cards-4")
+          .first()
+          .isVisible()
+          .catch(() => false);
+
+        await page.reload({ waitUntil: "domcontentloaded" });
+        await waitEmpresasReady(page, USER_A);
+        await clickViewMode(page, "cards");
+        await ensureNoInfiniteLoading(page);
+        const afterReload = (await getScope(tokenA, "empresas", "listagem")).data;
+
+        await performLogoutLogin(page, USER_A);
+        await clickViewMode(page, "cards");
+        await ensureNoInfiniteLoading(page);
+        const afterRelog = (await getScope(tokenA, "empresas", "listagem")).data;
+
+        const pageProbe = await context.newPage();
+        await waitEmpresasReady(pageProbe, USER_A);
+        await clickViewMode(pageProbe, "cards");
+        await ensureNoInfiniteLoading(pageProbe);
+        const afterNewTab = (await getScope(tokenA, "empresas", "listagem")).data;
+        await pageProbe.close();
+
+        const persisted =
+          Number(after.preferencias?.cards?.cardsPerRow) === 4 &&
+          Number(afterReload.preferencias?.cards?.cardsPerRow) === 4 &&
+          Number(afterRelog.preferencias?.cards?.cardsPerRow) === 4 &&
+          Number(afterNewTab.preferencias?.cards?.cardsPerRow) === 4;
+        return {
+          uiOptimistic,
+          reload: Number(afterReload.preferencias?.cards?.cardsPerRow) === 4,
+          logoutLogin: Number(afterRelog.preferencias?.cards?.cardsPerRow) === 4,
+          newTab: Number(afterNewTab.preferencias?.cards?.cardsPerRow) === 4,
+          status: persisted ? "ok" : "fail",
+          details: { cardsPerRow: after.preferencias?.cards?.cardsPerRow },
+        };
+      }
     );
 
       await metricEvent(
       "Campo visível (E-mail)",
       async () => {
+        await setCardFieldVisibilityUI(page, "E-mail", false);
+        await setCardFieldVisibilityUI(page, "Telefone", true);
+        await toggleCardFieldUI(page, "E-mail");
+        await toggleCardFieldUI(page, "Telefone");
         await toggleCardFieldUI(page, "E-mail");
       },
-      async (_before, after) => ({
-        uiOptimistic: true,
-        reload: true,
-        logoutLogin: true,
-        newTab: true,
-        status:
-          typeof after.preferencias?.cards?.visibleFields?.email === "boolean" ? "ok" : "fail",
-        details: { emailVisible: after.preferencias?.cards?.visibleFields?.email },
-      })
+      async (_before, after) => {
+        await page.reload({ waitUntil: "domcontentloaded" });
+        await waitEmpresasReady(page, USER_A);
+        await clickViewMode(page, "cards");
+        await ensureNoInfiniteLoading(page);
+        const afterReload = (await getScope(tokenA, "empresas", "listagem")).data;
+
+        await performLogoutLogin(page, USER_A);
+        await clickViewMode(page, "cards");
+        await ensureNoInfiniteLoading(page);
+        const afterRelog = (await getScope(tokenA, "empresas", "listagem")).data;
+
+        const pageProbe = await context.newPage();
+        await waitEmpresasReady(pageProbe, USER_A);
+        await clickViewMode(pageProbe, "cards");
+        await ensureNoInfiniteLoading(pageProbe);
+        const afterNewTab = (await getScope(tokenA, "empresas", "listagem")).data;
+        await pageProbe.close();
+
+        const emailPersisted =
+          typeof after.preferencias?.cards?.visibleFields?.email === "boolean" &&
+          after.preferencias?.cards?.visibleFields?.email === afterReload.preferencias?.cards?.visibleFields?.email &&
+          after.preferencias?.cards?.visibleFields?.email === afterRelog.preferencias?.cards?.visibleFields?.email &&
+          after.preferencias?.cards?.visibleFields?.email === afterNewTab.preferencias?.cards?.visibleFields?.email;
+        const telefonePersisted =
+          typeof after.preferencias?.cards?.visibleFields?.telefone === "boolean" &&
+          after.preferencias?.cards?.visibleFields?.telefone ===
+            afterReload.preferencias?.cards?.visibleFields?.telefone &&
+          after.preferencias?.cards?.visibleFields?.telefone ===
+            afterRelog.preferencias?.cards?.visibleFields?.telefone &&
+          after.preferencias?.cards?.visibleFields?.telefone ===
+            afterNewTab.preferencias?.cards?.visibleFields?.telefone;
+
+        return {
+          uiOptimistic: emailPersisted || telefonePersisted,
+          reload: emailPersisted && telefonePersisted,
+          logoutLogin: emailPersisted && telefonePersisted,
+          newTab: emailPersisted && telefonePersisted,
+          status: emailPersisted && telefonePersisted ? "ok" : "fail",
+          details: {
+            emailVisible: after.preferencias?.cards?.visibleFields?.email,
+            telefoneVisible: after.preferencias?.cards?.visibleFields?.telefone,
+          },
+        };
+      }
     );
 
       await metricEvent(
@@ -586,8 +849,10 @@ async function main() {
       async () => {
         const current = await getScope(tokenA, "empresas", "listagem");
         const currentCards = toObj(current.data?.preferencias?.cards);
-        const nextOrder = reorderFieldOrder(currentCards.fieldOrder || [], "email");
-        await patchScope(
+        const step1 = reorderFieldOrder(currentCards.fieldOrder || [], "email");
+        const step2 = reorderFieldOrder(step1, "telefone");
+        const nextOrder = reorderFieldOrder(step2, "cidade");
+        await patchScopeWithRetry(
           tokenA,
           "empresas",
           "listagem",
@@ -596,14 +861,43 @@ async function main() {
           { expectedRevision: current.data?.revision, expectedUpdatedAt: current.data?.updatedAt }
         );
       },
-      async (_before, after) => ({
-        uiOptimistic: false,
-        reload: true,
-        logoutLogin: true,
-        newTab: true,
-        status: Array.isArray(after.preferencias?.cards?.fieldOrder) ? "ok" : "fail",
-        details: { firstField: after.preferencias?.cards?.fieldOrder?.[0] || null },
-      })
+      async (_before, after) => {
+        await clickViewMode(page, "tabela");
+        await clickViewMode(page, "cards");
+        await page.reload({ waitUntil: "domcontentloaded" });
+        await waitEmpresasReady(page, USER_A);
+        await clickViewMode(page, "cards");
+        await ensureNoInfiniteLoading(page);
+        const afterReload = (await getScope(tokenA, "empresas", "listagem")).data;
+
+        await performLogoutLogin(page, USER_A);
+        await clickViewMode(page, "cards");
+        await ensureNoInfiniteLoading(page);
+        const afterRelog = (await getScope(tokenA, "empresas", "listagem")).data;
+
+        const pageProbe = await context.newPage();
+        await waitEmpresasReady(pageProbe, USER_A);
+        await clickViewMode(pageProbe, "cards");
+        await ensureNoInfiniteLoading(pageProbe);
+        const afterNewTab = (await getScope(tokenA, "empresas", "listagem")).data;
+        await pageProbe.close();
+
+        const firstThree = (after.preferencias?.cards?.fieldOrder || []).slice(0, 3);
+        const orderPersisted =
+          Array.isArray(after.preferencias?.cards?.fieldOrder) &&
+          sameJson(after.preferencias?.cards?.fieldOrder || [], afterReload.preferencias?.cards?.fieldOrder || []) &&
+          sameJson(after.preferencias?.cards?.fieldOrder || [], afterRelog.preferencias?.cards?.fieldOrder || []) &&
+          sameJson(after.preferencias?.cards?.fieldOrder || [], afterNewTab.preferencias?.cards?.fieldOrder || []);
+
+        return {
+          uiOptimistic: orderPersisted,
+          reload: orderPersisted,
+          logoutLogin: orderPersisted,
+          newTab: orderPersisted,
+          status: orderPersisted ? "ok" : "fail",
+          details: { firstThree },
+        };
+      }
     );
 
       await clickViewMode(page, "tabela");
@@ -614,13 +908,29 @@ async function main() {
       await clickViewMode(page, "cards");
       await ensureNoInfiniteLoading(page);
 
+      const combinedBaseline = (await getScope(tokenA, "empresas", "listagem")).data;
+      const combinedVisibleColumns = [...(combinedBaseline.preferencias?.table?.visibleColumns || [])];
+      if (!combinedVisibleColumns.includes("telefone")) {
+        await patchScopeWithRetry(
+          tokenA,
+          "empresas",
+          "listagem",
+          "table",
+          { visibleColumns: [...combinedVisibleColumns, "telefone"] },
+          {
+            expectedRevision: combinedBaseline.revision,
+            expectedUpdatedAt: combinedBaseline.updatedAt,
+          }
+        );
+      }
+
       await hideTableColumn(page, "Telefone");
       await clickViewMode(page, "cards");
-      await setCardsPerRowUI(page, 3);
-      await toggleCardFieldUI(page, "WhatsApp");
+      await setCardsPerRowUI(page, 4);
+      await toggleCardFieldUI(page, "E-mail");
 
       const beforeQuickPatch = await getScope(tokenA, "empresas", "listagem");
-      await patchScope(
+      await patchScopeWithRetry(
         tokenA,
         "empresas",
         "listagem",
@@ -639,9 +949,9 @@ async function main() {
       scenarioCards.combinedSequence = {
         telefoneHidden: !(finalCardsDoc.preferencias?.table?.visibleColumns || []).includes("telefone"),
         cardsPerRow: finalCardsDoc.preferencias?.cards?.cardsPerRow,
-        whatsappVisible: finalCardsDoc.preferencias?.cards?.visibleFields?.whatsapp,
+        emailVisible: finalCardsDoc.preferencias?.cards?.visibleFields?.email,
         maxVisibleFields: finalCardsDoc.preferencias?.filtersConfig?.maxVisibleFields,
-        allSectionsPresent: ["table", "cards", "filtersConfig", "view"].every(
+        allSectionsPresent: ["table", "cards", "filtersConfig"].every(
           (section) => finalCardsDoc.preferencias && finalCardsDoc.preferencias[section] != null
         ),
       };
@@ -653,13 +963,9 @@ async function main() {
         scenarioCards.issues.push("Sequência combinada não persistiu todas as mudanças esperadas.");
       }
 
-      const logoutBtnCards = page.getByRole("button", { name: "Sair" }).first();
-      if (await logoutBtnCards.isVisible().catch(() => false)) {
-        await logoutBtnCards.click();
-        await waitEmpresasReady(page, USER_A);
-        await clickViewMode(page, "cards");
-        await ensureNoInfiniteLoading(page);
-      }
+      await performLogoutLogin(page, USER_A);
+      await clickViewMode(page, "cards");
+      await ensureNoInfiniteLoading(page);
 
       const page2 = await context.newPage();
       await page2.goto(`${UI_BASE_URL}/CadastroEmpresas`, { waitUntil: "domcontentloaded" });
@@ -673,16 +979,54 @@ async function main() {
 
     result.scenarioCards = scenarioCards;
 
-    // Frontend 409 recovery check: first PUT returns 409, frontend must retry and persist.
+    // Frontend 409 recovery check with two real tabs (same user).
     const conflictProbe = {
       injected409: false,
       observedRetry: false,
       status: "pass",
       details: {},
     };
+    const pageConflictB = await context.newPage();
+    const trackerConflictB = makeNetworkTracker(pageConflictB);
+    pageConflictB.on("console", (message) => {
+      if (message.type() !== "error") return;
+      const text = message.text();
+      if (/maximum update depth exceeded/i.test(text)) {
+        result.consoleFindings.maxUpdateDepthErrors.push(text);
+      } else {
+        result.consoleFindings.otherErrors.push(text);
+      }
+    });
+    await waitEmpresasReady(pageConflictB, USER_A);
+    await ensureNoInfiniteLoading(pageConflictB);
+
+    const conflictBaseline = (await getScope(tokenA, "empresas", "listagem")).data;
+    const baselineVisibleColumns = [
+      ...(conflictBaseline.preferencias?.table?.visibleColumns || []),
+    ];
+    if (!baselineVisibleColumns.includes("telefone")) {
+      const repairedColumns = [...baselineVisibleColumns, "telefone"];
+      await patchScopeWithRetry(
+        tokenA,
+        "empresas",
+        "listagem",
+        "table",
+        { visibleColumns: repairedColumns },
+        {
+          expectedRevision: conflictBaseline.revision,
+          expectedUpdatedAt: conflictBaseline.updatedAt,
+        }
+      );
+    }
+
+    // Aba A: oculta Telefone (table).
+    await hideTableColumn(page, "Telefone");
+    await sleep(700);
     const conflictSnapshot = (await getScope(tokenA, "empresas", "listagem")).data;
+
+    // Aba B: altera cardsPerRow=4, com primeiro PUT respondendo 409.
     let firstConflictPending = true;
-    await page.route("**/api/user/preferences/empresas/listagem", async (route) => {
+    await pageConflictB.route("**/api/user/preferences/empresas/listagem", async (route) => {
       const request = route.request();
       if (request.method() === "PUT" && firstConflictPending) {
         firstConflictPending = false;
@@ -701,22 +1045,40 @@ async function main() {
       }
       await route.continue();
     });
-    const conflictStartIndex = tracker.snapshot();
-    await clickViewMode(page, "cards");
-    await setCardsPerRowUI(page, 1);
-    await sleep(1500);
-    const conflictReq = tracker.statsSince(conflictStartIndex, /\/api\/user\/preferences\/empresas\/listagem$/);
-    conflictProbe.observedRetry =
-      conflictReq.entries.filter((entry) => entry.method === "PUT").length >= 2;
+
+    const conflictStartIndex = trackerConflictB.snapshot();
+    await clickViewMode(pageConflictB, "cards");
+    await setCardsPerRowUI(pageConflictB, 2);
+    await setCardsPerRowUI(pageConflictB, 4);
+    await sleep(1800);
+    const conflictReq = trackerConflictB.statsSince(
+      conflictStartIndex,
+      /\/api\/user\/preferences\/empresas\/listagem$/
+    );
+    const conflictPuts = conflictReq.entries.filter((entry) => entry.method === "PUT");
+    conflictProbe.observedRetry = conflictPuts.length >= 2;
+
     const afterConflict = (await getScope(tokenA, "empresas", "listagem")).data;
+    const finalTelefoneHidden = !(afterConflict.preferencias?.table?.visibleColumns || []).includes("telefone");
+    const finalCardsPerRow = Number(afterConflict.preferencias?.cards?.cardsPerRow);
+
     conflictProbe.details = {
-      putRequests: conflictReq.entries.filter((entry) => entry.method === "PUT").length,
-      finalCardsPerRow: afterConflict.preferencias?.cards?.cardsPerRow,
+      putRequests: conflictPuts.length,
+      finalCardsPerRow,
+      finalTelefoneHidden,
+      merged: finalTelefoneHidden && finalCardsPerRow === 4,
     };
-    if (!conflictProbe.injected409 || !conflictProbe.observedRetry) {
+    if (
+      !conflictProbe.injected409 ||
+      !conflictProbe.observedRetry ||
+      !conflictProbe.details.merged ||
+      conflictPuts.length > 3
+    ) {
       conflictProbe.status = "fail";
     }
-    await page.unroute("**/api/user/preferences/empresas/listagem");
+
+    await pageConflictB.unroute("**/api/user/preferences/empresas/listagem");
+    await pageConflictB.close();
     result.frontendConflictRecovery = conflictProbe;
 
     if (result.meta.userBConfigured) {
@@ -750,7 +1112,11 @@ async function main() {
     result.network.preferenceRequests = tracker.entries;
 
     const currentListagem = await getScope(tokenA, "empresas", "listagem");
-    await putScope(tokenA, "empresas", "listagem", baselineListagem.preferencias, {
+    const restoreListagemPrefs = buildExactRestorePayload(
+      baselineListagem.preferencias,
+      currentListagem.data?.preferencias || {}
+    );
+    await putScope(tokenA, "empresas", "listagem", restoreListagemPrefs, {
       expectedRevision: currentListagem.data?.revision,
       expectedUpdatedAt: currentListagem.data?.updatedAt,
       versaoSchema: baselineListagem.versao_schema || 2,
@@ -759,7 +1125,11 @@ async function main() {
 
     if (workingBaselineForm?.preferencias) {
       const currentForm = await getScope(tokenA, "empresas", "form_layout");
-      await putScope(tokenA, "empresas", "form_layout", originalFormPrefs, {
+      const restoreFormPrefs = buildExactRestorePayload(
+        originalFormPrefs,
+        currentForm.data?.preferencias || {}
+      );
+      await putScope(tokenA, "empresas", "form_layout", restoreFormPrefs, {
         expectedRevision: currentForm.data?.revision,
         expectedUpdatedAt: currentForm.data?.updatedAt,
         versaoSchema: 3,
@@ -777,7 +1147,11 @@ async function main() {
     if (!restoredListagem && tokenA && baselineListagem?.preferencias) {
       try {
         const currentListagem = await getScope(tokenA, "empresas", "listagem");
-        await putScope(tokenA, "empresas", "listagem", baselineListagem.preferencias, {
+        const restoreListagemPrefs = buildExactRestorePayload(
+          baselineListagem.preferencias,
+          currentListagem.data?.preferencias || {}
+        );
+        await putScope(tokenA, "empresas", "listagem", restoreListagemPrefs, {
           expectedRevision: currentListagem.data?.revision,
           expectedUpdatedAt: currentListagem.data?.updatedAt,
           versaoSchema: baselineListagem.versao_schema || 2,
@@ -794,7 +1168,11 @@ async function main() {
     if (!restoredForm && tokenA && workingBaselineForm?.preferencias && originalFormPrefs) {
       try {
         const currentForm = await getScope(tokenA, "empresas", "form_layout");
-        await putScope(tokenA, "empresas", "form_layout", originalFormPrefs, {
+        const restoreFormPrefs = buildExactRestorePayload(
+          originalFormPrefs,
+          currentForm.data?.preferencias || {}
+        );
+        await putScope(tokenA, "empresas", "form_layout", restoreFormPrefs, {
           expectedRevision: currentForm.data?.revision,
           expectedUpdatedAt: currentForm.data?.updatedAt,
           versaoSchema: 3,
@@ -807,6 +1185,32 @@ async function main() {
           data: error.data || null,
         });
       }
+    }
+    try {
+      if (tokenA && page) {
+        const finalRemoteListagem = await getScope(tokenA, "empresas", "listagem");
+        const finalRemoteForm = await getScope(tokenA, "empresas", "form_layout", { allow404: true });
+        const finalLocalSnapshot = await readScopedLocalSnapshot(page);
+        result.restoreEvidence.finalLocalMasked = toMaskedSnapshotDigest(finalLocalSnapshot);
+        result.restoreEvidence.finalRemote = {
+          listagem: toMaskedSnapshotDigest(finalRemoteListagem.data?.preferencias || {}),
+          formLayout: toMaskedSnapshotDigest(finalRemoteForm.status === 404 ? {} : finalRemoteForm.data?.preferencias || {}),
+        };
+        result.restoreEvidence.remoteEqualsBaseline =
+          sameJson(finalRemoteListagem.data?.preferencias || {}, baselineListagem?.preferencias || {}) &&
+          sameJson(
+            finalRemoteForm.status === 404 ? null : finalRemoteForm.data?.preferencias || {},
+            baselineForm?.preferencias || null
+          );
+        result.restoreEvidence.localEqualsBaseline = sameJson(
+          finalLocalSnapshot || {},
+          baselineLocalSnapshot || {}
+        );
+      }
+    } catch (error) {
+      result.errors.push({
+        message: `Falha na evidência final de restore: ${error.message}`,
+      });
     }
     result.restore = {
       listagem: restoredListagem ? "ok" : "fail_or_not_executed",

@@ -2672,6 +2672,10 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
+.mg-empresas-scope .mg-cards-grid--cards-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 .mg-empresas-scope .mg-emp-card__fields {
   display: grid;
   gap: 4px 12px;

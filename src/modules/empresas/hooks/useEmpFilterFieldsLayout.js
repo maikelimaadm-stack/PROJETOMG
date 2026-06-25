@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  EMP_FILTER_FIELDS_LAYOUT_KEY,
   applyFilterFieldsLayout,
   getDefaultFilterFieldsLayout,
   loadFilterFieldsLayout,
@@ -9,26 +10,55 @@ import {
   saveFilterFieldsLayout,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { FILTER_MAX_VISIBLE_KEY } from "@/modules/empresas/components/tblEmp.constants";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
+
+const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) => {
+  const normalizedReason = String(reason || "").toLowerCase();
+  if (!normalizedReason) return false;
+  if (normalizedReason.includes("filter-layout")) return true;
+  if (normalizedReason.includes("filter-max")) return true;
+  if (normalizedReason.includes("listagem:hydrate")) return true;
+  if (normalizedReason === "storage") {
+    const keyList = Array.isArray(keys) ? keys : [keys];
+    return keyList.some((key) => {
+      const normalizedKey = String(key || "").toLowerCase();
+      return (
+        normalizedKey.includes(EMP_FILTER_FIELDS_LAYOUT_KEY.toLowerCase()) ||
+        normalizedKey.includes(FILTER_MAX_VISIBLE_KEY.toLowerCase())
+      );
+    });
+  }
+  return false;
+};
 
 export function useEmpFilterFieldsLayout(catalogFields = []) {
-  const [layoutVersion, setLayoutVersion] = useState(0);
-
-  const catalogKeys = useMemo(
-    () => catalogFields.map((field) => field.key),
+  const catalogKey = useMemo(
+    () =>
+      catalogFields
+        .map((field) => field.key)
+        .filter(Boolean)
+        .join("|"),
     [catalogFields]
   );
 
-  const catalogKey = useMemo(() => catalogKeys.join("|"), [catalogKeys]);
+  const catalogKeys = useMemo(
+    () => (catalogKey ? catalogKey.split("|") : []),
+    [catalogKey]
+  );
 
   const [layout, setLayout] = useState(() =>
     loadFilterFieldsLayout(catalogKeys)
   );
 
   useEffect(() => {
-    const refresh = () => {
-      setLayout(loadFilterFieldsLayout(catalogKeys));
-      setLayoutVersion((current) => current + 1);
+    const refresh = (detail = null) => {
+      const isDomEvent = detail && typeof detail === "object" && "type" in detail;
+      if (detail && !isDomEvent && !shouldRefreshFilterLayoutByCacheEvent(detail)) return;
+      const nextLayout = loadFilterFieldsLayout(catalogKeys);
+      setLayout((current) => (stableJsonEqual(current, nextLayout) ? current : nextLayout));
     };
+    refresh();
     const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
     window.addEventListener("emp-filter-fields-layout-updated", refresh);
     return () => {
@@ -56,9 +86,8 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   }, [catalogKey, catalogKeys]);
 
   const filterFields = useMemo(() => {
-    void layoutVersion;
     return applyFilterFieldsLayout(catalogFields, layout);
-  }, [catalogFields, layout, layoutVersion]);
+  }, [catalogFields, layout]);
 
   const saveLayout = useCallback(
     ({ visiveis, ordem, maxVisible }) => {

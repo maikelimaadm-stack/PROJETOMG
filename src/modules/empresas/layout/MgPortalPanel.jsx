@@ -12,7 +12,7 @@ export default function MgPortalPanel({ open, panelRef, panelClassName, style, o
   };
 
   return createPortal(
-    <div className="mg-empresas-scope mg-floating-panel-root" aria-hidden="true">
+    <div className="mg-empresas-scope mg-floating-panel-root">
       <div
         ref={panelRef}
         data-mg-floating-panel="true"

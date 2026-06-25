@@ -1,5 +1,25 @@
 import { useLayoutEffect, useState } from "react";
 
+const sameStyleValue = (left, right) => {
+  if (left === right) return true;
+  if (Number.isNaN(left) && Number.isNaN(right)) return true;
+  return false;
+};
+
+const sameStyleObject = (left, right) => {
+  if (left === right) return true;
+  const leftObj = left && typeof left === "object" ? left : {};
+  const rightObj = right && typeof right === "object" ? right : {};
+  const leftKeys = Object.keys(leftObj);
+  const rightKeys = Object.keys(rightObj);
+  if (leftKeys.length !== rightKeys.length) return false;
+  for (const key of leftKeys) {
+    if (!(key in rightObj)) return false;
+    if (!sameStyleValue(leftObj[key], rightObj[key])) return false;
+  }
+  return true;
+};
+
 export function closeMgPanels(exceptEl = null) {
   window.dispatchEvent(new CustomEvent("mg-close-panels", { detail: { except: exceptEl } }));
 }
@@ -32,7 +52,9 @@ export function useMgPanelPosition(
 
   useLayoutEffect(() => {
     if (!open || !rootRef.current) {
-      setStyle({ visibility: "hidden" });
+      setStyle((previous) =>
+        sameStyleObject(previous, { visibility: "hidden" }) ? previous : { visibility: "hidden" }
+      );
       return undefined;
     }
 
@@ -90,7 +112,7 @@ export function useMgPanelPosition(
         nextStyle.overflow = "hidden";
       }
 
-      setStyle(nextStyle);
+      setStyle((previous) => (sameStyleObject(previous, nextStyle) ? previous : nextStyle));
     };
 
     update();

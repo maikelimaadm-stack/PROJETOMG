@@ -76,6 +76,21 @@ const safeStringify = (value) => {
   }
 };
 
+const normalizeForStableCompare = (value) => {
+  if (Array.isArray(value)) return value.map((item) => normalizeForStableCompare(item));
+  if (value && typeof value === "object") {
+    return Object.keys(value)
+      .sort()
+      .reduce((acc, key) => {
+        acc[key] = normalizeForStableCompare(value[key]);
+        return acc;
+      }, {});
+  }
+  return value;
+};
+
+const stableStringify = (value) => safeStringify(normalizeForStableCompare(value ?? null));
+
 const toObject = (value, fallback = {}) =>
   value && typeof value === "object" && !Array.isArray(value) ? value : fallback;
 
@@ -127,7 +142,7 @@ const sanitizeTablePreferences = (table = {}) => {
 
 export const readStoredEmpViewMode = () => normalizeViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY));
 
-export const writeStoredEmpViewMode = (mode, reason = "listagem:view-mode") => {
+export const writeStoredEmpViewMode = (mode, reason = "view:local-mode") => {
   writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(mode), reason);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("emp-view-mode-updated"));
@@ -137,7 +152,7 @@ export const writeStoredEmpViewMode = (mode, reason = "listagem:view-mode") => {
 export const readStoredLaunchPanelStyle = () =>
   normalizeLaunchPanelStyle(readStorage(EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY));
 
-export const writeStoredLaunchPanelStyle = (style, reason = "listagem:panel-style") => {
+export const writeStoredLaunchPanelStyle = (style, reason = "form-layout:panel-style-local") => {
   writeStorage(
     EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY,
     normalizeLaunchPanelStyle(style),
@@ -372,7 +387,7 @@ export const buildFormLayoutPreferencesFromStorage = (userId, clienteId) => {
   };
 };
 
-export const applyFormLayoutPreferencesToStorage = (userId, preferences, updatedAt, clienteId) => {
+export const applyFormLayoutPreferencesToStorage = (userId, preferences, updatedAt, clienteId, revision = null) => {
   if (!userId || typeof window === "undefined") return;
   const { layoutKey } = getLayoutStorageKeysForModule(empresasCadastroConfig, userId, clienteId);
   const activeConfig =
@@ -380,8 +395,8 @@ export const applyFormLayoutPreferencesToStorage = (userId, preferences, updated
       ? preferences.activeConfig
       : preferences;
   if (!activeConfig || typeof activeConfig !== "object") return;
-  const nextConfigJson = safeStringify(activeConfig);
-  const currentConfigJson = safeStringify(readEmpPreferencesJson(layoutKey, null));
+  const nextConfigJson = stableStringify(activeConfig);
+  const currentConfigJson = stableStringify(readEmpPreferencesJson(layoutKey, null));
   const currentUpdatedAt = readEmpPreferencesText(`${layoutKey}__updatedAt`, null);
   const nextUpdatedAt = updatedAt || currentUpdatedAt || new Date().toISOString();
   if (nextConfigJson && nextConfigJson === currentConfigJson && currentUpdatedAt === nextUpdatedAt) {
@@ -392,6 +407,19 @@ export const applyFormLayoutPreferencesToStorage = (userId, preferences, updated
     writeEmpPreferencesText(`${layoutKey}__updatedAt`, nextUpdatedAt, {
       reason: "form-layout:hydrate",
     });
+    writeEmpPreferencesText(`${layoutKey}__serverUpdatedAt`, nextUpdatedAt, {
+      reason: "form-layout:hydrate",
+    });
+    if (Number.isFinite(Number(revision))) {
+      writeEmpPreferencesText(`${layoutKey}__serverRevision`, String(Number(revision)), {
+        reason: "form-layout:hydrate",
+      });
+    }
+    if (nextConfigJson) {
+      writeEmpPreferencesText(`${layoutKey}__serverHash`, nextConfigJson, {
+        reason: "form-layout:hydrate",
+      });
+    }
   }, "bootstrap:apply-form");
   window.dispatchEvent(new Event("cadastro-layout-updated:empresas"));
   window.dispatchEvent(
