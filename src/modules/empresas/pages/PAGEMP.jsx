@@ -68,7 +68,6 @@ import {
   normalizePanelFilterValue,
 } from "@/shared/filters";
 import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
-import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
 import {
   readStoredEmpViewMode,
@@ -223,7 +222,6 @@ export default function PAGEMP() {
   } = useAuth();
   const {
     preferencesReady,
-    bootstrapGeneration,
     bootstrapStatus,
     error: preferencesSyncError,
     scheduleListagemSync,
@@ -264,6 +262,7 @@ export default function PAGEMP() {
   const [queryPageSize, setQueryPageSize] = useState(EMP_INFINITE_PAGE_SIZE);
   const [loadBatchSize, setLoadBatchSize] = useState(() => readStoredEmpLoadBatchSize());
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
+  const panelFiltersSyncedRef = useRef(false);
   const [columnFilters, setColumnFilters] = useState(readInitialColumnFiltersState);
   const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(true);
   const columnFiltersRef = useRef(readInitialColumnFiltersState());
@@ -346,40 +345,17 @@ export default function PAGEMP() {
     setDropdownSearch("");
   }, [selectedEmpresaId]);
 
-  const applyPagePreferencesFromStorage = useCallback(() => {
-    const storedMode = readStoredEmpViewMode();
-    const hydratedMode = storedMode === "record" ? "table" : storedMode;
-    setViewMode((current) => (current === hydratedMode ? current : hydratedMode));
+  useEffect(() => {
+    if (!preferencesReady || catalogFilterFields.length === 0) return;
+    if (panelFiltersSyncedRef.current) return;
+    if (isEmpPreferencesSectionDirty("view") || isEmpPreferencesSectionDirty("table")) return;
 
-    const storedSort = readEmpPreferencesJson(SORT_KEY, null);
-    const primarySort = Array.isArray(storedSort)
-      ? storedSort.find((item) => item?.key)
-      : storedSort?.key
-        ? storedSort
-        : null;
-    if (primarySort?.key) {
-      setQuerySort((current) => {
-        const next = {
-          key: primarySort.key,
-          direction: primarySort.direction === "desc" ? "desc" : "asc",
-        };
-        if (current.key === next.key && current.direction === next.direction) return current;
-        return next;
-      });
-    }
-
-    const storedColumnFilters = readStoredTempListagemFilters();
-    const safeColumnFilters =
-      storedColumnFilters && typeof storedColumnFilters === "object" && !Array.isArray(storedColumnFilters)
-        ? storedColumnFilters
-        : {};
-    columnFiltersRef.current = safeColumnFilters;
-    setColumnFilters((current) =>
-      stableJsonEqual(current || {}, safeColumnFilters || {}) ? current : safeColumnFilters
+    const storedColumnFilters = readInitialColumnFiltersState();
+    const syncedPanelValues = syncColumnsIntoPanelFilters(
+      storedColumnFilters,
+      panelFilterColumnMap
     );
-    setColumnFiltersHydrated(true);
-
-    const syncedPanelValues = syncColumnsIntoPanelFilters(safeColumnFilters, panelFilterColumnMap);
+    panelFiltersSyncedRef.current = true;
     appliedFilterValuesRef.current = syncedPanelValues;
     setFilterValues((current) =>
       stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
@@ -387,27 +363,11 @@ export default function PAGEMP() {
     setAppliedFilterValues((current) =>
       stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
     );
-    setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
-  }, [panelFilterColumnMap]);
-
-  useEffect(() => {
-    if (!preferencesReady) return;
-    if (isEmpPreferencesSectionDirty("view") || isEmpPreferencesSectionDirty("table")) return;
-    suppressColumnFilterPersistRef.current = true;
-    applyPagePreferencesFromStorage();
-    suppressColumnFilterPersistRef.current = false;
-  }, [applyPagePreferencesFromStorage, bootstrapGeneration, preferencesReady]);
-
-  useEffect(() => {
-    if (!preferencesReady) return undefined;
-    const onBootstrapApplied = () => {
-      suppressColumnFilterPersistRef.current = true;
-      applyPagePreferencesFromStorage();
-      suppressColumnFilterPersistRef.current = false;
-    };
-    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
-    return () => window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
-  }, [applyPagePreferencesFromStorage, preferencesReady]);
+    setAppliedPanelFilters((current) => {
+      const next = buildEmpresaPanelFilters(syncedPanelValues);
+      return stableJsonEqual(current, next) ? current : next;
+    });
+  }, [catalogFilterFields.length, panelFilterColumnMap, preferencesReady]);
 
   useEffect(() => {
     if (!preferencesSyncError?.message) return;

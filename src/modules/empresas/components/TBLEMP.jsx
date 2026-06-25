@@ -89,9 +89,11 @@ import { stableJsonEqual, stableStringify } from "@/shared/utils/stableStringify
 import {
   buildColumnSizingModeFromAutoFit,
   mergeColumnSizingMode,
+  mergeExpandedCatalogIntoTableState,
   readEmpTablePreferencesSnapshot,
 } from "@/modules/empresas/preferences/empTablePreferencesHydration";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
+import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
@@ -241,11 +243,24 @@ export default function TBLEMP({
   onColumnsInUseChange,
   preferencesReady = true,
 }) {
-  const suppressPersistenceRef = useRef(true);
+  const suppressPersistenceRef = useRef(false);
   const tableHydratedRef = useRef(true);
+  const catalogSignatureRef = useRef("");
   const [preferencesVersion, setPreferencesVersion] = useState(0);
   const [selectedItems, setSelectedItems] = useState([]);
-  const initialTableSnapshot = useMemo(() => readEmpTablePreferencesSnapshot(COLUNAS_BASE), []);
+  const initialTableSnapshot = useMemo(() => {
+    markEmpPreferencesPerf("PREF_LOCAL_SNAPSHOT_READ", {
+      section: "table",
+      source: "local",
+    });
+    const snapshot = readEmpTablePreferencesSnapshot(COLUNAS_BASE);
+    markEmpPreferencesPerf("PREF_TABLE_INITIAL_STATE", {
+      section: "table",
+      source: "local",
+      changed: true,
+    });
+    return snapshot;
+  }, []);
   const defaultSortConfig = initialTableSnapshot.sortConfig?.length
     ? initialTableSnapshot.sortConfig
     : [{ key: "codempresa", direction: "asc" }];
@@ -437,9 +452,69 @@ export default function TBLEMP({
 
   useLayoutEffect(() => {
     if (!preferencesReady || !colunasCatalogSignature) return;
-    if (isEmpPreferencesSectionDirty("table")) return;
+
+    const previousSignature = catalogSignatureRef.current;
+    const catalogExpanded =
+      previousSignature &&
+      previousSignature !== colunasCatalogSignature &&
+      colunasCatalogSignature.startsWith(previousSignature);
+
+    catalogSignatureRef.current = colunasCatalogSignature;
+
+    if (catalogExpanded && !isEmpPreferencesSectionDirty("table")) {
+      const merged = mergeExpandedCatalogIntoTableState(
+        {
+          colunasOrdem,
+          colunasVisiveis,
+          columnWidths,
+        },
+        colunasDisponiveisRef.current,
+        previousSignature
+      );
+      if (merged) {
+        setColunasOrdem((current) =>
+          haveSameIds(current, merged.colunasOrdem) ? current : merged.colunasOrdem
+        );
+        setColunasVisiveis((current) =>
+          haveSameIds(current, merged.colunasVisiveis) ? current : merged.colunasVisiveis
+        );
+        setColumnWidths((current) =>
+          stableJsonEqual(current || {}, merged.columnWidths || {}) ? current : merged.columnWidths
+        );
+      }
+      return;
+    }
+
+    if (preferencesVersion === 0) return;
+    if (isEmpPreferencesSectionDirty("table")) {
+      markEmpPreferencesPerf("PREF_REMOTE_APPLY_SKIPPED", {
+        section: "table",
+        source: "remote",
+        dirty: true,
+      });
+      return;
+    }
+
+    markEmpPreferencesPerf("PREF_REMOTE_APPLY_ATTEMPT", {
+      section: "table",
+      source: "remote",
+    });
+    suppressPersistenceRef.current = true;
     applyTablePreferencesFromCache(colunasDisponiveisRef.current);
-  }, [preferencesReady, colunasCatalogSignature, preferencesVersion, applyTablePreferencesFromCache]);
+    markEmpPreferencesPerf("PREF_REMOTE_APPLY_EFFECTIVE", {
+      section: "table",
+      source: "remote",
+      changed: true,
+    });
+  }, [
+    preferencesReady,
+    colunasCatalogSignature,
+    preferencesVersion,
+    applyTablePreferencesFromCache,
+    colunasOrdem,
+    colunasVisiveis,
+    columnWidths,
+  ]);
 
   useEffect(() => {
     if (!preferencesReady) return undefined;
@@ -622,6 +697,10 @@ export default function TBLEMP({
   }, []);
 
   const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nextFrozenCount = 0 }) => {
+    markEmpPreferencesPerf("PREF_USER_ACTION", {
+      section: "table",
+      source: "user_action",
+    });
     const normalizedFrozenCount = Math.max(
       0,
       Math.min(Number(nextFrozenCount) || 0, Array.isArray(visiveis) ? visiveis.length : 0)
@@ -629,11 +708,21 @@ export default function TBLEMP({
     setColunasVisiveis(visiveis);
     setColunasOrdem(ordem);
     setFrozenColumnCount(normalizedFrozenCount);
+    markEmpPreferencesPerf("PREF_UI_STATE_CHANGED", {
+      section: "table",
+      source: "user_action",
+      changed: true,
+    });
     markVisibleColumnsInitialized();
     writeEmpPreferencesJson(VISIBLE_KEY, visiveis, { reason: "listagem:table-visible" });
     writeEmpPreferencesJson(ORDER_KEY, ordem, { reason: "listagem:table-order" });
     writeEmpPreferencesText(FROZEN_KEY, String(normalizedFrozenCount), {
       reason: "listagem:table-frozen",
+    });
+    markEmpPreferencesPerf("PREF_LOCAL_WRITE", {
+      section: "table",
+      source: "user_action",
+      dirty: true,
     });
     window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
   };

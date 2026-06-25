@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from "react";
 import { AuthApi } from "@/apis/auth/AuthApi";
 import { resetAllLayoutPreferencesSync } from "@/framework/cadastro-engine/preferences/LayoutPreferencesEngine.js";
-import { empresasPreferencesBootstrapQueryKey } from "@/modules/empresas/preferences/empresasPreferencesQueryKeys";
 import { resetEmpPreferencesMemoryCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import {
   clearActiveUserPreferencesScope,
@@ -13,7 +12,6 @@ import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefini
 import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
-import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
 import { flushEmpPreferencesNow } from "@/modules/empresas/preferences/empresasPreferencesFlush";
 import {
   bindEmpPreferencesScopeState,
@@ -55,18 +53,6 @@ const prefetchEmpresasCadastro = async (userId, clienteId) => {
     queryFn: () => empresasModuleDefinition.repository.listCamposPersonalizados("aplicavel"),
     staleTime: 5 * 60_000,
   });
-
-  if (!userId || !clienteId) return;
-  try {
-    await queryClientInstance.prefetchQuery({
-      queryKey: empresasPreferencesBootstrapQueryKey(clienteId, userId),
-      queryFn: () => userPreferencesApi.bootstrap(),
-      staleTime: 10 * 60_000,
-      gcTime: 30 * 60_000,
-    });
-  } catch {
-    // Falha de preferência não deve bloquear login — useEmpresasPreferencesBootstrap aplica o cache.
-  }
 };
 
 const AuthContext = createContext();

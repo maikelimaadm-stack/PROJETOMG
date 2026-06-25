@@ -30,7 +30,7 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
   );
 
   const [formLayoutConfig, setFormLayoutConfig] = useState(() => initialLocalLayout);
-  const [isLayoutReady, setIsLayoutReady] = useState(() => Boolean(initialLocalLayout));
+  const [isLayoutReady, setIsLayoutReady] = useState(() => Boolean(initialLocalLayout || userId));
   const [layoutConfigOpen, setLayoutConfigOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(moduleConfig.mainTabId || LAYOUT_MAIN_TAB_ID);
   const layoutPersistedRef = useRef(false);
@@ -107,8 +107,8 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
       });
       setIsLayoutReady(true);
     } else {
-      setFormLayoutConfig(null);
-      setIsLayoutReady(false);
+      setFormLayoutConfig((previous) => previous || defaultConfigFull);
+      setIsLayoutReady(true);
       layoutPersistedRef.current = false;
     }
 
@@ -134,8 +134,11 @@ export function useCadastroForm(moduleConfig, { userId, buildFields, nativeField
   );
 
   const activeLayoutConfig = useMemo(
-    () => (isLayoutReady ? resolveActiveLayoutConfig(formLayoutConfig) : null),
-    [formLayoutConfig, isLayoutReady, resolveActiveLayoutConfig]
+    () =>
+      isLayoutReady
+        ? resolveActiveLayoutConfig(formLayoutConfig || defaultConfigFull)
+        : null,
+    [formLayoutConfig, isLayoutReady, resolveActiveLayoutConfig, defaultConfigFull]
   );
 
   const tabs = useMemo(() => {

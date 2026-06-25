@@ -24,6 +24,7 @@ import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCampo
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
+import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
 
 const shouldRefreshCardsByCacheEvent = ({ reason = "", keys = [] } = {}) => {
   const normalizedReason = String(reason || "").toLowerCase();
@@ -83,16 +84,29 @@ export function useEmpCardsVisFields() {
     [columnsForCards]
   );
 
-  const [visFields, setVisFields] = useState(() => loadSearchVisFields(EMP_SEARCH_DEFAULT_FIELDS));
+  const [visFields, setVisFields] = useState(() => {
+    markEmpPreferencesPerf("PREF_LOCAL_SNAPSHOT_READ", {
+      section: "cards",
+      source: "local",
+    });
+    const fields = loadSearchVisFields(EMP_SEARCH_DEFAULT_FIELDS);
+    markEmpPreferencesPerf("PREF_CARDS_INITIAL_STATE", {
+      section: "cards",
+      source: "local",
+      changed: true,
+    });
+    return fields;
+  });
   const [layoutConfig, setLayoutConfig] = useState(() => loadCardsLayoutConfig());
 
   useEffect(() => {
+    if (preferencesVersion === 0) return;
     const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
     const nextVisFields = loadSearchVisFields(sourceCatalog);
     const nextLayout = loadCardsLayoutConfig();
     setVisFields((current) => (stableJsonEqual(current, nextVisFields) ? current : nextVisFields));
     setLayoutConfig((current) => (stableJsonEqual(current, nextLayout) ? current : nextLayout));
-  }, [catalog, preferencesVersion]);
+  }, [preferencesVersion]);
 
   const fieldsPerRow = useMemo(
     () => getFieldsPerRowForLayout(layoutConfig.cardsPerRow),
@@ -122,6 +136,7 @@ export function useEmpCardsVisFields() {
 
   const saveConfig = useCallback(
     (nextFields) => {
+      markEmpPreferencesPerf("PREF_USER_ACTION", { section: "cards", source: "user_action" });
       const normalized = mergeSearchVisFields(catalog, nextFields).map((field) => {
         const fallback =
           catalog.find((item) => item.key === field.key) ||
@@ -136,7 +151,17 @@ export function useEmpCardsVisFields() {
       );
       const finalFields = [...ordered, ...remaining];
       setVisFields(finalFields);
+      markEmpPreferencesPerf("PREF_UI_STATE_CHANGED", {
+        section: "cards",
+        source: "user_action",
+        changed: true,
+      });
       saveSearchVisFields(finalFields);
+      markEmpPreferencesPerf("PREF_LOCAL_WRITE", {
+        section: "cards",
+        source: "user_action",
+        dirty: true,
+      });
     },
     [catalog]
   );
@@ -147,9 +172,20 @@ export function useEmpCardsVisFields() {
   );
 
   const saveLayoutConfig = useCallback((nextConfig) => {
+    markEmpPreferencesPerf("PREF_USER_ACTION", { section: "cards", source: "user_action" });
     const normalized = { cardsPerRow: normalizeCardsPerRow(nextConfig?.cardsPerRow) };
     setLayoutConfig(normalized);
+    markEmpPreferencesPerf("PREF_UI_STATE_CHANGED", {
+      section: "cards",
+      source: "user_action",
+      changed: true,
+    });
     saveCardsLayoutConfig(normalized);
+    markEmpPreferencesPerf("PREF_LOCAL_WRITE", {
+      section: "cards",
+      source: "user_action",
+      dirty: true,
+    });
   }, []);
 
   const getRestoreLayoutDefaults = useCallback(() => ({ ...EMP_CARDS_LAYOUT_DEFAULT }), []);
