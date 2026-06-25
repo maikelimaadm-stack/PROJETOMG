@@ -8,6 +8,7 @@ import {
 } from "@/modules/empresas/components/empSearchView.constants";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import MgFilterPills from "@/modules/empresas/layout/MgFilterPills";
+import MgPreferenceConfigFooter from "@/modules/empresas/layout/MgPreferenceConfigFooter";
 import {
   closeMgPanels,
   useMgPanelCoordinator,
@@ -62,18 +63,8 @@ function CardsLayoutRadio({ checked, onChange }) {
   );
 }
 
-function CardsConfigMenuFooter({ onRestore }) {
-  return (
-    <div className="mg-cards-config-menu__footer mg-search-dropdown__config-footer">
-      <button
-        type="button"
-        className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
-        onClick={onRestore}
-      >
-        Restaurar
-      </button>
-    </div>
-  );
+function CardsConfigMenuFooter({ onRestore, onOk }) {
+  return <MgPreferenceConfigFooter onRestore={onRestore} onOk={onOk} />;
 }
 
 export default function MgCardsPanelStrip({
@@ -179,6 +170,17 @@ export default function MgCardsPanelStrip({
   }, [layout?.cardsPerRow]);
 
   useEffect(() => {
+    if (fieldsOpen) return;
+    const nextDraft = cloneFieldsDraft(fields);
+    setFieldsDraft((current) => (sameFieldsDraft(current, nextDraft) ? current : nextDraft));
+  }, [fieldsOpen, fields]);
+
+  useEffect(() => {
+    if (layoutOpen) return;
+    setLayoutDraft(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
+  }, [layoutOpen, layout?.cardsPerRow]);
+
+  useEffect(() => {
     if (!fieldsOpen) return;
     const nextDraft = cloneFieldsDraft(fields);
     setFieldsDraft((current) => (sameFieldsDraft(current, nextDraft) ? current : nextDraft));
@@ -240,30 +242,32 @@ export default function MgCardsPanelStrip({
 
   const handleFieldsRestore = () => {
     const defaults = onRestoreDefaults?.() ?? getDefaultCardVisFields(fields);
-    const next = defaults.map((field) => ({ ...field }));
-    setFieldsDraft(next);
-    onSave?.(next);
+    setFieldsDraft(defaults.map((field) => ({ ...field })));
   };
 
   const handleLayoutRestore = () => {
     const defaults = onRestoreLayoutDefaults?.() ?? EMP_CARDS_LAYOUT_DEFAULT;
     setLayoutDraft(defaults.cardsPerRow);
-    onSaveLayout?.({ cardsPerRow: defaults.cardsPerRow });
+  };
+
+  const handleFieldsOk = () => {
+    onSave?.(fieldsDraft.map((field) => ({ ...field })));
+    setFieldsOpen(false);
+  };
+
+  const handleLayoutOk = () => {
+    onSaveLayout?.({ cardsPerRow: layoutDraft });
+    setLayoutOpen(false);
   };
 
   const handleLayoutDraftChange = (value) => {
     setLayoutDraft(value);
-    onSaveLayout?.({ cardsPerRow: value });
   };
 
   const handleFieldVisibilityChange = (fieldKey, checked) => {
-    setFieldsDraft((current) => {
-      const next = current.map((item) =>
-        item.key === fieldKey ? { ...item, visible: checked } : item
-      );
-      onSave?.(next);
-      return next;
-    });
+    setFieldsDraft((current) =>
+      current.map((item) => (item.key === fieldKey ? { ...item, visible: checked } : item))
+    );
   };
 
   const showConfig = !hideConfig;
@@ -331,7 +335,7 @@ export default function MgCardsPanelStrip({
                 </label>
               ))}
             </div>
-            <CardsConfigMenuFooter onRestore={handleLayoutRestore} />
+            <CardsConfigMenuFooter onRestore={handleLayoutRestore} onOk={handleLayoutOk} />
           </MgPortalPanel>
         </div>
 
@@ -376,7 +380,7 @@ export default function MgCardsPanelStrip({
                 </label>
               ))}
             </div>
-            <CardsConfigMenuFooter onRestore={handleFieldsRestore} />
+            <CardsConfigMenuFooter onRestore={handleFieldsRestore} onOk={handleFieldsOk} />
           </MgPortalPanel>
         </div>
         </div>
