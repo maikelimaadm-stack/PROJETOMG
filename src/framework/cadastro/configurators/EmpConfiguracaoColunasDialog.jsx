@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Columns3 } from "lucide-react";
 import { showWarning } from "@/shared/feedback";
 import {
@@ -27,18 +27,21 @@ export default function EmpConfiguracaoColunasDialog({
   const [searchUsed, setSearchUsed] = useState("");
   const [draggedColumnId, setDraggedColumnId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
-    setDraftVisiveis(colunasVisiveis);
-    setDraftOrdem(colunasOrdem);
-    setDraftFrozenColumnCount(frozenColumnCount);
-    setSelectedAvailableIds([]);
-    setSelectedUsedIds([]);
-    setSearch("");
-    setSearchUsed("");
-    setDraggedColumnId(null);
-    setDraggedFrom(null);
+    if (open && !wasOpenRef.current) {
+      setDraftVisiveis(colunasVisiveis);
+      setDraftOrdem(colunasOrdem);
+      setDraftFrozenColumnCount(frozenColumnCount);
+      setSelectedAvailableIds([]);
+      setSelectedUsedIds([]);
+      setSearch("");
+      setSearchUsed("");
+      setDraggedColumnId(null);
+      setDraggedFrom(null);
+    }
+    wasOpenRef.current = open;
   }, [open, colunasVisiveis, colunasOrdem, frozenColumnCount]);
 
   const orderedColumns = useMemo(() => {
@@ -58,13 +61,26 @@ export default function EmpConfiguracaoColunasDialog({
     String(col.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const updateDraftLayout = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
+  const applyLayoutChange = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
     const remainingIds = orderedColumns
       .map((col) => col.id)
       .filter((id) => !nextUsedOrder.includes(id));
+    const nextOrdem = [...nextUsedOrder, ...remainingIds];
+    const normalizedFrozen = Math.min(nextFrozenCount, nextUsedOrder.length);
     setDraftVisiveis(nextVisible);
-    setDraftOrdem([...nextUsedOrder, ...remainingIds]);
-    setDraftFrozenColumnCount(Math.min(nextFrozenCount, nextUsedOrder.length));
+    setDraftOrdem(nextOrdem);
+    setDraftFrozenColumnCount(normalizedFrozen);
+    if (nextUsedOrder.length > 0) {
+      onChange?.({
+        visiveis: nextVisible,
+        ordem: nextOrdem,
+        frozenColumnCount: normalizedFrozen,
+      });
+    }
+  };
+
+  const updateDraftLayout = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
+    applyLayoutChange(nextVisible, nextUsedOrder, nextFrozenCount);
   };
 
   const selectAvailable = (colId, event) => {
@@ -155,9 +171,11 @@ export default function EmpConfiguracaoColunasDialog({
   const handleRestoreDefault = () => {
     const defaults = getRestoreDefaults?.();
     if (!defaults) return;
-    setDraftVisiveis(defaults.visiveis ?? []);
-    setDraftOrdem(defaults.ordem ?? []);
-    setDraftFrozenColumnCount(defaults.frozenColumnCount ?? 0);
+    applyLayoutChange(
+      defaults.visiveis ?? [],
+      defaults.ordem ?? [],
+      defaults.frozenColumnCount ?? 0
+    );
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
   };
@@ -167,11 +185,6 @@ export default function EmpConfiguracaoColunasDialog({
       showWarning("É necessário manter pelo menos uma coluna em uso.");
       return;
     }
-    onChange?.({
-      visiveis: draftVisiveis,
-      ordem: draftOrdem,
-      frozenColumnCount: Math.min(draftFrozenColumnCount, usedColumns.length),
-    });
     onOpenChange(false);
   };
 
@@ -181,11 +194,14 @@ export default function EmpConfiguracaoColunasDialog({
 
   const toggleFreezeColumn = (index, event) => {
     event.stopPropagation();
-    if (index === draftFrozenColumnCount) {
-      setDraftFrozenColumnCount(draftFrozenColumnCount + 1);
-    }
-    if (index === draftFrozenColumnCount - 1) {
-      setDraftFrozenColumnCount(draftFrozenColumnCount - 1);
+    const nextFrozen =
+      index === draftFrozenColumnCount
+        ? draftFrozenColumnCount + 1
+        : index === draftFrozenColumnCount - 1
+          ? draftFrozenColumnCount - 1
+          : draftFrozenColumnCount;
+    if (nextFrozen !== draftFrozenColumnCount) {
+      applyLayoutChange(draftVisiveis, usedColumns.map((col) => col.id), nextFrozen);
     }
   };
 

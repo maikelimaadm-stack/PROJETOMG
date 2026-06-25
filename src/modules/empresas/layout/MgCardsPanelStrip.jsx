@@ -246,23 +246,39 @@ export default function MgCardsPanelStrip({
   };
 
   const handleFieldsOk = () => {
-    onSave?.(fieldsDraft);
     setFieldsOpen(false);
   };
 
   const handleFieldsRestore = () => {
     const defaults = onRestoreDefaults?.() ?? getDefaultCardVisFields(fields);
-    setFieldsDraft(defaults.map((field) => ({ ...field })));
+    const next = defaults.map((field) => ({ ...field }));
+    setFieldsDraft(next);
+    onSave?.(next);
   };
 
   const handleLayoutOk = () => {
-    onSaveLayout?.({ cardsPerRow: layoutDraft });
     setLayoutOpen(false);
   };
 
   const handleLayoutRestore = () => {
     const defaults = onRestoreLayoutDefaults?.() ?? EMP_CARDS_LAYOUT_DEFAULT;
     setLayoutDraft(defaults.cardsPerRow);
+    onSaveLayout?.({ cardsPerRow: defaults.cardsPerRow });
+  };
+
+  const handleLayoutDraftChange = (value) => {
+    setLayoutDraft(value);
+    onSaveLayout?.({ cardsPerRow: value });
+  };
+
+  const handleFieldVisibilityChange = (fieldKey, checked) => {
+    setFieldsDraft((current) => {
+      const next = current.map((item) =>
+        item.key === fieldKey ? { ...item, visible: checked } : item
+      );
+      onSave?.(next);
+      return next;
+    });
   };
 
   const showConfig = !hideConfig;
@@ -321,7 +337,7 @@ export default function MgCardsPanelStrip({
                 <label key={option.value} className="mg-cards-config-menu__item mg-cards-layout-menu__item">
                   <CardsLayoutRadio
                     checked={layoutDraft === option.value}
-                    onChange={() => setLayoutDraft(option.value)}
+                    onChange={() => handleLayoutDraftChange(option.value)}
                   />
                   <span className="mg-cards-layout-menu__text">
                     <span className="mg-cards-config-menu__label">{option.label}</span>
@@ -368,12 +384,7 @@ export default function MgCardsPanelStrip({
                     checked={field.visible}
                     disabled={field.primary}
                     onChange={(event) => {
-                      const checked = event.target.checked;
-                      setFieldsDraft((current) =>
-                        current.map((item) =>
-                          item.key === field.key ? { ...item, visible: checked } : item
-                        )
-                      );
+                      handleFieldVisibilityChange(field.key, event.target.checked);
                     }}
                   />
                   <span className="mg-cards-config-menu__label">{field.label}</span>
