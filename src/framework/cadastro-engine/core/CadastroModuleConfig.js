@@ -1,3 +1,9 @@
+import {
+  getActiveUserPreferencesScope,
+  resolveFormLayoutStorageKey,
+  resolveLegacyFormLayoutStorageKey,
+} from "@/shared/preferences/userPreferencesScope.js";
+
 /**
  * Configuração declarativa de um módulo de cadastro corporativo.
  * @typedef {Object} CadastroModuleConfig
@@ -40,19 +46,36 @@ export function createCadastroModuleConfig(config) {
   });
 }
 
-export function getLayoutStorageKeysForModule(config, userId) {
+export function getLayoutStorageKeysForModule(config, userId, clienteId) {
   const prefix = config.storagePrefix;
-  if (!userId) {
+  const scope = getActiveUserPreferencesScope();
+  const resolvedUserId = userId || scope.userId;
+  const resolvedClienteId = clienteId || scope.clienteId;
+
+  if (!resolvedUserId) {
     return {
       layoutKey: config.legacyGlobalStorageKey || `cadastro_${prefix}_form_layout_config`,
       aggregationKey: `cadastro_${prefix}_table_aggregation_config`,
       legacyKey: config.legacyGlobalStorageKey || `cadastro_${prefix}_form_layout_config`,
     };
   }
+
+  const layoutKey = resolveFormLayoutStorageKey({
+    userId: resolvedUserId,
+    clienteId: resolvedClienteId,
+    storagePrefix: prefix,
+  });
+  const legacyUserKey = resolveLegacyFormLayoutStorageKey({
+    userId: resolvedUserId,
+    storagePrefix: prefix,
+  });
+
   return {
-    layoutKey: `cadastro:${userId}:${prefix}:form_layout_config`,
-    aggregationKey: `cadastro:${userId}:${prefix}:table_aggregation_config`,
-    legacyKey: `cadastro:${userId}:${prefix}:form_layout_config`,
+    layoutKey,
+    aggregationKey: resolvedClienteId
+      ? `cadastro:${resolvedClienteId}:${resolvedUserId}:${prefix}:table_aggregation_config`
+      : `cadastro:${resolvedUserId}:${prefix}:table_aggregation_config`,
+    legacyKey: legacyUserKey,
   };
 }
 

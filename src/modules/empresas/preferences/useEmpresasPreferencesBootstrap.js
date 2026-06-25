@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
+import { empresasPreferencesBootstrapQueryKey } from "@/modules/empresas/preferences/empresasPreferencesQueryKeys";
 import {
   EMPRESAS_FORM_SCOPE,
   EMPRESAS_LISTAGEM_SCOPE,
@@ -8,12 +9,13 @@ import {
   applyListagemPreferencesToStorage,
   buildFormLayoutPreferencesFromStorage,
   buildListagemPreferencesFromStorage,
+  hasScopedListagemPreferences,
   isEmpPreferencesMigrated,
   mapBootstrapPreferences,
   markEmpPreferencesMigrated,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import { useAuth } from "@/shared/contexts/AuthContext";
 
-const BOOTSTRAP_QUERY_PREFIX = "user-preferences-bootstrap";
 const LISTAGEM_SCOPE_KEY = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
 const FORM_SCOPE_KEY = `${EMPRESAS_FORM_SCOPE.modulo}.${EMPRESAS_FORM_SCOPE.tela}`;
 
@@ -24,10 +26,14 @@ const withStatus = (message, statusCode) => {
 };
 
 export function useEmpresasPreferencesBootstrap(userId) {
+  const { cliente } = useAuth();
+  const clienteId = cliente?.id || null;
   const queryClient = useQueryClient();
+  const bootstrapQueryKey = empresasPreferencesBootstrapQueryKey(clienteId, userId);
+
   const [isReady, setIsReady] = useState(() =>
-    Boolean(userId) &&
-    Boolean(queryClient.getQueryData([BOOTSTRAP_QUERY_PREFIX, userId]))
+    Boolean(userId && clienteId) &&
+    Boolean(queryClient.getQueryData(bootstrapQueryKey))
   );
   const [syncError, setSyncError] = useState(null);
   const listagemUpdatedAtRef = useRef(null);
@@ -36,9 +42,9 @@ export function useEmpresasPreferencesBootstrap(userId) {
   const syncInFlightRef = useRef(false);
 
   const bootstrapQuery = useQuery({
-    queryKey: [BOOTSTRAP_QUERY_PREFIX, userId],
+    queryKey: bootstrapQueryKey,
     queryFn: () => userPreferencesApi.bootstrap(),
-    enabled: Boolean(userId),
+    enabled: Boolean(userId && clienteId),
     staleTime: 10 * 60_000,
     gcTime: 30 * 60_000,
     refetchOnWindowFocus: false,
@@ -62,21 +68,23 @@ export function useEmpresasPreferencesBootstrap(userId) {
         applyFormLayoutPreferencesToStorage(
           userId,
           formRecord.preferencias,
-          formRecord.updatedAt
+          formRecord.updatedAt,
+          clienteId
         );
       }
 
       return mapped;
     },
-    [userId]
+    [clienteId, userId]
   );
 
-  const migrateLocalPreferencesIfNeeded = useCallback(
+  const migrateScopedLocalPreferencesIfNeeded = useCallback(
     async (mapped) => {
-      if (!userId || isEmpPreferencesMigrated(userId)) return mapped;
+      if (!userId || !clienteId || isEmpPreferencesMigrated(userId)) return mapped;
 
       let shouldRefetch = false;
-      if (!mapped[LISTAGEM_SCOPE_KEY]) {
+
+      if (!mapped[LISTAGEM_SCOPE_KEY] && hasScopedListagemPreferences()) {
         const listagemPayload = buildListagemPreferencesFromStorage();
         await userPreferencesApi.saveByScope(
           EMPRESAS_LISTAGEM_SCOPE.modulo,
@@ -90,7 +98,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
       }
 
       if (!mapped[FORM_SCOPE_KEY]) {
-        const formPayload = buildFormLayoutPreferencesFromStorage(userId);
+        const formPayload = buildFormLayoutPreferencesFromStorage(userId, clienteId);
         if (formPayload) {
           await userPreferencesApi.saveByScope(
             EMPRESAS_FORM_SCOPE.modulo,
@@ -106,25 +114,26 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
       markEmpPreferencesMigrated(userId);
       if (!shouldRefetch) return mapped;
+
       const refreshed = await queryClient.fetchQuery({
-        queryKey: [BOOTSTRAP_QUERY_PREFIX, userId],
+        queryKey: bootstrapQueryKey,
         queryFn: () => userPreferencesApi.bootstrap(),
       });
       return mapBootstrapPreferences(refreshed);
     },
-    [queryClient, userId]
+    [bootstrapQueryKey, clienteId, queryClient, userId]
   );
 
   useEffect(() => {
-    if (!userId) {
+    if (!userId || !clienteId) {
       setIsReady(false);
       listagemUpdatedAtRef.current = null;
       return;
     }
-    const hasWarmCache = Boolean(queryClient.getQueryData([BOOTSTRAP_QUERY_PREFIX, userId]));
+    const hasWarmCache = Boolean(queryClient.getQueryData(bootstrapQueryKey));
     setIsReady(hasWarmCache);
     setSyncError(null);
-  }, [queryClient, userId]);
+  }, [bootstrapQueryKey, clienteId, queryClient, userId]);
 
   useEffect(() => {
     if (!bootstrapQuery.isError) return;
@@ -132,13 +141,13 @@ export function useEmpresasPreferencesBootstrap(userId) {
   }, [bootstrapQuery.isError]);
 
   useEffect(() => {
-    if (!userId || !bootstrapQuery.isSuccess) return;
+    if (!userId || !clienteId || !bootstrapQuery.isSuccess) return;
 
     let isMounted = true;
     (async () => {
       try {
         const mapped = applyBootstrapToStorage(bootstrapQuery.data);
-        const migratedMap = await migrateLocalPreferencesIfNeeded(mapped);
+        const migratedMap = await migrateScopedLocalPreferencesIfNeeded(mapped);
         if (migratedMap !== mapped) {
           const listagemRecord = migratedMap[LISTAGEM_SCOPE_KEY];
           const formRecord = migratedMap[FORM_SCOPE_KEY];
@@ -150,7 +159,8 @@ export function useEmpresasPreferencesBootstrap(userId) {
             applyFormLayoutPreferencesToStorage(
               userId,
               formRecord.preferencias,
-              formRecord.updatedAt
+              formRecord.updatedAt,
+              clienteId
             );
           }
         }
@@ -160,7 +170,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
         if (userId && !mapped[FORM_SCOPE_KEY]) {
           window.dispatchEvent(
             new CustomEvent("cadastro-layout-hydrated:empresas", {
-              detail: { userId, moduleId: "empresas" },
+              detail: { userId, clienteId, moduleId: "empresas" },
             })
           );
         }
@@ -174,10 +184,17 @@ export function useEmpresasPreferencesBootstrap(userId) {
     return () => {
       isMounted = false;
     };
-  }, [applyBootstrapToStorage, bootstrapQuery.data, bootstrapQuery.isSuccess, migrateLocalPreferencesIfNeeded, userId]);
+  }, [
+    applyBootstrapToStorage,
+    bootstrapQuery.data,
+    bootstrapQuery.isSuccess,
+    clienteId,
+    migrateScopedLocalPreferencesIfNeeded,
+    userId,
+  ]);
 
   const persistListagemPreferences = useCallback(async () => {
-    if (!userId || syncInFlightRef.current) return;
+    if (!userId || !clienteId || syncInFlightRef.current) return;
     syncInFlightRef.current = true;
     try {
       const payload = buildListagemPreferencesFromStorage();
@@ -191,7 +208,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
         }
       );
       listagemUpdatedAtRef.current = response?.updatedAt || null;
-      queryClient.setQueryData([BOOTSTRAP_QUERY_PREFIX, userId], (previous) => {
+      queryClient.setQueryData(bootstrapQueryKey, (previous) => {
         const records = Array.isArray(previous?.preferences)
           ? [...previous.preferences]
           : [];
@@ -214,7 +231,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
     } catch (error) {
       if (Number(error?.status) === 409) {
         const refreshed = await queryClient.fetchQuery({
-          queryKey: [BOOTSTRAP_QUERY_PREFIX, userId],
+          queryKey: bootstrapQueryKey,
           queryFn: () => userPreferencesApi.bootstrap(),
         });
         const mapped = mapBootstrapPreferences(refreshed);
@@ -226,7 +243,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
     } finally {
       syncInFlightRef.current = false;
     }
-  }, [queryClient, userId]);
+  }, [bootstrapQueryKey, clienteId, queryClient, userId]);
 
   const scheduleListagemSync = useCallback(
     ({ immediate = false } = {}) => {
@@ -280,20 +297,14 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
   return {
     isReady,
-    isLoading: Boolean(userId) && (!isReady || bootstrapQuery.isLoading),
+    isLoading: Boolean(userId && clienteId) && (!isReady || bootstrapQuery.isLoading),
     error: bootstrapQuery.error || syncError,
     scheduleListagemSync,
     refresh: bootstrapQuery.refetch,
   };
 }
 
-export const empresasPreferencesBootstrapQueryKey = (userId) => [
-  BOOTSTRAP_QUERY_PREFIX,
-  userId,
-];
-
 export const assertPreferencesSyncConflict = (error) => {
   if (Number(error?.status) !== 409) return false;
   throw withStatus("Conflito de preferência entre abas detectado.", 409);
 };
-

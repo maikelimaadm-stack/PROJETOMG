@@ -46,7 +46,9 @@
     "check:prod": "npm run check:deploy && npm run validate:connections && npm run ensure:schema && npm run seed && npm run smoke:e2e && npm run smoke:auth-permissoes && npm run smoke:cadcps && npm run smoke:campos && npm run security:multiempresa",
     "docker:build": "docker build -t mak-gestao-backend .",
     "test:filters:semantics": "node scripts/testAdvancedFilterSemantics.js",
-    "test:preferences:backend": "node scripts/testPreferencesValidators.js"
+    "test:preferences:backend": "node scripts/testPreferencesValidators.js && node scripts/testPreferencesUserIsolation.js",
+    "seed:pref-isolation-users": "node scripts/seedPreferenceIsolationUsers.js",
+    "cleanup:pref-isolation-users": "node scripts/cleanupPreferenceIsolationUsers.js"
   },
   "dependencies": {
     "@fastify/compress": "^9.0.0",

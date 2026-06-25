@@ -1,6 +1,12 @@
 import React, { createContext, useState, useContext, useEffect, useMemo, useCallback } from "react";
 import { AuthApi } from "@/apis/auth/AuthApi";
 import { resetAllLayoutPreferencesSync } from "@/framework/cadastro-engine/preferences/LayoutPreferencesEngine.js";
+import { empresasPreferencesBootstrapQueryKey } from "@/modules/empresas/preferences/empresasPreferencesQueryKeys";
+import { resetEmpPreferencesMemoryCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  clearActiveUserPreferencesScope,
+  setActiveUserPreferencesScope,
+} from "@/shared/preferences/userPreferencesScope.js";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
@@ -8,7 +14,7 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
 
-const prefetchEmpresasCadastro = async (userId) => {
+const prefetchEmpresasCadastro = async (userId, clienteId) => {
   void queryClientInstance.prefetchQuery({
     queryKey: ["emp-cadastro", 1, LIST_DEFAULT_PAGE_SIZE, "", "codempresa", "asc", "{}"],
     queryFn: () =>
@@ -44,10 +50,10 @@ const prefetchEmpresasCadastro = async (userId) => {
     staleTime: 5 * 60_000,
   });
 
-  if (!userId) return;
+  if (!userId || !clienteId) return;
   try {
     await queryClientInstance.prefetchQuery({
-      queryKey: ["user-preferences-bootstrap", userId],
+      queryKey: empresasPreferencesBootstrapQueryKey(clienteId, userId),
       queryFn: () => userPreferencesApi.bootstrap(),
       staleTime: 10 * 60_000,
       gcTime: 30 * 60_000,
@@ -87,6 +93,8 @@ export const AuthProvider = ({ children }) => {
         setCliente(null);
         setEmpresas([]);
         setAllowAllEmpresas(false);
+        clearActiveUserPreferencesScope();
+        resetEmpPreferencesMemoryCache();
         setIsAuthenticated(false);
         setIsLoadingAuth(false);
         return false;
@@ -95,6 +103,10 @@ export const AuthProvider = ({ children }) => {
       setCliente(session.cliente || null);
       setEmpresas(session.empresas || []);
       setAllowAllEmpresas(Boolean(session.allowAllEmpresas));
+      setActiveUserPreferencesScope({
+        clienteId: session.cliente?.id,
+        userId: session.user?.id,
+      });
       const persistedEmpresaId = AuthApi.getSelectedEmpresaId();
       const normalizedPersistedEmpresaId =
         persistedEmpresaId != null && String(persistedEmpresaId).trim() !== ""
@@ -110,7 +122,7 @@ export const AuthProvider = ({ children }) => {
         : session.selectedEmpresaId ?? null;
       AuthApi.setSelectedEmpresaId(nextEmpresaId);
       setSelectedEmpresaId(nextEmpresaId);
-      await prefetchEmpresasCadastro(session.user?.id);
+      await prefetchEmpresasCadastro(session.user?.id, session.cliente?.id);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
       return true;
@@ -256,6 +268,8 @@ export const AuthProvider = ({ children }) => {
     await AuthApi.logout().catch(() => null);
     queryClientInstance.clear();
     resetAllLayoutPreferencesSync();
+    resetEmpPreferencesMemoryCache();
+    clearActiveUserPreferencesScope();
     setUser(null);
     setCliente(null);
     setEmpresas([]);
@@ -265,6 +279,9 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const navigateToLogin = useCallback(() => {
+    queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
+    resetEmpPreferencesMemoryCache();
+    clearActiveUserPreferencesScope();
     setIsAuthenticated(false);
     setUser(null);
     setCliente(null);

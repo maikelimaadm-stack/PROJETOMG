@@ -1,5 +1,6 @@
 import { loadAccessScope } from "../auth/accessScope.js";
 import { preferencesRepository } from "./preferencesRepository.js";
+import { rejectClientControlledIdentityFields } from "./rejectClientControlledIdentityFields.js";
 
 const parseScreenKey = (screenKey) => {
   const normalized = String(screenKey || "").trim();
@@ -91,6 +92,7 @@ export const registerPreferencesRoutes = async (app) => {
     async (request, reply) => {
       try {
         const scope = await loadAccessScope(request);
+        rejectClientControlledIdentityFields(request.body);
         const modulo = parseScopeSegment(request.params.modulo, "Módulo");
         const tela = parseScopeSegment(request.params.tela, "Tela");
         const preferencias = request.body?.preferencias || request.body?.config;
@@ -151,6 +153,7 @@ export const registerPreferencesRoutes = async (app) => {
     async (request, reply) => {
       try {
         const scope = await loadAccessScope(request);
+        rejectClientControlledIdentityFields(request.body);
         const screenKey = parseScreenKey(request.params.screenKey);
         const config = request.body?.config;
         const expectedUpdatedAt = request.body?.expectedUpdatedAt || request.body?.updatedAt;

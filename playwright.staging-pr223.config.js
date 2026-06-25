@@ -2,22 +2,15 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
-  testMatch: "**/empresas-*-mock.spec.js",
+  testMatch: "**/empresas-preferences-isolation-real.spec.js",
   fullyParallel: false,
   workers: 1,
   reporter: [["list"]],
-  timeout: 60_000,
+  timeout: 120_000,
   use: {
-    baseURL: "http://127.0.0.1:5173",
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || "http://127.0.0.1:5173",
     trace: "on-first-retry",
     screenshot: "only-on-failure",
-  },
-  webServer: {
-    command:
-      "VITE_DEV_AUTO_LOGIN=false VITE_DEV_AUTH_MOCK=false npm run dev -- --host 127.0.0.1 --port 5173",
-    url: "http://127.0.0.1:5173",
-    reuseExistingServer: true,
-    timeout: 120_000,
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });
