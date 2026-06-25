@@ -1,5 +1,6 @@
 import { loadAccessScope } from "../auth/accessScope.js";
 import { preferencesRepository } from "./preferencesRepository.js";
+import { rejectClientControlledIdentityFields } from "./rejectClientControlledIdentityFields.js";
 
 const parseScreenKey = (screenKey) => {
   const normalized = String(screenKey || "").trim();
@@ -29,18 +30,6 @@ const parseScopeSegment = (value, label) => {
     throw error;
   }
   return normalized;
-};
-
-const rejectClientControlledIdentityFields = (body = {}) => {
-  const forbidden = ["usuario_id", "userId", "cliente_id", "clienteId", "tenant_id", "tenantId"];
-  const found = forbidden.filter((field) => body[field] != null && String(body[field]).trim() !== "");
-  if (found.length > 0) {
-    const error = new Error(
-      `Campos de identidade não são aceitos no payload: ${found.join(", ")}. Use o token autenticado.`
-    );
-    error.statusCode = 400;
-    throw error;
-  }
 };
 
 export const registerPreferencesRoutes = async (app) => {

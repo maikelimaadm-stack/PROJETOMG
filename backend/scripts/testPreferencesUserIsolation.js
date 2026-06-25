@@ -3,6 +3,7 @@
  * Uso: node backend/scripts/testPreferencesUserIsolation.js
  */
 import assert from "node:assert/strict";
+import { rejectClientControlledIdentityFields } from "../src/modules/preferences/rejectClientControlledIdentityFields.js";
 
 const scopeA = { clienteId: "cli_a", userId: "usr_a" };
 const scopeB = { clienteId: "cli_a", userId: "usr_b" };
@@ -34,16 +35,6 @@ const memoryRepo = {
       .filter(([key]) => key.startsWith(`${scope.clienteId}:${scope.userId}:`))
       .map(([, record]) => record);
   },
-};
-
-const rejectClientControlledIdentityFields = (body = {}) => {
-  const forbidden = ["usuario_id", "userId", "cliente_id", "clienteId"];
-  const found = forbidden.filter((field) => body[field] != null && String(body[field]).trim() !== "");
-  if (found.length > 0) {
-    const error = new Error(`identity fields forbidden: ${found.join(", ")}`);
-    error.statusCode = 400;
-    throw error;
-  }
 };
 
 const run = () => {
@@ -108,7 +99,11 @@ const run = () => {
 
   assert.throws(
     () => rejectClientControlledIdentityFields({ usuario_id: "usr_b", preferencias: {} }),
-    /identity fields forbidden/
+    /Campos de identidade não são aceitos/
+  );
+  assert.throws(
+    () => rejectClientControlledIdentityFields({ empresa_id: "emp-x", preferencias: {} }),
+    /Campos de identidade não são aceitos/
   );
 
   assert.doesNotThrow(() =>

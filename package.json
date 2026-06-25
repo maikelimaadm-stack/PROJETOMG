@@ -41,7 +41,8 @@
     "test:preferences:frontend": "npx vite-node scripts/tests/user-preferences-scope.unit.mjs && npx vite-node scripts/tests/preferences-storage.unit.mjs && npx vite-node scripts/tests/emp-column-layout.unit.mjs",
     "test:preferences:isolation-mock": "playwright test e2e/empresas-preferences-isolation-mock.spec.js --config=playwright.mock.config.js",
     "test:preferences:schema-evidence": "node backend/scripts/validatePreferencesSchemaEvidence.js",
-    "test:preferences:isolation-api": "node backend/scripts/validatePreferencesUserIsolationApi.js"
+    "test:preferences:isolation-api": "node backend/scripts/validatePreferencesUserIsolationApi.js",
+    "test:preferences:put-security": "node backend/scripts/validatePreferencesPutSecurity.js"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

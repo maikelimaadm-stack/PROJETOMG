@@ -16,17 +16,18 @@ import dotenv from "dotenv";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 
-const BASE_URL = String(
-  process.env.VALIDATE_BASE_URL || process.env.SMOKE_BASE_URL || "https://projetomg-production.up.railway.app"
-).replace(/\/$/, "");
+const BASE_URL = String(process.env.VALIDATE_BASE_URL || process.env.SMOKE_BASE_URL || "").replace(
+  /\/$/,
+  ""
+);
 
 const USERS = {
   A: {
     label: "Usuário A (Tenant 1)",
     login: {
-      cliente: process.env.VALIDATE_USER_A_CLIENTE || process.env.VALIDATE_CLIENTE || "maike",
-      usuario: process.env.VALIDATE_USER_A_USUARIO || process.env.VALIDATE_USUARIO || "maike",
-      senha: process.env.VALIDATE_USER_A_SENHA || process.env.VALIDATE_SENHA || "123",
+      cliente: process.env.VALIDATE_USER_A_CLIENTE || "tenant1",
+      usuario: process.env.VALIDATE_USER_A_USUARIO || "usera",
+      senha: process.env.VALIDATE_USER_A_SENHA || process.env.PREF_ISOLATION_SEED_PASSWORD || "123",
     },
     marker: "pr223-isolation-user-a",
     prefs: {
@@ -39,9 +40,9 @@ const USERS = {
   B: {
     label: "Usuário B (Tenant 1)",
     login: {
-      cliente: process.env.VALIDATE_USER_B_CLIENTE || "maike",
+      cliente: process.env.VALIDATE_USER_B_CLIENTE || "tenant1",
       usuario: process.env.VALIDATE_USER_B_USUARIO || "userb",
-      senha: process.env.VALIDATE_USER_B_SENHA || "123",
+      senha: process.env.VALIDATE_USER_B_SENHA || process.env.PREF_ISOLATION_SEED_PASSWORD || "123",
     },
     marker: "pr223-isolation-user-b",
     prefs: {
@@ -56,7 +57,7 @@ const USERS = {
     login: {
       cliente: process.env.VALIDATE_USER_C_CLIENTE || "tenant2",
       usuario: process.env.VALIDATE_USER_C_USUARIO || "userc",
-      senha: process.env.VALIDATE_USER_C_SENHA || "123",
+      senha: process.env.VALIDATE_USER_C_SENHA || process.env.PREF_ISOLATION_SEED_PASSWORD || "123",
     },
     marker: "pr223-isolation-user-c",
     prefs: {
@@ -126,6 +127,10 @@ const putListagem = async (token, preferencias, expectedUpdatedAt) => {
 
 const run = async () => {
   console.log(`[isolation-api] base=${BASE_URL}`);
+
+  if (!BASE_URL) {
+    throw new Error("VALIDATE_BASE_URL é obrigatório (backend staging da PR #223).");
+  }
 
   const health = await api("GET", "/api/health");
   report.health = { ok: health.ok, db: health.payload?.db };
