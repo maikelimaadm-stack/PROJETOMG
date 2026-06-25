@@ -68,6 +68,8 @@ import {
   normalizePanelFilterValue,
 } from "@/shared/filters";
 import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
+import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
+import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
 import {
   readStoredEmpViewMode,
   readStoredTempListagemFilters,
@@ -195,7 +197,9 @@ export default function PAGEMP() {
     replaceEmpresasInSelector,
   } = useAuth();
   const {
-    isReady: preferencesReady,
+    preferencesReady,
+    isLoading: preferencesLoading,
+    bootstrapGeneration,
     error: preferencesSyncError,
     scheduleListagemSync,
   } = useEmpresasPreferencesBootstrap(user?.id);
@@ -295,14 +299,15 @@ export default function PAGEMP() {
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
   const hasUserInteractedRef = useRef(false);
-  const preferencesHydratedRef = useRef(false);
+  const suppressColumnFilterPersistRef = useRef(true);
+  const formBridgeSignatureRef = useRef("");
   const queryClient = useQueryClient();
   const saveCycle = useSaveCycle();
 
   useEffect(() => {
     if (previousScopeEmpresaIdRef.current === selectedEmpresaId) return;
     previousScopeEmpresaIdRef.current = selectedEmpresaId;
-    preferencesHydratedRef.current = false;
+    suppressColumnFilterPersistRef.current = true;
     setShowForm(false);
     setEditingEmp(null);
     setViewMode("table");
@@ -316,27 +321,7 @@ export default function PAGEMP() {
     setDropdownSearch("");
   }, [selectedEmpresaId]);
 
-  useEffect(() => {
-    preferencesHydratedRef.current = false;
-  }, [user?.id]);
-
-  useEffect(() => {
-    if (!preferencesSyncError?.message) return;
-    const signature = `${preferencesSyncError.status || "err"}:${preferencesSyncError.message}`;
-    if (lastPreferencesErrorRef.current === signature) return;
-    lastPreferencesErrorRef.current = signature;
-    showError(`Preferências: ${preferencesSyncError.message}`);
-  }, [preferencesSyncError]);
-
-  useEffect(() => {
-    if (!preferencesReady || !preferencesHydratedRef.current) return;
-    writeStoredEmpViewMode(viewMode);
-  }, [preferencesReady, viewMode]);
-
-  useEffect(() => {
-    if (!preferencesReady || preferencesHydratedRef.current) return;
-    preferencesHydratedRef.current = true;
-
+  const applyPagePreferencesFromStorage = useCallback(() => {
     const storedMode = readStoredEmpViewMode();
     const hydratedMode = storedMode === "record" ? "table" : storedMode;
     setViewMode((current) => (current === hydratedMode ? current : hydratedMode));
@@ -348,9 +333,13 @@ export default function PAGEMP() {
         ? storedSort
         : null;
     if (primarySort?.key) {
-      setQuerySort({
-        key: primarySort.key,
-        direction: primarySort.direction === "desc" ? "desc" : "asc",
+      setQuerySort((current) => {
+        const next = {
+          key: primarySort.key,
+          direction: primarySort.direction === "desc" ? "desc" : "asc",
+        };
+        if (current.key === next.key && current.direction === next.direction) return current;
+        return next;
       });
     }
 
@@ -360,15 +349,52 @@ export default function PAGEMP() {
         ? storedColumnFilters
         : {};
     columnFiltersRef.current = safeColumnFilters;
-    setColumnFilters(safeColumnFilters);
+    setColumnFilters((current) =>
+      stableJsonEqual(current || {}, safeColumnFilters || {}) ? current : safeColumnFilters
+    );
     setColumnFiltersHydrated(true);
 
     const syncedPanelValues = syncColumnsIntoPanelFilters(safeColumnFilters, panelFilterColumnMap);
     appliedFilterValuesRef.current = syncedPanelValues;
-    setFilterValues(syncedPanelValues);
-    setAppliedFilterValues(syncedPanelValues);
+    setFilterValues((current) =>
+      stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
+    );
+    setAppliedFilterValues((current) =>
+      stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
+    );
     setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
-  }, [panelFilterColumnMap, preferencesReady]);
+  }, [panelFilterColumnMap]);
+
+  useEffect(() => {
+    if (!preferencesReady) return;
+    suppressColumnFilterPersistRef.current = true;
+    applyPagePreferencesFromStorage();
+    suppressColumnFilterPersistRef.current = false;
+  }, [applyPagePreferencesFromStorage, bootstrapGeneration, preferencesReady]);
+
+  useEffect(() => {
+    if (!preferencesReady) return undefined;
+    const onBootstrapApplied = () => {
+      suppressColumnFilterPersistRef.current = true;
+      applyPagePreferencesFromStorage();
+      suppressColumnFilterPersistRef.current = false;
+    };
+    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
+    return () => window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
+  }, [applyPagePreferencesFromStorage, preferencesReady]);
+
+  useEffect(() => {
+    if (!preferencesSyncError?.message) return;
+    const signature = `${preferencesSyncError.status || "err"}:${preferencesSyncError.message}`;
+    if (lastPreferencesErrorRef.current === signature) return;
+    lastPreferencesErrorRef.current = signature;
+    showError(`Preferências: ${preferencesSyncError.message}`);
+  }, [preferencesSyncError]);
+
+  useEffect(() => {
+    if (!preferencesReady) return;
+    writeStoredEmpViewMode(viewMode);
+  }, [preferencesReady, viewMode]);
 
   useEffect(() => {
     if (!showForm) {
@@ -382,7 +408,7 @@ export default function PAGEMP() {
   }, [columnFilters]);
 
   useEffect(() => {
-    if (!columnFiltersHydrated) return;
+    if (!columnFiltersHydrated || suppressColumnFilterPersistRef.current) return;
     writeStoredTempListagemFilters(columnFilters || {});
   }, [columnFilters, columnFiltersHydrated]);
 
@@ -1088,8 +1114,27 @@ export default function PAGEMP() {
   }, [actionBarVisibility.secondaryToolsLocked, closeFilterPanel]);
 
   useEffect(() => {
-    if (!showForm) setFormBridge(null);
+    if (!showForm) {
+      formBridgeSignatureRef.current = "";
+      setFormBridge(null);
+    }
   }, [showForm]);
+
+  const handleToolbarBridge = useCallback((bridge) => {
+    const sig = [
+      bridge?.editMode,
+      bridge?.isReadOnly,
+      bridge?.isEditing,
+      bridge?.isDuplicating,
+      bridge?.layoutConfigOpen,
+      bridge?.recordMeta?.codigo ?? "",
+      bridge?.recordMeta?.nome ?? "",
+      bridge?.layoutToolbar ? "1" : "0",
+    ].join("|");
+    if (formBridgeSignatureRef.current === sig) return;
+    formBridgeSignatureRef.current = sig;
+    setFormBridge(bridge);
+  }, []);
 
   useEffect(() => {
     if (showForm && formBridge?.layoutConfigOpen) {
@@ -1164,13 +1209,16 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!preferencesReady) return undefined;
-    const shouldSkipSync = (reason = "") => {
+    const shouldSkipSync = (reason = "", detail = {}) => {
       const normalized = String(reason || "").toLowerCase();
+      if (isRemoteTabPreferenceEvent(detail)) return true;
       return (
         normalized.includes("hydrate") ||
         normalized.includes("bootstrap") ||
         normalized.includes("batch") ||
-        normalized.includes("migration")
+        normalized.includes("migration") ||
+        normalized.includes("remote-tab") ||
+        normalized.includes("remote-sync")
       );
     };
     const shouldTrackSyncReason = (reason = "") => {
@@ -1184,7 +1232,7 @@ export default function PAGEMP() {
     const unsubscribe = subscribeEmpPreferencesCache((detail) => {
       if (!hasUserInteractedRef.current) return;
       const reason = detail?.reason;
-      if (shouldSkipSync(reason)) return;
+      if (shouldSkipSync(reason, detail)) return;
       if (!shouldTrackSyncReason(reason)) return;
       scheduleListagemSync({ reason });
     });
@@ -1521,7 +1569,7 @@ export default function PAGEMP() {
 
   const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
 
-  if (!preferencesReady) {
+  if (preferencesLoading) {
     return (
       <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden p-3 md:p-5">
         <div className="animate-pulse rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
@@ -1699,7 +1747,7 @@ export default function PAGEMP() {
                     onSubmit: handleSubmit,
                     onCancel: formCancel,
                     hideToolbar: true,
-                    onToolbarBridge: setFormBridge,
+                    onToolbarBridge: handleToolbarBridge,
                     total: recordNav.effectiveTotal,
                     currentIndex: recordNav.globalIndex,
                     onFirst: () => navigateRecord("first"),

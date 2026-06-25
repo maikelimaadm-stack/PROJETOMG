@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
+import { showInfo } from "@/shared/feedback";
 import { empresasPreferencesBootstrapQueryKey } from "@/modules/empresas/preferences/empresasPreferencesQueryKeys";
 import {
   EMPRESAS_FORM_SCOPE,
@@ -15,6 +16,12 @@ import {
   mapBootstrapPreferences,
   markEmpPreferencesMigrated,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import { dispatchEmpPreferencesBootstrapApplied } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
+import {
+  broadcastEmpPreferencesCrossTab,
+  subscribeEmpPreferencesCrossTab,
+} from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
+import { registerEmpPreferencesFlushHandler } from "@/modules/empresas/preferences/empresasPreferencesFlush";
 import { useAuth } from "@/shared/contexts/AuthContext";
 
 const LISTAGEM_SCOPE_KEY = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
@@ -61,7 +68,9 @@ const shouldIgnoreReason = (reason = "") => {
     normalized.includes("hydrate") ||
     normalized.includes("bootstrap") ||
     normalized.includes("batch") ||
-    normalized.includes("migration")
+    normalized.includes("migration") ||
+    normalized.includes("remote-tab") ||
+    normalized.includes("remote-sync")
   );
 };
 
@@ -139,9 +148,9 @@ export function useEmpresasPreferencesBootstrap(userId) {
   const queryClient = useQueryClient();
   const bootstrapQueryKey = empresasPreferencesBootstrapQueryKey(clienteId, userId);
 
-  const [isReady, setIsReady] = useState(() =>
-    Boolean(userId && clienteId)
-  );
+  const [bootstrapStatus, setBootstrapStatus] = useState("idle");
+  const [preferencesReady, setPreferencesReady] = useState(false);
+  const [bootstrapGeneration, setBootstrapGeneration] = useState(0);
   const [syncError, setSyncError] = useState(null);
 
   const listagemUpdatedAtRef = useRef(null);
@@ -152,6 +161,33 @@ export function useEmpresasPreferencesBootstrap(userId) {
   const pendingPatchRef = useRef({});
   const conflictRetryCountRef = useRef(0);
   const lastSyncedPreferencesRef = useRef({});
+  const hadLocalSnapshotRef = useRef(false);
+  const remoteConflictNoticeRef = useRef("");
+
+  const bumpBootstrapGeneration = useCallback(
+    (status) => {
+      setBootstrapGeneration((current) => {
+        const next = current + 1;
+        dispatchEmpPreferencesBootstrapApplied({
+          generation: next,
+          status,
+          hadLocalSnapshot: hadLocalSnapshotRef.current,
+          clienteId,
+          userId,
+        });
+        return next;
+      });
+    },
+    [clienteId, userId]
+  );
+
+  const markPreferencesReady = useCallback((status, { emitGeneration = false } = {}) => {
+    setBootstrapStatus(status);
+    setPreferencesReady(true);
+    if (emitGeneration) {
+      bumpBootstrapGeneration(status);
+    }
+  }, [bumpBootstrapGeneration]);
 
   const bootstrapQuery = useQuery({
     queryKey: bootstrapQueryKey,
@@ -165,13 +201,35 @@ export function useEmpresasPreferencesBootstrap(userId) {
     retry: 1,
   });
 
-  const hydrateListagemRecord = useCallback((record) => {
-    if (!record?.preferencias) return;
-    applyListagemPreferencesToStorage(record.preferencias);
-    listagemUpdatedAtRef.current = record.updatedAt || null;
-    listagemRevisionRef.current = extractRevision(record);
-    lastSyncedPreferencesRef.current = toObject(record.preferencias);
-  }, []);
+  const hydrateListagemRecord = useCallback(
+    (record, { emitCrossTab = false, sectionsChanged = LISTAGEM_SECTIONS } = {}) => {
+      if (!record?.preferencias) return false;
+      const currentSnapshot = buildListagemPreferencesFromStorage();
+      const incoming = toObject(record.preferencias);
+      const mergedPreview = deepMergeObjects(currentSnapshot, incoming);
+      if (sameJson(currentSnapshot, mergedPreview)) {
+        listagemUpdatedAtRef.current = record.updatedAt || listagemUpdatedAtRef.current;
+        listagemRevisionRef.current = extractRevision(record);
+        lastSyncedPreferencesRef.current = toObject(record.preferencias);
+        return false;
+      }
+      applyListagemPreferencesToStorage(record.preferencias);
+      listagemUpdatedAtRef.current = record.updatedAt || null;
+      listagemRevisionRef.current = extractRevision(record);
+      lastSyncedPreferencesRef.current = toObject(record.preferencias);
+      if (emitCrossTab) {
+        broadcastEmpPreferencesCrossTab({
+          clienteId,
+          userId,
+          revision: listagemRevisionRef.current,
+          sectionsChanged,
+          reason: "remote-sync",
+        });
+      }
+      return true;
+    },
+    [clienteId, userId]
+  );
 
   const patchBootstrapCache = useCallback(
     (record) => {
@@ -207,8 +265,8 @@ export function useEmpresasPreferencesBootstrap(userId) {
           userId,
           formRecord.preferencias,
           formRecord.updatedAt,
-            clienteId,
-            formRecord.revision
+          clienteId,
+          formRecord.revision
         );
       }
 
@@ -265,20 +323,29 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
   useEffect(() => {
     if (!userId || !clienteId) {
-      setIsReady(false);
+      setBootstrapStatus("idle");
+      setPreferencesReady(false);
+      setBootstrapGeneration(0);
+      setSyncError(null);
       listagemUpdatedAtRef.current = null;
       listagemRevisionRef.current = 0;
       pendingPatchRef.current = {};
+      hadLocalSnapshotRef.current = false;
+      lastSyncedPreferencesRef.current = {};
       return;
     }
-    setIsReady(true);
-    setSyncError(null);
-  }, [bootstrapQueryKey, clienteId, queryClient, userId]);
 
-  useEffect(() => {
-    if (!bootstrapQuery.isError) return;
-    setIsReady(true);
-  }, [bootstrapQuery.isError]);
+    const hasLocal = hasScopedListagemPreferences();
+    hadLocalSnapshotRef.current = hasLocal;
+    if (hasLocal) {
+      lastSyncedPreferencesRef.current = buildListagemPreferencesFromStorage();
+      markPreferencesReady("local_applied", { emitGeneration: true });
+    } else {
+      setBootstrapStatus("remote_loading");
+      setPreferencesReady(false);
+    }
+    setSyncError(null);
+  }, [bootstrapQueryKey, clienteId, markPreferencesReady, userId]);
 
   useEffect(() => {
     if (!userId || !clienteId || !bootstrapQuery.isSuccess) return;
@@ -286,6 +353,21 @@ export function useEmpresasPreferencesBootstrap(userId) {
     let isMounted = true;
     (async () => {
       try {
+        setBootstrapStatus((current) =>
+          current === "local_applied" ? current : "remote_loading"
+        );
+        const mappedPreview = mapBootstrapPreferences(bootstrapQuery.data);
+        const previewListagem = mappedPreview[LISTAGEM_SCOPE_KEY];
+        const remoteListagemChanged = Boolean(
+          previewListagem?.preferencias &&
+            !sameJson(
+              buildListagemPreferencesFromStorage(),
+              deepMergeObjects(
+                buildListagemPreferencesFromStorage(),
+                previewListagem.preferencias
+              )
+            )
+        );
         const mapped = applyBootstrapToStorage(bootstrapQuery.data);
         const migratedMap = await migrateScopedLocalPreferencesIfNeeded(mapped);
         if (migratedMap !== mapped) {
@@ -306,7 +388,9 @@ export function useEmpresasPreferencesBootstrap(userId) {
         }
 
         if (!isMounted) return;
-        setIsReady(true);
+        markPreferencesReady("remote_applied", {
+          emitGeneration: !hadLocalSnapshotRef.current || remoteListagemChanged,
+        });
         if (userId && !mapped[FORM_SCOPE_KEY]) {
           window.dispatchEvent(
             new CustomEvent("cadastro-layout-hydrated:empresas", {
@@ -317,7 +401,9 @@ export function useEmpresasPreferencesBootstrap(userId) {
       } catch (error) {
         if (!isMounted) return;
         setSyncError(error);
-        setIsReady(true);
+        markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "error", {
+          emitGeneration: !hadLocalSnapshotRef.current,
+        });
       }
     })();
 
@@ -330,7 +416,72 @@ export function useEmpresasPreferencesBootstrap(userId) {
     bootstrapQuery.isSuccess,
     clienteId,
     hydrateListagemRecord,
+    markPreferencesReady,
     migrateScopedLocalPreferencesIfNeeded,
+    userId,
+  ]);
+
+  useEffect(() => {
+    if (!userId || !clienteId || preferencesReady) return undefined;
+    const timeoutId = window.setTimeout(() => {
+      markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "fallback_local", {
+        emitGeneration: true,
+      });
+    }, 12_000);
+    return () => window.clearTimeout(timeoutId);
+  }, [clienteId, markPreferencesReady, preferencesReady, userId]);
+
+  useEffect(() => {
+    if (!bootstrapQuery.isError) return;
+    if (!preferencesReady) {
+      markPreferencesReady(hadLocalSnapshotRef.current ? "fallback_local" : "error", {
+        emitGeneration: !hadLocalSnapshotRef.current,
+      });
+    }
+    setSyncError(bootstrapQuery.error);
+  }, [bootstrapQuery.error, bootstrapQuery.isError, markPreferencesReady, preferencesReady]);
+
+  useEffect(() => {
+    if (!userId || !clienteId) return undefined;
+    return subscribeEmpPreferencesCrossTab(async (payload = {}) => {
+      try {
+        const remoteRevision = Number(payload.revision);
+        if (
+          Number.isFinite(remoteRevision) &&
+          remoteRevision <= listagemRevisionRef.current &&
+          remoteRevision > 0
+        ) {
+          return;
+        }
+        const refreshed = await queryClient.fetchQuery({
+          queryKey: bootstrapQueryKey,
+          queryFn: () => userPreferencesApi.bootstrap(),
+          staleTime: 0,
+        });
+        const mapped = mapBootstrapPreferences(refreshed);
+        const listagemRecord = mapped[LISTAGEM_SCOPE_KEY];
+        if (!listagemRecord?.preferencias) return;
+        const changed = hydrateListagemRecord(listagemRecord, {
+          emitCrossTab: false,
+          sectionsChanged: payload.sectionsChanged || LISTAGEM_SECTIONS,
+        });
+        if (!changed) return;
+        bumpBootstrapGeneration("remote_applied");
+        const noticeKey = `${payload.revision || "remote"}:${(payload.sectionsChanged || []).join(",")}`;
+        if (remoteConflictNoticeRef.current !== noticeKey) {
+          remoteConflictNoticeRef.current = noticeKey;
+          showInfo("Preferência atualizada em outra aba.");
+        }
+      } catch {
+        // Falha de sync entre abas não deve bloquear a UI local.
+      }
+    });
+  }, [
+    bootstrapQueryKey,
+    bumpBootstrapGeneration,
+    clienteId,
+    hydrateListagemRecord,
+    queryClient,
     userId,
   ]);
 
@@ -386,7 +537,10 @@ export function useEmpresasPreferencesBootstrap(userId) {
         revision: Number(response?.revision) || listagemRevisionRef.current + 1,
       };
 
-      hydrateListagemRecord(normalizedRecord);
+      hydrateListagemRecord(normalizedRecord, {
+        emitCrossTab: true,
+        sectionsChanged: Object.keys(patchToSend),
+      });
       patchBootstrapCache(normalizedRecord);
       conflictRetryCountRef.current = 0;
       setSyncError(null);
@@ -401,7 +555,6 @@ export function useEmpresasPreferencesBootstrap(userId) {
         if (Object.keys(currentPreferences).length > 0) {
           const reconciled = toObject(deepMergeObjects(currentPreferences, patchToSend));
           applyListagemPreferencesPatchToStorage(reconciled);
-          // Mantém alterações já enfileiradas (ex.: cards=4 após cards=2) como vencedoras.
           pendingPatchRef.current = mergePatchState(patchToSend, pendingPatchRef.current);
 
           const nextRevision = Number.isFinite(currentRevision)
@@ -410,6 +563,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
           listagemRevisionRef.current = nextRevision;
           listagemUpdatedAtRef.current = currentUpdatedAt || reconciled?.meta?.updatedAt || null;
+          lastSyncedPreferencesRef.current = reconciled;
           patchBootstrapCache({
             modulo: EMPRESAS_LISTAGEM_SCOPE.modulo,
             tela: EMPRESAS_LISTAGEM_SCOPE.tela,
@@ -418,6 +572,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
             updatedAt: listagemUpdatedAtRef.current,
             revision: listagemRevisionRef.current,
           });
+          bumpBootstrapGeneration("remote_applied");
         }
 
         conflictRetryCountRef.current += 1;
@@ -432,7 +587,13 @@ export function useEmpresasPreferencesBootstrap(userId) {
     } finally {
       syncInFlightRef.current = false;
     }
-  }, [clienteId, hydrateListagemRecord, patchBootstrapCache, userId]);
+  }, [
+    bumpBootstrapGeneration,
+    clienteId,
+    hydrateListagemRecord,
+    patchBootstrapCache,
+    userId,
+  ]);
 
   const scheduleListagemSync = useCallback(
     ({ immediate = false, reason = "", sections = [] } = {}) => {
@@ -484,6 +645,14 @@ export function useEmpresasPreferencesBootstrap(userId) {
   );
 
   useEffect(() => {
+    registerEmpPreferencesFlushHandler(async () => {
+      scheduleListagemSync({ immediate: true, reason: "listagem:flush-all" });
+      await persistQueuedPatches();
+    });
+    return () => registerEmpPreferencesFlushHandler(null);
+  }, [persistQueuedPatches, scheduleListagemSync]);
+
+  useEffect(() => {
     if (!userId || !clienteId) return undefined;
 
     const flushNow = () => {
@@ -523,9 +692,17 @@ export function useEmpresasPreferencesBootstrap(userId) {
     scheduleListagemSync({ immediate: true, reason: "listagem:flush-all" });
   }, [scheduleListagemSync]);
 
+  const isLoading =
+    Boolean(userId && clienteId) &&
+    !preferencesReady &&
+    (bootstrapStatus === "idle" || bootstrapStatus === "remote_loading");
+
   return {
-    isReady,
-    isLoading: Boolean(userId && clienteId) && (!isReady || bootstrapQuery.isLoading),
+    isReady: preferencesReady,
+    preferencesReady,
+    bootstrapStatus,
+    bootstrapGeneration,
+    isLoading,
     error: bootstrapQuery.error || syncError,
     scheduleListagemSync,
     flushListagemSync,

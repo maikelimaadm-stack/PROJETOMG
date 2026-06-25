@@ -16,6 +16,8 @@ import {
   saveCardsLayoutConfig,
   saveSearchVisFields,
   sortCardConfigFieldsAlphabetically,
+  sortCardConfigFieldsByOrder,
+  loadCardFieldOrder,
 } from "@/modules/empresas/components/empSearchView.constants";
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
@@ -102,7 +104,7 @@ export function useEmpCardsVisFields() {
       catalog,
       visFields.length > 0 ? visFields : catalog
     );
-    return sortCardConfigFieldsAlphabetically(merged);
+    return sortCardConfigFieldsByOrder(merged, loadCardFieldOrder());
   }, [catalog, visFields]);
 
   const detailFields = useMemo(
@@ -118,8 +120,15 @@ export function useEmpCardsVisFields() {
           EMP_SEARCH_DEFAULT_FIELDS.find((item) => item.key === field.key);
         return { ...fallback, ...field };
       });
-      setVisFields(normalized);
-      saveSearchVisFields(normalized);
+      const ordered = nextFields
+        .map((field) => normalized.find((item) => item.key === field.key))
+        .filter(Boolean);
+      const remaining = normalized.filter(
+        (field) => !ordered.some((item) => item.key === field.key)
+      );
+      const finalFields = [...ordered, ...remaining];
+      setVisFields(finalFields);
+      saveSearchVisFields(finalFields);
     },
     [catalog]
   );

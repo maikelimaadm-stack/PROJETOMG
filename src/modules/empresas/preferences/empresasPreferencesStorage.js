@@ -351,7 +351,18 @@ export const applyListagemPreferencesToStorage = (preferences = {}) => {
     }
 
     if (normalized.cards?.visibleFields) {
-      writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(normalized.cards.visibleFields), "listagem:hydrate");
+      const visibleFields = toObject(normalized.cards.visibleFields, {});
+      const fieldOrder = Array.isArray(normalized.cards.fieldOrder)
+        ? normalized.cards.fieldOrder.map((key) => String(key || "").trim()).filter(Boolean)
+        : Object.keys(visibleFields);
+      const orderedVisible = {};
+      fieldOrder.forEach((key) => {
+        if (key in visibleFields) orderedVisible[key] = visibleFields[key];
+      });
+      Object.keys(visibleFields).forEach((key) => {
+        if (!(key in orderedVisible)) orderedVisible[key] = visibleFields[key];
+      });
+      writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(orderedVisible), "listagem:hydrate");
     }
     if (normalized.cards?.layoutConfig || normalized.cards?.cardsPerRow) {
       writeStorage(
