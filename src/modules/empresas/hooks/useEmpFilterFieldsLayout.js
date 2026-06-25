@@ -6,6 +6,7 @@ import {
   loadFilterFieldsLayout,
   mergeSavedFilterFieldOrder,
   mergeSavedVisibleFilterFields,
+  mergeVisibleFilterFieldsWithCatalog,
   saveFilterFieldsLayout,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
@@ -79,6 +80,20 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
       window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onDomOrBootstrap);
     };
   }, [catalogKey, catalogKeys]);
+
+  useEffect(() => {
+    if (catalogKeys.length === 0) return;
+    setLayout((current) => {
+      const ordem = mergeSavedFilterFieldOrder(current.ordem, catalogKeys);
+      const visiveis = mergeVisibleFilterFieldsWithCatalog(
+        current.visiveis,
+        catalogKeys,
+        current.ordem
+      );
+      const next = { ...current, ordem, visiveis };
+      return stableJsonEqual(current, next) ? current : next;
+    });
+  }, [catalogKeys, catalogKey]);
 
   const filterFields = useMemo(() => {
     return applyFilterFieldsLayout(catalogFields, layout);

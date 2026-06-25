@@ -28,7 +28,11 @@ import {
   loadSearchVisFields,
   mergeSearchVisFields,
 } from "@/modules/empresas/components/empSearchView.constants";
-import { loadFilterFieldsLayout } from "@/modules/empresas/utils/empFilterFieldsLayout";
+import {
+  loadFilterFieldsLayout,
+  mergeSavedFilterFieldOrder,
+  mergeVisibleFilterFieldsWithCatalog,
+} from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { readStoredTempListagemFilters } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 
@@ -160,4 +164,24 @@ export const mergeExpandedCatalogIntoCardsState = (
   if (newKeys.length === 0) return null;
   const merged = mergeSearchVisFields(expandedCatalog, currentVisFields);
   return stableJsonEqual(currentVisFields, merged) ? null : merged;
+};
+
+/** Mescla campos personalizados novos no layout de filtros sem reativar os removidos pelo usuário. */
+export const mergeExpandedCatalogIntoFiltersState = (
+  currentLayout = {},
+  expandedCatalogKeys = [],
+  previousCatalogSignature = ""
+) => {
+  const prevKeys = new Set(String(previousCatalogSignature || "").split("|").filter(Boolean));
+  const newKeys = expandedCatalogKeys.filter((key) => key && !prevKeys.has(key));
+  if (newKeys.length === 0) return null;
+
+  const ordem = mergeSavedFilterFieldOrder(currentLayout.ordem, expandedCatalogKeys);
+  const visiveis = mergeVisibleFilterFieldsWithCatalog(
+    currentLayout.visiveis,
+    expandedCatalogKeys,
+    currentLayout.ordem
+  );
+  const next = { ...currentLayout, ordem, visiveis };
+  return stableJsonEqual(currentLayout, next) ? null : next;
 };

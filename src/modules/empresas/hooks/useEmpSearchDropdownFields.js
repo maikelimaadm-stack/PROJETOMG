@@ -43,23 +43,18 @@ export function useEmpSearchDropdownFields() {
 
   useEffect(() => {
     const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
-    setVisFields((current) => {
-      const next = loadSearchDropdownVisFields(sourceCatalog);
-      return stableJsonEqual(current, next) ? current : next;
-    });
-    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
-      if (!shouldRefreshDropdownByCacheEvent(detail)) return;
-      setVisFields((current) => {
-        const next = loadSearchDropdownVisFields(sourceCatalog);
-        return stableJsonEqual(current, next) ? current : next;
-      });
-    });
-    const onBootstrapApplied = () => {
+    const reloadFromStorage = () => {
       setVisFields((current) => {
         const next = loadSearchDropdownVisFields(sourceCatalog);
         return stableJsonEqual(current, next) ? current : next;
       });
     };
+    reloadFromStorage();
+    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
+      if (!shouldRefreshDropdownByCacheEvent(detail)) return;
+      reloadFromStorage();
+    });
+    const onBootstrapApplied = () => reloadFromStorage();
     window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
     return () => {
       unsubscribe();

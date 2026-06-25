@@ -75,7 +75,7 @@ export const loadFilterFieldsLayout = (catalogKeys = []) => {
   const parsed = readEmpPreferencesJson(EMP_FILTER_FIELDS_LAYOUT_KEY, null);
   if (!parsed || typeof parsed !== "object") return defaultLayout;
   const ordem = mergeSavedFilterFieldOrder(parsed?.ordem, catalogKeys);
-  const visiveis = mergeSavedVisibleFilterFields(parsed?.visiveis, catalogKeys);
+  const visiveis = mergeVisibleFilterFieldsWithCatalog(parsed?.visiveis, catalogKeys, ordem);
   return {
     visiveis,
     ordem,
