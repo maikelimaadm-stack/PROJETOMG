@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import {
   readStoredEmpViewMode,
@@ -18,17 +18,17 @@ const shouldRefreshViewModeByCacheEvent = ({ reason = "" } = {}) => {
 export function useEmpViewModePreference(initialMode = "table") {
   const fallbackMode = normalizeEmpListViewMode(initialMode, { allowRecord: false });
   const [viewMode, setViewModeState] = useState(() => readStoredEmpViewMode() || fallbackMode);
+  const userViewModeLockedRef = useRef(false);
 
   useEffect(() => {
     const reloadFromStorage = () => {
       if (isEmpPreferencesSectionDirty("view")) return;
+      if (userViewModeLockedRef.current) return;
       setViewModeState((current) => {
         const next = readStoredEmpViewMode() || fallbackMode;
         return current === next ? current : next;
       });
     };
-
-    reloadFromStorage();
 
     const unsubscribe = subscribeEmpPreferencesCache((detail) => {
       if (!shouldRefreshViewModeByCacheEvent(detail)) return;
@@ -48,6 +48,7 @@ export function useEmpViewModePreference(initialMode = "table") {
 
   const setViewMode = useCallback((mode) => {
     const normalized = normalizeEmpListViewMode(mode, { allowRecord: true });
+    userViewModeLockedRef.current = true;
     setViewModeState(normalized);
     writeStoredEmpViewMode(normalized, "listagem:view-mode");
   }, []);

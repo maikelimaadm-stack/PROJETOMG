@@ -8,8 +8,14 @@ export default function MgPreferenceConfigFooter({
   okLabel = "Ok",
   counter = null,
 }) {
+  const twoActions = !counter;
+
   return (
-    <div className="mg-cards-config-menu__footer mg-search-dropdown__config-footer">
+    <div
+      className={`mg-cards-config-menu__footer mg-search-dropdown__config-footer${
+        twoActions ? " mg-search-dropdown__config-footer--two-actions" : ""
+      }`}
+    >
       <button
         type="button"
         className="ios-btn tb-btn tb-btn-labeled tb-btn-ghost mg-search-dropdown__config-action"
@@ -22,9 +28,7 @@ export default function MgPreferenceConfigFooter({
         <span className="mg-search-dropdown__config-counter" aria-live="polite">
           {counter}
         </span>
-      ) : (
-        <span className="mg-search-dropdown__config-counter" aria-hidden="true" />
-      )}
+      ) : null}
       <button
         type="button"
         className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
