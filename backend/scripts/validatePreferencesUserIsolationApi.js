@@ -144,7 +144,7 @@ const run = async () => {
         label: USERS[key].label,
         userId: sessions[key].userId,
         clienteId: sessions[key].clienteId,
-        login: sessions[key].login,
+        login: { cliente: sessions[key].login.cliente, usuario: sessions[key].login.usuario },
         status: "logged_in",
       };
       console.log(`OK login ${key}: user=${sessions[key].userId} cliente=${sessions[key].clienteId}`);

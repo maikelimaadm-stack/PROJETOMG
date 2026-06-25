@@ -8,8 +8,7 @@
       "clienteId": "cmqth8nbv0000jsnm2f7gbv9h",
       "login": {
         "cliente": "tenant1",
-        "usuario": "usera",
-        "senha": "Pr223Test!2026"
+        "usuario": "usera"
       },
       "status": "logged_in",
       "putStatus": 200
@@ -20,8 +19,7 @@
       "clienteId": "cmqth8nbv0000jsnm2f7gbv9h",
       "login": {
         "cliente": "tenant1",
-        "usuario": "userb",
-        "senha": "Pr223Test!2026"
+        "usuario": "userb"
       },
       "status": "logged_in",
       "putStatus": 200
@@ -32,8 +30,7 @@
       "clienteId": "cmqth8nby0001jsnmu45srjoz",
       "login": {
         "cliente": "tenant2",
-        "usuario": "userc",
-        "senha": "Pr223Test!2026"
+        "usuario": "userc"
       },
       "status": "logged_in",
       "putStatus": 200
