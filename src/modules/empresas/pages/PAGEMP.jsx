@@ -76,6 +76,7 @@ import {
   writeStoredEmpViewMode,
   writeStoredTempListagemFilters,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import {
   subscribeEmpPreferencesCache,
@@ -87,6 +88,30 @@ import {
 } from "@/modules/empresas/components/tblEmp.constants";
 
 const DROPDOWN_PAGE_SIZE = 30;
+
+const readInitialQuerySort = () => {
+  const storedSort = readEmpPreferencesJson(SORT_KEY, null);
+  const primarySort = Array.isArray(storedSort)
+    ? storedSort.find((item) => item?.key)
+    : storedSort?.key
+      ? storedSort
+      : null;
+  if (primarySort?.key) {
+    return {
+      key: primarySort.key,
+      direction: primarySort.direction === "desc" ? "desc" : "asc",
+    };
+  }
+  return { key: "codempresa", direction: "asc" };
+};
+
+const readInitialColumnFiltersState = () => {
+  const stored = readStoredTempListagemFilters();
+  if (stored && typeof stored === "object" && !Array.isArray(stored)) {
+    return stored;
+  }
+  return {};
+};
 
 const moduleRepository = empresasModuleDefinition.repository;
 const moduleLabels = {
@@ -234,14 +259,14 @@ export default function PAGEMP() {
   const [pendingAttachments, setPendingAttachments] = useState([]);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
   const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
-  const [querySort, setQuerySort] = useState({ key: "codempresa", direction: "asc" });
+  const [querySort, setQuerySort] = useState(readInitialQuerySort);
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(EMP_INFINITE_PAGE_SIZE);
   const [loadBatchSize, setLoadBatchSize] = useState(() => readStoredEmpLoadBatchSize());
   const [appliedPanelFilters, setAppliedPanelFilters] = useState(undefined);
-  const [columnFilters, setColumnFilters] = useState({});
-  const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(false);
-  const columnFiltersRef = useRef({});
+  const [columnFilters, setColumnFilters] = useState(readInitialColumnFiltersState);
+  const [columnFiltersHydrated, setColumnFiltersHydrated] = useState(true);
+  const columnFiltersRef = useRef(readInitialColumnFiltersState());
   const appliedFilterValuesRef = useRef({});
   const cardsVisFields = useEmpCardsVisFields();
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
@@ -367,6 +392,7 @@ export default function PAGEMP() {
 
   useEffect(() => {
     if (!preferencesReady) return;
+    if (isEmpPreferencesSectionDirty("view") || isEmpPreferencesSectionDirty("table")) return;
     suppressColumnFilterPersistRef.current = true;
     applyPagePreferencesFromStorage();
     suppressColumnFilterPersistRef.current = false;

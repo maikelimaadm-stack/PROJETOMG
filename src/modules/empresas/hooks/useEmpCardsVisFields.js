@@ -22,6 +22,7 @@ import {
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 
 const shouldRefreshCardsByCacheEvent = ({ reason = "", keys = [] } = {}) => {
@@ -54,6 +55,13 @@ export function useEmpCardsVisFields() {
     const refreshPreferences = () => setPreferencesVersion((current) => current + 1);
     const unsubscribeCache = subscribeEmpPreferencesCache((detail = {}) => {
       const { reason } = detail;
+      const normalized = String(reason || "").toLowerCase();
+      if (
+        (normalized.includes("listagem:hydrate") || normalized.includes("remote-sync")) &&
+        isEmpPreferencesSectionDirty("cards")
+      ) {
+        return;
+      }
       if (shouldRefreshCardsByCacheEvent(detail)) refreshPreferences();
       if (String(reason || "").includes("table")) refreshColumns();
     });

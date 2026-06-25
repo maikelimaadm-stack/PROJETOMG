@@ -32,6 +32,12 @@ import {
   writeEmpPreferencesText,
   hasScopedPreferenceValue,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  canApplyRemotePreferenceSection,
+  inferPreferenceSectionFromReason,
+  markEmpPreferencesSectionDirty,
+} from "@/modules/empresas/preferences/empresasPreferencesScopeState";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
 
 export const EMPRESAS_LISTAGEM_SCOPE = Object.freeze({
   modulo: "empresas",
@@ -120,8 +126,13 @@ export const writeStoredFilterOperators = (operatorsByField = {}) =>
 const readStorage = (key) => readEmpPreferencesText(key, null);
 
 const writeStorage = (key, value, reason = "listagem:update") => {
-  if (value == null) return;
-  writeEmpPreferencesText(key, value, { reason });
+  if (value == null) return false;
+  const changed = writeEmpPreferencesText(key, value, { reason });
+  if (changed) {
+    const section = inferPreferenceSectionFromReason(reason);
+    if (section) markEmpPreferencesSectionDirty(section);
+  }
+  return changed;
 };
 
 const normalizeViewMode = (value) => {
@@ -267,120 +278,229 @@ const normalizeListagemDocument = (preferences = {}) => {
   return normalized;
 };
 
-export const applyListagemPreferencesToStorage = (preferences = {}) => {
-  if (typeof window === "undefined" || !preferences || typeof preferences !== "object") return;
+export const applyListagemPreferencesToStorage = (preferences = {}, options = {}) => {
+  if (typeof window === "undefined" || !preferences || typeof preferences !== "object") return false;
+  const {
+    respectDirtySections = false,
+    skipUnchangedSections = false,
+    reason = "listagem:hydrate",
+  } = options;
   const normalized = normalizeListagemDocument(preferences);
+  const current = buildListagemPreferencesFromStorage();
+  let visualChange = false;
+
+  const shouldApplySection = (section, nextSlice, currentSlice) => {
+    if (respectDirtySections && !canApplyRemotePreferenceSection(section)) return false;
+    if (skipUnchangedSections && stableJsonEqual(nextSlice ?? null, currentSlice ?? null)) {
+      return false;
+    }
+    return true;
+  };
 
   withEmpPreferencesCacheBatch(() => {
-    if (normalized.view.mode) {
-      writeStoredEmpViewMode(normalized.view.mode, "listagem:hydrate");
+    if (
+      normalized.view.mode &&
+      shouldApplySection("view", { mode: normalized.view.mode }, { mode: current.view?.mode })
+    ) {
+      if (writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(normalized.view.mode), reason)) {
+        visualChange = true;
+      }
     }
 
-    if (normalized.view.launchPanelStyle) {
-      writeStoredLaunchPanelStyle(normalized.view.launchPanelStyle, "listagem:hydrate");
+    if (
+      normalized.view.launchPanelStyle &&
+      shouldApplySection(
+        "view",
+        { launchPanelStyle: normalized.view.launchPanelStyle },
+        { launchPanelStyle: current.view?.launchPanelStyle }
+      )
+    ) {
+      if (
+        writeStorage(
+          EMP_LAUNCH_PANEL_STYLE_STORAGE_KEY,
+          normalizeLaunchPanelStyle(normalized.view.launchPanelStyle),
+          reason
+        )
+      ) {
+        visualChange = true;
+      }
     }
 
     const table = /** @type {any} */ (sanitizeTablePreferences(normalized.table || {}));
-    if (table.columnOrder) writeStorage(ORDER_KEY, safeStringify(table.columnOrder), "listagem:hydrate");
-    if (table.visibleColumns) {
-      writeStorage(VISIBLE_KEY, safeStringify(table.visibleColumns), "listagem:hydrate");
-      markVisibleColumnsInitialized();
-    }
-    if (table.columnWidths) writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), "listagem:hydrate");
-    if (table.columnSizingMode) {
-      writeStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), "listagem:hydrate");
-    }
-    if (table.frozenLeftColumnCount != null) {
-      writeStorage(
-        FROZEN_KEY,
-        String(Number(table.frozenLeftColumnCount) || 0),
-        "listagem:hydrate"
-      );
-    }
-    if (table.sort) writeStorage(SORT_KEY, safeStringify(table.sort), "listagem:hydrate");
-    if (table.pageSize != null) {
-      writeStorage(PAGE_SIZE_KEY, String(Number(table.pageSize) || 100), "listagem:hydrate");
-    }
-    if (table.aggregationConfig) {
-      writeStorage(AGGR_KEY, safeStringify(table.aggregationConfig), "listagem:hydrate");
-    }
-    if (table.loadBatchSize != null) {
-      writeStorage(
-        EMP_LOAD_BATCH_STORAGE_KEY,
-        String(Number(table.loadBatchSize) || 100),
-        "listagem:hydrate"
-      );
+    if (shouldApplySection("table", table, current.table)) {
+      if (table.columnOrder && writeStorage(ORDER_KEY, safeStringify(table.columnOrder), reason)) {
+        visualChange = true;
+      }
+      if (table.visibleColumns) {
+        if (writeStorage(VISIBLE_KEY, safeStringify(table.visibleColumns), reason)) {
+          visualChange = true;
+        }
+        markVisibleColumnsInitialized();
+      }
+      if (table.columnWidths && writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), reason)) {
+        visualChange = true;
+      }
+      if (table.columnSizingMode) {
+        if (writeStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), reason)) {
+          visualChange = true;
+        }
+      }
+      if (table.frozenLeftColumnCount != null) {
+        if (
+          writeStorage(
+            FROZEN_KEY,
+            String(Number(table.frozenLeftColumnCount) || 0),
+            reason
+          )
+        ) {
+          visualChange = true;
+        }
+      }
+      if (table.sort && writeStorage(SORT_KEY, safeStringify(table.sort), reason)) {
+        visualChange = true;
+      }
+      if (table.pageSize != null) {
+        if (writeStorage(PAGE_SIZE_KEY, String(Number(table.pageSize) || 100), reason)) {
+          visualChange = true;
+        }
+      }
+      if (table.aggregationConfig) {
+        if (writeStorage(AGGR_KEY, safeStringify(table.aggregationConfig), reason)) {
+          visualChange = true;
+        }
+      }
+      if (table.loadBatchSize != null) {
+        if (
+          writeStorage(
+            EMP_LOAD_BATCH_STORAGE_KEY,
+            String(Number(table.loadBatchSize) || 100),
+            reason
+          )
+        ) {
+          visualChange = true;
+        }
+      }
     }
 
     const filtersConfig = toObject(normalized.filtersConfig, {});
-    if (filtersConfig.filterFieldsLayout) {
-      writeStorage(
-        EMP_FILTER_FIELDS_LAYOUT_KEY,
-        safeStringify(filtersConfig.filterFieldsLayout),
-        "listagem:hydrate"
-      );
-      if (filtersConfig.filterFieldsLayout.maxVisible != null) {
-        writeStorage(
-          FILTER_MAX_VISIBLE_KEY,
-          String(
-            Number(filtersConfig.filterFieldsLayout.maxVisible) || DEFAULT_FILTER_MAX_VISIBLE
-          ),
-          "listagem:hydrate"
-        );
+    if (shouldApplySection("filtersConfig", filtersConfig, current.filtersConfig)) {
+      if (filtersConfig.filterFieldsLayout) {
+        if (
+          writeStorage(
+            EMP_FILTER_FIELDS_LAYOUT_KEY,
+            safeStringify(filtersConfig.filterFieldsLayout),
+            reason
+          )
+        ) {
+          visualChange = true;
+        }
+        if (filtersConfig.filterFieldsLayout.maxVisible != null) {
+          if (
+            writeStorage(
+              FILTER_MAX_VISIBLE_KEY,
+              String(
+                Number(filtersConfig.filterFieldsLayout.maxVisible) || DEFAULT_FILTER_MAX_VISIBLE
+              ),
+              reason
+            )
+          ) {
+            visualChange = true;
+          }
+        }
+      }
+      if (filtersConfig.maxVisibleFields != null) {
+        if (
+          writeStorage(
+            FILTER_MAX_VISIBLE_KEY,
+            String(Number(filtersConfig.maxVisibleFields) || DEFAULT_FILTER_MAX_VISIBLE),
+            reason
+          )
+        ) {
+          visualChange = true;
+        }
+      }
+      if (filtersConfig.dropdownVisibleFields) {
+        if (
+          writeStorage(
+            EMP_SEARCH_DROPDOWN_VIS_KEY,
+            safeStringify(filtersConfig.dropdownVisibleFields),
+            reason
+          )
+        ) {
+          visualChange = true;
+        }
+      }
+      if (filtersConfig.favorites) {
+        if (writeStorage(EMP_SEARCH_FAV_KEY, safeStringify(filtersConfig.favorites), reason)) {
+          visualChange = true;
+        }
+      }
+      if (filtersConfig.operatorsByField) {
+        if (
+          writeStorage(
+            EMP_FILTER_OPERATORS_KEY,
+            safeStringify(toObject(filtersConfig.operatorsByField, {})),
+            reason
+          )
+        ) {
+          visualChange = true;
+        }
       }
     }
-    if (filtersConfig.maxVisibleFields != null) {
-      writeStorage(
-        FILTER_MAX_VISIBLE_KEY,
-        String(Number(filtersConfig.maxVisibleFields) || DEFAULT_FILTER_MAX_VISIBLE),
-        "listagem:hydrate"
-      );
-    }
-    if (filtersConfig.dropdownVisibleFields) {
-      writeStorage(
-        EMP_SEARCH_DROPDOWN_VIS_KEY,
-        safeStringify(filtersConfig.dropdownVisibleFields),
-        "listagem:hydrate"
-      );
-    }
-    if (filtersConfig.favorites) {
-      writeStorage(EMP_SEARCH_FAV_KEY, safeStringify(filtersConfig.favorites), "listagem:hydrate");
-    }
-    if (filtersConfig.operatorsByField) {
-      writeStoredFilterOperators(filtersConfig.operatorsByField);
-    }
 
-    if (normalized.cards?.visibleFields) {
-      const visibleFields = toObject(normalized.cards.visibleFields, {});
-      const fieldOrder = Array.isArray(normalized.cards.fieldOrder)
-        ? normalized.cards.fieldOrder.map((key) => String(key || "").trim()).filter(Boolean)
-        : Object.keys(visibleFields);
-      const orderedVisible = {};
-      fieldOrder.forEach((key) => {
-        if (key in visibleFields) orderedVisible[key] = visibleFields[key];
-      });
-      Object.keys(visibleFields).forEach((key) => {
-        if (!(key in orderedVisible)) orderedVisible[key] = visibleFields[key];
-      });
-      writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(orderedVisible), "listagem:hydrate");
+    if (shouldApplySection("cards", normalized.cards, current.cards)) {
+      if (normalized.cards?.visibleFields) {
+        const visibleFields = toObject(normalized.cards.visibleFields, {});
+        const fieldOrder = Array.isArray(normalized.cards.fieldOrder)
+          ? normalized.cards.fieldOrder.map((key) => String(key || "").trim()).filter(Boolean)
+          : Object.keys(visibleFields);
+        const orderedVisible = {};
+        fieldOrder.forEach((key) => {
+          if (key in visibleFields) orderedVisible[key] = visibleFields[key];
+        });
+        Object.keys(visibleFields).forEach((key) => {
+          if (!(key in orderedVisible)) orderedVisible[key] = visibleFields[key];
+        });
+        if (writeStorage(EMP_SEARCH_VIS_KEY, safeStringify(orderedVisible), reason)) {
+          visualChange = true;
+        }
+      }
+      if (normalized.cards?.layoutConfig || normalized.cards?.cardsPerRow) {
+        if (
+          writeStorage(
+            EMP_CARDS_LAYOUT_KEY,
+            safeStringify(
+              normalized.cards.layoutConfig || {
+                cardsPerRow: Number(normalized.cards.cardsPerRow) || 3,
+              }
+            ),
+            reason
+          )
+        ) {
+          visualChange = true;
+        }
+      }
     }
-    if (normalized.cards?.layoutConfig || normalized.cards?.cardsPerRow) {
-      writeStorage(
-        EMP_CARDS_LAYOUT_KEY,
-        safeStringify(
-          normalized.cards.layoutConfig || {
-            cardsPerRow: Number(normalized.cards.cardsPerRow) || 3,
-          }
-        ),
-        "listagem:hydrate"
-      );
-    }
-  }, "bootstrap:apply-listagem");
+  }, reason.includes("hydrate") ? "bootstrap:apply-listagem" : "remote:apply-listagem");
 
-  window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
-  window.dispatchEvent(new CustomEvent("emp-filter-fields-layout-updated"));
-  window.dispatchEvent(new CustomEvent("emp-favorites-updated"));
+  if (visualChange) {
+    if (normalized.view?.mode) {
+      window.dispatchEvent(new CustomEvent("emp-view-mode-updated"));
+    }
+    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+    window.dispatchEvent(new CustomEvent("emp-filter-fields-layout-updated"));
+    window.dispatchEvent(new CustomEvent("emp-favorites-updated"));
+  }
+
+  return visualChange;
 };
+
+export const applyRemoteListagemPreferencesToStorage = (preferences = {}) =>
+  applyListagemPreferencesToStorage(preferences, {
+    respectDirtySections: true,
+    skipUnchangedSections: true,
+    reason: "listagem:remote-sync",
+  });
 
 export const applyListagemPreferencesPatchToStorage = (patch = {}) => {
   const normalizedPatch = normalizeListagemDocument(patch);

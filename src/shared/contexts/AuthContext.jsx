@@ -15,6 +15,10 @@ import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 import { userPreferencesApi } from "@/apis/preferences/userPreferencesApi";
 import { flushEmpPreferencesNow } from "@/modules/empresas/preferences/empresasPreferencesFlush";
+import {
+  bindEmpPreferencesScopeState,
+  resetEmpPreferencesScopeState,
+} from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 
 const prefetchEmpresasCadastro = async (userId, clienteId) => {
   void queryClientInstance.prefetchQuery({
@@ -97,6 +101,7 @@ export const AuthProvider = ({ children }) => {
         setAllowAllEmpresas(false);
         clearActiveUserPreferencesScope();
         resetEmpPreferencesMemoryCache();
+        resetEmpPreferencesScopeState();
         setIsAuthenticated(false);
         setIsLoadingAuth(false);
         return false;
@@ -118,6 +123,7 @@ export const AuthProvider = ({ children }) => {
         resetEmpPreferencesMemoryCache();
       }
       setActiveUserPreferencesScope(nextScope);
+      bindEmpPreferencesScopeState(nextScope);
       const persistedEmpresaId = AuthApi.getSelectedEmpresaId();
       const normalizedPersistedEmpresaId =
         persistedEmpresaId != null && String(persistedEmpresaId).trim() !== ""
@@ -202,6 +208,10 @@ export const AuthProvider = ({ children }) => {
       queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
       resetEmpPreferencesMemoryCache();
       setActiveUserPreferencesScope({
+        clienteId: payload.cliente?.id,
+        userId: payload.user?.id,
+      });
+      bindEmpPreferencesScopeState({
         clienteId: payload.cliente?.id,
         userId: payload.user?.id,
       });
@@ -291,6 +301,7 @@ export const AuthProvider = ({ children }) => {
     queryClientInstance.clear();
     resetAllLayoutPreferencesSync();
     resetEmpPreferencesMemoryCache();
+    resetEmpPreferencesScopeState();
     clearActiveUserPreferencesScope();
     setUser(null);
     setCliente(null);
@@ -307,6 +318,7 @@ export const AuthProvider = ({ children }) => {
     }
     queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
     resetEmpPreferencesMemoryCache();
+    resetEmpPreferencesScopeState();
     clearActiveUserPreferencesScope();
     setIsAuthenticated(false);
     setUser(null);

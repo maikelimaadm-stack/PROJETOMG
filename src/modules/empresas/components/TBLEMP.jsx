@@ -91,6 +91,7 @@ import {
   mergeColumnSizingMode,
   readEmpTablePreferencesSnapshot,
 } from "@/modules/empresas/preferences/empTablePreferencesHydration";
+import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
@@ -241,12 +242,15 @@ export default function TBLEMP({
   preferencesReady = true,
 }) {
   const suppressPersistenceRef = useRef(true);
-  const tableHydratedRef = useRef(false);
+  const tableHydratedRef = useRef(true);
   const [preferencesVersion, setPreferencesVersion] = useState(0);
   const [selectedItems, setSelectedItems] = useState([]);
-  const defaultSortConfig = [{ key: "codempresa", direction: "asc" }];
+  const initialTableSnapshot = useMemo(() => readEmpTablePreferencesSnapshot(COLUNAS_BASE), []);
+  const defaultSortConfig = initialTableSnapshot.sortConfig?.length
+    ? initialTableSnapshot.sortConfig
+    : [{ key: "codempresa", direction: "asc" }];
   const [sortConfig, setSortConfig] = useState(defaultSortConfig);
-  const [filtrosColunas, setFiltrosColunas] = useState({});
+  const [filtrosColunas, setFiltrosColunas] = useState(() => initialTableSnapshot.filtrosColunas || {});
   const lastExternalFiltersSigRef = useRef(null);
   const lastServerFiltersSigRef = useRef(null);
   const lastServerSortSigRef = useRef(null);
@@ -265,17 +269,22 @@ export default function TBLEMP({
   }, [externalColumnFilters]);
   const isMobile = useIsMobile();
 
-  const [columnWidths, setColumnWidths] = useState(() =>
-    Object.fromEntries(COLUNAS_BASE.map((column) => [column.id, column.width || 160]))
+  const [columnWidths, setColumnWidths] = useState(() => initialTableSnapshot.columnWidths);
+  const [frozenColumnCount, setFrozenColumnCount] = useState(() =>
+    Math.min(
+      initialTableSnapshot.frozenColumnCount,
+      initialTableSnapshot.colunasVisiveis.length
+    )
   );
-  const [frozenColumnCount, setFrozenColumnCount] = useState(0);
-  const [colunasOrdem, setColunasOrdem] = useState(() => COLUNAS_BASE.map((col) => col.id));
-  const [colunasVisiveis, setColunasVisiveis] = useState(() =>
-    COLUNAS_BASE.filter((col) => col.default).map((col) => col.id)
+  const [colunasOrdem, setColunasOrdem] = useState(() => initialTableSnapshot.colunasOrdem);
+  const [colunasVisiveis, setColunasVisiveis] = useState(() => initialTableSnapshot.colunasVisiveis);
+  const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(
+    () => initialTableSnapshot.layoutAggregationConfig || {}
   );
-  const [layoutAggregationConfig, setLayoutAggregationConfig] = useState({});
-  const [autoFitActiveColumns, setAutoFitActiveColumns] = useState({});
-  const columnSizingModeRef = useRef({});
+  const [autoFitActiveColumns, setAutoFitActiveColumns] = useState(
+    () => initialTableSnapshot.autoFitActiveColumns || {}
+  );
+  const columnSizingModeRef = useRef(initialTableSnapshot.columnSizingMode || {});
 
   const lastRowClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const rowClickSuppressRef = useRef({ id: null, until: 0 });
@@ -428,6 +437,7 @@ export default function TBLEMP({
 
   useLayoutEffect(() => {
     if (!preferencesReady || !colunasCatalogSignature) return;
+    if (isEmpPreferencesSectionDirty("table")) return;
     applyTablePreferencesFromCache(colunasDisponiveisRef.current);
   }, [preferencesReady, colunasCatalogSignature, preferencesVersion, applyTablePreferencesFromCache]);
 
@@ -442,6 +452,12 @@ export default function TBLEMP({
         !normalized.includes("listagem:hydrate") &&
         !normalized.includes("remote-tab") &&
         !normalized.includes("remote-sync")
+      ) {
+        return;
+      }
+      if (
+        (normalized.includes("listagem:hydrate") || normalized.includes("remote-sync")) &&
+        isEmpPreferencesSectionDirty("table")
       ) {
         return;
       }

@@ -11,6 +11,7 @@ import {
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { FILTER_MAX_VISIBLE_KEY } from "@/modules/empresas/components/tblEmp.constants";
+import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 
 const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) => {
@@ -54,7 +55,16 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   useEffect(() => {
     const refresh = (detail = null) => {
       const isDomEvent = detail && typeof detail === "object" && "type" in detail;
-      if (detail && !isDomEvent && !shouldRefreshFilterLayoutByCacheEvent(detail)) return;
+      if (detail && !isDomEvent) {
+        const normalized = String(detail?.reason || "").toLowerCase();
+        if (
+          (normalized.includes("listagem:hydrate") || normalized.includes("remote-sync")) &&
+          isEmpPreferencesSectionDirty("filtersConfig")
+        ) {
+          return;
+        }
+        if (!shouldRefreshFilterLayoutByCacheEvent(detail)) return;
+      }
       const nextLayout = loadFilterFieldsLayout(catalogKeys);
       setLayout((current) => (stableJsonEqual(current, nextLayout) ? current : nextLayout));
     };
