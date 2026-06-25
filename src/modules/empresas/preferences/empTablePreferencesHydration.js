@@ -89,3 +89,41 @@ export const mergeColumnSizingMode = (previous = {}, columnId, mode) => {
   else delete next[columnId];
   return next;
 };
+
+/** Adiciona colunas novas do catálogo sem resetar ordem/visibilidade já pintadas. */
+export const mergeExpandedCatalogIntoTableState = (
+  current = {},
+  expandedColumns = [],
+  previousCatalogSignature = ""
+) => {
+  const prevIds = new Set(String(previousCatalogSignature || "").split("|").filter(Boolean));
+  const newColumnIds = expandedColumns.map((column) => column.id).filter((id) => !prevIds.has(id));
+  if (newColumnIds.length === 0) return null;
+
+  const columnsById = new Map(expandedColumns.map((column) => [column.id, column]));
+  const nextOrdem = [...(current.colunasOrdem || [])];
+  newColumnIds.forEach((id) => {
+    if (!nextOrdem.includes(id)) nextOrdem.push(id);
+  });
+
+  const nextVisiveis = [...(current.colunasVisiveis || [])];
+  newColumnIds.forEach((id) => {
+    const column = columnsById.get(id);
+    if (column?.default && !nextVisiveis.includes(id)) nextVisiveis.push(id);
+  });
+
+  const defaults = Object.fromEntries(
+    expandedColumns.map((column) => [column.id, column.width || 160])
+  );
+  const nextWidths = { ...defaults, ...(current.columnWidths || {}) };
+  newColumnIds.forEach((id) => {
+    const column = columnsById.get(id);
+    if (column && nextWidths[id] == null) nextWidths[id] = column.width || 160;
+  });
+
+  return {
+    colunasOrdem: nextOrdem,
+    colunasVisiveis: nextVisiveis,
+    columnWidths: nextWidths,
+  };
+};

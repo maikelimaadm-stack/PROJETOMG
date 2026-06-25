@@ -4,15 +4,20 @@ import {
   applyFilterFieldsLayout,
   getDefaultFilterFieldsLayout,
   loadFilterFieldsLayout,
+  loadFilterMaxVisible,
   mergeSavedFilterFieldOrder,
   mergeSavedVisibleFilterFields,
   mergeVisibleFilterFieldsWithCatalog,
   saveFilterFieldsLayout,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
-import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  readEmpPreferencesJson,
+  subscribeEmpPreferencesCache,
+} from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { FILTER_MAX_VISIBLE_KEY } from "@/modules/empresas/components/tblEmp.constants";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
+import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
 
 const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) => {
   const normalizedReason = String(reason || "").toLowerCase();
@@ -33,6 +38,32 @@ const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) 
   return false;
 };
 
+const loadFilterFieldsLayoutFromStorage = () => {
+  markEmpPreferencesPerf("PREF_LOCAL_SNAPSHOT_READ", {
+    section: "filtersConfig",
+    source: "local",
+  });
+  const parsed = readEmpPreferencesJson(EMP_FILTER_FIELDS_LAYOUT_KEY, null);
+  const maxVisible = loadFilterMaxVisible();
+  if (!parsed || typeof parsed !== "object") {
+    markEmpPreferencesPerf("PREF_FILTERS_INITIAL_STATE", {
+      section: "filtersConfig",
+      source: "defaults",
+    });
+    return { visiveis: [], ordem: [], maxVisible };
+  }
+  markEmpPreferencesPerf("PREF_FILTERS_INITIAL_STATE", {
+    section: "filtersConfig",
+    source: "local",
+    changed: true,
+  });
+  return {
+    visiveis: Array.isArray(parsed.visiveis) ? [...parsed.visiveis] : [],
+    ordem: Array.isArray(parsed.ordem) ? [...parsed.ordem] : [],
+    maxVisible,
+  };
+};
+
 export function useEmpFilterFieldsLayout(catalogFields = []) {
   const catalogKey = useMemo(
     () =>
@@ -48,9 +79,7 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
     [catalogKey]
   );
 
-  const [layout, setLayout] = useState(() =>
-    loadFilterFieldsLayout(catalogKeys)
-  );
+  const [layout, setLayout] = useState(() => loadFilterFieldsLayoutFromStorage());
 
   useEffect(() => {
     const refresh = (detail = null) => {
@@ -61,23 +90,42 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
           (normalized.includes("listagem:hydrate") || normalized.includes("remote-sync")) &&
           isEmpPreferencesSectionDirty("filtersConfig")
         ) {
+          markEmpPreferencesPerf("PREF_REMOTE_APPLY_SKIPPED", {
+            section: "filtersConfig",
+            source: "remote",
+            dirty: true,
+          });
           return;
         }
         if (!shouldRefreshFilterLayoutByCacheEvent(detail)) return;
       }
+      markEmpPreferencesPerf("PREF_REMOTE_APPLY_ATTEMPT", {
+        section: "filtersConfig",
+        source: "remote",
+      });
       const nextLayout = loadFilterFieldsLayout(catalogKeys);
-      setLayout((current) => (stableJsonEqual(current, nextLayout) ? current : nextLayout));
+      setLayout((current) => {
+        const unchanged = stableJsonEqual(current, nextLayout);
+        if (!unchanged) {
+          markEmpPreferencesPerf("PREF_REMOTE_APPLY_EFFECTIVE", {
+            section: "filtersConfig",
+            source: "remote",
+            changed: true,
+          });
+        }
+        return unchanged ? current : nextLayout;
+      });
     };
-    refresh();
     const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
     window.addEventListener("emp-filter-fields-layout-updated", refresh);
     return () => {
       unsubscribeCache();
       window.removeEventListener("emp-filter-fields-layout-updated", refresh);
     };
-  }, [catalogKey, catalogKeys]);
+  }, [catalogKeys]);
 
   useEffect(() => {
+    if (catalogKeys.length === 0) return;
     setLayout((current) => {
       const ordem = mergeSavedFilterFieldOrder(current.ordem, catalogKeys);
       const visiveis = mergeVisibleFilterFieldsWithCatalog(
@@ -91,7 +139,7 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
       ) {
         return current;
       }
-      return { ordem, visiveis };
+      return { ...current, ordem, visiveis };
     });
   }, [catalogKey, catalogKeys]);
 
@@ -101,13 +149,27 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
 
   const saveLayout = useCallback(
     ({ visiveis, ordem, maxVisible }) => {
+      markEmpPreferencesPerf("PREF_USER_ACTION", {
+        section: "filtersConfig",
+        source: "user_action",
+      });
       const nextLayout = {
         visiveis: mergeSavedVisibleFilterFields(visiveis, catalogKeys),
         ordem: mergeSavedFilterFieldOrder(ordem, catalogKeys),
         maxVisible: maxVisible ?? layout.maxVisible,
       };
       setLayout(nextLayout);
+      markEmpPreferencesPerf("PREF_UI_STATE_CHANGED", {
+        section: "filtersConfig",
+        source: "user_action",
+        changed: true,
+      });
       saveFilterFieldsLayout(nextLayout);
+      markEmpPreferencesPerf("PREF_LOCAL_WRITE", {
+        section: "filtersConfig",
+        source: "user_action",
+        dirty: true,
+      });
     },
     [catalogKeys, layout.maxVisible]
   );

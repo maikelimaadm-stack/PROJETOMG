@@ -33,6 +33,7 @@ import {
   EMPRESAS_PREFERENCES_BOOTSTRAP_TIMEOUT_MS,
   isEmpresasPreferencesV2Enabled,
 } from "@/modules/empresas/preferences/empresasPreferencesFeatureFlags";
+import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
 import { useAuth } from "@/shared/contexts/AuthContext";
 
 const LISTAGEM_SCOPE_KEY = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
@@ -203,7 +204,21 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
   const bootstrapQuery = useQuery({
     queryKey: bootstrapQueryKey,
-    queryFn: () => userPreferencesApi.bootstrap(),
+    queryFn: () => {
+      markEmpPreferencesPerf("PREF_REMOTE_GET_START", {
+        section: "table",
+        source: "remote",
+        tela: "listagem",
+      });
+      return userPreferencesApi.bootstrap().then((payload) => {
+        markEmpPreferencesPerf("PREF_REMOTE_GET_END", {
+          section: "table",
+          source: "remote",
+          tela: "listagem",
+        });
+        return payload;
+      });
+    },
     enabled: Boolean(userId && clienteId),
     staleTime: 10 * 60_000,
     gcTime: 30 * 60_000,
@@ -359,6 +374,15 @@ export function useEmpresasPreferencesBootstrap(userId) {
     }
     setEmpPreferencesHydrationSource(hasLocal ? "local" : "defaults");
     setEmpPreferencesSyncStatus("idle");
+    markEmpPreferencesPerf("PREF_SCOPE_READY", {
+      source: hasLocal ? "local" : "defaults",
+      dirty: false,
+    });
+    if (!hasLocal) {
+      markEmpPreferencesPerf("PREF_DEFAULTS_CREATED", {
+        source: "defaults",
+      });
+    }
     // P0: nunca bloquear a UI — liberar imediatamente com snapshot local ou defaults.
     markPreferencesReady(hasLocal ? "local_applied" : "defaults", {
       emitGeneration: isEmpresasPreferencesV2Enabled() && hasLocal,
@@ -545,6 +569,10 @@ export function useEmpresasPreferencesBootstrap(userId) {
     syncInFlightRef.current = true;
 
     try {
+      markEmpPreferencesPerf("PREF_REMOTE_PATCH_START", {
+        section: Object.keys(patchToSend).join(","),
+        source: "remote",
+      });
       const response = await userPreferencesApi.saveByScope(
         EMPRESAS_LISTAGEM_SCOPE.modulo,
         EMPRESAS_LISTAGEM_SCOPE.tela,
@@ -574,6 +602,11 @@ export function useEmpresasPreferencesBootstrap(userId) {
       patchBootstrapCache(normalizedRecord);
       conflictRetryCountRef.current = 0;
       setSyncError(null);
+      markEmpPreferencesPerf("PREF_REMOTE_PATCH_END", {
+        section: Object.keys(patchToSend).join(","),
+        source: "remote",
+        changed: false,
+      });
       if (isEmpresasPreferencesV2Enabled()) {
         broadcastEmpPreferencesCrossTab({
           clienteId,
