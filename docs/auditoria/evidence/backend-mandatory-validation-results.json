@@ -1,0 +1,169 @@
+{
+  "meta": {
+    "startedAt": "2026-06-25T15:00:00.976Z",
+    "apiBaseUrl": "http://127.0.0.1:3001",
+    "user": {
+      "cliente": "maike",
+      "usuario": "maike"
+    },
+    "userId": "cmqtl2enu0002js5f2sgwqcxx",
+    "finishedAt": "2026-06-25T15:00:01.183Z",
+    "approved": true
+  },
+  "checks": [
+    {
+      "name": "PATCH cards não altera table",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "PATCH table não altera filtersConfig",
+      "passed": true,
+      "details": {}
+    },
+    {
+      "name": "PATCH formLayout não altera cards",
+      "passed": true,
+      "details": {
+        "beforeCards": {
+          "cardsPerRow": 2,
+          "layoutConfig": {
+            "cardsPerRow": 2
+          },
+          "_backendAuditMarker": 1782399601089
+        },
+        "afterCards": {
+          "cardsPerRow": 2,
+          "layoutConfig": {
+            "cardsPerRow": 2
+          },
+          "_backendAuditMarker": 1782399601089
+        }
+      }
+    },
+    {
+      "name": "Alterações rápidas em seções distintas permanecem",
+      "passed": true,
+      "details": {
+        "finalTablePageSize": 101,
+        "finalCardsDensity": "compact",
+        "statuses": [
+          409,
+          200
+        ]
+      }
+    },
+    {
+      "name": "409 retorna documento e revisão atual",
+      "passed": {
+        "meta": {
+          "revision": 6,
+          "updatedAt": "2026-06-25T15:00:01.145Z"
+        },
+        "view": {
+          "mode": "cards",
+          "launchPanelStyle": "tabs"
+        },
+        "cards": {
+          "density": "compact",
+          "cardsPerRow": 2,
+          "layoutConfig": {
+            "cardsPerRow": 2
+          },
+          "_backendAuditMarker": 1782399601089
+        },
+        "table": {
+          "pageSize": 101,
+          "visibleColumns": []
+        }
+      },
+      "details": {
+        "status": 409,
+        "payload": {
+          "message": "Preferência foi alterada em outra aba/sessão.",
+          "currentPreferences": {
+            "meta": {
+              "revision": 6,
+              "updatedAt": "2026-06-25T15:00:01.145Z"
+            },
+            "view": {
+              "mode": "cards",
+              "launchPanelStyle": "tabs"
+            },
+            "cards": {
+              "density": "compact",
+              "cardsPerRow": 2,
+              "layoutConfig": {
+                "cardsPerRow": 2
+              },
+              "_backendAuditMarker": 1782399601089
+            },
+            "table": {
+              "pageSize": 101,
+              "visibleColumns": []
+            }
+          },
+          "currentRevision": 6,
+          "currentUpdatedAt": "2026-06-25T15:00:01.146Z"
+        }
+      }
+    },
+    {
+      "name": "Reaplicação de patch pendente após 409",
+      "passed": true,
+      "details": {
+        "finalViewMode": "tabela"
+      }
+    },
+    {
+      "name": "Caminho legado não faz replace total",
+      "passed": true,
+      "details": {
+        "legacyRevision": 8,
+        "preservedTable": true,
+        "preservedFilters": true
+      }
+    },
+    {
+      "name": "Endpoint antigo aplica merge seguro (ou bloqueia)",
+      "passed": true,
+      "details": {
+        "endpoint": "/api/preferences/:screenKey",
+        "behavior": "merge seguro validado"
+      }
+    },
+    {
+      "name": "Rejeita usuario_id/cliente_id/tenant_id/empresa_id no body",
+      "passed": true,
+      "details": {
+        "outcomes": [
+          {
+            "field": "usuario_id",
+            "status": 400,
+            "message": "Campos de identidade não são aceitos no payload: usuario_id. Use o token autenticado."
+          },
+          {
+            "field": "cliente_id",
+            "status": 400,
+            "message": "Campos de identidade não são aceitos no payload: cliente_id. Use o token autenticado."
+          },
+          {
+            "field": "tenant_id",
+            "status": 400,
+            "message": "Campos de identidade não são aceitos no payload: tenant_id. Use o token autenticado."
+          },
+          {
+            "field": "empresa_id",
+            "status": 400,
+            "message": "Campos de identidade não são aceitos no payload: empresa_id. Use o token autenticado."
+          }
+        ]
+      }
+    }
+  ],
+  "restore": {
+    "listagem": "ok",
+    "formLayout": "ok"
+  },
+  "errors": []
+}
