@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   EmpConfigDialogFrame,
   EmpConfigPrimaryBtn,
+  EmpConfigToolbarBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -219,6 +220,7 @@ export default function EmpConfiguracaoFiltrosDialog({
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
       footer={
         <div className="flex w-full justify-end gap-2 px-1">
+          <EmpConfigToolbarBtn onClick={requestClose}>Cancelar</EmpConfigToolbarBtn>
           <EmpConfigPrimaryBtn onClick={handleOk}>Ok</EmpConfigPrimaryBtn>
         </div>
       }

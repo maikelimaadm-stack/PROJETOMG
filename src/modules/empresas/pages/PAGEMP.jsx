@@ -1726,32 +1726,89 @@ export default function PAGEMP() {
                   }}
                 />
               </div>
-            ) : mgViewMode === "cards" ? (
-              <div
-                className="mg-view-layer mg-view-layer--cards mg-view-layer--active flex min-h-0 flex-1 flex-col overflow-hidden"
-                aria-hidden={false}
-              >
-                <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-                  <EmpresasSearchPanel
-                    searchProps={{
+            ) : (
+              <>
+                <div
+                  className={`mg-view-layer mg-view-layer--cards flex min-h-0 flex-1 flex-col overflow-hidden${
+                    mgViewMode === "cards" ? " mg-view-layer--active" : ""
+                  }`}
+                  aria-hidden={mgViewMode !== "cards"}
+                >
+                  <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+                    <EmpresasSearchPanel
+                      searchProps={{
+                        empresas: empresasFiltradasPainel,
+                        total: totalEmpresas,
+                        isLoading: empresasLoading,
+                        isFetching: empresasFetching,
+                        page: queryPage,
+                        pageSize: queryPageSize,
+                        onPageChange: handleServerPageChange,
+                        onPageSizeChange: handleServerPageSizeChange,
+                        searchValue: searchTerm,
+                        onSearchChange: handleSearchCommit,
+                        onEdit: handleEdit,
+                        selectedIds: selectedTableItems,
+                        onSelectionChange: handleTableSelectionChange,
+                        cardsDetailFields: cardsVisFields.detailFields,
+                        cardsPerRow: effectiveCardsPerRow,
+                        fieldsPerRow: effectiveFieldsPerRow,
+                        isFavoriteRecord: empFavorites.isFavorite,
+                        onToggleFavorite: empFavorites.toggleFavorite,
+                        mgPrototype: true,
+                        infiniteMode: true,
+                        hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
+                        onLoadMoreRows: handleLoadMoreEmpresas,
+                        isLoadingMoreRows: isFetchingNextEmpresasPage,
+                        loadedRowsLimitReached,
+                        maxLoadedRows,
+                        loadBatchSize,
+                        onLoadBatchSizeChange: handleLoadBatchSizeChange,
+                        selectedCount: selectedTableItems.length,
+                        listedCount: loadedRecordsCount,
+                        filteredCount: filteredRecordsCount,
+                        totalCount: totalRecordsCount,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={`mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden${
+                    mgViewMode === "tabela" ? " mg-view-layer--active" : ""
+                  }`}
+                  aria-hidden={mgViewMode !== "tabela"}
+                >
+                  <EmpresasTablePanel
+                    tableProps={{
+                      key: "tbl-emp",
                       empresas: empresasFiltradasPainel,
-                      total: totalEmpresas,
-                      isLoading: empresasLoading,
-                      isFetching: empresasFetching,
-                      page: queryPage,
-                      pageSize: queryPageSize,
-                      onPageChange: handleServerPageChange,
-                      onPageSizeChange: handleServerPageSizeChange,
-                      searchValue: searchTerm,
-                      onSearchChange: handleSearchCommit,
+                      isLoadingEmpresas: empresasLoading,
+                      isFetchingEmpresas: empresasFetching,
                       onEdit: handleEdit,
+                      showConfigColunas,
+                      setShowConfigColunas,
+                      searchTerm: "",
+                      selectedRecordId: undefined,
                       selectedIds: selectedTableItems,
                       onSelectionChange: handleTableSelectionChange,
-                      cardsDetailFields: cardsVisFields.detailFields,
-                      cardsPerRow: effectiveCardsPerRow,
-                      fieldsPerRow: effectiveFieldsPerRow,
-                      isFavoriteRecord: empFavorites.isFavorite,
-                      onToggleFavorite: empFavorites.toggleFavorite,
+                      onVisibleDataChange: setVisibleTableData,
+                      onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                      onServerColumnFiltersChange: handleColumnFiltersChange,
+                      externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
+                      serverPage: queryPage,
+                      serverPageSize: queryPageSize,
+                      serverTotal: totalEmpresas,
+                      onServerPageChange: handleServerPageChange,
+                      onServerPageSizeChange: handleServerPageSizeChange,
+                      serverSearchTerm: searchTerm,
+                      serverBaseFilters,
+                      selectorOptionsMode: "cascade",
+                      selectorOptionsContextFilters: serverBaseFilters,
+                      onServerSortChange: handleServerSortChange,
+                      onRequestDistinctColumnValues: handleDistinctColumnValues,
+                      preferencesReady,
+                      bootstrapGeneration,
+                      moduleTitle: moduleLabels.title,
                       mgPrototype: true,
                       infiniteMode: true,
                       hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
@@ -1768,56 +1825,7 @@ export default function PAGEMP() {
                     }}
                   />
                 </div>
-              </div>
-            ) : (
-              <div className="mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-layer--active mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-                <EmpresasTablePanel
-                  tableProps={{
-                    key: "tbl-emp",
-                    empresas: empresasFiltradasPainel,
-                    isLoadingEmpresas: empresasLoading,
-                    isFetchingEmpresas: empresasFetching,
-                    onEdit: handleEdit,
-                    showConfigColunas,
-                    setShowConfigColunas,
-                    searchTerm: "",
-                    selectedRecordId: undefined,
-                    selectedIds: selectedTableItems,
-                    onSelectionChange: handleTableSelectionChange,
-                    onVisibleDataChange: setVisibleTableData,
-                    onFilteredEmpresasChange: handleFilteredEmpresasChange,
-                    onServerColumnFiltersChange: handleColumnFiltersChange,
-                    externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
-                    serverPage: queryPage,
-                    serverPageSize: queryPageSize,
-                    serverTotal: totalEmpresas,
-                    onServerPageChange: handleServerPageChange,
-                    onServerPageSizeChange: handleServerPageSizeChange,
-                    serverSearchTerm: searchTerm,
-                    serverBaseFilters,
-                    selectorOptionsMode: "cascade",
-                    selectorOptionsContextFilters: serverBaseFilters,
-                    onServerSortChange: handleServerSortChange,
-                    onRequestDistinctColumnValues: handleDistinctColumnValues,
-                    preferencesReady,
-                    bootstrapGeneration,
-                    moduleTitle: moduleLabels.title,
-                    mgPrototype: true,
-                    infiniteMode: true,
-                    hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
-                    onLoadMoreRows: handleLoadMoreEmpresas,
-                    isLoadingMoreRows: isFetchingNextEmpresasPage,
-                    loadedRowsLimitReached,
-                    maxLoadedRows,
-                    loadBatchSize,
-                    onLoadBatchSizeChange: handleLoadBatchSizeChange,
-                    selectedCount: selectedTableItems.length,
-                    listedCount: loadedRecordsCount,
-                    filteredCount: filteredRecordsCount,
-                    totalCount: totalRecordsCount,
-                  }}
-                />
-              </div>
+              </>
             )}
           </div>
         </div>

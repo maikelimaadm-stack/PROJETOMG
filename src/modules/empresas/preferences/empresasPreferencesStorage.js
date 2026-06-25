@@ -301,7 +301,11 @@ export const applyListagemPreferencesToStorage = (preferences = {}, options = {}
       normalized.view.mode &&
       shouldApplySection("view", { mode: normalized.view.mode }, { mode: current.view?.mode })
     ) {
-      if (writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(normalized.view.mode), reason)) {
+      const remoteMode = normalizeViewMode(normalized.view.mode);
+      const localMode = normalizeViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY));
+      if (respectDirtySections && localMode && remoteMode !== localMode) {
+        markEmpPreferencesSectionDirty("view");
+      } else if (writeStorage(EMP_VIEW_MODE_STORAGE_KEY, remoteMode, reason)) {
         visualChange = true;
       }
     }
