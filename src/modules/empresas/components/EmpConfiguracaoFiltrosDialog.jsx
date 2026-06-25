@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   EmpConfigDialogFrame,
-  EmpConfigPrimaryBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -171,10 +170,6 @@ export default function EmpConfiguracaoFiltrosDialog({
     setSelectedUsedIds([]);
   };
 
-  const handleSave = () => {
-    onOpenChange(false);
-  };
-
   const requestClose = () => {
     onOpenChange(false);
   };
@@ -249,11 +244,6 @@ export default function EmpConfiguracaoFiltrosDialog({
         onReorderUsedByDrop={reorderUsedByDrop}
         emptyAvailableMessage="Nenhum campo disponível."
         emptyUsedMessage="Nenhum campo em uso encontrado."
-        footer={
-          <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
-            <span>OK</span>
-          </EmpConfigPrimaryBtn>
-        }
       />
     </EmpConfigDialogFrame>
   );

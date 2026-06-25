@@ -20,6 +20,7 @@ import { FILTER_MAX_VISIBLE_KEY } from "@/modules/empresas/components/tblEmp.con
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
+import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 
 const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) => {
   const normalizedReason = String(reason || "").toLowerCase();
@@ -130,9 +131,11 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
     };
     const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
     window.addEventListener("emp-filter-fields-layout-updated", refresh);
+    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, refresh);
     return () => {
       unsubscribeCache();
       window.removeEventListener("emp-filter-fields-layout-updated", refresh);
+      window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, refresh);
     };
   }, [catalogKeys]);
 

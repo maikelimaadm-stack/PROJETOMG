@@ -62,7 +62,7 @@ function CardsLayoutRadio({ checked, onChange }) {
   );
 }
 
-function CardsConfigMenuFooter({ onRestore, onOk }) {
+function CardsConfigMenuFooter({ onRestore }) {
   return (
     <div className="mg-cards-config-menu__footer mg-search-dropdown__config-footer">
       <button
@@ -71,13 +71,6 @@ function CardsConfigMenuFooter({ onRestore, onOk }) {
         onClick={onRestore}
       >
         Restaurar
-      </button>
-      <button
-        type="button"
-        className="ios-btn tb-btn tb-btn-labeled tb-btn-green mg-search-dropdown__config-action"
-        onClick={onOk}
-      >
-        Ok
       </button>
     </div>
   );
@@ -245,19 +238,11 @@ export default function MgCardsPanelStrip({
     });
   };
 
-  const handleFieldsOk = () => {
-    setFieldsOpen(false);
-  };
-
   const handleFieldsRestore = () => {
     const defaults = onRestoreDefaults?.() ?? getDefaultCardVisFields(fields);
     const next = defaults.map((field) => ({ ...field }));
     setFieldsDraft(next);
     onSave?.(next);
-  };
-
-  const handleLayoutOk = () => {
-    setLayoutOpen(false);
   };
 
   const handleLayoutRestore = () => {
@@ -346,7 +331,7 @@ export default function MgCardsPanelStrip({
                 </label>
               ))}
             </div>
-            <CardsConfigMenuFooter onRestore={handleLayoutRestore} onOk={handleLayoutOk} />
+            <CardsConfigMenuFooter onRestore={handleLayoutRestore} />
           </MgPortalPanel>
         </div>
 
@@ -391,7 +376,7 @@ export default function MgCardsPanelStrip({
                 </label>
               ))}
             </div>
-            <CardsConfigMenuFooter onRestore={handleFieldsRestore} onOk={handleFieldsOk} />
+            <CardsConfigMenuFooter onRestore={handleFieldsRestore} />
           </MgPortalPanel>
         </div>
         </div>
