@@ -223,6 +223,7 @@ export default function PAGEMP() {
   const {
     preferencesReady,
     bootstrapStatus,
+    bootstrapGeneration,
     error: preferencesSyncError,
     scheduleListagemSync,
   } = useEmpresasPreferencesBootstrap(user?.id);
@@ -322,7 +323,6 @@ export default function PAGEMP() {
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
-  const hasUserInteractedRef = useRef(false);
   const suppressColumnFilterPersistRef = useRef(true);
   const formBridgeSignatureRef = useRef("");
   const queryClient = useQueryClient();
@@ -1216,7 +1216,6 @@ export default function PAGEMP() {
       return !normalized.includes("temp-filters");
     };
     const unsubscribe = subscribeEmpPreferencesCache((detail) => {
-      if (!hasUserInteractedRef.current) return;
       const reason = detail?.reason;
       if (shouldSkipSync(reason, detail)) return;
       if (!shouldTrackSyncReason(reason)) return;
@@ -1226,18 +1225,6 @@ export default function PAGEMP() {
       unsubscribe();
     };
   }, [preferencesReady, scheduleListagemSync]);
-
-  useEffect(() => {
-    const markInteraction = () => {
-      hasUserInteractedRef.current = true;
-    };
-    window.addEventListener("pointerdown", markInteraction, { passive: true });
-    window.addEventListener("keydown", markInteraction);
-    return () => {
-      window.removeEventListener("pointerdown", markInteraction);
-      window.removeEventListener("keydown", markInteraction);
-    };
-  }, []);
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
@@ -1814,6 +1801,7 @@ export default function PAGEMP() {
                     onServerSortChange: handleServerSortChange,
                     onRequestDistinctColumnValues: handleDistinctColumnValues,
                     preferencesReady,
+                    bootstrapGeneration,
                     moduleTitle: moduleLabels.title,
                     mgPrototype: true,
                     infiniteMode: true,

@@ -3,7 +3,6 @@ import { Columns3 } from "lucide-react";
 import { showWarning } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
-  EmpConfigPrimaryBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -119,6 +118,10 @@ export default function EmpConfiguracaoColunasDialog({
     if (!ids.length) return;
     const nextVisible = draftVisiveis.filter((id) => !ids.includes(id));
     const nextUsedOrder = usedColumns.map((col) => col.id).filter((id) => !ids.includes(id));
+    if (nextUsedOrder.length === 0) {
+      showWarning("É necessário manter pelo menos uma coluna em uso.");
+      return;
+    }
     updateDraftLayout(nextVisible, nextUsedOrder, Math.min(draftFrozenColumnCount, nextUsedOrder.length));
   };
 
@@ -178,14 +181,6 @@ export default function EmpConfiguracaoColunasDialog({
     );
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
-  };
-
-  const handleSave = () => {
-    if (usedColumns.length === 0) {
-      showWarning("É necessário manter pelo menos uma coluna em uso.");
-      return;
-    }
-    onOpenChange(false);
   };
 
   const requestClose = () => {
@@ -287,11 +282,6 @@ export default function EmpConfiguracaoColunasDialog({
             <Columns3 className="h-3.5 w-3.5 text-black" />
           </span>
         )}
-        footer={
-          <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
-            <span>OK</span>
-          </EmpConfigPrimaryBtn>
-        }
       />
     </EmpConfigDialogFrame>
   );

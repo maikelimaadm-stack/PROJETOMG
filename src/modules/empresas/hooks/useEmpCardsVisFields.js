@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import {
   EMP_CARDS_LAYOUT_KEY,
   EMP_SEARCH_VIS_KEY,
@@ -25,6 +25,7 @@ import { subscribeEmpPreferencesCache, isSameTabEmpPreferencesWrite, isLocalList
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
+import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 
 const shouldRefreshCardsByCacheEvent = ({ reason = "", keys = [] } = {}) => {
   const normalizedReason = String(reason || "").toLowerCase();
@@ -73,10 +74,13 @@ export function useEmpCardsVisFields() {
       if (shouldRefreshCardsByCacheEvent(detail)) refreshPreferences();
       if (String(reason || "").includes("table")) refreshColumns();
     });
+    const onBootstrapApplied = () => refreshPreferences();
     window.addEventListener("emp-column-layout-updated", refreshColumns);
+    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
     return () => {
       unsubscribeCache();
       window.removeEventListener("emp-column-layout-updated", refreshColumns);
+      window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
     };
   }, []);
 
@@ -106,14 +110,14 @@ export function useEmpCardsVisFields() {
   });
   const [layoutConfig, setLayoutConfig] = useState(() => loadCardsLayoutConfig());
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (preferencesVersion === 0) return;
     const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
     const nextVisFields = loadSearchVisFields(sourceCatalog);
     const nextLayout = loadCardsLayoutConfig();
     setVisFields((current) => (stableJsonEqual(current, nextVisFields) ? current : nextVisFields));
     setLayoutConfig((current) => (stableJsonEqual(current, nextLayout) ? current : nextLayout));
-  }, [preferencesVersion]);
+  }, [preferencesVersion, catalog]);
 
   const fieldsPerRow = useMemo(
     () => getFieldsPerRowForLayout(layoutConfig.cardsPerRow),

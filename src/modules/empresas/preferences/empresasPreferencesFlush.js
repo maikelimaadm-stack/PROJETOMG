@@ -1,6 +1,6 @@
 import { isEmpresasPreferencesV2Enabled } from "@/modules/empresas/preferences/empresasPreferencesFeatureFlags";
 
-const FLUSH_TIMEOUT_MS = 2_000;
+const FLUSH_TIMEOUT_MS = 5_000;
 
 let activeFlushHandler = null;
 

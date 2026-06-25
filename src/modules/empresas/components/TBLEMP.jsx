@@ -94,6 +94,7 @@ import {
 } from "@/modules/empresas/preferences/empTablePreferencesHydration";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
+import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
@@ -242,6 +243,7 @@ export default function TBLEMP({
   mgPrototype = false,
   onColumnsInUseChange,
   preferencesReady = true,
+  bootstrapGeneration = 0,
 }) {
   const suppressPersistenceRef = useRef(false);
   const tableHydratedRef = useRef(true);
@@ -497,7 +499,6 @@ export default function TBLEMP({
       return;
     }
 
-    if (preferencesVersion === 0) return;
     if (isEmpPreferencesSectionDirty("table")) {
       markEmpPreferencesPerf("PREF_REMOTE_APPLY_SKIPPED", {
         section: "table",
@@ -522,12 +523,15 @@ export default function TBLEMP({
     preferencesReady,
     colunasCatalogSignature,
     preferencesVersion,
+    bootstrapGeneration,
     applyTablePreferencesFromCache,
   ]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!preferencesReady) return undefined;
-    return subscribeEmpPreferencesCache((detail) => {
+    const bumpVersion = () => setPreferencesVersion((current) => current + 1);
+    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, bumpVersion);
+    const unsubscribeCache = subscribeEmpPreferencesCache((detail) => {
       const reason = detail?.reason;
       const normalized = String(reason || "").toLowerCase();
       if (
@@ -545,8 +549,12 @@ export default function TBLEMP({
       ) {
         return;
       }
-      setPreferencesVersion((current) => current + 1);
+      bumpVersion();
     });
+    return () => {
+      window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, bumpVersion);
+      unsubscribeCache();
+    };
   }, [preferencesReady]);
 
   const persistSizingMode = useCallback((nextAutoFitMap) => {
