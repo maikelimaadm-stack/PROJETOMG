@@ -83,33 +83,32 @@ Campos **rejeitados** no body (400): `usuario_id`, `userId`, `cliente_id`, `clie
 | `backend npm run test:preferences:backend` | PASS |
 | `npm run lint` | PASS |
 | `npm run build` | PASS |
+| `npm run test:preferences:isolation-mock` (Etapas 2–5) | **PASS (5/5)** |
 
-## Tabela de isolamento (unitários)
+## Tabela de isolamento (mock E2E + unitários)
 
 | Cenário | Usuário A | Usuário B | Usuário C (outro tenant) | Status |
 | ------- | --------- | --------- | ------------------------ | ------ |
-| localStorage scoped | Telefone oculto | Não herda A | N/A | PASS (unit) |
+| localStorage scoped | Telefone oculto / cards | Não herda A / table+email | Tenant isolado | **Mock PASS** |
 | PUT individual | Persiste A | Persiste B | Persiste C | PASS (memory repo) |
+| PUT sem IDs sensíveis | — | — | — | **Mock PASS** |
+| Troca sessão A→B→C→A | Restaura prefs A | Prefs B | Prefs C | **Mock PASS** |
+| Eventos entre abas | Filtra por scope | Não recebe de A | — | **Mock PASS** |
+| Legacy `emp_*` read-only | — | Scoped só após ação | — | **Mock PASS** |
 | Leitura cruzada | — | Não lê A | Não lê A/B | PASS |
-| Body malicioso `usuario_id` | — | Rejeitado 400 | — | PASS |
-| Query key por user+cliente | — | — | — | PASS (impl) |
-| Eventos entre abas | Filtra por scope | Filtra por scope | — | PASS (unit) |
+| Body malicioso `usuario_id` | — | Rejeitado 400 (branch) | — | PASS (unit) |
 
-## Itens não concluídos (requer staging/manual)
+## Itens pendentes (requer staging/manual)
 
 | Item | Motivo |
 | ---- | ------ |
-| E2E real Usuário A/B/C no browser | Requer backend staging + credenciais de 3 usuários |
-| Migration deploy Railway staging | Sem `RAILWAY_TOKEN` no ambiente cloud |
-| Evidência visual reload/logout/nova aba | Pendente E2E staging |
-| Lançamentos (módulo separado) | Usa mesmo padrão de scope quando integrado a preferências remotas |
+| SQL evidência staging (`validatePreferencesSchemaEvidence.js`) | `DATABASE_URL` ausente no cloud |
+| E2E real Usuário A/B/C contra staging | Produção só tem `maike/maike`; backend produção ainda aceita `usuario_id` no PUT |
+| Migration deploy Railway staging PR #223 | Sem `RAILWAY_TOKEN` |
+| CadCPS `cps_col_*` | Fora de escopo desta PR — ainda compartilhado |
+
+Relatório completo: `docs/pr223-final-validation-report.md`
 
 ## Critério de aprovação
 
-**Não emitido** — E2E real com Usuário A/B/C em staging e migration deploy pendentes.
-
-Frase de aprovação só após E2E staging completo:
-
-```text
-Preferências agora são isoladas corretamente por cliente, usuário, módulo e tela. Um usuário não lê, não recebe e não sobrescreve preferências de outro usuário.
-```
+**Não emitido** — evidência SQL/staging e E2E real A/B/C pendentes; CadCPS não isolado.
