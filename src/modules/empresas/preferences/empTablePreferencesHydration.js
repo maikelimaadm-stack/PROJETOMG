@@ -113,30 +113,26 @@ export const mergeExpandedCatalogIntoTableState = (
   const newColumnIds = expandedColumns.map((column) => column.id).filter((id) => !prevIds.has(id));
   if (newColumnIds.length === 0) return null;
 
-  const columnsById = new Map(expandedColumns.map((column) => [column.id, column]));
-  const nextOrdem = [...(current.colunasOrdem || [])];
-  newColumnIds.forEach((id) => {
-    if (!nextOrdem.includes(id)) nextOrdem.push(id);
-  });
-
-  const nextVisiveis = [...(current.colunasVisiveis || [])];
-  newColumnIds.forEach((id) => {
-    const column = columnsById.get(id);
-    if (column?.default && !nextVisiveis.includes(id)) nextVisiveis.push(id);
-  });
+  const savedOrdem = loadColumnOrder(ORDER_KEY, expandedColumns);
+  const savedVisiveis = loadSavedVisibleColumns(VISIBLE_KEY);
+  const { ordem, visiveis } = mergeEffectiveColumnLayout(
+    expandedColumns,
+    savedOrdem,
+    savedVisiveis
+  );
 
   const defaults = Object.fromEntries(
     expandedColumns.map((column) => [column.id, column.width || 160])
   );
   const nextWidths = { ...defaults, ...(current.columnWidths || {}) };
   newColumnIds.forEach((id) => {
-    const column = columnsById.get(id);
+    const column = expandedColumns.find((col) => col.id === id);
     if (column && nextWidths[id] == null) nextWidths[id] = column.width || 160;
   });
 
   return {
-    colunasOrdem: nextOrdem,
-    colunasVisiveis: nextVisiveis,
+    colunasOrdem: ordem,
+    colunasVisiveis: visiveis,
     columnWidths: nextWidths,
   };
 };
