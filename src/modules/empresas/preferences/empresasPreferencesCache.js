@@ -1,6 +1,7 @@
 import {
   getEmpPreferencesTabId,
 } from "@/modules/empresas/preferences/empresasPreferencesCrossTab.js";
+import { trackEmpPreferencesWriteReason } from "@/modules/empresas/preferences/empresasPreferencesScopeState.js";
 import {
   getActiveUserPreferencesScope,
   isListagemLegacyPreferenceField,
@@ -158,11 +159,34 @@ export const readEmpPreferencesJson = (key, fallback = null) => {
   }
 };
 
+export const isLocalListagemPreferenceWrite = (reason = "") => {
+  const normalized = String(reason || "").toLowerCase();
+  if (!normalized.startsWith("listagem:")) return false;
+  return (
+    !normalized.includes("hydrate") &&
+    !normalized.includes("bootstrap") &&
+    !normalized.includes("remote-tab") &&
+    !normalized.includes("remote-sync") &&
+    !normalized.includes("migration")
+  );
+};
+
+export const isSameTabEmpPreferencesWrite = (detail = {}) => {
+  const originTabId = detail?.originTabId;
+  if (!originTabId) return false;
+  return originTabId === getEmpPreferencesTabId();
+};
+
 export const writeEmpPreferencesText = (key, value, { reason = "update", emit = true } = {}) => {
   const scopedKey = resolvePreferenceStorageKey(key);
   const changed = commitStorageValue(scopedKey, value);
-  if (changed && emit) {
-    emitCacheUpdate([scopedKey, key], reason);
+  if (changed) {
+    if (isLocalListagemPreferenceWrite(reason)) {
+      trackEmpPreferencesWriteReason(reason);
+    }
+    if (emit) {
+      emitCacheUpdate([scopedKey, key], reason);
+    }
   }
   return changed;
 };

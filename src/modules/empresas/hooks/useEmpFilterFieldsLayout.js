@@ -13,6 +13,8 @@ import {
 import {
   readEmpPreferencesJson,
   subscribeEmpPreferencesCache,
+  isSameTabEmpPreferencesWrite,
+  isLocalListagemPreferenceWrite,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { FILTER_MAX_VISIBLE_KEY } from "@/modules/empresas/components/tblEmp.constants";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
@@ -84,6 +86,9 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   useEffect(() => {
     const refresh = (detail = null) => {
       const isDomEvent = detail && typeof detail === "object" && "type" in detail;
+      if (isDomEvent && isEmpPreferencesSectionDirty("filtersConfig")) {
+        return;
+      }
       if (detail && !isDomEvent) {
         const normalized = String(detail?.reason || "").toLowerCase();
         if (
@@ -95,6 +100,13 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
             source: "remote",
             dirty: true,
           });
+          return;
+        }
+        if (
+          isSameTabEmpPreferencesWrite(detail) &&
+          (isEmpPreferencesSectionDirty("filtersConfig") ||
+            isLocalListagemPreferenceWrite(detail?.reason))
+        ) {
           return;
         }
         if (!shouldRefreshFilterLayoutByCacheEvent(detail)) return;

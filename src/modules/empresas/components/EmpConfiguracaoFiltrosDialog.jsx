@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   EmpConfigDialogFrame,
   EmpConfigPrimaryBtn,
@@ -25,18 +25,21 @@ export default function EmpConfiguracaoFiltrosDialog({
   const [searchUsed, setSearchUsed] = useState("");
   const [draggedFieldId, setDraggedFieldId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
+  const wasOpenRef = useRef(false);
 
   useEffect(() => {
-    if (!open) return;
-    setDraftVisiveis(camposVisiveis);
-    setDraftOrdem(camposOrdem);
-    setDraftMaxVisible(maxVisibleFields);
-    setSelectedAvailableIds([]);
-    setSelectedUsedIds([]);
-    setSearch("");
-    setSearchUsed("");
-    setDraggedFieldId(null);
-    setDraggedFrom(null);
+    if (open && !wasOpenRef.current) {
+      setDraftVisiveis(camposVisiveis);
+      setDraftOrdem(camposOrdem);
+      setDraftMaxVisible(maxVisibleFields);
+      setSelectedAvailableIds([]);
+      setSelectedUsedIds([]);
+      setSearch("");
+      setSearchUsed("");
+      setDraggedFieldId(null);
+      setDraggedFrom(null);
+    }
+    wasOpenRef.current = open;
   }, [open, camposVisiveis, camposOrdem, maxVisibleFields]);
 
   const orderedFields = useMemo(() => {
@@ -56,12 +59,23 @@ export default function EmpConfiguracaoFiltrosDialog({
     String(field.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const updateDraftLayout = (nextVisible, nextUsedOrder) => {
+  const applyLayoutChange = (nextVisible, nextUsedOrder, nextMaxVisible = draftMaxVisible) => {
     const remainingIds = orderedFields
       .map((field) => field.id)
       .filter((id) => !nextUsedOrder.includes(id));
+    const nextOrdem = [...nextUsedOrder, ...remainingIds];
     setDraftVisiveis(nextVisible);
-    setDraftOrdem([...nextUsedOrder, ...remainingIds]);
+    setDraftOrdem(nextOrdem);
+    setDraftMaxVisible(nextMaxVisible);
+    onChange?.({
+      visiveis: nextVisible,
+      ordem: nextOrdem,
+      maxVisible: nextMaxVisible,
+    });
+  };
+
+  const updateDraftLayout = (nextVisible, nextUsedOrder) => {
+    applyLayoutChange(nextVisible, nextUsedOrder);
   };
 
   const selectAvailable = (fieldId, event) => {
@@ -152,19 +166,12 @@ export default function EmpConfiguracaoFiltrosDialog({
   const handleRestoreDefault = () => {
     const defaults = getRestoreDefaults?.();
     if (!defaults) return;
-    setDraftVisiveis(defaults.visiveis ?? []);
-    setDraftOrdem(defaults.ordem ?? []);
-    setDraftMaxVisible(defaults.maxVisible ?? 5);
+    applyLayoutChange(defaults.visiveis ?? [], defaults.ordem ?? [], defaults.maxVisible ?? 5);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
   };
 
   const handleSave = () => {
-    onChange?.({
-      visiveis: draftVisiveis,
-      ordem: draftOrdem,
-      maxVisible: draftMaxVisible,
-    });
     onOpenChange(false);
   };
 
@@ -192,7 +199,10 @@ export default function EmpConfiguracaoFiltrosDialog({
           min={1}
           max={12}
           value={draftMaxVisible}
-          onChange={(event) => setDraftMaxVisible(Number(event.target.value) || 5)}
+          onChange={(event) => {
+            const nextMax = Number(event.target.value) || 5;
+            applyLayoutChange(draftVisiveis, usedFields.map((field) => field.id), nextMax);
+          }}
           className="w-20 rounded-md border border-slate-200 px-2 py-1 text-sm"
         />
       </div>

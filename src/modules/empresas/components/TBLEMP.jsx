@@ -293,6 +293,18 @@ export default function TBLEMP({
   );
   const [colunasOrdem, setColunasOrdem] = useState(() => initialTableSnapshot.colunasOrdem);
   const [colunasVisiveis, setColunasVisiveis] = useState(() => initialTableSnapshot.colunasVisiveis);
+  const colunasOrdemRef = useRef(colunasOrdem);
+  const colunasVisiveisRef = useRef(colunasVisiveis);
+  const columnWidthsRef = useRef(columnWidths);
+  useEffect(() => {
+    colunasOrdemRef.current = colunasOrdem;
+  }, [colunasOrdem]);
+  useEffect(() => {
+    colunasVisiveisRef.current = colunasVisiveis;
+  }, [colunasVisiveis]);
+  useEffect(() => {
+    columnWidthsRef.current = columnWidths;
+  }, [columnWidths]);
   const [layoutAggregationConfig, setLayoutAggregationConfig] = useState(
     () => initialTableSnapshot.layoutAggregationConfig || {}
   );
@@ -464,9 +476,9 @@ export default function TBLEMP({
     if (catalogExpanded && !isEmpPreferencesSectionDirty("table")) {
       const merged = mergeExpandedCatalogIntoTableState(
         {
-          colunasOrdem,
-          colunasVisiveis,
-          columnWidths,
+          colunasOrdem: colunasOrdemRef.current,
+          colunasVisiveis: colunasVisiveisRef.current,
+          columnWidths: columnWidthsRef.current,
         },
         colunasDisponiveisRef.current,
         previousSignature
@@ -511,9 +523,6 @@ export default function TBLEMP({
     colunasCatalogSignature,
     preferencesVersion,
     applyTablePreferencesFromCache,
-    colunasOrdem,
-    colunasVisiveis,
-    columnWidths,
   ]);
 
   useEffect(() => {

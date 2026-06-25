@@ -21,7 +21,7 @@ import {
 } from "@/modules/empresas/components/empSearchView.constants";
 import { getColumnsInUse } from "@/modules/empresas/utils/empTableColumnCatalog";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
-import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { subscribeEmpPreferencesCache, isSameTabEmpPreferencesWrite, isLocalListagemPreferenceWrite } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
@@ -60,6 +60,13 @@ export function useEmpCardsVisFields() {
       if (
         (normalized.includes("listagem:hydrate") || normalized.includes("remote-sync")) &&
         isEmpPreferencesSectionDirty("cards")
+      ) {
+        return;
+      }
+      if (
+        shouldRefreshCardsByCacheEvent(detail) &&
+        isSameTabEmpPreferencesWrite(detail) &&
+        (isEmpPreferencesSectionDirty("cards") || isLocalListagemPreferenceWrite(reason))
       ) {
         return;
       }
