@@ -62,14 +62,6 @@ export function useEmpSearchDropdownFields() {
     };
   }, [catalog]);
 
-  useEffect(() => {
-    if (catalog.length === 0) return;
-    setVisFields((current) => {
-      const merged = mergeSearchVisFields(catalog, current);
-      return stableJsonEqual(current, merged) ? current : merged;
-    });
-  }, [catalog]);
-
   const configFields = useMemo(() => {
     const merged = mergeSearchVisFields(catalog, visFields.length > 0 ? visFields : catalog);
     return sortCardConfigFieldsAlphabetically(merged);

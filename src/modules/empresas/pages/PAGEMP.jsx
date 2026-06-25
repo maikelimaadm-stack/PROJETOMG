@@ -1063,6 +1063,12 @@ export default function PAGEMP() {
   }, []);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
+
+  useEffect(() => {
+    if (showForm || viewMode !== "record") return;
+    setViewMode("table");
+  }, [showForm, viewMode, setViewMode]);
+
   const searchHasFilter = Boolean(
     searchDraft.trim() || searchTerm.trim() || pinnedRecord || searchFavoritesOnly
   );

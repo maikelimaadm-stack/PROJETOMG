@@ -6,6 +6,8 @@ import {
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 import { shouldRefreshListagemHydrate } from "@/modules/empresas/preferences/empListagemSectionCacheEvents";
+import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
+import { normalizeEmpListViewMode } from "@/modules/empresas/layout/mgViewMode";
 
 const shouldRefreshViewModeByCacheEvent = ({ reason = "" } = {}) => {
   const normalized = String(reason || "").toLowerCase();
@@ -14,12 +16,14 @@ const shouldRefreshViewModeByCacheEvent = ({ reason = "" } = {}) => {
 
 /** Modelo de visualização (tabela/cards/registro) — mesmo padrão da configuração de pesquisa. */
 export function useEmpViewModePreference(initialMode = "table") {
-  const [viewMode, setViewModeState] = useState(() => readStoredEmpViewMode() || initialMode);
+  const fallbackMode = normalizeEmpListViewMode(initialMode, { allowRecord: false });
+  const [viewMode, setViewModeState] = useState(() => readStoredEmpViewMode() || fallbackMode);
 
   useEffect(() => {
     const reloadFromStorage = () => {
+      if (isEmpPreferencesSectionDirty("view")) return;
       setViewModeState((current) => {
-        const next = readStoredEmpViewMode() || initialMode;
+        const next = readStoredEmpViewMode() || fallbackMode;
         return current === next ? current : next;
       });
     };
@@ -40,11 +44,12 @@ export function useEmpViewModePreference(initialMode = "table") {
       window.removeEventListener("emp-view-mode-updated", onDomOrBootstrap);
       window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onDomOrBootstrap);
     };
-  }, [initialMode]);
+  }, [fallbackMode]);
 
   const setViewMode = useCallback((mode) => {
-    setViewModeState(mode);
-    writeStoredEmpViewMode(mode, "listagem:view-mode");
+    const normalized = normalizeEmpListViewMode(mode, { allowRecord: true });
+    setViewModeState(normalized);
+    writeStoredEmpViewMode(normalized, "listagem:view-mode");
   }, []);
 
   return { viewMode, setViewMode };
