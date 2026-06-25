@@ -67,12 +67,11 @@ import {
   isErpFilterActive,
   normalizePanelFilterValue,
 } from "@/shared/filters";
-import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
+import { useEmpresasPreferencesBootstrapState } from "@/modules/empresas/preferences/EmpresasPreferencesBootstrapContext";
+import { useEmpViewModePreference } from "@/modules/empresas/hooks/useEmpViewModePreference";
 import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
 import {
-  readStoredEmpViewMode,
   readStoredTempListagemFilters,
-  writeStoredEmpViewMode,
   writeStoredTempListagemFilters,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
@@ -226,7 +225,7 @@ export default function PAGEMP() {
     bootstrapGeneration,
     error: preferencesSyncError,
     scheduleListagemSync,
-  } = useEmpresasPreferencesBootstrap(user?.id);
+  } = useEmpresasPreferencesBootstrapState();
 
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
@@ -241,7 +240,7 @@ export default function PAGEMP() {
   const [showConfigFiltros, setShowConfigFiltros] = useState(false);
   const [showConfigPdf, setShowConfigPdf] = useState(false);
   const [showConfigExcel, setShowConfigExcel] = useState(false);
-  const [viewMode, setViewMode] = useState(() => readStoredEmpViewMode());
+  const { viewMode, setViewMode } = useEmpViewModePreference("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -376,11 +375,6 @@ export default function PAGEMP() {
     lastPreferencesErrorRef.current = signature;
     showError(`Preferências: ${preferencesSyncError.message}`);
   }, [preferencesSyncError]);
-
-  useEffect(() => {
-    if (!preferencesReady) return;
-    writeStoredEmpViewMode(viewMode);
-  }, [preferencesReady, viewMode]);
 
   useEffect(() => {
     if (!showForm) {
@@ -1212,7 +1206,6 @@ export default function PAGEMP() {
       if (!normalized) return false;
       if (normalized === "storage") return false;
       if (!normalized.startsWith("listagem:")) return false;
-      if (normalized.includes("view-mode") || normalized.includes("panel-style")) return false;
       return !normalized.includes("temp-filters");
     };
     const unsubscribe = subscribeEmpPreferencesCache((detail) => {

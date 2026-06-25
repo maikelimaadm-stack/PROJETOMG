@@ -21,7 +21,16 @@ import {
   readEmpPreferencesJson,
   readEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  EMP_CARDS_LAYOUT_DEFAULT,
+  EMP_SEARCH_DEFAULT_FIELDS,
+  loadCardsLayoutConfig,
+  loadSearchVisFields,
+  mergeSearchVisFields,
+} from "@/modules/empresas/components/empSearchView.constants";
+import { loadFilterFieldsLayout } from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { readStoredTempListagemFilters } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
 
 const readSortConfig = () => {
   const saved = readEmpPreferencesJson(SORT_KEY, null);
@@ -126,4 +135,29 @@ export const mergeExpandedCatalogIntoTableState = (
     colunasVisiveis: nextVisiveis,
     columnWidths: nextWidths,
   };
+};
+
+export const readEmpCardsPreferencesSnapshot = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
+  const sourceCatalog = Array.isArray(catalog) && catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
+  return {
+    visFields: loadSearchVisFields(sourceCatalog),
+    layoutConfig: loadCardsLayoutConfig() || { ...EMP_CARDS_LAYOUT_DEFAULT },
+  };
+};
+
+export const readEmpFiltersPreferencesSnapshot = (catalogKeys = []) => ({
+  layout: loadFilterFieldsLayout(catalogKeys),
+});
+
+/** Mescla campos novos do catálogo nos cards sem resetar visibilidade salva. */
+export const mergeExpandedCatalogIntoCardsState = (
+  currentVisFields = [],
+  expandedCatalog = [],
+  previousCatalogSignature = ""
+) => {
+  const prevKeys = new Set(String(previousCatalogSignature || "").split("|").filter(Boolean));
+  const newKeys = expandedCatalog.map((field) => field.key).filter((key) => key && !prevKeys.has(key));
+  if (newKeys.length === 0) return null;
+  const merged = mergeSearchVisFields(expandedCatalog, currentVisFields);
+  return stableJsonEqual(currentVisFields, merged) ? null : merged;
 };

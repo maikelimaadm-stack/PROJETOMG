@@ -90,7 +90,11 @@ export const saveFilterFieldsLayout = ({ visiveis = [], ordem = [], maxVisible }
     { visiveis, ordem, maxVisible: normalizedMax },
     { reason: "listagem:filter-layout" }
   );
-  saveFilterMaxVisible(normalizedMax);
+  writeEmpPreferencesText(FILTER_MAX_VISIBLE_KEY, String(normalizedMax), {
+    reason: "listagem:filter-max-visible",
+    emit: false,
+  });
+  dispatchLayoutUpdated();
 };
 
 export const applyFilterFieldsLayout = (catalogFields = [], layout = {}) => {
