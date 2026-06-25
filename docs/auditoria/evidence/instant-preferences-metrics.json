@@ -1,61 +1,69 @@
 {
-  "generatedAt": "2026-06-25T18:42:16.716Z",
+  "generatedAt": "2026-06-25T19:03:56.130Z",
   "metrics": [
     {
       "event": "Abrir Empresas",
-      "uiMs": 873,
-      "localStorageMs": null,
-      "apiMs": null,
-      "uiChangedAfterResponse": false,
+      "uiMs": 1687,
+      "firstPaintCorrect": true,
       "result": "pass"
     },
     {
       "event": "Reload",
-      "uiMs": 577,
-      "localStorageMs": null,
-      "apiMs": null,
-      "uiChangedAfterResponse": false,
+      "uiMs": 581,
+      "firstPaintCorrect": true,
       "result": "pass"
     },
     {
       "event": "Ocultar coluna",
-      "uiMs": null,
-      "localStorageMs": null,
-      "apiMs": null,
-      "uiChangedAfterResponse": false,
-      "result": "not_run_selector",
-      "note": "Dialog selector pendente — validar manualmente em staging"
+      "uiMs": 373,
+      "patchBeforeUi": false,
+      "usedBefore": 2,
+      "usedAfter": 1,
+      "instantUi": false,
+      "result": "warn"
+    },
+    {
+      "event": "Reload pós-coluna",
+      "uiMs": 676,
+      "usedColumns": 1,
+      "persistedHide": true,
+      "result": "pass"
     }
   ],
   "depthErrors": [],
-  "prefRequestCount": 2,
+  "prefRequestCount": 3,
+  "bootstrapGetCountFirstOpen": 1,
   "prefRequests": [
     {
       "method": "GET",
       "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
-      "at": "2026-06-25T18:42:15.801Z"
+      "at": "2026-06-25T19:03:53.065Z"
     },
     {
       "method": "GET",
       "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
-      "at": "2026-06-25T18:42:16.414Z"
+      "at": "2026-06-25T19:03:54.446Z"
+    },
+    {
+      "method": "GET",
+      "url": "http://127.0.0.1:5173/api/user/preferences/bootstrap",
+      "at": "2026-06-25T19:03:55.929Z"
     }
   ],
   "scenarios": {
-    "A": "partial",
-    "B": "fail",
-    "C": "not_run",
-    "D": "not_run",
-    "E": "not_run_v2_disabled",
-    "F": "not_run",
-    "G": "not_run"
+    "A_first_paint": "pass",
+    "B_instant_column_hide": "partial",
+    "C_reload_persist": "pass",
+    "D_single_bootstrap": "pass",
+    "E_logout_login": "not_run",
+    "F_slow_api_3s": "not_run",
+    "G_two_users": "not_run"
   },
   "notTested": [
-    "C logout/login completo",
-    "D throttle 3s simulado",
-    "E duas abas",
-    "F dois usuários A/B",
-    "G API 500 simulado",
-    "Cards por linha, campo card, filtro rápido, operador (manual pendente)"
+    "Logout/login completo",
+    "Throttle 3s GET/PATCH",
+    "Dois usuários A/B",
+    "Cards por linha, campo card, filtro rápido, operador",
+    "Layout formulário"
   ]
 }
