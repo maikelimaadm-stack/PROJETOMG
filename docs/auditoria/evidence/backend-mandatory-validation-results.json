@@ -1,43 +1,107 @@
 {
   "meta": {
-    "startedAt": "2026-06-25T15:00:00.976Z",
+    "startedAt": "2026-06-25T15:03:51.728Z",
     "apiBaseUrl": "http://127.0.0.1:3001",
     "user": {
       "cliente": "maike",
       "usuario": "maike"
     },
     "userId": "cmqtl2enu0002js5f2sgwqcxx",
-    "finishedAt": "2026-06-25T15:00:01.183Z",
+    "finishedAt": "2026-06-25T15:03:51.937Z",
     "approved": true
   },
   "checks": [
     {
       "name": "PATCH cards não altera table",
       "passed": true,
-      "details": {}
+      "details": {
+        "beforeTable": {
+          "sort": [
+            {
+              "key": "codempresa",
+              "direction": "asc"
+            }
+          ],
+          "pageSize": 101,
+          "columnOrder": [],
+          "columnWidths": {},
+          "loadBatchSize": 100,
+          "visibleColumns": [],
+          "columnSizingMode": {},
+          "aggregationConfig": {},
+          "frozenLeftColumnCount": 0
+        },
+        "afterTable": {
+          "sort": [
+            {
+              "key": "codempresa",
+              "direction": "asc"
+            }
+          ],
+          "pageSize": 101,
+          "columnOrder": [],
+          "columnWidths": {},
+          "loadBatchSize": 100,
+          "visibleColumns": [],
+          "columnSizingMode": {},
+          "aggregationConfig": {},
+          "frozenLeftColumnCount": 0
+        }
+      }
     },
     {
       "name": "PATCH table não altera filtersConfig",
       "passed": true,
-      "details": {}
+      "details": {
+        "beforeFiltersConfig": {
+          "favorites": [],
+          "maxVisibleFields": 5,
+          "operatorsByField": {},
+          "filterFieldsLayout": {
+            "ordem": [],
+            "visiveis": [],
+            "maxVisible": 5
+          },
+          "dropdownVisibleFields": {}
+        },
+        "afterFiltersConfig": {
+          "favorites": [],
+          "maxVisibleFields": 5,
+          "operatorsByField": {},
+          "filterFieldsLayout": {
+            "ordem": [],
+            "visiveis": [],
+            "maxVisible": 5
+          },
+          "dropdownVisibleFields": {}
+        }
+      }
     },
     {
       "name": "PATCH formLayout não altera cards",
       "passed": true,
       "details": {
         "beforeCards": {
+          "density": "normal",
+          "fieldOrder": [],
+          "legacyFlag": true,
           "cardsPerRow": 2,
           "layoutConfig": {
             "cardsPerRow": 2
           },
-          "_backendAuditMarker": 1782399601089
+          "visibleFields": {},
+          "_backendAuditMarker": 1782399831855
         },
         "afterCards": {
+          "density": "normal",
+          "fieldOrder": [],
+          "legacyFlag": true,
           "cardsPerRow": 2,
           "layoutConfig": {
             "cardsPerRow": 2
           },
-          "_backendAuditMarker": 1782399601089
+          "visibleFields": {},
+          "_backendAuditMarker": 1782399831855
         }
       }
     },
@@ -45,46 +109,25 @@
       "name": "Alterações rápidas em seções distintas permanecem",
       "passed": true,
       "details": {
-        "finalTablePageSize": 101,
+        "finalTablePageSize": 102,
         "finalCardsDensity": "compact",
         "statuses": [
-          409,
-          200
+          200,
+          409
         ]
       }
     },
     {
       "name": "409 retorna documento e revisão atual",
-      "passed": {
-        "meta": {
-          "revision": 6,
-          "updatedAt": "2026-06-25T15:00:01.145Z"
-        },
-        "view": {
-          "mode": "cards",
-          "launchPanelStyle": "tabs"
-        },
-        "cards": {
-          "density": "compact",
-          "cardsPerRow": 2,
-          "layoutConfig": {
-            "cardsPerRow": 2
-          },
-          "_backendAuditMarker": 1782399601089
-        },
-        "table": {
-          "pageSize": 101,
-          "visibleColumns": []
-        }
-      },
+      "passed": true,
       "details": {
         "status": 409,
         "payload": {
           "message": "Preferência foi alterada em outra aba/sessão.",
           "currentPreferences": {
             "meta": {
-              "revision": 6,
-              "updatedAt": "2026-06-25T15:00:01.145Z"
+              "revision": 2785,
+              "updatedAt": "2026-06-25T15:03:51.898Z"
             },
             "view": {
               "mode": "cards",
@@ -92,19 +135,45 @@
             },
             "cards": {
               "density": "compact",
+              "fieldOrder": [],
+              "legacyFlag": true,
               "cardsPerRow": 2,
               "layoutConfig": {
                 "cardsPerRow": 2
               },
-              "_backendAuditMarker": 1782399601089
+              "visibleFields": {},
+              "_backendAuditMarker": 1782399831855
             },
             "table": {
-              "pageSize": 101,
-              "visibleColumns": []
+              "sort": [
+                {
+                  "key": "codempresa",
+                  "direction": "asc"
+                }
+              ],
+              "pageSize": 102,
+              "columnOrder": [],
+              "columnWidths": {},
+              "loadBatchSize": 100,
+              "visibleColumns": [],
+              "columnSizingMode": {},
+              "aggregationConfig": {},
+              "frozenLeftColumnCount": 0
+            },
+            "filtersConfig": {
+              "favorites": [],
+              "maxVisibleFields": 5,
+              "operatorsByField": {},
+              "filterFieldsLayout": {
+                "ordem": [],
+                "visiveis": [],
+                "maxVisible": 5
+              },
+              "dropdownVisibleFields": {}
             }
           },
-          "currentRevision": 6,
-          "currentUpdatedAt": "2026-06-25T15:00:01.146Z"
+          "currentRevision": 2785,
+          "currentUpdatedAt": "2026-06-25T15:03:51.898Z"
         }
       }
     },
@@ -119,7 +188,7 @@
       "name": "Caminho legado não faz replace total",
       "passed": true,
       "details": {
-        "legacyRevision": 8,
+        "legacyRevision": 2787,
         "preservedTable": true,
         "preservedFilters": true
       }

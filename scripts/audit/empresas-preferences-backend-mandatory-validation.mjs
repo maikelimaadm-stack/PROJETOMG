@@ -311,10 +311,12 @@ async function main() {
         staleConflictPayload = error.data;
         check(
           "409 retorna documento e revisão atual",
-          Number(error.status) === 409 &&
+          Boolean(
+            Number(error.status) === 409 &&
             error.data &&
             typeof error.data.currentRevision === "number" &&
-            error.data.currentPreferences,
+            error.data.currentPreferences
+          ),
           {
             status: error.status,
             payload: error.data,
