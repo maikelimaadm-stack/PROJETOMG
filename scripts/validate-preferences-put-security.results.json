@@ -1,6 +1,6 @@
 {
-  "baseUrl": "",
-  "startedAt": "2026-06-25T12:17:08.349Z",
+  "baseUrl": "http://127.0.0.1:3001",
+  "startedAt": "2026-06-25T12:27:30.204Z",
   "forbiddenFields": [
     "usuario_id",
     "userId",
@@ -11,8 +11,43 @@
     "empresa_id",
     "empresaId"
   ],
-  "cases": [],
-  "approved": false,
-  "fatal": "VALIDATE_BASE_URL é obrigatório (backend staging da PR #223).",
-  "finishedAt": "2026-06-25T12:17:08.349Z"
+  "cases": [
+    {
+      "label": "usuario_id injetado",
+      "status": 400,
+      "pass": true,
+      "message": "Campos de identidade não são aceitos no payload: usuario_id. Use o token autenticado."
+    },
+    {
+      "label": "cliente_id injetado",
+      "status": 400,
+      "pass": true,
+      "message": "Campos de identidade não são aceitos no payload: cliente_id. Use o token autenticado."
+    },
+    {
+      "label": "tenant_id injetado",
+      "status": 400,
+      "pass": true,
+      "message": "Campos de identidade não são aceitos no payload: tenant_id. Use o token autenticado."
+    },
+    {
+      "label": "empresa_id injetado",
+      "status": 400,
+      "pass": true,
+      "message": "Campos de identidade não são aceitos no payload: empresa_id. Use o token autenticado."
+    },
+    {
+      "label": "payload legado com modulo/tela/preferences + usuario_id",
+      "status": 400,
+      "pass": true,
+      "message": "Campos de identidade não são aceitos no payload: usuario_id. Use o token autenticado."
+    }
+  ],
+  "approved": true,
+  "login": {
+    "cliente": "tenant1",
+    "usuario": "usera",
+    "userIdMasked": "cmqt…"
+  },
+  "finishedAt": "2026-06-25T12:27:30.337Z"
 }

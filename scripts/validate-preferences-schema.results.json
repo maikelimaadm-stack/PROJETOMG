@@ -1,8 +1,40 @@
 {
-  "startedAt": "2026-06-25T12:17:08.170Z",
-  "databaseUrlConfigured": false,
-  "checks": [],
-  "approved": false,
-  "skipped": "DATABASE_URL ausente — execute com credenciais do staging da PR #223",
-  "finishedAt": "2026-06-25T12:17:08.170Z"
+  "startedAt": "2026-06-25T12:28:16.287Z",
+  "databaseUrlConfigured": true,
+  "checks": [
+    {
+      "step": "verifyUserPreferencesSchemaReady",
+      "status": "PASS",
+      "ready": true
+    },
+    {
+      "step": "table_exists",
+      "status": "PASS"
+    },
+    {
+      "step": "usuario_id_not_null",
+      "status": "PASS",
+      "is_nullable": "NO"
+    },
+    {
+      "step": "scoped_unique_index",
+      "status": "PASS",
+      "indexdef": "CREATE UNIQUE INDEX \"UsuarioPreferencia_cliente_id_usuario_id_modulo_tela_key\" ON public.\"UsuarioPreferencia\" USING btree (cliente_id, usuario_id, modulo, tela)"
+    },
+    {
+      "step": "read_index",
+      "status": "PASS"
+    },
+    {
+      "step": "no_old_tenant_only_unique",
+      "status": "PASS"
+    },
+    {
+      "step": "migration_applied",
+      "status": "PASS",
+      "note": "Migration não registrada — pode ser baseline manual"
+    }
+  ],
+  "approved": true,
+  "finishedAt": "2026-06-25T12:28:16.426Z"
 }

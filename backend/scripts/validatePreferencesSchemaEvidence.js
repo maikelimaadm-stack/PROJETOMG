@@ -53,7 +53,10 @@ const runSqlEvidence = async (prisma) => {
     FROM pg_indexes
     WHERE schemaname = 'public'
       AND tablename = 'UsuarioPreferencia'
-      AND indexname = 'UsuarioPreferencia_cliente_usuario_modulo_tela_key'
+      AND indexname IN (
+        'UsuarioPreferencia_cliente_usuario_modulo_tela_key',
+        'UsuarioPreferencia_cliente_id_usuario_id_modulo_tela_key'
+      )
   `;
   if (!scopedUnique?.length) {
     fail("scoped_unique_index", "Índice UNIQUE (cliente_id, usuario_id, modulo, tela) ausente");

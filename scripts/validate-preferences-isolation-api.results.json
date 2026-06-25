@@ -1,10 +1,141 @@
 {
-  "baseUrl": "",
-  "startedAt": "2026-06-25T12:17:08.474Z",
-  "users": {},
-  "isolationMatrix": [],
-  "identityRejection": null,
-  "approved": false,
-  "fatal": "VALIDATE_BASE_URL é obrigatório (backend staging da PR #223).",
-  "finishedAt": "2026-06-25T12:17:08.475Z"
+  "baseUrl": "http://127.0.0.1:3001",
+  "startedAt": "2026-06-25T12:27:30.461Z",
+  "users": {
+    "A": {
+      "label": "Usuário A (Tenant 1)",
+      "userId": "cmqth8ncg000vjsnm4la8etca",
+      "clienteId": "cmqth8nbv0000jsnm2f7gbv9h",
+      "login": {
+        "cliente": "tenant1",
+        "usuario": "usera",
+        "senha": "Pr223Test!2026"
+      },
+      "status": "logged_in",
+      "putStatus": 200
+    },
+    "B": {
+      "label": "Usuário B (Tenant 1)",
+      "userId": "cmqth8nci000xjsnm2pgeucr4",
+      "clienteId": "cmqth8nbv0000jsnm2f7gbv9h",
+      "login": {
+        "cliente": "tenant1",
+        "usuario": "userb",
+        "senha": "Pr223Test!2026"
+      },
+      "status": "logged_in",
+      "putStatus": 200
+    },
+    "C": {
+      "label": "Usuário C (Tenant 2)",
+      "userId": "cmqth8ncj000zjsnmw45ixt1v",
+      "clienteId": "cmqth8nby0001jsnmu45srjoz",
+      "login": {
+        "cliente": "tenant2",
+        "usuario": "userc",
+        "senha": "Pr223Test!2026"
+      },
+      "status": "logged_in",
+      "putStatus": 200
+    }
+  },
+  "isolationMatrix": [
+    {
+      "check": "B não lê marker de A antes de salvar",
+      "pass": true
+    },
+    {
+      "check": "A mantém marker após B salvar",
+      "pass": true,
+      "markerA": "pr223-isolation-user-a"
+    },
+    {
+      "check": "C isolado de A",
+      "pass": true,
+      "markerC": "pr223-isolation-user-c"
+    }
+  ],
+  "identityRejection": {
+    "status": 400,
+    "rejected": true,
+    "message": "Campos de identidade não são aceitos no payload: usuario_id. Use o token autenticado."
+  },
+  "approved": true,
+  "health": {
+    "ok": true,
+    "db": {
+      "configured": true,
+      "connected": true,
+      "error": null
+    }
+  },
+  "snapshots": {
+    "A": {
+      "before": null,
+      "updatedAt": null,
+      "after": {
+        "cards": {
+          "layoutConfig": {
+            "cardsPerRow": 2
+          }
+        },
+        "table": {
+          "_marker": "pr223-isolation-user-a",
+          "visibleColumns": [
+            "codempresa",
+            "telefone"
+          ]
+        },
+        "version": 1,
+        "viewMode": "search"
+      },
+      "record": {
+        "modulo": "empresas",
+        "tela": "listagem",
+        "versao_schema": 1,
+        "preferencias": {
+          "cards": {
+            "layoutConfig": {
+              "cardsPerRow": 2
+            }
+          },
+          "table": {
+            "_marker": "pr223-isolation-user-a",
+            "visibleColumns": [
+              "codempresa",
+              "telefone"
+            ]
+          },
+          "version": 1,
+          "viewMode": "search"
+        },
+        "updatedAt": "2026-06-25T12:27:30.728Z"
+      }
+    },
+    "B": {
+      "before": null,
+      "updatedAt": null,
+      "after": {
+        "cards": {
+          "layoutConfig": {
+            "cardsPerRow": 4
+          }
+        },
+        "table": {
+          "_marker": "pr223-isolation-user-b",
+          "visibleColumns": [
+            "codempresa",
+            "email"
+          ]
+        },
+        "version": 1,
+        "viewMode": "table"
+      }
+    },
+    "C": {
+      "before": null,
+      "updatedAt": null
+    }
+  },
+  "finishedAt": "2026-06-25T12:27:30.748Z"
 }
