@@ -198,8 +198,8 @@ export default function PAGEMP() {
   } = useAuth();
   const {
     preferencesReady,
-    isLoading: preferencesLoading,
     bootstrapGeneration,
+    bootstrapStatus,
     error: preferencesSyncError,
     scheduleListagemSync,
   } = useEmpresasPreferencesBootstrap(user?.id);
@@ -1568,22 +1568,16 @@ export default function PAGEMP() {
     "Novo registro";
 
   const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
-
-  if (preferencesLoading) {
-    return (
-      <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden p-3 md:p-5">
-        <div className="animate-pulse rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm">
-          <div className="mb-3 h-6 w-52 rounded bg-slate-200" />
-          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
-          <div className="mb-2 h-10 w-full rounded bg-slate-100" />
-          <div className="h-64 w-full rounded bg-slate-100" />
-        </div>
-      </div>
-    );
-  }
+  const preferencesDegraded =
+    bootstrapStatus === "fallback_local" || Boolean(preferencesSyncError?.message);
 
   return (
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      {preferencesDegraded ? (
+        <div className="border-b border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900">
+          Preferências remotas indisponíveis no momento. A tela continua com configurações locais.
+        </div>
+      ) : null}
       <div className="flex min-h-0 flex-1 overflow-hidden">
         <MgFilterPanel
           open={filterPanelOpen}

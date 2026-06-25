@@ -1,3 +1,4 @@
+import { isEmpresasPreferencesV2Enabled } from "@/modules/empresas/preferences/empresasPreferencesFeatureFlags";
 import {
   EMPRESAS_LISTAGEM_MODULO,
   EMPRESAS_LISTAGEM_TELA,
@@ -44,6 +45,7 @@ export const broadcastEmpPreferencesCrossTab = ({
   sectionsChanged = [],
   reason = "remote-tab",
 } = {}) => {
+  if (!isEmpresasPreferencesV2Enabled()) return;
   const scope = getActiveUserPreferencesScope();
   const payload = {
     clienteId: clienteId || scope.clienteId,
@@ -72,7 +74,11 @@ export const broadcastEmpPreferencesCrossTab = ({
 };
 
 export const subscribeEmpPreferencesCrossTab = (listener) => {
-  if (typeof window === "undefined" || typeof listener !== "function") {
+  if (
+    !isEmpresasPreferencesV2Enabled() ||
+    typeof window === "undefined" ||
+    typeof listener !== "function"
+  ) {
     return () => {};
   }
 
