@@ -13,6 +13,7 @@ import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 import { flushEmpPreferencesNow } from "@/modules/empresas/preferences/empresasPreferencesFlush";
+import { prefetchEmpresasPreferencesAtLogin } from "@/modules/empresas/preferences/prefetchEmpresasPreferencesAtLogin";
 import {
   bindEmpPreferencesScopeState,
   resetEmpPreferencesScopeState,
@@ -53,6 +54,9 @@ const prefetchEmpresasCadastro = async (userId, clienteId) => {
     queryFn: () => empresasModuleDefinition.repository.listCamposPersonalizados("aplicavel"),
     staleTime: 5 * 60_000,
   });
+  if (clienteId && userId) {
+    void prefetchEmpresasPreferencesAtLogin(clienteId, userId);
+  }
 };
 
 const AuthContext = createContext();

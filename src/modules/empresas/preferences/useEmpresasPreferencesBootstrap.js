@@ -38,7 +38,7 @@ import { useAuth } from "@/shared/contexts/AuthContext";
 
 const LISTAGEM_SCOPE_KEY = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
 const FORM_SCOPE_KEY = `${EMPRESAS_FORM_SCOPE.modulo}.${EMPRESAS_FORM_SCOPE.tela}`;
-const LISTAGEM_SECTIONS = ["table", "cards", "filtersConfig"];
+const LISTAGEM_SECTIONS = ["table", "cards", "filtersConfig", "view"];
 const PREFERENCES_SYNC_DEBOUNCE_MS = 100;
 const PREFERENCES_SYNC_RETRY_MS = 1_500;
 const MAX_CONFLICT_RETRIES = 3;
@@ -102,7 +102,7 @@ const sectionsFromReason = (reason = "") => {
   ) {
     return ["filtersConfig"];
   }
-  if (normalized.includes("view-mode") || normalized.includes("panel-style")) return [];
+  if (normalized.includes("view-mode") || normalized.includes("panel-style")) return ["view"];
   if (normalized.includes("table") || normalized.includes("load-batch") || normalized.includes("page-size")) {
     return ["table"];
   }

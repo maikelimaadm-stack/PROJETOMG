@@ -4,30 +4,30 @@ import {
   applyFilterFieldsLayout,
   getDefaultFilterFieldsLayout,
   loadFilterFieldsLayout,
-  loadFilterMaxVisible,
   mergeSavedFilterFieldOrder,
   mergeSavedVisibleFilterFields,
   mergeVisibleFilterFieldsWithCatalog,
   saveFilterFieldsLayout,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
-import {
-  readEmpPreferencesJson,
-  subscribeEmpPreferencesCache,
-  isSameTabEmpPreferencesWrite,
-  isLocalListagemPreferenceWrite,
-} from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { FILTER_MAX_VISIBLE_KEY } from "@/modules/empresas/components/tblEmp.constants";
-import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
-import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
 import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
+import { shouldRefreshListagemHydrate } from "@/modules/empresas/preferences/empListagemSectionCacheEvents";
 
 const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) => {
   const normalizedReason = String(reason || "").toLowerCase();
   if (!normalizedReason) return false;
-  if (normalizedReason.includes("filter-layout")) return true;
-  if (normalizedReason.includes("filter-max")) return true;
-  if (normalizedReason.includes("listagem:hydrate")) return true;
+  if (shouldRefreshListagemHydrate(normalizedReason)) return true;
+  if (
+    normalizedReason.includes("filter-layout") ||
+    normalizedReason.includes("filter-max") ||
+    normalizedReason.includes("filter-operators") ||
+    normalizedReason.includes("dropdown-fields") ||
+    normalizedReason.includes("favorites")
+  ) {
+    return true;
+  }
   if (normalizedReason === "storage") {
     const keyList = Array.isArray(keys) ? keys : [keys];
     return keyList.some((key) => {
@@ -41,103 +41,45 @@ const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) 
   return false;
 };
 
-const loadFilterFieldsLayoutFromStorage = () => {
-  markEmpPreferencesPerf("PREF_LOCAL_SNAPSHOT_READ", {
-    section: "filtersConfig",
-    source: "local",
-  });
-  const parsed = readEmpPreferencesJson(EMP_FILTER_FIELDS_LAYOUT_KEY, null);
-  const maxVisible = loadFilterMaxVisible();
-  if (!parsed || typeof parsed !== "object") {
-    markEmpPreferencesPerf("PREF_FILTERS_INITIAL_STATE", {
-      section: "filtersConfig",
-      source: "defaults",
-    });
-    return { visiveis: [], ordem: [], maxVisible };
-  }
-  markEmpPreferencesPerf("PREF_FILTERS_INITIAL_STATE", {
-    section: "filtersConfig",
-    source: "local",
-    changed: true,
-  });
-  return {
-    visiveis: Array.isArray(parsed.visiveis) ? [...parsed.visiveis] : [],
-    ordem: Array.isArray(parsed.ordem) ? [...parsed.ordem] : [],
-    maxVisible,
-  };
-};
-
+/** Mesmo padrão de useEmpSearchDropdownFields — reload do storage quando catálogo ou hydrate muda. */
 export function useEmpFilterFieldsLayout(catalogFields = []) {
-  const catalogKey = useMemo(
-    () =>
-      catalogFields
-        .map((field) => field.key)
-        .filter(Boolean)
-        .join("|"),
+  const catalogKeys = useMemo(
+    () => catalogFields.map((field) => field.key).filter(Boolean),
     [catalogFields]
   );
+  const catalogKey = useMemo(() => catalogKeys.join("|"), [catalogKeys]);
 
-  const catalogKeys = useMemo(
-    () => (catalogKey ? catalogKey.split("|") : []),
-    [catalogKey]
+  const [layout, setLayout] = useState(() =>
+    loadFilterFieldsLayout(catalogKeys.length > 0 ? catalogKeys : [])
   );
 
-  const [layout, setLayout] = useState(() => loadFilterFieldsLayoutFromStorage());
-
   useEffect(() => {
-    const refresh = (detail = null) => {
-      const isDomEvent = detail && typeof detail === "object" && "type" in detail;
-      if (isDomEvent && isEmpPreferencesSectionDirty("filtersConfig")) {
-        return;
-      }
-      if (detail && !isDomEvent) {
-        const normalized = String(detail?.reason || "").toLowerCase();
-        if (
-          (normalized.includes("listagem:hydrate") || normalized.includes("remote-sync")) &&
-          isEmpPreferencesSectionDirty("filtersConfig")
-        ) {
-          markEmpPreferencesPerf("PREF_REMOTE_APPLY_SKIPPED", {
-            section: "filtersConfig",
-            source: "remote",
-            dirty: true,
-          });
-          return;
-        }
-        if (
-          isSameTabEmpPreferencesWrite(detail) &&
-          (isEmpPreferencesSectionDirty("filtersConfig") ||
-            isLocalListagemPreferenceWrite(detail?.reason))
-        ) {
-          return;
-        }
-        if (!shouldRefreshFilterLayoutByCacheEvent(detail)) return;
-      }
-      markEmpPreferencesPerf("PREF_REMOTE_APPLY_ATTEMPT", {
-        section: "filtersConfig",
-        source: "remote",
-      });
-      const nextLayout = loadFilterFieldsLayout(catalogKeys);
+    const keys = catalogKey ? catalogKey.split("|") : [];
+
+    const reloadFromStorage = () => {
       setLayout((current) => {
-        const unchanged = stableJsonEqual(current, nextLayout);
-        if (!unchanged) {
-          markEmpPreferencesPerf("PREF_REMOTE_APPLY_EFFECTIVE", {
-            section: "filtersConfig",
-            source: "remote",
-            changed: true,
-          });
-        }
-        return unchanged ? current : nextLayout;
+        const next = loadFilterFieldsLayout(keys);
+        return stableJsonEqual(current, next) ? current : next;
       });
     };
-    const unsubscribeCache = subscribeEmpPreferencesCache(refresh);
-    window.addEventListener("emp-filter-fields-layout-updated", refresh);
-    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, refresh);
+
+    reloadFromStorage();
+
+    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
+      if (!shouldRefreshFilterLayoutByCacheEvent(detail)) return;
+      reloadFromStorage();
+    });
+
+    const onDomOrBootstrap = () => reloadFromStorage();
+    window.addEventListener("emp-filter-fields-layout-updated", onDomOrBootstrap);
+    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onDomOrBootstrap);
+
     return () => {
-      unsubscribeCache();
-      window.removeEventListener("emp-filter-fields-layout-updated", refresh);
-      window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, refresh);
+      unsubscribe();
+      window.removeEventListener("emp-filter-fields-layout-updated", onDomOrBootstrap);
+      window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onDomOrBootstrap);
     };
-  }, [catalogKeys]);
+  }, [catalogKey, catalogKeys]);
 
   useEffect(() => {
     if (catalogKeys.length === 0) return;
@@ -148,15 +90,10 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
         catalogKeys,
         current.ordem
       );
-      if (
-        ordem.join("|") === current.ordem.join("|") &&
-        visiveis.join("|") === current.visiveis.join("|")
-      ) {
-        return current;
-      }
-      return { ...current, ordem, visiveis };
+      const next = { ...current, ordem, visiveis };
+      return stableJsonEqual(current, next) ? current : next;
     });
-  }, [catalogKey, catalogKeys]);
+  }, [catalogKeys, catalogKey]);
 
   const filterFields = useMemo(() => {
     return applyFilterFieldsLayout(catalogFields, layout);
@@ -164,27 +101,13 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
 
   const saveLayout = useCallback(
     ({ visiveis, ordem, maxVisible }) => {
-      markEmpPreferencesPerf("PREF_USER_ACTION", {
-        section: "filtersConfig",
-        source: "user_action",
-      });
       const nextLayout = {
         visiveis: mergeSavedVisibleFilterFields(visiveis, catalogKeys),
         ordem: mergeSavedFilterFieldOrder(ordem, catalogKeys),
         maxVisible: maxVisible ?? layout.maxVisible,
       };
       setLayout(nextLayout);
-      markEmpPreferencesPerf("PREF_UI_STATE_CHANGED", {
-        section: "filtersConfig",
-        source: "user_action",
-        changed: true,
-      });
       saveFilterFieldsLayout(nextLayout);
-      markEmpPreferencesPerf("PREF_LOCAL_WRITE", {
-        section: "filtersConfig",
-        source: "user_action",
-        dirty: true,
-      });
     },
     [catalogKeys, layout.maxVisible]
   );

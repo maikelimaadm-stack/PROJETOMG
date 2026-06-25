@@ -4,6 +4,13 @@ import {
   saveSearchFavorites,
 } from "@/modules/empresas/components/empSearchView.constants";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
+import { shouldRefreshListagemHydrate } from "@/modules/empresas/preferences/empListagemSectionCacheEvents";
+
+const shouldRefreshFavoritesByCacheEvent = ({ reason = "" } = {}) => {
+  const normalized = String(reason || "").toLowerCase();
+  return shouldRefreshListagemHydrate(normalized) || normalized.includes("favorites");
+};
 
 const normalizeFavoriteId = (recordId) => {
   if (recordId == null || recordId === "") return "";
@@ -14,12 +21,23 @@ export function useEmpFavorites() {
   const [favorites, setFavorites] = useState(() => loadSearchFavorites());
 
   useEffect(() => {
-    const sync = () => setFavorites(loadSearchFavorites());
-    const unsubscribeCache = subscribeEmpPreferencesCache(sync);
-    window.addEventListener("emp-favorites-updated", sync);
+    const reloadFromStorage = () => setFavorites(loadSearchFavorites());
+
+    reloadFromStorage();
+
+    const unsubscribeCache = subscribeEmpPreferencesCache((detail) => {
+      if (!shouldRefreshFavoritesByCacheEvent(detail)) return;
+      reloadFromStorage();
+    });
+
+    const onDomOrBootstrap = () => reloadFromStorage();
+    window.addEventListener("emp-favorites-updated", onDomOrBootstrap);
+    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onDomOrBootstrap);
+
     return () => {
       unsubscribeCache();
-      window.removeEventListener("emp-favorites-updated", sync);
+      window.removeEventListener("emp-favorites-updated", onDomOrBootstrap);
+      window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onDomOrBootstrap);
     };
   }, []);
 

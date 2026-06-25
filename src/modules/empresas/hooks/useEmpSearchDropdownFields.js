@@ -14,11 +14,14 @@ import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCampo
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 
+import { shouldRefreshListagemHydrate } from "@/modules/empresas/preferences/empListagemSectionCacheEvents";
+import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
+
 const shouldRefreshDropdownByCacheEvent = ({ reason = "", keys = [] } = {}) => {
   const normalizedReason = String(reason || "").toLowerCase();
   if (!normalizedReason) return false;
+  if (shouldRefreshListagemHydrate(normalizedReason)) return true;
   if (normalizedReason.includes("dropdown-fields")) return true;
-  if (normalizedReason.includes("listagem:hydrate")) return true;
   if (normalizedReason === "storage") {
     const keyList = Array.isArray(keys) ? keys : [keys];
     return keyList.some((key) =>
@@ -40,18 +43,23 @@ export function useEmpSearchDropdownFields() {
 
   useEffect(() => {
     const sourceCatalog = catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
-    setVisFields((current) => {
-      const next = loadSearchDropdownVisFields(sourceCatalog);
-      return stableJsonEqual(current, next) ? current : next;
-    });
-    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
-      if (!shouldRefreshDropdownByCacheEvent(detail)) return;
+    const reloadFromStorage = () => {
       setVisFields((current) => {
         const next = loadSearchDropdownVisFields(sourceCatalog);
         return stableJsonEqual(current, next) ? current : next;
       });
+    };
+    reloadFromStorage();
+    const unsubscribe = subscribeEmpPreferencesCache((detail) => {
+      if (!shouldRefreshDropdownByCacheEvent(detail)) return;
+      reloadFromStorage();
     });
-    return unsubscribe;
+    const onBootstrapApplied = () => reloadFromStorage();
+    window.addEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
+    return () => {
+      unsubscribe();
+      window.removeEventListener(EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT, onBootstrapApplied);
+    };
   }, [catalog]);
 
   useEffect(() => {

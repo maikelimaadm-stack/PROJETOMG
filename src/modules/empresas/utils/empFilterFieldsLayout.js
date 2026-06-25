@@ -75,7 +75,7 @@ export const loadFilterFieldsLayout = (catalogKeys = []) => {
   const parsed = readEmpPreferencesJson(EMP_FILTER_FIELDS_LAYOUT_KEY, null);
   if (!parsed || typeof parsed !== "object") return defaultLayout;
   const ordem = mergeSavedFilterFieldOrder(parsed?.ordem, catalogKeys);
-  const visiveis = mergeSavedVisibleFilterFields(parsed?.visiveis, catalogKeys);
+  const visiveis = mergeVisibleFilterFieldsWithCatalog(parsed?.visiveis, catalogKeys, ordem);
   return {
     visiveis,
     ordem,
@@ -90,7 +90,11 @@ export const saveFilterFieldsLayout = ({ visiveis = [], ordem = [], maxVisible }
     { visiveis, ordem, maxVisible: normalizedMax },
     { reason: "listagem:filter-layout" }
   );
-  saveFilterMaxVisible(normalizedMax);
+  writeEmpPreferencesText(FILTER_MAX_VISIBLE_KEY, String(normalizedMax), {
+    reason: "listagem:filter-max-visible",
+    emit: false,
+  });
+  dispatchLayoutUpdated();
 };
 
 export const applyFilterFieldsLayout = (catalogFields = [], layout = {}) => {

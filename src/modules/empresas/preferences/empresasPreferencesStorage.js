@@ -153,7 +153,7 @@ const sanitizeTablePreferences = (table = {}) => {
 
 export const readStoredEmpViewMode = () => normalizeViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY));
 
-export const writeStoredEmpViewMode = (mode, reason = "view:local-mode") => {
+export const writeStoredEmpViewMode = (mode, reason = "listagem:view-mode") => {
   writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(mode), reason);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("emp-view-mode-updated"));
