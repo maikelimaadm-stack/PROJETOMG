@@ -7,6 +7,13 @@ import {
   MAK_CARDS_LAYOUT_DEFAULT,
   normalizeCardsPerRow,
 } from "@/framework/mak/search/makSearchView.utils.js";
+import {
+  applyFilterFieldsLayout,
+  createFilterFieldsLayoutStorage,
+  getDefaultFilterFieldsLayout,
+  mergeSavedFilterFieldOrder,
+  mergeSavedVisibleFilterFields,
+} from "@/ModeloBase1/utils/filterFieldsLayout.js";
 
 const sortCardFieldsAlphabetically = (fields = []) =>
   [...fields].sort((left, right) =>
@@ -67,6 +74,12 @@ export function buildSearchViewFromMakModule(makModule) {
   const cardsVisKey = `${prefix}_search_vis`;
   const cardsLayoutKey = `${prefix}_cards_layout`;
   const filterFieldsLayoutKey = `${prefix}_filter_fields_layout`;
+  const filterFieldsUpdatedEvent = `${moduleId}-filter-fields-layout-updated`;
+  const filterFieldsStorage = createFilterFieldsLayoutStorage({
+    adapter,
+    storageKey: filterFieldsLayoutKey,
+    updatedEvent: filterFieldsUpdatedEvent,
+  });
 
   return {
     favoritesKey,
@@ -78,7 +91,7 @@ export function buildSearchViewFromMakModule(makModule) {
     cardsLayoutKey,
     cardsLayoutDefault: MAK_CARDS_LAYOUT_DEFAULT,
     filterFieldsLayoutKey,
-    filterFieldsLayoutUpdatedEvent: `${moduleId}-filter-fields-layout-updated`,
+    filterFieldsLayoutUpdatedEvent: filterFieldsUpdatedEvent,
     defaultFields: cardFields,
     buildCardCatalog,
     mergeSearchVisFields,
@@ -109,12 +122,12 @@ export function buildSearchViewFromMakModule(makModule) {
         (field) => field.visible && field.key !== primaryField
       ),
     getDefaultCardVisFields,
-    loadFilterFieldsLayout: () => ({ visiveis: [], ordem: [] }),
-    saveFilterFieldsLayout: () => {},
-    applyFilterFieldsLayout: (_catalog, layout) => layout,
-    getDefaultFilterFieldsLayout: () => ({ visiveis: [], ordem: [] }),
-    mergeSavedVisibleFilterFields: (catalog) => catalog,
-    mergeSavedFilterFieldOrder: (catalog) => catalog,
+    loadFilterFieldsLayout: filterFieldsStorage.loadFilterFieldsLayout,
+    saveFilterFieldsLayout: filterFieldsStorage.saveFilterFieldsLayout,
+    applyFilterFieldsLayout,
+    getDefaultFilterFieldsLayout,
+    mergeSavedVisibleFilterFields,
+    mergeSavedFilterFieldOrder,
   };
 }
 
