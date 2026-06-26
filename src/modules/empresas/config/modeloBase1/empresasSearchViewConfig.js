@@ -35,6 +35,7 @@ import {
   EMP_FILTER_FIELDS_LAYOUT_KEY,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { empresasPreferencesAdapter } from "@/modules/empresas/config/empresasPreferencesAdapter";
+import { EMP_VIEW_MODE_STORAGE_KEY } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import { EMPRESAS_LIST_QUERY_KEY, EMP_INFINITE_PAGE_SIZE } from "@/modules/empresas/data/empresasListConstants";
 import {
@@ -47,7 +48,7 @@ import {
 export const empresasSearchViewConfig = {
   favoritesKey: EMP_SEARCH_FAV_KEY,
   favoritesUpdatedEvent: "emp-favorites-updated",
-  viewModeKey: "emp_view_mode",
+  viewModeKey: EMP_VIEW_MODE_STORAGE_KEY,
   viewModeUpdatedEvent: "emp-view-mode-updated",
   dropdownVisKey: EMP_SEARCH_DROPDOWN_VIS_KEY,
   cardsVisKey: EMP_SEARCH_VIS_KEY,

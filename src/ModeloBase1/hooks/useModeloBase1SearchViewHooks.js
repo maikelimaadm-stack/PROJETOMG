@@ -232,7 +232,7 @@ export function useModeloBase1FilterFieldsLayout(catalogFields = []) {
   const updatedEvent = searchView.filterFieldsLayoutUpdatedEvent ?? `${config.moduleId}-filter-fields-layout-updated`;
   const loadLayout = searchView.loadFilterFieldsLayout ?? (() => ({ visiveis: [], ordem: [] }));
   const saveLayoutStorage = searchView.saveFilterFieldsLayout ?? (() => {});
-  const applyLayout = searchView.applyFilterFieldsLayout ?? ((fields) => fields);
+  const applyLayout = searchView.applyFilterFieldsLayout ?? ((fields) => (Array.isArray(fields) ? fields : []));
   const getDefaults = searchView.getDefaultFilterFieldsLayout ?? (() => ({ visiveis: [], ordem: [] }));
   const mergeVisible = searchView.mergeSavedVisibleFilterFields ?? ((vis, keys) => vis);
   const mergeOrder = searchView.mergeSavedFilterFieldOrder ?? ((ordem, keys) => ordem);
@@ -281,10 +281,10 @@ export function useModeloBase1FilterFieldsLayout(catalogFields = []) {
     };
   }, [adapter, bootstrapEvent, layoutKey, reload, updatedEvent]);
 
-  const filterFields = useMemo(
-    () => applyLayout(catalogFields, layout),
-    [catalogFields, layout, applyLayout]
-  );
+  const filterFields = useMemo(() => {
+    const applied = applyLayout(catalogFields, layout);
+    return Array.isArray(applied) ? applied : Array.isArray(catalogFields) ? catalogFields : [];
+  }, [catalogFields, layout, applyLayout]);
 
   const saveLayout = useCallback(
     ({ visiveis, ordem }) => {
