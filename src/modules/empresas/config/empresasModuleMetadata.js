@@ -58,6 +58,16 @@ import {
   readEmpTablePreferencesSnapshot,
 } from "@/modules/empresas/preferences/empTablePreferencesHydration";
 import { emitEmpPreferencesCacheUpdate } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  EMP_CARDS_LAYOUT_DEFAULT,
+  EMP_CARDS_LAYOUT_OPTIONS,
+  EMP_SEARCH_DEFAULT_FIELDS,
+  EMP_SEARCH_DROPDOWN_MAX_FIELDS,
+  countSearchDropdownVisibleFields,
+  getDefaultCardVisFields,
+  getEmpSearchFieldValue,
+  getFieldsPerRowForLayout,
+} from "@/modules/empresas/components/empSearchView.constants";
 
 export const empresasModuleMetadata = {
   table: {
@@ -131,5 +141,15 @@ export const empresasModuleMetadata = {
   preferences: {
     moduleId: "empresas",
     keyPrefix: "emp",
+  },
+  search: {
+    defaultFields: EMP_SEARCH_DEFAULT_FIELDS,
+    cardsLayoutDefault: EMP_CARDS_LAYOUT_DEFAULT,
+    cardsLayoutOptions: EMP_CARDS_LAYOUT_OPTIONS,
+    dropdownMaxFields: EMP_SEARCH_DROPDOWN_MAX_FIELDS,
+    getFieldValue: getEmpSearchFieldValue,
+    getFieldsPerRowForLayout,
+    getDefaultCardVisFields,
+    countDropdownVisibleFields: countSearchDropdownVisibleFields,
   },
 };

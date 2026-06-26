@@ -20,6 +20,7 @@ import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContex
 import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
 import { useMakTableModuleConfig } from "@/framework/mak/table/useMakTableModuleConfig";
+import { useMakModuleRequired } from "@/framework/mak/runtime/MakModuleContext.jsx";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { EMP_TABLE_HEADER_HEIGHT, EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
@@ -140,6 +141,7 @@ export default function MakCadastroTable({
   bootstrapGeneration = 0,
 }) {
   const {
+    moduleId,
     COLUNAS_BASE,
     WIDTHS_KEY,
     FROZEN_KEY,
@@ -185,6 +187,9 @@ export default function MakCadastroTable({
     useCustomFieldsHook,
     LoadBatchControls: EmpLoadBatchControls,
   } = useMakTableModuleConfig();
+  const { labels: moduleLabels } = useMakModuleRequired();
+  const loadingRecordsLabel = `Carregando ${moduleLabels.plural.toLowerCase()}...`;
+  const emptyRecordsTitle = `Nenhuma ${moduleLabels.singular.toLowerCase()} encontrada`;
 
   const suppressPersistenceRef = useRef(false);
   const tableHydratedRef = useRef(true);
@@ -1835,8 +1840,8 @@ export default function MakCadastroTable({
         acc[columnId] = value;
         return acc;
       }, {});
-      const cascadedFilters = buildMakColumnFilters("empresas", cascadedColumnFilters);
-      return mergeMakListFilters("empresas", contextFilters, cascadedFilters);
+      const cascadedFilters = buildMakColumnFilters(moduleId, cascadedColumnFilters);
+      return mergeMakListFilters(moduleId, contextFilters, cascadedFilters);
     },
     [normalizedFilterOptionsMode, selectorOptionsContextFilters, filtrosColunas]
   );
@@ -2163,7 +2168,7 @@ export default function MakCadastroTable({
             role="status"
             aria-live="polite"
           >
-            Carregando empresas...
+            {loadingRecordsLabel}
           </TableCell>
         </TableRow>
       </TableBody>
@@ -2175,7 +2180,7 @@ export default function MakCadastroTable({
       <TableBody>
         <TableRow>
           <TableCell colSpan={colunasOrdenadas.length + 1} className="emp-td p-0">
-            <MakEmptyState title="Nenhuma empresa encontrada" />
+            <MakEmptyState title={emptyRecordsTitle} />
           </TableCell>
         </TableRow>
       </TableBody>

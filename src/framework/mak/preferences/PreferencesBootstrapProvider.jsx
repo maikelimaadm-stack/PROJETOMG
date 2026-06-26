@@ -8,17 +8,22 @@ const DEFAULT_MODULE_IDS = ["empresas"];
 
 /**
  * Provider genérico de bootstrap de preferências.
- * Módulos registram hooks via registerMakPreferencesBootstrapModule + aggregator.
+ * Módulos registram hooks via registerMakPreferencesBootstrapModule + useBootstrapHook injetado.
  */
 export function MakPreferencesBootstrapProvider({
   children,
   moduleIds = DEFAULT_MODULE_IDS,
+  useBootstrapHook,
 }) {
   const { user, isAuthenticated } = useAuth();
   const enabledModuleIds = Array.isArray(moduleIds) ? moduleIds : DEFAULT_MODULE_IDS;
   const activeUserId = isAuthenticated ? user?.id : null;
 
-  const aggregated = useMakPreferencesBootstrapAggregator(enabledModuleIds, activeUserId);
+  const aggregated = useMakPreferencesBootstrapAggregator(
+    enabledModuleIds,
+    activeUserId,
+    useBootstrapHook
+  );
   const empresasBootstrap = aggregated.empresas;
 
   const value = useMemo(
@@ -26,7 +31,7 @@ export function MakPreferencesBootstrapProvider({
       moduleIds: enabledModuleIds,
       modules: aggregated.modules,
       empresas: empresasBootstrap,
-      /** Estado unificado — espelha empresas para compatibilidade */
+      /** Estado unificado — espelha módulo primário para compatibilidade */
       ...(empresasBootstrap || {}),
     }),
     [enabledModuleIds, aggregated.modules, empresasBootstrap]

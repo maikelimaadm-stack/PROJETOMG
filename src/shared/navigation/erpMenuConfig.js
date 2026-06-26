@@ -22,6 +22,23 @@ generatedModules.forEach((module) => {
   }
 });
 
+const CADASTRO_MENU_ITEM_OVERRIDES = {
+  empresas: { id: "empresas", label: "Empresas" },
+  marcas: { id: "marcas", label: "Marcas" },
+  cadcps: { id: "campos_personalizados", label: "Campos Personalizados" },
+};
+
+const buildCadastroMenuItems = () =>
+  generatedModules.map((module) => {
+    const override = CADASTRO_MENU_ITEM_OVERRIDES[module.moduleId];
+    return {
+      id: override?.id ?? module.moduleId,
+      label: override?.label ?? module.menuLabel ?? module.moduleId,
+      routePath: module.routePath,
+      moduleId: module.moduleId,
+    };
+  });
+
 /** Apenas módulos já implementados no sistema. */
 export const ERP_MENU_SECTIONS = [
   {
@@ -30,20 +47,7 @@ export const ERP_MENU_SECTIONS = [
     label: "Cadastro",
     icon: "folder-open",
     defaultOpen: true,
-    items: [
-      {
-        id: "empresas",
-        label: "Empresas",
-        routePath: moduleById.empresas?.routePath || "/CadastroEmpresas",
-        moduleId: "empresas",
-      },
-      {
-        id: "campos_personalizados",
-        label: "Campos Personalizados",
-        routePath: moduleById.cadcps?.routePath || "/CadastroCamposPersonalizados",
-        moduleId: "cadcps",
-      },
-    ],
+    items: buildCadastroMenuItems(),
   },
 ];
 

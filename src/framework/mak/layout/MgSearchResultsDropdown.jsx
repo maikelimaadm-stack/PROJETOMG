@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Columns3Cog } from "lucide-react";
 import {
   countSearchDropdownVisibleFields,
-  EMP_SEARCH_DROPDOWN_MAX_FIELDS,
-  getEmpSearchFieldValue,
-} from "@/modules/empresas/components/empSearchView.constants";
+  MAK_SEARCH_DROPDOWN_MAX_FIELDS,
+} from "@/framework/mak/search/makSearchView.utils.js";
+import { useMakSearchViewConfig } from "@/framework/mak/search/useMakSearchViewConfig.js";
 import MgRecordFavoriteStar from "./MgRecordFavoriteStar";
 import { renderSearchHighlight } from "./mgSearchHighlight";
 import { showWarning } from "@/shared/feedback";
@@ -47,6 +47,7 @@ export default function MgSearchResultsDropdown({
   onApplyFavorites,
   isFavoriteRecord,
 }) {
+  const { dropdownMaxFields, getFieldValue } = useMakSearchViewConfig();
   const [configOpen, setConfigOpen] = useState(false);
   const [fieldsDraft, setFieldsDraft] = useState(configFields);
   const listRef = useRef(null);
@@ -99,9 +100,9 @@ export default function MgSearchResultsDropdown({
   const handleFieldToggle = (fieldKey, checked) => {
     if (checked) {
       const currentCount = countSearchDropdownVisibleFields(fieldsDraft);
-      if (currentCount >= EMP_SEARCH_DROPDOWN_MAX_FIELDS) {
+      if (currentCount >= dropdownMaxFields) {
         showWarning(
-          `É permitido selecionar no máximo ${EMP_SEARCH_DROPDOWN_MAX_FIELDS} campos.`
+          `É permitido selecionar no máximo ${dropdownMaxFields} campos.`
         );
         return;
       }
@@ -169,9 +170,9 @@ export default function MgSearchResultsDropdown({
               <span
                 className="mg-search-dropdown__config-counter"
                 aria-live="polite"
-                aria-label={`${selectedFieldCount} de ${EMP_SEARCH_DROPDOWN_MAX_FIELDS} campos selecionados`}
+                aria-label={`${selectedFieldCount} de ${dropdownMaxFields} campos selecionados`}
               >
-                {selectedFieldCount}/{EMP_SEARCH_DROPDOWN_MAX_FIELDS}
+                {selectedFieldCount}/{dropdownMaxFields}
               </span>
               <button
                 type="button"
@@ -196,8 +197,8 @@ export default function MgSearchResultsDropdown({
             ) : (
               <>
                 {items.map((emp) => {
-                  const code = getEmpSearchFieldValue(emp, "codempresa");
-                  const nome = getEmpSearchFieldValue(emp, "razao_social");
+                  const code = getFieldValue(emp, "codempresa");
+                  const nome = getFieldValue(emp, "razao_social");
                   const isFavorite = isFavoriteRecord?.(emp.id) ?? false;
 
                   return (
@@ -232,7 +233,7 @@ export default function MgSearchResultsDropdown({
                       {detailFields.length > 0 ? (
                         <div className="mg-search-dropdown__meta">
                           {detailFields.map((field) => {
-                            const value = getEmpSearchFieldValue(emp, field.key);
+                            const value = getFieldValue(emp, field.key);
                             return (
                               <div key={field.key} className="mg-search-dropdown__field">
                                 <div className="mg-search-dropdown__field-line">
