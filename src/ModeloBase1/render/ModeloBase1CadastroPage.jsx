@@ -37,6 +37,7 @@ import { useSaveCycle } from "@/ModeloBase1/hooks";
 import { syncColumnsIntoPanelFilters, useMakListFilters } from "@/ModeloBase1/filters";
 import { useMakSearchHandlers, useMakRecordSubmit, useMakRecordDelete, useMakRecordExport } from "@/ModeloBase1/actions";
 import { ModeloBase1Provider, useModeloBase1Config } from "@/ModeloBase1/config";
+import ModeloBase1ServerCadastroPageContent from "./ModeloBase1ServerCadastroPage.jsx";
 
 const DROPDOWN_PAGE_SIZE = 30;
 function ModeloBase1CadastroPageContent() {
@@ -82,7 +83,7 @@ function ModeloBase1CadastroPageContent() {
   };
 
   const [showForm, setShowForm] = useState(false);
-  const [editingEmp, setEditingEmp] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
   const [deleteState, setDeleteState] = useState({ open: false, ids: [] });
   const [showConfigColunas, setShowConfigColunas] = useState(false);
   const [showConfigFiltros, setShowConfigFiltros] = useState(false);
@@ -105,7 +106,7 @@ function ModeloBase1CadastroPageContent() {
   const [attachmentsOpen, setAttachmentsOpen] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState([]);
   const [visibleTableData, setVisibleTableData] = useState({ columns: [], rows: [] });
-  const [tableFilteredEmpresas, setTableFilteredEmpresas] = useState(null);
+  const [tableFilteredRecords, setTableFilteredRecords] = useState(null);
   const [querySort, setQuerySort] = useState(helpers.readInitialQuerySort);
   const [queryPage, setQueryPage] = useState(1);
   const [queryPageSize, setQueryPageSize] = useState(data.infinitePageSize);
@@ -148,10 +149,10 @@ function ModeloBase1CadastroPageContent() {
     ? helpers.getFieldsPerRowForLayout(mobileCardsPerRow)
     : cardsVisFields.fieldsPerRow;
   const searchDropdownFields = hooks.useSearchDropdownFields();
-  const empFavorites = hooks.useFavorites();
+  const recordFavorites = hooks.useFavorites();
   const favoriteIds = useMemo(
-    () => [...empFavorites.favorites],
-    [empFavorites.favorites]
+    () => [...recordFavorites.favorites],
+    [recordFavorites.favorites]
   );
   const favoriteIdsKey = useMemo(
     () => favoriteIds.slice().sort().join(","),
@@ -169,22 +170,22 @@ function ModeloBase1CadastroPageContent() {
   const lastPreferencesErrorRef = useRef(null);
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
-  const previousScopeEmpresaIdRef = useRef(selectedScopeId);
+  const previousScopeIdRef = useRef(selectedScopeId);
   const suppressColumnFilterPersistRef = useRef(true);
   const formBridgeSignatureRef = useRef("");
   const queryClient = useQueryClient();
   const saveCycle = useSaveCycle();
 
   useEffect(() => {
-    if (previousScopeEmpresaIdRef.current === selectedScopeId) return;
-    previousScopeEmpresaIdRef.current = selectedScopeId;
+    if (previousScopeIdRef.current === selectedScopeId) return;
+    previousScopeIdRef.current = selectedScopeId;
     suppressColumnFilterPersistRef.current = true;
     setShowForm(false);
-    setEditingEmp(null);
+    setEditingRecord(null);
     setViewMode("table");
     setSelectedTableItems([]);
     setSelectedIndex(0);
-    setTableFilteredEmpresas(null);
+    setTableFilteredRecords(null);
     setSearchDraft("");
     setSearchTerm("");
     setPinnedRecord(null);
@@ -358,11 +359,11 @@ function ModeloBase1CadastroPageContent() {
     setSearchFavoritesOnly,
     setDropdownSearch,
     setSearchViewPending,
-    setTableFilteredRecords: setTableFilteredEmpresas,
+    setTableFilteredRecords: setTableFilteredRecords,
     setSelectedTableItems,
     setQueryPage,
     setSelectedIndex,
-    setEditingRecord: setEditingEmp,
+    setEditingRecord: setEditingRecord,
   });
 
   const {
@@ -391,20 +392,20 @@ function ModeloBase1CadastroPageContent() {
   });
 
   const {
-    empresas,
-    empresasPages,
-    empresasResponseTotal,
-    empresasLoading,
-    empresasFetching,
+    records,
+    recordsPages,
+    recordsResponseTotal,
+    recordsLoading,
+    recordsFetching,
     isLoading,
     isFetching,
     loadedPagesCount,
     canLoadMoreRows,
     loadedRowsLimitReached,
     maxLoadedRows,
-    hasNextEmpresasPage,
-    isFetchingNextEmpresasPage,
-    handleLoadMoreEmpresas,
+    hasNextRecordsPage,
+    isFetchingNextRecordsPage,
+    handleLoadMoreRecords,
   } = hooks.useInfiniteListData({
     repository: moduleRepository,
     searchTerm,
@@ -417,7 +418,7 @@ function ModeloBase1CadastroPageContent() {
     loadBatchSize,
   });
 
-  const totalEmpresas = pinnedRecord ? 1 : empresasResponseTotal || 0;
+  const totalRecords = pinnedRecord ? 1 : recordsResponseTotal || 0;
   const { data: metricsContadores } = useQuery({
     queryKey: ["metrics-contadores"],
     queryFn: () => MetricsApi.getContadores(),
@@ -425,14 +426,14 @@ function ModeloBase1CadastroPageContent() {
     gcTime: 5 * 60_000,
   });
 
-  const empresasFiltradasPainel = useMemo(() => {
+  const filteredPanelRecords = useMemo(() => {
     if (pinnedRecord) return [pinnedRecord];
-    return empresas;
-  }, [empresas, pinnedRecord]);
+    return records;
+  }, [records, pinnedRecord]);
 
   const recordNav = useServerRecordNavigation({
-    items: empresasFiltradasPainel,
-    total: totalEmpresas,
+    items: filteredPanelRecords,
+    total: totalRecords,
     page: queryPage,
     pageSize: queryPageSize,
     onPageChange: setQueryPage,
@@ -442,10 +443,10 @@ function ModeloBase1CadastroPageContent() {
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || pinnedRecord) return;
-    if (!editingEmp?.id || editingEmp._isDuplicate) return;
+    if (!editingRecord?.id || editingRecord._isDuplicate) return;
     const record = recordNav.currentRecord;
-    if (record?.id && record.id !== editingEmp.id) {
-      setEditingEmp(record);
+    if (record?.id && record.id !== editingRecord.id) {
+      setEditingRecord(record);
       setSelectedTableItems([record.id]);
       setSelectedIndex(recordNav.localIndex);
     }
@@ -455,8 +456,8 @@ function ModeloBase1CadastroPageContent() {
     showForm,
     viewMode,
     pinnedRecord,
-    editingEmp?.id,
-    editingEmp?._isDuplicate,
+    editingRecord?.id,
+    editingRecord?._isDuplicate,
   ]);
 
   useEffect(() => {
@@ -489,10 +490,10 @@ function ModeloBase1CadastroPageContent() {
     }
 
     return undefined;
-  }, [searchViewPending, pinnedRecord, isLoading, isFetching, empresasFiltradasPainel]);
+  }, [searchViewPending, pinnedRecord, isLoading, isFetching, filteredPanelRecords]);
 
-  const handleFilteredEmpresasChange = useCallback((filtered) => {
-    setTableFilteredEmpresas((previous) => {
+  const handleFilteredRecordsChange = useCallback((filtered) => {
+    setTableFilteredRecords((previous) => {
       if (previous === filtered) return previous;
       if (
         previous &&
@@ -506,19 +507,19 @@ function ModeloBase1CadastroPageContent() {
     });
   }, []);
 
-  const empresasNavegacao = tableFilteredEmpresas ?? empresasFiltradasPainel;
+  const navigationRecords = tableFilteredRecords ?? filteredPanelRecords;
 
   const refreshNavRecord = useCallback((list, record, navListOverride) => {
-    const navList = navListOverride ?? tableFilteredEmpresas ?? list;
+    const navList = navListOverride ?? tableFilteredRecords ?? list;
     const fresh = helpers.findRecordInList(list, record) ?? record;
     const navIndex = navList.findIndex(
-      (item) => item.id === fresh.id || Number(item.codempresa) === Number(fresh.codempresa)
+      (item) => helpers.matchRecordIdentity(item, fresh)
     );
     return { fresh, navList, navIndex };
-  }, [searchTerm, tableFilteredEmpresas]);
+  }, [searchTerm, tableFilteredRecords]);
 
-  const currentEmp = empresasNavegacao[selectedIndex] || empresasNavegacao[0] || null;
-  const selectedTableEmp = selectedTableItems.length === 1 ? empresasNavegacao.find((e) => e.id === selectedTableItems[0]) : null;
+  const currentRecord = navigationRecords[selectedIndex] || navigationRecords[0] || null;
+  const selectedTableRecord = selectedTableItems.length === 1 ? navigationRecords.find((e) => e.id === selectedTableItems[0]) : null;
   const hasActiveFilters = Boolean(
     appliedPanelFilters ||
     Object.values(columnFilters).some((value) => isErpFilterActive(value)) ||
@@ -538,7 +539,7 @@ function ModeloBase1CadastroPageContent() {
     }
 
     setReturnRecordAfterNew(null);
-    setEditingEmp(normalized);
+    setEditingRecord(normalized);
     setSelectedTableItems([savedId]);
     setShowForm(true);
     setViewMode("record");
@@ -555,17 +556,17 @@ function ModeloBase1CadastroPageContent() {
       };
     });
 
-    const navList = tableFilteredEmpresas ?? empresasFiltradasPainel;
+    const navList = tableFilteredRecords ?? filteredPanelRecords;
     const navIndex = navList.findIndex(
-      (item) => item.id === savedId || Number(item.codempresa) === Number(normalized.codempresa)
+      (item) => item.id === savedId || helpers.matchRecordIdentity(item, normalized)
     );
     if (navIndex >= 0) setSelectedIndex(navIndex);
 
     upsertInSelector(normalized);
-  }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertInSelector]);
+  }, [queryClient, tableFilteredRecords, filteredPanelRecords, upsertInSelector]);
 
   const { handleSubmit } = useMakRecordSubmit({
-    editingRecord: editingEmp,
+    editingRecord: editingRecord,
     selectorSnapshot: selectorSnapshot,
     pendingAttachments,
     pendingCreatesRef,
@@ -581,7 +582,7 @@ function ModeloBase1CadastroPageContent() {
     saveCycle,
     resolveErrorMessage,
     stayOnRecordAfterSave,
-    setEditingRecord: setEditingEmp,
+    setEditingRecord: setEditingRecord,
     setFormVersion,
     setSelectedTableItems,
     upsertInSelector: upsertInSelector,
@@ -595,10 +596,10 @@ function ModeloBase1CadastroPageContent() {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
     recordNav.syncLocalIndexFromRecord(emp);
-    const index = empresasFiltradasPainel.findIndex((e) => e.id === emp.id);
+    const index = filteredPanelRecords.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setSelectedTableItems([emp.id]);
-    setEditingEmp(emp);
+    setEditingRecord(emp);
     setShowForm(true);
     setViewMode("record");
   };
@@ -606,10 +607,10 @@ function ModeloBase1CadastroPageContent() {
   const handleNew = () => {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
-    setReturnRecordAfterNew(showForm && viewMode === "record" ? editingEmp || currentEmp : null);
+    setReturnRecordAfterNew(showForm && viewMode === "record" ? editingRecord || currentRecord : null);
     setSelectedTableItems([]);
-    const alreadyNew = showForm && !editingEmp?.id && !editingEmp?._isDuplicate;
-    setEditingEmp(null);
+    const alreadyNew = showForm && !editingRecord?.id && !editingRecord?._isDuplicate;
+    setEditingRecord(null);
     setShowForm(true);
     setViewMode("record");
     if (alreadyNew) {
@@ -621,7 +622,7 @@ function ModeloBase1CadastroPageContent() {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
-    setEditingEmp(helpers.buildDuplicateRecord(emp));
+    setEditingRecord(helpers.buildDuplicateRecord(emp));
     setShowForm(true);
     setViewMode("record");
   };
@@ -667,7 +668,7 @@ function ModeloBase1CadastroPageContent() {
 
   const handleServerSortChange = useCallback((nextSort) => {
     setQuerySort((previous) => {
-      const key = nextSort?.key || "codempresa";
+      const key = nextSort?.key || helpers.readInitialQuerySort().key;
       const direction = nextSort?.direction === "desc" ? "desc" : "asc";
       if (previous.key === key && previous.direction === direction) return previous;
       return { key, direction };
@@ -693,13 +694,13 @@ function ModeloBase1CadastroPageContent() {
         showForm,
         formBridge,
         selectedCount: selectedTableItems.length,
-        hasRecord: !!editingEmp?.id,
+        hasRecord: !!editingRecord?.id,
       }),
-    [showForm, formBridge, selectedTableItems.length, editingEmp?.id]
+    [showForm, formBridge, selectedTableItems.length, editingRecord?.id]
   );
 
-  const loadedRecordsCount = empresasFiltradasPainel.length;
-  const filteredRecordsCount = Math.max(Number(totalEmpresas || 0), loadedRecordsCount);
+  const loadedRecordsCount = filteredPanelRecords.length;
+  const filteredRecordsCount = Math.max(Number(totalRecords || 0), loadedRecordsCount);
   const totalRecordsCount = Math.max(
     Number(metricsContadores?.[config.metricsCounterKey] || 0),
     filteredRecordsCount,
@@ -755,7 +756,7 @@ function ModeloBase1CadastroPageContent() {
     closeTransientDialogs();
     if (showForm) {
       setShowForm(false);
-      setEditingEmp(null);
+      setEditingRecord(null);
       setSelectedTableItems([]);
     }
     setViewMode("table");
@@ -768,7 +769,7 @@ function ModeloBase1CadastroPageContent() {
         onOpenRegistro: () => {
           closeTransientDialogs();
           if (showForm && viewMode === "record") return;
-          const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
+          const emp = selectedTableRecord || navigationRecords[selectedIndex] || navigationRecords[0];
           if (!emp) {
             handleNew();
             return;
@@ -778,7 +779,7 @@ function ModeloBase1CadastroPageContent() {
         onOpenTabela: () => {
           closeTransientDialogs();
           setShowForm(false);
-          setEditingEmp(null);
+          setEditingRecord(null);
           setSelectedTableItems([]);
           setViewMode("table");
         },
@@ -786,21 +787,21 @@ function ModeloBase1CadastroPageContent() {
           closeTransientDialogs();
           if (!saveCycle.guardAction()) return;
           setShowForm(false);
-          setEditingEmp(null);
+          setEditingRecord(null);
           setSelectedTableItems([]);
           setViewMode("search");
         },
       });
     },
     [
-      empresasNavegacao,
+      navigationRecords,
       closeTransientDialogs,
       handleEdit,
       handleNew,
       saveCycle,
       actionBarVisibility.secondaryToolsLocked,
       selectedIndex,
-      selectedTableEmp,
+      selectedTableRecord,
       showForm,
       viewMode,
     ]
@@ -839,43 +840,43 @@ function ModeloBase1CadastroPageContent() {
   }, [preferencesReady, scheduleListagemSync]);
 
   useEffect(() => {
-    if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
-    if (empresasNavegacao.length === 0) return;
+    if (!showForm || viewMode !== "record" || !editingRecord || editingRecord?._isDuplicate) return;
+    if (navigationRecords.length === 0) return;
 
-    const currentFilteredIndex = editingEmp.id
-      ? empresasNavegacao.findIndex((item) => item.id === editingEmp.id)
+    const currentFilteredIndex = editingRecord.id
+      ? navigationRecords.findIndex((item) => item.id === editingRecord.id)
       : -1;
 
     if (currentFilteredIndex >= 0) {
       if (selectedIndex !== currentFilteredIndex) setSelectedIndex(currentFilteredIndex);
-      const fresh = empresasNavegacao[currentFilteredIndex];
-      if (fresh?.id === editingEmp.id && fresh.updatedAt !== editingEmp.updatedAt) {
-        setEditingEmp(fresh);
+      const fresh = navigationRecords[currentFilteredIndex];
+      if (fresh?.id === editingRecord.id && fresh.updatedAt !== editingRecord.updatedAt) {
+        setEditingRecord(fresh);
       }
       return;
     }
 
-    const stillExists = empresas.some((item) => item.id === editingEmp.id);
-    if (!stillExists && empresasNavegacao.length > 0) {
-      const fallbackIndex = Math.min(Math.max(selectedIndex, 0), empresasNavegacao.length - 1);
-      const fallbackEmp = empresasNavegacao[fallbackIndex];
-      if (fallbackEmp) {
-        setEditingEmp(fallbackEmp);
+    const stillExists = records.some((item) => item.id === editingRecord.id);
+    if (!stillExists && navigationRecords.length > 0) {
+      const fallbackIndex = Math.min(Math.max(selectedIndex, 0), navigationRecords.length - 1);
+      const fallbackRecord = navigationRecords[fallbackIndex];
+      if (fallbackRecord) {
+        setEditingRecord(fallbackRecord);
         setSelectedIndex(fallbackIndex);
-        setSelectedTableItems([fallbackEmp.id]);
+        setSelectedTableItems([fallbackRecord.id]);
       }
     }
-  }, [showForm, viewMode, empresasNavegacao, empresas, editingEmp?.id, editingEmp?.updatedAt, editingEmp?._isDuplicate, selectedIndex]);
+  }, [showForm, viewMode, navigationRecords, records, editingRecord?.id, editingRecord?.updatedAt, editingRecord?._isDuplicate, selectedIndex]);
 
   const handleTableSelectionChange = useCallback((ids) => {
     setSelectedTableItems((p) => { const same = p.length === ids.length && p.every((id, i) => id === ids[i]); return same ? p : ids; });
     if (ids.length === 1) {
-      const i = empresasNavegacao.findIndex((e) => e.id === ids[0]);
+      const i = navigationRecords.findIndex((e) => e.id === ids[0]);
       if (i >= 0) {
         setSelectedIndex(i);
       }
     }
-  }, [empresasNavegacao]);
+  }, [navigationRecords]);
 
   const handleToggleSearchView = useCallback(() => {
     if (!saveCycle.guardAction()) return;
@@ -885,7 +886,7 @@ function ModeloBase1CadastroPageContent() {
     }
     closeTransientDialogs();
     setShowForm(false);
-    setEditingEmp(null);
+    setEditingRecord(null);
     setViewMode("search");
   }, [closeTransientDialogs, handleOpenTableView, saveCycle, viewMode]);
 
@@ -894,11 +895,11 @@ function ModeloBase1CadastroPageContent() {
     if (viewMode === "search") {
       if (selectedTableItems.length > 1) return;
       closeTransientDialogs();
-      const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
+      const emp = selectedTableRecord || navigationRecords[selectedIndex] || navigationRecords[0];
       if (!emp) return;
-      const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
+      const index = navigationRecords.findIndex((e) => e.id === emp.id);
       if (index >= 0) setSelectedIndex(index);
-      setEditingEmp(emp);
+      setEditingRecord(emp);
       setShowForm(true);
       setViewMode("record");
       return;
@@ -909,11 +910,11 @@ function ModeloBase1CadastroPageContent() {
     }
     if (selectedTableItems.length > 1) return;
     closeTransientDialogs();
-    const emp = selectedTableEmp || empresasNavegacao[selectedIndex] || empresasNavegacao[0];
+    const emp = selectedTableRecord || navigationRecords[selectedIndex] || navigationRecords[0];
     if (!emp) return;
-    const index = empresasNavegacao.findIndex((e) => e.id === emp.id);
+    const index = navigationRecords.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
-    setEditingEmp(emp);
+    setEditingRecord(emp);
     setShowForm(true);
     setViewMode("record");
   };
@@ -941,9 +942,9 @@ function ModeloBase1CadastroPageContent() {
     resolveErrorMessage,
     showForm,
     viewMode,
-    editingRecord: editingEmp,
+    editingRecord: editingRecord,
     selectorState: selectorSnapshot,
-    navigationList: empresasNavegacao,
+    navigationList: navigationRecords,
     attachmentsRecord,
     selectedTableItems,
     findRecordInList: module.findRecordInList,
@@ -951,7 +952,7 @@ function ModeloBase1CadastroPageContent() {
     removeFromSelector: removeFromSelector,
     replaceInSelector: replaceInSelector,
     setShowForm,
-    setEditingRecord: setEditingEmp,
+    setEditingRecord: setEditingRecord,
     setViewMode,
     setSelectedTableItems,
     setSelectedIndex,
@@ -978,9 +979,9 @@ function ModeloBase1CadastroPageContent() {
   const handlePrint = useCallback(() => {
     const printTitle = `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}`;
     const singleRecord =
-      showForm && editingEmp
-        ? editingEmp
-        : pinnedRecord || (selectedTableItems.length === 1 ? selectedTableEmp : null);
+      showForm && editingRecord
+        ? editingRecord
+        : pinnedRecord || (selectedTableItems.length === 1 ? selectedTableRecord : null);
 
     if (singleRecord) {
       const config = exp.getPdfExportConfig();
@@ -1010,41 +1011,41 @@ function ModeloBase1CadastroPageContent() {
 
     showInfo(MAK_PRINT_PLACEHOLDER_MESSAGE);
   }, [
-    editingEmp,
+    editingRecord,
     pinnedRecord,
-    selectedTableEmp,
+    selectedTableRecord,
     selectedTableItems.length,
     showForm,
     visibleTableData,
   ]);
 
   const handleOpenHistory = useCallback(() => {
-    if (showForm && editingEmp?.id) {
+    if (showForm && editingRecord?.id) {
       setHistoryOpen(true);
       return;
     }
-    if (selectedTableItems.length === 1 && selectedTableEmp) {
+    if (selectedTableItems.length === 1 && selectedTableRecord) {
       setHistoryOpen(true);
       return;
     }
     setHistoryOpen(true);
-  }, [editingEmp?.id, selectedTableEmp, selectedTableItems.length, showForm]);
+  }, [editingRecord?.id, selectedTableRecord, selectedTableItems.length, showForm]);
 
   const formCancel = () => {
-    if (editingEmp && !editingEmp._isDuplicate) {
+    if (editingRecord && !editingRecord._isDuplicate) {
       setFormVersion((p) => p + 1);
       setViewMode("record");
       return;
     }
-    if ((editingEmp?._isDuplicate || !editingEmp) && returnRecordAfterNew) {
-      setEditingEmp(returnRecordAfterNew);
+    if ((editingRecord?._isDuplicate || !editingRecord) && returnRecordAfterNew) {
+      setEditingRecord(returnRecordAfterNew);
       setShowForm(true);
       setViewMode("record");
       setReturnRecordAfterNew(null);
       return;
     }
     setShowForm(false);
-    setEditingEmp(null);
+    setEditingRecord(null);
     setViewMode("table");
     setSelectedTableItems([]);
     setReturnRecordAfterNew(null);
@@ -1052,11 +1053,11 @@ function ModeloBase1CadastroPageContent() {
 
   const recordCode = formBridge?.recordMeta?.codigo
     ? String(formBridge.recordMeta.codigo).padStart(6, "0")
-    : helpers.getRecordCode(editingEmp);
-  const recordTitle = helpers.getRecordTitle(editingEmp, moduleLabels, formBridge, {
+    : helpers.getRecordCode(editingRecord);
+  const recordTitle = helpers.getRecordTitle(editingRecord, moduleLabels, formBridge, {
     showForm,
-    isDuplicating: editingEmp?._isDuplicate,
-    isNew: showForm && !editingEmp?.id && !editingEmp?._isDuplicate,
+    isDuplicating: editingRecord?._isDuplicate,
+    isNew: showForm && !editingRecord?.id && !editingRecord?._isDuplicate,
   });
 
   const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
@@ -1104,7 +1105,7 @@ function ModeloBase1CadastroPageContent() {
             onSearchResultSelect={handleSearchResultSelect}
             onSearchApplyAll={handleSearchApplyAll}
             onSearchApplyFavorites={handleSearchApplyFavorites}
-            isFavoriteRecord={empFavorites.isFavorite}
+            isFavoriteRecord={recordFavorites.isFavorite}
             onToggleFilter={toggleFilterPanel}
             filterActive={hasActiveFilters}
             showFilterToggle={!showForm}
@@ -1115,21 +1116,21 @@ function ModeloBase1CadastroPageContent() {
               makPermissions.canEdit
                 ? showForm
                   ? formBridge?.onEdit
-                  : () => selectedTableEmp && handleEdit(selectedTableEmp)
+                  : () => selectedTableRecord && handleEdit(selectedTableRecord)
                 : undefined
             }
             onDelete={
               makPermissions.canDelete
                 ? showForm
-                  ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
+                  ? () => editingRecord?.id && handleRequestDelete(editingRecord.id)
                   : () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)
                 : undefined
             }
             onDuplicate={
               makPermissions.canEdit
                 ? showForm
-                  ? () => editingEmp && handleDuplicate(editingEmp)
-                  : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
+                  ? () => editingRecord && handleDuplicate(editingRecord)
+                  : () => selectedTableRecord && handleDuplicate(selectedTableRecord)
                 : undefined
             }
             onAttach={() => {
@@ -1137,8 +1138,8 @@ function ModeloBase1CadastroPageContent() {
                 setAttachmentsOpen(true);
                 return;
               }
-              if (selectedTableEmp) {
-                setAttachmentsRecord(selectedTableEmp);
+              if (selectedTableRecord) {
+                setAttachmentsRecord(selectedTableRecord);
                 setAttachmentsOpen(true);
               }
             }}
@@ -1168,10 +1169,10 @@ function ModeloBase1CadastroPageContent() {
                 onLast={() => navigateRecord("last")}
                 disabled={saveCycle.isSaving}
                 interactionLocked={actionBarVisibility.secondaryToolsLocked}
-                recordId={editingEmp?.id ?? null}
-                isFavorite={editingEmp?.id ? empFavorites.isFavorite(editingEmp.id) : false}
+                recordId={editingRecord?.id ?? null}
+                isFavorite={editingRecord?.id ? recordFavorites.isFavorite(editingRecord.id) : false}
                 onToggleFavorite={() => {
-                  if (editingEmp?.id) empFavorites.toggleFavorite(editingEmp.id);
+                  if (editingRecord?.id) recordFavorites.toggleFavorite(editingRecord.id);
                 }}
               />
             </div>
@@ -1185,7 +1186,7 @@ function ModeloBase1CadastroPageContent() {
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
                 filterFields={filterFields}
-                empresas={empresasFiltradasPainel}
+                records={filteredPanelRecords}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
                 onFilterChange={handleFilterChange}
@@ -1208,7 +1209,7 @@ function ModeloBase1CadastroPageContent() {
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
                 filterFields={filterFields}
-                empresas={empresasFiltradasPainel}
+                records={filteredPanelRecords}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
                 onFilterChange={handleFilterChange}
@@ -1234,10 +1235,10 @@ function ModeloBase1CadastroPageContent() {
               >
                 <FormPanel
                   formProps={{
-                    initialData: editingEmp,
-                    recordKey: editingEmp?.id ?? (editingEmp?._isDuplicate ? "duplicate" : "new"),
+                    initialData: editingRecord,
+                    recordKey: editingRecord?.id ?? (editingRecord?._isDuplicate ? "duplicate" : "new"),
                     resetSeed: formVersion,
-                    isEditing: !!editingEmp,
+                    isEditing: !!editingRecord,
                     onSubmit: handleSubmit,
                     onCancel: formCancel,
                     hideToolbar: true,
@@ -1248,8 +1249,8 @@ function ModeloBase1CadastroPageContent() {
                     onPrevious: () => navigateRecord("prev"),
                     onNext: () => navigateRecord("next"),
                     onLast: () => navigateRecord("last"),
-                    onDelete: () => editingEmp?.id && handleRequestDelete(editingEmp.id),
-                    onDuplicate: () => editingEmp && handleDuplicate(editingEmp),
+                    onDelete: () => editingRecord?.id && handleRequestDelete(editingRecord.id),
+                    onDuplicate: () => editingRecord && handleDuplicate(editingRecord),
                     actionsLocked: saveCycle.isSaving,
                   }}
                 />
@@ -1265,10 +1266,10 @@ function ModeloBase1CadastroPageContent() {
                   <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
                     <SearchPanel
                       searchProps={{
-                        empresas: empresasFiltradasPainel,
-                        total: totalEmpresas,
-                        isLoading: empresasLoading,
-                        isFetching: empresasFetching,
+                        records: filteredPanelRecords,
+                        total: totalRecords,
+                        isLoading: recordsLoading,
+                        isFetching: recordsFetching,
                         page: queryPage,
                         pageSize: queryPageSize,
                         onPageChange: handleServerPageChange,
@@ -1281,13 +1282,13 @@ function ModeloBase1CadastroPageContent() {
                         cardsDetailFields: cardsVisFields.detailFields,
                         cardsPerRow: effectiveCardsPerRow,
                         fieldsPerRow: effectiveFieldsPerRow,
-                        isFavoriteRecord: empFavorites.isFavorite,
-                        onToggleFavorite: empFavorites.toggleFavorite,
+                        isFavoriteRecord: recordFavorites.isFavorite,
+                        onToggleFavorite: recordFavorites.toggleFavorite,
                         mgPrototype: true,
                         infiniteMode: true,
-                        hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
-                        onLoadMoreRows: handleLoadMoreEmpresas,
-                        isLoadingMoreRows: isFetchingNextEmpresasPage,
+                        hasMoreRows: hasNextRecordsPage && canLoadMoreRows,
+                        onLoadMoreRows: handleLoadMoreRecords,
+                        isLoadingMoreRows: isFetchingNextRecordsPage,
                         loadedRowsLimitReached,
                         maxLoadedRows,
                         loadBatchSize,
@@ -1309,9 +1310,9 @@ function ModeloBase1CadastroPageContent() {
                   <TablePanel
                     tableProps={{
                       key: config.tableKey ?? `tbl-${MAK_MODULE_ID}`,
-                      empresas: empresasFiltradasPainel,
-                      isLoadingEmpresas: empresasLoading,
-                      isFetchingEmpresas: empresasFetching,
+                      records: filteredPanelRecords,
+                      isLoadingRecords: recordsLoading,
+                      isFetchingRecords: recordsFetching,
                       onEdit: handleEdit,
                       showConfigColunas,
                       setShowConfigColunas,
@@ -1320,12 +1321,12 @@ function ModeloBase1CadastroPageContent() {
                       selectedIds: selectedTableItems,
                       onSelectionChange: handleTableSelectionChange,
                       onVisibleDataChange: setVisibleTableData,
-                      onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                      onFilteredRecordsChange: handleFilteredRecordsChange,
                       onServerColumnFiltersChange: handleColumnFiltersChange,
                       externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
                       serverPage: queryPage,
                       serverPageSize: queryPageSize,
-                      serverTotal: totalEmpresas,
+                      serverTotal: totalRecords,
                       onServerPageChange: handleServerPageChange,
                       onServerPageSizeChange: handleServerPageSizeChange,
                       serverSearchTerm: searchTerm,
@@ -1339,9 +1340,9 @@ function ModeloBase1CadastroPageContent() {
                       moduleTitle: moduleLabels.title,
                       mgPrototype: true,
                       infiniteMode: true,
-                      hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
-                      onLoadMoreRows: handleLoadMoreEmpresas,
-                      isLoadingMoreRows: isFetchingNextEmpresasPage,
+                      hasMoreRows: hasNextRecordsPage && canLoadMoreRows,
+                      onLoadMoreRows: handleLoadMoreRecords,
+                      isLoadingMoreRows: isFetchingNextRecordsPage,
                       loadedRowsLimitReached,
                       maxLoadedRows,
                       loadBatchSize,
@@ -1401,15 +1402,15 @@ function ModeloBase1CadastroPageContent() {
           },
           entityName: moduleDefinition.entityName,
           recordId:
-            showForm && editingEmp?.id && !isPendingRecordId(editingEmp.id)
-              ? editingEmp.id
+            showForm && editingRecord?.id && !isPendingRecordId(editingRecord.id)
+              ? editingRecord.id
               : !showForm
                 ? attachmentsRecord?.id
                 : undefined,
           title:
             (showForm
-              ? editingEmp?.razao_social || editingEmp?.codempresa
-              : attachmentsRecord?.razao_social || attachmentsRecord?.codempresa) ||
+              ? helpers.getAttachmentTitle(editingRecord)
+              : helpers.getAttachmentTitle(attachmentsRecord)) ||
             moduleLabels.singular,
           pendingAnexos: pendingAttachments,
           onPendingChange: setPendingAttachments,
@@ -1440,13 +1441,21 @@ function ModeloBase1CadastroPageContent() {
 }
 
 /** Motor ModeloBase1 — cadastro enterprise reutilizável. */
+function ModeloBase1CadastroPageRouter() {
+  const config = useModeloBase1Config();
+  if (config.listMode === "server") {
+    return <ModeloBase1ServerCadastroPageContent />;
+  }
+  return <ModeloBase1CadastroPageContent />;
+}
+
 export default function ModeloBase1CadastroPage({ config }) {
   if (!config) {
     throw new Error("ModeloBase1CadastroPage: prop config é obrigatória");
   }
   return (
     <ModeloBase1Provider config={config}>
-      <ModeloBase1CadastroPageContent />
+      <ModeloBase1CadastroPageRouter />
     </ModeloBase1Provider>
   );
 }

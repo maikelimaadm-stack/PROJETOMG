@@ -12,6 +12,12 @@
     "pageFile": "modules/marcas/pages/PAGMAR.jsx"
   },
   {
+    "moduleId": "produtos",
+    "routePath": "/CadastroProdutos",
+    "menuLabel": "Produtos",
+    "pageFile": "modules/produtos/pages/PAGPRO.jsx"
+  },
+  {
     "moduleId": "cadcps",
     "routePath": "/CadastroCamposPersonalizados",
     "menuLabel": "Campos Personalizados",
