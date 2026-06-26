@@ -4,7 +4,8 @@ import {
   buildGenericMakColumnFilters,
   mergeGenericMakListFilters,
 } from "@/framework/mak/filters/buildGenericMakColumnFilters.js";
-import MakGenericSearchPanel from "@/framework/mak/search/MakGenericSearchPanel.jsx";
+import MakCadastroSearchPanel from "@/ModeloBase1/search/MakCadastroSearchPanel.jsx";
+import MakLoadBatchControls from "@/ModeloBase1/components/MakLoadBatchControls.jsx";
 import { marcasModuleDefinition } from "@/modules/marcas/config/moduleDefinition.js";
 import { marcasModuleMetadata } from "@/modules/marcas/config/marcasModuleMetadata.js";
 import { marcasPreferencesAdapter } from "@/modules/marcas/config/marcasPreferencesAdapter.js";
@@ -42,7 +43,8 @@ export const marcasMakModule = defineMakModule(
     repository: marcaRepository,
     cadastroConfig: marcasCadastroConfig,
     components: {
-      SearchPanel: MakGenericSearchPanel,
+      LoadBatchControls: MakLoadBatchControls,
+      SearchPanel: MakCadastroSearchPanel,
     },
   },
   marcasPreferencesAdapter

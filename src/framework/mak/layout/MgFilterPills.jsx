@@ -254,12 +254,13 @@ export default function MgFilterPills({
   serverSearchTerm = "",
   selectorOptionsMode = FILTER_OPTIONS_MODE_CASCADE,
 }) {
+  const safeFilterFields = Array.isArray(filterFields) ? filterFields : [];
   const useScrollRail = !className.includes("mg-filter-pills--drawer");
   const hasActiveFilters = useMemo(() => {
     if (hasActiveFiltersProp != null) return Boolean(hasActiveFiltersProp);
-    return filterFields.some((field) => isErpFilterActive(appliedValues[field.key]));
-  }, [appliedValues, filterFields, hasActiveFiltersProp]);
-  const shouldOpenInitialRail = !useScrollRail || hasActiveFilters || filterFields.length > 0;
+    return safeFilterFields.some((field) => isErpFilterActive(appliedValues[field.key]));
+  }, [appliedValues, safeFilterFields, hasActiveFiltersProp]);
+  const shouldOpenInitialRail = !useScrollRail || hasActiveFilters || safeFilterFields.length > 0;
   const [filtersExpanded, setFiltersExpanded] = useState(() => shouldOpenInitialRail);
   const [filtersOpen, setFiltersOpen] = useState(() => shouldOpenInitialRail);
   const filterAnimTimeoutRef = useRef(null);
@@ -319,10 +320,10 @@ export default function MgFilterPills({
 
   useEffect(() => {
     if (!useScrollRail) return;
-    if ((hasActiveFilters || filterFields.length > 0) && !filtersExpandedRef.current && !userToggledRailRef.current) {
+    if ((hasActiveFilters || safeFilterFields.length > 0) && !filtersExpandedRef.current && !userToggledRailRef.current) {
       expandFilterRail();
     }
-  }, [expandFilterRail, filterFields.length, hasActiveFilters, useScrollRail]);
+  }, [expandFilterRail, safeFilterFields.length, hasActiveFilters, useScrollRail]);
 
   const {
     viewportRef,
@@ -344,11 +345,11 @@ export default function MgFilterPills({
 
   const pills = (
     <>
-      {filterFields.map((field) => (
+      {safeFilterFields.map((field) => (
         <PanelFilterPill
           key={field.key}
           field={field}
-          filterFields={filterFields}
+          filterFields={safeFilterFields}
           values={values}
           appliedValues={appliedValues}
           empresas={empresas}

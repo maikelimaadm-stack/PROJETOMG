@@ -140,13 +140,15 @@ gate(
     : `faltando:${classCompare.onlyLeft.join(",")} extras:${classCompare.onlyRight.join(",")}`
 );
 
-// G75 — Paridade CSS 100%
-const noMb1VisualFork =
-  !fs.existsSync(`${ROOT}/src/ModeloBase1/search/ModeloBase1RichSearchPanel.jsx`) &&
-  !fs.existsSync(`${ROOT}/src/ModeloBase1/search/modeloBase1SearchView.css`) &&
-  !fs.existsSync(`${ROOT}/src/ModeloBase1/cards/MakCardsVirtualGrid.jsx`);
-const scopeClassOk = layoutConfig.includes('scopeCssClass: "cadastro-emp-scope mg-empresas-scope"');
-gate("G75 — Paridade CSS 100%", noMb1VisualFork && scopeClassOk);
+// G75 — Paridade CSS 100% (cards/search promovidos para ModeloBase1)
+const promotedVisualAssets =
+  fs.existsSync(`${ROOT}/src/ModeloBase1/search/MakCadastroSearchPanel.jsx`) &&
+  fs.existsSync(`${ROOT}/src/ModeloBase1/cards/MgCardsVirtualGrid.jsx`) &&
+  fs.existsSync(`${ROOT}/src/ModeloBase1/search/makCadastroSearchPanel.css`);
+const scopeClassOk =
+  layoutConfig.includes("buildModeloBase1ScopeCssClass") &&
+  read(`${ROOT}/src/ModeloBase1/layout/modeloBase1ScopeCss.js`).includes("cadastro-emp-scope mg-empresas-scope");
+gate("G75 — Paridade CSS 100%", promotedVisualAssets && scopeClassOk);
 
 // G76 — Paridade de Layout 100%
 const searchKeysOld = extractObjectKeys(legacyNorm, "searchProps");

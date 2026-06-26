@@ -1,4 +1,4 @@
-/** Hooks genéricos de cadastro — ModeloBase1. */
+/** Hooks genéricos de cadastro — promovidos e generalizados a partir dos hooks master Empresas (useEmp*). */
 export { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 export { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 export * from "@/ModeloBase1/actions/index.js";
