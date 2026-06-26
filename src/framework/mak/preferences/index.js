@@ -23,3 +23,11 @@ export {
   MakPreferencesBootstrapProvider,
   useMakPreferencesBootstrapState,
 } from "./PreferencesBootstrapProvider.jsx";
+
+export {
+  registerMakPreferencesBootstrapModule,
+  getMakPreferencesBootstrapHook,
+  listMakPreferencesBootstrapModuleIds,
+} from "./bootstrapRegistry.js";
+
+export { useMakPreferencesBootstrapAggregator } from "./useMakPreferencesBootstrapAggregator.js";
