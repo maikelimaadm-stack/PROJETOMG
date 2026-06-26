@@ -9,7 +9,6 @@ import {
   saveFilterFieldsLayout,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
-import { FILTER_MAX_VISIBLE_KEY } from "@/modules/empresas/components/tblEmp.constants";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 import { shouldRefreshListagemHydrate } from "@/modules/empresas/preferences/empListagemSectionCacheEvents";
@@ -20,7 +19,6 @@ const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) 
   if (shouldRefreshListagemHydrate(normalizedReason)) return true;
   if (
     normalizedReason.includes("filter-layout") ||
-    normalizedReason.includes("filter-max") ||
     normalizedReason.includes("filter-operators") ||
     normalizedReason.includes("dropdown-fields") ||
     normalizedReason.includes("favorites")
@@ -29,13 +27,11 @@ const shouldRefreshFilterLayoutByCacheEvent = ({ reason = "", keys = [] } = {}) 
   }
   if (normalizedReason === "storage") {
     const keyList = Array.isArray(keys) ? keys : [keys];
-    return keyList.some((key) => {
-      const normalizedKey = String(key || "").toLowerCase();
-      return (
-        normalizedKey.includes(EMP_FILTER_FIELDS_LAYOUT_KEY.toLowerCase()) ||
-        normalizedKey.includes(FILTER_MAX_VISIBLE_KEY.toLowerCase())
-      );
-    });
+    return keyList.some((key) =>
+      String(key || "")
+        .toLowerCase()
+        .includes(EMP_FILTER_FIELDS_LAYOUT_KEY.toLowerCase())
+    );
   }
   return false;
 };
@@ -85,16 +81,15 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   }, [catalogFields, layout]);
 
   const saveLayout = useCallback(
-    ({ visiveis, ordem, maxVisible }) => {
+    ({ visiveis, ordem }) => {
       const nextLayout = {
         visiveis: mergeSavedVisibleFilterFields(visiveis, catalogKeys),
         ordem: mergeSavedFilterFieldOrder(ordem, catalogKeys),
-        maxVisible: maxVisible ?? layout.maxVisible,
       };
       setLayout(nextLayout);
       saveFilterFieldsLayout(nextLayout);
     },
-    [catalogKeys, layout.maxVisible]
+    [catalogKeys]
   );
 
   const getRestoreDefaults = useCallback(
@@ -105,7 +100,6 @@ export function useEmpFilterFieldsLayout(catalogFields = []) {
   return {
     filterFields,
     layout,
-    maxVisibleFields: layout.maxVisible,
     saveLayout,
     getRestoreDefaults,
     catalogFields,

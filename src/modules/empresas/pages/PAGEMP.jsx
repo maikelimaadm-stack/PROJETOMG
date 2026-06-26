@@ -276,7 +276,6 @@ export default function PAGEMP() {
   const {
     filterFields,
     layout: filterFieldsLayout,
-    maxVisibleFields,
     saveLayout: saveFilterFieldsLayout,
     getRestoreDefaults: getRestoreFilterFieldsLayout,
     catalogFields: filterFieldsCatalog,
@@ -1844,7 +1843,6 @@ export default function PAGEMP() {
         camposDisponiveis={filterFieldsConfigCatalog}
         camposVisiveis={filterFieldsLayout.visiveis}
         camposOrdem={filterFieldsLayout.ordem}
-        maxVisibleFields={maxVisibleFields}
         onChange={saveFilterFieldsLayout}
         getRestoreDefaults={getRestoreFilterFieldsLayout}
       />

@@ -13,13 +13,11 @@ export default function EmpConfiguracaoFiltrosDialog({
   camposDisponiveis = [],
   camposVisiveis = [],
   camposOrdem = [],
-  maxVisibleFields = 5,
   onChange,
   getRestoreDefaults,
 }) {
   const [draftVisiveis, setDraftVisiveis] = useState([]);
   const [draftOrdem, setDraftOrdem] = useState([]);
-  const [draftMaxVisible, setDraftMaxVisible] = useState(maxVisibleFields);
   const [selectedAvailableIds, setSelectedAvailableIds] = useState([]);
   const [selectedUsedIds, setSelectedUsedIds] = useState([]);
   const [search, setSearch] = useState("");
@@ -30,14 +28,12 @@ export default function EmpConfiguracaoFiltrosDialog({
   const committedRef = useRef({
     visiveis: camposVisiveis,
     ordem: camposOrdem,
-    maxVisible: maxVisibleFields,
   });
 
   const resetDraftFromCommitted = () => {
     const committed = committedRef.current;
     setDraftVisiveis(committed.visiveis);
     setDraftOrdem(committed.ordem);
-    setDraftMaxVisible(committed.maxVisible);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
     setSearch("");
@@ -51,12 +47,11 @@ export default function EmpConfiguracaoFiltrosDialog({
       committedRef.current = {
         visiveis: camposVisiveis,
         ordem: camposOrdem,
-        maxVisible: maxVisibleFields,
       };
       resetDraftFromCommitted();
     }
     wasOpenRef.current = open;
-  }, [open, camposVisiveis, camposOrdem, maxVisibleFields]);
+  }, [open, camposVisiveis, camposOrdem]);
 
   const orderedFields = useMemo(() => {
     const byId = new Map(camposDisponiveis.map((field) => [field.id, field]));
@@ -75,18 +70,17 @@ export default function EmpConfiguracaoFiltrosDialog({
     String(field.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const syncDraftState = (nextVisible, nextUsedOrder, nextMaxVisible = draftMaxVisible) => {
+  const syncDraftState = (nextVisible, nextUsedOrder) => {
     const remainingIds = orderedFields
       .map((field) => field.id)
       .filter((id) => !nextUsedOrder.includes(id));
     const nextOrdem = [...nextUsedOrder, ...remainingIds];
     setDraftVisiveis(nextVisible);
     setDraftOrdem(nextOrdem);
-    setDraftMaxVisible(nextMaxVisible);
   };
 
-  const updateDraftLayout = (nextVisible, nextUsedOrder, nextMaxVisible = draftMaxVisible) => {
-    syncDraftState(nextVisible, nextUsedOrder, nextMaxVisible);
+  const updateDraftLayout = (nextVisible, nextUsedOrder) => {
+    syncDraftState(nextVisible, nextUsedOrder);
   };
 
   const selectAvailable = (fieldId, event) => {
@@ -177,7 +171,7 @@ export default function EmpConfiguracaoFiltrosDialog({
   const handleRestoreDefault = () => {
     const defaults = getRestoreDefaults?.();
     if (!defaults) return;
-    syncDraftState(defaults.visiveis ?? [], defaults.ordem ?? [], defaults.maxVisible ?? 5);
+    syncDraftState(defaults.visiveis ?? [], defaults.ordem ?? []);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
   };
@@ -186,12 +180,10 @@ export default function EmpConfiguracaoFiltrosDialog({
     onChange?.({
       visiveis: draftVisiveis,
       ordem: draftOrdem,
-      maxVisible: draftMaxVisible,
     });
     committedRef.current = {
       visiveis: draftVisiveis,
       ordem: draftOrdem,
-      maxVisible: draftMaxVisible,
     };
     onOpenChange(false);
   };
@@ -225,23 +217,6 @@ export default function EmpConfiguracaoFiltrosDialog({
         </div>
       }
     >
-      <div className="mb-3 flex items-center gap-3 px-1">
-        <label className="text-sm text-slate-600" htmlFor="emp-filter-max-visible">
-          Máximo de filtros rápidos visíveis
-        </label>
-        <input
-          id="emp-filter-max-visible"
-          type="number"
-          min={1}
-          max={12}
-          value={draftMaxVisible}
-          onChange={(event) => {
-            const nextMax = Number(event.target.value) || 5;
-            updateDraftLayout(draftVisiveis, usedFields.map((field) => field.id), nextMax);
-          }}
-          className="w-20 rounded-md border border-slate-200 px-2 py-1 text-sm"
-        />
-      </div>
       <EmpConfigTransferPanel
         availableLabel="Campos disponíveis"
         usedLabel="Campos em uso"
