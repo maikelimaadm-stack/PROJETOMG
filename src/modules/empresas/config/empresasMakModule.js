@@ -13,8 +13,8 @@ import {
   EMPRESAS_LIST_QUERY_KEY,
   patchEmpresasCache,
 } from "@/modules/empresas/data/empresasListCache";
-import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
-import SRCHEMP from "@/modules/empresas/components/SRCHEMP";
+import MakCadastroSearchPanel from "@/ModeloBase1/search/MakCadastroSearchPanel.jsx";
+import MakLoadBatchControls from "@/ModeloBase1/components/MakLoadBatchControls.jsx";
 import empRepository from "@/modules/empresas/repositories/empRepository";
 import { empresasCadastroConfig } from "@/modules/empresas/config/empresasCadastroConfig";
 
@@ -33,8 +33,8 @@ export const empresasMakModule = defineMakModule(
     repository: empRepository,
     cadastroConfig: empresasCadastroConfig,
     components: {
-      LoadBatchControls: EmpLoadBatchControls,
-      SearchPanel: SRCHEMP,
+      LoadBatchControls: MakLoadBatchControls,
+      SearchPanel: MakCadastroSearchPanel,
     },
   },
   empresasPreferencesAdapter,

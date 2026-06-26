@@ -29,6 +29,8 @@ const toolbarConfig = read("src/modules/empresas/config/modeloBase1/empresasTool
 const panelSections = read("src/ModeloBase1/render/ModeloBase1PanelSections.jsx");
 const pagempSections = read("src/modules/empresas/pages/PAGEMP.sections.jsx");
 const empresasMakModule = read("src/modules/empresas/config/empresasMakModule.js");
+const marcasMakModule = read("src/modules/marcas/config/marcasMakModule.js");
+const produtosMakModule = read("src/modules/produtos/config/produtosMakModule.js");
 const layoutConfig = read("src/modules/empresas/config/modeloBase1/empresasLayoutConfig.js");
 
 // G86 — Motor: extraído do PAGEMP master (não reimplementado do zero)
@@ -55,20 +57,21 @@ const toolbarPromoted =
   !exists("src/ModeloBase1/toolbar/ModeloBase1ActionBar.jsx");
 gate("G87 — Toolbar promovida (MgActionBar)", toolbarPromoted);
 
-// G88 — SearchPanel master: SRCHEMP via MakModuleProvider (não MakGenericSearchPanel)
+// G88 — SearchPanel master: MakCadastroSearchPanel promovido (não MakGenericSearchPanel)
 const searchMaster =
-  empresasMakModule.includes("SearchPanel: SRCHEMP") &&
-  motor.includes("<MakModuleProvider module={module}>") &&
-  !config.includes("MakGenericSearchPanel") &&
-  !toolbarConfig.includes("MakGenericSearchPanel");
-gate("G88 — SearchPanel master (SRCHEMP)", searchMaster);
+  empresasMakModule.includes("MakCadastroSearchPanel") &&
+  marcasMakModule.includes("MakCadastroSearchPanel") &&
+  produtosMakModule.includes("MakCadastroSearchPanel") &&
+  !marcasMakModule.includes("MakGenericSearchPanel") &&
+  !produtosMakModule.includes("MakGenericSearchPanel") &&
+  motor.includes("<MakModuleProvider module={module}>");
+gate("G88 — SearchPanel master (MakCadastroSearchPanel)", searchMaster);
 
-// G89 — Cards: sem fork visual em ModeloBase1 (MgCardsVirtualGrid permanece no master Empresas)
-const noCardsFork =
-  !exists("src/ModeloBase1/cards/MakCardsVirtualGrid.jsx") &&
-  !exists("src/ModeloBase1/search/modeloBase1SearchView.css") &&
-  empresasMakModule.includes("SRCHEMP");
-gate("G89 — Cards sem reimplementação em ModeloBase1", noCardsFork);
+// G89 — Cards promovidos para ModeloBase1 (MgCardsVirtualGrid)
+const cardsPromoted =
+  exists("src/ModeloBase1/cards/MgCardsVirtualGrid.jsx") &&
+  exists("src/ModeloBase1/search/MakCadastroSearchPanel.jsx");
+gate("G89 — Cards promovidos (MgCardsVirtualGrid)", cardsPromoted);
 
 // G90 — Dock: MakContextPanel promovido do framework
 const dockPromoted =
@@ -113,10 +116,12 @@ const hooksMaster =
   !config.includes("useModeloBase1InfiniteListData");
 gate("G95 — Hooks master Empresas (não useModeloBase1* reescritos)", hooksMaster);
 
-// G96 — Empresas não usa motor server reimplementado
-const noServerMotorForEmpresas =
-  layoutConfig.includes('listMode: "infinite"') && !config.includes('listMode: "server"');
-gate("G96 — Empresas evita ModeloBase1ServerCadastroPage", noServerMotorForEmpresas);
+// G96 — Motor único infinite (ModeloBase1ServerCadastroPage eliminado)
+const singleMotor =
+  !exists("src/ModeloBase1/render/ModeloBase1ServerCadastroPage.jsx") &&
+  !motor.includes("ModeloBase1ServerCadastroPage") &&
+  layoutConfig.includes('listMode: "infinite"');
+gate("G96 — Motor único promovido (sem server fork)", singleMotor);
 
 // G97 — Proibido fork de SearchPanel genérico no caminho Empresas
 const noGenericSearchInEmpPath =
@@ -124,28 +129,26 @@ const noGenericSearchInEmpPath =
   !config.includes("MakGenericSearchPanel");
 gate("G97 — Sem MakGenericSearchPanel no caminho Empresas", noGenericSearchInEmpPath);
 
-// G98 — Inventário de reimplementações globais (devem ser eliminadas; gate informativo + fail)
+// G98 — Inventário de reimplementações globais restantes
 const globalReimplementations = [];
-if (exists("src/ModeloBase1/render/ModeloBase1ServerCadastroPage.jsx")) {
-  globalReimplementations.push("ModeloBase1ServerCadastroPage");
-}
 if (exists("src/framework/mak/search/MakGenericSearchPanel.jsx")) {
-  globalReimplementations.push("MakGenericSearchPanel");
+  const usedByModeloBase1Modules =
+    marcasMakModule.includes("MakGenericSearchPanel") ||
+    produtosMakModule.includes("MakGenericSearchPanel") ||
+    empresasMakModule.includes("MakGenericSearchPanel");
+  if (usedByModeloBase1Modules) globalReimplementations.push("MakGenericSearchPanel-in-use");
 }
-if (exists("src/ModeloBase1/hooks/useModeloBase1Favorites.js")) {
-  globalReimplementations.push("useModeloBase1Favorites");
-}
-// Empresas path is clean; global reimplementations remain for other modules
-const empresasPathClean = results.every((r) => r.ok);
+
+const allPathClean = results.every((r) => r.ok) && globalReimplementations.length === 0;
 gate(
-  "G98 — Caminho Empresas livre de reimplementação",
-  empresasPathClean,
-  empresasPathClean ? "" : "corrigir gates G86-G97"
+  "G98 — Todos os módulos ModeloBase1 livres de reimplementação",
+  allPathClean,
+  globalReimplementations.length ? globalReimplementations.join(", ") : ""
 );
 
 // G99 — Resposta obrigatória: promoção direta no cadastro Empresas
 const promotionAnswer =
-  empresasPathClean &&
+  allPathClean &&
   pagemp.trim().split("\n").length < 20 &&
   config.includes("defineModeloBase1Config") &&
   config.includes("empresasToolbarComponents");

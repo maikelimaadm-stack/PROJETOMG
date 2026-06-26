@@ -38,7 +38,6 @@ import { syncColumnsIntoPanelFilters, useMakListFilters } from "@/ModeloBase1/fi
 import { useMakSearchHandlers, useMakRecordSubmit, useMakRecordDelete, useMakRecordExport } from "@/ModeloBase1/actions";
 import { ModeloBase1Provider, useModeloBase1Config } from "@/ModeloBase1/config";
 import { MakModuleProvider } from "@/framework/mak/runtime";
-import ModeloBase1ServerCadastroPageContent from "./ModeloBase1ServerCadastroPage.jsx";
 
 const DROPDOWN_PAGE_SIZE = 30;
 function ModeloBase1CadastroPageContent() {
@@ -1368,6 +1367,7 @@ function ModeloBase1CadastroPageContent() {
         disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
       />
 
+      {FilterFieldsConfigDialog ? (
       <FilterFieldsConfigDialog
         open={showConfigFiltros}
         onOpenChange={setShowConfigFiltros}
@@ -1378,7 +1378,9 @@ function ModeloBase1CadastroPageContent() {
         onChange={saveFilterFieldsLayout}
         getRestoreDefaults={getRestoreFilterFieldsLayout}
       />
+      ) : null}
 
+      {Dialogs ? (
       <Dialogs
         exportPdfProps={{
           open: showConfigPdf,
@@ -1431,6 +1433,7 @@ function ModeloBase1CadastroPageContent() {
           onConfirm: handleConfirmDelete,
         }}
       />
+      ) : null}
         <MakMasterHistory
           open={historyOpen}
           onOpenChange={setHistoryOpen}
@@ -1443,22 +1446,14 @@ function ModeloBase1CadastroPageContent() {
   );
 }
 
-/** Motor ModeloBase1 — cadastro enterprise reutilizável. */
-function ModeloBase1CadastroPageRouter() {
-  const config = useModeloBase1Config();
-  if (config.listMode === "server") {
-    return <ModeloBase1ServerCadastroPageContent />;
-  }
-  return <ModeloBase1CadastroPageContent />;
-}
-
+/** Motor ModeloBase1 — cadastro enterprise reutilizável (motor único infinite). */
 export default function ModeloBase1CadastroPage({ config }) {
   if (!config) {
     throw new Error("ModeloBase1CadastroPage: prop config é obrigatória");
   }
   return (
     <ModeloBase1Provider config={config}>
-      <ModeloBase1CadastroPageRouter />
+      <ModeloBase1CadastroPageContent />
     </ModeloBase1Provider>
   );
 }
