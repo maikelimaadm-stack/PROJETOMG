@@ -89,7 +89,6 @@ import { stableJsonEqual, stableStringify } from "@/shared/utils/stableStringify
 import {
   buildColumnSizingModeFromAutoFit,
   mergeColumnSizingMode,
-  mergeExpandedCatalogIntoTableState,
   readEmpTablePreferencesSnapshot,
 } from "@/modules/empresas/preferences/empTablePreferencesHydration";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
@@ -476,26 +475,16 @@ export default function TBLEMP({
     catalogSignatureRef.current = colunasCatalogSignature;
 
     if (catalogExpanded && !isEmpPreferencesSectionDirty("table")) {
-      const merged = mergeExpandedCatalogIntoTableState(
-        {
-          colunasOrdem: colunasOrdemRef.current,
-          colunasVisiveis: colunasVisiveisRef.current,
-          columnWidths: columnWidthsRef.current,
-        },
-        colunasDisponiveisRef.current,
-        previousSignature
-      );
-      if (merged) {
-        setColunasOrdem((current) =>
-          haveSameIds(current, merged.colunasOrdem) ? current : merged.colunasOrdem
-        );
-        setColunasVisiveis((current) =>
-          haveSameIds(current, merged.colunasVisiveis) ? current : merged.colunasVisiveis
-        );
-        setColumnWidths((current) =>
-          stableJsonEqual(current || {}, merged.columnWidths || {}) ? current : merged.columnWidths
-        );
-      }
+      markEmpPreferencesPerf("PREF_REMOTE_APPLY_ATTEMPT", {
+        section: "table",
+        source: "catalog-expand",
+      });
+      applyTablePreferencesFromCache(colunasDisponiveisRef.current);
+      markEmpPreferencesPerf("PREF_REMOTE_APPLY_EFFECTIVE", {
+        section: "table",
+        source: "catalog-expand",
+        changed: true,
+      });
       return;
     }
 
@@ -534,18 +523,29 @@ export default function TBLEMP({
     const unsubscribeCache = subscribeEmpPreferencesCache((detail) => {
       const reason = detail?.reason;
       const normalized = String(reason || "").toLowerCase();
+      if (isEmpPreferencesSectionDirty("table")) {
+        if (
+          normalized.includes("listagem:hydrate") ||
+          normalized.includes("remote-sync") ||
+          normalized.includes("remote-tab") ||
+          normalized.includes("bootstrap")
+        ) {
+          return;
+        }
+      }
+      if (
+        normalized.includes("listagem:table-") &&
+        !normalized.includes("temp-filters")
+      ) {
+        bumpVersion();
+        return;
+      }
       if (
         !normalized.includes("storage") &&
         !normalized.includes("bootstrap") &&
         !normalized.includes("listagem:hydrate") &&
         !normalized.includes("remote-tab") &&
         !normalized.includes("remote-sync")
-      ) {
-        return;
-      }
-      if (
-        (normalized.includes("listagem:hydrate") || normalized.includes("remote-sync")) &&
-        isEmpPreferencesSectionDirty("table")
       ) {
         return;
       }
@@ -1634,10 +1634,22 @@ export default function TBLEMP({
     });
   }, []);
 
-  const togglePinColumnLeft = useCallback((columnIndex) => {
-    setFrozenColumnCount((previous) => (previous === columnIndex + 1 ? 0 : columnIndex + 1));
-    closeColumnOverlays();
-  }, [closeColumnOverlays]);
+  const togglePinColumnLeft = useCallback(
+    (columnIndex) => {
+      setFrozenColumnCount((previous) => {
+        const next = previous === columnIndex + 1 ? 0 : columnIndex + 1;
+        const clamped = Math.max(0, Math.min(next, colunasVisiveisRef.current.length));
+        if (preferencesReady && tableHydratedRef.current && !suppressPersistenceRef.current) {
+          writeEmpPreferencesText(FROZEN_KEY, String(clamped), {
+            reason: "listagem:table-frozen",
+          });
+        }
+        return clamped;
+      });
+      closeColumnOverlays();
+    },
+    [closeColumnOverlays, preferencesReady]
+  );
 
   const buildColumnMenuItems = (col, colIndex) => {
     const isFrozenAnchorColumn = frozenColumnCount > 0 && colIndex === frozenColumnCount - 1;
