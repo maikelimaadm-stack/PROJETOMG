@@ -30,20 +30,21 @@ import {
   writeEmpPreferencesText,
 } from "@/modules/empresas/config/modeloBase1/empresasPreferenciasConfig.js";
 import {
-  useEmpSearchDropdownFields,
-  useEmpFavorites,
-  useEmpresasInfiniteData,
-} from "@/modules/empresas/config/modeloBase1/empresasEventosConfig.js";
+  useModeloBase1InfiniteListData,
+  useModeloBase1Favorites,
+  useModeloBase1ViewModePreference,
+  useModeloBase1SearchDropdownFields,
+  useModeloBase1CardsVisFields,
+  useModeloBase1FilterFieldsLayout,
+  useModeloBase1CustomFields,
+} from "@/ModeloBase1/hooks";
 import {
-  useEmpViewModePreference,
-  useEmpCardsVisFields,
-  getFieldsPerRowForLayout,
-} from "@/modules/empresas/config/modeloBase1/empresasLayoutConfig.js";
-import {
-  useEmpFilterFieldsLayout,
-  useEmpCamposPersonalizados,
-} from "@/modules/empresas/config/modeloBase1/empresasFiltrosConfig.js";
-import { empresasDataConfig, empresasPreferencesAdapter } from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
+  empresasDataConfig,
+  empresasPreferencesAdapter,
+  empresasSearchViewConfig,
+  empresasCustomFieldsConfig,
+} from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
+import { getFieldsPerRowForLayout } from "@/modules/empresas/components/empSearchView.constants";
 
 const readInitialQuerySort = () => {
   const storedSort = readEmpPreferencesJson(EMP_SORT_KEY, null);
@@ -79,6 +80,8 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
   dropdownQueryKeyPrefix: "emp-cadastro-dropdown",
   tableKey: "tbl-emp",
   preferencesAdapter: empresasPreferencesAdapter,
+  searchView: empresasSearchViewConfig,
+  customFields: empresasCustomFieldsConfig,
 
   labels: {
     singular: empresasModuleDefinition.singularLabel,
@@ -111,13 +114,13 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
       };
     },
     usePreferencesBootstrap: useEmpresasPreferencesBootstrapState,
-    useViewModePreference: useEmpViewModePreference,
-    useCardsVisFields: useEmpCardsVisFields,
-    useSearchDropdownFields: useEmpSearchDropdownFields,
-    useFavorites: useEmpFavorites,
-    useInfiniteListData: useEmpresasInfiniteData,
-    useCustomFields: useEmpCamposPersonalizados,
-    useFilterFieldsLayout: useEmpFilterFieldsLayout,
+    useViewModePreference: useModeloBase1ViewModePreference,
+    useCardsVisFields: useModeloBase1CardsVisFields,
+    useSearchDropdownFields: useModeloBase1SearchDropdownFields,
+    useFavorites: useModeloBase1Favorites,
+    useInfiniteListData: useModeloBase1InfiniteListData,
+    useCustomFields: useModeloBase1CustomFields,
+    useFilterFieldsLayout: useModeloBase1FilterFieldsLayout,
   },
 
   data: {

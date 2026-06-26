@@ -3,6 +3,7 @@
  */
 import { defineModeloBase1Config } from "./defineModeloBase1Config.js";
 import { buildSearchViewFromMakModule } from "./buildSearchViewFromMakModule.js";
+import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
 import {
   useModeloBase1InfiniteListData,
   useModeloBase1Favorites,
@@ -63,7 +64,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     makModule,
     moduleDefinition,
     listMode: "infinite",
-    scopeCssClass: overrides.scopeCssClass ?? `cadastro-${makModule.moduleId}-scope mg-empresas-scope`,
+    scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(makModule.moduleId),
     tableKey: overrides.tableKey ?? `tbl-${makModule.moduleId}`,
     preferencesAdapter: makModule.preferencesAdapter,
     searchView,

@@ -145,7 +145,9 @@ const promotedVisualAssets =
   fs.existsSync(`${ROOT}/src/ModeloBase1/search/MakCadastroSearchPanel.jsx`) &&
   fs.existsSync(`${ROOT}/src/ModeloBase1/cards/MgCardsVirtualGrid.jsx`) &&
   fs.existsSync(`${ROOT}/src/ModeloBase1/search/makCadastroSearchPanel.css`);
-const scopeClassOk = layoutConfig.includes('scopeCssClass: "cadastro-emp-scope mg-empresas-scope"');
+const scopeClassOk =
+  layoutConfig.includes("buildModeloBase1ScopeCssClass") &&
+  read(`${ROOT}/src/ModeloBase1/layout/modeloBase1ScopeCss.js`).includes("cadastro-emp-scope mg-empresas-scope");
 gate("G75 — Paridade CSS 100%", promotedVisualAssets && scopeClassOk);
 
 // G76 — Paridade de Layout 100%

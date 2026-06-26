@@ -32,6 +32,8 @@ const empresasMakModule = read("src/modules/empresas/config/empresasMakModule.js
 const marcasMakModule = read("src/modules/marcas/config/marcasMakModule.js");
 const produtosMakModule = read("src/modules/produtos/config/produtosMakModule.js");
 const layoutConfig = read("src/modules/empresas/config/modeloBase1/empresasLayoutConfig.js");
+const marcasConfig = read("src/modules/marcas/config/marcasModeloBase1Config.js");
+const produtosConfig = read("src/modules/produtos/config/produtosModeloBase1Config.js");
 
 // G86 — Motor: extraído do PAGEMP master (não reimplementado do zero)
 let legacyPagemp = "";
@@ -107,14 +109,13 @@ const sectionsReexport =
   pagempSections.includes("@deprecated");
 gate("G94 — PAGEMP.sections é re-export (não cópia)", sectionsReexport);
 
-// G95 — Empresas usa hooks master (useEmp*), não hooks genéricos reescritos
-const hooksMaster =
-  config.includes("useEmpFavorites") &&
-  config.includes("useEmpresasInfiniteData") &&
-  config.includes("useEmpViewModePreference") &&
-  !config.includes("useModeloBase1Favorites") &&
-  !config.includes("useModeloBase1InfiniteListData");
-gate("G95 — Hooks master Empresas (não useModeloBase1* reescritos)", hooksMaster);
+// G95 — Hooks promovidos unificados (ModeloBase1) em Empresas
+const hooksPromoted =
+  config.includes("useModeloBase1Favorites") &&
+  config.includes("useModeloBase1InfiniteListData") &&
+  config.includes("useModeloBase1ViewModePreference") &&
+  config.includes("searchView: empresasSearchViewConfig");
+gate("G95 — Hooks promovidos unificados (ModeloBase1)", hooksPromoted);
 
 // G96 — Motor único infinite (ModeloBase1ServerCadastroPage eliminado)
 const singleMotor =
@@ -129,6 +130,14 @@ const noGenericSearchInEmpPath =
   !config.includes("MakGenericSearchPanel");
 gate("G97 — Sem MakGenericSearchPanel no caminho Empresas", noGenericSearchInEmpPath);
 
+// G100 — Escopo visual master (botões/tabela/linhas) em todos os módulos
+const scopeParity =
+  layoutConfig.includes("buildModeloBase1ScopeCssClass") &&
+  marcasConfig.includes("buildModeloBase1ScopeCssClass") &&
+  produtosConfig.includes("buildModeloBase1ScopeCssClass") &&
+  read("src/ModeloBase1/layout/modeloBase1ScopeCss.js").includes("cadastro-emp-scope mg-empresas-scope");
+gate("G100 — Escopo visual master (cadastro-emp-scope) em todos os módulos", scopeParity);
+
 // G98 — Inventário de reimplementações globais restantes
 const globalReimplementations = [];
 if (exists("src/framework/mak/search/MakGenericSearchPanel.jsx")) {
@@ -139,16 +148,17 @@ if (exists("src/framework/mak/search/MakGenericSearchPanel.jsx")) {
   if (usedByModeloBase1Modules) globalReimplementations.push("MakGenericSearchPanel-in-use");
 }
 
-const allPathClean = results.every((r) => r.ok) && globalReimplementations.length === 0;
+const preFinalOk = results.every((r) => r.ok);
 gate(
   "G98 — Todos os módulos ModeloBase1 livres de reimplementação",
-  allPathClean,
+  preFinalOk && globalReimplementations.length === 0,
   globalReimplementations.length ? globalReimplementations.join(", ") : ""
 );
 
 // G99 — Resposta obrigatória: promoção direta no cadastro Empresas
 const promotionAnswer =
-  allPathClean &&
+  preFinalOk &&
+  globalReimplementations.length === 0 &&
   pagemp.trim().split("\n").length < 20 &&
   config.includes("defineModeloBase1Config") &&
   config.includes("empresasToolbarComponents");
@@ -158,7 +168,7 @@ gate(
 );
 
 const passed = results.filter((r) => r.ok).length;
-console.log(`\nG86-G99: ${passed}/${results.length} aprovados`);
+console.log(`\nG86-G100: ${passed}/${results.length} aprovados`);
 if (globalReimplementations.length > 0) {
   console.log(
     `\nReimplementações globais pendentes (outros módulos): ${globalReimplementations.join(", ")}`

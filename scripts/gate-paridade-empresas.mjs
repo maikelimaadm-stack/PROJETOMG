@@ -28,14 +28,14 @@ gate("G60 — MakTablePanelStrip usa empresas", /MakTablePanelStrip[\s\S]*?empre
 gate("G61 — tableProps usa empresas", /empresas:\s*filteredPanelRecords/.test(motor));
 gate("G62 — SearchPanel aceita prop empresas", /empresas:\s*empresasProp/.test(searchPanel));
 
-// G63-G65 — Hooks Empresas originais (preferências/cards)
-gate("G63 — useEmpViewModePreference", config.includes("useEmpViewModePreference"));
-gate("G64 — useEmpFavorites", config.includes("useEmpFavorites"));
-gate("G65 — useEmpCardsVisFields", config.includes("useEmpCardsVisFields"));
+// G63-G66 — Hooks promovidos ModeloBase1
+gate("G63 — useModeloBase1ViewModePreference", config.includes("useModeloBase1ViewModePreference"));
+gate("G64 — useModeloBase1Favorites", config.includes("useModeloBase1Favorites"));
+gate("G65 — useModeloBase1CardsVisFields", config.includes("useModeloBase1CardsVisFields"));
+gate("G66 — useModeloBase1InfiniteListData", config.includes("useModeloBase1InfiniteListData"));
 
-// G66-G68 — Listagem infinita
-gate("G66 — useEmpresasInfiniteData", config.includes("useEmpresasInfiniteData"));
-gate("G67 — hook retorna aliases records", read(`${ROOT}/src/modules/empresas/hooks/useEmpresasInfiniteData.js`).includes("records: result.records"));
+// G67-G68 — Listagem infinita / tabela
+gate("G67 — searchView empresas configurado", config.includes("searchView: empresasSearchViewConfig"));
 gate("G68 — tableProps isLoadingEmpresas", motor.includes("isLoadingEmpresas: recordsLoading"));
 
 // G69-G72 — Sem regressão de componente genérico quebrado
