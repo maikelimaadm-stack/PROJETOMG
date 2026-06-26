@@ -1,4 +1,4 @@
-import { marcaRepository } from "./repositories/marcaRepository.js";
+import { marcaRepository } from "../repositories/marcaRepository.js";
 
 export const marcaService = {
   list: (scope, query) => marcaRepository.list(scope, query),
