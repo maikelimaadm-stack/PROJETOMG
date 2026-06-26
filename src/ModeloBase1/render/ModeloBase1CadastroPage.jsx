@@ -37,6 +37,7 @@ import { useSaveCycle } from "@/ModeloBase1/hooks";
 import { syncColumnsIntoPanelFilters, useMakListFilters } from "@/ModeloBase1/filters";
 import { useMakSearchHandlers, useMakRecordSubmit, useMakRecordDelete, useMakRecordExport } from "@/ModeloBase1/actions";
 import { ModeloBase1Provider, useModeloBase1Config } from "@/ModeloBase1/config";
+import { MakModuleProvider } from "@/framework/mak/runtime";
 import ModeloBase1ServerCadastroPageContent from "./ModeloBase1ServerCadastroPage.jsx";
 
 const DROPDOWN_PAGE_SIZE = 30;
@@ -1065,7 +1066,8 @@ function ModeloBase1CadastroPageContent() {
     bootstrapStatus === "fallback_local" || Boolean(preferencesSyncError?.message);
 
   return (
-    <div className={`${config.scopeCssClass} flex h-full min-h-0 flex-1 flex-col overflow-hidden`}>
+    <MakModuleProvider module={module}>
+      <div className={`${config.scopeCssClass} flex h-full min-h-0 flex-1 flex-col overflow-hidden`}>
       {preferencesDegraded ? (
         <div className="border-b border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900">
           Preferências remotas indisponíveis no momento. A tela continua com configurações locais.
@@ -1429,14 +1431,15 @@ function ModeloBase1CadastroPageContent() {
           onConfirm: handleConfirmDelete,
         }}
       />
-      <MakMasterHistory
-        open={historyOpen}
-        onOpenChange={setHistoryOpen}
-        moduleLabel={moduleLabels.singular}
-        recordCode={recordCode || null}
-        recordTitle={recordTitle || null}
-      />
-    </div>
+        <MakMasterHistory
+          open={historyOpen}
+          onOpenChange={setHistoryOpen}
+          moduleLabel={moduleLabels.singular}
+          recordCode={recordCode || null}
+          recordTitle={recordTitle || null}
+        />
+      </div>
+    </MakModuleProvider>
   );
 }
 
