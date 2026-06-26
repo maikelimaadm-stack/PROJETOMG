@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useMemo } from "react";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useMakPreferencesBootstrapAggregator } from "./useMakPreferencesBootstrapAggregator.js";
-import "@/modules/empresas/preferences/registerEmpresasPreferencesBootstrap.js";
 
 const MakPreferencesBootstrapContext = createContext(null);
 

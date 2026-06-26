@@ -1,11 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/shared/ui/input";
-import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
-import empRepository from "@/modules/empresas/repositories/empRepository";
+import { useMakFormModuleConfig } from "@/framework/mak/form/useMakFormModuleConfig";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import { useCadastroForm } from "@/framework/cadastro-engine/hooks/useCadastroForm.js";
-import { empresasCadastroConfig } from "@/modules/empresas/config/empresasCadastroConfig.js";
 import { getLayoutStorageKeysForModule } from "@/framework/cadastro-engine/core/CadastroModuleConfig.js";
 import { RenderEngine } from "@/framework/cadastro-engine/render/RenderEngine.jsx";
 import CadLayoutConfigurator from "@/framework/cadastro-engine/design-system/CadLayoutConfigurator.jsx";
@@ -38,24 +36,6 @@ import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageFiel
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import {
-  readStoredLaunchPanelStyle,
-  writeStoredLaunchPanelStyle,
-} from "@/modules/empresas/preferences/empresasPreferencesStorage";
-import { readEmpPreferencesJson } from "@/modules/empresas/preferences/empresasPreferencesCache";
-import {
-  ESTADOS_BR,
-  UPPER_FIELDS,
-  REQUIRED_FIELDS,
-  inputClass,
-  applyDuplicateFieldClears,
-  buildEmptyEmpresaForm,
-  buildEmpFormDefaultConfig,
-  EMP_FORM_BASE_PANELS,
-  EMP_FORM_DEFAULT_LAYOUT,
-  NATIVE_FIELDS,
-} from "@/modules/empresas/components/formEmp.constants";
-import { useFormEmpCustomFields } from "@/modules/empresas/components/formEmp.customFields";
 
 export default function MakCadastroForm({
   onSubmit, onCancel, onAttachClick, attachDisabled = false,
@@ -72,6 +52,25 @@ export default function MakCadastroForm({
   hideToolbar = false,
   onToolbarBridge,
 }) {
+  const {
+    repository: empRepository,
+    cadastroConfig: empresasCadastroConfig,
+    readJson: readEmpPreferencesJson,
+    readStoredLaunchPanelStyle,
+    writeStoredLaunchPanelStyle,
+    estados: ESTADOS_BR,
+    upperFields: UPPER_FIELDS,
+    requiredFields: REQUIRED_FIELDS,
+    inputClass,
+    applyDuplicateFieldClears,
+    buildEmptyRecord: buildEmptyEmpresaForm,
+    basePanels: EMP_FORM_BASE_PANELS,
+    defaultLayout: EMP_FORM_DEFAULT_LAYOUT,
+    nativeFields: NATIVE_FIELDS,
+    useRecordFieldsHook,
+    useCustomFieldsHook,
+  } = useMakFormModuleConfig();
+
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
   const [errors, setErrors] = useState({});
@@ -172,7 +171,7 @@ export default function MakCadastroForm({
   ]);
 
   const { data: camposPersonalizados = [], isFetched: camposPersonalizadosReady } =
-    useEmpCamposPersonalizados();
+    useRecordFieldsHook();
 
   const camposPersonalizadosForm = useMemo(() => camposPersonalizados
     .map(campoEngine.normalize)
@@ -358,7 +357,7 @@ export default function MakCadastroForm({
     );
   };
 
-  const { renderCampoPersonalizado } = useFormEmpCustomFields({
+  const { renderCampoPersonalizado } = useCustomFieldsHook({
     formData,
     isReadOnly,
     handleCustomChange,

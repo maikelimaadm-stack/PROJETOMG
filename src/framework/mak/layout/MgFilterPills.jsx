@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, FunnelPlus, FunnelX, ListPlus, ListX, X } from "lucide-react";
-import { FILTER_POPOVER_WIDTH } from "@/modules/empresas/components/tblEmp.constants";
+import { MAK_FILTER_POPOVER_WIDTH as FILTER_POPOVER_WIDTH } from "./makFilterLayout.constants";
 import {
   ErpFilterPopover,
   clearErpFilter,

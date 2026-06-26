@@ -31,4 +31,5 @@ export {
 } from "./bootstrapRegistry.js";
 
 export { useMakPreferencesBootstrapAggregator } from "./useMakPreferencesBootstrapAggregator.js";
+export { createMakPreferencesEngine } from "./MakPreferencesEngine.js";
 export { createMakPreferencesScope } from "./createMakPreferencesScope.js";

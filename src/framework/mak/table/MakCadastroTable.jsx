@@ -19,7 +19,7 @@ import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePaginati
 import { useErpTableFullscreen } from "@/shared/layouts/ErpTableFullscreenContext";
 import ErpScrollNav from "@/shared/components/ErpScrollNav";
 import EmpVirtualTableBody from "@/shared/components/EmpVirtualTableBody";
-import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import { useMakTableModuleConfig } from "@/framework/mak/table/useMakTableModuleConfig";
 import { readStoredListPageSize } from "@/shared/listing/listQueryConfig";
 import { useDebouncedValue } from "@/shared/hooks/useDebouncedValue";
 import { EMP_TABLE_HEADER_HEIGHT, EMP_TABLE_ROW_HEIGHT } from "@/shared/constants/erpLayout";
@@ -30,40 +30,6 @@ import {
   loadColumnOrder,
   markVisibleColumnsInitialized,
 } from "@/framework/cadastro/tables/empColumnLayout";
-import { loadSavedVisibleColumns, mergeEffectiveColumnLayout } from "@/modules/empresas/utils/empTableColumnCatalog";
-import {
-  AGGR_KEY,
-  AUTO_FIT_MEASURE_LIMIT,
-  COLUNAS_BASE,
-  FILTER_POPOVER_WIDTH,
-  FROZEN_KEY,
-  MAX_AUTO_FIT_WIDTH,
-  MIN_COL_WIDTH,
-  ORDER_KEY,
-  PAGE_SIZE_KEY,
-  ROW_DBLCLICK_OPEN_MS,
-  ROW_DBLCLICK_PAIR_MS,
-  SIZING_MODE_KEY,
-  SORT_KEY,
-  VISIBLE_KEY,
-  WIDTHS_KEY,
-  formatHeaderLabel,
-  getMinWidth,
-} from "@/modules/empresas/components/tblEmp.constants";
-import {
-  readStoredFilterOperators,
-  writeStoredFilterOperators,
-  writeStoredTempListagemFilters,
-} from "@/modules/empresas/preferences/empresasPreferencesStorage";
-import {
-  createDefaultColumnFilter,
-  evaluateColumnFilter,
-  filterNeedsClientSideProcessing,
-  getColumnFilterType,
-  hasClientOnlyColumnFilters,
-  normalizeLegacyColumnFilter,
-  parseDateFilterValue,
-} from "@/modules/empresas/components/tblEmp.filters";
 import {
   ErpFilterPopover,
   isErpFilterActive,
@@ -79,26 +45,8 @@ import {
 import { MakEmptyState } from "@/framework/mak/ux";
 import MakTableSelectCheck from "@/framework/mak/table/MakTableSelectCheck";
 import MakDock from "@/framework/mak/dock/MakDock";
-import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
 import { buildMakColumnFilters, mergeMakListFilters } from "@/framework/mak/filters";
-import {
-  emitEmpPreferencesCacheUpdate,
-  readEmpPreferencesJson,
-  readEmpPreferencesText,
-  removeEmpPreferencesKey,
-  subscribeEmpPreferencesCache,
-  writeEmpPreferencesJson,
-  writeEmpPreferencesText,
-} from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { stableJsonEqual, stableStringify } from "@/shared/utils/stableStringify";
-import {
-  buildColumnSizingModeFromAutoFit,
-  mergeColumnSizingMode,
-  readEmpTablePreferencesSnapshot,
-} from "@/modules/empresas/preferences/empTablePreferencesHydration";
-import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
-import { markEmpPreferencesPerf } from "@/modules/empresas/preferences/empresasPreferencesPerfMarks";
-import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
@@ -122,12 +70,6 @@ function haveSameRecordIds(listA = [], listB = []) {
   if (listA.length !== listB.length) return false;
   return listA.every((item, index) => item?.id === listB[index]?.id);
 }
-
-const readStorageJSON = (key, fallback) => {
-  const parsed = readEmpPreferencesJson(key, fallback);
-  return parsed ?? fallback;
-};
-
 const normalizeExternalColumnFilters = (filters) =>
   filters && typeof filters === "object" ? filters : {};
 
@@ -197,6 +139,53 @@ export default function MakCadastroTable({
   preferencesReady = true,
   bootstrapGeneration = 0,
 }) {
+  const {
+    COLUNAS_BASE,
+    WIDTHS_KEY,
+    FROZEN_KEY,
+    VISIBLE_KEY,
+    ORDER_KEY,
+    AGGR_KEY,
+    PAGE_SIZE_KEY,
+    SORT_KEY,
+    SIZING_MODE_KEY,
+    FILTER_POPOVER_WIDTH,
+    formatHeaderLabel,
+    getMinWidth,
+    MIN_COL_WIDTH,
+    MAX_AUTO_FIT_WIDTH,
+    AUTO_FIT_MEASURE_LIMIT,
+    ROW_DBLCLICK_OPEN_MS,
+    ROW_DBLCLICK_PAIR_MS,
+    readJson: readEmpPreferencesJson,
+    readText: readEmpPreferencesText,
+    writeJson: writeEmpPreferencesJson,
+    writeText: writeEmpPreferencesText,
+    removeKey: removeEmpPreferencesKey,
+    subscribe: subscribeEmpPreferencesCache,
+    emitCacheUpdate: emitEmpPreferencesCacheUpdate,
+    isSectionDirty: isEmpPreferencesSectionDirty,
+    markPerf: markEmpPreferencesPerf,
+    bootstrapAppliedEvent: EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT,
+    readTablePreferencesSnapshot: readEmpTablePreferencesSnapshot,
+    buildColumnSizingModeFromAutoFit,
+    mergeColumnSizingMode,
+    loadSavedVisibleColumns,
+    mergeEffectiveColumnLayout,
+    readStoredFilterOperators,
+    writeStoredFilterOperators,
+    writeStoredTempListagemFilters,
+    createDefaultColumnFilter,
+    evaluateColumnFilter,
+    filterNeedsClientSideProcessing,
+    getColumnFilterType,
+    hasClientOnlyColumnFilters,
+    normalizeLegacyColumnFilter,
+    parseDateFilterValue,
+    useCustomFieldsHook,
+    LoadBatchControls: EmpLoadBatchControls,
+  } = useMakTableModuleConfig();
+
   const suppressPersistenceRef = useRef(false);
   const tableHydratedRef = useRef(true);
   const catalogSignatureRef = useRef("");
@@ -314,7 +303,7 @@ export default function MakCadastroTable({
     return readStoredListPageSize(PAGE_SIZE_KEY, 50);
   });
 
-  const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
+  const { data: camposPersonalizados = [] } = useCustomFieldsHook();
 
   const colunasDisponiveis = useMemo(() => {
     const dinamicas = camposPersonalizados.map(campoEngine.normalize).filter((c) => c.ativo !== false && c.visivel_tabela === true).map((c) => ({

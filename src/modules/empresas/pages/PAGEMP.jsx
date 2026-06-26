@@ -71,7 +71,8 @@ import { syncColumnsIntoPanelFilters } from "@/framework/mak/listing/syncPanelCo
 import { useMakListFilters } from "@/framework/mak/listing/useMakListFilters";
 import { useMakSearchHandlers } from "@/framework/mak/listing/useMakSearchHandlers";
 import { useMakRecordSubmit, useMakRecordDelete, useMakRecordExport } from "@/framework/mak/records";
-import { empresasMakRuntime } from "@/modules/empresas/config/empresasMakRuntime";
+import { empresasMakModule } from "@/modules/empresas/config/empresasMakModule";
+import { MakModuleProvider } from "@/framework/mak/runtime";
 import { useEmpresasPreferencesBootstrapState } from "@/modules/empresas/preferences/EmpresasPreferencesBootstrapContext";
 import { useEmpViewModePreference } from "@/modules/empresas/hooks/useEmpViewModePreference";
 import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
@@ -186,7 +187,7 @@ export default function PAGEMP() {
   const cardsVisFields = useEmpCardsVisFields();
   const { data: camposPersonalizados = [] } = useEmpCamposPersonalizados();
   const catalogFilterFields = useMemo(
-    () => buildMgFilterFields(camposPersonalizados),
+    () => buildMgFilterFields(camposPersonalizados, empresasMakModule.metadata?.table?.columns ?? []),
     [camposPersonalizados]
   );
   const {
@@ -438,7 +439,7 @@ export default function PAGEMP() {
     handleFilterApply,
     handleColumnFiltersChange,
   } = useMakListFilters({
-    moduleId: empresasMakRuntime.moduleId,
+    moduleId: empresasMakModule.moduleId,
     panelFilterColumnMap,
     columnFiltersRef,
     appliedFilterValuesRef,
@@ -637,13 +638,13 @@ export default function PAGEMP() {
     pendingAttachments,
     pendingCreatesRef,
     moduleRepository,
-    moduleLabels: empresasMakRuntime.moduleLabels,
-    schema: empresasMakRuntime.schema,
-    normalizeRecord: empresasMakRuntime.normalizeRecord,
-    listQueryKey: empresasMakRuntime.listQueryKey,
-    patchListCache: empresasMakRuntime.patchListCache,
-    entityName: empresasMakRuntime.entityName,
-    metricsEntityKey: empresasMakRuntime.metricsEntityKey,
+    moduleLabels: empresasMakModule.moduleLabels,
+    schema: empresasMakModule.schema,
+    normalizeRecord: empresasMakModule.normalizeRecord,
+    listQueryKey: empresasMakModule.listQueryKey,
+    patchListCache: empresasMakModule.patchListCache,
+    entityName: empresasMakModule.entityName,
+    metricsEntityKey: empresasMakModule.metricsEntityKey,
     queryClient,
     saveCycle,
     resolveErrorMessage,
@@ -655,7 +656,7 @@ export default function PAGEMP() {
     removeFromSelector: removeEmpresasFromSelector,
     replaceInSelector: replaceEmpresasInSelector,
     setPendingAttachments,
-    attachmentPersistErrorMessage: empresasMakRuntime.attachmentPersistErrorMessage,
+    attachmentPersistErrorMessage: empresasMakModule.attachmentPersistErrorMessage,
   });
 
   const handleEdit = (emp) => {
@@ -1000,10 +1001,10 @@ export default function PAGEMP() {
     pendingDeleteIdsRef,
     pendingCreatesRef,
     moduleRepository,
-    moduleLabels: empresasMakRuntime.moduleLabels,
-    listQueryKey: empresasMakRuntime.listQueryKey,
-    patchListCache: empresasMakRuntime.patchListCache,
-    metricsEntityKey: empresasMakRuntime.metricsEntityKey,
+    moduleLabels: empresasMakModule.moduleLabels,
+    listQueryKey: empresasMakModule.listQueryKey,
+    patchListCache: empresasMakModule.patchListCache,
+    metricsEntityKey: empresasMakModule.metricsEntityKey,
     queryClient,
     saveCycle,
     resolveErrorMessage,
@@ -1014,7 +1015,7 @@ export default function PAGEMP() {
     navigationList: empresasNavegacao,
     attachmentsRecord,
     selectedTableItems,
-    findRecordInList: empresasMakRuntime.findRecordInList,
+    findRecordInList: empresasMakModule.findRecordInList,
     refreshNavRecord,
     removeFromSelector: removeEmpresasFromSelector,
     replaceInSelector: replaceEmpresasInSelector,
@@ -1030,7 +1031,7 @@ export default function PAGEMP() {
 
   const { exportBusy, exportMessage, handleExportPdf, handleExportExcel } = useMakRecordExport({
     moduleRepository,
-    moduleLabels: empresasMakRuntime.moduleLabels,
+    moduleLabels: empresasMakModule.moduleLabels,
     saveCycle,
     resolveErrorMessage,
     searchTerm,
@@ -1039,8 +1040,8 @@ export default function PAGEMP() {
     selectedTableItems,
     pinnedRecord,
     visibleTableData,
-    getPdfExportConfig: empresasMakRuntime.getPdfExportConfig,
-    buildExportRows: empresasMakRuntime.buildExportRows,
+    getPdfExportConfig: empresasMakModule.getPdfExportConfig,
+    buildExportRows: empresasMakModule.buildExportRows,
   });
 
   const handlePrint = useCallback(() => {
@@ -1139,6 +1140,7 @@ export default function PAGEMP() {
     bootstrapStatus === "fallback_local" || Boolean(preferencesSyncError?.message);
 
   return (
+    <MakModuleProvider module={empresasMakModule}>
     <div className="cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       {preferencesDegraded ? (
         <div className="border-b border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-900">
@@ -1511,5 +1513,6 @@ export default function PAGEMP() {
         recordTitle={recordTitle || null}
       />
     </div>
+    </MakModuleProvider>
   );
 }

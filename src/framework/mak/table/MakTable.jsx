@@ -3,7 +3,7 @@ import MakCadastroTable from "./MakCadastroTable.jsx";
 
 /**
  * Tabela de cadastro MAK — componente principal da Foundation.
- * Módulos consomem via config (ex.: TBLEMP re-export) ou diretamente com props.
+ * Requer MakModuleProvider ancestor (ou TBLEMP que injeta o módulo).
  */
 function MakTableComponent(props) {
   return <MakCadastroTable {...props} />;
