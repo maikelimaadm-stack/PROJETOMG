@@ -19,15 +19,21 @@ import {
   EmpresasSearchPanel,
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
-import MgActionBar from "@/modules/empresas/layout/MgActionBar";
-import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
-import MgTablePanelStrip from "@/modules/empresas/layout/MgTablePanelStrip";
-import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
-import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
-import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
-import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
-import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
-import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
+import {
+  MakActionBar,
+  MakCardsPanelStrip,
+  MakTablePanelStrip,
+  MakFilterPanel,
+  MakContextPanel,
+  MakMobileViewBar,
+  useMakChrome,
+  applyMgViewMode,
+  resolveMgViewMode,
+  resolveMgActionBarVisibility,
+  buildMgFilterFields,
+  buildPanelFilterColumnMap,
+} from "@/framework/mak/layout";
+import { useMakPermissions } from "@/framework/mak/permissions";
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { getFieldsPerRowForLayout } from "@/modules/empresas/components/empSearchView.constants";
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
@@ -46,29 +52,27 @@ import {
   LIST_SEARCH_DEBOUNCE_MS,
 } from "@/shared/listing/listQueryConfig";
 import {
-  buildEmpresaColumnFilters,
-  buildEmpresaPanelFilters,
-  mergeEmpresaListFilters,
-} from "@/shared/listing/buildEmpresaListFilters";
+  buildMakColumnFilters,
+  buildMakPanelFilters,
+  mergeMakListFilters,
+} from "@/framework/mak/filters";
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { buildEmpresaExportRows } from "@/modules/empresas/utils/empExportRows";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
-import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { isPendingRecordId } from "@/shared/utils/pendingRecordUtils";
 import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { useEmpFilterFieldsLayout } from "@/modules/empresas/hooks/useEmpFilterFieldsLayout";
 import EmpConfiguracaoFiltrosDialog from "@/modules/empresas/components/EmpConfiguracaoFiltrosDialog";
-import {
-  buildMgFilterFields,
-  buildPanelFilterColumnMap,
-} from "@/modules/empresas/layout/mgFilterFields";
-import {
-  cloneErpFilter,
-  isErpFilterActive,
-  normalizePanelFilterValue,
-} from "@/shared/filters";
+import { isErpFilterActive } from "@/shared/filters";
+import { patchEmpresasCache } from "@/modules/empresas/data/empresasListCache";
+import { syncColumnsIntoPanelFilters } from "@/framework/mak/listing/syncPanelColumnFilters";
+import { useEmpListFilters } from "@/modules/empresas/hooks/useEmpListFilters";
+import { useEmpSearchHandlers } from "@/modules/empresas/hooks/useEmpSearchHandlers";
+import { useEmpresaSubmit } from "@/modules/empresas/hooks/useEmpresaSubmit";
+import { useEmpresaDelete } from "@/modules/empresas/hooks/useEmpresaDelete";
+import { useEmpresaExport } from "@/modules/empresas/hooks/useEmpresaExport";
 import { useEmpresasPreferencesBootstrapState } from "@/modules/empresas/preferences/EmpresasPreferencesBootstrapContext";
 import { useEmpViewModePreference } from "@/modules/empresas/hooks/useEmpViewModePreference";
 import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
@@ -88,6 +92,7 @@ import {
 } from "@/modules/empresas/components/tblEmp.constants";
 
 const DROPDOWN_PAGE_SIZE = 30;
+const MAK_MODULE_ID = "empresas";
 
 const readInitialQuerySort = () => {
   const storedSort = readEmpPreferencesJson(SORT_KEY, null);
@@ -120,99 +125,8 @@ const moduleLabels = {
   title: `Cadastro de ${empresasModuleDefinition.pluralLabel}`,
 };
 
-const syncPanelFiltersIntoColumns = (
-  panelValues = {},
-  baseColumnFilters = {},
-  panelFilterColumnMap = {}
-) => {
-  const next = { ...(baseColumnFilters || {}) };
-  Object.values(panelFilterColumnMap).forEach((columnKey) => {
-    delete next[columnKey];
-  });
-
-  Object.entries(panelFilterColumnMap).forEach(([panelKey, columnKey]) => {
-    const filter = panelValues?.[panelKey];
-    if (isErpFilterActive(filter)) {
-      next[columnKey] = cloneErpFilter(
-        typeof filter === "object" && !Array.isArray(filter)
-          ? filter
-          : normalizePanelFilterValue(filter, "text")
-      );
-    }
-  });
-
-  return next;
-};
-
-const syncColumnsIntoPanelFilters = (columnFilters = {}, panelFilterColumnMap = {}) =>
-  Object.entries(panelFilterColumnMap).reduce((acc, [panelKey, columnKey]) => {
-    const filter = columnFilters?.[columnKey];
-    acc[panelKey] =
-      filter && typeof filter === "object" && !Array.isArray(filter)
-        ? cloneErpFilter(filter)
-        : normalizePanelFilterValue(filter, "text");
-    return acc;
-  }, {});
-
-const patchEmpresasCache = (queryClient, updater) => {
-  queryClient.setQueriesData({ queryKey: ["emp-cadastro"] }, (previous) => {
-    if (previous?.items) {
-      return updater(previous);
-    }
-
-    if (!Array.isArray(previous?.pages)) {
-      return previous;
-    }
-
-    const pageSize =
-      Number(previous.pages[0]?.pageSize) || EMP_INFINITE_PAGE_SIZE;
-    const mergedItems = previous.pages.flatMap((page) => page?.items || []);
-    const mergedTotal = Number(previous.pages[0]?.total ?? mergedItems.length);
-    const nextMerged = updater({
-      items: mergedItems,
-      total: mergedTotal,
-      page: 1,
-      pageSize,
-      totalPages: Math.max(1, Math.ceil(mergedTotal / pageSize)),
-    });
-
-    if (!nextMerged?.items) return previous;
-
-    const loadedPages = Math.max(previous.pages.length, 1);
-    const maxLoadedItems = loadedPages * pageSize;
-    const slicedItems = nextMerged.items.slice(0, maxLoadedItems);
-    const total = Number(nextMerged.total ?? slicedItems.length);
-    const totalPages = Math.max(1, Math.ceil(total / pageSize));
-    const nextPages = Array.from({ length: loadedPages }, (_, index) => {
-      const start = index * pageSize;
-      const end = start + pageSize;
-      const basePage = previous.pages[index] || {};
-      return {
-        ...basePage,
-        items: slicedItems.slice(start, end),
-        page: index + 1,
-        pageSize,
-        total,
-        totalPages,
-      };
-    });
-    const existingParams = Array.isArray(previous.pageParams)
-      ? previous.pageParams.slice(0, loadedPages)
-      : [];
-    const pageParams =
-      existingParams.length === loadedPages
-        ? existingParams
-        : Array.from({ length: loadedPages }, (_, index) => index + 1);
-
-    return {
-      ...previous,
-      pages: nextPages,
-      pageParams,
-    };
-  });
-};
-
 export default function PAGEMP() {
+  const makPermissions = useMakPermissions();
   const {
     user,
     empresas: empresasSelector,
@@ -316,7 +230,7 @@ export default function PAGEMP() {
     closeFilterPanel,
     toggleFilterPanel,
     setBreadcrumbSuffix,
-  } = useMgEmpresasChrome();
+  } = useMakChrome();
   const [filterValues, setFilterValues] = useState({});
   const [appliedFilterValues, setAppliedFilterValues] = useState({});
   const [formBridge, setFormBridge] = useState(null);
@@ -365,7 +279,7 @@ export default function PAGEMP() {
       stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
     );
     setAppliedPanelFilters((current) => {
-      const next = buildEmpresaPanelFilters(syncedPanelValues);
+      const next = buildMakPanelFilters(MAK_MODULE_ID,syncedPanelValues);
       return stableJsonEqual(current, next) ? current : next;
     });
   }, [catalogFilterFields.length, panelFilterColumnMap, preferencesReady]);
@@ -472,7 +386,7 @@ export default function PAGEMP() {
 
   const serverBaseFilters = useMemo(
     () =>
-      mergeEmpresaListFilters(
+      mergeMakListFilters(MAK_MODULE_ID,
         appliedPanelFilters,
         searchFavoritesOnly ? { ids: favoriteIds } : undefined
       ),
@@ -480,19 +394,68 @@ export default function PAGEMP() {
   );
 
   const selectorOptionsBaseFilters = useMemo(
-    () => mergeEmpresaListFilters(searchFavoritesOnly ? { ids: favoriteIds } : undefined),
+    () => mergeMakListFilters(MAK_MODULE_ID,searchFavoritesOnly ? { ids: favoriteIds } : undefined),
     [searchFavoritesOnly, favoriteIds]
   );
 
   const listFilters = useMemo(
     () =>
-      mergeEmpresaListFilters(
+      mergeMakListFilters(MAK_MODULE_ID,
         appliedPanelFilters,
-        buildEmpresaColumnFilters(columnFilters),
+        buildMakColumnFilters(MAK_MODULE_ID,columnFilters),
         searchFavoritesOnly ? { ids: favoriteIds } : undefined
       ),
     [appliedPanelFilters, columnFilters, searchFavoritesOnly, favoriteIds]
   );
+
+  const {
+    handleSearchInputChange,
+    handleSearchClear,
+    handleSearchCommit,
+    handleSearchApplyAll,
+    handleSearchApplyFavorites,
+    handleSearchResultSelect,
+  } = useEmpSearchHandlers({
+    searchDraft,
+    searchViewApplyRef,
+    showForm,
+    viewMode,
+    setSearchDraft,
+    setSearchTerm,
+    setPinnedRecord,
+    setSearchFavoritesOnly,
+    setDropdownSearch,
+    setSearchViewPending,
+    setTableFilteredEmpresas,
+    setSelectedTableItems,
+    setQueryPage,
+    setSelectedIndex,
+    setEditingEmp,
+  });
+
+  const {
+    handleFilterChange,
+    handleFilterClear,
+    handleFilterApply,
+    handleColumnFiltersChange,
+  } = useEmpListFilters({
+    panelFilterColumnMap,
+    columnFiltersRef,
+    appliedFilterValuesRef,
+    closeFilterPanel,
+    filterValues,
+    setFilterValues,
+    setAppliedFilterValues,
+    setAppliedPanelFilters,
+    setColumnFiltersHydrated,
+    setColumnFilters,
+    setSearchDraft,
+    setSearchTerm,
+    setPinnedRecord,
+    setSearchFavoritesOnly,
+    setDropdownSearch,
+    setQueryPage,
+  });
 
   const {
     empresas,
@@ -668,194 +631,25 @@ export default function PAGEMP() {
     upsertEmpresaInSelector(normalized);
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
-  const persistPendingAttachments = useCallback(async (recordId, items) => {
-    if (!recordId || !items?.length) return;
-
-    await Promise.all(
-      items.map((anexo) =>
-        AnexosApi.create({
-          entity_name: anexo.entity_name || empresasModuleDefinition.entityName,
-          record_id: recordId,
-          empresa_id: recordId,
-          attachment_name: anexo.attachment_name,
-          file_name: anexo.file_name,
-          file_url: anexo.file_url,
-          storage_path: anexo.storage_path,
-          file_type: anexo.file_type,
-          file_size: anexo.file_size,
-        })
-      )
-    );
-  }, []);
-
-  const handleSubmit = useCallback((data) => {
-    if (saveCycle.isSaving) return;
-
-    const isUpdate = Boolean(
-      editingEmp?.id && !isPendingRecordId(editingEmp.id) && !editingEmp._isDuplicate
-    );
-
-    try {
-      const validatedData = empresasModuleDefinition.schema.parse(data);
-      saveCycle.beginSave();
-
-      if (isUpdate) {
-        const optimistic = normalizeEmpresaRecord({ ...editingEmp, ...validatedData });
-        const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
-        const selectorSnapshot = empresasSelector;
-
-        patchEmpresasCache(queryClient, (previous) => ({
-          ...previous,
-          items: previous.items.map((item) =>
-            item.id === editingEmp.id ? { ...item, ...optimistic } : item
-          ),
-        }));
-        upsertEmpresaInSelector(optimistic);
-        setEditingEmp(optimistic);
-        stayOnRecordAfterSave(optimistic);
-        setFormVersion((version) => version + 1);
-
-        void moduleRepository
-          .update(editingEmp.id, validatedData)
-          .then((savedRecord) => {
-            const normalized = normalizeEmpresaRecord(savedRecord);
-            patchEmpresasCache(queryClient, (previous) => ({
-              ...previous,
-              items: previous.items.map((item) =>
-                item.id === editingEmp.id ? { ...item, ...normalized } : item
-              ),
-            }));
-            setEditingEmp(normalized);
-            upsertEmpresaInSelector(normalized);
-            showSuccess(`${moduleLabels.singular} atualizada!`);
-          })
-          .catch((error) => {
-            cacheSnapshot.forEach(([key, value]) => {
-              queryClient.setQueryData(key, value);
-            });
-            replaceEmpresasInSelector(selectorSnapshot);
-            showError(
-              resolveErrorMessage(
-                error,
-                `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
-              )
-            );
-          })
-          .finally(() => {
-            saveCycle.end();
-          });
-        return;
-      }
-
-      const { _isDuplicate, ...clean } = validatedData;
-      const pendingId = `pending-${crypto.randomUUID()}`;
-      const optimistic = normalizeEmpresaRecord({
-        ...clean,
-        id: pendingId,
-        _isPersisting: true,
-      });
-      const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
-      const createEntry = { cancelled: false };
-      pendingCreatesRef.current.set(pendingId, createEntry);
-
-      patchEmpresasCache(queryClient, (previous) => ({
-        ...previous,
-        items: [optimistic, ...previous.items],
-        total: previous.total + 1,
-      }));
-      patchMetricsCache(queryClient, { empresas: 1, registrosGlobais: 1 });
-      stayOnRecordAfterSave(optimistic);
-      setFormVersion((version) => version + 1);
-
-      void moduleRepository
-        .create(clean)
-        .then(async (response) => {
-          const normalized = normalizeEmpresaRecord(response?.item);
-          pendingCreatesRef.current.delete(pendingId);
-
-          if (createEntry.cancelled) {
-            try {
-              const deleteResponse = await moduleRepository.delete(normalized.id);
-              if (deleteResponse?.contadores) {
-                setMetricsCache(queryClient, deleteResponse.contadores);
-              }
-            } catch {
-              // UI já removeu; servidor pode ter excluído ou falhado silenciosamente
-            }
-            return;
-          }
-
-          patchEmpresasCache(queryClient, (previous) => ({
-            ...previous,
-            items: previous.items.map((item) =>
-              item.id === pendingId ? normalized : item
-            ),
-          }));
-          setEditingEmp((current) =>
-            current?.id === pendingId ? normalized : current
-          );
-          setSelectedTableItems((current) =>
-            current.includes(pendingId) ? [normalized.id] : current
-          );
-          upsertEmpresaInSelector(normalized);
-          if (pendingAttachments.length > 0) {
-            try {
-              await persistPendingAttachments(normalized.id, pendingAttachments);
-              setPendingAttachments([]);
-            } catch {
-              showError("Empresa cadastrada, mas alguns anexos não puderam ser salvos.");
-            }
-          }
-          setMetricsCache(queryClient, response?.contadores);
-          showSuccess(`${moduleLabels.singular} cadastrada!`);
-        })
-        .catch((error) => {
-          pendingCreatesRef.current.delete(pendingId);
-          if (!createEntry.cancelled) {
-            patchMetricsCache(queryClient, { empresas: -1, registrosGlobais: -1 });
-            cacheSnapshot.forEach(([key, value]) => {
-              queryClient.setQueryData(key, value);
-            });
-            patchEmpresasCache(queryClient, (previous) => ({
-              ...previous,
-              items: previous.items.filter((item) => item.id !== pendingId),
-              total: Math.max(0, previous.total - 1),
-            }));
-            removeEmpresasFromSelector([pendingId]);
-          }
-          showError(
-            resolveErrorMessage(
-              error,
-              `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
-            )
-          );
-        })
-        .finally(() => {
-          saveCycle.end();
-        });
-    } catch (error) {
-      saveCycle.end();
-      showError(
-        resolveErrorMessage(
-          error,
-          isUpdate
-            ? `Não foi possível atualizar a ${moduleLabels.singular.toLowerCase()}.`
-            : `Não foi possível cadastrar a ${moduleLabels.singular.toLowerCase()}.`
-        )
-      );
-    }
-  }, [
+  const { handleSubmit } = useEmpresaSubmit({
     editingEmp,
     empresasSelector,
     pendingAttachments,
-    persistPendingAttachments,
+    pendingCreatesRef,
+    moduleRepository,
+    moduleLabels,
     queryClient,
+    saveCycle,
+    resolveErrorMessage,
+    stayOnRecordAfterSave,
+    setEditingEmp,
+    setFormVersion,
+    setSelectedTableItems,
+    upsertEmpresaInSelector,
     removeEmpresasFromSelector,
     replaceEmpresasInSelector,
-    saveCycle,
-    stayOnRecordAfterSave,
-    upsertEmpresaInSelector,
-  ]);
+    setPendingAttachments,
+  });
 
   const handleEdit = (emp) => {
     if (!saveCycle.guardAction()) return;
@@ -899,128 +693,6 @@ export default function PAGEMP() {
     pendingDeleteIdsRef.current = normalized;
     setDeleteState({ open: true, ids: normalized });
   };
-
-  const handleSearchInputChange = useCallback((value) => {
-    setSearchDraft(value);
-    if (!String(value || "").trim()) {
-      setPinnedRecord(null);
-    }
-  }, []);
-
-  const handleSearchClear = useCallback(() => {
-    setSearchDraft("");
-    setSearchTerm("");
-    setPinnedRecord(null);
-    setSearchFavoritesOnly(false);
-    setDropdownSearch("");
-    setSearchViewPending(false);
-    searchViewApplyRef.current = null;
-    setTableFilteredEmpresas(null);
-    setSelectedTableItems([]);
-  }, []);
-
-  const handleSearchCommit = useCallback((value) => {
-    const next = String(value || "").trim();
-    setPinnedRecord(null);
-    setSearchTerm(next);
-    setQueryPage(1);
-    setTableFilteredEmpresas(null);
-    setSelectedTableItems([]);
-  }, []);
-
-  const handleSearchApplyAll = useCallback(() => {
-    const next = normalizeSearchQuery(searchDraft);
-    searchViewApplyRef.current = "all";
-    setSearchViewPending(true);
-    setSearchFavoritesOnly(false);
-    setPinnedRecord(null);
-    setSearchTerm(next);
-    setQueryPage(1);
-    setTableFilteredEmpresas(null);
-    setSelectedTableItems([]);
-  }, [searchDraft]);
-
-  const handleSearchApplyFavorites = useCallback(() => {
-    searchViewApplyRef.current = "all";
-    setSearchViewPending(true);
-    setSearchFavoritesOnly(true);
-    setPinnedRecord(null);
-    setSearchTerm(normalizeSearchQuery(searchDraft));
-    setTableFilteredEmpresas(null);
-    setSelectedTableItems([]);
-  }, [searchDraft]);
-
-  const handleSearchResultSelect = useCallback(
-    (emp) => {
-      if (!emp) return;
-      searchViewApplyRef.current = "single";
-      setSearchViewPending(true);
-      setSearchFavoritesOnly(false);
-      setPinnedRecord(emp);
-      setSearchTerm(normalizeSearchQuery(searchDraft));
-      setTableFilteredEmpresas(null);
-      setSelectedTableItems([]);
-      setSelectedIndex(0);
-      if (showForm && viewMode === "record") {
-        setEditingEmp(emp);
-      }
-    },
-    [searchDraft, showForm, viewMode]
-  );
-
-  const handleFilterChange = useCallback((key, value) => {
-    setFilterValues((prev) => ({ ...prev, [key]: value }));
-  }, []);
-
-  const handleFilterClear = useCallback(() => {
-    setFilterValues({});
-    setAppliedFilterValues({});
-    setAppliedPanelFilters(undefined);
-    setColumnFiltersHydrated(true);
-    // Limpeza global (ícone FunnelX): remove também filtros de coluna fora do layout de pills.
-    setColumnFilters({});
-    setSearchDraft("");
-    setSearchTerm("");
-    setPinnedRecord(null);
-    setSearchFavoritesOnly(false);
-    setDropdownSearch("");
-    setQueryPage(1);
-  }, []);
-
-  const handleFilterApply = useCallback(
-    (snapshot) => {
-      const nextValues = snapshot ?? filterValues;
-      if (snapshot) {
-        setFilterValues(snapshot);
-      }
-      setAppliedFilterValues({ ...nextValues });
-      setAppliedPanelFilters(buildEmpresaPanelFilters(nextValues));
-      setColumnFiltersHydrated(true);
-      setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
-      setQueryPage(1);
-      closeFilterPanel();
-    },
-    [closeFilterPanel, filterValues, panelFilterColumnMap]
-  );
-
-  const handleColumnFiltersChange = useCallback((nextColumnFilters) => {
-    const safeNext = nextColumnFilters || {};
-    const syncedPanelValues = syncColumnsIntoPanelFilters(safeNext, panelFilterColumnMap);
-    const sameColumnFilters = stableJsonEqual(columnFiltersRef.current || {}, safeNext || {});
-    const samePanelFilters = stableJsonEqual(
-      appliedFilterValuesRef.current || {},
-      syncedPanelValues || {}
-    );
-    if (sameColumnFilters && samePanelFilters) return;
-    columnFiltersRef.current = safeNext;
-    appliedFilterValuesRef.current = syncedPanelValues;
-    setColumnFiltersHydrated(true);
-    setColumnFilters(safeNext);
-    setFilterValues(syncedPanelValues);
-    setAppliedFilterValues(syncedPanelValues);
-    setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
-    setQueryPage(1);
-  }, [panelFilterColumnMap]);
 
   const handleDistinctColumnValues = useCallback(
     (params) => moduleRepository.listDistinctColumnValues(params),
@@ -1315,195 +987,48 @@ export default function PAGEMP() {
     else recordNav.navigateNext();
   };
 
-  const handleConfirmDelete = async () => {
-    const ids = pendingDeleteIdsRef.current.length > 0 ? pendingDeleteIdsRef.current : deleteState.ids;
-    if (ids.length === 0) {
-      showError("Nenhum registro selecionado para exclusão.");
-      throw new Error("Nenhum registro selecionado para exclusão.");
-    }
+  const { handleConfirmDelete } = useEmpresaDelete({
+    deleteState,
+    setDeleteState,
+    pendingDeleteIdsRef,
+    pendingCreatesRef,
+    moduleRepository,
+    moduleLabels,
+    queryClient,
+    saveCycle,
+    resolveErrorMessage,
+    showForm,
+    viewMode,
+    editingEmp,
+    empresasSelector,
+    empresasNavegacao,
+    attachmentsRecord,
+    selectedTableItems,
+    refreshNavRecord,
+    removeEmpresasFromSelector,
+    replaceEmpresasInSelector,
+    setShowForm,
+    setEditingEmp,
+    setViewMode,
+    setSelectedTableItems,
+    setSelectedIndex,
+    setFormVersion,
+    setAttachmentsRecord,
+    setAttachmentsOpen,
+  });
 
-    saveCycle.beginDelete();
-
-    const wasOnForm = showForm && viewMode === "record";
-    const deletedCurrentFromForm = wasOnForm && editingEmp?.id && ids.includes(editingEmp.id);
-    const navListBeforeDelete = empresasNavegacao;
-    const navIndexBeforeDelete = deletedCurrentFromForm
-      ? navListBeforeDelete.findIndex((item) => item.id === editingEmp.id)
-      : -1;
-
-    const cacheSnapshot = queryClient.getQueriesData({ queryKey: ["emp-cadastro"] });
-    const metricsSnapshot = queryClient.getQueryData(["metrics-contadores"]);
-    const selectorSnapshot = empresasSelector;
-
-    patchEmpresasCache(queryClient, (previous) => ({
-      ...previous,
-      items: previous.items.filter((item) => !ids.includes(item.id)),
-      total: Math.max(0, previous.total - ids.length),
-    }));
-    patchMetricsCache(queryClient, { empresas: -ids.length });
-    removeEmpresasFromSelector(ids);
-
-    const list = navListBeforeDelete.filter((item) => !ids.includes(item.id));
-
-    if (attachmentsRecord?.id && ids.includes(attachmentsRecord.id)) {
-      setAttachmentsRecord(null);
-      setAttachmentsOpen(false);
-    }
-
-    if (deletedCurrentFromForm) {
-      const remainingNav = navListBeforeDelete
-        .filter((item) => !ids.includes(item.id))
-        .map((item) => findEmpresaInList(list, item))
-        .filter(Boolean);
-
-      if (remainingNav.length === 0) {
-        setShowForm(false);
-        setEditingEmp(null);
-        setViewMode("table");
-        setSelectedTableItems([]);
-        setSelectedIndex(0);
-      } else {
-        const nextIndex = Math.min(Math.max(navIndexBeforeDelete, 0), remainingNav.length - 1);
-        const nextEmp = remainingNav[nextIndex];
-        setEditingEmp(nextEmp);
-        setSelectedIndex(nextIndex);
-        setSelectedTableItems([nextEmp.id]);
-        setShowForm(true);
-        setViewMode("record");
-      }
-    } else {
-      const remainingNav = navListBeforeDelete
-        .filter((item) => !ids.includes(item.id))
-        .map((item) => findEmpresaInList(list, item))
-        .filter(Boolean);
-
-      setSelectedTableItems((prev) => prev.filter((id) => !ids.includes(id)));
-
-      if (showForm && viewMode === "record" && editingEmp?.id && !ids.includes(editingEmp.id)) {
-        const { fresh, navIndex } = refreshNavRecord(list, editingEmp, remainingNav);
-        if (fresh) {
-          setEditingEmp(fresh);
-          if (navIndex >= 0) setSelectedIndex(navIndex);
-        }
-      } else if (remainingNav.length === 0) {
-        setSelectedIndex(0);
-      } else if (selectedTableItems.some((id) => ids.includes(id))) {
-        const nextIndex = Math.min(
-          Math.max(navListBeforeDelete.findIndex((item) => ids.includes(item.id)), 0),
-          remainingNav.length - 1
-        );
-        setSelectedIndex(nextIndex);
-        if (remainingNav[nextIndex]?.id) setSelectedTableItems([remainingNav[nextIndex].id]);
-      } else {
-        setSelectedIndex((prev) => Math.min(prev, remainingNav.length - 1));
-      }
-
-      if (wasOnForm && viewMode === "record" && !editingEmp?.id && !editingEmp?._isDuplicate) {
-        setFormVersion((version) => version + 1);
-      }
-    }
-
-    pendingDeleteIdsRef.current = [];
-    setDeleteState({ open: false, ids: [] });
-
-    const pendingIds = ids.filter((id) => isPendingRecordId(id));
-    const persistedIds = ids.filter((id) => !isPendingRecordId(id));
-
-    pendingIds.forEach((pendingId) => {
-      const entry = pendingCreatesRef.current.get(pendingId);
-      if (entry) entry.cancelled = true;
-    });
-
-    try {
-      if (persistedIds.length === 0) {
-        showSuccess(
-          ids.length === 1
-            ? `${moduleLabels.singular} excluída!`
-            : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
-        );
-        return;
-      }
-
-      const results = await Promise.all(persistedIds.map((id) => moduleRepository.delete(id)));
-      const lastContadores = results.filter((r) => r?.contadores).at(-1)?.contadores;
-      if (lastContadores) setMetricsCache(queryClient, lastContadores);
-      showSuccess(
-        ids.length === 1
-          ? `${moduleLabels.singular} excluída!`
-          : `${ids.length} ${moduleLabels.plural.toLowerCase()} excluídas!`
-      );
-    } catch (error) {
-      cacheSnapshot.forEach(([key, data]) => {
-        queryClient.setQueryData(key, data);
-      });
-      if (metricsSnapshot) {
-        queryClient.setQueryData(["metrics-contadores"], metricsSnapshot);
-      }
-      replaceEmpresasInSelector(selectorSnapshot);
-      showError(
-        resolveErrorMessage(
-          error,
-          `Não foi possível excluir ${moduleLabels.singular.toLowerCase()}.`
-        )
-      );
-      throw error;
-    } finally {
-      saveCycle.end();
-    }
-  };
-
-  const [exportBusy, setExportBusy] = useState(false);
-  const [exportMessage, setExportMessage] = useState("");
-
-  const buildExportParams = useCallback(
-    (format) => ({
-      format,
-      search: normalizeSearchQuery(searchTerm),
-      sortBy: querySort.key,
-      sortDir: querySort.direction,
-      filters: JSON.stringify(listFilters ?? {}),
-      ...(selectedTableItems.length > 0 ? { ids: selectedTableItems.join(",") } : {}),
-    }),
-    [searchTerm, querySort, listFilters, selectedTableItems]
-  );
-
-  const handleExportPdf = async () => {
-    if (exportBusy || !saveCycle.guardAction("Aguarde a exportação terminar.")) return;
-    if (pinnedRecord) {
-      const config = getEmpPdfExportConfig();
-      const srcCols = config.useConfiguredColumns ? visibleTableData.allColumns || visibleTableData.columns : visibleTableData.columns;
-      const selCols = config.useConfiguredColumns && config.columnIds.length ? srcCols.filter((c) => config.columnIds.includes(c.id)) : srcCols;
-      const rows = buildEmpresaExportRows([pinnedRecord], selCols);
-      printCadastroTable({ columns: selCols, rows, totalRows: [], title: `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}` });
-      return;
-    }
-    setExportBusy(true);
-    setExportMessage("Preparando exportação...");
-    try {
-      await moduleRepository.downloadExport(buildExportParams("csv"));
-      showSuccess("Exportação concluída.");
-    } catch (error) {
-      showError(resolveErrorMessage(error, "Não foi possível exportar."));
-    } finally {
-      setExportBusy(false);
-      setExportMessage("");
-    }
-  };
-
-  const handleExportExcel = async () => {
-    if (exportBusy || !saveCycle.guardAction("Aguarde a exportação terminar.")) return;
-    setExportBusy(true);
-    setExportMessage("Preparando exportação...");
-    try {
-      await moduleRepository.downloadExport(buildExportParams("excel"));
-      showSuccess("Exportação concluída.");
-    } catch (error) {
-      showError(resolveErrorMessage(error, "Não foi possível exportar."));
-    } finally {
-      setExportBusy(false);
-      setExportMessage("");
-    }
-  };
+  const { exportBusy, exportMessage, handleExportPdf, handleExportExcel } = useEmpresaExport({
+    moduleRepository,
+    moduleLabels,
+    saveCycle,
+    resolveErrorMessage,
+    searchTerm,
+    querySort,
+    listFilters,
+    selectedTableItems,
+    pinnedRecord,
+    visibleTableData,
+  });
 
   const handlePrint = useCallback(() => {
     const printTitle = `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}`;
@@ -1608,7 +1133,7 @@ export default function PAGEMP() {
         </div>
       ) : null}
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <MgFilterPanel
+        <MakFilterPanel
           open={filterPanelOpen}
           values={filterValues}
           onChange={handleFilterChange}
@@ -1620,7 +1145,7 @@ export default function PAGEMP() {
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <div className="mg-subtoolbar-stack">
-            <MgActionBar
+            <MakActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
             searchInputValue={searchDraft}
@@ -1645,23 +1170,29 @@ export default function PAGEMP() {
             onToggleFilter={toggleFilterPanel}
             filterActive={hasActiveFilters}
             showFilterToggle={!showForm}
-            onNew={handleNew}
+            onNew={makPermissions.canCreate ? handleNew : undefined}
             onSave={formBridge?.onSave}
             onCancel={formBridge?.onCancel ?? formCancel}
             onEdit={
-              showForm
-                ? formBridge?.onEdit
-                : () => selectedTableEmp && handleEdit(selectedTableEmp)
+              makPermissions.canEdit
+                ? showForm
+                  ? formBridge?.onEdit
+                  : () => selectedTableEmp && handleEdit(selectedTableEmp)
+                : undefined
             }
             onDelete={
-              showForm
-                ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
-                : () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)
+              makPermissions.canDelete
+                ? showForm
+                  ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
+                  : () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)
+                : undefined
             }
             onDuplicate={
-              showForm
-                ? () => editingEmp && handleDuplicate(editingEmp)
-                : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
+              makPermissions.canEdit
+                ? showForm
+                  ? () => editingEmp && handleDuplicate(editingEmp)
+                  : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
+                : undefined
             }
             onAttach={() => {
               if (showForm) {
@@ -1674,8 +1205,8 @@ export default function PAGEMP() {
               }
             }}
             attachDisabled={!showForm && selectedTableItems.length !== 1}
-            onExportExcel={handleExportExcel}
-            onExportPdf={handleExportPdf}
+            onExportExcel={makPermissions.canExport ? handleExportExcel : undefined}
+            onExportPdf={makPermissions.canExport ? handleExportPdf : undefined}
             onPrint={handlePrint}
             onHistory={handleOpenHistory}
             onConfigColumns={() => setShowConfigColunas(true)}
@@ -1688,7 +1219,7 @@ export default function PAGEMP() {
             />
 
             <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
-              <MgContextPanel
+              <MakContextPanel
                 code={recordCode}
                 title={recordTitle}
                 total={recordNav.effectiveTotal}
@@ -1708,7 +1239,7 @@ export default function PAGEMP() {
             </div>
 
             <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
-              <MgCardsPanelStrip
+              <MakCardsPanelStrip
                 fields={cardsVisFields.configFields}
                 onSave={cardsVisFields.saveConfig}
                 onRestoreDefaults={cardsVisFields.getRestoreDefaults}
@@ -1735,7 +1266,7 @@ export default function PAGEMP() {
             </div>
 
             <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
-              <MgTablePanelStrip
+              <MakTablePanelStrip
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
                 filterFields={filterFields}
@@ -1890,7 +1421,7 @@ export default function PAGEMP() {
         </div>
       </div>
 
-      <MgMobileViewBar
+      <MakMobileViewBar
         value={mgViewMode}
         onChange={handleMgViewModeChange}
         disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}

@@ -5,10 +5,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/shared/ui
 import { Textarea } from "@/shared/ui/textarea";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import EmpFormDateControl from "@/framework/cadastro/formularios/EmpFormDateControl";
-import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
-import MgDatePicker from "@/modules/empresas/layout/MgDatePicker";
-import MgTimePicker from "@/modules/empresas/layout/MgTimePicker";
-import MgLookup from "@/modules/empresas/layout/MgLookup";
+import MgCmdSelect from "@/framework/mak/layout/MgCmdSelect";
+import MgDatePicker from "@/framework/mak/layout/MgDatePicker";
+import MgTimePicker from "@/framework/mak/layout/MgTimePicker";
+import MgLookup from "@/framework/mak/layout/MgLookup";
 import ToggleSwitch from "@/shared/components/ToggleSwitch";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import { cn } from "@/shared/utils/utils";

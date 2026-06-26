@@ -70,13 +70,17 @@ import {
   resolveErpFilterEnumOptions,
   resolveErpFilterMeta,
 } from "@/shared/filters";
-import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import {
+  MakPortalPanel,
+  MakConfigBackdrop,
+  isNestedMgFloatingPanelTarget,
+  useMgPanelPosition,
+} from "@/framework/mak/layout";
 import { MakEmptyState } from "@/framework/mak/ux";
-import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
-import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
-import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
+import MakTableSelectCheck from "@/framework/mak/table/MakTableSelectCheck";
+import MakDock from "@/framework/mak/dock/MakDock";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
-import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
+import { buildMakColumnFilters, mergeMakListFilters } from "@/framework/mak/filters";
 import {
   emitEmpPreferencesCacheUpdate,
   readEmpPreferencesJson,
@@ -117,58 +121,6 @@ function haveSameRecordIds(listA = [], listB = []) {
   if (listA === listB) return true;
   if (listA.length !== listB.length) return false;
   return listA.every((item, index) => item?.id === listB[index]?.id);
-}
-
-function FilterFieldCheck({ checked, onChange, disabled = false }) {
-  return (
-    <span
-      className={`mg-cards-config-menu__check${checked ? " is-checked" : ""}${disabled ? " is-locked" : ""}`}
-    >
-      <input
-        type="checkbox"
-        className="mg-cards-config-menu__checkbox-input"
-        checked={checked}
-        disabled={disabled}
-        onChange={onChange}
-      />
-      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} aria-hidden="true" /> : null}
-    </span>
-  );
-}
-
-function TableSelectCheck({ checked, indeterminate = false, onChange, ariaLabel, disabled = false }) {
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.indeterminate = Boolean(indeterminate) && !checked;
-    }
-  }, [indeterminate, checked]);
-
-  return (
-    <span
-      className={`mg-cards-config-menu__check emp-table-select-check${checked ? " is-checked" : ""}${indeterminate && !checked ? " is-indeterminate" : ""}${disabled ? " is-locked" : ""}`}
-      onClick={(event) => event.stopPropagation()}
-    >
-      <input
-        ref={inputRef}
-        type="checkbox"
-        className="mg-cards-config-menu__checkbox-input"
-        checked={checked}
-        disabled={disabled}
-        aria-label={ariaLabel}
-        onChange={(event) => {
-          event.stopPropagation();
-          onChange?.(event);
-        }}
-        onClick={(event) => event.stopPropagation()}
-      />
-      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} aria-hidden="true" /> : null}
-      {indeterminate && !checked ? (
-        <span className="mg-cards-config-menu__check-dash" aria-hidden="true" />
-      ) : null}
-    </span>
-  );
 }
 
 const readStorageJSON = (key, fallback) => {
@@ -1077,7 +1029,7 @@ export default function TBLEMP({
       className="emp-th emp-th-select relative align-middle whitespace-nowrap py-0 select-none cursor-default text-center sticky z-[60]"
     >
       <div className="emp-table-select-wrap">
-        <TableSelectCheck
+        <MakTableSelectCheck
           checked={allListedSelected}
           indeterminate={someListedSelected && !allListedSelected}
           disabled={listedEmpresaIds.length === 0}
@@ -1117,7 +1069,7 @@ export default function TBLEMP({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="emp-table-select-wrap">
-          <TableSelectCheck
+          <MakTableSelectCheck
             checked={isSelected}
             ariaLabel={`Selecionar ${emp.razao_social || emp.codempresa || emp.id}`}
             onChange={() => handleToggleRowCheckbox(emp.id)}
@@ -1894,8 +1846,8 @@ export default function TBLEMP({
         acc[columnId] = value;
         return acc;
       }, {});
-      const cascadedFilters = buildEmpresaColumnFilters(cascadedColumnFilters);
-      return mergeEmpresaListFilters(contextFilters, cascadedFilters);
+      const cascadedFilters = buildMakColumnFilters("empresas", cascadedColumnFilters);
+      return mergeMakListFilters("empresas", contextFilters, cascadedFilters);
     },
     [normalizedFilterOptionsMode, selectorOptionsContextFilters, filtrosColunas]
   );
@@ -2263,13 +2215,13 @@ export default function TBLEMP({
 
   return (
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
-      <MgConfigBackdrop
+      <MakConfigBackdrop
         open={isColumnOverlayOpen}
         onClose={closeColumnOverlays}
         ariaLabel="Fechar opções da coluna"
       />
 
-      <MgPortalPanel
+      <MakPortalPanel
         open={Boolean(columnMenuColumn)}
         panelRef={columnMenuPanelRef}
         panelClassName="dropdown-menu mg-cards-config-menu open emp-col-popup-menu"
@@ -2299,7 +2251,7 @@ export default function TBLEMP({
             })}
           </div>
         </div>
-      </MgPortalPanel>
+      </MakPortalPanel>
 
       <ErpFilterPopover
         open={Boolean(filterColumn && menuFiltroAberto)}
@@ -2380,7 +2332,7 @@ export default function TBLEMP({
             </>
           )}
         </div>
-        <div className="emp-table-bottom-dock">
+        <MakDock variant="table">
           {hasTotalRow ? (
             <div
               ref={footerScrollRef}
@@ -2438,7 +2390,7 @@ export default function TBLEMP({
               </div>
             </div>
           )}
-        </div>
+        </MakDock>
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}

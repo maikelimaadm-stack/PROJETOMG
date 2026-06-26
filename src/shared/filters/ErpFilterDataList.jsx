@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { Loader2, Search } from "lucide-react";
-import MgFilterFieldCheck from "@/modules/empresas/layout/MgFilterFieldCheck";
+import MgFilterFieldCheck from "@/framework/mak/layout/MgFilterFieldCheck";
 import ErpFilterRangeInputs from "@/shared/filters/ErpFilterRangeInputs";
 import ErpFilterSingleDateInput from "@/shared/filters/ErpFilterSingleDateInput";
 import { filterErpFilterListOptions } from "@/shared/filters/erpFilterListOptions";

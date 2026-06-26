@@ -17,6 +17,21 @@ export default defineConfig(({ mode }) => {
         "@": path.resolve(__dirname, "src"),
       },
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (!id.includes("node_modules")) return undefined;
+            if (id.includes("react-dom") || id.includes("/react/")) return "vendor-react";
+            if (id.includes("@tanstack/react-query")) return "vendor-query";
+            if (id.includes("@tanstack/react-virtual")) return "vendor-virtual";
+            if (id.includes("lucide-react")) return "vendor-icons";
+            if (id.includes("@radix-ui")) return "vendor-radix";
+            return undefined;
+          },
+        },
+      },
+    },
     server: {
       host: "0.0.0.0",
       port: 5173,

@@ -1,7 +1,7 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
-import { useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
-import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import { useMgPanelCoordinator, useMgPanelPosition } from "@/framework/mak/layout/useMgPanelPosition";
+import MgPortalPanel from "@/framework/mak/layout/MgPortalPanel";
 import ErpFilterDateField from "@/shared/filters/ErpFilterDateField";
 import {
   MONTH_SHORT,

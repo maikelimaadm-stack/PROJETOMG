@@ -8,12 +8,8 @@ import {
   Settings,
   ChevronFirst,
   ChevronLast,
-  ChevronLeft,
-  ChevronRight,
   Trash,
   X,
-  RectangleHorizontal,
-  BetweenHorizontalStart,
 } from "lucide-react";
 import { useHorizontalScrollRail } from "@/shared/hooks/useHorizontalScrollRail";
 import EmpLayoutFieldSettingsPopover from "@/framework/cadastro/layouts/EmpLayoutFieldSettingsPopover";
@@ -23,7 +19,14 @@ import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import { useContainerWidth } from "@/framework/cadastro-engine/render/useContainerWidth.js";
 import { cn } from "@/shared/utils/utils";
-import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
+import useMgSegSlider from "@/framework/mak/layout/useMgSegSlider";
+import {
+  LayoutToolbarBtn,
+  LayoutIconBtn,
+  LayoutTransferBtn,
+  LayoutConfigTabsRail,
+} from "@/framework/cadastro/configurators/layout/LayoutConfigToolbar";
+import { CardColSpanIcon, isCardColSpanSplit } from "@/framework/cadastro/configurators/layout/layoutConfigIcons";
 import {
   initCardsByPanel,
   flattenLayoutFromCards,
@@ -80,62 +83,6 @@ import {
 const DEFAULT_SYSTEM_PANEL_IDS = ["principais", "endereco", "observacoes", "campos_personalizados"];
 const DEFAULT_FIXED_PANEL_IDS = [];
 const DEFAULT_FIXED_VISIBLE_FIELD_IDS = [];
-
-const LayoutToolbarBtn = ({ className = "", children, ...props }) => (
-  <button type="button" className={`ios-btn tb-btn ${className}`} {...props}>
-    {children}
-  </button>
-);
-
-const LayoutIconBtn = ({ className = "", children, ...props }) => (
-  <LayoutToolbarBtn className={`tb-btn-ghost tb-btn-icon ${className}`} {...props}>
-    {children}
-  </LayoutToolbarBtn>
-);
-
-const LayoutTabsScrollBtn = ({ direction, disabled, onClick, label }) => {
-  const Icon = direction === "prev" ? ChevronLeft : ChevronRight;
-  return (
-    <button
-      type="button"
-      className={`ios-btn mg-nav-btn mg-panel-tabs-rail__nav mg-panel-tabs-rail__nav--${direction}`}
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={label}
-      title={label}
-    >
-      <Icon className="mg-panel-tabs-rail__nav-icon" strokeWidth={2.2} aria-hidden="true" />
-    </button>
-  );
-};
-
-const isCardColSpanSplit = (colSpan) => (Number(colSpan) || 12) <= 6;
-
-const CardColSpanIcon = ({ colSpan, className = "h-3 w-3 shrink-0" }) => {
-  const Icon = isCardColSpanSplit(colSpan) ? BetweenHorizontalStart : RectangleHorizontal;
-  return <Icon className={className} strokeWidth={2.1} aria-hidden="true" />;
-};
-
-const LayoutTransferBtn = ({ children, ...props }) => (
-  <button type="button" className="ios-btn mg-nav-btn mg-panel-tabs-rail__nav emp-layout-config-transfer-btn" {...props}>
-    {children}
-  </button>
-);
-
-const LayoutConfigTabsRail = ({ leading = null, viewportRef, canScrollLeft, canScrollRight, hasOverflow, scrollLeft, scrollRight, children }) => (
-  <div className="mg-panel-tabs-rail">
-    {leading ? <div className="mg-panel-tabs-rail__leading">{leading}</div> : null}
-    {hasOverflow ? (
-      <LayoutTabsScrollBtn direction="prev" disabled={!canScrollLeft} onClick={scrollLeft} label="Rolar para a esquerda" />
-    ) : null}
-    <div ref={viewportRef} className="mg-panel-tabs-rail__viewport">
-      {children}
-    </div>
-    {hasOverflow ? (
-      <LayoutTabsScrollBtn direction="next" disabled={!canScrollRight} onClick={scrollRight} label="Rolar para a direita" />
-    ) : null}
-  </div>
-);
 
 const isCustomPanelByIds = (panel, systemPanelIds) => panel && !systemPanelIds.includes(panel.id);
 const isCustomField = (field) => field?.origem === "customizado" || String(field?.id || "").startsWith("custom:");
