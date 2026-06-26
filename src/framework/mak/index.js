@@ -17,6 +17,17 @@ export { default as MakFormShell } from "./form/MakFormShell.jsx";
 export { default as MakCadastroForm } from "./form/MakCadastroForm.jsx";
 export { default as MakToolbar } from "./toolbar/MakToolbar.jsx";
 export { default as MakDock } from "./dock/MakDock.jsx";
+export { buildMakTableMetadata } from "./metadata/buildMakTableMetadata.js";
+export { buildMakFormMetadata } from "./metadata/buildMakFormMetadata.js";
+export { createMakModulePreferencesAdapter } from "./preferences/createMakModulePreferencesAdapter.js";
+export { readMakTablePreferencesSnapshot } from "./preferences/readMakTablePreferencesSnapshot.js";
+export {
+  buildGenericMakColumnFilters,
+  mergeGenericMakListFilters,
+} from "./filters/buildGenericMakColumnFilters.js";
+export { default as MakGenericSearchPanel } from "./search/MakGenericSearchPanel.jsx";
+export { useMakCadastroPage } from "./page/useMakCadastroPage.js";
+export { default as MakCadastroPageShell } from "./page/MakCadastroPageShell.jsx";
 export {
   MakFormPanel,
   MakTablePanel,

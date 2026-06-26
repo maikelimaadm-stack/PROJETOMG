@@ -6,6 +6,12 @@
     "pageFile": "modules/empresas/pages/PAGEMP.jsx"
   },
   {
+    "moduleId": "marcas",
+    "routePath": "/CadastroMarcas",
+    "menuLabel": "Marcas",
+    "pageFile": "modules/marcas/pages/PAGMAR.jsx"
+  },
+  {
     "moduleId": "cadcps",
     "routePath": "/CadastroCamposPersonalizados",
     "menuLabel": "Campos Personalizados",
