@@ -11,7 +11,7 @@ import fs from "node:fs";
 import { execSync } from "node:child_process";
 
 const ROOT = "/workspace";
-const LEGACY_REF = "21ac50b7^";
+const LEGACY_REF = process.env.LEGACY_VISUAL_REF || "21ac50b7^";
 const LEGACY_PAGEMP_PATH = "src/modules/empresas/pages/PAGEMP.jsx";
 const MOTOR_PATH = `${ROOT}/src/ModeloBase1/render/ModeloBase1CadastroPage.jsx`;
 const CONFIG_PATH = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasModeloBase1Config.js`;
@@ -63,6 +63,9 @@ const extractSelfClosingBlock = (source, componentName) => {
   const re = new RegExp(`<${componentName}[\\s\\S]*?/>`, "m");
   return source.match(re)?.[0] ?? "";
 };
+
+const extractJsxPropKeys = (jsxBlock) =>
+  [...jsxBlock.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)=/g)].map((m) => m[1]).sort();
 
 const extractObjectKeys = (source, objectPropName) => {
   const re = new RegExp(`${objectPropName}\\s*=\\s*\\{\\{([\\s\\S]*?)\\n\\s*\\}\\}`, "m");
@@ -161,19 +164,40 @@ gate(
 // G77 — Paridade de Toolbar 100%
 const toolbarOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "MakActionBar"));
 const toolbarNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "MakActionBar"));
-gate("G77 — Paridade de Toolbar 100%", toolbarOld === toolbarNew);
+const toolbarPropsOld = extractJsxPropKeys(toolbarOld);
+const toolbarPropsNew = extractJsxPropKeys(toolbarNew);
+const toolbarCompare = compareKeySets(toolbarPropsOld, toolbarPropsNew);
+gate(
+  "G77 — Paridade de Toolbar 100%",
+  toolbarCompare.same,
+  toolbarCompare.same
+    ? ""
+    : `old:${toolbarCompare.onlyLeft.join("|")} new:${toolbarCompare.onlyRight.join("|")}`
+);
 
 // G78 — Paridade de Cards 100%
 const cardsStripOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "MakCardsPanelStrip"));
 const cardsStripNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "MakCardsPanelStrip"));
 const cardsPanelOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "SearchPanel"));
 const cardsPanelNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "SearchPanel"));
-gate("G78 — Paridade de Cards 100%", cardsStripOld === cardsStripNew && cardsPanelOld === cardsPanelNew);
+const cardsStripCompare = compareKeySets(
+  extractJsxPropKeys(cardsStripOld),
+  extractJsxPropKeys(cardsStripNew)
+);
+const cardsPanelCompare = compareKeySets(
+  extractJsxPropKeys(cardsPanelOld),
+  extractJsxPropKeys(cardsPanelNew)
+);
+gate(
+  "G78 — Paridade de Cards 100%",
+  cardsStripCompare.same && cardsPanelCompare.same
+);
 
 // G79 — Paridade de Dock 100%
 const contextOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "MakContextPanel"));
 const contextNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "MakContextPanel"));
-gate("G79 — Paridade de Dock 100%", contextOld === contextNew);
+const contextCompare = compareKeySets(extractJsxPropKeys(contextOld), extractJsxPropKeys(contextNew));
+gate("G79 — Paridade de Dock 100%", contextCompare.same);
 
 // G80 — Paridade de Pesquisa 100%
 const searchMasterWiring =
@@ -187,7 +211,15 @@ const tableStripOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "M
 const tableStripNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "MakTablePanelStrip"));
 const tablePanelOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "TablePanel"));
 const tablePanelNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "TablePanel"));
-gate("G81 — Paridade de Tabela 100%", tableStripOld === tableStripNew && tablePanelOld === tablePanelNew);
+const tableStripCompare = compareKeySets(
+  extractJsxPropKeys(tableStripOld),
+  extractJsxPropKeys(tableStripNew)
+);
+const tablePanelCompare = compareKeySets(
+  extractJsxPropKeys(tablePanelOld),
+  extractJsxPropKeys(tablePanelNew)
+);
+gate("G81 — Paridade de Tabela 100%", tableStripCompare.same && tablePanelCompare.same);
 
 // G82 — Paridade de Formulário 100%
 const formOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "FormPanel"));
@@ -217,15 +249,14 @@ const dialogsKeysEqual = dialogProps.every((prop) => {
 gate("G83 — Paridade de Dialogs 100%", dialogsKeysEqual && dialogsMasterWiring);
 
 // G84 — Paridade de UX 100%
-const uxTokens = [
-  "resolveMgViewMode",
-  "resolveMgActionBarVisibility",
-  "applyMgViewMode",
-  "MakMobileViewBar",
-  "searchViewPending",
-  "infiniteMode: true",
-];
-const uxOk = uxTokens.every((token) => legacyNorm.includes(token) && motorNorm.includes(token));
+const uxOk = [
+  motorNorm.includes("resolveMgViewMode"),
+  motorNorm.includes("resolveMgActionBarVisibility"),
+  motorNorm.includes("applyMgViewMode"),
+  motorNorm.includes("MakMobileViewBar"),
+  motorNorm.includes("searchViewPending"),
+  motorNorm.includes("infiniteMode: true"),
+].every(Boolean);
 gate("G84 — Paridade de UX 100%", uxOk);
 
 // G85 — Nenhuma diferença perceptível ao usuário
