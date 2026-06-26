@@ -32,10 +32,14 @@ const ensureDir = (dir) => {
 
 async function tryClick(page, selectors = []) {
   for (const selector of selectors) {
-    const element = page.locator(selector).first();
-    if (await element.isVisible().catch(() => false)) {
-      await element.click({ timeout: 5000 }).catch(() => {});
-      return true;
+    const locator = page.locator(selector);
+    const count = await locator.count().catch(() => 0);
+    for (let index = 0; index < count; index += 1) {
+      const element = locator.nth(index);
+      if (await element.isVisible().catch(() => false)) {
+        await element.click({ timeout: 5000 }).catch(() => {});
+        return true;
+      }
     }
   }
   return false;
