@@ -27,7 +27,15 @@ export {
 } from "./filters/buildGenericMakColumnFilters.js";
 export { default as MakGenericSearchPanel } from "./search/MakGenericSearchPanel.jsx";
 export { useMakCadastroPage } from "./page/useMakCadastroPage.js";
+export { default as MakCadastroMotherPage } from "./page/MakCadastroMotherPage.jsx";
+export { default as MakCadastroMotherLayout } from "./page/MakCadastroMotherLayout.jsx";
 export { default as MakCadastroPageShell } from "./page/MakCadastroPageShell.jsx";
+export {
+  MAK_MOTHER_PAGE_ID,
+  MAK_MOTHER_PAGE_ROOT_CLASS,
+  resolveMakMotherPageMetadata,
+} from "./page/makMotherPage.constants.js";
+export { buildMakPageMetadata } from "./metadata/buildMakPageMetadata.js";
 export {
   MakFormPanel,
   MakTablePanel,

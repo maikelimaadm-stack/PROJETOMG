@@ -1,9 +1,10 @@
 import React, { memo } from "react";
-import MakCadastroPageShell from "@/framework/mak/page/MakCadastroPageShell.jsx";
+import MakCadastroMotherPage from "@/framework/mak/page/MakCadastroMotherPage.jsx";
 import { marcasMakModule } from "@/modules/marcas/config/marcasMakModule.js";
 
+/** Cadastro Marcas — consome a Tela Mãe Visual MAK. */
 function PAGMAR() {
-  return <MakCadastroPageShell module={marcasMakModule} />;
+  return <MakCadastroMotherPage module={marcasMakModule} />;
 }
 
 export default memo(PAGMAR);

@@ -68,6 +68,9 @@ export function useMakCadastroPage() {
     total: totalRecords,
     isInitialLoading: recordsLoading,
     isPageFetching: recordsFetching,
+    isError: isListError,
+    error: listError,
+    refetch: refetchList,
   } = useServerListQuery({
     queryKey: listQueryKey,
     queryFn: () =>
@@ -87,6 +90,11 @@ export function useMakCadastroPage() {
     if (apiMessage && String(apiMessage).trim()) return String(apiMessage);
     return fallback;
   }, []);
+
+  const listErrorMessage = useMemo(() => {
+    if (!isListError) return null;
+    return resolveErrorMessage(listError, "Verifique a conexão e tente novamente.");
+  }, [isListError, listError, resolveErrorMessage]);
 
   const stayOnRecordAfterSave = useCallback((savedRecord) => {
     if (!savedRecord?.id) {
@@ -250,6 +258,9 @@ export function useMakCadastroPage() {
     totalRecords,
     recordsLoading,
     recordsFetching,
+    isListError,
+    listErrorMessage,
+    refetchList,
     editingRecord,
     selectedTableItems,
     setSelectedTableItems,
