@@ -22,7 +22,6 @@ import { EMP_SORT_KEY } from "@/modules/empresas/config/modeloBase1/empresasTabe
 import {
   readStoredTempListagemFilters,
   writeStoredTempListagemFilters,
-  useEmpresasPreferencesBootstrapState,
   isEmpPreferencesSectionDirty,
   isRemoteTabPreferenceEvent,
   subscribeEmpPreferencesCache,
@@ -30,22 +29,21 @@ import {
   writeEmpPreferencesText,
 } from "@/modules/empresas/config/modeloBase1/empresasPreferenciasConfig.js";
 import {
-  useEmpSearchDropdownFields,
-  useEmpFavorites,
-  EMP_INFINITE_PAGE_SIZE,
-  EMP_LOAD_BATCH_STORAGE_KEY,
-  readStoredEmpLoadBatchSize,
-  useEmpresasInfiniteData,
-} from "@/modules/empresas/config/modeloBase1/empresasEventosConfig.js";
+  empresasSearchViewConfig,
+  empresasCustomFieldsConfig,
+  empresasDataConfig,
+  empresasPreferencesAdapter,
+} from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
 import {
-  useEmpViewModePreference,
-  useEmpCardsVisFields,
-  getFieldsPerRowForLayout,
-} from "@/modules/empresas/config/modeloBase1/empresasLayoutConfig.js";
-import {
-  useEmpFilterFieldsLayout,
-  useEmpCamposPersonalizados,
-} from "@/modules/empresas/config/modeloBase1/empresasFiltrosConfig.js";
+  useModeloBase1PreferencesBootstrap,
+  useModeloBase1ViewModePreference,
+  useModeloBase1CardsVisFields,
+  useModeloBase1SearchDropdownFields,
+  useModeloBase1Favorites,
+  useModeloBase1InfiniteListData,
+  useModeloBase1CustomFields,
+  useModeloBase1FilterFieldsLayout,
+} from "@/ModeloBase1/hooks";
 
 const readInitialQuerySort = () => {
   const storedSort = readEmpPreferencesJson(EMP_SORT_KEY, null);
@@ -80,6 +78,9 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
   metricsCounterKey: "empresas",
   dropdownQueryKeyPrefix: "emp-cadastro-dropdown",
   tableKey: "tbl-emp",
+  preferencesAdapter: empresasPreferencesAdapter,
+  searchView: empresasSearchViewConfig,
+  customFields: empresasCustomFieldsConfig,
 
   labels: {
     singular: empresasModuleDefinition.singularLabel,
@@ -111,20 +112,18 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
         replaceInSelector,
       };
     },
-    usePreferencesBootstrap: useEmpresasPreferencesBootstrapState,
-    useViewModePreference: useEmpViewModePreference,
-    useCardsVisFields: useEmpCardsVisFields,
-    useSearchDropdownFields: useEmpSearchDropdownFields,
-    useFavorites: useEmpFavorites,
-    useInfiniteListData: useEmpresasInfiniteData,
-    useCustomFields: useEmpCamposPersonalizados,
-    useFilterFieldsLayout: useEmpFilterFieldsLayout,
+    usePreferencesBootstrap: useModeloBase1PreferencesBootstrap,
+    useViewModePreference: useModeloBase1ViewModePreference,
+    useCardsVisFields: useModeloBase1CardsVisFields,
+    useSearchDropdownFields: useModeloBase1SearchDropdownFields,
+    useFavorites: useModeloBase1Favorites,
+    useInfiniteListData: useModeloBase1InfiniteListData,
+    useCustomFields: useModeloBase1CustomFields,
+    useFilterFieldsLayout: useModeloBase1FilterFieldsLayout,
   },
 
   data: {
-    infinitePageSize: EMP_INFINITE_PAGE_SIZE,
-    loadBatchStorageKey: EMP_LOAD_BATCH_STORAGE_KEY,
-    readStoredLoadBatchSize: readStoredEmpLoadBatchSize,
+    ...empresasDataConfig,
     patchListCache: patchEmpresasCache,
   },
 
@@ -138,7 +137,7 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
     subscribePreferencesCache: subscribeEmpPreferencesCache,
     readPreferencesJson: readEmpPreferencesJson,
     writePreferencesText: writeEmpPreferencesText,
-    getFieldsPerRowForLayout,
+    getFieldsPerRowForLayout: empresasSearchViewConfig.getFieldsPerRowForLayout,
     findRecordInList: findEmpresaInList,
     normalizeRecord: normalizeEmpresaRecord,
     buildExportRows: buildEmpresaExportRows,
@@ -169,6 +168,10 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
       );
     },
     getAttachmentTitle: (record) => record?.razao_social || record?.codempresa || "",
+    matchRecordIdentity: (item, record) =>
+      item.id === record?.id ||
+      (record?.codempresa != null &&
+        Number(item.codempresa) === Number(record.codempresa)),
   },
 
   export: {

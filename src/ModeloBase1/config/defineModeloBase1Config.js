@@ -1,6 +1,6 @@
 /**
  * Factory/validador da configuração declarativa do ModeloBase1.
- * Cada cadastro (Empresas, Clientes, etc.) fornece um config — o motor apenas renderiza.
+ * Cada cadastro fornece um config declarativo — o motor apenas renderiza.
  *
  * @param {import('./ModeloBase1Config.types.js').ModeloBase1Config} config
  */
