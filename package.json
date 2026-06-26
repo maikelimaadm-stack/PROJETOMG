@@ -38,7 +38,7 @@
     "test:filters:e2e": "npx vite-node scripts/tests/e2e-filtros-avancados-consistency.mjs",
     "test:filters:all": "npm run test:filters:frontend && npm run test:filters:backend && npm run test:filters:e2e",
     "test:filters:selection": "npx vite-node scripts/tests/e2e-filtros-selecao-valores.mjs",
-    "test:preferences:frontend": "node scripts/tests/run-preferences-frontend-suite.mjs",
+    "test:preferences:frontend": "npx vite-node scripts/tests/user-preferences-scope.unit.mjs && npx vite-node scripts/tests/preferences-storage.unit.mjs && npx vite-node scripts/tests/empresas-bootstrap.unit.mjs && npx vite-node scripts/tests/emp-column-layout.unit.mjs && npx vite-node scripts/tests/emp-table-catalog-expand.unit.mjs && npx vite-node scripts/tests/emp-table-frozen-prefs.unit.mjs && npx vite-node scripts/tests/mak-user-preferences-cache.unit.mjs && npx vite-node scripts/tests/mak-placeholder-actions.unit.mjs && npx vite-node scripts/tests/ensure-mak-prototype-styles.unit.mjs && npx vite-node scripts/tests/mak-module-contract.unit.mjs",
     "test:preferences:isolation-mock": "playwright test e2e/empresas-preferences-isolation-mock.spec.js --config=playwright.mock.config.js",
     "test:preferences:isolation-real": "playwright test --config=playwright.staging-pr223.config.js",
     "test:preferences:schema-evidence": "node backend/scripts/validatePreferencesSchemaEvidence.js",

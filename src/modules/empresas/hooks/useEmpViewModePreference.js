@@ -7,7 +7,7 @@ import {
 import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/preferences/empresasPreferencesBootstrapEvents";
 import { shouldRefreshListagemHydrate } from "@/modules/empresas/preferences/empListagemSectionCacheEvents";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
-import { normalizeEmpListViewMode } from "@/framework/mak/layout/mgViewMode.js";
+import { normalizeEmpListViewMode } from "@/modules/empresas/layout/mgViewMode";
 
 const shouldRefreshViewModeByCacheEvent = ({ reason = "" } = {}) => {
   const normalized = String(reason || "").toLowerCase();

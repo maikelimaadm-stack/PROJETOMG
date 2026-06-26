@@ -70,16 +70,13 @@ import {
   resolveErpFilterEnumOptions,
   resolveErpFilterMeta,
 } from "@/shared/filters";
-import {
-  MakPortalPanel,
-  MakConfigBackdrop,
-  isNestedMgFloatingPanelTarget,
-  useMgPanelPosition,
-} from "@/framework/mak/layout";
+import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
 import { MakEmptyState } from "@/framework/mak/ux";
-import MakDock from "@/framework/mak/dock/MakDock";
+import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
+import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
+import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
-import { buildMakColumnFilters, mergeMakListFilters } from "@/framework/mak/filters";
+import { buildEmpresaColumnFilters, mergeEmpresaListFilters } from "@/shared/listing/buildEmpresaListFilters";
 import {
   emitEmpPreferencesCacheUpdate,
   readEmpPreferencesJson,
@@ -1897,8 +1894,8 @@ export default function TBLEMP({
         acc[columnId] = value;
         return acc;
       }, {});
-      const cascadedFilters = buildMakColumnFilters("empresas", cascadedColumnFilters);
-      return mergeMakListFilters("empresas", contextFilters, cascadedFilters);
+      const cascadedFilters = buildEmpresaColumnFilters(cascadedColumnFilters);
+      return mergeEmpresaListFilters(contextFilters, cascadedFilters);
     },
     [normalizedFilterOptionsMode, selectorOptionsContextFilters, filtrosColunas]
   );
@@ -2266,13 +2263,13 @@ export default function TBLEMP({
 
   return (
     <div className={`emp-table-root flex h-full min-h-0 flex-1 flex-col overflow-hidden select-none${mgPrototype ? " mg-grid-wrapper" : ""}`}>
-      <MakConfigBackdrop
+      <MgConfigBackdrop
         open={isColumnOverlayOpen}
         onClose={closeColumnOverlays}
         ariaLabel="Fechar opções da coluna"
       />
 
-      <MakPortalPanel
+      <MgPortalPanel
         open={Boolean(columnMenuColumn)}
         panelRef={columnMenuPanelRef}
         panelClassName="dropdown-menu mg-cards-config-menu open emp-col-popup-menu"
@@ -2302,7 +2299,7 @@ export default function TBLEMP({
             })}
           </div>
         </div>
-      </MakPortalPanel>
+      </MgPortalPanel>
 
       <ErpFilterPopover
         open={Boolean(filterColumn && menuFiltroAberto)}
@@ -2383,7 +2380,7 @@ export default function TBLEMP({
             </>
           )}
         </div>
-        <MakDock variant="table">
+        <div className="emp-table-bottom-dock">
           {hasTotalRow ? (
             <div
               ref={footerScrollRef}
@@ -2441,7 +2438,7 @@ export default function TBLEMP({
               </div>
             </div>
           )}
-        </MakDock>
+        </div>
       </div>
       <EmpConfiguracaoColunasDialog
         open={showConfigColunas}

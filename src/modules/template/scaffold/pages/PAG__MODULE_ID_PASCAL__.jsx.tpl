@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { showSuccess, showError } from "@/shared/feedback";
-/** Módulos MG completos devem seguir o padrão Empresas (MakToolbar/MakCadastroPage). */
 import SankhyaListToolbar from "@/framework/cadastro/toolbars/EmpListToolbar";
 import EmpSplitToolbarLayout from "@/framework/cadastro/layouts/EmpSplitToolbarLayout";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";

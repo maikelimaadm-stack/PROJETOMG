@@ -1,11 +1,7 @@
 import React, { useLayoutEffect, useRef, useState } from "react";
 import { Check, ChevronDown, ChevronsDown, Loader2 } from "lucide-react";
-import {
-  MakPortalPanel,
-  closeMgPanels,
-  useMgPanelCoordinator,
-  useMgPanelPosition,
-} from "@/framework/mak/layout";
+import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import { closeMgPanels, useMgPanelCoordinator, useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
 import { EMP_LOAD_BATCH_OPTIONS } from "@/modules/empresas/hooks/useEmpresasInfiniteData";
 
 function EmpLoadBatchSelect({ value, onChange }) {
@@ -61,7 +57,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
         <span className="mg-records-batch-trigger__value">{value}</span>
         <ChevronDown className="mg-records-batch-trigger__chevron" strokeWidth={2.2} aria-hidden="true" />
       </button>
-      <MakPortalPanel
+      <MgPortalPanel
         open={open}
         panelRef={panelRef}
         panelClassName="dropdown-menu mg-cards-config-menu open emp-load-batch-menu"
@@ -87,7 +83,7 @@ function EmpLoadBatchSelect({ value, onChange }) {
             </button>
           ))}
         </div>
-      </MakPortalPanel>
+      </MgPortalPanel>
     </>
   );
 }

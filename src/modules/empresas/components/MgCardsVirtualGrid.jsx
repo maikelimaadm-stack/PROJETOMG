@@ -1,6 +1,6 @@
 import React, { memo, useLayoutEffect, useRef } from "react";
 import { Check } from "lucide-react";
-import { MakRecordFavoriteStar } from "@/framework/mak/layout";
+import MgRecordFavoriteStar from "@/modules/empresas/layout/MgRecordFavoriteStar";
 import {
   getEmpSearchAvatarColor,
   getEmpSearchFieldValue,
@@ -200,7 +200,7 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
               </div>
               <div className="min-w-0 flex-1">
                 <div className="mg-emp-card__meta-row truncate text-xs">
-                  <MakRecordFavoriteStar
+                  <MgRecordFavoriteStar
                     active={isFavorite}
                     onToggle={() => onToggleFavorite?.(emp.id)}
                     className="mg-emp-card__fav-btn"

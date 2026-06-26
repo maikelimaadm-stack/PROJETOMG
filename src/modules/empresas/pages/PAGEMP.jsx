@@ -19,21 +19,15 @@ import {
   EmpresasSearchPanel,
   EmpresasTablePanel,
 } from "./PAGEMP.sections";
-import {
-  MakActionBar,
-  MakCardsPanelStrip,
-  MakTablePanelStrip,
-  MakFilterPanel,
-  MakContextPanel,
-  MakMobileViewBar,
-  useMakChrome,
-  applyMgViewMode,
-  resolveMgViewMode,
-  resolveMgActionBarVisibility,
-  buildMgFilterFields,
-  buildPanelFilterColumnMap,
-} from "@/framework/mak/layout";
-import { useMakPermissions } from "@/framework/mak/permissions";
+import MgActionBar from "@/modules/empresas/layout/MgActionBar";
+import MgCardsPanelStrip from "@/modules/empresas/layout/MgCardsPanelStrip";
+import MgTablePanelStrip from "@/modules/empresas/layout/MgTablePanelStrip";
+import MgFilterPanel from "@/modules/empresas/layout/MgFilterPanel";
+import MgContextPanel from "@/modules/empresas/layout/MgContextPanel";
+import MgMobileViewBar from "@/modules/empresas/layout/MgMobileViewBar";
+import { useMgEmpresasChrome } from "@/modules/empresas/layout/MgEmpresasChromeContext";
+import { applyMgViewMode, resolveMgViewMode } from "@/modules/empresas/layout/mgViewMode";
+import { resolveMgActionBarVisibility } from "@/modules/empresas/layout/mgActionBarRules";
 import { useEmpCardsVisFields } from "@/modules/empresas/hooks/useEmpCardsVisFields";
 import { getFieldsPerRowForLayout } from "@/modules/empresas/components/empSearchView.constants";
 import { useEmpSearchDropdownFields } from "@/modules/empresas/hooks/useEmpSearchDropdownFields";
@@ -52,10 +46,10 @@ import {
   LIST_SEARCH_DEBOUNCE_MS,
 } from "@/shared/listing/listQueryConfig";
 import {
-  buildMakColumnFilters,
-  buildMakPanelFilters,
-  mergeMakListFilters,
-} from "@/framework/mak/filters";
+  buildEmpresaColumnFilters,
+  buildEmpresaPanelFilters,
+  mergeEmpresaListFilters,
+} from "@/shared/listing/buildEmpresaListFilters";
 import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 import { buildEmpresaExportRows } from "@/modules/empresas/utils/empExportRows";
 import { patchMetricsCache, setMetricsCache } from "@/apis/metrics/metricsCache";
@@ -66,6 +60,10 @@ import { useSaveCycle } from "@/shared/hooks/useSaveCycle";
 import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
 import { useEmpFilterFieldsLayout } from "@/modules/empresas/hooks/useEmpFilterFieldsLayout";
 import EmpConfiguracaoFiltrosDialog from "@/modules/empresas/components/EmpConfiguracaoFiltrosDialog";
+import {
+  buildMgFilterFields,
+  buildPanelFilterColumnMap,
+} from "@/modules/empresas/layout/mgFilterFields";
 import {
   cloneErpFilter,
   isErpFilterActive,
@@ -90,7 +88,6 @@ import {
 } from "@/modules/empresas/components/tblEmp.constants";
 
 const DROPDOWN_PAGE_SIZE = 30;
-const MAK_MODULE_ID = "empresas";
 
 const readInitialQuerySort = () => {
   const storedSort = readEmpPreferencesJson(SORT_KEY, null);
@@ -216,7 +213,6 @@ const patchEmpresasCache = (queryClient, updater) => {
 };
 
 export default function PAGEMP() {
-  const makPermissions = useMakPermissions();
   const {
     user,
     empresas: empresasSelector,
@@ -320,7 +316,7 @@ export default function PAGEMP() {
     closeFilterPanel,
     toggleFilterPanel,
     setBreadcrumbSuffix,
-  } = useMakChrome();
+  } = useMgEmpresasChrome();
   const [filterValues, setFilterValues] = useState({});
   const [appliedFilterValues, setAppliedFilterValues] = useState({});
   const [formBridge, setFormBridge] = useState(null);
@@ -369,7 +365,7 @@ export default function PAGEMP() {
       stableJsonEqual(current || {}, syncedPanelValues || {}) ? current : syncedPanelValues
     );
     setAppliedPanelFilters((current) => {
-      const next = buildMakPanelFilters(MAK_MODULE_ID,syncedPanelValues);
+      const next = buildEmpresaPanelFilters(syncedPanelValues);
       return stableJsonEqual(current, next) ? current : next;
     });
   }, [catalogFilterFields.length, panelFilterColumnMap, preferencesReady]);
@@ -476,7 +472,7 @@ export default function PAGEMP() {
 
   const serverBaseFilters = useMemo(
     () =>
-      mergeMakListFilters(MAK_MODULE_ID,
+      mergeEmpresaListFilters(
         appliedPanelFilters,
         searchFavoritesOnly ? { ids: favoriteIds } : undefined
       ),
@@ -484,15 +480,15 @@ export default function PAGEMP() {
   );
 
   const selectorOptionsBaseFilters = useMemo(
-    () => mergeMakListFilters(MAK_MODULE_ID,searchFavoritesOnly ? { ids: favoriteIds } : undefined),
+    () => mergeEmpresaListFilters(searchFavoritesOnly ? { ids: favoriteIds } : undefined),
     [searchFavoritesOnly, favoriteIds]
   );
 
   const listFilters = useMemo(
     () =>
-      mergeMakListFilters(MAK_MODULE_ID,
+      mergeEmpresaListFilters(
         appliedPanelFilters,
-        buildMakColumnFilters(MAK_MODULE_ID,columnFilters),
+        buildEmpresaColumnFilters(columnFilters),
         searchFavoritesOnly ? { ids: favoriteIds } : undefined
       ),
     [appliedPanelFilters, columnFilters, searchFavoritesOnly, favoriteIds]
@@ -998,7 +994,7 @@ export default function PAGEMP() {
         setFilterValues(snapshot);
       }
       setAppliedFilterValues({ ...nextValues });
-      setAppliedPanelFilters(buildMakPanelFilters(MAK_MODULE_ID,nextValues));
+      setAppliedPanelFilters(buildEmpresaPanelFilters(nextValues));
       setColumnFiltersHydrated(true);
       setColumnFilters((prev) => syncPanelFiltersIntoColumns(nextValues, prev, panelFilterColumnMap));
       setQueryPage(1);
@@ -1022,7 +1018,7 @@ export default function PAGEMP() {
     setColumnFilters(safeNext);
     setFilterValues(syncedPanelValues);
     setAppliedFilterValues(syncedPanelValues);
-    setAppliedPanelFilters(buildMakPanelFilters(MAK_MODULE_ID,syncedPanelValues));
+    setAppliedPanelFilters(buildEmpresaPanelFilters(syncedPanelValues));
     setQueryPage(1);
   }, [panelFilterColumnMap]);
 
@@ -1612,7 +1608,7 @@ export default function PAGEMP() {
         </div>
       ) : null}
       <div className="flex min-h-0 flex-1 overflow-hidden">
-        <MakFilterPanel
+        <MgFilterPanel
           open={filterPanelOpen}
           values={filterValues}
           onChange={handleFilterChange}
@@ -1624,7 +1620,7 @@ export default function PAGEMP() {
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <div className="mg-subtoolbar-stack">
-            <MakActionBar
+            <MgActionBar
             viewMode={mgViewMode}
             onViewModeChange={handleMgViewModeChange}
             searchInputValue={searchDraft}
@@ -1649,29 +1645,23 @@ export default function PAGEMP() {
             onToggleFilter={toggleFilterPanel}
             filterActive={hasActiveFilters}
             showFilterToggle={!showForm}
-            onNew={makPermissions.canCreate ? handleNew : undefined}
+            onNew={handleNew}
             onSave={formBridge?.onSave}
             onCancel={formBridge?.onCancel ?? formCancel}
             onEdit={
-              makPermissions.canEdit
-                ? showForm
-                  ? formBridge?.onEdit
-                  : () => selectedTableEmp && handleEdit(selectedTableEmp)
-                : undefined
+              showForm
+                ? formBridge?.onEdit
+                : () => selectedTableEmp && handleEdit(selectedTableEmp)
             }
             onDelete={
-              makPermissions.canDelete
-                ? showForm
-                  ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
-                  : () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)
-                : undefined
+              showForm
+                ? () => editingEmp?.id && handleRequestDelete(editingEmp.id)
+                : () => selectedTableItems.length > 0 && handleRequestDelete(selectedTableItems)
             }
             onDuplicate={
-              makPermissions.canEdit
-                ? showForm
-                  ? () => editingEmp && handleDuplicate(editingEmp)
-                  : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
-                : undefined
+              showForm
+                ? () => editingEmp && handleDuplicate(editingEmp)
+                : () => selectedTableEmp && handleDuplicate(selectedTableEmp)
             }
             onAttach={() => {
               if (showForm) {
@@ -1684,8 +1674,8 @@ export default function PAGEMP() {
               }
             }}
             attachDisabled={!showForm && selectedTableItems.length !== 1}
-            onExportExcel={makPermissions.canExport ? handleExportExcel : undefined}
-            onExportPdf={makPermissions.canExport ? handleExportPdf : undefined}
+            onExportExcel={handleExportExcel}
+            onExportPdf={handleExportPdf}
             onPrint={handlePrint}
             onHistory={handleOpenHistory}
             onConfigColumns={() => setShowConfigColunas(true)}
@@ -1698,7 +1688,7 @@ export default function PAGEMP() {
             />
 
             <div className={`mg-context-panel-wrap${showForm && !formBridge?.layoutConfigOpen ? " is-visible" : ""}`}>
-              <MakContextPanel
+              <MgContextPanel
                 code={recordCode}
                 title={recordTitle}
                 total={recordNav.effectiveTotal}
@@ -1718,7 +1708,7 @@ export default function PAGEMP() {
             </div>
 
             <div className={`mg-cards-panel-wrap${!showForm && mgViewMode === "cards" ? " is-visible" : ""}`}>
-              <MakCardsPanelStrip
+              <MgCardsPanelStrip
                 fields={cardsVisFields.configFields}
                 onSave={cardsVisFields.saveConfig}
                 onRestoreDefaults={cardsVisFields.getRestoreDefaults}
@@ -1745,7 +1735,7 @@ export default function PAGEMP() {
             </div>
 
             <div className={`mg-table-panel-wrap${!showForm && mgViewMode === "tabela" ? " is-visible" : ""}`}>
-              <MakTablePanelStrip
+              <MgTablePanelStrip
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
                 filterFields={filterFields}
@@ -1900,7 +1890,7 @@ export default function PAGEMP() {
         </div>
       </div>
 
-      <MakMobileViewBar
+      <MgMobileViewBar
         value={mgViewMode}
         onChange={handleMgViewModeChange}
         disabled={saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked}
