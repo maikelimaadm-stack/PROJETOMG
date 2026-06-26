@@ -36,6 +36,12 @@ import {
 import { readStoredTempListagemFilters } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 
+export const normalizeFrozenColumnCount = (count, visibleCount = 0) => {
+  const safeVisible = Math.max(0, Number(visibleCount) || 0);
+  const parsed = Math.floor(Number(count) || 0);
+  return Math.max(0, Math.min(parsed, safeVisible));
+};
+
 const readSortConfig = () => {
   const saved = readEmpPreferencesJson(SORT_KEY, null);
   if (Array.isArray(saved) && saved.length > 0) {
@@ -72,7 +78,10 @@ export const readEmpTablePreferencesSnapshot = (colunasDisponiveis = COLUNAS_BAS
     colunasOrdem: ordem,
     colunasVisiveis: visiveis,
     columnWidths: savedWidths && typeof savedWidths === "object" ? { ...defaults, ...savedWidths } : defaults,
-    frozenColumnCount: Math.max(0, Number(readEmpPreferencesText(FROZEN_KEY, "0")) || 0),
+    frozenColumnCount: normalizeFrozenColumnCount(
+      readEmpPreferencesText(FROZEN_KEY, "0"),
+      visiveis.length
+    ),
     sortConfig: readSortConfig(),
     filtrosColunas: readStoredTempListagemFilters(),
     layoutAggregationConfig: readEmpPreferencesJson(AGGR_KEY, {}) || {},

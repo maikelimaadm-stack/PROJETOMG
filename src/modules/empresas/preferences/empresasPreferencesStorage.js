@@ -296,6 +296,15 @@ export const applyListagemPreferencesToStorage = (preferences = {}, options = {}
     return true;
   };
 
+  const shouldPreserveLocalTableStorage = (storageKey, remoteValue, { compare = (left, right) => left === right } = {}) => {
+    if (!respectDirtySections || !hasScopedPreferenceValue(storageKey)) return false;
+    const localRaw = readStorage(storageKey);
+    if (localRaw == null) return false;
+    if (compare(localRaw, remoteValue)) return false;
+    markEmpPreferencesSectionDirty("table");
+    return true;
+  };
+
   withEmpPreferencesCacheBatch(() => {
     if (
       normalized.view.mode &&
@@ -340,26 +349,41 @@ export const applyListagemPreferencesToStorage = (preferences = {}, options = {}
         }
         markVisibleColumnsInitialized();
       }
-      if (table.columnWidths && writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), reason)) {
+      if (
+        table.columnWidths &&
+        !shouldPreserveLocalTableStorage(WIDTHS_KEY, safeStringify(table.columnWidths), {
+          compare: (left, right) => stableJsonEqual(safeParseJson(left, {}), safeParseJson(right, {})),
+        }) &&
+        writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), reason)
+      ) {
         visualChange = true;
       }
-      if (table.columnSizingMode) {
-        if (writeStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), reason)) {
-          visualChange = true;
-        }
+      if (
+        table.columnSizingMode &&
+        !shouldPreserveLocalTableStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), {
+          compare: (left, right) =>
+            stableJsonEqual(safeParseJson(left, {}), safeParseJson(right, {})),
+        }) &&
+        writeStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), reason)
+      ) {
+        visualChange = true;
       }
       if (table.frozenLeftColumnCount != null) {
+        const remoteFrozen = String(Number(table.frozenLeftColumnCount) || 0);
         if (
-          writeStorage(
-            FROZEN_KEY,
-            String(Number(table.frozenLeftColumnCount) || 0),
-            reason
-          )
+          !shouldPreserveLocalTableStorage(FROZEN_KEY, remoteFrozen) &&
+          writeStorage(FROZEN_KEY, remoteFrozen, reason)
         ) {
           visualChange = true;
         }
       }
-      if (table.sort && writeStorage(SORT_KEY, safeStringify(table.sort), reason)) {
+      if (
+        table.sort &&
+        !shouldPreserveLocalTableStorage(SORT_KEY, safeStringify(table.sort), {
+          compare: (left, right) => stableJsonEqual(safeParseJson(left, []), safeParseJson(right, [])),
+        }) &&
+        writeStorage(SORT_KEY, safeStringify(table.sort), reason)
+      ) {
         visualChange = true;
       }
       if (table.pageSize != null) {
