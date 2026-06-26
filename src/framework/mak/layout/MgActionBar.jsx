@@ -19,8 +19,8 @@ import MgSpeedDialMenu from "./MgSpeedDialMenu";
 import MgSearchResultsDropdown from "./MgSearchResultsDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
-  createMakActionBarHistoryHandler,
-  createMakActionBarPrintHandler,
+  createMakHistoryPlaceholder,
+  createMakPrintPlaceholder,
 } from "@/framework/mak/ux/makActionBarPlaceholders";
 
 const DESKTOP_SEARCH_ANIM_MS = 220;
@@ -240,8 +240,8 @@ export default function MgActionBar({
 
   const speedDialItems = useMemo(() => {
     const items = [];
-    const handlePrint = createMakActionBarPrintHandler(onPrint);
-    const handleHistory = createMakActionBarHistoryHandler(onHistory);
+    const handlePrint = createMakPrintPlaceholder(onPrint);
+    const handleHistory = createMakHistoryPlaceholder(onHistory);
 
     if (onDuplicate && !showDuplicate) {
       items.push({
