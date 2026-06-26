@@ -77,6 +77,7 @@ import {
   useMgPanelPosition,
 } from "@/framework/mak/layout";
 import { MakEmptyState } from "@/framework/mak/ux";
+import MakTableSelectCheck from "@/framework/mak/table/MakTableSelectCheck";
 import MakDock from "@/framework/mak/dock/MakDock";
 import EmpLoadBatchControls from "@/modules/empresas/components/EmpLoadBatchControls";
 import { buildMakColumnFilters, mergeMakListFilters } from "@/framework/mak/filters";
@@ -120,58 +121,6 @@ function haveSameRecordIds(listA = [], listB = []) {
   if (listA === listB) return true;
   if (listA.length !== listB.length) return false;
   return listA.every((item, index) => item?.id === listB[index]?.id);
-}
-
-function FilterFieldCheck({ checked, onChange, disabled = false }) {
-  return (
-    <span
-      className={`mg-cards-config-menu__check${checked ? " is-checked" : ""}${disabled ? " is-locked" : ""}`}
-    >
-      <input
-        type="checkbox"
-        className="mg-cards-config-menu__checkbox-input"
-        checked={checked}
-        disabled={disabled}
-        onChange={onChange}
-      />
-      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} aria-hidden="true" /> : null}
-    </span>
-  );
-}
-
-function TableSelectCheck({ checked, indeterminate = false, onChange, ariaLabel, disabled = false }) {
-  const inputRef = useRef(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.indeterminate = Boolean(indeterminate) && !checked;
-    }
-  }, [indeterminate, checked]);
-
-  return (
-    <span
-      className={`mg-cards-config-menu__check emp-table-select-check${checked ? " is-checked" : ""}${indeterminate && !checked ? " is-indeterminate" : ""}${disabled ? " is-locked" : ""}`}
-      onClick={(event) => event.stopPropagation()}
-    >
-      <input
-        ref={inputRef}
-        type="checkbox"
-        className="mg-cards-config-menu__checkbox-input"
-        checked={checked}
-        disabled={disabled}
-        aria-label={ariaLabel}
-        onChange={(event) => {
-          event.stopPropagation();
-          onChange?.(event);
-        }}
-        onClick={(event) => event.stopPropagation()}
-      />
-      {checked ? <Check className="mg-cards-config-menu__check-icon" strokeWidth={2.5} aria-hidden="true" /> : null}
-      {indeterminate && !checked ? (
-        <span className="mg-cards-config-menu__check-dash" aria-hidden="true" />
-      ) : null}
-    </span>
-  );
 }
 
 const readStorageJSON = (key, fallback) => {
@@ -1080,7 +1029,7 @@ export default function TBLEMP({
       className="emp-th emp-th-select relative align-middle whitespace-nowrap py-0 select-none cursor-default text-center sticky z-[60]"
     >
       <div className="emp-table-select-wrap">
-        <TableSelectCheck
+        <MakTableSelectCheck
           checked={allListedSelected}
           indeterminate={someListedSelected && !allListedSelected}
           disabled={listedEmpresaIds.length === 0}
@@ -1120,7 +1069,7 @@ export default function TBLEMP({
         onClick={(event) => event.stopPropagation()}
       >
         <div className="emp-table-select-wrap">
-          <TableSelectCheck
+          <MakTableSelectCheck
             checked={isSelected}
             ariaLabel={`Selecionar ${emp.razao_social || emp.codempresa || emp.id}`}
             onChange={() => handleToggleRowCheckbox(emp.id)}

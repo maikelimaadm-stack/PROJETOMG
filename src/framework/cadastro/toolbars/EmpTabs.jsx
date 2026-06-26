@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import EmpCustomMarker from "@/framework/cadastro/formularios/EmpCustomMarker";
-import useMgSegSlider from "@/modules/empresas/layout/useMgSegSlider";
+import useMgSegSlider from "@/framework/mak/layout/useMgSegSlider";
 import { useHorizontalScrollRail } from "@/shared/hooks/useHorizontalScrollRail";
 
 export const EMP_SYSTEM_PANEL_IDS = [

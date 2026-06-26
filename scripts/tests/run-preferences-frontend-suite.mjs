@@ -17,6 +17,7 @@ const tests = [
   "mak-placeholder-actions.unit.mjs",
   "mak-module-contract.unit.mjs",
   "mak-list-filters-routes.unit.mjs",
+  "mak-sync-panel-column-filters.unit.mjs",
   "ensure-mak-prototype-styles.unit.mjs",
 ];
 

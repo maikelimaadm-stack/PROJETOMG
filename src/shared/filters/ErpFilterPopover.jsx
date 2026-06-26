@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import MgPortalPanel from "@/framework/mak/layout/MgPortalPanel";
 import ErpFilterSortSection from "@/shared/filters/ErpFilterSortSection";
 import ErpFilterOperatorSelect from "@/shared/filters/ErpFilterOperatorSelect";
 import ErpFilterDataList from "@/shared/filters/ErpFilterDataList";

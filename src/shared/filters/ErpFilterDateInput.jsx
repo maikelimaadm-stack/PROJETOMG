@@ -1,5 +1,5 @@
 import React from "react";
-import MgDatePicker from "@/modules/empresas/layout/MgDatePicker";
+import MgDatePicker from "@/framework/mak/layout/MgDatePicker";
 
 /** Campo de data compacto para filtros ERP — alterações ficam em rascunho até OK. */
 export default function ErpFilterDateInput({

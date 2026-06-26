@@ -6,6 +6,12 @@ export * from "./events/index.js";
 export * from "./permissions/index.js";
 export * from "./filters/index.js";
 export { default as MakTable } from "./table/MakTable.jsx";
+export { default as MakTableSelectCheck } from "./table/MakTableSelectCheck.jsx";
+export { patchInfiniteListCache } from "./data/patchInfiniteListCache.js";
+export {
+  syncPanelFiltersIntoColumns,
+  syncColumnsIntoPanelFilters,
+} from "./listing/syncPanelColumnFilters.js";
 export { default as MakFormShell } from "./form/MakFormShell.jsx";
 export { default as MakToolbar } from "./toolbar/MakToolbar.jsx";
 export { default as MakDock } from "./dock/MakDock.jsx";

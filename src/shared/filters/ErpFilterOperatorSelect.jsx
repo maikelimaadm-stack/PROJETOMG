@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
+import MgCmdSelect from "@/framework/mak/layout/MgCmdSelect";
 import {
   getErpFilterOperatorLabel,
   getErpListFilterOperators,

@@ -7,10 +7,10 @@ import CadOptionListControl from "../design-system/CadOptionListControl.jsx";
 import CadFormImageField from "../design-system/CadFormImageField.jsx";
 import CadToggle from "../design-system/CadToggle.jsx";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
-import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
-import MgDatePicker from "@/modules/empresas/layout/MgDatePicker";
-import MgTimePicker from "@/modules/empresas/layout/MgTimePicker";
-import MgLookup from "@/modules/empresas/layout/MgLookup";
+import MgCmdSelect from "@/framework/mak/layout/MgCmdSelect";
+import MgDatePicker from "@/framework/mak/layout/MgDatePicker";
+import MgTimePicker from "@/framework/mak/layout/MgTimePicker";
+import MgLookup from "@/framework/mak/layout/MgLookup";
 
 const isMgDateTipo = (campo, tipoCanon) =>
   ["date", "datetime", "datetime-local", "data", "data_hora", "datahora"].includes(campo?.tipo) ||
