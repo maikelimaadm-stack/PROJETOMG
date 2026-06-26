@@ -1,10 +1,12 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-query";
-import { showSuccess, showError } from "@/shared/feedback";
+import { showSuccess, showError, showInfo } from "@/shared/feedback";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { printCadastroTable } from "@/framework/cadastro/exports/tableExportUtils";
+import { MakMasterHistory } from "@/framework/mak/ux";
+import { MAK_PRINT_PLACEHOLDER_MESSAGE } from "@/framework/mak/ux/makPlaceholderActions";
 import {
   getEmpPdfExportConfig,
   getEmpExcelExportConfig,
@@ -240,6 +242,7 @@ export default function PAGEMP() {
   const [showConfigFiltros, setShowConfigFiltros] = useState(false);
   const [showConfigPdf, setShowConfigPdf] = useState(false);
   const [showConfigExcel, setShowConfigExcel] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const { viewMode, setViewMode } = useEmpViewModePreference("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchDraft, setSearchDraft] = useState("");
@@ -1502,6 +1505,61 @@ export default function PAGEMP() {
     }
   };
 
+  const handlePrint = useCallback(() => {
+    const printTitle = `${moduleLabels.title} - ${new Date().toLocaleDateString("pt-BR")}`;
+    const singleRecord =
+      showForm && editingEmp
+        ? editingEmp
+        : pinnedRecord || (selectedTableItems.length === 1 ? selectedTableEmp : null);
+
+    if (singleRecord) {
+      const config = getEmpPdfExportConfig();
+      const srcCols = config.useConfiguredColumns
+        ? visibleTableData.allColumns || visibleTableData.columns
+        : visibleTableData.columns;
+      const selCols =
+        config.useConfiguredColumns && config.columnIds.length
+          ? srcCols.filter((c) => config.columnIds.includes(c.id))
+          : srcCols;
+      const rows = buildEmpresaExportRows([singleRecord], selCols);
+      printCadastroTable({ columns: selCols, rows, totalRows: [], title: printTitle });
+      return;
+    }
+
+    if (visibleTableData.rows?.length && visibleTableData.columns?.length) {
+      printCadastroTable({
+        columns: visibleTableData.columns,
+        rows: visibleTableData.selectedRows?.length
+          ? visibleTableData.selectedRows
+          : visibleTableData.rows,
+        totalRows: visibleTableData.totalRows || [],
+        title: printTitle,
+      });
+      return;
+    }
+
+    showInfo(MAK_PRINT_PLACEHOLDER_MESSAGE);
+  }, [
+    editingEmp,
+    pinnedRecord,
+    selectedTableEmp,
+    selectedTableItems.length,
+    showForm,
+    visibleTableData,
+  ]);
+
+  const handleOpenHistory = useCallback(() => {
+    if (showForm && editingEmp?.id) {
+      setHistoryOpen(true);
+      return;
+    }
+    if (selectedTableItems.length === 1 && selectedTableEmp) {
+      setHistoryOpen(true);
+      return;
+    }
+    setHistoryOpen(true);
+  }, [editingEmp?.id, selectedTableEmp, selectedTableItems.length, showForm]);
+
   const formCancel = () => {
     if (editingEmp && !editingEmp._isDuplicate) {
       setFormVersion((p) => p + 1);
@@ -1618,6 +1676,8 @@ export default function PAGEMP() {
             attachDisabled={!showForm && selectedTableItems.length !== 1}
             onExportExcel={handleExportExcel}
             onExportPdf={handleExportPdf}
+            onPrint={handlePrint}
+            onHistory={handleOpenHistory}
             onConfigColumns={() => setShowConfigColunas(true)}
             onLayoutConfig={formBridge?.onLayoutConfig}
             actionsLocked={saveCycle.isSaving}
@@ -1898,6 +1958,13 @@ export default function PAGEMP() {
           variant: "destructive",
           onConfirm: handleConfirmDelete,
         }}
+      />
+      <MakMasterHistory
+        open={historyOpen}
+        onOpenChange={setHistoryOpen}
+        moduleLabel={moduleLabels.singular}
+        recordCode={recordCode || null}
+        recordTitle={recordTitle || null}
       />
     </div>
   );

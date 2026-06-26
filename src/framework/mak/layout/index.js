@@ -5,6 +5,7 @@
 export { default as MakDesktopHeader } from "./MgDesktopHeader";
 export { default as MakMobileHeader } from "./MgMobileHeader";
 export { default as MakMobileOverlays } from "./MgEmpresasMobileOverlays";
+export { default as MakShell } from "./MgEmpresasShell";
 export {
   MgEmpresasChromeProvider as MakChromeProvider,
   useMgEmpresasChrome as useMakChrome,

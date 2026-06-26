@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2, Search, Star, X } from "lucide-react";
+import { MakEmptyState } from "@/framework/mak/ux";
 import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePagination";
 import MgCardsVirtualGrid from "./MgCardsVirtualGrid";
 import {
@@ -525,9 +526,12 @@ export default function SRCHEMP({
         {isLoading ? (
           <div className="py-8" aria-hidden="true" />
         ) : filteredEmpresas.length === 0 ? (
-          <div className="emp-search-empty">
-            {showOnlyFavorites ? "Nenhum favorito nesta página." : "Nenhum registro encontrado."}
-          </div>
+          <MakEmptyState
+            title={
+              showOnlyFavorites ? "Nenhum favorito nesta página." : "Nenhum registro encontrado."
+            }
+            className="emp-search-empty"
+          />
         ) : (
           <div className="emp-search-results-list">
             {filteredEmpresas.map((emp, index) => {

@@ -71,6 +71,7 @@ import {
   resolveErpFilterMeta,
 } from "@/shared/filters";
 import MgPortalPanel from "@/modules/empresas/layout/MgPortalPanel";
+import { MakEmptyState } from "@/framework/mak/ux";
 import MgConfigBackdrop from "@/modules/empresas/layout/MgConfigBackdrop";
 import { isNestedMgFloatingPanelTarget } from "@/modules/empresas/layout/mgFloatingPanelUtils";
 import { useMgPanelPosition } from "@/modules/empresas/layout/useMgPanelPosition";
@@ -2232,13 +2233,8 @@ export default function TBLEMP({
       {mgPrototype ? tableHeader : null}
       <TableBody>
         <TableRow>
-          <TableCell
-            colSpan={colunasOrdenadas.length + 1}
-            className="emp-td text-center py-8 text-xs text-slate-400"
-            role="status"
-            aria-live="polite"
-          >
-            Nenhuma empresa encontrada
+          <TableCell colSpan={colunasOrdenadas.length + 1} className="emp-td p-0">
+            <MakEmptyState title="Nenhuma empresa encontrada" />
           </TableCell>
         </TableRow>
       </TableBody>

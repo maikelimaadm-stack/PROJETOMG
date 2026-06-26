@@ -18,6 +18,10 @@ import MgViewSeg from "./MgViewSeg";
 import MgSpeedDialMenu from "./MgSpeedDialMenu";
 import MgSearchResultsDropdown from "./MgSearchResultsDropdown";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  createMakActionBarHistoryHandler,
+  createMakActionBarPrintHandler,
+} from "@/framework/mak/ux/makActionBarPlaceholders";
 
 const DESKTOP_SEARCH_ANIM_MS = 220;
 
@@ -76,6 +80,8 @@ export default function MgActionBar({
   attachDisabled = false,
   onExportExcel,
   onExportPdf,
+  onPrint,
+  onHistory,
   onConfigColumns,
   onLayoutConfig,
   showSave = false,
@@ -234,6 +240,8 @@ export default function MgActionBar({
 
   const speedDialItems = useMemo(() => {
     const items = [];
+    const handlePrint = createMakActionBarPrintHandler(onPrint);
+    const handleHistory = createMakActionBarHistoryHandler(onHistory);
 
     if (onDuplicate && !showDuplicate) {
       items.push({
@@ -248,7 +256,7 @@ export default function MgActionBar({
       id: "print",
       label: "Imprimir",
       icon: Printer,
-      onClick: () => {},
+      onClick: handlePrint,
     });
 
     if (onExportExcel) {
@@ -264,7 +272,7 @@ export default function MgActionBar({
       id: "history",
       label: "Histórico",
       icon: History,
-      onClick: () => {},
+      onClick: handleHistory,
     });
 
     if (onConfigColumns) {
@@ -300,7 +308,9 @@ export default function MgActionBar({
     onDuplicate,
     onExportExcel,
     onExportPdf,
+    onHistory,
     onLayoutConfig,
+    onPrint,
     showDuplicate,
   ]);
 
