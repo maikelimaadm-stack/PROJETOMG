@@ -160,6 +160,17 @@ async function uiSmoke() {
     }
     gate("Navegação view mode (tabela)", true);
 
+    await page.goto(`${DEV_URL}/CadastroMarcas`, { waitUntil: "domcontentloaded" });
+    await sleep(2000);
+    const marcasBody = await page.locator("body").innerText().catch(() => "");
+    const marcasOpen =
+      marcasBody.includes("Cadastro de Marcas") ||
+      marcasBody.includes("Marcas") && (await page.getByRole("button", { name: "Novo" }).first().isVisible().catch(() => false));
+    gate("Tela Marcas abre (certificação V7)", marcasOpen);
+
+    await page.goto(`${DEV_URL}/CadastroEmpresas`, { waitUntil: "domcontentloaded" });
+    await sleep(1500);
+
     await page.getByRole("link", { name: "Campos Personalizados" }).first().click({ timeout: 10_000 }).catch(() => {});
     await sleep(1000);
     const cadcpsOpen = await page.getByText("Campos Personalizados").first().isVisible().catch(() => false);

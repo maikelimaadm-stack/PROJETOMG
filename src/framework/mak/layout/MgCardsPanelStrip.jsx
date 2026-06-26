@@ -1,11 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Check, Columns3Cog, Combine } from "lucide-react";
-import {
-  EMP_CARDS_LAYOUT_DEFAULT,
-  EMP_CARDS_LAYOUT_OPTIONS,
-  EMP_SEARCH_DEFAULT_FIELDS,
-  getDefaultCardVisFields,
-} from "@/modules/empresas/components/empSearchView.constants";
+import { useMakSearchViewConfig } from "@/framework/mak/search/useMakSearchViewConfig.js";
 import MgPortalPanel from "./MgPortalPanel";
 import MgFilterPills from "./MgFilterPills";
 import MgPreferenceConfigFooter from "./MgPreferenceConfigFooter";
@@ -71,7 +66,7 @@ export default function MgCardsPanelStrip({
   fields: fieldsProp = [],
   onSave,
   onRestoreDefaults,
-  layout = EMP_CARDS_LAYOUT_DEFAULT,
+  layout: layoutProp,
   onSaveLayout,
   onRestoreLayoutDefaults,
   disabled = false,
@@ -92,13 +87,22 @@ export default function MgCardsPanelStrip({
   serverSearchTerm = "",
   selectorOptionsMode = "cascade",
 }) {
+  const {
+    defaultFields: searchDefaultFields,
+    cardsLayoutDefault,
+    cardsLayoutOptions,
+    getDefaultCardVisFields,
+  } = useMakSearchViewConfig();
+
+  const layout = layoutProp ?? cardsLayoutDefault;
+
   const fields =
-    Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : EMP_SEARCH_DEFAULT_FIELDS;
+    Array.isArray(fieldsProp) && fieldsProp.length > 0 ? fieldsProp : searchDefaultFields;
 
   const [fieldsOpen, setFieldsOpen] = useState(false);
   const [layoutOpen, setLayoutOpen] = useState(false);
   const [fieldsDraft, setFieldsDraft] = useState(fields);
-  const [layoutDraft, setLayoutDraft] = useState(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
+  const [layoutDraft, setLayoutDraft] = useState(layout?.cardsPerRow ?? cardsLayoutDefault.cardsPerRow);
 
   const layoutRootRef = useRef(null);
   const fieldsRootRef = useRef(null);
@@ -166,7 +170,7 @@ export default function MgCardsPanelStrip({
   }, [fields]);
 
   useEffect(() => {
-    setLayoutDraft(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
+    setLayoutDraft(layout?.cardsPerRow ?? cardsLayoutDefault.cardsPerRow);
   }, [layout?.cardsPerRow]);
 
   useEffect(() => {
@@ -177,7 +181,7 @@ export default function MgCardsPanelStrip({
 
   useEffect(() => {
     if (layoutOpen) return;
-    setLayoutDraft(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
+    setLayoutDraft(layout?.cardsPerRow ?? cardsLayoutDefault.cardsPerRow);
   }, [layoutOpen, layout?.cardsPerRow]);
 
   useEffect(() => {
@@ -187,7 +191,7 @@ export default function MgCardsPanelStrip({
   }, [fieldsOpen, fields]);
 
   useEffect(() => {
-    if (layoutOpen) setLayoutDraft(layout?.cardsPerRow ?? EMP_CARDS_LAYOUT_DEFAULT.cardsPerRow);
+    if (layoutOpen) setLayoutDraft(layout?.cardsPerRow ?? cardsLayoutDefault.cardsPerRow);
   }, [layoutOpen, layout?.cardsPerRow]);
 
   useEffect(() => {
@@ -246,7 +250,7 @@ export default function MgCardsPanelStrip({
   };
 
   const handleLayoutRestore = () => {
-    const defaults = onRestoreLayoutDefaults?.() ?? EMP_CARDS_LAYOUT_DEFAULT;
+    const defaults = onRestoreLayoutDefaults?.() ?? cardsLayoutDefault;
     setLayoutDraft(defaults.cardsPerRow);
   };
 
@@ -322,7 +326,7 @@ export default function MgCardsPanelStrip({
             onClick={(event) => event.stopPropagation()}
           >
             <div className="mg-cards-config-menu__list mg-cards-layout-menu__list">
-              {EMP_CARDS_LAYOUT_OPTIONS.map((option) => (
+              {cardsLayoutOptions.map((option) => (
                 <label key={option.value} className="mg-cards-config-menu__item mg-cards-layout-menu__item">
                   <CardsLayoutRadio
                     checked={layoutDraft === option.value}

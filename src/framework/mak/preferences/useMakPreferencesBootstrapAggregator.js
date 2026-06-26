@@ -1,24 +1,12 @@
-import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
-
 /**
- * Agrega bootstrap de preferências por moduleId.
- * Hooks devem ser invocados aqui (top-level) — não em loop dinâmico.
+ * @deprecated Use useAppPreferencesBootstrap from @/modules/makBootstrap — Foundation não importa módulos.
+ * Mantido como re-export para compatibilidade; delega via injeção no Provider.
  */
-export function useMakPreferencesBootstrapAggregator(enabledModuleIds, userId) {
-  const ids = Array.isArray(enabledModuleIds) ? enabledModuleIds : ["empresas"];
-  const activeUserId = userId ?? null;
-
-  const empresasEnabled = ids.includes("empresas");
-  const empresas = useEmpresasPreferencesBootstrap(empresasEnabled ? activeUserId : null);
-
-  const modules = {
-    ...(empresasEnabled ? { empresas } : {}),
-  };
-
-  return {
-    moduleIds: ids,
-    modules,
-    empresas: empresasEnabled ? empresas : null,
-    primary: empresasEnabled ? empresas : null,
-  };
+export function useMakPreferencesBootstrapAggregator(enabledModuleIds, userId, useBootstrapHook) {
+  if (typeof useBootstrapHook !== "function") {
+    throw new Error(
+      "useMakPreferencesBootstrapAggregator: useBootstrapHook is required (inject from @/modules/makBootstrap)"
+    );
+  }
+  return useBootstrapHook(enabledModuleIds, userId);
 }

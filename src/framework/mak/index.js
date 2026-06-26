@@ -26,6 +26,16 @@ export {
   mergeGenericMakListFilters,
 } from "./filters/buildGenericMakColumnFilters.js";
 export { default as MakGenericSearchPanel } from "./search/MakGenericSearchPanel.jsx";
+export {
+  MAK_SEARCH_DROPDOWN_MAX_FIELDS,
+  MAK_CARDS_LAYOUT_DEFAULT,
+  MAK_CARDS_LAYOUT_OPTIONS,
+  countSearchDropdownVisibleFields,
+  getDefaultCardVisFields,
+  getFieldsPerRowForLayout,
+  defaultGetSearchFieldValue,
+} from "./search/makSearchView.utils.js";
+export { useMakSearchViewConfig } from "./search/useMakSearchViewConfig.js";
 export { useMakCadastroPage } from "./page/useMakCadastroPage.js";
 export { default as MakCadastroPageShell } from "./page/MakCadastroPageShell.jsx";
 export {
