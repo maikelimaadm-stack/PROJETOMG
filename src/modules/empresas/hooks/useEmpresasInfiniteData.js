@@ -1,8 +1,11 @@
 import { useMakInfiniteListData } from "@/framework/mak/listing/useMakInfiniteListData";
 import { readEmpPreferencesText } from "@/modules/empresas/preferences/empresasPreferencesCache";
-import { EMPRESAS_LIST_QUERY_KEY } from "@/modules/empresas/data/empresasListCache";
+import {
+  EMP_INFINITE_PAGE_SIZE,
+  EMPRESAS_LIST_QUERY_KEY,
+} from "@/modules/empresas/data/empresasListConstants";
 
-export const EMP_INFINITE_PAGE_SIZE = 100;
+export { EMP_INFINITE_PAGE_SIZE } from "@/modules/empresas/data/empresasListConstants";
 export const EMP_LOAD_BATCH_OPTIONS = Object.freeze([100, 200, 300, 400, 500, 1000]);
 export const EMP_LOAD_BATCH_STORAGE_KEY = "emp_infinite_batch_size";
 export const EMP_MAX_LOADED_ROWS = Math.max(

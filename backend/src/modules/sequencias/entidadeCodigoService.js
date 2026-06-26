@@ -2,6 +2,7 @@ import { getPrismaClient } from "../../database/prismaClient.js";
 
 export const ENTITY_CODIGO_EMPRESA = "Empresa";
 export const ENTITY_CODIGO_CADCPS = "CadCpsCampo";
+export const ENTITY_CODIGO_MARCA = "Marca";
 
 const getMaxCodigoInUse = async (tx, clienteId, entityName) => {
   if (entityName === ENTITY_CODIGO_EMPRESA) {
@@ -14,6 +15,14 @@ const getMaxCodigoInUse = async (tx, clienteId, entityName) => {
 
   if (entityName === ENTITY_CODIGO_CADCPS) {
     const agg = await tx.cadCpsCampo.aggregate({
+      where: { cliente_id: clienteId },
+      _max: { codigo: true },
+    });
+    return Number(agg._max.codigo) || 0;
+  }
+
+  if (entityName === ENTITY_CODIGO_MARCA) {
+    const agg = await tx.marca.aggregate({
       where: { cliente_id: clienteId },
       _max: { codigo: true },
     });

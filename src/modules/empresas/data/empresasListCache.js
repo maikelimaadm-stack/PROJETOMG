@@ -1,7 +1,7 @@
 import { createMakListCache } from "@/framework/mak/data/createMakListCache";
-import { EMP_INFINITE_PAGE_SIZE } from "@/modules/empresas/hooks/useEmpresasInfiniteData";
+import { EMP_INFINITE_PAGE_SIZE, EMPRESAS_LIST_QUERY_KEY } from "@/modules/empresas/data/empresasListConstants";
 
-export const EMPRESAS_LIST_QUERY_KEY = ["emp-cadastro"];
+export { EMPRESAS_LIST_QUERY_KEY, EMP_INFINITE_PAGE_SIZE } from "@/modules/empresas/data/empresasListConstants";
 
 export const patchEmpresasCache = createMakListCache({
   queryKey: EMPRESAS_LIST_QUERY_KEY,
