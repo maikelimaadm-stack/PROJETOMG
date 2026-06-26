@@ -4,7 +4,8 @@ import {
   buildGenericMakColumnFilters,
   mergeGenericMakListFilters,
 } from "@/framework/mak/filters/buildGenericMakColumnFilters.js";
-import MakGenericSearchPanel from "@/framework/mak/search/MakGenericSearchPanel.jsx";
+import MakCadastroSearchPanel from "@/ModeloBase1/search/MakCadastroSearchPanel.jsx";
+import MakLoadBatchControls from "@/ModeloBase1/components/MakLoadBatchControls.jsx";
 import { produtosModuleDefinition } from "@/modules/produtos/config/moduleDefinition.js";
 import { produtosModuleMetadata } from "@/modules/produtos/config/produtosModuleMetadata.js";
 import { produtosPreferencesAdapter } from "@/modules/produtos/config/produtosPreferencesAdapter.js";
@@ -43,7 +44,8 @@ export const produtosMakModule = defineMakModule(
     repository: produtoRepository,
     cadastroConfig: produtosCadastroConfig,
     components: {
-      SearchPanel: MakGenericSearchPanel,
+      LoadBatchControls: MakLoadBatchControls,
+      SearchPanel: MakCadastroSearchPanel,
     },
   },
   produtosPreferencesAdapter

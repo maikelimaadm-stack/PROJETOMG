@@ -34,6 +34,7 @@ export const produtosModuleMetadata = {
   search: {
     titleField: "nome",
     primaryField: "nome",
+    codeField: "codigo",
     cardFields: [
       { key: "codigo", label: "Código", column: "codigo" },
       { key: "nome", label: "Nome", column: "nome" },
