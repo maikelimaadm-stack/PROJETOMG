@@ -33,6 +33,11 @@ export function useEmpresasInfiniteData(options) {
     empresasResponseTotal: result.responseTotal,
     empresasLoading: result.recordsLoading,
     empresasFetching: result.recordsFetching,
+    records: result.records,
+    recordsPages: result.pages,
+    recordsResponseTotal: result.responseTotal,
+    recordsLoading: result.recordsLoading,
+    recordsFetching: result.recordsFetching,
     isLoading: result.isLoading,
     isFetching: result.isFetching,
     loadedPagesCount: result.loadedPagesCount,
@@ -41,6 +46,9 @@ export function useEmpresasInfiniteData(options) {
     maxLoadedRows: result.maxLoadedRows,
     hasNextEmpresasPage: result.hasNextPage,
     isFetchingNextEmpresasPage: result.isFetchingNextPage,
+    hasNextRecordsPage: result.hasNextPage,
+    isFetchingNextRecordsPage: result.isFetchingNextPage,
     handleLoadMoreEmpresas: result.handleLoadMore,
+    handleLoadMoreRecords: result.handleLoadMore,
   };
 }

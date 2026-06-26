@@ -72,7 +72,8 @@ export default function MgCardsPanelStrip({
   disabled = false,
   hideConfig = false,
   filterFields = [],
-  empresas = [],
+  empresas: empresasProp = [],
+  records: recordsAlias = [],
   filterValues = {},
   appliedFilterValues = {},
   onFilterChange,
@@ -87,6 +88,7 @@ export default function MgCardsPanelStrip({
   serverSearchTerm = "",
   selectorOptionsMode = "cascade",
 }) {
+  const empresas = empresasProp ?? recordsAlias ?? [];
   const {
     defaultFields: searchDefaultFields,
     cardsLayoutDefault,
