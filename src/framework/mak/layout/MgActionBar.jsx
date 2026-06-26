@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, memo } from "react";
 import {
   Copy,
   Download,
@@ -45,7 +45,7 @@ function ActionSlot({ show, width = 88, children }) {
   );
 }
 
-export default function MgActionBar({
+function MgActionBar({
   viewMode = "tabela",
   onViewModeChange,
   searchInputValue = "",
@@ -833,3 +833,5 @@ export default function MgActionBar({
     </>
   );
 }
+
+export default memo(MgActionBar);
