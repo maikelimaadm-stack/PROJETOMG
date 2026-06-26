@@ -71,9 +71,9 @@ async function goToEmpresas(page, baseUrl) {
 async function selectMode(page, modeName) {
   if (modeName === "table") {
     await tryClick(page, [
-      'button[title="Visualizar tabela"]',
-      'button[title*="tabela"]',
-      'button:has-text("Tabela")',
+      'button[title="Tabela"]',
+      'button[aria-label="Tabela"]',
+      '.view-mode-btn[title="Tabela"]',
       '[data-view="tabela"]',
     ]);
     await sleep(900);
@@ -81,9 +81,9 @@ async function selectMode(page, modeName) {
   }
 
   await tryClick(page, [
-    'button[title="Visualizar cards"]',
-    'button[title*="cards"]',
-    'button:has-text("Cards")',
+    'button[title="Cards"]',
+    'button[aria-label="Cards"]',
+    '.view-mode-btn[title="Cards"]',
     '[data-view="cards"]',
   ]);
   await sleep(1200);
@@ -104,6 +104,16 @@ async function captureTargetMode(browser, target, mode) {
   );
 
   await goToEmpresas(page, target.baseUrl);
+  // Fecha dialogs/eventuais overlays para garantir captura do estado principal.
+  await page.keyboard.press("Escape").catch(() => {});
+  await tryClick(page, [
+    'button[aria-label="Fechar"]',
+    "button:has-text('Cancelar')",
+  ]);
+  await tryClick(page, [
+    'button[title="Limpar todos os filtros"]',
+    'button[aria-label="Limpar todos os filtros"]',
+  ]);
   await selectMode(page, mode.name);
 
   // Congela animações para reduzir ruído de captura.

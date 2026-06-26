@@ -1,6 +1,57 @@
 import generatedModules from "@/modules/generatedModules.json";
 
+const MODELO_BASE_MENU_MODULE_IDS = new Set(["empresas", "marcas", "produtos"]);
+
+const CADASTRO_MENU_ITEM_OVERRIDES = {
+  empresas: { id: "empresas", label: "Empresas" },
+  marcas: { id: "marcas", label: "Marcas" },
+  produtos: { id: "produtos", label: "Produtos" },
+  cadcps: { id: "campos_personalizados", label: "Campos Personalizados" },
+};
+
 const moduleById = Object.fromEntries(generatedModules.map((module) => [module.moduleId, module]));
+
+const getMenuItemBaseId = (moduleId) => CADASTRO_MENU_ITEM_OVERRIDES[moduleId]?.id ?? moduleId;
+
+const getMenuItemId = (moduleId, isModeloBaseGroup) =>
+  isModeloBaseGroup ? `mb1-${getMenuItemBaseId(moduleId)}` : getMenuItemBaseId(moduleId);
+
+const buildMenuItem = (module, isModeloBaseGroup) => {
+  const override = CADASTRO_MENU_ITEM_OVERRIDES[module.moduleId];
+  return {
+    id: getMenuItemId(module.moduleId, isModeloBaseGroup),
+    label: override?.label ?? module.menuLabel ?? module.moduleId,
+    routePath: module.routePath,
+    moduleId: module.moduleId,
+  };
+};
+
+const buildCadastroMenuItems = () => generatedModules.map((module) => buildMenuItem(module, false));
+
+const buildModeloBaseMenuItems = () =>
+  generatedModules
+    .filter((module) => MODELO_BASE_MENU_MODULE_IDS.has(module.moduleId))
+    .map((module) => buildMenuItem(module, true));
+
+/** Apenas módulos já implementados no sistema. */
+export const ERP_MENU_SECTIONS = [
+  {
+    id: "cadastros",
+    type: "group",
+    label: "Cadastro",
+    icon: "folder-open",
+    defaultOpen: true,
+    items: buildCadastroMenuItems(),
+  },
+  {
+    id: "modelo-base1",
+    type: "group",
+    label: "Modelo Base1",
+    icon: "folder-open",
+    defaultOpen: true,
+    items: buildModeloBaseMenuItems(),
+  },
+];
 
 const routeMetaByPath = {
   "/": { sectionId: "cadastros", itemId: "empresas", breadcrumb: "Empresas" },
@@ -13,43 +64,24 @@ const routeMetaByPath = {
 };
 
 generatedModules.forEach((module) => {
-  if (!routeMetaByPath[module.routePath]) {
-    routeMetaByPath[module.routePath] = {
-      sectionId: "cadastros",
-      itemId: module.moduleId,
-      breadcrumb: module.menuLabel,
-    };
-  }
+  if (routeMetaByPath[module.routePath]) return;
+  routeMetaByPath[module.routePath] = {
+    sectionId: "cadastros",
+    itemId: getMenuItemId(module.moduleId, false),
+    breadcrumb: module.menuLabel,
+  };
 });
 
-const CADASTRO_MENU_ITEM_OVERRIDES = {
-  empresas: { id: "empresas", label: "Empresas" },
-  marcas: { id: "marcas", label: "Marcas" },
-  cadcps: { id: "campos_personalizados", label: "Campos Personalizados" },
+const resolveModuleFromItemId = (itemId) => {
+  if (!itemId) return null;
+  const normalized = String(itemId).replace(/^mb1-/, "");
+  const direct = moduleById[normalized];
+  if (direct) return direct;
+  const byOverride = Object.entries(CADASTRO_MENU_ITEM_OVERRIDES).find(
+    ([, value]) => value.id === normalized
+  );
+  return byOverride ? moduleById[byOverride[0]] ?? null : null;
 };
-
-const buildCadastroMenuItems = () =>
-  generatedModules.map((module) => {
-    const override = CADASTRO_MENU_ITEM_OVERRIDES[module.moduleId];
-    return {
-      id: override?.id ?? module.moduleId,
-      label: override?.label ?? module.menuLabel ?? module.moduleId,
-      routePath: module.routePath,
-      moduleId: module.moduleId,
-    };
-  });
-
-/** Apenas módulos já implementados no sistema. */
-export const ERP_MENU_SECTIONS = [
-  {
-    id: "cadastros",
-    type: "group",
-    label: "Cadastro",
-    icon: "folder-open",
-    defaultOpen: true,
-    items: buildCadastroMenuItems(),
-  },
-];
 
 export const resolveErpRouteMeta = (pathname) => {
   const normalized = pathname === "/" ? "/CadastroEmpresas" : pathname;
@@ -67,9 +99,7 @@ export const buildErpBreadcrumbs = (pathname) => {
     crumbs.push({ label: section.label });
   }
 
-  const item =
-    section?.items?.find((entry) => entry.id === meta.itemId) ||
-    generatedModules.find((module) => module.moduleId === meta.itemId);
+  const item = section?.items?.find((entry) => entry.id === meta.itemId) || resolveModuleFromItemId(meta.itemId);
 
   crumbs.push({
     label: meta.breadcrumb || item?.label || item?.menuLabel || "Página",
