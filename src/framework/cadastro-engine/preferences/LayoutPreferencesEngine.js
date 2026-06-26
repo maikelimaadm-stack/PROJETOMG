@@ -10,11 +10,11 @@ import {
 } from "@/framework/cadastro/layouts/empFormLayoutStore.js";
 import { migrateStoredLayoutConfig } from "./layoutMigration.js";
 import {
-  readEmpPreferencesJson,
-  readEmpPreferencesText,
-  writeEmpPreferencesJson,
-  writeEmpPreferencesText,
-} from "@/modules/empresas/preferences/empresasPreferencesCache";
+  readPreferencesJson,
+  readPreferencesText,
+  writePreferencesJson,
+  writePreferencesText,
+} from "@/framework/mak/preferences/userPreferencesCache.js";
 
 const engines = new Map();
 let boundUserId = null;
@@ -118,14 +118,14 @@ export class LayoutPreferencesEngine {
   readLocal(userId) {
     this.bindUser(userId);
     const keys = this.getStorageKeys(userId);
-    let parsed = readEmpPreferencesJson(keys.layoutKey, null);
+    let parsed = readPreferencesJson(keys.layoutKey, null);
 
     if (!parsed || typeof parsed !== "object") {
-      const userLegacy = readEmpPreferencesJson(keys.legacyKey, null);
+      const userLegacy = readPreferencesJson(keys.legacyKey, null);
       if (userLegacy && typeof userLegacy === "object") {
         parsed = userLegacy;
       } else if (this.config.legacyGlobalStorageKey) {
-        parsed = readEmpPreferencesJson(this.config.legacyGlobalStorageKey, null);
+        parsed = readPreferencesJson(this.config.legacyGlobalStorageKey, null);
       }
     }
 
@@ -141,14 +141,14 @@ export class LayoutPreferencesEngine {
     const normalizedOrigin = normalizeOrigin(origin);
     const reason = `form-layout:${normalizedOrigin}:local-write`;
     const keys = this.getStorageKeys(userId);
-    writeEmpPreferencesJson(keys.layoutKey, pickLayoutConfig(config), {
+    writePreferencesJson(keys.layoutKey, pickLayoutConfig(config), {
       reason,
     });
-    writeEmpPreferencesText(`${keys.layoutKey}__updatedAt`, new Date().toISOString(), {
+    writePreferencesText(`${keys.layoutKey}__updatedAt`, new Date().toISOString(), {
       reason,
     });
     if (config.aggregationConfig) {
-      writeEmpPreferencesJson(keys.aggregationKey, config.aggregationConfig || {}, {
+      writePreferencesJson(keys.aggregationKey, config.aggregationConfig || {}, {
         reason,
       });
     }
@@ -186,7 +186,7 @@ export class LayoutPreferencesEngine {
       if (!upgraded) return;
 
       const keys = this.getStorageKeys(userId);
-      const localUpdatedAt = readEmpPreferencesText(`${keys.layoutKey}__updatedAt`, null);
+      const localUpdatedAt = readPreferencesText(`${keys.layoutKey}__updatedAt`, null);
       const remoteUpdatedAt = remote?.updatedAt ? new Date(remote.updatedAt).getTime() : 0;
       const localTime = localUpdatedAt ? new Date(localUpdatedAt).getTime() : 0;
 
@@ -194,17 +194,17 @@ export class LayoutPreferencesEngine {
         this.writeLocal(userId, upgraded, { origin: "hydrate" });
         const stableConfigHash = stableStringify(pickLayoutConfig(upgraded));
         if (remote?.updatedAt) {
-          writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, remote.updatedAt, {
+          writePreferencesText(`${keys.layoutKey}__serverUpdatedAt`, remote.updatedAt, {
             reason: "form-layout:remote-hydrate",
           });
         }
         if (remote?.revision != null) {
-          writeEmpPreferencesText(`${keys.layoutKey}__serverRevision`, String(remote.revision), {
+          writePreferencesText(`${keys.layoutKey}__serverRevision`, String(remote.revision), {
             reason: "form-layout:remote-hydrate",
           });
         }
         if (stableConfigHash) {
-          writeEmpPreferencesText(`${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`, stableConfigHash, {
+          writePreferencesText(`${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`, stableConfigHash, {
             reason: "form-layout:remote-hydrate",
           });
         }
@@ -238,17 +238,17 @@ export class LayoutPreferencesEngine {
 
       const serverHashKey = `${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`;
       const migrationHashKey = `${keys.layoutKey}${FORM_LAYOUT_MIGRATION_MARKER_SUFFIX}`;
-      const serverHash = readEmpPreferencesText(serverHashKey, null);
+      const serverHash = readPreferencesText(serverHashKey, null);
       if (serverHash && serverHash === configHash) return;
 
       if (pendingOrigin === "migration") {
-        const migrationHash = readEmpPreferencesText(migrationHashKey, null);
+        const migrationHash = readPreferencesText(migrationHashKey, null);
         if (migrationHash && migrationHash === configHash) return;
       }
 
       const { modulo, tela } = parseScopeFromScreenKey(this.config.screenKey);
-      const expectedUpdatedAt = readEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, null);
-      const expectedRevisionRaw = readEmpPreferencesText(`${keys.layoutKey}__serverRevision`, null);
+      const expectedUpdatedAt = readPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, null);
+      const expectedRevisionRaw = readPreferencesText(`${keys.layoutKey}__serverRevision`, null);
       const expectedRevision = Number(expectedRevisionRaw);
       const saved = await userPreferencesApi.saveByScope(modulo, tela, {
         preferencias: {
@@ -261,20 +261,20 @@ export class LayoutPreferencesEngine {
       });
 
       if (saved?.updatedAt) {
-        writeEmpPreferencesText(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt, {
+        writePreferencesText(`${keys.layoutKey}__serverUpdatedAt`, saved.updatedAt, {
           reason: `form-layout:remote-sync:${pendingOrigin}`,
         });
       }
       if (saved?.revision != null) {
-        writeEmpPreferencesText(`${keys.layoutKey}__serverRevision`, String(saved.revision), {
+        writePreferencesText(`${keys.layoutKey}__serverRevision`, String(saved.revision), {
           reason: `form-layout:remote-sync:${pendingOrigin}`,
         });
       }
-      writeEmpPreferencesText(serverHashKey, configHash, {
+      writePreferencesText(serverHashKey, configHash, {
         reason: `form-layout:remote-sync:${pendingOrigin}`,
       });
       if (pendingOrigin === "migration") {
-        writeEmpPreferencesText(migrationHashKey, configHash, {
+        writePreferencesText(migrationHashKey, configHash, {
           reason: "form-layout:migration-marker",
         });
       }
@@ -317,11 +317,11 @@ export class LayoutPreferencesEngine {
     if (!stableConfigHash) return;
 
     const keys = this.getStorageKeys(userId);
-    const serverHash = readEmpPreferencesText(`${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`, null);
+    const serverHash = readPreferencesText(`${keys.layoutKey}${FORM_LAYOUT_SERVER_HASH_SUFFIX}`, null);
     if (serverHash && serverHash === stableConfigHash) return;
 
     if (normalizedOrigin === "migration") {
-      const migrationHash = readEmpPreferencesText(
+      const migrationHash = readPreferencesText(
         `${keys.layoutKey}${FORM_LAYOUT_MIGRATION_MARKER_SUFFIX}`,
         null
       );

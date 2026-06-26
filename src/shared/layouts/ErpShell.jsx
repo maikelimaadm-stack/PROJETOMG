@@ -28,17 +28,19 @@ import ErpRecordMeta from "@/shared/layouts/ErpRecordMeta";
 import ErpOperationBadge from "@/shared/layouts/ErpOperationBadge";
 import ErpInfoPill from "@/shared/ui/ErpInfoPill";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
-import MgDesktopHeader from "@/modules/empresas/layout/MgDesktopHeader";
-import MgMobileHeader from "@/modules/empresas/layout/MgMobileHeader";
-import { MgEmpresasChromeProvider } from "@/modules/empresas/layout/MgEmpresasChromeContext";
-import MgEmpresasMobileOverlays from "@/modules/empresas/layout/MgEmpresasMobileOverlays";
+import {
+  MakChromeProvider,
+  MakDesktopHeader,
+  MakMobileHeader,
+  MakMobileOverlays,
+  isMakCadastroRoute,
+} from "@/framework/mak/layout";
 import ErpEmpresaSelector from "@/shared/layouts/ErpEmpresaSelector";
 import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
 import ErpGlobalTopProgress from "@/shared/components/ErpGlobalTopProgress";
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 
-const isEmpresasRoute = (pathname) =>
-  pathname === "/" || pathname === "/CadastroEmpresas" || pathname.startsWith("/CadastroEmpresas/");
+const isEmpresasRoute = isMakCadastroRoute;
 
 const AUTHORIZED_SCOPE_OPTION = "__AUTHORIZED_SCOPE__";
 
@@ -263,8 +265,8 @@ function ErpShellBody({
           <ErpGlobalTopProgress active={showTopProgress} />
           {empresasPage ? (
             <div className="mg-empresas-scope shrink-0">
-              <MgMobileHeader />
-              <MgDesktopHeader />
+              <MakMobileHeader />
+              <MakDesktopHeader />
             </div>
           ) : (
             <div className="erp-shell-top-unified shrink-0">
@@ -288,13 +290,13 @@ function ErpShellBody({
             )}
           </div>
         </div>
-        {empresasPage ? <MgEmpresasMobileOverlays /> : null}
+        {empresasPage ? <MakMobileOverlays /> : null}
       </SidebarInset>
     </div>
   );
 
   if (empresasPage) {
-    return <MgEmpresasChromeProvider>{shell}</MgEmpresasChromeProvider>;
+    return <MakChromeProvider>{shell}</MakChromeProvider>;
   }
 
   return shell;
