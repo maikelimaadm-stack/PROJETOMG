@@ -189,7 +189,8 @@ function SearchConfigModal({ open, fields, onClose, onSave }) {
 }
 
 export default function SRCHEMP({
-  empresas = [],
+  empresas: empresasProp,
+  records: recordsAlias,
   total = 0,
   isLoading = false,
   isFetching = false,
@@ -219,6 +220,7 @@ export default function SRCHEMP({
   filteredCount,
   totalCount,
 }) {
+  const empresas = empresasProp ?? recordsAlias ?? [];
   const [localSearch, setLocalSearch] = useState(searchValue);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);

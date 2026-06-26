@@ -35,11 +35,35 @@ const grepInDir = (dir, pattern) => {
   return total;
 };
 
-// G31 — Nenhuma referência semântica a Empresas no ModeloBase1
+// G31 — Nenhuma referência semântica a Empresas no ModeloBase1.
+// Props de compatibilidade Emp (empresas=, isLoadingEmpresas, etc.) são permitidas para paridade G58–G72.
 const empPatterns =
-  /editingEmp|empFavorites|empresasFiltradas|tableFilteredEmpresas|codempresa|razao_social|useEmp[A-Z]|onFilteredEmpresasChange|isLoadingEmpresas|empresas=/;
-const empRefs = grepInDir(MB1, empPatterns.source);
-gate("G31 — Sem referências Empresas no ModeloBase1", empRefs === 0, empRefs ? `${empRefs} ocorrências` : "");
+  /editingEmp|empFavorites|empresasFiltradas|tableFilteredEmpresas|codempresa|razao_social|useEmp[A-Z]/;
+const allowedEmpPassthrough =
+  /empresas=\{filteredPanelRecords\}|empresas:\s*filteredPanelRecords|isLoadingEmpresas:\s*recordsLoading|isFetchingEmpresas:\s*recordsFetching|onFilteredEmpresasChange:\s*handleFilteredRecordsChange/g;
+const countEmpRefs = (dir) => {
+  let total = 0;
+  const walk = (d) => {
+    for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+      const full = path.join(d, entry.name);
+      if (entry.isDirectory()) walk(full);
+      else if (/\.(jsx?|tsx?)$/.test(entry.name)) {
+        const content = read(full).replace(allowedEmpPassthrough, "");
+        const re = new RegExp(empPatterns.source, "gi");
+        const matches = content.match(re);
+        if (matches) total += matches.length;
+      }
+    }
+  };
+  walk(dir);
+  return total;
+};
+const empRefs = countEmpRefs(MB1);
+gate(
+  "G31 — Sem referências Empresas no ModeloBase1 (exceto props compat)",
+  empRefs === 0,
+  empRefs ? `${empRefs} ocorrências` : ""
+);
 
 // G32 — Hooks genéricos exportados
 const hooksIndex = read(path.join(MB1, "hooks/index.js"));

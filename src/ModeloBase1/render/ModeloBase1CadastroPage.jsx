@@ -1186,7 +1186,7 @@ function ModeloBase1CadastroPageContent() {
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
                 filterFields={filterFields}
-                records={filteredPanelRecords}
+                empresas={filteredPanelRecords}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
                 onFilterChange={handleFilterChange}
@@ -1209,7 +1209,7 @@ function ModeloBase1CadastroPageContent() {
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
                 filterFields={filterFields}
-                records={filteredPanelRecords}
+                empresas={filteredPanelRecords}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
                 onFilterChange={handleFilterChange}
@@ -1266,7 +1266,7 @@ function ModeloBase1CadastroPageContent() {
                   <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
                     <SearchPanel
                       searchProps={{
-                        records: filteredPanelRecords,
+                        empresas: filteredPanelRecords,
                         total: totalRecords,
                         isLoading: recordsLoading,
                         isFetching: recordsFetching,
@@ -1310,9 +1310,9 @@ function ModeloBase1CadastroPageContent() {
                   <TablePanel
                     tableProps={{
                       key: config.tableKey ?? `tbl-${MAK_MODULE_ID}`,
-                      records: filteredPanelRecords,
-                      isLoadingRecords: recordsLoading,
-                      isFetchingRecords: recordsFetching,
+                      empresas: filteredPanelRecords,
+                      isLoadingEmpresas: recordsLoading,
+                      isFetchingEmpresas: recordsFetching,
                       onEdit: handleEdit,
                       showConfigColunas,
                       setShowConfigColunas,
@@ -1321,7 +1321,7 @@ function ModeloBase1CadastroPageContent() {
                       selectedIds: selectedTableItems,
                       onSelectionChange: handleTableSelectionChange,
                       onVisibleDataChange: setVisibleTableData,
-                      onFilteredRecordsChange: handleFilteredRecordsChange,
+                      onFilteredEmpresasChange: handleFilteredRecordsChange,
                       onServerColumnFiltersChange: handleColumnFiltersChange,
                       externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
                       serverPage: queryPage,

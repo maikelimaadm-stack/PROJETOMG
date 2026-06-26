@@ -22,6 +22,7 @@ import { EMP_SORT_KEY } from "@/modules/empresas/config/modeloBase1/empresasTabe
 import {
   readStoredTempListagemFilters,
   writeStoredTempListagemFilters,
+  useEmpresasPreferencesBootstrapState,
   isEmpPreferencesSectionDirty,
   isRemoteTabPreferenceEvent,
   subscribeEmpPreferencesCache,
@@ -29,21 +30,20 @@ import {
   writeEmpPreferencesText,
 } from "@/modules/empresas/config/modeloBase1/empresasPreferenciasConfig.js";
 import {
-  empresasSearchViewConfig,
-  empresasCustomFieldsConfig,
-  empresasDataConfig,
-  empresasPreferencesAdapter,
-} from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
+  useEmpSearchDropdownFields,
+  useEmpFavorites,
+  useEmpresasInfiniteData,
+} from "@/modules/empresas/config/modeloBase1/empresasEventosConfig.js";
 import {
-  useModeloBase1PreferencesBootstrap,
-  useModeloBase1ViewModePreference,
-  useModeloBase1CardsVisFields,
-  useModeloBase1SearchDropdownFields,
-  useModeloBase1Favorites,
-  useModeloBase1InfiniteListData,
-  useModeloBase1CustomFields,
-  useModeloBase1FilterFieldsLayout,
-} from "@/ModeloBase1/hooks";
+  useEmpViewModePreference,
+  useEmpCardsVisFields,
+  getFieldsPerRowForLayout,
+} from "@/modules/empresas/config/modeloBase1/empresasLayoutConfig.js";
+import {
+  useEmpFilterFieldsLayout,
+  useEmpCamposPersonalizados,
+} from "@/modules/empresas/config/modeloBase1/empresasFiltrosConfig.js";
+import { empresasDataConfig, empresasPreferencesAdapter } from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
 
 const readInitialQuerySort = () => {
   const storedSort = readEmpPreferencesJson(EMP_SORT_KEY, null);
@@ -79,8 +79,6 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
   dropdownQueryKeyPrefix: "emp-cadastro-dropdown",
   tableKey: "tbl-emp",
   preferencesAdapter: empresasPreferencesAdapter,
-  searchView: empresasSearchViewConfig,
-  customFields: empresasCustomFieldsConfig,
 
   labels: {
     singular: empresasModuleDefinition.singularLabel,
@@ -112,14 +110,14 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
         replaceInSelector,
       };
     },
-    usePreferencesBootstrap: useModeloBase1PreferencesBootstrap,
-    useViewModePreference: useModeloBase1ViewModePreference,
-    useCardsVisFields: useModeloBase1CardsVisFields,
-    useSearchDropdownFields: useModeloBase1SearchDropdownFields,
-    useFavorites: useModeloBase1Favorites,
-    useInfiniteListData: useModeloBase1InfiniteListData,
-    useCustomFields: useModeloBase1CustomFields,
-    useFilterFieldsLayout: useModeloBase1FilterFieldsLayout,
+    usePreferencesBootstrap: useEmpresasPreferencesBootstrapState,
+    useViewModePreference: useEmpViewModePreference,
+    useCardsVisFields: useEmpCardsVisFields,
+    useSearchDropdownFields: useEmpSearchDropdownFields,
+    useFavorites: useEmpFavorites,
+    useInfiniteListData: useEmpresasInfiniteData,
+    useCustomFields: useEmpCamposPersonalizados,
+    useFilterFieldsLayout: useEmpFilterFieldsLayout,
   },
 
   data: {
@@ -137,7 +135,7 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
     subscribePreferencesCache: subscribeEmpPreferencesCache,
     readPreferencesJson: readEmpPreferencesJson,
     writePreferencesText: writeEmpPreferencesText,
-    getFieldsPerRowForLayout: empresasSearchViewConfig.getFieldsPerRowForLayout,
+    getFieldsPerRowForLayout,
     findRecordInList: findEmpresaInList,
     normalizeRecord: normalizeEmpresaRecord,
     buildExportRows: buildEmpresaExportRows,

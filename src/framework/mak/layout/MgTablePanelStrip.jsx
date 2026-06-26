@@ -5,7 +5,8 @@ import MgFilterPills from "./MgFilterPills";
 export default function MgTablePanelStrip({
   onConfigColumns,
   disabled = false,
-  empresas = [],
+  empresas: empresasProp = [],
+  records: recordsAlias = [],
   filterFields = [],
   filterValues = {},
   appliedFilterValues = {},
@@ -21,6 +22,7 @@ export default function MgTablePanelStrip({
   serverSearchTerm = "",
   selectorOptionsMode = "cascade",
 }) {
+  const empresas = empresasProp ?? recordsAlias ?? [];
   return (
     <div data-template-id="table-panel" className="mg-table-panel-strip hidden md:flex">
       <div className="mg-panel-strip__filters">
