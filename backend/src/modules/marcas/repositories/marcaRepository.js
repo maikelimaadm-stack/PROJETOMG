@@ -1,7 +1,7 @@
-import { getPrismaClient } from "../../database/prismaClient.js";
-import { auditService } from "../audit/auditService.js";
-import { registerRegistroGlobal, reserveNextIdGlobal } from "../idGlobal/idGlobalService.js";
-import { ENTITY_CODIGO_MARCA, reserveNextCodigo } from "../sequencias/entidadeCodigoService.js";
+import { getPrismaClient } from "../../../database/prismaClient.js";
+import { auditService } from "../../audit/auditService.js";
+import { registerRegistroGlobal, reserveNextIdGlobal } from "../../idGlobal/idGlobalService.js";
+import { ENTITY_CODIGO_MARCA, reserveNextCodigo } from "../../sequencias/entidadeCodigoService.js";
 
 const ORDER_BY_MAP = {
   codigo: { codigo: "asc" },
