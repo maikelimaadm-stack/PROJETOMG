@@ -109,12 +109,17 @@ const sectionsReexport =
   pagempSections.includes("@deprecated");
 gate("G94 — PAGEMP.sections é re-export (não cópia)", sectionsReexport);
 
-// G95 — Hooks promovidos unificados (ModeloBase1) em Empresas
+// G95 — Hooks promovidos unificados (ModeloBase1) em Empresas via factory
+const factoryFile = read("src/ModeloBase1/config/buildModeloBase1ConfigFromMakModule.js");
 const hooksPromoted =
-  config.includes("useModeloBase1Favorites") &&
-  config.includes("useModeloBase1InfiniteListData") &&
-  config.includes("useModeloBase1ViewModePreference") &&
-  config.includes("searchView: empresasSearchViewConfig");
+  (config.includes("useModeloBase1Favorites") ||
+    (config.includes("buildModeloBase1ConfigFromMakModule") &&
+      factoryFile.includes("useModeloBase1Favorites"))) &&
+  (config.includes("useModeloBase1InfiniteListData") ||
+    factoryFile.includes("useModeloBase1InfiniteListData")) &&
+  (config.includes("useModeloBase1ViewModePreference") ||
+    factoryFile.includes("useModeloBase1ViewModePreference")) &&
+  (config.includes("empresasSearchViewConfig") || config.includes("searchView: empresasSearchViewConfig"));
 gate("G95 — Hooks promovidos unificados (ModeloBase1)", hooksPromoted);
 
 // G96 — Motor único infinite (ModeloBase1ServerCadastroPage eliminado)
@@ -155,6 +160,12 @@ const factoryHelpersComplete =
   requiredHelperKeys.every((key) => factoryHelpers.includes(key));
 gate("G101 — Factory genérica com helpers obrigatórios do motor", factoryHelpersComplete);
 
+gate(
+  "G102 — ModeloBase1 sem imports de modules/empresas",
+  !read("src/ModeloBase1/search/MakCadastroSearchPanel.jsx").includes("@/modules/empresas") &&
+    !read("src/ModeloBase1/cards/MgCardsVirtualGrid.jsx").includes("@/modules/empresas")
+);
+
 // G98 — Inventário de reimplementações globais restantes
 const globalReimplementations = [];
 if (exists("src/framework/mak/search/MakGenericSearchPanel.jsx")) {
@@ -177,15 +188,16 @@ const promotionAnswer =
   preFinalOk &&
   globalReimplementations.length === 0 &&
   pagemp.trim().split("\n").length < 20 &&
-  config.includes("defineModeloBase1Config") &&
-  config.includes("empresasToolbarComponents");
+  (config.includes("buildModeloBase1ConfigFromMakModule") ||
+    config.includes("defineModeloBase1Config")) &&
+  (config.includes("empresasToolbarComponents") || toolbarConfig.includes("ModeloBase1PanelSections"));
 gate(
   "G99 — Empresas consome componentes promovidos (não equivalentes)",
   promotionAnswer
 );
 
 const passed = results.filter((r) => r.ok).length;
-console.log(`\nG86-G101: ${passed}/${results.length} aprovados`);
+console.log(`\nG86-G102: ${passed}/${results.length} aprovados`);
 if (globalReimplementations.length > 0) {
   console.log(
     `\nReimplementações globais pendentes (outros módulos): ${globalReimplementations.join(", ")}`

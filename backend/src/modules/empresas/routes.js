@@ -1,7 +1,11 @@
 import { empresaService } from "./services/empresaService.js";
 import { streamEmpresasExport } from "./services/empresaExportService.js";
 import { empresaRepository } from "./repositories/empresaRepository.js";
-import { assertRole, loadAccessScope } from "../auth/accessScope.js";
+import { loadAccessScope } from "../auth/accessScope.js";
+import {
+  assertCadastroAdminRole,
+  assertCadastroMutationRole,
+} from "../auth/cadastroRbac.js";
 import { getContadores } from "../metrics/metricsService.js";
 import { ensureModuloAtivo } from "../clienteModulo/moduleGuard.js";
 import {
@@ -10,7 +14,8 @@ import {
   parseOrThrow,
 } from "./validators.js";
 
-const ensureMutationRole = (scope) => assertRole(scope, ["ADMIN"]);
+const ensureMutationRole = (scope) => assertCadastroMutationRole(scope);
+const ensureDeleteRole = (scope) => assertCadastroAdminRole(scope);
 
 export const registerEmpresasRoutes = async (app) => {
   app.get("/api/empresas", { preHandler: app.authenticate }, async (request) => {
@@ -45,7 +50,7 @@ export const registerEmpresasRoutes = async (app) => {
     async (request, reply) => {
     const scope = await loadAccessScope(request);
     await ensureModuloAtivo(scope, "EMPRESAS");
-    assertRole(scope, ["ADMIN"]);
+    assertCadastroAdminRole(scope);
     reply.hijack();
     await streamEmpresasExport({
       reply,
@@ -174,9 +179,7 @@ export const registerEmpresasRoutes = async (app) => {
   app.delete("/api/empresas/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
     await ensureModuloAtivo(scope, "EMPRESAS");
-    ensureMutationRole(scope);
-    try {
-      const ok = await empresaService.remove(request.params.id, scope);
+    ensureDeleteRole(scope);
       if (!ok) return reply.status(404).send({ message: "Empresa não encontrada para exclusão" });
       const contadores = await getContadores(scope);
       return { ok: true, contadores };

@@ -1187,6 +1187,7 @@ function ModeloBase1CadastroPageContent() {
                 onSaveLayout={cardsVisFields.saveLayoutConfig}
                 onRestoreLayoutDefaults={cardsVisFields.getRestoreLayoutDefaults}
                 filterFields={filterFields}
+                records={filteredPanelRecords}
                 empresas={filteredPanelRecords}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
@@ -1210,6 +1211,7 @@ function ModeloBase1CadastroPageContent() {
                 onConfigColumns={() => setShowConfigColunas(true)}
                 disabled={filterControlsDisabled}
                 filterFields={filterFields}
+                records={filteredPanelRecords}
                 empresas={filteredPanelRecords}
                 filterValues={filterValues}
                 appliedFilterValues={appliedFilterValues}
@@ -1267,6 +1269,7 @@ function ModeloBase1CadastroPageContent() {
                   <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
                     <SearchPanel
                       searchProps={{
+                        records: filteredPanelRecords,
                         empresas: filteredPanelRecords,
                         total: totalRecords,
                         isLoading: recordsLoading,
@@ -1311,7 +1314,10 @@ function ModeloBase1CadastroPageContent() {
                   <TablePanel
                     tableProps={{
                       key: config.tableKey ?? `tbl-${MAK_MODULE_ID}`,
+                      records: filteredPanelRecords,
                       empresas: filteredPanelRecords,
+                      isLoadingRecords: recordsLoading,
+                      isFetchingRecords: recordsFetching,
                       isLoadingEmpresas: recordsLoading,
                       isFetchingEmpresas: recordsFetching,
                       onEdit: handleEdit,

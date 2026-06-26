@@ -21,6 +21,9 @@ import {
   saveCardsLayoutConfig,
   saveSearchDropdownVisFields,
   saveSearchVisFields,
+  loadSearchFavorites,
+  saveSearchFavorites,
+  getEmpSearchFieldValue,
   sortCardConfigFieldsAlphabetically,
   sortCardConfigFieldsByOrder,
   getFieldsPerRowForLayout,
@@ -78,6 +81,9 @@ export const empresasSearchViewConfig = {
   getDefaultFilterFieldsLayout,
   mergeSavedVisibleFilterFields,
   mergeSavedFilterFieldOrder,
+  loadSearchFavorites,
+  saveSearchFavorites,
+  formatSearchFieldValue: getEmpSearchFieldValue,
 };
 
 export const empresasCustomFieldsConfig = {

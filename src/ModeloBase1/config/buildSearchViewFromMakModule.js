@@ -6,6 +6,9 @@ import {
   getFieldsPerRowForLayout,
   MAK_CARDS_LAYOUT_DEFAULT,
   normalizeCardsPerRow,
+  loadSearchFavoritesFromAdapter,
+  saveSearchFavoritesToAdapter,
+  defaultGetSearchFieldValue,
 } from "@/framework/mak/search/makSearchView.utils.js";
 import {
   applyFilterFieldsLayout,
@@ -128,6 +131,10 @@ export function buildSearchViewFromMakModule(makModule) {
     getDefaultFilterFieldsLayout,
     mergeSavedVisibleFilterFields,
     mergeSavedFilterFieldOrder,
+    loadSearchFavorites: () => loadSearchFavoritesFromAdapter(adapter, favoritesKey),
+    saveSearchFavorites: (favorites) =>
+      saveSearchFavoritesToAdapter(adapter, favoritesKey, favorites),
+    formatSearchFieldValue: defaultGetSearchFieldValue,
   };
 }
 

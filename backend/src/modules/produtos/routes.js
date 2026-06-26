@@ -1,4 +1,8 @@
 import { loadAccessScope } from "../auth/accessScope.js";
+import {
+  assertCadastroAdminRole,
+  assertCadastroMutationRole,
+} from "../auth/cadastroRbac.js";
 import { produtoService } from "./services/produtoService.js";
 import { produtoCreateSchema, produtoListQuerySchema, produtoUpdateSchema } from "./validators.js";
 
@@ -35,6 +39,7 @@ export const registerModuleRoutes = async (app) => {
 
   app.post("/api/produtos", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    assertCadastroMutationRole(scope);
     const payload = parseOrThrow(produtoCreateSchema, request.body || {}, "Payload inválido.");
     try {
       const item = await produtoService.create(scope, payload);
@@ -47,6 +52,7 @@ export const registerModuleRoutes = async (app) => {
 
   app.put("/api/produtos/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    assertCadastroMutationRole(scope);
     const payload = parseOrThrow(produtoUpdateSchema, request.body || {}, "Payload inválido.");
     const item = await produtoService.update(scope, request.params.id, payload);
     if (!item) return reply.status(404).send({ message: "Produto não encontrado." });
@@ -55,6 +61,7 @@ export const registerModuleRoutes = async (app) => {
 
   app.delete("/api/produtos/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    assertCadastroAdminRole(scope);
     const result = await produtoService.remove(scope, request.params.id);
     if (!result) return reply.status(404).send({ message: "Produto não encontrado." });
     return { ok: true };

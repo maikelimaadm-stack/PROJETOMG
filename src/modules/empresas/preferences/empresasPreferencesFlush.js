@@ -1,27 +1,18 @@
+/**
+ * @deprecated Use registerMakPreferencesFlushHandler from framework — compat Empresas.
+ */
+import {
+  registerMakPreferencesFlushHandler,
+  flushMakPreferencesNow as flushAllMakPreferences,
+} from "@/framework/mak/preferences/makPreferencesFlushRegistry.js";
 import { isEmpresasPreferencesV2Enabled } from "@/modules/empresas/preferences/empresasPreferencesFeatureFlags";
-
-const FLUSH_TIMEOUT_MS = 5_000;
-
-let activeFlushHandler = null;
 
 export const registerEmpPreferencesFlushHandler = (handler) => {
   if (!isEmpresasPreferencesV2Enabled()) {
-    activeFlushHandler = null;
+    registerMakPreferencesFlushHandler("empresas", null);
     return;
   }
-  activeFlushHandler = typeof handler === "function" ? handler : null;
+  registerMakPreferencesFlushHandler("empresas", handler);
 };
 
-export const flushEmpPreferencesNow = async () => {
-  if (!isEmpresasPreferencesV2Enabled() || !activeFlushHandler) return;
-  try {
-    await Promise.race([
-      activeFlushHandler(),
-      new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("preferences flush timeout")), FLUSH_TIMEOUT_MS);
-      }),
-    ]);
-  } catch {
-    // Falha ou timeout de preferências não pode bloquear logout/login.
-  }
-};
+export const flushEmpPreferencesNow = async () => flushAllMakPreferences(["empresas"]);
