@@ -3,6 +3,7 @@
  */
 import { defineModeloBase1Config } from "./defineModeloBase1Config.js";
 import { buildSearchViewFromMakModule } from "./buildSearchViewFromMakModule.js";
+import { buildModeloBase1HelpersFromMakModule } from "./buildModeloBase1HelpersFromMakModule.js";
 import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
 import {
   useModeloBase1InfiniteListData,
@@ -49,15 +50,10 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       `Duplicar ${moduleDefinition?.singularLabel?.toLowerCase() ?? "registro"}`,
   };
 
-  const defaultSort = makModule.metadata?.table?.defaultSort ?? { key: "codigo", direction: "asc" };
-  const titleField = makModule.metadata?.search?.titleField ?? "nome";
-  const codeField =
-    makModule.metadata?.search?.codeField ??
-    makModule.metadata?.search?.primaryField ??
-    makModule.metadata?.table?.columns?.[0]?.id ??
-    "codigo";
   const defaultPageSize = makModule.metadata?.list?.defaultPageSize ?? 100;
   const searchView = overrides.searchView ?? buildSearchViewFromMakModule(makModule);
+  const defaultHelpers = buildModeloBase1HelpersFromMakModule(makModule);
+  const keyPrefix = makModule.preferencesAdapter?.keyPrefix ?? makModule.moduleId;
 
   return defineModeloBase1Config({
     moduleId: makModule.moduleId,
@@ -89,18 +85,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       ...(overrides.hooks ?? {}),
     },
     helpers: {
-      readInitialQuerySort: () => defaultSort,
-      readInitialColumnFiltersState: () => ({}),
-      findRecordInList:
-        makModule.findRecordInList ??
-        ((list, record) => list.find((item) => item.id === record?.id) ?? record),
-      normalizeRecord: makModule.normalizeRecord ?? ((record) => record),
-      getRecordCode: (record) =>
-        record?.[codeField] != null ? String(record[codeField]) : "",
-      getRecordTitle: (record, moduleLabels) =>
-        record?.[titleField] ?? moduleLabels?.singular ?? "Novo registro",
-      getAttachmentTitle: (record) => record?.[titleField] ?? record?.[codeField] ?? "",
-      matchRecordIdentity: (item, record) => item?.id === record?.id,
+      ...defaultHelpers,
       ...(overrides.helpers ?? {}),
     },
     data: {
@@ -108,6 +93,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       infinitePageSize: defaultPageSize,
       maxLoadedRows: DEFAULT_MAX_LOADED_ROWS,
       loadBatchOptions: MAK_LOAD_BATCH_OPTIONS,
+      loadBatchStorageKey: `${keyPrefix}_infinite_batch_size`,
       readStoredLoadBatchSize: (fallback = MAK_LOAD_BATCH_OPTIONS[0]) => fallback,
       ...(overrides.data ?? {}),
     },

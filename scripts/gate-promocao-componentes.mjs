@@ -138,6 +138,23 @@ const scopeParity =
   read("src/ModeloBase1/layout/modeloBase1ScopeCss.js").includes("cadastro-emp-scope mg-empresas-scope");
 gate("G100 — Escopo visual master (cadastro-emp-scope) em todos os módulos", scopeParity);
 
+// G101 — Factory genérica expõe helpers obrigatórios do motor (Marcas/Produtos)
+const factoryConfig = read("src/ModeloBase1/config/buildModeloBase1ConfigFromMakModule.js");
+const factoryHelpers = read("src/ModeloBase1/config/buildModeloBase1HelpersFromMakModule.js");
+const requiredHelperKeys = [
+  "isPreferencesSectionDirty",
+  "writeStoredTempListagemFilters",
+  "subscribePreferencesCache",
+  "writePreferencesText",
+  "getFieldsPerRowForLayout",
+  "buildDuplicateRecord",
+  "buildExportRows",
+];
+const factoryHelpersComplete =
+  factoryConfig.includes("buildModeloBase1HelpersFromMakModule") &&
+  requiredHelperKeys.every((key) => factoryHelpers.includes(key));
+gate("G101 — Factory genérica com helpers obrigatórios do motor", factoryHelpersComplete);
+
 // G98 — Inventário de reimplementações globais restantes
 const globalReimplementations = [];
 if (exists("src/framework/mak/search/MakGenericSearchPanel.jsx")) {
@@ -168,7 +185,7 @@ gate(
 );
 
 const passed = results.filter((r) => r.ok).length;
-console.log(`\nG86-G100: ${passed}/${results.length} aprovados`);
+console.log(`\nG86-G101: ${passed}/${results.length} aprovados`);
 if (globalReimplementations.length > 0) {
   console.log(
     `\nReimplementações globais pendentes (outros módulos): ${globalReimplementations.join(", ")}`
