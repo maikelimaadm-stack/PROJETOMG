@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Columns3 } from "lucide-react";
 import { showWarning } from "@/shared/feedback";
 import {
   EmpConfigDialogFrame,
   EmpConfigPrimaryBtn,
+  EmpConfigToolbarBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -27,18 +28,36 @@ export default function EmpConfiguracaoColunasDialog({
   const [searchUsed, setSearchUsed] = useState("");
   const [draggedColumnId, setDraggedColumnId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
+  const wasOpenRef = useRef(false);
+  const committedRef = useRef({
+    visiveis: colunasVisiveis,
+    ordem: colunasOrdem,
+    frozenColumnCount,
+  });
 
-  useEffect(() => {
-    if (!open) return;
-    setDraftVisiveis(colunasVisiveis);
-    setDraftOrdem(colunasOrdem);
-    setDraftFrozenColumnCount(frozenColumnCount);
+  const resetDraftFromCommitted = () => {
+    const committed = committedRef.current;
+    setDraftVisiveis(committed.visiveis);
+    setDraftOrdem(committed.ordem);
+    setDraftFrozenColumnCount(committed.frozenColumnCount);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
     setSearch("");
     setSearchUsed("");
     setDraggedColumnId(null);
     setDraggedFrom(null);
+  };
+
+  useEffect(() => {
+    if (open && !wasOpenRef.current) {
+      committedRef.current = {
+        visiveis: colunasVisiveis,
+        ordem: colunasOrdem,
+        frozenColumnCount,
+      };
+      resetDraftFromCommitted();
+    }
+    wasOpenRef.current = open;
   }, [open, colunasVisiveis, colunasOrdem, frozenColumnCount]);
 
   const orderedColumns = useMemo(() => {
@@ -58,13 +77,19 @@ export default function EmpConfiguracaoColunasDialog({
     String(col.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const updateDraftLayout = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
+  const syncDraftState = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
     const remainingIds = orderedColumns
       .map((col) => col.id)
       .filter((id) => !nextUsedOrder.includes(id));
+    const nextOrdem = [...nextUsedOrder, ...remainingIds];
+    const normalizedFrozen = Math.min(nextFrozenCount, nextUsedOrder.length);
     setDraftVisiveis(nextVisible);
-    setDraftOrdem([...nextUsedOrder, ...remainingIds]);
-    setDraftFrozenColumnCount(Math.min(nextFrozenCount, nextUsedOrder.length));
+    setDraftOrdem(nextOrdem);
+    setDraftFrozenColumnCount(normalizedFrozen);
+  };
+
+  const updateDraftLayout = (nextVisible, nextUsedOrder, nextFrozenCount = draftFrozenColumnCount) => {
+    syncDraftState(nextVisible, nextUsedOrder, nextFrozenCount);
   };
 
   const selectAvailable = (colId, event) => {
@@ -103,6 +128,10 @@ export default function EmpConfiguracaoColunasDialog({
     if (!ids.length) return;
     const nextVisible = draftVisiveis.filter((id) => !ids.includes(id));
     const nextUsedOrder = usedColumns.map((col) => col.id).filter((id) => !ids.includes(id));
+    if (nextUsedOrder.length === 0) {
+      showWarning("É necessário manter pelo menos uma coluna em uso.");
+      return;
+    }
     updateDraftLayout(nextVisible, nextUsedOrder, Math.min(draftFrozenColumnCount, nextUsedOrder.length));
   };
 
@@ -155,49 +184,71 @@ export default function EmpConfiguracaoColunasDialog({
   const handleRestoreDefault = () => {
     const defaults = getRestoreDefaults?.();
     if (!defaults) return;
-    setDraftVisiveis(defaults.visiveis ?? []);
-    setDraftOrdem(defaults.ordem ?? []);
-    setDraftFrozenColumnCount(defaults.frozenColumnCount ?? 0);
+    syncDraftState(defaults.visiveis ?? [], defaults.ordem ?? [], defaults.frozenColumnCount ?? 0);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
   };
 
-  const handleSave = () => {
-    if (usedColumns.length === 0) {
+  const handleOk = () => {
+    const nextUsedOrder = usedColumns.map((col) => col.id);
+    if (nextUsedOrder.length === 0) {
       showWarning("É necessário manter pelo menos uma coluna em uso.");
       return;
     }
     onChange?.({
       visiveis: draftVisiveis,
       ordem: draftOrdem,
-      frozenColumnCount: Math.min(draftFrozenColumnCount, usedColumns.length),
+      frozenColumnCount: draftFrozenColumnCount,
     });
+    committedRef.current = {
+      visiveis: draftVisiveis,
+      ordem: draftOrdem,
+      frozenColumnCount: draftFrozenColumnCount,
+    };
     onOpenChange(false);
   };
 
   const requestClose = () => {
+    resetDraftFromCommitted();
     onOpenChange(false);
+  };
+
+  const handleOpenChange = (nextOpen) => {
+    if (!nextOpen) {
+      requestClose();
+      return;
+    }
+    onOpenChange?.(nextOpen);
   };
 
   const toggleFreezeColumn = (index, event) => {
     event.stopPropagation();
-    if (index === draftFrozenColumnCount) {
-      setDraftFrozenColumnCount(draftFrozenColumnCount + 1);
-    }
-    if (index === draftFrozenColumnCount - 1) {
-      setDraftFrozenColumnCount(draftFrozenColumnCount - 1);
+    const nextFrozen =
+      index === draftFrozenColumnCount
+        ? draftFrozenColumnCount + 1
+        : index === draftFrozenColumnCount - 1
+          ? draftFrozenColumnCount - 1
+          : draftFrozenColumnCount;
+    if (nextFrozen !== draftFrozenColumnCount) {
+      syncDraftState(draftVisiveis, usedColumns.map((col) => col.id), nextFrozen);
     }
   };
 
   return (
     <EmpConfigDialogFrame
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       onRequestClose={requestClose}
       title="Configuração de colunas"
       infoTitle="Configuração de colunas"
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
+      footer={
+        <div className="flex w-full justify-end gap-2 px-1">
+          <EmpConfigToolbarBtn onClick={requestClose}>Cancelar</EmpConfigToolbarBtn>
+          <EmpConfigPrimaryBtn onClick={handleOk}>Ok</EmpConfigPrimaryBtn>
+        </div>
+      }
     >
       <EmpConfigTransferPanel
         availableLabel="Colunas disponíveis"
@@ -271,11 +322,6 @@ export default function EmpConfiguracaoColunasDialog({
             <Columns3 className="h-3.5 w-3.5 text-black" />
           </span>
         )}
-        footer={
-          <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
-            <span>OK</span>
-          </EmpConfigPrimaryBtn>
-        }
       />
     </EmpConfigDialogFrame>
   );

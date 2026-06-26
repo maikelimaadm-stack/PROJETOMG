@@ -21,7 +21,26 @@ import {
   readEmpPreferencesJson,
   readEmpPreferencesText,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import {
+  EMP_CARDS_LAYOUT_DEFAULT,
+  EMP_SEARCH_DEFAULT_FIELDS,
+  loadCardsLayoutConfig,
+  loadSearchVisFields,
+  mergeSearchVisFields,
+} from "@/modules/empresas/components/empSearchView.constants";
+import {
+  loadFilterFieldsLayout,
+  mergeSavedFilterFieldOrder,
+  mergeVisibleFilterFieldsWithCatalog,
+} from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { readStoredTempListagemFilters } from "@/modules/empresas/preferences/empresasPreferencesStorage";
+import { stableJsonEqual } from "@/shared/utils/stableStringify";
+
+export const normalizeFrozenColumnCount = (count, visibleCount = 0) => {
+  const safeVisible = Math.max(0, Number(visibleCount) || 0);
+  const parsed = Math.floor(Number(count) || 0);
+  return Math.max(0, Math.min(parsed, safeVisible));
+};
 
 const readSortConfig = () => {
   const saved = readEmpPreferencesJson(SORT_KEY, null);
@@ -59,7 +78,10 @@ export const readEmpTablePreferencesSnapshot = (colunasDisponiveis = COLUNAS_BAS
     colunasOrdem: ordem,
     colunasVisiveis: visiveis,
     columnWidths: savedWidths && typeof savedWidths === "object" ? { ...defaults, ...savedWidths } : defaults,
-    frozenColumnCount: Math.max(0, Number(readEmpPreferencesText(FROZEN_KEY, "0")) || 0),
+    frozenColumnCount: normalizeFrozenColumnCount(
+      readEmpPreferencesText(FROZEN_KEY, "0"),
+      visiveis.length
+    ),
     sortConfig: readSortConfig(),
     filtrosColunas: readStoredTempListagemFilters(),
     layoutAggregationConfig: readEmpPreferencesJson(AGGR_KEY, {}) || {},
@@ -100,30 +122,71 @@ export const mergeExpandedCatalogIntoTableState = (
   const newColumnIds = expandedColumns.map((column) => column.id).filter((id) => !prevIds.has(id));
   if (newColumnIds.length === 0) return null;
 
-  const columnsById = new Map(expandedColumns.map((column) => [column.id, column]));
-  const nextOrdem = [...(current.colunasOrdem || [])];
-  newColumnIds.forEach((id) => {
-    if (!nextOrdem.includes(id)) nextOrdem.push(id);
-  });
-
-  const nextVisiveis = [...(current.colunasVisiveis || [])];
-  newColumnIds.forEach((id) => {
-    const column = columnsById.get(id);
-    if (column?.default && !nextVisiveis.includes(id)) nextVisiveis.push(id);
-  });
+  const savedOrdem = loadColumnOrder(ORDER_KEY, expandedColumns);
+  const savedVisiveis = loadSavedVisibleColumns(VISIBLE_KEY);
+  const { ordem, visiveis } = mergeEffectiveColumnLayout(
+    expandedColumns,
+    savedOrdem,
+    savedVisiveis
+  );
 
   const defaults = Object.fromEntries(
     expandedColumns.map((column) => [column.id, column.width || 160])
   );
   const nextWidths = { ...defaults, ...(current.columnWidths || {}) };
   newColumnIds.forEach((id) => {
-    const column = columnsById.get(id);
+    const column = expandedColumns.find((col) => col.id === id);
     if (column && nextWidths[id] == null) nextWidths[id] = column.width || 160;
   });
 
   return {
-    colunasOrdem: nextOrdem,
-    colunasVisiveis: nextVisiveis,
+    colunasOrdem: ordem,
+    colunasVisiveis: visiveis,
     columnWidths: nextWidths,
   };
+};
+
+export const readEmpCardsPreferencesSnapshot = (catalog = EMP_SEARCH_DEFAULT_FIELDS) => {
+  const sourceCatalog = Array.isArray(catalog) && catalog.length > 0 ? catalog : EMP_SEARCH_DEFAULT_FIELDS;
+  return {
+    visFields: loadSearchVisFields(sourceCatalog),
+    layoutConfig: loadCardsLayoutConfig() || { ...EMP_CARDS_LAYOUT_DEFAULT },
+  };
+};
+
+export const readEmpFiltersPreferencesSnapshot = (catalogKeys = []) => ({
+  layout: loadFilterFieldsLayout(catalogKeys),
+});
+
+/** Mescla campos novos do catálogo nos cards sem resetar visibilidade salva. */
+export const mergeExpandedCatalogIntoCardsState = (
+  currentVisFields = [],
+  expandedCatalog = [],
+  previousCatalogSignature = ""
+) => {
+  const prevKeys = new Set(String(previousCatalogSignature || "").split("|").filter(Boolean));
+  const newKeys = expandedCatalog.map((field) => field.key).filter((key) => key && !prevKeys.has(key));
+  if (newKeys.length === 0) return null;
+  const merged = mergeSearchVisFields(expandedCatalog, currentVisFields);
+  return stableJsonEqual(currentVisFields, merged) ? null : merged;
+};
+
+/** Mescla campos personalizados novos no layout de filtros sem reativar os removidos pelo usuário. */
+export const mergeExpandedCatalogIntoFiltersState = (
+  currentLayout = {},
+  expandedCatalogKeys = [],
+  previousCatalogSignature = ""
+) => {
+  const prevKeys = new Set(String(previousCatalogSignature || "").split("|").filter(Boolean));
+  const newKeys = expandedCatalogKeys.filter((key) => key && !prevKeys.has(key));
+  if (newKeys.length === 0) return null;
+
+  const ordem = mergeSavedFilterFieldOrder(currentLayout.ordem, expandedCatalogKeys);
+  const visiveis = mergeVisibleFilterFieldsWithCatalog(
+    currentLayout.visiveis,
+    expandedCatalogKeys,
+    currentLayout.ordem
+  );
+  const next = { ...currentLayout, ordem, visiveis };
+  return stableJsonEqual(currentLayout, next) ? null : next;
 };

@@ -38,8 +38,8 @@ import { useAuth } from "@/shared/contexts/AuthContext";
 
 const LISTAGEM_SCOPE_KEY = `${EMPRESAS_LISTAGEM_SCOPE.modulo}.${EMPRESAS_LISTAGEM_SCOPE.tela}`;
 const FORM_SCOPE_KEY = `${EMPRESAS_FORM_SCOPE.modulo}.${EMPRESAS_FORM_SCOPE.tela}`;
-const LISTAGEM_SECTIONS = ["table", "cards", "filtersConfig"];
-const PREFERENCES_SYNC_DEBOUNCE_MS = 350;
+const LISTAGEM_SECTIONS = ["table", "cards", "filtersConfig", "view"];
+const PREFERENCES_SYNC_DEBOUNCE_MS = 100;
 const PREFERENCES_SYNC_RETRY_MS = 1_500;
 const MAX_CONFLICT_RETRIES = 3;
 
@@ -102,7 +102,7 @@ const sectionsFromReason = (reason = "") => {
   ) {
     return ["filtersConfig"];
   }
-  if (normalized.includes("view-mode") || normalized.includes("panel-style")) return [];
+  if (normalized.includes("view-mode") || normalized.includes("panel-style")) return ["view"];
   if (normalized.includes("table") || normalized.includes("load-batch") || normalized.includes("page-size")) {
     return ["table"];
   }
@@ -170,6 +170,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
   const listagemSyncTimerRef = useRef(null);
   const listagemRetryTimerRef = useRef(null);
   const syncInFlightRef = useRef(false);
+  const pendingDrainRef = useRef(false);
   const pendingPatchRef = useRef({});
   const conflictRetryCountRef = useRef(0);
   const lastSyncedPreferencesRef = useRef({});
@@ -437,8 +438,7 @@ export function useEmpresasPreferencesBootstrap(userId) {
         markPreferencesReady("remote_applied", {
           emitGeneration:
             isEmpresasPreferencesV2Enabled() &&
-            remoteListagemChanged &&
-            !hadLocalSnapshotRef.current,
+            (remoteListagemChanged || !hadLocalSnapshotRef.current),
         });
         setEmpPreferencesHydrationSource(hadLocalSnapshotRef.current ? "local" : "remote");
         if (userId && !mapped[FORM_SCOPE_KEY]) {
@@ -553,7 +553,10 @@ export function useEmpresasPreferencesBootstrap(userId) {
 
   const persistQueuedPatches = useCallback(async () => {
     if (!userId || !clienteId) return;
-    if (syncInFlightRef.current) return;
+    if (syncInFlightRef.current) {
+      pendingDrainRef.current = true;
+      return;
+    }
 
     const queuedPatch = toObject(pendingPatchRef.current);
     const patchToSend = Object.entries(queuedPatch).reduce((acc, [section, value]) => {
@@ -660,6 +663,13 @@ export function useEmpresasPreferencesBootstrap(userId) {
       if (isEmpresasPreferencesV2Enabled()) throw error;
     } finally {
       syncInFlightRef.current = false;
+      const hasPending = Object.keys(toObject(pendingPatchRef.current)).length > 0;
+      if (pendingDrainRef.current || hasPending) {
+        pendingDrainRef.current = false;
+        queueMicrotask(() => {
+          void persistQueuedPatches();
+        });
+      }
     }
   }, [
     bumpBootstrapGeneration,
@@ -739,11 +749,13 @@ export function useEmpresasPreferencesBootstrap(userId) {
     };
 
     window.addEventListener("beforeunload", flushNow);
+    window.addEventListener("pagehide", flushNow);
     document.addEventListener("visibilitychange", onVisibilityChange);
     window.addEventListener("emp-preferences-flush", flushNow);
 
     return () => {
       window.removeEventListener("beforeunload", flushNow);
+      window.removeEventListener("pagehide", flushNow);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("emp-preferences-flush", flushNow);
     };

@@ -67,12 +67,11 @@ import {
   isErpFilterActive,
   normalizePanelFilterValue,
 } from "@/shared/filters";
-import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
+import { useEmpresasPreferencesBootstrapState } from "@/modules/empresas/preferences/EmpresasPreferencesBootstrapContext";
+import { useEmpViewModePreference } from "@/modules/empresas/hooks/useEmpViewModePreference";
 import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
 import {
-  readStoredEmpViewMode,
   readStoredTempListagemFilters,
-  writeStoredEmpViewMode,
   writeStoredTempListagemFilters,
 } from "@/modules/empresas/preferences/empresasPreferencesStorage";
 import { isEmpPreferencesSectionDirty } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
@@ -223,9 +222,10 @@ export default function PAGEMP() {
   const {
     preferencesReady,
     bootstrapStatus,
+    bootstrapGeneration,
     error: preferencesSyncError,
     scheduleListagemSync,
-  } = useEmpresasPreferencesBootstrap(user?.id);
+  } = useEmpresasPreferencesBootstrapState();
 
   const resolveErrorMessage = (error, fallback) => {
     const apiMessage = error?.data?.message || error?.message;
@@ -240,7 +240,7 @@ export default function PAGEMP() {
   const [showConfigFiltros, setShowConfigFiltros] = useState(false);
   const [showConfigPdf, setShowConfigPdf] = useState(false);
   const [showConfigExcel, setShowConfigExcel] = useState(false);
-  const [viewMode, setViewMode] = useState(() => readStoredEmpViewMode());
+  const { viewMode, setViewMode } = useEmpViewModePreference("table");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [searchDraft, setSearchDraft] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
@@ -276,7 +276,6 @@ export default function PAGEMP() {
   const {
     filterFields,
     layout: filterFieldsLayout,
-    maxVisibleFields,
     saveLayout: saveFilterFieldsLayout,
     getRestoreDefaults: getRestoreFilterFieldsLayout,
     catalogFields: filterFieldsCatalog,
@@ -322,7 +321,6 @@ export default function PAGEMP() {
   const pendingDeleteIdsRef = useRef([]);
   const pendingCreatesRef = useRef(new Map());
   const previousScopeEmpresaIdRef = useRef(selectedEmpresaId);
-  const hasUserInteractedRef = useRef(false);
   const suppressColumnFilterPersistRef = useRef(true);
   const formBridgeSignatureRef = useRef("");
   const queryClient = useQueryClient();
@@ -376,11 +374,6 @@ export default function PAGEMP() {
     lastPreferencesErrorRef.current = signature;
     showError(`Preferências: ${preferencesSyncError.message}`);
   }, [preferencesSyncError]);
-
-  useEffect(() => {
-    if (!preferencesReady) return;
-    writeStoredEmpViewMode(viewMode);
-  }, [preferencesReady, viewMode]);
 
   useEffect(() => {
     if (!showForm) {
@@ -1069,6 +1062,12 @@ export default function PAGEMP() {
   }, []);
 
   const mgViewMode = resolveMgViewMode({ showForm, viewMode });
+
+  useEffect(() => {
+    if (showForm || viewMode !== "record") return;
+    setViewMode("table");
+  }, [showForm, viewMode, setViewMode]);
+
   const searchHasFilter = Boolean(
     searchDraft.trim() || searchTerm.trim() || pinnedRecord || searchFavoritesOnly
   );
@@ -1212,11 +1211,9 @@ export default function PAGEMP() {
       if (!normalized) return false;
       if (normalized === "storage") return false;
       if (!normalized.startsWith("listagem:")) return false;
-      if (normalized.includes("view-mode") || normalized.includes("panel-style")) return false;
       return !normalized.includes("temp-filters");
     };
     const unsubscribe = subscribeEmpPreferencesCache((detail) => {
-      if (!hasUserInteractedRef.current) return;
       const reason = detail?.reason;
       if (shouldSkipSync(reason, detail)) return;
       if (!shouldTrackSyncReason(reason)) return;
@@ -1226,18 +1223,6 @@ export default function PAGEMP() {
       unsubscribe();
     };
   }, [preferencesReady, scheduleListagemSync]);
-
-  useEffect(() => {
-    const markInteraction = () => {
-      hasUserInteractedRef.current = true;
-    };
-    window.addEventListener("pointerdown", markInteraction, { passive: true });
-    window.addEventListener("keydown", markInteraction);
-    return () => {
-      window.removeEventListener("pointerdown", markInteraction);
-      window.removeEventListener("keydown", markInteraction);
-    };
-  }, []);
 
   useEffect(() => {
     if (!showForm || viewMode !== "record" || !editingEmp || editingEmp?._isDuplicate) return;
@@ -1740,32 +1725,89 @@ export default function PAGEMP() {
                   }}
                 />
               </div>
-            ) : mgViewMode === "cards" ? (
-              <div
-                className="mg-view-layer mg-view-layer--cards mg-view-layer--active flex min-h-0 flex-1 flex-col overflow-hidden"
-                aria-hidden={false}
-              >
-                <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-                  <EmpresasSearchPanel
-                    searchProps={{
+            ) : (
+              <>
+                <div
+                  className={`mg-view-layer mg-view-layer--cards flex min-h-0 flex-1 flex-col overflow-hidden${
+                    mgViewMode === "cards" ? " mg-view-layer--active" : ""
+                  }`}
+                  aria-hidden={mgViewMode !== "cards"}
+                >
+                  <div id="mode-cards" className="mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
+                    <EmpresasSearchPanel
+                      searchProps={{
+                        empresas: empresasFiltradasPainel,
+                        total: totalEmpresas,
+                        isLoading: empresasLoading,
+                        isFetching: empresasFetching,
+                        page: queryPage,
+                        pageSize: queryPageSize,
+                        onPageChange: handleServerPageChange,
+                        onPageSizeChange: handleServerPageSizeChange,
+                        searchValue: searchTerm,
+                        onSearchChange: handleSearchCommit,
+                        onEdit: handleEdit,
+                        selectedIds: selectedTableItems,
+                        onSelectionChange: handleTableSelectionChange,
+                        cardsDetailFields: cardsVisFields.detailFields,
+                        cardsPerRow: effectiveCardsPerRow,
+                        fieldsPerRow: effectiveFieldsPerRow,
+                        isFavoriteRecord: empFavorites.isFavorite,
+                        onToggleFavorite: empFavorites.toggleFavorite,
+                        mgPrototype: true,
+                        infiniteMode: true,
+                        hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
+                        onLoadMoreRows: handleLoadMoreEmpresas,
+                        isLoadingMoreRows: isFetchingNextEmpresasPage,
+                        loadedRowsLimitReached,
+                        maxLoadedRows,
+                        loadBatchSize,
+                        onLoadBatchSizeChange: handleLoadBatchSizeChange,
+                        selectedCount: selectedTableItems.length,
+                        listedCount: loadedRecordsCount,
+                        filteredCount: filteredRecordsCount,
+                        totalCount: totalRecordsCount,
+                      }}
+                    />
+                  </div>
+                </div>
+                <div
+                  className={`mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden${
+                    mgViewMode === "tabela" ? " mg-view-layer--active" : ""
+                  }`}
+                  aria-hidden={mgViewMode !== "tabela"}
+                >
+                  <EmpresasTablePanel
+                    tableProps={{
+                      key: "tbl-emp",
                       empresas: empresasFiltradasPainel,
-                      total: totalEmpresas,
-                      isLoading: empresasLoading,
-                      isFetching: empresasFetching,
-                      page: queryPage,
-                      pageSize: queryPageSize,
-                      onPageChange: handleServerPageChange,
-                      onPageSizeChange: handleServerPageSizeChange,
-                      searchValue: searchTerm,
-                      onSearchChange: handleSearchCommit,
+                      isLoadingEmpresas: empresasLoading,
+                      isFetchingEmpresas: empresasFetching,
                       onEdit: handleEdit,
+                      showConfigColunas,
+                      setShowConfigColunas,
+                      searchTerm: "",
+                      selectedRecordId: undefined,
                       selectedIds: selectedTableItems,
                       onSelectionChange: handleTableSelectionChange,
-                      cardsDetailFields: cardsVisFields.detailFields,
-                      cardsPerRow: effectiveCardsPerRow,
-                      fieldsPerRow: effectiveFieldsPerRow,
-                      isFavoriteRecord: empFavorites.isFavorite,
-                      onToggleFavorite: empFavorites.toggleFavorite,
+                      onVisibleDataChange: setVisibleTableData,
+                      onFilteredEmpresasChange: handleFilteredEmpresasChange,
+                      onServerColumnFiltersChange: handleColumnFiltersChange,
+                      externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
+                      serverPage: queryPage,
+                      serverPageSize: queryPageSize,
+                      serverTotal: totalEmpresas,
+                      onServerPageChange: handleServerPageChange,
+                      onServerPageSizeChange: handleServerPageSizeChange,
+                      serverSearchTerm: searchTerm,
+                      serverBaseFilters,
+                      selectorOptionsMode: "cascade",
+                      selectorOptionsContextFilters: serverBaseFilters,
+                      onServerSortChange: handleServerSortChange,
+                      onRequestDistinctColumnValues: handleDistinctColumnValues,
+                      preferencesReady,
+                      bootstrapGeneration,
+                      moduleTitle: moduleLabels.title,
                       mgPrototype: true,
                       infiniteMode: true,
                       hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
@@ -1782,55 +1824,7 @@ export default function PAGEMP() {
                     }}
                   />
                 </div>
-              </div>
-            ) : (
-              <div className="mg-view-layer mg-view-layer--table mg-grid-wrapper mg-view-layer--active mg-view-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-                <EmpresasTablePanel
-                  tableProps={{
-                    key: "tbl-emp",
-                    empresas: empresasFiltradasPainel,
-                    isLoadingEmpresas: empresasLoading,
-                    isFetchingEmpresas: empresasFetching,
-                    onEdit: handleEdit,
-                    showConfigColunas,
-                    setShowConfigColunas,
-                    searchTerm: "",
-                    selectedRecordId: undefined,
-                    selectedIds: selectedTableItems,
-                    onSelectionChange: handleTableSelectionChange,
-                    onVisibleDataChange: setVisibleTableData,
-                    onFilteredEmpresasChange: handleFilteredEmpresasChange,
-                    onServerColumnFiltersChange: handleColumnFiltersChange,
-                    externalColumnFilters: columnFiltersHydrated ? columnFilters : undefined,
-                    serverPage: queryPage,
-                    serverPageSize: queryPageSize,
-                    serverTotal: totalEmpresas,
-                    onServerPageChange: handleServerPageChange,
-                    onServerPageSizeChange: handleServerPageSizeChange,
-                    serverSearchTerm: searchTerm,
-                    serverBaseFilters,
-                    selectorOptionsMode: "cascade",
-                    selectorOptionsContextFilters: serverBaseFilters,
-                    onServerSortChange: handleServerSortChange,
-                    onRequestDistinctColumnValues: handleDistinctColumnValues,
-                    preferencesReady,
-                    moduleTitle: moduleLabels.title,
-                    mgPrototype: true,
-                    infiniteMode: true,
-                    hasMoreRows: hasNextEmpresasPage && canLoadMoreRows,
-                    onLoadMoreRows: handleLoadMoreEmpresas,
-                    isLoadingMoreRows: isFetchingNextEmpresasPage,
-                    loadedRowsLimitReached,
-                    maxLoadedRows,
-                    loadBatchSize,
-                    onLoadBatchSizeChange: handleLoadBatchSizeChange,
-                    selectedCount: selectedTableItems.length,
-                    listedCount: loadedRecordsCount,
-                    filteredCount: filteredRecordsCount,
-                    totalCount: totalRecordsCount,
-                  }}
-                />
-              </div>
+              </>
             )}
           </div>
         </div>
@@ -1849,7 +1843,6 @@ export default function PAGEMP() {
         camposDisponiveis={filterFieldsConfigCatalog}
         camposVisiveis={filterFieldsLayout.visiveis}
         camposOrdem={filterFieldsLayout.ordem}
-        maxVisibleFields={maxVisibleFields}
         onChange={saveFilterFieldsLayout}
         getRestoreDefaults={getRestoreFilterFieldsLayout}
       />

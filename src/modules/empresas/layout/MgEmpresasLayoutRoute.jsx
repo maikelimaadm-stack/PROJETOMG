@@ -1,10 +1,1 @@
-import { MgEmpresasChromeProvider } from "./MgEmpresasChromeContext";
-import MgEmpresasShell from "./MgEmpresasShell";
-
-export default function MgEmpresasLayoutRoute() {
-  return (
-    <MgEmpresasChromeProvider>
-      <MgEmpresasShell />
-    </MgEmpresasChromeProvider>
-  );
-}
+export { default } from '@/framework/mak/layout/MgEmpresasLayoutRoute.jsx';

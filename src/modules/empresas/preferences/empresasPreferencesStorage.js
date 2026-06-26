@@ -38,6 +38,7 @@ import {
   markEmpPreferencesSectionDirty,
 } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
+import { normalizeEmpListViewMode } from "@/modules/empresas/layout/mgViewMode";
 
 export const EMPRESAS_LISTAGEM_SCOPE = Object.freeze({
   modulo: "empresas",
@@ -135,11 +136,8 @@ const writeStorage = (key, value, reason = "listagem:update") => {
   return changed;
 };
 
-const normalizeViewMode = (value) => {
-  if (value === "search") return "search";
-  if (value === "record") return "record";
-  return "table";
-};
+const normalizeViewMode = (value) =>
+  normalizeEmpListViewMode(value, { allowRecord: true });
 
 const normalizeLaunchPanelStyle = (value) => (value === "sidebar" ? "sidebar" : "tabs");
 
@@ -151,9 +149,10 @@ const sanitizeTablePreferences = (table = {}) => {
   return next;
 };
 
-export const readStoredEmpViewMode = () => normalizeViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY));
+export const readStoredEmpViewMode = () =>
+  normalizeEmpListViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY), { allowRecord: false });
 
-export const writeStoredEmpViewMode = (mode, reason = "view:local-mode") => {
+export const writeStoredEmpViewMode = (mode, reason = "listagem:view-mode") => {
   writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(mode), reason);
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent("emp-view-mode-updated"));
@@ -297,12 +296,25 @@ export const applyListagemPreferencesToStorage = (preferences = {}, options = {}
     return true;
   };
 
+  const shouldPreserveLocalTableStorage = (storageKey, remoteValue, { compare = (left, right) => left === right } = {}) => {
+    if (!respectDirtySections || !hasScopedPreferenceValue(storageKey)) return false;
+    const localRaw = readStorage(storageKey);
+    if (localRaw == null) return false;
+    if (compare(localRaw, remoteValue)) return false;
+    markEmpPreferencesSectionDirty("table");
+    return true;
+  };
+
   withEmpPreferencesCacheBatch(() => {
     if (
       normalized.view.mode &&
       shouldApplySection("view", { mode: normalized.view.mode }, { mode: current.view?.mode })
     ) {
-      if (writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(normalized.view.mode), reason)) {
+      const remoteMode = normalizeViewMode(normalized.view.mode);
+      const localMode = normalizeViewMode(readStorage(EMP_VIEW_MODE_STORAGE_KEY));
+      if (respectDirtySections && localMode && remoteMode !== localMode) {
+        markEmpPreferencesSectionDirty("view");
+      } else if (writeStorage(EMP_VIEW_MODE_STORAGE_KEY, remoteMode, reason)) {
         visualChange = true;
       }
     }
@@ -337,26 +349,41 @@ export const applyListagemPreferencesToStorage = (preferences = {}, options = {}
         }
         markVisibleColumnsInitialized();
       }
-      if (table.columnWidths && writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), reason)) {
+      if (
+        table.columnWidths &&
+        !shouldPreserveLocalTableStorage(WIDTHS_KEY, safeStringify(table.columnWidths), {
+          compare: (left, right) => stableJsonEqual(safeParseJson(left, {}), safeParseJson(right, {})),
+        }) &&
+        writeStorage(WIDTHS_KEY, safeStringify(table.columnWidths), reason)
+      ) {
         visualChange = true;
       }
-      if (table.columnSizingMode) {
-        if (writeStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), reason)) {
-          visualChange = true;
-        }
+      if (
+        table.columnSizingMode &&
+        !shouldPreserveLocalTableStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), {
+          compare: (left, right) =>
+            stableJsonEqual(safeParseJson(left, {}), safeParseJson(right, {})),
+        }) &&
+        writeStorage(SIZING_MODE_KEY, safeStringify(table.columnSizingMode), reason)
+      ) {
+        visualChange = true;
       }
       if (table.frozenLeftColumnCount != null) {
+        const remoteFrozen = String(Number(table.frozenLeftColumnCount) || 0);
         if (
-          writeStorage(
-            FROZEN_KEY,
-            String(Number(table.frozenLeftColumnCount) || 0),
-            reason
-          )
+          !shouldPreserveLocalTableStorage(FROZEN_KEY, remoteFrozen) &&
+          writeStorage(FROZEN_KEY, remoteFrozen, reason)
         ) {
           visualChange = true;
         }
       }
-      if (table.sort && writeStorage(SORT_KEY, safeStringify(table.sort), reason)) {
+      if (
+        table.sort &&
+        !shouldPreserveLocalTableStorage(SORT_KEY, safeStringify(table.sort), {
+          compare: (left, right) => stableJsonEqual(safeParseJson(left, []), safeParseJson(right, [])),
+        }) &&
+        writeStorage(SORT_KEY, safeStringify(table.sort), reason)
+      ) {
         visualChange = true;
       }
       if (table.pageSize != null) {

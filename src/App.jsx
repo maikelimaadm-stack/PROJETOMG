@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
+import { MakPreferencesBootstrapProvider } from "@/framework/mak/preferences/PreferencesBootstrapProvider.jsx";
 import { ErpThemeProvider } from "@/shared/contexts/ErpThemeContext";
 import { lazy, Suspense, useState } from "react";
 import generatedModules from "@/modules/generatedModules.json";
@@ -202,12 +203,14 @@ export default function App() {
     <ErpThemeProvider>
       <AuthProvider>
         <QueryClientProvider client={queryClientInstance}>
-          <ErpConfirmProvider>
-            <Router>
-              <AppWithErrorBoundary />
-            </Router>
-            <ErpToaster />
-          </ErpConfirmProvider>
+          <MakPreferencesBootstrapProvider>
+            <ErpConfirmProvider>
+              <Router>
+                <AppWithErrorBoundary />
+              </Router>
+              <ErpToaster />
+            </ErpConfirmProvider>
+          </MakPreferencesBootstrapProvider>
         </QueryClientProvider>
       </AuthProvider>
     </ErpThemeProvider>

@@ -2926,6 +2926,11 @@
   z-index: 1;
 }
 
+.mg-empresas-scope .mg-view-layer--cards,
+.mg-empresas-scope .mg-view-layer--table {
+  transition: none;
+}
+
 .mg-empresas-scope .mg-view-panel {
   flex: 1 1 auto;
   min-height: 0;
@@ -3456,6 +3461,10 @@
   align-items: center;
   padding: 6px 8px 4px;
   border-top: 1px solid var(--border);
+}
+
+.mg-empresas-scope .mg-search-dropdown__config-footer--two-actions {
+  grid-template-columns: 1fr 1fr;
 }
 
 .mg-empresas-scope .mg-search-dropdown__config-action {

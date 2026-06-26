@@ -1,7 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   EmpConfigDialogFrame,
   EmpConfigPrimaryBtn,
+  EmpConfigToolbarBtn,
   EmpConfigTransferPanel,
   EMP_CONFIG_TRANSFER_DIALOG_CLASS,
 } from "@/framework/cadastro/configurators/EmpConfigDialogKit";
@@ -12,32 +13,45 @@ export default function EmpConfiguracaoFiltrosDialog({
   camposDisponiveis = [],
   camposVisiveis = [],
   camposOrdem = [],
-  maxVisibleFields = 5,
   onChange,
   getRestoreDefaults,
 }) {
   const [draftVisiveis, setDraftVisiveis] = useState([]);
   const [draftOrdem, setDraftOrdem] = useState([]);
-  const [draftMaxVisible, setDraftMaxVisible] = useState(maxVisibleFields);
   const [selectedAvailableIds, setSelectedAvailableIds] = useState([]);
   const [selectedUsedIds, setSelectedUsedIds] = useState([]);
   const [search, setSearch] = useState("");
   const [searchUsed, setSearchUsed] = useState("");
   const [draggedFieldId, setDraggedFieldId] = useState(null);
   const [draggedFrom, setDraggedFrom] = useState(null);
+  const wasOpenRef = useRef(false);
+  const committedRef = useRef({
+    visiveis: camposVisiveis,
+    ordem: camposOrdem,
+  });
 
-  useEffect(() => {
-    if (!open) return;
-    setDraftVisiveis(camposVisiveis);
-    setDraftOrdem(camposOrdem);
-    setDraftMaxVisible(maxVisibleFields);
+  const resetDraftFromCommitted = () => {
+    const committed = committedRef.current;
+    setDraftVisiveis(committed.visiveis);
+    setDraftOrdem(committed.ordem);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
     setSearch("");
     setSearchUsed("");
     setDraggedFieldId(null);
     setDraggedFrom(null);
-  }, [open, camposVisiveis, camposOrdem, maxVisibleFields]);
+  };
+
+  useEffect(() => {
+    if (open && !wasOpenRef.current) {
+      committedRef.current = {
+        visiveis: camposVisiveis,
+        ordem: camposOrdem,
+      };
+      resetDraftFromCommitted();
+    }
+    wasOpenRef.current = open;
+  }, [open, camposVisiveis, camposOrdem]);
 
   const orderedFields = useMemo(() => {
     const byId = new Map(camposDisponiveis.map((field) => [field.id, field]));
@@ -56,12 +70,17 @@ export default function EmpConfiguracaoFiltrosDialog({
     String(field.label || "").toLowerCase().includes(searchUsed.toLowerCase())
   );
 
-  const updateDraftLayout = (nextVisible, nextUsedOrder) => {
+  const syncDraftState = (nextVisible, nextUsedOrder) => {
     const remainingIds = orderedFields
       .map((field) => field.id)
       .filter((id) => !nextUsedOrder.includes(id));
+    const nextOrdem = [...nextUsedOrder, ...remainingIds];
     setDraftVisiveis(nextVisible);
-    setDraftOrdem([...nextUsedOrder, ...remainingIds]);
+    setDraftOrdem(nextOrdem);
+  };
+
+  const updateDraftLayout = (nextVisible, nextUsedOrder) => {
+    syncDraftState(nextVisible, nextUsedOrder);
   };
 
   const selectAvailable = (fieldId, event) => {
@@ -152,50 +171,52 @@ export default function EmpConfiguracaoFiltrosDialog({
   const handleRestoreDefault = () => {
     const defaults = getRestoreDefaults?.();
     if (!defaults) return;
-    setDraftVisiveis(defaults.visiveis ?? []);
-    setDraftOrdem(defaults.ordem ?? []);
-    setDraftMaxVisible(defaults.maxVisible ?? 5);
+    syncDraftState(defaults.visiveis ?? [], defaults.ordem ?? []);
     setSelectedAvailableIds([]);
     setSelectedUsedIds([]);
   };
 
-  const handleSave = () => {
+  const handleOk = () => {
     onChange?.({
       visiveis: draftVisiveis,
       ordem: draftOrdem,
-      maxVisible: draftMaxVisible,
     });
+    committedRef.current = {
+      visiveis: draftVisiveis,
+      ordem: draftOrdem,
+    };
     onOpenChange(false);
   };
 
   const requestClose = () => {
+    resetDraftFromCommitted();
     onOpenChange(false);
+  };
+
+  const handleOpenChange = (nextOpen) => {
+    if (!nextOpen) {
+      requestClose();
+      return;
+    }
+    onOpenChange?.(nextOpen);
   };
 
   return (
     <EmpConfigDialogFrame
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={handleOpenChange}
       onRequestClose={requestClose}
       title="Configurar campos de filtros"
       infoTitle="Configurar campos de filtros"
       dialogClassName={EMP_CONFIG_TRANSFER_DIALOG_CLASS}
       onRestoreDefault={getRestoreDefaults ? handleRestoreDefault : null}
+      footer={
+        <div className="flex w-full justify-end gap-2 px-1">
+          <EmpConfigToolbarBtn onClick={requestClose}>Cancelar</EmpConfigToolbarBtn>
+          <EmpConfigPrimaryBtn onClick={handleOk}>Ok</EmpConfigPrimaryBtn>
+        </div>
+      }
     >
-      <div className="mb-3 flex items-center gap-3 px-1">
-        <label className="text-sm text-slate-600" htmlFor="emp-filter-max-visible">
-          Máximo de filtros rápidos visíveis
-        </label>
-        <input
-          id="emp-filter-max-visible"
-          type="number"
-          min={1}
-          max={12}
-          value={draftMaxVisible}
-          onChange={(event) => setDraftMaxVisible(Number(event.target.value) || 5)}
-          className="w-20 rounded-md border border-slate-200 px-2 py-1 text-sm"
-        />
-      </div>
       <EmpConfigTransferPanel
         availableLabel="Campos disponíveis"
         usedLabel="Campos em uso"
@@ -239,11 +260,6 @@ export default function EmpConfiguracaoFiltrosDialog({
         onReorderUsedByDrop={reorderUsedByDrop}
         emptyAvailableMessage="Nenhum campo disponível."
         emptyUsedMessage="Nenhum campo em uso encontrado."
-        footer={
-          <EmpConfigPrimaryBtn onClick={handleSave} title="Salvar configuração">
-            <span>OK</span>
-          </EmpConfigPrimaryBtn>
-        }
       />
     </EmpConfigDialogFrame>
   );
