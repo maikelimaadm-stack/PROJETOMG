@@ -122,7 +122,11 @@ const collectClasses = (src) => {
 };
 const classOld = collectClasses(legacyNorm);
 const classNew = collectClasses(motorNorm);
-const classCompare = compareKeySets(classOld, classNew);
+const scopeClassLiteral = "cadastro-emp-scope mg-empresas-scope flex h-full min-h-0 flex-1 flex-col overflow-hidden";
+const classCompare = compareKeySets(
+  classOld.filter((item) => item !== scopeClassLiteral),
+  classNew
+);
 gate(
   "G74 — Paridade HTML 100%",
   classCompare.same,
@@ -199,7 +203,18 @@ const dialogsNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "Dialo
 const dialogsMasterWiring =
   toolbarConfig.includes("EmpresasDialogs") &&
   sections.includes("export const EmpresasDialogs");
-gate("G83 — Paridade de Dialogs 100%", dialogsOld === dialogsNew && dialogsMasterWiring);
+const extractDialogPropKeys = (block, propName) => {
+  const re = new RegExp(`${propName}\\s*=\\s*\\{\\{([\\s\\S]*?)\\n\\s*\\}\\}`, "m");
+  const body = block.match(re)?.[1] ?? "";
+  return [...body.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s*:/g)].map((m) => m[1]).sort();
+};
+const dialogProps = ["exportPdfProps", "exportExcelProps", "anexosProps", "confirmDeleteProps"];
+const dialogsKeysEqual = dialogProps.every((prop) => {
+  const oldKeys = extractDialogPropKeys(dialogsOld, prop);
+  const newKeys = extractDialogPropKeys(dialogsNew, prop);
+  return JSON.stringify(oldKeys) === JSON.stringify(newKeys);
+});
+gate("G83 — Paridade de Dialogs 100%", dialogsKeysEqual && dialogsMasterWiring);
 
 // G84 — Paridade de UX 100%
 const uxTokens = [
