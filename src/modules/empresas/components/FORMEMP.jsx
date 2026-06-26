@@ -11,7 +11,7 @@ import { RenderEngine } from "@/framework/cadastro-engine/render/RenderEngine.js
 import CadLayoutConfigurator from "@/framework/cadastro-engine/design-system/CadLayoutConfigurator.jsx";
 import CadSplitLayout from "@/framework/cadastro-engine/design-system/CadSplitLayout.jsx";
 import { CadRecordToolbar } from "@/framework/cadastro-engine/design-system/CadToolbar.jsx";
-import MgMotionPanel from "@/modules/empresas/layout/MgMotionPanel";
+import { MakMotionPanel, MakCmdSelect } from "@/framework/mak/layout";
 import CadTabs from "@/framework/cadastro-engine/design-system/CadTabs.jsx";
 
 import ErpScrollNav from "@/shared/components/ErpScrollNav";
@@ -36,7 +36,6 @@ import {
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
-import MgCmdSelect from "@/modules/empresas/layout/MgCmdSelect";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
@@ -262,7 +261,7 @@ export default function FORMEMP({
   const renderTipoPessoaSelect = () => {
     if (hideToolbar) {
       return (
-        <MgCmdSelect
+        <MakCmdSelect
           label="Tipo de Pessoa"
           required
           value={formData.tipo_pessoa || "PJ"}
@@ -295,7 +294,7 @@ export default function FORMEMP({
   const renderTipoVinculoSelect = () => {
     if (hideToolbar) {
       return (
-        <MgCmdSelect
+        <MakCmdSelect
           label="Proprietário/Arrendatário"
           value={formData.tipo_vinculo || ""}
           options={opcoesTipoVinculo.map((item) => ({
@@ -327,7 +326,7 @@ export default function FORMEMP({
   const renderStatusSelect = () => {
     if (hideToolbar) {
       return (
-        <MgCmdSelect
+        <MakCmdSelect
           label="Ativa"
           value={formData.status || "Ativa"}
           options={[
@@ -919,7 +918,7 @@ export default function FORMEMP({
     const showSidebarPanels = mgVariant && panelStyle === "sidebar";
 
     const renderMotionPanel = () => (
-      <MgMotionPanel
+      <MakMotionPanel
         panelKey={`${activeTab}-${resetSeed}`}
         instant={!isEditing || isDuplicating}
         className="emp-form-section emp-form-section-panel emp-form-section-panel--corp flex min-h-0 flex-1 w-full min-w-0 max-w-none"
@@ -949,7 +948,7 @@ export default function FORMEMP({
             />
           </fieldset>
         )}
-      </MgMotionPanel>
+      </MakMotionPanel>
     );
 
     return (

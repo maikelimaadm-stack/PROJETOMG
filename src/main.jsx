@@ -7,10 +7,8 @@ import '@/styles/erp-responsive.css'
 import '@/styles/erp-theme-escuro.css'
 import '@/styles/mak-switch.css'
 import '@/styles/erp-scrollbar.css'
-import { registerEmpresasPersonalizacoesDevTools } from '@/framework/cadastro/layouts/userLayoutPreferencesSync'
 import { applyErpTemaToDocument, readStoredErpTema } from '@/shared/contexts/ErpThemeContext'
 
-registerEmpresasPersonalizacoesDevTools()
 applyErpTemaToDocument(readStoredErpTema())
 
 const strictModeEnabled =

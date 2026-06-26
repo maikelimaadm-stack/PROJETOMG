@@ -1,6 +1,7 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
+import { useMakPreferencesBootstrapAggregator } from "./useMakPreferencesBootstrapAggregator.js";
+import "@/modules/empresas/preferences/registerEmpresasPreferencesBootstrap.js";
 
 const MakPreferencesBootstrapContext = createContext(null);
 
@@ -8,7 +9,7 @@ const DEFAULT_MODULE_IDS = ["empresas"];
 
 /**
  * Provider genérico de bootstrap de preferências.
- * Hoje delega ao subsistema empresas; novos módulos registram hooks aqui.
+ * Módulos registram hooks via registerMakPreferencesBootstrapModule + aggregator.
  */
 export function MakPreferencesBootstrapProvider({
   children,
@@ -16,18 +17,21 @@ export function MakPreferencesBootstrapProvider({
 }) {
   const { user, isAuthenticated } = useAuth();
   const enabledModuleIds = Array.isArray(moduleIds) ? moduleIds : DEFAULT_MODULE_IDS;
-  const empresasEnabled = enabledModuleIds.includes("empresas");
+  const activeUserId = isAuthenticated ? user?.id : null;
 
-  const empresasBootstrap = useEmpresasPreferencesBootstrap(
-    empresasEnabled && isAuthenticated ? user?.id : null
+  const aggregated = useMakPreferencesBootstrapAggregator(enabledModuleIds, activeUserId);
+  const empresasBootstrap = aggregated.empresas;
+
+  const value = useMemo(
+    () => ({
+      moduleIds: enabledModuleIds,
+      modules: aggregated.modules,
+      empresas: empresasBootstrap,
+      /** Estado unificado — espelha empresas para compatibilidade */
+      ...(empresasBootstrap || {}),
+    }),
+    [enabledModuleIds, aggregated.modules, empresasBootstrap]
   );
-
-  const value = {
-    moduleIds: enabledModuleIds,
-    empresas: empresasBootstrap,
-    /** Estado unificado — hoje espelha empresas até outros módulos registrarem bootstrap */
-    ...empresasBootstrap,
-  };
 
   return (
     <MakPreferencesBootstrapContext.Provider value={value}>

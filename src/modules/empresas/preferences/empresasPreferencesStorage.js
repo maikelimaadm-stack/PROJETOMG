@@ -38,7 +38,7 @@ import {
   markEmpPreferencesSectionDirty,
 } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
-import { normalizeEmpListViewMode } from "@/modules/empresas/layout/mgViewMode";
+import { normalizeEmpListViewMode } from "@/framework/mak/layout/mgViewMode.js";
 
 export const EMPRESAS_LISTAGEM_SCOPE = Object.freeze({
   modulo: "empresas",
