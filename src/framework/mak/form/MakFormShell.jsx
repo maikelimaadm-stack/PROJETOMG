@@ -1,5 +1,5 @@
 import React, { memo } from "react";
-import FORMEMP from "@/modules/empresas/components/FORMEMP";
+import MakCadastroForm from "./MakCadastroForm.jsx";
 
 class MakFormErrorBoundary extends React.Component {
   constructor(props) {
@@ -39,13 +39,15 @@ class MakFormErrorBoundary extends React.Component {
 }
 
 /**
- * Shell de formulário MAK — error boundary + delegação ao renderer do módulo.
+ * Shell de formulário MAK — componente principal da Foundation.
+ * Aceita FormComponent opcional para módulos futuros; default: MakCadastroForm.
  */
-function MakFormShellComponent({ formKey, ...formProps }) {
+function MakFormShellComponent({ formKey, FormComponent = MakCadastroForm, ...formProps }) {
+  const Renderer = FormComponent;
   return (
     <div className="emp-form-panel flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
       <MakFormErrorBoundary key={formKey}>
-        <FORMEMP {...formProps} />
+        <Renderer {...formProps} />
       </MakFormErrorBoundary>
     </div>
   );

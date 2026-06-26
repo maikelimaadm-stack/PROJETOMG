@@ -68,11 +68,10 @@ import EmpConfiguracaoFiltrosDialog from "@/modules/empresas/components/EmpConfi
 import { isErpFilterActive } from "@/shared/filters";
 import { patchEmpresasCache } from "@/modules/empresas/data/empresasListCache";
 import { syncColumnsIntoPanelFilters } from "@/framework/mak/listing/syncPanelColumnFilters";
-import { useEmpListFilters } from "@/modules/empresas/hooks/useEmpListFilters";
-import { useEmpSearchHandlers } from "@/modules/empresas/hooks/useEmpSearchHandlers";
-import { useEmpresaSubmit } from "@/modules/empresas/hooks/useEmpresaSubmit";
-import { useEmpresaDelete } from "@/modules/empresas/hooks/useEmpresaDelete";
-import { useEmpresaExport } from "@/modules/empresas/hooks/useEmpresaExport";
+import { useMakListFilters } from "@/framework/mak/listing/useMakListFilters";
+import { useMakSearchHandlers } from "@/framework/mak/listing/useMakSearchHandlers";
+import { useMakRecordSubmit, useMakRecordDelete, useMakRecordExport } from "@/framework/mak/records";
+import { empresasMakRuntime } from "@/modules/empresas/config/empresasMakRuntime";
 import { useEmpresasPreferencesBootstrapState } from "@/modules/empresas/preferences/EmpresasPreferencesBootstrapContext";
 import { useEmpViewModePreference } from "@/modules/empresas/hooks/useEmpViewModePreference";
 import { isRemoteTabPreferenceEvent } from "@/modules/empresas/preferences/empresasPreferencesCrossTab";
@@ -415,7 +414,7 @@ export default function PAGEMP() {
     handleSearchApplyAll,
     handleSearchApplyFavorites,
     handleSearchResultSelect,
-  } = useEmpSearchHandlers({
+  } = useMakSearchHandlers({
     searchDraft,
     searchViewApplyRef,
     showForm,
@@ -426,11 +425,11 @@ export default function PAGEMP() {
     setSearchFavoritesOnly,
     setDropdownSearch,
     setSearchViewPending,
-    setTableFilteredEmpresas,
+    setTableFilteredRecords: setTableFilteredEmpresas,
     setSelectedTableItems,
     setQueryPage,
     setSelectedIndex,
-    setEditingEmp,
+    setEditingRecord: setEditingEmp,
   });
 
   const {
@@ -438,7 +437,8 @@ export default function PAGEMP() {
     handleFilterClear,
     handleFilterApply,
     handleColumnFiltersChange,
-  } = useEmpListFilters({
+  } = useMakListFilters({
+    moduleId: empresasMakRuntime.moduleId,
     panelFilterColumnMap,
     columnFiltersRef,
     appliedFilterValuesRef,
@@ -631,24 +631,31 @@ export default function PAGEMP() {
     upsertEmpresaInSelector(normalized);
   }, [queryClient, tableFilteredEmpresas, empresasFiltradasPainel, upsertEmpresaInSelector]);
 
-  const { handleSubmit } = useEmpresaSubmit({
-    editingEmp,
-    empresasSelector,
+  const { handleSubmit } = useMakRecordSubmit({
+    editingRecord: editingEmp,
+    selectorSnapshot: empresasSelector,
     pendingAttachments,
     pendingCreatesRef,
     moduleRepository,
-    moduleLabels,
+    moduleLabels: empresasMakRuntime.moduleLabels,
+    schema: empresasMakRuntime.schema,
+    normalizeRecord: empresasMakRuntime.normalizeRecord,
+    listQueryKey: empresasMakRuntime.listQueryKey,
+    patchListCache: empresasMakRuntime.patchListCache,
+    entityName: empresasMakRuntime.entityName,
+    metricsEntityKey: empresasMakRuntime.metricsEntityKey,
     queryClient,
     saveCycle,
     resolveErrorMessage,
     stayOnRecordAfterSave,
-    setEditingEmp,
+    setEditingRecord: setEditingEmp,
     setFormVersion,
     setSelectedTableItems,
-    upsertEmpresaInSelector,
-    removeEmpresasFromSelector,
-    replaceEmpresasInSelector,
+    upsertInSelector: upsertEmpresaInSelector,
+    removeFromSelector: removeEmpresasFromSelector,
+    replaceInSelector: replaceEmpresasInSelector,
     setPendingAttachments,
+    attachmentPersistErrorMessage: empresasMakRuntime.attachmentPersistErrorMessage,
   });
 
   const handleEdit = (emp) => {
@@ -987,28 +994,32 @@ export default function PAGEMP() {
     else recordNav.navigateNext();
   };
 
-  const { handleConfirmDelete } = useEmpresaDelete({
+  const { handleConfirmDelete } = useMakRecordDelete({
     deleteState,
     setDeleteState,
     pendingDeleteIdsRef,
     pendingCreatesRef,
     moduleRepository,
-    moduleLabels,
+    moduleLabels: empresasMakRuntime.moduleLabels,
+    listQueryKey: empresasMakRuntime.listQueryKey,
+    patchListCache: empresasMakRuntime.patchListCache,
+    metricsEntityKey: empresasMakRuntime.metricsEntityKey,
     queryClient,
     saveCycle,
     resolveErrorMessage,
     showForm,
     viewMode,
-    editingEmp,
-    empresasSelector,
-    empresasNavegacao,
+    editingRecord: editingEmp,
+    selectorState: empresasSelector,
+    navigationList: empresasNavegacao,
     attachmentsRecord,
     selectedTableItems,
+    findRecordInList: empresasMakRuntime.findRecordInList,
     refreshNavRecord,
-    removeEmpresasFromSelector,
-    replaceEmpresasInSelector,
+    removeFromSelector: removeEmpresasFromSelector,
+    replaceInSelector: replaceEmpresasInSelector,
     setShowForm,
-    setEditingEmp,
+    setEditingRecord: setEditingEmp,
     setViewMode,
     setSelectedTableItems,
     setSelectedIndex,
@@ -1017,9 +1028,9 @@ export default function PAGEMP() {
     setAttachmentsOpen,
   });
 
-  const { exportBusy, exportMessage, handleExportPdf, handleExportExcel } = useEmpresaExport({
+  const { exportBusy, exportMessage, handleExportPdf, handleExportExcel } = useMakRecordExport({
     moduleRepository,
-    moduleLabels,
+    moduleLabels: empresasMakRuntime.moduleLabels,
     saveCycle,
     resolveErrorMessage,
     searchTerm,
@@ -1028,6 +1039,8 @@ export default function PAGEMP() {
     selectedTableItems,
     pinnedRecord,
     visibleTableData,
+    getPdfExportConfig: empresasMakRuntime.getPdfExportConfig,
+    buildExportRows: empresasMakRuntime.buildExportRows,
   });
 
   const handlePrint = useCallback(() => {
