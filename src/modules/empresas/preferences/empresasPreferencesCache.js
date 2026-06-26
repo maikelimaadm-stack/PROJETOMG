@@ -1,9 +1,7 @@
-import {
-  getEmpPreferencesTabId,
-} from "@/modules/empresas/preferences/empresasPreferencesCrossTab.js";
+import { getEmpPreferencesTabId } from "@/modules/empresas/preferences/empresasPreferencesCrossTab.js";
 import { trackEmpPreferencesWriteReason } from "@/modules/empresas/preferences/empresasPreferencesScopeState.js";
+import { createMakPreferencesScope } from "@/framework/mak/preferences/createMakPreferencesScope.js";
 import {
-  configurePreferencesCacheHooks,
   emitPreferencesCacheUpdate,
   hasScopedPreferenceValue,
   isLocalListagemPreferenceWrite,
@@ -19,7 +17,7 @@ import {
   writePreferencesText,
 } from "@/framework/mak/preferences/userPreferencesCache.js";
 
-configurePreferencesCacheHooks({
+createMakPreferencesScope({
   getOriginTabId: getEmpPreferencesTabId,
   onPreferenceWrite: trackEmpPreferencesWriteReason,
 });

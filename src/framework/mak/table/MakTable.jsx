@@ -1,12 +1,12 @@
 import React, { memo } from "react";
-import TBLEMP from "@/modules/empresas/components/TBLEMP";
+import MakCadastroTable from "./MakCadastroTable.jsx";
 
 /**
- * Adaptador MAK para tabela de cadastro.
- * Hoje delega a TBLEMP (Empresas); futuros módulos injetam renderer via props.
+ * Tabela de cadastro MAK — componente principal da Foundation.
+ * Módulos consomem via config (ex.: TBLEMP re-export) ou diretamente com props.
  */
 function MakTableComponent(props) {
-  return <TBLEMP {...props} />;
+  return <MakCadastroTable {...props} />;
 }
 
 const MakTable = memo(MakTableComponent);
