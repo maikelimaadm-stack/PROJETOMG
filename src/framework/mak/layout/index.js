@@ -1,14 +1,14 @@
 /**
- * Camada de layout MAK — chrome MG extraído de Empresas (Tela Mãe).
+ * Camada de layout MAK — fachada sobre chrome MG (Empresas como Tela Mãe).
  * ErpShell e demais consumidores importam daqui, não de modules/empresas.
  */
-export { default as MakDesktopHeader } from "./MgDesktopHeader";
-export { default as MakMobileHeader } from "./MgMobileHeader";
-export { default as MakMobileOverlays } from "./MgEmpresasMobileOverlays";
+export { default as MakDesktopHeader } from "@/modules/empresas/layout/MgDesktopHeader";
+export { default as MakMobileHeader } from "@/modules/empresas/layout/MgMobileHeader";
+export { default as MakMobileOverlays } from "@/modules/empresas/layout/MgEmpresasMobileOverlays";
 export {
   MgEmpresasChromeProvider as MakChromeProvider,
   useMgEmpresasChrome as useMakChrome,
-} from "./MgEmpresasChromeContext";
+} from "@/modules/empresas/layout/MgEmpresasChromeContext";
 
 export const isMakCadastroRoute = (pathname) =>
   pathname === "/" ||
