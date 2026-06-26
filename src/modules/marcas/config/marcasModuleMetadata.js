@@ -3,6 +3,7 @@
  */
 import { buildMakTableMetadata } from "@/framework/mak/metadata/buildMakTableMetadata.js";
 import { buildMakFormMetadata } from "@/framework/mak/metadata/buildMakFormMetadata.js";
+import { buildMakPageMetadata } from "@/framework/mak/metadata/buildMakPageMetadata.js";
 import {
   MAR_COLUNAS_BASE,
   MAR_FORM_BASE_PANELS,
@@ -46,4 +47,5 @@ export const marcasModuleMetadata = {
     queryKey: ["mar-cadastro"],
     defaultPageSize: 50,
   },
+  page: buildMakPageMetadata(),
 };

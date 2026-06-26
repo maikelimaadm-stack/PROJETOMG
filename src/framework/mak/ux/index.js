@@ -1,4 +1,6 @@
 export { default as MakEmptyState } from "./MakEmptyState.jsx";
+export { default as MakErrorState } from "./MakErrorState.jsx";
+export { default as MakLoadingState } from "./MakLoadingState.jsx";
 export { default as MakMasterHistory } from "./MakMasterHistory.jsx";
 export {
   MAK_PRINT_PLACEHOLDER_MESSAGE,
