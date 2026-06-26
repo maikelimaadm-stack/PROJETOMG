@@ -35,6 +35,7 @@ import {
   MakMobileOverlays,
   isMakCadastroRoute,
 } from "@/framework/mak/layout";
+import { ensureMakPrototypeStyles } from "@/framework/mak/styles/ensureMakPrototypeStyles";
 import ErpEmpresaSelector from "@/shared/layouts/ErpEmpresaSelector";
 import ErpThemeToggle from "@/shared/components/ErpThemeToggle";
 import ErpGlobalTopProgress from "@/shared/components/ErpGlobalTopProgress";
@@ -229,6 +230,13 @@ function ErpShellBody({
 }) {
   const empresasPage = isEmpresasRoute(pathname);
   const activeFetches = useIsFetching({ queryKey: ["emp-cadastro"] });
+
+  useEffect(() => {
+    if (empresasPage) {
+      ensureMakPrototypeStyles();
+    }
+  }, [empresasPage]);
+
   const activeMutations = useIsMutating();
   const [forcedTopProgress, setForcedTopProgress] = useState(() =>
     typeof window !== "undefined" ? Boolean(window.__ERP_FORCE_TOP_PROGRESS__) : false
