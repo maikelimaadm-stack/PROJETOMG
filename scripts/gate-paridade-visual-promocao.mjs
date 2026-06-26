@@ -16,6 +16,7 @@ const LEGACY_PAGEMP_PATH = "src/modules/empresas/pages/PAGEMP.jsx";
 const MOTOR_PATH = `${ROOT}/src/ModeloBase1/render/ModeloBase1CadastroPage.jsx`;
 const CONFIG_PATH = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasModeloBase1Config.js`;
 const TOOLBAR_CONFIG_PATH = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasToolbarConfig.js`;
+const PANEL_SECTIONS_PATH = `${ROOT}/src/ModeloBase1/render/ModeloBase1PanelSections.jsx`;
 const SECTIONS_PATH = `${ROOT}/src/modules/empresas/pages/PAGEMP.sections.jsx`;
 const LAYOUT_CONFIG_PATH = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasLayoutConfig.js`;
 const PAGEMP_WRAPPER_PATH = `${ROOT}/src/modules/empresas/pages/PAGEMP.jsx`;
@@ -86,6 +87,7 @@ const legacyPagemp = execSync(`git show ${LEGACY_REF}:${LEGACY_PAGEMP_PATH}`, {
 const motor = read(MOTOR_PATH);
 const config = read(CONFIG_PATH);
 const toolbarConfig = read(TOOLBAR_CONFIG_PATH);
+const panelSections = read(PANEL_SECTIONS_PATH);
 const sections = read(SECTIONS_PATH);
 const layoutConfig = read(LAYOUT_CONFIG_PATH);
 const pagempWrapper = read(PAGEMP_WRAPPER_PATH);
@@ -201,8 +203,8 @@ gate("G79 — Paridade de Dock 100%", contextCompare.same);
 
 // G80 — Paridade de Pesquisa 100%
 const searchMasterWiring =
-  toolbarConfig.includes("EmpresasSearchPanel") &&
-  sections.includes("MakSearchPanel as EmpresasSearchPanel") &&
+  toolbarConfig.includes("ModeloBase1/render/ModeloBase1PanelSections") &&
+  panelSections.includes("MakSearchPanel as EmpresasSearchPanel") &&
   motor.includes("<MakModuleProvider module={module}>");
 gate("G80 — Paridade de Pesquisa 100%", searchMasterWiring);
 
@@ -234,7 +236,8 @@ const dialogsOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "Dial
 const dialogsNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "Dialogs"));
 const dialogsMasterWiring =
   toolbarConfig.includes("EmpresasDialogs") &&
-  sections.includes("export const EmpresasDialogs");
+  panelSections.includes("EmpresasDialogs = ModeloBase1ExtraDialogs") &&
+  sections.includes("ModeloBase1/render/ModeloBase1PanelSections");
 const extractDialogPropKeys = (block, propName) => {
   const re = new RegExp(`${propName}\\s*=\\s*\\{\\{([\\s\\S]*?)\\n\\s*\\}\\}`, "m");
   const body = block.match(re)?.[1] ?? "";

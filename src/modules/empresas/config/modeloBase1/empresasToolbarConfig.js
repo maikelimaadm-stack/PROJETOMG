@@ -6,7 +6,7 @@ import {
   EmpresasFormPanel,
   EmpresasSearchPanel,
   EmpresasTablePanel,
-} from "@/modules/empresas/pages/PAGEMP.sections";
+} from "@/ModeloBase1/render/ModeloBase1PanelSections.jsx";
 
 export const empresasToolbarComponents = {
   FormPanel: EmpresasFormPanel,
