@@ -1,0 +1,27 @@
+name: Sync main for deploy
+
+on:
+  push:
+    branches:
+      - cursor/table-card-style-7d24
+
+permissions:
+  contents: write
+
+jobs:
+  sync-main:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fast-forward main from integration branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git fetch origin main cursor/table-card-style-7d24
+          git checkout main
+          git merge --ff-only origin/cursor/table-card-style-7d24
+          git push origin main

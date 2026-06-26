@@ -1,11 +1,11 @@
 import React, { memo } from "react";
 import MakFormShell from "@/framework/mak/form/MakFormShell";
 import MakTable from "@/framework/mak/table/MakTable";
-import SRCHEMP from "@/modules/empresas/components/SRCHEMP";
+import { useMakModuleRequired } from "@/framework/mak/runtime/MakModuleContext.jsx";
 
 /**
- * Painéis reutilizáveis da futura Tela Mãe MAK.
- * Empresas usa estes wrappers; novos módulos substituem renderers via config futura.
+ * Painéis reutilizáveis da Tela Mãe MAK.
+ * Consomem runtime via MakModuleProvider (declarativo por módulo).
  */
 
 export const MakFormPanel = memo(function MakFormPanel({ formProps }) {
@@ -23,9 +23,14 @@ export const MakTablePanel = memo(function MakTablePanel({ tableProps }) {
 });
 
 export const MakSearchPanel = memo(function MakSearchPanel({ searchProps }) {
+  const module = useMakModuleRequired();
+  const SearchPanel = module.components?.SearchPanel;
+  if (!SearchPanel) {
+    throw new Error("MakSearchPanel: module.components.SearchPanel is required");
+  }
   return (
     <div className="emp-cards-panel flex min-h-0 flex-1 flex-col overflow-hidden">
-      <SRCHEMP {...searchProps} />
+      <SearchPanel {...searchProps} />
     </div>
   );
 });

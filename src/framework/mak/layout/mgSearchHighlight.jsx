@@ -1,5 +1,5 @@
 import React from "react";
-import { normalizeSearchQuery } from "@/modules/empresas/utils/empSearchContains";
+import { normalizeSearchQuery } from "@/shared/utils/normalizeSearchQuery";
 
 const escapeRegExp = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

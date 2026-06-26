@@ -1,7 +1,6 @@
-import { COLUNAS_BASE } from "@/modules/empresas/components/tblEmp.constants";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 
-/** Campos do painel lateral (busca rápida por texto). */
+/** Campos do painel lateral (busca rápida por texto) — defaults Empresas; sobrescrever via metadata. */
 export const MG_FILTER_SIDEBAR_FIELDS = [
   { key: "razao_social", label: "Razão Social", column: "razao_social" },
   { key: "nome_fantasia", label: "Nome Fantasia", column: "nome_fantasia" },
@@ -23,9 +22,13 @@ export const MG_FILTER_FIELDS = MG_FILTER_SIDEBAR_FIELDS;
 /** @deprecated use MG_FILTER_SIDEBAR_FIELDS */
 export const MG_FILTER_TEXT_FIELDS = MG_FILTER_SIDEBAR_FIELDS;
 
-/** Todos os campos do lançamento disponíveis como pills na faixa inferior. */
-export function buildMgFilterFields(camposPersonalizados = []) {
-  const native = COLUNAS_BASE.map((col) => ({
+/**
+ * Campos do lançamento disponíveis como pills na faixa inferior.
+ * @param {object[]} [camposPersonalizados]
+ * @param {object[]} [nativeColumns] — colunas nativas do módulo (metadata.table.columns)
+ */
+export function buildMgFilterFields(camposPersonalizados = [], nativeColumns = []) {
+  const native = nativeColumns.map((col) => ({
     key: col.id,
     label: col.label,
     column: col.id,
