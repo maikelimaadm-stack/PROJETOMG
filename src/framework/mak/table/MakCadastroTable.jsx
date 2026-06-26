@@ -97,9 +97,12 @@ const normalizeOptionValues = (values = []) =>
     .filter(Boolean);
 
 export default function MakCadastroTable({
-  empresas = [],
-  isLoadingEmpresas = false,
-  isFetchingEmpresas = false,
+  records: recordsProp,
+  empresas: empresasLegacy = [],
+  isLoadingRecords = false,
+  isLoadingEmpresas: isLoadingEmpresasLegacy = false,
+  isFetchingRecords = false,
+  isFetchingEmpresas: isFetchingEmpresasLegacy = false,
   onEdit,
   showConfigColunas,
   setShowConfigColunas,
@@ -108,7 +111,8 @@ export default function MakCadastroTable({
   selectedIds,
   onSelectionChange,
   onVisibleDataChange,
-  onFilteredEmpresasChange,
+  onFilteredRecordsChange = null,
+  onFilteredEmpresasChange: onFilteredEmpresasChangeLegacy = null,
   serverPage = 1,
   serverPageSize = 50,
   serverTotal = null,
@@ -140,6 +144,10 @@ export default function MakCadastroTable({
   preferencesReady = true,
   bootstrapGeneration = 0,
 }) {
+  const empresas = recordsProp ?? empresasLegacy;
+  const isLoadingEmpresas = isLoadingRecords || isLoadingEmpresasLegacy;
+  const isFetchingEmpresas = isFetchingRecords || isFetchingEmpresasLegacy;
+  const onFilteredEmpresasChange = onFilteredRecordsChange ?? onFilteredEmpresasChangeLegacy;
   const {
     moduleId,
     COLUNAS_BASE,

@@ -46,6 +46,7 @@ model Cliente {
   modulos            ClienteModulo[]
   preferencias       UsuarioPreferencia[]
   marcas             Marca[]
+  produtos           Produto[]
 
   @@index([nome])
   @@index([cpf_cnpj])
@@ -430,6 +431,26 @@ model Marca {
   nome        String   @db.VarChar(255)
   status      String   @default("Ativo") @db.VarChar(32)
   observacoes String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  cliente Cliente @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cliente_id, codigo])
+  @@unique([cliente_id, id_global])
+  @@index([cliente_id, nome])
+  @@index([cliente_id, status])
+}
+
+model Produto {
+  id          String   @id @default(cuid())
+  cliente_id  String   @db.VarChar(64)
+  id_global   Int
+  codigo      Int
+  nome        String   @db.VarChar(255)
+  status      String   @default("Ativo") @db.VarChar(32)
+  descricao   String?
+  preco       Decimal? @db.Decimal(12, 2)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
