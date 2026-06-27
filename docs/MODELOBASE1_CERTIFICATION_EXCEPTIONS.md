@@ -31,3 +31,17 @@
 **Padrão:** ModeloBase1 config-only (thin page + factory). Scaffold legado FORM/TBL eliminado.
 
 **Comando:** `npm run generate:module`
+
+---
+
+## Governança permanente (Enterprise V10)
+
+**Status:** ativa — CI bloqueia regressões arquiteturais.
+
+**Gates:** G109–G125 (`npm run gate:governance`)
+
+**Documentação:** `docs/FOUNDATION_GOVERNANCE.md`
+
+**Baseline:** `scripts/governance-baseline.json`
+
+**Regra:** alteração arquitetural = exceção formal neste documento.
