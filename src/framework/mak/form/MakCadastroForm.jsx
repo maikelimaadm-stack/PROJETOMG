@@ -88,10 +88,13 @@ export default function MakCadastroForm({
 
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
+  const isLayoutBrowse = browseMode && !isEditing && !isDuplicating;
   const [errors, setErrors] = useState({});
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [layoutToolbarBridge, setLayoutToolbarBridge] = useState(null);
-  const [editMode, setEditMode] = useState(!isEditing || isDuplicating);
+  const [editMode, setEditMode] = useState(
+    isLayoutBrowse ? false : !isEditing || isDuplicating
+  );
   const [launchPanelStyle, setLaunchPanelStyle] = useState(() =>
     readStoredLaunchPanelStyle()
   );
@@ -144,7 +147,7 @@ export default function MakCadastroForm({
       initialData?._isPersisting ? "persisting" : "",
       initialData?.updatedAt ?? "",
       initialData?._isDuplicate ? "dup" : "",
-      isEditing ? "editing" : "new",
+      isEditing ? "editing" : isLayoutBrowse ? "browse" : "new",
     ].join("|");
     if (resetSignatureRef.current === resetSignature) return;
     resetSignatureRef.current = resetSignature;
@@ -186,6 +189,7 @@ export default function MakCadastroForm({
     initialData?.updatedAt,
     initialData?._isDuplicate,
     isEditing,
+    browseMode,
     isLayoutBrowse,
     formLayoutConfig?.clearOnDuplicateFieldIds,
     user?.id,
@@ -220,7 +224,6 @@ export default function MakCadastroForm({
     refetchOnMount: false,
   });
 
-  const isLayoutBrowse = browseMode && !isEditing && !isDuplicating;
   const isReadOnly = (isEditing && !isDuplicating && !editMode) || isLayoutBrowse;
 
   const handleChange = (field, value) => {
