@@ -16,7 +16,7 @@
  * @property {object} [data]
  * @property {object} [labels]
  * @property {object} [navigation]
- * @property {boolean} [navigation.recordViewRequiresSelection] — exige registro selecionado para abrir visualização Registro (não abre novo automaticamente)
+ * @property {'browse'|'new'} [navigation.emptyRecordViewMode] — sem registro: browse abre shell do formulário (config layout); new abre cadastro em branco
  */
 
 export {};

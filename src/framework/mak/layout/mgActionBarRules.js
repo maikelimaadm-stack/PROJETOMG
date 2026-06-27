@@ -47,6 +47,18 @@ export function resolveMgActionBarVisibility({
     };
   }
 
+  if (formBridge.isBrowseMode) {
+    return {
+      showNew: true,
+      showSave: false,
+      showCancel: false,
+      showEdit: false,
+      showDelete: false,
+      showDuplicate: false,
+      secondaryToolsLocked: false,
+    };
+  }
+
   if (formBridge.layoutConfigOpen) {
     return {
       showNew: false,

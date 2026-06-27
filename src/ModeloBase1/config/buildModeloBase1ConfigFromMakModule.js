@@ -81,8 +81,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(moduleId),
     layoutEngine: overrides.layoutEngine ?? layoutEngineMetadata,
     navigation: {
-      recordViewRequiresSelection:
-        overrides.navigation?.recordViewRequiresSelection ?? true,
+      emptyRecordViewMode: overrides.navigation?.emptyRecordViewMode ?? "browse",
       ...(overrides.navigation ?? {}),
     },
     tableKey: overrides.tableKey ?? `tbl-${moduleId}`,

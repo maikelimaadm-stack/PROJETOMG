@@ -53,6 +53,7 @@ export default function MakCadastroForm({
   actionsLocked = false,
   hideToolbar = false,
   onToolbarBridge,
+  browseMode = false,
 }) {
   const {
     repository: empRepository,
@@ -171,7 +172,7 @@ export default function MakCadastroForm({
     previousRecordKeyRef.current = recordKey;
     setFormData(next);
     setErrors({});
-    setEditMode(!isEditing || !!initialData?._isDuplicate);
+    setEditMode(isLayoutBrowse ? false : !isEditing || !!initialData?._isDuplicate);
     if (!isRecordNavigation) {
       setActiveTab(LAYOUT_MAIN_TAB_ID);
     }
@@ -185,6 +186,7 @@ export default function MakCadastroForm({
     initialData?.updatedAt,
     initialData?._isDuplicate,
     isEditing,
+    isLayoutBrowse,
     formLayoutConfig?.clearOnDuplicateFieldIds,
     user?.id,
   ]);
@@ -218,7 +220,8 @@ export default function MakCadastroForm({
     refetchOnMount: false,
   });
 
-  const isReadOnly = isEditing && !isDuplicating && !editMode;
+  const isLayoutBrowse = browseMode && !isEditing && !isDuplicating;
+  const isReadOnly = (isEditing && !isDuplicating && !editMode) || isLayoutBrowse;
 
   const handleChange = (field, value) => {
     if (isReadOnly) return;
@@ -702,7 +705,12 @@ export default function MakCadastroForm({
         : null;
     const nome = String(formData[recordTitleField] || "").trim() || null;
 
-    if (!isEditing) return { codigo: null, nome: newRecordLabel };
+    if (!isEditing) {
+      if (isLayoutBrowse) {
+        return { codigo: null, nome: moduleLabels.singular ?? "Registro" };
+      }
+      return { codigo: null, nome: newRecordLabel };
+    }
     if (isDuplicating && nome) return { codigo: null, nome };
     if (isDuplicating) return { codigo: null, nome: duplicateRecordLabel };
     if (codigo && nome) return { codigo, nome };
@@ -713,6 +721,7 @@ export default function MakCadastroForm({
     formData[recordTitleField],
     isDuplicating,
     isEditing,
+    isLayoutBrowse,
     layoutConfigOpen,
   ]);
 
@@ -720,16 +729,18 @@ export default function MakCadastroForm({
     () =>
       layoutConfigOpen
         ? "Configuração de layout"
-        : resolveRecordOperationLabel({
+        : isLayoutBrowse
+          ? "Visualização"
+          : resolveRecordOperationLabel({
             isEditing,
             editMode,
             isDuplicating,
             isSaving: actionsLocked,
           }),
-    [isEditing, editMode, isDuplicating, actionsLocked, layoutConfigOpen]
+    [isEditing, editMode, isDuplicating, actionsLocked, layoutConfigOpen, isLayoutBrowse]
   );
 
-  const showRequiredCounter = !isReadOnly && !layoutConfigOpen;
+  const showRequiredCounter = !isReadOnly && !layoutConfigOpen && !isLayoutBrowse;
   const isSidebarPanelStyle = launchPanelStyle === "sidebar";
 
   const toggleLaunchPanelStyle = useCallback(() => {
@@ -795,6 +806,7 @@ export default function MakCadastroForm({
       isReadOnly,
       isEditing,
       isDuplicating,
+      isBrowseMode: isLayoutBrowse,
       layoutConfigOpen,
       layoutToolbar: layoutConfigOpen ? layoutToolbarBridge : null,
       recordMeta,
@@ -812,6 +824,7 @@ export default function MakCadastroForm({
     isReadOnly,
     isEditing,
     isDuplicating,
+    isLayoutBrowse,
     layoutConfigOpen,
     layoutToolbarBridge,
     recordMeta,
