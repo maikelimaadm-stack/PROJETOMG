@@ -37,6 +37,23 @@ const repCps = {
     const payload = await apiCps.deleteCampo(id);
     return { ok: true, contadores: payload?.contadores || null };
   },
+
+  async delete(id) {
+    return this.remove(id);
+  },
+
+  async list(params = {}) {
+    const result = await this.listPage(params);
+    return result.items || [];
+  },
+
+  async get(id) {
+    return this.getById(id);
+  },
+
+  async listDistinctColumnValues() {
+    return { items: [] };
+  },
 };
 
 export default repCps;

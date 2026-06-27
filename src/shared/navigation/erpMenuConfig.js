@@ -1,6 +1,6 @@
 import generatedModules from "@/modules/generatedModules.json";
 
-const MODELO_BASE_MENU_MODULE_IDS = new Set(["empresas", "marcas", "produtos"]);
+const MODELO_BASE_MENU_MODULE_IDS = new Set(["empresas", "marcas", "produtos", "cadcps"]);
 
 const CADASTRO_MENU_ITEM_OVERRIDES = {
   empresas: { id: "empresas", label: "Empresas" },

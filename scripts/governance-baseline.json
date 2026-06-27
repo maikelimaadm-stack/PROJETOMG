@@ -1,7 +1,7 @@
 {
   "version": "v10.0.0",
   "frozenAt": "2026-06-27",
-  "legacyModuleExceptions": ["cadcps", "template"],
+  "legacyModuleExceptions": ["template"],
   "infrastructureModuleExceptions": ["makBootstrap"],
   "legacyComponentAllowlist": [
     "src/modules/empresas/components/FORMEMP.jsx",
@@ -10,8 +10,6 @@
     "src/modules/empresas/components/MgCardsVirtualGrid.jsx",
     "src/modules/empresas/components/EmpLoadBatchControls.jsx",
     "src/modules/empresas/components/EmpConfiguracaoFiltrosDialog.jsx",
-    "src/modules/cadcps/components/FORMCPS.jsx",
-    "src/modules/cadcps/components/TBLCPS.jsx",
     "src/modules/template/components/FORMTemplate.jsx",
     "src/modules/template/components/TBLTemplate.jsx"
   ],

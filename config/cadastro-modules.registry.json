@@ -22,5 +22,13 @@
     "entityName": "ProdutoCadastro",
     "ordem": 30,
     "ativo": true
+  },
+  {
+    "moduleId": "cadcps",
+    "codigo": "CADCPS",
+    "nome": "Campos Personalizados",
+    "entityName": "CadCpsCampo",
+    "ordem": 40,
+    "ativo": true
   }
 ]
