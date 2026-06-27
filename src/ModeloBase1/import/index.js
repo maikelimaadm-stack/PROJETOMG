@@ -1,5 +1,2 @@
-/**
- * Importação — placeholder documentado.
- * Deferido: requer Import Engine backend/API (ver docs/ENTERPRISE_FUNCTIONAL_COMPLETION_REPORT.md).
- */
-export {};
+/** Re-export da Import Engine — Foundation MAK. */
+export * from "@/framework/mak/import/index.js";
