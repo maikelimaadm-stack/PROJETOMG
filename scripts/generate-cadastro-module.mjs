@@ -62,31 +62,71 @@ const walk = async (dir) => {
 };
 
 const generatedModulesRegistryPath = path.join(repoRoot, "src/modules/generatedModules.json");
+const cadastroModulesRegistryPath = path.join(repoRoot, "config/cadastro-modules.registry.json");
 
-const updateGeneratedModulesRegistry = async ({ moduleId, moduleIdPascal, pluralLabel }) => {
-  let registry = [];
+const readJsonArray = async (filePath) => {
   try {
-    const raw = await fs.readFile(generatedModulesRegistryPath, "utf8");
+    const raw = await fs.readFile(filePath, "utf8");
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed)) registry = parsed;
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    registry = [];
+    return [];
   }
+};
 
+const writeJson = async (filePath, data) => {
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+};
+
+const updateGeneratedModulesRegistry = async ({ moduleId, moduleIdPascal, pluralLabel, pageCode }) => {
+  const registry = await readJsonArray(generatedModulesRegistryPath);
   const nextEntry = {
     moduleId,
     routePath: `/Cadastro${moduleIdPascal}`,
     menuLabel: `Cadastro de ${pluralLabel}`,
-    pageFile: `modules/${moduleId}/pages/PAG${moduleIdPascal}.jsx`,
+    pageFile: `modules/${moduleId}/pages/${pageCode}.jsx`,
   };
-
-  const withoutCurrent = registry.filter((item) => item.moduleId !== moduleId);
-  const nextRegistry = [...withoutCurrent, nextEntry].sort((a, b) =>
+  const nextRegistry = [...registry.filter((item) => item.moduleId !== moduleId), nextEntry].sort((a, b) =>
     a.menuLabel.localeCompare(b.menuLabel, "pt-BR", { sensitivity: "base" })
   );
+  await writeJson(generatedModulesRegistryPath, nextRegistry);
+};
 
-  await fs.mkdir(path.dirname(generatedModulesRegistryPath), { recursive: true });
-  await fs.writeFile(generatedModulesRegistryPath, `${JSON.stringify(nextRegistry, null, 2)}\n`, "utf8");
+const updateCadastroModulesRegistry = async ({
+  moduleId,
+  moduleIdPascal,
+  pluralLabel,
+  entityName,
+  ordem,
+}) => {
+  const registry = await readJsonArray(cadastroModulesRegistryPath);
+  const nextEntry = {
+    moduleId,
+    codigo: moduleIdPascal.toUpperCase(),
+    nome: pluralLabel,
+    entityName,
+    ordem: Number(ordem) || (registry.length + 1) * 10,
+    ativo: true,
+  };
+  const nextRegistry = [...registry.filter((item) => item.moduleId !== moduleId), nextEntry].sort(
+    (a, b) => (a.ordem || 0) - (b.ordem || 0)
+  );
+  await writeJson(cadastroModulesRegistryPath, nextRegistry);
+};
+
+const resolveTargetPath = ({ contextName, scaffoldDir, targetRoot, relativeWithoutTpl, replacements }) => {
+  const relative = replaceTokens(relativeWithoutTpl, replacements);
+
+  if (contextName === "frontend") {
+    if (relative.startsWith("apis/")) {
+      const apiFile = path.basename(relative);
+      return path.join(repoRoot, "src/apis", replacements.__MODULE_ID__, apiFile);
+    }
+    return path.join(targetRoot, relative);
+  }
+
+  return path.join(targetRoot, relative);
 };
 
 const main = async () => {
@@ -95,7 +135,7 @@ const main = async () => {
   if (missing.length > 0) {
     console.error(`Parâmetros ausentes: ${missing.join(", ")}`);
     console.error(
-      "Uso: node scripts/generate-cadastro-module.mjs --moduleId fazendas --entityName FazendaCadastro --singularLabel Fazenda --pluralLabel Fazendas --repository fazendaRepository --api FazendaApi --schema fazendaSchema [--dry-run] [--force]"
+      "Uso: node scripts/generate-cadastro-module.mjs --moduleId fazendas --entityName FazendaCadastro --singularLabel Fazenda --pluralLabel Fazendas --repository fazendaRepository --api FazendaApi --schema fazendaSchema [--keyPrefix faz] [--pageCode PAGFAZ] [--ordem 40] [--dry-run] [--force]"
     );
     process.exit(1);
   }
@@ -106,9 +146,20 @@ const main = async () => {
     process.exit(1);
   }
 
+  const moduleIdPascal = toPascalCase(moduleId);
+  const keyPrefix = String(args.keyPrefix || moduleId.slice(0, 3)).toLowerCase();
+  const keyPrefixUpper = keyPrefix.toUpperCase();
+  const keyPrefixPascal = keyPrefix.charAt(0).toUpperCase() + keyPrefix.slice(1);
+  const pageCode = String(args.pageCode || `PAG${keyPrefixUpper}`).toUpperCase();
+
   const replacements = {
     "__MODULE_ID__": moduleId,
-    "__MODULE_ID_PASCAL__": toPascalCase(moduleId),
+    "__MODULE_ID_PASCAL__": moduleIdPascal,
+    "__MODULE_ID_UPPER__": moduleId.toUpperCase().replace(/-/g, "_"),
+    "__KEY_PREFIX__": keyPrefix,
+    "__KEY_PREFIX_UPPER__": keyPrefixUpper,
+    "__KEY_PREFIX_PASCAL__": keyPrefixPascal,
+    "__PAGE_CODE__": pageCode,
     "__ENTITY_NAME__": String(args.entityName),
     "__SINGULAR_LABEL__": String(args.singularLabel),
     "__PLURAL_LABEL__": String(args.pluralLabel),
@@ -116,7 +167,6 @@ const main = async () => {
     "__API_NAME__": String(args.api),
     "__SCHEMA_NAME__": String(args.schema),
   };
-  const moduleIdPascal = replacements.__MODULE_ID_PASCAL__;
 
   const frontendScaffoldDir = path.join(repoRoot, "src/modules/template/scaffold");
   const backendScaffoldDir = path.join(repoRoot, "src/modules/template/scaffold-backend");
@@ -203,11 +253,13 @@ const main = async () => {
     for (const scaffoldFile of scaffoldFiles) {
       const relative = path.relative(context.scaffoldDir, scaffoldFile);
       const relativeWithoutTpl = relative.replace(/\.tpl$/, "");
-      const targetRelative = replaceTokens(relativeWithoutTpl, replacements);
-      const targetPath =
-        context.name === "frontend"
-          ? path.join(context.targetRoot, targetRelative)
-          : path.join(context.targetRoot, targetRelative);
+      const targetPath = resolveTargetPath({
+        contextName: context.name,
+        scaffoldDir: context.scaffoldDir,
+        targetRoot: context.targetRoot,
+        relativeWithoutTpl,
+        replacements,
+      });
       const rawContent = await fs.readFile(scaffoldFile, "utf8");
       const content = replaceTokens(rawContent, replacements);
 
@@ -225,11 +277,21 @@ const main = async () => {
       moduleId,
       moduleIdPascal,
       pluralLabel: String(args.pluralLabel),
+      pageCode,
     });
     plannedFiles.push(generatedModulesRegistryPath);
+
+    await updateCadastroModulesRegistry({
+      moduleId,
+      moduleIdPascal,
+      pluralLabel: String(args.pluralLabel),
+      entityName: String(args.entityName),
+      ordem: args.ordem,
+    });
+    plannedFiles.push(cadastroModulesRegistryPath);
   }
 
-  console.log(dryRun ? "Dry-run do gerador concluído." : "Módulo gerado com sucesso.");
+  console.log(dryRun ? "Dry-run do gerador concluído (ModeloBase1)." : "Módulo ModeloBase1 gerado com sucesso.");
   plannedFiles.forEach((file) => {
     console.log(` - ${path.relative(repoRoot, file)}`);
   });
@@ -239,4 +301,3 @@ main().catch((error) => {
   console.error(`Erro ao gerar módulo: ${error.message}`);
   process.exit(1);
 });
-
