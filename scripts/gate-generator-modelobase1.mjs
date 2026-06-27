@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ROOT = "/workspace";
+const ROOT = process.cwd();
 const SCAFFOLD = path.join(ROOT, "src/modules/template/scaffold");
 
 const results = [];

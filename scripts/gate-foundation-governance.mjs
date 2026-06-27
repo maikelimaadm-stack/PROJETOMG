@@ -6,7 +6,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const ROOT = "/workspace";
+const ROOT = process.cwd();
 const BASELINE_PATH = path.join(ROOT, "scripts/governance-baseline.json");
 const REGISTRY_PATH = path.join(ROOT, "config/cadastro-modules.registry.json");
 const GENERATED_PATH = path.join(ROOT, "src/modules/generatedModules.json");
@@ -365,6 +365,18 @@ gate(
   `${generatedCertified.length}/${certifiedModuleIds.length}`
 );
 
+// G126 — Factory preserva hooks obrigatórios mesmo com overrides parciais (Empresas)
+const factorySource = read(path.join(ROOT, "src/ModeloBase1/config/buildModeloBase1ConfigFromMakModule.js"));
+const factoryPreservesHooks =
+  factorySource.includes("...(overrideHooks ?? {})") &&
+  factorySource.includes("...passthroughOverrides") &&
+  !factorySource.match(/\.\.\.overrides,\s*\}\);/) &&
+  factorySource.includes("useViewModePreference: useModeloBase1ViewModePreference");
+gate(
+  "G126 — Factory preserva hooks obrigatórios com overrides parciais",
+  factoryPreservesHooks
+);
+
 const passed = results.filter((r) => r.ok).length;
-console.log(`\nG109-G125: ${passed}/${results.length} aprovados`);
+console.log(`\nG109-G126: ${passed}/${results.length} aprovados`);
 process.exit(passed === results.length ? 0 : 1);

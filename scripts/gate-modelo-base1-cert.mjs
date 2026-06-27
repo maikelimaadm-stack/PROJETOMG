@@ -6,7 +6,7 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-const ROOT = "/workspace";
+const ROOT = process.cwd();
 const MB1 = path.join(ROOT, "src/ModeloBase1");
 
 const results = [];

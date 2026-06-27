@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import { execSync } from "node:child_process";
 
-const ROOT = "/workspace";
+const ROOT = process.cwd();
 const read = (path) => fs.readFileSync(`${ROOT}/${path}`, "utf8");
 const exists = (path) => fs.existsSync(`${ROOT}/${path}`);
 

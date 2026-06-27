@@ -5,7 +5,7 @@
 import fs from "node:fs";
 import { execSync } from "node:child_process";
 
-const ROOT = "/workspace";
+const ROOT = process.cwd();
 const MOTOR = `${ROOT}/src/ModeloBase1/render/ModeloBase1CadastroPage.jsx`;
 const CONFIG = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasModeloBase1Config.js`;
 const SEARCH_PANEL = `${ROOT}/src/ModeloBase1/search/MakCadastroSearchPanel.jsx`;

@@ -58,6 +58,17 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
   const keyPrefix = makModule.preferencesAdapter?.keyPrefix ?? makModule.moduleId;
   const moduleId = makModule.moduleId;
 
+  const {
+    hooks: overrideHooks,
+    helpers: overrideHelpers,
+    components: overrideComponents,
+    data: overrideData,
+    export: overrideExport,
+    labels: _labelsOverride,
+    searchView: _searchViewOverride,
+    ...passthroughOverrides
+  } = overrides;
+
   return defineModeloBase1Config({
     moduleId,
     makModule,
@@ -77,10 +88,10 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       SearchPanel: MakSearchPanel,
       Dialogs: ModeloBase1ExtraDialogs,
       FilterFieldsConfigDialog: overrides.components?.FilterFieldsConfigDialog ?? MakFilterFieldsConfigDialog,
-      ...(overrides.components ?? {}),
+      ...(overrideComponents ?? {}),
     },
     hooks: {
-      useScopeAuth: overrides.hooks?.useScopeAuth ?? noopScopeAuth,
+      useScopeAuth: overrideHooks?.useScopeAuth ?? noopScopeAuth,
       usePreferencesBootstrap: useModeloBase1PreferencesBootstrap,
       useViewModePreference: useModeloBase1ViewModePreference,
       useCardsVisFields: useModeloBase1CardsVisFields,
@@ -89,11 +100,11 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       useInfiniteListData: useModeloBase1InfiniteListData,
       useCustomFields: useModeloBase1CustomFields,
       useFilterFieldsLayout: useModeloBase1FilterFieldsLayout,
-      ...(overrides.hooks ?? {}),
+      ...(overrideHooks ?? {}),
     },
     helpers: {
       ...defaultHelpers,
-      ...(overrides.helpers ?? {}),
+      ...(overrideHelpers ?? {}),
     },
     data: {
       listQueryKey: makModule.listQueryKey ?? [`${moduleId}-cadastro`],
@@ -108,16 +119,16 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
         return Number.isFinite(saved) && saved > 0 ? saved : fallback;
       },
       patchListCache: makModule.patchListCache,
-      ...(overrides.data ?? {}),
+      ...(overrideData ?? {}),
     },
     export: {
       getPdfExportConfig: makModule.getPdfExportConfig ?? (() => ({ useConfiguredColumns: false, columnIds: [] })),
       getExcelExportConfig: makModule.getExcelExportConfig ?? (() => ({})),
       savePdfExportConfig: makModule.savePdfExportConfig ?? (() => {}),
       saveExcelExportConfig: makModule.saveExcelExportConfig ?? (() => {}),
-      ...(overrides.export ?? {}),
+      ...(overrideExport ?? {}),
     },
-    ...overrides,
+    ...passthroughOverrides,
   });
 }
 
