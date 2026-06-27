@@ -60,3 +60,4 @@ export * from "./import/index.js";
 export * from "./history/index.js";
 export * from "./grouping/index.js";
 export * from "./validation/index.js";
+export * from "./layoutConfig/index.js";

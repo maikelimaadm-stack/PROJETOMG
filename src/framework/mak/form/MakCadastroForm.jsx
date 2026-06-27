@@ -37,6 +37,7 @@ import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageFiel
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
 import { AnexosApi } from "@/apis/anexos/AnexosApi";
 import { useAuth } from "@/shared/contexts/AuthContext";
+import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
 
 export default function MakCadastroForm({
   onSubmit, onCancel, onAttachClick, attachDisabled = false,
@@ -95,8 +96,9 @@ export default function MakCadastroForm({
   );
   const nativeLayoutFieldIdsSet = useMemo(
     () => new Set(Object.values(EMP_FORM_DEFAULT_LAYOUT).flat().filter(Boolean)),
-    []
+    [EMP_FORM_DEFAULT_LAYOUT]
   );
+  const scopeCssClass = useMemo(() => buildModeloBase1ScopeCssClass(moduleId), [moduleId]);
 
   const {
     isLayoutReady,
@@ -909,7 +911,7 @@ export default function MakCadastroForm({
 
   if (!isLayoutReady || !activeLayoutConfig) {
     return (
-      <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+      <div className={`cadastro-scope erp-ui ${scopeCssClass} flex h-full min-h-0 flex-1 flex-col overflow-hidden`}>
         <div className="m-3 animate-pulse rounded-xl border border-slate-200 bg-white/90 p-4 shadow-sm md:m-5">
           <div className="mb-3 h-6 w-56 rounded bg-slate-200" />
           <div className="mb-2 h-10 w-full rounded bg-slate-100" />
@@ -922,7 +924,7 @@ export default function MakCadastroForm({
 
   if (layoutConfigOpen) {
     return (
-      <section className="cadastro-scope cadastro-emp-scope mg-empresas-scope flex h-full w-full max-w-full overflow-hidden">
+      <section className={`cadastro-scope ${scopeCssClass} flex h-full w-full max-w-full overflow-hidden`}>
         <CadLayoutConfigurator
           open={layoutConfigOpen}
           onOpenChange={setLayoutConfigOpen}
@@ -941,18 +943,18 @@ export default function MakCadastroForm({
           aggregationConfig={activeLayoutConfig.aggregationConfig || {}}
           visibilityRules={activeLayoutConfig.visibilityRules || {}}
           defaultConfig={defaultConfigFull}
-          systemPanelIds={["principais", "endereco", "observacoes", "campos_personalizados"]}
-          fixedPanelIds={[]}
-          fixedVisibleFieldIds={[]}
+          systemPanelIds={cadastroConfig.systemPanelIds}
+          fixedPanelIds={cadastroConfig.fixedPanelIds ?? []}
+          fixedVisibleFieldIds={cadastroConfig.fixedVisibleFieldIds ?? []}
           onSave={saveLayoutConfig}
-          brandTheme
+          brandTheme={cadastroConfig.brandTheme ?? true}
         />
       </section>
     );
   }
 
   return (
-    <div className="cadastro-scope cadastro-emp-scope erp-ui flex h-full min-h-0 flex-1 flex-col overflow-hidden">
+    <div className={`cadastro-scope erp-ui ${scopeCssClass} flex h-full min-h-0 flex-1 flex-col overflow-hidden`}>
       <form ref={formRef} onSubmit={handleSubmit} className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {hideToolbar ? null : (
           <CadSplitLayout

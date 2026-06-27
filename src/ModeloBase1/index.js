@@ -25,3 +25,4 @@ export * from "./hooks/index.js";
 export * from "./metadata/index.js";
 export * from "./components/index.js";
 export * from "./utils/index.js";
+export * from "./layoutConfig/index.js";
