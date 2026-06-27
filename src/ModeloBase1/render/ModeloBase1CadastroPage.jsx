@@ -58,6 +58,8 @@ function ModeloBase1CadastroPageContent() {
   const moduleRepository = moduleDefinition.repository;
   const moduleLabels = config.labels ?? module.labels;
   const MAK_MODULE_ID = config.moduleId;
+  const emptyRecordViewMode = config.navigation?.emptyRecordViewMode ?? "browse";
+  const [recordBrowseMode, setRecordBrowseMode] = useState(false);
 
   const {
     selectorSnapshot,
@@ -192,6 +194,7 @@ function ModeloBase1CadastroPageContent() {
     suppressColumnFilterPersistRef.current = true;
     setShowForm(false);
     setEditingRecord(null);
+    setRecordBrowseMode(false);
     setViewMode("table");
     setSelectedTableItems([]);
     setSelectedIndex(0);
@@ -605,6 +608,7 @@ function ModeloBase1CadastroPageContent() {
   const handleEdit = (emp) => {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
+    setRecordBrowseMode(false);
     recordNav.syncLocalIndexFromRecord(emp);
     const index = filteredPanelRecords.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
@@ -614,9 +618,21 @@ function ModeloBase1CadastroPageContent() {
     setViewMode("record");
   };
 
+  const handleOpenRecordBrowse = () => {
+    if (!saveCycle.guardAction()) return;
+    closeFilterPanel();
+    setReturnRecordAfterNew(null);
+    setSelectedTableItems([]);
+    setEditingRecord(null);
+    setRecordBrowseMode(true);
+    setShowForm(true);
+    setViewMode("record");
+  };
+
   const handleNew = () => {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
+    setRecordBrowseMode(false);
     setReturnRecordAfterNew(showForm && viewMode === "record" ? editingRecord || currentRecord : null);
     setSelectedTableItems([]);
     const alreadyNew = showForm && !editingRecord?.id && !editingRecord?._isDuplicate;
@@ -631,6 +647,7 @@ function ModeloBase1CadastroPageContent() {
   const handleDuplicate = (emp) => {
     if (!saveCycle.guardAction()) return;
     closeFilterPanel();
+    setRecordBrowseMode(false);
     setReturnRecordAfterNew(showForm && viewMode === "record" ? emp : null);
     setEditingRecord(helpers.buildDuplicateRecord(emp));
     setShowForm(true);
@@ -768,6 +785,7 @@ function ModeloBase1CadastroPageContent() {
       setShowForm(false);
       setEditingRecord(null);
       setSelectedTableItems([]);
+      setRecordBrowseMode(false);
     }
     setViewMode("table");
   }, [closeTransientDialogs, showForm]);
@@ -781,7 +799,11 @@ function ModeloBase1CadastroPageContent() {
           if (showForm && viewMode === "record") return;
           const emp = selectedTableRecord || navigationRecords[selectedIndex] || navigationRecords[0];
           if (!emp) {
-            handleNew();
+            if (emptyRecordViewMode === "new" && makPermissions.canCreate) {
+              handleNew();
+            } else {
+              handleOpenRecordBrowse();
+            }
             return;
           }
           handleEdit(emp);
@@ -808,6 +830,9 @@ function ModeloBase1CadastroPageContent() {
       closeTransientDialogs,
       handleEdit,
       handleNew,
+      handleOpenRecordBrowse,
+      emptyRecordViewMode,
+      makPermissions.canCreate,
       saveCycle,
       actionBarVisibility.secondaryToolsLocked,
       selectedIndex,
@@ -921,7 +946,10 @@ function ModeloBase1CadastroPageContent() {
     if (selectedTableItems.length > 1) return;
     closeTransientDialogs();
     const emp = selectedTableRecord || navigationRecords[selectedIndex] || navigationRecords[0];
-    if (!emp) return;
+    if (!emp) {
+      handleOpenRecordBrowse();
+      return;
+    }
     const index = navigationRecords.findIndex((e) => e.id === emp.id);
     if (index >= 0) setSelectedIndex(index);
     setEditingRecord(emp);
@@ -1042,6 +1070,14 @@ function ModeloBase1CadastroPageContent() {
   }, [editingRecord?.id, selectedTableRecord, selectedTableItems.length, showForm]);
 
   const formCancel = () => {
+    if (recordBrowseMode && !editingRecord) {
+      setShowForm(false);
+      setRecordBrowseMode(false);
+      setViewMode("table");
+      setSelectedTableItems([]);
+      setReturnRecordAfterNew(null);
+      return;
+    }
     if (editingRecord && !editingRecord._isDuplicate) {
       setFormVersion((p) => p + 1);
       setViewMode("record");
@@ -1056,6 +1092,7 @@ function ModeloBase1CadastroPageContent() {
     }
     setShowForm(false);
     setEditingRecord(null);
+    setRecordBrowseMode(false);
     setViewMode("table");
     setSelectedTableItems([]);
     setReturnRecordAfterNew(null);
@@ -1067,7 +1104,7 @@ function ModeloBase1CadastroPageContent() {
   const recordTitle = helpers.getRecordTitle(editingRecord, moduleLabels, formBridge, {
     showForm,
     isDuplicating: editingRecord?._isDuplicate,
-    isNew: showForm && !editingRecord?.id && !editingRecord?._isDuplicate,
+    isNew: showForm && !editingRecord?.id && !editingRecord?._isDuplicate && !recordBrowseMode,
   });
 
   const filterControlsDisabled = saveCycle.isSaving || actionBarVisibility.secondaryToolsLocked;
@@ -1251,9 +1288,10 @@ function ModeloBase1CadastroPageContent() {
                 <FormPanel
                   formProps={{
                     initialData: editingRecord,
-                    recordKey: editingRecord?.id ?? (editingRecord?._isDuplicate ? "duplicate" : "new"),
+                    recordKey: editingRecord?.id ?? (editingRecord?._isDuplicate ? "duplicate" : recordBrowseMode ? "browse" : "new"),
                     resetSeed: formVersion,
                     isEditing: !!editingRecord,
+                    browseMode: recordBrowseMode,
                     onSubmit: handleSubmit,
                     onCancel: formCancel,
                     hideToolbar: true,

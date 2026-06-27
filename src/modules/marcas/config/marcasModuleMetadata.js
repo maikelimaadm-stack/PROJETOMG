@@ -4,7 +4,7 @@
 import { buildMakTableMetadata } from "@/framework/mak/metadata/buildMakTableMetadata.js";
 import { buildMakFormMetadata } from "@/framework/mak/metadata/buildMakFormMetadata.js";
 import { buildMakPageMetadata } from "@/framework/mak/metadata/buildMakPageMetadata.js";
-import { buildMakStandardDynamicFields } from "@/framework/mak/metadata/buildMakStandardDynamicFields.jsx";
+import { buildMakDynamicFieldsFromMetadata } from "@/framework/mak/fieldConfig/buildMakDynamicFieldsFromMetadata.js";
 import { buildMakSidebarFilterFromColumns } from "@/framework/mak/metadata/buildMakFiltersMetadata.js";
 import {
   MAR_COLUNAS_BASE,
@@ -36,7 +36,8 @@ export const marcasModuleMetadata = {
     nativeFields: MAR_NATIVE_FIELDS,
     inputClass,
     applyDuplicateFieldClears,
-    buildDynamicFields: buildMakStandardDynamicFields(MAR_FORM_FIELD_DEFS),
+    fieldDefinitions: MAR_FORM_FIELD_DEFS,
+    buildDynamicFields: buildMakDynamicFieldsFromMetadata(MAR_FORM_FIELD_DEFS),
     keyPrefix: "mar",
     moduleId: "marcas",
   }),
