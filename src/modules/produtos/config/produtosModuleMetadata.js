@@ -2,6 +2,7 @@ import { buildMakTableMetadata } from "@/framework/mak/metadata/buildMakTableMet
 import { buildMakFormMetadata } from "@/framework/mak/metadata/buildMakFormMetadata.js";
 import { buildMakPageMetadata } from "@/framework/mak/metadata/buildMakPageMetadata.js";
 import { buildMakStandardDynamicFields } from "@/framework/mak/metadata/buildMakStandardDynamicFields.jsx";
+import { buildMakSidebarFilterFromColumns } from "@/framework/mak/metadata/buildMakFiltersMetadata.js";
 import {
   PRO_COLUNAS_BASE,
   PRO_FORM_BASE_PANELS,
@@ -33,6 +34,8 @@ export const produtosModuleMetadata = {
     inputClass,
     applyDuplicateFieldClears,
     buildDynamicFields: buildMakStandardDynamicFields(PRO_FORM_FIELD_DEFS),
+    keyPrefix: "pro",
+    moduleId: "produtos",
   }),
   search: {
     titleField: "nome",
@@ -44,6 +47,27 @@ export const produtosModuleMetadata = {
       { key: "status", label: "Status", column: "status" },
       { key: "preco", label: "Preço", column: "preco" },
     ],
+    storageKeys: {
+      favoritesKey: "pro_search_favorites_v1",
+      viewModeKey: "pro_view_mode_v1",
+      dropdownVisKey: "pro_search_dropdown_vis_v1",
+      cardsVisKey: "pro_search_vis_fields_v2",
+      cardsLayoutKey: "pro_cards_layout_v1",
+      filterFieldsLayoutKey: "pro_filter_fields_layout_v1",
+    },
+  },
+  filters: {
+    sidebar: buildMakSidebarFilterFromColumns(PRO_COLUNAS_BASE, {
+      statusOptions: [
+        { value: "Todos", label: "Todos" },
+        { value: "Ativo", label: "Ativo" },
+        { value: "Inativo", label: "Inativo" },
+      ],
+    }),
+  },
+  preferences: {
+    moduleId: "produtos",
+    keyPrefix: "pro",
   },
   list: {
     queryKey: ["pro-cadastro"],

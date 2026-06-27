@@ -5,6 +5,7 @@ import { buildMakTableMetadata } from "@/framework/mak/metadata/buildMakTableMet
 import { buildMakFormMetadata } from "@/framework/mak/metadata/buildMakFormMetadata.js";
 import { buildMakPageMetadata } from "@/framework/mak/metadata/buildMakPageMetadata.js";
 import { buildMakStandardDynamicFields } from "@/framework/mak/metadata/buildMakStandardDynamicFields.jsx";
+import { buildMakSidebarFilterFromColumns } from "@/framework/mak/metadata/buildMakFiltersMetadata.js";
 import {
   MAR_COLUNAS_BASE,
   MAR_FORM_BASE_PANELS,
@@ -36,6 +37,8 @@ export const marcasModuleMetadata = {
     inputClass,
     applyDuplicateFieldClears,
     buildDynamicFields: buildMakStandardDynamicFields(MAR_FORM_FIELD_DEFS),
+    keyPrefix: "mar",
+    moduleId: "marcas",
   }),
   search: {
     titleField: "nome",
@@ -46,6 +49,27 @@ export const marcasModuleMetadata = {
       { key: "nome", label: "Nome", column: "nome" },
       { key: "status", label: "Status", column: "status" },
     ],
+    storageKeys: {
+      favoritesKey: "mar_search_favorites_v1",
+      viewModeKey: "mar_view_mode_v1",
+      dropdownVisKey: "mar_search_dropdown_vis_v1",
+      cardsVisKey: "mar_search_vis_fields_v2",
+      cardsLayoutKey: "mar_cards_layout_v1",
+      filterFieldsLayoutKey: "mar_filter_fields_layout_v1",
+    },
+  },
+  filters: {
+    sidebar: buildMakSidebarFilterFromColumns(MAR_COLUNAS_BASE, {
+      statusOptions: [
+        { value: "Todos", label: "Todos" },
+        { value: "Ativo", label: "Ativo" },
+        { value: "Inativo", label: "Inativo" },
+      ],
+    }),
+  },
+  preferences: {
+    moduleId: "marcas",
+    keyPrefix: "mar",
   },
   list: {
     queryKey: ["mar-cadastro"],

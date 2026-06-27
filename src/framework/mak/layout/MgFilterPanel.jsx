@@ -1,12 +1,11 @@
 import React, { useMemo } from "react";
 import { X } from "lucide-react";
 import MgCmdSelect from "./MgCmdSelect";
-import { MG_FILTER_SIDEBAR_FIELDS } from "./mgFilterFields";
 
-const STATUS_OPTIONS = [
+const DEFAULT_STATUS_OPTIONS = [
   { value: "Todos", label: "Todos" },
-  { value: "Ativa", label: "Ativa" },
-  { value: "Inativa", label: "Inativa" },
+  { value: "Ativo", label: "Ativo" },
+  { value: "Inativo", label: "Inativo" },
 ];
 
 export default function MgFilterPanel({
@@ -17,16 +16,38 @@ export default function MgFilterPanel({
   onClear,
   onApply,
   disabled = false,
+  textFields = [],
+  statusField = null,
 }) {
+  const resolvedStatusField = statusField ?? {
+    key: "status",
+    label: "Status",
+    options: DEFAULT_STATUS_OPTIONS,
+  };
+
+  const statusOptions = resolvedStatusField.options ?? DEFAULT_STATUS_OPTIONS;
+
   const statusValue = useMemo(() => {
-    const current = values.status;
+    if (typeof resolvedStatusField.normalizeRead === "function") {
+      return resolvedStatusField.normalizeRead(values);
+    }
+    const current = values[resolvedStatusField.key];
     if (Array.isArray(current) && current.length > 0) {
-      if (current[0] === "Ativo") return "Ativa";
-      if (current[0] === "Inativo") return "Inativa";
       return current[0];
     }
     return "Todos";
-  }, [values.status]);
+  }, [values, resolvedStatusField]);
+
+  const handleStatusChange = (nextValue) => {
+    const normalized =
+      typeof resolvedStatusField.normalizeWrite === "function"
+        ? resolvedStatusField.normalizeWrite(nextValue)
+        : nextValue;
+    onChange?.(
+      resolvedStatusField.key,
+      normalized === "Todos" || !normalized ? [] : [normalized]
+    );
+  };
 
   return (
     <aside id="filter-panel" className={`filter-panel${open ? " open" : ""}`} aria-hidden={!open}>
@@ -44,7 +65,7 @@ export default function MgFilterPanel({
         </div>
 
         <div className="filter-panel__body">
-          {MG_FILTER_SIDEBAR_FIELDS.map((field) => {
+          {textFields.map((field) => {
             const fieldValue = Array.isArray(values[field.key]) ? values[field.key][0] || "" : "";
             return (
               <div key={field.key} className="fg">
@@ -62,13 +83,15 @@ export default function MgFilterPanel({
             );
           })}
 
-          <MgCmdSelect
-            label="Status"
-            value={statusValue}
-            onChange={(nextValue) => onChange?.("status", nextValue === "Todos" ? [] : [nextValue])}
-            options={STATUS_OPTIONS}
-            disabled={disabled}
-          />
+          {resolvedStatusField ? (
+            <MgCmdSelect
+              label={resolvedStatusField.label ?? "Status"}
+              value={statusValue}
+              onChange={handleStatusChange}
+              options={statusOptions}
+              disabled={disabled}
+            />
+          ) : null}
         </div>
 
         <div className="filter-panel__footer">

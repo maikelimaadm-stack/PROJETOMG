@@ -24,6 +24,7 @@ import {
   resolveCadcpsFieldValue,
 } from "@/modules/cadcps/runtime/cadcpsTableRuntime.js";
 import useCadcpsFormResources from "@/modules/cadcps/runtime/useCadcpsFormResources.js";
+import { buildMakSidebarFilterFromColumns } from "@/framework/mak/metadata/buildMakFiltersMetadata.js";
 
 export const cadcpsModuleMetadata = {
   table: buildMakTableMetadata({
@@ -48,6 +49,8 @@ export const cadcpsModuleMetadata = {
     prepareSubmitPayload: prepareCadcpsSubmitPayload,
     validateFormExtra: validateCadcpsFormExtra,
     useFormResourcesHook: useCadcpsFormResources,
+    keyPrefix: "cps",
+    moduleId: "cadcps",
   }),
   search: {
     titleField: "nome",
@@ -59,6 +62,29 @@ export const cadcpsModuleMetadata = {
       { key: "tipo", label: "Tipo", column: "tipo" },
       { key: "ativo", label: "Ativo", column: "ativo" },
     ],
+    storageKeys: {
+      favoritesKey: "cps_search_favorites_v1",
+      viewModeKey: "cps_view_mode_v1",
+      dropdownVisKey: "cps_search_dropdown_vis_v1",
+      cardsVisKey: "cps_search_vis_fields_v2",
+      cardsLayoutKey: "cps_cards_layout_v1",
+      filterFieldsLayoutKey: "cps_filter_fields_layout_v1",
+    },
+  },
+  filters: {
+    sidebar: buildMakSidebarFilterFromColumns(CPS_COLUNAS_BASE, {
+      statusKey: "ativo",
+      statusLabel: "Ativo",
+      statusOptions: [
+        { value: "Todos", label: "Todos" },
+        { value: "Sim", label: "Sim" },
+        { value: "Não", label: "Não" },
+      ],
+    }),
+  },
+  preferences: {
+    moduleId: "cadcps",
+    keyPrefix: "cps",
   },
   list: {
     queryKey: ["cps-cadastro"],

@@ -1,3 +1,5 @@
+import { createMakLaunchPanelStyleStorage } from "@/framework/mak/preferences/createMakLaunchPanelStyleStorage.js";
+
 /**
  * Constrói metadata declarativa de formulário MAK.
  */
@@ -19,7 +21,16 @@ export function buildMakFormMetadata({
   useRecordFieldsHook = null,
   useCustomFieldsHook = null,
   storage = null,
+  keyPrefix = null,
+  moduleId = null,
 }) {
+  const launchPanelStorage =
+    storage?.readStoredLaunchPanelStyle && storage?.writeStoredLaunchPanelStyle
+      ? storage
+      : keyPrefix
+        ? createMakLaunchPanelStyleStorage({ keyPrefix, moduleId: moduleId ?? keyPrefix })
+        : null;
+
   return {
     basePanels,
     defaultLayout,
@@ -38,7 +49,7 @@ export function buildMakFormMetadata({
     useFormResourcesHook: useFormResourcesHook ?? (() => ({})),
     useRecordFieldsHook: useRecordFieldsHook ?? (() => ({ data: [], isFetched: true })),
     useCustomFieldsHook: useCustomFieldsHook ?? (() => ({ renderCampoPersonalizado: () => null })),
-    storage: storage ?? {
+    storage: launchPanelStorage ?? {
       readStoredLaunchPanelStyle: () => null,
       writeStoredLaunchPanelStyle: () => {},
     },

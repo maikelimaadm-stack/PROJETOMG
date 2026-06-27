@@ -1,6 +1,4 @@
-import { createMakModulePreferencesAdapter } from "@/framework/mak/preferences/createMakModulePreferencesAdapter.js";
-
-export const produtosPreferencesAdapter = createMakModulePreferencesAdapter({
-  moduleId: "produtos",
-  keyPrefix: "pro",
-});
+export {
+  produtosPreferencesAdapter,
+  useProdutosPreferencesBootstrap,
+} from "@/modules/produtos/preferences/registerProdutosPreferencesBootstrap.js";

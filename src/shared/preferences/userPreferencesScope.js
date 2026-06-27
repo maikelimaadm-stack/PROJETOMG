@@ -101,18 +101,39 @@ const LISTAGEM_LEGACY_FIELDS = new Set([
 export const isListagemLegacyPreferenceField = (fieldKey) =>
   LISTAGEM_LEGACY_FIELDS.has(String(fieldKey || "").trim());
 
+const MODULE_PREFIX_MAP = {
+  emp: EMPRESAS_LISTAGEM_MODULO,
+  pro: "produtos",
+  mar: "marcas",
+  cps: "cadcps",
+};
+
+const resolveModuleFromFieldKey = (fieldKey) => {
+  const field = String(fieldKey || "").trim();
+  if (LISTAGEM_LEGACY_FIELDS.has(field)) return EMPRESAS_LISTAGEM_MODULO;
+  const prefixMatch = field.match(/^(emp|pro|mar|cps)_/);
+  if (prefixMatch) return MODULE_PREFIX_MAP[prefixMatch[1]] ?? EMPRESAS_LISTAGEM_MODULO;
+  if (field.startsWith("emp_")) return EMPRESAS_LISTAGEM_MODULO;
+  return null;
+};
+
 export const resolveListagemPreferenceStorageKey = (legacyFieldKey) => {
   const field = String(legacyFieldKey || "").trim();
   if (!field) return field;
   const { clienteId, userId } = activeScope;
   if (!clienteId || !userId) return field;
-  if (!isListagemLegacyPreferenceField(field) && !field.startsWith("emp_")) {
+
+  const modulo = resolveModuleFromFieldKey(field);
+  if (!modulo) return field;
+
+  if (modulo === EMPRESAS_LISTAGEM_MODULO && !isListagemLegacyPreferenceField(field) && !field.startsWith("emp_")) {
     return field;
   }
+
   return buildUserPrefStorageKey({
     clienteId,
     userId,
-    modulo: EMPRESAS_LISTAGEM_MODULO,
+    modulo,
     tela: EMPRESAS_LISTAGEM_TELA,
     field,
   });
