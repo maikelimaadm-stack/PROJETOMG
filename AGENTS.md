@@ -29,6 +29,9 @@ npm run dev                        # http://127.0.0.1:5173
 | Lint | `npm run lint` |
 | Typecheck | `npm run typecheck` (known JSX/shadcn typing noise in `src/shared/ui/*`) |
 | Production build | `npm run build` |
+| Foundation governance | `npm run verify:governance` |
+| Governance 5 cycles | `npm run verify:governance:cycles` |
+| Generate cadastro module | `npm run generate:module` |
 | API health (local backend) | `npm run check:api` |
 | Mock E2E (frontend only) | `npm run test:e2e:empresas-novo` |
 | Full E2E | `npm run test:e2e` (auto-starts backend + frontend; needs `backend/.env`) |

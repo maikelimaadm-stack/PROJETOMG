@@ -48,8 +48,11 @@
     "gate:paridade-empresas": "node scripts/gate-paridade-empresas.mjs",
     "gate:promocao": "node scripts/gate-promocao-componentes.mjs",
     "gate:generator": "node scripts/gate-generator-modelobase1.mjs",
+    "gate:governance": "node scripts/gate-foundation-governance.mjs",
     "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs && node scripts/gate-generator-modelobase1.mjs",
-    "verify:certification": "npm run build && npm run lint && npm run gate:certification"
+    "verify:certification": "npm run build && npm run lint && npm run gate:certification",
+    "verify:governance": "npm run build && npm run lint && npm run gate:certification && npm run gate:governance",
+    "verify:governance:cycles": "node scripts/run-governance-cycles.mjs --cycles=5"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",
