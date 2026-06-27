@@ -1,26 +1,50 @@
-# Módulo __PLURAL_LABEL__
+# Módulo __PLURAL_LABEL__ (ModeloBase1)
 
-Gerado automaticamente a partir do framework de cadastro.
+Gerado automaticamente pelo gerador oficial de cadastros MAK.
+
+## Padrão certificado
+
+Este módulo segue o **ModeloBase1 config-only** — mesma arquitetura de Produtos/Marcas:
+
+- Página fina (`pages/PAG__PAGE_CODE__.jsx`) → `ModeloBase1CadastroPage`
+- Config via `buildModeloBase1ConfigFromMakModule`
+- Sem Toolbar/Tabela/Formulário/Search/Dock próprios
 
 ## Definição base
 
-- moduleId: `__MODULE_ID__`
-- entityName: `__ENTITY_NAME__`
-- singularLabel: `__SINGULAR_LABEL__`
-- pluralLabel: `__PLURAL_LABEL__`
-- repository: `__REPOSITORY_NAME__`
-- api: `__API_NAME__`
-- schema: `__SCHEMA_NAME__`
+| Campo | Valor |
+|-------|-------|
+| moduleId | `__MODULE_ID__` |
+| entityName | `__ENTITY_NAME__` |
+| keyPrefix | `__KEY_PREFIX__` |
+| pageCode | `__PAGE_CODE__` |
+| repository | `__REPOSITORY_NAME__` |
+| api | `__API_NAME__` |
+| schema | `__SCHEMA_NAME__` |
 
-## Arquivos gerados
+## Arquivos gerados (frontend)
 
-- Página (`pages/`)
-- Formulário (`components/FORM__MODULE_ID_PASCAL__.jsx`)
-- Tabela (`components/TBL__MODULE_ID_PASCAL__.jsx`)
-- Campos personalizados / layout configurável / exportação / anexos (na página)
-- Paginação e toolbars (na tabela/página)
-- API e Repository (`apis/`, `repositories/`)
-- Backend full-stack (`backend/src/modules/__MODULE_ID__/...`)
-- Prisma scaffold e migration base (`backend/prisma/scaffold/`)
-- Smoke base de backend (`backend/scripts/smoke__MODULE_ID_PASCAL__.js`)
+- `pages/PAG__PAGE_CODE__.jsx` — thin page ModeloBase1
+- `config/__MODULE_ID__ModeloBase1Config.js`
+- `config/__MODULE_ID__MakModule.js`
+- `config/__MODULE_ID__ModuleMetadata.js`
+- `config/__MODULE_ID__CadastroConfig.js`
+- `config/__MODULE_ID__PreferencesAdapter.js`
+- `config/__KEY_PREFIX__Form.constants.js`
+- `config/moduleDefinition.js`
+- `config/__SCHEMA_NAME__.js`
+- `data/__MODULE_ID__ListCache.js`
+- `repositories/__REPOSITORY_NAME__.js`
+- `src/apis/__MODULE_ID__/__API_NAME__.js`
 
+## Backend
+
+- `backend/src/modules/__MODULE_ID__/` — routes, service, repository, validators
+- `backend/prisma/scaffold/` — modelo Prisma e migration base
+
+## Próximos passos manuais
+
+1. Registrar rotas backend no bootstrap Fastify
+2. Executar migration Prisma (se aplicável)
+3. Adicionar entrada em `config/cadastro-modules.registry.json` (ou re-gerar com registry update)
+4. Ajustar campos em `__KEY_PREFIX__Form.constants.js` conforme domínio de negócio
