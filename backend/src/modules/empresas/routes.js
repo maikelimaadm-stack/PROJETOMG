@@ -180,6 +180,8 @@ export const registerEmpresasRoutes = async (app) => {
     const scope = await loadAccessScope(request);
     await ensureModuloAtivo(scope, "EMPRESAS");
     ensureDeleteRole(scope);
+    try {
+      const ok = await empresaService.remove(request.params.id, scope);
       if (!ok) return reply.status(404).send({ message: "Empresa não encontrada para exclusão" });
       const contadores = await getContadores(scope);
       return { ok: true, contadores };

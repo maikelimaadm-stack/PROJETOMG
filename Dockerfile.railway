@@ -5,8 +5,12 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV SEED_SKIP=true
 ENV HOST=0.0.0.0
+# Fallback para `prisma generate` quando Railway não injeta DATABASE_URL no build.
+ENV DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
+ENV DIRECT_URL=postgresql://postgres:postgres@127.0.0.1:5432/postgres
 
 COPY backend/package*.json ./
+COPY backend/prisma.config.ts ./
 RUN npm ci
 
 COPY backend/prisma ./prisma
