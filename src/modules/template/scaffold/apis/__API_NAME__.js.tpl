@@ -1,25 +1,25 @@
 import { apiClient } from "@/apis/http/apiClient";
 
-const BASE_PATH = "/api/__MODULE_ID__";
-const FIELDS_PATH = `${BASE_PATH}/campos`;
+const __MODULE_ID_UPPER___PATH = "/api/__MODULE_ID__";
+const CADASTRO_LIST_SCOPE = {};
 
 const toQuery = (params = {}) => {
-  const query = new URLSearchParams();
+  const searchParams = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
     if (value == null || value === "") return;
     if (typeof value === "object") {
-      query.set(key, JSON.stringify(value));
+      searchParams.set(key, JSON.stringify(value));
       return;
     }
-    query.set(key, String(value));
+    searchParams.set(key, String(value));
   });
-  const parsed = query.toString();
-  return parsed ? `?${parsed}` : "";
+  const query = searchParams.toString();
+  return query ? `?${query}` : "";
 };
 
 export const __API_NAME__ = {
   async list(params = {}) {
-    const payload = await apiClient.get(`${BASE_PATH}${toQuery(params)}`);
+    const payload = await apiClient.get(`${__MODULE_ID_UPPER___PATH}${toQuery(params)}`, CADASTRO_LIST_SCOPE);
     return {
       items: payload?.items || [],
       total: Number(payload?.total || 0),
@@ -30,48 +30,20 @@ export const __API_NAME__ = {
   },
 
   async get(id) {
-    const payload = await apiClient.get(`${BASE_PATH}/${id}`);
+    const payload = await apiClient.get(`${__MODULE_ID_UPPER___PATH}/${id}`, CADASTRO_LIST_SCOPE);
     return payload?.item || null;
   },
 
   async create(data) {
-    const payload = await apiClient.post(BASE_PATH, data);
-    return payload?.item || payload;
+    return apiClient.post(__MODULE_ID_UPPER___PATH, data, CADASTRO_LIST_SCOPE);
   },
 
   async update(id, data) {
-    const payload = await apiClient.put(`${BASE_PATH}/${id}`, data);
+    const payload = await apiClient.put(`${__MODULE_ID_UPPER___PATH}/${id}`, data, CADASTRO_LIST_SCOPE);
     return payload?.item || payload;
   },
 
-  async remove(id) {
-    await apiClient.delete(`${BASE_PATH}/${id}`);
-    return true;
-  },
-
-  async listFields() {
-    const payload = await apiClient.get(FIELDS_PATH);
-    return payload?.items || [];
-  },
-
-  async createField(data) {
-    const payload = await apiClient.post(FIELDS_PATH, data);
-    return payload?.item || payload;
-  },
-
-  async updateField(id, data) {
-    const payload = await apiClient.put(`${FIELDS_PATH}/${id}`, data);
-    return payload?.item || payload;
-  },
-
-  async removeField(id) {
-    await apiClient.delete(`${FIELDS_PATH}/${id}`);
-    return true;
-  },
-
-  async listOptions(sources = []) {
-    const payload = await apiClient.post(`${BASE_PATH}/options`, { sources });
-    return payload?.items || {};
+  async delete(id) {
+    return apiClient.delete(`${__MODULE_ID_UPPER___PATH}/${id}`, CADASTRO_LIST_SCOPE);
   },
 };
-

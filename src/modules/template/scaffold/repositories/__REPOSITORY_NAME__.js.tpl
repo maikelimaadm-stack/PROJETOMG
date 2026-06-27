@@ -1,54 +1,50 @@
-import { __API_NAME__ } from "@/modules/__MODULE_ID__/apis/__API_NAME__";
-import { __SCHEMA_NAME__ } from "@/modules/__MODULE_ID__/config/__SCHEMA_NAME__";
+import { __API_NAME__ } from "@/apis/__MODULE_ID__/__API_NAME__.js";
+
+const normalize__MODULE_ID_PASCAL__Record = (record, fallback = {}) => ({
+  id: record?.id ?? fallback.id,
+  codigo: record?.codigo ?? fallback.codigo,
+  id_global: record?.id_global ?? fallback.id_global,
+  nome: record?.nome ?? fallback.nome ?? "",
+  status: record?.status ?? fallback.status ?? "Ativo",
+  observacoes: record?.observacoes ?? fallback.observacoes ?? null,
+});
 
 const __REPOSITORY_NAME__ = {
-  listPage(params = {}) {
-    return __API_NAME__.list(params);
+  async listPage(params = {}) {
+    const result = await __API_NAME__.list(params);
+    return {
+      ...result,
+      items: (result.items || []).map((item) => normalize__MODULE_ID_PASCAL__Record(item)),
+    };
   },
 
   async list(params = {}) {
-    const result = await __API_NAME__.list(params);
+    const result = await this.listPage(params);
     return result.items || [];
   },
 
-  get(id) {
-    return __API_NAME__.get(id);
+  async get(id) {
+    const item = await __API_NAME__.get(id);
+    return item ? normalize__MODULE_ID_PASCAL__Record(item) : null;
   },
 
-  create(data) {
-    const payload = __SCHEMA_NAME__.parse(data);
-    return __API_NAME__.create(payload);
+  async create(data) {
+    const response = await __API_NAME__.create(data);
+    return {
+      item: normalize__MODULE_ID_PASCAL__Record(response?.item, data),
+      contadores: response?.contadores || null,
+    };
   },
 
-  update(id, data) {
-    const payload = __SCHEMA_NAME__.parse(data);
-    return __API_NAME__.update(id, payload);
+  async update(id, data) {
+    const updated = await __API_NAME__.update(id, data);
+    return normalize__MODULE_ID_PASCAL__Record(updated, { id, ...data });
   },
 
-  delete(id) {
-    return __API_NAME__.remove(id);
-  },
-
-  listCamposPersonalizados() {
-    return __API_NAME__.listFields();
-  },
-
-  createCampoPersonalizado(data) {
-    return __API_NAME__.createField(data);
-  },
-
-  updateCampoPersonalizado(id, data) {
-    return __API_NAME__.updateField(id, data);
-  },
-
-  deleteCampoPersonalizado(campo) {
-    return __API_NAME__.removeField(campo.id || campo.field_id);
-  },
-
-  listOptionsSources(sources = []) {
-    return __API_NAME__.listOptions(sources);
+  async delete(id) {
+    await __API_NAME__.delete(id);
+    return { ok: true };
   },
 };
 
 export default __REPOSITORY_NAME__;
-

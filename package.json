@@ -47,7 +47,8 @@
     "gate:modelo-base1": "node scripts/gate-modelo-base1-cert.mjs",
     "gate:paridade-empresas": "node scripts/gate-paridade-empresas.mjs",
     "gate:promocao": "node scripts/gate-promocao-componentes.mjs",
-    "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs",
+    "gate:generator": "node scripts/gate-generator-modelobase1.mjs",
+    "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs && node scripts/gate-generator-modelobase1.mjs",
     "verify:certification": "npm run build && npm run lint && npm run gate:certification"
   },
   "dependencies": {
