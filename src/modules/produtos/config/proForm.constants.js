@@ -1,3 +1,8 @@
+import {
+  MAK_FORM_INPUT_CLASS,
+  buildModeloBase1FormDefaultConfig,
+} from "@/ModeloBase1/layout/modeloBase1VisualTokens.js";
+
 export const PRO_FORM_BASE_PANELS = [{ id: "principais", label: "Principais" }];
 
 export const PRO_FORM_DEFAULT_LAYOUT = {
@@ -23,14 +28,13 @@ export const buildEmptyProdutoForm = () => ({
   descricao: "",
 });
 
-export const buildProFormDefaultConfig = () => ({
-  version: 3,
-  panels: PRO_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
-  layout: { ...PRO_FORM_DEFAULT_LAYOUT },
-});
+export const buildProFormDefaultConfig = () =>
+  buildModeloBase1FormDefaultConfig({
+    panels: PRO_FORM_BASE_PANELS,
+    layout: PRO_FORM_DEFAULT_LAYOUT,
+  });
 
-export const inputClass =
-  "border-0 shadow-none focus-visible:ring-0 bg-white w-full";
+export const inputClass = MAK_FORM_INPUT_CLASS;
 
 export const applyDuplicateFieldClears = (data) => ({
   ...data,

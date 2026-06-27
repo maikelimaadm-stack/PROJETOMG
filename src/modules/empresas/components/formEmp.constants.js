@@ -1,3 +1,8 @@
+import {
+  MAK_FORM_INPUT_CLASS,
+  buildModeloBase1FormDefaultConfig,
+} from "@/ModeloBase1/layout/modeloBase1VisualTokens.js";
+
 export const ESTADOS_BR = [
   "AC",
   "AL",
@@ -144,22 +149,14 @@ export const EMP_FORM_DEFAULT_LAYOUT_V3 = {
 /** Override opcional de tipo de largura por campo (vazio = inferência automática por tipo). */
 export const EMP_FORM_DEFAULT_FIELD_SIZES = {};
 
-export const buildEmpFormDefaultConfig = () => ({
-  version: 3,
-  panels: EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
-  layout: { ...EMP_FORM_DEFAULT_LAYOUT_V3 },
-  hiddenFieldIds: [],
-  lockedFieldIds: [],
-  requiredFieldIds: [],
-  clearOnDuplicateFieldIds: [],
-  fieldDefaultValues: {},
-  aggregationConfig: {},
-  visibilityRules: {},
-  fieldLayoutConfig: { mode: "corporate", columns: 12 },
-  fieldSizes: { ...EMP_FORM_DEFAULT_FIELD_SIZES },
-});
+export const buildEmpFormDefaultConfig = () =>
+  buildModeloBase1FormDefaultConfig({
+    panels: EMP_FORM_BASE_PANELS,
+    layout: EMP_FORM_DEFAULT_LAYOUT_V3,
+    fieldSizes: EMP_FORM_DEFAULT_FIELD_SIZES,
+  });
 
-export const inputClass = "emp-form-input border-0 shadow-none focus-visible:ring-0 bg-white uppercase w-full";
+export const inputClass = MAK_FORM_INPUT_CLASS;
 
 export const buildEmptyEmpresaForm = () => ({
   codempresa: "",

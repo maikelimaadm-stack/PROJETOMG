@@ -1,4 +1,9 @@
 import { CADCPS_APLICACAO } from "@/modules/cadcps/config/cadcpsConstants.js";
+import {
+  MAK_FORM_INPUT_CLASS,
+  MAK_FORM_INPUT_CLASS_GRID,
+  buildModeloBase1FormDefaultConfig,
+} from "@/ModeloBase1/layout/modeloBase1VisualTokens.js";
 
 export const CPS_FORM_BASE_PANELS = [
   { id: "principais", label: "Principais" },
@@ -81,11 +86,9 @@ export const CPS_COLUNAS_BASE = [
   { id: "updatedAt", label: "Atualizado Em", default: true, sortable: true, align: "center", width: 150 },
 ];
 
-export const CPS_INPUT_CLASS =
-  "emp-form-input w-full min-w-0 border-0 shadow-none focus-visible:ring-0 bg-white uppercase";
+export const CPS_INPUT_CLASS = MAK_FORM_INPUT_CLASS_GRID;
 
-export const inputClass =
-  "border-0 shadow-none focus-visible:ring-0 bg-white w-full uppercase";
+export const inputClass = MAK_FORM_INPUT_CLASS;
 
 export const buildEmptyCadcpsForm = () => ({
   nome: "",
@@ -119,11 +122,11 @@ export const buildEmptyCadcpsForm = () => ({
   opcoesDraft: "",
 });
 
-export const buildCpsFormDefaultConfig = () => ({
-  version: 3,
-  panels: CPS_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
-  layout: { ...CPS_FORM_DEFAULT_LAYOUT },
-});
+export const buildCpsFormDefaultConfig = () =>
+  buildModeloBase1FormDefaultConfig({
+    panels: CPS_FORM_BASE_PANELS,
+    layout: CPS_FORM_DEFAULT_LAYOUT,
+  });
 
 export const applyDuplicateFieldClears = (data) => ({
   ...data,
