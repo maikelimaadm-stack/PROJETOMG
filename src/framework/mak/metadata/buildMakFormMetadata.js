@@ -1,5 +1,6 @@
 import { createMakLaunchPanelStyleStorage } from "@/framework/mak/preferences/createMakLaunchPanelStyleStorage.js";
 import { buildMakDynamicFieldsFromMetadata } from "@/framework/mak/fieldConfig/buildMakDynamicFieldsFromMetadata.js";
+import { MAK_FORM_INPUT_CLASS } from "@/ModeloBase1/layout/modeloBase1VisualTokens.js";
 
 /**
  * Constrói metadata declarativa de formulário MAK.
@@ -12,7 +13,7 @@ export function buildMakFormMetadata({
   requiredFields = [],
   upperFields = [],
   nativeFields = [],
-  inputClass = "border-0 shadow-none focus-visible:ring-0 bg-white w-full",
+  inputClass = MAK_FORM_INPUT_CLASS,
   estados = [],
   applyDuplicateFieldClears,
   buildDynamicFields = null,

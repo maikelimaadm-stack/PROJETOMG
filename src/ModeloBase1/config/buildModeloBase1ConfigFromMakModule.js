@@ -17,14 +17,9 @@ import {
   useModeloBase1FilterFieldsLayout,
   useModeloBase1CustomFields,
 } from "@/ModeloBase1/hooks";
-import {
-  MakFormPanel,
-  MakTablePanel,
-  MakSearchPanel,
-} from "@/framework/mak/page/MakCadastroPage.jsx";
-import { ModeloBase1ExtraDialogs } from "@/ModeloBase1/render/ModeloBase1PanelSections.jsx";
 import MakFilterFieldsConfigDialog from "@/ModeloBase1/dialogs/MakFilterFieldsConfigDialog.jsx";
 import { MAK_LOAD_BATCH_OPTIONS } from "@/ModeloBase1/components/MakLoadBatchControls.jsx";
+import { modeloBase1ToolbarComponents } from "./buildModeloBase1ToolbarComponents.js";
 
 const noopScopeAuth = () => ({
   selectorSnapshot: [],
@@ -98,10 +93,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     searchView,
     labels,
     components: {
-      FormPanel: MakFormPanel,
-      TablePanel: MakTablePanel,
-      SearchPanel: MakSearchPanel,
-      Dialogs: ModeloBase1ExtraDialogs,
+      ...modeloBase1ToolbarComponents,
       FilterFieldsConfigDialog: overrides.components?.FilterFieldsConfigDialog ?? MakFilterFieldsConfigDialog,
       ...(overrideComponents ?? {}),
     },

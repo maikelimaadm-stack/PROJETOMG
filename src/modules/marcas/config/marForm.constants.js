@@ -1,3 +1,8 @@
+import {
+  MAK_FORM_INPUT_CLASS,
+  buildModeloBase1FormDefaultConfig,
+} from "@/ModeloBase1/layout/modeloBase1VisualTokens.js";
+
 export const MAR_FORM_BASE_PANELS = [{ id: "principais", label: "Principais" }];
 
 export const MAR_FORM_DEFAULT_LAYOUT = {
@@ -21,14 +26,13 @@ export const buildEmptyMarcaForm = () => ({
   observacoes: "",
 });
 
-export const buildMarFormDefaultConfig = () => ({
-  version: 3,
-  panels: MAR_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
-  layout: { ...MAR_FORM_DEFAULT_LAYOUT },
-});
+export const buildMarFormDefaultConfig = () =>
+  buildModeloBase1FormDefaultConfig({
+    panels: MAR_FORM_BASE_PANELS,
+    layout: MAR_FORM_DEFAULT_LAYOUT,
+  });
 
-export const inputClass =
-  "border-0 shadow-none focus-visible:ring-0 bg-white w-full";
+export const inputClass = MAK_FORM_INPUT_CLASS;
 
 export const applyDuplicateFieldClears = (data) => ({
   ...data,

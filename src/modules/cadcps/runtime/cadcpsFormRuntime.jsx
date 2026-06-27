@@ -210,7 +210,7 @@ export function buildCadcpsDynamicFields({
             disabled={isReadOnly || lockTela}
             readOnly={isReadOnly || lockTela}
             className="w-full h-full"
-            inputClassName={`${CPS_INPUT_CLASS} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+            inputClassName={CPS_INPUT_CLASS}
           />
         ),
     },
@@ -273,7 +273,7 @@ export function buildCadcpsDynamicFields({
           disabled={isReadOnly}
           readOnly={isReadOnly}
           className="w-full h-full"
-          inputClassName={`${CPS_INPUT_CLASS} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+          inputClassName={CPS_INPUT_CLASS}
         />
       ),
     },
@@ -539,7 +539,7 @@ export function buildCadcpsDynamicFields({
           disabled={isReadOnly}
           readOnly={isReadOnly}
           className="w-full h-full"
-          inputClassName={`${CPS_INPUT_CLASS} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
+          inputClassName={CPS_INPUT_CLASS}
         />
       ),
     });
