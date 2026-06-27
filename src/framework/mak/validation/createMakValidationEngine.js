@@ -1,19 +1,9 @@
 /**
- * Validation Engine — delega ao schema Zod declarado no módulo.
+ * Validation Engine — delega à Validation Configuration Engine.
  */
-export function createMakValidationEngine({ schema = null } = {}) {
-  return Object.freeze({
-    schema,
-    parse: (data) => {
-      if (schema && typeof schema.parse === "function") return schema.parse(data);
-      return data;
-    },
-    safeParse: (data) => {
-      if (schema && typeof schema.safeParse === "function") return schema.safeParse(data);
-      return { success: true, data };
-    },
-    hasSchema: () => Boolean(schema),
-  });
-}
+export {
+  createMakValidationConfigEngine,
+  createMakValidationConfigEngine as createMakValidationEngine,
+} from "./createMakValidationConfigEngine.js";
 
-export default createMakValidationEngine;
+export { createMakValidationConfigEngine as default } from "./createMakValidationConfigEngine.js";

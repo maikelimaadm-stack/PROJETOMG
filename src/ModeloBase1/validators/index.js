@@ -1,2 +1,9 @@
-/** Validators — schema por módulo via MakValidationEngine. */
-export { createMakValidationEngine } from "@/framework/mak/validation/index.js";
+/** Validators — Validation Configuration Engine promovida ao ModeloBase1. */
+export {
+  createMakValidationEngine,
+  createMakValidationConfigEngine,
+  buildMakValidationConfigMetadata,
+  runMakFormValidation,
+  registerMakValidationConfigEngine,
+  getMakValidationConfigEngine,
+} from "@/ModeloBase1/validationConfig/index.js";

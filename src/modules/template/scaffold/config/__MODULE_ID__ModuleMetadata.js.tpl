@@ -1,10 +1,12 @@
 import { buildMakTableMetadata } from "@/framework/mak/metadata/buildMakTableMetadata.js";
 import { buildMakFormMetadata } from "@/framework/mak/metadata/buildMakFormMetadata.js";
 import { buildMakPageMetadata } from "@/framework/mak/metadata/buildMakPageMetadata.js";
+import { buildMakDynamicFieldsFromMetadata } from "@/framework/mak/fieldConfig/buildMakDynamicFieldsFromMetadata.js";
 import {
   __KEY_PREFIX_UPPER___COLUNAS_BASE,
   __KEY_PREFIX_UPPER___FORM_BASE_PANELS,
   __KEY_PREFIX_UPPER___FORM_DEFAULT_LAYOUT,
+  __KEY_PREFIX_UPPER___FORM_FIELD_DEFS,
   __KEY_PREFIX_UPPER___NATIVE_FIELDS,
   __KEY_PREFIX_UPPER___REQUIRED_FIELDS,
   __KEY_PREFIX_UPPER___UPPER_FIELDS,
@@ -30,6 +32,10 @@ export const __MODULE_ID__ModuleMetadata = {
     nativeFields: __KEY_PREFIX_UPPER___NATIVE_FIELDS,
     inputClass,
     applyDuplicateFieldClears,
+    fieldDefinitions: __KEY_PREFIX_UPPER___FORM_FIELD_DEFS,
+    buildDynamicFields: buildMakDynamicFieldsFromMetadata(__KEY_PREFIX_UPPER___FORM_FIELD_DEFS),
+    keyPrefix: "__KEY_PREFIX__",
+    moduleId: "__MODULE_ID__",
   }),
   search: {
     titleField: "nome",

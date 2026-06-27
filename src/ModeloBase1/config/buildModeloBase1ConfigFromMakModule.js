@@ -7,6 +7,7 @@ import { buildModeloBase1HelpersFromMakModule } from "./buildModeloBase1HelpersF
 import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
 import { buildMakLayoutConfigMetadata } from "@/framework/mak/layoutConfig/buildMakLayoutConfigMetadata.js";
 import { buildMakFieldConfigMetadata } from "@/framework/mak/fieldConfig/buildMakFieldConfigMetadata.js";
+import { buildMakValidationConfigMetadata } from "@/framework/mak/validation/buildMakValidationConfigMetadata.js";
 import {
   useModeloBase1InfiniteListData,
   useModeloBase1Favorites,
@@ -61,6 +62,13 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     moduleId,
     fieldDefinitions: makModule.metadata?.form?.fieldDefinitions ?? [],
   });
+  const validationEngineMetadata = buildMakValidationConfigMetadata({
+    moduleId,
+    fieldDefinitions: makModule.metadata?.form?.fieldDefinitions ?? [],
+    schema: makModule.schema ?? makModule.definition?.schema ?? null,
+    nativeRequiredFieldNames: makModule.cadastroConfig?.nativeRequiredFieldNames ?? [],
+    validatorProvider: makModule.cadastroConfig?.validatorProvider ?? null,
+  });
 
   const {
     hooks: overrideHooks,
@@ -81,6 +89,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(moduleId),
     layoutEngine: overrides.layoutEngine ?? layoutEngineMetadata,
     fieldEngine: overrides.fieldEngine ?? fieldEngineMetadata,
+    validationEngine: overrides.validationEngine ?? validationEngineMetadata,
     navigation: {
       emptyRecordViewMode: overrides.navigation?.emptyRecordViewMode ?? "browse",
       ...(overrides.navigation ?? {}),
