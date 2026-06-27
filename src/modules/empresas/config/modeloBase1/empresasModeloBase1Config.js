@@ -20,6 +20,7 @@ import {
   empresasPreferencesAdapter,
   empresasCustomFieldsConfig,
 } from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
+import { empresasToolbarComponents } from "@/modules/empresas/config/modeloBase1/empresasToolbarConfig.js";
 
 export const empresasModeloBase1Config = buildModeloBase1ConfigFromMakModule(empresasMakModule, {
   scopeCssClass: buildModeloBase1ScopeCssClass("empresas"),
@@ -29,6 +30,7 @@ export const empresasModeloBase1Config = buildModeloBase1ConfigFromMakModule(emp
   preferencesAdapter: empresasPreferencesAdapter,
   customFields: empresasCustomFieldsConfig,
   moduleDefinition: empresasModuleDefinition,
+  components: empresasToolbarComponents,
   labels: {
     singular: empresasModuleDefinition.singularLabel,
     plural: empresasModuleDefinition.pluralLabel,

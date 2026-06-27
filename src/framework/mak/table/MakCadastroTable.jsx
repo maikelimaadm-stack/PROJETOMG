@@ -194,7 +194,7 @@ export default function MakCadastroTable({
     normalizeLegacyColumnFilter,
     parseDateFilterValue,
     useCustomFieldsHook,
-    LoadBatchControls: EmpLoadBatchControls,
+    LoadBatchControls,
     resolveFieldValue,
     resolveComparableValue,
     defaultSort,
@@ -2378,7 +2378,7 @@ export default function MakCadastroTable({
                   <span className="mg-records-summary__item truncate text-left">Filtrados: {summaryFiltered}</span>
                   <span className="mg-records-summary__item truncate text-left">Totais: {summaryTotal}</span>
                 </div>
-                <EmpLoadBatchControls
+                <LoadBatchControls
                   loadBatchSize={loadBatchSize}
                   onLoadBatchSizeChange={onLoadBatchSizeChange}
                   onLoadMore={onLoadMoreRows}

@@ -27,7 +27,6 @@ const pagemp = read("src/modules/empresas/pages/PAGEMP.jsx");
 const config = read("src/modules/empresas/config/modeloBase1/empresasModeloBase1Config.js");
 const toolbarConfig = read("src/modules/empresas/config/modeloBase1/empresasToolbarConfig.js");
 const panelSections = read("src/ModeloBase1/render/ModeloBase1PanelSections.jsx");
-const pagempSections = read("src/modules/empresas/pages/PAGEMP.sections.jsx");
 const empresasMakModule = read("src/modules/empresas/config/empresasMakModule.js");
 const marcasMakModule = read("src/modules/marcas/config/marcasMakModule.js");
 const produtosMakModule = read("src/modules/produtos/config/produtosMakModule.js");
@@ -106,12 +105,12 @@ const dialogsSingleSource =
   toolbarConfig.includes("ModeloBase1/render/ModeloBase1PanelSections");
 gate("G93 — Dialogs promovidos (fonte única)", dialogsSingleSource);
 
-// G94 — PAGEMP.sections: re-export, não cópia
+// G94 — Panel sections: fonte única ModeloBase1 (PAGEMP.sections removido V15.1)
 const sectionsReexport =
-  pagempSections.includes("@/ModeloBase1/render/ModeloBase1PanelSections") &&
-  !pagempSections.includes("EmpConfiguracaoExportacaoDialog") &&
-  pagempSections.includes("@deprecated");
-gate("G94 — PAGEMP.sections é re-export (não cópia)", sectionsReexport);
+  panelSections.includes("@/framework/mak/page/MakCadastroPage") &&
+  panelSections.includes("EmpresasFormPanel") &&
+  !exists("src/modules/empresas/pages/PAGEMP.sections.jsx");
+gate("G94 — Panel sections fonte única ModeloBase1", sectionsReexport);
 
 // G95 — Hooks promovidos unificados (ModeloBase1) em Empresas via factory
 const factoryFile = read("src/ModeloBase1/config/buildModeloBase1ConfigFromMakModule.js");

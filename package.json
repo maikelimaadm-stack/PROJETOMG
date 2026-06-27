@@ -55,6 +55,7 @@
     "gate:layout-config-engine-v13": "node scripts/gate-layout-config-engine-v13.mjs",
     "gate:field-config-engine-v14": "node scripts/gate-field-config-engine-v14.mjs",
     "gate:business-boundary-v15": "node scripts/gate-business-boundary-v15.mjs",
+    "gate:modelobase1-consolidation-v151": "node scripts/gate-modelobase1-consolidation-v151.mjs",
     "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs && node scripts/gate-generator-modelobase1.mjs",
     "verify:certification": "npm run build && npm run lint && npm run gate:certification",
     "verify:governance": "npm run build && npm run lint && npm run gate:certification && npm run gate:governance",

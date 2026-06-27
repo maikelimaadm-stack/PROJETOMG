@@ -19,9 +19,9 @@ const gate = (name, ok, detail = "") => {
 const read = (filePath) => fs.readFileSync(filePath, "utf8");
 const exists = (filePath) => fs.existsSync(filePath);
 
-const formRuntime = read(path.join(EMP, "runtime/empresasFormRuntime.jsx"));
 const formConstants = read(path.join(EMP, "components/formEmp.constants.js"));
-const moduleMetadata = read(path.join(EMP, "config/empresasModuleMetadata.js"));
+const formRuntimePath = path.join(EMP, "runtime/empresasFormRuntime.jsx");
+const formRuntimeExists = exists(formRuntimePath);
 
 gate(
   "G176 — EMP_FORM_FIELD_DEFS declarativos no domínio",
@@ -37,13 +37,15 @@ gate(
 
 gate(
   "G178 — Empresas metadata usa Foundation builder (não runtime imperativo)",
-  moduleMetadata.includes("buildMakDynamicFieldsWithCustomFields(EMP_FORM_FIELD_DEFS)") &&
-    !moduleMetadata.includes("buildEmpresasDynamicFields")
+  read(path.join(EMP, "config/empresasModuleMetadata.js")).includes(
+    "buildMakDynamicFieldsWithCustomFields(EMP_FORM_FIELD_DEFS)"
+  ) && !read(path.join(EMP, "config/empresasModuleMetadata.js")).includes("buildEmpresasDynamicFields")
 );
 
 gate(
-  "G179 — empresasFormRuntime é wrapper fino (<20 linhas de lógica)",
-  formRuntime.split("\n").length <= 15 && formRuntime.includes("buildMakDynamicFieldsWithCustomFields")
+  "G179 — empresasFormRuntime removido (consolidado V15.1)",
+  !formRuntimeExists,
+  formRuntimeExists ? "arquivo ainda presente" : ""
 );
 
 gate(

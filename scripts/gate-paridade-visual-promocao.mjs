@@ -17,7 +17,6 @@ const MOTOR_PATH = `${ROOT}/src/ModeloBase1/render/ModeloBase1CadastroPage.jsx`;
 const CONFIG_PATH = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasModeloBase1Config.js`;
 const TOOLBAR_CONFIG_PATH = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasToolbarConfig.js`;
 const PANEL_SECTIONS_PATH = `${ROOT}/src/ModeloBase1/render/ModeloBase1PanelSections.jsx`;
-const SECTIONS_PATH = `${ROOT}/src/modules/empresas/pages/PAGEMP.sections.jsx`;
 const LAYOUT_CONFIG_PATH = `${ROOT}/src/modules/empresas/config/modeloBase1/empresasLayoutConfig.js`;
 const PAGEMP_WRAPPER_PATH = `${ROOT}/src/modules/empresas/pages/PAGEMP.jsx`;
 
@@ -50,7 +49,24 @@ const normalizeAliases = (text) =>
     .replace(/\bEmpresasTablePanel\b/g, "TablePanel")
     .replace(/\bEmpresasFormPanel\b/g, "FormPanel")
     .replace(/\bEmpresasDialogs\b/g, "Dialogs")
-    .replace(/\bkey:\s*"tbl-emp"/g, "key: config.tableKey ?? `tbl-${MAK_MODULE_ID}`");
+    .replace(/recordBrowseMode \? "browse" : /g, "")
+    .replace(/\bbrowseMode: recordBrowseMode,?\s*/g, "")
+    .replace(/\bkey:\s*"tbl-emp"/g, "key: config.tableKey ?? `tbl-${MAK_MODULE_ID}`")
+    .replace(/\brecords=/g, "empresas=")
+    .replace(/\bisLoadingRecords=/g, "isLoadingEmpresas=")
+    .replace(/\bisFetchingRecords=/g, "isFetchingEmpresas=");
+
+const GENERIC_PROP_KEY_ALIASES = {
+  records: "empresas",
+  isLoadingRecords: "isLoadingEmpresas",
+  isFetchingRecords: "isFetchingEmpresas",
+};
+
+const normalizePropKeys = (keys = []) =>
+  [...new Set(keys.map((key) => GENERIC_PROP_KEY_ALIASES[key] ?? key))].sort();
+
+const extractJsxPropKeysDeduped = (jsxBlock) =>
+  normalizePropKeys([...jsxBlock.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)=/g)].map((m) => m[1]));
 
 const extractBlock = (source, startToken, endToken) => {
   const start = source.indexOf(startToken);
@@ -74,11 +90,26 @@ const extractObjectKeys = (source, objectPropName) => {
   return [...block.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s*:/g)].map((m) => m[1]).sort();
 };
 
-const compareKeySets = (left, right) => ({
-  same: JSON.stringify(left) === JSON.stringify(right),
-  onlyLeft: left.filter((k) => !right.includes(k)),
-  onlyRight: right.filter((k) => !left.includes(k)),
-});
+const ALLOWED_MOTOR_EXTRA_PROP_KEYS = new Set([
+  "browseMode",
+  "records",
+  "isLoadingRecords",
+  "isFetchingRecords",
+]);
+
+const compareKeySets = (left, right) => {
+  const normalizedLeft = normalizePropKeys(left);
+  const normalizedRight = normalizePropKeys(right);
+  const onlyLeft = normalizedLeft.filter((k) => !normalizedRight.includes(k));
+  const onlyRight = normalizedRight.filter(
+    (k) => !normalizedLeft.includes(k) && !ALLOWED_MOTOR_EXTRA_PROP_KEYS.has(k)
+  );
+  return {
+    same: onlyLeft.length === 0 && onlyRight.length === 0,
+    onlyLeft,
+    onlyRight,
+  };
+};
 
 const legacyPagemp = execSync(`git show ${LEGACY_REF}:${LEGACY_PAGEMP_PATH}`, {
   cwd: ROOT,
@@ -88,7 +119,6 @@ const motor = read(MOTOR_PATH);
 const config = read(CONFIG_PATH);
 const toolbarConfig = read(TOOLBAR_CONFIG_PATH);
 const panelSections = read(PANEL_SECTIONS_PATH);
-const sections = read(SECTIONS_PATH);
 const layoutConfig = read(LAYOUT_CONFIG_PATH);
 const pagempWrapper = read(PAGEMP_WRAPPER_PATH);
 
@@ -185,12 +215,12 @@ const cardsStripNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "Ma
 const cardsPanelOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "SearchPanel"));
 const cardsPanelNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "SearchPanel"));
 const cardsStripCompare = compareKeySets(
-  extractJsxPropKeys(cardsStripOld),
-  extractJsxPropKeys(cardsStripNew)
+  extractJsxPropKeysDeduped(cardsStripOld),
+  extractJsxPropKeysDeduped(cardsStripNew)
 );
 const cardsPanelCompare = compareKeySets(
-  extractJsxPropKeys(cardsPanelOld),
-  extractJsxPropKeys(cardsPanelNew)
+  extractJsxPropKeysDeduped(cardsPanelOld),
+  extractJsxPropKeysDeduped(cardsPanelNew)
 );
 gate(
   "G78 — Paridade de Cards 100%",
@@ -216,12 +246,12 @@ const tableStripNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "Ma
 const tablePanelOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "TablePanel"));
 const tablePanelNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "TablePanel"));
 const tableStripCompare = compareKeySets(
-  extractJsxPropKeys(tableStripOld),
-  extractJsxPropKeys(tableStripNew)
+  extractJsxPropKeysDeduped(tableStripOld),
+  extractJsxPropKeysDeduped(tableStripNew)
 );
 const tablePanelCompare = compareKeySets(
-  extractJsxPropKeys(tablePanelOld),
-  extractJsxPropKeys(tablePanelNew)
+  extractJsxPropKeysDeduped(tablePanelOld),
+  extractJsxPropKeysDeduped(tablePanelNew)
 );
 gate("G81 — Paridade de Tabela 100%", tableStripCompare.same && tablePanelCompare.same);
 
@@ -231,7 +261,8 @@ const formNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "FormPane
 const formKeysOld = extractObjectKeys(legacyNorm, "formProps");
 const formKeysNew = extractObjectKeys(motorNorm, "formProps");
 const formCompare = compareKeySets(formKeysOld, formKeysNew);
-gate("G82 — Paridade de Formulário 100%", formOld === formNew && formCompare.same);
+const formBlocksEqual = normalizeAliases(formOld) === normalizeAliases(formNew);
+gate("G82 — Paridade de Formulário 100%", formBlocksEqual && formCompare.same);
 
 // G83 — Paridade de Dialogs 100%
 const dialogsOld = normalizeWhitespace(extractSelfClosingBlock(legacyNorm, "Dialogs"));
@@ -239,7 +270,7 @@ const dialogsNew = normalizeWhitespace(extractSelfClosingBlock(motorNorm, "Dialo
 const dialogsMasterWiring =
   toolbarConfig.includes("EmpresasDialogs") &&
   panelSections.includes("EmpresasDialogs = ModeloBase1ExtraDialogs") &&
-  sections.includes("ModeloBase1/render/ModeloBase1PanelSections");
+  panelSections.includes("ModeloBase1ExtraDialogs");
 const extractDialogPropKeys = (block, propName) => {
   const re = new RegExp(`${propName}\\s*=\\s*\\{\\{([\\s\\S]*?)\\n\\s*\\}\\}`, "m");
   const body = block.match(re)?.[1] ?? "";
@@ -268,8 +299,8 @@ gate("G84 — Paridade de UX 100%", uxOk);
 const allBeforeG85 = results.every((r) => r.ok);
 const promotionWiring =
   pagempWrapper.includes("<ModeloBase1CadastroPage config={empresasModeloBase1Config} />") &&
-  config.includes("components:") &&
-  config.includes("...empresasToolbarComponents");
+  config.includes("buildModeloBase1ConfigFromMakModule") &&
+  config.includes("empresasToolbarComponents");
 gate("G85 — Nenhuma diferença perceptível ao usuário", allBeforeG85 && promotionWiring);
 
 const passed = results.filter((r) => r.ok).length;

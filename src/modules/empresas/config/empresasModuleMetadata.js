@@ -44,7 +44,7 @@ import {
   normalizeLegacyColumnFilter,
   parseDateFilterValue,
 } from "@/modules/empresas/components/tblEmp.filters";
-import { useEmpCamposPersonalizados } from "@/modules/empresas/hooks/useEmpCamposPersonalizados";
+import { useModeloBase1CustomFields } from "@/ModeloBase1/hooks/useModeloBase1CustomFields.js";
 import { useFormEmpCustomFields } from "@/modules/empresas/components/formEmp.customFields";
 import {
   readStoredFilterOperators,
@@ -152,7 +152,7 @@ export const empresasModuleMetadata = {
       writeStoredFilterOperators,
       writeStoredTempListagemFilters,
     },
-    useCustomFieldsHook: useEmpCamposPersonalizados,
+    useCustomFieldsHook: useModeloBase1CustomFields,
     emitCacheUpdate: emitEmpPreferencesCacheUpdate,
     resolveFieldValue: resolveEmpresasFieldValue,
     resolveComparableValue: resolveEmpresasComparableValue,
@@ -168,7 +168,7 @@ export const empresasModuleMetadata = {
     buildDefaultConfig: buildEmpFormDefaultConfig,
     buildEmptyRecord: buildEmptyEmpresaForm,
     applyDuplicateFieldClears,
-    useRecordFieldsHook: useEmpCamposPersonalizados,
+    useRecordFieldsHook: useModeloBase1CustomFields,
     useCustomFieldsHook: useFormEmpCustomFields,
     buildDynamicFields: buildMakDynamicFieldsWithCustomFields(EMP_FORM_FIELD_DEFS),
     fieldDefinitions: EMP_FORM_FIELD_DEFS,

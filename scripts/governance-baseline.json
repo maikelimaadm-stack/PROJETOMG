@@ -1,31 +1,14 @@
 {
-  "version": "v10.0.0",
+  "version": "v10.1.0",
   "frozenAt": "2026-06-27",
   "legacyModuleExceptions": ["template", "fieldcert"],
   "infrastructureModuleExceptions": ["makBootstrap"],
   "legacyComponentAllowlist": [
-    "src/modules/empresas/components/FORMEMP.jsx",
-    "src/modules/empresas/components/TBLEMP.jsx",
-    "src/modules/empresas/components/SRCHEMP.jsx",
-    "src/modules/empresas/components/MgCardsVirtualGrid.jsx",
-    "src/modules/empresas/components/EmpLoadBatchControls.jsx",
-    "src/modules/empresas/components/EmpConfiguracaoFiltrosDialog.jsx",
     "src/modules/template/components/FORMTemplate.jsx",
     "src/modules/template/components/TBLTemplate.jsx"
   ],
   "legacyHookAllowlist": [
-    "src/modules/empresas/hooks/useEmpViewModePreference.js",
-    "src/modules/empresas/hooks/useEmpSearchDropdownFields.js",
-    "src/modules/empresas/hooks/useEmpFilterFieldsLayout.js",
-    "src/modules/empresas/hooks/useEmpFavorites.js",
-    "src/modules/empresas/hooks/useEmpCardsVisFields.js",
-    "src/modules/empresas/hooks/useEmpCamposPersonalizados.js",
-    "src/modules/empresas/hooks/useEmpresasInfiniteData.js",
-    "src/modules/empresas/hooks/useEmpresaSubmit.js",
-    "src/modules/empresas/hooks/useEmpresaDelete.js",
-    "src/modules/empresas/hooks/useEmpListFilters.js",
-    "src/modules/empresas/hooks/useEmpSearchHandlers.js",
-    "src/modules/empresas/hooks/useEmpresaExport.js"
+    "src/modules/empresas/hooks/useEmpresasInfiniteData.js"
   ],
   "todoFixmeBaseline": {
     "src/ModeloBase1": 0,

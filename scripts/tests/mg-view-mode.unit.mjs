@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import {
   normalizeEmpListViewMode,
   resolveMgViewMode,
-} from "../../src/modules/empresas/layout/mgViewMode.js";
+} from "../../src/framework/mak/layout/mgViewMode.js";
 
 assert.equal(normalizeEmpListViewMode("cards"), "search");
 assert.equal(normalizeEmpListViewMode("tabela"), "table");
