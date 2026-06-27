@@ -34,6 +34,8 @@ export function buildMakTableMetadata({
   defaultSort = null,
   formatHeaderLabel = (col) => String(col?.label || ""),
   getMinWidth = (col) => Math.max(80, String(col?.label || "").length * 7 + 74),
+  resolveFieldValue = null,
+  resolveComparableValue = null,
 }) {
   const preferenceKeys = {
     WIDTHS_KEY: `${keyPrefix}_col_widths`,
@@ -98,5 +100,7 @@ export function buildMakTableMetadata({
     },
     useCustomFieldsHook: () => ({ data: [], isFetched: true }),
     emitCacheUpdate: emitPreferencesCacheUpdate,
+    resolveFieldValue,
+    resolveComparableValue,
   };
 }

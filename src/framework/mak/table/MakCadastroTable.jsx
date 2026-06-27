@@ -194,6 +194,8 @@ export default function MakCadastroTable({
     parseDateFilterValue,
     useCustomFieldsHook,
     LoadBatchControls: EmpLoadBatchControls,
+    resolveFieldValue,
+    resolveComparableValue,
   } = useMakTableModuleConfig();
   const { labels: moduleLabels } = useMakModuleRequired();
   const loadingRecordsLabel = `Carregando ${moduleLabels.plural.toLowerCase()}...`;
@@ -763,6 +765,11 @@ export default function MakCadastroTable({
   );
 
   const getFieldValue = useCallback((emp, colId) => {
+    const col = colunasDisponiveisById.get(colId);
+    if (typeof resolveFieldValue === "function") {
+      const resolved = resolveFieldValue(emp, colId, col);
+      if (resolved !== undefined) return resolved;
+    }
     if (colId === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "-";
     if (colId === "codempresa") return emp.codempresa ?? "-";
     if (colId === "razao_social") return emp.razao_social || "-";
@@ -787,15 +794,18 @@ export default function MakCadastroTable({
     if (colId === "estado") return emp.estado || "-";
     if (colId === "observacoes") return emp.observacoes || "-";
     if (colId === "status") return emp.status || "-";
-    const col = colunasDisponiveisById.get(colId);
     return campoEngine.getValorCampo(emp, col || { id: colId }, {});
-  }, [colunasDisponiveisById]);
+  }, [colunasDisponiveisById, resolveFieldValue]);
 
   const getComparableValue = useCallback((emp, col) => {
+    if (typeof resolveComparableValue === "function") {
+      const resolved = resolveComparableValue(emp, col);
+      if (resolved !== undefined) return resolved;
+    }
     if (col.id === "id_global") return Number(emp.id_global || 0);
     if (col.id === "codempresa") return Number(emp.codempresa || 0);
     return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id);
-  }, [getFieldValue]);
+  }, [getFieldValue, resolveComparableValue]);
 
   const getNormalizedFilterDraft = useCallback(
     (columnId, col) => {

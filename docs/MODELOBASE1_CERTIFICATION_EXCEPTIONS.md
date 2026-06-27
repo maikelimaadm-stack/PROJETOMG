@@ -1,17 +1,5 @@
 # ModeloBase1 — Exceções de Certificação Aprovadas
 
-## cadcps (Campos Personalizados)
-
-**Status:** exceção formal aprovada — migração pendente (V9: **pode ser eliminada**, não bloqueia congelamento).
-
-**Motivo:** módulo legado com motor imperativo próprio (`PAGCPS.jsx`, ~678 LOC) anterior à promoção ModeloBase1.
-
-**Escopo da exceção:** apenas `cadcps`. Demais módulos de cadastro em `config/cadastro-modules.registry.json` devem usar ModeloBase1.
-
-**Critério de remoção da exceção:** `PAGCPS.jsx` reduzido a thin page + `buildModeloBase1ConfigFromMakModule`.
-
----
-
 ## Componentes framework/cadastro com prefixo Emp*
 
 **Status:** exceção técnica **definitiva** (V9 confirmado).
@@ -38,10 +26,18 @@
 
 **Status:** ativa — CI bloqueia regressões arquiteturais.
 
-**Gates:** G109–G125 (`npm run gate:governance`)
+**Gates:** G109–G126 (`npm run gate:governance`)
 
 **Documentação:** `docs/FOUNDATION_GOVERNANCE.md`
 
 **Baseline:** `scripts/governance-baseline.json`
 
 **Regra:** alteração arquitetural = exceção formal neste documento.
+
+---
+
+## cadcps — migração concluída
+
+**Status:** certificado como consumidor ModeloBase1 (sem exceção legada).
+
+**Referência:** `src/modules/cadcps/pages/PAGCPS.jsx` (thin page) + `cadcpsModeloBase1Config.js`.

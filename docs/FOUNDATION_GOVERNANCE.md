@@ -128,7 +128,7 @@ npm run verify:governance
 
 Documentadas em `docs/MODELOBASE1_CERTIFICATION_EXCEPTIONS.md`:
 
-- **cadcps** — legado, migração pendente
+- **cadcps** — certificado ModeloBase1 (consumidor config-only)
 - **Emp* naming** — dívida cosmética definitiva
 - **template** — scaffold/demo, não runtime
 

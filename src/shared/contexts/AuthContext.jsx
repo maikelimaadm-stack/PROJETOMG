@@ -10,6 +10,7 @@ import {
 import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition";
+import { CADCPS_LIST_QUERY_KEY } from "@/modules/cadcps/data/cadcpsListCache.js";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
 import { flushEmpPreferencesNow } from "@/modules/empresas/preferences/empresasPreferencesFlush";
@@ -38,7 +39,7 @@ const prefetchEmpresasCadastro = async (userId, clienteId) => {
     staleTime: Number.POSITIVE_INFINITY,
   });
   void queryClientInstance.prefetchQuery({
-    queryKey: ["cadcps-campos", 1, 50, "", "codigo", "asc"],
+    queryKey: [...CADCPS_LIST_QUERY_KEY, "infinite", 50, "", "codigo", "asc", "{}"],
     queryFn: () =>
       cadcpsModuleDefinition.repository.listPage({
         page: 1,

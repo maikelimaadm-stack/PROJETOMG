@@ -69,6 +69,11 @@ export default function MakCadastroForm({
     nativeFields: NATIVE_FIELDS,
     useRecordFieldsHook,
     useCustomFieldsHook,
+    buildDynamicFields,
+    mapRecordToForm,
+    prepareSubmitPayload,
+    validateFormExtra,
+    useFormResourcesHook,
   } = useMakFormModuleConfig();
 
   const { user } = useAuth();
@@ -106,10 +111,14 @@ export default function MakCadastroForm({
 
   const fieldLayoutConfig = activeLayoutConfig?.fieldLayoutConfig;
 
-  const buildFormData = (data) =>
-    data
+  const buildFormData = (data) => {
+    if (typeof mapRecordToForm === "function") {
+      return data ? mapRecordToForm(data) : buildEmptyEmpresaForm();
+    }
+    return data
       ? { ...buildEmptyEmpresaForm(), ...data, campos_personalizados: data.campos_personalizados || {} }
       : buildEmptyEmpresaForm();
+  };
   const [formData, setFormData] = useState(() => buildFormData(initialData));
   const previousRecordKeyRef = useRef(recordKey);
   const resetSignatureRef = useRef("");
@@ -357,6 +366,14 @@ export default function MakCadastroForm({
     );
   };
 
+  const formResources = useFormResourcesHook({
+    formData,
+    initialData,
+    isEditing,
+    isDuplicating,
+    recordKey,
+  });
+
   const { renderCampoPersonalizado } = useCustomFieldsHook({
     formData,
     isReadOnly,
@@ -366,7 +383,7 @@ export default function MakCadastroForm({
     mgPrototype: hideToolbar,
   });
 
-  const dynamicFields = useMemo(() => [
+  const empresaDynamicFields = useMemo(() => [
     { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "select", required: true, compact: true, errorKey: "tipo_pessoa", render: renderTipoPessoaSelect },
     { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
     {
@@ -436,6 +453,39 @@ export default function MakCadastroForm({
       render: (ctx) => renderCampoPersonalizado(campo, ctx),
     }))
   ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions, renderCampoPersonalizado]);
+
+  const dynamicFields = useMemo(() => {
+    if (typeof buildDynamicFields !== "function") return empresaDynamicFields;
+    return buildDynamicFields({
+      formData,
+      setFormData,
+      handleChange,
+      isReadOnly,
+      inputClass,
+      initialData,
+      isEditing,
+      isDuplicating,
+      errors,
+      hideToolbar,
+      formResources,
+      recordKey,
+    });
+  }, [
+    buildDynamicFields,
+    formData,
+    setFormData,
+    handleChange,
+    isReadOnly,
+    inputClass,
+    initialData,
+    isEditing,
+    isDuplicating,
+    errors,
+    hideToolbar,
+    formResources,
+    recordKey,
+    empresaDynamicFields,
+  ]);
 
   const basePanels = useMemo(
     () => EMP_FORM_BASE_PANELS.map((panel) => ({ ...panel })),
@@ -577,44 +627,65 @@ export default function MakCadastroForm({
     }
     setErrors(nextErrors);
     clearRequiredFieldErrors();
-    if (Object.keys(nextErrors).length === 0) return true;
+    if (Object.keys(nextErrors).length > 0) {
+      const firstErrorKey = Object.keys(nextErrors)[0];
+      const firstErrorField = dynamicFields.find(
+        (field) =>
+          field.errorKey === firstErrorKey ||
+          field.dataField === firstErrorKey ||
+          field.name === firstErrorKey
+      );
+      const targetPanelId = firstErrorField?.id ? panelIdByFieldId[firstErrorField.id] : null;
+      const shouldSwitchPanel = Boolean(targetPanelId && targetPanelId !== activeTab);
+      if (shouldSwitchPanel) {
+        setActiveTab(targetPanelId);
+      }
 
-    const firstErrorKey = Object.keys(nextErrors)[0];
-    const firstErrorField = dynamicFields.find(
-      (field) =>
-        field.errorKey === firstErrorKey ||
-        field.dataField === firstErrorKey ||
-        field.name === firstErrorKey
-    );
-    const targetPanelId = firstErrorField?.id ? panelIdByFieldId[firstErrorField.id] : null;
-    const shouldSwitchPanel = Boolean(targetPanelId && targetPanelId !== activeTab);
-    if (shouldSwitchPanel) {
-      setActiveTab(targetPanelId);
+      const isMobileViewport =
+        typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
+      const report = () =>
+        reportRequiredFieldErrors(nextErrors, {
+          focus: !isMobileViewport,
+          activate: !isMobileViewport,
+        });
+      if (shouldSwitchPanel) {
+        requestAnimationFrame(() => {
+          requestAnimationFrame(report);
+        });
+      } else {
+        report();
+      }
+      return false;
     }
 
-    const isMobileViewport =
-      typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
-    const report = () =>
-      reportRequiredFieldErrors(nextErrors, {
-        focus: !isMobileViewport,
-        activate: !isMobileViewport,
-      });
-    if (shouldSwitchPanel) {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(report);
-      });
-    } else {
-      report();
+    if (typeof validateFormExtra === "function") {
+      const extra = validateFormExtra(formData, { setActiveTab, activeTab, tabs });
+      if (extra?.errors && Object.keys(extra.errors).length > 0) {
+        setErrors((prev) => ({ ...prev, ...extra.errors }));
+        clearRequiredFieldErrors();
+        reportRequiredFieldErrors(extra.errors);
+        if (extra.focusPanelId && extra.focusPanelId !== activeTab) {
+          setActiveTab(extra.focusPanelId);
+        }
+        return false;
+      }
     }
-    return false;
+
+    return true;
   };
 
   const handleSubmit = (event) => {
     if (event?.preventDefault) event.preventDefault();
     if (isReadOnly || actionsLocked) return;
     if (!validateForm()) return;
-    const calculated = campoEngine.aplicarCamposCalculados ? campoEngine.aplicarCamposCalculados(formData, camposPersonalizadosForm) : formData;
-    const { _isDuplicate, ...clean } = { ...formData, campos_personalizados: calculated.campos_personalizados || {} };
+    const calculated = campoEngine.aplicarCamposCalculados
+      ? campoEngine.aplicarCamposCalculados(formData, camposPersonalizadosForm)
+      : formData;
+    let payload = { ...formData, campos_personalizados: calculated.campos_personalizados || {} };
+    if (typeof prepareSubmitPayload === "function") {
+      payload = prepareSubmitPayload(payload);
+    }
+    const { _isDuplicate, ...clean } = payload;
     if (isEditing && !isDuplicating) setEditMode(false);
     onSubmit(clean);
   };

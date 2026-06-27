@@ -46,6 +46,8 @@ export function useMakTableModuleConfig() {
     isSectionDirty: prefs.isSectionDirty.bind(prefs),
     bootstrapAppliedEvent: prefs.bootstrapAppliedEvent,
     markPerf: prefs.markPerf.bind(prefs),
+    resolveFieldValue: table.resolveFieldValue ?? null,
+    resolveComparableValue: table.resolveComparableValue ?? null,
     ...preferenceKeys,
     ...constants,
     ...filterHelpers,
