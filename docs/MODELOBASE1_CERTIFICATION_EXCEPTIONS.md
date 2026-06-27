@@ -41,3 +41,13 @@
 **Status:** certificado como consumidor ModeloBase1 (sem exceção legada).
 
 **Referência:** `src/modules/cadcps/pages/PAGCPS.jsx` (thin page) + `cadcpsModeloBase1Config.js`.
+
+---
+
+## fieldcert — módulo fictício V14 (Field Configuration Engine)
+
+**Status:** exceção formal — certificação metadata-only, sem rota App.
+
+**Motivo:** módulo fictício da Missão Enterprise V14 para demonstrar todos os tipos de campo via metadata (`MAK_FIELD_CERTIFICATION_CATALOG`).
+
+**Referência:** `src/modules/fieldcert/` + `framework/mak/fieldConfig/fieldCertificationCatalog.js`.

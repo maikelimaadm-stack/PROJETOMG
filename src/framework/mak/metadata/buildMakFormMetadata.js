@@ -1,4 +1,5 @@
 import { createMakLaunchPanelStyleStorage } from "@/framework/mak/preferences/createMakLaunchPanelStyleStorage.js";
+import { buildMakDynamicFieldsFromMetadata } from "@/framework/mak/fieldConfig/buildMakDynamicFieldsFromMetadata.js";
 
 /**
  * Constrói metadata declarativa de formulário MAK.
@@ -20,6 +21,7 @@ export function buildMakFormMetadata({
   useFormResourcesHook = null,
   useRecordFieldsHook = null,
   useCustomFieldsHook = null,
+  fieldDefinitions = null,
   storage = null,
   keyPrefix = null,
   moduleId = null,
@@ -42,7 +44,12 @@ export function buildMakFormMetadata({
     inputClass,
     estados: [],
     applyDuplicateFieldClears: applyDuplicateFieldClears ?? ((data) => data),
-    buildDynamicFields,
+    fieldDefinitions: Array.isArray(fieldDefinitions) ? fieldDefinitions : [],
+    buildDynamicFields:
+      buildDynamicFields ??
+      (Array.isArray(fieldDefinitions) && fieldDefinitions.length
+        ? buildMakDynamicFieldsFromMetadata(fieldDefinitions)
+        : null),
     mapRecordToForm,
     prepareSubmitPayload,
     validateFormExtra,

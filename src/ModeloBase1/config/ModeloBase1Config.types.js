@@ -15,6 +15,7 @@
  * @property {object} [export]
  * @property {object} [data]
  * @property {object} [labels]
+ * @property {object} [fieldEngine]
  * @property {object} [navigation]
  * @property {'browse'|'new'} [navigation.emptyRecordViewMode] — sem registro: browse abre shell do formulário (config layout); new abre cadastro em branco
  */
