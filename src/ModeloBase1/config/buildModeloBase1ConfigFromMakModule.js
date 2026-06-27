@@ -6,6 +6,7 @@ import { buildSearchViewFromMakModule } from "./buildSearchViewFromMakModule.js"
 import { buildModeloBase1HelpersFromMakModule } from "./buildModeloBase1HelpersFromMakModule.js";
 import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
 import { buildMakLayoutConfigMetadata } from "@/framework/mak/layoutConfig/buildMakLayoutConfigMetadata.js";
+import { buildMakFieldConfigMetadata } from "@/framework/mak/fieldConfig/buildMakFieldConfigMetadata.js";
 import {
   useModeloBase1InfiniteListData,
   useModeloBase1Favorites,
@@ -61,6 +62,10 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
   const layoutEngineMetadata = makModule.cadastroConfig
     ? buildMakLayoutConfigMetadata(makModule.cadastroConfig)
     : null;
+  const fieldEngineMetadata = buildMakFieldConfigMetadata({
+    moduleId,
+    fieldDefinitions: makModule.metadata?.form?.fieldDefinitions ?? [],
+  });
 
   const {
     hooks: overrideHooks,
@@ -80,6 +85,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     listMode: "infinite",
     scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(moduleId),
     layoutEngine: overrides.layoutEngine ?? layoutEngineMetadata,
+    fieldEngine: overrides.fieldEngine ?? fieldEngineMetadata,
     navigation: {
       emptyRecordViewMode: overrides.navigation?.emptyRecordViewMode ?? "browse",
       ...(overrides.navigation ?? {}),

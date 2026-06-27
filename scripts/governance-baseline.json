@@ -1,7 +1,7 @@
 {
   "version": "v10.0.0",
   "frozenAt": "2026-06-27",
-  "legacyModuleExceptions": ["template"],
+  "legacyModuleExceptions": ["template", "fieldcert"],
   "infrastructureModuleExceptions": ["makBootstrap"],
   "legacyComponentAllowlist": [
     "src/modules/empresas/components/FORMEMP.jsx",
