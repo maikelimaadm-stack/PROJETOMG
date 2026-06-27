@@ -15,12 +15,9 @@ import {
   saveEmpPdfExportConfig,
 } from "@/modules/empresas/config/empPdfExportConfig";
 import { patchEmpresasCache } from "@/modules/empresas/data/empresasListCache";
-import { empresasToolbarComponents } from "@/modules/empresas/config/modeloBase1/empresasToolbarConfig.js";
-import { useEmpresasPreferencesBootstrapState } from "@/modules/empresas/preferences/EmpresasPreferencesBootstrapContext";
 import {
   empresasDataConfig,
   empresasPreferencesAdapter,
-  empresasSearchViewConfig,
   empresasCustomFieldsConfig,
 } from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
 
@@ -30,7 +27,6 @@ export const empresasModeloBase1Config = buildModeloBase1ConfigFromMakModule(emp
   metricsCounterKey: "empresas",
   dropdownQueryKeyPrefix: "emp-cadastro-dropdown",
   preferencesAdapter: empresasPreferencesAdapter,
-  searchView: empresasSearchViewConfig,
   customFields: empresasCustomFieldsConfig,
   moduleDefinition: empresasModuleDefinition,
   labels: {
@@ -40,7 +36,6 @@ export const empresasModeloBase1Config = buildModeloBase1ConfigFromMakModule(emp
     newRecord: "Nova Empresa",
     duplicateRecord: "Duplicar empresa",
   },
-  components: empresasToolbarComponents,
   hooks: {
     useScopeAuth: () => {
       const {
@@ -58,7 +53,6 @@ export const empresasModeloBase1Config = buildModeloBase1ConfigFromMakModule(emp
         replaceInSelector,
       };
     },
-    usePreferencesBootstrap: useEmpresasPreferencesBootstrapState,
   },
   data: {
     ...empresasDataConfig,

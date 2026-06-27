@@ -5,6 +5,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
+import { execSync } from "node:child_process";
 
 const ROOT = process.cwd();
 const BASELINE_PATH = path.join(ROOT, "scripts/governance-baseline.json");
@@ -377,6 +378,18 @@ gate(
   factoryPreservesHooks
 );
 
+// G127–G136 — SSOT ModeloBase1 (delegado gate-ssot-propagation.mjs)
+try {
+  execSync("node scripts/gate-ssot-propagation.mjs", { cwd: ROOT, stdio: "pipe" });
+  gate("G127-G136 — SSOT propagation gates", true);
+} catch (error) {
+  gate(
+    "G127-G136 — SSOT propagation gates",
+    false,
+    error?.stderr?.toString?.()?.trim?.() || "gate-ssot-propagation.mjs falhou"
+  );
+}
+
 const passed = results.filter((r) => r.ok).length;
-console.log(`\nG109-G126: ${passed}/${results.length} aprovados`);
+console.log(`\nG109-G136: ${passed}/${results.length} aprovados`);
 process.exit(passed === results.length ? 0 : 1);

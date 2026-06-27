@@ -1,10 +1,12 @@
 import { buildMakTableMetadata } from "@/framework/mak/metadata/buildMakTableMetadata.js";
 import { buildMakFormMetadata } from "@/framework/mak/metadata/buildMakFormMetadata.js";
 import { buildMakPageMetadata } from "@/framework/mak/metadata/buildMakPageMetadata.js";
+import { buildMakStandardDynamicFields } from "@/framework/mak/metadata/buildMakStandardDynamicFields.jsx";
 import {
   PRO_COLUNAS_BASE,
   PRO_FORM_BASE_PANELS,
   PRO_FORM_DEFAULT_LAYOUT,
+  PRO_FORM_FIELD_DEFS,
   PRO_NATIVE_FIELDS,
   PRO_REQUIRED_FIELDS,
   PRO_UPPER_FIELDS,
@@ -30,6 +32,7 @@ export const produtosModuleMetadata = {
     nativeFields: PRO_NATIVE_FIELDS,
     inputClass,
     applyDuplicateFieldClears,
+    buildDynamicFields: buildMakStandardDynamicFields(PRO_FORM_FIELD_DEFS),
   }),
   search: {
     titleField: "nome",

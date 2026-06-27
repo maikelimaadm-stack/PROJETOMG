@@ -41,6 +41,9 @@ export function buildSearchViewFromMakModule(makModule) {
   const primaryField = searchMeta.primaryField ?? cardFields[0]?.key ?? "nome";
 
   const buildCardCatalog = (customFields = []) => {
+    if (typeof searchMeta.buildCardCatalog === "function") {
+      return searchMeta.buildCardCatalog(customFields);
+    }
     const normalizedCustom = (customFields ?? [])
       .filter((campo) => campo?.ativo !== false)
       .map((campo) => ({
@@ -72,11 +75,14 @@ export function buildSearchViewFromMakModule(makModule) {
     adapter?.writeJson?.(storageKey, payload, { reason });
   };
 
-  const favoritesKey = `${prefix}_search_favorites`;
-  const dropdownVisKey = `${prefix}_search_dropdown_vis`;
-  const cardsVisKey = `${prefix}_search_vis`;
-  const cardsLayoutKey = `${prefix}_cards_layout`;
-  const filterFieldsLayoutKey = `${prefix}_filter_fields_layout`;
+  const storageKeys = searchMeta.storageKeys ?? {};
+  const favoritesKey = storageKeys.favoritesKey ?? `${prefix}_search_favorites`;
+  const dropdownVisKey = storageKeys.dropdownVisKey ?? `${prefix}_search_dropdown_vis`;
+  const cardsVisKey = storageKeys.cardsVisKey ?? `${prefix}_search_vis`;
+  const cardsLayoutKey = storageKeys.cardsLayoutKey ?? `${prefix}_cards_layout`;
+  const filterFieldsLayoutKey =
+    storageKeys.filterFieldsLayoutKey ?? `${prefix}_filter_fields_layout`;
+  const viewModeKey = storageKeys.viewModeKey ?? `${prefix}_view_mode`;
   const filterFieldsUpdatedEvent = `${moduleId}-filter-fields-layout-updated`;
   const filterFieldsStorage = createFilterFieldsLayoutStorage({
     adapter,
@@ -87,54 +93,75 @@ export function buildSearchViewFromMakModule(makModule) {
   return {
     favoritesKey,
     favoritesUpdatedEvent: `${moduleId}-favorites-updated`,
-    viewModeKey: `${prefix}_view_mode`,
+    viewModeKey,
     viewModeUpdatedEvent: `${moduleId}-view-mode-updated`,
     dropdownVisKey,
     cardsVisKey,
     cardsLayoutKey,
-    cardsLayoutDefault: MAK_CARDS_LAYOUT_DEFAULT,
     filterFieldsLayoutKey,
     filterFieldsLayoutUpdatedEvent: filterFieldsUpdatedEvent,
     defaultFields: cardFields,
     buildCardCatalog,
-    mergeSearchVisFields,
-    loadSearchDropdownVisFields: (catalog) => loadJsonFields(dropdownVisKey, catalog),
-    saveSearchDropdownVisFields: (fields) =>
-      saveJsonFields(dropdownVisKey, fields, "listagem:dropdown-fields"),
-    loadSearchVisFields: (catalog) => loadJsonFields(cardsVisKey, catalog),
-    saveSearchVisFields: (fields) => saveJsonFields(cardsVisKey, fields, "listagem:cards-fields"),
-    loadCardsLayoutConfig: () => {
-      const parsed = adapter?.readJson?.(cardsLayoutKey, null);
-      if (!parsed || typeof parsed !== "object") return { ...MAK_CARDS_LAYOUT_DEFAULT };
-      return { cardsPerRow: normalizeCardsPerRow(parsed?.cardsPerRow) };
-    },
-    saveCardsLayoutConfig: (layout) => {
-      adapter?.writeJson?.(
-        cardsLayoutKey,
-        { cardsPerRow: normalizeCardsPerRow(layout?.cardsPerRow) },
-        { reason: "listagem:cards-layout" }
-      );
-    },
+    mergeSearchVisFields: searchMeta.mergeSearchVisFields ?? mergeSearchVisFields,
+    loadSearchDropdownVisFields:
+      searchMeta.loadSearchDropdownVisFields ??
+      ((catalog) => loadJsonFields(dropdownVisKey, catalog)),
+    saveSearchDropdownVisFields:
+      searchMeta.saveSearchDropdownVisFields ??
+      ((fields) => saveJsonFields(dropdownVisKey, fields, "listagem:dropdown-fields")),
+    loadSearchVisFields:
+      searchMeta.loadSearchVisFields ?? ((catalog) => loadJsonFields(cardsVisKey, catalog)),
+    saveSearchVisFields:
+      searchMeta.saveSearchVisFields ??
+      ((fields) => saveJsonFields(cardsVisKey, fields, "listagem:cards-fields")),
+    loadCardsLayoutConfig:
+      searchMeta.loadCardsLayoutConfig ??
+      (() => {
+        const parsed = adapter?.readJson?.(cardsLayoutKey, null);
+        if (!parsed || typeof parsed !== "object") return { ...MAK_CARDS_LAYOUT_DEFAULT };
+        return { cardsPerRow: normalizeCardsPerRow(parsed?.cardsPerRow) };
+      }),
+    saveCardsLayoutConfig:
+      searchMeta.saveCardsLayoutConfig ??
+      ((layout) => {
+        adapter?.writeJson?.(
+          cardsLayoutKey,
+          { cardsPerRow: normalizeCardsPerRow(layout?.cardsPerRow) },
+          { reason: "listagem:cards-layout" }
+        );
+      }),
     normalizeCardsPerRow,
-    getFieldsPerRowForLayout,
-    sortCardFieldsAlphabetically,
-    sortCardConfigFieldsByOrder: (fields) => fields,
-    loadCardFieldOrder: () => [],
-    buildSearchDropdownDetailFields: (catalog, visFields) =>
-      mergeSearchVisFields(catalog, visFields).filter(
-        (field) => field.visible && field.key !== primaryField
-      ),
-    getDefaultCardVisFields,
-    loadFilterFieldsLayout: filterFieldsStorage.loadFilterFieldsLayout,
-    saveFilterFieldsLayout: filterFieldsStorage.saveFilterFieldsLayout,
-    applyFilterFieldsLayout,
-    getDefaultFilterFieldsLayout,
-    mergeSavedVisibleFilterFields,
-    mergeSavedFilterFieldOrder,
-    loadSearchFavorites: () => loadSearchFavoritesFromAdapter(adapter, favoritesKey),
-    saveSearchFavorites: (favorites) =>
-      saveSearchFavoritesToAdapter(adapter, favoritesKey, favorites),
-    formatSearchFieldValue: defaultGetSearchFieldValue,
+    getFieldsPerRowForLayout: searchMeta.getFieldsPerRowForLayout ?? getFieldsPerRowForLayout,
+    sortCardFieldsAlphabetically:
+      searchMeta.sortCardFieldsAlphabetically ?? sortCardFieldsAlphabetically,
+    sortCardConfigFieldsByOrder: searchMeta.sortCardConfigFieldsByOrder ?? ((fields) => fields),
+    loadCardFieldOrder: searchMeta.loadCardFieldOrder ?? (() => []),
+    buildSearchDropdownDetailFields:
+      searchMeta.buildSearchDropdownDetailFields ??
+      ((catalog, visFields) =>
+        (searchMeta.mergeSearchVisFields ?? mergeSearchVisFields)(catalog, visFields).filter(
+          (field) => field.visible && field.key !== primaryField
+        )),
+    getDefaultCardVisFields: searchMeta.getDefaultCardVisFields ?? getDefaultCardVisFields,
+    loadFilterFieldsLayout:
+      searchMeta.loadFilterFieldsLayout ?? filterFieldsStorage.loadFilterFieldsLayout,
+    saveFilterFieldsLayout:
+      searchMeta.saveFilterFieldsLayout ?? filterFieldsStorage.saveFilterFieldsLayout,
+    applyFilterFieldsLayout: searchMeta.applyFilterFieldsLayout ?? applyFilterFieldsLayout,
+    getDefaultFilterFieldsLayout:
+      searchMeta.getDefaultFilterFieldsLayout ?? getDefaultFilterFieldsLayout,
+    mergeSavedVisibleFilterFields:
+      searchMeta.mergeSavedVisibleFilterFields ?? mergeSavedVisibleFilterFields,
+    mergeSavedFilterFieldOrder:
+      searchMeta.mergeSavedFilterFieldOrder ?? mergeSavedFilterFieldOrder,
+    loadSearchFavorites:
+      searchMeta.loadSearchFavorites ??
+      (() => loadSearchFavoritesFromAdapter(adapter, favoritesKey)),
+    saveSearchFavorites:
+      searchMeta.saveSearchFavorites ??
+      ((favorites) => saveSearchFavoritesToAdapter(adapter, favoritesKey, favorites)),
+    formatSearchFieldValue: searchMeta.getFieldValue ?? defaultGetSearchFieldValue,
+    cardsLayoutDefault: searchMeta.cardsLayoutDefault ?? MAK_CARDS_LAYOUT_DEFAULT,
   };
 }
 

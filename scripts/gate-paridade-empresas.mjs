@@ -57,7 +57,12 @@ gate(
 );
 
 // G67-G68 — Listagem infinita / tabela
-gate("G67 — searchView empresas configurado", config.includes("searchView: empresasSearchViewConfig") || config.includes("empresasSearchViewConfig"));
+gate(
+  "G67 — searchView empresas via factory genérico",
+  (config.includes("buildModeloBase1ConfigFromMakModule") &&
+    !config.includes("searchView:")) ||
+    config.includes("buildSearchViewFromMakModule")
+);
 gate("G68 — tableProps isLoadingRecords", motor.includes("isLoadingRecords: recordsLoading"));
 
 // G69-G72 — Sem regressão de componente genérico quebrado

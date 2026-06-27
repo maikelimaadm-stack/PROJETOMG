@@ -123,7 +123,8 @@ const hooksPromoted =
     factoryFile.includes("useModeloBase1InfiniteListData")) &&
   (config.includes("useModeloBase1ViewModePreference") ||
     factoryFile.includes("useModeloBase1ViewModePreference")) &&
-  (config.includes("empresasSearchViewConfig") || config.includes("searchView: empresasSearchViewConfig"));
+  config.includes("buildModeloBase1ConfigFromMakModule") &&
+  !config.includes("searchView:");
 gate("G95 — Hooks promovidos unificados (ModeloBase1)", hooksPromoted);
 
 // G96 — Motor único infinite (ModeloBase1ServerCadastroPage eliminado)

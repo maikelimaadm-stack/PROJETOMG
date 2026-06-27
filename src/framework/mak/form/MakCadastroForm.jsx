@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/shared/ui/input";
 import { useMakFormModuleConfig } from "@/framework/mak/form/useMakFormModuleConfig";
+import { useMakModuleRequired } from "@/framework/mak/runtime/MakModuleContext.jsx";
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import { useCadastroForm } from "@/framework/cadastro-engine/hooks/useCadastroForm.js";
 import { getLayoutStorageKeysForModule } from "@/framework/cadastro-engine/core/CadastroModuleConfig.js";
@@ -54,7 +55,8 @@ export default function MakCadastroForm({
 }) {
   const {
     repository: empRepository,
-    cadastroConfig: empresasCadastroConfig,
+    cadastroConfig,
+    moduleId,
     readJson: readEmpPreferencesJson,
     readStoredLaunchPanelStyle,
     writeStoredLaunchPanelStyle,
@@ -75,6 +77,12 @@ export default function MakCadastroForm({
     validateFormExtra,
     useFormResourcesHook,
   } = useMakFormModuleConfig();
+  const { labels: moduleLabels, metadata: moduleMetadata } = useMakModuleRequired();
+  const searchMeta = moduleMetadata?.search ?? {};
+  const recordCodeField = searchMeta.codeField ?? searchMeta.primaryField ?? "codigo";
+  const recordTitleField = searchMeta.titleField ?? "nome";
+  const newRecordLabel = `Nova ${moduleLabels.singular}`;
+  const duplicateRecordLabel = `Duplicar ${String(moduleLabels.singular || "registro").toLowerCase()}`;
 
   const { user } = useAuth();
   const isDuplicating = !!initialData?._isDuplicate;
@@ -104,7 +112,7 @@ export default function MakCadastroForm({
     applyLayoutConfig: applyLayoutConfigFromEngine,
     layoutPersistedRef,
     knownLayoutFieldIds,
-  } = useCadastroForm(empresasCadastroConfig, {
+  } = useCadastroForm(cadastroConfig, {
     userId: user?.id,
     nativeFieldIds: nativeLayoutFieldIdsSet,
   });
@@ -128,7 +136,7 @@ export default function MakCadastroForm({
       recordKey ?? "",
       resetSeed,
       initialData?.id ?? "",
-      initialData?.codempresa ?? "",
+      initialData?.[recordCodeField] ?? "",
       initialData?.id_global ?? "",
       initialData?._isPersisting ? "persisting" : "",
       initialData?.updatedAt ?? "",
@@ -141,7 +149,7 @@ export default function MakCadastroForm({
     let next = buildFormData(initialData);
     if (initialData?._isDuplicate) {
       const layoutKey = user?.id
-        ? getLayoutStorageKeysForModule(empresasCadastroConfig, user.id).layoutKey
+        ? getLayoutStorageKeysForModule(cadastroConfig, user.id).layoutKey
         : null;
       let clearIds = formLayoutConfig?.clearOnDuplicateFieldIds || [];
       if (!clearIds.length && layoutKey) {
@@ -169,7 +177,7 @@ export default function MakCadastroForm({
     recordKey,
     resetSeed,
     initialData?.id,
-    initialData?.codempresa,
+    initialData?.[recordCodeField],
     initialData?.id_global,
     initialData?._isPersisting,
     initialData?.updatedAt,
@@ -198,7 +206,7 @@ export default function MakCadastroForm({
   );
 
   const { data: relatedOptions = {} } = useQuery({
-    queryKey: ["emp-form-related-options", relatedSources.map((source) => `${source.entity}:${source.labelField}:${source.valueField}`).join("|")],
+    queryKey: [`${moduleId}-form-related-options`, relatedSources.map((source) => `${source.entity}:${source.labelField}:${source.valueField}`).join("|")],
     queryFn: () => empRepository.listOptionsSources(relatedSources),
     enabled: relatedSources.length > 0,
     initialData: {},
@@ -248,124 +256,6 @@ export default function MakCadastroForm({
     }
   };
 
-  const opcoesEstado = useMemo(() => ESTADOS_BR.map((item) => ({ id: item, nome: item })), []);
-
-  const opcoesTipoPessoa = useMemo(
-    () => [
-      { id: "PJ", nome: "PESSOA JURÍDICA (PJ)" },
-      { id: "PF", nome: "PESSOA FÍSICA (PF)" },
-    ],
-    []
-  );
-
-  const opcoesTipoVinculo = useMemo(
-    () => [
-      { id: "proprietario", nome: "PROPRIETÁRIO" },
-      { id: "arrendatario", nome: "ARRENDATÁRIO" },
-    ],
-    []
-  );
-
-  const renderTipoPessoaSelect = () => {
-    if (hideToolbar) {
-      return (
-        <MakCmdSelect
-          label="Tipo de Pessoa"
-          required
-          value={formData.tipo_pessoa || "PJ"}
-          options={opcoesTipoPessoa.map((item) => ({
-            value: item.id,
-            label: item.id === "PJ" ? "Pessoa Jurídica" : item.id === "PF" ? "Pessoa Física" : item.nome,
-          }))}
-          onChange={(next) => handleChange("tipo_pessoa", next || "PJ")}
-          disabled={isReadOnly}
-        />
-      );
-    }
-    return (
-      <EmpAutocomplete
-        variant="select"
-        items={opcoesTipoPessoa}
-        value={formData.tipo_pessoa || "PJ"}
-        onChange={(next) => handleChange("tipo_pessoa", next || "PJ")}
-        placeholder="SELECIONE"
-        displayField="nome"
-        searchFields={["nome"]}
-        disabled={isReadOnly}
-        readOnly={isReadOnly}
-        className="w-full min-w-0"
-        inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
-      />
-    );
-  };
-
-  const renderTipoVinculoSelect = () => {
-    if (hideToolbar) {
-      return (
-        <MakCmdSelect
-          label="Proprietário/Arrendatário"
-          value={formData.tipo_vinculo || ""}
-          options={opcoesTipoVinculo.map((item) => ({
-            value: item.id,
-            label: item.id === "proprietario" ? "Proprietário" : item.id === "arrendatario" ? "Arrendatário" : item.nome,
-          }))}
-          onChange={(next) => handleChange("tipo_vinculo", next || "")}
-          disabled={isReadOnly}
-        />
-      );
-    }
-    return (
-      <EmpAutocomplete
-        variant="select"
-        items={opcoesTipoVinculo}
-        value={formData.tipo_vinculo || ""}
-        onChange={(next) => handleChange("tipo_vinculo", next || "")}
-        placeholder="SELECIONE"
-        displayField="nome"
-        searchFields={["nome"]}
-        disabled={isReadOnly}
-        readOnly={isReadOnly}
-        className="w-full min-w-0"
-        inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
-      />
-    );
-  };
-
-  const renderStatusSelect = () => {
-    if (hideToolbar) {
-      return (
-        <MakCmdSelect
-          label="Ativa"
-          value={formData.status || "Ativa"}
-          options={[
-            { value: "Ativa", label: "Ativa" },
-            { value: "Inativa", label: "Inativa" },
-          ]}
-          onChange={(next) => handleChange("status", next || "Ativa")}
-          disabled={isReadOnly}
-        />
-      );
-    }
-    return (
-      <EmpAutocomplete
-        variant="select"
-        items={[
-          { id: "Ativa", nome: "ATIVA" },
-          { id: "Inativa", nome: "INATIVA" },
-        ]}
-        value={formData.status || "Ativa"}
-        onChange={(next) => handleChange("status", next || "Ativa")}
-        placeholder="SELECIONE"
-        displayField="nome"
-        searchFields={["nome"]}
-        disabled={isReadOnly}
-        readOnly={isReadOnly}
-        className="w-full min-w-0"
-        inputClassName={`${inputClass} border-0 shadow-none focus-visible:ring-0 bg-white uppercase`}
-      />
-    );
-  };
-
   const formResources = useFormResourcesHook({
     formData,
     initialData,
@@ -383,79 +273,11 @@ export default function MakCadastroForm({
     mgPrototype: hideToolbar,
   });
 
-  const empresaDynamicFields = useMemo(() => [
-    { id: "tipo_pessoa", name: "tipo_pessoa", label: "Tipo de Pessoa", type: "select", required: true, compact: true, errorKey: "tipo_pessoa", render: renderTipoPessoaSelect },
-    { id: "tipo_vinculo", name: "tipo_vinculo", label: "Proprietário/Arrendatário", type: "select", compact: true, render: renderTipoVinculoSelect },
-    {
-      id: "codempresa",
-      name: "codempresa",
-      label: "Cód. Empresa",
-      type: "text",
-      widthType: "CODIGO",
-      compact: true,
-      readOnly: true,
-      render: () =>
-        hideToolbar ? (
-          <input
-            type="text"
-            value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
-            readOnly
-            placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
-          />
-        ) : (
-          <Input
-            value={formData._isPersisting ? "Gerando..." : formData.codempresa || ""}
-            readOnly
-            className={inputClass}
-            placeholder={formData._isPersisting ? "Gerando..." : "AUTO"}
-          />
-        ),
-    },
-    { id: "razao_social", name: "razao_social", label: "Nome/Razão Social Emp.", type: "text", required: true, errorKey: "razao_social", wide: true, uppercase: true, placeholder: "NOME/RAZÃO SOCIAL" },
-    { id: "status", name: "status", label: "Ativa", type: "select", widthType: "SIM_NAO", compact: true, render: renderStatusSelect },
-    { id: "nome_fantasia", name: "nome_fantasia", label: "Nome fantasia", type: "text", medium: true, uppercase: true, placeholder: "NOME FANTASIA" },
-    { id: "cpf_cnpj", name: "cpf_cnpj", label: formData.tipo_pessoa === "PF" ? "CPF" : "CNPJ", type: "cpf_cnpj", compact: true, placeholder: formData.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00" },
-    { id: "inscricao_estadual", name: "inscricao_estadual", label: "Inscrição Estadual", type: "text", placeholder: "INSCRIÇÃO ESTADUAL" },
-    { id: "telefone", name: "telefone", label: "Telefone", type: "tel", compact: true, placeholder: "(00) 0000-0000" },
-    { id: "whatsapp", name: "whatsapp", label: "WhatsApp", type: "tel", compact: true, placeholder: "(00) 00000-0000" },
-    { id: "email", name: "email", label: "E-mail", type: "email", placeholder: "EMAIL@EMPRESA.COM.BR" },
-    { id: "logo_url", name: "logo_url", label: "Logo da Empresa", type: "image", compact: true, render: () => <EmpFormImageField value={formData.logo_url} readOnly={isReadOnly} uploading={uploadingLogo} onUpload={handleLogoUpload} onClear={() => handleChange("logo_url", "")} alt="Logo da empresa" /> },
-    { id: "cep", name: "cep", label: "CEP", type: "cep", compact: true, placeholder: "00000-000" },
-    { id: "endereco", name: "endereco", label: "Endereço", type: "text", medium: true, uppercase: true, placeholder: "RUA, AVENIDA..." },
-    { id: "numero", name: "numero", label: "Número", type: "text", widthType: "NUMERO", compact: true, placeholder: "Nº" },
-    { id: "bairro", name: "bairro", label: "Bairro", type: "text", uppercase: true, placeholder: "BAIRRO" },
-    { id: "cidade", name: "cidade", label: "Cidade", type: "text", uppercase: true, placeholder: "CIDADE" },
-    { id: "estado", name: "estado", label: "Estado (UF)", type: "autocomplete", widthType: "UF", compact: true, options: opcoesEstado, placeholder: "UF", displayField: "nome", searchFields: ["nome"] },
-    { id: "observacoes", name: "observacoes", label: "Observações", type: "textarea", wide: true, uppercase: true, placeholder: "OBSERVAÇÕES GERAIS..." },
-    ...camposPersonalizadosForm.map((campo) => ({
-      id: `custom:${campo.field_name}`,
-      name: campo.field_name,
-      label: campo.label,
-      type: campo.tipo,
-      origem: "customizado",
-      dataField: `campos_personalizados.${campo.field_name}`,
-      getValue: (values) => values.campos_personalizados?.[campo.field_name] ?? "",
-      optionsMode: ["select", "option_list"].includes(campo.tipo) && !(campo.options_source_entity || campo.relation_entity) ? "manual" : "",
-      required: campo.obrigatorio,
-      errorKey: `campos_personalizados.${campo.field_name}`,
-      wide: campo.tipo === "textarea",
-      medium: ["datetime", "datetime-local", "data_hora", "datahora"].includes(campo.tipo),
-      compact: (["number", "date", "data", "time", "calculado"].includes(campo.tipo) && !campo.usar_mascara) || ["imagem", "image", "file"].includes(campo.tipo),
-      totalizable: ["number", "calculado"].includes(campo.tipo) && !campo.usar_mascara,
-      options: ["select", "option_list"].includes(campo.tipo)
-        ? campoEngine.getOptionsCampo(campo, relatedOptions).map((option) => ({
-            id: String(option.value || option.label || ""),
-            nome: String(option.label || option.value || "").toUpperCase(),
-          }))
-        : [],
-      displayField: "nome",
-      searchFields: ["nome"],
-      render: (ctx) => renderCampoPersonalizado(campo, ctx),
-    }))
-  ], [formData, isReadOnly, opcoesEstado, uploadingLogo, camposPersonalizadosForm, relatedOptions, renderCampoPersonalizado]);
-
   const dynamicFields = useMemo(() => {
-    if (typeof buildDynamicFields !== "function") return empresaDynamicFields;
+    if (typeof buildDynamicFields !== "function") {
+      console.error(`[MakCadastroForm] buildDynamicFields ausente para módulo ${moduleId}`);
+      return [];
+    }
     return buildDynamicFields({
       formData,
       setFormData,
@@ -469,9 +291,17 @@ export default function MakCadastroForm({
       hideToolbar,
       formResources,
       recordKey,
+      camposPersonalizadosForm,
+      renderCampoPersonalizado,
+      relatedOptions,
+      uploadingLogo,
+      handleLogoUpload,
+      handleCustomChange,
+      estados: ESTADOS_BR,
     });
   }, [
     buildDynamicFields,
+    moduleId,
     formData,
     setFormData,
     handleChange,
@@ -484,7 +314,13 @@ export default function MakCadastroForm({
     hideToolbar,
     formResources,
     recordKey,
-    empresaDynamicFields,
+    camposPersonalizadosForm,
+    renderCampoPersonalizado,
+    relatedOptions,
+    uploadingLogo,
+    handleLogoUpload,
+    handleCustomChange,
+    ESTADOS_BR,
   ]);
 
   const basePanels = useMemo(
@@ -859,21 +695,20 @@ export default function MakCadastroForm({
     if (layoutConfigOpen) return null;
 
     const codigo =
-      formData.codempresa != null && String(formData.codempresa).trim() !== ""
-        ? formData.codempresa
+      formData[recordCodeField] != null && String(formData[recordCodeField]).trim() !== ""
+        ? formData[recordCodeField]
         : null;
-    const nome = String(formData.razao_social || formData.nome_empresa || "").trim() || null;
+    const nome = String(formData[recordTitleField] || "").trim() || null;
 
-    if (!isEditing) return { codigo: null, nome: "Nova Empresa" };
+    if (!isEditing) return { codigo: null, nome: newRecordLabel };
     if (isDuplicating && nome) return { codigo: null, nome };
-    if (isDuplicating) return { codigo: null, nome: "Duplicar empresa" };
+    if (isDuplicating) return { codigo: null, nome: duplicateRecordLabel };
     if (codigo && nome) return { codigo, nome };
     if (nome) return { codigo, nome };
     return null;
   }, [
-    formData.codempresa,
-    formData.nome_empresa,
-    formData.razao_social,
+    formData[recordCodeField],
+    formData[recordTitleField],
     isDuplicating,
     isEditing,
     layoutConfigOpen,
@@ -1029,7 +864,7 @@ export default function MakCadastroForm({
               tabs={tabs}
               activeTab={activeTab}
               onChange={setActiveTab}
-              systemPanelIds={empresasCadastroConfig.systemPanelIds}
+              systemPanelIds={cadastroConfig.systemPanelIds}
               trailing={
                 <FormValidationStatus
                   visible={showRequiredCounter}
@@ -1049,7 +884,7 @@ export default function MakCadastroForm({
                   tabs={tabs}
                   activeTab={activeTab}
                   onChange={setActiveTab}
-                  systemPanelIds={empresasCadastroConfig.systemPanelIds}
+                  systemPanelIds={cadastroConfig.systemPanelIds}
                   variant="mg-sidebar"
                   leading={panelStyleToggle}
                 />
@@ -1173,7 +1008,7 @@ export default function MakCadastroForm({
                   tabs={tabs}
                   activeTab={activeTab}
                   onChange={setActiveTab}
-                  systemPanelIds={empresasCadastroConfig.systemPanelIds}
+                  systemPanelIds={cadastroConfig.systemPanelIds}
                   variant="mg"
                   leading={launchPanelStyleToggle}
                 />

@@ -36,6 +36,7 @@ export function useMakTableModuleConfig() {
     useCustomFieldsHook,
     LoadBatchControls,
     defaultSort: table.defaultSort ?? { key: "id", direction: "asc" },
+    legacyCleanupKeys: table.legacyCleanupKeys ?? [],
     emitCacheUpdate: table.emitCacheUpdate ?? (() => {}),
     readJson: prefs.readJson.bind(prefs),
     readText: prefs.readText.bind(prefs),

@@ -48,6 +48,7 @@ import MakTableSelectCheck from "@/framework/mak/table/MakTableSelectCheck";
 import MakDock from "@/framework/mak/dock/MakDock";
 import { buildMakColumnFilters, mergeMakListFilters } from "@/framework/mak/filters";
 import { stableJsonEqual, stableStringify } from "@/shared/utils/stableStringify";
+import { dispatchModuleEvent, subscribeModuleEvent } from "@/framework/mak/events/makModuleEvents.js";
 
 const SELECT_COLUMN_WIDTH = 36;
 const FILTER_OPTIONS_PAGE_SIZE = 100;
@@ -196,8 +197,15 @@ export default function MakCadastroTable({
     LoadBatchControls: EmpLoadBatchControls,
     resolveFieldValue,
     resolveComparableValue,
+    defaultSort,
+    legacyCleanupKeys,
   } = useMakTableModuleConfig();
-  const { labels: moduleLabels } = useMakModuleRequired();
+  const { labels: moduleLabels, metadata: moduleMetadata } = useMakModuleRequired();
+  const searchMeta = moduleMetadata?.search ?? {};
+  const recordTitleField = searchMeta.titleField ?? "nome";
+  const recordCodeField = searchMeta.codeField ?? searchMeta.primaryField ?? "codigo";
+  const defaultSortKey = defaultSort?.key ?? "id";
+  const defaultSortDirection = defaultSort?.direction === "desc" ? "desc" : "asc";
   const loadingRecordsLabel = `Carregando ${moduleLabels.plural.toLowerCase()}...`;
   const emptyRecordsTitle = `Nenhuma ${moduleLabels.singular.toLowerCase()} encontrada`;
 
@@ -221,7 +229,7 @@ export default function MakCadastroTable({
   }, []);
   const defaultSortConfig = initialTableSnapshot.sortConfig?.length
     ? initialTableSnapshot.sortConfig
-    : [{ key: "codempresa", direction: "asc" }];
+    : [{ key: defaultSort?.key ?? "codigo", direction: defaultSort?.direction ?? "asc" }];
   const [sortConfig, setSortConfig] = useState(defaultSortConfig);
   const [filtrosColunas, setFiltrosColunas] = useState(() => initialTableSnapshot.filtrosColunas || {});
   const lastExternalFiltersSigRef = useRef(null);
@@ -393,9 +401,12 @@ export default function MakCadastroTable({
         });
         lastServerFiltersSigRef.current = stableStringify(snapshot.filtrosColunas || {});
       }
-      const primarySort = snapshot.sortConfig?.[0] || { key: "codempresa", direction: "asc" };
+      const primarySort = snapshot.sortConfig?.[0] || {
+        key: defaultSortKey,
+        direction: defaultSortDirection,
+      };
       lastServerSortSigRef.current = stableStringify({
-        key: primarySort.key || "codempresa",
+        key: primarySort.key || defaultSortKey,
         direction: primarySort.direction === "desc" ? "desc" : "asc",
       });
       setLayoutAggregationConfig((current) => {
@@ -621,12 +632,12 @@ export default function MakCadastroTable({
       setLayoutAggregationConfig(readEmpPreferencesJson(AGGR_KEY, {}));
     };
     window.addEventListener("storage", refresh);
-    window.addEventListener("emp-layout-updated", refresh);
+    const unsubscribe = subscribeModuleEvent(moduleId, "column-layout-updated", refresh);
     return () => {
       window.removeEventListener("storage", refresh);
-      window.removeEventListener("emp-layout-updated", refresh);
+      unsubscribe();
     };
-  }, []);
+  }, [moduleId]);
 
   useEffect(() => { const onMove = (e) => { if (!dragRef.current) return; if (e.cancelable) e.preventDefault(); const cx = e.touches?.[0]?.clientX ?? e.clientX; const { columnId, startX, startWidth, minWidth } = dragRef.current; setColumnWidths((p) => ({ ...p, [columnId]: Math.round(Math.max(minWidth || MIN_COL_WIDTH, startWidth + (cx - startX))) })); }; const onUp = () => { if (!dragRef.current) return; dragRef.current = null; setResizeColumnId(null); document.body.style.cursor = ""; document.body.style.userSelect = ""; emitEmpPreferencesCacheUpdate([WIDTHS_KEY], "listagem:table-widths"); }; window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp); window.addEventListener("touchmove", onMove, { passive: false }); window.addEventListener("touchend", onUp); return () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onUp); }; }, []);
 
@@ -666,9 +677,10 @@ export default function MakCadastroTable({
   useEffect(() => { if (!selectedRecordId || selectedIds !== undefined) return; setSelectedItems((p) => p.length === 1 && p[0] === selectedRecordId ? p : [selectedRecordId]); lastSelectedIdRef.current = selectedRecordId; }, [selectedRecordId, selectedIds]);
 
   useEffect(() => {
-    removeEmpPreferencesKey("emp_col_pinned_right", { reason: "legacy:cleanup" });
-    removeEmpPreferencesKey("emp_group_by_columns_v1", { reason: "legacy:cleanup" });
-  }, []);
+    legacyCleanupKeys.forEach((key) =>
+      removeEmpPreferencesKey(key, { reason: "legacy:cleanup" })
+    );
+  }, [legacyCleanupKeys, removeEmpPreferencesKey]);
 
   const handleColumnLayoutChange = ({ visiveis, ordem, frozenColumnCount: nextFrozenCount = 0 }) => {
     markEmpPreferencesPerf("PREF_USER_ACTION", {
@@ -698,7 +710,7 @@ export default function MakCadastroTable({
       source: "user_action",
       dirty: true,
     });
-    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+    dispatchModuleEvent(moduleId, "column-layout-updated");
   };
   const getRestoreColumnLayout = () => {
     const def = colunasDisponiveis.filter((c) => !c.fixo);
@@ -771,29 +783,6 @@ export default function MakCadastroTable({
       if (resolved !== undefined) return resolved;
     }
     if (colId === "id_global") return emp.id_global ? formatIdGlobal(emp.id_global) : "-";
-    if (colId === "codempresa") return emp.codempresa ?? "-";
-    if (colId === "razao_social") return emp.razao_social || "-";
-    if (colId === "nome_fantasia") return emp.nome_fantasia || "-";
-    if (colId === "tipo_pessoa") return emp.tipo_pessoa || "-";
-    if (colId === "tipo_vinculo") {
-      if (emp.tipo_vinculo === "proprietario") return "PROPRIETÁRIO";
-      if (emp.tipo_vinculo === "arrendatario") return "ARRENDATÁRIO";
-      return "-";
-    }
-    if (colId === "cpf_cnpj") return emp.cpf_cnpj || "-";
-    if (colId === "inscricao_estadual") return emp.inscricao_estadual || "-";
-    if (colId === "telefone") return emp.telefone || "-";
-    if (colId === "whatsapp") return emp.whatsapp || "-";
-    if (colId === "email") return emp.email || "-";
-    if (colId === "logo_url") return emp.logo_url || "-";
-    if (colId === "cep") return emp.cep || "-";
-    if (colId === "endereco") return emp.endereco || "-";
-    if (colId === "numero") return emp.numero || "-";
-    if (colId === "bairro") return emp.bairro || "-";
-    if (colId === "cidade") return emp.cidade || "-";
-    if (colId === "estado") return emp.estado || "-";
-    if (colId === "observacoes") return emp.observacoes || "-";
-    if (colId === "status") return emp.status || "-";
     return campoEngine.getValorCampo(emp, col || { id: colId }, {});
   }, [colunasDisponiveisById, resolveFieldValue]);
 
@@ -803,7 +792,6 @@ export default function MakCadastroTable({
       if (resolved !== undefined) return resolved;
     }
     if (col.id === "id_global") return Number(emp.id_global || 0);
-    if (col.id === "codempresa") return Number(emp.codempresa || 0);
     return campoEngine.getValorBruto ? campoEngine.getValorBruto(emp, col) : getFieldValue(emp, col.id);
   }, [getFieldValue, resolveComparableValue]);
 
@@ -1083,7 +1071,7 @@ export default function MakCadastroTable({
         <div className="emp-table-select-wrap">
           <MakTableSelectCheck
             checked={isSelected}
-            ariaLabel={`Selecionar ${emp.razao_social || emp.codempresa || emp.id}`}
+            ariaLabel={`Selecionar ${emp[recordTitleField] || emp[recordCodeField] || emp.id}`}
             onChange={() => handleToggleRowCheckbox(emp.id)}
           />
         </div>
@@ -1153,9 +1141,9 @@ export default function MakCadastroTable({
     if (!serverMode || suppressPersistenceRef.current || !tableHydratedRef.current) return;
     const primarySort = Array.isArray(sortConfig) && sortConfig.length > 0
       ? sortConfig[0]
-      : { key: "codempresa", direction: "asc" };
+      : { key: defaultSortKey, direction: defaultSortDirection };
     const nextSort = {
-      key: primarySort.key || "codempresa",
+      key: primarySort.key || defaultSortKey,
       direction: primarySort.direction === "desc" ? "desc" : "asc",
     };
     const sig = stableStringify(nextSort);
@@ -1476,7 +1464,7 @@ export default function MakCadastroTable({
   }, [colunasOrdenadas, columnWidths, agregacoes, mgPrototype]);
 
   const formatTotalValue = (valor, col) => {
-    const isInt = col.id === "id_global" || col.id === "codempresa";
+    const isInt = col.id === "id_global" || col.id === recordCodeField;
     const places = col.decimal_places ?? 2;
     return Number(valor).toLocaleString("pt-BR", isInt ? { maximumFractionDigits: 0 } : col.usar_decimal ? { minimumFractionDigits: places, maximumFractionDigits: places } : { maximumFractionDigits: 0 });
   };
@@ -1582,7 +1570,7 @@ export default function MakCadastroTable({
     setColunasVisiveis(nextVisiveis);
     markVisibleColumnsInitialized();
     writeEmpPreferencesJson(VISIBLE_KEY, nextVisiveis, { reason: "listagem:table-visible" });
-    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
+    dispatchModuleEvent(moduleId, "column-layout-updated");
     closeColumnOverlays();
   };
 
