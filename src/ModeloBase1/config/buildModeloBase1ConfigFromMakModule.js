@@ -80,6 +80,11 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     listMode: "infinite",
     scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(moduleId),
     layoutEngine: overrides.layoutEngine ?? layoutEngineMetadata,
+    navigation: {
+      recordViewRequiresSelection:
+        overrides.navigation?.recordViewRequiresSelection ?? true,
+      ...(overrides.navigation ?? {}),
+    },
     tableKey: overrides.tableKey ?? `tbl-${moduleId}`,
     metricsCounterKey: overrides.metricsCounterKey ?? makModule.metricsEntityKey ?? moduleId,
     dropdownQueryKeyPrefix:

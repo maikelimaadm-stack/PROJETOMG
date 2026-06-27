@@ -15,6 +15,8 @@
  * @property {object} [export]
  * @property {object} [data]
  * @property {object} [labels]
+ * @property {object} [navigation]
+ * @property {boolean} [navigation.recordViewRequiresSelection] — exige registro selecionado para abrir visualização Registro (não abre novo automaticamente)
  */
 
 export {};

@@ -58,6 +58,8 @@ function ModeloBase1CadastroPageContent() {
   const moduleRepository = moduleDefinition.repository;
   const moduleLabels = config.labels ?? module.labels;
   const MAK_MODULE_ID = config.moduleId;
+  const recordViewRequiresSelection =
+    config.navigation?.recordViewRequiresSelection ?? true;
 
   const {
     selectorSnapshot,
@@ -781,7 +783,9 @@ function ModeloBase1CadastroPageContent() {
           if (showForm && viewMode === "record") return;
           const emp = selectedTableRecord || navigationRecords[selectedIndex] || navigationRecords[0];
           if (!emp) {
-            handleNew();
+            if (!recordViewRequiresSelection && makPermissions.canCreate) {
+              handleNew();
+            }
             return;
           }
           handleEdit(emp);
@@ -808,6 +812,8 @@ function ModeloBase1CadastroPageContent() {
       closeTransientDialogs,
       handleEdit,
       handleNew,
+      makPermissions.canCreate,
+      recordViewRequiresSelection,
       saveCycle,
       actionBarVisibility.secondaryToolsLocked,
       selectedIndex,
