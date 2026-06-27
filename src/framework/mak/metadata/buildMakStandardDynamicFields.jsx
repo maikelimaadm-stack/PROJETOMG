@@ -73,21 +73,28 @@ const renderSelectControl = ({
  * Cobre os tipos nativos usados no Cadastro de Empresas.
  */
 export function buildMakStandardDynamicFields(fieldDefinitions = []) {
-  return function buildFields({
-    formData,
-    handleChange,
-    isReadOnly,
-    inputClass,
-    initialData,
-    hideToolbar,
-    uploadingImage = false,
-    handleImageUpload,
-  }) {
+  return function buildFields(ctx) {
+    const {
+      formData,
+      handleChange,
+      isReadOnly,
+      inputClass,
+      initialData,
+      hideToolbar,
+      uploadingImage = false,
+      handleImageUpload,
+      uploadingLogo = false,
+      handleLogoUpload,
+    } = ctx;
+
+    const imageUploading = uploadingLogo || uploadingImage;
+    const onImageUpload = handleLogoUpload ?? handleImageUpload;
+
     return fieldDefinitions.map((def) => {
       const {
         id,
         name = id,
-        label = labelFromId(id),
+        label: staticLabel = labelFromId(id),
         type = "text",
         required = false,
         readOnly = false,
@@ -95,12 +102,23 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
         wide = false,
         compact = false,
         medium = false,
-        placeholder,
+        placeholder: staticPlaceholder,
         options = [],
         autoCode = false,
         displayField = "nome",
         searchFields = ["nome"],
+        resolveLabel,
+        resolvePlaceholder,
+        widthType,
+        errorKey,
       } = def;
+
+      const label =
+        typeof resolveLabel === "function" ? resolveLabel(formData ?? {}) : staticLabel;
+      const placeholder =
+        typeof resolvePlaceholder === "function"
+          ? resolvePlaceholder(formData ?? {})
+          : staticPlaceholder ?? label.toUpperCase();
 
       const fieldReadOnly = readOnly || isReadOnly;
       const value = formData?.[name] ?? "";
@@ -112,7 +130,7 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
           label,
           type,
           required,
-          errorKey: name,
+          errorKey: errorKey ?? name,
           wide,
           render: () => (
             <Textarea
@@ -120,7 +138,7 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
               onChange={(event) => handleChange(name, event.target.value)}
               readOnly={fieldReadOnly}
               className={`${inputClass} min-h-[72px]${uppercase ? " uppercase" : ""}`}
-              placeholder={placeholder ?? label.toUpperCase()}
+              placeholder={placeholder}
             />
           ),
         };
@@ -133,11 +151,12 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
           label,
           type: type === "autocomplete" ? "autocomplete" : "select",
           required,
-          errorKey: name,
+          errorKey: errorKey ?? name,
           compact,
           options,
           displayField,
           searchFields,
+          ...(widthType ? { widthType } : {}),
           render: () =>
             renderSelectControl({
               def: { ...def, label, options, required },
@@ -158,13 +177,14 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
           name,
           label,
           type: "image",
+          errorKey: errorKey ?? name,
           compact,
           render: () => (
             <EmpFormImageField
               value={value}
               readOnly={fieldReadOnly}
-              uploading={uploadingImage}
-              onUpload={handleImageUpload}
+              uploading={imageUploading}
+              onUpload={onImageUpload}
               onClear={() => handleChange(name, "")}
               alt={label}
             />
@@ -172,7 +192,11 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
         };
       }
 
-      if (autoCode || id === "codigo") {
+      if (autoCode || id === "codigo" || id === "codempresa") {
+        const autoPlaceholder = id === "codempresa" ? "AUTO" : "Automático";
+        const displayValue = initialData?._isPersisting
+          ? "Gerando..."
+          : value || autoPlaceholder;
         return {
           id,
           name,
@@ -180,18 +204,16 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
           type: "text",
           readOnly: true,
           compact,
+          ...(widthType ? { widthType } : {}),
           render: () =>
             hideToolbar ? (
-              <input
-                type="text"
-                value={initialData?._isPersisting ? "Gerando..." : value || "Automático"}
-                readOnly
-              />
+              <input type="text" value={displayValue} readOnly placeholder={autoPlaceholder} />
             ) : (
               <Input
-                value={initialData?._isPersisting ? "Gerando..." : value || "Automático"}
+                value={displayValue}
                 readOnly
                 className={inputClass}
+                placeholder={autoPlaceholder}
               />
             ),
         };
@@ -205,12 +227,13 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
           label,
           type,
           required,
-          errorKey: name,
+          errorKey: errorKey ?? name,
           wide,
           medium,
           compact,
           uppercase,
-          placeholder: placeholder ?? label.toUpperCase(),
+          placeholder,
+          ...(widthType ? { widthType } : {}),
           render: () =>
             hideToolbar ? (
               <input
@@ -253,12 +276,13 @@ export function buildMakStandardDynamicFields(fieldDefinitions = []) {
         label,
         type,
         required,
-        errorKey: name,
+        errorKey: errorKey ?? name,
         wide,
         medium,
         compact,
         uppercase,
-        placeholder: placeholder ?? label.toUpperCase(),
+        placeholder,
+        ...(widthType ? { widthType } : {}),
         render: () =>
           hideToolbar ? (
             <input

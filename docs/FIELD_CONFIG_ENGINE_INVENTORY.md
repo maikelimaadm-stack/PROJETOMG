@@ -58,7 +58,7 @@ Senha, Ano, Mês, Semana, Radio dedicado, Cor, Tags, QRCode, Código de Barras, 
 
 | Módulo | buildDynamicFields | Metadata |
 |--------|-------------------|----------|
-| empresas | buildEmpresasDynamicFields (domínio) | empresasModuleMetadata.form |
+| empresas | buildMakDynamicFieldsWithCustomFields(EMP_FORM_FIELD_DEFS) | empresasModuleMetadata.form |
 | produtos | buildMakDynamicFieldsFromMetadata | PRO_FORM_FIELD_DEFS |
 | marcas | buildMakDynamicFieldsFromMetadata | MAR_FORM_FIELD_DEFS |
 | cadcps | runtime | CPS native |

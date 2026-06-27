@@ -13,6 +13,7 @@ export function buildMakFormMetadata({
   upperFields = [],
   nativeFields = [],
   inputClass = "border-0 shadow-none focus-visible:ring-0 bg-white w-full",
+  estados = [],
   applyDuplicateFieldClears,
   buildDynamicFields = null,
   mapRecordToForm = null,
@@ -42,7 +43,7 @@ export function buildMakFormMetadata({
     upperFields,
     nativeFields: nativeFields instanceof Set ? nativeFields : new Set(nativeFields),
     inputClass,
-    estados: [],
+    estados: Array.isArray(estados) ? estados : [],
     applyDuplicateFieldClears: applyDuplicateFieldClears ?? ((data) => data),
     fieldDefinitions: Array.isArray(fieldDefinitions) ? fieldDefinitions : [],
     buildDynamicFields:

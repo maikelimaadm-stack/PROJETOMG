@@ -26,6 +26,7 @@ import {
   buildEmpFormDefaultConfig,
   EMP_FORM_BASE_PANELS,
   EMP_FORM_DEFAULT_LAYOUT,
+  EMP_FORM_FIELD_DEFS,
   ESTADOS_BR,
   NATIVE_FIELDS,
   REQUIRED_FIELDS,
@@ -95,7 +96,7 @@ import {
   EMP_FILTER_FIELDS_LAYOUT_KEY,
 } from "@/modules/empresas/utils/empFilterFieldsLayout";
 import { EMP_VIEW_MODE_STORAGE_KEY } from "@/modules/empresas/preferences/empresasPreferencesStorage";
-import { buildEmpresasDynamicFields } from "@/modules/empresas/runtime/empresasFormRuntime.jsx";
+import { buildMakDynamicFieldsWithCustomFields } from "@/framework/mak/fieldConfig/buildMakDynamicFieldsWithCustomFields.js";
 import {
   resolveEmpresasComparableValue,
   resolveEmpresasFieldValue,
@@ -169,7 +170,8 @@ export const empresasModuleMetadata = {
     applyDuplicateFieldClears,
     useRecordFieldsHook: useEmpCamposPersonalizados,
     useCustomFieldsHook: useFormEmpCustomFields,
-    buildDynamicFields: buildEmpresasDynamicFields,
+    buildDynamicFields: buildMakDynamicFieldsWithCustomFields(EMP_FORM_FIELD_DEFS),
+    fieldDefinitions: EMP_FORM_FIELD_DEFS,
     storage: {
       readStoredLaunchPanelStyle,
       writeStoredLaunchPanelStyle,

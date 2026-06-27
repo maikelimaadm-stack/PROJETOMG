@@ -3,86 +3,22 @@ import {
   writeEmpPreferencesJson,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import { dispatchModuleEvent } from "@/framework/mak/events/makModuleEvents.js";
+import { createMakFilterFieldsLayoutStorage } from "@/framework/mak/filters/createMakFilterFieldsLayoutStorage.js";
 
 export const EMP_FILTER_FIELDS_LAYOUT_KEY = "emp_filter_fields_layout_v1";
 
-const dispatchLayoutUpdated = () => {
-  dispatchModuleEvent("empresas", "filter-fields-layout-updated");
-};
-
-export const mergeSavedFilterFieldOrder = (savedOrder, catalogKeys) => {
-  const baseKeys = catalogKeys;
-  const parsed = Array.isArray(savedOrder)
-    ? [...new Set(savedOrder.filter((key) => baseKeys.includes(key)))]
-    : [];
-  const missing = baseKeys.filter((key) => !parsed.includes(key));
-  return [...parsed, ...missing];
-};
-
-export const mergeSavedVisibleFilterFields = (savedVisible, catalogKeys) => {
-  if (!Array.isArray(savedVisible)) return [...catalogKeys];
-  return savedVisible.filter((key) => catalogKeys.includes(key));
-};
-
-/** Novos campos do catálogo entram em uso por padrão, sem reativar os removidos pelo usuário. */
-export const mergeVisibleFilterFieldsWithCatalog = (
-  savedVisible,
-  catalogKeys,
-  savedOrder = []
-) => {
-  const base = mergeSavedVisibleFilterFields(savedVisible, catalogKeys);
-  const knownKeys = Array.isArray(savedOrder)
-    ? savedOrder.filter((key) => catalogKeys.includes(key))
-    : [];
-  const brandNewKeys = catalogKeys.filter((key) => !knownKeys.includes(key));
-  return brandNewKeys.length ? [...base, ...brandNewKeys] : base;
-};
-
-export const loadFilterFieldsLayout = (catalogKeys = []) => {
-  const defaultLayout = {
-    visiveis: [...catalogKeys],
-    ordem: [...catalogKeys],
-  };
-
-  if (catalogKeys.length === 0) {
-    return defaultLayout;
-  }
-
-  const parsed = readEmpPreferencesJson(EMP_FILTER_FIELDS_LAYOUT_KEY, null);
-  if (!parsed || typeof parsed !== "object") return defaultLayout;
-  const ordem = mergeSavedFilterFieldOrder(parsed?.ordem, catalogKeys);
-  const visiveis = mergeVisibleFilterFieldsWithCatalog(parsed?.visiveis, catalogKeys, ordem);
-  return { visiveis, ordem };
-};
-
-export const saveFilterFieldsLayout = ({ visiveis = [], ordem = [] } = {}) => {
-  writeEmpPreferencesJson(
-    EMP_FILTER_FIELDS_LAYOUT_KEY,
-    { visiveis, ordem },
-    { reason: "listagem:filter-layout" }
-  );
-  dispatchLayoutUpdated();
-};
-
-export const applyFilterFieldsLayout = (catalogFields = [], layout = {}) => {
-  const byKey = new Map(catalogFields.map((field) => [field.key, field]));
-  const ordem = mergeSavedFilterFieldOrder(
-    layout.ordem,
-    catalogFields.map((field) => field.key)
-  );
-  const visiveis = new Set(
-    mergeSavedVisibleFilterFields(
-      layout.visiveis,
-      catalogFields.map((field) => field.key)
-    )
-  );
-
-  return ordem
-    .filter((key) => visiveis.has(key) && byKey.has(key))
-    .map((key) => byKey.get(key));
-};
-
-export const getDefaultFilterFieldsLayout = (catalogKeys = []) => ({
-  visiveis: [...catalogKeys],
-  ordem: [...catalogKeys],
+const empFilterFieldsLayout = createMakFilterFieldsLayoutStorage({
+  storageKey: EMP_FILTER_FIELDS_LAYOUT_KEY,
+  moduleId: "empresas",
+  readJson: readEmpPreferencesJson,
+  writeJson: writeEmpPreferencesJson,
+  dispatchEvent: dispatchModuleEvent,
 });
+
+export const mergeSavedFilterFieldOrder = empFilterFieldsLayout.mergeSavedFilterFieldOrder;
+export const mergeSavedVisibleFilterFields = empFilterFieldsLayout.mergeSavedVisibleFilterFields;
+export const mergeVisibleFilterFieldsWithCatalog = empFilterFieldsLayout.mergeVisibleFilterFieldsWithCatalog;
+export const loadFilterFieldsLayout = empFilterFieldsLayout.loadFilterFieldsLayout;
+export const saveFilterFieldsLayout = empFilterFieldsLayout.saveFilterFieldsLayout;
+export const applyFilterFieldsLayout = empFilterFieldsLayout.applyFilterFieldsLayout;
+export const getDefaultFilterFieldsLayout = empFilterFieldsLayout.getDefaultFilterFieldsLayout;

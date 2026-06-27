@@ -8,6 +8,10 @@ export {
   buildMakDynamicFieldsFromMetadata,
   resolveMakFieldType,
 } from "./buildMakDynamicFieldsFromMetadata.js";
+export {
+  buildMakDynamicFieldsWithCustomFields,
+} from "./buildMakDynamicFieldsWithCustomFields.js";
+export { appendMakCustomDynamicFields } from "./appendMakCustomDynamicFields.js";
 export { createMakFieldConfigEngine } from "./createMakFieldConfigEngine.js";
 export {
   registerMakFieldConfigEngine,

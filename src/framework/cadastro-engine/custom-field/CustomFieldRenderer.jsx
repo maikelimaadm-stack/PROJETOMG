@@ -11,6 +11,7 @@ import MgCmdSelect from "@/framework/mak/layout/MgCmdSelect";
 import MgDatePicker from "@/framework/mak/layout/MgDatePicker";
 import MgTimePicker from "@/framework/mak/layout/MgTimePicker";
 import MgLookup from "@/framework/mak/layout/MgLookup";
+import { splitDateTimeValue, formatMaskedNumber } from "@/framework/cadastro-engine/field/maskUtils.js";
 
 const isMgDateTipo = (campo, tipoCanon) =>
   ["date", "datetime", "datetime-local", "data", "data_hora", "datahora"].includes(campo?.tipo) ||
@@ -75,35 +76,12 @@ function MgPrototypeTextarea({
   );
 }
 
-const splitDateTimeValue = (value) => {
-  if (!value) return { date: "", time: "" };
-  const [date, time = ""] = String(value).split("T");
-  return { date: date || "", time: time.slice(0, 5) || "" };
-};
-
 const brDateToIso = (value) => {
   const parts = String(value || "").split("/");
   if (parts.length === 3 && parts[2].length === 4) {
     return `${parts[2]}-${String(parts[1]).padStart(2, "0")}-${String(parts[0]).padStart(2, "0")}`;
   }
   return value;
-};
-
-const formatMaskedNumber = (value, campo) => {
-  const digits = String(value ?? "").replace(/\D/g, "");
-  if (!campo?.usar_mascara || !campo?.mascaras_text) return digits;
-  const mask = String(campo.mascaras_text).split("\n")[0] || "";
-  let result = "";
-  let di = 0;
-  for (let i = 0; i < mask.length && di < digits.length; i += 1) {
-    if (mask[i] === "#") {
-      result += digits[di];
-      di += 1;
-    } else {
-      result += mask[i];
-    }
-  }
-  return result;
 };
 
 /**

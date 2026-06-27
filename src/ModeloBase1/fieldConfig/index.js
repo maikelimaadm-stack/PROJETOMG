@@ -5,6 +5,8 @@ export {
   MAK_FIELD_METADATA_KEYS,
   buildMakDynamicFieldsFromMetadata,
   resolveMakFieldType,
+  buildMakDynamicFieldsWithCustomFields,
+  appendMakCustomDynamicFields,
   createMakFieldConfigEngine,
   registerMakFieldConfigEngine,
   getMakFieldConfigEngine,

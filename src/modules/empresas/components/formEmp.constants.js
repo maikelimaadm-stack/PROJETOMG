@@ -224,33 +224,166 @@ export const NATIVE_FIELDS = new Set([
   "campos_personalizados",
 ]);
 
-export const splitDateTimeValue = (value) => {
-  if (!value) return { date: "", time: "" };
-  const [datePart, timePart = ""] = String(value).replace(" ", "T").split("T");
-  return { date: datePart || "", time: timePart.slice(0, 5) || "" };
-};
+/** Opções de domínio — permanecem no módulo Empresas (regra de negócio). */
+export const OPCOES_TIPO_PESSOA = [
+  { id: "PJ", nome: "PESSOA JURÍDICA (PJ)" },
+  { id: "PF", nome: "PESSOA FÍSICA (PF)" },
+];
 
-const onlyDigits = (value) => String(value || "").replace(/\D/g, "");
+export const OPCOES_TIPO_VINCULO = [
+  { id: "proprietario", nome: "PROPRIETÁRIO" },
+  { id: "arrendatario", nome: "ARRENDATÁRIO" },
+];
 
-const applyNumberMask = (digits, mask) => {
-  let index = 0;
-  return String(mask || "")
-    .replace(/#/g, () => digits[index++] || "")
-    .replace(/[^0-9]+$/g, "");
-};
+export const OPCOES_STATUS_EMPRESA = [
+  { id: "Ativa", nome: "ATIVA" },
+  { id: "Inativa", nome: "INATIVA" },
+];
 
-const getBestMask = (digits, masks) =>
-  masks.find((mask) => (mask.match(/#/g) || []).length >= digits.length) ||
-  masks[masks.length - 1] ||
-  "";
+const UF_OPTIONS = ESTADOS_BR.map((uf) => ({ id: uf, nome: uf }));
 
-export const formatMaskedNumber = (value, campo) => {
-  const masks = String(campo.mascaras_text || "")
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean)
-    .sort((a, b) => (a.match(/#/g) || []).length - (b.match(/#/g) || []).length);
-  const maxDigits = Math.max(...masks.map((mask) => (mask.match(/#/g) || []).length), 0);
-  const digits = onlyDigits(value).slice(0, maxDigits || undefined);
-  return applyNumberMask(digits, getBestMask(digits, masks));
-};
+/**
+ * Definições declarativas de campos nativos — metadata de domínio Empresas.
+ * Renderização delegada à Foundation via buildMakDynamicFieldsWithCustomFields.
+ */
+export const EMP_FORM_FIELD_DEFS = [
+  {
+    id: "tipo_pessoa",
+    label: "Tipo de Pessoa",
+    type: "select",
+    required: true,
+    compact: true,
+    errorKey: "tipo_pessoa",
+    options: OPCOES_TIPO_PESSOA,
+  },
+  {
+    id: "tipo_vinculo",
+    label: "Proprietário/Arrendatário",
+    type: "select",
+    compact: true,
+    options: OPCOES_TIPO_VINCULO,
+  },
+  {
+    id: "codempresa",
+    label: "Cód. Empresa",
+    autoCode: true,
+    compact: true,
+    widthType: "CODIGO",
+  },
+  {
+    id: "razao_social",
+    label: "Nome/Razão Social Emp.",
+    required: true,
+    errorKey: "razao_social",
+    wide: true,
+    uppercase: true,
+    placeholder: "NOME/RAZÃO SOCIAL",
+  },
+  {
+    id: "status",
+    label: "Ativa",
+    type: "select",
+    widthType: "SIM_NAO",
+    compact: true,
+    options: OPCOES_STATUS_EMPRESA,
+  },
+  {
+    id: "nome_fantasia",
+    label: "Nome fantasia",
+    medium: true,
+    uppercase: true,
+    placeholder: "NOME FANTASIA",
+  },
+  {
+    id: "cpf_cnpj",
+    type: "cpf_cnpj",
+    compact: true,
+    resolveLabel: (formData) => (formData?.tipo_pessoa === "PF" ? "CPF" : "CNPJ"),
+    resolvePlaceholder: (formData) =>
+      formData?.tipo_pessoa === "PF" ? "000.000.000-00" : "00.000.000/0000-00",
+  },
+  {
+    id: "inscricao_estadual",
+    label: "Inscrição Estadual",
+    placeholder: "INSCRIÇÃO ESTADUAL",
+  },
+  {
+    id: "telefone",
+    label: "Telefone",
+    type: "tel",
+    compact: true,
+    placeholder: "(00) 0000-0000",
+  },
+  {
+    id: "whatsapp",
+    label: "WhatsApp",
+    type: "tel",
+    compact: true,
+    placeholder: "(00) 00000-0000",
+  },
+  {
+    id: "email",
+    label: "E-mail",
+    type: "email",
+    placeholder: "EMAIL@EMPRESA.COM.BR",
+  },
+  {
+    id: "logo_url",
+    label: "Logo da Empresa",
+    type: "image",
+    compact: true,
+  },
+  {
+    id: "cep",
+    label: "CEP",
+    type: "cep",
+    compact: true,
+    placeholder: "00000-000",
+  },
+  {
+    id: "endereco",
+    label: "Endereço",
+    medium: true,
+    uppercase: true,
+    placeholder: "RUA, AVENIDA...",
+  },
+  {
+    id: "numero",
+    label: "Número",
+    widthType: "NUMERO",
+    compact: true,
+    placeholder: "Nº",
+  },
+  {
+    id: "bairro",
+    label: "Bairro",
+    uppercase: true,
+    placeholder: "BAIRRO",
+  },
+  {
+    id: "cidade",
+    label: "Cidade",
+    uppercase: true,
+    placeholder: "CIDADE",
+  },
+  {
+    id: "estado",
+    label: "Estado (UF)",
+    type: "autocomplete",
+    widthType: "UF",
+    compact: true,
+    options: UF_OPTIONS,
+    placeholder: "UF",
+  },
+  {
+    id: "observacoes",
+    label: "Observações",
+    type: "textarea",
+    wide: true,
+    uppercase: true,
+    placeholder: "OBSERVAÇÕES GERAIS...",
+  },
+];
+
+/** @deprecated Import from `@/framework/cadastro-engine/field/maskUtils` */
+export { splitDateTimeValue, formatMaskedNumber } from "@/framework/cadastro-engine/field/maskUtils.js";

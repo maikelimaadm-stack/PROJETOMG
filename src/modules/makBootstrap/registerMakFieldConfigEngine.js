@@ -11,6 +11,7 @@ import { marcasCadastroConfig } from "@/modules/marcas/config/marcasCadastroConf
 import { cadcpsCadastroConfig } from "@/modules/cadcps/config/cadcpsCadastroConfig.js";
 import { PRO_FORM_FIELD_DEFS } from "@/modules/produtos/config/proForm.constants.js";
 import { MAR_FORM_FIELD_DEFS } from "@/modules/marcas/config/marForm.constants.js";
+import { EMP_FORM_FIELD_DEFS } from "@/modules/empresas/components/formEmp.constants.js";
 
 const CADASTRO_CONFIG_BY_MODULE = {
   empresas: empresasCadastroConfig,
@@ -20,6 +21,7 @@ const CADASTRO_CONFIG_BY_MODULE = {
 };
 
 const FIELD_DEFINITIONS_BY_MODULE = {
+  empresas: EMP_FORM_FIELD_DEFS,
   produtos: PRO_FORM_FIELD_DEFS,
   marcas: MAR_FORM_FIELD_DEFS,
 };
