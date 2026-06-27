@@ -1455,6 +1455,9 @@ function ModeloBase1CadastroPageContent() {
         <MakMasterHistory
           open={historyOpen}
           onOpenChange={setHistoryOpen}
+          moduleId={MAK_MODULE_ID}
+          entityName={module.entityName ?? moduleDefinition?.entityName ?? null}
+          recordId={editingRecord?.id ?? selectedTableRecord?.id ?? null}
           moduleLabel={moduleLabels.singular}
           recordCode={recordCode || null}
           recordTitle={recordTitle || null}
