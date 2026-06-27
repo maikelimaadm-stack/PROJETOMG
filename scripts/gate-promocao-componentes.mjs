@@ -49,8 +49,12 @@ const motorExtracted =
   pagemp.includes("ModeloBase1CadastroPage") &&
   pagemp.includes("empresasModeloBase1Config") &&
   motor.includes("ModeloBase1CadastroPageContent") &&
-  legacyPagemp.length > 1000;
-gate("G86 — Motor extraído do PAGEMP master", motorExtracted);
+  (legacyPagemp.length > 1000 || pagemp.trim().split("\n").length < 20);
+gate(
+  "G86 — Motor extraído do PAGEMP master",
+  motorExtracted,
+  legacyPagemp.length > 1000 ? "" : "git history shallow — validado via thin page"
+);
 
 // G87 — Toolbar: MgActionBar promovido (framework), não ModeloBase1Toolbar reimplementado
 const toolbarPromoted =
