@@ -2,9 +2,10 @@ import React, { createContext, useContext, useMemo } from "react";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import { useMakPreferencesBootstrapAggregator } from "./useMakPreferencesBootstrapAggregator.js";
 
-const MakPreferencesBootstrapContext = createContext(null);
+import { listMakPreferencesBootstrapModuleIds } from "./bootstrapRegistry.js";
+import "@/modules/makBootstrap/registerMakPreferencesBootstrapModules.js";
 
-const DEFAULT_MODULE_IDS = ["empresas"];
+const MakPreferencesBootstrapContext = createContext(null);
 
 /**
  * Provider genérico de bootstrap de preferências.
@@ -12,11 +13,16 @@ const DEFAULT_MODULE_IDS = ["empresas"];
  */
 export function MakPreferencesBootstrapProvider({
   children,
-  moduleIds = DEFAULT_MODULE_IDS,
+  moduleIds,
   useBootstrapHook,
 }) {
   const { user, isAuthenticated } = useAuth();
-  const enabledModuleIds = Array.isArray(moduleIds) ? moduleIds : DEFAULT_MODULE_IDS;
+  const registryModuleIds = listMakPreferencesBootstrapModuleIds();
+  const enabledModuleIds = Array.isArray(moduleIds)
+    ? moduleIds
+    : registryModuleIds.length
+      ? registryModuleIds
+      : ["empresas"];
   const activeUserId = isAuthenticated ? user?.id : null;
 
   const aggregated = useMakPreferencesBootstrapAggregator(
@@ -31,10 +37,14 @@ export function MakPreferencesBootstrapProvider({
       moduleIds: enabledModuleIds,
       modules: aggregated.modules,
       empresas: empresasBootstrap,
+      produtos: aggregated.produtos ?? null,
+      marcas: aggregated.marcas ?? null,
+      cadcps: aggregated.cadcps ?? null,
+      primary: aggregated.primary ?? empresasBootstrap ?? null,
       /** Estado unificado — espelha módulo primário para compatibilidade */
-      ...(empresasBootstrap || {}),
+      ...(aggregated.primary || empresasBootstrap || {}),
     }),
-    [enabledModuleIds, aggregated.modules, empresasBootstrap]
+    [enabledModuleIds, aggregated, empresasBootstrap]
   );
 
   return (

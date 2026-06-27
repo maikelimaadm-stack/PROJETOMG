@@ -1,13 +1,10 @@
 import campoEngine from "@/framework/cadastro/fields/campoEngine";
 import { formatIdGlobal } from "@/shared/utils/formatIdGlobal";
 import { evaluateErpFilter, isErpFilterActive, normalizePanelFilterValue, resolveErpFilterMeta } from "@/shared/filters";
-import {
-  buildMgFilterFields,
-  MG_FILTER_STATUS_FIELD,
-  MG_FILTER_SIDEBAR_FIELDS,
-} from "./mgFilterFields";
+import { buildMgFilterFields } from "./mgFilterFields";
 
-export const MG_PANEL_FILTER_FIELDS = [...MG_FILTER_SIDEBAR_FIELDS, MG_FILTER_STATUS_FIELD];
+/** @deprecated passe filterFields via metadata — default vazio */
+export const MG_PANEL_FILTER_FIELDS = [];
 
 export function getEmpresaPanelFieldValue(emp, field) {
   if (!emp || !field) return "-";

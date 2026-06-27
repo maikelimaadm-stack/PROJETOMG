@@ -13,8 +13,8 @@ import { cadcpsModuleDefinition } from "@/modules/cadcps/config/moduleDefinition
 import { CADCPS_LIST_QUERY_KEY } from "@/modules/cadcps/data/cadcpsListCache.js";
 import { MetricsApi } from "@/apis/metrics/MetricsApi";
 import { LIST_DEFAULT_PAGE_SIZE } from "@/shared/listing/listQueryConfig";
-import { flushEmpPreferencesNow } from "@/modules/empresas/preferences/empresasPreferencesFlush";
-import { prefetchEmpresasPreferencesAtLogin } from "@/modules/empresas/preferences/prefetchEmpresasPreferencesAtLogin";
+import { flushMakPreferencesNow } from "@/framework/mak/preferences/makPreferencesFlushRegistry.js";
+import { prefetchMakPreferencesAtLogin } from "@/modules/makBootstrap/prefetchMakPreferencesAtLogin.js";
 import {
   bindEmpPreferencesScopeState,
   resetEmpPreferencesScopeState,
@@ -56,7 +56,7 @@ const prefetchEmpresasCadastro = async (userId, clienteId) => {
     staleTime: 5 * 60_000,
   });
   if (clienteId && userId) {
-    void prefetchEmpresasPreferencesAtLogin(clienteId, userId);
+    void prefetchMakPreferencesAtLogin(clienteId, userId);
   }
 };
 
@@ -285,7 +285,10 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
-      void flushEmpPreferencesNow();
+      ["produtos", "marcas", "cadcps"].forEach((moduleId) => {
+        window.dispatchEvent(new CustomEvent(`${moduleId}-preferences-flush`));
+      });
+      void flushMakPreferencesNow();
     }
     await AuthApi.logout().catch(() => null);
     queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
@@ -305,7 +308,10 @@ export const AuthProvider = ({ children }) => {
   const navigateToLogin = useCallback(async () => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
-      void flushEmpPreferencesNow();
+      ["produtos", "marcas", "cadcps"].forEach((moduleId) => {
+        window.dispatchEvent(new CustomEvent(`${moduleId}-preferences-flush`));
+      });
+      void flushMakPreferencesNow();
     }
     queryClientInstance.removeQueries({ queryKey: ["user-screen-preferences"] });
     resetEmpPreferencesMemoryCache();

@@ -100,6 +100,7 @@ import {
   resolveEmpresasComparableValue,
   resolveEmpresasFieldValue,
 } from "@/modules/empresas/runtime/empresasTableRuntime.js";
+import { buildMakEmpresasSidebarFilterMetadata } from "@/framework/mak/metadata/buildMakFiltersMetadata.js";
 
 export const empresasModuleMetadata = {
   table: {
@@ -217,5 +218,8 @@ export const empresasModuleMetadata = {
     mergeSavedFilterFieldOrder,
     loadSearchFavorites,
     saveSearchFavorites,
+  },
+  filters: {
+    sidebar: buildMakEmpresasSidebarFilterMetadata(),
   },
 };

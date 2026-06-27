@@ -142,6 +142,16 @@ function ModeloBase1CadastroPageContent() {
     () => buildPanelFilterColumnMap(filterFieldsCatalog),
     [filterFieldsCatalog]
   );
+  const sidebarFilterConfig = useMemo(() => {
+    const sidebar = module.metadata?.filters?.sidebar;
+    if (!sidebar) {
+      return { textFields: [], statusField: null };
+    }
+    return {
+      textFields: sidebar.textFields ?? [],
+      statusField: sidebar.statusField ?? null,
+    };
+  }, [module.metadata?.filters?.sidebar]);
   const isMobile = useIsMobile();
   const mobileCardsPerRow = 1;
   const effectiveCardsPerRow = isMobile ? mobileCardsPerRow : cardsVisFields.layoutConfig.cardsPerRow;
@@ -1081,6 +1091,8 @@ function ModeloBase1CadastroPageContent() {
           onClear={handleFilterClear}
           onApply={handleFilterApply}
           disabled={filterControlsDisabled}
+          textFields={sidebarFilterConfig.textFields}
+          statusField={sidebarFilterConfig.statusField}
         />
 
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">

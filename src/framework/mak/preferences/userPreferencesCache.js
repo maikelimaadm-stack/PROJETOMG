@@ -50,7 +50,7 @@ export const resolvePreferenceStorageKey = (legacyOrScopedKey) => {
   const key = String(legacyOrScopedKey || "").trim();
   if (!key) return key;
   if (key.startsWith("mg_pref_v2:")) return key;
-  if (isListagemLegacyPreferenceField(key) || key.startsWith("emp_")) {
+  if (isListagemLegacyPreferenceField(key) || key.startsWith("emp_") || /^(pro|mar|cps)_/.test(key)) {
     return resolveListagemPreferenceStorageKey(key);
   }
   return key;

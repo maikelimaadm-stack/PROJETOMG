@@ -5,7 +5,7 @@ import { queryClientInstance } from "@/shared/contexts/queryClient";
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation, Outlet } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/shared/contexts/AuthContext";
 import { MakPreferencesBootstrapProvider } from "@/framework/mak/preferences/PreferencesBootstrapProvider.jsx";
-import "@/modules/empresas/preferences/registerEmpresasPreferencesBootstrap.js";
+import "@/modules/makBootstrap/registerMakPreferencesBootstrapModules.js";
 import { useAppPreferencesBootstrap } from "@/modules/makBootstrap/useAppPreferencesBootstrap.js";
 import { ErpThemeProvider } from "@/shared/contexts/ErpThemeContext";
 import { lazy, Suspense, useState } from "react";
