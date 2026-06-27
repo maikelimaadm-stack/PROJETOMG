@@ -1,13 +1,7 @@
-import React, { memo, useLayoutEffect, useMemo, useRef } from "react";
+import React, { memo, useLayoutEffect, useRef } from "react";
 import { Check } from "lucide-react";
 import { MakRecordFavoriteStar } from "@/framework/mak/layout";
-import { useMakModuleRequired } from "@/framework/mak/runtime/MakModuleContext.jsx";
-import { defaultGetSearchFieldValue } from "@/framework/mak/search/makSearchView.utils.js";
-import {
-  getEmpSearchAvatarColor,
-  getEmpSearchFieldValue,
-  getEmpSearchInitials,
-} from "@/modules/empresas/components/empSearchView.constants";
+import { useMakSearchFieldResolver } from "@/ModeloBase1/search/useMakSearchFieldResolver.js";
 import {
   CARD_GRID_GAP,
   CARDS_TOP_PADDING,
@@ -18,41 +12,6 @@ import {
   resolveSelectionScrollDirection,
   scrollVirtualRowIntoView,
 } from "@/shared/utils/virtualScrollIntoView";
-
-const DEFAULT_AVATAR_COLORS = ["#EC4899", "#8B5CF6", "#06B6D4", "#10B981", "#F59E0B", "#3B82F6"];
-
-const getGenericSearchInitials = (record, titleField) => {
-  const title = defaultGetSearchFieldValue(record, titleField);
-  if (!title || title === "—") return "?";
-  const parts = String(title).trim().split(/\s+/).filter(Boolean);
-  if (parts.length === 0) return "?";
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
-};
-
-const getGenericSearchAvatarColor = (_record, index = 0) =>
-  DEFAULT_AVATAR_COLORS[Math.abs(Number(index) || 0) % DEFAULT_AVATAR_COLORS.length];
-
-function useCardFieldResolvers() {
-  const module = useMakModuleRequired();
-  const searchMeta = module.metadata?.search ?? {};
-  const codeField = searchMeta.codeField ?? searchMeta.primaryField ?? "codempresa";
-  const titleField = searchMeta.titleField ?? "razao_social";
-  const isEmpresasMaster = module.moduleId === "empresas";
-
-  return useMemo(
-    () => ({
-      codeField,
-      titleField,
-      getFieldValue: isEmpresasMaster ? getEmpSearchFieldValue : defaultGetSearchFieldValue,
-      getInitials: isEmpresasMaster
-        ? getEmpSearchInitials
-        : (record) => getGenericSearchInitials(record, titleField),
-      getAvatarColor: isEmpresasMaster ? getEmpSearchAvatarColor : getGenericSearchAvatarColor,
-    }),
-    [codeField, titleField, isEmpresasMaster]
-  );
-}
 
 function MgCardsVirtualGrid({
   scrollRef,
@@ -67,7 +26,8 @@ function MgCardsVirtualGrid({
   activeSelectionId = null,
   scrollResetKey = "",
 }) {
-  const { codeField, titleField, getFieldValue, getInitials, getAvatarColor } = useCardFieldResolvers();
+  const { codeField, titleField, getFieldValue, getInitials, getAvatarColor } =
+    useMakSearchFieldResolver();
   const skipInitialSelectionScrollRef = useRef(true);
   const previousSelectionIndexRef = useRef(null);
   const fixedRowHeight = estimateCardRowHeight(detailFields.length, fieldsPerRow);
@@ -221,7 +181,7 @@ const MgCardsVirtualRow = memo(function MgCardsVirtualRow({
         return (
           <div
             key={record.id}
-            data-emp-id={record.id}
+            data-record-id={record.id}
             className={`erp-card mg-emp-card mg-emp-card--virtual relative${isSelected ? " mg-emp-card--selected" : ""}`}
             onClick={(event) => onCardClick(record, event)}
             role="button"

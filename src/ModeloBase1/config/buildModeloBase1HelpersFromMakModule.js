@@ -2,6 +2,7 @@
  * Helpers padrão do motor ModeloBase1 — wired ao preferencesAdapter do makModule.
  */
 import { getFieldsPerRowForLayout } from "@/framework/mak/search/makSearchView.utils.js";
+import { isRemoteTabPreferenceEvent } from "@/framework/mak/preferences/makPreferencesCrossTab.js";
 
 const toObject = (value, fallback = {}) =>
   value && typeof value === "object" && !Array.isArray(value) ? value : fallback;
@@ -14,11 +15,6 @@ const DUPLICATE_STRIP_KEYS = new Set([
   "id_global",
   "_isPersisting",
 ]);
-
-export const isRemoteTabPreferenceEvent = (detail = {}) => {
-  const reason = String(detail?.reason || "").toLowerCase();
-  return reason.includes("remote-tab") || reason.includes("remote-sync");
-};
 
 export function buildModeloBase1HelpersFromMakModule(makModule) {
   const adapter = makModule.preferencesAdapter;

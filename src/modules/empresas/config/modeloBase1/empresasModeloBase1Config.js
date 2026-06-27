@@ -1,9 +1,9 @@
 /**
- * Configuração completa do cadastro Empresas para o ModeloBase1.
- * Empresas = apenas configuração; o motor está em ModeloBase1/render.
+ * Configuração Empresas — consumidor exclusivo via buildModeloBase1ConfigFromMakModule.
  */
 import { useAuth } from "@/shared/contexts/AuthContext";
-import { defineModeloBase1Config } from "@/ModeloBase1/config/defineModeloBase1Config.js";
+import { buildModeloBase1ConfigFromMakModule } from "@/ModeloBase1/config/buildModeloBase1ConfigFromMakModule.js";
+import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
 import { empresasModuleDefinition } from "@/modules/empresas/config/moduleDefinition";
 import { empresasMakModule } from "@/modules/empresas/config/empresasMakModule";
 import { findEmpresaInList, normalizeEmpresaRecord } from "@/modules/empresas/utils/empCodigoUtils";
@@ -15,74 +15,24 @@ import {
   saveEmpPdfExportConfig,
 } from "@/modules/empresas/config/empPdfExportConfig";
 import { patchEmpresasCache } from "@/modules/empresas/data/empresasListCache";
-import { EmpConfiguracaoFiltrosDialog } from "@/modules/empresas/config/modeloBase1/empresasFiltrosConfig.js";
 import { empresasToolbarComponents } from "@/modules/empresas/config/modeloBase1/empresasToolbarConfig.js";
-import { empresasLayoutConfig } from "@/modules/empresas/config/modeloBase1/empresasLayoutConfig.js";
-import { EMP_SORT_KEY } from "@/modules/empresas/config/modeloBase1/empresasTabelaConfig.js";
-import {
-  readStoredTempListagemFilters,
-  writeStoredTempListagemFilters,
-  useEmpresasPreferencesBootstrapState,
-  isEmpPreferencesSectionDirty,
-  isRemoteTabPreferenceEvent,
-  subscribeEmpPreferencesCache,
-  readEmpPreferencesJson,
-  writeEmpPreferencesText,
-} from "@/modules/empresas/config/modeloBase1/empresasPreferenciasConfig.js";
-import {
-  useModeloBase1InfiniteListData,
-  useModeloBase1Favorites,
-  useModeloBase1ViewModePreference,
-  useModeloBase1SearchDropdownFields,
-  useModeloBase1CardsVisFields,
-  useModeloBase1FilterFieldsLayout,
-  useModeloBase1CustomFields,
-} from "@/ModeloBase1/hooks";
+import { useEmpresasPreferencesBootstrapState } from "@/modules/empresas/preferences/EmpresasPreferencesBootstrapContext";
 import {
   empresasDataConfig,
   empresasPreferencesAdapter,
   empresasSearchViewConfig,
   empresasCustomFieldsConfig,
 } from "@/modules/empresas/config/modeloBase1/empresasSearchViewConfig.js";
-import { getFieldsPerRowForLayout } from "@/modules/empresas/components/empSearchView.constants";
 
-const readInitialQuerySort = () => {
-  const storedSort = readEmpPreferencesJson(EMP_SORT_KEY, null);
-  const primarySort = Array.isArray(storedSort)
-    ? storedSort.find((item) => item?.key)
-    : storedSort?.key
-      ? storedSort
-      : null;
-  if (primarySort?.key) {
-    return {
-      key: primarySort.key,
-      direction: primarySort.direction === "desc" ? "desc" : "asc",
-    };
-  }
-  return { key: "codempresa", direction: "asc" };
-};
-
-const readInitialColumnFiltersState = () => {
-  const stored = readStoredTempListagemFilters();
-  if (stored && typeof stored === "object" && !Array.isArray(stored)) {
-    return stored;
-  }
-  return {};
-};
-
-export const empresasModeloBase1Config = defineModeloBase1Config({
-  moduleId: "empresas",
-  makModule: empresasMakModule,
-  moduleDefinition: empresasModuleDefinition,
-  scopeCssClass: empresasLayoutConfig.scopeCssClass,
-  listMode: empresasLayoutConfig.listMode,
+export const empresasModeloBase1Config = buildModeloBase1ConfigFromMakModule(empresasMakModule, {
+  scopeCssClass: buildModeloBase1ScopeCssClass("empresas"),
+  tableKey: "tbl-emp",
   metricsCounterKey: "empresas",
   dropdownQueryKeyPrefix: "emp-cadastro-dropdown",
-  tableKey: "tbl-emp",
   preferencesAdapter: empresasPreferencesAdapter,
   searchView: empresasSearchViewConfig,
   customFields: empresasCustomFieldsConfig,
-
+  moduleDefinition: empresasModuleDefinition,
   labels: {
     singular: empresasModuleDefinition.singularLabel,
     plural: empresasModuleDefinition.pluralLabel,
@@ -90,12 +40,7 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
     newRecord: "Nova Empresa",
     duplicateRecord: "Duplicar empresa",
   },
-
-  components: {
-    ...empresasToolbarComponents,
-    FilterFieldsConfigDialog: EmpConfiguracaoFiltrosDialog,
-  },
-
+  components: empresasToolbarComponents,
   hooks: {
     useScopeAuth: () => {
       const {
@@ -114,31 +59,12 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
       };
     },
     usePreferencesBootstrap: useEmpresasPreferencesBootstrapState,
-    useViewModePreference: useModeloBase1ViewModePreference,
-    useCardsVisFields: useModeloBase1CardsVisFields,
-    useSearchDropdownFields: useModeloBase1SearchDropdownFields,
-    useFavorites: useModeloBase1Favorites,
-    useInfiniteListData: useModeloBase1InfiniteListData,
-    useCustomFields: useModeloBase1CustomFields,
-    useFilterFieldsLayout: useModeloBase1FilterFieldsLayout,
   },
-
   data: {
     ...empresasDataConfig,
     patchListCache: patchEmpresasCache,
   },
-
   helpers: {
-    readInitialQuerySort,
-    readInitialColumnFiltersState,
-    readStoredTempListagemFilters,
-    writeStoredTempListagemFilters,
-    isPreferencesSectionDirty: isEmpPreferencesSectionDirty,
-    isRemoteTabPreferenceEvent,
-    subscribePreferencesCache: subscribeEmpPreferencesCache,
-    readPreferencesJson: readEmpPreferencesJson,
-    writePreferencesText: writeEmpPreferencesText,
-    getFieldsPerRowForLayout,
     findRecordInList: findEmpresaInList,
     normalizeRecord: normalizeEmpresaRecord,
     buildExportRows: buildEmpresaExportRows,
@@ -174,7 +100,6 @@ export const empresasModeloBase1Config = defineModeloBase1Config({
       (record?.codempresa != null &&
         Number(item.codempresa) === Number(record.codempresa)),
   },
-
   export: {
     getPdfExportConfig: getEmpPdfExportConfig,
     getExcelExportConfig: getEmpExcelExportConfig,

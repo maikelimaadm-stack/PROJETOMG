@@ -1,4 +1,8 @@
 import { loadAccessScope } from "../auth/accessScope.js";
+import {
+  assertCadastroAdminRole,
+  assertCadastroMutationRole,
+} from "../auth/cadastroRbac.js";
 import { marcaService } from "./services/marcaService.js";
 import { marcaCreateSchema, marcaListQuerySchema, marcaUpdateSchema } from "./validators.js";
 
@@ -35,6 +39,7 @@ export const registerModuleRoutes = async (app) => {
 
   app.post("/api/marcas", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    assertCadastroMutationRole(scope);
     const payload = parseOrThrow(marcaCreateSchema, request.body || {}, "Payload inválido.");
     try {
       const item = await marcaService.create(scope, payload);
@@ -47,6 +52,7 @@ export const registerModuleRoutes = async (app) => {
 
   app.put("/api/marcas/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    assertCadastroMutationRole(scope);
     const payload = parseOrThrow(marcaUpdateSchema, request.body || {}, "Payload inválido.");
     const item = await marcaService.update(scope, request.params.id, payload);
     if (!item) return reply.status(404).send({ message: "Marca não encontrada." });
@@ -55,6 +61,7 @@ export const registerModuleRoutes = async (app) => {
 
   app.delete("/api/marcas/:id", { preHandler: app.authenticate }, async (request, reply) => {
     const scope = await loadAccessScope(request);
+    assertCadastroAdminRole(scope);
     const result = await marcaService.remove(scope, request.params.id);
     if (!result) return reply.status(404).send({ message: "Marca não encontrada." });
     return { ok: true };

@@ -21,6 +21,7 @@ import {
   MakSearchPanel,
 } from "@/framework/mak/page/MakCadastroPage.jsx";
 import { ModeloBase1ExtraDialogs } from "@/ModeloBase1/render/ModeloBase1PanelSections.jsx";
+import MakFilterFieldsConfigDialog from "@/ModeloBase1/dialogs/MakFilterFieldsConfigDialog.jsx";
 import { MAK_LOAD_BATCH_OPTIONS } from "@/ModeloBase1/components/MakLoadBatchControls.jsx";
 
 const noopScopeAuth = () => ({
@@ -33,7 +34,8 @@ const noopScopeAuth = () => ({
 
 const DEFAULT_MAX_LOADED_ROWS = Math.max(
   1000,
-  Number(import.meta.env.VITE_EMP_MAX_LOADED_ROWS) || 10000
+  Number(import.meta.env.VITE_MAK_MAX_LOADED_ROWS || import.meta.env.VITE_EMP_MAX_LOADED_ROWS) ||
+    10000
 );
 
 export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
@@ -54,14 +56,18 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
   const searchView = overrides.searchView ?? buildSearchViewFromMakModule(makModule);
   const defaultHelpers = buildModeloBase1HelpersFromMakModule(makModule);
   const keyPrefix = makModule.preferencesAdapter?.keyPrefix ?? makModule.moduleId;
+  const moduleId = makModule.moduleId;
 
   return defineModeloBase1Config({
-    moduleId: makModule.moduleId,
+    moduleId,
     makModule,
     moduleDefinition,
     listMode: "infinite",
-    scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(makModule.moduleId),
-    tableKey: overrides.tableKey ?? `tbl-${makModule.moduleId}`,
+    scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(moduleId),
+    tableKey: overrides.tableKey ?? `tbl-${moduleId}`,
+    metricsCounterKey: overrides.metricsCounterKey ?? makModule.metricsEntityKey ?? moduleId,
+    dropdownQueryKeyPrefix:
+      overrides.dropdownQueryKeyPrefix ?? `${keyPrefix}-cadastro-dropdown`,
     preferencesAdapter: makModule.preferencesAdapter,
     searchView,
     labels,
@@ -70,6 +76,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       TablePanel: MakTablePanel,
       SearchPanel: MakSearchPanel,
       Dialogs: ModeloBase1ExtraDialogs,
+      FilterFieldsConfigDialog: overrides.components?.FilterFieldsConfigDialog ?? MakFilterFieldsConfigDialog,
       ...(overrides.components ?? {}),
     },
     hooks: {
@@ -89,19 +96,25 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
       ...(overrides.helpers ?? {}),
     },
     data: {
-      listQueryKey: makModule.listQueryKey ?? [`${makModule.moduleId}-cadastro`],
+      listQueryKey: makModule.listQueryKey ?? [`${moduleId}-cadastro`],
       infinitePageSize: defaultPageSize,
       maxLoadedRows: DEFAULT_MAX_LOADED_ROWS,
       loadBatchOptions: MAK_LOAD_BATCH_OPTIONS,
       loadBatchStorageKey: `${keyPrefix}_infinite_batch_size`,
-      readStoredLoadBatchSize: (fallback = MAK_LOAD_BATCH_OPTIONS[0]) => fallback,
+      readStoredLoadBatchSize: (fallback = MAK_LOAD_BATCH_OPTIONS[0]) => {
+        const saved = Number(
+          makModule.preferencesAdapter?.readText?.(`${keyPrefix}_infinite_batch_size`, null)
+        );
+        return Number.isFinite(saved) && saved > 0 ? saved : fallback;
+      },
+      patchListCache: makModule.patchListCache,
       ...(overrides.data ?? {}),
     },
     export: {
-      getPdfExportConfig: () => ({ useConfiguredColumns: false, columnIds: [] }),
-      getExcelExportConfig: () => ({}),
-      savePdfExportConfig: () => {},
-      saveExcelExportConfig: () => {},
+      getPdfExportConfig: makModule.getPdfExportConfig ?? (() => ({ useConfiguredColumns: false, columnIds: [] })),
+      getExcelExportConfig: makModule.getExcelExportConfig ?? (() => ({})),
+      savePdfExportConfig: makModule.savePdfExportConfig ?? (() => {}),
+      saveExcelExportConfig: makModule.saveExcelExportConfig ?? (() => {}),
       ...(overrides.export ?? {}),
     },
     ...overrides,

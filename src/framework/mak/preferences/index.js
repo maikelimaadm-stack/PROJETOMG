@@ -33,3 +33,14 @@ export {
 export { useMakPreferencesBootstrapAggregator } from "./useMakPreferencesBootstrapAggregator.js";
 export { createMakPreferencesEngine } from "./MakPreferencesEngine.js";
 export { createMakPreferencesScope } from "./createMakPreferencesScope.js";
+export {
+  registerMakPreferencesFlushHandler,
+  flushMakPreferencesNow,
+  listMakPreferencesFlushModuleIds,
+} from "./makPreferencesFlushRegistry.js";
+export {
+  broadcastMakPreferencesCrossTab,
+  subscribeMakPreferencesCrossTab,
+  isRemoteTabPreferenceEvent,
+  getMakPreferencesTabId,
+} from "./makPreferencesCrossTab.js";

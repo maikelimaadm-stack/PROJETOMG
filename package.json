@@ -43,7 +43,12 @@
     "test:preferences:isolation-real": "playwright test --config=playwright.staging-pr223.config.js",
     "test:preferences:schema-evidence": "node backend/scripts/validatePreferencesSchemaEvidence.js",
     "test:preferences:isolation-api": "node backend/scripts/validatePreferencesUserIsolationApi.js",
-    "test:preferences:put-security": "node backend/scripts/validatePreferencesPutSecurity.js"
+    "test:preferences:put-security": "node backend/scripts/validatePreferencesPutSecurity.js",
+    "gate:modelo-base1": "node scripts/gate-modelo-base1-cert.mjs",
+    "gate:paridade-empresas": "node scripts/gate-paridade-empresas.mjs",
+    "gate:promocao": "node scripts/gate-promocao-componentes.mjs",
+    "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs",
+    "verify:certification": "npm run build && npm run lint && npm run gate:certification"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

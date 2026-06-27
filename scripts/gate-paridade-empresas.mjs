@@ -21,22 +21,44 @@ const motor = read(MOTOR);
 const config = read(CONFIG);
 const searchPanel = read(SEARCH_PANEL);
 
-// G58-G62 — Props de painéis idênticos ao PAGEMP original
-gate("G58 — searchProps usa empresas", /empresas:\s*filteredPanelRecords/.test(motor));
-gate("G59 — MakCardsPanelStrip usa empresas", /MakCardsPanelStrip[\s\S]*?empresas=\{filteredPanelRecords\}/.test(motor));
-gate("G60 — MakTablePanelStrip usa empresas", /MakTablePanelStrip[\s\S]*?empresas=\{filteredPanelRecords\}/.test(motor));
-gate("G61 — tableProps usa empresas", /empresas:\s*filteredPanelRecords/.test(motor));
-gate("G62 — SearchPanel aceita prop empresas", /empresas:\s*empresasProp/.test(searchPanel));
+// G58-G62 — Props genéricos records (+ retrocompat empresas)
+gate("G58 — searchProps usa records", /records:\s*filteredPanelRecords/.test(motor));
+gate(
+  "G59 — MakCardsPanelStrip usa records",
+  /MakCardsPanelStrip[\s\S]*?records=\{filteredPanelRecords\}/.test(motor)
+);
+gate(
+  "G60 — MakTablePanelStrip usa records",
+  /MakTablePanelStrip[\s\S]*?records=\{filteredPanelRecords\}/.test(motor)
+);
+gate("G61 — tableProps usa records", /records:\s*filteredPanelRecords/.test(motor));
+gate(
+  "G62 — SearchPanel aceita prop records",
+  /records:\s*recordsProp/.test(searchPanel)
+);
 
-// G63-G66 — Hooks promovidos ModeloBase1
-gate("G63 — useModeloBase1ViewModePreference", config.includes("useModeloBase1ViewModePreference"));
-gate("G64 — useModeloBase1Favorites", config.includes("useModeloBase1Favorites"));
-gate("G65 — useModeloBase1CardsVisFields", config.includes("useModeloBase1CardsVisFields"));
-gate("G66 — useModeloBase1InfiniteListData", config.includes("useModeloBase1InfiniteListData"));
+// G63-G66 — Hooks promovidos via factory ModeloBase1
+const factoryHooks = read(`${ROOT}/src/ModeloBase1/config/buildModeloBase1ConfigFromMakModule.js`);
+gate(
+  "G63 — useModeloBase1ViewModePreference",
+  config.includes("useModeloBase1ViewModePreference") || factoryHooks.includes("useModeloBase1ViewModePreference")
+);
+gate(
+  "G64 — useModeloBase1Favorites",
+  config.includes("useModeloBase1Favorites") || factoryHooks.includes("useModeloBase1Favorites")
+);
+gate(
+  "G65 — useModeloBase1CardsVisFields",
+  config.includes("useModeloBase1CardsVisFields") || factoryHooks.includes("useModeloBase1CardsVisFields")
+);
+gate(
+  "G66 — useModeloBase1InfiniteListData",
+  config.includes("useModeloBase1InfiniteListData") || factoryHooks.includes("useModeloBase1InfiniteListData")
+);
 
 // G67-G68 — Listagem infinita / tabela
-gate("G67 — searchView empresas configurado", config.includes("searchView: empresasSearchViewConfig"));
-gate("G68 — tableProps isLoadingEmpresas", motor.includes("isLoadingEmpresas: recordsLoading"));
+gate("G67 — searchView empresas configurado", config.includes("searchView: empresasSearchViewConfig") || config.includes("empresasSearchViewConfig"));
+gate("G68 — tableProps isLoadingRecords", motor.includes("isLoadingRecords: recordsLoading"));
 
 // G69-G72 — Sem regressão de componente genérico quebrado
 gate("G69 — SearchPanel promovido wired no makModule", read(`${ROOT}/src/modules/empresas/config/empresasMakModule.js`).includes("MakCadastroSearchPanel"));

@@ -5,14 +5,12 @@ import EmpTablePagination from "@/framework/cadastro/pagination/EmpTablePaginati
 import MgCardsVirtualGrid from "@/ModeloBase1/cards/MgCardsVirtualGrid.jsx";
 import {
   formatSearchCounter,
-  getEmpSearchAvatarColor,
-  getEmpSearchFieldValue,
-  getEmpSearchInitials,
-  loadSearchFavorites,
-  loadSearchVisFields,
-  saveSearchFavorites,
-  saveSearchVisFields,
-} from "@/modules/empresas/components/empSearchView.constants";
+  ROW_DBLCLICK_OPEN_MS,
+  ROW_DBLCLICK_PAIR_MS,
+} from "@/framework/mak/search/makSearchView.utils.js";
+import { useMakCadastroSearchPanelPrefs } from "@/ModeloBase1/search/useMakCadastroSearchPanelPrefs.js";
+import { useMakSearchFieldResolver } from "@/ModeloBase1/search/useMakSearchFieldResolver.js";
+import { useModeloBase1Config } from "@/ModeloBase1/config";
 import MakDock from "@/framework/mak/dock/MakDock";
 import { MakRecordFavoriteStar } from "@/framework/mak/layout";
 import { useMakModuleRequired } from "@/framework/mak/runtime/MakModuleContext.jsx";
@@ -23,10 +21,8 @@ import {
   estimateCardRowHeight,
 } from "@/shared/hooks/useGridVirtualizer";
 import { scrollVirtualRowIntoView } from "@/shared/utils/virtualScrollIntoView";
-import { ROW_DBLCLICK_OPEN_MS, ROW_DBLCLICK_PAIR_MS } from "@/modules/empresas/components/tblEmp.constants";
 import { LIST_PAGE_SIZE_OPTIONS } from "@/shared/listing/listQueryConfig";
 import MakLoadBatchControls from "@/ModeloBase1/components/MakLoadBatchControls.jsx";
-import { subscribeEmpPreferencesCache } from "@/modules/empresas/preferences/empresasPreferencesCache";
 import "./makCadastroSearchPanel.css";
 
 function SearchPageSizeSelect({ value, onChange }) {
@@ -191,7 +187,7 @@ function SearchConfigModal({ open, fields, onClose, onSave }) {
 
 export default function MakCadastroSearchPanel({
   empresas: empresasProp,
-  records: recordsAlias,
+  records: recordsProp,
   total = 0,
   isLoading = false,
   isFetching = false,
@@ -222,23 +218,28 @@ export default function MakCadastroSearchPanel({
   totalCount,
 }) {
   const module = useMakModuleRequired();
+  const config = useModeloBase1Config();
+  const searchView = config.searchView ?? {};
+  const cardCatalog = searchView.defaultFields ?? module.metadata?.search?.cardFields ?? [];
+  const { codeField, titleField, getFieldValue, getInitials, getAvatarColor } =
+    useMakSearchFieldResolver();
+  const { visFields, favorites, saveVisFields, toggleFavorite } =
+    useMakCadastroSearchPanelPrefs(cardCatalog);
   const LoadBatchControls = module.components?.LoadBatchControls ?? MakLoadBatchControls;
-  const empresas = empresasProp ?? recordsAlias ?? [];
+  const records = recordsProp ?? empresasProp ?? [];
   const [localSearch, setLocalSearch] = useState(searchValue);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
-  const [visFields, setVisFields] = useState(() => loadSearchVisFields());
-  const [favorites, setFavorites] = useState(() => loadSearchFavorites());
   const lastCardClickRef = useRef({ id: null, time: 0, wasSelectedBefore: false });
   const cardClickSuppressRef = useRef({ id: null, until: 0 });
   const selectedIdsRef = useRef(selectedIds);
   const lastSelectedIdRef = useRef(null);
   const cardsScrollRef = useRef(null);
 
-  const filteredEmpresas = useMemo(() => {
-    if (!showOnlyFavorites) return empresas;
-    return empresas.filter((emp) => favorites.has(emp.id));
-  }, [empresas, favorites, showOnlyFavorites]);
+  const filteredRecords = useMemo(() => {
+    if (!showOnlyFavorites) return records;
+    return records.filter((record) => favorites.has(record.id));
+  }, [records, favorites, showOnlyFavorites]);
 
   const detailFields = mgPrototype
     ? cardsDetailFields
@@ -261,19 +262,6 @@ export default function MakCadastroSearchPanel({
   }, [searchValue]);
 
   useEffect(() => {
-    const refresh = () => {
-      setVisFields(loadSearchVisFields());
-      setFavorites(loadSearchFavorites());
-    };
-    const unsubscribe = subscribeEmpPreferencesCache(refresh);
-    window.addEventListener("emp-favorites-updated", refresh);
-    return () => {
-      unsubscribe();
-      window.removeEventListener("emp-favorites-updated", refresh);
-    };
-  }, []);
-
-  useEffect(() => {
     const timer = window.setTimeout(() => {
       if (localSearch !== searchValue) {
         onPageChange?.(1);
@@ -291,61 +279,52 @@ export default function MakCadastroSearchPanel({
   const counterText = formatSearchCounter({
     page,
     pageSize,
-    pageCount: filteredEmpresas.length,
+    pageCount: filteredRecords.length,
     total,
   });
   const summarySelected = Number.isFinite(selectedCount) ? selectedCount : selectedIds.length;
-  const summaryListed = Number.isFinite(listedCount) ? listedCount : filteredEmpresas.length;
+  const summaryListed = Number.isFinite(listedCount) ? listedCount : filteredRecords.length;
   const summaryFiltered = Number.isFinite(filteredCount) ? filteredCount : Math.max(total, summaryListed);
   const summaryTotal = Number.isFinite(totalCount) ? totalCount : Math.max(summaryFiltered, summaryListed);
   const activeSelectionId = selectedIds.length > 0 ? selectedIds[selectedIds.length - 1] : null;
 
-  const toggleFavorite = useCallback((empresaId, event) => {
-    event?.stopPropagation();
-    setFavorites((current) => {
-      const next = new Set(current);
-      if (next.has(empresaId)) next.delete(empresaId);
-      else next.add(empresaId);
-      saveSearchFavorites(next);
-      return next;
-    });
-  }, []);
-
-  const handleSaveVisConfig = useCallback((nextFields) => {
-    setVisFields(nextFields);
-    saveSearchVisFields(nextFields);
-  }, []);
+  const handleSaveVisConfig = useCallback(
+    (nextFields) => {
+      saveVisFields(nextFields);
+    },
+    [saveVisFields]
+  );
 
   const handleCardClick = useCallback(
-    (emp, event) => {
+    (record, event) => {
       const now = Date.now();
       const suppress = cardClickSuppressRef.current;
-      if (suppress.id === emp.id && now < suppress.until) return;
+      if (suppress.id === record.id && now < suppress.until) return;
 
       const last = lastCardClickRef.current;
-      const interval = last.id === emp.id && last.time > 0 ? now - last.time : null;
+      const interval = last.id === record.id && last.time > 0 ? now - last.time : null;
 
       if (interval !== null && interval <= ROW_DBLCLICK_PAIR_MS) {
         lastCardClickRef.current = { id: null, time: 0, wasSelectedBefore: false };
         cardClickSuppressRef.current = { id: null, until: 0 };
 
         if (!last.wasSelectedBefore && interval <= ROW_DBLCLICK_OPEN_MS) {
-          if (selectedIdsRef.current.length <= 1) onEdit?.(emp);
+          if (selectedIdsRef.current.length <= 1) onEdit?.(record);
         }
         return;
       }
 
-      const wasSelectedBefore = selectedIdsRef.current.includes(emp.id);
-      lastCardClickRef.current = { id: emp.id, time: now, wasSelectedBefore };
+      const wasSelectedBefore = selectedIdsRef.current.includes(record.id);
+      lastCardClickRef.current = { id: record.id, time: now, wasSelectedBefore };
 
       if (event?.shiftKey && lastSelectedIdRef.current) {
-        const startIndex = filteredEmpresas.findIndex((item) => item.id === lastSelectedIdRef.current);
-        const endIndex = filteredEmpresas.findIndex((item) => item.id === emp.id);
+        const startIndex = filteredRecords.findIndex((item) => item.id === lastSelectedIdRef.current);
+        const endIndex = filteredRecords.findIndex((item) => item.id === record.id);
         if (startIndex >= 0 && endIndex >= 0) {
           const [from, to] = [Math.min(startIndex, endIndex), Math.max(startIndex, endIndex)];
-          const rangeIds = filteredEmpresas.slice(from, to + 1).map((item) => item.id);
+          const rangeIds = filteredRecords.slice(from, to + 1).map((item) => item.id);
           onSelectionChange?.(rangeIds);
-          lastSelectedIdRef.current = emp.id;
+          lastSelectedIdRef.current = record.id;
           cardClickSuppressRef.current = { id: null, until: 0 };
           cardsScrollRef.current?.focus?.({ preventScroll: true });
           return;
@@ -354,12 +333,12 @@ export default function MakCadastroSearchPanel({
 
       if (event?.ctrlKey || event?.metaKey) {
         const nextSelection = wasSelectedBefore
-          ? selectedIdsRef.current.filter((id) => id !== emp.id)
-          : [...selectedIdsRef.current, emp.id];
+          ? selectedIdsRef.current.filter((id) => id !== record.id)
+          : [...selectedIdsRef.current, record.id];
         onSelectionChange?.(nextSelection);
-        lastSelectedIdRef.current = nextSelection.length > 0 ? emp.id : null;
+        lastSelectedIdRef.current = nextSelection.length > 0 ? record.id : null;
         cardClickSuppressRef.current = wasSelectedBefore
-          ? { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS }
+          ? { id: record.id, until: now + ROW_DBLCLICK_PAIR_MS }
           : { id: null, until: 0 };
         cardsScrollRef.current?.focus?.({ preventScroll: true });
         return;
@@ -368,17 +347,17 @@ export default function MakCadastroSearchPanel({
       if (wasSelectedBefore) {
         onSelectionChange?.([]);
         lastSelectedIdRef.current = null;
-        cardClickSuppressRef.current = { id: emp.id, until: now + ROW_DBLCLICK_PAIR_MS };
+        cardClickSuppressRef.current = { id: record.id, until: now + ROW_DBLCLICK_PAIR_MS };
         cardsScrollRef.current?.focus?.({ preventScroll: true });
         return;
       }
 
-      onSelectionChange?.([emp.id]);
-      lastSelectedIdRef.current = emp.id;
+      onSelectionChange?.([record.id]);
+      lastSelectedIdRef.current = record.id;
       cardClickSuppressRef.current = { id: null, until: 0 };
       cardsScrollRef.current?.focus?.({ preventScroll: true });
     },
-    [onEdit, onSelectionChange, filteredEmpresas]
+    [onEdit, onSelectionChange, filteredRecords]
   );
 
   const handleCardsKeyDown = useCallback(
@@ -390,13 +369,13 @@ export default function MakCadastroSearchPanel({
           (lastSelectedIdRef.current && selectedIdsRef.current.includes(lastSelectedIdRef.current))
             ? lastSelectedIdRef.current
             : selectedIdsRef.current[selectedIdsRef.current.length - 1];
-        const currentIndex = filteredEmpresas.findIndex((item) => item.id === anchorId);
+        const currentIndex = filteredRecords.findIndex((item) => item.id === anchorId);
         if (currentIndex < 0) return;
         const nextIndex = Math.min(
           Math.max(currentIndex + step, 0),
-          Math.max(0, filteredEmpresas.length - 1)
+          Math.max(0, filteredRecords.length - 1)
         );
-        const nextRecord = filteredEmpresas[nextIndex];
+        const nextRecord = filteredRecords[nextIndex];
         if (!nextRecord?.id) return;
         event.preventDefault();
         const scrollEl = cardsScrollRef.current;
@@ -422,17 +401,17 @@ export default function MakCadastroSearchPanel({
           (lastSelectedIdRef.current && selectedIdsRef.current.includes(lastSelectedIdRef.current))
             ? lastSelectedIdRef.current
             : selectedIdsRef.current[selectedIdsRef.current.length - 1];
-        const selectedRecord = filteredEmpresas.find((item) => item.id === anchorId);
+        const selectedRecord = filteredRecords.find((item) => item.id === anchorId);
         if (!selectedRecord) return;
         event.preventDefault();
         onEdit?.(selectedRecord);
       }
     },
-    [filteredEmpresas, onSelectionChange, onEdit, cardsPerRow, fieldsPerRow, detailFields]
+    [filteredRecords, onSelectionChange, onEdit, cardsPerRow, fieldsPerRow, detailFields]
   );
 
   if (mgPrototype) {
-    const showCardsLoading = isLoading && filteredEmpresas.length === 0;
+    const showCardsLoading = isLoading && filteredRecords.length === 0;
 
     return (
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -445,7 +424,7 @@ export default function MakCadastroSearchPanel({
         >
           {showCardsLoading ? (
             <div className="py-8" aria-hidden="true" />
-          ) : filteredEmpresas.length === 0 ? (
+          ) : filteredRecords.length === 0 ? (
             <div className="py-8 text-center text-[13px]" style={{ color: "var(--text-3)" }}>
               Nenhum registro encontrado
             </div>
@@ -453,7 +432,7 @@ export default function MakCadastroSearchPanel({
             <MgCardsVirtualGrid
               key={cardsLayoutKey}
               scrollRef={cardsScrollRef}
-              items={filteredEmpresas}
+              items={filteredRecords}
               cardsPerRow={cardsPerRow}
               fieldsPerRow={fieldsPerRow}
               detailFields={detailFields}
@@ -531,7 +510,7 @@ export default function MakCadastroSearchPanel({
       <main className="emp-search-results">
         {isLoading ? (
           <div className="py-8" aria-hidden="true" />
-        ) : filteredEmpresas.length === 0 ? (
+        ) : filteredRecords.length === 0 ? (
           <MakEmptyState
             title={
               showOnlyFavorites ? "Nenhum favorito nesta página." : "Nenhum registro encontrado."
@@ -540,23 +519,23 @@ export default function MakCadastroSearchPanel({
           />
         ) : (
           <div className="emp-search-results-list">
-            {filteredEmpresas.map((emp, index) => {
-              const isFavorite = favorites.has(emp.id);
-              const code = getEmpSearchFieldValue(emp, "codempresa");
-              const title = getEmpSearchFieldValue(emp, "razao_social");
+            {filteredRecords.map((record, index) => {
+              const isFavorite = favorites.has(record.id);
+              const code = getFieldValue(record, codeField);
+              const title = getFieldValue(record, titleField);
               return (
                 <div
-                  key={emp.id}
+                  key={record.id}
                   className="emp-search-result-card"
-                  onClick={() => onEdit?.(emp)}
+                  onClick={() => onEdit?.(record)}
                   role="presentation"
                 >
                   <div className="emp-search-result-layout">
                     <div
                       className="emp-search-avatar"
-                      style={{ background: getEmpSearchAvatarColor(emp, index) }}
+                      style={{ background: getAvatarColor(record, index) }}
                     >
-                      {getEmpSearchInitials(emp)}
+                      {getInitials(record)}
                     </div>
                     <div className="emp-search-result-details">
                       <div className="emp-search-result-head">
@@ -566,7 +545,7 @@ export default function MakCadastroSearchPanel({
                         <button
                           type="button"
                           className={`emp-search-fav-btn${isFavorite ? " emp-search-fav-btn--active" : ""}`}
-                          onClick={(event) => toggleFavorite(emp.id, event)}
+                          onClick={(event) => toggleFavorite(record.id, event)}
                           aria-label={isFavorite ? "Remover favorito" : "Adicionar favorito"}
                         >
                           <Star
@@ -581,7 +560,7 @@ export default function MakCadastroSearchPanel({
                             <div key={field.key}>
                               <span className="emp-search-field-label">{field.label}: </span>
                               <span className="emp-search-field-value">
-                                {getEmpSearchFieldValue(emp, field.key)}
+                                {getFieldValue(record, field.key)}
                               </span>
                             </div>
                           ))}

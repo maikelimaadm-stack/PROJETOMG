@@ -1,24 +1,29 @@
 /**
- * Agregador de bootstrap de preferências — camada de aplicação (não Foundation).
- * Módulos registram hooks via registerMakPreferencesBootstrapModule.
+ * Agregador multi-módulo de bootstrap de preferências.
  */
 import { useEmpresasPreferencesBootstrap } from "@/modules/empresas/preferences/useEmpresasPreferencesBootstrap";
+import { listMakPreferencesBootstrapModuleIds } from "@/framework/mak/preferences/bootstrapRegistry.js";
 
 export function useAppPreferencesBootstrap(enabledModuleIds, userId) {
-  const ids = Array.isArray(enabledModuleIds) ? enabledModuleIds : ["empresas"];
+  const registryIds = listMakPreferencesBootstrapModuleIds();
+  const ids = Array.isArray(enabledModuleIds) ? enabledModuleIds : registryIds;
   const activeUserId = userId ?? null;
 
-  const empresasEnabled = ids.includes("empresas");
+  const empresasEnabled = ids.includes("empresas") && registryIds.includes("empresas");
   const empresas = useEmpresasPreferencesBootstrap(empresasEnabled ? activeUserId : null);
 
   const modules = {
     ...(empresasEnabled ? { empresas } : {}),
   };
 
+  const primaryModuleId = empresasEnabled ? "empresas" : ids.find((id) => modules[id]) ?? null;
+
   return {
     moduleIds: ids,
     modules,
     empresas: empresasEnabled ? empresas : null,
-    primary: empresasEnabled ? empresas : null,
+    primary: primaryModuleId ? modules[primaryModuleId] ?? null : null,
   };
 }
+
+export default useAppPreferencesBootstrap;
