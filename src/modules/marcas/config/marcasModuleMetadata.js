@@ -4,10 +4,12 @@
 import { buildMakTableMetadata } from "@/framework/mak/metadata/buildMakTableMetadata.js";
 import { buildMakFormMetadata } from "@/framework/mak/metadata/buildMakFormMetadata.js";
 import { buildMakPageMetadata } from "@/framework/mak/metadata/buildMakPageMetadata.js";
+import { buildMakStandardDynamicFields } from "@/framework/mak/metadata/buildMakStandardDynamicFields.jsx";
 import {
   MAR_COLUNAS_BASE,
   MAR_FORM_BASE_PANELS,
   MAR_FORM_DEFAULT_LAYOUT,
+  MAR_FORM_FIELD_DEFS,
   MAR_NATIVE_FIELDS,
   MAR_REQUIRED_FIELDS,
   MAR_UPPER_FIELDS,
@@ -33,6 +35,7 @@ export const marcasModuleMetadata = {
     nativeFields: MAR_NATIVE_FIELDS,
     inputClass,
     applyDuplicateFieldClears,
+    buildDynamicFields: buildMakStandardDynamicFields(MAR_FORM_FIELD_DEFS),
   }),
   search: {
     titleField: "nome",

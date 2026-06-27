@@ -39,6 +39,9 @@ import {
 } from "@/modules/empresas/preferences/empresasPreferencesScopeState";
 import { stableJsonEqual } from "@/shared/utils/stableStringify";
 import { normalizeEmpListViewMode } from "@/framework/mak/layout/mgViewMode.js";
+import { dispatchModuleEvent } from "@/framework/mak/events/makModuleEvents.js";
+
+const EMPRESAS_MODULE_ID = "empresas";
 
 export const EMPRESAS_LISTAGEM_SCOPE = Object.freeze({
   modulo: "empresas",
@@ -154,9 +157,7 @@ export const readStoredEmpViewMode = () =>
 
 export const writeStoredEmpViewMode = (mode, reason = "listagem:view-mode") => {
   writeStorage(EMP_VIEW_MODE_STORAGE_KEY, normalizeViewMode(mode), reason);
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent("emp-view-mode-updated"));
-  }
+  dispatchModuleEvent(EMPRESAS_MODULE_ID, "view-mode-updated");
 };
 
 export const readStoredLaunchPanelStyle = () =>
@@ -512,11 +513,11 @@ export const applyListagemPreferencesToStorage = (preferences = {}, options = {}
 
   if (visualChange) {
     if (normalized.view?.mode) {
-      window.dispatchEvent(new CustomEvent("emp-view-mode-updated"));
+      dispatchModuleEvent(EMPRESAS_MODULE_ID, "view-mode-updated");
     }
-    window.dispatchEvent(new CustomEvent("emp-column-layout-updated"));
-    window.dispatchEvent(new CustomEvent("emp-filter-fields-layout-updated"));
-    window.dispatchEvent(new CustomEvent("emp-favorites-updated"));
+    dispatchModuleEvent(EMPRESAS_MODULE_ID, "column-layout-updated");
+    dispatchModuleEvent(EMPRESAS_MODULE_ID, "filter-fields-layout-updated");
+    dispatchModuleEvent(EMPRESAS_MODULE_ID, "favorites-updated");
   }
 
   return visualChange;

@@ -37,3 +37,17 @@ export const applyDuplicateFieldClears = (data) => ({
   codigo: undefined,
   id: undefined,
 });
+
+export const PRO_FORM_FIELD_DEFS = [
+  { id: "codigo", name: "codigo", label: "Código", autoCode: true },
+  { id: "nome", name: "nome", label: "Nome", required: true, uppercase: true },
+  {
+    id: "status",
+    name: "status",
+    label: "Status",
+    type: "select",
+    options: ["Ativo", "Inativo"],
+  },
+  { id: "preco", name: "preco", label: "Preço", type: "number" },
+  { id: "descricao", name: "descricao", label: "Descrição", type: "textarea", uppercase: true },
+];

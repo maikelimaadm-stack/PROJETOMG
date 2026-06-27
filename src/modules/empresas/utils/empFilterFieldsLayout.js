@@ -2,11 +2,12 @@ import {
   readEmpPreferencesJson,
   writeEmpPreferencesJson,
 } from "@/modules/empresas/preferences/empresasPreferencesCache";
+import { dispatchModuleEvent } from "@/framework/mak/events/makModuleEvents.js";
 
 export const EMP_FILTER_FIELDS_LAYOUT_KEY = "emp_filter_fields_layout_v1";
 
 const dispatchLayoutUpdated = () => {
-  window.dispatchEvent(new CustomEvent("emp-filter-fields-layout-updated"));
+  dispatchModuleEvent("empresas", "filter-fields-layout-updated");
 };
 
 export const mergeSavedFilterFieldOrder = (savedOrder, catalogKeys) => {

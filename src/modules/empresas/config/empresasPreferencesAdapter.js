@@ -16,6 +16,7 @@ import { EMP_PREFERENCES_BOOTSTRAP_APPLIED_EVENT } from "@/modules/empresas/pref
 
 export const empresasPreferencesAdapter = {
   moduleId: "empresas",
+  keyPrefix: "emp",
   readJson: readEmpPreferencesJson,
   readText: readEmpPreferencesText,
   writeText: writeEmpPreferencesText,
