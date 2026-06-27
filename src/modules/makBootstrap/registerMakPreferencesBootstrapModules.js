@@ -4,5 +4,6 @@ import "@/modules/produtos/preferences/registerProdutosPreferencesBootstrap.js";
 import "@/modules/marcas/preferences/registerMarcasPreferencesBootstrap.js";
 import "@/modules/cadcps/preferences/registerCadcpsPreferencesBootstrap.js";
 import "@/modules/makBootstrap/registerMakFoundationEngines.js";
+import "@/modules/makBootstrap/registerMakLayoutConfigEngine.js";
 
 export { listMakPreferencesBootstrapModuleIds } from "@/framework/mak/preferences/bootstrapRegistry.js";

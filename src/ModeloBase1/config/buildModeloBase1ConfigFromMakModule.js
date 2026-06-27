@@ -5,6 +5,7 @@ import { defineModeloBase1Config } from "./defineModeloBase1Config.js";
 import { buildSearchViewFromMakModule } from "./buildSearchViewFromMakModule.js";
 import { buildModeloBase1HelpersFromMakModule } from "./buildModeloBase1HelpersFromMakModule.js";
 import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1ScopeCss.js";
+import { buildMakLayoutConfigMetadata } from "@/framework/mak/layoutConfig/buildMakLayoutConfigMetadata.js";
 import {
   useModeloBase1InfiniteListData,
   useModeloBase1Favorites,
@@ -57,6 +58,9 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
   const defaultHelpers = buildModeloBase1HelpersFromMakModule(makModule);
   const keyPrefix = makModule.preferencesAdapter?.keyPrefix ?? makModule.moduleId;
   const moduleId = makModule.moduleId;
+  const layoutEngineMetadata = makModule.cadastroConfig
+    ? buildMakLayoutConfigMetadata(makModule.cadastroConfig)
+    : null;
 
   const {
     hooks: overrideHooks,
@@ -75,6 +79,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     moduleDefinition,
     listMode: "infinite",
     scopeCssClass: overrides.scopeCssClass ?? buildModeloBase1ScopeCssClass(moduleId),
+    layoutEngine: overrides.layoutEngine ?? layoutEngineMetadata,
     tableKey: overrides.tableKey ?? `tbl-${moduleId}`,
     metricsCounterKey: overrides.metricsCounterKey ?? makModule.metricsEntityKey ?? moduleId,
     dropdownQueryKeyPrefix:

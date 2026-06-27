@@ -21,6 +21,9 @@ import {
  * @property {(sources: object[]) => Promise<Record<string, object[]>>} [optionsProvider]
  * @property {(campos: object[]) => import('zod').ZodObject} [validatorProvider]
  * @property {string[]} [nativeRequiredFieldNames]
+ * @property {string[]} [fixedPanelIds] — painéis imutáveis no configurador
+ * @property {string[]} [fixedVisibleFieldIds] — campos sempre visíveis no configurador
+ * @property {boolean} [brandTheme] — tema visual do configurador de layout
  * @property {string} [legacyGlobalStorageKey] — migração cadastro_emp_form_layout_config
  */
 
@@ -42,6 +45,9 @@ export function createCadastroModuleConfig(config) {
     systemPanelIds: [],
     customFieldsQueryKey: `${config.moduleId}-campos-personalizados`,
     nativeRequiredFieldNames: [],
+    fixedPanelIds: [],
+    fixedVisibleFieldIds: [],
+    brandTheme: true,
     ...config,
   });
 }

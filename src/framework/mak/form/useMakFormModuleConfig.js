@@ -1,4 +1,5 @@
 import { useMakModuleRequired } from "@/framework/mak/runtime/MakModuleContext.jsx";
+import { buildMakLayoutConfigMetadata } from "@/framework/mak/layoutConfig/buildMakLayoutConfigMetadata.js";
 
 /**
  * Config declarativa de formulário via runtime do módulo (sem imports Empresas na Foundation).
@@ -17,6 +18,7 @@ export function useMakFormModuleConfig() {
     repository: module.repository,
     schema: module.schema,
     cadastroConfig: module.cadastroConfig,
+    layout: module.cadastroConfig ? buildMakLayoutConfigMetadata(module.cadastroConfig) : null,
     form,
     prefs,
     readJson: prefs.readJson.bind(prefs),

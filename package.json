@@ -52,6 +52,7 @@
     "gate:ssot": "node scripts/gate-ssot-propagation.mjs",
     "gate:functional-completion": "node scripts/gate-functional-completion.mjs",
     "gate:foundation-completion": "node scripts/gate-foundation-completion.mjs",
+    "gate:layout-config-engine-v13": "node scripts/gate-layout-config-engine-v13.mjs",
     "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs && node scripts/gate-generator-modelobase1.mjs",
     "verify:certification": "npm run build && npm run lint && npm run gate:certification",
     "verify:governance": "npm run build && npm run lint && npm run gate:certification && npm run gate:governance",
