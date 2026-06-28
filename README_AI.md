@@ -34,7 +34,7 @@ Before altering **any** file, read and verify:
 
 **If any document is outdated relative to the code, update it before proceeding.**
 
-**All implementation missions must follow the [10-phase PIP lifecycle](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md).**
+**All implementation missions must follow the [10-phase PIP lifecycle](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md), including [RHP start/end/post-merge](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md#10-repository-health-protocol-rhp) (D-019).**
 
 Operational commands: [`AGENTS.md`](./AGENTS.md)
 
@@ -133,7 +133,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | MAK Studio | Not implemented |
 | MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
-| Implementation Protocol | v1.0.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
+| Implementation Protocol | v1.1.0 — includes RHP (D-019) |
 | Legacy layer | `src/framework/cadastro/` — do not extend |
 
 ---
