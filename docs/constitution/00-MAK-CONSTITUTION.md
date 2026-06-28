@@ -65,6 +65,7 @@ Complementary to Constitution — updated every mission per doc 11:
 | Capabilities Registry | `/docs/engineering/CAPABILITIES-REGISTRY.md` |
 | Tech Debt | `/docs/engineering/TECH-DEBT.md` |
 | Documentation Certification | `/docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
+| MAK DATA PLATFORM spec | `/docs/engineering/MAK-DATA-PLATFORM.md` |
 
 Future missions may add engineering docs (e.g. MAK Studio spec) outside `/docs/constitution/`.
 

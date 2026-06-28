@@ -125,6 +125,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | New module creation | `npm run generate:module` only |
 | Primary gate suite | `npm run verify:governance` |
 | MAK Studio | Not implemented |
+| MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
 | Legacy layer | `src/framework/cadastro/` — do not extend |
 
 ---
@@ -152,4 +153,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-28 — Mission 0.2 Documentation Certification*
+*Last updated: 2026-06-28 — IFM Mission 1 (MDP strategy)*

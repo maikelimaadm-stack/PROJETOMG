@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Mission 0.2 certification)  
+**Last updated:** 2026-06-28 (IFM Mission 1 — MDP strategy approved)  
 **Horizon:** Technical roadmap based on verified platform state (not legacy planning docs)
 
 ---
@@ -35,16 +35,17 @@ Priority order for all work:
 
 **Programa 1 — Integridade e Fundação de Metadados (IFM)**
 
-Strategic decision **D-011**: IFM precedes MAK Studio because P0 schema gaps, registry desync, legacy layer, and missing entity catalog/introspection API would cause Studio to build parallel implementations.
+Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Phase 1C is explicitly **MAK DATA PLATFORM (MDP)** — the metadata nucleus.
 
 | Sub-phase | Roadmap refs | Goal |
 |-----------|--------------|------|
 | **1A Estabilidade** | S1–S4 | Reliable deploys, registry SSOT |
 | **1B Arquitetura** | A1–A2 | Legacy promotion, generic naming |
-| **1C Metadata Foundation** | P1–P2 | Entity catalog + introspection API |
-| **1D Governance** | TD-013 | V13–V20 gates in CI |
+| **1C MAK DATA PLATFORM** | MDP-1→5 | Entity · Data · Relationship Dictionaries + Metadata Registry |
+| **1D Governança** | TD-013 | V13–V20 gates in CI |
 
-**MAK Studio = Program 2** — starts after IFM 1C.
+**MAK Studio = Program 2** — starts after IFM 1C (MDP-4 minimum).  
+**Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
 
 ---
 
@@ -71,20 +72,24 @@ Strategic decision **D-011**: IFM precedes MAK Studio because P0 schema gaps, re
 
 ---
 
-## Phase 3 — Preparação da Plataforma (IFM Phase 1C)
+## Phase 3 — MAK DATA PLATFORM (IFM Phase 1C)
 
-| ID | Item | Priority |
-|----|------|----------|
-| P1 | Entity catalog schema (full Data Dictionary) | P1 |
-| P2 | Metadata introspection API for future Studio | P1 |
-| P3 | Module definition versioning | P2 |
-| P4 | Unified registry sync (FE/BE/bootstrap) | P1 |
+| ID | Item | Priority | MDP ref |
+|----|------|----------|---------|
+| MDP-1 | Entity Dictionary — schema + API + registry sync | P1 | §3.1 |
+| MDP-2 | Data Dictionary — evolve CADCPS to all fields | P1 | §3.2 |
+| MDP-3 | Relationship Dictionary — schema + API | P1 | §3.3 |
+| MDP-4 | Metadata Registry + introspection API | P1 | §3.4 |
+| MDP-5 | Definition versioning + publish pipeline | P2 | §4 |
+| P4 | Unified registry sync (FE/BE/bootstrap) | P1 | Supports MDP-1 |
+
+Full specification: [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
 
 ---
 
 ## Phase 4 — MAK Studio (Program 2 — Future)
 
-Prerequisite: **Program 1 (IFM) complete** through Phase 1C. **No parallel UI framework.**
+Prerequisite: **IFM 1C complete** (MDP-4 minimum — Metadata Registry + introspection API). **No parallel UI framework.**
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
@@ -112,10 +117,10 @@ After Phase 1 (S1–S2) complete:
 
 | Platform | Dependency |
 |----------|------------|
-| Marketplace | Module versioning + sandbox + `ClienteModulo` evolution |
-| Knowledge Platform | Independent content layer |
-| AI Platform | API boundaries + RBAC; no shadow integrations |
-| Offline / Sync | Outbox/replication design — not started |
+| Marketplace | MDP definition bundles + versioning + sandbox |
+| Knowledge Platform | MDP entity links + independent content layer |
+| AI Platform | MDP introspection API + RBAC boundaries |
+| Offline / Sync | MDP definition snapshots + outbox (future) |
 
 ---
 

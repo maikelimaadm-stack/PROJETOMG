@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Mission 0.2)  
+**Last updated:** 2026-06-28 (IFM Mission 1)  
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -131,10 +131,34 @@
 | Field | Value |
 |-------|-------|
 | **Date** | 2026-06-28 |
+| **Status** | Accepted — refined by D-012/D-013 |
+| **Decision** | Official next architectural program is **Programa 1 — IFM**, not MAK Studio. Studio becomes Program 2 after MDP (IFM 1C). |
+| **Evidence** | Mission 0.2 GAP analysis; P0 Produto migration; TD-001–TD-003 |
+| **Consequences** | Sprint work follows IFM 1A→1D before Studio; Phase 1C = MAK DATA PLATFORM |
+
+---
+
+## D-012 — MAK DATA PLATFORM as Official Layer
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
 | **Status** | Accepted |
-| **Decision** | Official next architectural program is **Programa 1 — Integridade e Fundação de Metadados (IFM)**, not MAK Studio. Studio becomes Program 2 after entity catalog + introspection API + stability fixes. |
-| **Evidence** | Mission 0.2 GAP analysis (`DOCUMENTATION-CERTIFICATION.md` §3–4); P0 Produto migration; TD-001–TD-003 |
-| **Consequences** | Sprint work follows IFM 1A→1D before any Studio UI; roadmap phases relabeled |
+| **Decision** | **MAK DATA PLATFORM (MDP)** is the official metadata nucleus — Entity Dictionary, Data Dictionary, Relationship Dictionary, Metadata Registry. Lives within IFM Phase 1C, not a separate program. |
+| **Evidence** | IFM Mission 1 strategy review; CADCPS + registries as promotion seeds |
+| **Consequences** | All Studio/IA/Marketplace/Low-Code work depends on MDP; no parallel metadata systems |
+
+---
+
+## D-013 — IFM Phase 1C Reorganized as MDP
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Replace vague "entity catalog + introspection API" with structured MDP phases MDP-1 through MDP-5. |
+| **Evidence** | `docs/engineering/MAK-DATA-PLATFORM.md`, `IFM-MISSION-1-STRATEGY-REVIEW.md` |
+| **Consequences** | ROADMAP Phase 3 renamed; implementation missions reference MDP IDs |
 
 ---
 

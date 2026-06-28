@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** Mission 0.2 Documentation Certification (`DOCUMENTATION-CERTIFICATION.md`)  
+**Verified by:** IFM Mission 1 Strategy Review  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -25,6 +25,9 @@
 ```
 Domain modules (4 runtime) → ModeloBase1 → framework/mak → cadastro-engine → API/Prisma
                                     ↘ framework/cadastro (legacy, transitional)
+
+Planned (IFM 1C — not implemented):
+MAK DATA PLATFORM → Entity · Data · Relationship Dictionaries + Metadata Registry
 ```
 
 | Layer | Path | LOC (approx) | Status |
@@ -102,6 +105,19 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 ---
 
+## MAK DATA PLATFORM (MDP) — Status
+
+| Component | Status | Seed in code |
+|-----------|--------|--------------|
+| Entity Dictionary | **Not implemented** | `cadastro-modules.registry.json`, `CadCpsTela` |
+| Data Dictionary | **Partial** (~45%) | CADCPS `CadCpsCampo` (custom fields only) |
+| Relationship Dictionary | **Not implemented** | `relation_entity` field hints only |
+| Metadata Registry | **Partial** (~30%) | Engine registries (runtime), module metadata JS |
+
+**Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) · **Decision:** D-012
+
+---
+
 ## Not Implemented (Code-Verified)
 
 | Capability | Status |
@@ -111,7 +127,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | Knowledge Platform | Not started |
 | AI Platform | Not started |
 | Offline-first / Sync Engine | Preferences cache only |
-| Full entity Data Dictionary | CADCPS fields only |
+| Full entity Data Dictionary | MDP spec only — CADCPS partial today |
 | Backend domain event bus | Not started |
 
 ---
@@ -133,7 +149,7 @@ See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Critical:
 
 Full GAP analysis: [DOCUMENTATION-CERTIFICATION.md §3](./DOCUMENTATION-CERTIFICATION.md#3-plataforma-atual--plataforma-alvo-mak-2035)
 
-**Official next program:** Programa 1 — Integridade e Fundação de Metadados (IFM) — see [ROADMAP.md](./ROADMAP.md) and DECISIONS D-011.
+**Official next program:** Programa 1 IFM — Phase 1C = **MAK DATA PLATFORM** — see [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) and D-012.
 
 ---
 

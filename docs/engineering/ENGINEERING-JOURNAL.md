@@ -55,6 +55,30 @@ Each mission adds an entry with:
 
 ---
 
+## 2026-06-28 — IFM Mission 1: MDP Strategy Review
+
+**Scope:** Reorganize Program 1 IFM; evaluate and approve MAK DATA PLATFORM layer  
+**Changes:** `MAK-DATA-PLATFORM.md`, `IFM-MISSION-1-STRATEGY-REVIEW.md`; ROADMAP, DECISIONS (D-012, D-013), Constitution 01/02/10
+
+**Verdict:** IFM reorganized — Phase 1C = MAK DATA PLATFORM (MDP-1→5). Studio depends on MDP-4.
+
+### Certificação Obrigatória
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Arquitetura íntegra? | **SIM** | Doc only; MDP layer defined without touching Foundation |
+| 2 | Constituição válida? | **SIM** | Vision docs updated; no rule violations |
+| 3 | Nova dívida técnica? | **NÃO** | Strategy documentation |
+| 4 | Duplicação estrutural? | **NÃO** | MDP explicitly forbids parallel metadata |
+| 5 | Promoção Foundation? | **NÃO** | CADCPS→MDP planned for future implementation |
+| 6 | Simplificação? | **SIM** | IFM 1C now has 4 dictionaries + registry structure |
+| 7 | Legado removível? | **NÃO** | N/A |
+| 8 | CURRENT-STATE atualizado? | **SIM** | MDP status section added |
+| 9 | Prepara roadmap? | **SIM** | MDP phases defined; Studio gated on MDP-4 |
+| 10 | Inconsistência doc/código? | **NÃO** | MDP marked as spec/planned; current code accurately described |
+
+---
+
 ## 2026-06-28 — Mission 0.2: Documentation Certification
 
 **Scope:** Audit all official docs vs. codebase; certify governance; declare next program  

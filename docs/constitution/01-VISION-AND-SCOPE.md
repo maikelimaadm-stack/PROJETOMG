@@ -118,20 +118,22 @@ Reusable infrastructure discovered in domain modules is **promoted** to Foundati
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  FUTURE: MAK Studio, Marketplace, Knowledge, AI           │
-│  (Not implemented — built ON config engines + metadata)    │
+│  FUTURE: MAK Studio · Marketplace · Knowledge · IA · Offline │
 ├─────────────────────────────────────────────────────────────┤
-│  TODAY: Domain modules (config + business rules)           │
+│  PLANNED: MAK DATA PLATFORM (IFM 1C)                       │
+│  Entity · Data · Relationship Dictionaries + Metadata Reg.   │
+├─────────────────────────────────────────────────────────────┤
+│  TODAY: Domain modules (config + business rules)             │
 ├─────────────────────────────────────────────────────────────┤
 │  TODAY: ModeloBase1 + framework/mak + Config Engines V13–V20 │
 ├─────────────────────────────────────────────────────────────┤
-│  TODAY: cadastro-engine (Layout, Field, Validation, Render)  │
-├─────────────────────────────────────────────────────────────┤
-│  TODAY: Backend API + Prisma + PostgreSQL                    │
+│  TODAY: cadastro-engine + Backend API + Prisma               │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-Future surfaces **must reuse** existing engines and metadata builders. Creating parallel implementations is a constitutional violation. See [08-DO-NOT-DO-LIST.md](./08-DO-NOT-DO-LIST.md).
+**MAK DATA PLATFORM (MDP)** is the official metadata nucleus (Decision D-012). Specification: `docs/engineering/MAK-DATA-PLATFORM.md`.
+
+Future surfaces **must reuse** MDP + Foundation engines — never parallel metadata or UI stacks. See [08-DO-NOT-DO-LIST.md](./08-DO-NOT-DO-LIST.md).
 
 ---
 

@@ -35,7 +35,8 @@ PAG*.jsx (~10 LOC)
 
 | Layer | Path | Responsibility | May import |
 |-------|------|----------------|------------|
-| **Domain module** | `src/modules/{moduleId}/` | Config, metadata, domain rules, repository | ModeloBase1, framework/mak, apis, shared |
+| **MAK DATA PLATFORM** | `backend/src/modules/mdp/` (future) + `docs/engineering/MAK-DATA-PLATFORM.md` | Persisted metadata SSOT: dictionaries + registry | Prisma, auth — **not** Foundation UI |
+| **Domain module** | `src/modules/{moduleId}/` | Config, metadata, domain rules, repository | ModeloBase1, framework/mak, apis, shared, MDP APIs |
 | **ModeloBase1** | `src/ModeloBase1/` | Cadastro UI motor, page orchestration, visual SSOT | framework/mak, framework/cadastro-engine, shared |
 | **framework/mak** | `src/framework/mak/` | Runtime, metadata builders, config engines, preferences | cadastro-engine, shared — **never `modules/*`** |
 | **cadastro-engine** | `src/framework/cadastro-engine/` | Primitives: LayoutEngine, FieldEngine, ValidationEngine, RenderEngine | shared, apis (cadastro fields) |
@@ -45,6 +46,8 @@ PAG*.jsx (~10 LOC)
 | **Bootstrap** | `src/modules/makBootstrap/` | Side-effect engine registration at app start | modules/* configs (only here) |
 
 **Dependency rule:** Dependencies flow **downward**. Foundation layers must not import domain modules (except via makBootstrap registration pattern).
+
+**MDP rule:** MDP persists definitions; Foundation **executes** them. Runtime engine registries (`*ConfigRegistry.js`) are boot caches hydrated from MDP — not the SSOT. See `docs/engineering/MAK-DATA-PLATFORM.md`.
 
 ---
 

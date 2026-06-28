@@ -97,18 +97,22 @@ New modules must declare scoping in Prisma schema and enforce in repository quer
 
 ---
 
-## 7. CADCPS Boundary (Partial Data Dictionary)
+## 7. CADCPS → MAK DATA PLATFORM Evolution
 
-CADCPS is the **field-level metadata** system — not a full entity catalog.
+CADCPS is the **seed** of the Data Dictionary — not the final architecture.
 
-| In scope | Out of scope |
-|----------|--------------|
-| Custom field types, masks, formulas | Entity relationship modeling |
-| Screen bindings (`CadCpsTela`) | Module deployment pipeline |
-| Per-company field applicability | MAK Studio storage |
-| Runtime API `/api/cadastro/:entity/campos` | Versioned schema migrations for entities |
+| Today (CADCPS) | Target (MDP Data Dictionary) |
+|----------------|------------------------------|
+| Custom fields only | All fields (native + custom + computed) |
+| `CadCpsCampo` model | Data Dictionary entry |
+| Admin module (cadcps) | Field Dictionary management UI |
+| `/api/cadastro/:entity/campos` | `/api/mdp/fields` (evolved) |
 
-Future Data Dictionary missions extend — do not bypass CADCPS with parallel field metadata tables.
+**Relationship Dictionary** and **Entity Dictionary** are new — no full implementation exists yet.
+
+**Rule:** Extend CADCPS into MDP — do not create parallel field metadata systems (Constitution D-010, D-012).
+
+Full specification: `docs/engineering/MAK-DATA-PLATFORM.md`
 
 ---
 
