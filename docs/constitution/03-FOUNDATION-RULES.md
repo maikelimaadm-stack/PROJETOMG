@@ -1,6 +1,6 @@
 # 03 — Foundation Rules
 
-**Constitution document:** 03 of 10  
+**Constitution document:** 03 of 11  
 **Status:** Official  
 **Version:** 1.0.0  
 **Foundation version:** Enterprise V10.1.0 (frozen 2026-06-27)

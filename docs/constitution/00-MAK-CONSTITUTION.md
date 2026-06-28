@@ -26,7 +26,7 @@ When documents or instructions conflict, resolve in this order:
 | **3** | `/docs/engineering/*` | Living state (CURRENT-STATE, ROADMAP, DECISIONS, etc.) |
 | **4** | `scripts/governance-baseline.json` | Machine-enforced baseline (frozen exceptions, forbidden patterns) |
 | **5** | CI gates (`scripts/gate-*.mjs`) | Automated verification of Constitution compliance |
-| **6** | `/docs/FOUNDATION_GOVERNANCE.md` | Operational guide (subordinate to Constitution) |
+| **6** | `/docs/FOUNDATION_GOVERNANCE.md` | Operational guide (subordinate to Constitution — may drift; see TD-015) |
 | **7** | Capability catalogs (`docs/*_CATALOG.md`, `docs/*_INVENTORY.md`) | Reference for config engines |
 | **8** | Module-local config and metadata | Domain-only definitions |
 | **9** | Chat instructions, informal notes, external reports | **Not authoritative** |
@@ -64,6 +64,7 @@ Complementary to Constitution — updated every mission per doc 11:
 | Engineering Journal | `/docs/engineering/ENGINEERING-JOURNAL.md` |
 | Capabilities Registry | `/docs/engineering/CAPABILITIES-REGISTRY.md` |
 | Tech Debt | `/docs/engineering/TECH-DEBT.md` |
+| Documentation Certification | `/docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 Future missions may add engineering docs (e.g. MAK Studio spec) outside `/docs/constitution/`.
 

@@ -1,61 +1,55 @@
 # NEXT-SPRINT — Active Work Queue
 
 **Status:** Living document  
-**Sprint boundary:** 2026-06-28 → next mission assignment  
+**Sprint boundary:** Mission 0.2 complete → Program 1 (IFM) Phase 1A  
 **Last updated:** 2026-06-28
 
 ---
 
 ## Sprint Goal
 
-Establish permanent project operating system (documentation + governance) before feature or Studio work.
+Execute **Programa 1 — IFM Phase 1A (Estabilidade)** — unblock platform integrity before metadata foundation or MAK Studio.
 
 ---
 
-## Completed This Sprint
+## Completed
 
 | ID | Item | Mission |
 |----|------|---------|
-| ✅ | Enterprise Audit (Fase 0) | Audit 2026-06-28 |
-| ✅ | Constitution (11 documents) | Mission 0.1 |
-| ✅ | Permanent Governance Directive | Directive 2026-06-28 |
-| ✅ | README_AI.md + engineering docs bootstrap | Directive 2026-06-28 |
+| ✅ | Enterprise Audit | Fase 0 |
+| ✅ | Constitution + Governance OS | 0.1 |
+| ✅ | Permanent Governance Directive | 0.1 |
+| ✅ | Documentation certification | **0.2** |
 
 ---
 
-## Next Up (Recommended Order)
+## Next Up — IFM Phase 1A (P0/P1)
 
-| Priority | Item | Roadmap ref | Owner |
-|----------|------|-------------|-------|
-| **P0** | Produto SQL migration | S1 | TBD |
-| **P1** | Backend registry sync (4 modules) | S2 | TBD |
-| **P1** | Formalize audit → CURRENT-STATE refresh mission | Phase 0 | TBD |
-| **P2** | npm audit fix frontend | S3 | TBD |
+| Priority | Item | Roadmap | Tech Debt |
+|----------|------|---------|-----------|
+| **P0** | Produto SQL migration | S1 | TD-001 |
+| **P1** | Backend registry sync (4 modules) | S2 | TD-002 |
+| **P1** | npm audit fix frontend | S3 | TD-008 |
+| **P2** | Consolidate DDL path | S4 | TD-005 |
 
 ---
 
 ## Explicitly Not This Sprint
 
-- Foundation code changes
-- ModeloBase1 refactors
-- MAK Studio implementation
-- New cadastro modules (until S1–S2 resolved)
+- MAK Studio (Program 2 — blocked until IFM 1C)
+- Foundation refactors
+- New cadastro modules (until S1–S2 merged)
+- Legacy layer removal (IFM Phase 1B)
 
 ---
 
-## Entry Criteria for Next Feature Sprint
+## Entry Criteria Met for IFM 1A
 
-- [ ] P0 Produto migration merged
-- [ ] P1 Backend registry synced
-- [ ] CURRENT-STATE verified against code
-- [ ] `npm run verify:governance` passes on main
-
----
-
-## Notes
-
-Update this file at sprint boundaries or when priorities shift. Link to ROADMAP items by ID (S1, A1, etc.).
+- [x] Constitution certified (Mission 0.1)
+- [x] Documentation certified (Mission 0.2)
+- [x] Official next program declared (D-011)
+- [ ] P0 Produto migration — **starts next implementation mission**
 
 ---
 
-*See [ROADMAP.md](./ROADMAP.md) for full horizon.*
+*Full program: [ROADMAP.md](./ROADMAP.md) · Certification: [DOCUMENTATION-CERTIFICATION.md](./DOCUMENTATION-CERTIFICATION.md)*

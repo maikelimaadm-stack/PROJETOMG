@@ -55,6 +55,33 @@ Each mission adds an entry with:
 
 ---
 
+## 2026-06-28 — Mission 0.2: Documentation Certification
+
+**Scope:** Audit all official docs vs. codebase; certify governance; declare next program  
+**Changes:** `DOCUMENTATION-CERTIFICATION.md`; corrections to CURRENT-STATE, ROADMAP, TECH-DEBT, CAPABILITIES-REGISTRY, DECISIONS (D-011), Constitution headers
+
+**Key findings:**
+- Prisma models: 19 (not 17)
+- CI runs G31–G136 only; V13–V20 manual (TD-013)
+- Official next program: **IFM** before MAK Studio
+
+### Certificação Obrigatória
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Arquitetura íntegra? | **SIM** | Nenhum código alterado; structure revalidated |
+| 2 | Constituição válida? | **SIM** | Headers corrigidos; regras consistentes com código |
+| 3 | Nova dívida técnica? | **SIM** | TD-013 (CI V13–V20), TD-015 (subordinate docs drift) |
+| 4 | Duplicação estrutural? | **NÃO** | N/A — missão documental |
+| 5 | Promoção Foundation? | **NÃO** | N/A |
+| 6 | Simplificação? | **SIM** | Docs corrigidos eliminam ambiguidade gate CI |
+| 7 | Legado removível? | **NÃO** | N/A |
+| 8 | CURRENT-STATE atualizado? | **SIM** | Contagens e CI scope corrigidos |
+| 9 | Prepara roadmap? | **SIM** | D-011 + Programa 1 IFM declarado |
+| 10 | Inconsistência doc/código? | **SIM** | Corrigidas na doc; TD-001/TD-002 permanecem no código |
+
+---
+
 ## 2026-06-28 — Permanent Governance Directive
 
 **Scope:** Documentary — codify permanent mission procedure  

@@ -1,7 +1,7 @@
 # TECH-DEBT — Register
 
 **Status:** Living document  
-**Last verified:** 2026-06-28  
+**Last verified:** 2026-06-28 (Mission 0.2)  
 **Priority:** P0 (blocker) → P3 (cosmetic)
 
 ---
@@ -40,7 +40,7 @@
 |-------|-------|
 | **Priority** | P1 |
 | **Area** | Architecture |
-| **Evidence** | ~61 files, ~11,100 LOC in `src/framework/cadastro/`; 50+ imports from codebase |
+| **Evidence** | ~61 files, ~11,127 LOC in `src/framework/cadastro/`; **82** imports from codebase |
 | **Impact** | Blocks Low-Code abstraction; dual maintenance with cadastro-engine |
 | **Roadmap** | A1 |
 | **Status** | Open — promotion in progress |
@@ -164,9 +164,50 @@
 
 ---
 
+### TD-013 — V13–V20 capability gates not in CI
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P1 |
+| **Area** | Governance / CI |
+| **Evidence** | `.github/workflows/foundation-governance.yml` runs G31–G108 + G109–G136 only; V13–V20 gates (G156–G261) require manual `verify:*-cert-*` scripts |
+| **Impact** | Capability engine regressions may merge undetected |
+| **Roadmap** | IFM Phase 1D |
+| **Status** | Open |
+
+---
+
+### TD-014 — Constitution doc headers inconsistent
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Area** | Documentation |
+| **Evidence** | Docs 01–10 said "of 10" after doc 11 added — corrected in Mission 0.2 |
+| **Impact** | Navigation confusion |
+| **Roadmap** | — |
+| **Status** | **Resolved** 2026-06-28 (Mission 0.2) |
+
+---
+
+### TD-015 — Subordinate docs may drift from code
+
+| Field | Value |
+|-------|-------|
+| **Priority** | P3 |
+| **Area** | Documentation |
+| **Evidence** | `docs/FOUNDATION_GOVERNANCE.md` and `/docs/ENTERPRISE_*` reports are subordinate to Constitution but not auto-synced |
+| **Impact** | Risk of stale guidance if read without Constitution |
+| **Roadmap** | — |
+| **Status** | Open — Constitution §7 declares them historical/subordinate |
+
+---
+
 ## Resolved Debt
 
-_None recorded yet._
+### TD-014 — Constitution doc headers inconsistent
+
+Resolved 2026-06-28 — Mission 0.2 updated headers to "of 11".
 
 ---
 

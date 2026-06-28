@@ -1,6 +1,6 @@
 # 07 — Principles of Promotion
 
-**Constitution document:** 07 of 10  
+**Constitution document:** 07 of 11  
 **Status:** Official  
 **Version:** 1.0.0
 

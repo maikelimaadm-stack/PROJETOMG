@@ -27,6 +27,7 @@ Before altering **any** file, read and verify:
 | 4 | **Roadmap** | `docs/engineering/ROADMAP.md` |
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
 | 6 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
+| 7 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 **If any document is outdated relative to the code, update it before proceeding.**
 
@@ -151,4 +152,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-28 — Mission 0.1 + Permanent Governance Directive*
+*Last updated: 2026-06-28 — Mission 0.2 Documentation Certification*

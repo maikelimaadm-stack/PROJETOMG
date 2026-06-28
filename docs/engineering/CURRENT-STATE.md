@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** Enterprise Audit 2026 + Constitution Mission 0.1  
+**Verified by:** Mission 0.2 Documentation Certification (`DOCUMENTATION-CERTIFICATION.md`)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -33,7 +33,7 @@ Domain modules (4 runtime) → ModeloBase1 → framework/mak → cadastro-engine
 | framework/mak | `src/framework/mak/` | ~18.900 | Complete, frozen |
 | cadastro-engine | `src/framework/cadastro-engine/` | ~2.000 | Complete, frozen |
 | framework/cadastro | `src/framework/cadastro/` | ~11.100 | Legacy — promotion in progress |
-| Domain modules | `src/modules/` | ~7.200 | 4 runtime + 6 cert + 2 infra |
+| Domain modules | `src/modules/` | ~7.200 | 12 folders: 4 runtime + 6 cert + 2 infra |
 | Backend | `backend/src/` | ~8.000 | 14 modules |
 
 ---
@@ -79,9 +79,12 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | `npm run build` | ✅ Pass |
 | `npm run lint` | ✅ Pass (0 errors) |
 | `npm run typecheck` | ⚠️ Known noise in `src/shared/ui/*` |
-| Gates G31–G261 | ✅ All pass |
-| CI workflow | `.github/workflows/foundation-governance.yml` |
-| Frontend npm audit | ⚠️ 15 vulnerabilities |
+| `npm run verify:governance` | ✅ Pass — G31–G136 (build + lint + certification + governance) |
+| CI workflow | `.github/workflows/foundation-governance.yml` — G31–G136 only |
+| Gates V13–V20 (G156–G261) | ✅ Pass when run manually — **not in default CI** (see TD-013) |
+| Supplementary gates | `gate:functional-completion`, `gate:foundation-completion`, V15/V15.1/V15.2 — manual |
+| E2E specs | 12 files in `e2e/*.spec.js` |
+| Frontend npm audit | ⚠️ 15 vulnerabilities (1 low, 5 moderate, 9 high) |
 | Backend npm audit | ✅ 0 vulnerabilities |
 
 ---
@@ -90,7 +93,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Aspect | State |
 |--------|-------|
-| Models (Prisma) | 17 |
+| Models (Prisma) | 19 |
 | Migrations | 10 |
 | Indexes | ~60 |
 | Multi-tenant | `cliente_id` on all operational models |
@@ -121,6 +124,16 @@ See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Critical:
 2. **P1:** `backend/config/cadastro-modules.registry.json` lists only empresas (frontend: 4)
 3. **P1:** Nomenclature Empresas in generic ModeloBase1 layer (props, CSS scopes)
 4. **P2:** Dual-path DDL (Prisma migrate + `ensureSchema.js`)
+5. **P1:** V13–V20 capability gates not in CI pipeline (TD-013)
+6. **P1:** 82 files import `@/framework/cadastro/` legacy layer
+
+---
+
+## Plataforma Atual × Alvo (Summary)
+
+Full GAP analysis: [DOCUMENTATION-CERTIFICATION.md §3](./DOCUMENTATION-CERTIFICATION.md#3-plataforma-atual--plataforma-alvo-mak-2035)
+
+**Official next program:** Programa 1 — Integridade e Fundação de Metadados (IFM) — see [ROADMAP.md](./ROADMAP.md) and DECISIONS D-011.
 
 ---
 

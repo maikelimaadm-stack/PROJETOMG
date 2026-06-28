@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28  
+**Last updated:** 2026-06-28 (Mission 0.2)  
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -123,6 +123,18 @@
 | **Decision** | CADCPS provides field-level metadata. Full entity catalog is future work — no parallel field metadata tables. |
 | **Evidence** | `CadCps*` Prisma models; `CustomFieldEngine.js` |
 | **Consequences** | Data Dictionary evolution extends CADCPS pattern |
+
+---
+
+## D-011 — Programa 1 (IFM) Before MAK Studio
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Official next architectural program is **Programa 1 — Integridade e Fundação de Metadados (IFM)**, not MAK Studio. Studio becomes Program 2 after entity catalog + introspection API + stability fixes. |
+| **Evidence** | Mission 0.2 GAP analysis (`DOCUMENTATION-CERTIFICATION.md` §3–4); P0 Produto migration; TD-001–TD-003 |
+| **Consequences** | Sprint work follows IFM 1A→1D before any Studio UI; roadmap phases relabeled |
 
 ---
 

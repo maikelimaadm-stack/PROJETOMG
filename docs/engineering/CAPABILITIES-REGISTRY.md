@@ -1,7 +1,7 @@
 # CAPABILITIES-REGISTRY — MAK Platform
 
 **Status:** Living document  
-**Last verified:** 2026-06-28  
+**Last verified:** 2026-06-28 (Mission 0.2)  
 **Source:** Code + gates G156–G261
 
 ---
@@ -34,6 +34,21 @@
 | Workflow Config Engine | V20 | Complete | 65 | `framework/mak/workflow/` | ✅ G251–G261 | ✅ | ⚠️ Builtin steps only |
 
 **Percent estimates:** engine + registry + bootstrap + 4/4 module integration + absence of Studio UI.
+
+### CI coverage note
+
+| Gate range | In `verify:governance` / CI | Manual scripts |
+|------------|----------------------------|----------------|
+| G31–G108 | ✅ | `gate:certification` |
+| G109–G136 | ✅ | `gate:governance` (includes SSOT G127–G136) |
+| G156–G165 (V13 Layout) | ❌ | `gate:layout-config-engine-v13` |
+| G166–G175 (V14 Field) | ❌ | `gate:field-config-engine-v14` |
+| G176–G185 (V15 Business boundary) | ❌ | `gate:business-boundary-v15` |
+| G186–G206 (V15.1/V15.2 consolidation/visual) | ❌ | `gate:modelobase1-consolidation-v151`, `gate:modelobase1-visual-cert-v152`, `gate:paridade-visual` |
+| G207–G261 (V16–V20) | ❌ | `verify:validation-cert-v159` through `verify:workflow-cert-v20` |
+| Functional/Foundation completion | ❌ | `gate:functional-completion`, `gate:foundation-completion` |
+
+See TD-013.
 
 ---
 

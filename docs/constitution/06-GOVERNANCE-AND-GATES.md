@@ -12,7 +12,7 @@ Governance transforms architectural rules into **machine-enforced contracts**. G
 
 Baseline file: `scripts/governance-baseline.json` (v10.1.0)
 
-CI workflow: `.github/workflows/foundation-governance.yml`
+CI workflow: `.github/workflows/foundation-governance.yml` — runs **G31–G136** (not V13–V20 capability gates; those require manual `verify:*-cert-*` scripts — see TD-013).
 
 ---
 
@@ -23,7 +23,7 @@ CI workflow: `.github/workflows/foundation-governance.yml`
 | `npm run verify:governance` | build + lint + certification + governance (1 cycle) |
 | `npm run verify:governance:cycles` | 5 consecutive full cycles |
 | `npm run verify:certification` | build + lint + G31–G108 |
-| `npm run gate:governance` | G109–G125 only |
+| `npm run gate:governance` | G109–G136 (includes SSOT G127–G136) |
 | `npm run gate:ssot` | G127–G136 SSOT propagation |
 
 Individual capability verification:

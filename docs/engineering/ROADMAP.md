@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28  
+**Last updated:** 2026-06-28 (Mission 0.2 certification)  
 **Horizon:** Technical roadmap based on verified platform state (not legacy planning docs)
 
 ---
@@ -19,19 +19,36 @@ Priority order for all work:
 
 ---
 
-## Phase 0 — Sistema Operacional ✅ (In Progress)
+## Phase 0 — Sistema Operacional ✅ Complete
 
 | Item | Status |
 |------|--------|
-| Constitution (`docs/constitution/`) | ✅ v1.0.0 |
+| Constitution (`docs/constitution/`) | ✅ v1.0.0 (11 docs) |
 | Permanent Governance Directive (doc 11) | ✅ |
 | README_AI.md | ✅ |
-| Engineering docs (`docs/engineering/`) | ✅ Initial |
-| Enterprise Audit baseline | ✅ 2026-06-28 |
+| Engineering docs (`docs/engineering/`) | ✅ Certified Mission 0.2 |
+| Documentation certification | ✅ `DOCUMENTATION-CERTIFICATION.md` |
 
 ---
 
-## Phase 1 — Estabilidade (Current Priority)
+## Official Next Program — Programa 1 (IFM)
+
+**Programa 1 — Integridade e Fundação de Metadados (IFM)**
+
+Strategic decision **D-011**: IFM precedes MAK Studio because P0 schema gaps, registry desync, legacy layer, and missing entity catalog/introspection API would cause Studio to build parallel implementations.
+
+| Sub-phase | Roadmap refs | Goal |
+|-----------|--------------|------|
+| **1A Estabilidade** | S1–S4 | Reliable deploys, registry SSOT |
+| **1B Arquitetura** | A1–A2 | Legacy promotion, generic naming |
+| **1C Metadata Foundation** | P1–P2 | Entity catalog + introspection API |
+| **1D Governance** | TD-013 | V13–V20 gates in CI |
+
+**MAK Studio = Program 2** — starts after IFM 1C.
+
+---
+
+## Phase 1 — Estabilidade (IFM Phase 1A — Current Priority)
 
 | ID | Item | Priority | Blocks |
 |----|------|----------|--------|
@@ -42,7 +59,7 @@ Priority order for all work:
 
 ---
 
-## Phase 2 — Arquitetura
+## Phase 2 — Arquitetura (IFM Phase 1B)
 
 | ID | Item | Priority |
 |----|------|----------|
@@ -54,7 +71,7 @@ Priority order for all work:
 
 ---
 
-## Phase 3 — Preparação da Plataforma
+## Phase 3 — Preparação da Plataforma (IFM Phase 1C)
 
 | ID | Item | Priority |
 |----|------|----------|
@@ -65,9 +82,9 @@ Priority order for all work:
 
 ---
 
-## Phase 4 — MAK Studio (Future)
+## Phase 4 — MAK Studio (Program 2 — Future)
 
-Prerequisite: Phase 1–3 stable. **No parallel UI framework.**
+Prerequisite: **Program 1 (IFM) complete** through Phase 1C. **No parallel UI framework.**
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
