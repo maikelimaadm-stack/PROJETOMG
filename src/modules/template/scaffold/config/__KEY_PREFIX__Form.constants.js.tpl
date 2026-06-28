@@ -71,6 +71,27 @@ export const __KEY_PREFIX_UPPER___ACTION_DEFINITIONS = [
   },
 ];
 
+export const __KEY_PREFIX_UPPER___WORKFLOW_DEFINITIONS = [
+  {
+    id: "__KEY_PREFIX__-create-wf",
+    start: "draft",
+    finish: ["completed"],
+    states: {
+      draft: { label: "Rascunho" },
+      completed: { label: "Concluído" },
+    },
+    transitions: [
+      {
+        from: "draft",
+        trigger: "submit",
+        to: "completed",
+        before: [{ type: "validate" }],
+        steps: [{ action: "save" }],
+      },
+    ],
+  },
+];
+
 export const __KEY_PREFIX_UPPER___COLUNAS_BASE = [
   { id: "codigo", label: "Código", default: true, sortable: true, width: 100 },
   { id: "nome", label: "Nome", default: true, sortable: true, width: 280 },

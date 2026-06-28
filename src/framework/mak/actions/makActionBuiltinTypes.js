@@ -30,6 +30,7 @@ export const MAK_ACTION_TYPE_NAMES = Object.freeze([
   "executeCallback",
   "executeService",
   "runAction",
+  "runWorkflow",
   "sequence",
   "parallel",
   "when",
@@ -345,6 +346,17 @@ export async function executeMakAction(actionDef, context = {}, executor = null)
       const registered = actionRegistry[actionId] ?? actionRegistry.get?.(actionId);
       if (!registered) return { ok: false, reason: "action-not-found" };
       return nested(registered, context);
+    }
+    case "runWorkflow": {
+      if (typeof context.runWorkflow === "function") {
+        const result = await context.runWorkflow(
+          actionDef.workflowId ?? actionDef.id,
+          actionDef.trigger ?? actionDef.event ?? "start",
+          context
+        );
+        return { ok: result?.ok !== false, ...result };
+      }
+      return { ok: false, reason: "runWorkflow-unavailable" };
     }
     case "delay": {
       const ms = Number(actionDef.delay ?? actionDef.ms ?? 0);

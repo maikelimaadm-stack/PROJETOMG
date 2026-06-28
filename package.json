@@ -61,6 +61,7 @@
     "gate:formula-config-engine-v17": "node scripts/gate-formula-config-engine-v17.mjs",
     "gate:event-config-engine-v18": "node scripts/gate-event-config-engine-v18.mjs",
     "gate:action-config-engine-v19": "node scripts/gate-action-config-engine-v19.mjs",
+    "gate:workflow-config-engine-v20": "node scripts/gate-workflow-config-engine-v20.mjs",
     "gate:paridade-visual": "node scripts/gate-paridade-visual-promocao.mjs",
     "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs && node scripts/gate-generator-modelobase1.mjs",
     "verify:certification": "npm run build && npm run lint && npm run gate:certification",
@@ -75,7 +76,9 @@
     "verify:event-cert-v18": "npm run build && npm run lint && npm run gate:event-config-engine-v18",
     "verify:event-cert-v18:cycles": "node scripts/run-event-cert-cycles-v18.mjs --cycles=5",
     "verify:action-cert-v19": "npm run build && npm run lint && npm run gate:action-config-engine-v19",
-    "verify:action-cert-v19:cycles": "node scripts/run-action-cert-cycles-v19.mjs --cycles=5"
+    "verify:action-cert-v19:cycles": "node scripts/run-action-cert-cycles-v19.mjs --cycles=5",
+    "verify:workflow-cert-v20": "npm run build && npm run lint && npm run gate:workflow-config-engine-v20",
+    "verify:workflow-cert-v20:cycles": "node scripts/run-workflow-cert-cycles-v20.mjs --cycles=5"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

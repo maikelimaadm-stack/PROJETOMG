@@ -36,6 +36,7 @@ import { useMakFormFormulaEvaluation } from "@/framework/mak/formula/useMakFormF
 import { runMakFormulaEvaluation } from "@/framework/mak/formula/runMakFormulaEvaluation.js";
 import { useMakFormEventHandlers } from "@/framework/mak/events/useMakFormEventHandlers.js";
 import { useMakFormActionHandlers } from "@/framework/mak/actions/useMakFormActionHandlers.js";
+import { useMakFormWorkflowHandlers } from "@/framework/mak/workflow/useMakFormWorkflowHandlers.js";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -84,6 +85,7 @@ export default function MakCadastroForm({
     fieldDefinitions,
     eventDefinitions,
     actionDefinitions,
+    workflowDefinitions,
     schema,
     useFormResourcesHook,
   } = useMakFormModuleConfig();
@@ -239,6 +241,22 @@ export default function MakCadastroForm({
     enabled: camposPersonalizadosReady,
   });
 
+  const { runWorkflow } = useMakFormWorkflowHandlers({
+    moduleId,
+    workflowDefinitions,
+    actionDefinitions,
+    eventDefinitions,
+    formData,
+    setFormData,
+    ui: actionUi,
+    fieldDefinitions,
+    schema,
+    customFields: camposPersonalizadosForm,
+    runValidation: () => validateRef.current?.(),
+    stateField: "wf_state",
+    enabled: camposPersonalizadosReady,
+  });
+
   const { dispatchFormEvent } = useMakFormEventHandlers({
     moduleId,
     eventDefinitions,
@@ -252,6 +270,7 @@ export default function MakCadastroForm({
     schema,
     customFields: camposPersonalizadosForm,
     runValidation: () => validateRef.current?.(),
+    runWorkflow,
     enabled: camposPersonalizadosReady,
   });
 
@@ -265,6 +284,7 @@ export default function MakCadastroForm({
     schema,
     customFields: camposPersonalizadosForm,
     runValidation: () => validateRef.current?.(),
+    runWorkflow,
     enabled: camposPersonalizadosReady,
   });
 
