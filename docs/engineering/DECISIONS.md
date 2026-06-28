@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)  
+**Last updated:** 2026-06-28 (IFM 1A baseline recovery — D-016–D-019)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -183,6 +183,54 @@
 | **Decision** | **`docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md`** is the official platform nomenclature. All future documentation, Studio surfaces, and capabilities must use terms defined there. Legacy code identifiers remain unchanged until explicit migration missions. |
 | **Evidence** | Program 0.5 — term inventory §4; glossary §5; legacy/discontinued lists §6 |
 | **Consequences** | Constitution hierarchy priority 4; README_AI pre-flight; no conflicting terms in new docs without D-register |
+
+---
+
+## D-016 — Platform Maturity Index (PMI)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **`docs/engineering/PLATFORM-MATURITY-INDEX.md`** is the official strategic maturity dashboard. Scores must be evidence-based (code, gates, audits). Updated on every mission that significantly changes an evaluated area. |
+| **Evidence** | Program 0.6 — 32 areas scored with objective criteria |
+| **Consequences** | Closes structural documentation phase (Programs 0–0.6); next missions prioritize code (IFM 1A, Platform Core) |
+
+---
+
+## D-017 — ModeloBase1 as First Official Base Template
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **ModeloBase1** is **Official Base Template 1** — the first certified Base Template, not the only template the platform will support. Future **Template Registry** (MDP Metadata Registry type) manages multiple Base Templates. No current architecture decision blocks new visual or operational templates. |
+| **Evidence** | Program 0.6 strategic adjustment; Master Architecture §L2.1/L2.1b; Constitution 04 §12 |
+| **Consequences** | PMI scores ModeloBase1 as template 1 of N; Studio/MDP must model `baseTemplateId`; Foundation remains shared across templates |
+
+---
+
+## D-018 — Platform Implementation Protocol (PIP)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **`docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md`** is the mandatory 10-phase lifecycle for all implementation missions. Closes documentation era (Programs 0–0.7); implementation era starts under PIP. |
+| **Evidence** | Program 0.7 — PIR through mission freeze; artifact rules §6 |
+| **Consequences** | README_AI + Constitution 11 reference PIP; all Program 1+ missions follow Phases 1–10 |
+
+---
+
+## D-019 — Repository Health Protocol (RHP)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **Repository Health Protocol (RHP)** is mandatory at every mission **start** and **end**, plus **post-merge** verification. Integrated into [PLATFORM-IMPLEMENTATION-PROTOCOL.md](./PLATFORM-IMPLEMENTATION-PROTOCOL.md) §10. |
+| **Evidence** | Emenda D-019 — PR hygiene, branch sync, build/lint/gates, doc sync, merge readiness, deploy health |
+| **Consequences** | Repository must never finish a mission in worse health than at start; reduce debt when possible |
 
 ---
 

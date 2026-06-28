@@ -141,7 +141,9 @@ Each entry: **current name → context → problem → official name → compati
 
 | Nome atual | Contexto | Problema | Nome oficial | Compatibilidade | Impacto |
 |------------|----------|----------|--------------|-----------------|---------|
-| ModeloBase1 | Path, componentes | Nome de código congelado | **ModeloBase1** (nome oficial congelado); alias descritivo: **Cadastro UI Motor** | Paths, classes, gates — inalterados | Docs podem usar ambos |
+| ModeloBase1 | Path, componentes | Nome de código congelado | **ModeloBase1** — **Official Base Template 1**; alias: Cadastro UI Motor | Paths, classes, gates — inalterados | Docs |
+| Template Registry | Não existia | — | **Template Registry** (MDP Metadata Registry type) | Futuro MDP-4 | Docs, Studio |
+| Official Base Template | — | — | **Official Base Template** — pluggable shell; ModeloBase1 = first | `baseTemplateId` futuro | Docs |
 | framework/mak | Path | Não descritivo | **MAK Runtime Framework** (docs); **framework/mak** (código) | Path legado permanente | Docs |
 | cadastro-engine | Path | PT/EN mix | **Foundation Engine Primitives** (docs); **cadastro-engine** (código) | Path legado permanente | Docs |
 | framework/cadastro | Legacy Emp* | Expansão proibida | **Legacy Cadastro Layer** (docs); **framework/cadastro** (código) | Transitional — descontinuar em 2035 | IFM 1B |
@@ -241,7 +243,9 @@ Each entry: **current name → context → problem → official name → compati
 | **MAK Package** | Versioned `.makpkg` bundle for Marketplace |
 | **MAK Studio** | L5 — visual designers writing Platform Metadata to MDP |
 | **Metadata Registry** | MDP store of layouts, events, actions, workflows, permissions, etc. |
-| **ModeloBase1** | Cadastro UI Motor — L2 structural page orchestrator (frozen name) |
+| **ModeloBase1** | Cadastro UI Motor — **Official Base Template 1** (frozen name) |
+| **Official Base Template** | Pluggable UI/operational shell over Compiled Runtime — ModeloBase1 is the first |
+| **Template Registry** | MDP Metadata Registry type — catalog of Base Templates (`baseTemplateId`) |
 | **Offline Capability** | L7 client feature — local cache + mutation queue via Sync Platform |
 | **Platform Core** | L3 — auth, tenant, RBAC, events, deploy, APIs |
 | **Platform Metadata** | All MDP-persisted definitions (umbrella term) |

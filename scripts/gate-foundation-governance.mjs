@@ -267,10 +267,26 @@ gate(
   uncertifiedViolations.length ? `não certificados: ${uncertifiedViolations.join(", ")}` : ""
 );
 
-// G118 — Bypass do gerador: novos módulos devem estar no registry
+// G118 — Registry SSOT: módulos certificados registrados (baseline mínimo pós-#285: empresas + cadcps)
+const minCertified = baseline.minimumCertifiedModules ?? 2;
+const backendRegistryPath = path.join(ROOT, "backend/config/cadastro-modules.registry.json");
+const backendRegistry = exists(backendRegistryPath)
+  ? JSON.parse(fs.readFileSync(backendRegistryPath, "utf8"))
+  : [];
+const backendModuleIds = backendRegistry.filter((m) => m.ativo !== false).map((m) => m.moduleId);
+const registrySyncOk =
+  certifiedModuleIds.length === backendModuleIds.length &&
+  certifiedModuleIds.every((id) => backendModuleIds.includes(id));
 gate(
   "G118 — Registry cadastro-modules é fonte oficial de módulos certificados",
-  exists(REGISTRY_PATH) && certifiedModuleIds.length >= 3
+  exists(REGISTRY_PATH) &&
+    certifiedModuleIds.length >= minCertified &&
+    registrySyncOk,
+  !registrySyncOk
+    ? `FE ${certifiedModuleIds.join(",")} vs BE ${backendModuleIds.join(",")}`
+    : certifiedModuleIds.length < minCertified
+      ? `${certifiedModuleIds.length} < ${minCertified}`
+      : ""
 );
 
 // G119 — Gerador scaffold ModeloBase1 (delegado G103-G108)

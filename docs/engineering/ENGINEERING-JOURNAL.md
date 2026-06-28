@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)
+**Last updated:** 2026-06-28 (IFM 1A Architecture Baseline Recovery)
 
 ---
 
@@ -13,6 +13,81 @@ Each mission adds an entry with:
 - Changes summary
 - Certification block (10 items)
 - Links to PR / decisions
+
+---
+
+---
+
+## 2026-06-28 — IFM 1A: Architecture Baseline Recovery
+
+**Scope:** Reconcile code, gates, registries, docs, CI after PR #285 + merge PRs #288–#290  
+**Changes:**
+- G38: gate scoped to structural UI only (domain runtime hooks allowed)
+- G118: baseline `minimumCertifiedModules: 2` + FE/BE registry sync check
+- `governance-baseline.json` v10.2.0
+- `backend/config/cadastro-modules.registry.json` synced (empresas + cadcps)
+- Merged PMI (D-016/D-017), PIP/RHP (D-018/D-019), S0 certification report
+
+**Certification:** CI governance green; baseline reconstructed; Program 1 implementation authorized.
+
+---
+
+## 2026-06-28 — IFM 1A S0: Repository Health Certification
+
+**Scope:** Audit-only — inaugurate Program 1 implementation era  
+**Changes:** `docs/engineering/IFM-1A-S0-REPOSITORY-HEALTH-CERTIFICATION.md`  
+**PR:** #290
+
+**Findings summary:**
+- Deploy healthy (Railway + Vercel 200)
+- CI governance **FAILING** on `main` — G38, G118 (resolved in baseline recovery)
+- Registries desynced — resolved in baseline recovery
+- IFM 1A S1 Produto migration **obsolete**
+
+**Certification:** See report §10 — blockers identified; resolved in baseline recovery mission.
+
+---
+
+## 2026-06-28 — Emenda D-019: Repository Health Protocol (RHP)
+
+**Scope:** Integrate RHP into PIP §10; documentation only  
+**Changes:** `PLATFORM-IMPLEMENTATION-PROTOCOL.md` v1.1.0; D-019; PIR Phase 1.8 + Freeze Phase 10 RHP hooks
+
+**Rule:** Repository never finishes mission in worse health than at start.
+
+---
+
+## 2026-06-28 — Program 0.7: Platform Implementation Protocol (D-018)
+
+**Scope:** Official 10-phase implementation lifecycle; documentation only  
+**Changes:** `PLATFORM-IMPLEMENTATION-PROTOCOL.md`; D-018; Constitution 00/11; README_AI; ROADMAP Phase 0 complete
+
+**Deliverables:** PIR → Freeze lifecycle; artifact creation rules (capability, promotion, template, metadata, migration, gate, audit, ADR, breaking change, roadmap, tech debt, release note).
+
+### Certificação Program 0.7 (5 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Fluxo indefinido? | **NÃO** | 10 fases com exit criteria; matriz por tipo de missão §5 |
+| 2 | Etapa obrigatória ausente? | **NÃO** | PIR, Planning, Implementation, Tests, Audit, Cert, Docs, PMI, Journal, Freeze |
+| 3 | Cobre ciclo de vida completo? | **SIM** | Doc-only through hotfix; artifact rules §6 |
+| 4 | Integrado à governança? | **SIM** | D-018; Constitution; README_AI; Doc 11 cross-ref |
+| 5 | Pode iniciar implementações? | **SIM** | Program 0.7 closes doc era; IFM 1A authorized under PIP |
+
+### Certificação Obrigatória (10 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Arquitetura íntegra? | **SIM** | Doc only; PIP enforces Master Architecture PIR |
+| 2 | Constituição válida? | **SIM** | PIP subordinate to Constitution |
+| 3 | Nova dívida técnica? | **NÃO** | Documentation mission |
+| 4 | Duplicação estrutural? | **NÃO** | PIP consolidates Doc 11 + README into single lifecycle |
+| 5 | Promoção Foundation? | **NÃO** | N/A |
+| 6 | Simplificação? | **SIM** | Single protocol vs scattered instructions |
+| 7 | Legado removível? | **NÃO** | N/A |
+| 8 | CURRENT-STATE atualizado? | **NÃO** | No code state change |
+| 9 | Prepara roadmap? | **SIM** | Implementation era declared |
+| 10 | Inconsistência doc/código? | **NÃO** | Protocol aligns with existing gates/commands |
 
 ---
 

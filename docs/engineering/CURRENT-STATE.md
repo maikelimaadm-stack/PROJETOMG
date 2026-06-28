@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** MAK 2035 Master Architecture mission  
+**Verified by:** IFM 1A Architecture Baseline Recovery  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -14,11 +14,13 @@
 | Product | MAK Gestão ERP — metadata-driven multi-tenant SaaS |
 | Frontend | React 18 + Vite 6 + React Query + Tailwind/shadcn |
 | Backend | Fastify 5 + Prisma 6 + PostgreSQL |
-| Foundation | Enterprise V10.1.0 — **frozen** 2026-06-27 |
+| Foundation | Enterprise V10.2.0 — **frozen** 2026-06-28 |
 | Constitution | v1.0.0 — `docs/constitution/` |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| Global technical score | ~7.0/10 (audit 2026-06-28) |
+| Platform Maturity Index | v1.1.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| Implementation Protocol | v1.1.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019) |
+| Global technical score | Foundation track **6.8/10** · Full platform **3.6/10** — [PMI v1.1](./PLATFORM-MATURITY-INDEX.md) |
 
 ---
 
@@ -27,7 +29,7 @@
 **Target map:** [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) (L0–L7)
 
 ```
-Domain modules (4 runtime) → ModeloBase1 → framework/mak → cadastro-engine → API/Prisma
+Domain modules (2 runtime) → ModeloBase1 → framework/mak → cadastro-engine → API/Prisma
                                     ↘ framework/cadastro (legacy, transitional)
 
 Planned (IFM 1C — not implemented):
@@ -41,7 +43,7 @@ Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 | framework/mak | `src/framework/mak/` | ~18.900 | Complete, frozen |
 | cadastro-engine | `src/framework/cadastro-engine/` | ~2.000 | Complete, frozen |
 | framework/cadastro | `src/framework/cadastro/` | ~11.100 | Legacy — promotion in progress |
-| Domain modules | `src/modules/` | ~7.200 | 12 folders: 4 runtime + 6 cert + 2 infra |
+| Domain modules | `src/modules/` | ~5.5K | 11 folders: 2 runtime + 6 cert + 2 infra + template |
 | Backend | `backend/src/` | ~8.000 | 14 modules |
 
 ---
@@ -51,11 +53,10 @@ Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 | moduleId | Page | Pattern | Files |
 |----------|------|---------|-------|
 | empresas | PAGEMP | Reference — factory overrides | 42 |
-| marcas | PAGMAR | Minimal factory | 12 |
-| produtos | PAGPRO | Minimal factory | 12 |
 | cadcps | PAGCPS | Thin page + domain runtime | 18 |
 
-Registry SSOT: `config/cadastro-modules.registry.json` (4 entries)  
+Registry SSOT: `config/cadastro-modules.registry.json` (2 entries)  
+Backend registry: `backend/config/cadastro-modules.registry.json` (2 entries — **synced**)  
 Routes: `src/modules/generatedModules.json`
 
 ---
@@ -101,8 +102,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Aspect | State |
 |--------|-------|
-| Models (Prisma) | 19 |
-| Migrations | 10 |
+| Models (Prisma) | 17 |
+| Migrations | 11 |
 | Indexes | ~60 |
 | Multi-tenant | `cliente_id` on all operational models |
 | Multi-empresa | `PermissaoEmpresa` + `X-Empresa-Id` header |
@@ -141,12 +142,12 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Critical:
 
-1. **P0:** `Produto` Prisma model exists — no SQL migration
-2. **P1:** `backend/config/cadastro-modules.registry.json` lists only empresas (frontend: 4)
-3. **P1:** Nomenclature Empresas in generic ModeloBase1 layer (props, CSS scopes)
-4. **P2:** Dual-path DDL (Prisma migrate + `ensureSchema.js`)
-5. **P1:** V13–V20 capability gates not in CI pipeline (TD-013)
-6. **P1:** 82 files import `@/framework/cadastro/` legacy layer
+1. **P1:** `backend/config/cadastro-modules.registry.json` lists only empresas (frontend: 2 — missing cadcps)
+2. **P1:** Nomenclature Empresas in generic ModeloBase1 layer (props, CSS scopes)
+3. **P2:** Dual-path DDL (Prisma migrate + `ensureSchema.js`)
+4. **P1:** V13–V20 capability gates not in CI pipeline (TD-013)
+5. **P1:** 61 files import `@/framework/cadastro/` legacy layer (TD-003)
+6. **P1:** G38 CADCPS duplicate components gate failure (ModeloBase1 cert 8/9)
 
 ---
 
@@ -154,7 +155,7 @@ See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Critical:
 
 Full GAP analysis: [DOCUMENTATION-CERTIFICATION.md §3](./DOCUMENTATION-CERTIFICATION.md#3-plataforma-atual--plataforma-alvo-mak-2035)
 
-**Official next program:** Programa 1 IFM — Phase 1C = **MAK DATA PLATFORM** — see [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) and D-012.
+**Maturity dashboard:** [PLATFORM-MATURITY-INDEX.md](./PLATFORM-MATURITY-INDEX.md)
 
 ---
 

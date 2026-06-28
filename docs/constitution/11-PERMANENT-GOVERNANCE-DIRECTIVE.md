@@ -29,6 +29,8 @@ Before altering any project file, **mandatory review**:
 | Decisions | `/docs/engineering/DECISIONS.md` |
 | Master Architecture | `/docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | `/docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
+| Platform Maturity Index | `/docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| Platform Implementation Protocol | `/docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
 | Next sprint | `/docs/engineering/NEXT-SPRINT.md` |
 
 **Rule:** If any document is outdated relative to the code, **update it before proceeding** with implementation.
@@ -152,8 +154,9 @@ Include this certification block in:
 | Document | Relationship |
 |----------|--------------|
 | 00–10 | Define **what** the rules are |
-| **11 (this)** | Defines **how every mission operates** |
-| README_AI.md | Operational entry point implementing this directive |
+| **11 (this)** | Defines **how every mission operates** — certification template |
+| **PIP** | Defines **10-phase implementation lifecycle** — [PLATFORM-IMPLEMENTATION-PROTOCOL.md](../engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md) |
+| README_AI.md | Operational entry point implementing this directive + PIP Phase 1 (PIR) |
 | docs/engineering/* | Living state updated per §3.4 |
 
 Amendments to this directive follow the process in [00-MAK-CONSTITUTION.md §6](./00-MAK-CONSTITUTION.md#6-amendment-process).

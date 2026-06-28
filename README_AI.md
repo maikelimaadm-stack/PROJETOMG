@@ -3,7 +3,7 @@
 **Status:** Official — Mandatory pre-flight for all AI agents and assisted development  
 **Version:** 1.0.0  
 **Effective date:** 2026-06-28  
-**Complements:** [Constitution](./docs/constitution/00-MAK-CONSTITUTION.md) + [Permanent Governance Directive](./docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md)
+**Complements:** [Constitution](./docs/constitution/00-MAK-CONSTITUTION.md) + [Permanent Governance Directive](./docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md) + [Implementation Protocol](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md)
 
 ---
 
@@ -28,10 +28,14 @@ Before altering **any** file, read and verify:
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
 | 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | 7 | **Platform Language Standard** | `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| 8 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
-| 9 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
+| 8 | **Platform Maturity Index** | `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| 9 | **Implementation Protocol** | `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
+| 10 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
+| 11 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 **If any document is outdated relative to the code, update it before proceeding.**
+
+**All implementation missions must follow the [10-phase PIP lifecycle](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md), including [RHP start/end/post-merge](./docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md#10-repository-health-protocol-rhp) (D-019).**
 
 Operational commands: [`AGENTS.md`](./AGENTS.md)
 
@@ -94,6 +98,7 @@ At mission end, update as applicable:
 | `docs/engineering/CAPABILITIES-REGISTRY.md` | Capability changes |
 | `docs/engineering/ROADMAP.md` | Priority shifts |
 | `docs/engineering/TECH-DEBT.md` | New or resolved debt |
+| `docs/engineering/PLATFORM-MATURITY-INDEX.md` | Significant maturity change in any PMI area |
 | `docs/engineering/DECISIONS.md` | Architectural decisions |
 | `docs/engineering/NEXT-SPRINT.md` | Sprint boundary changes |
 
@@ -122,14 +127,16 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 
 | Item | Value (verify in CURRENT-STATE.md) |
 |------|-------------------------------------|
-| Foundation | Frozen V10.1.0 (2026-06-27) |
-| Runtime modules | empresas, marcas, produtos, cadcps |
+| Foundation | Frozen V10.2.0 (2026-06-28) |
+| Runtime modules | empresas, cadcps (2 certified) |
 | New module creation | `npm run generate:module` only |
 | Primary gate suite | `npm run verify:governance` |
 | MAK Studio | Not implemented |
 | MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
+| Platform Maturity Index | v1.1.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| Implementation Protocol | v1.1.0 — includes RHP (D-019) |
 | Legacy layer | `src/framework/cadastro/` — do not extend |
 
 ---
@@ -141,6 +148,8 @@ README_AI.md                          ← you are here (AI entry)
 docs/constitution/00-MAK-CONSTITUTION.md   ← highest authority
 docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md  ← definitive platform map
 docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md  ← official nomenclature
+docs/engineering/PLATFORM-MATURITY-INDEX.md  ← maturity dashboard
+docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md  ← 10-phase mission lifecycle + RHP
 docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md
 docs/engineering/CURRENT-STATE.md      ← living platform state
 docs/engineering/ROADMAP.md
@@ -159,4 +168,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-28 — Program 0.5 Platform Language Standard (D-015)*
+*Last updated: 2026-06-28 — Program 0.7 Platform Implementation Protocol + PMI (D-016–D-019)*

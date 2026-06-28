@@ -1,6 +1,7 @@
 {
-  "version": "v10.1.0",
-  "frozenAt": "2026-06-27",
+  "version": "v10.2.0",
+  "frozenAt": "2026-06-28",
+  "minimumCertifiedModules": 2,
   "legacyModuleExceptions": ["template", "fieldcert", "validationcert", "formulacert", "eventscert", "actionscert", "workflowcert"],
   "infrastructureModuleExceptions": ["makBootstrap"],
   "legacyComponentAllowlist": [

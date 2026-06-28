@@ -1,7 +1,7 @@
 # TECH-DEBT — Register
 
 **Status:** Living document  
-**Last verified:** 2026-06-28 (Mission 0.2)  
+**Last verified:** 2026-06-28 (IFM 1A baseline recovery)  
 **Priority:** P0 (blocker) → P3 (cosmetic)
 
 ---
@@ -12,12 +12,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Priority** | P0 |
+| **Priority** | ~~P0~~ |
 | **Area** | Database |
-| **Evidence** | `Produto` model in `backend/prisma/schema.prisma` L445–463; zero matches in `backend/prisma/migrations/**/*.sql` |
-| **Impact** | Fresh DB deploy fails for produtos module |
-| **Roadmap** | S1 |
-| **Status** | Open |
+| **Status** | **Resolved / Obsolete** 2026-06-28 — `Produto` and `Marca` models removed (PR #285); module `produtos`/`marcas` deleted |
+| **Evidence** | No `model Produto` in `schema.prisma`; migration `20260628120000_remove_marcas_produtos` |
 
 ---
 
@@ -25,12 +23,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Priority** | P1 |
+| **Priority** | ~~P1~~ |
 | **Area** | Governance / registry |
-| **Evidence** | `backend/config/cadastro-modules.registry.json` — 1 module; `config/cadastro-modules.registry.json` — 4 modules |
-| **Impact** | Backend tooling/bootstrap may miss marcas, produtos, cadcps |
-| **Roadmap** | S2 |
-| **Status** | Open |
+| **Status** | **Resolved** 2026-06-28 — IFM 1A baseline recovery; FE/BE both list empresas + cadcps; G118 validates sync |
+| **Evidence** | `config/cadastro-modules.registry.json` and `backend/config/cadastro-modules.registry.json` — 2 modules each |
 
 ---
 
