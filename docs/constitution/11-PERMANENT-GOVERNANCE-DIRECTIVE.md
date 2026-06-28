@@ -27,6 +27,8 @@ Before altering any project file, **mandatory review**:
 | Current state | `/docs/engineering/CURRENT-STATE.md` |
 | Roadmap | `/docs/engineering/ROADMAP.md` |
 | Decisions | `/docs/engineering/DECISIONS.md` |
+| Master Architecture | `/docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
+| Platform Language Standard | `/docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Next sprint | `/docs/engineering/NEXT-SPRINT.md` |
 
 **Rule:** If any document is outdated relative to the code, **update it before proceeding** with implementation.

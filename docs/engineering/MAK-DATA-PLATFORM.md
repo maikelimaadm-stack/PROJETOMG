@@ -5,7 +5,8 @@
 **Effective date:** 2026-06-28  
 **Decision:** D-012  
 **Program:** IFM Phase 1C  
-**Prerequisite for:** MAK Studio (Program 2), Marketplace, IA, Low-Code
+**Prerequisite for:** MAK Studio (Program 2), Marketplace, AI Platform, Low-Code Capability  
+**Nomenclature:** Terms in this document follow [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md)
 
 ---
 

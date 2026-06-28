@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (MAK 2035 Master Architecture)
+**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)
 
 ---
 
@@ -52,6 +52,40 @@ Each mission adds an entry with:
 | 8 | CURRENT-STATE atualizado? | **NÃO** | Engineering docs criados na diretriz seguinte |
 | 9 | Prepara próximo roadmap? | **SIM** | Base para todas as missões futuras |
 | 10 | Inconsistência doc/código? | **SIM** | Inconsistências registradas na Constituição §10 — não corrigidas (fora de escopo) |
+
+---
+
+## 2026-06-28 — Program 0.5: Platform Language Standard
+
+**Scope:** Official platform nomenclature; documentation only — no code/API/DB changes  
+**Changes:** `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md`; D-015; Constitution hierarchy; README_AI pre-flight; cross-refs in Master Architecture, ROADMAP, Constitution 02
+
+**Deliverables:** Full term inventory (§4); official glossary (§5); legacy/discontinued lists (§6); Studio↔MDP↔Foundation mapping (§7).
+
+### Certificação Program 0.5 (5 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Conflito de nomenclatura restante? | **NÃO** | §3 resolve Platform Runtime, metadata overload, domain module, Offline Platform, IA/AI, Low-Code layer |
+| 2 | Conceito duplicado? | **NÃO** | Entity Dictionary ≠ entity catalog; Data Dictionary ≠ Field Dictionary; Runtime Registry ≠ Metadata Registry; Tenant ≠ Cliente (concept vs model) |
+| 3 | Termo legado a descontinuar? | **SIM** | §6.2 lista termos proibidos em docs novos (Offline Platform, IA Platform EN, plugin, parallel metadata) — descontinuação documental, código inalterado |
+| 4 | Vocabulário oficialmente padronizado? | **SIM** | Glossary §5 + inventory §4 cobrem todas capabilities da missão |
+| 5 | Documentação oficial atualizada? | **SIM** | Constitution 00, README_AI, DECISIONS, ROADMAP, Master Architecture, Constitution 02 |
+
+### Certificação Obrigatória (10 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Arquitetura íntegra? | **SIM** | Doc only; terms align with MAK 2035 layers |
+| 2 | Constituição válida? | **SIM** | Hierarchy updated; no rule violations |
+| 3 | Nova dívida técnica? | **NÃO** | Documentation mission |
+| 4 | Duplicação estrutural? | **NÃO** | N/A |
+| 5 | Promoção Foundation? | **NÃO** | N/A |
+| 6 | Simplificação? | **SIM** | Single vocabulary eliminates doc ambiguity |
+| 7 | Legado removível? | **NÃO** | Code names preserved by design |
+| 8 | CURRENT-STATE atualizado? | **NÃO** | Language standard does not change code state — no CURRENT-STATE delta required |
+| 9 | Prepara roadmap? | **SIM** | IFM/Studio/MDP missions now share official terms |
+| 10 | Inconsistência doc/código? | **NÃO** | Legacy code terms explicitly mapped in §6.1 |
 
 ---
 

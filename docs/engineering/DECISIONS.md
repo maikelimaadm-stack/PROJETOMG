@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (MAK 2035 Master Architecture)  
+**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)  
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -171,6 +171,18 @@
 | **Decision** | **`docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md`** is the definitive platform map (L0–L7). All future capabilities must align with layer boundaries, flows, and compatibility rules defined there. |
 | **Evidence** | Strategic mission MAK 2035; conflict resolutions §9; capability matrix §7 |
 | **Consequences** | Constitution hierarchy updated (priority 3); README_AI pre-flight includes Master Architecture; layer topology changes require D-register amendment |
+
+---
+
+## D-015 — MAK Platform Language Standard
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **`docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md`** is the official platform nomenclature. All future documentation, Studio surfaces, and capabilities must use terms defined there. Legacy code identifiers remain unchanged until explicit migration missions. |
+| **Evidence** | Program 0.5 — term inventory §4; glossary §5; legacy/discontinued lists §6 |
+| **Consequences** | Constitution hierarchy priority 4; README_AI pre-flight; no conflicting terms in new docs without D-register |
 
 ---
 

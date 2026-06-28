@@ -17,6 +17,7 @@
 | Foundation | Enterprise V10.1.0 — **frozen** 2026-06-27 |
 | Constitution | v1.0.0 — `docs/constitution/` |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
+| Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Global technical score | ~7.0/10 (audit 2026-06-28) |
 
 ---

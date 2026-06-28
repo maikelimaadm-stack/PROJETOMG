@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (MAK 2035 Master Architecture — D-014)  
+**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)  
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -29,6 +29,7 @@ Priority order for all work:
 | Engineering docs (`docs/engineering/`) | ✅ Certified Mission 0.2 |
 | Documentation certification | ✅ `DOCUMENTATION-CERTIFICATION.md` |
 | **Master Architecture** | ✅ `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` v1.0.0 (D-014) |
+| **Platform Language Standard** | ✅ `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` v1.0.0 (D-015) |
 
 ---
 

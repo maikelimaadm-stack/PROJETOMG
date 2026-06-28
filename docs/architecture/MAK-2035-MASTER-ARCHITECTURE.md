@@ -19,6 +19,7 @@ Every future implementation must be compatible with this architecture. No capabi
 |---------------|--------------|
 | **Constitution** | Rules and prohibitions — highest authority |
 | **This document** | Layer topology, flows, platform map — **structural reference** |
+| **Platform Language Standard** | Official nomenclature — **vocabulary reference** |
 | **MAK-DATA-PLATFORM.md** | Detailed MDP specification |
 | **CURRENT-STATE.md** | What exists in code today |
 | **ROADMAP.md** | Implementation sequence |
@@ -573,6 +574,7 @@ Aligned with [ROADMAP.md](../engineering/ROADMAP.md) — no conflict.
 |----------|------|
 | What are the rules? | [Constitution](../constitution/00-MAK-CONSTITUTION.md) |
 | What is the full platform map? | **This document** |
+| What is the official vocabulary? | [MAK-PLATFORM-LANGUAGE-STANDARD.md](./MAK-PLATFORM-LANGUAGE-STANDARD.md) |
 | What exists in code today? | [CURRENT-STATE.md](../engineering/CURRENT-STATE.md) |
 | What is MDP detail? | [MAK-DATA-PLATFORM.md](../engineering/MAK-DATA-PLATFORM.md) |
 | What to build next? | [ROADMAP.md](../engineering/ROADMAP.md) |

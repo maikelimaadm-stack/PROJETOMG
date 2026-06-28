@@ -24,13 +24,14 @@ When documents or instructions conflict, resolve in this order:
 | **1** | `/docs/constitution/*` | **This Constitution** — non-negotiable rules |
 | **2** | `/README_AI.md` | AI/agent entry point — pre-flight checklist |
 | **3** | `/docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` | **Master Architecture** — definitive platform map (MAK 2035) |
-| **4** | `/docs/engineering/*` | Living state (CURRENT-STATE, ROADMAP, DECISIONS, etc.) |
-| **5** | `scripts/governance-baseline.json` | Machine-enforced baseline (frozen exceptions, forbidden patterns) |
-| **6** | CI gates (`scripts/gate-*.mjs`) | Automated verification of Constitution compliance |
-| **7** | `/docs/FOUNDATION_GOVERNANCE.md` | Operational guide (subordinate to Constitution — may drift; see TD-015) |
-| **8** | Capability catalogs (`docs/*_CATALOG.md`, `docs/*_INVENTORY.md`) | Reference for config engines |
-| **9** | Module-local config and metadata | Domain-only definitions |
-| **10** | Chat instructions, informal notes, external reports | **Not authoritative** |
+| **4** | `/docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` | **Platform Language Standard** — official nomenclature |
+| **5** | `/docs/engineering/*` | Living state (CURRENT-STATE, ROADMAP, DECISIONS, etc.) |
+| **6** | `scripts/governance-baseline.json` | Machine-enforced baseline (frozen exceptions, forbidden patterns) |
+| **7** | CI gates (`scripts/gate-*.mjs`) | Automated verification of Constitution compliance |
+| **8** | `/docs/FOUNDATION_GOVERNANCE.md` | Operational guide (subordinate to Constitution — may drift; see TD-015) |
+| **9** | Capability catalogs (`docs/*_CATALOG.md`, `docs/*_INVENTORY.md`) | Reference for config engines |
+| **10** | Module-local config and metadata | Domain-only definitions |
+| **11** | Chat instructions, informal notes, external reports | **Not authoritative** |
 
 If a chat instruction contradicts the Constitution, **the Constitution wins**.
 
@@ -68,6 +69,7 @@ Complementary to Constitution — updated every mission per doc 11:
 | Documentation Certification | `/docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 | MAK DATA PLATFORM spec | `/docs/engineering/MAK-DATA-PLATFORM.md` |
 | **Master Architecture** | `/docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
+| **Platform Language Standard** | `/docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 
 Future missions may add engineering docs (e.g. MAK Studio spec) outside `/docs/constitution/`.
 

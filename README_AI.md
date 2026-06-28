@@ -27,8 +27,9 @@ Before altering **any** file, read and verify:
 | 4 | **Roadmap** | `docs/engineering/ROADMAP.md` |
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
 | 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
-| 7 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
-| 8 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
+| 7 | **Platform Language Standard** | `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
+| 8 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
+| 9 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 **If any document is outdated relative to the code, update it before proceeding.**
 
@@ -128,6 +129,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | MAK Studio | Not implemented |
 | MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
+| Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Legacy layer | `src/framework/cadastro/` — do not extend |
 
 ---
@@ -138,6 +140,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 README_AI.md                          ← you are here (AI entry)
 docs/constitution/00-MAK-CONSTITUTION.md   ← highest authority
 docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md  ← definitive platform map
+docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md  ← official nomenclature
 docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md
 docs/engineering/CURRENT-STATE.md      ← living platform state
 docs/engineering/ROADMAP.md
@@ -156,4 +159,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-28 — MAK 2035 Master Architecture (D-014)*
+*Last updated: 2026-06-28 — Program 0.5 Platform Language Standard (D-015)*

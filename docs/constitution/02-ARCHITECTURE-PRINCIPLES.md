@@ -191,6 +191,7 @@ New cadastro structural work uses MG/ModeloBase1 tokens. Do not introduce a thir
 Durable decisions belong in:
 
 - **[MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)** — definitive platform map (L0–L7)
+- **[MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md)** — official platform nomenclature
 - **[DECISIONS.md](../engineering/DECISIONS.md)** — decision register (D-001+)
 - **[ENGINEERING-JOURNAL.md](../engineering/ENGINEERING-JOURNAL.md)** — mission log
 
