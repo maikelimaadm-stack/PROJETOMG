@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (IFM 1A baseline recovery — D-016–D-019)
+**Last updated:** 2026-06-28 (MDP-0 Architecture Specification — D-020)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -231,6 +231,18 @@
 | **Decision** | **Repository Health Protocol (RHP)** is mandatory at every mission **start** and **end**, plus **post-merge** verification. Integrated into [PLATFORM-IMPLEMENTATION-PROTOCOL.md](./PLATFORM-IMPLEMENTATION-PROTOCOL.md) §10. |
 | **Evidence** | Emenda D-019 — PR hygiene, branch sync, build/lint/gates, doc sync, merge readiness, deploy health |
 | **Consequences** | Repository must never finish a mission in worse health than at start; reduce debt when possible |
+
+---
+
+## D-020 — MDP Architecture Specification (MDP-0)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **`docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md`** is the definitive MDP architecture spec. All MDP-1..5 implementations must conform. No code in MDP-0 mission. |
+| **Evidence** | Mission MDP-0 — 5 components fully specified; conceptual DB + API; certification 10/10 |
+| **Consequences** | MAK-DATA-PLATFORM.md v2.0.0 becomes engineering summary; implementation may begin at MDP-1 |
 
 ---
 

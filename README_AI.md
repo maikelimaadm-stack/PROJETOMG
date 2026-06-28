@@ -28,10 +28,11 @@ Before altering **any** file, read and verify:
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
 | 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | 7 | **Platform Language Standard** | `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| 8 | **Platform Maturity Index** | `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
-| 9 | **Implementation Protocol** | `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
-| 10 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
-| 11 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
+| 8 | **MDP Architecture Spec** | `docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md` |
+| 9 | **Platform Maturity Index** | `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| 10 | **Implementation Protocol** | `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
+| 11 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
+| 12 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 **If any document is outdated relative to the code, update it before proceeding.**
 
@@ -148,6 +149,7 @@ README_AI.md                          ← you are here (AI entry)
 docs/constitution/00-MAK-CONSTITUTION.md   ← highest authority
 docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md  ← definitive platform map
 docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md  ← official nomenclature
+docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md  ← MDP definitive spec
 docs/engineering/PLATFORM-MATURITY-INDEX.md  ← maturity dashboard
 docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md  ← 10-phase mission lifecycle + RHP
 docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md
