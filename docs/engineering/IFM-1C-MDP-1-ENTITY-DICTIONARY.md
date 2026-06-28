@@ -3,8 +3,10 @@
 **Mission ID:** IFM 1C-MDP-1 (MDP-1)  
 **Program:** IFM Phase 1C — MAK DATA PLATFORM  
 **Priority:** P1  
-**Status:** **Prepared — ready after prerequisites**  
-**Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §3
+**Status:** **Prepared — ready after pre-design review (D-021)**  
+**Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §3  
+**Pre-design review:** [IFM-1C-MDP-1-PRE-DESIGN-REVIEW.md](./IFM-1C-MDP-1-PRE-DESIGN-REVIEW.md) — **required before first migration**  
+**Schema addenda:** Decision **D-021**
 
 ---
 
@@ -12,9 +14,10 @@
 
 | Mission | Status |
 |---------|--------|
-| IFM 1A-S3 — Frontend supply chain hardening | Pending |
-| IFM 1D-1 — V13–V20 gates in CI | Pending |
+| IFM 1A-S3 — Frontend supply chain hardening | ✅ Complete |
+| IFM 1D-1 — V13–V20 gates in CI | Pending (PR #295) |
 | MDP-0 — Architecture specification | ✅ Complete (D-020) |
+| MDP-1 Pre-Design Review | ✅ Complete (D-021) |
 
 ---
 
@@ -29,6 +32,7 @@ Implement **MDP-1 Entity Dictionary** — persisted SSOT for platform entities, 
 ### In scope
 
 - Prisma models: `mdp_entity`, `mdp_entity_label`, `mdp_entity_capability`, `mdp_entity_route`, `mdp_entity_audit`
+- **D-021:** `mdp_definition_version` stub (platform v1 published) + schema addenda per pre-design review
 - Backend API: `/api/mdp/entities` CRUD + list (tenant-scoped)
 - Seed migration: `empresas` + `cadcps` from current registry + `CadCpsTela` + Prisma introspection
 - Generator update: read Entity Dictionary API (or exported JSON cache) instead of file-only registry
@@ -50,6 +54,7 @@ Implement **MDP-1 Entity Dictionary** — persisted SSOT for platform entities, 
 - [ ] `cliente_id` tenant isolation enforced on all API endpoints
 - [ ] Platform-scoped builtins (`scope: platform`) seeded; tenant extensions creatable
 - [ ] `config/cadastro-modules.registry.json` generated from MDP export (or deprecated with compile step)
+- [ ] D-021 schema addenda applied in first migration
 - [ ] `npm run verify:governance` pass
 - [ ] CURRENT-STATE, ENGINEERING-JOURNAL, TECH-DEBT updated
 
@@ -60,7 +65,7 @@ Implement **MDP-1 Entity Dictionary** — persisted SSOT for platform entities, 
 | Risk | Mitigation |
 |------|------------|
 | Breaking generator/registry flow | Parallel run: file registry + MDP until cutover gate passes |
-| CADCPS `CadCpsTela` overlap | Map to `mdp_entity_route` — do not duplicate entity rows |
+| CADCPS `CadCpsTela` overlap | Map to `mdp_entity_route` — meta entity semantics per D-021 |
 | Foundation imports MDP tables | **Forbidden** — API/compile export only (MDP-0 I-2) |
 
 ---

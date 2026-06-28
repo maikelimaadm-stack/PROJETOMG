@@ -246,6 +246,18 @@
 
 ---
 
+## D-021 — MDP-1 Entity Dictionary Schema Addenda (Pre-Migration)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Before the first MDP-1 migration, extend the conceptual MDP-1 schema with: (1) **`mdp_definition_version` stub** (platform v1 published) referenced by all MDP-1 rows; (2) **`mdp_entity` addenda** — `entityKind`, `sortOrder`, `iconKey`, `extendsEntityId`, `originKind`, `originRef`, `isRuntimeModule`, `legacyEntityName`, `permissionResourceKey`; (3) **`mdp_entity_route` addenda** — `clientTarget`, `menuSection`, `sortOrder`, `targetEntityId`; (4) **cadcps seed semantics** — meta entity for field catalog admin, not `CadCpsCampo` as business entity; `CadCpsTela` → routes/target bindings. |
+| **Evidence** | [IFM-1C-MDP-1-PRE-DESIGN-REVIEW.md](./IFM-1C-MDP-1-PRE-DESIGN-REVIEW.md) — certification 10/10 with amendments |
+| **Consequences** | MDP-1 table shapes freezable after first migration; avoids 2–3 structural rework migrations before Marketplace/multi-template |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
