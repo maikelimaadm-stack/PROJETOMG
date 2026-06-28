@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** IFM Mission 1 Strategy Review  
+**Verified by:** MAK 2035 Master Architecture mission  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -16,18 +16,22 @@
 | Backend | Fastify 5 + Prisma 6 + PostgreSQL |
 | Foundation | Enterprise V10.1.0 — **frozen** 2026-06-27 |
 | Constitution | v1.0.0 — `docs/constitution/` |
+| Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Global technical score | ~7.0/10 (audit 2026-06-28) |
 
 ---
 
 ## Architecture Layers (Current)
 
+**Target map:** [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) (L0–L7)
+
 ```
 Domain modules (4 runtime) → ModeloBase1 → framework/mak → cadastro-engine → API/Prisma
                                     ↘ framework/cadastro (legacy, transitional)
 
 Planned (IFM 1C — not implemented):
-MAK DATA PLATFORM → Entity · Data · Relationship Dictionaries + Metadata Registry
+MAK DATA PLATFORM (L4) → Entity · Data · Relationship Dictionaries + Metadata Registry
+Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 ```
 
 | Layer | Path | LOC (approx) | Status |

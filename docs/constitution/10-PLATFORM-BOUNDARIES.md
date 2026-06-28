@@ -198,8 +198,9 @@ These products **do not exist in code** yet. Boundaries are declared now to prev
 
 ### Sync / Offline
 
-- Not the same as preference localStorage cache
-- Requires outbox/replication design — not started
+- **Target (D-014):** Sync Platform = L6 service (outbox, replication); Offline = L7 client capability consuming Sync
+- **Today:** Preferences localStorage cache only — not full offline
+- Detail: [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) §L6.4, §L7
 
 ---
 

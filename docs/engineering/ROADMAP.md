@@ -1,8 +1,8 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (IFM Mission 1 — MDP strategy approved)  
-**Horizon:** Technical roadmap based on verified platform state (not legacy planning docs)
+**Last updated:** 2026-06-28 (MAK 2035 Master Architecture — D-014)  
+**Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
 
@@ -28,6 +28,7 @@ Priority order for all work:
 | README_AI.md | ✅ |
 | Engineering docs (`docs/engineering/`) | ✅ Certified Mission 0.2 |
 | Documentation certification | ✅ `DOCUMENTATION-CERTIFICATION.md` |
+| **Master Architecture** | ✅ `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` v1.0.0 (D-014) |
 
 ---
 

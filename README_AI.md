@@ -26,8 +26,9 @@ Before altering **any** file, read and verify:
 | 3 | **Current State** | `docs/engineering/CURRENT-STATE.md` |
 | 4 | **Roadmap** | `docs/engineering/ROADMAP.md` |
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
-| 6 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
-| 7 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
+| 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
+| 7 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
+| 8 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 **If any document is outdated relative to the code, update it before proceeding.**
 
@@ -126,6 +127,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | Primary gate suite | `npm run verify:governance` |
 | MAK Studio | Not implemented |
 | MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
+| Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Legacy layer | `src/framework/cadastro/` — do not extend |
 
 ---
@@ -135,8 +137,9 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 ```
 README_AI.md                          ← you are here (AI entry)
 docs/constitution/00-MAK-CONSTITUTION.md   ← highest authority
+docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md  ← definitive platform map
 docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md
-docs/engineering/CURRENT-STATE.md     ← living platform state
+docs/engineering/CURRENT-STATE.md      ← living platform state
 docs/engineering/ROADMAP.md
 docs/engineering/DECISIONS.md
 scripts/governance-baseline.json      ← machine-enforced rules
@@ -153,4 +156,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-28 — IFM Mission 1 (MDP strategy)*
+*Last updated: 2026-06-28 — MAK 2035 Master Architecture (D-014)*

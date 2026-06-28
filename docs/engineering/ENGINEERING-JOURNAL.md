@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28
+**Last updated:** 2026-06-28 (MAK 2035 Master Architecture)
 
 ---
 
@@ -52,6 +52,40 @@ Each mission adds an entry with:
 | 8 | CURRENT-STATE atualizado? | **NÃO** | Engineering docs criados na diretriz seguinte |
 | 9 | Prepara próximo roadmap? | **SIM** | Base para todas as missões futuras |
 | 10 | Inconsistência doc/código? | **SIM** | Inconsistências registradas na Constituição §10 — não corrigidas (fora de escopo) |
+
+---
+
+## 2026-06-28 — MAK 2035 Master Architecture
+
+**Scope:** Consolidate definitive platform map; resolve architectural conflicts; documentation only  
+**Changes:** `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md`; D-014; Constitution hierarchy; README_AI pre-flight; CURRENT-STATE; PLATFORM-BOUNDARIES Sync/Offline
+
+**Deliverables:** L0–L7 layer model; Platform Core (L3) defined; Sync vs Offline resolved; capability matrix; end-to-end flows; binding compatibility rules.
+
+### Certificação MAK 2035 (5 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Conflito arquitetural restante? | **NÃO** | §9 resolve Platform Core, MDP vs registries, Sync/Offline, Studio, CADCPS, IA, Marketplace |
+| 2 | Camada indefinida? | **NÃO** | L0–L7 especificadas; L3 Platform Core formalizada |
+| 3 | Capability sem posicionamento? | **NÃO** | Matriz §7 cobre todas as capabilities da missão |
+| 4 | Pronta para 5 anos? | **SIM** | Topologia versionada + amendment process + programas 0–6 sequenciados |
+| 5 | Pode ser congelada? | **NÃO** | Topologia estável (v1.0.0); documento versionado e emendável via D-register; L2 código já congelado separadamente |
+
+### Certificação Obrigatória (10 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Arquitetura íntegra? | **SIM** | Doc only; topology aligns with Constitution + MDP spec |
+| 2 | Constituição válida? | **SIM** | Hierarchy updated; no rule violations |
+| 3 | Nova dívida técnica? | **NÃO** | Documentation mission |
+| 4 | Duplicação estrutural? | **NÃO** | Master doc consolidates; forbids parallel systems |
+| 5 | Promoção Foundation? | **NÃO** | N/A |
+| 6 | Simplificação? | **SIM** | Single authoritative architecture map |
+| 7 | Legado removível? | **NÃO** | N/A |
+| 8 | CURRENT-STATE atualizado? | **SIM** | Master Architecture reference added |
+| 9 | Prepara roadmap? | **SIM** | Programs 0–6 aligned with ROADMAP |
+| 10 | Inconsistência doc/código? | **NÃO** | Target vs current clearly separated |
 
 ---
 

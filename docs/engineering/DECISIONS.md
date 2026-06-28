@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (IFM Mission 1)  
+**Last updated:** 2026-06-28 (MAK 2035 Master Architecture)  
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -162,13 +162,26 @@
 
 ---
 
+## D-014 — MAK 2035 Master Architecture
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **`docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md`** is the definitive platform map (L0–L7). All future capabilities must align with layer boundaries, flows, and compatibility rules defined there. |
+| **Evidence** | Strategic mission MAK 2035; conflict resolutions §9; capability matrix §7 |
+| **Consequences** | Constitution hierarchy updated (priority 3); README_AI pre-flight includes Master Architecture; layer topology changes require D-register amendment |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
 |-------|---------|
-| MAK Studio metadata storage | Entity catalog schema (ROADMAP P1) |
-| Backend event bus design | Automation Studio requirements |
-| Offline sync architecture | Not scheduled |
+| Backend event bus design | Automation Studio requirements — L3 Platform Core event bus spec in Master Architecture §L3 |
+| Desktop shell technology | Tauri vs Electron — L7 implementation choice; does not affect topology |
+
+**Resolved (D-014):** Offline sync architecture → Sync Platform (L6.4) + Offline client capability (L7). MAK Studio metadata storage → MDP Metadata Registry (L4).
 
 ---
 

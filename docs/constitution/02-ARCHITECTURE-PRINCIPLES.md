@@ -188,12 +188,15 @@ New cadastro structural work uses MG/ModeloBase1 tokens. Do not introduce a thir
 
 ## 11. Architectural Decision Records
 
-Durable decisions belong in repository docs (future Journal mission). Until then:
+Durable decisions belong in:
 
-- Certification reports in `/docs/ENTERPRISE_*` are historical evidence.
-- **This Constitution supersedes** informal conclusions from those reports.
+- **[MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)** — definitive platform map (L0–L7)
+- **[DECISIONS.md](../engineering/DECISIONS.md)** — decision register (D-001+)
+- **[ENGINEERING-JOURNAL.md](../engineering/ENGINEERING-JOURNAL.md)** — mission log
 
-When implementing, verify against **code + gates**, not report narratives.
+Certification reports in `/docs/ENTERPRISE_*` are historical evidence. **This Constitution supersedes** informal conclusions from those reports.
+
+When implementing, verify against **code + gates + Master Architecture**, not report narratives.
 
 ---
 
