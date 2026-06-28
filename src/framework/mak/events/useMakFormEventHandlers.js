@@ -33,6 +33,7 @@ export function useMakFormEventHandlers({
   schema = null,
   customFields = [],
   runValidation = null,
+  runWorkflow = null,
   enabled = true,
 }) {
   const loadSignatureRef = useRef("");
@@ -70,6 +71,7 @@ export function useMakFormEventHandlers({
           customFields,
           runValidation,
           actionRegistry,
+          runWorkflow,
           ...context,
         },
         options: { async: true },
@@ -81,7 +83,7 @@ export function useMakFormEventHandlers({
 
       return result;
     },
-    [enabled, moduleId, eventDefinitions, events, formData, setFormData, recordKey, isEditing, ui, services, fieldDefinitions, schema, customFields, runValidation, actionRegistry]
+    [enabled, moduleId, eventDefinitions, events, formData, setFormData, recordKey, isEditing, ui, services, fieldDefinitions, schema, customFields, runValidation, actionRegistry, runWorkflow]
   );
 
   useEffect(() => {

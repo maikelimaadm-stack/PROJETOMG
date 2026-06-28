@@ -91,3 +91,13 @@
 **Motivo:** módulo fictício da Missão Enterprise V19 para demonstrar ações declarativas via metadata (`MAK_ACTION_CERTIFICATION_DEFINITIONS`).
 
 **Referência:** `src/modules/actionscert/` + `framework/mak/actions/actionCertificationCatalog.js`.
+
+---
+
+## workflowcert — módulo fictício V20 (Workflow Configuration Engine)
+
+**Status:** exceção formal — certificação metadata-only, sem rota App.
+
+**Motivo:** módulo fictício da Missão Enterprise V20 para demonstrar workflows declarativos via metadata (`MAK_WORKFLOW_CERTIFICATION_DEFINITIONS`).
+
+**Referência:** `src/modules/workflowcert/` + `framework/mak/workflow/workflowCertificationCatalog.js`.

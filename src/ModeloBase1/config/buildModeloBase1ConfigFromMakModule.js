@@ -11,6 +11,7 @@ import { buildMakValidationConfigMetadata } from "@/framework/mak/validation/bui
 import { buildMakFormulaConfigMetadata } from "@/framework/mak/formula/buildMakFormulaConfigMetadata.js";
 import { buildMakEventConfigMetadata } from "@/framework/mak/events/buildMakEventConfigMetadata.js";
 import { buildMakActionConfigMetadata } from "@/framework/mak/actions/buildMakActionConfigMetadata.js";
+import { buildMakWorkflowConfigMetadata } from "@/framework/mak/workflow/buildMakWorkflowConfigMetadata.js";
 import {
   useModeloBase1InfiniteListData,
   useModeloBase1Favorites,
@@ -86,6 +87,11 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     actionDefinitions: makModule.metadata?.form?.actionDefinitions ?? [],
     actions: makModule.metadata?.form?.actions ?? null,
   });
+  const workflowEngineMetadata = buildMakWorkflowConfigMetadata({
+    moduleId,
+    workflowDefinitions: makModule.metadata?.form?.workflowDefinitions ?? [],
+    workflows: makModule.metadata?.form?.workflows ?? null,
+  });
 
   const {
     hooks: overrideHooks,
@@ -110,6 +116,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     formulaEngine: overrides.formulaEngine ?? formulaEngineMetadata,
     eventEngine: overrides.eventEngine ?? eventEngineMetadata,
     actionEngine: overrides.actionEngine ?? actionEngineMetadata,
+    workflowEngine: overrides.workflowEngine ?? workflowEngineMetadata,
     navigation: {
       emptyRecordViewMode: overrides.navigation?.emptyRecordViewMode ?? "browse",
       ...(overrides.navigation ?? {}),

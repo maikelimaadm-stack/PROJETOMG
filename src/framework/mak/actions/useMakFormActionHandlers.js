@@ -28,6 +28,7 @@ export function useMakFormActionHandlers({
   schema = null,
   customFields = [],
   runValidation = null,
+  runWorkflow = null,
   enabled = true,
 }) {
   const baseContext = useMemo(
@@ -40,8 +41,9 @@ export function useMakFormActionHandlers({
       ui,
       services,
       runValidation,
+      runWorkflow,
     }),
-    [formData, setFormData, fieldDefinitions, schema, customFields, ui, services, runValidation]
+    [formData, setFormData, fieldDefinitions, schema, customFields, ui, services, runValidation, runWorkflow]
   );
 
   const runAction = useCallback(
