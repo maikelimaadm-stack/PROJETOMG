@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Program 0.7 PIP + PMI baseline recovery)
+**Last updated:** 2026-06-28 (IFM Phase 1 Replanning — official technical roadmap)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -46,23 +46,36 @@ Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Ph
 
 | Sub-phase | Roadmap refs | Goal |
 |-----------|--------------|------|
-| **1A Estabilidade** | S1–S4 | Reliable deploys, registry SSOT |
-| **1B Arquitetura** | A1–A2 | Legacy promotion, generic naming |
+| **1A Estabilidade** | S3–S4 | Supply chain, DDL predictability |
+| **1B Arquitetura** | A1–A5 | Legacy promotion, generic naming, event bus |
 | **1C MAK DATA PLATFORM** | MDP-1→5 | Entity · Data · Relationship Dictionaries + Metadata Registry |
-| **1D Governança** | TD-013 | V13–V20 gates in CI |
+| **1D Governança CI** | 1D-1 | V13–V20 gates in CI |
 
 **MAK Studio = Program 2** — starts after IFM 1C (MDP-4 minimum).  
-**Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
+**Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)  
+**Execution roadmap (authoritative):** [IFM-PHASE-1-TECHNICAL-ROADMAP.md](./IFM-PHASE-1-TECHNICAL-ROADMAP.md)
 
 ---
 
-## Phase 1 — Estabilidade (IFM Phase 1A — Current Priority)
+## Phase 1D — Governança CI (IFM)
 
 | ID | Item | Priority | Blocks |
 |----|------|----------|--------|
-| S2 | Sync backend `cadastro-modules.registry.json` (2 modules) | ~~P1~~ ✅ | Registry SSOT — **done** baseline recovery 2026-06-28 |
-| S3 | npm audit fix (frontend) | P1 | Supply chain |
-| S4 | Consolidate DDL path (Prisma-only primary) | P2 | Deploy predictability |
+| **1D-1** | V13–V20 gates in CI | **P1 — mission #2** | TD-013; protects MDP work |
+
+*Full mission sequence: [IFM-PHASE-1-TECHNICAL-ROADMAP.md § Part 2](./IFM-PHASE-1-TECHNICAL-ROADMAP.md)*
+
+---
+
+## Phase 1 — Estabilidade (IFM Phase 1A)
+
+| ID | Item | Priority | Status |
+|----|------|----------|--------|
+| S2 | Sync backend `cadastro-modules.registry.json` | ~~P1~~ | ✅ Baseline recovery 2026-06-28 |
+| **S3** | npm audit fix (frontend) | **P1 — next** | [Brief](./IFM-1A-S3-SUPPLY-CHAIN-HARDENING.md) |
+| S4 | Consolidate DDL path (Prisma-only primary) | P2 | After MDP-1 |
+
+**Removed:** S1 Produto migration (obsolete — PR #285).
 
 ---
 
@@ -87,7 +100,7 @@ Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Ph
 | MDP-3 | Relationship Dictionary — schema + API | P1 | §3.3 |
 | MDP-4 | Metadata Registry + introspection API | P1 | §3.4 |
 | MDP-5 | Definition versioning + publish pipeline | P2 | §4 |
-| P4 | Unified registry sync (FE/BE/bootstrap) | P1 | Supports MDP-1 |
+| ~~P4~~ | ~~Unified registry sync~~ | — | **Absorbed into MDP-1** |
 
 Full specification: [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
 
@@ -111,11 +124,13 @@ Prerequisite: **IFM 1C complete** (MDP-4 minimum — Metadata Registry + introsp
 
 ## Phase 5 — Novos Módulos
 
-After Phase 1 (S1–S2) complete:
+After **MDP-4** (Metadata Registry + introspection API):
 
 - All new cadastro modules via `npm run generate:module`
-- Follow marcas/produtos minimal factory pattern
+- Follow `empresas` reference factory or `cadcps` domain-runtime exception pattern
 - Complex runtime only with formal exception (cadcps model)
+
+**Removed:** marcas/produtos minimal factory (modules deleted PR #285).
 
 ---
 

@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (IFM 1A Architecture Baseline Recovery)
+**Last updated:** 2026-06-28 (IFM Phase 1 Replanning)
 
 ---
 
@@ -18,7 +18,22 @@ Each mission adds an entry with:
 
 ---
 
-## 2026-06-28 — IFM 1A: Architecture Baseline Recovery
+## 2026-06-28 — IFM Phase 1: Replanejamento Técnico Oficial
+
+**Scope:** Planning-only audit of Program 1 post-baseline recovery  
+**Changes:**
+- `IFM-PHASE-1-TECHNICAL-ROADMAP.md` — 22-area analysis + reorganized mission sequence
+- `IFM-1A-S3-SUPPLY-CHAIN-HARDENING.md` — first implementation mission brief
+- ROADMAP, NEXT-SPRINT, CURRENT-STATE updated
+
+**Key decisions:**
+- Removed S1 Produto, absorbed P4 into MDP-1, deferred new modules until MDP-4
+- Execution order: **S3 → 1D-1 → MDP-1→4 → 1B**
+- Next implementation: **IFM 1A-S3** (TD-008 npm audit)
+
+**Certification:** See IFM-PHASE-1-TECHNICAL-ROADMAP.md § Part 5 (10 questions).
+
+---
 
 **Scope:** Reconcile code, gates, registries, docs, CI after PR #285 + merge PRs #288–#290  
 **Changes:**
