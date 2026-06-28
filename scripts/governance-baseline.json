@@ -1,7 +1,7 @@
 {
   "version": "v10.1.0",
   "frozenAt": "2026-06-27",
-  "legacyModuleExceptions": ["template", "fieldcert", "validationcert"],
+  "legacyModuleExceptions": ["template", "fieldcert", "validationcert", "formulacert"],
   "infrastructureModuleExceptions": ["makBootstrap"],
   "legacyComponentAllowlist": [
     "src/modules/template/components/FORMTemplate.jsx",

@@ -32,6 +32,8 @@ import {
   countRequiredFormFields,
 } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
 import { runMakFormValidation } from "@/framework/mak/validation/runMakFormValidation.js";
+import { useMakFormFormulaEvaluation } from "@/framework/mak/formula/useMakFormFormulaEvaluation.js";
+import { runMakFormulaEvaluation } from "@/framework/mak/formula/runMakFormulaEvaluation.js";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -205,6 +207,14 @@ export default function MakCadastroForm({
     .filter((campo) => campo.ativo !== false && campo.visivel_form !== false && !NATIVE_FIELDS.has(campo.field_name)),
     [camposPersonalizados]
   );
+
+  useMakFormFormulaEvaluation({
+    formData,
+    setFormData,
+    fieldDefinitions,
+    customFields: camposPersonalizadosForm,
+    enabled: camposPersonalizadosReady,
+  });
 
   const relatedSources = useMemo(() => camposPersonalizadosForm
     .map((campo) => {
@@ -511,9 +521,27 @@ export default function MakCadastroForm({
     if (event?.preventDefault) event.preventDefault();
     if (isReadOnly || actionsLocked) return;
     if (!validateForm()) return;
+    const formulaResult = runMakFormulaEvaluation({
+      formData,
+      fieldDefinitions,
+      customFields: camposPersonalizadosForm,
+      customFieldCalculator: (scope, campo) => campoEngine.calcularCampo(scope, campo),
+    });
+    const mergedFormData = { ...formData };
+    Object.entries(formulaResult.values).forEach(([key, value]) => {
+      if (key.startsWith("campos_personalizados.")) {
+        const fieldKey = key.replace("campos_personalizados.", "");
+        mergedFormData.campos_personalizados = {
+          ...(mergedFormData.campos_personalizados || {}),
+          [fieldKey]: value,
+        };
+      } else {
+        mergedFormData[key] = value;
+      }
+    });
     const calculated = campoEngine.aplicarCamposCalculados
-      ? campoEngine.aplicarCamposCalculados(formData, camposPersonalizadosForm)
-      : formData;
+      ? campoEngine.aplicarCamposCalculados(mergedFormData, camposPersonalizadosForm)
+      : mergedFormData;
     let payload = { ...formData, campos_personalizados: calculated.campos_personalizados || {} };
     if (typeof prepareSubmitPayload === "function") {
       payload = prepareSubmitPayload(payload);
