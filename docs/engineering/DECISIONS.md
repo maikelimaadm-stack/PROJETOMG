@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)  
+**Last updated:** 2026-06-28 (Program 0.6 Platform Maturity Index)  
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -183,6 +183,30 @@
 | **Decision** | **`docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md`** is the official platform nomenclature. All future documentation, Studio surfaces, and capabilities must use terms defined there. Legacy code identifiers remain unchanged until explicit migration missions. |
 | **Evidence** | Program 0.5 — term inventory §4; glossary §5; legacy/discontinued lists §6 |
 | **Consequences** | Constitution hierarchy priority 4; README_AI pre-flight; no conflicting terms in new docs without D-register |
+
+---
+
+## D-017 — ModeloBase1 as First Official Base Template
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **ModeloBase1** is **Official Base Template 1** — the first certified Base Template, not the only template the platform will support. Future **Template Registry** (MDP Metadata Registry type) manages multiple Base Templates. No current architecture decision blocks new visual or operational templates. |
+| **Evidence** | Program 0.6 strategic adjustment; Master Architecture §L2.1/L2.1b; Constitution 04 §12 |
+| **Consequences** | PMI scores ModeloBase1 as template 1 of N; Studio/MDP must model `baseTemplateId`; Foundation remains shared across templates |
+
+---
+
+## D-016 — Platform Maturity Index (PMI)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **`docs/engineering/PLATFORM-MATURITY-INDEX.md`** is the official strategic maturity dashboard. Scores must be evidence-based (code, gates, audits). Updated on every mission that significantly changes an evaluated area. |
+| **Evidence** | Program 0.6 — 19 areas scored with objective criteria |
+| **Consequences** | Closes structural documentation phase (Programs 0–0.6); next missions prioritize code (IFM 1A, Platform Core) |
 
 ---
 

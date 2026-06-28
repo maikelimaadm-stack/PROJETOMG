@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)
+**Last updated:** 2026-06-28 (Program 0.6 PMI v1.1 + D-017)
 
 ---
 

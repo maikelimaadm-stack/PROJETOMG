@@ -12,12 +12,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Priority** | P0 |
+| **Priority** | ~~P0~~ |
 | **Area** | Database |
-| **Evidence** | `Produto` model in `backend/prisma/schema.prisma` L445–463; zero matches in `backend/prisma/migrations/**/*.sql` |
-| **Impact** | Fresh DB deploy fails for produtos module |
-| **Roadmap** | S1 |
-| **Status** | Open |
+| **Status** | **Resolved / Obsolete** 2026-06-28 — `Produto` and `Marca` models removed (PR #285); module `produtos`/`marcas` deleted |
+| **Evidence** | No `model Produto` in `schema.prisma`; migration `20260628120000_remove_marcas_produtos` |
 
 ---
 
@@ -27,7 +25,7 @@
 |-------|-------|
 | **Priority** | P1 |
 | **Area** | Governance / registry |
-| **Evidence** | `backend/config/cadastro-modules.registry.json` — 1 module; `config/cadastro-modules.registry.json` — 4 modules |
+| **Evidence** | `backend/config/cadastro-modules.registry.json` — 1 module; `config/cadastro-modules.registry.json` — 2 modules (empresas, cadcps) |
 | **Impact** | Backend tooling/bootstrap may miss marcas, produtos, cadcps |
 | **Roadmap** | S2 |
 | **Status** | Open |

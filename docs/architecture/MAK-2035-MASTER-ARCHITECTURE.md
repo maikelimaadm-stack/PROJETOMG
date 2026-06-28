@@ -112,7 +112,9 @@ MAK Gestão is a **metadata-driven, multi-tenant, low-code enterprise platform**
 
 The **frozen execution layer** — certified, governed, SSOT for structural UI.
 
-#### L2.1 ModeloBase1
+#### L2.1 ModeloBase1 — Official Base Template 1
+
+**ModeloBase1 is the first Official Base Template** of the platform — not the only template the architecture will ever support (D-017).
 
 | Responsibility | Component |
 |----------------|-----------|
@@ -120,6 +122,28 @@ The **frozen execution layer** — certified, governed, SSOT for structural UI.
 | Visual SSOT | `modeloBase1VisualTokens.js` |
 | Config factory | `buildModeloBase1ConfigFromMakModule` |
 | Hooks | Infinite list, preferences, search, custom fields |
+
+**2035 evolution:** Additional **Base Templates** (e.g. dashboard-first, workflow-first, mobile-adaptive) register in the **Template Registry** (MDP Metadata Registry type). Business Modules select a `baseTemplateId` — default `modelobase1`. Foundation Runtime remains shared; templates are pluggable presentation/operational shells over the same Compiled Runtime.
+
+| Rule | Detail |
+|------|--------|
+| Today | All certified cadastro modules use ModeloBase1 |
+| Future | New templates **must not** duplicate Foundation engines — they consume the same compile output |
+| Registry | Template Registry = MDP Metadata Registry entries — not hardcoded in Foundation code |
+| Studio | Theme Studio + future Template Studio manage template metadata via MDP |
+
+#### L2.1b Template Registry (future — MDP)
+
+| Attribute | Description |
+|-----------|-------------|
+| `baseTemplateId` | Stable id (`modelobase1`, future templates) |
+| `label` | Display name |
+| `pattern` | cadastro-list-form, dashboard, workflow, mobile-adaptive, … |
+| `runtimeEntry` | Compiled Runtime entry component reference |
+| `compatibleEngines` | Config Engine versions required |
+| `status` | active, deprecated, draft |
+
+**Seed today:** implicit single entry `modelobase1` — no registry table yet.
 
 #### L2.2 framework/mak
 

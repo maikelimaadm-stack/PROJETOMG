@@ -8,9 +8,11 @@
 
 ## 1. Definition
 
-**ModeloBase1** (`src/ModeloBase1/`) is the reusable cadastro UI motor — the structural Single Source of Truth for all certified list+form+search screens.
+**ModeloBase1** (`src/ModeloBase1/`) is the **first Official Base Template** of MAK Gestão — the certified cadastro UI motor for list+form+search screens (D-017).
 
-It orchestrates:
+It is **not** the only Base Template the platform will support. The 2035 architecture defines a **Template Registry** (MDP Metadata Registry type) for multiple Base Templates. ModeloBase1 remains frozen and backward-compatible; future templates plug in without replacing it.
+
+ModeloBase1 orchestrates:
 
 - Page lifecycle (list, create, edit, view, delete, export)
 - Panel layout (table, form, search/cards, dock)
@@ -189,6 +191,21 @@ Do not re-enable without new Capability Pack certification (V21+).
 | Import ModeloBase1 from modules into Foundation | Bootstrap inversion |
 | Hardcode Empresas fields in MakCadastroForm | Use `fieldDefinitions` metadata |
 | Skip generator for new module | Always `npm run generate:module` |
+
+---
+
+## 12. Multiple Base Templates (2035 — D-017)
+
+| Rule | Detail |
+|------|--------|
+| ModeloBase1 today | **Mandatory** for all certified cadastro Business Modules |
+| ModeloBase1 forever | **Frozen** — remains the default `baseTemplateId` |
+| Future templates | **Allowed** — registered in Template Registry (MDP), not in Foundation code |
+| Prohibited | Hardcoding "only ModeloBase1 can exist" in new Foundation code |
+| Prohibited | Parallel UI runtime outside Base Template + Foundation pattern |
+| Generator | Future: accept `baseTemplateId` — default `modelobase1` |
+
+No current decision blocks new visual or operational templates. Any new template requires: MDP Template Registry entry, governance gates, and backward compatibility with existing modules.
 
 ---
 

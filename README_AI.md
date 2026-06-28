@@ -28,8 +28,9 @@ Before altering **any** file, read and verify:
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
 | 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | 7 | **Platform Language Standard** | `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| 8 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
-| 9 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
+| 8 | **Platform Maturity Index** | `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| 9 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
+| 10 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 **If any document is outdated relative to the code, update it before proceeding.**
 
@@ -94,6 +95,7 @@ At mission end, update as applicable:
 | `docs/engineering/CAPABILITIES-REGISTRY.md` | Capability changes |
 | `docs/engineering/ROADMAP.md` | Priority shifts |
 | `docs/engineering/TECH-DEBT.md` | New or resolved debt |
+| `docs/engineering/PLATFORM-MATURITY-INDEX.md` | Significant maturity change in any PMI area |
 | `docs/engineering/DECISIONS.md` | Architectural decisions |
 | `docs/engineering/NEXT-SPRINT.md` | Sprint boundary changes |
 
@@ -130,7 +132,8 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| Legacy layer | `src/framework/cadastro/` — do not extend |
+| Platform Maturity Index | v1.0.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| Runtime modules | empresas, cadcps (2 certified) |
 
 ---
 
@@ -141,6 +144,7 @@ README_AI.md                          ← you are here (AI entry)
 docs/constitution/00-MAK-CONSTITUTION.md   ← highest authority
 docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md  ← definitive platform map
 docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md  ← official nomenclature
+docs/engineering/PLATFORM-MATURITY-INDEX.md  ← maturity dashboard
 docs/constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md
 docs/engineering/CURRENT-STATE.md      ← living platform state
 docs/engineering/ROADMAP.md
@@ -159,4 +163,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-28 — Program 0.5 Platform Language Standard (D-015)*
+*Last updated: 2026-06-28 — Program 0.6 Platform Maturity Index (D-016)*

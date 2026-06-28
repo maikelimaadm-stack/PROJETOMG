@@ -29,6 +29,7 @@ Before altering any project file, **mandatory review**:
 | Decisions | `/docs/engineering/DECISIONS.md` |
 | Master Architecture | `/docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | `/docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
+| Platform Maturity Index | `/docs/engineering/PLATFORM-MATURITY-INDEX.md` |
 | Next sprint | `/docs/engineering/NEXT-SPRINT.md` |
 
 **Rule:** If any document is outdated relative to the code, **update it before proceeding** with implementation.
