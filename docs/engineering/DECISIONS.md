@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)  
+**Last updated:** 2026-06-28 (Program 0.7 Platform Implementation Protocol)  
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -183,6 +183,18 @@
 | **Decision** | **`docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md`** is the official platform nomenclature. All future documentation, Studio surfaces, and capabilities must use terms defined there. Legacy code identifiers remain unchanged until explicit migration missions. |
 | **Evidence** | Program 0.5 — term inventory §4; glossary §5; legacy/discontinued lists §6 |
 | **Consequences** | Constitution hierarchy priority 4; README_AI pre-flight; no conflicting terms in new docs without D-register |
+
+---
+
+## D-018 — Platform Implementation Protocol (PIP)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **`docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md`** is the mandatory 10-phase lifecycle for all implementation missions. Closes documentation era (Programs 0–0.7); implementation era starts under PIP. |
+| **Evidence** | Program 0.7 — PIR through mission freeze; artifact rules §6 |
+| **Consequences** | README_AI + Constitution 11 reference PIP; all Program 1+ missions follow Phases 1–10 |
 
 ---
 

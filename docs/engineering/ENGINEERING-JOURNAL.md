@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)
+**Last updated:** 2026-06-28 (Program 0.7 Platform Implementation Protocol)
 
 ---
 
@@ -13,6 +13,40 @@ Each mission adds an entry with:
 - Changes summary
 - Certification block (10 items)
 - Links to PR / decisions
+
+---
+
+## 2026-06-28 — Program 0.7: Platform Implementation Protocol (D-018)
+
+**Scope:** Official 10-phase implementation lifecycle; documentation only  
+**Changes:** `PLATFORM-IMPLEMENTATION-PROTOCOL.md`; D-018; Constitution 00/11; README_AI; ROADMAP Phase 0 complete
+
+**Deliverables:** PIR → Freeze lifecycle; artifact creation rules (capability, promotion, template, metadata, migration, gate, audit, ADR, breaking change, roadmap, tech debt, release note).
+
+### Certificação Program 0.7 (5 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Fluxo indefinido? | **NÃO** | 10 fases com exit criteria; matriz por tipo de missão §5 |
+| 2 | Etapa obrigatória ausente? | **NÃO** | PIR, Planning, Implementation, Tests, Audit, Cert, Docs, PMI, Journal, Freeze |
+| 3 | Cobre ciclo de vida completo? | **SIM** | Doc-only through hotfix; artifact rules §6 |
+| 4 | Integrado à governança? | **SIM** | D-018; Constitution; README_AI; Doc 11 cross-ref |
+| 5 | Pode iniciar implementações? | **SIM** | Program 0.7 closes doc era; IFM 1A authorized under PIP |
+
+### Certificação Obrigatória (10 items)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Arquitetura íntegra? | **SIM** | Doc only; PIP enforces Master Architecture PIR |
+| 2 | Constituição válida? | **SIM** | PIP subordinate to Constitution |
+| 3 | Nova dívida técnica? | **NÃO** | Documentation mission |
+| 4 | Duplicação estrutural? | **NÃO** | PIP consolidates Doc 11 + README into single lifecycle |
+| 5 | Promoção Foundation? | **NÃO** | N/A |
+| 6 | Simplificação? | **SIM** | Single protocol vs scattered instructions |
+| 7 | Legado removível? | **NÃO** | N/A |
+| 8 | CURRENT-STATE atualizado? | **NÃO** | No code state change |
+| 9 | Prepara roadmap? | **SIM** | Implementation era declared |
+| 10 | Inconsistência doc/código? | **NÃO** | Protocol aligns with existing gates/commands |
 
 ---
 

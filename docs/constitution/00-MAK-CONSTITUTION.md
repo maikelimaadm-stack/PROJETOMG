@@ -70,6 +70,8 @@ Complementary to Constitution — updated every mission per doc 11:
 | MAK DATA PLATFORM spec | `/docs/engineering/MAK-DATA-PLATFORM.md` |
 | **Master Architecture** | `/docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | **Platform Language Standard** | `/docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
+| **Platform Implementation Protocol** | `/docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
+| **Platform Maturity Index** | `/docs/engineering/PLATFORM-MATURITY-INDEX.md` (Program 0.6) |
 
 Future missions may add engineering docs (e.g. MAK Studio spec) outside `/docs/constitution/`.
 
