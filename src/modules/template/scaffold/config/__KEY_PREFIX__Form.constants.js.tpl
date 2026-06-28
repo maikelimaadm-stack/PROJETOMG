@@ -31,6 +31,18 @@ export const __KEY_PREFIX_UPPER___FORM_FIELD_DEFS = [
     options: ["Ativo", "Inativo"],
   },
   { id: "observacoes", name: "observacoes", label: "Observações", type: "textarea", uppercase: true },
+  {
+    id: "nome_normalizado",
+    name: "nome_normalizado",
+    label: "Nome normalizado",
+    type: "text",
+    readOnly: true,
+    hidden: true,
+    formula: {
+      dependsOn: ["nome"],
+      expression: { fn: "uppercase", args: ["nome"] },
+    },
+  },
 ];
 
 export const __KEY_PREFIX_UPPER___COLUNAS_BASE = [

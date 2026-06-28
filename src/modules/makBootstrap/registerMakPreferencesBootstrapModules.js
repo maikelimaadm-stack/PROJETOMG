@@ -7,5 +7,6 @@ import "@/modules/makBootstrap/registerMakFoundationEngines.js";
 import "@/modules/makBootstrap/registerMakLayoutConfigEngine.js";
 import "@/modules/makBootstrap/registerMakFieldConfigEngine.js";
 import "@/modules/makBootstrap/registerMakValidationConfigEngine.js";
+import "@/modules/makBootstrap/registerMakFormulaConfigEngine.js";
 
 export { listMakPreferencesBootstrapModuleIds } from "@/framework/mak/preferences/bootstrapRegistry.js";
