@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 0.5 Platform Language Standard)
+**Last updated:** 2026-06-28 (IFM 1A S0 Repository Health Certification)
 
 ---
 
@@ -13,6 +13,23 @@ Each mission adds an entry with:
 - Changes summary
 - Certification block (10 items)
 - Links to PR / decisions
+
+---
+
+## 2026-06-28 — IFM 1A S0: Repository Health Certification
+
+**Scope:** Audit-only — inaugurate Program 1 implementation era  
+**Changes:** `docs/engineering/IFM-1A-S0-REPOSITORY-HEALTH-CERTIFICATION.md`  
+**PR:** (this branch)
+
+**Findings summary:**
+- Deploy healthy (Railway + Vercel 200)
+- CI governance **FAILING** on `main` — G38 (`useCadcpsFormResources.js`), G118 (module count threshold stale post-#285)
+- Registries desynced — FE 2 modules, BE 1 module (TD-002)
+- Docs on `main` stale — still reference 4 modules, Produto S1; PMI/PIP on open PRs #288/#289
+- IFM 1A S1 Produto migration **obsolete**
+
+**Certification:** See report §10 — IFM **not granted**; recommend S0.1 gate repair + S2 registry sync before implementation.
 
 ---
 
