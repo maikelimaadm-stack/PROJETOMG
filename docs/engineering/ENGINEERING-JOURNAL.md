@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (IFM Phase 1 Replanning)
+**Last updated:** 2026-06-28 (MDP-0 Architecture Specification)
 
 ---
 
@@ -18,7 +18,19 @@ Each mission adds an entry with:
 
 ---
 
-## 2026-06-28 — IFM Phase 1: Replanejamento Técnico Oficial
+## 2026-06-28 — MDP-0: MAK DATA PLATFORM Architecture Specification
+
+**Scope:** Architecture-only — definitive MDP spec before implementation  
+**Changes:**
+- `docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md` (MDP-0)
+- `MAK-DATA-PLATFORM.md` v2.0.0 (engineering summary)
+- D-020; Master Architecture cross-ref; CURRENT-STATE MDP section
+
+**Deliverables:** MDP-1..5 fully specified — conceptual model, DB tables, APIs, layer relationships, i18n, multi-tenant/empresa, certification 10/10 SIM.
+
+**Next:** MDP-1 implementation (after IFM 1A-S3 + 1D-1 per roadmap).
+
+---
 
 **Scope:** Planning-only audit of Program 1 post-baseline recovery  
 **Changes:**

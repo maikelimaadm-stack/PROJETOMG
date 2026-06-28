@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (IFM Phase 1 Replanning — official technical roadmap)
+**Last updated:** 2026-06-28 (MDP-0 Architecture Specification)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -48,7 +48,7 @@ Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Ph
 |-----------|--------------|------|
 | **1A Estabilidade** | S3–S4 | Supply chain, DDL predictability |
 | **1B Arquitetura** | A1–A5 | Legacy promotion, generic naming, event bus |
-| **1C MAK DATA PLATFORM** | MDP-1→5 | Entity · Data · Relationship Dictionaries + Metadata Registry |
+| **1C MAK DATA PLATFORM** | MDP-0→5 | MDP-0 spec ✅; MDP-1→5 implementation |
 | **1D Governança CI** | 1D-1 | V13–V20 gates in CI |
 
 **MAK Studio = Program 2** — starts after IFM 1C (MDP-4 minimum).  
@@ -93,16 +93,17 @@ Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Ph
 
 ## Phase 3 — MAK DATA PLATFORM (IFM Phase 1C)
 
-| ID | Item | Priority | MDP ref |
-|----|------|----------|---------|
-| MDP-1 | Entity Dictionary — schema + API + registry sync | P1 | §3.1 |
-| MDP-2 | Data Dictionary — evolve CADCPS to all fields | P1 | §3.2 |
-| MDP-3 | Relationship Dictionary — schema + API | P1 | §3.3 |
-| MDP-4 | Metadata Registry + introspection API | P1 | §3.4 |
-| MDP-5 | Definition versioning + publish pipeline | P2 | §4 |
-| ~~P4~~ | ~~Unified registry sync~~ | — | **Absorbed into MDP-1** |
+| Phase | ID | Deliverable | Spec |
+|-------|-----|-------------|------|
+| 1C.0 | **MDP-0** | Architecture specification | ✅ [Architecture Spec](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) |
+| 1C.1 | MDP-1 | Entity Dictionary — schema + API + registry sync | Spec §3 |
+| 1C.2 | MDP-2 | Data Dictionary — evolve CADCPS to all fields | Spec §4 |
+| 1C.3 | MDP-3 | Relationship Dictionary — schema + API | Spec §5 |
+| 1C.4 | MDP-4 | Metadata Registry + introspection + compile API | Spec §6 |
+| 1C.5 | MDP-5 | Versioning + publish + snapshot engine | Spec §7 |
 
-Full specification: [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
+Definitive spec: [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md)  
+Engineering summary: [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
 
 ---
 

@@ -20,6 +20,7 @@
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Platform Maturity Index | v1.1.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
 | Implementation Protocol | v1.1.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019) |
+| MDP Architecture Spec | v1.0.0 — `docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md` (D-020) |
 | Global technical score | Foundation track **6.8/10** · Full platform **3.6/10** — [PMI v1.1](./PLATFORM-MATURITY-INDEX.md) |
 
 ---
@@ -113,14 +114,17 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 ## MAK DATA PLATFORM (MDP) — Status
 
-| Component | Status | Seed in code |
-|-----------|--------|--------------|
-| Entity Dictionary | **Not implemented** | `cadastro-modules.registry.json`, `CadCpsTela` |
-| Data Dictionary | **Partial** (~45%) | CADCPS `CadCpsCampo` (custom fields only) |
-| Relationship Dictionary | **Not implemented** | `relation_entity` field hints only |
-| Metadata Registry | **Partial** (~30%) | Engine registries (runtime), module metadata JS |
+| Component | Status | Spec |
+|-----------|--------|------|
+| **Architecture (MDP-0)** | **✅ Complete** | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) |
+| Entity Dictionary (MDP-1) | Not implemented | Spec §3 |
+| Data Dictionary (MDP-2) | Not implemented | Spec §4 — CADCPS partial seed (~45%) |
+| Relationship Dictionary (MDP-3) | Not implemented | Spec §5 |
+| Metadata Registry (MDP-4) | Not implemented | Spec §6 — runtime registries ~30% |
+| Versioning & Publication (MDP-5) | Not implemented | Spec §7 |
 
-**Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) · **Decision:** D-012
+**Engineering summary:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) v2.0.0  
+**Decision:** D-012 (layer), D-020 (spec)
 
 ---
 

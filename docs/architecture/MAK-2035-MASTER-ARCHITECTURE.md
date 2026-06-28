@@ -20,7 +20,8 @@ Every future implementation must be compatible with this architecture. No capabi
 | **Constitution** | Rules and prohibitions — highest authority |
 | **This document** | Layer topology, flows, platform map — **structural reference** |
 | **Platform Language Standard** | Official nomenclature — **vocabulary reference** |
-| **MAK-DATA-PLATFORM.md** | Detailed MDP specification |
+| **MAK-DATA-PLATFORM.md** | Engineering summary + implementation phases |
+| **MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md** | **Definitive MDP spec (MDP-0)** — D-020 |
 | **CURRENT-STATE.md** | What exists in code today |
 | **ROADMAP.md** | Implementation sequence |
 
@@ -232,7 +233,7 @@ MDP (persisted, versioned)
   → rendered application
 ```
 
-Detail: [MAK-DATA-PLATFORM.md](../engineering/MAK-DATA-PLATFORM.md)
+Detail: [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](./MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) (definitive) · [MAK-DATA-PLATFORM.md](../engineering/MAK-DATA-PLATFORM.md) (summary)
 
 ---
 
