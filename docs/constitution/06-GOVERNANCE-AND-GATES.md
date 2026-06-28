@@ -1,6 +1,6 @@
 # 06 — Governance and Gates
 
-**Constitution document:** 06 of 10  
+**Constitution document:** 06 of 11  
 **Status:** Official  
 **Version:** 1.0.0
 
