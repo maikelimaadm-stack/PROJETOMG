@@ -70,7 +70,7 @@ gate(
 gate(
   "G193 — Factory SSOT buildModeloBase1ConfigFromMakModule",
   exists(path.join(MB1, "config/buildModeloBase1ConfigFromMakModule.js")) &&
-    read(path.join(ROOT, "src/modules/produtos/config/produtosModeloBase1Config.js")).includes(
+    read(path.join(ROOT, "src/modules/cadcps/config/cadcpsModeloBase1Config.js")).includes(
       "buildModeloBase1ConfigFromMakModule"
     )
 );

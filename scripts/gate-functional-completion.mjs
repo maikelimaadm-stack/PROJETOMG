@@ -7,7 +7,7 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 
 const ROOT = process.cwd();
-const CERTIFIED = ["empresas", "produtos", "marcas", "cadcps"];
+const CERTIFIED = ["empresas", "cadcps"];
 
 const results = [];
 const gate = (name, ok, detail = "") => {
@@ -59,8 +59,7 @@ gate(
 
 gate(
   "G142 — useAppPreferencesBootstrap multi-módulo",
-  read(path.join(ROOT, "src/modules/makBootstrap/useAppPreferencesBootstrap.js")).includes("produtos") &&
-    read(path.join(ROOT, "src/modules/makBootstrap/useAppPreferencesBootstrap.js")).includes("cadcps")
+  read(path.join(ROOT, "src/modules/makBootstrap/useAppPreferencesBootstrap.js")).includes("cadcps")
 );
 
 gate(

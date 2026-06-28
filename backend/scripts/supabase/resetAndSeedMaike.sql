@@ -119,7 +119,6 @@ INSERT INTO "Usuario" (
 INSERT INTO "ClienteModulo" ("id", "cliente_id", "modulo", "ativo", "createdAt", "updatedAt")
 VALUES
   ('cm_empresas', 'cl_maike_seed_001', 'EMPRESAS', true, NOW(), NOW()),
-  ('cm_produtos', 'cl_maike_seed_001', 'PRODUTOS', false, NOW(), NOW()),
   ('cm_pecuaria', 'cl_maike_seed_001', 'PECUARIA', false, NOW(), NOW()),
   ('cm_financeiro', 'cl_maike_seed_001', 'FINANCEIRO', false, NOW(), NOW()),
   ('cm_estoque', 'cl_maike_seed_001', 'ESTOQUE', false, NOW(), NOW()),

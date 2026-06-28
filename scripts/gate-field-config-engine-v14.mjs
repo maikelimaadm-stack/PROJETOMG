@@ -52,7 +52,7 @@ gate(
 const registry = read(path.join(ROOT, "src/modules/makBootstrap/registerMakFieldConfigEngine.js"));
 gate(
   "G171 — Módulos certificados + fieldcert registrados",
-  ["empresas", "produtos", "marcas", "cadcps", "fieldcert"].every((id) =>
+  ["empresas", "cadcps", "fieldcert"].every((id) =>
     registry.includes(`"${id}"`) || registry.includes(`${id}CadastroConfig`) || registry.includes("fieldcert")
   )
 );

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Gates G31–G45 — Certificação ModeloBase1 (semântica, hooks, produtos config-only).
+ * Gates G31–G45 — Certificação ModeloBase1 (semântica, hooks, cadcps config-only).
  */
 import { execSync } from "node:child_process";
 import fs from "node:fs";
@@ -98,29 +98,29 @@ gate(
   motherPage.includes("ModeloBase1CadastroPage") && motherPage.includes("buildModeloBase1ConfigFromMakModule")
 );
 
-// G37 — Produtos config-only
-const pagPro = read(path.join(ROOT, "src/modules/produtos/pages/PAGPRO.jsx"));
+// G37 — CADCPS config-only
+const pagCps = read(path.join(ROOT, "src/modules/cadcps/pages/PAGCPS.jsx"));
 gate(
-  "G37 — Produtos criado por configuração",
-  pagPro.includes("produtosModeloBase1Config") && pagPro.includes("ModeloBase1CadastroPage")
+  "G37 — CADCPS criado por configuração",
+  pagCps.includes("cadcpsModeloBase1Config") && pagCps.includes("ModeloBase1CadastroPage")
 );
 
-// G38-G44 — Sem duplicação de componentes no módulo Produtos
-const produtosDir = path.join(ROOT, "src/modules/produtos");
-const forbidden = ["Toolbar", "SearchPanel", "FormPanel", "TablePanel", "Dock", "useProd"];
+// G38-G44 — Sem duplicação de componentes no módulo CADCPS
+const cadcpsDir = path.join(ROOT, "src/modules/cadcps");
+const forbidden = ["Toolbar", "SearchPanel", "FormPanel", "TablePanel", "Dock", "useCadcps"];
 let dupCount = 0;
-const walkProd = (d) => {
+const walkCadcps = (d) => {
   for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
     const full = path.join(d, entry.name);
-    if (entry.isDirectory()) walkProd(full);
+    if (entry.isDirectory()) walkCadcps(full);
     else {
       const base = entry.name;
       if (forbidden.some((f) => base.includes(f) && !base.includes("ModeloBase1"))) dupCount++;
     }
   }
 };
-walkProd(produtosDir);
-gate("G38-G44 — Produtos sem componentes duplicados", dupCount === 0, dupCount ? `${dupCount} arquivos` : "");
+if (fs.existsSync(cadcpsDir)) walkCadcps(cadcpsDir);
+gate("G38-G44 — CADCPS sem componentes duplicados", dupCount === 0, dupCount ? `${dupCount} arquivos` : "");
 
 // G45 — Propagação records no MakCadastroTable
 const table = read(path.join(ROOT, "src/framework/mak/table/MakCadastroTable.jsx"));

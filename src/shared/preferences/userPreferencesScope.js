@@ -103,15 +103,13 @@ export const isListagemLegacyPreferenceField = (fieldKey) =>
 
 const MODULE_PREFIX_MAP = {
   emp: EMPRESAS_LISTAGEM_MODULO,
-  pro: "produtos",
-  mar: "marcas",
   cps: "cadcps",
 };
 
 const resolveModuleFromFieldKey = (fieldKey) => {
   const field = String(fieldKey || "").trim();
   if (LISTAGEM_LEGACY_FIELDS.has(field)) return EMPRESAS_LISTAGEM_MODULO;
-  const prefixMatch = field.match(/^(emp|pro|mar|cps)_/);
+  const prefixMatch = field.match(/^(emp|cps)_/);
   if (prefixMatch) return MODULE_PREFIX_MAP[prefixMatch[1]] ?? EMPRESAS_LISTAGEM_MODULO;
   if (field.startsWith("emp_")) return EMPRESAS_LISTAGEM_MODULO;
   return null;
