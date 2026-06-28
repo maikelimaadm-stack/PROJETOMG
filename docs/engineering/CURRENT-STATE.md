@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** IFM 1A Architecture Baseline Recovery  
+**Verified by:** IFM Phase 1 Replanning  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -140,14 +140,14 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 ## Known Inconsistencies (Doc = Code Verified)
 
-See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Critical:
+See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Active P1 items:
 
-1. **P1:** `backend/config/cadastro-modules.registry.json` lists only empresas (frontend: 2 — missing cadcps)
-2. **P1:** Nomenclature Empresas in generic ModeloBase1 layer (props, CSS scopes)
-3. **P2:** Dual-path DDL (Prisma migrate + `ensureSchema.js`)
-4. **P1:** V13–V20 capability gates not in CI pipeline (TD-013)
-5. **P1:** 61 files import `@/framework/cadastro/` legacy layer (TD-003)
-6. **P1:** G38 CADCPS duplicate components gate failure (ModeloBase1 cert 8/9)
+1. **P1:** Frontend npm audit — 15 vulns, 9 high (TD-008) → **IFM 1A-S3 next**
+2. **P1:** V13–V20 capability gates not in CI (TD-013) → IFM 1D-1
+3. **P1:** 78 files import legacy `framework/cadastro/` (TD-003) → IFM 1B A1
+4. **P1:** Empresas nomenclature in ModeloBase1 generic layer (TD-004) → IFM 1B A2
+5. **P2:** Dual-path DDL — Prisma + `ensureSchema.js` (TD-005) → S4 after MDP-1
+6. **P2:** UI monoliths — MakCadastroTable 2,407 LOC (TD-006) → defer post-MDP-4
 
 ---
 
