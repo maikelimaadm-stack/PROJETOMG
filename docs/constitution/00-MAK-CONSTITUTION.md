@@ -72,6 +72,7 @@ Complementary to Constitution — updated every mission per doc 11:
 | **Master Architecture** | `/docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | **Platform Language Standard** | `/docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | **Platform Maturity Index** | `/docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| **Platform Implementation Protocol** | `/docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
 
 Future missions may add engineering docs (e.g. MAK Studio spec) outside `/docs/constitution/`.
 

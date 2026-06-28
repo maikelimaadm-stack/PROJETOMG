@@ -107,7 +107,8 @@ gate(
 
 // G38-G44 — Sem duplicação de componentes no módulo CADCPS
 const cadcpsDir = path.join(ROOT, "src/modules/cadcps");
-const forbidden = ["Toolbar", "SearchPanel", "FormPanel", "TablePanel", "Dock", "useCadcps"];
+// Structural UI only — domain runtime hooks (e.g. useCadcpsFormResources) are allowed per G112
+const forbidden = ["Toolbar", "SearchPanel", "FormPanel", "TablePanel", "Dock"];
 let dupCount = 0;
 const walkCadcps = (d) => {
   for (const entry of fs.readdirSync(d, { withFileTypes: true })) {

@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Program 0.6 Platform Maturity Index)  
+**Last updated:** 2026-06-28 (Program 0.7 PIP + PMI baseline recovery)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -31,8 +31,10 @@ Priority order for all work:
 | **Master Architecture** | ✅ `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` v1.0.0 (D-014) |
 | **Platform Language Standard** | ✅ `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` v1.0.0 (D-015) |
 | **Platform Maturity Index** | ✅ `docs/engineering/PLATFORM-MATURITY-INDEX.md` v1.1.0 (D-016, D-017) |
+| **Platform Implementation Protocol** | ✅ `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` v1.1.0 (D-018, D-019) |
 
-**Phase 0 (Programs 0–0.6) — structural documentation: ✅ Complete.** Next: **code implementation** (IFM 1A + Platform Core).
+**Phase 0 (Programs 0–0.7) — structural OS + protocol: ✅ Complete.**  
+**Implementation era begins** — all missions follow [PIP](./PLATFORM-IMPLEMENTATION-PROTOCOL.md) + [RHP](./PLATFORM-IMPLEMENTATION-PROTOCOL.md#10-repository-health-protocol-rhp).
 
 ---
 
