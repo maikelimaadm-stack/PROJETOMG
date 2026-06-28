@@ -69,7 +69,7 @@ Every area in §4 and §5 includes:
 
 | Area | Score | 1K+ readiness | Blocker |
 |------|-------|---------------|---------|
-| Foundation | **7.0** | Média | Legacy layer + CI V13–V20 gap |
+| Foundation | **7.2** | Média | Legacy layer; CI V13–V20 protected (TD-013 resolved) |
 | ModeloBase1 (Base Template 1) | **7.0** | Média | Monoliths + G38; single template only |
 | Platform Core | **6.5** | Média | Event bus not started |
 | MAK Data Platform | **2.0** | Baixa | MDP not implemented |
@@ -83,7 +83,7 @@ Every area in §4 and §5 includes:
 | Offline Capability | **1.5** | Baixa | Prefs cache only |
 | Mobile | **1.0** | Baixa | Web responsive only |
 | Desktop | **0.0** | Baixa | Zero code |
-| Governança | **8.5** | Alta | V13–V20 not in CI |
+| Governança | **9.0** | Alta | V13–V20 in CI (IFM 1D-1) |
 
 ### 3.2 Infrastructure & operations
 
@@ -97,7 +97,7 @@ Every area in §4 and §5 includes:
 | Performance | **6.0** | Média | Monolith components |
 | Escalabilidade | **5.0** | Baixa | Single-instance; no Redis required |
 | Observabilidade | **4.5** | Baixa | No APM/tracing |
-| CI/CD | **6.0** | Média | V13–V20 not in CI |
+| CI/CD | **7.0** | Média | V13–V20 parallel matrix in CI |
 | Testes | **5.5** | Média | E2E only; no unit suite |
 | Migração de Dados | **4.5** | Baixa | Dual DDL path |
 | Multi-tenant | **7.5** | Média–Alta | Proven in schema + E2E |
@@ -120,7 +120,7 @@ Every area in §4 and §5 includes:
 |-------|-------|
 | **Score** | **7.0 / 10** |
 | **2035 target** | Frozen L2 — ModeloBase1 + framework/mak + cadastro-engine + Config Engines V13–V20 + generator; **zero** legacy `framework/cadastro/`; all capability gates in CI |
-| **Current state** | Enterprise **V10.1.0 frozen** (`scripts/governance-baseline.json`, `frozenAt: 2026-06-27`). Seven Config Engines (V13–V20) implemented and gate-certified **manually**. Generator + G31–G108 in CI. Legacy layer **61 files / ~11,127 LOC** remains. V13–V20 gates **not in default CI** (TD-013). |
+| **Current state** | Enterprise **V10.2.0 frozen** (`scripts/governance-baseline.json`). Seven Config Engines (V13–V20) implemented, gate-certified, **protected in CI** (IFM 1D-1). Generator + G31–G136 + G156–G261 in CI. Legacy layer **61 files / ~11,127 LOC** remains. |
 
 **Criteria (objective):**
 
@@ -130,12 +130,12 @@ Every area in §4 and §5 includes:
 | Config Engines V13–V20 complete | 3.0 | 2.5 | [CAPABILITIES-REGISTRY](./CAPABILITIES-REGISTRY.md) — all 7 Complete; V18–V20 client-side only |
 | Generator + certification CI (G31–G108) | 2.0 | 2.0 | `.github/workflows/foundation-governance.yml`; `npm run verify:governance` ✅ |
 | Legacy cadastro layer eliminated | 1.5 | 0.0 | TD-003 — 61 imports `@/framework/cadastro/` |
-| V13–V20 gates in CI | 1.0 | 0.0 | TD-013 |
+| V13–V20 gates in CI | 1.0 | 1.0 | IFM 1D-1 — parallel matrix |
 | Foundation completion gates automated | 0.5 | 0.5 | Scripts exist; manual only — partial credit |
 
 | **Dependencies** | ModeloBase1, cadastro-engine, makBootstrap |
-| **Blockers** | TD-003 (legacy layer), TD-013 (CI scope) |
-| **Next level (+1.0)** | Reduce legacy imports below 20 files (IFM 1B A1); add V13–V20 to CI (IFM 1D) |
+| **Blockers** | TD-003 (legacy layer) |
+| **Next level (+1.0)** | Reduce legacy imports below 20 files (IFM 1B A1); MDP-1 Entity Dictionary |
 | **Next steps** | IFM 1B A1 promotion; IFM 1D CI hardening |
 
 ---
@@ -503,7 +503,7 @@ Every area in §4 and §5 includes:
 |-------|-------|
 | **Score** | **8.5 / 10** |
 | **2035 target** | Constitution + Master Architecture + Language Standard + PMI + full gate automation G31–G261 in CI + amendment process enforced |
-| **Current state** | Constitution v1.0.0 (11 docs). Master Architecture v1.0.0. Language Standard v1.0.0. Engineering OS complete. **21 gate scripts**. CI runs G31–G136. `verify:governance:cycles` (5 cycles). Documentation certified Mission 0.2. V13–V20 **not in CI** (TD-013). |
+| **Current state** | Constitution v1.0.0 (11 docs). Master Architecture v1.0.0. Language Standard v1.0.0. Engineering OS complete. **21 gate scripts**. CI runs G31–G136 + G156–G261 (IFM 1D-1). `verify:governance:cycles` (5 cycles). Documentation certified Mission 0.2. |
 
 **Criteria:**
 
@@ -512,13 +512,13 @@ Every area in §4 and §5 includes:
 | Constitution + hierarchy | 2.0 | 2.0 | `docs/constitution/` |
 | Master Architecture + Language + PMI | 2.0 | 2.0 | Programs 0.5–0.6 complete |
 | Gate scripts G31–G261 exist | 2.0 | 2.0 | 21 scripts in `scripts/` |
-| CI automation (default path) | 2.0 | 1.5 | G31–G136 only — TD-013 |
+| CI automation (default path) | 2.0 | 2.0 | G31–G136 + G156–G261 parallel matrix |
 | Engineering OS + certification | 1.5 | 1.5 | Mission 0.2 certified |
 | 5-cycle release verification | 0.5 | 0.5 | `verify:governance:cycles` |
 
 | **Dependencies** | None — meta-layer |
-| **Blockers** | TD-013 |
-| **Next level (+1.0)** | Add V13–V20 to CI workflow |
+| **Blockers** | — |
+| **Next level (+1.0)** | Staging workflow; E2E in CI |
 | **Next steps** | IFM 1D; update PMI each mission |
 
 ---
@@ -606,14 +606,14 @@ Every area in §4 and §5 includes:
 
 | Field | Value |
 |-------|-------|
-| **Score** | **6.0 / 10** |
+| **Score** | **7.0 / 10** |
 | **2035 target** | Full gate suite G31–G261 in CI; staging → production; MDP publish pipeline gates; rollback automation |
-| **Current state** | `.github/workflows/foundation-governance.yml` — build + lint + G31–G136 on push/PR. `sync-main-deploy.yml` branch sync. **21** gate scripts exist. V13–V20 **not in CI** (TD-013). **No** staging environment in workflow. Deploy = git push → Vercel/Railway. |
-| **Thousands-of-clients readiness** | **Média** — CI catches Foundation regressions; capability regressions may slip through |
-| **Main risks** | TD-013 manual-only V13–V20; no canary/staging gate before prod |
-| **Next technical investments** | IFM 1D — add V13–V20 to CI; staging workflow; npm audit in CI |
+| **Current state** | `.github/workflows/foundation-governance.yml` — build + lint + typecheck:governance + G31–G136 + parallel G156–G261 matrix on push/PR. `sync-main-deploy.yml` branch sync. **21** gate scripts exist. **No** staging environment in workflow. Deploy = git push → Vercel/Railway. |
+| **Thousands-of-clients readiness** | **Média-Alta** — CI catches Foundation + capability regressions |
+| **Main risks** | No canary/staging gate before prod; TD-009 typecheck noise |
+| **Next technical investments** | Staging workflow; npm audit in CI; MDP deploy gates |
 
-**Criteria:** Build+lint CI (2/2) · G31–G136 (2/2) · V13–V20 CI (0/2) · E2E in CI (0.5/1) · Staging pipeline (0/1.5) · MDP deploy gates (0/1.5)
+**Criteria:** Build+lint CI (2/2) · G31–G136 (2/2) · V13–V20 CI (2/2) · E2E in CI (0.5/1) · Staging pipeline (0/1.5) · MDP deploy gates (0/1.5)
 
 ---
 

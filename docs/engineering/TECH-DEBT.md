@@ -163,12 +163,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Priority** | P1 |
+| **Priority** | ~~P1~~ |
 | **Area** | Governance / CI |
-| **Evidence** | `.github/workflows/foundation-governance.yml` runs G31–G108 + G109–G136 only; V13–V20 gates (G156–G261) require manual `verify:*-cert-*` scripts |
-| **Impact** | Capability engine regressions may merge undetected |
-| **Roadmap** | IFM Phase 1D |
-| **Status** | Open |
+| **Status** | **Resolved** 2026-06-28 — IFM 1D-1 |
+| **Evidence** | `.github/workflows/foundation-governance.yml` — parallel matrix for G156–G261; `gate:capabilities` + extended `verify:governance` |
+| **Report** | [IFM-1D-1-CERTIFICATION-REPORT.md](./IFM-1D-1-CERTIFICATION-REPORT.md) |
 
 ---
 

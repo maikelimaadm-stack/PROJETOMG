@@ -41,14 +41,19 @@
 |------------|----------------------------|----------------|
 | G31–G108 | ✅ | `gate:certification` |
 | G109–G136 | ✅ | `gate:governance` (includes SSOT G127–G136) |
-| G156–G165 (V13 Layout) | ❌ | `gate:layout-config-engine-v13` |
-| G166–G175 (V14 Field) | ❌ | `gate:field-config-engine-v14` |
+| G156–G165 (V13 Layout) | ✅ | `gate:layout-config-engine-v13` |
+| G166–G175 (V14 Field) | ✅ | `gate:field-config-engine-v14` |
 | G176–G185 (V15 Business boundary) | ❌ | `gate:business-boundary-v15` |
 | G186–G206 (V15.1/V15.2 consolidation/visual) | ❌ | `gate:modelobase1-consolidation-v151`, `gate:modelobase1-visual-cert-v152`, `gate:paridade-visual` |
-| G207–G261 (V16–V20) | ❌ | `verify:validation-cert-v159` through `verify:workflow-cert-v20` |
+| G207–G217 (V16 Validation) | ✅ | `gate:validation-config-engine-v16` |
+| G218–G228 (V17 Formula) | ✅ | `gate:formula-config-engine-v17` |
+| G229–G239 (V18 Events) | ✅ | `gate:event-config-engine-v18` |
+| G240–G250 (V19 Actions) | ✅ | `gate:action-config-engine-v19` |
+| G251–G261 (V20 Workflow) | ✅ | `gate:workflow-config-engine-v20` |
+| Aggregate V13–V20 | ✅ | `gate:capabilities` (IFM 1D-1) |
 | Functional/Foundation completion | ❌ | `gate:functional-completion`, `gate:foundation-completion` |
 
-See TD-013.
+TD-013 resolved 2026-06-28.
 
 ---
 

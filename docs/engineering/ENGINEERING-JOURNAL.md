@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (IFM 1A-S3 Supply Chain Hardening)
+**Last updated:** 2026-06-28 (IFM 1D-1 CI Capability Protection)
 
 ---
 
@@ -15,6 +15,18 @@ Each mission adds an entry with:
 - Links to PR / decisions
 
 ---
+
+---
+
+## 2026-06-28 — IFM 1D-1: CI Capability Protection (V13–V20)
+
+**Scope:** Governance / CI — workflow + npm scripts only  
+**Changes:** V13–V20 gates in GitHub Actions (parallel matrix); `gate:capabilities`, `verify:ci`; extended `verify:governance`  
+**Report:** [IFM-1D-1-CERTIFICATION-REPORT.md](./IFM-1D-1-CERTIFICATION-REPORT.md)
+
+**Validation:** build ✅ lint ✅ typecheck:governance ✅ verify:governance ✅ verify:ci ✅ 5 cycles ✅  
+**TD-013:** Resolved  
+**Next:** IFM 1C-MDP-1 — [IFM-1C-MDP-1-ENTITY-DICTIONARY.md](./IFM-1C-MDP-1-ENTITY-DICTIONARY.md)
 
 ---
 

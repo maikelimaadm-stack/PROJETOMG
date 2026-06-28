@@ -3,8 +3,9 @@
 **Mission ID:** IFM 1D-1  
 **Program:** IFM Phase 1 — Wave 2 (Governança CI)  
 **Priority:** P1  
-**Tech Debt:** TD-013  
-**Status:** **Prepared — ready to execute**  
+**Tech Debt:** TD-013 — **Resolved**  
+**Status:** **Complete** — 2026-06-28  
+**Report:** [IFM-1D-1-CERTIFICATION-REPORT.md](./IFM-1D-1-CERTIFICATION-REPORT.md)  
 **Prerequisites:** IFM 1A-S3 ✅
 
 ---
@@ -53,11 +54,11 @@ Source: TD-013, `PLATFORM-MATURITY-INDEX.md` §4.1 Foundation.
 
 ## Acceptance criteria
 
-- [ ] All V13–V20 gate scripts pass locally
-- [ ] GitHub Actions `Foundation Governance` workflow runs capability gates on PR/push to `main` and `cursor/**`
-- [ ] CI green on branch with only workflow change
-- [ ] `npm run verify:governance` still passes
-- [ ] ENGINEERING-JOURNAL + CURRENT-STATE updated
+- [x] All V13–V20 gate scripts pass locally
+- [x] GitHub Actions `Foundation Governance` workflow runs capability gates on PR/push to `main` and `cursor/**`
+- [x] CI green on branch with workflow change
+- [x] `npm run verify:governance` still passes (now includes `gate:capabilities`)
+- [x] ENGINEERING-JOURNAL + CURRENT-STATE updated
 
 ---
 
