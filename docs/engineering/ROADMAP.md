@@ -72,7 +72,7 @@ Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Ph
 | ID | Item | Priority | Status |
 |----|------|----------|--------|
 | S2 | Sync backend `cadastro-modules.registry.json` | ~~P1~~ | ✅ Baseline recovery 2026-06-28 |
-| **S3** | npm audit fix (frontend) | **P1 — next** | [Brief](./IFM-1A-S3-SUPPLY-CHAIN-HARDENING.md) |
+| **S3** | npm audit fix (frontend) | ~~P1~~ | ✅ IFM 1A-S3 — [Report](./IFM-1A-S3-CERTIFICATION-REPORT.md) |
 | S4 | Consolidate DDL path (Prisma-only primary) | P2 | After MDP-1 |
 
 **Removed:** S1 Produto migration (obsolete — PR #285).

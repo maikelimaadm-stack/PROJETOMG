@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (MDP-0 Architecture Specification)
+**Last updated:** 2026-06-28 (IFM 1A-S3 Supply Chain Hardening)
 
 ---
 
@@ -18,7 +18,17 @@ Each mission adds an entry with:
 
 ---
 
-## 2026-06-28 — MDP-0: MAK DATA PLATFORM Architecture Specification
+## 2026-06-28 — IFM 1A-S3: Frontend Supply Chain Hardening
+
+**Scope:** Security — `package-lock.json` only (40 transitive updates)  
+**Changes:** `npm audit fix` — 15 vulns → 0 (9 high eliminated)  
+**Report:** [IFM-1A-S3-CERTIFICATION-REPORT.md](./IFM-1A-S3-CERTIFICATION-REPORT.md)
+
+**Validation:** build ✅ lint ✅ typecheck ✅ verify:governance ✅ 5 cycles ✅  
+**TD-008:** Resolved  
+**Next:** IFM 1D-1 — [IFM-1D-1-CI-CAPABILITY-GATES.md](./IFM-1D-1-CI-CAPABILITY-GATES.md)
+
+---
 
 **Scope:** Architecture-only — definitive MDP spec before implementation  
 **Changes:**

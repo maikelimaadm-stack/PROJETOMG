@@ -1,7 +1,7 @@
 # TECH-DEBT — Register
 
 **Status:** Living document  
-**Last verified:** 2026-06-28 (IFM 1A baseline recovery)  
+**Last verified:** 2026-06-28 (IFM 1A-S3 Supply Chain Hardening)  
 **Priority:** P0 (blocker) → P3 (cosmetic)
 
 ---
@@ -99,12 +99,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Priority** | P1 |
+| **Priority** | ~~P1~~ |
 | **Area** | Security / supply chain |
-| **Evidence** | `npm audit` — 15 vulnerabilities (1 low, 5 moderate, 9 high) as of 2026-06-28 |
-| **Impact** | Supply chain risk |
-| **Roadmap** | S3 |
-| **Status** | Open |
+| **Status** | **Resolved** 2026-06-28 — IFM 1A-S3 |
+| **Evidence** | `npm audit` — 0 vulnerabilities (was 15: 9 high); `package-lock.json` only |
+| **Report** | [IFM-1A-S3-CERTIFICATION-REPORT.md](./IFM-1A-S3-CERTIFICATION-REPORT.md) |
 
 ---
 
