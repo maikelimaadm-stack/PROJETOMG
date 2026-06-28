@@ -33,6 +33,8 @@ npm run dev                        # http://127.0.0.1:5173
 | Typecheck | `npm run typecheck` (known JSX/shadcn typing noise in `src/shared/ui/*`) |
 | Production build | `npm run build` |
 | Foundation governance | `npm run verify:governance` |
+| Full CI mirror (PR) | `npm run verify:ci` |
+| Capability gates only | `npm run gate:capabilities` |
 | Governance 5 cycles | `npm run verify:governance:cycles` |
 | Generate cadastro module | `npm run generate:module` |
 | API health (local backend) | `npm run check:api` |

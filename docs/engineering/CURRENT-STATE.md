@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** IFM 1A-S3 Supply Chain Hardening  
+**Verified by:** IFM 1D-1 CI Capability Protection  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -88,10 +88,12 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 |-------|----------------------|
 | `npm run build` | ✅ Pass |
 | `npm run lint` | ✅ Pass (0 errors) |
-| `npm run typecheck` | ⚠️ Known noise in `src/shared/ui/*` |
-| `npm run verify:governance` | ✅ Pass — G31–G136 (build + lint + certification + governance) |
-| CI workflow | `.github/workflows/foundation-governance.yml` — G31–G136 only |
-| Gates V13–V20 (G156–G261) | ✅ Pass when run manually — **not in default CI** (see TD-013) |
+| `npm run typecheck` | ⚠️ Known noise in `src/shared/ui/*` (TD-009) |
+| `npm run typecheck:governance` | ✅ Runs in CI — records TD-009 baseline without blocking |
+| `npm run verify:governance` | ✅ Pass — G31–G136 + G156–G261 (build + lint + certification + governance + capabilities) |
+| `npm run verify:ci` | ✅ Pass — full PR mirror (build + lint + typecheck:governance + all gates) |
+| CI workflow | `.github/workflows/foundation-governance.yml` — foundation job + parallel capability-gates matrix |
+| Gates V13–V20 (G156–G261) | ✅ **In CI** — TD-013 resolved (IFM 1D-1) |
 | Supplementary gates | `gate:functional-completion`, `gate:foundation-completion`, V15/V15.1/V15.2 — manual |
 | E2E specs | 12 files in `e2e/*.spec.js` |
 | Frontend npm audit | ✅ 0 vulnerabilities (IFM 1A-S3) |
@@ -146,11 +148,10 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Active P1 items:
 
-1. **P1:** V13–V20 capability gates not in CI (TD-013) → IFM 1D-1 next
-2. **P1:** 78 files import legacy `framework/cadastro/` (TD-003) → IFM 1B A1
-3. **P1:** Empresas nomenclature in ModeloBase1 generic layer (TD-004) → IFM 1B A2
-4. **P2:** Dual-path DDL — Prisma + `ensureSchema.js` (TD-005) → S4 after MDP-1
-5. **P2:** UI monoliths — MakCadastroTable 2,407 LOC (TD-006) → defer post-MDP-4
+1. **P1:** 78 files import legacy `framework/cadastro/` (TD-003) → IFM 1B A1
+2. **P1:** Empresas nomenclature in ModeloBase1 generic layer (TD-004) → IFM 1B A2
+3. **P2:** Dual-path DDL — Prisma + `ensureSchema.js` (TD-005) → S4 after MDP-1
+4. **P2:** UI monoliths — MakCadastroTable 2,407 LOC (TD-006) → defer post-MDP-4
 
 ---
 

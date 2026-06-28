@@ -20,9 +20,11 @@ CI workflow: `.github/workflows/foundation-governance.yml` — runs **G31–G136
 
 | Command | Scope |
 |---------|-------|
-| `npm run verify:governance` | build + lint + certification + governance (1 cycle) |
-| `npm run verify:governance:cycles` | 5 consecutive full cycles |
+| `npm run verify:governance` | build + lint + certification + governance + capabilities V13–V20 (1 cycle) |
+| `npm run verify:governance:cycles` | 5 consecutive full cycles (includes V13–V20) |
+| `npm run verify:ci` | build + lint + typecheck:governance + certification + governance + capabilities |
 | `npm run verify:certification` | build + lint + G31–G108 |
+| `npm run gate:capabilities` | G156–G261 (V13–V20 aggregate) |
 | `npm run gate:governance` | G109–G136 (includes SSOT G127–G136) |
 | `npm run gate:ssot` | G127–G136 SSOT propagation |
 

@@ -3,7 +3,7 @@
 **Mission ID:** IFM 1C-MDP-1 (MDP-1)  
 **Program:** IFM Phase 1C — MAK DATA PLATFORM  
 **Priority:** P1  
-**Status:** **Prepared — ready after prerequisites**  
+**Status:** **Prepared — ready to execute**  
 **Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §3
 
 ---
@@ -12,8 +12,8 @@
 
 | Mission | Status |
 |---------|--------|
-| IFM 1A-S3 — Frontend supply chain hardening | Pending |
-| IFM 1D-1 — V13–V20 gates in CI | Pending |
+| IFM 1A-S3 — Frontend supply chain hardening | ✅ Complete |
+| IFM 1D-1 — V13–V20 gates in CI | ✅ Complete |
 | MDP-0 — Architecture specification | ✅ Complete (D-020) |
 
 ---

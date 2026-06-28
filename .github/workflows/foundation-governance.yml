@@ -11,7 +11,8 @@ on:
       - cursor/**
 
 jobs:
-  governance:
+  foundation:
+    name: Build · Lint · Typecheck · Governance
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -32,8 +33,40 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      - name: Typecheck (governance audit — TD-009 baseline)
+        run: npm run typecheck:governance
+
       - name: Certification gates (G31-G108)
         run: npm run gate:certification
 
-      - name: Governance gates (G109-G126)
+      - name: Governance gates (G109-G136)
         run: npm run gate:governance
+
+  capability-gates:
+    name: Capability gates (${{ matrix.capability }})
+    needs: foundation
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        capability:
+          - layout-config-engine-v13
+          - field-config-engine-v14
+          - validation-config-engine-v16
+          - formula-config-engine-v17
+          - event-config-engine-v18
+          - action-config-engine-v19
+          - workflow-config-engine-v20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ${{ matrix.capability }} gates
+        run: npm run gate:${{ matrix.capability }}
