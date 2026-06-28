@@ -1,5 +1,8 @@
 # AGENTS.md
 
+> **AI agents:** Read [`README_AI.md`](./README_AI.md) first — mandatory pre-flight before any implementation.  
+> **Governance:** [`docs/constitution/`](./docs/constitution/00-MAK-CONSTITUTION.md) · [`docs/engineering/CURRENT-STATE.md`](./docs/engineering/CURRENT-STATE.md)
+
 ## Cursor Cloud specific instructions
 
 ### Product overview
