@@ -4,7 +4,7 @@
 **Program:** IFM Phase 1 — Wave 1 (Estabilidade)  
 **Priority:** P1  
 **Tech Debt:** TD-008  
-**Status:** **Prepared — ready to execute**  
+**Status:** **Complete** — see [IFM-1A-S3-CERTIFICATION-REPORT.md](./IFM-1A-S3-CERTIFICATION-REPORT.md)  
 **PIP phase:** 1 (PIR) → 2 (Planning) complete via [IFM-PHASE-1-TECHNICAL-ROADMAP.md](./IFM-PHASE-1-TECHNICAL-ROADMAP.md)
 
 ---

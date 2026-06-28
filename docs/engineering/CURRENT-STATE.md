@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** IFM Phase 1 Replanning  
+**Verified by:** IFM 1A-S3 Supply Chain Hardening  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -94,7 +94,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | Gates V13–V20 (G156–G261) | ✅ Pass when run manually — **not in default CI** (see TD-013) |
 | Supplementary gates | `gate:functional-completion`, `gate:foundation-completion`, V15/V15.1/V15.2 — manual |
 | E2E specs | 12 files in `e2e/*.spec.js` |
-| Frontend npm audit | ⚠️ 15 vulnerabilities (1 low, 5 moderate, 9 high) |
+| Frontend npm audit | ✅ 0 vulnerabilities (IFM 1A-S3) |
 | Backend npm audit | ✅ 0 vulnerabilities |
 
 ---
@@ -146,12 +146,11 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 See [TECH-DEBT.md](./TECH-DEBT.md) for full register. Active P1 items:
 
-1. **P1:** Frontend npm audit — 15 vulns, 9 high (TD-008) → **IFM 1A-S3 next**
-2. **P1:** V13–V20 capability gates not in CI (TD-013) → IFM 1D-1
-3. **P1:** 78 files import legacy `framework/cadastro/` (TD-003) → IFM 1B A1
-4. **P1:** Empresas nomenclature in ModeloBase1 generic layer (TD-004) → IFM 1B A2
-5. **P2:** Dual-path DDL — Prisma + `ensureSchema.js` (TD-005) → S4 after MDP-1
-6. **P2:** UI monoliths — MakCadastroTable 2,407 LOC (TD-006) → defer post-MDP-4
+1. **P1:** V13–V20 capability gates not in CI (TD-013) → IFM 1D-1 next
+2. **P1:** 78 files import legacy `framework/cadastro/` (TD-003) → IFM 1B A1
+3. **P1:** Empresas nomenclature in ModeloBase1 generic layer (TD-004) → IFM 1B A2
+4. **P2:** Dual-path DDL — Prisma + `ensureSchema.js` (TD-005) → S4 after MDP-1
+5. **P2:** UI monoliths — MakCadastroTable 2,407 LOC (TD-006) → defer post-MDP-4
 
 ---
 
