@@ -45,6 +45,21 @@ export const __KEY_PREFIX_UPPER___FORM_FIELD_DEFS = [
   },
 ];
 
+export const __KEY_PREFIX_UPPER___EVENT_DEFINITIONS = [
+  {
+    id: "__KEY_PREFIX__-onLoad",
+    event: "onLoad",
+    priority: 10,
+    handlers: [
+      {
+        action: "log",
+        level: "info",
+        message: "[__MODULE_ID__] formulário carregado",
+      },
+    ],
+  },
+];
+
 export const __KEY_PREFIX_UPPER___COLUNAS_BASE = [
   { id: "codigo", label: "Código", default: true, sortable: true, width: 100 },
   { id: "nome", label: "Nome", default: true, sortable: true, width: 280 },

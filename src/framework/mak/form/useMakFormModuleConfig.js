@@ -40,6 +40,7 @@ export function useMakFormModuleConfig() {
     prepareSubmitPayload: form.prepareSubmitPayload ?? null,
     validateFormExtra: form.validateFormExtra ?? null,
     fieldDefinitions: form.fieldDefinitions ?? [],
+    eventDefinitions: form.eventDefinitions ?? form.events ?? [],
     useFormResourcesHook: form.useFormResourcesHook ?? (() => ({})),
     useRecordFieldsHook: form.useRecordFieldsHook ?? (() => ({ data: [], isFetched: true })),
     useCustomFieldsHook: form.useCustomFieldsHook ?? (() => ({ renderCampoPersonalizado: () => null })),
