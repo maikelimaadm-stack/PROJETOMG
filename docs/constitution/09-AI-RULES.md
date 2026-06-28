@@ -1,6 +1,6 @@
 # 09 — AI Rules
 
-**Constitution document:** 09 of 10  
+**Constitution document:** 09 of 11  
 **Status:** Official  
 **Version:** 1.0.0
 
@@ -16,12 +16,17 @@ AI agents are subject to the same Constitution as human developers — with addi
 
 ## 2. Mandatory Reading Order
 
-Before any implementation mission, AI must read:
+Before any implementation mission, AI must read (in order):
 
-1. [00-MAK-CONSTITUTION.md](./00-MAK-CONSTITUTION.md)
-2. Mission-specific Constitution docs (03–08, 10 as relevant)
-3. `/workspace/AGENTS.md` (operational commands)
-4. `scripts/governance-baseline.json` (if touching Foundation/modules/generator)
+1. **`/README_AI.md`** — pre-flight checklist and certification template
+2. [00-MAK-CONSTITUTION.md](./00-MAK-CONSTITUTION.md)
+3. [11-PERMANENT-GOVERNANCE-DIRECTIVE.md](./11-PERMANENT-GOVERNANCE-DIRECTIVE.md)
+4. `/docs/engineering/CURRENT-STATE.md`, `ROADMAP.md`, `DECISIONS.md`, `NEXT-SPRINT.md`
+5. Mission-specific Constitution docs (03–08, 10 as relevant)
+6. `/workspace/AGENTS.md` (operational commands)
+7. `scripts/governance-baseline.json` (if touching Foundation/modules/generator)
+
+**If any document is outdated vs. code, update it before implementing.**
 
 For cadastro work, also read:
 
@@ -184,16 +189,24 @@ Verified baseline for AI — re-verify if code changed:
 
 ---
 
-## 12. Self-Check Before Completion
+## 12. Mandatory Certification (Mission Completion)
+
+Every mission must complete the **10-item certification** from [11-PERMANENT-GOVERNANCE-DIRECTIVE.md §4](./11-PERMANENT-GOVERNANCE-DIRECTIVE.md#4-mandatory-certification-mission-completion) with SIM/NÃO and technical justification.
+
+Also update engineering docs per directive §3.4 (CURRENT-STATE and JOURNAL always).
+
+## 13. Self-Check Before Completion
 
 AI must answer:
 
-1. Did I read Constitution docs relevant to this mission?
-2. Did I stay within mission scope?
-3. Did I verify claims against current code?
-4. Did I run required gates/build?
-5. Did I document inconsistencies found?
-6. Did I avoid all items in Do-Not-Do List?
+1. Did I read README_AI.md and Constitution docs relevant to this mission?
+2. Did I verify CURRENT-STATE / ROADMAP against code?
+3. Did I stay within mission scope?
+4. Did I verify claims against current code?
+5. Did I run required gates/build?
+6. Did I complete the 10-item certification block?
+7. Did I update engineering docs?
+8. Did I avoid all items in Do-Not-Do List?
 
 If any answer is "no", complete before reporting done.
 

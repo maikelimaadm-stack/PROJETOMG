@@ -22,12 +22,14 @@ When documents or instructions conflict, resolve in this order:
 | Priority | Source | Role |
 |----------|--------|------|
 | **1** | `/docs/constitution/*` | **This Constitution** — non-negotiable rules |
-| **2** | `scripts/governance-baseline.json` | Machine-enforced baseline (frozen exceptions, forbidden patterns) |
-| **3** | CI gates (`scripts/gate-*.mjs`) | Automated verification of Constitution compliance |
-| **4** | `/docs/FOUNDATION_GOVERNANCE.md` | Operational guide (subordinate to Constitution) |
-| **5** | Capability catalogs (`docs/*_CATALOG.md`, `docs/*_INVENTORY.md`) | Reference for config engines |
-| **6** | Module-local config and metadata | Domain-only definitions |
-| **7** | Chat instructions, informal notes, external reports | **Not authoritative** |
+| **2** | `/README_AI.md` | AI/agent entry point — pre-flight checklist |
+| **3** | `/docs/engineering/*` | Living state (CURRENT-STATE, ROADMAP, DECISIONS, etc.) |
+| **4** | `scripts/governance-baseline.json` | Machine-enforced baseline (frozen exceptions, forbidden patterns) |
+| **5** | CI gates (`scripts/gate-*.mjs`) | Automated verification of Constitution compliance |
+| **6** | `/docs/FOUNDATION_GOVERNANCE.md` | Operational guide (subordinate to Constitution) |
+| **7** | Capability catalogs (`docs/*_CATALOG.md`, `docs/*_INVENTORY.md`) | Reference for config engines |
+| **8** | Module-local config and metadata | Domain-only definitions |
+| **9** | Chat instructions, informal notes, external reports | **Not authoritative** |
 
 If a chat instruction contradicts the Constitution, **the Constitution wins**.
 
@@ -47,16 +49,23 @@ If a chat instruction contradicts the Constitution, **the Constitution wins**.
 | [08-DO-NOT-DO-LIST.md](./08-DO-NOT-DO-LIST.md) | Explicit prohibitions |
 | [09-AI-RULES.md](./09-AI-RULES.md) | Rules for AI-assisted development |
 | [10-PLATFORM-BOUNDARIES.md](./10-PLATFORM-BOUNDARIES.md) | Layer boundaries, tenant model, future platforms |
+| [11-PERMANENT-GOVERNANCE-DIRECTIVE.md](./11-PERMANENT-GOVERNANCE-DIRECTIVE.md) | Mission procedure, certification, doc updates |
 
-Documents **not yet part of this Constitution** (future missions):
+### Engineering documents (living state)
 
-- Current State / Audit reports
-- Roadmap
-- Journal / Decision log (operational)
-- Tech Debt register
-- MAK Studio specification
+Complementary to Constitution — updated every mission per doc 11:
 
-Those will live outside `/docs/constitution/` until formally adopted.
+| Document | Path |
+|----------|------|
+| Current State | `/docs/engineering/CURRENT-STATE.md` |
+| Roadmap | `/docs/engineering/ROADMAP.md` |
+| Decisions | `/docs/engineering/DECISIONS.md` |
+| Next Sprint | `/docs/engineering/NEXT-SPRINT.md` |
+| Engineering Journal | `/docs/engineering/ENGINEERING-JOURNAL.md` |
+| Capabilities Registry | `/docs/engineering/CAPABILITIES-REGISTRY.md` |
+| Tech Debt | `/docs/engineering/TECH-DEBT.md` |
+
+Future missions may add engineering docs (e.g. MAK Studio spec) outside `/docs/constitution/`.
 
 ---
 
@@ -113,7 +122,8 @@ Emergency exceptions (production incidents) may bypass amendment temporarily but
 
 Legacy reports under `/docs/ENTERPRISE_*`, `/docs/auditoria/`, and PR-specific runbooks remain **historical evidence**. They do not override this Constitution.
 
-Operational quick-start for developers and cloud agents: `/workspace/AGENTS.md` (subordinate to Constitution).
+AI/agent entry point: `/workspace/README_AI.md` (mandatory pre-flight).  
+Operational commands: `/workspace/AGENTS.md` (subordinate to Constitution).
 
 ---
 
