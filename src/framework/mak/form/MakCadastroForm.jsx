@@ -35,6 +35,7 @@ import { runMakFormValidation } from "@/framework/mak/validation/runMakFormValid
 import { useMakFormFormulaEvaluation } from "@/framework/mak/formula/useMakFormFormulaEvaluation.js";
 import { runMakFormulaEvaluation } from "@/framework/mak/formula/runMakFormulaEvaluation.js";
 import { useMakFormEventHandlers } from "@/framework/mak/events/useMakFormEventHandlers.js";
+import { useMakFormActionHandlers } from "@/framework/mak/actions/useMakFormActionHandlers.js";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -82,6 +83,7 @@ export default function MakCadastroForm({
     validateFormExtra,
     fieldDefinitions,
     eventDefinitions,
+    actionDefinitions,
     schema,
     useFormResourcesHook,
   } = useMakFormModuleConfig();
@@ -142,6 +144,25 @@ export default function MakCadastroForm({
   const [formData, setFormData] = useState(() => buildFormData(initialData));
   const previousRecordKeyRef = useRef(recordKey);
   const resetSignatureRef = useRef("");
+  const submitRef = useRef(async () => {});
+  const validateRef = useRef(() => true);
+  const deleteRef = useRef(async () => {});
+
+  const actionUi = useMemo(
+    () => ({
+      openDialog: (dialogId) => {
+        if (dialogId === "layout-config") setLayoutConfigOpen(true);
+      },
+      closeDialog: (dialogId) => {
+        if (dialogId === "layout-config") setLayoutConfigOpen(false);
+      },
+      submit: () => submitRef.current?.(),
+      duplicate: () => onDuplicate?.(),
+      deleteRecord: () => deleteRef.current?.(),
+      refresh: () => onRefresh?.(),
+    }),
+    [onDuplicate, onRefresh, setLayoutConfigOpen]
+  );
 
   useEffect(() => {
     const resetSignature = [
@@ -221,10 +242,29 @@ export default function MakCadastroForm({
   const { dispatchFormEvent } = useMakFormEventHandlers({
     moduleId,
     eventDefinitions,
+    actionDefinitions,
     formData,
     setFormData,
     recordKey,
     isEditing,
+    ui: actionUi,
+    fieldDefinitions,
+    schema,
+    customFields: camposPersonalizadosForm,
+    runValidation: () => validateRef.current?.(),
+    enabled: camposPersonalizadosReady,
+  });
+
+  useMakFormActionHandlers({
+    moduleId,
+    actionDefinitions,
+    formData,
+    setFormData,
+    ui: actionUi,
+    fieldDefinitions,
+    schema,
+    customFields: camposPersonalizadosForm,
+    runValidation: () => validateRef.current?.(),
     enabled: camposPersonalizadosReady,
   });
 
@@ -541,6 +581,7 @@ export default function MakCadastroForm({
 
     return true;
   };
+  validateRef.current = validateForm;
 
   const handleSubmit = async (event) => {
     if (event?.preventDefault) event.preventDefault();
@@ -587,6 +628,7 @@ export default function MakCadastroForm({
     onSubmit(clean);
     await dispatchFormEvent("onAfterSave", { payload: clean, formData: calculated });
   };
+  submitRef.current = () => handleSubmit();
 
   const handleDelete = useCallback(async () => {
     const result = await dispatchFormEvent("onBeforeDelete", { formData });
@@ -595,6 +637,7 @@ export default function MakCadastroForm({
     if (typeof onDelete === "function") onDelete();
     await dispatchFormEvent("onAfterDelete", { formData });
   }, [dispatchFormEvent, formData, onDelete]);
+  deleteRef.current = handleDelete;
 
   const formRef = useCadastroEnterNavigation(!isReadOnly && editMode);
 

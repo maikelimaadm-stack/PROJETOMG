@@ -81,3 +81,13 @@
 **Motivo:** módulo fictício da Missão Enterprise V18 para demonstrar eventos declarativos via metadata (`MAK_EVENT_CERTIFICATION_DEFINITIONS`).
 
 **Referência:** `src/modules/eventscert/` + `framework/mak/events/eventCertificationCatalog.js`.
+
+---
+
+## actionscert — módulo fictício V19 (Actions Configuration Engine)
+
+**Status:** exceção formal — certificação metadata-only, sem rota App.
+
+**Motivo:** módulo fictício da Missão Enterprise V19 para demonstrar ações declarativas via metadata (`MAK_ACTION_CERTIFICATION_DEFINITIONS`).
+
+**Referência:** `src/modules/actionscert/` + `framework/mak/actions/actionCertificationCatalog.js`.

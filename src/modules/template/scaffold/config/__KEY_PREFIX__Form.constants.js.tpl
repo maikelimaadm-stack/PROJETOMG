@@ -60,6 +60,17 @@ export const __KEY_PREFIX_UPPER___EVENT_DEFINITIONS = [
   },
 ];
 
+export const __KEY_PREFIX_UPPER___ACTION_DEFINITIONS = [
+  {
+    id: "__KEY_PREFIX__-save-flow",
+    action: "sequence",
+    actions: [
+      { action: "validate" },
+      { action: "save" },
+    ],
+  },
+];
+
 export const __KEY_PREFIX_UPPER___COLUNAS_BASE = [
   { id: "codigo", label: "Código", default: true, sortable: true, width: 100 },
   { id: "nome", label: "Nome", default: true, sortable: true, width: 280 },

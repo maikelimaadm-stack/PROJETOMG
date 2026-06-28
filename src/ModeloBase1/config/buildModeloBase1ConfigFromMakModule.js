@@ -10,6 +10,7 @@ import { buildMakFieldConfigMetadata } from "@/framework/mak/fieldConfig/buildMa
 import { buildMakValidationConfigMetadata } from "@/framework/mak/validation/buildMakValidationConfigMetadata.js";
 import { buildMakFormulaConfigMetadata } from "@/framework/mak/formula/buildMakFormulaConfigMetadata.js";
 import { buildMakEventConfigMetadata } from "@/framework/mak/events/buildMakEventConfigMetadata.js";
+import { buildMakActionConfigMetadata } from "@/framework/mak/actions/buildMakActionConfigMetadata.js";
 import {
   useModeloBase1InfiniteListData,
   useModeloBase1Favorites,
@@ -80,6 +81,11 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     eventDefinitions: makModule.metadata?.form?.eventDefinitions ?? [],
     events: makModule.metadata?.form?.events ?? null,
   });
+  const actionEngineMetadata = buildMakActionConfigMetadata({
+    moduleId,
+    actionDefinitions: makModule.metadata?.form?.actionDefinitions ?? [],
+    actions: makModule.metadata?.form?.actions ?? null,
+  });
 
   const {
     hooks: overrideHooks,
@@ -103,6 +109,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     validationEngine: overrides.validationEngine ?? validationEngineMetadata,
     formulaEngine: overrides.formulaEngine ?? formulaEngineMetadata,
     eventEngine: overrides.eventEngine ?? eventEngineMetadata,
+    actionEngine: overrides.actionEngine ?? actionEngineMetadata,
     navigation: {
       emptyRecordViewMode: overrides.navigation?.emptyRecordViewMode ?? "browse",
       ...(overrides.navigation ?? {}),
