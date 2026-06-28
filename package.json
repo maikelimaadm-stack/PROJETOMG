@@ -59,6 +59,7 @@
     "gate:modelobase1-visual-cert-v152": "node scripts/gate-modelobase1-visual-cert-v152.mjs",
     "gate:validation-config-engine-v16": "node scripts/gate-validation-config-engine-v16.mjs",
     "gate:formula-config-engine-v17": "node scripts/gate-formula-config-engine-v17.mjs",
+    "gate:event-config-engine-v18": "node scripts/gate-event-config-engine-v18.mjs",
     "gate:paridade-visual": "node scripts/gate-paridade-visual-promocao.mjs",
     "gate:certification": "node scripts/gate-modelo-base1-cert.mjs && node scripts/gate-paridade-empresas.mjs && node scripts/gate-promocao-componentes.mjs && node scripts/gate-generator-modelobase1.mjs",
     "verify:certification": "npm run build && npm run lint && npm run gate:certification",
@@ -69,7 +70,9 @@
     "verify:validation-cert-v159": "npm run build && npm run lint && npm run gate:validation-config-engine-v16",
     "verify:validation-cert-v159:cycles": "node scripts/run-validation-cert-cycles-v159.mjs --cycles=5",
     "verify:formula-cert-v17": "npm run build && npm run lint && npm run gate:formula-config-engine-v17",
-    "verify:formula-cert-v17:cycles": "node scripts/run-formula-cert-cycles-v17.mjs --cycles=5"
+    "verify:formula-cert-v17:cycles": "node scripts/run-formula-cert-cycles-v17.mjs --cycles=5",
+    "verify:event-cert-v18": "npm run build && npm run lint && npm run gate:event-config-engine-v18",
+    "verify:event-cert-v18:cycles": "node scripts/run-event-cert-cycles-v18.mjs --cycles=5"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.3",

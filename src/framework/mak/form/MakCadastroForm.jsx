@@ -34,6 +34,7 @@ import {
 import { runMakFormValidation } from "@/framework/mak/validation/runMakFormValidation.js";
 import { useMakFormFormulaEvaluation } from "@/framework/mak/formula/useMakFormFormulaEvaluation.js";
 import { runMakFormulaEvaluation } from "@/framework/mak/formula/runMakFormulaEvaluation.js";
+import { useMakFormEventHandlers } from "@/framework/mak/events/useMakFormEventHandlers.js";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -80,6 +81,7 @@ export default function MakCadastroForm({
     prepareSubmitPayload,
     validateFormExtra,
     fieldDefinitions,
+    eventDefinitions,
     schema,
     useFormResourcesHook,
   } = useMakFormModuleConfig();
@@ -216,6 +218,16 @@ export default function MakCadastroForm({
     enabled: camposPersonalizadosReady,
   });
 
+  const { dispatchFormEvent } = useMakFormEventHandlers({
+    moduleId,
+    eventDefinitions,
+    formData,
+    setFormData,
+    recordKey,
+    isEditing,
+    enabled: camposPersonalizadosReady,
+  });
+
   const relatedSources = useMemo(() => camposPersonalizadosForm
     .map((campo) => {
       const entity = campoEngine.getOptionsSourceKey(campo);
@@ -244,21 +256,34 @@ export default function MakCadastroForm({
     setErrors((prev) => ({ ...prev, [field]: false }));
     clearRequiredFieldErrors();
     setFormData((prev) => ({ ...prev, [field]: normalized }));
+    dispatchFormEvent("onChange", {
+      field,
+      value: normalized,
+      previousValue: formData[field],
+      formData: { ...formData, [field]: normalized },
+    });
   };
 
   const handleCustomChange = (fieldName, value) => {
     if (isReadOnly) return;
     setErrors((prev) => ({ ...prev, [`campos_personalizados.${fieldName}`]: false }));
     clearRequiredFieldErrors();
-    setFormData((prev) => {
-      const next = {
-        ...prev,
-        campos_personalizados: {
-          ...(prev.campos_personalizados || {}),
-          [fieldName]: value
-        }
-      };
-      return campoEngine.aplicarCamposCalculados ? campoEngine.aplicarCamposCalculados(next, camposPersonalizadosForm) : next;
+    const next = {
+      ...formData,
+      campos_personalizados: {
+        ...(formData.campos_personalizados || {}),
+        [fieldName]: value,
+      },
+    };
+    const calculated = campoEngine.aplicarCamposCalculados
+      ? campoEngine.aplicarCamposCalculados(next, camposPersonalizadosForm)
+      : next;
+    setFormData(calculated);
+    dispatchFormEvent("onChange", {
+      field: `campos_personalizados.${fieldName}`,
+      value,
+      previousValue: formData.campos_personalizados?.[fieldName],
+      formData: calculated,
     });
   };
 
@@ -517,16 +542,25 @@ export default function MakCadastroForm({
     return true;
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     if (event?.preventDefault) event.preventDefault();
     if (isReadOnly || actionsLocked) return;
-    if (!validateForm()) return;
+
+    const beforeSave = await dispatchFormEvent("onBeforeSave", { formData });
+    if (beforeSave.cancelled) return;
+
+    const valid = validateForm();
+    await dispatchFormEvent("onValidationCompleted", { valid, formData });
+    if (!valid) return;
+
     const formulaResult = runMakFormulaEvaluation({
       formData,
       fieldDefinitions,
       customFields: camposPersonalizadosForm,
       customFieldCalculator: (scope, campo) => campoEngine.calcularCampo(scope, campo),
     });
+    await dispatchFormEvent("onFormulaCalculated", { formulaResult, formData });
+
     const mergedFormData = { ...formData };
     Object.entries(formulaResult.values).forEach(([key, value]) => {
       if (key.startsWith("campos_personalizados.")) {
@@ -547,9 +581,20 @@ export default function MakCadastroForm({
       payload = prepareSubmitPayload(payload);
     }
     const { _isDuplicate, ...clean } = payload;
+
+    await dispatchFormEvent("onSave", { payload: clean, formData: calculated });
     if (isEditing && !isDuplicating) setEditMode(false);
     onSubmit(clean);
+    await dispatchFormEvent("onAfterSave", { payload: clean, formData: calculated });
   };
+
+  const handleDelete = useCallback(async () => {
+    const result = await dispatchFormEvent("onBeforeDelete", { formData });
+    if (result.cancelled) return;
+    await dispatchFormEvent("onDelete", { formData });
+    if (typeof onDelete === "function") onDelete();
+    await dispatchFormEvent("onAfterDelete", { formData });
+  }, [dispatchFormEvent, formData, onDelete]);
 
   const formRef = useCadastroEnterNavigation(!isReadOnly && editMode);
 
@@ -1011,7 +1056,7 @@ export default function MakCadastroForm({
                 onPrevious={onPrevious}
                 onNext={onNext}
                 onLast={onLast}
-                onDelete={onDelete}
+                onDelete={handleDelete}
                 onDuplicate={onDuplicate}
                 onRefresh={onRefresh}
                 actionsLocked={actionsLocked}

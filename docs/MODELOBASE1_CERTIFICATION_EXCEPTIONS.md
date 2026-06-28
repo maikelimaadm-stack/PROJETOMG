@@ -71,3 +71,13 @@
 **Motivo:** módulo fictício da Missão Enterprise V17 para demonstrar fórmulas declarativas via metadata (`MAK_FORMULA_CERTIFICATION_CATALOG`).
 
 **Referência:** `src/modules/formulacert/` + `framework/mak/formula/formulaCertificationCatalog.js`.
+
+---
+
+## eventscert — módulo fictício V18 (Events Configuration Engine)
+
+**Status:** exceção formal — certificação metadata-only, sem rota App.
+
+**Motivo:** módulo fictício da Missão Enterprise V18 para demonstrar eventos declarativos via metadata (`MAK_EVENT_CERTIFICATION_DEFINITIONS`).
+
+**Referência:** `src/modules/eventscert/` + `framework/mak/events/eventCertificationCatalog.js`.
