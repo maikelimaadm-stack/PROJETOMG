@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (IFM 1A baseline recovery — PIP + PMI)
+**Last updated:** 2026-06-28 (IFM 1A Architecture Baseline Recovery)
 
 ---
 
@@ -13,6 +13,38 @@ Each mission adds an entry with:
 - Changes summary
 - Certification block (10 items)
 - Links to PR / decisions
+
+---
+
+---
+
+## 2026-06-28 — IFM 1A: Architecture Baseline Recovery
+
+**Scope:** Reconcile code, gates, registries, docs, CI after PR #285 + merge PRs #288–#290  
+**Changes:**
+- G38: gate scoped to structural UI only (domain runtime hooks allowed)
+- G118: baseline `minimumCertifiedModules: 2` + FE/BE registry sync check
+- `governance-baseline.json` v10.2.0
+- `backend/config/cadastro-modules.registry.json` synced (empresas + cadcps)
+- Merged PMI (D-016/D-017), PIP/RHP (D-018/D-019), S0 certification report
+
+**Certification:** CI governance green; baseline reconstructed; Program 1 implementation authorized.
+
+---
+
+## 2026-06-28 — IFM 1A S0: Repository Health Certification
+
+**Scope:** Audit-only — inaugurate Program 1 implementation era  
+**Changes:** `docs/engineering/IFM-1A-S0-REPOSITORY-HEALTH-CERTIFICATION.md`  
+**PR:** #290
+
+**Findings summary:**
+- Deploy healthy (Railway + Vercel 200)
+- CI governance **FAILING** on `main` — G38, G118 (resolved in baseline recovery)
+- Registries desynced — resolved in baseline recovery
+- IFM 1A S1 Produto migration **obsolete**
+
+**Certification:** See report §10 — blockers identified; resolved in baseline recovery mission.
 
 ---
 

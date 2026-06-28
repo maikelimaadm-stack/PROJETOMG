@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** Program 0.6 Platform Maturity Index  
+**Verified by:** IFM 1A Architecture Baseline Recovery  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -14,11 +14,12 @@
 | Product | MAK Gestão ERP — metadata-driven multi-tenant SaaS |
 | Frontend | React 18 + Vite 6 + React Query + Tailwind/shadcn |
 | Backend | Fastify 5 + Prisma 6 + PostgreSQL |
-| Foundation | Enterprise V10.1.0 — **frozen** 2026-06-27 |
+| Foundation | Enterprise V10.2.0 — **frozen** 2026-06-28 |
 | Constitution | v1.0.0 — `docs/constitution/` |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| Platform Maturity Index | v1.0.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| Platform Maturity Index | v1.1.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| Implementation Protocol | v1.1.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019) |
 | Global technical score | Foundation track **6.8/10** · Full platform **3.6/10** — [PMI v1.1](./PLATFORM-MATURITY-INDEX.md) |
 
 ---
@@ -55,7 +56,7 @@ Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 | cadcps | PAGCPS | Thin page + domain runtime | 18 |
 
 Registry SSOT: `config/cadastro-modules.registry.json` (2 entries)  
-Backend registry: `backend/config/cadastro-modules.registry.json` (1 entry — **out of sync**, TD-002)  
+Backend registry: `backend/config/cadastro-modules.registry.json` (2 entries — **synced**)  
 Routes: `src/modules/generatedModules.json`
 
 ---

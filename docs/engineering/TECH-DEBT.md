@@ -1,7 +1,7 @@
 # TECH-DEBT — Register
 
 **Status:** Living document  
-**Last verified:** 2026-06-28 (Mission 0.2)  
+**Last verified:** 2026-06-28 (IFM 1A baseline recovery)  
 **Priority:** P0 (blocker) → P3 (cosmetic)
 
 ---
@@ -23,12 +23,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Priority** | P1 |
+| **Priority** | ~~P1~~ |
 | **Area** | Governance / registry |
-| **Evidence** | `backend/config/cadastro-modules.registry.json` — 1 module; `config/cadastro-modules.registry.json` — 2 modules (empresas, cadcps) |
-| **Impact** | Backend tooling/bootstrap may miss marcas, produtos, cadcps |
-| **Roadmap** | S2 |
-| **Status** | Open |
+| **Status** | **Resolved** 2026-06-28 — IFM 1A baseline recovery; FE/BE both list empresas + cadcps; G118 validates sync |
+| **Evidence** | `config/cadastro-modules.registry.json` and `backend/config/cadastro-modules.registry.json` — 2 modules each |
 
 ---
 
