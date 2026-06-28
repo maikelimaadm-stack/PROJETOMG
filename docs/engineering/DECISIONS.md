@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (Program 0.7 Platform Implementation Protocol)  
+**Last updated:** 2026-06-28 (Emenda D-019 — Repository Health Protocol)  
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -183,6 +183,18 @@
 | **Decision** | **`docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md`** is the official platform nomenclature. All future documentation, Studio surfaces, and capabilities must use terms defined there. Legacy code identifiers remain unchanged until explicit migration missions. |
 | **Evidence** | Program 0.5 — term inventory §4; glossary §5; legacy/discontinued lists §6 |
 | **Consequences** | Constitution hierarchy priority 4; README_AI pre-flight; no conflicting terms in new docs without D-register |
+
+---
+
+## D-019 — Repository Health Protocol (RHP)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | **Repository Health Protocol (RHP)** is mandatory at every mission **start** and **end**, plus **post-merge** verification. Integrated into [PLATFORM-IMPLEMENTATION-PROTOCOL.md](./PLATFORM-IMPLEMENTATION-PROTOCOL.md) §10. |
+| **Evidence** | Emenda D-019 — PR hygiene, branch sync, build/lint/gates, doc sync, merge readiness, deploy health |
+| **Consequences** | Repository must never finish a mission in worse health than at start; reduce debt when possible |
 
 ---
 

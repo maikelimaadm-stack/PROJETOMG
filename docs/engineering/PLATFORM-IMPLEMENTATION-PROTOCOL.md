@@ -1,10 +1,10 @@
 # PLATFORM IMPLEMENTATION PROTOCOL (PIP)
 
 **Status:** Official — Mandatory implementation process  
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Effective date:** 2026-06-28  
 **Program:** 0.7  
-**Decision:** D-018  
+**Decision:** D-018, **D-019** (Repository Health Protocol)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md) and [Permanent Governance Directive](../constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md); operational companion to [README_AI.md](../../README_AI.md)
 
 ---
@@ -16,6 +16,8 @@ This document is the **single official protocol** for every MAK Gestão implemen
 Structural documentation (Programs 0–0.6) is complete. All future work that touches code, schema, gates, or platform behavior **must** follow the 10-phase lifecycle defined here.
 
 **Binding rule:** No mission is valid without completing all applicable phases. Skipping a phase requires explicit written exception in ENGINEERING-JOURNAL with D-register reference if architectural.
+
+**Repository Health Protocol (RHP):** Every mission **start** and **end** must execute [§10 RHP](#10-repository-health-protocol-rhp) (D-019). The repository must never finish a mission in worse health than at start.
 
 ---
 
@@ -39,7 +41,7 @@ PIP **does not replace** Constitution or Doc 11 — it **operationalizes** them 
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  1. Pre-Implementation Review (PIR)                                     │
+│  1. Pre-Implementation Review (PIR)  ← includes RHP Start (§10.1)       │
 │  2. Planejamento                                                        │
 │  3. Implementação                                                       │
 │  4. Testes                                                              │
@@ -48,7 +50,7 @@ PIP **does not replace** Constitution or Doc 11 — it **operationalizes** them 
 │  7. Atualização da documentação                                         │
 │  8. Atualização do Platform Maturity Index                              │
 │  9. Atualização do Engineering Journal                                  │
-│ 10. Congelamento da missão                                              │
+│ 10. Congelamento da missão  ← includes RHP End + Post-Merge (§10.2–10.3)│
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -69,8 +71,9 @@ PIP **does not replace** Constitution or Doc 11 — it **operationalizes** them 
 | 1.5 | Use [Language Standard](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) terms in mission plan | No conflicting vocabulary |
 | 1.6 | Check [TECH-DEBT.md](./TECH-DEBT.md) and [PMI](./PLATFORM-MATURITY-INDEX.md) for blockers | Blockers acknowledged or deferred with D-entry |
 | 1.7 | Classify mission type (§5) | Doc-only / Implementation / Foundation / etc. |
+| 1.8 | **Execute RHP Start** ([§10.1](#101-rhp--before-mission-start)) | Baseline recorded in JOURNAL or PR |
 
-**PIR exit criteria:** Written mission statement with scope, layer map, out-of-scope list, and roadmap alignment. For code missions: branch name `cursor/<descriptive-name>-579b`.
+**PIR exit criteria:** Written mission statement with scope, layer map, out-of-scope list, roadmap alignment, and **RHP Start baseline**. For code missions: branch name `cursor/<descriptive-name>-579b`, synced with `main`.
 
 **Doc-only missions:** PIR still required; Phases 3–4 may be minimal (verify no accidental code).
 
@@ -236,13 +239,17 @@ Every mission **appends** an entry to [ENGINEERING-JOURNAL.md](./ENGINEERING-JOU
 
 | Step | Action |
 |------|--------|
-| 10.1 | Merge PR (or document abandon reason in JOURNAL) |
-| 10.2 | Branch merged or explicitly closed |
-| 10.3 | NEXT-SPRINT updated for follow-up work |
-| 10.4 | No open P0 in scope without TECH-DEBT |
-| 10.5 | Tag mission **CLOSED** in JOURNAL entry |
+| 10.1 | **Execute RHP End** ([§10.2](#102-rhp--before-mission-end)) — merge readiness |
+| 10.2 | Merge PR (or document abandon reason in JOURNAL) |
+| 10.3 | **Execute RHP Post-Merge** ([§10.3](#103-rhp--after-merge)) when merge occurs |
+| 10.4 | Branch merged or explicitly closed |
+| 10.5 | NEXT-SPRINT updated for follow-up work |
+| 10.6 | No open P0 in scope without TECH-DEBT |
+| 10.7 | Tag mission **CLOSED** in JOURNAL entry |
 
-**Freeze definition:** The mission scope is immutable post-close. Follow-up work = **new mission** with new PIR.
+**Freeze definition:** The mission scope is immutable post-close. Follow-up work = **new mission** with new PIR + RHP Start.
+
+**RHP exit rule (D-019):** Repository health at close **≥** health at start — never worse.
 
 ---
 
@@ -440,6 +447,7 @@ Copy for every implementation mission:
 ```markdown
 ## Mission [ID] — PIP Checklist
 
+- [ ] **RHP Start (§10.1)** — PRs, branch sync, build/lint/gates baseline
 - [ ] **1 PIR** — README_AI + roadmap + layer map + language check
 - [ ] **2 Planning** — acceptance criteria + artifact list + gates selected
 - [ ] **3 Implementation** — four perspectives; minimal diff
@@ -449,8 +457,89 @@ Copy for every implementation mission:
 - [ ] **7 Docs** — CURRENT-STATE + applicable engineering docs
 - [ ] **8 PMI** — scores updated or N/A documented
 - [ ] **9 Journal** — entry appended with certification
-- [ ] **10 Freeze** — PR merged; NEXT-SPRINT; mission CLOSED
+- [ ] **RHP End (§10.2)** — merge readiness; docs/journal updated
+- [ ] **10 Freeze** — PR merged; RHP Post-Merge (§10.3); mission CLOSED
 ```
+
+---
+
+## 10. Repository Health Protocol (RHP)
+
+**Decision:** D-019  
+**Status:** Official — integrated into PIP  
+**Permanent directive:** The repository **must never** finish a mission in a state **inferior** to that found at mission start. Whenever possible: reduce tech debt, resolve pending conflicts, and improve overall project health.
+
+RHP runs at **three checkpoints**: mission start, mission end (pre-merge), and post-merge.
+
+---
+
+### 10.1 RHP — Before Mission Start
+
+Execute during **PIR (Phase 1)** before altering any project file. Record baseline in PR description or ENGINEERING-JOURNAL entry header.
+
+| # | Check | How to verify | Action if fail |
+|---|-------|---------------|----------------|
+| 1 | **Open Pull Requests** | `gh pr list --state open` | Merge, close, or rebase stale PRs; do not start if blocking conflicts exist |
+| 2 | **PRs ready for merge** | `gh pr list --label "ready"` or review CI status | Merge ready PRs first or document deferral in JOURNAL |
+| 3 | **Branch conflicts** | `git fetch origin main && git merge-base --is-ancestor origin/main HEAD` (on work branch) | Rebase/merge `main` into work branch before coding |
+| 4 | **Work branch synced with main** | `git pull origin main` on base; feature branch rebased | Sync before first commit |
+| 5 | **Documentation vs code divergence** | [CURRENT-STATE.md](./CURRENT-STATE.md) vs code spot-check; README_AI pre-flight | Update docs first or file TECH-DEBT with PIR note |
+| 6 | **Build** | `npm run build` | Fix on `main` or branch before mission scope work |
+| 7 | **Lint** | `npm run lint` | Fix before proceeding |
+| 8 | **Gates** | `npm run verify:governance` (or scoped gates per mission) | Pass or document known baseline failure + TECH-DEBT |
+| 9 | **Known vulnerabilities** | `npm audit` (frontend); `npm audit` in `backend/` | Record count in baseline; address if mission scope includes S3 |
+| 10 | **Critical dependencies** | `package.json` / `backend/package.json` — broken lockfile, deprecated Node | `npm ci` succeeds; Node version matches CI (22) |
+
+**RHP Start exit criteria:** Baseline table recorded (pass/fail per row). No **new** P0 blockers introduced by ignoring failed checks.
+
+---
+
+### 10.2 RHP — Before Mission End
+
+Execute during **Phase 10 (Congelamento)** before merge. All must pass for the mission scope (or be documented as pre-existing with no regression).
+
+| # | Check | How to verify |
+|---|-------|---------------|
+| 1 | **Build approved** | `npm run build` ✅ |
+| 2 | **Lint approved** | `npm run lint` ✅ |
+| 3 | **Gates approved** | `npm run verify:governance` and scoped gates ✅ |
+| 4 | **Applicable tests approved** | E2E / smoke / backend health per Phase 4 scope ✅ |
+| 5 | **Self-review of PR** | Author reviewed diff; certification block in PR body |
+| 6 | **No conflicts with main** | `gh pr view` — mergeable; or local `git merge origin/main` clean |
+| 7 | **Merge readiness** | CI green; approvals if required; no draft unless intentional |
+| 8 | **Documentation updated** | Phase 7 docs complete |
+| 9 | **CURRENT-STATE updated** | `Last verified` date + accurate counts |
+| 10 | **ENGINEERING-JOURNAL updated** | Entry with certification appended |
+| 11 | **CHANGELOG updated** | When user-visible release — PR body minimum; `CHANGELOG.md` if established |
+
+**RHP End exit criteria:** All applicable rows ✅. Repository health **≥** RHP Start baseline.
+
+---
+
+### 10.3 RHP — After Merge
+
+Execute after PR merge to `main` (or document N/A for abandoned missions).
+
+| # | Check | How to verify |
+|---|-------|---------------|
+| 1 | **Merge executed correctly** | `gh pr view --json state` = MERGED; commit on `main` |
+| 2 | **Branch synchronized** | `git checkout main && git pull origin main` — contains merge commit |
+| 3 | **Deploy completed** | Vercel/Railway deploy triggered (when applicable) — check provider dashboard or CI |
+| 4 | **Environment health check** | `npm run check:api` or `/api/health` on deployed backend |
+| 5 | **No regression detected** | Smoke: `npm run build` on `main`; optional E2E smoke |
+
+**RHP Post-Merge exit criteria:** `main` is healthy; no regression vs RHP End state. If deploy fails — hotfix mission under PIP with RHP Start from failed state.
+
+---
+
+### 10.4 RHP Health Comparison Rule
+
+| Rule | Detail |
+|------|--------|
+| **Never worse** | Open PR count, failing gates, audit vulns, doc drift — must not increase due to mission without TECH-DEBT justification |
+| **Improve when possible** | Merge ready PRs, fix P1 debt in scope, resolve conflicts, sync registries |
+| **Record delta** | JOURNAL entry notes: "RHP: start baseline → end state" |
+| **Exception** | Strategic deferral requires TECH-DEBT + explicit user/agent acknowledgment in JOURNAL |
 
 ---
 
@@ -471,6 +560,7 @@ All implementation missions **must** follow PIP Phases 1–10.
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.1.0 | 2026-06-28 | RHP integrated — D-019; mission start/end/post-merge health audits |
 | 1.0.0 | 2026-06-28 | Initial protocol — Program 0.7, D-018 |
 
 ---

@@ -16,6 +16,15 @@ Each mission adds an entry with:
 
 ---
 
+## 2026-06-28 — Emenda D-019: Repository Health Protocol (RHP)
+
+**Scope:** Integrate RHP into PIP §10; documentation only  
+**Changes:** `PLATFORM-IMPLEMENTATION-PROTOCOL.md` v1.1.0; D-019; PIR Phase 1.8 + Freeze Phase 10 RHP hooks
+
+**Rule:** Repository never finishes mission in worse health than at start.
+
+---
+
 ## 2026-06-28 — Program 0.7: Platform Implementation Protocol (D-018)
 
 **Scope:** Official 10-phase implementation lifecycle; documentation only  
