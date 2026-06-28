@@ -61,3 +61,13 @@
 **Motivo:** módulo fictício da Missão Enterprise V16 para demonstrar validações declarativas via metadata (`MAK_VALIDATION_CERTIFICATION_CATALOG`).
 
 **Referência:** `src/modules/validationcert/` + `framework/mak/validation/validationCertificationCatalog.js`.
+
+---
+
+## formulacert — módulo fictício V17 (Formula Configuration Engine)
+
+**Status:** exceção formal — certificação metadata-only, sem rota App.
+
+**Motivo:** módulo fictício da Missão Enterprise V17 para demonstrar fórmulas declarativas via metadata (`MAK_FORMULA_CERTIFICATION_CATALOG`).
+
+**Referência:** `src/modules/formulacert/` + `framework/mak/formula/formulaCertificationCatalog.js`.

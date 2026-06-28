@@ -8,6 +8,7 @@ import { buildModeloBase1ScopeCssClass } from "@/ModeloBase1/layout/modeloBase1S
 import { buildMakLayoutConfigMetadata } from "@/framework/mak/layoutConfig/buildMakLayoutConfigMetadata.js";
 import { buildMakFieldConfigMetadata } from "@/framework/mak/fieldConfig/buildMakFieldConfigMetadata.js";
 import { buildMakValidationConfigMetadata } from "@/framework/mak/validation/buildMakValidationConfigMetadata.js";
+import { buildMakFormulaConfigMetadata } from "@/framework/mak/formula/buildMakFormulaConfigMetadata.js";
 import {
   useModeloBase1InfiniteListData,
   useModeloBase1Favorites,
@@ -69,6 +70,10 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     nativeRequiredFieldNames: makModule.cadastroConfig?.nativeRequiredFieldNames ?? [],
     validatorProvider: makModule.cadastroConfig?.validatorProvider ?? null,
   });
+  const formulaEngineMetadata = buildMakFormulaConfigMetadata({
+    moduleId,
+    fieldDefinitions: makModule.metadata?.form?.fieldDefinitions ?? [],
+  });
 
   const {
     hooks: overrideHooks,
@@ -90,6 +95,7 @@ export function buildModeloBase1ConfigFromMakModule(makModule, overrides = {}) {
     layoutEngine: overrides.layoutEngine ?? layoutEngineMetadata,
     fieldEngine: overrides.fieldEngine ?? fieldEngineMetadata,
     validationEngine: overrides.validationEngine ?? validationEngineMetadata,
+    formulaEngine: overrides.formulaEngine ?? formulaEngineMetadata,
     navigation: {
       emptyRecordViewMode: overrides.navigation?.emptyRecordViewMode ?? "browse",
       ...(overrides.navigation ?? {}),
