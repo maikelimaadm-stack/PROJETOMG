@@ -40,7 +40,7 @@ gate(
 const registry = read(path.join(ROOT, "src/modules/makBootstrap/registerMakLayoutConfigEngine.js"));
 gate(
   "G159 — Layout engine registrada para módulos certificados",
-  ["empresas", "produtos", "marcas", "cadcps"].every((id) => registry.includes(`${id}CadastroConfig`))
+  ["empresas", "cadcps"].every((id) => registry.includes(`${id}CadastroConfig`))
 );
 
 const cadLayout = read(path.join(ROOT, "src/framework/cadastro-engine/design-system/CadLayoutConfigurator.jsx"));
@@ -62,7 +62,7 @@ gate(
   )
 );
 
-const modules = ["produtos", "marcas", "cadcps"].map((id) =>
+const modules = ["cadcps"].map((id) =>
   read(path.join(ROOT, `src/modules/${id}/config/${id}CadastroConfig.js`))
 );
 gate(

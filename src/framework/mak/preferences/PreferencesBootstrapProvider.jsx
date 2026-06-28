@@ -37,8 +37,6 @@ export function MakPreferencesBootstrapProvider({
       moduleIds: enabledModuleIds,
       modules: aggregated.modules,
       empresas: empresasBootstrap,
-      produtos: aggregated.produtos ?? null,
-      marcas: aggregated.marcas ?? null,
       cadcps: aggregated.cadcps ?? null,
       primary: aggregated.primary ?? empresasBootstrap ?? null,
       /** Estado unificado — espelha módulo primário para compatibilidade */

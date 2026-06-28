@@ -49,7 +49,7 @@ gate(
 const bootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakFormulaConfigEngine.js"));
 gate(
   "G223 — Módulos certificados + formulacert registrados",
-  ["empresas", "produtos", "marcas", "cadcps", "formulacert"].every(
+  ["empresas", "cadcps", "formulacert"].every(
     (id) => bootstrap.includes(`"${id}"`) || bootstrap.includes(`${id}CadastroConfig`) || bootstrap.includes("formulacert")
   )
 );

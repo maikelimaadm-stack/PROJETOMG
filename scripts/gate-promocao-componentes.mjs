@@ -28,11 +28,9 @@ const config = read("src/modules/empresas/config/modeloBase1/empresasModeloBase1
 const toolbarConfig = read("src/modules/empresas/config/modeloBase1/empresasToolbarConfig.js");
 const panelSections = read("src/ModeloBase1/render/ModeloBase1PanelSections.jsx");
 const empresasMakModule = read("src/modules/empresas/config/empresasMakModule.js");
-const marcasMakModule = read("src/modules/marcas/config/marcasMakModule.js");
-const produtosMakModule = read("src/modules/produtos/config/produtosMakModule.js");
+const cadcpsMakModule = read("src/modules/cadcps/config/cadcpsMakModule.js");
 const layoutConfig = read("src/modules/empresas/config/modeloBase1/empresasLayoutConfig.js");
-const marcasConfig = read("src/modules/marcas/config/marcasModeloBase1Config.js");
-const produtosConfig = read("src/modules/produtos/config/produtosModeloBase1Config.js");
+const cadcpsConfig = read("src/modules/cadcps/config/cadcpsModeloBase1Config.js");
 
 // G86 — Motor: extraído do PAGEMP master (não reimplementado do zero)
 let legacyPagemp = "";
@@ -65,10 +63,8 @@ gate("G87 — Toolbar promovida (MgActionBar)", toolbarPromoted);
 // G88 — SearchPanel master: MakCadastroSearchPanel promovido (não MakGenericSearchPanel)
 const searchMaster =
   empresasMakModule.includes("MakCadastroSearchPanel") &&
-  marcasMakModule.includes("MakCadastroSearchPanel") &&
-  produtosMakModule.includes("MakCadastroSearchPanel") &&
-  !marcasMakModule.includes("MakGenericSearchPanel") &&
-  !produtosMakModule.includes("MakGenericSearchPanel") &&
+  cadcpsMakModule.includes("MakCadastroSearchPanel") &&
+  !cadcpsMakModule.includes("MakGenericSearchPanel") &&
   motor.includes("<MakModuleProvider module={module}>");
 gate("G88 — SearchPanel master (MakCadastroSearchPanel)", searchMaster);
 
@@ -142,8 +138,7 @@ gate("G97 — Sem MakGenericSearchPanel no caminho Empresas", noGenericSearchInE
 // G100 — Escopo visual master (botões/tabela/linhas) em todos os módulos
 const scopeParity =
   layoutConfig.includes("buildModeloBase1ScopeCssClass") &&
-  marcasConfig.includes("buildModeloBase1ScopeCssClass") &&
-  produtosConfig.includes("buildModeloBase1ScopeCssClass") &&
+  cadcpsConfig.includes("buildModeloBase1ScopeCssClass") &&
   read("src/ModeloBase1/layout/modeloBase1ScopeCss.js").includes("cadastro-emp-scope mg-empresas-scope");
 gate("G100 — Escopo visual master (cadastro-emp-scope) em todos os módulos", scopeParity);
 
@@ -174,8 +169,7 @@ gate(
 const globalReimplementations = [];
 if (exists("src/framework/mak/search/MakGenericSearchPanel.jsx")) {
   const usedByModeloBase1Modules =
-    marcasMakModule.includes("MakGenericSearchPanel") ||
-    produtosMakModule.includes("MakGenericSearchPanel") ||
+    cadcpsMakModule.includes("MakGenericSearchPanel") ||
     empresasMakModule.includes("MakGenericSearchPanel");
   if (usedByModeloBase1Modules) globalReimplementations.push("MakGenericSearchPanel-in-use");
 }

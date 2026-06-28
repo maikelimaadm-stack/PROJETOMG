@@ -9,7 +9,7 @@ import { execSync } from "node:child_process";
 
 const ROOT = process.cwd();
 const MB1 = path.join(ROOT, "src/ModeloBase1");
-const MODULES = ["produtos", "marcas", "cadcps"];
+const MODULES = ["cadcps"];
 
 const results = [];
 const gate = (name, ok, detail = "") => {
@@ -22,8 +22,6 @@ const exists = (filePath) => fs.existsSync(filePath);
 
 const visualTokens = read(path.join(MB1, "layout/modeloBase1VisualTokens.js"));
 const empFormConstants = read(path.join(ROOT, "src/modules/empresas/components/formEmp.constants.js"));
-const proFormConstants = read(path.join(ROOT, "src/modules/produtos/config/proForm.constants.js"));
-const marFormConstants = read(path.join(ROOT, "src/modules/marcas/config/marForm.constants.js"));
 const cpsFormConstants = read(path.join(ROOT, "src/modules/cadcps/config/cpsForm.constants.js"));
 
 const extractExport = (source, exportName) => {
@@ -39,8 +37,6 @@ const MAK_FORM_INPUT_CLASS =
 
 const moduleConstants = {
   empresas: empFormConstants,
-  produtos: proFormConstants,
-  marcas: marFormConstants,
   cadcps: cpsFormConstants,
 };
 

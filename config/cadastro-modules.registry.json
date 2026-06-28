@@ -8,22 +8,6 @@
     "ativo": true
   },
   {
-    "moduleId": "marcas",
-    "codigo": "MARCAS",
-    "nome": "Marcas",
-    "entityName": "MarcaCadastro",
-    "ordem": 20,
-    "ativo": true
-  },
-  {
-    "moduleId": "produtos",
-    "codigo": "PRODUTOS",
-    "nome": "Produtos",
-    "entityName": "ProdutoCadastro",
-    "ordem": 30,
-    "ativo": true
-  },
-  {
     "moduleId": "cadcps",
     "codigo": "CADCPS",
     "nome": "Campos Personalizados",

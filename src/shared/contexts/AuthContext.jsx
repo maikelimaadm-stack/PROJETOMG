@@ -285,7 +285,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(async () => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
-      ["produtos", "marcas", "cadcps"].forEach((moduleId) => {
+      ["cadcps"].forEach((moduleId) => {
         window.dispatchEvent(new CustomEvent(`${moduleId}-preferences-flush`));
       });
       void flushMakPreferencesNow();
@@ -308,7 +308,7 @@ export const AuthProvider = ({ children }) => {
   const navigateToLogin = useCallback(async () => {
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("emp-preferences-flush"));
-      ["produtos", "marcas", "cadcps"].forEach((moduleId) => {
+      ["cadcps"].forEach((moduleId) => {
         window.dispatchEvent(new CustomEvent(`${moduleId}-preferences-flush`));
       });
       void flushMakPreferencesNow();

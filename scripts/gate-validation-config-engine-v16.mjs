@@ -50,7 +50,7 @@ gate(
 const bootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakValidationConfigEngine.js"));
 gate(
   "G212 — Módulos certificados + validationcert registrados",
-  ["empresas", "produtos", "marcas", "cadcps", "validationcert"].every(
+  ["empresas", "cadcps", "validationcert"].every(
     (id) => bootstrap.includes(`"${id}"`) || bootstrap.includes(`${id}Schema`) || bootstrap.includes("validationcert")
   )
 );

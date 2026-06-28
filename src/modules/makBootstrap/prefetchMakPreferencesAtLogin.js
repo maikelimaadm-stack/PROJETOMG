@@ -4,24 +4,10 @@ import { prefetchEmpresasPreferencesAtLogin } from "@/modules/empresas/preferenc
 import { buildMakPreferencesBootstrapQueryKey } from "@/framework/mak/preferences/makModulePreferencesQueryKeys.js";
 import { listMakPreferencesBootstrapModuleIds } from "@/framework/mak/preferences/bootstrapRegistry.js";
 import { createMakStandardModulePreferencesBootstrap } from "@/framework/mak/preferences/createMakStandardModulePreferencesBootstrap.js";
-import { produtosModuleMetadata } from "@/modules/produtos/config/produtosModuleMetadata.js";
-import { marcasModuleMetadata } from "@/modules/marcas/config/marcasModuleMetadata.js";
 import { cadcpsModuleMetadata } from "@/modules/cadcps/config/cadcpsModuleMetadata.js";
 import { dispatchMakPreferencesBootstrapApplied } from "@/framework/mak/preferences/makModulePreferencesBootstrapEvents.js";
 
 const STANDARD_MODULE_CONFIG = {
-  produtos: {
-    keyPrefix: "pro",
-    tableMetadata: produtosModuleMetadata.table,
-    searchMetadata: produtosModuleMetadata.search,
-    loadBatchStorageKey: "pro_infinite_batch_size",
-  },
-  marcas: {
-    keyPrefix: "mar",
-    tableMetadata: marcasModuleMetadata.table,
-    searchMetadata: marcasModuleMetadata.search,
-    loadBatchStorageKey: "mar_infinite_batch_size",
-  },
   cadcps: {
     keyPrefix: "cps",
     tableMetadata: cadcpsModuleMetadata.table,
