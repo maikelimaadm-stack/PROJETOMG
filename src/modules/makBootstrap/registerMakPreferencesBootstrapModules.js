@@ -6,5 +6,6 @@ import "@/modules/cadcps/preferences/registerCadcpsPreferencesBootstrap.js";
 import "@/modules/makBootstrap/registerMakFoundationEngines.js";
 import "@/modules/makBootstrap/registerMakLayoutConfigEngine.js";
 import "@/modules/makBootstrap/registerMakFieldConfigEngine.js";
+import "@/modules/makBootstrap/registerMakValidationConfigEngine.js";
 
 export { listMakPreferencesBootstrapModuleIds } from "@/framework/mak/preferences/bootstrapRegistry.js";

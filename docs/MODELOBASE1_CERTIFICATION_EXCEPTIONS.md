@@ -51,3 +51,13 @@
 **Motivo:** módulo fictício da Missão Enterprise V14 para demonstrar todos os tipos de campo via metadata (`MAK_FIELD_CERTIFICATION_CATALOG`).
 
 **Referência:** `src/modules/fieldcert/` + `framework/mak/fieldConfig/fieldCertificationCatalog.js`.
+
+---
+
+## validationcert — módulo fictício V16 (Validation Configuration Engine)
+
+**Status:** exceção formal — certificação metadata-only, sem rota App.
+
+**Motivo:** módulo fictício da Missão Enterprise V16 para demonstrar validações declarativas via metadata (`MAK_VALIDATION_CERTIFICATION_CATALOG`).
+
+**Referência:** `src/modules/validationcert/` + `framework/mak/validation/validationCertificationCatalog.js`.

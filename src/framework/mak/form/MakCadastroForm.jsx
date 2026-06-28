@@ -29,9 +29,9 @@ import {
 import { stableStringify } from "@/shared/utils/stableStringify";
 import { LAYOUT_MAIN_TAB_ID } from "@/framework/cadastro-engine/preferences/layoutMigration.js";
 import {
-  buildRequiredFormFieldErrors,
   countRequiredFormFields,
 } from "@/framework/cadastro/layouts/empFormLayoutMetrics";
+import { runMakFormValidation } from "@/framework/mak/validation/runMakFormValidation.js";
 import FormValidationStatus from "@/framework/cadastro/formularios/FormValidationStatus";
 import EmpFormImageField from "@/framework/cadastro/formularios/EmpFormImageField";
 import EmpAutocomplete from "@/framework/cadastro/formularios/EmpAutocomplete";
@@ -77,6 +77,8 @@ export default function MakCadastroForm({
     mapRecordToForm,
     prepareSubmitPayload,
     validateFormExtra,
+    fieldDefinitions,
+    schema,
     useFormResourcesHook,
   } = useMakFormModuleConfig();
   const { labels: moduleLabels, metadata: moduleMetadata } = useMakModuleRequired();
@@ -452,27 +454,27 @@ export default function MakCadastroForm({
 
   const validateForm = () => {
     const panelIds = tabs.map((panel) => panel.id);
-    const nextErrors = buildRequiredFormFieldErrors({
+    const result = runMakFormValidation({
+      formData,
+      dynamicFields,
+      fieldDefinitions,
       panelIds,
       layout: activeLayoutConfig?.layout,
-      fields: dynamicFields,
       hiddenFieldIds: activeLayoutConfig?.hiddenFieldIds || [],
       requiredFieldIds: activeLayoutConfig?.requiredFieldIds || [],
       visibilityRules: activeLayoutConfig?.visibilityRules || {},
-      values: formData,
       nativeRequiredFieldNames: REQUIRED_FIELDS,
+      camposPersonalizadosForm,
+      validateFormExtra,
+      schema,
+      activeTab,
+      tabs,
+      setActiveTab,
     });
-    const customValidation = campoEngine.buildValidationSchema(camposPersonalizadosForm).safeParse(formData.campos_personalizados || {});
-    if (!customValidation.success) {
-      customValidation.error.issues.forEach((issue) => {
-        const fieldName = issue.path[0];
-        if (fieldName) nextErrors[`campos_personalizados.${fieldName}`] = true;
-      });
-    }
-    setErrors(nextErrors);
+    setErrors(result.errors);
     clearRequiredFieldErrors();
-    if (Object.keys(nextErrors).length > 0) {
-      const firstErrorKey = Object.keys(nextErrors)[0];
+    if (!result.valid) {
+      const firstErrorKey = Object.keys(result.errors)[0];
       const firstErrorField = dynamicFields.find(
         (field) =>
           field.errorKey === firstErrorKey ||
@@ -488,7 +490,7 @@ export default function MakCadastroForm({
       const isMobileViewport =
         typeof window !== "undefined" && window.matchMedia("(max-width: 640px)").matches;
       const report = () =>
-        reportRequiredFieldErrors(nextErrors, {
+        reportRequiredFieldErrors(result.errors, {
           focus: !isMobileViewport,
           activate: !isMobileViewport,
         });
@@ -500,19 +502,6 @@ export default function MakCadastroForm({
         report();
       }
       return false;
-    }
-
-    if (typeof validateFormExtra === "function") {
-      const extra = validateFormExtra(formData, { setActiveTab, activeTab, tabs });
-      if (extra?.errors && Object.keys(extra.errors).length > 0) {
-        setErrors((prev) => ({ ...prev, ...extra.errors }));
-        clearRequiredFieldErrors();
-        reportRequiredFieldErrors(extra.errors);
-        if (extra.focusPanelId && extra.focusPanelId !== activeTab) {
-          setActiveTab(extra.focusPanelId);
-        }
-        return false;
-      }
     }
 
     return true;
