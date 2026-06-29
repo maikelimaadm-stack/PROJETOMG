@@ -158,6 +158,13 @@ src/studio/
 │   ├── contracts/          ← Public provider contracts
 │   ├── providers/          ← Explorer, Inspector, Property, Workspace, Dock, …
 │   └── Universal*.jsx        ← Presentational components (render only)
+├── domain/                 ← Studio Domain Engine (Program 2.1A.6)
+│   ├── state/              ← Single shared state model + reducer
+│   ├── contracts/          ← Domain + service contracts
+│   ├── services/           ← Preview, Publish, Compile, Validation, Asset, Search (interfaces)
+│   ├── adapters/           ← Service adapter registry (mock → production)
+│   ├── hooks/              ← useSelection, useWorkspace, useDock, … (public API)
+│   └── providers/          ← StudioDomainProvider + Universal bridge
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -168,9 +175,11 @@ src/studio/
 └── designers/              ← sub-phase plugins (layout, field, …)
 ```
 
-**Layer order:** Studio SDK → Design System → Event Architecture → Governance → **Universal Components** → Studio Shell → Designers
+**Layer order:** Studio SDK → Design System → Event Architecture → Governance → Universal Components → **Studio Domain** → Studio Shell → Designers
 
-**Universal Components rule (Program 2.1A.5):** All Shell panels are implemented as universal presentational components with Provider-injected data. Universal components **must not** import designer-specific code (Layout Studio, Workflow Studio, etc.). Gate **G288**.
+**Universal Components rule (Program 2.1A.5):** All Shell panels are implemented as universal presentational components with Provider-injected data. Gate **G288**.
+
+**Studio Domain rule (Program 2.1A.6):** All official state (selection, workspace, dock, tabs, history, notifications, clipboard, preview, publish, search, assets, properties) lives in `src/studio/domain/`. Designers **must** use public domain hooks — never duplicate domain state. Services accessed only via adapters. Gate **G289**.
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
 
@@ -1103,6 +1112,7 @@ After Program 2.0.9, **all mandatory pre-Shell documentation is complete**. Prog
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.7.0 | 2026-06-29 | Studio Domain Engine — Program 2.1A.6 (D-039); G289 |
 | 1.6.0 | 2026-06-29 | Universal Studio Components — Program 2.1A.5 (D-038); G288 |
 | 1.5.0 | 2026-06-29 | Studio UX Framework — Program 2.0.9 (D-036); pre-Shell docs complete |
 | 1.4.0 | 2026-06-29 | Architecture Governance — Program 2.0.8 (D-035) |

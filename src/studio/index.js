@@ -84,6 +84,30 @@ export {
   useCommandPaletteProvider,
   useStatusBarProvider,
 } from "./components/index.js";
+export {
+  STUDIO_DOMAIN_VERSION,
+  OFFICIAL_DOMAIN_SLICES,
+  OFFICIAL_DOMAIN_HOOKS,
+  OFFICIAL_DOMAIN_SERVICES,
+  createInitialStudioDomainState,
+  createStudioDomainStore,
+  createMockDomainServiceAdapters,
+  StudioDomainProvider,
+  StudioUniversalBridge,
+  useStudioDomain,
+  useSelection,
+  useWorkspace,
+  useDock,
+  useTabs,
+  useHistory,
+  useNotifications,
+  useClipboard,
+  usePreview,
+  usePublish,
+  useSearch,
+  useAssets,
+  useProperties,
+} from "./domain/index.js";
 
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";
 import { bootstrapDesignSystem } from "./designSystem/bootstrapDesignSystem.js";

@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-038 Universal Studio Components)
+**Last updated:** 2026-06-29 (D-039 Studio Domain Engine)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -459,6 +459,18 @@
 | **Decision** | Implement **Program 2.1A.5** — universal presentational Studio components (`src/studio/components/`) with public Provider contracts for Explorer, Inspector, Property Grid, Workspace, Dock, Tabs, Status Bar, Notification Area, Breadcrumb, and Command Palette. Components render only; all logic injected via Providers. **No designer-specific imports.** New governance layer `studio-universal-components`. Gate **G288**. |
 | **Evidence** | [IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md) |
 | **Consequences** | All future Studios reuse universal library; 2.1A.6 State Engine extracts provider wiring from shell; 2.1B swaps Provider data sources only |
+
+---
+
+## D-039 — Studio Domain Engine Foundation (Program 2.1A.6)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A.6** — official MAK Studio Domain Engine (`src/studio/domain/`) with single shared state model (12 slices), service contracts (6 services — interfaces only), adapter registry, public hooks, and domain→universal provider bridge. **No designer may duplicate official domain state.** Gate **G289**. Replaces simple State Engine concept with full domain architecture. |
+| **Evidence** | [IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md) |
+| **Consequences** | All Studios use domain hooks; 2.1B swaps service adapters for MDP; IA/Marketplace/Collaboration extend via adapters |
 
 ---
 

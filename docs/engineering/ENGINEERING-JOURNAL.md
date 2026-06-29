@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.1A.5 Universal Studio Components)
+**Last updated:** 2026-06-29 (Program 2.1A.6 Studio Domain Engine)
+
+---
+
+## 2026-06-29 — Program 2.1A.6: Studio Domain Engine Foundation
+
+**Scope:** Official Studio Domain — shared state, service contracts, adapters, public hooks  
+**Changes:** `src/studio/domain/*`, gate G289, `StudioShellProvider` refactored to domain  
+**Report:** [IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md)  
+**Decision:** D-039
+
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1B Studio Shell Production — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md)
 
 ---
 

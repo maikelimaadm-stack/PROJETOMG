@@ -3,10 +3,12 @@
 **Mission ID:** IFM Phase 2.1B (Program 2.1B)  
 **Program:** MAK Studio — Studio Shell Production  
 **Priority:** P1  
-**Status:** **Ready after 2.1A prototype validation**  
-**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.5.0  
+**Status:** **Ready after 2.1A.6 Domain Engine**  
+**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.7.0  
 **UX Framework:** [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) v1.0.0 (**mandatory**)  
 **Prototype:** [IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md) (D-037)  
+**Universal Components:** [IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md) (D-038)  
+**Domain Engine:** [IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md) (D-039)  
 **Prior brief (superseded scope):** [IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md)
 
 ---
@@ -19,16 +21,16 @@ Evolve the **2.1A visual prototype** into the **production Studio Shell** — re
 
 ---
 
-## Inherit from 2.1A (do not rebuild)
+## Inherit from 2.1A–2.1A.6 (do not rebuild)
 
 | Asset | Path | Action |
 |-------|------|--------|
-| Shell layout | `src/studio/shell/StudioShellPrototype.jsx` → rename/refactor to `StudioShell.jsx` | Keep structure |
-| Dock manager | `src/studio/dock/StudioDockManager.jsx` | Add persistence |
-| Panels | `src/studio/panels/*` | Wire real data |
-| Provider | `src/studio/shell/StudioShellProvider.jsx` | Replace mock deps |
-| Styles | `studioShellPrototype.css` | Promote to production tokens |
-| Gate G286 | Extend or add G287 for production checks |
+| Shell layout | `src/studio/shell/StudioShellPrototype.jsx` | Keep structure |
+| Universal components | `src/studio/components/` | No changes |
+| **Studio Domain** | `src/studio/domain/` | **Swap mock adapters → MDP adapters** |
+| Domain bridge | `domain/providers/StudioUniversalBridge.jsx` | Keep — auto-wires Providers |
+| Shell provider | `src/studio/shell/StudioShellProvider.jsx` | Auth + production service adapters only |
+| Gate G286 + G288 + G289 | Extend with **G287** for production |
 
 ---
 
@@ -60,24 +62,20 @@ Evolve the **2.1A visual prototype** into the **production Studio Shell** — re
 ## Migration plan (prototype → production)
 
 ```
-Phase 1 — Provider deps
-  MOCK_EXPLORER_TREE → mdpRegistryService.introspect(moduleId)
-  MOCK_PROPERTY_SCHEMA → propertyRegistry from MDP compile bundle
-  MOCK_COMMANDS → sdk.command from bootstrap + shell commands
+Phase 1 — Domain service adapters
+  createMockDomainServiceAdapters() → createProductionDomainAdapters(mdpClients)
+  MOCK_EXPLORER_TREE → domain.actions.workspace.setExplorerTree(mdpTree)
+  MOCK_PROPERTY_SCHEMA → domain.actions.properties.setFields(mdpSchema)
 
 Phase 2 — Auth + routing
-  Wrap StudioShell in auth gate (reuse ERP auth context)
-  Move route inside protected segment OR keep full-screen with token check
+  Wrap StudioDomainProvider in auth gate (reuse ERP auth context)
 
 Phase 3 — Persistence
-  Dock sizes/tabs → localStorage key `mak-studio-dock:{moduleId}`
-  Last designer → session storage
+  Domain middleware: localStorage sync for dock/tabs slices
 
 Phase 4 — Polish
-  NotificationArea consolidation
-  Global search index
-  Responsive dock collapse (UX §7)
-  Loading/error/empty states (UX §4.19–4.20)
+  SearchService adapter → real index
+  ValidationService → MDP compile validation count in StatusBar
 ```
 
 ---
