@@ -10,6 +10,7 @@ import { registryEntriesToLayoutDocument } from "./document/registryToDocument.j
 import { mdpRegistrySyncLayoutEntries } from "@/studio/services/mdpRegistryClient.js";
 import { compileLayoutDocumentPreview } from "./preview/layoutPreviewBridge.js";
 import { mdpIntrospect } from "@/studio/services/mdpStudioClient.js";
+import { EDITOR_HUB_EVENTS } from "@/studio/editor/index.js";
 
 const LayoutDocumentContext = createContext(null);
 
@@ -30,7 +31,11 @@ export function LayoutDocumentProvider({ children, moduleId, sdk, hub, onValidat
     const payloads = documentToRegistryPayloads(doc);
     await mdpRegistrySyncLayoutEntries(payloads);
     projectRef.current = createLayoutProject(moduleId, doc);
-    hub?.publish?.("layout.document.synced", { documentId: doc.documentId, moduleId: doc.moduleId });
+    hub?.publish?.(EDITOR_HUB_EVENTS.DOCUMENT_SYNCED, {
+      designerId: "layout",
+      documentId: doc.documentId,
+      moduleId: doc.moduleId,
+    });
   };
 
   const commandBus = useMemo(
@@ -57,8 +62,9 @@ export function LayoutDocumentProvider({ children, moduleId, sdk, hub, onValidat
 
   useEffect(() => {
     if (!hub) return undefined;
-    const unsub = hub.subscribe?.("layout.property.update", (payload) => {
-      const componentId = payload?.componentId;
+    const unsub = hub.subscribe?.(EDITOR_HUB_EVENTS.PROPERTY_CHANGE, (payload) => {
+      if (payload?.designerId && payload.designerId !== "layout") return;
+      const componentId = payload?.targetId ?? payload?.componentId;
       const propertyId = payload?.propertyId;
       const value = payload?.value;
       if (!componentId || !propertyId) return;

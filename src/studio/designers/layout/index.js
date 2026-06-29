@@ -25,3 +25,5 @@ export {
   mapLayoutDocumentToSom,
   generateLayoutComponentId,
 } from "./som/layoutSomSetup.js";
+
+export { registerLayoutEditor } from "./editor/layoutEditorRegistration.jsx";

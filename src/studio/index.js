@@ -98,6 +98,18 @@ export {
   createPackageModel,
 } from "./som/index.js";
 export {
+  STUDIO_EDITOR_VERSION,
+  OFFICIAL_EDITOR_SERVICES,
+  EDITOR_CONTRIBUTION_KINDS,
+  EDITOR_HUB_EVENTS,
+  createStudioEditor,
+  createEditorRegistry,
+  getEditorRegistry,
+  EditorHost,
+  useEditorBridge,
+  StudioEditorShellBridge,
+} from "./editor/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,

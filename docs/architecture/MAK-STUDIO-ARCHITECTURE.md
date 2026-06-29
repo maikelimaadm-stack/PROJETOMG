@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.9.0  
+**Version:** 1.12.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5) · **Studio Object Model:** D-044 (Program 2.2.6)  
+**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5) · **Studio Object Model:** D-044 (Program 2.2.6) · **Studio Editor:** D-045 (Program 2.2.7)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -180,6 +180,11 @@ src/studio/
 │   ├── project/            ← Studio Project Model (official unit)
 │   ├── dependency/         ← Dependency Graph Engine
 │   └── refactoring/        ← Refactoring Engine (safe renames)
+├── editor/                 ← Studio Editor Engine (Program 2.2.7)
+│   ├── catalog/            ← Designer mount catalog (tools, panels, renderers)
+│   ├── services/           ← Explorer, Workspace, Inspector, PropertyGrid, Canvas, Preview, History, Publish, Selection
+│   ├── EditorHost.jsx      ← Mounts designer workspace from catalog
+│   └── StudioEditorShellBridge.jsx ← Shell-level editor ↔ universal components wiring
 ├── som/                    ← Studio Object Model (Program 2.2.6)
 │   ├── object/             ← SOM — official editable element representation
 │   ├── property/           ← Property Engine (registrable, component-independent)
@@ -1155,6 +1160,8 @@ Layout Document  →  Layout AST  →  MDP Registry  →  Compile  →  CRB  →
 
 **Studio Object Model (2.2.6):** Layout consumes `src/studio/som/` exclusively via `layoutSomSetup.js` — no local object/property/binding/behavior models. Gate **G294**.
 
+**Studio Editor (2.2.7):** Layout registers contributions via `layoutEditorRegistration.jsx` — no local editor implementation. Gate **G295**.
+
 ---
 
 ## 37. Studio Core Engine (Program 2.2.5 — D-043)
@@ -1216,10 +1223,47 @@ No designer may implement object, property, binding, or behavior models locally.
 
 ---
 
+## 39. Studio Editor Engine (Program 2.2.7 — D-045)
+
+Reusable editor for all Designers — Explorer, Workspace, Inspector, Property Grid, Canvas, Preview, History, Publish, and Selection as editor services.
+
+### 39.1 Official services
+
+| Service | Responsibility |
+|---------|----------------|
+| **Explorer** | Tree navigation and selection |
+| **Workspace** | Center editor slot activation |
+| **Inspector** | Read-only metadata panel |
+| **Property Grid** | Schema-driven property editing |
+| **Canvas** | Visual editing surface coordination |
+| **Preview** | Bottom preview panel integration |
+| **History** | Undo/redo via SDK history |
+| **Publish** | Publish center integration |
+| **Selection** | Domain selection bridge |
+
+### 39.2 Designer registration pattern
+
+Designers register **only** contributions — no local editor:
+
+```
+designers/{name}/editor/{name}EditorRegistration.jsx  →  tools, panels, commands, objects, behaviors, renderers
+```
+
+### 39.3 Consumption stack
+
+Editor Engine consumes exclusively: **Studio Core**, **SOM**, **SDK**, **Design System**, **Event Hub**.
+
+### 39.4 Path
+
+`src/studio/editor/` · Gate **G295** · Exported from `src/studio/index.js`
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.12.0 | 2026-06-29 | Studio Editor Engine — Program 2.2.7 (D-045); G295; Layout as first Editor consumer |
 | 1.11.0 | 2026-06-29 | Studio Object Model — Program 2.2.6 (D-044); G294; Layout migrated to SOM APIs |
 | 1.10.0 | 2026-06-29 | Studio Core Engine — Program 2.2.5 (D-043); G293; Layout migrated to Core APIs |
 | 1.9.0 | 2026-06-29 | Layout Studio Engine — Program 2.2 (D-042); G291; first functional designer |

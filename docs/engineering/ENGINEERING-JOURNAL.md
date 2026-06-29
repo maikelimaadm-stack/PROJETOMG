@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.2.6 Studio Object Model)
+**Last updated:** 2026-06-29 (Program 2.2.7 Studio Editor Engine)
+
+---
+
+## 2026-06-29 — Program 2.2.7: Studio Editor Engine
+
+**Scope:** Reusable Editor services, EditorHost, StudioEditorShellBridge; Layout registers contributions only  
+**Changes:** `src/studio/editor/*`, `layoutEditorRegistration.jsx`, gate G295, shell/bridge migration  
+**Report:** [IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md)  
+**Decision:** D-045
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
 
 ---
 

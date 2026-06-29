@@ -534,6 +534,18 @@
 
 ---
 
+## D-045 — Studio Editor Engine (Program 2.2.7)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2.7** — Studio Editor Engine with reusable services (Explorer, Workspace, Inspector, Property Grid, Canvas, Preview, History, Publish, Selection). Layout Studio migrated as first consumer via editor catalog registration. Gate **G295** forbids designers from implementing local editor structures. |
+| **Evidence** | [IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md) |
+| **Consequences** | Field Studio, Workflow Studio, Dashboard Studio, and Automation Studio reuse the same editor; Layout is first consumer only |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

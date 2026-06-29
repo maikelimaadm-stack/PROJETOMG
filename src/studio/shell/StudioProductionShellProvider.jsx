@@ -7,10 +7,11 @@ import {
   wireHistoryToEventHub,
   wirePreviewToEventHub,
   resolveTokenValue,
+  createStudioEditor,
 } from "@/studio/index.js";
+import { StudioEditorShellBridge } from "@/studio/editor/StudioEditorShellBridge.jsx";
 import {
   StudioDomainProvider,
-  StudioUniversalBridge,
   createInitialStudioDomainState,
   useWorkspace,
   useDock,
@@ -42,7 +43,7 @@ import {
   resolveDesignerLabel,
 } from "./studioShellConfig.js";
 import { registerLayoutDesigner } from "@/studio/designers/layout/registerLayoutDesigner.js";
-import { LayoutWorkspaceMount } from "@/studio/designers/layout/LayoutWorkspaceMount.jsx";
+import { registerLayoutEditor } from "@/studio/designers/layout/editor/layoutEditorRegistration.jsx";
 
 const DEFAULT_COMMANDS = [
   { id: "view.toggleLeftDock", label: "Alternar dock esquerdo", category: "View" },
@@ -271,6 +272,8 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
     });
   }, [moduleId, designerId, productionServices]);
 
+  const editor = useMemo(() => createStudioEditor({ sdk, hub }), [sdk, hub]);
+
   useEffect(() => {
     wireHistoryToEventHub(hub, sdk.history);
     wirePreviewToEventHub(hub, sdk.preview);
@@ -279,8 +282,9 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
   useEffect(() => {
     if (designerId === "layout") {
       registerLayoutDesigner();
+      registerLayoutEditor(editor.registry);
     }
-  }, [designerId]);
+  }, [designerId, editor.registry]);
 
   const token = useCallback((tokenId, themeId = "light") => resolveTokenValue(tokenId, themeId), []);
 
@@ -307,29 +311,6 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
     []
   );
 
-  const renderLayoutWorkspace = useCallback(
-    (ctx) => (
-      <LayoutWorkspaceMount
-        moduleId={ctx.moduleId}
-        sdk={ctx.sdk}
-        hub={ctx.hub}
-        onValidationChange={(validation) => {
-          hub.publish("layout.validation.changed", {
-            errorCount: validation.errorCount ?? validation.errors?.length ?? 0,
-            warningCount: validation.warningCount ?? validation.warnings?.length ?? 0,
-          });
-        }}
-        onPreviewChange={(result) => {
-          hub.publish("layout.preview.changed", result);
-          if (result?.ok) {
-            hub.publish("preview.refreshed", { compileId: result.compileId, source: "layout-document" });
-          }
-        }}
-      />
-    ),
-    [hub]
-  );
-
   return (
     <StudioDomainProvider initialState={initialDomainState} services={productionServices} hub={hub} sdk={sdk}>
       <ProductionDomainLoader moduleId={moduleId} designerId={designerId} />
@@ -337,17 +318,17 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
       <SessionSync moduleId={moduleId} designerId={designerId} />
       <PersistenceSync persistenceKey={persistenceKey} />
       <DomainCommandRegistrar sdk={sdk} />
-      <StudioUniversalBridge
+      <StudioEditorShellBridge
         mode="production"
         token={token}
         commands={commands}
         extraCommandGroups={extraCommandGroups}
-        renderWorkspace={designerId === "layout" ? renderLayoutWorkspace : undefined}
+        editor={editor}
       >
         <ShellContextProvider sdk={sdk} hub={hub} token={token} moduleId={moduleId} designerId={designerId}>
           {children}
         </ShellContextProvider>
-      </StudioUniversalBridge>
+      </StudioEditorShellBridge>
     </StudioDomainProvider>
   );
 }

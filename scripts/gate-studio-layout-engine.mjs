@@ -64,6 +64,14 @@ gate(
 );
 
 gate(
+  "G291 — Layout consumes Studio Editor Engine",
+  exists(path.join(LAYOUT, "editor/layoutEditorRegistration.jsx")) &&
+    read(path.join(LAYOUT, "editor/layoutEditorRegistration.jsx")).includes("getEditorCatalog") &&
+    read(path.join(ROOT, "src/studio/shell/StudioProductionShellProvider.jsx")).includes("registerLayoutEditor") &&
+    read(path.join(ROOT, "src/studio/domain/providers/StudioUniversalBridge.jsx")).includes("editorIntegration")
+);
+
+gate(
   "G291 — Layout Document official contract",
   LAYOUT_DOCUMENT_VERSION === "mak-layout-document-v1" &&
     read(path.join(LAYOUT, "document/layoutDocumentContracts.js")).includes("pages") &&
@@ -137,9 +145,9 @@ gate(
 
 gate(
   "G291 — Shell mounts layout designer",
-  read(path.join(ROOT, "src/studio/shell/StudioProductionShellProvider.jsx")).includes("LayoutWorkspaceMount") &&
+    read(path.join(ROOT, "src/studio/shell/StudioProductionShellProvider.jsx")).includes("StudioEditorShellBridge") &&
     read(path.join(ROOT, "src/studio/shell/StudioProductionShellProvider.jsx")).includes("registerLayoutDesigner") &&
-    read(path.join(ROOT, "src/studio/domain/providers/StudioUniversalBridge.jsx")).includes("renderWorkspace")
+    read(path.join(ROOT, "src/studio/editor/StudioEditorShellBridge.jsx")).includes("EditorHost")
 );
 
 let governanceOk = false;
