@@ -378,6 +378,18 @@
 
 ---
 
+## D-032 — MAK Studio SDK & Registry Foundation
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.0.5** — reusable MAK Studio SDK (`createStudioSdk`) with 12 API contracts, official Component/Property/Event/Action/Capability registries, Designer and Plugin contracts. Layout Studio and all future designers **must** consume SDK + registries — never hardcode components. Governance gates **G262–G266**. |
+| **Evidence** | [IFM-PROGRAM-2.0.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.5-CERTIFICATION-REPORT.md) |
+| **Consequences** | Program 2.1 Studio Shell implements against SDK; Layout Studio deferred to 2.2 |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

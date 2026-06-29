@@ -1,6 +1,8 @@
 # IFM Phase 2.1 — Layout Studio Brief
 
-**Mission ID:** IFM Phase 2.1 (Program 2.1)  
+> **Sequencing note (D-032):** Layout Studio is **Program 2.2**. Program 2.1 implements the [Studio Shell](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) first. This brief remains the specification for the first designer plugin.
+
+**Mission ID:** IFM Phase 2.2 (Program 2.2) — *formerly listed as 2.1*  
 **Program:** MAK Studio — Layout Studio  
 **Priority:** P1  
 **Status:** Prepared — **ready to implement**  

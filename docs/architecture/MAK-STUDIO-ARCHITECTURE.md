@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.0.0  
+**Version:** 1.1.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031  
+**Decision:** D-031 · **SDK:** D-032 (Program 2.0.5)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -131,20 +131,23 @@ The **Studio Shell** is the persistent chrome wrapping every designer session. I
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 4.3 Code location (future implementation)
+### 4.3 Code location
 
 ```
 src/studio/
-├── shell/
-│   ├── StudioShell.jsx
-│   ├── StudioAuthGate.jsx
-│   ├── StudioTopBar.jsx
-│   └── StudioSessionProvider.jsx
+├── sdk/                    ← Studio SDK (Program 2.0.5)
+│   ├── createStudioSdk.js
+│   ├── contracts/          ← Workspace, Dock, Explorer, … APIs
+│   ├── studioDesignerContract.js
+│   └── studioPluginContract.js
+├── registry/               ← Component, Property, Event, Action, Capability registries
+│   └── catalogs/
+├── shell/                  ← Phase 2.1
 ├── navigation/
 ├── workspace/
 ├── dock/
 ├── services/
-└── designers/          ← sub-phase plugins (layout, field, …)
+└── designers/              ← sub-phase plugins (layout, field, …)
 ```
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
@@ -848,9 +851,9 @@ Each designer is a **plugin** — shell architecture unchanged across phases.
 
 | Gate | Validates |
 |------|-----------|
-| **G144** | Studio writes only via `/api/mdp/*` (no direct file/DB mutation) |
-| **G145** | Preview uses shared hydration adapter |
-| **G146** | No Foundation imports from `src/studio/` |
+| **G262–G266** | Studio SDK + registries bootstrapped | Program 2.0.5 |
+| **G144** | Studio writes only via `/api/mdp/*` (Phase 2.1+) | Pending |
+| **G145** | Preview uses shared hydration adapter (Phase 2.1+) | Pending |
 
 ### 28.2 Architecture compliance checklist
 
@@ -875,10 +878,56 @@ Each designer is a **plugin** — shell architecture unchanged across phases.
 
 ---
 
+## 31. Studio SDK & Registry Foundation (Program 2.0.5)
+
+**Decision:** D-032 · **Path:** `src/studio/sdk/` + `src/studio/registry/`
+
+All designers **must** consume the Studio SDK — never reimplement dock, history, selection, or registry lookups.
+
+### 31.1 Studio SDK APIs
+
+| API | Contract | Purpose |
+|-----|----------|---------|
+| Workspace | `createWorkspaceApi` | Designer mount region |
+| Dock | `createDockApi` | Panel zones (left/right/bottom) |
+| Explorer | `createExplorerApi` | Registry tree navigation |
+| Inspector | `createInspectorApi` | Read-only metadata context |
+| History | `createHistoryApi` | Undo/redo command stack |
+| Preview | `createPreviewApi` | Draft CRB compile + hydration |
+| Publish | `createPublishApi` | Validate → publish → pin |
+| Command | `createCommandApi` | Command palette registry |
+| Selection | `createSelectionApi` | Shared selection state |
+| Clipboard | `createClipboardApi` | Copy/cut/paste fragments |
+| DragDrop | `createDragDropApi` | Designer-agnostic DnD |
+| Plugin | `createPluginApi` | Designer plugin registration |
+
+**Entry point:** `createStudioSdk({ deps, session })` — Shell wires MDP clients in Phase 2.1.
+
+### 31.2 Official registries
+
+| Registry | SSOT for | Layout Studio rule |
+|----------|----------|-------------------|
+| **Component Registry** | Studio components (preview, render, metadata) | **Never** hardcode components — always `getStudioComponent()` |
+| **Property Registry** | Reusable property definitions | Properties panel reads catalog |
+| **Event Registry** | Official event catalog | Event bindings reference registry |
+| **Action Registry** | Official action catalog | Action bindings reference registry |
+| **Capability Registry** | Designer capabilities | Shell gates features by designer |
+
+### 31.3 Designer & Plugin contracts
+
+- `validateStudioDesigner()` / `defineStudioDesigner()` — designer plugin contract
+- `validateStudioPlugin()` / `defineStudioPlugin()` — extension plugin contract
+- `registerStudioDesigner()` — designer registry (shell-only registration)
+
+**Governance:** Gates **G262–G266** · Smoke: `scripts/smoke-studio-sdk.mjs`
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.1.0 | 2026-06-29 | SDK & Registry Foundation — Program 2.0.5 (D-032) |
 | 1.0.0 | 2026-06-29 | Initial architecture — Program 2.0 (D-031) |
 
 ---

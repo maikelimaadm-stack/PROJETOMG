@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** Program 2.0 MAK Studio Architecture (D-031)  
+**Verified by:** Program 2.0.5 Studio SDK Foundation (D-032)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -18,7 +18,7 @@
 | Constitution | v1.0.0 — `docs/constitution/` |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | **Engineering Principles** | v1.0.0 — `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` (**D-029**) |
-| **MAK Studio Architecture** | v1.0.0 — `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**D-031**) |
+| **MAK Studio Architecture** | v1.1.0 | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**D-031**, SDK **D-032**) |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Platform Maturity Index | v1.3.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` (**ERI 3.8/10**) |
 | Implementation Protocol | v1.2.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019, **D-028 gate**) |
@@ -40,7 +40,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 primary — **2.0 complete, 2.1 ready** | [Architecture](../architecture/MAK-STUDIO-ARCHITECTURE.md) · [2.1 Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **2.0.5 complete, 2.1 Shell ready** | [Architecture](../architecture/MAK-STUDIO-ARCHITECTURE.md) · [2.1 Shell Brief](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
