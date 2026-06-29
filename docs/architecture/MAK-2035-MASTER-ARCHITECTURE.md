@@ -18,7 +18,9 @@ Every future implementation must be compatible with this architecture. No capabi
 | Document role | Relationship |
 |---------------|--------------|
 | **Constitution** | Rules and prohibitions — highest authority |
+| **Master Architecture** | L0–L7 topology |
 | **This document** | Layer topology, flows, platform map — **structural reference** |
+| **Engineering Principles** | Permanent implementation doctrine — **D-029** |
 | **Platform Language Standard** | Official nomenclature — **vocabulary reference** |
 | **MAK-DATA-PLATFORM.md** | Engineering summary + implementation phases |
 | **MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md** | **Definitive MDP spec (MDP-0)** — D-020 |
@@ -599,6 +601,7 @@ Aligned with [ROADMAP.md](../engineering/ROADMAP.md) — no conflict.
 |----------|------|
 | What are the rules? | [Constitution](../constitution/00-MAK-CONSTITUTION.md) |
 | What is the full platform map? | **This document** |
+| What are the engineering principles? | [MAK-ENGINEERING-PRINCIPLES.md](./MAK-ENGINEERING-PRINCIPLES.md) |
 | What is the official vocabulary? | [MAK-PLATFORM-LANGUAGE-STANDARD.md](./MAK-PLATFORM-LANGUAGE-STANDARD.md) |
 | What exists in code today? | [CURRENT-STATE.md](../engineering/CURRENT-STATE.md) |
 | What is MDP detail? | [MAK-DATA-PLATFORM.md](../engineering/MAK-DATA-PLATFORM.md) |

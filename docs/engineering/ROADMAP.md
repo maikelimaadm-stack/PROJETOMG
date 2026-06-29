@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-028 Engineering Governance Evolution)
+**Last updated:** 2026-06-29 (D-029 Engineering Principles)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -19,6 +19,8 @@ Priority order for all work:
 
 **D-028 — Long-term impact gate (mandatory from 2026-06-29):** Before any implementation, every mission must pass the [10-question enterprise impact checklist](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md#7-d-028-long-term-impact-gate--assessment-of-current-next-missions). If any answer is uncertain → stop and register architectural review.
 
+**D-029 — Engineering Principles (mandatory from 2026-06-29):** All implementation must comply with [MAK-ENGINEERING-PRINCIPLES.md](../architecture/MAK-ENGINEERING-PRINCIPLES.md) — 18 permanent principles.
+
 **Enterprise evolution map:** [Program 1F — Enterprise Readiness](#program-1f--enterprise-readiness-documentation-only) (not implemented now; informs all future decisions).
 
 ---
@@ -33,9 +35,10 @@ Priority order for all work:
 | Engineering docs (`docs/engineering/`) | ✅ Certified Mission 0.2 |
 | Documentation certification | ✅ `DOCUMENTATION-CERTIFICATION.md` |
 | **Master Architecture** | ✅ `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` v1.0.0 (D-014) |
+| **Engineering Principles** | ✅ `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` v1.0.0 (**D-029**) |
 | **Platform Language Standard** | ✅ `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` v1.0.0 (D-015) |
-| **Platform Maturity Index** | ✅ `docs/engineering/PLATFORM-MATURITY-INDEX.md` v1.3.0 (D-016, D-017, D-027, **D-028 ERI**) |
-| **Platform Implementation Protocol** | ✅ `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` v1.1.0 (D-018, D-019) |
+| **Platform Maturity Index** | ✅ `docs/engineering/PLATFORM-MATURITY-INDEX.md` v1.3.0 (D-016, D-017, D-027, D-028 ERI) |
+| **Platform Implementation Protocol** | ✅ `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` v1.2.0 (D-018, D-019, D-028) |
 
 **Phase 0 (Programs 0–0.7) — structural OS + protocol: ✅ Complete.**  
 **Implementation era begins** — all missions follow [PIP](./PLATFORM-IMPLEMENTATION-PROTOCOL.md) + [RHP](./PLATFORM-IMPLEMENTATION-PROTOCOL.md#10-repository-health-protocol-rhp).
