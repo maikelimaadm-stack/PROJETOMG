@@ -47,6 +47,8 @@ model Cliente {
   mdpRelationshipAudits MdpRelationshipAudit[]
   mdpRegistryEntries MdpRegistryEntry[]
   mdpRegistryAudits  MdpRegistryAudit[]
+  mdpPublishLogs     MdpPublishLog[]
+  mdpEnvironmentPins MdpEnvironmentPin[]
   registrosGlobais   RegistroGlobal[]
   codigoSequencias   EntidadeCodigoSequencia[]
   modulos            ClienteModulo[]
@@ -469,6 +471,7 @@ enum MdpEmpresaScope {
 enum MdpDefinitionVersionStatus {
   draft
   published
+  deprecated
   archived
   rolled_back
 }
@@ -499,22 +502,32 @@ model MdpDefinitionVersion {
   id                String                     @id @default(cuid())
   cliente_id        String?                    @db.VarChar(64)
   module_id         String?                    @db.VarChar(64)
+  base_template_id  String                     @default("modelobase1") @db.VarChar(64)
   semver            String                     @db.VarChar(32)
   revision          Int                        @default(1)
   status            MdpDefinitionVersionStatus @default(published)
   published_at      DateTime?
   published_by      String?                    @db.VarChar(64)
   parent_version_id String?                    @db.VarChar(64)
+  integrity_hash    String?                    @db.VarChar(64)
+  signature_ref     String?                    @db.VarChar(128)
   changelog         String?
   created_at        DateTime                   @default(now())
   updated_at        DateTime                   @updatedAt
 
-  entities      MdpEntity[]
-  fields        MdpField[]
-  relationships MdpRelationship[]
+  parent_version   MdpDefinitionVersion?  @relation("MdpVersionChain", fields: [parent_version_id], references: [id], onDelete: SetNull)
+  child_versions   MdpDefinitionVersion[] @relation("MdpVersionChain")
+  entities         MdpEntity[]
+  fields           MdpField[]
+  relationships    MdpRelationship[]
   registry_entries MdpRegistryEntry[]
+  compiled_bundles MdpCompiledBundle[]
+  snapshots        MdpSnapshot[]
+  publish_logs     MdpPublishLog[]
+  environment_pins MdpEnvironmentPin[]
 
   @@index([cliente_id, module_id, status])
+  @@index([module_id, base_template_id, status])
   @@map("mdp_definition_version")
 }
 
@@ -1076,4 +1089,110 @@ model MdpRegistryAudit {
   @@index([entry_row_id, created_at])
   @@index([cliente_id, created_at])
   @@map("mdp_registry_audit")
+}
+
+// --- MAK DATA PLATFORM (MDP-5) — Versioning, Publication & Snapshot Engine ---
+
+enum MdpEnvironment {
+  development
+  qa
+  production
+}
+
+enum MdpSnapshotType {
+  offline
+  marketplace
+  backup
+  environment
+  deployment
+}
+
+enum MdpPublishAction {
+  publish
+  rollback
+  partial_rollback
+  compile
+  deploy
+  archive
+  deprecate
+}
+
+model MdpCompiledBundle {
+  id               String   @id @default(cuid())
+  bundle_id        String   @db.VarChar(128)
+  version_id       String   @db.VarChar(64)
+  module_id        String   @db.VarChar(64)
+  base_template_id String   @default("modelobase1") @db.VarChar(64)
+  crb_version      String   @default("mdp-crb-v1") @db.VarChar(32)
+  content_hash     String   @db.VarChar(64)
+  integrity_hash   String   @db.VarChar(64)
+  payload          Json
+  created_at       DateTime @default(now())
+
+  version MdpDefinitionVersion @relation(fields: [version_id], references: [id], onDelete: Cascade)
+
+  @@unique([version_id, module_id, base_template_id])
+  @@index([content_hash])
+  @@index([integrity_hash])
+  @@index([module_id, base_template_id])
+  @@map("mdp_compiled_bundle")
+}
+
+model MdpSnapshot {
+  id             String           @id @default(cuid())
+  snapshot_id    String           @db.VarChar(128)
+  version_id     String           @db.VarChar(64)
+  module_id      String           @db.VarChar(64)
+  snapshot_type  MdpSnapshotType
+  integrity_hash String           @db.VarChar(64)
+  signature_ref  String?          @db.VarChar(128)
+  payload        Json
+  expires_at     DateTime?
+  created_at     DateTime         @default(now())
+  created_by     String?          @db.VarChar(64)
+
+  version MdpDefinitionVersion @relation(fields: [version_id], references: [id], onDelete: Cascade)
+
+  @@index([version_id, snapshot_type])
+  @@index([module_id, created_at])
+  @@map("mdp_snapshot")
+}
+
+model MdpPublishLog {
+  id              String           @id @default(cuid())
+  version_id      String           @db.VarChar(64)
+  cliente_id      String?          @db.VarChar(64)
+  module_id       String           @db.VarChar(64)
+  action          MdpPublishAction
+  from_version_id String?          @db.VarChar(64)
+  to_version_id   String?          @db.VarChar(64)
+  scope           Json?
+  metadata        Json?
+  usuario_id      String?          @db.VarChar(64)
+  created_at      DateTime         @default(now())
+
+  version MdpDefinitionVersion @relation(fields: [version_id], references: [id], onDelete: Cascade)
+  cliente Cliente?               @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@index([version_id, created_at])
+  @@index([cliente_id, module_id, created_at])
+  @@map("mdp_publish_log")
+}
+
+model MdpEnvironmentPin {
+  id               String         @id @default(cuid())
+  cliente_id       String?        @db.VarChar(64)
+  module_id        String         @db.VarChar(64)
+  environment      MdpEnvironment
+  base_template_id String         @default("modelobase1") @db.VarChar(64)
+  version_id       String         @db.VarChar(64)
+  pinned_at        DateTime       @default(now())
+  pinned_by        String?        @db.VarChar(64)
+
+  version MdpDefinitionVersion @relation(fields: [version_id], references: [id], onDelete: Restrict)
+  cliente Cliente?               @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cliente_id, module_id, environment, base_template_id])
+  @@index([module_id, environment])
+  @@map("mdp_environment_pin")
 }

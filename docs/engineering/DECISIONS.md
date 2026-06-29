@@ -306,6 +306,18 @@
 
 ---
 
+## D-026 — MDP-5 Versioning & Publication Engine
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement MDP-5 as official publish engine: compile-on-publish → `mdp_compiled_bundle` (CRB), snapshots, environment pins (dev/qa/prod), rollback (full + partial), unified introspect API. Governance gate **G142**. IFM 1C (MAK DATA PLATFORM) complete. |
+| **Evidence** | [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md) |
+| **Consequences** | All future published defs must pass MDP-5; MAK Studio (Program 2) unblocked |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

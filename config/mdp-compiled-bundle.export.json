@@ -1,0 +1,20 @@
+{
+  "exportedAt": "2026-06-29T00:00:00.000Z",
+  "version": "mdp-compiled-bundle-v1",
+  "crbVersion": "mdp-crb-v1",
+  "moduleId": "empresas",
+  "baseTemplateId": "modelobase1",
+  "bundleCount": 1,
+  "bundleId": "empresas.modelobase1.mdp-platform-v1",
+  "versionId": "mdp-platform-v1",
+  "contentHash": "pending-db-seed",
+  "integrityHash": "pending-db-seed",
+  "semver": "1.0.0",
+  "revision": 1,
+  "entityCount": 1,
+  "fieldCount": 19,
+  "relationshipCount": 8,
+  "registryCount": 13,
+  "hasDependencyGraph": true,
+  "hasVersionGraph": true
+}

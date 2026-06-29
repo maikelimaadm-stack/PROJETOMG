@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (IFM 1C-MDP-4.5 Final Architecture Review)
+**Last updated:** 2026-06-29 (IFM 1C-MDP-5 Versioning & Publication)
 
 ---
 
@@ -15,6 +15,18 @@ Each mission adds an entry with:
 - Links to PR / decisions
 
 ---
+
+---
+
+## 2026-06-29 — IFM 1C-MDP-5: Versioning & Publication Engine
+
+**Scope:** MDP-5 — CRB, publish/rollback, snapshots, environment pins, unified introspect  
+**Changes:** 4 Prisma models, compile service, publish API, G142, empresas pilot publish  
+**Report:** [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md)  
+**Decision:** D-026
+
+**Validation:** build ✅ lint ✅ verify:governance ✅ verify:ci ✅ 5 cycles ✅ G142 ✅  
+**Next:** IFM Phase 2 — [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md)
 
 ---
 

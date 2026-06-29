@@ -3,7 +3,7 @@
 **Mission ID:** IFM 1C-MDP-5 (MDP-5)  
 **Program:** IFM Phase 1C — MAK DATA PLATFORM  
 **Priority:** P1  
-**Status:** Prepared — ready after MDP-4 merge  
+**Status:** ✅ Complete — [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md)  
 **Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §7
 
 ---
@@ -51,12 +51,12 @@ Implement **MDP-5 Versioning, Publication & Snapshot Engine** — govern lifecyc
 
 ## Acceptance criteria
 
-- [ ] Publish API transitions registry entries draft → published with revision counter
-- [ ] Compile produces bundle consumed by ModeloBase1 without direct MDP DB reads at runtime
-- [ ] Rollback restores prior published revision
-- [ ] Snapshot export includes entity + field + relationship + registry entries for one module
-- [ ] `npm run verify:governance` + `verify:ci` pass (G141)
-- [ ] CURRENT-STATE + ENGINEERING-JOURNAL updated
+- [x] Publish API transitions registry entries draft → published with revision counter
+- [x] Compile produces bundle consumed by ModeloBase1 without direct MDP DB reads at runtime
+- [x] Rollback restores prior published revision
+- [x] Snapshot export includes entity + field + relationship + registry entries for one module
+- [x] `npm run verify:governance` + `verify:ci` pass (G142)
+- [x] CURRENT-STATE + ENGINEERING-JOURNAL updated
 
 ---
 
