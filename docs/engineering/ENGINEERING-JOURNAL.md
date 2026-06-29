@@ -1,7 +1,30 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (D-029 Engineering Principles)
+**Last updated:** 2026-06-29 (Program 0.8.1 Vision Backlog Evolution)
+
+---
+
+## 2026-06-29 — Program 0.8.1: MAK Vision Backlog Evolution
+
+**Scope:** Expand Vision Backlog — V-017–V-028; Valor Estratégico; Dependências Arquiteturais; thematic groups  
+**Changes:** `docs/vision/MAK-2040-VISION-BACKLOG.md` v1.1.0 (28 ideas)  
+**Decision:** None (vision repository — not D-register)
+
+**RHP:** PR #306 merged @ `2f4f3c8f`; PR #296 obsolete — close manual  
+**Validation:** Documentary only — no architecture/code/API changes  
+**Next:** Program 2 MAK Studio
+
+---
+
+## 2026-06-29 — Program 0.8: MAK Vision Backlog
+
+**Scope:** Create permanent strategic ideas repository  
+**Changes:** `docs/vision/MAK-2040-VISION-BACKLOG.md` v1.0.0 (16 ideas)  
+**Decision:** None (vision repository)
+
+**RHP:** PR #305 merged before 0.8  
+**Validation:** Documentary only
 
 ---
 
