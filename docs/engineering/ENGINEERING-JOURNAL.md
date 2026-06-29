@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.0.6 Design System Foundation)
+**Last updated:** 2026-06-29 (Program 2.0.7 Studio Event Architecture)
+
+---
+
+## 2026-06-29 — Program 2.0.7: MAK Studio Event Architecture
+
+**Scope:** Studio Event Hub + Event Registry + Plugin/Designer/History/Preview integration  
+**Changes:** `src/studio/events/*`, gates G273–G278  
+**Report:** [IFM-PROGRAM-2.0.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.7-CERTIFICATION-REPORT.md)  
+**Decision:** D-034
+
+**RHP:** PR #311 merged @ `eb75aec3`; main synchronized  
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Foundation phase:** **CLOSED** — next: Program 2.1 Studio Shell
 
 ---
 
