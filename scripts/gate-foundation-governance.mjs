@@ -354,6 +354,42 @@ if (exists(mdpRelExportPath)) {
   );
 }
 
+// G140 — MDP Metadata Registry export alinhado (MDP-4)
+const mdpMetadataExportPath = path.join(ROOT, "config/mdp-metadata-registry.export.json");
+if (exists(mdpMetadataExportPath)) {
+  const mdpMetadataExport = JSON.parse(fs.readFileSync(mdpMetadataExportPath, "utf8"));
+  const srcWalk = walk(path.join(ROOT, "src"), (f) => /\.(jsx?|tsx?)$/.test(f));
+  const foundationImportsMdpRegistry = srcWalk.some((file) => {
+    const content = read(file);
+    return (
+      content.includes("mdpRegistryRepository") ||
+      content.includes("mdp_registry_entry") ||
+      content.includes("/api/mdp/registry")
+    );
+  });
+  const routesContentMdp4 = exists(path.join(ROOT, "backend/src/modules/mdp/routes.js"))
+    ? read(path.join(ROOT, "backend/src/modules/mdp/routes.js"))
+    : "";
+  const hasRegistryApi =
+    routesContentMdp4.includes("/api/mdp/registry") &&
+    routesContentMdp4.includes("/api/mdp/registry/introspect");
+  const metadataGateOk =
+    (mdpMetadataExport.empresasLayoutCount ?? 0) >= 1 &&
+    (mdpMetadataExport.empresasFieldConfigCount ?? 0) >= 1 &&
+    (mdpMetadataExport.empresasValidationCount ?? 0) >= 1 &&
+    (mdpMetadataExport.entryTypesSupported ?? 0) >= 25 &&
+    hasRegistryApi &&
+    !foundationImportsMdpRegistry &&
+    mdpMetadataExport.version === "mdp-metadata-registry-v1";
+  gate(
+    "G140 — MDP Metadata Registry export + API (MDP-4)",
+    metadataGateOk,
+    metadataGateOk
+      ? ""
+      : `layout=${mdpMetadataExport.empresasLayoutCount}, field_config=${mdpMetadataExport.empresasFieldConfigCount}, validation=${mdpMetadataExport.empresasValidationCount}, types=${mdpMetadataExport.entryTypesSupported}, api=${hasRegistryApi}, foundationImport=${foundationImportsMdpRegistry}, version=${mdpMetadataExport.version}`
+  );
+}
+
 // G119 — Gerador scaffold ModeloBase1 (delegado G103-G108)
 const scaffoldContent = walk(path.join(ROOT, "src/modules/template/scaffold")).map((f) => read(f)).join("\n");
 gate(

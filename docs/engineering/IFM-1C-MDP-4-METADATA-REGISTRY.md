@@ -3,7 +3,7 @@
 **Mission ID:** IFM 1C-MDP-4 (MDP-4)  
 **Program:** IFM Phase 1C — MAK DATA PLATFORM  
 **Priority:** P1  
-**Status:** Prepared — ready after MDP-3 merge  
+**Status:** ✅ Complete — [IFM-1C-MDP-4-CERTIFICATION-REPORT.md](./IFM-1C-MDP-4-CERTIFICATION-REPORT.md)  
 **Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §6
 
 ---
@@ -45,12 +45,12 @@ Implement **MDP-4 Metadata Registry** — central typed registry for reusable pl
 
 ## Acceptance criteria
 
-- [ ] Layout + field + validation entries for `empresas` in `mdp_registry_entry`
-- [ ] Bindings link registry entries to entities/fields/relationships by stable ID
-- [ ] Introspection API returns typed entry catalog
-- [ ] Tenant isolation on all registry APIs
-- [ ] `npm run verify:governance` + `verify:ci` pass
-- [ ] CURRENT-STATE + ENGINEERING-JOURNAL updated
+- [x] Layout + field + validation entries for `empresas` in `mdp_registry_entry`
+- [x] Bindings link registry entries to entities/fields/relationships by stable ID
+- [x] Introspection API returns typed entry catalog
+- [x] Tenant isolation on all registry APIs
+- [x] `npm run verify:governance` + `verify:ci` pass
+- [x] CURRENT-STATE + ENGINEERING-JOURNAL updated
 
 ---
 

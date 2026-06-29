@@ -282,6 +282,18 @@
 
 ---
 
+## D-024 — MDP-4 Metadata Registry Schema
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement MDP-4 as unified metadata SSOT via `mdp_registry_*` tables. Support 25 entry types (layout through studio_definition). JSON Schema contracts in `mdp_registry_schema`. Bindings link entries to entities/fields/relationships/modules. Introspection API for Studio/AI. Foundation remains decoupled (I-2) — runtime registries are compile caches until MDP-5. Governance gate **G140**. |
+| **Evidence** | [IFM-1C-MDP-4-CERTIFICATION-REPORT.md](./IFM-1C-MDP-4-CERTIFICATION-REPORT.md) |
+| **Consequences** | All structural definitions have single persistence path; MAK Studio can write to MDP-4; MDP-5 publish engine can compile from registry entries |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

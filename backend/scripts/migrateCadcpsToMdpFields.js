@@ -1,10 +1,10 @@
 import {
   buildStableFieldId,
-  buildLabelCreate,
   CADCPS_APLICACAO_TO_MDP,
   DEFAULT_LOCALE,
   MDP_PLATFORM_VERSION_ID,
 } from "../src/modules/mdp/mdpFieldConstants.js";
+import { buildLabelCreate } from "../src/modules/mdp/mdpFieldCadcpsAdapter.js";
 import { normalizeCadcpsTipo } from "../src/modules/cadcps/cadcpsConstants.js";
 
 /**

@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** IFM 1C-MDP-3 Relationship Dictionary Implementation  
+**Verified by:** IFM 1C-MDP-4 Metadata Registry Implementation  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -34,7 +34,7 @@ Domain modules (2 runtime) → ModeloBase1 → framework/mak → cadastro-engine
                                     ↘ framework/cadastro (legacy, transitional)
 
 Planned (IFM 1C — partial):
-MAK DATA PLATFORM (L4) → Entity Dictionary ✅ · Data Dictionary ✅ · Relationship Dictionary ✅ · Metadata Registry
+MAK DATA PLATFORM (L4) → Entity Dictionary ✅ · Data Dictionary ✅ · Relationship Dictionary ✅ · Metadata Registry ✅ · Versioning (MDP-5)
 Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 ```
 
@@ -89,7 +89,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | `npm run lint` | ✅ Pass (0 errors) |
 | `npm run typecheck` | ⚠️ Known noise in `src/shared/ui/*` (TD-009) |
 | `npm run typecheck:governance` | ✅ Runs in CI — records TD-009 baseline without blocking |
-| `npm run verify:governance` | ✅ Pass — G31–G137 + G156–G261 |
+| `npm run verify:governance` | ✅ Pass — G31–G140 + G156–G261 |
 | `npm run verify:ci` | ✅ Pass — full PR mirror (build + lint + typecheck:governance + all gates) |
 | CI workflow | `.github/workflows/foundation-governance.yml` — foundation job + parallel capability-gates matrix |
 | Gates V13–V20 (G156–G261) | ✅ **In CI** — TD-013 resolved (IFM 1D-1) |
@@ -104,8 +104,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Aspect | State |
 |--------|-------|
-| Models (Prisma) | 34 (+4 MDP-3) |
-| Migrations | 14 (+ MDP-3) |
+| Models (Prisma) | 39 (+5 MDP-4) |
+| Migrations | 15 (+ MDP-4) |
 | Indexes | ~60 |
 | Multi-tenant | `cliente_id` on all operational models |
 | Multi-empresa | `PermissaoEmpresa` + `X-Empresa-Id` header |
@@ -121,10 +121,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | Entity Dictionary (MDP-1) | **✅ Complete** | [IFM-1C-MDP-1-CERTIFICATION-REPORT.md](./IFM-1C-MDP-1-CERTIFICATION-REPORT.md) |
 | Data Dictionary (MDP-2) | **✅ Complete** | [IFM-1C-MDP-2-CERTIFICATION-REPORT.md](./IFM-1C-MDP-2-CERTIFICATION-REPORT.md) |
 | Relationship Dictionary (MDP-3) | **✅ Complete** | [IFM-1C-MDP-3-CERTIFICATION-REPORT.md](./IFM-1C-MDP-3-CERTIFICATION-REPORT.md) |
-| Metadata Registry (MDP-4) | Not implemented | [IFM-1C-MDP-4-METADATA-REGISTRY.md](./IFM-1C-MDP-4-METADATA-REGISTRY.md) |
-| Relationship Dictionary (MDP-3) | Not implemented | Spec §5 |
-| Metadata Registry (MDP-4) | Not implemented | Spec §6 — runtime registries ~30% |
-| Versioning & Publication (MDP-5) | Not implemented | Spec §7 |
+| Metadata Registry (MDP-4) | **✅ Complete** | [IFM-1C-MDP-4-CERTIFICATION-REPORT.md](./IFM-1C-MDP-4-CERTIFICATION-REPORT.md) |
+| Versioning & Publication (MDP-5) | Not implemented | [IFM-1C-MDP-5-VERSIONING-PUBLICATION.md](./IFM-1C-MDP-5-VERSIONING-PUBLICATION.md) |
 
 **Engineering summary:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) v2.0.0  
 **Decision:** D-012 (layer), D-020 (spec)

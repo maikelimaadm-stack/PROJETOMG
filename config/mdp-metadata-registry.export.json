@@ -1,0 +1,392 @@
+{
+  "exportedAt": "2026-06-29T01:10:09.987Z",
+  "version": "mdp-metadata-registry-v1",
+  "entryCount": 20,
+  "schemaCount": 25,
+  "entryTypesSupported": 25,
+  "empresasCount": 20,
+  "empresasPublishedCount": 13,
+  "empresasLayoutCount": 1,
+  "empresasFieldConfigCount": 1,
+  "empresasValidationCount": 1,
+  "countsByType": {
+    "layout": 1,
+    "view": 1,
+    "form": 1,
+    "section": 1,
+    "panel": 1,
+    "tab": 0,
+    "group": 0,
+    "field": 0,
+    "field_config": 1,
+    "action": 1,
+    "event": 1,
+    "formula": 1,
+    "validation": 1,
+    "workflow": 1,
+    "dashboard": 1,
+    "pivot_table": 1,
+    "report": 1,
+    "permission": 1,
+    "automation": 1,
+    "base_template": 1,
+    "template": 0,
+    "integration": 1,
+    "ai_definition": 1,
+    "studio_definition": 1,
+    "theme": 0
+  },
+  "schemas": [
+    {
+      "entryType": "layout",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "view",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "form",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "section",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "panel",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "tab",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "group",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "field",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "field_config",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "action",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "event",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "formula",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "validation",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "workflow",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "dashboard",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "pivot_table",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "report",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "permission",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "automation",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "base_template",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "template",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "integration",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "ai_definition",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "studio_definition",
+      "schemaVersion": "1.0.0"
+    },
+    {
+      "entryType": "theme",
+      "schemaVersion": "1.0.0"
+    }
+  ],
+  "entries": [
+    {
+      "entryId": "empresas.base_template.modelobase1",
+      "entryType": "base_template",
+      "moduleId": "empresas",
+      "entityId": "EmpresaCadastro",
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "ModeloBase1 — Cadastro",
+      "bindings": [
+        {
+          "bindingKind": "entity",
+          "targetId": "EmpresaCadastro"
+        }
+      ]
+    },
+    {
+      "entryId": "empresas.layout.main",
+      "entryType": "layout",
+      "moduleId": "empresas",
+      "entityId": "EmpresaCadastro",
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Layout Principal Empresas",
+      "bindings": [
+        {
+          "bindingKind": "entity",
+          "targetId": "EmpresaCadastro"
+        },
+        {
+          "bindingKind": "module",
+          "targetId": "empresas"
+        }
+      ]
+    },
+    {
+      "entryId": "empresas.form.default",
+      "entryType": "form",
+      "moduleId": "empresas",
+      "entityId": "EmpresaCadastro",
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Formulário Empresas",
+      "bindings": [
+        {
+          "bindingKind": "entity",
+          "targetId": "EmpresaCadastro"
+        }
+      ]
+    },
+    {
+      "entryId": "empresas.field_config.native",
+      "entryType": "field_config",
+      "moduleId": "empresas",
+      "entityId": "EmpresaCadastro",
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Field Config — Campos Nativos",
+      "bindings": [
+        {
+          "bindingKind": "entity",
+          "targetId": "EmpresaCadastro"
+        }
+      ]
+    },
+    {
+      "entryId": "empresas.validation.default",
+      "entryType": "validation",
+      "moduleId": "empresas",
+      "entityId": "EmpresaCadastro",
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Validation Config Empresas",
+      "bindings": [
+        {
+          "bindingKind": "entity",
+          "targetId": "EmpresaCadastro"
+        }
+      ]
+    },
+    {
+      "entryId": "empresas.view.table",
+      "entryType": "view",
+      "moduleId": "empresas",
+      "entityId": "EmpresaCadastro",
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "View Tabela Empresas",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.section.identificacao",
+      "entryType": "section",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Seção Identificação",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.panel.main",
+      "entryType": "panel",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Panel Principal",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.permission.resource",
+      "entryType": "permission",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "RBAC Empresas",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.event.catalog",
+      "entryType": "event",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Events Catalog Empresas",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.action.catalog",
+      "entryType": "action",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Actions Catalog Empresas",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.formula.catalog",
+      "entryType": "formula",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Formula Catalog Empresas",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.workflow.catalog",
+      "entryType": "workflow",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "published",
+      "enabled": true,
+      "baseTemplateId": "modelobase1",
+      "label": "Workflow Catalog Empresas",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.dashboard.main",
+      "entryType": "dashboard",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "draft",
+      "enabled": false,
+      "baseTemplateId": "modelobase1",
+      "label": "Dashboard Empresas (reservado)",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.pivot.default",
+      "entryType": "pivot_table",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "draft",
+      "enabled": false,
+      "baseTemplateId": "modelobase1",
+      "label": "Pivot Empresas (reservado)",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.report.default",
+      "entryType": "report",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "draft",
+      "enabled": false,
+      "baseTemplateId": "modelobase1",
+      "label": "Relatório Empresas (reservado)",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.automation.default",
+      "entryType": "automation",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "draft",
+      "enabled": false,
+      "baseTemplateId": "modelobase1",
+      "label": "Automação Empresas (reservado)",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.integration.default",
+      "entryType": "integration",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "draft",
+      "enabled": false,
+      "baseTemplateId": "modelobase1",
+      "label": "Integração Empresas (reservado)",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.ai.context",
+      "entryType": "ai_definition",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "draft",
+      "enabled": false,
+      "baseTemplateId": "modelobase1",
+      "label": "Definição IA Empresas (reservado)",
+      "bindings": []
+    },
+    {
+      "entryId": "empresas.studio.module",
+      "entryType": "studio_definition",
+      "moduleId": "empresas",
+      "entityId": null,
+      "status": "draft",
+      "enabled": false,
+      "baseTemplateId": "modelobase1",
+      "label": "Studio Definition Empresas (reservado)",
+      "bindings": []
+    }
+  ]
+}

@@ -202,7 +202,7 @@ Every area in §4 and §5 includes:
 |-------|-------|
 | **Score** | **2.0 / 10** |
 | **2035 target** | L4 — Entity · Data · Relationship Dictionaries + Metadata Registry persisted, versioned, API-accessible; compile + publish pipeline |
-| **Current state** | **Partial implementation** (D-012, D-022, D-023). Entity ✅ Field ✅ Relationship ✅ dictionaries. Metadata Registry spec only. |
+| **Current state** | **Partial implementation** (D-012, D-022, D-023, D-024). Entity ✅ Field ✅ Relationship ✅ Metadata Registry ✅. Versioning/publish (MDP-5) next. |
 
 **Criteria:**
 
@@ -210,8 +210,8 @@ Every area in §4 and §5 includes:
 |-----------|-----|--------|----------|
 | Entity Dictionary (API + schema) | 2.5 | 0.0 | MDP-1 not started |
 | Data Dictionary (native + custom) | 2.5 | 1.5 | CADCPS `CadCpsCampo` — custom only (~45%) |
-| Relationship Dictionary | 2.0 | 0.0 | MDP-3 not started |
-| Metadata Registry (persisted) | 2.0 | 0.5 | Runtime `*ConfigRegistry.js` only |
+| Relationship Dictionary | 2.0 | 1.5 | MDP-3 complete — Empresas pilot |
+| Metadata Registry (persisted) | 2.0 | 1.5 | MDP-4 `mdp_registry*` + introspect API |
 | Compile + publish pipeline | 1.0 | 0.0 | MDP-5 not started |
 
 | **Dependencies** | IFM 1A registry sync (S2), Platform Core RBAC |
@@ -241,7 +241,7 @@ Every area in §4 and §5 includes:
 
 | **Dependencies** | MDP-4 (Metadata Registry + introspection API) |
 | **Blockers** | MDP not implemented — D-011 gates Studio to Program 2 |
-| **Next level (+1.0)** | MDP-4 API contracts frozen; Studio shell scaffold |
+| **Next level (+1.0)** | MDP-5 publish pipeline; compiled bundle hydrates runtime registries |
 | **Next steps** | Complete IFM 1C before Studio (Program 2) |
 
 ---

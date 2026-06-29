@@ -92,8 +92,7 @@ Not runtime — prove engine contracts:
 | Entity Dictionary | Implemented | 90 | MDP-1 `mdp_entity*` |
 | Data Dictionary (full) | Implemented | 85 | MDP-2 `mdp_field*` SSOT |
 | Relationship Dictionary | Implemented | 80 | MDP-3 `mdp_relationship*` pilot Empresas |
-| Relationship Dictionary | Not started | 0 | MDP-3 |
-| Metadata Registry (persisted) | Partial | 30 | Runtime registries only; MDP-4 |
+| Metadata Registry (persisted) | Implemented | 75 | MDP-4 `mdp_registry*` SSOT + introspect API |
 | MAK Studio | Not started | 0 | No code |
 | Marketplace | Not started | 5 | `ClienteModulo` flags only |
 | Knowledge Platform | Not started | 0 | — |
