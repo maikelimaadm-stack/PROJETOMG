@@ -2,17 +2,23 @@
   {
     "moduleId": "empresas",
     "codigo": "EMPRESAS",
-    "nome": "Empresas",
+    "nome": "Empresa",
     "entityName": "EmpresaCadastro",
     "ordem": 10,
-    "ativo": true
+    "ativo": true,
+    "mdpEntityId": "EmpresaCadastro",
+    "entityKind": "business",
+    "baseTemplateId": "modelobase1"
   },
   {
     "moduleId": "cadcps",
     "codigo": "CADCPS",
-    "nome": "Campos Personalizados",
+    "nome": "Campo Personalizado",
     "entityName": "CadCpsCampo",
     "ordem": 40,
-    "ativo": true
+    "ativo": true,
+    "mdpEntityId": "CadcpsFieldCatalog",
+    "entityKind": "meta",
+    "baseTemplateId": "modelobase1"
   }
 ]

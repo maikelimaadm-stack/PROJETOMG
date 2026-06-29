@@ -45,6 +45,7 @@ model Cliente {
   codigoSequencias   EntidadeCodigoSequencia[]
   modulos            ClienteModulo[]
   preferencias       UsuarioPreferencia[]
+  mdpEntities        MdpEntity[]
 
   @@index([nome])
   @@index([cpf_cnpj])
@@ -419,4 +420,177 @@ model UsuarioPreferencia {
   @@unique([usuario_id, screen_key])
   @@unique([cliente_id, usuario_id, modulo, tela])
   @@index([cliente_id, usuario_id])
+}
+
+// --- MAK DATA PLATFORM (MDP-1) — Entity Dictionary ---
+
+enum MdpScope {
+  platform
+  tenant
+}
+
+enum MdpEntityKind {
+  business
+  meta
+  system
+  certification
+}
+
+enum MdpEntityLifecycle {
+  draft
+  active
+  deprecated
+  archived
+}
+
+enum MdpOriginKind {
+  platform
+  tenant
+  marketplace
+}
+
+enum MdpEmpresaScope {
+  none
+  optional
+  required
+}
+
+enum MdpDefinitionVersionStatus {
+  draft
+  published
+  archived
+  rolled_back
+}
+
+enum MdpClientTarget {
+  web
+  mobile
+  desktop
+  all
+}
+
+model MdpDefinitionVersion {
+  id                String                     @id @default(cuid())
+  cliente_id        String?                    @db.VarChar(64)
+  module_id         String?                    @db.VarChar(64)
+  semver            String                     @db.VarChar(32)
+  revision          Int                        @default(1)
+  status            MdpDefinitionVersionStatus @default(published)
+  published_at      DateTime?
+  published_by      String?                    @db.VarChar(64)
+  parent_version_id String?                    @db.VarChar(64)
+  changelog         String?
+  created_at        DateTime                   @default(now())
+  updated_at        DateTime                   @updatedAt
+
+  entities MdpEntity[]
+
+  @@index([cliente_id, module_id, status])
+  @@map("mdp_definition_version")
+}
+
+model MdpEntity {
+  id                      String             @id @default(cuid())
+  entity_id               String             @db.VarChar(128)
+  module_id               String             @db.VarChar(64)
+  codigo                  String             @db.VarChar(64)
+  scope                   MdpScope           @default(platform)
+  cliente_id              String?            @db.VarChar(64)
+  entity_kind             MdpEntityKind      @default(business)
+  sort_order              Int                @default(0)
+  icon_key                String?            @db.VarChar(64)
+  extends_entity_id       String?            @db.VarChar(128)
+  origin_kind             MdpOriginKind      @default(platform)
+  origin_ref              String?            @db.VarChar(128)
+  is_runtime_module       Boolean            @default(true)
+  legacy_entity_name      String?            @db.VarChar(128)
+  permission_resource_key String?            @db.VarChar(128)
+  base_template_id        String             @default("modelobase1") @db.VarChar(64)
+  empresa_scope           MdpEmpresaScope    @default(none)
+  lifecycle               MdpEntityLifecycle @default(active)
+  version_id              String             @db.VarChar(64)
+  persistence             Json
+  created_at              DateTime           @default(now())
+  updated_at              DateTime           @updatedAt
+  created_by              String?            @db.VarChar(64)
+  updated_by              String?            @db.VarChar(64)
+
+  version      MdpDefinitionVersion  @relation(fields: [version_id], references: [id], onDelete: Restrict)
+  cliente      Cliente?              @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  labels       MdpEntityLabel[]
+  capabilities MdpEntityCapability?
+  routes       MdpEntityRoute[]
+  audits       MdpEntityAudit[]
+
+  @@unique([scope, entity_id, cliente_id])
+  @@index([cliente_id, module_id, lifecycle])
+  @@index([module_id, lifecycle])
+  @@map("mdp_entity")
+}
+
+model MdpEntityLabel {
+  id          String   @id @default(cuid())
+  entity_id   String   @db.VarChar(64)
+  locale      String   @db.VarChar(16)
+  singular    String   @db.VarChar(255)
+  plural      String   @db.VarChar(255)
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  entity MdpEntity @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+
+  @@unique([entity_id, locale])
+  @@index([locale])
+  @@map("mdp_entity_label")
+}
+
+model MdpEntityCapability {
+  entity_id     String  @id @db.VarChar(64)
+  layout        Boolean @default(true)
+  field         Boolean @default(true)
+  validation    Boolean @default(true)
+  formula       Boolean @default(true)
+  events        Boolean @default(true)
+  actions       Boolean @default(true)
+  workflow      Boolean @default(true)
+  custom_fields Boolean @default(true)
+  attachments   Boolean @default(true)
+
+  entity MdpEntity @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+
+  @@map("mdp_entity_capability")
+}
+
+model MdpEntityRoute {
+  id               String          @id @default(cuid())
+  entity_id        String          @db.VarChar(64)
+  route_path       String          @db.VarChar(255)
+  page_code        String?         @db.VarChar(64)
+  client_target    MdpClientTarget @default(all)
+  menu_section     String?         @db.VarChar(128)
+  sort_order       Int             @default(0)
+  target_entity_id String?         @db.VarChar(128)
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  entity MdpEntity @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+
+  @@index([entity_id, sort_order])
+  @@map("mdp_entity_route")
+}
+
+model MdpEntityAudit {
+  id         String   @id @default(cuid())
+  entity_id  String   @db.VarChar(64)
+  action     String   @db.VarChar(64)
+  before     Json?
+  after      Json?
+  usuario_id String?  @db.VarChar(64)
+  created_at DateTime @default(now())
+
+  entity MdpEntity @relation(fields: [entity_id], references: [id], onDelete: Cascade)
+
+  @@index([entity_id, created_at])
+  @@map("mdp_entity_audit")
 }

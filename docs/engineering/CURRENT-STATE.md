@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** IFM 1D-1 CI Capability Protection  
+**Verified by:** IFM 1C-MDP-1 Entity Dictionary Implementation  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -33,8 +33,8 @@
 Domain modules (2 runtime) → ModeloBase1 → framework/mak → cadastro-engine → API/Prisma
                                     ↘ framework/cadastro (legacy, transitional)
 
-Planned (IFM 1C — not implemented):
-MAK DATA PLATFORM (L4) → Entity · Data · Relationship Dictionaries + Metadata Registry
+Planned (IFM 1C — partial):
+MAK DATA PLATFORM (L4) → Entity Dictionary ✅ · Data · Relationship · Metadata Registry
 Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 ```
 
@@ -45,7 +45,7 @@ Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 | cadastro-engine | `src/framework/cadastro-engine/` | ~2.000 | Complete, frozen |
 | framework/cadastro | `src/framework/cadastro/` | ~11.100 | Legacy — promotion in progress |
 | Domain modules | `src/modules/` | ~5.5K | 11 folders: 2 runtime + 6 cert + 2 infra + template |
-| Backend | `backend/src/` | ~8.000 | 14 modules |
+| Backend | `backend/src/` | ~8.5K | 15 modules (+ MDP) |
 
 ---
 
@@ -56,8 +56,7 @@ Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 | empresas | PAGEMP | Reference — factory overrides | 42 |
 | cadcps | PAGCPS | Thin page + domain runtime | 18 |
 
-Registry SSOT: `config/cadastro-modules.registry.json` (2 entries)  
-Backend registry: `backend/config/cadastro-modules.registry.json` (2 entries — **synced**)  
+Registry SSOT: `mdp_entity` (MDP-1) → export `config/mdp-entities.export.json` → `config/cadastro-modules.registry.json` (parallel cache)  
 Routes: `src/modules/generatedModules.json`
 
 ---
@@ -90,7 +89,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | `npm run lint` | ✅ Pass (0 errors) |
 | `npm run typecheck` | ⚠️ Known noise in `src/shared/ui/*` (TD-009) |
 | `npm run typecheck:governance` | ✅ Runs in CI — records TD-009 baseline without blocking |
-| `npm run verify:governance` | ✅ Pass — G31–G136 + G156–G261 (build + lint + certification + governance + capabilities) |
+| `npm run verify:governance` | ✅ Pass — G31–G137 + G156–G261 |
 | `npm run verify:ci` | ✅ Pass — full PR mirror (build + lint + typecheck:governance + all gates) |
 | CI workflow | `.github/workflows/foundation-governance.yml` — foundation job + parallel capability-gates matrix |
 | Gates V13–V20 (G156–G261) | ✅ **In CI** — TD-013 resolved (IFM 1D-1) |
@@ -105,8 +104,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Aspect | State |
 |--------|-------|
-| Models (Prisma) | 17 |
-| Migrations | 11 |
+| Models (Prisma) | 24 (+6 MDP-1) |
+| Migrations | 12 (+ MDP-1) |
 | Indexes | ~60 |
 | Multi-tenant | `cliente_id` on all operational models |
 | Multi-empresa | `PermissaoEmpresa` + `X-Empresa-Id` header |
@@ -119,8 +118,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | Component | Status | Spec |
 |-----------|--------|------|
 | **Architecture (MDP-0)** | **✅ Complete** | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) |
-| Entity Dictionary (MDP-1) | Not implemented | Spec §3 |
-| Data Dictionary (MDP-2) | Not implemented | Spec §4 — CADCPS partial seed (~45%) |
+| Entity Dictionary (MDP-1) | **✅ Complete** | [IFM-1C-MDP-1-CERTIFICATION-REPORT.md](./IFM-1C-MDP-1-CERTIFICATION-REPORT.md) |
+| Data Dictionary (MDP-2) | Not implemented | [IFM-1C-MDP-2-DATA-DICTIONARY.md](./IFM-1C-MDP-2-DATA-DICTIONARY.md) |
 | Relationship Dictionary (MDP-3) | Not implemented | Spec §5 |
 | Metadata Registry (MDP-4) | Not implemented | Spec §6 — runtime registries ~30% |
 | Versioning & Publication (MDP-5) | Not implemented | Spec §7 |

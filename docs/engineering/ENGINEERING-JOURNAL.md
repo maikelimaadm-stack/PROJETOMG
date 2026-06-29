@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (IFM 1D-1 CI Capability Protection)
+**Last updated:** 2026-06-28 (IFM 1C-MDP-1 Entity Dictionary)
 
 ---
 

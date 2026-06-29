@@ -1,0 +1,86 @@
+[
+  {
+    "entityId": "EmpresaCadastro",
+    "moduleId": "empresas",
+    "codigo": "EMPRESAS",
+    "scope": "platform",
+    "entityKind": "business",
+    "sortOrder": 10,
+    "legacyEntityName": "EmpresaCadastro",
+    "baseTemplateId": "modelobase1",
+    "empresaScope": "required",
+    "lifecycle": "active",
+    "persistence": {
+      "prismaModel": "Empresa",
+      "tableName": "Empresa",
+      "primaryKey": "id",
+      "tenantKey": "cliente_id",
+      "empresaKey": "empresa_id",
+      "idGlobalKey": "id_global"
+    },
+    "labels": [
+      {
+        "locale": "pt-BR",
+        "singular": "Empresa",
+        "plural": "Empresas",
+        "description": "Cadastro oficial de empresas do tenant"
+      }
+    ],
+    "routes": [
+      {
+        "route_path": "/CadastroEmpresas",
+        "page_code": "PAGEMP",
+        "client_target": "all",
+        "menu_section": "cadastro",
+        "sort_order": 10,
+        "target_entity_id": null
+      }
+    ]
+  },
+  {
+    "entityId": "CadcpsFieldCatalog",
+    "moduleId": "cadcps",
+    "codigo": "CADCPS",
+    "scope": "platform",
+    "entityKind": "meta",
+    "sortOrder": 40,
+    "legacyEntityName": "CadCpsCampo",
+    "baseTemplateId": "modelobase1",
+    "empresaScope": "none",
+    "lifecycle": "active",
+    "persistence": {
+      "prismaModel": "CadCpsCampo",
+      "tableName": "CadCpsCampo",
+      "primaryKey": "id",
+      "tenantKey": "cliente_id",
+      "empresaKey": null,
+      "idGlobalKey": "id_global"
+    },
+    "labels": [
+      {
+        "locale": "pt-BR",
+        "singular": "Campo Personalizado",
+        "plural": "Campos Personalizados",
+        "description": "Catálogo administrativo de campos personalizados (MDP-2 evolution)"
+      }
+    ],
+    "routes": [
+      {
+        "route_path": "/CadastroCamposPersonalizados",
+        "page_code": "PAGCPS",
+        "client_target": "all",
+        "menu_section": "admin",
+        "sort_order": 40,
+        "target_entity_id": null
+      },
+      {
+        "route_path": "/CadastroEmpresas",
+        "page_code": "PAGEMP",
+        "client_target": "all",
+        "menu_section": "cadcps-target",
+        "sort_order": 10,
+        "target_entity_id": "EmpresaCadastro"
+      }
+    ]
+  }
+]

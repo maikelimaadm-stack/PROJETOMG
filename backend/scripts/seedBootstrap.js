@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { pathToFileURL } from "node:url";
 import { seedClienteModulos } from "../src/modules/clienteModulo/clienteModuloService.js";
+import { seedMdpPlatformEntities } from "./seedMdpPlatformEntities.js";
 
 dotenv.config();
 
@@ -59,6 +60,7 @@ export const seedBootstrap = async (prisma = new PrismaClient()) => {
   });
 
   await seedClienteModulos(prisma);
+  await seedMdpPlatformEntities(prisma);
 
   return { cliente, usuario };
 };
