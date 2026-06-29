@@ -4,11 +4,9 @@
 **Program:** MAK Studio — Studio Shell  
 **Priority:** P1  
 **Status:** Prepared — **ready to implement**  
-**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.3.0  
-**SDK:** Program 2.0.5 ✅ · [Certification](./IFM-PROGRAM-2.0.5-CERTIFICATION-REPORT.md)  
-**Design System:** Program 2.0.6 ✅ · [Certification](./IFM-PROGRAM-2.0.6-CERTIFICATION-REPORT.md)  
-**Event Architecture:** Program 2.0.7 ✅ · [Certification](./IFM-PROGRAM-2.0.7-CERTIFICATION-REPORT.md)  
-**Prerequisites:** Runtime Bridge 1E-1 ✅ · MDP-5 ✅ · **Studio Foundation phase closed (2.0.7)**
+**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.4.0  
+**SDK:** Program 2.0.5 ✅ · **Design System:** 2.0.6 ✅ · **Events:** 2.0.7 ✅ · **Governance:** 2.0.8 ✅  
+**Prerequisites:** Runtime Bridge 1E-1 ✅ · MDP-5 ✅ · **Foundation permanently closed (2.0.8)**
 
 ---
 
@@ -19,6 +17,7 @@ Implement the **MAK Studio Shell** — the persistent chrome that hosts all futu
 1. **Studio SDK** (`createStudioSdk`)
 2. **Design System Foundation** (tokens, manifests)
 3. **Studio Event Architecture** (`getStudioEventHub`)
+4. **Architecture Governance** (`validateStudioArchitecture` — must pass G279–G284)
 
 **No Layout Studio in this mission.** Shell + navigation + dock panels + SDK/Event wiring only.
 
@@ -34,7 +33,7 @@ Implement the **MAK Studio Shell** — the persistent chrome that hosts all futu
 | §31 Studio SDK | Wire `createStudioSdk({ deps })` with MDP client stubs |
 | §32 Design System | Bootstrap tokens/themes; panels resolve visual values via Token Registry |
 | §33 Event Architecture | Wire `getStudioEventHub()` — all panel communication via events |
-| §31.2 Registries | Panels read Component/Property catalogs — no hardcoded components |
+| §34 Governance | All Shell code must pass G279–G284 on every commit |
 
 ---
 
@@ -112,7 +111,7 @@ Implement the **MAK Studio Shell** — the persistent chrome that hosts all futu
 - [ ] Selection change propagates via `selection.changed` event (not direct state sharing)
 - [ ] No designer canvas implementation
 - [ ] No Foundation / ModeloBase1 / MDP backend changes
-- [ ] G144 gate passes
+- [ ] **No governance violations** — `npm run gate:studio-governance` passes
 
 ---
 
@@ -152,4 +151,4 @@ src/studio/
 
 ---
 
-*Prepared automatically by Program 2.0.7 certification — D-034. Studio foundation phase closed.*
+*Prepared automatically by Program 2.0.8 certification — D-035. Foundation permanently closed — begin Studio Shell.*

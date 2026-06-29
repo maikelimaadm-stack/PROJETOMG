@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.0.7 Studio Event Architecture)
+**Last updated:** 2026-06-29 (Program 2.0.8 Studio Architecture Governance)
+
+---
+
+## 2026-06-29 — Program 2.0.8: MAK Studio Architecture Governance
+
+**Scope:** Architecture governance layer + dependency graph validator + gates G279–G284  
+**Changes:** `src/studio/governance/*`, `scripts/gate-studio-architecture-governance.mjs`  
+**Report:** [IFM-PROGRAM-2.0.8-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.8-CERTIFICATION-REPORT.md)  
+**Decision:** D-035
+
+**RHP:** PR #312 merged @ `cacd3547`; main synchronized  
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Foundation:** **PERMANENTLY CLOSED** — next: Program 2.1 Studio Shell
 
 ---
 

@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.3.0  
+**Version:** 1.4.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **SDK:** D-032 (Program 2.0.5) · **Design System:** D-033 (Program 2.0.6) · **Events:** D-034 (Program 2.0.7)  
+**Decision:** D-031 · **SDK:** D-032 · **Design System:** D-033 · **Events:** D-034 · **Governance:** D-035 (Program 2.0.8)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -146,11 +146,14 @@ src/studio/
 │   ├── catalogs/
 │   └── integration/        ← Studio registry → manifest bridge
 ├── events/                 ← Event Architecture (Program 2.0.7)
-│   ├── hub/                  ← Studio Event Hub (publish/subscribe)
-│   ├── registry/           ← Official Event Bus Registry
-│   ├── contracts/          ← Event Manifest, payload, collaboration
+│   ├── hub/
+│   ├── registry/
+│   ├── contracts/
 │   ├── catalogs/
-│   └── integration/        ← Plugin, Designer, History, Preview bridges
+│   └── integration/
+├── governance/             ← Architecture Governance (Program 2.0.8)
+│   ├── dependencyGraph.js
+│   └── architectureRules.js
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -161,7 +164,7 @@ src/studio/
 └── designers/              ← sub-phase plugins (layout, field, …)
 ```
 
-**Layer order:** Studio SDK → Design System Foundation → Event Architecture → Studio Shell → Designers
+**Layer order:** Studio SDK → Design System → Event Architecture → Governance → Studio Shell → Designers
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
 
@@ -867,6 +870,7 @@ Each designer is a **plugin** — shell architecture unchanged across phases.
 | **G262–G266** | Studio SDK + registries bootstrapped | Program 2.0.5 |
 | **G267–G272** | Design System Foundation (tokens, themes, manifests) | Program 2.0.6 |
 | **G273–G278** | Studio Event Architecture (hub, registry, integrations) | Program 2.0.7 |
+| **G279–G284** | Studio Architecture Governance (isolation, dependency graph) | Program 2.0.8 |
 | **G144** | Studio writes only via `/api/mdp/*` (Phase 2.1+) | Pending |
 | **G145** | Preview uses shared hydration adapter (Phase 2.1+) | Pending |
 
@@ -1021,7 +1025,48 @@ Official **decoupled event bus** for all internal Studio module communication. E
 
 ### 33.4 Foundation phase complete
 
-After Program 2.0.7, **MAK Studio foundation is closed**. No new structural layers before Program 2.1 Studio Shell unless a critical architectural risk is identified. Shell builds exclusively on SDK + Design System + Event Architecture.
+After Program 2.0.8, **MAK Studio foundation is permanently protected and closed**. No new structural layers before Program 2.1 Studio Shell. Shell builds exclusively on SDK + Design System + Event Architecture + Governance.
+
+---
+
+## 34. Studio Architecture Governance (Program 2.0.8)
+
+**Decision:** D-035 · **Path:** `src/studio/governance/`
+
+Automatic protection layer — validates Studio architecture on every CI run. **Last infrastructure mission** before Studio Shell.
+
+### 34.1 Protected rules
+
+| Rule | Enforcement |
+|------|-------------|
+| Designer isolation | No cross-designer imports; no Foundation/Runtime/Bootstrap access |
+| Dependency graph | Official stack: Consumer → SDK → Events → Design System → Registry → MDP APIs |
+| Registry protection | No parallel registries; plugins cannot override official events |
+| Public API only | Consumers use `index.js` exports — not internal registry/hub paths |
+| Event Hub mandatory | No Event Hub bypass from consumer layers |
+| MDP write boundary | No direct MDP mutation — official API clients only (G144 in Shell) |
+
+### 34.2 Dependency stack
+
+```
+Studio Shell / Designers / Dock
+       ↓
+Studio SDK + Governance
+       ↓
+Studio Event Hub
+       ↓
+Design System
+       ↓
+Studio Registries
+       ↓
+MDP APIs (services/)
+       ↓
+Runtime Bridge (read-only via compile)
+       ↓
+Foundation (never direct import)
+```
+
+**Validator:** `validateStudioArchitecture()` · **Gates:** G279–G284 · Smoke: `scripts/smoke-studio-governance.mjs`
 
 ---
 
@@ -1029,7 +1074,8 @@ After Program 2.0.7, **MAK Studio foundation is closed**. No new structural laye
 
 | Version | Date | Change |
 |---------|------|--------|
-| 1.3.0 | 2026-06-29 | Studio Event Architecture — Program 2.0.7 (D-034); foundation phase complete |
+| 1.4.0 | 2026-06-29 | Architecture Governance — Program 2.0.8 (D-035); foundation permanently closed |
+| 1.3.0 | 2026-06-29 | Studio Event Architecture — Program 2.0.7 (D-034) |
 | 1.2.0 | 2026-06-29 | Design System Foundation — Program 2.0.6 (D-033) |
 | 1.1.0 | 2026-06-29 | SDK & Registry Foundation — Program 2.0.5 (D-032) |
 | 1.0.0 | 2026-06-29 | Initial architecture — Program 2.0 (D-031) |

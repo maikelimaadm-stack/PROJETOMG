@@ -47,6 +47,12 @@ export {
   wireHistoryToEventHub,
   wirePreviewToEventHub,
 } from "./events/index.js";
+export {
+  STUDIO_GOVERNANCE_VERSION,
+  validateStudioArchitecture,
+  DEPENDENCY_STACK,
+  validateDependencyGraph,
+} from "./governance/index.js";
 
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";
 import { bootstrapDesignSystem } from "./designSystem/bootstrapDesignSystem.js";

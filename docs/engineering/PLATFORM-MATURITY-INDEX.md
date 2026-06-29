@@ -72,7 +72,7 @@ Every area in §4 and §5 includes:
 | ModeloBase1 (Base Template 1) | **7.0** | Média | Monoliths + G38; single template only |
 | Platform Core | **6.5** | Média | Event bus not started |
 | MAK Data Platform | **8.5** | Média | CRB hydration ✅ (Program 1E Phase 1) |
-| MAK Studio | **1.8** | Baixa | Foundation complete ✅ — **Shell 2.1 next** |
+| MAK Studio | **2.0** | Baixa | Foundation closed + protected (G262–G284) — **Shell 2.1 next** |
 | AI Platform | **0.0** | Baixa | Zero code |
 | Knowledge Platform | **0.0** | Baixa | Zero code |
 | Marketplace | **1.0** | Baixa | Feature flags only |
@@ -255,9 +255,9 @@ Every area in §4 and §5 includes:
 
 | Field | Value |
 |-------|-------|
-| **Score** | **1.8 / 10** |
+| **Score** | **2.0 / 10** |
 | **2035 target** | L5 — All `{Name} Studio` designers writing Platform Metadata to MDP; preview via compile + Foundation Runtime |
-| **Current state** | **Foundation layer complete** — Architecture (D-031), Studio SDK (D-032), Design System (D-033), Event Architecture (D-034) in `src/studio/`. No Shell, designers, or preview UI yet. |
+| **Current state** | **Foundation permanently closed** — Architecture (D-031), SDK (D-032), Design System (D-033), Events (D-034), Governance (D-035). Auto-protected by G279–G284. No Shell/designers yet. |
 
 **Criteria:**
 
@@ -267,7 +267,7 @@ Every area in §4 and §5 includes:
 | Layout + Field Studio (MDP-4 min) | 3.0 | 0.0 | No designer code |
 | Remaining Studio surfaces | 3.0 | 0.0 | No code |
 | Publish + preview pipeline | 2.0 | 0.0 | No Studio preview UI |
-| Architecture + SDK + DS + Events foundation | — | +1.8 | `src/studio/`; G262–G278; foundation phase closed |
+| Architecture + SDK + DS + Events + Governance | — | +2.0 | `src/studio/`; G262–G284; foundation closed |
 
 | **Dependencies** | MDP-4 ✅ · MDP-5 ✅ · Runtime Bridge Phase 1 ✅ |
 | **Blockers** | Studio Shell (Program 2.1) |
