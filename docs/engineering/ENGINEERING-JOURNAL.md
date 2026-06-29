@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Platform Architecture Reassessment — D-027)
+**Last updated:** 2026-06-29 (D-028 Engineering Governance Evolution)
+
+---
+
+## 2026-06-29 — D-028: Engineering Governance Evolution
+
+**Scope:** Long-term impact gate; Program 1F Enterprise Readiness; ERI in PMI  
+**Changes:** D-028 decision; ROADMAP Program 1F (1F.1–1F.6); PMI ERI 3.8/10; PIP v1.2; doc conflict fixes  
+**Report:** [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md)  
+**Decision:** D-028
+
+**RHP:** PR #303 open (D-027); PR #296 obsolete; doc consistency fixes applied  
+**Validation:** Documentary audit only — no code changes  
+**Next:** Program 2 MAK Studio + Program 1E Runtime Bridge (D-027 unchanged)
 
 ---
 

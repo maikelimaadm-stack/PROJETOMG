@@ -1,13 +1,13 @@
 # PLATFORM MATURITY INDEX (PMI)
 
 **Status:** Official — Strategic platform dashboard  
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Effective date:** 2026-06-29  
-**Program:** 0.6 (strategic expansion) + post-MDP reassessment  
-**Decision:** D-016 (v1.0), D-017 (Base Template / PMI expansion), **D-027 (post-MDP score refresh)**
+**Program:** 0.6 + post-MDP reassessment + D-028 ERI  
+**Decision:** D-016 (v1.0), D-017, D-027, **D-028 (ERI + Enterprise Readiness)**
 
 **Last verified:** 2026-06-29  
-**Verified by:** Platform Architecture Reassessment (D-027)  
+**Verified by:** D-028 Engineering Governance Evolution  
 **Evidence commands:** `npm run build`, `npm run verify:governance`, `npm audit`, registry file counts, Prisma schema
 
 ---
@@ -107,7 +107,37 @@ Every area in §4 and §5 includes:
 | Deploy | **5.0** | Média | Git-trigger deploy only |
 
 **Full platform average (32 areas):** **4.2 / 10**  
-**Foundation + infra track (Foundation, ModeloBase1, Frontend, Backend, DB, Governança):** **6.8 / 10**
+**Foundation + infra track (Foundation, ModeloBase1, Frontend, Backend, DB, Governança):** **6.8 / 10**  
+**Enterprise Readiness Index (ERI):** **3.8 / 10** — see §3.3
+
+---
+
+### 3.3 Enterprise Readiness Index (ERI)
+
+**Added:** D-028 — measures readiness for **global enterprise operation** (10K+ clients, multi-country, 20-year horizon).
+
+**Program map:** [ROADMAP.md](./ROADMAP.md) Program 1F (documentation-only until scheduled).
+
+| ERI Dimension | Score | Program 1F | Evidence |
+|---------------|-------|------------|----------|
+| **Segurança** | **4.5** | 1F.2 | JWT auth ✅; npm audit ✅; **no MFA, no GDPR tooling, no key rotation** |
+| **Escalabilidade** | **3.5** | 1F.4 | Multi-tenant schema ✅; **single-instance, no Redis, no auto-scale** (PMI Escalabilidade 5.0) |
+| **Observabilidade** | **3.0** | 1F.3 | `/api/metrics/*` partial; **no APM, no structured logs, no tracing** (PMI 4.5) |
+| **Recuperação** | **2.5** | 1F.5 | MDP snapshots ✅; **host-dependent backup, no runbooks, no failover tests** (PMI Backup 2.5) |
+| **Globalização** | **2.0** | 1F.1 | MDP label tables ✅ (`mdp_*_label`); **zero i18n runtime, no locale/TZ/currency** |
+| **Migração** | **3.0** | 1F.6 | MDP-5 versioning ✅; **DB migration only today; no artifact/bundle migration platform** |
+| **Operação** | **5.5** | 1F.3 + 1F.5 | CI/CD 7.0 ✅; Deploy 5.0; health checks ✅; **no tenant/publish health dashboards** |
+
+**ERI composite:** **(4.5 + 3.5 + 3.0 + 2.5 + 2.0 + 3.0 + 5.5) / 7 = 3.8 / 10**
+
+| ERI readiness tier | Meaning |
+|--------------------|---------|
+| **0–3** | Not enterprise-ready — current: globalization, DR, observability |
+| **4–6** | Mid-market SaaS — current overall ERI |
+| **7–8** | Enterprise-grade — target post-Program 1F implementation |
+| **9–10** | Global platform — MAK 2035 full maturity |
+
+**Update protocol:** Recompute ERI when any Program 1F subprogram ships code or when security/scale/ops posture changes materially.
 
 ---
 
@@ -844,6 +874,7 @@ Documentation updates continue per [11-PERMANENT-GOVERNANCE-DIRECTIVE.md](../con
 | Version | Date | Change |
 |---------|------|--------|
 | 1.2.0 | 2026-06-29 | Post-MDP reassessment — MDP 8.5, Versionamento 7.5, Publicação 7.0; D-027 next programs |
+| 1.3.0 | 2026-06-29 | **ERI (Enterprise Readiness Index)** — D-028; Program 1F map; 7 dimensions |
 | 1.1.0 | 2026-06-28 | Strategic expansion — 32 areas; infra/ops section; standard assessment fields; Base Template 1 (D-017) |
 | 1.0.0 | 2026-06-28 | Initial PMI — Program 0.6, D-016 |
 
