@@ -1,6 +1,6 @@
 /**
- * MAK Studio — SDK + Design System + Registry Foundation
- * Layer order: SDK → Design System → Shell (Phase 2.1) → Designers
+ * MAK Studio — SDK + Design System + Event Architecture + Registry Foundation
+ * Layer order: SDK → Design System → Event Architecture → Shell (Phase 2.1) → Designers
  */
 export { createStudioSdk, STUDIO_SDK_VERSION, validateStudioDesigner, validateStudioPlugin } from "./sdk/index.js";
 export {
@@ -33,9 +33,25 @@ export {
   validateComponentManifest,
   validateUniversalComponent,
 } from "./designSystem/index.js";
+export {
+  STUDIO_EVENT_ARCHITECTURE_VERSION,
+  bootstrapStudioEvents,
+  getStudioEventsSnapshot,
+  getStudioEventHub,
+  createStudioEventHub,
+  getBusEvent,
+  listBusEvents,
+  validateEventManifest,
+  createPluginEventBridge,
+  createDesignerEventBridge,
+  wireHistoryToEventHub,
+  wirePreviewToEventHub,
+} from "./events/index.js";
 
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";
 import { bootstrapDesignSystem } from "./designSystem/bootstrapDesignSystem.js";
+import { bootstrapStudioEvents } from "./events/bootstrapStudioEvents.js";
 
 bootstrapStudioRegistries();
 bootstrapDesignSystem();
+bootstrapStudioEvents();

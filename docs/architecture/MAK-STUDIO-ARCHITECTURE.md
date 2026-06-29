@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.2.0  
+**Version:** 1.3.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **SDK:** D-032 (Program 2.0.5) · **Design System:** D-033 (Program 2.0.6)  
+**Decision:** D-031 · **SDK:** D-032 (Program 2.0.5) · **Design System:** D-033 (Program 2.0.6) · **Events:** D-034 (Program 2.0.7)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -145,6 +145,12 @@ src/studio/
 │   ├── contracts/          ← Component Manifest, Universal Component Model, AI Knowledge
 │   ├── catalogs/
 │   └── integration/        ← Studio registry → manifest bridge
+├── events/                 ← Event Architecture (Program 2.0.7)
+│   ├── hub/                  ← Studio Event Hub (publish/subscribe)
+│   ├── registry/           ← Official Event Bus Registry
+│   ├── contracts/          ← Event Manifest, payload, collaboration
+│   ├── catalogs/
+│   └── integration/        ← Plugin, Designer, History, Preview bridges
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -155,7 +161,7 @@ src/studio/
 └── designers/              ← sub-phase plugins (layout, field, …)
 ```
 
-**Layer order:** Studio SDK → Design System Foundation → Studio Shell → Designers
+**Layer order:** Studio SDK → Design System Foundation → Event Architecture → Studio Shell → Designers
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
 
@@ -860,6 +866,7 @@ Each designer is a **plugin** — shell architecture unchanged across phases.
 |------|-----------|
 | **G262–G266** | Studio SDK + registries bootstrapped | Program 2.0.5 |
 | **G267–G272** | Design System Foundation (tokens, themes, manifests) | Program 2.0.6 |
+| **G273–G278** | Studio Event Architecture (hub, registry, integrations) | Program 2.0.7 |
 | **G144** | Studio writes only via `/api/mdp/*` (Phase 2.1+) | Pending |
 | **G145** | Preview uses shared hydration adapter (Phase 2.1+) | Pending |
 
@@ -967,10 +974,62 @@ Permanent visual and component metadata foundation between Studio SDK and Studio
 
 ---
 
+## 33. Studio Event Architecture (Program 2.0.7)
+
+**Decision:** D-034 · **Path:** `src/studio/events/`
+
+Official **decoupled event bus** for all internal Studio module communication. Explorer, Inspector, Outline, Preview, History, Dock, Plugins, and Designers **must** communicate via the Event Hub — never direct cross-module calls when an equivalent event exists.
+
+### 33.1 Studio Event Hub
+
+| API | Purpose |
+|-----|---------|
+| `publish(eventId, payload, options?)` | Emit registered event with scoped delivery |
+| `subscribe(eventId, handler, options?)` | Listen to events (with optional scope filter) |
+| `unsubscribe(subscriptionId)` | Remove subscription |
+| `once(eventId, handler, options?)` | Single-delivery subscription |
+| `broadcast(category, eventId, payload)` | Category-scoped publish |
+| `setScope(scopePatch)` / `getScope()` | Module/designer/workspace scoping |
+| `onLifecycle(listener)` | Hub lifecycle (ready, destroy, scope.changed) |
+
+**Entry point:** `bootstrapStudioEvents()` → `getStudioEventHub()` — wired in `src/studio/index.js` after Design System bootstrap.
+
+### 33.2 Event Registry
+
+| Field | Required |
+|-------|----------|
+| eventId, name, category, description | Yes |
+| payload contract, origin, consumers | Yes |
+| priority, version | Yes |
+| documentation, examples, compatibility, breakingChanges, notes | Manifest |
+
+**17 official events** (SelectionChanged, ComponentCreated, LayoutChanged, PreviewUpdated, UndoPerformed, …) + 6 collaboration contracts (future).
+
+**Rule:** No event may exist without registry entry. Plugins may register **extension** events (`origin: plugin:*`) but **cannot override** official events.
+
+### 33.3 Integration bridges
+
+| Bridge | Contract |
+|--------|----------|
+| `createPluginEventBridge(hub, plugin)` | Plugins publish/listen; `registerExtensionEvent()` |
+| `createDesignerEventBridge(hub, designer)` | All designers share same hub (layout, workflow, dashboard, …) |
+| `wireHistoryToEventHub(hub, historyApi)` | History responds to events — never calls Layout directly |
+| `wirePreviewToEventHub(hub, previewApi)` | Preview responds to events — never depends on Layout Designer |
+| `createCollaborationEventContract(hub)` | Future presence/sync contracts (no implementation) |
+
+**Governance:** Gates **G273–G278** · Smoke: `scripts/smoke-studio-events.mjs`
+
+### 33.4 Foundation phase complete
+
+After Program 2.0.7, **MAK Studio foundation is closed**. No new structural layers before Program 2.1 Studio Shell unless a critical architectural risk is identified. Shell builds exclusively on SDK + Design System + Event Architecture.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.3.0 | 2026-06-29 | Studio Event Architecture — Program 2.0.7 (D-034); foundation phase complete |
 | 1.2.0 | 2026-06-29 | Design System Foundation — Program 2.0.6 (D-033) |
 | 1.1.0 | 2026-06-29 | SDK & Registry Foundation — Program 2.0.5 (D-032) |
 | 1.0.0 | 2026-06-29 | Initial architecture — Program 2.0 (D-031) |

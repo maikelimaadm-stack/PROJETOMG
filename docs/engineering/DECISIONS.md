@@ -402,6 +402,18 @@
 
 ---
 
+## D-034 — MAK Studio Event Architecture
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.0.7** — official Studio Event Architecture (`src/studio/events/`) with Event Hub (publish/subscribe/once/broadcast/scope), Event Registry (17 official events + manifests), Plugin/Designer/History/Preview integration bridges, and future Collaboration contracts. All internal Studio module communication **must** use the Event Hub. Governance gates **G273–G278**. **Closes MAK Studio foundation phase** — no new structural layers before Program 2.1. |
+| **Evidence** | [IFM-PROGRAM-2.0.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.7-CERTIFICATION-REPORT.md) |
+| **Consequences** | Studio Shell (2.1) wires all panels via Event Hub; direct cross-module calls prohibited when equivalent event exists |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
