@@ -53,6 +53,37 @@ export {
   DEPENDENCY_STACK,
   validateDependencyGraph,
 } from "./governance/index.js";
+export {
+  UNIVERSAL_COMPONENTS_VERSION,
+  UniversalExplorer,
+  UniversalInspector,
+  UniversalPropertyGrid,
+  UniversalWorkspace,
+  UniversalDock,
+  UniversalTabs,
+  UniversalStatusBar,
+  UniversalNotificationArea,
+  UniversalBreadcrumb,
+  UniversalCommandPalette,
+  ExplorerProvider,
+  InspectorProvider,
+  PropertyProvider,
+  WorkspaceProvider,
+  DockProvider,
+  NotificationProvider,
+  BreadcrumbProvider,
+  CommandPaletteProvider,
+  StatusBarProvider,
+  useExplorerProvider,
+  useInspectorProvider,
+  usePropertyProvider,
+  useWorkspaceProvider,
+  useDockProvider,
+  useNotificationProvider,
+  useBreadcrumbProvider,
+  useCommandPaletteProvider,
+  useStatusBarProvider,
+} from "./components/index.js";
 
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";
 import { bootstrapDesignSystem } from "./designSystem/bootstrapDesignSystem.js";

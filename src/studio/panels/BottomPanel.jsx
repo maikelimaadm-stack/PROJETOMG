@@ -1,3 +1,4 @@
+import { UniversalTabs } from "@/studio/components/index.js";
 import { useStudioShell } from "../shell/StudioShellProvider.jsx";
 
 export function BottomPanel() {
@@ -11,18 +12,7 @@ export function BottomPanel() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex border-b border-border">
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            className={`studio-shell__tab ${bottomTab === tab.id ? "studio-shell__tab--active" : ""}`}
-            onClick={() => setBottomTab(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <UniversalTabs tabs={tabs} activeTab={bottomTab} onTabChange={setBottomTab} />
       <div className="flex flex-1 items-center justify-center p-4 text-xs text-muted-foreground">
         {bottomTab === "preview" && "Preview simulado — compile path no Program 2.1B"}
         {bottomTab === "console" && "Runtime Console — logs simulados (vazio)"}

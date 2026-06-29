@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.1A Studio Shell Prototype)
+**Last updated:** 2026-06-29 (Program 2.1A.5 Universal Studio Components)
+
+---
+
+## 2026-06-29 — Program 2.1A.5: Universal Studio Components Foundation
+
+**Scope:** Universal presentational components + Providers for all Shell panels  
+**Changes:** `src/studio/components/*`, gate G288, shell/panels refactored to consume universals  
+**Report:** [IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md)  
+**Decision:** D-038
+
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1A.6 Studio State Engine — [Brief](./IFM-PHASE-2.1A.6-STUDIO-STATE-ENGINE-BRIEF.md)
 
 ---
 

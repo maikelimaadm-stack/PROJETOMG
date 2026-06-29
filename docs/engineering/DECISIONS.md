@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-037 Studio Shell Prototype)
+**Last updated:** 2026-06-29 (D-038 Universal Studio Components)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -447,6 +447,18 @@
 | **Decision** | Implement **Program 2.1A** — first **visual** Studio Shell prototype (`src/studio/shell/`, `dock/`, `panels/`, `navigation/`, `mock/`) with mock data only. Validates UX Framework layout, dock ergonomics, SDK + Event Hub wiring, and Design System tokens **without** MDP, Runtime Bridge, persistence, or business logic. Route `/studio/prototype`. Gate **G286**. Consumer layer extended to include `panels` and `mock`. |
 | **Evidence** | [IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md) |
 | **Consequences** | Visual validation before production; Program 2.1B replaces mock deps with auth + MDP clients; Layout Studio (2.2) follows 2.1B |
+
+---
+
+## D-038 — Universal Studio Components Foundation (Program 2.1A.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A.5** — universal presentational Studio components (`src/studio/components/`) with public Provider contracts for Explorer, Inspector, Property Grid, Workspace, Dock, Tabs, Status Bar, Notification Area, Breadcrumb, and Command Palette. Components render only; all logic injected via Providers. **No designer-specific imports.** New governance layer `studio-universal-components`. Gate **G288**. |
+| **Evidence** | [IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md) |
+| **Consequences** | All future Studios reuse universal library; 2.1A.6 State Engine extracts provider wiring from shell; 2.1B swaps Provider data sources only |
 
 ---
 

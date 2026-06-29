@@ -154,6 +154,10 @@ src/studio/
 ├── governance/             ← Architecture Governance (Program 2.0.8)
 │   ├── dependencyGraph.js
 │   └── architectureRules.js
+├── components/             ← Universal Studio Components (Program 2.1A.5)
+│   ├── contracts/          ← Public provider contracts
+│   ├── providers/          ← Explorer, Inspector, Property, Workspace, Dock, …
+│   └── Universal*.jsx        ← Presentational components (render only)
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -164,7 +168,9 @@ src/studio/
 └── designers/              ← sub-phase plugins (layout, field, …)
 ```
 
-**Layer order:** Studio SDK → Design System → Event Architecture → Governance → Studio Shell → Designers
+**Layer order:** Studio SDK → Design System → Event Architecture → Governance → **Universal Components** → Studio Shell → Designers
+
+**Universal Components rule (Program 2.1A.5):** All Shell panels are implemented as universal presentational components with Provider-injected data. Universal components **must not** import designer-specific code (Layout Studio, Workflow Studio, etc.). Gate **G288**.
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
 
@@ -1097,6 +1103,7 @@ After Program 2.0.9, **all mandatory pre-Shell documentation is complete**. Prog
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.6.0 | 2026-06-29 | Universal Studio Components — Program 2.1A.5 (D-038); G288 |
 | 1.5.0 | 2026-06-29 | Studio UX Framework — Program 2.0.9 (D-036); pre-Shell docs complete |
 | 1.4.0 | 2026-06-29 | Architecture Governance — Program 2.0.8 (D-035) |
 | 1.3.0 | 2026-06-29 | Studio Event Architecture — Program 2.0.7 (D-034) |
