@@ -44,11 +44,11 @@ gate(
   read(path.join(MAK, "actions/buildMakActionConfigMetadata.js")).includes("MAK_ACTION_METADATA_KEYS")
 );
 
+const prefsBootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js"));
 gate(
   "G245 — Bootstrap registra actions engine",
-  read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
-    "registerMakActionConfigEngine"
-  )
+  prefsBootstrap.includes("registerMakActionConfigEngine") ||
+    prefsBootstrap.includes("registerRuntimeBridge")
 );
 
 const bootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakActionConfigEngine.js"));

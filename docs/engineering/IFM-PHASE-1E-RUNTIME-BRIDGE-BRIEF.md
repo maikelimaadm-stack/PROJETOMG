@@ -54,11 +54,13 @@ Wire **empresas pilot** to load layout/field/validation configs: **CRB → engin
 
 ## Acceptance criteria
 
-- [ ] Empresas module loads layout config from CRB when pin exists
-- [ ] Fallback to existing boot cache when no pin / offline dev
-- [ ] Preview (draft compile) and production (published CRB) use identical hydration adapter
-- [ ] No Foundation code changes to engines — adapter only in bootstrap layer
-- [ ] G143 gate passes in CI
+- [x] Empresas module loads layout config from CRB when pin exists
+- [x] Fallback to existing boot cache when no pin / offline dev
+- [x] Preview (draft compile) and production (published CRB) use identical hydration adapter
+- [x] No Foundation code changes to engines — adapter only in bootstrap layer
+- [x] G143 gate passes in CI
+
+**Certification:** [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) (D-030)
 
 ---
 

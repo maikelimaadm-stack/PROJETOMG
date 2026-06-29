@@ -1,11 +1,22 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (D-029 Engineering Principles)
+**Last updated:** 2026-06-29 (Program 1E Runtime Bridge Phase 1)
 
 ---
 
-## 2026-06-29 — D-029: Engineering Principles
+## 2026-06-29 — Program 1E: Runtime Bridge Phase 1
+
+**Scope:** Runtime Bridge Foundation — CRB hydration → Foundation registries (empresas pilot)  
+**Changes:** `src/modules/makBootstrap/runtimeBridge/*`; `registerRuntimeBridge.js`; G143 gate; CRB cache export  
+**Report:** [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md)  
+**Decision:** D-030
+
+**RHP:** main @ latest; PR #296 obsolete (manual close)  
+**Validation:** build · lint · verify:ci · verify:governance · 5 cycles ✅  
+**Next:** Program 2 MAK Studio Phase 2.1 (official primary)
+
+---
 
 **Scope:** Permanent 18 engineering principles; document hierarchy update  
 **Changes:** `MAK-ENGINEERING-PRINCIPLES.md`; Constitution + README_AI hierarchy; D-029  

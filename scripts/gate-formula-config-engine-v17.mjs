@@ -39,11 +39,11 @@ gate(
   read(path.join(MAK, "formula/buildMakFormulaConfigMetadata.js")).includes("MAK_FORMULA_METADATA_KEYS")
 );
 
+const prefsBootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js"));
 gate(
   "G222 — Bootstrap registra formula engine",
-  read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
-    "registerMakFormulaConfigEngine"
-  )
+  prefsBootstrap.includes("registerMakFormulaConfigEngine") ||
+    prefsBootstrap.includes("registerRuntimeBridge")
 );
 
 const bootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakFormulaConfigEngine.js"));

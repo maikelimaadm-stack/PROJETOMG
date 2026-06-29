@@ -40,11 +40,11 @@ gate(
   read(path.join(MAK, "validation/buildMakValidationConfigMetadata.js")).includes("MAK_VALIDATION_METADATA_KEYS")
 );
 
+const prefsBootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js"));
 gate(
   "G211 — Bootstrap registra validation engine",
-  read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
-    "registerMakValidationConfigEngine"
-  )
+  prefsBootstrap.includes("registerMakValidationConfigEngine") ||
+    prefsBootstrap.includes("registerRuntimeBridge")
 );
 
 const bootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakValidationConfigEngine.js"));

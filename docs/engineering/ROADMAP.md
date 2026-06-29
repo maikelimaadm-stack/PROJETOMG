@@ -57,7 +57,8 @@ Strategic decisions **D-011**, **D-012**, **D-013**, **D-026**, **D-027**: IFM 1
 | **1B Arquitetura** | A1–A5 | Legacy promotion, generic naming, event bus | Background — non-blocking Studio |
 | **1C MAK DATA PLATFORM** | MDP-0→5 | Metadata nucleus | **✅ Complete** |
 | **1D Governança CI** | 1D-1 | V13–V20 gates in CI | ✅ |
-| **1E Runtime Bridge** | 1E-1 | CRB hydration → Foundation registries | **P1 parallel** — [Brief](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md) |
+| **1E Runtime Bridge** | 1E-1 | CRB hydration → Foundation registries | ✅ **Phase 1 complete** — [Cert](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
+| **1E Runtime Bridge** | 1E-2 | Environment pin → runtime reload hook | P1 — next slice |
 
 **Program 2 — MAK Studio** — [Brief](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md)  
 **Reassessment:** [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md) (D-027)
@@ -150,14 +151,12 @@ After **MDP-4** (Metadata Registry + introspection API):
 
 ## Phase 1E — Runtime Bridge (Parallel — D-027)
 
-| ID | Item | Priority | Blocks Studio? |
-|----|------|----------|----------------|
-| **1E-1** | CRB hydration → Foundation registries (empresas pilot) | **P1** | Co-requisite for publish→live |
-| **1E-2** | Environment pin → runtime reload hook | P1 | Co-requisite |
+| ID | Item | Priority | Status |
+|----|------|----------|--------|
+| **1E-1** | CRB hydration → Foundation registries (empresas pilot) | **P1** | ✅ Complete (D-030) |
+| **1E-2** | Environment pin → runtime reload hook | P1 | Pending |
 
-**Does NOT include:** Event Bus, Scheduler, Job Queue, Notification Engine, Integration Platform, Migration Platform — deferred per D-027.
-
-Brief: [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md)
+Brief: [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md) · Certification: [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md)
 
 ---
 

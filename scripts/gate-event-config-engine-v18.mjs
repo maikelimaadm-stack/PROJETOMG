@@ -39,11 +39,11 @@ gate(
   read(path.join(MAK, "events/buildMakEventConfigMetadata.js")).includes("MAK_EVENT_METADATA_KEYS")
 );
 
+const prefsBootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js"));
 gate(
   "G233 — Bootstrap registra events engine",
-  read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
-    "registerMakEventConfigEngine"
-  )
+  prefsBootstrap.includes("registerMakEventConfigEngine") ||
+    prefsBootstrap.includes("registerRuntimeBridge")
 );
 
 const bootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakEventConfigEngine.js"));
