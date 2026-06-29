@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   ExplorerProvider,
   InspectorProvider,
@@ -21,6 +21,7 @@ import { useDock } from "../hooks/useDock.js";
 import { useTabs } from "../hooks/useTabs.js";
 import { useNotifications } from "../hooks/useNotifications.js";
 import { useProperties } from "../hooks/useProperties.js";
+import { usePreview } from "../hooks/usePreview.js";
 
 function flattenExplorerTree(nodes, depth = 0) {
   const result = [];
@@ -35,7 +36,14 @@ function flattenExplorerTree(nodes, depth = 0) {
  * Bridges official Studio Domain → Universal Component Providers.
  * Universal components consume Providers only — never domain internals.
  */
-export function StudioUniversalBridge({ children, token, commands = [], extraCommandGroups = [] }) {
+export function StudioUniversalBridge({
+  children,
+  token,
+  commands = [],
+  extraCommandGroups = [],
+  mode = "prototype",
+}) {
+  const isProduction = mode === "production";
   const { sdk } = useStudioDomain();
   const { selection, selectEntry } = useSelection();
   const { workspace } = useWorkspace();
@@ -43,18 +51,28 @@ export function StudioUniversalBridge({ children, token, commands = [], extraCom
   const { tabs, setTab } = useTabs();
   const { notifications } = useNotifications();
   const { properties, updateField } = useProperties();
-  const { actions, state } = useStudioDomain();
+  const { preview, compile: compilePreview } = usePreview();
+  const { actions, state, services } = useStudioDomain();
+
+  useEffect(() => {
+    if (!isProduction) return undefined;
+    compilePreview().catch(() => {});
+    return undefined;
+  }, [isProduction, workspace.moduleId, compilePreview]);
 
   const flatExplorer = flattenExplorerTree(workspace.explorerTree ?? []);
+  const validationCount = isProduction ? (services?.validationService?.getErrorCount?.() ?? 0) : 0;
 
   const explorerValue = useMemo(
     () => ({
       tree: workspace.explorerTree,
       selectedId: selection.entryId,
       onSelect: selectEntry,
-      footerLabel: `${flatExplorer.length} entradas (mock)`,
+      footerLabel: isProduction
+        ? `${flatExplorer.length} entradas · MDP`
+        : `${flatExplorer.length} entradas (mock)`,
     }),
-    [workspace.explorerTree, selection.entryId, selectEntry, flatExplorer.length]
+    [workspace.explorerTree, selection.entryId, selectEntry, flatExplorer.length, isProduction]
   );
 
   const inspectorValue = useMemo(() => {
@@ -65,33 +83,49 @@ export function StudioUniversalBridge({ children, token, commands = [], extraCom
       fields: [
         { label: "Entry ID", value: <span className="font-mono">{selection.entryId}</span> },
         { label: "Tipo", value: selection.entryType },
-        { label: "Status", value: "draft · mock" },
+        ...(selection.selectionKind
+          ? [{ label: "Selection Kind", value: selection.selectionKind }]
+          : []),
+        {
+          label: "Status",
+          value: isProduction ? "published · MDP" : "draft · mock",
+        },
         {
           label: "Bindings",
-          value: <span className="text-muted-foreground">Nenhum (protótipo)</span>,
+          value: (
+            <span className="text-muted-foreground">
+              {isProduction ? "Somente leitura (Program 2.2)" : "Nenhum (protótipo)"}
+            </span>
+          ),
         },
       ],
     };
-  }, [selection.entryId, selection.entryType]);
+  }, [selection.entryId, selection.entryType, selection.selectionKind, isProduction]);
 
   const propertyValue = useMemo(
     () => ({
       hasSelection: Boolean(selection.entryId),
       fields: properties.fields,
-      onFieldChange: updateField,
+      onFieldChange: isProduction ? undefined : updateField,
+      readOnly: isProduction,
       emptyState: "Property Grid — selecione uma entrada",
     }),
-    [selection.entryId, properties.fields, updateField]
+    [selection.entryId, properties.fields, updateField, isProduction]
   );
 
   const workspaceValue = useMemo(
     () => ({
       title: workspace.designerLabel ?? "Designer",
-      subtitle:
-        "Workspace do protótipo — canvas do designer será montado aqui na próxima fase de integração.",
+      subtitle: isProduction
+        ? "Workspace de produção — Layout Designer será montado no Program 2.2."
+        : "Workspace do protótipo — canvas do designer será montado aqui na próxima fase de integração.",
       placeholder: (
         <>
-          <p className="text-xs text-muted-foreground">Dados simulados · sem MDP · sem Preview real</p>
+          <p className="text-xs text-muted-foreground">
+            {isProduction
+              ? "MDP conectado · Preview via Runtime Bridge (CRB)"
+              : "Dados simulados · sem MDP · sem Preview real"}
+          </p>
           <div
             className="mt-4 grid w-full max-w-xs grid-cols-2 gap-2 opacity-60"
             style={{ gap: token?.("spacing.sm") ?? "0.5rem" }}
@@ -106,8 +140,18 @@ export function StudioUniversalBridge({ children, token, commands = [], extraCom
         </>
       ),
     }),
-    [workspace.designerLabel, token]
+    [workspace.designerLabel, token, isProduction]
   );
+
+  const previewPanelContent = useMemo(() => {
+    if (!isProduction) return "Preview simulado — compile path no Program 2.1B";
+    if (preview.status === "loading") return "Carregando Preview CRB…";
+    if (preview.status === "error") return preview.message ?? "Erro ao carregar Preview";
+    if (preview.status === "ready") {
+      return preview.message ?? `Preview CRB · ${preview.compileId ?? "—"}`;
+    }
+    return "Preview via MDP introspect (read-only · não altera Runtime)";
+  }, [isProduction, preview.status, preview.message, preview.compileId]);
 
   const dockValue = useMemo(
     () => ({
@@ -125,11 +169,15 @@ export function StudioUniversalBridge({ children, token, commands = [], extraCom
           if (tabId === "outline") {
             return (
               <div className="p-3 text-xs text-muted-foreground">
-                Outline (mock) — sincronizado com Explorer
+                {isProduction ? "Outline — sincronizado com Explorer (MDP)" : "Outline (mock) — sincronizado com Explorer"}
               </div>
             );
           }
-          return <div className="p-3 text-xs text-muted-foreground">Asset Manager (stub)</div>;
+          return (
+            <div className="p-3 text-xs text-muted-foreground">
+              {isProduction ? "Asset Manager — entradas MDP" : "Asset Manager (stub)"}
+            </div>
+          );
         },
       },
       right: {
@@ -152,15 +200,18 @@ export function StudioUniversalBridge({ children, token, commands = [], extraCom
         onTabChange: (tabId) => setTab("bottom", tabId),
         renderContent: (tabId) => (
           <div className="flex flex-1 items-center justify-center p-4 text-xs text-muted-foreground">
-            {tabId === "preview" && "Preview simulado — compile path no Program 2.1B"}
-            {tabId === "console" && "Runtime Console — logs simulados (vazio)"}
-            {tabId === "validation" && "Nenhum erro de validação (mock)"}
+            {tabId === "preview" && previewPanelContent}
+            {tabId === "console" && (isProduction ? "Runtime Console — somente leitura" : "Runtime Console — logs simulados (vazio)")}
+            {tabId === "validation" &&
+              (isProduction
+                ? `Validação MDP: ${validationCount} erro(s)`
+                : "Nenhum erro de validação (mock)")}
           </div>
         ),
       },
       renderCenter: () => <UniversalWorkspace />,
     }),
-    [dock, tabs, setTab]
+    [dock, tabs, setTab, isProduction, previewPanelContent, validationCount]
   );
 
   const notificationValue = useMemo(
@@ -190,18 +241,34 @@ export function StudioUniversalBridge({ children, token, commands = [], extraCom
   const statusBarValue = useMemo(
     () => ({
       leftItems: [
-        { id: "conn", content: "Mock · desconectado" },
+        {
+          id: "conn",
+          content: isProduction ? "MDP · conectado" : "Mock · desconectado",
+        },
         { id: "module", content: `módulo: ${workspace.moduleId}` },
-        { id: "draft", content: "rascunho" },
+        { id: "draft", content: isProduction ? preview.status : "rascunho" },
       ],
       rightItems: [
         ...(selection.entryId
-          ? [{ id: "sel", content: `seleção: ${selection.entryType}/${selection.entryId}` }]
+          ? [
+              {
+                id: "sel",
+                content: `seleção: ${selection.selectionKind ?? selection.entryType}/${selection.entryId}`,
+              },
+            ]
           : []),
-        { id: "val", content: "validação: 0" },
+        { id: "val", content: `validação: ${validationCount}` },
       ],
     }),
-    [workspace.moduleId, selection.entryId, selection.entryType]
+    [
+      workspace.moduleId,
+      selection.entryId,
+      selection.entryType,
+      selection.selectionKind,
+      isProduction,
+      preview.status,
+      validationCount,
+    ]
   );
 
   return (

@@ -137,13 +137,13 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.1A.5** | Universal Studio Components | ✅ Complete (D-038) |
 | **2.1A.6** | Studio Domain Engine | ✅ Complete (D-039) |
 | **2.1A.7** | Studio Contribution Engine | ✅ Complete (D-040) — **Foundation closed** — [Report](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md) |
-| **2.1B** | Studio Shell Production (auth + MDP + persistence) | **Next — functional era begins** — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md) |
-| **2.2** | Layout Studio (empresas pilot) | Prepared — [Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
+| **2.1B** | Studio Shell Production (auth + MDP + persistence) | ✅ Complete (D-041) — [Report](./IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md) |
+| **2.2** | Layout Studio (empresas pilot) | **Next** — [Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
 | 2.3+ | Field, Validation, Workflow studios | Not started |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
-| Layout Studio | V13 + introspect + compile API + Studio Shell Production | **After 2.1B** |
+| Layout Studio | V13 + introspect + compile API + Studio Shell Production | **Ready — after 2.1B ✅** |
 | Field Studio | Field Config Engine V14 | Not started |
 | Table Studio | Preferences + column metadata | Not started |
 | Formula/Validation Studio | V16–V17 engines | Not started |

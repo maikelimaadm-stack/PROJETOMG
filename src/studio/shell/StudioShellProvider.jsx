@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import {
   createStudioSdk,
   getStudioEventHub,
@@ -24,7 +24,7 @@ import {
   MOCK_PROPERTY_SCHEMA,
 } from "../mock/studioMockData.js";
 
-const StudioShellContext = createContext(null);
+import { StudioShellContextProvider } from "./StudioShellContext.jsx";
 
 function DomainInitializer({ designers }) {
   const { setExplorerTree, setDesignerLabel } = useWorkspace();
@@ -82,7 +82,7 @@ function ShellContextProvider({ children, sdk, hub, token }) {
     [sdk, hub, token, workspace.moduleId, workspace.designerId, setModule, setDesigner, addNotification, state, actions, toggleDock]
   );
 
-  return <StudioShellContext.Provider value={shellValue}>{children}</StudioShellContext.Provider>;
+  return <StudioShellContextProvider value={shellValue}>{children}</StudioShellContextProvider>;
 }
 
 export function StudioShellProvider({ children }) {
@@ -173,10 +173,6 @@ function DomainCommandRegistrar({ sdk }) {
   return null;
 }
 
-export function useStudioShell() {
-  const ctx = useContext(StudioShellContext);
-  if (!ctx) throw new Error("useStudioShell must be used within StudioShellProvider");
-  return ctx;
-}
+export { useStudioShell } from "./StudioShellContext.jsx";
 
 export default StudioShellProvider;

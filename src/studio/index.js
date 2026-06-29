@@ -92,6 +92,12 @@ export {
   createInitialStudioDomainState,
   createStudioDomainStore,
   createMockDomainServiceAdapters,
+  createProductionDomainAdapters,
+  STUDIO_SELECTION_MODEL_VERSION,
+  OFFICIAL_SELECTION_KINDS,
+  createStudioSelection,
+  STUDIO_WORKSPACE_SESSION_VERSION,
+  createWorkspaceSession,
   StudioDomainProvider,
   StudioUniversalBridge,
   useStudioDomain,
@@ -120,6 +126,18 @@ export {
   validateMakPackageManifest,
   validateContributionMetadata,
 } from "./contributions/index.js";
+export {
+  mdpIntrospect,
+  mdpRegistryIntrospect,
+  mdpCompile,
+  mdpPublish,
+  loadPreviewCrbFromIntrospect,
+  loadPreviewCrbFromCompile,
+  buildExplorerTreeFromRegistry,
+  buildPersistenceKey,
+  loadStudioPersistence,
+  saveStudioPersistence,
+} from "./services/index.js";
 
 import { getContributionManager } from "./contributions/contributionManager.js";
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";

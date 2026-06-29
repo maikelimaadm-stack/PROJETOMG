@@ -1,14 +1,14 @@
 import { Search, Command } from "lucide-react";
 import { Button } from "@/shared/ui/button";
 import { UniversalBreadcrumb, UniversalNotificationArea } from "@/studio/components/index.js";
-import { useStudioShell } from "./StudioShellProvider.jsx";
+import { useStudioShell } from "./StudioShellContext.jsx";
 
 export function StudioTopBar() {
-  const { setCommandOpen } = useStudioShell();
+  const { setCommandOpen, isPrototype } = useStudioShell();
 
   return (
     <header className="studio-shell__topbar flex h-11 shrink-0 items-center gap-3 px-3">
-      <span className="studio-shell__badge-prototype">PROTOTYPE</span>
+      {isPrototype ? <span className="studio-shell__badge-prototype">PROTOTYPE</span> : null}
       <span className="text-sm font-semibold">MAK Studio</span>
       <UniversalBreadcrumb />
       <div className="ml-auto flex items-center gap-2">

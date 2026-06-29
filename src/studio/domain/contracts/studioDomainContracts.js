@@ -76,11 +76,15 @@ export const OFFICIAL_DOMAIN_SERVICES = Object.freeze([
 export function createInitialStudioDomainState(overrides = {}) {
   return {
     selection: {
+      selectionKind: null,
+      targetId: null,
       entryId: null,
       entryType: null,
       moduleId: null,
       designerId: null,
+      metadata: {},
     },
+    session: null,
     workspace: {
       moduleId: "empresas",
       designerId: "layout",

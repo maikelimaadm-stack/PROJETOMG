@@ -23,12 +23,19 @@ export const DomainActionTypes = Object.freeze({
   PROPERTIES_SET_FIELDS: "domain/properties/setFields",
   PROPERTIES_UPDATE_FIELD: "domain/properties/updateField",
   COMMAND_PALETTE_SET: "domain/commandPalette/set",
+  SESSION_SET: "domain/session/set",
 });
 
 export function studioDomainReducer(state, action) {
   switch (action.type) {
     case DomainActionTypes.SELECTION_SET:
-      return { ...state, selection: { ...state.selection, ...action.payload } };
+      return {
+        ...state,
+        selection: { ...state.selection, ...action.payload },
+        session: state.session
+          ? { ...state.session, selection: { ...state.selection, ...action.payload } }
+          : state.session,
+      };
 
     case DomainActionTypes.WORKSPACE_SET_MODULE:
       return {
@@ -133,6 +140,9 @@ export function studioDomainReducer(state, action) {
 
     case DomainActionTypes.COMMAND_PALETTE_SET:
       return { ...state, commandPalette: { open: action.payload } };
+
+    case DomainActionTypes.SESSION_SET:
+      return { ...state, session: action.payload };
 
     default:
       return state;

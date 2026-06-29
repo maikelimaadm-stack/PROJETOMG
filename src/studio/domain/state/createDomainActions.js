@@ -1,5 +1,7 @@
 import { DomainActionTypes } from "./studioDomainReducer.js";
 
+import { createStudioSelection } from "../contracts/selectionModel.js";
+
 /**
  * Creates domain action dispatchers bound to store + external deps.
  * @param {import("./createStudioDomainStore.js").StudioDomainStore} store
@@ -12,16 +14,21 @@ export function createDomainActions(store, deps = {}) {
   return Object.freeze({
     selection: {
       selectEntry(entry) {
-        const payload = {
-          entryId: entry?.entryId ?? null,
+        const base = {
+          entryId: entry?.entryId ?? entry?.targetId ?? null,
           entryType: entry?.entryType ?? null,
+          targetId: entry?.targetId ?? entry?.entryId ?? null,
+          selectionKind: entry?.selectionKind ?? null,
           moduleId: store.getState().workspace.moduleId,
           designerId: store.getState().workspace.designerId,
+          metadata: entry?.metadata ?? {},
         };
+        const payload = createStudioSelection(base);
         dispatch({ type: DomainActionTypes.SELECTION_SET, payload });
         sdk?.selection?.setSelection(payload);
         hub?.publish("selection.changed", {
-          selectionId: payload.entryId,
+          selectionId: payload.targetId,
+          selectionKind: payload.selectionKind,
           entryId: payload.entryId,
           entryType: payload.entryType,
           source: "domain",
@@ -30,7 +37,10 @@ export function createDomainActions(store, deps = {}) {
       clear() {
         dispatch({
           type: DomainActionTypes.SELECTION_SET,
-          payload: { entryId: null, entryType: null },
+          payload: createStudioSelection({
+            moduleId: store.getState().workspace.moduleId,
+            designerId: store.getState().workspace.designerId,
+          }),
         });
       },
     },
@@ -131,7 +141,7 @@ export function createDomainActions(store, deps = {}) {
           payload: {
             status: result?.ok ? "ready" : "error",
             compileId: result?.compileId ?? null,
-            message: result?.reason ?? null,
+            message: result?.message ?? result?.reason ?? null,
           },
         });
         return result;

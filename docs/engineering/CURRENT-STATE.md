@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** Program 2.1A.7 Studio Contribution Engine (D-040) — **Foundation closed**  
+**Verified by:** Program 2.1B Studio Shell Production (D-041)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -40,7 +40,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **Foundation closed ✅; 2.1B Production next** | [2.1A.7 Report](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md) · [2.1B Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **2.1B Production ✅; 2.2 Layout Studio next** | [2.1B Report](./IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md) · [2.2 Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -158,7 +158,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation closed ✅** (2.1A.7, G290) · Shell prototype + domain + contributions · **2.1B Production next** |
+| MAK Studio Shell / Designers | **Production shell ✅** (2.1B, G287) · Prototype at `/studio/prototype` · **2.2 Layout Studio next** |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |

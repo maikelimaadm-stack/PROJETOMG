@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.1A.7 Contribution Engine)
+**Last updated:** 2026-06-29 (Program 2.1B Studio Shell Production)
+
+---
+
+## 2026-06-29 — Program 2.1B: Studio Shell Production
+
+**Scope:** Production shell — MDP clients, auth gate, Selection Model, Workspace Session, persistence, CRB Preview  
+**Changes:** `src/studio/shell/StudioShell.jsx`, `StudioProductionShellProvider.jsx`, `src/studio/services/*`, `createProductionDomainAdapters`, gate G287  
+**Report:** [IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md)  
+**Decision:** D-041
+
+**Validation:** build · lint · verify:governance · 5 cycles ✅  
+**Next:** Program 2.2 Layout Studio (Empresas Pilot)
 
 ---
 

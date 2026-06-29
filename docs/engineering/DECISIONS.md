@@ -486,6 +486,18 @@
 
 ---
 
+## D-041 — Studio Shell Production (Program 2.1B)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1B** — production Studio Shell with MDP public API clients (`src/studio/services/`), `createProductionDomainAdapters`, JWT auth gate, official Selection Model + Workspace Session contracts, localStorage persistence, CRB Preview via `previewCrbAdapter` (no Runtime Bridge import). Prototype preserved at `/studio/prototype`. Gate **G287**. |
+| **Evidence** | [IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md) |
+| **Consequences** | Functional implementation era begins; Program 2.2 Layout Studio mounts first designer plugin on production shell |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
