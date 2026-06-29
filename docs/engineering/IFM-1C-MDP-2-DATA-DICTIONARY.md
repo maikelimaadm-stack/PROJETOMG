@@ -3,7 +3,7 @@
 **Mission ID:** IFM 1C-MDP-2 (MDP-2)  
 **Program:** IFM Phase 1C — MAK DATA PLATFORM  
 **Priority:** P1  
-**Status:** Prepared — ready after MDP-1 merge  
+**Status:** Complete — [certification report](./IFM-1C-MDP-2-CERTIFICATION-REPORT.md)  
 **Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §4
 
 ---
@@ -45,11 +45,11 @@ Implement **MDP-2 Data Dictionary** — unified SSOT for all fields (native, cus
 
 ## Acceptance criteria
 
-- [ ] Native + custom fields for `empresas` in `mdp_field`
-- [ ] `CadCpsCampo` migration path documented and pilot-complete
-- [ ] Tenant isolation on all field APIs
-- [ ] `npm run verify:governance` + `verify:ci` pass
-- [ ] CURRENT-STATE + ENGINEERING-JOURNAL updated
+- [x] Native + custom fields for `empresas` in `mdp_field`
+- [x] `CadCpsCampo` migration path documented and pilot-complete
+- [x] Tenant isolation on all field APIs
+- [x] `npm run verify:governance` + `verify:ci` pass
+- [x] CURRENT-STATE + ENGINEERING-JOURNAL updated
 
 ---
 

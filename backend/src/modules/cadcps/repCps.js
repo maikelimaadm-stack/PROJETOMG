@@ -11,21 +11,20 @@ import {
 } from "../sequencias/entidadeCodigoService.js";
 import { assertCampoNotInUse } from "./cadcpsFieldUsage.js";
 import { CADCPS_APLICACAO, normalizeCadcpsTipo } from "./cadcpsConstants.js";
-import { getCadcpsCampoCount, incrementClienteCounter } from "../metrics/counterService.js";
+import { incrementClienteCounter } from "../metrics/counterService.js";
 import { listCadastroModulesForCadcps } from "./cadastroModuleRegistry.js";
-
-const CAMPO_INCLUDE = {
-  telas: { include: { tela: true } },
-  empresas: { include: { empresa: { select: { id: true, codempresa: true, razao_social: true } } } },
-  opcoes: { orderBy: { ordem: "asc" } },
-};
-
-/** Include leve para campos aplicáveis (form/table metadata). */
-const CAMPO_APPLICABLE_INCLUDE = {
-  opcoes: { orderBy: { ordem: "asc" } },
-  telas: { include: { tela: { select: { id: true, codigo: true, nome: true, entity_name: true } } } },
-  empresas: { select: { empresa_id: true } },
-};
+import { mdpFieldRepository } from "../mdp/mdpFieldRepository.js";
+import {
+  buildLabelCreate,
+  buildStableFieldId,
+  CADCPS_APLICACAO_TO_MDP,
+  MDP_PLATFORM_VERSION_ID,
+} from "../mdp/mdpFieldConstants.js";
+import {
+  campoPayloadToMdpFieldData,
+  mdpFieldToCampoShape,
+} from "../mdp/mdpFieldCadcpsAdapter.js";
+import { mdpEntityRepository } from "../mdp/mdpEntityRepository.js";
 
 const CADCPS_SORT_WHITELIST = new Set([
   "codigo",
@@ -41,6 +40,17 @@ const CADCPS_SORT_WHITELIST = new Set([
 const CADCPS_CURSOR_SORT_FIELDS = new Set(["codigo", "id_global"]);
 
 const MAX_PAGE_SIZE = 200;
+
+const SORT_FIELD_MAP = {
+  codigo: "codigo",
+  field_name: "field_name",
+  tipo: "field_type",
+  ativo: "active",
+  ordem_tabela: "table_order",
+  id_global: "id_global",
+  aplicacao_modo: "empresa_applicability",
+  updatedAt: "updated_at",
+};
 
 const encodeCursor = ({ sortField, direction, value, id }) => {
   const payload = JSON.stringify({
@@ -70,18 +80,17 @@ const decodeCursor = (cursor) => {
   }
 };
 
-const buildKeysetCursorWhere = (baseWhere, cursorMeta) => {
+const buildKeysetCursorWhere = (baseWhere, cursorMeta, prismaSortField) => {
   const comparator = cursorMeta.direction === "desc" ? "lt" : "gt";
-  const sortField = cursorMeta.sortField;
   return {
     AND: [
       baseWhere,
       {
         OR: [
-          { [sortField]: { [comparator]: cursorMeta.value } },
+          { [prismaSortField]: { [comparator]: cursorMeta.value } },
           {
             AND: [
-              { [sortField]: cursorMeta.value },
+              { [prismaSortField]: cursorMeta.value },
               { id: { [comparator]: cursorMeta.id } },
             ],
           },
@@ -91,35 +100,14 @@ const buildKeysetCursorWhere = (baseWhere, cursorMeta) => {
   };
 };
 
-const mapCampoRow = (row) => {
-  if (!row) return null;
-  const tipo = normalizeCadcpsTipo(row.tipo);
-  const deprecatedMask = ["cpf", "cnpj", "telefone", "cep", "rg"].includes(row.tipo);
-  return {
-    ...row,
-    tipo,
-    ...(deprecatedMask && !row.usar_mascara ? { usar_mascara: true } : {}),
-    telas: (row.telas || []).map((link) => link.tela).filter(Boolean),
-    empresa_ids: (row.empresas || []).map((link) => link.empresa_id),
-    empresas_vinculadas: (row.empresas || []).map((link) => link.empresa).filter(Boolean),
-    quantidade_empresas:
-      row.aplicacao_modo === CADCPS_APLICACAO.TODAS
-        ? null
-        : (row.empresas || []).length,
-    opcoes: row.opcoes || [],
-  };
-};
-
-const recordHistorico = async (prisma, { scope, campoId, acao, valorAnterior, valorNovo }) => {
-  await prisma.cadCpsHistorico.create({
-    data: {
-      cliente_id: scope.clienteId,
-      campo_id: campoId,
-      usuario_id: scope.userId,
-      acao,
-      valor_anterior: valorAnterior ?? undefined,
-      valor_novo: valorNovo ?? undefined,
-    },
+const recordHistorico = async (scope, fieldRowId, { acao, valorAnterior, valorNovo }) => {
+  await mdpFieldRepository.createAudit({
+    field_row_id: fieldRowId,
+    cliente_id: scope.clienteId,
+    action: acao,
+    before: valorAnterior ?? undefined,
+    after: valorNovo ?? undefined,
+    usuario_id: scope.userId,
   });
 };
 
@@ -148,28 +136,51 @@ const resolveFieldName = (payload = {}) => {
   return assertFieldName(fromNome || "campo");
 };
 
+const resolveEntityFromTela = async (prisma, scope, telaId) => {
+  const tela = await prisma.cadCpsTela.findUnique({ where: { id: telaId } });
+  if (!tela) return null;
+  return mdpEntityRepository.findByEntityId({
+    entityId: tela.entity_name,
+    clienteId: scope.clienteId,
+  });
+};
+
 const buildListWhere = (scope, query = {}) => {
-  const and = [{ cliente_id: scope.clienteId }];
+  const and = [
+    { cliente_id: scope.clienteId },
+    { source: "custom" },
+    { lifecycle: "active" },
+  ];
   if (scope.perfil !== "ADMIN") {
-    const empresaClauses = [{ aplicacao_modo: CADCPS_APLICACAO.TODAS }];
+    const empresaClauses = [{ empresa_applicability: "all" }];
     if (scope.selectedEmpresaId && scope.selectedEmpresaId !== "all") {
-      empresaClauses.push({ empresas: { some: { empresa_id: scope.selectedEmpresaId } } });
+      empresaClauses.push({ empresa_scopes: { some: { empresa_id: scope.selectedEmpresaId } } });
     } else if (scope.allowedEmpresaIds?.length) {
-      empresaClauses.push({ empresas: { some: { empresa_id: { in: scope.allowedEmpresaIds } } } });
+      empresaClauses.push({
+        empresa_scopes: { some: { empresa_id: { in: scope.allowedEmpresaIds } } },
+      });
     }
     and.push({ OR: empresaClauses });
   }
 
   if (query.codigo) and.push({ codigo: Number(query.codigo) });
-  if (query.nome) and.push({ nome: { contains: String(query.nome), mode: "insensitive" } });
-  if (query.tipo) and.push({ tipo: String(query.tipo) });
-  if (query.ativo !== undefined) and.push({ ativo: Boolean(query.ativo) });
-  if (query.obrigatorio !== undefined) and.push({ obrigatorio: Boolean(query.obrigatorio) });
+  if (query.nome) {
+    and.push({ labels: { some: { label: { contains: String(query.nome), mode: "insensitive" } } } });
+  }
+  if (query.tipo) and.push({ field_type: String(query.tipo) });
+  if (query.ativo !== undefined) and.push({ active: Boolean(query.ativo) });
+  if (query.obrigatorio !== undefined) and.push({ required: Boolean(query.obrigatorio) });
   if (query.com_formula) and.push({ formula: { not: null } });
-  if (query.com_mascara) and.push({ usar_mascara: true });
-  if (query.com_decimal) and.push({ usar_decimal: true });
-  if (query.field_name) and.push({ field_name: { contains: String(query.field_name), mode: "insensitive" } });
-  if (query.aplicacao_modo) and.push({ aplicacao_modo: String(query.aplicacao_modo) });
+  if (query.com_mascara) and.push({ use_mask: true });
+  if (query.com_decimal) and.push({ use_decimal: true });
+  if (query.field_name) {
+    and.push({ field_name: { contains: String(query.field_name), mode: "insensitive" } });
+  }
+  if (query.aplicacao_modo) {
+    and.push({
+      empresa_applicability: CADCPS_APLICACAO_TO_MDP[query.aplicacao_modo] || "all",
+    });
+  }
   if (query.id_global) and.push({ id_global: Number(query.id_global) });
 
   if (query.tela_id) {
@@ -179,8 +190,8 @@ const buildListWhere = (scope, query = {}) => {
   if (query.empresa_id) {
     and.push({
       OR: [
-        { aplicacao_modo: CADCPS_APLICACAO.TODAS },
-        { empresas: { some: { empresa_id: String(query.empresa_id) } } },
+        { empresa_applicability: "all" },
+        { empresa_scopes: { some: { empresa_id: String(query.empresa_id) } } },
       ],
     });
   }
@@ -195,19 +206,26 @@ const buildListWhere = (scope, query = {}) => {
       const normalized = values.map((item) => String(item).trim()).filter(Boolean);
       if (normalized.length === 0) return;
       if (baseKey === "ativo" || baseKey === "obrigatorio") {
-        and.push({ [baseKey]: { in: normalized.map((v) => v === "Sim" || v === true || v === "true") } });
+        const prismaKey = baseKey === "ativo" ? "active" : "required";
+        and.push({
+          [prismaKey]: {
+            in: normalized.map((v) => v === "Sim" || v === true || v === "true"),
+          },
+        });
         return;
       }
       if (baseKey === "codigo" || baseKey === "id_global") {
         and.push({ [baseKey]: { in: normalized.map(Number).filter(Number.isFinite) } });
         return;
       }
-      and.push({ [baseKey]: { in: normalized } });
+      const mappedKey = SORT_FIELD_MAP[baseKey] || baseKey;
+      and.push({ [mappedKey]: { in: normalized } });
       return;
     }
 
     if (key === "ativo" || key === "obrigatorio") {
-      and.push({ [key]: value === "Sim" || value === true || value === "true" });
+      const prismaKey = key === "ativo" ? "active" : "required";
+      and.push({ [prismaKey]: value === "Sim" || value === true || value === "true" });
       return;
     }
     if (key === "codigo" || key === "id_global") {
@@ -215,12 +233,20 @@ const buildListWhere = (scope, query = {}) => {
       if (Number.isFinite(numeric)) and.push({ [key]: Math.floor(numeric) });
       return;
     }
-    if (key === "tipo" || key === "aplicacao_modo") {
-      and.push({ [key]: String(value) });
+    if (key === "tipo") {
+      and.push({ field_type: String(value) });
       return;
     }
-    if (key === "nome" || key === "field_name") {
-      and.push({ [key]: { contains: String(value).trim(), mode: "insensitive" } });
+    if (key === "aplicacao_modo") {
+      and.push({ empresa_applicability: CADCPS_APLICACAO_TO_MDP[value] || "all" });
+      return;
+    }
+    if (key === "nome") {
+      and.push({ labels: { some: { label: { contains: String(value).trim(), mode: "insensitive" } } } });
+      return;
+    }
+    if (key === "field_name") {
+      and.push({ field_name: { contains: String(value).trim(), mode: "insensitive" } });
     }
   });
 
@@ -229,15 +255,13 @@ const buildListWhere = (scope, query = {}) => {
     if (/^\d+$/.test(search)) {
       const asNumber = Number(search);
       if (Number.isFinite(asNumber)) {
-        and.push({
-          OR: [{ id_global: asNumber }, { codigo: asNumber }],
-        });
+        and.push({ OR: [{ id_global: asNumber }, { codigo: asNumber }] });
       }
     } else {
       const asNumber = Number(search);
       and.push({
         OR: [
-          { nome: { contains: search, mode: "insensitive" } },
+          { labels: { some: { label: { contains: search, mode: "insensitive" } } } },
           { field_name: { contains: search, mode: "insensitive" } },
           ...(Number.isFinite(asNumber) ? [{ id_global: asNumber }, { codigo: asNumber }] : []),
         ],
@@ -251,17 +275,18 @@ const buildListWhere = (scope, query = {}) => {
 const buildApplicableWhere = (scope, entityName) => {
   const and = [
     { cliente_id: scope.clienteId },
-    { ativo: true },
+    { active: true },
+    { source: { in: ["custom", "computed", "derived"] } },
     { telas: { some: { tela: { entity_name: entityName } } } },
   ];
 
-  const empresaOr = [{ aplicacao_modo: CADCPS_APLICACAO.TODAS }];
+  const empresaOr = [{ empresa_applicability: "all" }];
   if (scope.selectedEmpresaId && scope.selectedEmpresaId !== "all") {
-    empresaOr.push({ empresas: { some: { empresa_id: scope.selectedEmpresaId } } });
+    empresaOr.push({ empresa_scopes: { some: { empresa_id: scope.selectedEmpresaId } } });
   } else if (!scope.acessoGlobal && scope.allowedEmpresaIds?.length) {
-    empresaOr.push({ empresas: { some: { empresa_id: { in: scope.allowedEmpresaIds } } } });
+    empresaOr.push({ empresa_scopes: { some: { empresa_id: { in: scope.allowedEmpresaIds } } } });
   } else if (scope.acessoGlobal) {
-    empresaOr.push({ aplicacao_modo: CADCPS_APLICACAO.ESPECIFICAS });
+    empresaOr.push({ empresa_applicability: "selected" });
   }
 
   and.push({ OR: empresaOr });
@@ -289,39 +314,6 @@ const assertEmpresaIdsBelongToCliente = async (prisma, scope, empresaIds) => {
     throw error;
   }
   return normalized;
-};
-
-const syncRelations = async (prisma, campoId, scope, { tela_ids = [], empresa_ids = [], opcoes = [], aplicacao_modo }) => {
-  const telaIds = tela_ids.slice(0, 1);
-  await prisma.cadCpsCampoTela.deleteMany({ where: { campo_id: campoId } });
-  if (telaIds.length) {
-    await prisma.cadCpsCampoTela.createMany({
-      data: telaIds.map((tela_id) => ({ campo_id: campoId, tela_id })),
-      skipDuplicates: true,
-    });
-  }
-
-  await prisma.cadCpsCampoEmpresa.deleteMany({ where: { campo_id: campoId } });
-  if (aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS && empresa_ids.length) {
-    const safeEmpresaIds = await assertEmpresaIdsBelongToCliente(prisma, scope, empresa_ids);
-    await prisma.cadCpsCampoEmpresa.createMany({
-      data: safeEmpresaIds.map((empresa_id) => ({ campo_id: campoId, empresa_id })),
-      skipDuplicates: true,
-    });
-  }
-
-  await prisma.cadCpsCampoOpcao.deleteMany({ where: { campo_id: campoId } });
-  if (opcoes.length) {
-    await prisma.cadCpsCampoOpcao.createMany({
-      data: opcoes.map((opcao, index) => ({
-        campo_id: campoId,
-        codigo: String(opcao.codigo),
-        descricao: String(opcao.descricao),
-        ordem: opcao.ordem ?? index,
-        ativo: opcao.ativo ?? true,
-      })),
-    });
-  }
 };
 
 export const repCps = {
@@ -370,6 +362,7 @@ export const repCps = {
     const where = buildListWhere(scope, query);
     const rawSortBy = String(query.sortBy || "codigo");
     const sortBy = CADCPS_SORT_WHITELIST.has(rawSortBy) ? rawSortBy : "codigo";
+    const prismaSortField = SORT_FIELD_MAP[sortBy] || "codigo";
     const sortDir = query.sortDir === "desc" ? "desc" : "asc";
     const cursorMeta = decodeCursor(query.cursor);
     const isCursorMode =
@@ -377,8 +370,10 @@ export const repCps = {
       cursorMeta &&
       cursorMeta.sortField === sortBy &&
       cursorMeta.direction === sortDir;
-    const orderBy = isCursorMode ? [{ [sortBy]: sortDir }, { id: sortDir }] : { [sortBy]: sortDir };
-    const pageWhere = isCursorMode ? buildKeysetCursorWhere(where, cursorMeta) : where;
+    const orderBy = isCursorMode
+      ? [{ [prismaSortField]: sortDir }, { id: sortDir }]
+      : { [prismaSortField]: sortDir };
+    const pageWhere = isCursorMode ? buildKeysetCursorWhere(where, cursorMeta, prismaSortField) : where;
     const hasHeavyFilter = Boolean(
       String(query.search || "").trim() || (query.filters && Object.keys(query.filters).length)
     );
@@ -386,9 +381,9 @@ export const repCps = {
       String(query.includeTotal ?? "true").toLowerCase() !== "false" &&
       String(query.includeTotal ?? "true").toLowerCase() !== "0";
 
-    const rows = await prisma.cadCpsCampo.findMany({
+    const rows = await prisma.mdpField.findMany({
       where: pageWhere,
-      include: CAMPO_INCLUDE,
+      include: mdpFieldRepository.include,
       ...(isCursorMode ? {} : { skip }),
       take: pageSize,
       orderBy,
@@ -396,17 +391,16 @@ export const repCps = {
 
     let total;
     if (shouldIncludeTotal && hasHeavyFilter) {
-      total = await prisma.cadCpsCampo.count({ where });
+      total = await prisma.mdpField.count({ where });
     } else if (shouldIncludeTotal) {
-      const cachedTotal = await getCadcpsCampoCount(scope);
-      total = cachedTotal ?? rows.length;
+      total = await mdpFieldRepository.countCustomFields(scope.clienteId);
     } else {
       const baseTotal = (page - 1) * pageSize;
       total = baseTotal + rows.length + (rows.length === pageSize ? 1 : 0);
     }
 
     return {
-      items: rows.map(mapCampoRow),
+      items: rows.map(mdpFieldToCampoShape),
       total,
       page,
       pageSize,
@@ -420,7 +414,7 @@ export const repCps = {
           ? encodeCursor({
               sortField: sortBy,
               direction: sortDir,
-              value: rows[rows.length - 1]?.[sortBy],
+              value: rows[rows.length - 1]?.[prismaSortField],
               id: rows[rows.length - 1]?.id,
             })
           : null,
@@ -428,29 +422,42 @@ export const repCps = {
   },
 
   async getById(scope, id) {
-    const prisma = getPrismaClient();
-    const row = await prisma.cadCpsCampo.findFirst({
-      where: { id, cliente_id: scope.clienteId },
-      include: CAMPO_INCLUDE,
-    });
-    return mapCampoRow(row);
+    const row = await mdpFieldRepository.findById({ id, clienteId: scope.clienteId });
+    if (!row || row.source !== "custom") return null;
+    return mdpFieldToCampoShape(row);
   },
 
   async listApplicable(scope, entityName) {
     const prisma = getPrismaClient();
-    const rows = await prisma.cadCpsCampo.findMany({
+    const rows = await prisma.mdpField.findMany({
       where: buildApplicableWhere(scope, entityName),
-      include: CAMPO_APPLICABLE_INCLUDE,
-      orderBy: [{ ordem_tabela: "asc" }, { nome: "asc" }],
+      include: mdpFieldRepository.applicableInclude,
+      orderBy: [{ table_order: "asc" }, { field_name: "asc" }],
     });
-    return rows.map(mapCampoRow);
+    return rows.map(mdpFieldToCampoShape);
   },
 
   async create({ scope, payload }) {
     const prisma = getPrismaClient();
     const field_name = resolveFieldName(payload);
-    const existing = await prisma.cadCpsCampo.findFirst({
-      where: { cliente_id: scope.clienteId, field_name },
+    const telaIds = resolveTelaIdsFromPayload(payload);
+    if (!telaIds.length) {
+      const error = new Error("tela_id é obrigatório para criar campo personalizado.");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const entity = await resolveEntityFromTela(prisma, scope, telaIds[0]);
+    if (!entity) {
+      const error = new Error("Entidade alvo da tela não encontrada no Entity Dictionary.");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const existing = await mdpFieldRepository.findByFieldName({
+      fieldName: field_name,
+      entityRowId: entity.id,
+      clienteId: scope.clienteId,
     });
     if (existing) {
       const error = new Error(`Já existe campo com nome técnico "${field_name}".`);
@@ -459,62 +466,47 @@ export const repCps = {
     }
 
     const aplicacao_modo = payload.aplicacao_modo || CADCPS_APLICACAO.TODAS;
-    const data = {
-      cliente_id: scope.clienteId,
-      nome: payload.nome,
-      field_name,
-      descricao: payload.descricao,
-      tipo: normalizeCadcpsTipo(payload.tipo),
-      ativo: payload.ativo ?? true,
-      obrigatorio: payload.obrigatorio ?? false,
-      read_only: payload.read_only ?? false,
-      visivel_form: payload.visivel_form ?? true,
-      visivel_tabela: payload.visivel_tabela ?? false,
-      visivel_relatorio: payload.visivel_relatorio ?? false,
-      pesquisavel: payload.pesquisavel ?? true,
-      filtravel: payload.filtravel ?? true,
-      exportavel: payload.exportavel ?? true,
-      auditavel: payload.auditavel ?? true,
-      aplicacao_modo,
-      placeholder: payload.placeholder,
-      formula: payload.formula,
-      calculation_builder: payload.calculation_builder,
-      usar_mascara: payload.usar_mascara ?? false,
-      mascaras_text: payload.mascaras_text,
-      usar_decimal: payload.usar_decimal ?? false,
-      decimal_places: payload.decimal_places ?? 2,
-      separador_decimal: payload.separador_decimal || ",",
-      separador_milhar: payload.separador_milhar || ".",
-      ordem_tabela: payload.ordem_tabela ?? 999,
-      largura_coluna: payload.largura_coluna ?? 160,
-      relation_entity: payload.relation_entity,
-      options_label_field: payload.options_label_field,
-      options_value_field: payload.options_value_field,
-      created_by: scope.userId,
-      updated_by: scope.userId,
-    };
+    const stableFieldId = buildStableFieldId(entity.entity_id, field_name);
+    const mdpData = campoPayloadToMdpFieldData(payload, {
+      fieldName: field_name,
+      entityRowId: entity.id,
+      stableFieldId,
+      scope: "tenant",
+      clienteId: scope.clienteId,
+      source: "custom",
+    });
 
     const created = await runTransactionWithRetry(prisma, async (tx) => {
       const codigo = await reserveNextCodigo(tx, scope.clienteId, ENTITY_CODIGO_CADCPS);
       const idGlobal = await reserveNextIdGlobal(tx, scope.clienteId);
-      const record = await tx.cadCpsCampo.create({
+      const record = await tx.mdpField.create({
         data: {
-          ...data,
+          ...mdpData,
           codigo,
           id_global: idGlobal,
+          version_id: MDP_PLATFORM_VERSION_ID,
+          created_by: scope.userId,
+          updated_by: scope.userId,
+          labels: {
+            create: buildLabelCreate(payload.nome, payload.descricao, payload.placeholder),
+          },
         },
       });
       await registerRegistroGlobal(tx, {
         clienteId: scope.clienteId,
         idGlobal,
-        entityName: "CadCpsCampo",
+        entityName: "MdpField",
         registroId: record.id,
       });
-      await syncRelations(tx, record.id, scope, {
-        tela_ids: resolveTelaIdsFromPayload(payload),
-        empresa_ids: payload.empresa_ids,
-        opcoes: payload.opcoes,
-        aplicacao_modo,
+      const empresaIds =
+        aplicacao_modo === CADCPS_APLICACAO.ESPECIFICAS
+          ? await assertEmpresaIdsBelongToCliente(tx, scope, payload.empresa_ids || [])
+          : [];
+      await mdpFieldRepository.syncRelations(tx, record.id, {
+        tela_ids: telaIds,
+        empresa_ids: empresaIds,
+        opcoes: payload.opcoes || [],
+        empresa_applicability: mdpData.empresa_applicability,
       });
       return record;
     });
@@ -522,10 +514,10 @@ export const repCps = {
     void incrementClienteCounter(scope.clienteId, "cadcps", 1);
 
     const full = await this.getById(scope, created.id);
-    await recordHistorico(prisma, { scope, campoId: created.id, acao: "CREATE", valorNovo: full });
+    await recordHistorico(scope, created.id, { acao: "CREATE", valorNovo: full });
     void auditService.log({
       scope,
-      entityName: "CadCpsCampo",
+      entityName: "MdpField",
       action: "CREATE",
       entityId: created.id,
       idGlobal: created.id_global,
@@ -551,37 +543,42 @@ export const repCps = {
       ? assertFieldName(payload.field_name)
       : current.field_name;
 
-    const data = {
-      ...(payload.nome !== undefined ? { nome: payload.nome } : {}),
+    const mdpUpdates = {
+      ...(payload.nome !== undefined || payload.descricao !== undefined || payload.placeholder !== undefined
+        ? {}
+        : {}),
       ...(payload.field_name !== undefined ? { field_name } : {}),
-      ...(payload.descricao !== undefined ? { descricao: payload.descricao } : {}),
-      ...(payload.tipo !== undefined ? { tipo: normalizeCadcpsTipo(payload.tipo) } : {}),
-      ...(payload.ativo !== undefined ? { ativo: payload.ativo } : {}),
-      ...(payload.obrigatorio !== undefined ? { obrigatorio: payload.obrigatorio } : {}),
+      ...(payload.tipo !== undefined ? { field_type: normalizeCadcpsTipo(payload.tipo) } : {}),
+      ...(payload.ativo !== undefined ? { active: payload.ativo } : {}),
+      ...(payload.obrigatorio !== undefined ? { required: payload.obrigatorio } : {}),
       ...(payload.read_only !== undefined ? { read_only: payload.read_only } : {}),
-      ...(payload.visivel_form !== undefined ? { visivel_form: payload.visivel_form } : {}),
-      ...(payload.visivel_tabela !== undefined ? { visivel_tabela: payload.visivel_tabela } : {}),
-      ...(payload.visivel_relatorio !== undefined ? { visivel_relatorio: payload.visivel_relatorio } : {}),
-      ...(payload.pesquisavel !== undefined ? { pesquisavel: payload.pesquisavel } : {}),
-      ...(payload.filtravel !== undefined ? { filtravel: payload.filtravel } : {}),
-      ...(payload.exportavel !== undefined ? { exportavel: payload.exportavel } : {}),
-      ...(payload.auditavel !== undefined ? { auditavel: payload.auditavel } : {}),
-      ...(payload.aplicacao_modo !== undefined ? { aplicacao_modo: payload.aplicacao_modo } : {}),
+      ...(payload.visivel_form !== undefined ? { visible_form: payload.visivel_form } : {}),
+      ...(payload.visivel_tabela !== undefined ? { visible_table: payload.visivel_tabela } : {}),
+      ...(payload.visivel_relatorio !== undefined ? { visible_report: payload.visivel_relatorio } : {}),
+      ...(payload.pesquisavel !== undefined ? { searchable: payload.pesquisavel } : {}),
+      ...(payload.filtravel !== undefined ? { filterable: payload.filtravel } : {}),
+      ...(payload.exportavel !== undefined ? { exportable: payload.exportavel } : {}),
+      ...(payload.auditavel !== undefined ? { auditable: payload.auditavel } : {}),
+      ...(payload.aplicacao_modo !== undefined
+        ? { empresa_applicability: CADCPS_APLICACAO_TO_MDP[payload.aplicacao_modo] || "all" }
+        : {}),
       ...(payload.placeholder !== undefined ? { placeholder: payload.placeholder } : {}),
       ...(payload.formula !== undefined ? { formula: payload.formula } : {}),
       ...(payload.calculation_builder !== undefined
         ? { calculation_builder: payload.calculation_builder }
         : {}),
-      ...(payload.usar_mascara !== undefined ? { usar_mascara: payload.usar_mascara } : {}),
-      ...(payload.mascaras_text !== undefined ? { mascaras_text: payload.mascaras_text } : {}),
-      ...(payload.usar_decimal !== undefined ? { usar_decimal: payload.usar_decimal } : {}),
+      ...(payload.usar_mascara !== undefined ? { use_mask: payload.usar_mascara } : {}),
+      ...(payload.mascaras_text !== undefined ? { mask_text: payload.mascaras_text } : {}),
+      ...(payload.usar_decimal !== undefined ? { use_decimal: payload.usar_decimal } : {}),
       ...(payload.decimal_places !== undefined ? { decimal_places: payload.decimal_places } : {}),
       ...(payload.separador_decimal !== undefined
-        ? { separador_decimal: payload.separador_decimal }
+        ? { decimal_separator: payload.separador_decimal }
         : {}),
-      ...(payload.separador_milhar !== undefined ? { separador_milhar: payload.separador_milhar } : {}),
-      ...(payload.ordem_tabela !== undefined ? { ordem_tabela: payload.ordem_tabela } : {}),
-      ...(payload.largura_coluna !== undefined ? { largura_coluna: payload.largura_coluna } : {}),
+      ...(payload.separador_milhar !== undefined
+        ? { thousand_separator: payload.separador_milhar }
+        : {}),
+      ...(payload.ordem_tabela !== undefined ? { table_order: payload.ordem_tabela } : {}),
+      ...(payload.largura_coluna !== undefined ? { column_width: payload.largura_coluna } : {}),
       ...(payload.relation_entity !== undefined ? { relation_entity: payload.relation_entity } : {}),
       ...(payload.options_label_field !== undefined
         ? { options_label_field: payload.options_label_field }
@@ -592,7 +589,16 @@ export const repCps = {
       updated_by: scope.userId,
     };
 
-    await prisma.cadCpsCampo.update({ where: { id }, data });
+    await mdpFieldRepository.update(id, mdpUpdates);
+
+    if (payload.nome !== undefined || payload.descricao !== undefined || payload.placeholder !== undefined) {
+      await mdpFieldRepository.upsertLabel(prisma, id, {
+        locale: "pt-BR",
+        label: payload.nome ?? current.nome,
+        description: payload.descricao ?? current.descricao,
+        placeholder: payload.placeholder ?? current.placeholder,
+      });
+    }
 
     if (
       payload.tela_id ||
@@ -601,25 +607,35 @@ export const repCps = {
       payload.opcoes ||
       payload.aplicacao_modo !== undefined
     ) {
-      await syncRelations(prisma, id, scope, {
+      const aplicacao =
+        payload.aplicacao_modo !== undefined
+          ? CADCPS_APLICACAO_TO_MDP[payload.aplicacao_modo] || "all"
+          : CADCPS_APLICACAO_TO_MDP[current.aplicacao_modo] || "all";
+      const empresaIds =
+        aplicacao === "selected"
+          ? await assertEmpresaIdsBelongToCliente(
+              prisma,
+              scope,
+              payload.empresa_ids || current.empresa_ids || []
+            )
+          : [];
+      await mdpFieldRepository.syncRelations(prisma, id, {
         tela_ids: resolveTelaIdsFromPayload(payload, current.telas),
-        empresa_ids: payload.empresa_ids || current.empresa_ids,
+        empresa_ids: empresaIds,
         opcoes: payload.opcoes || current.opcoes,
-        aplicacao_modo: payload.aplicacao_modo || current.aplicacao_modo,
+        empresa_applicability: aplicacao,
       });
     }
 
     const full = await this.getById(scope, id);
-    await recordHistorico(prisma, {
-      scope,
-      campoId: id,
+    await recordHistorico(scope, id, {
       acao: "UPDATE",
       valorAnterior: current,
       valorNovo: full,
     });
     void auditService.log({
       scope,
-      entityName: "CadCpsCampo",
+      entityName: "MdpField",
       action: "UPDATE",
       entityId: id,
       payload: { field_name: full.field_name },
@@ -629,23 +645,17 @@ export const repCps = {
   },
 
   async remove({ scope, id }) {
-    const prisma = getPrismaClient();
     const current = await this.getById(scope, id);
     if (!current) return false;
 
     await assertCampoNotInUse(current, scope, "excluído");
 
-    await recordHistorico(prisma, {
-      scope,
-      campoId: id,
-      acao: "DELETE",
-      valorAnterior: current,
-    });
-    await prisma.cadCpsCampo.delete({ where: { id } });
+    await recordHistorico(scope, id, { acao: "DELETE", valorAnterior: current });
+    await mdpFieldRepository.delete(id);
     void incrementClienteCounter(scope.clienteId, "cadcps", -1);
     void auditService.log({
       scope,
-      entityName: "CadCpsCampo",
+      entityName: "MdpField",
       action: "DELETE",
       entityId: id,
       payload: { field_name: current.field_name },
@@ -654,11 +664,19 @@ export const repCps = {
   },
 
   async listHistorico(scope, campoId) {
-    const prisma = getPrismaClient();
-    return prisma.cadCpsHistorico.findMany({
-      where: { cliente_id: scope.clienteId, campo_id: campoId },
-      orderBy: { createdAt: "desc" },
-      take: 100,
+    const rows = await mdpFieldRepository.listAudits({
+      fieldRowId: campoId,
+      clienteId: scope.clienteId,
     });
+    return rows.map((row) => ({
+      id: row.id,
+      cliente_id: row.cliente_id,
+      campo_id: row.field_row_id,
+      usuario_id: row.usuario_id,
+      acao: row.action,
+      valor_anterior: row.before,
+      valor_novo: row.after,
+      createdAt: row.created_at,
+    }));
   },
 };

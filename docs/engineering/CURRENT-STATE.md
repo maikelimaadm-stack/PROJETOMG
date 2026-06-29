@@ -1,8 +1,8 @@
 # CURRENT-STATE — MAK Gestão Platform
 
 **Status:** Living document — update every mission  
-**Last verified:** 2026-06-28  
-**Verified by:** IFM 1C-MDP-1 Entity Dictionary Implementation  
+**Last verified:** 2026-06-29  
+**Verified by:** IFM 1C-MDP-2 Data Dictionary Implementation  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -34,7 +34,7 @@ Domain modules (2 runtime) → ModeloBase1 → framework/mak → cadastro-engine
                                     ↘ framework/cadastro (legacy, transitional)
 
 Planned (IFM 1C — partial):
-MAK DATA PLATFORM (L4) → Entity Dictionary ✅ · Data · Relationship · Metadata Registry
+MAK DATA PLATFORM (L4) → Entity Dictionary ✅ · Data Dictionary ✅ · Relationship · Metadata Registry
 Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 ```
 
@@ -104,8 +104,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Aspect | State |
 |--------|-------|
-| Models (Prisma) | 24 (+6 MDP-1) |
-| Migrations | 12 (+ MDP-1) |
+| Models (Prisma) | 30 (+6 MDP-2) |
+| Migrations | 13 (+ MDP-2) |
 | Indexes | ~60 |
 | Multi-tenant | `cliente_id` on all operational models |
 | Multi-empresa | `PermissaoEmpresa` + `X-Empresa-Id` header |
@@ -119,7 +119,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 |-----------|--------|------|
 | **Architecture (MDP-0)** | **✅ Complete** | [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) |
 | Entity Dictionary (MDP-1) | **✅ Complete** | [IFM-1C-MDP-1-CERTIFICATION-REPORT.md](./IFM-1C-MDP-1-CERTIFICATION-REPORT.md) |
-| Data Dictionary (MDP-2) | Not implemented | [IFM-1C-MDP-2-DATA-DICTIONARY.md](./IFM-1C-MDP-2-DATA-DICTIONARY.md) |
+| Data Dictionary (MDP-2) | **✅ Complete** | [IFM-1C-MDP-2-CERTIFICATION-REPORT.md](./IFM-1C-MDP-2-CERTIFICATION-REPORT.md) |
+| Relationship Dictionary (MDP-3) | Not implemented | [IFM-1C-MDP-3-RELATIONSHIP-DICTIONARY.md](./IFM-1C-MDP-3-RELATIONSHIP-DICTIONARY.md) |
 | Relationship Dictionary (MDP-3) | Not implemented | Spec §5 |
 | Metadata Registry (MDP-4) | Not implemented | Spec §6 — runtime registries ~30% |
 | Versioning & Publication (MDP-5) | Not implemented | Spec §7 |

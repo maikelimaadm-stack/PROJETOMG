@@ -1,0 +1,29 @@
+{
+  "exportedAt": "2026-06-29T00:00:00.000Z",
+  "version": "mdp-fields-v1",
+  "fieldCount": 20,
+  "nativeCount": 20,
+  "customCount": 0,
+  "fields": [
+    { "fieldId": "EmpresaCadastro.tipo_pessoa", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "tipo_pessoa", "source": "native", "fieldType": "lista", "scope": "platform", "label": "Tipo de Pessoa", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.tipo_vinculo", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "tipo_vinculo", "source": "native", "fieldType": "lista", "scope": "platform", "label": "Proprietário/Arrendatário", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.codempresa", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "codempresa", "source": "native", "fieldType": "inteiro", "scope": "platform", "label": "Cód. Empresa", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.razao_social", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "razao_social", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Nome/Razão Social Emp.", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.status", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "status", "source": "native", "fieldType": "lista", "scope": "platform", "label": "Ativa", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.nome_fantasia", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "nome_fantasia", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Nome fantasia", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.cpf_cnpj", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "cpf_cnpj", "source": "native", "fieldType": "texto", "scope": "platform", "label": "CPF/CNPJ", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.inscricao_estadual", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "inscricao_estadual", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Inscrição Estadual", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.telefone", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "telefone", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Telefone", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.whatsapp", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "whatsapp", "source": "native", "fieldType": "texto", "scope": "platform", "label": "WhatsApp", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.email", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "email", "source": "native", "fieldType": "email", "scope": "platform", "label": "E-mail", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.logo_url", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "logo_url", "source": "native", "fieldType": "imagem", "scope": "platform", "label": "Logo da Empresa", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.cep", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "cep", "source": "native", "fieldType": "texto", "scope": "platform", "label": "CEP", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.endereco", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "endereco", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Endereço", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.numero", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "numero", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Número", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.bairro", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "bairro", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Bairro", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.cidade", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "cidade", "source": "native", "fieldType": "texto", "scope": "platform", "label": "Cidade", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.estado", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "estado", "source": "native", "fieldType": "lista", "scope": "platform", "label": "Estado (UF)", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.observacoes", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "observacoes", "source": "native", "fieldType": "observacao", "scope": "platform", "label": "Observações", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "fieldId": "EmpresaCadastro.campos_personalizados", "entityId": "EmpresaCadastro", "moduleId": "empresas", "fieldName": "campos_personalizados", "source": "system", "fieldType": "texto", "scope": "platform", "label": "Campos Personalizados", "baseTemplateId": "modelobase1", "lifecycle": "active" }
+  ]
+}

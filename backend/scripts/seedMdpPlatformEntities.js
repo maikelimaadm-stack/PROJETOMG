@@ -58,12 +58,13 @@ const PLATFORM_ENTITIES = [
     empresa_scope: "none",
     is_runtime_module: true,
     persistence: {
-      prismaModel: "CadCpsCampo",
-      tableName: "CadCpsCampo",
+      prismaModel: "MdpField",
+      tableName: "mdp_field",
       primaryKey: "id",
       tenantKey: "cliente_id",
       empresaKey: null,
       idGlobalKey: "id_global",
+      legacyModel: "CadCpsCampo",
     },
     labels: {
       locale: DEFAULT_LOCALE,

@@ -4,6 +4,7 @@ import { PrismaClient } from "@prisma/client";
 import { pathToFileURL } from "node:url";
 import { seedClienteModulos } from "../src/modules/clienteModulo/clienteModuloService.js";
 import { seedMdpPlatformEntities } from "./seedMdpPlatformEntities.js";
+import { seedMdpFields } from "./seedMdpFields.js";
 
 dotenv.config();
 
@@ -61,6 +62,7 @@ export const seedBootstrap = async (prisma = new PrismaClient()) => {
 
   await seedClienteModulos(prisma);
   await seedMdpPlatformEntities(prisma);
+  await seedMdpFields(prisma, { clienteId: cliente.id });
 
   return { cliente, usuario };
 };
