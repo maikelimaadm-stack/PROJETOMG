@@ -1,0 +1,32 @@
+/** Design Token catalog — semantic tokens (no scattered visual values). */
+export const DESIGN_TOKEN_CATALOG = [
+  { tokenId: "color.primary", category: "colors", value: "hsl(var(--primary))", description: "Primary brand color" },
+  { tokenId: "color.background", category: "colors", value: "hsl(var(--background))", description: "App background" },
+  { tokenId: "color.foreground", category: "colors", value: "hsl(var(--foreground))", description: "Primary text" },
+  { tokenId: "color.muted", category: "colors", value: "hsl(var(--muted))", description: "Muted surfaces" },
+  { tokenId: "color.border", category: "colors", value: "hsl(var(--border))", description: "Default border" },
+  { tokenId: "color.destructive", category: "colors", value: "hsl(var(--destructive))", description: "Error/destructive" },
+  { tokenId: "color.success", category: "colors", value: "hsl(142 76% 36%)", description: "Success state" },
+  { tokenId: "typography.font.family", category: "typography", value: "Inter, system-ui, sans-serif", description: "Base font family" },
+  { tokenId: "typography.font.size.sm", category: "typography", value: "0.875rem", description: "Small text" },
+  { tokenId: "typography.font.size.base", category: "typography", value: "1rem", description: "Body text" },
+  { tokenId: "typography.font.size.lg", category: "typography", value: "1.125rem", description: "Large text" },
+  { tokenId: "radius.sm", category: "radius", value: "0.25rem", description: "Small radius" },
+  { tokenId: "radius.md", category: "radius", value: "0.375rem", description: "Medium radius" },
+  { tokenId: "radius.lg", category: "radius", value: "0.5rem", description: "Large radius" },
+  { tokenId: "shadow.sm", category: "shadows", value: "0 1px 2px rgba(0,0,0,0.05)", description: "Small shadow" },
+  { tokenId: "shadow.md", category: "shadows", value: "0 4px 6px rgba(0,0,0,0.07)", description: "Medium shadow" },
+  { tokenId: "spacing.xs", category: "spacing", value: "0.25rem", description: "Extra small spacing" },
+  { tokenId: "spacing.sm", category: "spacing", value: "0.5rem", description: "Small spacing" },
+  { tokenId: "spacing.md", category: "spacing", value: "1rem", description: "Medium spacing" },
+  { tokenId: "spacing.lg", category: "spacing", value: "1.5rem", description: "Large spacing" },
+  { tokenId: "elevation.1", category: "elevation", value: "1", description: "Elevation level 1" },
+  { tokenId: "elevation.2", category: "elevation", value: "2", description: "Elevation level 2" },
+  { tokenId: "opacity.disabled", category: "opacity", value: "0.5", description: "Disabled opacity" },
+  { tokenId: "motion.duration.fast", category: "motion", ref: "motion.fade", description: "Fast motion duration ref" },
+  { tokenId: "icon.size.sm", category: "icons", value: "16px", description: "Small icon" },
+  { tokenId: "icon.size.md", category: "icons", value: "20px", description: "Medium icon" },
+  { tokenId: "border.width.default", category: "borders", value: "1px", description: "Default border width" },
+];
+
+export default DESIGN_TOKEN_CATALOG;

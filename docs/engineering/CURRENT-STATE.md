@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** Program 2.0.5 Studio SDK Foundation (D-032)  
+**Verified by:** Program 2.0.6 Design System Foundation (D-033)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -18,7 +18,7 @@
 | Constitution | v1.0.0 — `docs/constitution/` |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | **Engineering Principles** | v1.0.0 — `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` (**D-029**) |
-| **MAK Studio Architecture** | v1.1.0 | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**D-031**, SDK **D-032**) |
+| **MAK Studio Architecture** | v1.2.0 | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**D-031**, SDK **D-032**, DS **D-033**) |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Platform Maturity Index | v1.3.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` (**ERI 3.8/10**) |
 | Implementation Protocol | v1.2.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019, **D-028 gate**) |
@@ -40,7 +40,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **2.0.5 complete, 2.1 Shell ready** | [Architecture](../architecture/MAK-STUDIO-ARCHITECTURE.md) · [2.1 Shell Brief](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **2.0.6 complete, 2.1 Shell ready** | [Architecture](../architecture/MAK-STUDIO-ARCHITECTURE.md) · [2.1 Shell Brief](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -158,7 +158,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio | Not started |
+| MAK Studio Shell / Designers | Not started — **SDK + Design System foundation ✅** (`src/studio/`) |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |

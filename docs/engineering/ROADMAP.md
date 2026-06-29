@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (Program 2.0.5 Studio SDK — D-032)
+**Last updated:** 2026-06-29 (Program 2.0.6 Design System Foundation — D-033)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -129,6 +129,7 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 |-------|-------------|--------|
 | **2.0** | Studio foundation architecture | ✅ Complete (D-031) |
 | **2.0.5** | Studio SDK + registries | ✅ Complete (D-032) |
+| **2.0.6** | Design System Foundation | ✅ Complete (D-033) |
 | **2.1** | Studio Shell (chrome + dock + SDK wiring) | **Next** — [Brief](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) |
 | **2.2** | Layout Studio (empresas pilot) | Prepared — [Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
 | 2.3+ | Field, Validation, Workflow studios | Not started |

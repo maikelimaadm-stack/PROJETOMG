@@ -390,6 +390,18 @@
 
 ---
 
+## D-033 — MAK Design System Foundation
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.0.6** — permanent Design System Foundation layer (`src/studio/designSystem/`) between Studio SDK and Studio Shell. Official Token, Theme, Motion, Accessibility, and Manifest registries; Component Manifest contract; Universal Component Model (platform `"mak"`, multi-renderer bindings); AI Component Knowledge; integration with existing Studio registries without breaking compatibility. Governance gates **G267–G272**. No UI, themes, or renderers in this mission. |
+| **Evidence** | [IFM-PROGRAM-2.0.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.6-CERTIFICATION-REPORT.md) |
+| **Consequences** | All visual values resolve via Token Registry; Studio Shell (2.1) consumes Design System + SDK; Layout Studio (2.2) uses Component Manifest |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

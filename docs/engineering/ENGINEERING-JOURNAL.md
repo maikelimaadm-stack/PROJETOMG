@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.0.5 Studio SDK Foundation)
+**Last updated:** 2026-06-29 (Program 2.0.6 Design System Foundation)
+
+---
+
+## 2026-06-29 — Program 2.0.6: MAK Design System Foundation
+
+**Scope:** Token/Theme/Motion/Accessibility registries, Component Manifest, Universal Component Model, AI knowledge, Studio registry integration  
+**Changes:** `src/studio/designSystem/*`, gates G267–G272  
+**Report:** [IFM-PROGRAM-2.0.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.6-CERTIFICATION-REPORT.md)  
+**Decision:** D-033
+
+**RHP:** PR #310 merged; main @ `d6ffd98b`; no mergeable PRs  
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1 Studio Shell
 
 ---
 
