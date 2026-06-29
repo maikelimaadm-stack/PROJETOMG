@@ -306,6 +306,29 @@ if (exists(mdpExportPath)) {
   );
 }
 
+// G138 — MDP Data Dictionary export alinhado (MDP-2)
+const mdpFieldsExportPath = path.join(ROOT, "config/mdp-fields.export.json");
+if (exists(mdpFieldsExportPath)) {
+  const mdpFieldsExport = JSON.parse(fs.readFileSync(mdpFieldsExportPath, "utf8"));
+  const empresasNative = (mdpFieldsExport.fields || []).filter(
+    (f) => f.entityId === "EmpresaCadastro" && (f.source === "native" || f.source === "system")
+  );
+  const repCpsContent = exists(path.join(ROOT, "backend/src/modules/cadcps/repCps.js"))
+    ? read(path.join(ROOT, "backend/src/modules/cadcps/repCps.js"))
+    : "";
+  const cadcpsUsesMdp =
+    repCpsContent.includes("mdpFieldRepository") &&
+    !repCpsContent.includes("prisma.cadCpsCampo");
+  const fieldsGateOk = empresasNative.length >= 19 && cadcpsUsesMdp && mdpFieldsExport.version === "mdp-fields-v1";
+  gate(
+    "G138 — MDP Data Dictionary export + CADCPS bridge (MDP-2)",
+    fieldsGateOk,
+    fieldsGateOk
+      ? ""
+      : `native=${empresasNative.length}, bridge=${cadcpsUsesMdp}, version=${mdpFieldsExport.version}`
+  );
+}
+
 // G119 — Gerador scaffold ModeloBase1 (delegado G103-G108)
 const scaffoldContent = walk(path.join(ROOT, "src/modules/template/scaffold")).map((f) => read(f)).join("\n");
 gate(

@@ -258,6 +258,18 @@
 
 ---
 
+## D-022 — MDP-2 Data Dictionary Schema (CADCPS Promotion)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement MDP-2 as unified field SSOT via `mdp_field*` tables. CADCPS admin (`repCps`) reads/writes exclusively through MDP bridge — no parallel field storage on write path. Legacy `CadCpsCampo*` migrates idempotently; tables remain for rollback reference only. Native Empresas fields seeded with `source=native|system`. Governance gate **G138** enforces export + bridge alignment. |
+| **Evidence** | [IFM-1C-MDP-2-CERTIFICATION-REPORT.md](./IFM-1C-MDP-2-CERTIFICATION-REPORT.md) |
+| **Consequences** | Field SSOT persisted; CADCPS moduleId unchanged; Foundation compile boundary (I-2) preserved; MDP-3 can reference `relationship_ref` on fields |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

@@ -41,6 +41,8 @@ model Cliente {
   logs               AuditLog[]
   cadcpsCampos       CadCpsCampo[]
   cadcpsHistoricos   CadCpsHistorico[]
+  mdpFields          MdpField[]
+  mdpFieldAudits     MdpFieldAudit[]
   registrosGlobais   RegistroGlobal[]
   codigoSequencias   EntidadeCodigoSequencia[]
   modulos            ClienteModulo[]
@@ -73,6 +75,7 @@ model Usuario {
   permissoes   PermissaoEmpresa[]
   preferencias UsuarioPreferencia[]
   cadcpsHistoricos CadCpsHistorico[]
+  mdpFieldAudits   MdpFieldAudit[]
   auditLogs    AuditLog[]
 
   @@unique([cliente_id, login])
@@ -125,6 +128,7 @@ model Empresa {
   anexos         RegistroAnexo[]
   permissoes     PermissaoEmpresa[]
   cadcpsEmpresas CadCpsCampoEmpresa[]
+  mdpFieldScopes MdpFieldEmpresaScope[]
   cadastros      CadastroRegistro[]
   auditLogs      AuditLog[]
 
@@ -155,7 +159,8 @@ model CadCpsTela {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  campos CadCpsCampoTela[]
+  campos        CadCpsCampoTela[]
+  mdpFieldTelas MdpFieldTela[]
 
   @@index([ativo, ordem])
 }
@@ -469,6 +474,21 @@ enum MdpClientTarget {
   all
 }
 
+enum MdpFieldSource {
+  native
+  custom
+  computed
+  derived
+  system
+  virtual
+}
+
+enum MdpFieldEmpresaApplicability {
+  all
+  selected
+  none
+}
+
 model MdpDefinitionVersion {
   id                String                     @id @default(cuid())
   cliente_id        String?                    @db.VarChar(64)
@@ -484,6 +504,7 @@ model MdpDefinitionVersion {
   updated_at        DateTime                   @updatedAt
 
   entities MdpEntity[]
+  fields   MdpField[]
 
   @@index([cliente_id, module_id, status])
   @@map("mdp_definition_version")
@@ -521,6 +542,7 @@ model MdpEntity {
   capabilities MdpEntityCapability?
   routes       MdpEntityRoute[]
   audits       MdpEntityAudit[]
+  fields       MdpField[]
 
   @@unique([scope, entity_id, cliente_id])
   @@index([cliente_id, module_id, lifecycle])
@@ -593,4 +615,154 @@ model MdpEntityAudit {
 
   @@index([entity_id, created_at])
   @@map("mdp_entity_audit")
+}
+
+// --- MAK DATA PLATFORM (MDP-2) — Data Dictionary ---
+
+model MdpField {
+  id                    String                       @id @default(cuid())
+  field_id              String                       @db.VarChar(128)
+  entity_row_id         String                       @db.VarChar(64)
+  field_name            String                       @db.VarChar(128)
+  source                MdpFieldSource
+  field_type            String                       @db.VarChar(64)
+  scope                 MdpScope                     @default(platform)
+  cliente_id            String?                      @db.VarChar(64)
+  codigo                Int?
+  id_global             Int?
+  active                Boolean                      @default(true)
+  required              Boolean                      @default(false)
+  read_only             Boolean                      @default(false)
+  searchable            Boolean                      @default(true)
+  filterable            Boolean                      @default(true)
+  exportable            Boolean                      @default(true)
+  auditable             Boolean                      @default(true)
+  visible_form          Boolean                      @default(true)
+  visible_table         Boolean                      @default(false)
+  visible_report        Boolean                      @default(false)
+  empresa_applicability MdpFieldEmpresaApplicability @default(all)
+  placeholder           String?                      @db.VarChar(255)
+  formula               String?
+  calculation_builder   Json?
+  use_mask              Boolean                      @default(false)
+  mask_text             String?
+  use_decimal           Boolean                      @default(false)
+  decimal_places        Int                          @default(2)
+  decimal_separator     String                       @default(",") @db.VarChar(8)
+  thousand_separator    String                       @default(".") @db.VarChar(8)
+  table_order           Int                          @default(999)
+  column_width          Int                          @default(160)
+  relation_entity       String?                      @db.VarChar(128)
+  options_label_field   String?                      @db.VarChar(128)
+  options_value_field   String?                      @db.VarChar(128)
+  validation_ref        String?                      @db.VarChar(128)
+  formula_ref           String?                      @db.VarChar(128)
+  relationship_ref      String?                      @db.VarChar(128)
+  presentation          Json?
+  legacy_campo_id       String?                      @db.VarChar(64)
+  base_template_id      String                       @default("modelobase1") @db.VarChar(64)
+  lifecycle             MdpEntityLifecycle           @default(active)
+  sort_order            Int                          @default(0)
+  version_id            String                       @db.VarChar(64)
+  created_at            DateTime                     @default(now())
+  updated_at            DateTime                     @updatedAt
+  created_by            String?                      @db.VarChar(64)
+  updated_by            String?                      @db.VarChar(64)
+
+  entity         MdpEntity              @relation(fields: [entity_row_id], references: [id], onDelete: Cascade)
+  version        MdpDefinitionVersion   @relation(fields: [version_id], references: [id], onDelete: Restrict)
+  cliente        Cliente?               @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  labels         MdpFieldLabel[]
+  options        MdpFieldOption[]
+  empresa_scopes MdpFieldEmpresaScope[]
+  telas          MdpFieldTela[]
+  audits         MdpFieldAudit[]
+
+  @@unique([scope, field_id, cliente_id])
+  @@unique([cliente_id, codigo])
+  @@unique([cliente_id, field_name, entity_row_id])
+  @@unique([cliente_id, id_global])
+  @@index([entity_row_id, lifecycle])
+  @@index([cliente_id, active])
+  @@index([cliente_id, source])
+  @@index([cliente_id, field_type])
+  @@map("mdp_field")
+}
+
+model MdpFieldLabel {
+  id           String   @id @default(cuid())
+  field_row_id String   @db.VarChar(64)
+  locale       String   @db.VarChar(16)
+  label        String   @db.VarChar(255)
+  description  String?
+  help_text    String?
+  placeholder  String?  @db.VarChar(255)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  field MdpField @relation(fields: [field_row_id], references: [id], onDelete: Cascade)
+
+  @@unique([field_row_id, locale])
+  @@index([locale])
+  @@map("mdp_field_label")
+}
+
+model MdpFieldOption {
+  id           String   @id @default(cuid())
+  field_row_id String   @db.VarChar(64)
+  code         String   @db.VarChar(64)
+  label        String   @db.VarChar(255)
+  sort_order   Int      @default(0)
+  active       Boolean  @default(true)
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  field MdpField @relation(fields: [field_row_id], references: [id], onDelete: Cascade)
+
+  @@unique([field_row_id, code])
+  @@index([field_row_id, sort_order])
+  @@map("mdp_field_option")
+}
+
+model MdpFieldEmpresaScope {
+  field_row_id String @db.VarChar(64)
+  empresa_id   String @db.VarChar(64)
+
+  field   MdpField @relation(fields: [field_row_id], references: [id], onDelete: Cascade)
+  empresa Empresa  @relation(fields: [empresa_id], references: [id], onDelete: Cascade)
+
+  @@id([field_row_id, empresa_id])
+  @@index([empresa_id])
+  @@map("mdp_field_empresa_scope")
+}
+
+model MdpFieldTela {
+  field_row_id String @db.VarChar(64)
+  tela_id      String @db.VarChar(64)
+
+  field MdpField   @relation(fields: [field_row_id], references: [id], onDelete: Cascade)
+  tela  CadCpsTela @relation(fields: [tela_id], references: [id], onDelete: Cascade)
+
+  @@id([field_row_id, tela_id])
+  @@index([tela_id])
+  @@map("mdp_field_tela")
+}
+
+model MdpFieldAudit {
+  id           String   @id @default(cuid())
+  field_row_id String   @db.VarChar(64)
+  cliente_id   String   @db.VarChar(64)
+  action       String   @db.VarChar(64)
+  before       Json?
+  after        Json?
+  usuario_id   String?  @db.VarChar(64)
+  created_at   DateTime @default(now())
+
+  field   MdpField @relation(fields: [field_row_id], references: [id], onDelete: Cascade)
+  cliente Cliente  @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  usuario Usuario? @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+
+  @@index([field_row_id, created_at])
+  @@index([cliente_id, created_at])
+  @@map("mdp_field_audit")
 }

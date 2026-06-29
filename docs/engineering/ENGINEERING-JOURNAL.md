@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (IFM 1C-MDP-1 Entity Dictionary)
+**Last updated:** 2026-06-29 (IFM 1C-MDP-2 Data Dictionary)
 
 ---
 
@@ -15,6 +15,18 @@ Each mission adds an entry with:
 - Links to PR / decisions
 
 ---
+
+---
+
+## 2026-06-29 — IFM 1C-MDP-2: Data Dictionary
+
+**Scope:** MDP-2 — `mdp_field*` schema, API, CADCPS bridge, native Empresas seed  
+**Changes:** 6 Prisma models, `/api/mdp/fields`, `repCps` → MDP SSOT, G138, export registry  
+**Report:** [IFM-1C-MDP-2-CERTIFICATION-REPORT.md](./IFM-1C-MDP-2-CERTIFICATION-REPORT.md)  
+**Decision:** D-022
+
+**Validation:** build ✅ lint ✅ verify:governance ✅ verify:ci ✅ 5 cycles ✅ G138 ✅  
+**Next:** IFM 1C-MDP-3 — [IFM-1C-MDP-3-RELATIONSHIP-DICTIONARY.md](./IFM-1C-MDP-3-RELATIONSHIP-DICTIONARY.md)
 
 ---
 
