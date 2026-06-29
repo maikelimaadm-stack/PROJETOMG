@@ -1,39 +1,45 @@
-# IFM Phase 2.1 — Studio Shell Brief
+# IFM Phase 2.1 — Studio Shell Brief (Definitive)
 
 **Mission ID:** IFM Phase 2.1 (Program 2.1)  
 **Program:** MAK Studio — Studio Shell  
 **Priority:** P1  
-**Status:** Prepared — **ready to implement**  
-**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.4.0  
-**SDK:** Program 2.0.5 ✅ · **Design System:** 2.0.6 ✅ · **Events:** 2.0.7 ✅ · **Governance:** 2.0.8 ✅  
-**Prerequisites:** Runtime Bridge 1E-1 ✅ · MDP-5 ✅ · **Foundation permanently closed (2.0.8)**
+**Status:** **Ready to implement — official start**  
+**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.5.0  
+**UX Framework:** [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) v1.0.0 (**mandatory**)  
+**Foundation:** SDK 2.0.5 ✅ · Design System 2.0.6 ✅ · Events 2.0.7 ✅ · Governance 2.0.8 ✅ · UX 2.0.9 ✅  
+**Prerequisites:** Runtime Bridge 1E-1 ✅ · MDP-5 ✅ · **All pre-Shell documentation complete**
 
 ---
 
 ## Objective
 
-Implement the **MAK Studio Shell** — the persistent chrome that hosts all future designers — using the three permanent foundation pillars:
+Implement the **MAK Studio Shell** — the first **visual** implementation — using permanent foundation pillars + **UX Framework** as the interaction specification.
 
-1. **Studio SDK** (`createStudioSdk`)
-2. **Design System Foundation** (tokens, manifests)
-3. **Studio Event Architecture** (`getStudioEventHub`)
-4. **Architecture Governance** (`validateStudioArchitecture` — must pass G279–G284)
+**Every panel must conform to [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md).**
 
-**No Layout Studio in this mission.** Shell + navigation + dock panels + SDK/Event wiring only.
+**No Layout Studio in this mission.**
 
 ---
 
-## Architecture alignment
+## Architecture + UX alignment
 
-| MAK-STUDIO-ARCHITECTURE | Phase 2.1 deliverable |
-|-------------------------|----------------------|
-| §4 Studio Shell | `StudioShell.jsx`, auth gate, top bar, session provider |
-| §5 Navigation | Routes `/studio`, `/studio/:moduleId` |
-| §7 Dock System | Left/right/bottom panels (Explorer, Outline, Inspector, Properties, Runtime Console) |
-| §31 Studio SDK | Wire `createStudioSdk({ deps })` with MDP client stubs |
-| §32 Design System | Bootstrap tokens/themes; panels resolve visual values via Token Registry |
-| §33 Event Architecture | Wire `getStudioEventHub()` — all panel communication via events |
-| §34 Governance | All Shell code must pass G279–G284 on every commit |
+| Reference | Phase 2.1 deliverable |
+|-----------|----------------------|
+| Architecture §4 Shell | `StudioShell.jsx`, auth gate, top bar, session provider |
+| Architecture §5 Navigation | Routes `/studio`, `/studio/:moduleId` |
+| Architecture §7 Dock | Left/right/bottom panels per UX §4.2 |
+| **UX §4.3 Explorer** | Tree + `selection.changed` + keyboard §4.3 |
+| **UX §4.5 Property Grid** | Schema-driven properties — official term |
+| **UX §4.9 Command Palette** | `Ctrl/Cmd+K` · `sdk.command` |
+| **UX §4.10 History** | Undo/redo · event-driven |
+| **UX §4.11 Preview** | Bottom dock stub · compile path |
+| **UX §4.15 Breadcrumbs** | Top bar `Module › Designer › Entry` |
+| **UX §4.16 Status Bar** | Connection · validation count |
+| Architecture §31 SDK | `createStudioSdk({ deps })` |
+| Architecture §32 Design System | Tokens only — no hardcoded colors |
+| Architecture §33 Events | `getStudioEventHub()` — no direct panel calls |
+| Architecture §34 Governance | G279–G284 on every commit |
+| Architecture §35 UX | G285 · Designer Compliance prep |
 
 ---
 
@@ -41,114 +47,62 @@ Implement the **MAK Studio Shell** — the persistent chrome that hosts all futu
 
 ### In scope
 
-1. `src/studio/shell/` — StudioShell, StudioAuthGate, StudioTopBar, StudioSessionProvider
-2. `src/studio/navigation/studioRoutes.jsx` — React Router integration
-3. `src/studio/dock/` — StudioDock + empty panel shells (Explorer, Outline, Inspector, Properties, RuntimeConsole)
-4. `src/studio/services/` — mdpRegistryClient, mdpCompileClient, mdpPublishClient (API wrappers)
-5. Wire SDK: `createStudioSdk({ deps: { fetchRegistryEntries, compileDraft, … } })`
-6. Wire Event Hub: `getStudioEventHub()` via context; panels publish/subscribe — **no direct cross-panel calls**
-7. Wire History/Preview via `wireHistoryToEventHub()` / `wirePreviewToEventHub()`
-8. Module landing page (empresas selector) + designer picker (no designer mount yet)
-9. Environment/version badge from `GET /api/mdp/environment-pins`
-10. Gate **G144** — Studio writes only via `/api/mdp/*`
+1. `src/studio/shell/` — per UX §3 layout model
+2. `src/studio/navigation/` — UX §4.13
+3. `src/studio/dock/` — Explorer, Outline, Inspector, Property Grid, Runtime Console (UX §4.2–4.6)
+4. `src/studio/services/` — MDP API clients only
+5. SDK + Event Hub + History/Preview wiring
+6. Global shortcuts per UX §5.3
+7. Loading/error/empty states per UX §4.19–4.20
+8. Dock persistence per UX §8
+9. Gate **G144** — MDP writes via official APIs only
 
 ### Out of scope
 
-- Layout Studio designer plugin
-- Field / Workflow / Dashboard studios
-- Preview iframe (stub panel OK)
-- Publish Center full UI (stub OK)
-- AI Assistant panel
-- Backend Event Bus
-- Collaboration / realtime sync
+- Layout Studio · Field/Workflow studios · Full Preview iframe · Publish Center full UI · AI panel · Collaboration
 
 ---
 
-## Foundation integration checklist
+## UX compliance checklist (mandatory)
 
-### SDK
-
-- [ ] Shell creates single `createStudioSdk()` instance via context
-- [ ] Dock panels use `sdk.dock`, `sdk.explorer`, `sdk.selection`
-- [ ] Command palette stub uses `sdk.command`
-- [ ] Component lookups use `getStudioComponent()` — never inline component defs
-- [ ] Property panel reads `listStudioProperties()` for schema hints
-
-### Design System
-
-- [ ] Visual values resolve via `getDesignToken()` / `resolveTokenValue()` — no hardcoded colors/spacing
-- [ ] Component metadata reads `getComponentManifest()` where applicable
-
-### Event Architecture
-
-- [ ] Shell provides `getStudioEventHub()` via React context
-- [ ] Explorer publishes `selection.changed` — Inspector/Properties subscribe
-- [ ] Dock publishes `dock.changed` — Shell subscribes
-- [ ] Shell publishes `workspace.changed` and `designer.active.changed`
-- [ ] History wired via `wireHistoryToEventHub(hub, sdk.history)`
-- [ ] Preview stub wired via `wirePreviewToEventHub(hub, sdk.preview)`
-- [ ] **No direct imports between Explorer ↔ Inspector ↔ Preview ↔ History**
-
----
-
-## Routes
-
-| Route | Surface |
-|-------|---------|
-| `/studio` | Module picker |
-| `/studio/:moduleId` | Designer picker (layout/field/… disabled except navigation) |
-| `/studio/:moduleId/publish` | Publish Center stub |
+- [ ] Property Grid (not "Properties panel") per UX §4.5
+- [ ] Global shortcuts §5.3 — no designer overrides
+- [ ] Official nomenclature §5.7 in all UI copy
+- [ ] WCAG 2.1 AA §6 — focus rings, keyboard navigation
+- [ ] Toast/banner/dialog patterns §4.17–4.18
+- [ ] Selection via `sdk.selection` §4.21
+- [ ] `npm run gate:studio-ux` passes
 
 ---
 
 ## Acceptance criteria
 
 - [ ] `/studio` loads with auth gate
-- [ ] empresas module selectable; version badge from environment pin
-- [ ] Dock panels render (empty state OK)
-- [ ] SDK + Event Hub context available to all shell children
-- [ ] Explorer loads registry entries via `/api/mdp/registry`
-- [ ] Selection change propagates via `selection.changed` event (not direct state sharing)
-- [ ] No designer canvas implementation
-- [ ] No Foundation / ModeloBase1 / MDP backend changes
-- [ ] **No governance violations** — `npm run gate:studio-governance` passes
+- [ ] All dock panels render per UX empty states
+- [ ] Selection propagates via `selection.changed`
+- [ ] SDK + Event Hub + Governance gates green
+- [ ] UX Framework surfaces match §4 specifications (structure, not final polish)
+- [ ] No designer canvas · No Foundation/MDP backend changes
 
 ---
 
-## File structure (target)
+## File structure
 
 ```
 src/studio/
-├── shell/
-│   ├── StudioShell.jsx
-│   ├── StudioAuthGate.jsx
-│   ├── StudioTopBar.jsx
-│   ├── StudioSessionProvider.jsx
-│   └── StudioEventProvider.jsx      ← Event Hub context
-├── navigation/
-│   └── studioRoutes.jsx
-├── dock/
-│   ├── StudioDock.jsx
-│   ├── ExplorerPanel.jsx
-│   ├── OutlinePanel.jsx
-│   ├── InspectorPanel.jsx
-│   ├── PropertiesPanel.jsx
-│   └── RuntimeConsolePanel.jsx
-├── services/
-│   ├── mdpRegistryClient.js
-│   ├── mdpCompileClient.js
-│   └── mdpPublishClient.js
-└── pages/
-    ├── StudioHomePage.jsx
-    └── StudioModulePage.jsx
+├── shell/          ← UX §3 Top Bar + Status Bar
+├── navigation/     ← UX §4.13
+├── dock/           ← UX §4.2–4.6 panels
+├── services/       ← MDP clients
+└── pages/          ← Module + designer pickers
 ```
 
 ---
 
-## Next mission after 2.1
+## Next mission
 
-**Program 2.2 — Layout Studio** — first designer plugin using Shell + SDK + Event Hub + Component Registry.
+**Program 2.2 — Layout Studio** — first designer; must pass UX §11 Designer Compliance Checklist.
 
 ---
 
-*Prepared automatically by Program 2.0.8 certification — D-035. Foundation permanently closed — begin Studio Shell.*
+*Definitive brief — Program 2.0.9 certification (D-036). Begin Studio Shell implementation.*

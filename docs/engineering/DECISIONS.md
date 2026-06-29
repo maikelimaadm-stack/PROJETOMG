@@ -426,6 +426,18 @@
 
 ---
 
+## D-036 — MAK Studio UX Framework
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Establish **MAK Studio UX Framework** (`docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` v1.0.0) as the permanent interaction language for all MAK Studios. Defines Workspace, Dock, Explorer, Property Grid, Command Palette, History, Preview, and 20+ surfaces with unified behavior, shortcuts, states, icons, feedback, nomenclature, accessibility, and responsiveness contracts. **Doc-only** — no React UI. Gate **G285**. **Last exclusive documentation mission before Studio Shell.** |
+| **Evidence** | [IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md) |
+| **Consequences** | Program 2.1 Shell implements all panels per UX Framework; no Studio may create custom interaction patterns |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

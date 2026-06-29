@@ -257,7 +257,7 @@ Every area in §4 and §5 includes:
 |-------|-------|
 | **Score** | **2.0 / 10** |
 | **2035 target** | L5 — All `{Name} Studio` designers writing Platform Metadata to MDP; preview via compile + Foundation Runtime |
-| **Current state** | **Foundation permanently closed** — Architecture (D-031), SDK (D-032), Design System (D-033), Events (D-034), Governance (D-035). Auto-protected by G279–G284. No Shell/designers yet. |
+| **Current state** | **Pre-Shell documentation complete** — Architecture + SDK + DS + Events + Governance + **UX Framework (D-036)**. No Shell UI yet. |
 
 **Criteria:**
 
@@ -267,7 +267,7 @@ Every area in §4 and §5 includes:
 | Layout + Field Studio (MDP-4 min) | 3.0 | 0.0 | No designer code |
 | Remaining Studio surfaces | 3.0 | 0.0 | No code |
 | Publish + preview pipeline | 2.0 | 0.0 | No Studio preview UI |
-| Architecture + SDK + DS + Events + Governance | — | +2.0 | `src/studio/`; G262–G284; foundation closed |
+| Architecture + Foundation + UX docs | — | +2.0 | G262–G285; UX Framework v1.0.0 |
 
 | **Dependencies** | MDP-4 ✅ · MDP-5 ✅ · Runtime Bridge Phase 1 ✅ |
 | **Blockers** | Studio Shell (Program 2.1) |
