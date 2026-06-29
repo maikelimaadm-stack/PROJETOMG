@@ -294,6 +294,18 @@
 
 ---
 
+## D-025 — MDP-1..4 Architecture Freeze
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | After IFM 1C-MDP-4.5 Final Architecture Review, **freeze** MDP-1..4 Prisma schemas, API route contracts, and governance gates G137–G140. Two pre-freeze fixes applied: registry `empresaScope` validator alignment; `CadcpsFieldCatalog` export persistence drift. Transitional parallel registries (`cadastro-modules.registry.json`, `*ModuleMetadata.js`) remain boot caches until MDP-5 compile-on-publish — not SSOT defects. |
+| **Evidence** | [IFM-1C-MDP-4.5-ARCHITECTURE-REVIEW-REPORT.md](./IFM-1C-MDP-4.5-ARCHITECTURE-REVIEW-REPORT.md) |
+| **Consequences** | MDP-5 may proceed; schema changes to MDP-1..4 require new decision + gate updates |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

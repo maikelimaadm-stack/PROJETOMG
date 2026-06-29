@@ -88,11 +88,11 @@ Not runtime — prove engine contracts:
 
 | Capability | Status | % | Notes |
 |------------|--------|---|-------|
-| **MAK DATA PLATFORM** | Spec approved | 5 | D-012; IFM 1C — see [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) |
+| **MAK DATA PLATFORM** | Spec approved | 15 | D-012; MDP-1..4 frozen (D-025) |
 | Entity Dictionary | Implemented | 90 | MDP-1 `mdp_entity*` |
 | Data Dictionary (full) | Implemented | 85 | MDP-2 `mdp_field*` SSOT |
 | Relationship Dictionary | Implemented | 80 | MDP-3 `mdp_relationship*` pilot Empresas |
-| Metadata Registry (persisted) | Implemented | 75 | MDP-4 `mdp_registry*` SSOT + introspect API |
+| Metadata Registry (persisted) | Implemented | 80 | MDP-4 frozen (D-025); compile = MDP-5 |
 | MAK Studio | Not started | 0 | No code |
 | Marketplace | Not started | 5 | `ClienteModulo` flags only |
 | Knowledge Platform | Not started | 0 | — |

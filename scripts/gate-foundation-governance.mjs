@@ -299,10 +299,16 @@ if (exists(mdpExportPath)) {
   const mdpSyncOk =
     mdpRuntimeIds.length >= minCertified &&
     certifiedModuleIds.every((id) => mdpRuntimeIds.includes(id));
+  const cadcpsCatalog = mdpExport.find((entry) => entry.entityId === "CadcpsFieldCatalog");
+  const cadcpsPersistenceOk = cadcpsCatalog?.persistence?.prismaModel === "MdpField";
   gate(
     "G137 — MDP Entity Dictionary export alinhado aos módulos certificados",
-    mdpSyncOk,
-    mdpSyncOk ? "" : `MDP ${mdpRuntimeIds.join(",")} vs cert ${certifiedModuleIds.join(",")}`
+    mdpSyncOk && cadcpsPersistenceOk,
+    mdpSyncOk
+      ? cadcpsPersistenceOk
+        ? ""
+        : `CadcpsFieldCatalog persistence=${cadcpsCatalog?.persistence?.prismaModel}`
+      : `MDP ${mdpRuntimeIds.join(",")} vs cert ${certifiedModuleIds.join(",")}`
   );
 }
 

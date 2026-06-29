@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** IFM 1C-MDP-4 Metadata Registry Implementation  
+**Verified by:** IFM 1C-MDP-4.5 Final Architecture Review  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -121,11 +121,12 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | Entity Dictionary (MDP-1) | **✅ Complete** | [IFM-1C-MDP-1-CERTIFICATION-REPORT.md](./IFM-1C-MDP-1-CERTIFICATION-REPORT.md) |
 | Data Dictionary (MDP-2) | **✅ Complete** | [IFM-1C-MDP-2-CERTIFICATION-REPORT.md](./IFM-1C-MDP-2-CERTIFICATION-REPORT.md) |
 | Relationship Dictionary (MDP-3) | **✅ Complete** | [IFM-1C-MDP-3-CERTIFICATION-REPORT.md](./IFM-1C-MDP-3-CERTIFICATION-REPORT.md) |
-| Metadata Registry (MDP-4) | **✅ Complete** | [IFM-1C-MDP-4-CERTIFICATION-REPORT.md](./IFM-1C-MDP-4-CERTIFICATION-REPORT.md) |
+| Metadata Registry (MDP-4) | **✅ Complete — frozen** | [IFM-1C-MDP-4-CERTIFICATION-REPORT.md](./IFM-1C-MDP-4-CERTIFICATION-REPORT.md) |
+| Architecture Review (MDP-4.5) | **✅ Complete — freeze certified** | [IFM-1C-MDP-4.5-ARCHITECTURE-REVIEW-REPORT.md](./IFM-1C-MDP-4.5-ARCHITECTURE-REVIEW-REPORT.md) |
 | Versioning & Publication (MDP-5) | Not implemented | [IFM-1C-MDP-5-VERSIONING-PUBLICATION.md](./IFM-1C-MDP-5-VERSIONING-PUBLICATION.md) |
 
 **Engineering summary:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) v2.0.0  
-**Decision:** D-012 (layer), D-020 (spec)
+**Decision:** D-012 (layer), D-020 (spec), **D-025 (MDP-1..4 freeze)**
 
 ---
 
