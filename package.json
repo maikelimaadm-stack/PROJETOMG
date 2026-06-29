@@ -13,6 +13,7 @@
     "typecheck:governance": "node scripts/run-typecheck-governance.mjs",
     "preview": "vite preview",
     "generate:module": "node scripts/generate-cadastro-module.mjs",
+    "sync:mdp-registry": "node scripts/sync-mdp-entities-registry.mjs",
     "personalizacoes:init": "node scripts/personalizacoes/emp-personalizacoes.mjs init",
     "personalizacoes:status": "node scripts/personalizacoes/emp-personalizacoes.mjs status",
     "personalizacoes:import": "node scripts/personalizacoes/emp-personalizacoes.mjs import",

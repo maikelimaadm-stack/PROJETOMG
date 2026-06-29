@@ -3,7 +3,8 @@
 **Mission ID:** IFM 1C-MDP-1 (MDP-1)  
 **Program:** IFM Phase 1C — MAK DATA PLATFORM  
 **Priority:** P1  
-**Status:** **In progress**  
+**Status:** **Complete** — 2026-06-28  
+**Report:** [IFM-1C-MDP-1-CERTIFICATION-REPORT.md](./IFM-1C-MDP-1-CERTIFICATION-REPORT.md)  
 **Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §3  
 **Pre-design review:** [IFM-1C-MDP-1-PRE-DESIGN-REVIEW.md](./IFM-1C-MDP-1-PRE-DESIGN-REVIEW.md)  
 **Schema addenda:** Decision **D-021**

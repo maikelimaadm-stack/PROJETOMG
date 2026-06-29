@@ -289,6 +289,23 @@ gate(
       : ""
 );
 
+// G137 — MDP Entity Dictionary export alinhado (MDP-1)
+const mdpExportPath = path.join(ROOT, "config/mdp-entities.export.json");
+if (exists(mdpExportPath)) {
+  const mdpExport = JSON.parse(fs.readFileSync(mdpExportPath, "utf8"));
+  const mdpRuntimeIds = mdpExport
+    .filter((entry) => entry.lifecycle === "active" && entry.entityKind !== "certification")
+    .map((entry) => entry.moduleId);
+  const mdpSyncOk =
+    mdpRuntimeIds.length >= minCertified &&
+    certifiedModuleIds.every((id) => mdpRuntimeIds.includes(id));
+  gate(
+    "G137 — MDP Entity Dictionary export alinhado aos módulos certificados",
+    mdpSyncOk,
+    mdpSyncOk ? "" : `MDP ${mdpRuntimeIds.join(",")} vs cert ${certifiedModuleIds.join(",")}`
+  );
+}
+
 // G119 — Gerador scaffold ModeloBase1 (delegado G103-G108)
 const scaffoldContent = walk(path.join(ROOT, "src/modules/template/scaffold")).map((f) => read(f)).join("\n");
 gate(
