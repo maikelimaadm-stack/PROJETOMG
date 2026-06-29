@@ -1,7 +1,8 @@
 /**
- * MDP Field Dictionary client — public HTTP API only (Program 2.3).
+ * MDP Field Dictionary client — public HTTP API only (Program 2.3 + 2.3.1).
  */
 import { apiClient } from "@/apis/http/apiClient.js";
+import { buildFieldPresentation } from "@/studio/services/fieldPresentationAdapter.js";
 
 const MDP_API_BASE = "/api/mdp";
 const MDP_FIELDS = "fields";
@@ -61,13 +62,22 @@ export async function mdpFieldSyncDocumentFields(fields = [], { removedIds = [] 
 }
 
 export function fieldToMdpPayload(field) {
+  const presentation = buildFieldPresentation(field);
+  const labelEntry = {
+    locale: "pt-BR",
+    label: field.label ?? field.fieldName,
+    helpText: field.helpText ?? null,
+    placeholder: field.placeholder ?? null,
+    description: field.labels?.[0]?.description ?? null,
+  };
+
   return {
     fieldId: field.fieldId,
     entityId: field.entityId,
     fieldName: field.fieldName,
     source: field.source ?? "custom",
     fieldType: field.fieldType ?? "string",
-    labels: field.labels ?? [{ locale: "pt-BR", label: field.label ?? field.fieldName }],
+    labels: field.labels?.length ? field.labels.map((l) => ({ ...l, helpText: field.helpText ?? l.helpText })) : [labelEntry],
     required: field.required ?? false,
     readOnly: field.readOnly ?? false,
     active: field.active ?? true,
@@ -79,6 +89,11 @@ export function fieldToMdpPayload(field) {
     exportable: field.exportable ?? true,
     auditable: field.auditable ?? true,
     placeholder: field.placeholder ?? null,
+    useMask: field.useMask ?? false,
+    maskText: field.maskText ?? null,
+    useDecimal: field.fieldType === "number" || field.fieldType === "decimal",
+    decimalPlaces: field.precision ?? field.scale ?? undefined,
+    presentation: Object.keys(presentation).length ? presentation : undefined,
     sortOrder: field.sortOrder ?? 0,
     tableOrder: field.tableOrder ?? field.sortOrder ?? 999,
   };

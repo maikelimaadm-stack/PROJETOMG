@@ -26,6 +26,8 @@ export {
   createStudioPersistenceSyncAdapter,
 } from "./studioPersistence.js";
 
+export { buildFieldPresentation, parseFieldPresentation } from "./fieldPresentationAdapter.js";
+
 export {
   mdpRegistryList,
   mdpRegistryGet,

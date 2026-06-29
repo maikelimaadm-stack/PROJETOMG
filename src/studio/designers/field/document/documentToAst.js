@@ -15,7 +15,7 @@ export function fieldDocumentToAstRoot(document) {
       nodeId: group.groupId,
       nodeType: "field-group",
       refId: group.groupId,
-      attrs: { label: group.label },
+      attrs: { label: group.label, category: group.category },
       children: (group.fields ?? [])
         .filter((f) => !f._pendingDelete)
         .map((field) => ({
@@ -33,6 +33,13 @@ export function fieldDocumentToAstRoot(document) {
             visibleTable: field.visibleTable,
             sortOrder: field.sortOrder,
             mdpRowId: field.mdpRowId,
+            category: field.category,
+            groupId: field.groupId,
+            smartTemplateId: field.smartTemplateId,
+            businessTypeId: field.businessTypeId,
+            placeholder: field.placeholder,
+            useMask: field.useMask,
+            maskText: field.maskText,
           },
         })),
     })),

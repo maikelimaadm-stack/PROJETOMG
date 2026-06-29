@@ -9,7 +9,7 @@ import {
 import { dictionaryToFieldDocument } from "./document/dictionaryToDocument.js";
 import { mdpFieldList, mdpFieldSyncDocumentFields } from "@/studio/services/mdpFieldClient.js";
 import { compileFieldDocumentPreview } from "./preview/fieldPreviewBridge.js";
-import { applyFieldSyncResults, buildFieldExplorerTree } from "./fieldPropertyFields.js";
+import { applyFieldSyncResults, buildFieldExplorerTree, collectActiveFields } from "./fieldPropertyFields.js";
 import { DEFAULT_FIELD_ENTITY_ID } from "./document/fieldDocumentContracts.js";
 import { EDITOR_HUB_EVENTS } from "@/studio/editor/index.js";
 import { useWorkspace } from "@/studio/domain/hooks/useWorkspace.js";
@@ -31,9 +31,9 @@ export function FieldDocumentProvider({ children, moduleId, sdk, hub, onValidati
   );
 
   const syncToMdp = async (doc) => {
-    const group = doc.groups?.[0];
-    const activeFields = (group?.fields ?? []).filter((f) => !f._pendingDelete);
-    const removedIds = (group?.fields ?? [])
+    const activeFields = collectActiveFields(doc);
+    const removedIds = (doc.groups ?? [])
+      .flatMap((g) => g.fields ?? [])
       .filter((f) => f._pendingDelete && f.mdpRowId)
       .map((f) => f.mdpRowId);
 

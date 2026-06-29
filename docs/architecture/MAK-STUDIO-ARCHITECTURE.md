@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.13.0  
+**Version:** 1.14.0  
 **Effective date:** 2026-06-28  
-**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5) · **Studio Object Model:** D-044 (Program 2.2.6) · **Studio Editor:** D-045 (Program 2.2.7) · **Field Studio:** D-046 (Program 2.3)  
+**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -1287,13 +1287,23 @@ Field Document  →  Field AST  →  MDP Field Dictionary  →  Compile  →  CR
 
 **MDP integration:** `src/studio/services/mdpFieldClient.js` — public `/api/mdp/fields` only.
 
+### 40.3 Smart Authoring (Program 2.3.1 — D-047)
+
+- **Smart Field Templates** — 10 official templates (`templates/smartFieldTemplates.js`); auto-fill via `applySmartFieldTemplate`
+- **Business Field Types** — architectural catalog (`businessTypes/businessTypeCatalog.js`); `aiReady` for future IA
+- **Advanced properties** — mask, placeholder, help text, min/max, precision, scale, categories, groupings
+- **Presentation adapter** — `src/studio/services/fieldPresentationAdapter.js` (single MDP mapping)
+
+Gate **G297** · Templates centralized · No relationship/formula/computed in 2.3.1
+
 ---
 
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
-| 1.13.0 | 2026-06-28 | Field Studio Phase 1 — Program 2.3 (D-046); G296; second functional designer |
+| 1.13.0 | 2026-06-28 | Field Studio Phase 1 — Program 2.3 (D-046); G296 |
+| 1.14.0 | 2026-06-28 | Field Studio Smart Authoring — Program 2.3.1 (D-047); G297 |
 | 1.11.0 | 2026-06-29 | Studio Object Model — Program 2.2.6 (D-044); G294; Layout migrated to SOM APIs |
 | 1.10.0 | 2026-06-29 | Studio Core Engine — Program 2.2.5 (D-043); G293; Layout migrated to Core APIs |
 | 1.9.0 | 2026-06-29 | Layout Studio Engine — Program 2.2 (D-042); G291; first functional designer |

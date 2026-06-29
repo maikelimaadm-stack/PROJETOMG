@@ -56,6 +56,28 @@ export function registerFieldValidationRules(validationEngine) {
       return suggestions;
     },
   });
+
+  validationEngine.registerRule({
+    id: "field.template.suggestion",
+    severity: "suggestion",
+    validate: (document) => {
+      const suggestions = [];
+      (document?.groups ?? []).forEach((group) => {
+        (group.fields ?? []).forEach((field) => {
+          if (field._pendingDelete) return;
+          if (!field.smartTemplateId && !field.businessTypeId && field.fieldType === "string" && !field.useMask) {
+            suggestions.push({
+              severity: "suggestion",
+              code: "USE_SMART_TEMPLATE",
+              message: `Use um template inteligente para ${field.fieldName} (CPF, e-mail, telefone…).`,
+              targetId: field.fieldNodeId,
+            });
+          }
+        });
+      });
+      return suggestions;
+    },
+  });
 }
 
 export default registerFieldValidationRules;

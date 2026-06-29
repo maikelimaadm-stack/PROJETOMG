@@ -1,6 +1,7 @@
 import { defineStudioDesigner } from "@/studio/sdk/studioDesignerContract.js";
 import { getContributionManager } from "@/studio/contributions/contributionManager.js";
 import { getRegistryManager } from "@/studio/contributions/registryManager/registryManager.js";
+import { registerBusinessFieldTypes } from "./businessTypes/businessTypeCatalog.js";
 import { FieldCommandTypes } from "./commands/fieldCommandTypes.js";
 import { FIELD_DOCUMENT_VERSION } from "./document/fieldDocumentContracts.js";
 import { FIELD_AST_VERSION } from "./ast/fieldAstContracts.js";
@@ -19,8 +20,12 @@ export function registerFieldDesigner() {
     supportedBaseTemplates: ["modelobase1"],
   }));
 
+  registerBusinessFieldTypes(rm);
+
   const commands = [
     { contributionId: "field.addField", id: "field.addField", label: "Criar campo", category: "Field" },
+    { contributionId: "field.addFieldFromTemplate", id: "field.addFieldFromTemplate", label: "Criar campo via template", category: "Field" },
+    { contributionId: "field.addFieldFromBusinessType", id: "field.addFieldFromBusinessType", label: "Criar Business Type", category: "Field" },
     { contributionId: "field.deleteField", id: "field.deleteField", label: "Excluir campo", category: "Field" },
     { contributionId: "field.reorderField", id: "field.reorderField", label: "Reordenar campo", category: "Field" },
     { contributionId: "field.refreshPreview", id: "field.refreshPreview", label: "Atualizar Preview de Campos", category: "Preview" },

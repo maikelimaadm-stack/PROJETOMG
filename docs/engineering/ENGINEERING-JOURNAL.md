@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 2.3 Field Studio Phase 1)
+**Last updated:** 2026-06-28 (Program 2.3.1 Field Studio Smart Authoring)
+
+---
+
+## 2026-06-28 — Program 2.3.1: Field Studio Smart Authoring
+
+**Scope:** Smart Templates (10), Business Types catalog, advanced properties, multi-group organization  
+**Changes:** `templates/`, `businessTypes/`, `fieldPresentationAdapter`, gate G297  
+**Report:** [IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md)  
+**Decision:** D-047
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.2 Computed & Formula Fields
 
 ---
 

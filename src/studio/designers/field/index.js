@@ -9,7 +9,20 @@ export { compileFieldDocumentPreview } from "./preview/fieldPreviewBridge.js";
 export { FieldDocumentProvider, useFieldDocument } from "./FieldDocumentProvider.jsx";
 export { FieldDesignerPlugin } from "./FieldDesignerPlugin.jsx";
 export { registerFieldDesigner } from "./registerFieldDesigner.js";
-export { buildFieldPropertyFields, buildFieldExplorerTree } from "./fieldPropertyFields.js";
+export { buildFieldPropertyFields, buildFieldExplorerTree, collectActiveFields } from "./fieldPropertyFields.js";
+export {
+  SMART_FIELD_TEMPLATE_VERSION,
+  SMART_FIELD_TEMPLATES,
+  getSmartFieldTemplate,
+  listSmartFieldTemplates,
+} from "./templates/smartFieldTemplates.js";
+export { applySmartFieldTemplate } from "./templates/applySmartFieldTemplate.js";
+export {
+  BUSINESS_FIELD_TYPE_VERSION,
+  BUSINESS_FIELD_TYPES,
+  getBusinessFieldType,
+  listBusinessFieldTypes,
+} from "./businessTypes/businessTypeCatalog.js";
 
 export {
   createFieldDocumentStore,

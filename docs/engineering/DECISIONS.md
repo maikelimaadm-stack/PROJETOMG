@@ -558,6 +558,18 @@
 
 ---
 
+## D-047 — Field Studio Smart Authoring (Program 2.3.1)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.1** — Smart Field Templates (10 official), Business Field Types catalog (architecture only), advanced properties (mask, placeholder, help text, min/max, precision, scale, categories, groupings), centralized presentation adapter. Gate **G297**. No relationships, computed, derived, or formula in this phase. |
+| **Evidence** | [IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md) |
+| **Consequences** | Field creation is one-click intelligent; Program 2.3.2 Computed & Formula Fields follows |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

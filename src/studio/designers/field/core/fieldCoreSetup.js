@@ -81,9 +81,33 @@ export function createFieldCommandBus(deps) {
   });
 
   return Object.freeze({
-    addField(fieldType, label, fieldName) {
+    addField(fieldType, label, fieldName, groupId) {
       return engine.dispatch(
-        engine.createCommand(FieldCommandTypes.ADD_FIELD, { fieldType, label, fieldName }, "Criar campo")
+        engine.createCommand(FieldCommandTypes.ADD_FIELD, { fieldType, label, fieldName, groupId }, "Criar campo")
+      );
+    },
+    addFieldFromTemplate(templateId, groupId) {
+      return engine.dispatch(
+        engine.createCommand(FieldCommandTypes.ADD_FIELD_FROM_TEMPLATE, { templateId, groupId }, `Template ${templateId}`)
+      );
+    },
+    addFieldFromBusinessType(businessTypeId, groupId) {
+      return engine.dispatch(
+        engine.createCommand(
+          FieldCommandTypes.ADD_FIELD_FROM_BUSINESS_TYPE,
+          { businessTypeId, groupId },
+          `Business Type ${businessTypeId}`
+        )
+      );
+    },
+    addGroup(groupId, label, category) {
+      return engine.dispatch(
+        engine.createCommand(FieldCommandTypes.ADD_GROUP, { groupId, label, category }, "Criar agrupamento")
+      );
+    },
+    assignFieldGroup(fieldNodeId, groupId) {
+      return engine.dispatch(
+        engine.createCommand(FieldCommandTypes.ASSIGN_FIELD_GROUP, { fieldNodeId, groupId }, "Mover para grupo")
       );
     },
     deleteField(fieldNodeId, label = "Excluir campo") {

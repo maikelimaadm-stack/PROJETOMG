@@ -1,16 +1,33 @@
 /** Field-specific property schemas — registered on SOM Property Engine */
 
+const STRING_PROPS = [
+  "fieldType",
+  "label",
+  "fieldName",
+  "category",
+  "groupId",
+  "placeholder",
+  "helpText",
+  "maskText",
+  "defaultValue",
+  "smartTemplateId",
+  "businessTypeId",
+];
+
+const BOOLEAN_PROPS = ["required", "readOnly", "visibleForm", "visibleTable", "active", "useMask"];
+
+const NUMBER_PROPS = ["minValue", "maxValue", "precision", "scale"];
+
 export function registerFieldPropertySchemas(propertyEngine) {
-  ["fieldType", "label", "fieldName", "required", "readOnly", "visibleForm", "visibleTable", "active"].forEach(
-    (id) => {
-      propertyEngine.registerPropertySchema({ id, kind: id === "required" ? "boolean" : "string" });
-    }
-  );
-  propertyEngine.registerPropertySchema({ id: "required", kind: "boolean", defaultValue: false });
-  propertyEngine.registerPropertySchema({ id: "readOnly", kind: "boolean", defaultValue: false });
-  propertyEngine.registerPropertySchema({ id: "visibleForm", kind: "boolean", defaultValue: true });
-  propertyEngine.registerPropertySchema({ id: "visibleTable", kind: "boolean", defaultValue: false });
-  propertyEngine.registerPropertySchema({ id: "active", kind: "boolean", defaultValue: true });
+  STRING_PROPS.forEach((id) => {
+    propertyEngine.registerPropertySchema({ id, kind: "string" });
+  });
+  BOOLEAN_PROPS.forEach((id) => {
+    propertyEngine.registerPropertySchema({ id, kind: "boolean", defaultValue: id === "active" || id === "visibleForm" });
+  });
+  NUMBER_PROPS.forEach((id) => {
+    propertyEngine.registerPropertySchema({ id, kind: "number" });
+  });
 }
 
 export default registerFieldPropertySchemas;
