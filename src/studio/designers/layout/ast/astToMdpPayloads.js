@@ -1,7 +1,18 @@
-import { documentToAst } from "../document/documentToAst.js";
+/** Layout AST → MDP registry payloads (Studio Core AST compiler) */
 
-/** Layout AST → MDP registry payloads (no direct JSON editing) */
-export function astToRegistryPayloads(ast) {
+function extractFieldIds(sectionNode) {
+  const fields = [];
+  (sectionNode.children ?? []).forEach((container) => {
+    (container.children ?? []).forEach((component) => {
+      if (component.attrs?.type === "field" && component.attrs?.props?.fieldId) {
+        fields.push(component.attrs.props.fieldId);
+      }
+    });
+  });
+  return fields;
+}
+
+export function astRootToMdpPayloads(ast) {
   const root = ast.root;
   const attrs = root.attrs ?? {};
   const pages = root.children ?? [];
@@ -12,7 +23,7 @@ export function astToRegistryPayloads(ast) {
     defaultLayoutRef: attrs.metadata?.defaultLayoutRef ?? null,
     rules: attrs.rules ?? [],
     styles: attrs.styles ?? {},
-    behaviors: attrs.behaviors ?? [],
+    behaviors: attrs.behaviors ?? {},
   };
 
   const entries = [];
@@ -65,22 +76,10 @@ export function astToRegistryPayloads(ast) {
   return entries;
 }
 
-/** Convenience: Layout Document → registry payloads */
-export function documentToRegistryPayloads(document) {
-  const ast = documentToAst(document);
-  return astToRegistryPayloads(ast);
+export { documentToRegistryPayloads } from "../core/layoutCoreSetup.js";
+
+export function astToRegistryPayloads(ast) {
+  return astRootToMdpPayloads(ast);
 }
 
-function extractFieldIds(sectionNode) {
-  const fields = [];
-  (sectionNode.children ?? []).forEach((container) => {
-    (container.children ?? []).forEach((component) => {
-      if (component.attrs?.type === "field" && component.attrs?.props?.fieldId) {
-        fields.push(component.attrs.props.fieldId);
-      }
-    });
-  });
-  return fields;
-}
-
-export default astToRegistryPayloads;
+export default astRootToMdpPayloads;

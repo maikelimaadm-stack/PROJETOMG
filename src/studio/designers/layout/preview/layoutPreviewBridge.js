@@ -1,5 +1,4 @@
-import { documentToAst } from "../document/documentToAst.js";
-import { astToRegistryPayloads } from "../ast/astToMdpPayloads.js";
+import { documentToAst, documentToRegistryPayloads } from "../core/layoutCoreSetup.js";
 import { mdpCompile } from "@/studio/services/mdpStudioClient.js";
 import { normalizeIntrospectToPreviewCrb } from "@/studio/services/previewCrbAdapter.js";
 
@@ -9,7 +8,7 @@ import { normalizeIntrospectToPreviewCrb } from "@/studio/services/previewCrbAda
  */
 export async function compileLayoutDocumentPreview(document, options = {}) {
   const ast = documentToAst(document);
-  const registryPayloads = astToRegistryPayloads(ast);
+  const registryPayloads = documentToRegistryPayloads(document);
   const moduleId = document.moduleId ?? "empresas";
 
   const compileResult = await mdpCompile(moduleId, {

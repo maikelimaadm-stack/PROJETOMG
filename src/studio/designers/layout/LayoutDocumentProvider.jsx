@@ -1,9 +1,12 @@
-import { createContext, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { createLayoutDocumentStore } from "./document/layoutDocumentStore.js";
+import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import {
+  createLayoutDocumentStore,
+  createLayoutCommandBus,
+  validateLayoutDocumentStructure,
+  documentToRegistryPayloads,
+  createLayoutProject,
+} from "./core/layoutCoreSetup.js";
 import { registryEntriesToLayoutDocument } from "./document/registryToDocument.js";
-import { createLayoutCommandBus } from "./commands/createLayoutCommandBus.js";
-import { validateLayoutDocumentStructure } from "./validation/layoutValidationEngine.js";
-import { documentToRegistryPayloads } from "./ast/astToMdpPayloads.js";
 import { mdpRegistrySyncLayoutEntries } from "@/studio/services/mdpRegistryClient.js";
 import { compileLayoutDocumentPreview } from "./preview/layoutPreviewBridge.js";
 import { mdpIntrospect } from "@/studio/services/mdpStudioClient.js";
@@ -12,6 +15,7 @@ const LayoutDocumentContext = createContext(null);
 
 export function LayoutDocumentProvider({ children, moduleId, sdk, hub, onValidationChange, onPreviewChange }) {
   const store = useMemo(() => createLayoutDocumentStore(), []);
+  const projectRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [syncError, setSyncError] = useState(null);
   const [selectedComponentId, setSelectedComponentId] = useState(null);
@@ -25,6 +29,7 @@ export function LayoutDocumentProvider({ children, moduleId, sdk, hub, onValidat
   const syncToMdp = async (doc) => {
     const payloads = documentToRegistryPayloads(doc);
     await mdpRegistrySyncLayoutEntries(payloads);
+    projectRef.current = createLayoutProject(moduleId, doc);
     hub?.publish?.("layout.document.synced", { documentId: doc.documentId, moduleId: doc.moduleId });
   };
 
@@ -47,7 +52,7 @@ export function LayoutDocumentProvider({ children, moduleId, sdk, hub, onValidat
           }
         },
       }),
-    [store, sdk.history, hub, onValidationChange, onPreviewChange]
+    [store, sdk.history, hub, moduleId, onValidationChange, onPreviewChange]
   );
 
   useEffect(() => {
@@ -69,7 +74,8 @@ export function LayoutDocumentProvider({ children, moduleId, sdk, hub, onValidat
         const intro = await mdpIntrospect(moduleId);
         if (cancelled) return;
         const doc = registryEntriesToLayoutDocument(intro?.registryEntries ?? [], moduleId);
-        store._replaceDocument(doc);
+        store.replace(doc);
+        projectRef.current = createLayoutProject(moduleId, doc);
         const validation = validateLayoutDocumentStructure(doc);
         onValidationChange?.(validation);
         const preview = await compileLayoutDocumentPreview(doc).catch(() => null);
@@ -88,6 +94,7 @@ export function LayoutDocumentProvider({ children, moduleId, sdk, hub, onValidat
       store,
       document,
       commandBus,
+      project: projectRef.current,
       loading,
       syncError,
       selectedComponentId,

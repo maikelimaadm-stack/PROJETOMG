@@ -510,6 +510,18 @@
 
 ---
 
+## D-043 — Studio Core Engine (Program 2.2.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2.5** — Studio Core Engine with Document, AST, Validation, Command, Studio Project Model, Dependency Graph, and Refactoring engines. Layout Studio migrated to consume Core exclusively. Gate **G293** forbids designers from implementing engines locally. |
+| **Evidence** | [IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md) |
+| **Consequences** | Field Studio (2.3), Workflow Studio, Dashboard Studio, and all future designers reuse Core foundation — no structural duplication |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

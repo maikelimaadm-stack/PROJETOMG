@@ -43,7 +43,16 @@ const engineFiles = [
 
 gate(
   "G291 — Layout Engine structure exists",
-  engineFiles.every((f) => exists(path.join(LAYOUT, f)))
+  engineFiles.every((f) => exists(path.join(LAYOUT, f))) &&
+    exists(path.join(LAYOUT, "core/layoutCoreSetup.js"))
+);
+
+gate(
+  "G291 — Layout consumes Studio Core Engine",
+  read(path.join(LAYOUT, "core/layoutCoreSetup.js")).includes("@/studio/core/index.js") &&
+    read(path.join(LAYOUT, "commands/createLayoutCommandBus.js")).includes("layoutCoreSetup") &&
+    read(path.join(LAYOUT, "validation/layoutValidationEngine.js")).includes("layoutCoreSetup") &&
+    read(path.join(LAYOUT, "document/layoutDocumentStore.js")).includes("layoutCoreSetup")
 );
 
 gate(

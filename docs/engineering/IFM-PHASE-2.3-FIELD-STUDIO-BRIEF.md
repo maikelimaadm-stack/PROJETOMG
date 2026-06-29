@@ -3,28 +3,32 @@
 **Mission ID:** IFM Phase 2.3 (Program 2.3)  
 **Program:** MAK Studio — Field Studio  
 **Priority:** P1  
-**Status:** Prepared — **ready after 2.2 Layout Studio Engine ✅**  
-**Prerequisites:** Layout Studio Engine 2.2 ✅ (D-042) · Field Config Engine V14 ✅ · MDP-2 Data Dictionary ✅
+**Status:** Prepared — **ready after 2.2.5 Studio Core Engine ✅**  
+**Prerequisites:** Studio Core Engine 2.2.5 ✅ (D-043) · Layout Studio Engine 2.2 ✅ (D-042) · Field Config Engine V14 ✅ · MDP-2 Data Dictionary ✅
 
 ---
 
 ## Objective
 
-Implement the **Field Studio** designer plugin — second MAK Studio designer — following the Layout Engine patterns established in Program 2.2.
+Implement the **Field Studio** designer plugin — second MAK Studio designer — consuming **Studio Core Engine** (Program 2.2.5) and Layout patterns from Program 2.2.
 
 **Pilot module:** empresas
 
 ---
 
-## Inherit from 2.2 (do not rebuild)
+## Inherit from 2.2.5 + 2.2 (do not rebuild)
 
 | Pattern | Source | Reuse |
 |---------|--------|-------|
-| Layout Document model | 2.2 | Adapt → **Field Document** |
-| AST pipeline | 2.2 | Document → AST → MDP Registry |
-| Command bus | 2.2 | All mutations via commands + history |
+| Document Engine | 2.2.5 | `createDocumentEngine` + Field Document schema |
+| AST Engine | 2.2.5 | `createAstEngine` + Field transformers/compilers |
+| Validation Engine | 2.2.5 | `createValidationEngine` + Field rules |
+| Command Engine | 2.2.5 | `createCommandEngine` + Field command handlers |
+| Studio Project Model | 2.2.5 | Project unit with Field artifact |
+| Dependency Graph | 2.2.5 | Cross-artifact refs (field ↔ layout) |
+| Refactoring Engine | 2.2.5 | Safe field renames |
+| Layout Document model | 2.2 | Reference for Field Document structure |
 | Canvas (if needed) | 2.2 | Field palette / grid canvas |
-| Validation engine | 2.2 | errors/warnings/suggestions contracts |
 | Preview | 2.2 | Compile → CRB (no parallel render) |
 | Contribution registration | 2.1A.7 | registerFieldDesigner via Contribution Manager |
 | MDP registry client | 2.2 | Extend for `field`, `field_config` entry types |

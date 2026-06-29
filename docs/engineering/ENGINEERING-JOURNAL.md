@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.2 Layout Studio Engine)
+**Last updated:** 2026-06-29 (Program 2.2.5 Studio Core Engine)
+
+---
+
+## 2026-06-29 — Program 2.2.5: Studio Core Engine
+
+**Scope:** Reusable Document, AST, Validation, Command, Project, Dependency Graph, Refactoring engines; Layout migrated to Core  
+**Changes:** `src/studio/core/*`, `designers/layout/core/layoutCoreSetup.js`, gate G293, dependency stack update  
+**Report:** [IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md)  
+**Decision:** D-043
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
 
 ---
 

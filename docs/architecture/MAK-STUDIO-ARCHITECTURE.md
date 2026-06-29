@@ -3,7 +3,7 @@
 **Status:** Official — Permanent architecture reference for Program 2  
 **Version:** 1.9.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2)  
+**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -172,6 +172,14 @@ src/studio/
 │   ├── lifecycle/          ← register, enable, disable, unload
 │   ├── validators/         ← Contribution validation
 │   └── contributionManager.js ← Public register* APIs
+├── core/                   ← Studio Core Engine (Program 2.2.5)
+│   ├── document/           ← Document Engine (create, serialize, migrate, version)
+│   ├── ast/                ← AST Engine (parser, transformer, compiler, visitors)
+│   ├── validation/         ← Validation Engine (registrable rules)
+│   ├── command/            ← Command Engine (base for all designer commands)
+│   ├── project/            ← Studio Project Model (official unit)
+│   ├── dependency/         ← Dependency Graph Engine
+│   └── refactoring/        ← Refactoring Engine (safe renames)
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -1115,10 +1123,67 @@ After Program 2.0.9, **all mandatory pre-Shell documentation is complete**. Prog
 
 ---
 
+## 36. Layout Studio Engine (Program 2.2 — D-042)
+
+First functional designer plugin. Establishes the **permanent visual authoring engine pattern** for all Studios.
+
+### 36.1 Official editing pipeline
+
+```
+Layout Document  →  Layout AST  →  MDP Registry  →  Compile  →  CRB  →  Runtime
+```
+
+- **Layout Document** — sole editing representation; user never edits raw JSON
+- **Layout AST** — stable intermediate representation
+- **Commands** — all mutations via command bus + SDK history (undo/redo)
+- **Canvas Engine** — zoom, pan, grid, snap, guides, rulers, overlays, multi-selection (extensible)
+- **Validation Engine** — errors, warnings, suggestions, optimizations (no AI in 2.2)
+- **Preview** — Document → Compile → CRB only (no parallel render path)
+
+### 36.2 Path
+
+`src/studio/designers/layout/` · Gate **G291** · Route `/studio/:moduleId/layout`
+
+**Studio Core (2.2.5):** Layout consumes `src/studio/core/` exclusively via `layoutCoreSetup.js` — no local engine implementations. Gate **G293**.
+
+---
+
+## 37. Studio Core Engine (Program 2.2.5 — D-043)
+
+Reusable foundation for all Designers — **must** be consumed before Field Studio (2.3).
+
+### 37.1 Official engines
+
+| Engine | Responsibility |
+|--------|----------------|
+| **Document Engine** | Creation, serialization, migration, versioning |
+| **AST Engine** | Parser, transformer, compiler, visitors, serialization |
+| **Validation Engine** | Registrable rules — errors, warnings, suggestions, optimizations |
+| **Command Engine** | Base for all designer command buses |
+| **Studio Project Model** | Project as official unit (not isolated layout) |
+| **Dependency Graph Engine** | Cross-artifact dependencies (layout, field, workflow, …) |
+| **Refactoring Engine** | Safe renames and structural changes |
+
+### 37.2 Designer integration pattern
+
+```
+designers/{name}/core/{name}CoreSetup.js  →  wires Core engines + domain-specific rules/handlers/transformers
+```
+
+No designer may implement `createDocumentEngine`, `createAstEngine`, `createValidationEngine`, or `createCommandEngine` locally.
+
+### 37.3 Path
+
+`src/studio/core/` · Gate **G293** · Exported from `src/studio/index.js`
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.10.0 | 2026-06-29 | Studio Core Engine — Program 2.2.5 (D-043); G293; Layout migrated to Core APIs |
+| 1.9.0 | 2026-06-29 | Layout Studio Engine — Program 2.2 (D-042); G291; first functional designer |
 | 1.8.0 | 2026-06-29 | Contribution Engine — Program 2.1A.7 (D-040); G290; **foundation closed** |
 | 1.7.0 | 2026-06-29 | Studio Domain Engine — Program 2.1A.6 (D-039); G289 |
 | 1.6.0 | 2026-06-29 | Universal Studio Components — Program 2.1A.5 (D-038); G288 |

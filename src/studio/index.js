@@ -54,6 +54,28 @@ export {
   validateDependencyGraph,
 } from "./governance/index.js";
 export {
+  STUDIO_CORE_VERSION,
+  OFFICIAL_CORE_ENGINES,
+  STUDIO_ARTIFACT_TYPES,
+  DOCUMENT_ENGINE_VERSION,
+  createDocumentEngine,
+  createDocumentStore,
+  AST_ENGINE_VERSION,
+  createAstEngine,
+  VALIDATION_ENGINE_VERSION,
+  createValidationEngine,
+  COMMAND_ENGINE_VERSION,
+  createCommandEngine,
+  STUDIO_PROJECT_VERSION,
+  createStudioProject,
+  createProjectModel,
+  DEPENDENCY_GRAPH_VERSION,
+  DEPENDENCY_KINDS,
+  createDependencyGraphEngine,
+  REFACTORING_ENGINE_VERSION,
+  createRefactoringEngine,
+} from "./core/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,
