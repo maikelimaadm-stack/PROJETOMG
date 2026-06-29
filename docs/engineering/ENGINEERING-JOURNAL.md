@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.0.9 Studio UX Framework)
+**Last updated:** 2026-06-29 (Program 2.1A Studio Shell Prototype)
+
+---
+
+## 2026-06-29 — Program 2.1A: MAK Studio Shell Prototype
+
+**Scope:** First visual Studio Shell — mock data only; validates UX, layout, docks, navigation  
+**Changes:** `src/studio/shell/*`, `dock/`, `panels/`, `navigation/`, `mock/`, gate G286  
+**Report:** [IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md)  
+**Decision:** D-037
+
+**RHP:** PR #314 merged @ `0ab98441`; main synchronized  
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1B Studio Shell Production — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md)
 
 ---
 

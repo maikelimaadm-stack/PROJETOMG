@@ -7,7 +7,7 @@ export const STUDIO_GOVERNANCE_VERSION = "mak-studio-governance-v1";
  * Higher layers may depend on lower; inversions are forbidden.
  */
 export const DEPENDENCY_STACK = Object.freeze([
-  { layerId: "studio-consumer", label: "Studio Shell / Designers / Dock", paths: ["shell", "designers", "dock", "navigation", "workspace", "pages"] },
+  { layerId: "studio-consumer", label: "Studio Shell / Designers / Dock", paths: ["shell", "designers", "dock", "navigation", "workspace", "pages", "panels", "mock"] },
   { layerId: "studio-governance", label: "Architecture Governance", paths: ["governance"] },
   { layerId: "studio-sdk", label: "Studio SDK", paths: ["sdk"] },
   { layerId: "studio-events", label: "Studio Event Hub", paths: ["events"] },
@@ -26,6 +26,8 @@ export const CONSUMER_LAYER_PATHS = Object.freeze([
   "navigation",
   "workspace",
   "pages",
+  "panels",
+  "mock",
 ]);
 
 /** Public API entry points — consumer code must use these, not internals. */

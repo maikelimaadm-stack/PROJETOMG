@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** Program 2.0.9 Studio UX Framework (D-036)  
+**Verified by:** Program 2.1A Studio Shell Prototype (D-037)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -40,7 +40,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **Pre-Shell docs complete (2.0.9), 2.1 Shell next** | [Architecture](../architecture/MAK-STUDIO-ARCHITECTURE.md) · [UX Framework](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) · [2.1 Shell Brief](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **Shell prototype ✅ (2.1A), 2.1B Production next** | [Architecture](../architecture/MAK-STUDIO-ARCHITECTURE.md) · [UX Framework](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) · [2.1A Report](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md) · [2.1B Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -158,7 +158,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | Not started — **Foundation closed + protected ✅** (G279–G284) |
+| MAK Studio Shell / Designers | **Shell prototype ✅** (2.1A, `/studio/prototype`, G286) — **Production 2.1B next**; Designers not started |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |

@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-029 Engineering Principles)
+**Last updated:** 2026-06-29 (D-037 Studio Shell Prototype)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -435,6 +435,18 @@
 | **Decision** | Establish **MAK Studio UX Framework** (`docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` v1.0.0) as the permanent interaction language for all MAK Studios. Defines Workspace, Dock, Explorer, Property Grid, Command Palette, History, Preview, and 20+ surfaces with unified behavior, shortcuts, states, icons, feedback, nomenclature, accessibility, and responsiveness contracts. **Doc-only** — no React UI. Gate **G285**. **Last exclusive documentation mission before Studio Shell.** |
 | **Evidence** | [IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md) |
 | **Consequences** | Program 2.1 Shell implements all panels per UX Framework; no Studio may create custom interaction patterns |
+
+---
+
+## D-037 — MAK Studio Shell Prototype (Program 2.1A)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A** — first **visual** Studio Shell prototype (`src/studio/shell/`, `dock/`, `panels/`, `navigation/`, `mock/`) with mock data only. Validates UX Framework layout, dock ergonomics, SDK + Event Hub wiring, and Design System tokens **without** MDP, Runtime Bridge, persistence, or business logic. Route `/studio/prototype`. Gate **G286**. Consumer layer extended to include `panels` and `mock`. |
+| **Evidence** | [IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md) |
+| **Consequences** | Visual validation before production; Program 2.1B replaces mock deps with auth + MDP clients; Layout Studio (2.2) follows 2.1B |
 
 ---
 

@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (Program 2.0.9 Studio UX Framework — D-036)
+**Last updated:** 2026-06-29 (Program 2.1A Studio Shell Prototype — D-037)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -133,13 +133,14 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.0.7** | Studio Event Architecture | ✅ Complete (D-034) |
 | **2.0.8** | Studio Architecture Governance | ✅ Complete (D-035) |
 | **2.0.9** | Studio UX Framework (doc) | ✅ Complete (D-036) — **Last pre-Shell doc mission** |
-| **2.1** | Studio Shell (chrome + dock + SDK wiring) | **Next** — [Brief](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) |
+| **2.1A** | Studio Shell Prototype (visual, mock) | ✅ Complete (D-037) — [Report](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md) |
+| **2.1B** | Studio Shell Production (auth + MDP + persistence) | **Next** — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md) |
 | **2.2** | Layout Studio (empresas pilot) | Prepared — [Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
 | 2.3+ | Field, Validation, Workflow studios | Not started |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
-| Layout Studio | V13 + introspect + compile API + Studio Architecture | **Next — Phase 2.1** |
+| Layout Studio | V13 + introspect + compile API + Studio Shell Production | **After 2.1B** |
 | Field Studio | Field Config Engine V14 | Not started |
 | Table Studio | Preferences + column metadata | Not started |
 | Formula/Validation Studio | V16–V17 engines | Not started |
