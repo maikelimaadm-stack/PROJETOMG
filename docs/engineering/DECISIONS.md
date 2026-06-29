@@ -270,6 +270,18 @@
 
 ---
 
+## D-023 — MDP-3 Relationship Dictionary Schema
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement MDP-3 as unified relationship SSOT via `mdp_relationship*` tables. Support physical (Prisma FK), logical, and computed relationships. `MdpRelationshipDependencyClass` reserves workflow, automation, dashboard, pivot, report, permission, layout, ai_context, integration — disabled in v1 seeds where appropriate. Field bindings via `mdp_relationship_field_binding`. Governance gate **G139**. |
+| **Evidence** | [IFM-1C-MDP-3-CERTIFICATION-REPORT.md](./IFM-1C-MDP-3-CERTIFICATION-REPORT.md) |
+| **Consequences** | Relationship graph persisted; AI/Marketplace/Offline snapshot-ready; MDP-4 registry bindings can reference relationships |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

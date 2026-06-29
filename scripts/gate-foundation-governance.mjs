@@ -329,6 +329,31 @@ if (exists(mdpFieldsExportPath)) {
   );
 }
 
+// G139 — MDP Relationship Dictionary export alinhado (MDP-3)
+const mdpRelExportPath = path.join(ROOT, "config/mdp-relationships.export.json");
+if (exists(mdpRelExportPath)) {
+  const mdpRelExport = JSON.parse(fs.readFileSync(mdpRelExportPath, "utf8"));
+  const empresasRels = (mdpRelExport.relationships || []).filter(
+    (r) => r.fromEntityId === "EmpresaCadastro" || r.toEntityId === "EmpresaCadastro"
+  );
+  const physicalEmpresas = empresasRels.filter((r) => r.kind === "physical" && r.enabled);
+  const routesContent = exists(path.join(ROOT, "backend/src/modules/mdp/routes.js"))
+    ? read(path.join(ROOT, "backend/src/modules/mdp/routes.js"))
+    : "";
+  const hasRelationshipApi = routesContent.includes("/api/mdp/relationships");
+  const relGateOk =
+    physicalEmpresas.length >= 3 &&
+    hasRelationshipApi &&
+    mdpRelExport.version === "mdp-relationships-v1";
+  gate(
+    "G139 — MDP Relationship Dictionary export + API (MDP-3)",
+    relGateOk,
+    relGateOk
+      ? ""
+      : `physical=${physicalEmpresas.length}, api=${hasRelationshipApi}, version=${mdpRelExport.version}`
+  );
+}
+
 // G119 — Gerador scaffold ModeloBase1 (delegado G103-G108)
 const scaffoldContent = walk(path.join(ROOT, "src/modules/template/scaffold")).map((f) => read(f)).join("\n");
 gate(

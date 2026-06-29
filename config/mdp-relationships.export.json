@@ -1,0 +1,18 @@
+{
+  "exportedAt": "2026-06-29T12:00:00.000Z",
+  "version": "mdp-relationships-v1",
+  "relationshipCount": 8,
+  "physicalCount": 4,
+  "logicalCount": 3,
+  "enabledCount": 5,
+  "relationships": [
+    { "relationshipId": "EmpresaCadastro.cliente", "fromEntityId": "EmpresaCadastro", "toEntityId": "Cliente", "kind": "physical", "relationshipType": "one_to_one", "semantics": "composition", "dependencyClass": "data", "enabled": true, "label": "Pertence ao Cliente", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "relationshipId": "EmpresaCadastro.cadastro_registros", "fromEntityId": "EmpresaCadastro", "toEntityId": "CadastroRegistro", "kind": "physical", "relationshipType": "one_to_many", "semantics": "aggregation", "dependencyClass": "data", "enabled": true, "label": "Registros de Cadastro", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "relationshipId": "EmpresaCadastro.anexos", "fromEntityId": "EmpresaCadastro", "toEntityId": "RegistroAnexo", "kind": "physical", "relationshipType": "one_to_many", "semantics": "composition", "dependencyClass": "data", "enabled": true, "label": "Anexos", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "relationshipId": "EmpresaCadastro.permissoes", "fromEntityId": "EmpresaCadastro", "toEntityId": "PermissaoEmpresa", "kind": "physical", "relationshipType": "one_to_many", "semantics": "association", "dependencyClass": "permission", "enabled": true, "label": "Permissões por Empresa", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "relationshipId": "EmpresaCadastro.custom_fields", "fromEntityId": "EmpresaCadastro", "toEntityId": "CadcpsFieldCatalog", "kind": "logical", "relationshipType": "one_to_many", "semantics": "dependency", "dependencyClass": "data", "enabled": true, "label": "Campos Personalizados", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "relationshipId": "EmpresaCadastro.field_empresa_scopes", "fromEntityId": "EmpresaCadastro", "toEntityId": "EmpresaCadastro", "kind": "logical", "relationshipType": "many_to_many", "semantics": "association", "dependencyClass": "layout", "enabled": false, "label": "Escopo de Campos por Empresa", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "relationshipId": "EmpresaCadastro.workflow_dependencies", "fromEntityId": "EmpresaCadastro", "toEntityId": "EmpresaCadastro", "kind": "logical", "relationshipType": "one_to_many", "semantics": "dependency", "dependencyClass": "workflow", "enabled": false, "label": "Dependências de Workflow", "baseTemplateId": "modelobase1", "lifecycle": "active" },
+    { "relationshipId": "EmpresaCadastro.ai_context", "fromEntityId": "EmpresaCadastro", "toEntityId": "EmpresaCadastro", "kind": "computed", "relationshipType": "one_to_many", "semantics": "dependency", "dependencyClass": "ai_context", "enabled": false, "label": "Contexto IA", "baseTemplateId": "modelobase1", "lifecycle": "active" }
+  ]
+}

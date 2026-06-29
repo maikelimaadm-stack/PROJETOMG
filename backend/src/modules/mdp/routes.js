@@ -1,6 +1,7 @@
 import { loadAccessScope } from "../auth/accessScope.js";
 import { mdpEntityService } from "./mdpEntityService.js";
 import { mdpFieldService } from "./mdpFieldService.js";
+import { mdpRelationshipService } from "./mdpRelationshipService.js";
 import {
   mdpEntityCreateSchema,
   mdpEntityListQuerySchema,
@@ -13,6 +14,12 @@ import {
   mdpFieldUpdateSchema,
   parseOrThrow as parseFieldOrThrow,
 } from "./mdpFieldValidators.js";
+import {
+  mdpRelationshipCreateSchema,
+  mdpRelationshipListQuerySchema,
+  mdpRelationshipUpdateSchema,
+  parseOrThrow as parseRelationshipOrThrow,
+} from "./mdpRelationshipValidators.js";
 
 export const registerMdpRoutes = async (app) => {
   app.get("/api/mdp/entities", { preHandler: app.authenticate }, async (request) => {
@@ -69,5 +76,33 @@ export const registerMdpRoutes = async (app) => {
   app.delete("/api/mdp/fields/:id", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
     return mdpFieldService.remove(request.params.id, scope);
+  });
+
+  app.get("/api/mdp/relationships", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const query = parseRelationshipOrThrow(mdpRelationshipListQuerySchema, request.query || {});
+    return mdpRelationshipService.list(query, scope);
+  });
+
+  app.get("/api/mdp/relationships/:id", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    return mdpRelationshipService.getById(request.params.id, scope);
+  });
+
+  app.post("/api/mdp/relationships", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parseRelationshipOrThrow(mdpRelationshipCreateSchema, request.body || {});
+    return mdpRelationshipService.create(payload, scope);
+  });
+
+  app.put("/api/mdp/relationships/:id", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parseRelationshipOrThrow(mdpRelationshipUpdateSchema, request.body || {});
+    return mdpRelationshipService.update(request.params.id, payload, scope);
+  });
+
+  app.delete("/api/mdp/relationships/:id", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    return mdpRelationshipService.remove(request.params.id, scope);
   });
 };

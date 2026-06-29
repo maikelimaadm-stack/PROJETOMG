@@ -43,6 +43,8 @@ model Cliente {
   cadcpsHistoricos   CadCpsHistorico[]
   mdpFields          MdpField[]
   mdpFieldAudits     MdpFieldAudit[]
+  mdpRelationships   MdpRelationship[]
+  mdpRelationshipAudits MdpRelationshipAudit[]
   registrosGlobais   RegistroGlobal[]
   codigoSequencias   EntidadeCodigoSequencia[]
   modulos            ClienteModulo[]
@@ -76,6 +78,7 @@ model Usuario {
   preferencias UsuarioPreferencia[]
   cadcpsHistoricos CadCpsHistorico[]
   mdpFieldAudits   MdpFieldAudit[]
+  mdpRelationshipAudits MdpRelationshipAudit[]
   auditLogs    AuditLog[]
 
   @@unique([cliente_id, login])
@@ -503,8 +506,9 @@ model MdpDefinitionVersion {
   created_at        DateTime                   @default(now())
   updated_at        DateTime                   @updatedAt
 
-  entities MdpEntity[]
-  fields   MdpField[]
+  entities      MdpEntity[]
+  fields        MdpField[]
+  relationships MdpRelationship[]
 
   @@index([cliente_id, module_id, status])
   @@map("mdp_definition_version")
@@ -542,7 +546,9 @@ model MdpEntity {
   capabilities MdpEntityCapability?
   routes       MdpEntityRoute[]
   audits       MdpEntityAudit[]
-  fields       MdpField[]
+  fields              MdpField[]
+  relationships_from  MdpRelationship[] @relation("MdpRelationshipFrom")
+  relationships_to    MdpRelationship[] @relation("MdpRelationshipTo")
 
   @@unique([scope, entity_id, cliente_id])
   @@index([cliente_id, module_id, lifecycle])
@@ -675,8 +681,9 @@ model MdpField {
   labels         MdpFieldLabel[]
   options        MdpFieldOption[]
   empresa_scopes MdpFieldEmpresaScope[]
-  telas          MdpFieldTela[]
-  audits         MdpFieldAudit[]
+  telas                MdpFieldTela[]
+  audits               MdpFieldAudit[]
+  relationship_bindings MdpRelationshipFieldBinding[]
 
   @@unique([scope, field_id, cliente_id])
   @@unique([cliente_id, codigo])
@@ -765,4 +772,144 @@ model MdpFieldAudit {
   @@index([field_row_id, created_at])
   @@index([cliente_id, created_at])
   @@map("mdp_field_audit")
+}
+
+// --- MAK DATA PLATFORM (MDP-3) — Relationship Dictionary ---
+
+enum MdpRelationshipKind {
+  physical
+  logical
+  computed
+}
+
+enum MdpRelationshipType {
+  one_to_one
+  one_to_many
+  many_to_many
+}
+
+enum MdpRelationshipSemantics {
+  association
+  composition
+  aggregation
+  inheritance
+  dependency
+}
+
+enum MdpRelationshipDependency {
+  restrict
+  cascade
+  set_null
+  optional
+}
+
+enum MdpRelationshipDependencyClass {
+  data
+  workflow
+  automation
+  dashboard
+  pivot
+  report
+  permission
+  layout
+  ai_context
+  integration
+}
+
+model MdpRelationship {
+  id                           String                        @id @default(cuid())
+  relationship_id              String                        @db.VarChar(128)
+  from_entity_row_id           String                        @db.VarChar(64)
+  to_entity_row_id             String                        @db.VarChar(64)
+  scope                        MdpScope                      @default(platform)
+  cliente_id                   String?                       @db.VarChar(64)
+  kind                         MdpRelationshipKind           @default(physical)
+  relationship_type            MdpRelationshipType
+  semantics                    MdpRelationshipSemantics      @default(association)
+  dependency                   MdpRelationshipDependency     @default(restrict)
+  dependency_class             MdpRelationshipDependencyClass @default(data)
+  cardinality                  Json
+  fk_mapping                   Json?
+  inheritance_parent_entity_id String?                       @db.VarChar(128)
+  empresa_scoped               Boolean                       @default(false)
+  enabled                      Boolean                       @default(true)
+  base_template_id             String                        @default("modelobase1") @db.VarChar(64)
+  lifecycle                    MdpEntityLifecycle            @default(active)
+  sort_order                   Int                           @default(0)
+  version_id                   String                        @db.VarChar(64)
+  presentation                 Json?
+  metadata                     Json?
+  created_at                   DateTime                      @default(now())
+  updated_at                   DateTime                      @updatedAt
+  created_by                   String?                       @db.VarChar(64)
+  updated_by                   String?                       @db.VarChar(64)
+
+  version        MdpDefinitionVersion            @relation(fields: [version_id], references: [id], onDelete: Restrict)
+  cliente        Cliente?                        @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  from_entity    MdpEntity                       @relation("MdpRelationshipFrom", fields: [from_entity_row_id], references: [id], onDelete: Cascade)
+  to_entity      MdpEntity                       @relation("MdpRelationshipTo", fields: [to_entity_row_id], references: [id], onDelete: Cascade)
+  labels         MdpRelationshipLabel[]
+  field_bindings MdpRelationshipFieldBinding[]
+  audits         MdpRelationshipAudit[]
+
+  @@unique([scope, relationship_id, cliente_id])
+  @@index([from_entity_row_id, lifecycle])
+  @@index([to_entity_row_id, lifecycle])
+  @@index([cliente_id, kind])
+  @@index([cliente_id, dependency_class])
+  @@map("mdp_relationship")
+}
+
+model MdpRelationshipLabel {
+  id                  String   @id @default(cuid())
+  relationship_row_id String   @db.VarChar(64)
+  locale              String   @db.VarChar(16)
+  label               String   @db.VarChar(255)
+  description         String?
+  help_text           String?
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  relationship MdpRelationship @relation(fields: [relationship_row_id], references: [id], onDelete: Cascade)
+
+  @@unique([relationship_row_id, locale])
+  @@index([locale])
+  @@map("mdp_relationship_label")
+}
+
+model MdpRelationshipFieldBinding {
+  id                  String   @id @default(cuid())
+  relationship_row_id String   @db.VarChar(64)
+  field_row_id        String?  @db.VarChar(64)
+  from_field_name     String?  @db.VarChar(128)
+  to_field_name       String?  @db.VarChar(128)
+  binding_role        String?  @db.VarChar(64)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  relationship MdpRelationship @relation(fields: [relationship_row_id], references: [id], onDelete: Cascade)
+  field          MdpField?       @relation(fields: [field_row_id], references: [id], onDelete: SetNull)
+
+  @@index([relationship_row_id])
+  @@index([field_row_id])
+  @@map("mdp_relationship_field_binding")
+}
+
+model MdpRelationshipAudit {
+  id                  String   @id @default(cuid())
+  relationship_row_id String @db.VarChar(64)
+  cliente_id          String   @db.VarChar(64)
+  action              String   @db.VarChar(64)
+  before              Json?
+  after               Json?
+  usuario_id          String?  @db.VarChar(64)
+  created_at          DateTime @default(now())
+
+  relationship MdpRelationship @relation(fields: [relationship_row_id], references: [id], onDelete: Cascade)
+  cliente      Cliente           @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  usuario      Usuario?          @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+
+  @@index([relationship_row_id, created_at])
+  @@index([cliente_id, created_at])
+  @@map("mdp_relationship_audit")
 }

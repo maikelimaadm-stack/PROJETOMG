@@ -19,7 +19,8 @@ MDP is **not** business data. It is the **definition layer**.
 |-----------|-----|--------|
 | Entity Dictionary | MDP-1 | **✅ Implemented** — [certification](./IFM-1C-MDP-1-CERTIFICATION-REPORT.md) |
 | Data Dictionary | MDP-2 | **✅ Implemented** — [certification](./IFM-1C-MDP-2-CERTIFICATION-REPORT.md) |
-| Relationship Dictionary | MDP-3 | Brief ready — [IFM-1C-MDP-3-RELATIONSHIP-DICTIONARY.md](./IFM-1C-MDP-3-RELATIONSHIP-DICTIONARY.md) |
+| Relationship Dictionary | MDP-3 | **✅ Implemented** — [certification](./IFM-1C-MDP-3-CERTIFICATION-REPORT.md) |
+| Metadata Registry | MDP-4 | Brief ready — [IFM-1C-MDP-4-METADATA-REGISTRY.md](./IFM-1C-MDP-4-METADATA-REGISTRY.md) |
 | Relationship Dictionary | MDP-3 | Spec ✅ — not implemented |
 | Metadata Registry | MDP-4 | Spec ✅ — not implemented |
 | Versioning & Publication | MDP-5 | Spec ✅ — not implemented |
