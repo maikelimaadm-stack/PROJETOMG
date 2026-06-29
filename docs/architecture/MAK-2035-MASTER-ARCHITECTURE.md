@@ -261,6 +261,8 @@ Visual design surface — **never a parallel runtime**.
 
 **Rule:** Studio writes MDP only. Preview uses `compile` + Foundation runtime — same path as production.
 
+**Architecture reference:** [MAK-STUDIO-ARCHITECTURE.md](./MAK-STUDIO-ARCHITECTURE.md) (D-031 — Program 2.0)
+
 **Prerequisite:** MDP-4 (Metadata Registry + introspection API).
 
 ---

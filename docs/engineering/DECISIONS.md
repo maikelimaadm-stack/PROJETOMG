@@ -366,6 +366,18 @@
 
 ---
 
+## D-031 — MAK Studio Foundation Architecture
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Establish **MAK Studio Architecture** (`docs/architecture/MAK-STUDIO-ARCHITECTURE.md` v1.0.0) as the permanent L5 reference for Program 2. Defines Shell, Navigation, Workspace, Dock, Explorer, Inspector, Properties, Outline, Asset Manager, Runtime Console, Preview Engine, Publish Center, History, Command Palette, AI Assistant (future), Collaboration (future), Marketplace Surface, Studio APIs, Permissions, and integrations with MDP, Publish Engine, and Runtime Bridge. **No implementation in this mission** — architecture only. |
+| **Evidence** | [IFM-PROGRAM-2.0-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0-CERTIFICATION-REPORT.md) |
+| **Consequences** | Program 2.1 Layout Studio implements against this spec; README_AI pre-flight updated |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

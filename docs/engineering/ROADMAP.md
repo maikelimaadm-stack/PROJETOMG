@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-029 Engineering Principles)
+**Last updated:** 2026-06-29 (Program 2.0 MAK Studio Architecture — D-031)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -60,7 +60,7 @@ Strategic decisions **D-011**, **D-012**, **D-013**, **D-026**, **D-027**: IFM 1
 | **1E Runtime Bridge** | 1E-1 | CRB hydration → Foundation registries | ✅ **Phase 1 complete** — [Cert](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **1E Runtime Bridge** | 1E-2 | Environment pin → runtime reload hook | P1 — next slice |
 
-**Program 2 — MAK Studio** — [Brief](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md)  
+**Program 2 — MAK Studio** — [Architecture](../architecture/MAK-STUDIO-ARCHITECTURE.md) · [Brief](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md) · [2.1 Layout Studio](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md)  
 **Reassessment:** [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md) (D-027)
 
 **Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)  
@@ -121,13 +121,19 @@ Engineering summary: [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
 
 ## Phase 4 — MAK Studio (Program 2 — **Official Next**)
 
-Prerequisite: **IFM 1C complete** ✅ (MDP-5 exceeds MDP-4 minimum). **No parallel UI framework.**
+Prerequisite: **IFM 1C complete** ✅ · **Program 1E Phase 1 complete** ✅ · **Program 2.0 Architecture complete** ✅ (D-031)
 
-Parallel co-requisite: **Program 1E Runtime Bridge** — CRB hydration for preview=production parity.
+Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md)
+
+| Phase | Deliverable | Status |
+|-------|-------------|--------|
+| **2.0** | Studio foundation architecture | ✅ Complete (D-031) |
+| **2.1** | Shell + Layout Studio (empresas) | **Next** — [Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
+| 2.2+ | Field, Validation, Workflow studios | Not started |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
-| Layout Studio | V13 + introspect + compile API | **Next — Phase 2.1** |
+| Layout Studio | V13 + introspect + compile API + Studio Architecture | **Next — Phase 2.1** |
 | Field Studio | Field Config Engine V14 | Not started |
 | Table Studio | Preferences + column metadata | Not started |
 | Formula/Validation Studio | V16–V17 engines | Not started |

@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 1E Runtime Bridge Phase 1)
+**Last updated:** 2026-06-29 (Program 2.0 MAK Studio Architecture)
+
+---
+
+## 2026-06-29 — Program 2.0: MAK Studio Foundation Architecture
+
+**Scope:** Official MAK Studio internal architecture (doc-only)  
+**Changes:** `MAK-STUDIO-ARCHITECTURE.md` v1.0.0; Program 2.1 Layout Studio brief  
+**Report:** [IFM-PROGRAM-2.0-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0-CERTIFICATION-REPORT.md)  
+**Decision:** D-031
+
+**RHP:** PR #308 merged; main @ `784b8c1e`  
+**Validation:** Doc-only — verify:ci on main ✅  
+**Next:** Program 2.1 Layout Studio implementation
 
 ---
 

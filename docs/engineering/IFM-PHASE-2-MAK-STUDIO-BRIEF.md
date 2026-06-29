@@ -3,8 +3,9 @@
 **Mission ID:** IFM Phase 2 (Program 2)  
 **Program:** MAK Studio  
 **Priority:** P1  
-**Status:** Prepared — **ready to start** (D-027 + D-030)  
-**Prerequisite:** [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md) · [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md)  
+**Status:** Prepared — **2.0 complete, 2.1 ready** (D-027 + D-030 + D-031)  
+**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.0.0  
+**Prerequisite:** [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md) · [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) · [IFM-PROGRAM-2.0-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0-CERTIFICATION-REPORT.md)  
 **Parallel:** [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md)
 
 ---
