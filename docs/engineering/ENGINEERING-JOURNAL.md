@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 2.3.4 Studio Type System)
+**Last updated:** 2026-06-28 (Program 2.3.5 Studio Evaluation Engine)
+
+---
+
+## 2026-06-28 — Program 2.3.5: Studio Evaluation Engine
+
+**Scope:** Evaluation Pipeline, Context, Session, Cache, Scheduler, Strategy, Result, Diagnostics, Profiler, Hooks; Field Studio first consumer; Expression bridge migrated  
+**Changes:** `src/studio/evaluation/*`, `fieldEvaluationSetup.js`, `expressionEvaluationBridge.js`, gate G301  
+**Report:** [IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md)  
+**Decision:** D-051
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.6 Computed & Derived Fields
 
 ---
 

@@ -141,6 +141,15 @@ export {
   createTypeInferenceEngine,
 } from "./typeSystem/index.js";
 export {
+  STUDIO_EVALUATION_VERSION,
+  OFFICIAL_EVALUATION_ENGINES,
+  EVALUATION_STRATEGIES,
+  createEvaluationEngine,
+  createEvaluationPipeline,
+  createEvaluationCache,
+  createEvaluationScheduler,
+} from "./evaluation/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,

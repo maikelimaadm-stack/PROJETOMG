@@ -47,6 +47,11 @@ export {
   mapFieldTypeForExpression,
 } from "./typeSystem/fieldTypeSetup.js";
 export {
+  getFieldEvaluationEngine,
+  evaluateFieldExpression,
+  evaluateFieldDocumentBatch,
+} from "./evaluation/fieldEvaluationSetup.js";
+export {
   getFieldDependencyEngine,
   buildFieldDocumentDependencyGraph,
   analyzeFieldDocumentImpact,

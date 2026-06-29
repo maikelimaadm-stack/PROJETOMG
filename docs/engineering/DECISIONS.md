@@ -606,6 +606,18 @@
 
 ---
 
+## D-051 — Studio Evaluation Engine (Program 2.3.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.5** — Studio Evaluation Engine with official Evaluation Pipeline, Context, Session, Cache, Scheduler, Strategy, Result, Diagnostics, Profiler, Hooks, and AI-ready metadata. Single evaluation infrastructure for all Studios. Field Studio first consumer path; Expression Engine delegates execution. Gate **G301** forbids parallel evaluators, schedulers, caches, and execution pipelines in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed/Derived Fields, Workflow, Dashboard, and Automation Studios reuse one evaluation layer |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

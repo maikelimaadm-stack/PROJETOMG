@@ -15,7 +15,7 @@ import { createFunctionCatalog } from "./catalog/functionCatalog.js";
 import { createExpressionContext } from "./context/expressionContext.js";
 import { createExpressionDependencyGraph } from "./dependency/expressionDependencyGraph.js";
 import { createExpressionRefactoring } from "./refactoring/expressionRefactoring.js";
-import { executeExpressionAst } from "./runtime/expressionExecutor.js";
+import { createExpressionEvaluationBridge } from "./runtime/expressionEvaluationBridge.js";
 
 export function createExpressionEngine(options = {}) {
   const functionCatalog = options.functionCatalog ?? createFunctionCatalog();
@@ -25,6 +25,7 @@ export function createExpressionEngine(options = {}) {
   const validator = createExpressionValidator(typeSystem, functionCatalog);
   const dependencyGraph = createExpressionDependencyGraph();
   const refactoring = createExpressionRefactoring();
+  const evaluationBridge = createExpressionEvaluationBridge({ functionCatalog });
 
   return Object.freeze({
     version: STUDIO_EXPRESSION_VERSION,
@@ -36,6 +37,7 @@ export function createExpressionEngine(options = {}) {
     validator,
     dependencyGraph,
     refactoring,
+    evaluationBridge,
     createDocument: createExpressionDocument,
     validateDocument: validateExpressionDocument,
     parse(source, partial) {
@@ -59,7 +61,10 @@ export function createExpressionEngine(options = {}) {
       return refactoring.renameVariable(ast, from, to);
     },
     execute(ast, context) {
-      return executeExpressionAst(ast, context, functionCatalog);
+      return evaluationBridge.evaluateSync(ast, context);
+    },
+    evaluate(ast, context, partial) {
+      return evaluationBridge.evaluateExpression(ast, context, partial);
     },
     inferType(ast, context) {
       return typeSystem.infer(ast?.expression, context);

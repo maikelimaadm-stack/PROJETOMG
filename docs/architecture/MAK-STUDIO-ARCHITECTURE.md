@@ -3,7 +3,7 @@
 **Status:** Official — Permanent architecture reference for Program 2  
 **Version:** 1.15.0  
 **Effective date:** 2026-06-28  
-**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048 · **Dependency Engine:** D-049 · **Type System:** D-050  
+**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048 · **Dependency Engine:** D-049 · **Type System:** D-050 · **Evaluation Engine:** D-051  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -1387,10 +1387,41 @@ Single official type infrastructure for all Studios.
 
 ---
 
+## 44. Studio Evaluation Engine (Program 2.3.5 — D-051)
+
+Single official evaluation infrastructure for all Studios.
+
+### 44.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Evaluation Pipeline** | Official expression execution path |
+| **Evaluation Context / Session** | Scoped variables and run lifecycle |
+| **Evaluation Cache** | Result caching and invalidation |
+| **Evaluation Scheduler** | Dependency-ordered execution |
+| **Evaluation Strategy** | Eager, lazy, batch, incremental |
+| **Evaluation Result** | Typed result with metadata |
+| **Diagnostics / Profiler / Hooks** | Observability and extension points |
+
+### 44.2 Path
+
+`src/studio/evaluation/` · Gate **G301** · Exported from `src/studio/index.js`
+
+**First consumer path:** Field Studio via `designers/field/evaluation/fieldEvaluationSetup.js`
+
+**Expression bridge:** `expression/runtime/expressionEvaluationBridge.js` delegates to Studio Evaluation Engine
+
+**Integrations:** Dependency Engine (order) · Type System (validation) · Expression AST executor (internal)
+
+**Rule:** No designer may implement parallel evaluators, schedulers, caches, or pipelines.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.18.0 | 2026-06-28 | Studio Evaluation Engine — Program 2.3.5 (D-051); G301 |
 | 1.17.0 | 2026-06-28 | Studio Type System — Program 2.3.4 (D-050); G300 |
 | 1.16.0 | 2026-06-28 | Studio Dependency Engine — Program 2.3.3 (D-049); G299 |
 | 1.15.0 | 2026-06-28 | Studio Expression Engine — Program 2.3.2 (D-048); G298 |

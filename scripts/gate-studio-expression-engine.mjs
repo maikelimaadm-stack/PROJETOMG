@@ -109,6 +109,13 @@ gate(
 );
 
 gate(
+  "G298 — Single official Evaluation bridge",
+  read(path.join(EXPR, "runtime/expressionEvaluationBridge.js")).includes("createEvaluationEngine") &&
+    read(path.join(EXPR, "createExpressionEngine.js")).includes("createExpressionEvaluationBridge") &&
+    !read(path.join(EXPR, "createExpressionEngine.js")).includes("executeExpressionAst")
+);
+
+gate(
   "G298 — Single official Type System bridge",
   read(path.join(EXPR, "types/expressionTypeSystem.js")).includes("createTypeSystem") &&
     read(path.join(EXPR, "createExpressionEngine.js")).includes("createExpressionTypeSystem")
