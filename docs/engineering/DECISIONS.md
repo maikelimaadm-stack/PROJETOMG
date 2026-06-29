@@ -414,6 +414,18 @@
 
 ---
 
+## D-035 — MAK Studio Architecture Governance
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.0.8** — permanent Studio Architecture Governance (`src/studio/governance/`) with automatic dependency graph validation, designer isolation rules, registry protection, public API enforcement, and architecture boundary checks. Gates **G279–G284** integrated into CI. **Last Studio infrastructure mission** — foundation permanently closed; Program 2.1 Studio Shell is next. |
+| **Evidence** | [IFM-PROGRAM-2.0.8-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.8-CERTIFICATION-REPORT.md) |
+| **Consequences** | All future Studio code (Shell, Designers) validated by governance gates; architecture self-protected |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

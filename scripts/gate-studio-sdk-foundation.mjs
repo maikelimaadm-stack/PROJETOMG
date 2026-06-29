@@ -78,6 +78,8 @@ const walk = (dir) => {
 walk(STUDIO);
 
 const foundationMutationImports = studioWalk.filter((file) => {
+  const rel = path.relative(ROOT, file);
+  if (rel.includes("src/studio/governance/")) return false;
   const content = read(file);
   return (
     content.includes("registerMakLayoutConfigEngine") ||
