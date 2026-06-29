@@ -860,7 +860,7 @@ Sync Platform ──► Offline (1.5) · Mobile (1.0) · Desktop (0)
 
 **IFM 1C (MDP) complete.** Next missions (D-027):
 
-1. **Program 2 — MAK Studio** — Layout Studio empresas pilot (primary) — **ready**
+1. **Program 2.1 — MAK Studio Layout** — empresas pilot (**architecture ready** — D-031)
 2. **Program 1E-2 — Runtime Bridge** — deploy reload hook (parallel)
 3. **IFM 1B A5** — Event Bus MVP (after Studio Layout MVP)
 4. **IFM 1B A1/A2** — legacy promotion (background)
