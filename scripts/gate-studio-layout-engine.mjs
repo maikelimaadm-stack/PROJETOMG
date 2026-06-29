@@ -56,6 +56,14 @@ gate(
 );
 
 gate(
+  "G291 — Layout consumes Studio Object Model",
+  exists(path.join(LAYOUT, "som/layoutSomSetup.js")) &&
+    read(path.join(LAYOUT, "som/layoutSomSetup.js")).includes("@/studio/som/index.js") &&
+    read(path.join(LAYOUT, "document/registryToDocument.js")).includes("layoutSomSetup") &&
+    read(path.join(LAYOUT, "commands/layoutCommandHandlers.js")).includes("layoutSomSetup")
+);
+
+gate(
   "G291 — Layout Document official contract",
   LAYOUT_DOCUMENT_VERSION === "mak-layout-document-v1" &&
     read(path.join(LAYOUT, "document/layoutDocumentContracts.js")).includes("pages") &&

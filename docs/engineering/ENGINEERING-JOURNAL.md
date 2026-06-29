@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.2.5 Studio Core Engine)
+**Last updated:** 2026-06-29 (Program 2.2.6 Studio Object Model)
+
+---
+
+## 2026-06-29 — Program 2.2.6: Studio Object Model (SOM)
+
+**Scope:** Object Model, Property, Binding, Behavior, Identity, Package engines; Layout migrated to SOM  
+**Changes:** `src/studio/som/*`, `designers/layout/som/layoutSomSetup.js`, gate G294, dependency stack update  
+**Report:** [IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md)  
+**Decision:** D-044
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
 
 ---
 

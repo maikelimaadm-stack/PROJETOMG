@@ -1,5 +1,7 @@
 /** Layout validation rules — registered on Studio Core Validation Engine */
 
+import { getLayoutBindingEngine } from "../som/layoutSomSetup.js";
+
 export function registerLayoutValidationRules(validationEngine) {
   validationEngine.registerRule({
     id: "layout.pages.required",
@@ -44,6 +46,31 @@ export function registerLayoutValidationRules(validationEngine) {
         });
       });
       return issues;
+    },
+  });
+
+  validationEngine.registerRule({
+    id: "layout.bindings.valid",
+    severity: "error",
+    validate: (document) => {
+      const allBindings = [
+        ...(document?.bindings ?? []),
+        ...(document?.pages ?? []).flatMap((page) =>
+          (page.sections ?? []).flatMap((section) => [
+            ...(section.bindings ?? []),
+            ...(section.containers ?? []).flatMap((container) => [
+              ...(container.bindings ?? []),
+              ...(container.components ?? []).flatMap((c) => c.bindings ?? []),
+            ]),
+          ])
+        ),
+      ];
+      const result = getLayoutBindingEngine().validateAll(allBindings);
+      return result.errors.map((message) => ({
+        severity: "error",
+        code: "INVALID_BINDING",
+        message,
+      }));
     },
   });
 

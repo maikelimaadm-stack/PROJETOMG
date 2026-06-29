@@ -1,4 +1,5 @@
 import { createEmptyLayoutDocument } from "./layoutDocumentContracts.js";
+import { normalizeLayoutBindings } from "../som/layoutSomSetup.js";
 
 const DEFAULT_PANEL_LABELS = Object.freeze({
   identificacao: "Identificação",
@@ -49,7 +50,7 @@ export function registryEntriesToLayoutDocument(registryEntries = [], moduleId =
       sectionId,
       label: sectionEntry?.label ?? sectionEntry?.labels?.[0]?.label ?? DEFAULT_PANEL_LABELS[panelKey] ?? panelKey,
       containers,
-      bindings: normalizeBindings(sectionEntry?.bindings ?? []),
+      bindings: normalizeLayoutBindings(sectionEntry?.bindings ?? []),
       rules: sectionPayload.rules ?? [],
     };
   });
@@ -82,7 +83,7 @@ export function registryEntriesToLayoutDocument(registryEntries = [], moduleId =
         sections,
       },
     ],
-    bindings: normalizeBindings(layoutEntry.bindings ?? []),
+    bindings: normalizeLayoutBindings(layoutEntry.bindings ?? []),
     rules: payload.rules ?? [],
     styles: payload.styles ?? {},
     behaviors: payload.behaviors ?? [],
@@ -105,7 +106,7 @@ function panelToContainer(panel) {
       frame: { x: 16, y: 16 + idx * 72, width: 280, height: 64 },
     })),
     styles: payload.styles ?? {},
-    bindings: normalizeBindings(panel.bindings ?? []),
+    bindings: normalizeLayoutBindings(panel.bindings ?? []),
   };
 }
 
@@ -118,7 +119,7 @@ function defaultContainerForSection(panelKey, sectionPayload) {
       componentId: `component.${panelKey}.${fieldId}`,
       type: "field",
       props: { fieldId },
-      bindings: [{ bindingKind: "field", targetId: fieldId }],
+      bindings: normalizeLayoutBindings([{ bindingKind: "field", targetId: fieldId }]),
       rules: [],
       styles: {},
       behaviors: [],
@@ -127,13 +128,6 @@ function defaultContainerForSection(panelKey, sectionPayload) {
     styles: {},
     bindings: [],
   };
-}
-
-function normalizeBindings(bindings) {
-  return (bindings ?? []).map((b) => ({
-    bindingKind: b.bindingKind ?? b.binding_kind ?? "entry",
-    targetId: b.targetId ?? b.target_id ?? "",
-  }));
 }
 
 export default registryEntriesToLayoutDocument;

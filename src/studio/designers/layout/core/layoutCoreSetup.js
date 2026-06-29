@@ -23,6 +23,11 @@ import { astRootToMdpPayloads } from "../ast/astToMdpPayloads.js";
 import { LayoutCommandTypes } from "../commands/layoutCommandTypes.js";
 import { applyLayoutCommand } from "../commands/layoutCommandHandlers.js";
 import { registerLayoutValidationRules } from "../validation/layoutValidationRules.js";
+import {
+  createLayoutPackageFromProject,
+  normalizeLayoutBindings,
+  mapLayoutDocumentToSom,
+} from "../som/layoutSomSetup.js";
 
 let layoutDocumentEngine = null;
 let layoutAstEngine = null;
@@ -180,7 +185,7 @@ export function createLayoutProject(moduleId, layoutDocument) {
   );
 
   dependencyGraph.addNode({ id: artifactId, type: "layout", label: layoutDocument.metadata?.label });
-  (layoutDocument.bindings ?? []).forEach((binding) => {
+  normalizeLayoutBindings(layoutDocument.bindings ?? []).forEach((binding) => {
     if (binding.targetId) {
       dependencyGraph.addNode({ id: binding.targetId, type: binding.bindingKind ?? "reference" });
       dependencyGraph.addEdge({ from: artifactId, to: binding.targetId, kind: "binding" });
@@ -188,8 +193,22 @@ export function createLayoutProject(moduleId, layoutDocument) {
   });
 
   const refactoringEngine = createRefactoringEngine({ projectModel, dependencyGraph });
+  const project = projectModel.get();
+  const { packageModel, snapshot: packageSnapshot } = createLayoutPackageFromProject({
+    project,
+    moduleId,
+    layoutDocument,
+  });
+  const somObjects = mapLayoutDocumentToSom(layoutDocument);
 
-  return Object.freeze({ projectModel, dependencyGraph, refactoringEngine });
+  return Object.freeze({
+    projectModel,
+    dependencyGraph,
+    refactoringEngine,
+    packageModel,
+    packageSnapshot,
+    somObjects,
+  });
 }
 
 export default {

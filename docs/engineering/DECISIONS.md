@@ -522,6 +522,18 @@
 
 ---
 
+## D-044 — Studio Object Model (Program 2.2.6)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2.6** — Studio Object Model (SOM) with Object Model, Property Engine, Binding Engine, Behavior Engine, Object Identity System, and Studio Package Model. Layout Studio migrated to consume SOM exclusively. Gate **G294** forbids designers from implementing object/property/binding/behavior models locally. |
+| **Evidence** | [IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md) |
+| **Consequences** | Enables consistent evolution, AI integration, Marketplace, collaboration, and Runtime without structural duplication across all future Designers |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

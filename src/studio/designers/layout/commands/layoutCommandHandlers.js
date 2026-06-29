@@ -1,4 +1,5 @@
 import { LayoutCommandTypes } from "./layoutCommandTypes.js";
+import { applyLayoutProperty, generateLayoutComponentId } from "../som/layoutSomSetup.js";
 
 function findComponentPath(pages, componentId) {
   for (let pi = 0; pi < pages.length; pi += 1) {
@@ -60,7 +61,7 @@ export function applyLayoutCommand(doc, command) {
       const source = container.components[path.idx];
       const duplicate = {
         ...JSON.parse(JSON.stringify(source)),
-        componentId: `${source.componentId}.copy.${Date.now()}`,
+        componentId: generateLayoutComponentId(next.moduleId ?? "empresas", `${source.componentId}.copy`, true),
         frame: {
           ...source.frame,
           x: (source.frame?.x ?? 0) + 16,
@@ -84,7 +85,11 @@ export function applyLayoutCommand(doc, command) {
       const path = findComponentPath(pages, command.payload.componentId);
       if (!path) break;
       const component = pages[path.pi].sections[path.si].containers[path.ci].components[path.idx];
-      component.props = { ...component.props, [command.payload.propertyId]: command.payload.value };
+      const updated = applyLayoutProperty(component, command.payload.propertyId, command.payload.value);
+      pages[path.pi].sections[path.si].containers[path.ci].components[path.idx] = {
+        ...updated,
+        props: updated.props ?? updated.properties,
+      };
       break;
     }
     case LayoutCommandTypes.UPDATE_BINDING: {

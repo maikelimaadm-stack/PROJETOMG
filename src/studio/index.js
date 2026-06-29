@@ -76,6 +76,28 @@ export {
   createRefactoringEngine,
 } from "./core/index.js";
 export {
+  STUDIO_OBJECT_MODEL_VERSION,
+  OFFICIAL_SOM_ENGINES,
+  SOM_OBJECT_KINDS,
+  BINDING_KINDS,
+  BEHAVIOR_TRIGGER_KINDS,
+  BEHAVIOR_ACTION_KINDS,
+  OBJECT_MODEL_VERSION,
+  createSomObject,
+  createStudioObjectModel,
+  PROPERTY_ENGINE_VERSION,
+  createPropertyEngine,
+  BINDING_ENGINE_VERSION,
+  createBindingEngine,
+  BEHAVIOR_ENGINE_VERSION,
+  createBehaviorEngine,
+  OBJECT_IDENTITY_VERSION,
+  createObjectIdentitySystem,
+  STUDIO_PACKAGE_VERSION,
+  createStudioPackage,
+  createPackageModel,
+} from "./som/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,

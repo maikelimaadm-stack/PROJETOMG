@@ -3,7 +3,7 @@
 **Status:** Official — Permanent architecture reference for Program 2  
 **Version:** 1.9.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5)  
+**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5) · **Studio Object Model:** D-044 (Program 2.2.6)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -180,6 +180,13 @@ src/studio/
 │   ├── project/            ← Studio Project Model (official unit)
 │   ├── dependency/         ← Dependency Graph Engine
 │   └── refactoring/        ← Refactoring Engine (safe renames)
+├── som/                    ← Studio Object Model (Program 2.2.6)
+│   ├── object/             ← SOM — official editable element representation
+│   ├── property/           ← Property Engine (registrable, component-independent)
+│   ├── binding/            ← Binding Engine (field, formula, api, ai, …)
+│   ├── behavior/           ← Behavior Engine (triggers, conditions, actions)
+│   ├── identity/           ← Object Identity System (semantic stable IDs)
+│   └── package/            ← Studio Package Model (Project → Package → Module → Object)
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -1146,6 +1153,8 @@ Layout Document  →  Layout AST  →  MDP Registry  →  Compile  →  CRB  →
 
 **Studio Core (2.2.5):** Layout consumes `src/studio/core/` exclusively via `layoutCoreSetup.js` — no local engine implementations. Gate **G293**.
 
+**Studio Object Model (2.2.6):** Layout consumes `src/studio/som/` exclusively via `layoutSomSetup.js` — no local object/property/binding/behavior models. Gate **G294**.
+
 ---
 
 ## 37. Studio Core Engine (Program 2.2.5 — D-043)
@@ -1178,10 +1187,40 @@ No designer may implement `createDocumentEngine`, `createAstEngine`, `createVali
 
 ---
 
+## 38. Studio Object Model (Program 2.2.6 — D-044)
+
+Universal model for all editable Studio elements — **must** be consumed before Field Studio (2.3).
+
+### 38.1 Official engines
+
+| Engine | Responsibility |
+|--------|----------------|
+| **Studio Object Model** | Official representation of any editable element |
+| **Property Engine** | Registrable properties independent of components |
+| **Binding Engine** | field, expression, relationship, formula, dataset, api, ai bindings |
+| **Behavior Engine** | Triggers, conditions, actions, execution policies |
+| **Object Identity System** | Semantic stable IDs for all editable objects |
+| **Studio Package Model** | Project → Package → Module → Object hierarchy |
+
+### 38.2 Designer integration pattern
+
+```
+designers/{name}/som/{name}SomSetup.js  →  wires SOM engines + domain-specific schemas/kinds/policies
+```
+
+No designer may implement object, property, binding, or behavior models locally.
+
+### 38.3 Path
+
+`src/studio/som/` · Gate **G294** · Exported from `src/studio/index.js`
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.11.0 | 2026-06-29 | Studio Object Model — Program 2.2.6 (D-044); G294; Layout migrated to SOM APIs |
 | 1.10.0 | 2026-06-29 | Studio Core Engine — Program 2.2.5 (D-043); G293; Layout migrated to Core APIs |
 | 1.9.0 | 2026-06-29 | Layout Studio Engine — Program 2.2 (D-042); G291; first functional designer |
 | 1.8.0 | 2026-06-29 | Contribution Engine — Program 2.1A.7 (D-040); G290; **foundation closed** |

@@ -3,23 +3,29 @@
 **Mission ID:** IFM Phase 2.3 (Program 2.3)  
 **Program:** MAK Studio — Field Studio  
 **Priority:** P1  
-**Status:** Prepared — **ready after 2.2.5 Studio Core Engine ✅**  
-**Prerequisites:** Studio Core Engine 2.2.5 ✅ (D-043) · Layout Studio Engine 2.2 ✅ (D-042) · Field Config Engine V14 ✅ · MDP-2 Data Dictionary ✅
+**Status:** Prepared — **ready after 2.2.6 Studio Object Model ✅**  
+**Prerequisites:** Studio Object Model 2.2.6 ✅ (D-044) · Studio Core Engine 2.2.5 ✅ (D-043) · Layout Studio Engine 2.2 ✅ (D-042) · Field Config Engine V14 ✅ · MDP-2 Data Dictionary ✅
 
 ---
 
 ## Objective
 
-Implement the **Field Studio** designer plugin — second MAK Studio designer — consuming **Studio Core Engine** (Program 2.2.5) and Layout patterns from Program 2.2.
+Implement the **Field Studio** designer plugin — second MAK Studio designer — consuming **Studio Object Model** (2.2.6), **Studio Core Engine** (2.2.5), and Layout patterns from Program 2.2.
 
 **Pilot module:** empresas
 
 ---
 
-## Inherit from 2.2.5 + 2.2 (do not rebuild)
+## Inherit from 2.2.6 + 2.2.5 + 2.2 (do not rebuild)
 
 | Pattern | Source | Reuse |
 |---------|--------|-------|
+| Studio Object Model | 2.2.6 | `createStudioObjectModel` + Field object schemas |
+| Property Engine | 2.2.6 | `createPropertyEngine` + Field property schemas |
+| Binding Engine | 2.2.6 | `createBindingEngine` + Field binding kinds |
+| Behavior Engine | 2.2.6 | `createBehaviorEngine` + Field behavior policies |
+| Object Identity System | 2.2.6 | Semantic stable field IDs |
+| Studio Package Model | 2.2.6 | Package hierarchy for field artifacts |
 | Document Engine | 2.2.5 | `createDocumentEngine` + Field Document schema |
 | AST Engine | 2.2.5 | `createAstEngine` + Field transformers/compilers |
 | Validation Engine | 2.2.5 | `createValidationEngine` + Field rules |

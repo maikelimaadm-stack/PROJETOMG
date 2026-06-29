@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** Program 2.2.5 Studio Core Engine (D-043)  
+**Verified by:** Program 2.2.6 Studio Object Model (D-044)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -40,7 +40,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **2.2.5 Studio Core ✅; 2.3 Field Studio next** | [2.2.5 Report](./IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md) · [2.3 Brief](./IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **2.2.6 Studio Object Model ✅; 2.3 Field Studio next** | [2.2.6 Report](./IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md) · [2.3 Brief](./IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -158,7 +158,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Studio Core Engine ✅** (2.2.5, G293) · **Layout Studio ✅** (2.2, G291) · `/studio/empresas/layout` · **2.3 Field Studio next** |
+| MAK Studio Shell / Designers | **Studio Object Model ✅** (2.2.6, G294) · **Studio Core ✅** (2.2.5, G293) · **Layout Studio ✅** (2.2, G291) · **2.3 Field Studio next** |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |

@@ -19,3 +19,9 @@ export {
   documentToRegistryPayloads,
   createLayoutProject,
 } from "./core/layoutCoreSetup.js";
+
+export {
+  normalizeLayoutBindings,
+  mapLayoutDocumentToSom,
+  generateLayoutComponentId,
+} from "./som/layoutSomSetup.js";
