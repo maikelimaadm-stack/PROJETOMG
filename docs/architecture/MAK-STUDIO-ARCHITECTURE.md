@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.1.0  
+**Version:** 1.2.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **SDK:** D-032 (Program 2.0.5)  
+**Decision:** D-031 · **SDK:** D-032 (Program 2.0.5) · **Design System:** D-033 (Program 2.0.6)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -140,6 +140,11 @@ src/studio/
 │   ├── contracts/          ← Workspace, Dock, Explorer, … APIs
 │   ├── studioDesignerContract.js
 │   └── studioPluginContract.js
+├── designSystem/           ← Design System Foundation (Program 2.0.6)
+│   ├── registry/           ← Token, Theme, Motion, Accessibility, Manifest
+│   ├── contracts/          ← Component Manifest, Universal Component Model, AI Knowledge
+│   ├── catalogs/
+│   └── integration/        ← Studio registry → manifest bridge
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -149,6 +154,8 @@ src/studio/
 ├── services/
 └── designers/              ← sub-phase plugins (layout, field, …)
 ```
+
+**Layer order:** Studio SDK → Design System Foundation → Studio Shell → Designers
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
 
@@ -852,6 +859,7 @@ Each designer is a **plugin** — shell architecture unchanged across phases.
 | Gate | Validates |
 |------|-----------|
 | **G262–G266** | Studio SDK + registries bootstrapped | Program 2.0.5 |
+| **G267–G272** | Design System Foundation (tokens, themes, manifests) | Program 2.0.6 |
 | **G144** | Studio writes only via `/api/mdp/*` (Phase 2.1+) | Pending |
 | **G145** | Preview uses shared hydration adapter (Phase 2.1+) | Pending |
 
@@ -923,10 +931,47 @@ All designers **must** consume the Studio SDK — never reimplement dock, histor
 
 ---
 
+## 32. Design System Foundation (Program 2.0.6)
+
+**Decision:** D-033 · **Path:** `src/studio/designSystem/`
+
+Permanent visual and component metadata foundation between Studio SDK and Studio Shell. **No UI, themes, or renderers** in this layer — architecture and registries only.
+
+### 32.1 Registries
+
+| Registry | SSOT for | Categories / scope |
+|----------|----------|-------------------|
+| **Token Registry** | All visual values | colors, typography, radius, shadows, spacing, elevation, opacity, motion, icons, borders |
+| **Theme Registry** | Theme definitions | light, dark, corporate, agro, industry, hospital, custom |
+| **Motion Registry** | Animation contracts | fade, slide, scale, ripple, bounce, loading, hover, success, error |
+| **Accessibility Registry** | A11y profiles | keyboard, screenReader, focus, aria, contrast, touchTargets |
+| **Manifest Registry** | Component manifests + Universal Component Model | properties, events, actions, tokens, themes, permissions, runtime, preview, marketplace, AI |
+
+**Rule:** Never scatter visual values — always resolve via `getDesignToken()` / `resolveTokenValue()`.
+
+### 32.2 Contracts
+
+| Contract | Purpose |
+|----------|---------|
+| `defineComponentManifest()` | Official component metadata (properties, events, actions, tokens, themes, permissions, runtime, preview, marketplace, documentation, examples, limitations, dependencies, capabilities, AI) |
+| `defineUniversalComponent()` | Platform-agnostic MAK component — `platform: "mak"`, renderer bindings for react/desktop/mobile/pwa/pdf/preview/marketplace |
+| `buildAiComponentKnowledge()` | Structured AI knowledge per component (description, examples, limitations, best practices, suggestions, context) |
+
+### 32.3 Registry integration
+
+`integrateDesignSystemWithStudioRegistries()` auto-builds manifests from existing Component/Property/Event/Action/Capability registries — **non-breaking**, no duplication with SDK layer (G272).
+
+**Entry point:** `bootstrapDesignSystem()` — called after `bootstrapStudioRegistries()` in `src/studio/index.js`.
+
+**Governance:** Gates **G267–G272** · Smoke: `scripts/smoke-design-system.mjs`
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.2.0 | 2026-06-29 | Design System Foundation — Program 2.0.6 (D-033) |
 | 1.1.0 | 2026-06-29 | SDK & Registry Foundation — Program 2.0.5 (D-032) |
 | 1.0.0 | 2026-06-29 | Initial architecture — Program 2.0 (D-031) |
 

@@ -4,15 +4,16 @@
 **Program:** MAK Studio — Studio Shell  
 **Priority:** P1  
 **Status:** Prepared — **ready to implement**  
-**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.1.0  
+**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.2.0  
 **SDK:** Program 2.0.5 ✅ · [Certification](./IFM-PROGRAM-2.0.5-CERTIFICATION-REPORT.md)  
+**Design System:** Program 2.0.6 ✅ · [Certification](./IFM-PROGRAM-2.0.6-CERTIFICATION-REPORT.md)  
 **Prerequisites:** Runtime Bridge 1E-1 ✅ · MDP-5 ✅
 
 ---
 
 ## Objective
 
-Implement the **MAK Studio Shell** — the persistent chrome that hosts all future designers — using the **Studio SDK** (`createStudioSdk`) and official registries.
+Implement the **MAK Studio Shell** — the persistent chrome that hosts all future designers — using the **Studio SDK** (`createStudioSdk`), **Design System Foundation** (tokens, manifests), and official registries.
 
 **No Layout Studio in this mission.** Shell + navigation + dock panels + SDK wiring only.
 
@@ -26,6 +27,7 @@ Implement the **MAK Studio Shell** — the persistent chrome that hosts all futu
 | §5 Navigation | Routes `/studio`, `/studio/:moduleId` |
 | §7 Dock System | Left/right/bottom panels (Explorer, Outline, Inspector, Properties, Runtime Console) |
 | §31 Studio SDK | Wire `createStudioSdk({ deps })` with MDP client stubs |
+| §32 Design System | Bootstrap tokens/themes; panels resolve visual values via Token Registry |
 | §31.2 Registries | Panels read Component/Property catalogs — no hardcoded components |
 
 ---
@@ -61,6 +63,8 @@ Implement the **MAK Studio Shell** — the persistent chrome that hosts all futu
 - [ ] History stub uses `sdk.history`
 - [ ] Component lookups use `getStudioComponent()` — never inline component defs
 - [ ] Property panel reads `listStudioProperties()` for schema hints
+- [ ] Visual values resolve via `getDesignToken()` / `resolveTokenValue()` — no hardcoded colors/spacing
+- [ ] Component metadata reads `getComponentManifest()` where applicable
 
 ---
 
@@ -122,4 +126,4 @@ src/studio/
 
 ---
 
-*Prepared automatically by Program 2.0.5 certification — D-032.*
+*Prepared automatically by Program 2.0.6 certification — D-033.*

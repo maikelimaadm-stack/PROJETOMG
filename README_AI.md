@@ -134,7 +134,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | Runtime modules | empresas, cadcps (2 certified) |
 | New module creation | `npm run generate:module` only |
 | Primary gate suite | `npm run verify:governance` |
-| MAK Studio | Not implemented |
+| MAK Studio | **Foundation only** (SDK + Design System) — Shell pending 2.1 |
 | MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
