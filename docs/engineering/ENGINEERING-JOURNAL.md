@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (IFM 1C-MDP-4 Metadata Registry)
+**Last updated:** 2026-06-29 (IFM 1C-MDP-4.5 Final Architecture Review)
 
 ---
 
@@ -15,6 +15,18 @@ Each mission adds an entry with:
 - Links to PR / decisions
 
 ---
+
+---
+
+## 2026-06-29 — IFM 1C-MDP-4.5: Final Architecture Review
+
+**Scope:** Audit MDP-1..4 integrated platform; freeze certification before MDP-5  
+**Changes:** Validator fix (F-01), export persistence fix (F-02), G137 extension, D-025 freeze  
+**Report:** [IFM-1C-MDP-4.5-ARCHITECTURE-REVIEW-REPORT.md](./IFM-1C-MDP-4.5-ARCHITECTURE-REVIEW-REPORT.md)  
+**Decision:** D-025
+
+**Validation:** build ✅ lint ✅ verify:governance ✅ verify:ci ✅ 5 cycles ✅ PR #300 merged ✅  
+**Next:** IFM 1C-MDP-5 — [IFM-1C-MDP-5-VERSIONING-PUBLICATION.md](./IFM-1C-MDP-5-VERSIONING-PUBLICATION.md)
 
 ---
 

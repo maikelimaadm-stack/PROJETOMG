@@ -46,7 +46,7 @@ export const mdpRegistryCreateSchema = z.object({
   status: z.enum(["draft", "published", "archived"]).optional(),
   ownerKind: z.enum(["platform", "tenant", "marketplace", "system"]).optional(),
   ownerRef: z.string().nullable().optional(),
-  empresaScope: z.enum(["none", "all", "selected"]).optional(),
+  empresaScope: z.enum(["none", "optional", "required"]).optional(),
   enabled: z.boolean().optional(),
   baseTemplateId: z.string().optional(),
   sortOrder: z.number().int().optional(),

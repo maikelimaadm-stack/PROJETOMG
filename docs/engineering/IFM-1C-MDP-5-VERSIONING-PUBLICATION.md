@@ -12,10 +12,11 @@
 
 | Mission | Status |
 |---------|--------|
-| MDP-1 Entity Dictionary | ✅ Complete |
-| MDP-2 Data Dictionary | ✅ Complete |
-| MDP-3 Relationship Dictionary | ✅ Complete |
-| MDP-4 Metadata Registry | ✅ Complete |
+| MDP-1 Entity Dictionary | ✅ Complete — **frozen** |
+| MDP-2 Data Dictionary | ✅ Complete — **frozen** |
+| MDP-3 Relationship Dictionary | ✅ Complete — **frozen** |
+| MDP-4 Metadata Registry | ✅ Complete — **frozen** |
+| MDP-4.5 Architecture Review | ✅ Complete — [D-025](./DECISIONS.md) |
 | MDP-0 Architecture Specification | ✅ Complete (D-020) |
 | IFM 1D-1 CI Capability Gates | ✅ Complete |
 

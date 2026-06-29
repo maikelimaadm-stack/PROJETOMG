@@ -100,6 +100,7 @@ Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Ph
 | 1C.2 | MDP-2 | Data Dictionary — evolve CADCPS to all fields | ✅ Spec §4 |
 | 1C.3 | MDP-3 | Relationship Dictionary — schema + API | ✅ Spec §5 |
 | 1C.4 | MDP-4 | Metadata Registry + introspection + compile API | ✅ Spec §6 |
+| 1C.4.5 | MDP-4.5 | Final architecture review + freeze | ✅ [Report](./IFM-1C-MDP-4.5-ARCHITECTURE-REVIEW-REPORT.md) |
 | 1C.5 | MDP-5 | Versioning + publish + snapshot engine | Spec §7 |
 
 Definitive spec: [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md)  
