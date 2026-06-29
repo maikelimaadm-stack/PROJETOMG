@@ -202,7 +202,7 @@ Every area in §4 and §5 includes:
 |-------|-------|
 | **Score** | **2.0 / 10** |
 | **2035 target** | L4 — Entity · Data · Relationship Dictionaries + Metadata Registry persisted, versioned, API-accessible; compile + publish pipeline |
-| **Current state** | **Partial implementation** (D-012, D-022). Entity Dictionary ✅ (MDP-1). Data Dictionary ✅ (MDP-2 — native + custom via `mdp_field*`). Relationship/Metadata Registry spec only. |
+| **Current state** | **Partial implementation** (D-012, D-022, D-023). Entity ✅ Field ✅ Relationship ✅ dictionaries. Metadata Registry spec only. |
 
 **Criteria:**
 

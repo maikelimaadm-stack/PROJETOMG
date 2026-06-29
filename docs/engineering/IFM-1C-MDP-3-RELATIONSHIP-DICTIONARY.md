@@ -3,7 +3,7 @@
 **Mission ID:** IFM 1C-MDP-3 (MDP-3)  
 **Program:** IFM Phase 1C — MAK DATA PLATFORM  
 **Priority:** P1  
-**Status:** Prepared — ready after MDP-2 merge  
+**Status:** Complete — [certification report](./IFM-1C-MDP-3-CERTIFICATION-REPORT.md)  
 **Architecture spec:** [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](../architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) §5
 
 ---
@@ -45,11 +45,11 @@ Implement **MDP-3 Relationship Dictionary** — explicit catalog of all relation
 
 ## Acceptance criteria
 
-- [ ] Prisma relations for `EmpresaCadastro` pilot documented in `mdp_relationship`
-- [ ] Field-level `relationship_ref` on `mdp_field` resolves to relationship rows
-- [ ] Tenant isolation on all relationship APIs
-- [ ] `npm run verify:governance` + `verify:ci` pass
-- [ ] CURRENT-STATE + ENGINEERING-JOURNAL updated
+- [x] Prisma relations for `EmpresaCadastro` pilot documented in `mdp_relationship`
+- [x] Field-level `relationship_ref` on `mdp_field` resolves to relationship rows
+- [x] Tenant isolation on all relationship APIs
+- [x] `npm run verify:governance` + `verify:ci` pass
+- [x] CURRENT-STATE + ENGINEERING-JOURNAL updated
 
 ---
 

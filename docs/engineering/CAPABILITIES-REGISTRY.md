@@ -89,8 +89,9 @@ Not runtime — prove engine contracts:
 | Capability | Status | % | Notes |
 |------------|--------|---|-------|
 | **MAK DATA PLATFORM** | Spec approved | 5 | D-012; IFM 1C — see [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md) |
-| Entity Dictionary | Not started | 0 | MDP-1; seed: module registry |
-| Data Dictionary (full) | Implemented | 85 | MDP-2 `mdp_field*` SSOT; CADCPS bridge; native Empresas pilot |
+| Entity Dictionary | Implemented | 90 | MDP-1 `mdp_entity*` |
+| Data Dictionary (full) | Implemented | 85 | MDP-2 `mdp_field*` SSOT |
+| Relationship Dictionary | Implemented | 80 | MDP-3 `mdp_relationship*` pilot Empresas |
 | Relationship Dictionary | Not started | 0 | MDP-3 |
 | Metadata Registry (persisted) | Partial | 30 | Runtime registries only; MDP-4 |
 | MAK Studio | Not started | 0 | No code |
