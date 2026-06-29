@@ -6,6 +6,7 @@ export const STUDIO_MODULES = Object.freeze([
 
 export const STUDIO_DESIGNERS = Object.freeze([
   { designerId: "layout", label: "Layout Studio", moduleId: "empresas" },
+  { designerId: "field", label: "Field Studio", moduleId: "empresas" },
 ]);
 
 export function resolveDesignerLabel(designerId) {

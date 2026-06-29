@@ -142,12 +142,13 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.2.5** | Studio Core Engine (shared designer foundation) | ✅ Complete (D-043) — [Report](./IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md) |
 | **2.2.6** | Studio Object Model (SOM) | ✅ Complete (D-044) — [Report](./IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md) |
 | **2.2.7** | Studio Editor Engine | ✅ Complete (D-045) — [Report](./IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md) |
-| **2.3** | Field Studio | **Next** — [Brief](./IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md) |
+| **2.3** | Field Studio Phase 1 | ✅ Complete (D-046) — [Report](./IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md) |
+| **2.3.1** | Advanced Field Capabilities | **Next** — [Brief](./IFM-PHASE-2.3.1-ADVANCED-FIELD-CAPABILITIES-BRIEF.md) |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
 | Layout Studio | V13 + introspect + compile API + Studio Shell Production | ✅ **2.2 complete** |
-| Field Studio | Studio Editor 2.2.7 + SOM 2.2.6 + Core 2.2.5 + Field Config Engine V14 | **Ready — 2.3 next** |
+| Field Studio | Studio Editor 2.2.7 + SOM 2.2.6 + Core 2.2.5 + Field Config Engine V14 | ✅ **2.3 Phase 1 complete** |
 | Table Studio | Preferences + column metadata | Not started |
 | Formula/Validation Studio | V16–V17 engines | Not started |
 | Workflow/Automation Studio | V18–V20 + backend events | Not started |

@@ -546,6 +546,18 @@
 
 ---
 
+## D-046 — Field Studio Phase 1 (Program 2.3)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3** — Field Studio Phase 1 with official Field Document, Field AST, Command System (CRUD + reorder + property edit), Field Canvas, MDP Field Dictionary client, Explorer + Property Grid integration, Preview via Document→Compile→CRB. Second functional designer at `/studio/empresas/field`. Gate **G296**. No new Studio infrastructure. |
+| **Evidence** | [IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md) |
+| **Consequences** | Establishes field authoring pattern for all modules; Program 2.3.1 Advanced Field Capabilities follows; Layout Studio behavior preserved |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

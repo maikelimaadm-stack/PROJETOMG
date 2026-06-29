@@ -44,6 +44,8 @@ import {
 } from "./studioShellConfig.js";
 import { registerLayoutDesigner } from "@/studio/designers/layout/registerLayoutDesigner.js";
 import { registerLayoutEditor } from "@/studio/designers/layout/editor/layoutEditorRegistration.jsx";
+import { registerFieldDesigner } from "@/studio/designers/field/registerFieldDesigner.js";
+import { registerFieldEditor } from "@/studio/designers/field/editor/fieldEditorRegistration.jsx";
 
 const DEFAULT_COMMANDS = [
   { id: "view.toggleLeftDock", label: "Alternar dock esquerdo", category: "View" },
@@ -94,7 +96,7 @@ function ProductionDomainLoader({ moduleId, designerId }) {
   return null;
 }
 
-function SelectionPropertySync({ moduleId }) {
+function SelectionPropertySync({ moduleId, designerId }) {
   const { selection } = useSelection();
   const { setFields } = useProperties();
   const introspectFieldsRef = useRef([]);
@@ -115,13 +117,14 @@ function SelectionPropertySync({ moduleId }) {
   }, [moduleId]);
 
   useEffect(() => {
+    if (designerId === "field") return;
     if (!selection.entryId) {
       setFields([], null);
       return;
     }
     const fields = resolvePropertyFieldsForSelection(introspectFieldsRef.current, selection.entryId);
     setFields(fields.length ? fields : [{ propertyId: "entryId", label: "Entry ID", type: "string", value: selection.entryId, group: "Meta" }], selection.entryId);
-  }, [selection.entryId, selection.entryType, setFields]);
+  }, [designerId, selection.entryId, selection.entryType, setFields]);
 
   return null;
 }
@@ -284,6 +287,10 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
       registerLayoutDesigner();
       registerLayoutEditor(editor.registry);
     }
+    if (designerId === "field") {
+      registerFieldDesigner();
+      registerFieldEditor(editor.registry);
+    }
   }, [designerId, editor.registry]);
 
   const token = useCallback((tokenId, themeId = "light") => resolveTokenValue(tokenId, themeId), []);
@@ -314,7 +321,7 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
   return (
     <StudioDomainProvider initialState={initialDomainState} services={productionServices} hub={hub} sdk={sdk}>
       <ProductionDomainLoader moduleId={moduleId} designerId={designerId} />
-      <SelectionPropertySync moduleId={moduleId} />
+      <SelectionPropertySync moduleId={moduleId} designerId={designerId} />
       <SessionSync moduleId={moduleId} designerId={designerId} />
       <PersistenceSync persistenceKey={persistenceKey} />
       <DomainCommandRegistrar sdk={sdk} />

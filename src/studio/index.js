@@ -202,6 +202,14 @@ export {
   createLayoutCommandBus,
   compileLayoutDocumentPreview,
 } from "./designers/layout/index.js";
+export {
+  FIELD_DOCUMENT_VERSION,
+  FIELD_AST_VERSION,
+  FieldDesignerPlugin,
+  registerFieldDesigner,
+  createFieldCommandBus,
+  compileFieldDocumentPreview,
+} from "./designers/field/index.js";
 
 import { getContributionManager } from "./contributions/contributionManager.js";
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";

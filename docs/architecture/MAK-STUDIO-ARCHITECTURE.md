@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.12.0  
-**Effective date:** 2026-06-29  
-**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5) · **Studio Object Model:** D-044 (Program 2.2.6) · **Studio Editor:** D-045 (Program 2.2.7)  
+**Version:** 1.13.0  
+**Effective date:** 2026-06-28  
+**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2) · **Studio Core:** D-043 (Program 2.2.5) · **Studio Object Model:** D-044 (Program 2.2.6) · **Studio Editor:** D-045 (Program 2.2.7) · **Field Studio:** D-046 (Program 2.3)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -234,7 +234,7 @@ Navigation provides **context switching** without leaving the shell.
 | `/studio` | Module picker (landing) |
 | `/studio/:moduleId` | Designer picker for module |
 | `/studio/:moduleId/layout` | Layout Studio |
-| `/studio/:moduleId/field` | Field Studio (future) |
+| `/studio/:moduleId/field` | Field Studio |
 | `/studio/:moduleId/validation` | Validation Studio (future) |
 | `/studio/:moduleId/publish` | Publish Center |
 
@@ -1259,11 +1259,41 @@ Editor Engine consumes exclusively: **Studio Core**, **SOM**, **SDK**, **Design 
 
 ---
 
+## 40. Field Studio Engine (Program 2.3 — D-046)
+
+Second functional designer — custom field authoring for MDP Field Dictionary.
+
+### 40.1 Pipeline
+
+```
+Field Document  →  Field AST  →  MDP Field Dictionary  →  Compile  →  CRB  →  Runtime
+```
+
+- **Field Document** — sole editing representation; user never edits raw JSON
+- **Field AST** — stable intermediate representation → `field_config` registry summary
+- **Commands** — ADD_FIELD, DELETE_FIELD, REORDER_FIELD, UPDATE_PROPERTY
+- **Field Canvas** — palette + ordered field list (Phase 1)
+- **Preview** — Document → Compile → CRB only
+
+### 40.2 Path
+
+`src/studio/designers/field/` · Gate **G296** · Route `/studio/:moduleId/field`
+
+**Studio Core (2.2.5):** Field consumes `src/studio/core/` exclusively via `fieldCoreSetup.js` — Gate **G293**.
+
+**Studio Object Model (2.2.6):** Field consumes `src/studio/som/` exclusively via `fieldSomSetup.js` — Gate **G294**.
+
+**Studio Editor (2.2.7):** Field registers contributions via `fieldEditorRegistration.jsx` — Gate **G295**.
+
+**MDP integration:** `src/studio/services/mdpFieldClient.js` — public `/api/mdp/fields` only.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
-| 1.12.0 | 2026-06-29 | Studio Editor Engine — Program 2.2.7 (D-045); G295; Layout as first Editor consumer |
+| 1.13.0 | 2026-06-28 | Field Studio Phase 1 — Program 2.3 (D-046); G296; second functional designer |
 | 1.11.0 | 2026-06-29 | Studio Object Model — Program 2.2.6 (D-044); G294; Layout migrated to SOM APIs |
 | 1.10.0 | 2026-06-29 | Studio Core Engine — Program 2.2.5 (D-043); G293; Layout migrated to Core APIs |
 | 1.9.0 | 2026-06-29 | Layout Studio Engine — Program 2.2 (D-042); G291; first functional designer |

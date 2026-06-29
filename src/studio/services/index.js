@@ -34,3 +34,13 @@ export {
   mdpRegistryDelete,
   mdpRegistrySyncLayoutEntries,
 } from "./mdpRegistryClient.js";
+
+export {
+  mdpFieldList,
+  mdpFieldGet,
+  mdpFieldCreate,
+  mdpFieldUpdate,
+  mdpFieldDelete,
+  mdpFieldSyncDocumentFields,
+  fieldToMdpPayload,
+} from "./mdpFieldClient.js";

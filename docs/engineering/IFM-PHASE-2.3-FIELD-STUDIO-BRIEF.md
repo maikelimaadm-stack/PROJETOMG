@@ -3,7 +3,7 @@
 **Mission ID:** IFM Phase 2.3 (Program 2.3)  
 **Program:** MAK Studio — Field Studio  
 **Priority:** P1  
-**Status:** Prepared — **ready after 2.2.7 Studio Editor Engine ✅**  
+**Status:** Prepared — **complete — Program 2.3 ✅ (D-046)**  
 **Prerequisites:** Studio Editor Engine 2.2.7 ✅ (D-045) · Studio Object Model 2.2.6 ✅ (D-044) · Studio Core Engine 2.2.5 ✅ (D-043) · Layout Studio Engine 2.2 ✅ (D-042) · Field Config Engine V14 ✅ · MDP-2 Data Dictionary ✅
 
 ---
@@ -54,7 +54,7 @@ Implement the **Field Studio** designer plugin consuming **Studio Editor Engine*
 5. **Property Grid** — field properties, bindings, validation rules via Field Document
 6. **Validation Engine** — field-specific rules (required, type, formula refs)
 7. **Preview** — Field Document → Compile → CRB
-8. **Gate G292** — Field Studio Engine validation
+8. **Gate G296** — Field Studio Engine validation
 9. Route `/studio/empresas/field` (or extend designer registry)
 
 ### Out of scope
@@ -95,12 +95,12 @@ src/studio/designers/field/
 
 ## Acceptance criteria
 
-- [ ] Field Studio loads at `/studio/empresas/field`
-- [ ] Field Document is sole editing representation
-- [ ] All edits via commands (undo/redo)
-- [ ] Preview via compile path only
-- [ ] G292 passes
-- [ ] build · lint · verify:governance · 5 cycles green
+- [x] Field Studio loads at `/studio/empresas/field`
+- [x] Field Document is sole editing representation
+- [x] All edits via commands (undo/redo)
+- [x] Preview via compile path only
+- [x] G296 passes
+- [x] build · lint · verify:governance · 5 cycles green
 
 ---
 

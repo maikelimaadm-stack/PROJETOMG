@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.2.7 Studio Editor Engine)
+**Last updated:** 2026-06-28 (Program 2.3 Field Studio Phase 1)
+
+---
+
+## 2026-06-28 — Program 2.3: Field Studio Phase 1
+
+**Scope:** Field Document, AST, Canvas, MDP Field Dictionary client, Editor registration; CRUD + Property Grid + Preview  
+**Changes:** `src/studio/designers/field/*`, `mdpFieldClient.js`, gate G296, shell wiring  
+**Report:** [IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md)  
+**Decision:** D-046
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.1 Advanced Field Capabilities
 
 ---
 
