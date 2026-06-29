@@ -24,6 +24,10 @@ import { applyFieldCommand } from "../commands/fieldCommandHandlers.js";
 import { registerFieldValidationRules } from "../validation/fieldValidationRules.js";
 import { createFieldPackageFromProject, mapFieldDocumentToSom } from "../som/fieldSomSetup.js";
 import { getFieldExpressionEngine } from "../expression/fieldExpressionSetup.js";
+import {
+  getFieldDependencyEngine,
+  buildFieldDocumentDependencyGraph,
+} from "../dependency/fieldDependencySetup.js";
 
 let fieldDocumentEngine = null;
 let fieldAstEngine = null;
@@ -136,6 +140,7 @@ export function createFieldCommandBus(deps) {
 
 export function validateFieldDocumentStructure(document) {
   getFieldExpressionEngine();
+  getFieldDependencyEngine();
   return getFieldValidationEngine().validate(document);
 }
 
@@ -147,9 +152,27 @@ export function documentToRegistryPayloads(document) {
   return getFieldAstEngine().compile(documentToAst(document), "field-mdp");
 }
 
+function syncCoreGraphFromStudioEngine(studioEngine) {
+  const dependencyGraph = createDependencyGraphEngine();
+  const snap = studioEngine.graph.snapshot();
+  snap.nodes.forEach((node) => {
+    dependencyGraph.addNode({ id: node.id, type: node.kind, label: node.label });
+  });
+  snap.edges.forEach((edge) => {
+    try {
+      dependencyGraph.addEdge({ from: edge.from, to: edge.to, kind: edge.kind });
+    } catch {
+      // Studio graph may include auto-created reference nodes; skip invalid edges.
+    }
+  });
+  return dependencyGraph;
+}
+
 export function createFieldProject(moduleId, fieldDocument) {
   const projectModel = createProjectModel();
-  const dependencyGraph = createDependencyGraphEngine();
+  const dependencyEngine = getFieldDependencyEngine();
+  buildFieldDocumentDependencyGraph(fieldDocument);
+  const dependencyGraph = syncCoreGraphFromStudioEngine(dependencyEngine);
   const artifactId = fieldDocument.documentId;
 
   projectModel.load(
@@ -169,7 +192,6 @@ export function createFieldProject(moduleId, fieldDocument) {
     })
   );
 
-  dependencyGraph.addNode({ id: artifactId, type: "field", label: fieldDocument.metadata?.label });
   const { packageModel, snapshot } = createFieldPackageFromProject({
     project: projectModel.get(),
     moduleId,
@@ -178,7 +200,15 @@ export function createFieldProject(moduleId, fieldDocument) {
   const somObjects = mapFieldDocumentToSom(fieldDocument);
   const refactoringEngine = createRefactoringEngine({ projectModel, dependencyGraph });
 
-  return Object.freeze({ projectModel, dependencyGraph, refactoringEngine, packageModel, packageSnapshot: snapshot, somObjects });
+  return Object.freeze({
+    projectModel,
+    dependencyEngine,
+    dependencyGraph,
+    refactoringEngine,
+    packageModel,
+    packageSnapshot: snapshot,
+    somObjects,
+  });
 }
 
 export default {

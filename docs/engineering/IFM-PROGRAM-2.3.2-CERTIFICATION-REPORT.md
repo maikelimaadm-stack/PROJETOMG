@@ -74,15 +74,15 @@ Computed Fields · Derived Fields · Formula Editor · Visual Formula Builder ·
 | 7 | Repositório saudável? | **Sim** | G281 clean · no forbidden imports |
 | 8 | Foundation permanece congelado? | **Sim** | Expression layer uses Studio only |
 | 9 | Arquitetura preparada para IA e Marketplace? | **Sim** | Function metadata: `aiHints`, `examples`, `documentation`, `registerCustom` |
-| 10 | Briefing 2.3.3 preparado? | **Sim** | [IFM-PHASE-2.3.3-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.3-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| 10 | Briefing 2.3.3 preparado? | **Sim** | Dependency Engine mission (see [IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md)) |
 
 ---
 
 ## Next Program
 
-**Program 2.3.3 — Computed & Derived Fields**
+**Program 2.3.3 — Studio Dependency Engine** (completed) · **Program 2.3.4 — Computed & Derived Fields**
 
-Brief: [IFM-PHASE-2.3.3-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.3-COMPUTED-DERIVED-FIELDS-BRIEF.md)
+Brief: [IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md)
 
 ---
 

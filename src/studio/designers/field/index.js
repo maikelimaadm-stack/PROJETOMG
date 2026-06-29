@@ -40,4 +40,9 @@ export {
 } from "./som/fieldSomSetup.js";
 
 export { getFieldExpressionEngine, validateFieldExpressionSource, buildFieldExpressionContext } from "./expression/fieldExpressionSetup.js";
+export {
+  getFieldDependencyEngine,
+  buildFieldDocumentDependencyGraph,
+  analyzeFieldDocumentImpact,
+} from "./dependency/fieldDependencySetup.js";
 export { registerFieldEditor } from "./editor/fieldEditorRegistration.jsx";

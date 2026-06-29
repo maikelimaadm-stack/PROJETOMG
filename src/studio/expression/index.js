@@ -35,6 +35,7 @@ export {
 } from "./catalog/functionCatalog.js";
 export { createExpressionContext } from "./context/expressionContext.js";
 export { createExpressionDependencyGraph } from "./dependency/expressionDependencyGraph.js";
+export { extractVariableRefsFromAst } from "./dependency/expressionVariableRefs.js";
 export { createExpressionRefactoring } from "./refactoring/expressionRefactoring.js";
 export { executeExpressionAst } from "./runtime/expressionExecutor.js";
 export { createExpressionEngine } from "./createExpressionEngine.js";

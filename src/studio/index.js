@@ -122,6 +122,16 @@ export {
   OFFICIAL_EXPRESSION_FUNCTIONS,
 } from "./expression/index.js";
 export {
+  STUDIO_DEPENDENCY_VERSION,
+  OFFICIAL_DEPENDENCY_ENGINES,
+  DEPENDENCY_NODE_KINDS,
+  DEPENDENCY_EDGE_KINDS,
+  createDependencyEngine,
+  createDependencyGraph,
+  createCycleDetection,
+  createImpactAnalyzer,
+} from "./dependency/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,

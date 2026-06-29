@@ -3,7 +3,7 @@
 **Status:** Official — Permanent architecture reference for Program 2  
 **Version:** 1.15.0  
 **Effective date:** 2026-06-28  
-**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048  
+**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048 · **Dependency Engine:** D-049  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -1327,10 +1327,42 @@ Single official expression foundation for all Studios.
 
 ---
 
+## 42. Studio Dependency Engine (Program 2.3.3 — D-049)
+
+Single official dependency infrastructure for all Studios.
+
+### 42.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Dependency Graph** | Single graph for all artifact types |
+| **Dependency Nodes / Edges** | Typed nodes (layout, field, expression, workflow, …) |
+| **Dependency Analyzer** | Graph statistics and health |
+| **Cycle Detection** | Official cycle detection (no local copies) |
+| **Dependency Resolver** | Topological order + transitive deps |
+| **Dependency Cache** | Snapshot caching |
+| **Dependency Invalidation** | Cache invalidation on node change |
+| **Impact Analyzer** | Change impact with AI-ready metadata |
+| **Safe Rename / Delete** | Dependency-aware refactoring |
+| **Dependency Metadata** | Lineage, explanations, graph documentation |
+
+### 42.2 Path
+
+`src/studio/dependency/` · Gate **G299** · Exported from `src/studio/index.js`
+
+**First consumer:** Field Studio via `designers/field/dependency/fieldDependencySetup.js`
+
+**Expression bridge:** `expression/dependency/expressionDependencyGraph.js` delegates to Studio Dependency Engine
+
+**Rule:** No designer may implement parallel dependency graphs, resolvers, cycle detection, caches, or impact analyzers.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.16.0 | 2026-06-28 | Studio Dependency Engine — Program 2.3.3 (D-049); G299 |
 | 1.15.0 | 2026-06-28 | Studio Expression Engine — Program 2.3.2 (D-048); G298 |
 | 1.14.0 | 2026-06-28 | Field Studio Smart Authoring — Program 2.3.1 (D-047); G297 |
 | 1.11.0 | 2026-06-29 | Studio Object Model — Program 2.2.6 (D-044); G294; Layout migrated to SOM APIs |

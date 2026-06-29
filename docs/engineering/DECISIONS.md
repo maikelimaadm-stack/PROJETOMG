@@ -582,6 +582,18 @@
 
 ---
 
+## D-049 — Studio Dependency Engine (Program 2.3.3)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.3** — Studio Dependency Engine with official Dependency Graph, Nodes, Edges, Analyzer, Cycle Detection, Resolver, Cache, Invalidation, Impact Analyzer, Safe Rename/Delete, and AI-ready metadata. Single dependency infrastructure for all Studios. Field Studio first consumer; Expression Engine variable refs delegate to this engine. Gate **G299** forbids parallel graphs, resolvers, cycle detection, caches, and impact analyzers in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed/Derived Fields, Workflow, Dashboard, Automation, AI, and Marketplace Studios reuse one dependency layer |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

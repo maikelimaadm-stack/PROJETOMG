@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 2.3.2 Studio Expression Engine)
+**Last updated:** 2026-06-28 (Program 2.3.3 Studio Dependency Engine)
+
+---
+
+## 2026-06-28 — Program 2.3.3: Studio Dependency Engine
+
+**Scope:** Dependency Graph, Nodes, Edges, Analyzer, Cycle Detection, Resolver, Cache, Invalidation, Impact Analyzer, Safe Rename/Delete, Metadata; Field Studio first consumer; Expression bridge migrated  
+**Changes:** `src/studio/dependency/*`, `fieldDependencySetup.js`, expression dependency bridge, gate G299  
+**Report:** [IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md)  
+**Decision:** D-049
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.4 Computed & Derived Fields
 
 ---
 
@@ -13,7 +25,7 @@
 **Decision:** D-048
 
 **Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
-**Next:** Program 2.3.3 Computed & Derived Fields
+**Next:** Program 2.3.3 Studio Dependency Engine
 
 ---
 

@@ -1,46 +1,33 @@
-/** Expression Dependency Graph — variable references (Program 2.3.2) */
+/**
+ * Expression dependency bridge — delegates to Studio Dependency Engine (Program 2.3.3)
+ * No parallel graph; variable extraction only.
+ */
+import { createDependencyEngine } from "../../dependency/index.js";
+import { extractVariableRefsFromAst } from "./expressionVariableRefs.js";
 
 export function createExpressionDependencyGraph() {
-  const nodes = new Map();
-  const edges = [];
+  const engine = createDependencyEngine({ domainId: "expression", cacheKey: "expression" });
+  const { graph } = engine;
 
   return Object.freeze({
+    engine,
     clear() {
-      nodes.clear();
-      edges.length = 0;
+      graph.clear();
     },
     extractFromAst(ast, ownerId = "expression") {
-      const deps = new Set();
-      const walk = (node) => {
-        if (!node) return;
-        if (node.kind === "Variable") deps.add(node.name);
-        if (node.kind === "PropertyAccess") {
-          walk(node.object);
-        }
-        if (node.kind === "UnaryExpression") walk(node.argument);
-        if (node.kind === "BinaryExpression") {
-          walk(node.left);
-          walk(node.right);
-        }
-        if (node.kind === "NullCoalesce") {
-          walk(node.left);
-          walk(node.right);
-        }
-        if (node.kind === "CallExpression") node.arguments.forEach(walk);
-      };
-      walk(ast?.expression);
-      nodes.set(ownerId, { id: ownerId, dependencies: [...deps] });
-      deps.forEach((dep) => edges.push({ from: ownerId, to: dep, kind: "variable-ref" }));
-      return [...deps];
+      const refs = extractVariableRefsFromAst(ast);
+      graph.addNode({ id: ownerId, kind: "expression", label: ownerId });
+      refs.forEach((ref) => {
+        graph.addNode({ id: ref, kind: "reference", label: ref });
+        graph.addEdge({ from: ownerId, to: ref, kind: "expression-ref" });
+      });
+      return [...refs];
     },
     getDependencies(ownerId) {
-      return nodes.get(ownerId)?.dependencies ?? [];
+      return graph.getOutgoing(ownerId).map((e) => e.to);
     },
     snapshot() {
-      return Object.freeze({
-        nodes: Object.freeze([...nodes.values()]),
-        edges: Object.freeze([...edges]),
-      });
+      return engine.snapshot();
     },
   });
 }

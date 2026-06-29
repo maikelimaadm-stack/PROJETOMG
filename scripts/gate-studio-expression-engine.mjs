@@ -111,6 +111,7 @@ gate(
 gate(
   "G298 — Dependency graph and refactoring",
   read(path.join(EXPR, "dependency/expressionDependencyGraph.js")).includes("extractFromAst") &&
+    read(path.join(EXPR, "dependency/expressionDependencyGraph.js")).includes("createDependencyEngine") &&
     read(path.join(EXPR, "refactoring/expressionRefactoring.js")).includes("renameVariable")
 );
 

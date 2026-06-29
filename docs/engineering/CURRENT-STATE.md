@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-28  
-**Verified by:** Program 2.3.2 Studio Expression Engine (D-048)  
+**Verified by:** Program 2.3.3 Studio Dependency Engine (D-049)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -40,7 +40,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **2.3.2 Expression Engine ✅; 2.3.3 Computed/Derived next** | [2.3.2 Report](./IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md) · [2.3.3 Brief](./IFM-PHASE-2.3.3-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **Program 2 — MAK Studio** | P1 — **2.3.3 Dependency Engine ✅; 2.3.4 Computed/Derived next** | [2.3.3 Report](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md) · [2.3.4 Brief](./IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -158,7 +158,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Expression Engine ✅** (2.3.2, G298) · **Field Smart Authoring ✅** (2.3.1) · **Field Studio ✅** (2.3) · **2.3.3 Computed/Derived next** |
+| MAK Studio Shell / Designers | **Dependency Engine ✅** (2.3.3, G299) · **Expression Engine ✅** (2.3.2) · **Field Smart Authoring ✅** (2.3.1) · **Field Studio ✅** (2.3) · **2.3.4 Computed/Derived next** |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |
