@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** IFM 1C-MDP-5 Versioning & Publication Engine  
+**Verified by:** D-028 Engineering Governance Evolution  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -18,10 +18,30 @@
 | Constitution | v1.0.0 — `docs/constitution/` |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| Platform Maturity Index | v1.1.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
-| Implementation Protocol | v1.1.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019) |
+| Platform Maturity Index | v1.3.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` (**ERI 3.8/10**) |
+| Implementation Protocol | v1.2.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019, **D-028 gate**) |
 | MDP Architecture Spec | v1.0.0 — `docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md` (D-020) |
-| Global technical score | Foundation track **6.8/10** · Full platform **3.6/10** — [PMI v1.1](./PLATFORM-MATURITY-INDEX.md) |
+| Global technical score | Foundation track **6.8/10** · Full platform **4.2/10** · **ERI 3.8/10** — [PMI v1.3](./PLATFORM-MATURITY-INDEX.md) |
+
+---
+
+## Governance Evolution (D-028)
+
+From 2026-06-29: all implementations require **long-term enterprise impact analysis** (10 questions) before coding.  
+Enterprise evolution map: **Program 1F — Enterprise Readiness** (documentation-only).  
+Audit: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md)
+
+---
+
+## Next Official Programs (D-027 + D-028)
+
+| Program | Priority | Brief |
+|---------|----------|-------|
+| **Program 2 — MAK Studio** | P1 primary | [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md) |
+| **Program 1E — Runtime Bridge** | P1 parallel | [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md) |
+| **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
+
+Reassessment report: [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md)
 
 ---
 
@@ -140,7 +160,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 | AI Platform | Not started |
 | Offline-first / Sync Engine | Preferences cache only |
 | Full entity Data Dictionary | MDP spec only — CADCPS partial today |
-| Backend domain event bus | Not started |
+| Backend domain event bus | Not started — **deferred post Studio Layout MVP** (D-027) |
 
 ---
 

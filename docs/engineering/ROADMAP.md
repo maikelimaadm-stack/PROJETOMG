@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (MDP-0 Architecture Specification)
+**Last updated:** 2026-06-29 (D-028 Engineering Governance Evolution)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -17,6 +17,10 @@ Priority order for all work:
 5. **MAK Studio**
 6. **Novos módulos**
 
+**D-028 — Long-term impact gate (mandatory from 2026-06-29):** Before any implementation, every mission must pass the [10-question enterprise impact checklist](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md#7-d-028-long-term-impact-gate--assessment-of-current-next-missions). If any answer is uncertain → stop and register architectural review.
+
+**Enterprise evolution map:** [Program 1F — Enterprise Readiness](#program-1f--enterprise-readiness-documentation-only) (not implemented now; informs all future decisions).
+
 ---
 
 ## Phase 0 — Sistema Operacional ✅ Complete
@@ -30,7 +34,7 @@ Priority order for all work:
 | Documentation certification | ✅ `DOCUMENTATION-CERTIFICATION.md` |
 | **Master Architecture** | ✅ `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` v1.0.0 (D-014) |
 | **Platform Language Standard** | ✅ `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` v1.0.0 (D-015) |
-| **Platform Maturity Index** | ✅ `docs/engineering/PLATFORM-MATURITY-INDEX.md` v1.1.0 (D-016, D-017) |
+| **Platform Maturity Index** | ✅ `docs/engineering/PLATFORM-MATURITY-INDEX.md` v1.3.0 (D-016, D-017, D-027, **D-028 ERI**) |
 | **Platform Implementation Protocol** | ✅ `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` v1.1.0 (D-018, D-019) |
 
 **Phase 0 (Programs 0–0.7) — structural OS + protocol: ✅ Complete.**  
@@ -38,20 +42,23 @@ Priority order for all work:
 
 ---
 
-## Official Next Program — Programa 1 (IFM)
+## Official Next Program — Program 2 (MAK Studio) + Program 1E (parallel)
 
-**Programa 1 — Integridade e Fundação de Metadados (IFM)**
+**Programa 1 — Integridade e Fundação de Metadados (IFM) — ✅ Complete (IFM 1C)**
 
-Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Phase 1C is explicitly **MAK DATA PLATFORM (MDP)** — the metadata nucleus.
+Strategic decisions **D-011**, **D-012**, **D-013**, **D-026**, **D-027**: IFM 1C (MDP) complete. **MAK Studio = Program 2** is the official next priority.
 
-| Sub-phase | Roadmap refs | Goal |
-|-----------|--------------|------|
-| **1A Estabilidade** | S3–S4 | Supply chain, DDL predictability |
-| **1B Arquitetura** | A1–A5 | Legacy promotion, generic naming, event bus |
-| **1C MAK DATA PLATFORM** | MDP-0→5 | MDP-0 spec ✅; MDP-1→5 implementation |
-| **1D Governança CI** | 1D-1 | V13–V20 gates in CI |
+| Sub-phase | Roadmap refs | Goal | Status |
+|-----------|--------------|------|--------|
+| **1A Estabilidade** | S3–S4 | Supply chain, DDL predictability | S3 ✅; S4 pending |
+| **1B Arquitetura** | A1–A5 | Legacy promotion, generic naming, event bus | Background — non-blocking Studio |
+| **1C MAK DATA PLATFORM** | MDP-0→5 | Metadata nucleus | **✅ Complete** |
+| **1D Governança CI** | 1D-1 | V13–V20 gates in CI | ✅ |
+| **1E Runtime Bridge** | 1E-1 | CRB hydration → Foundation registries | **P1 parallel** — [Brief](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md) |
 
-**MAK Studio = Program 2** — starts after IFM 1C (MDP-4 minimum).  
+**Program 2 — MAK Studio** — [Brief](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md)  
+**Reassessment:** [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md) (D-027)
+
 **Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)  
 **Execution roadmap (authoritative):** [IFM-PHASE-1-TECHNICAL-ROADMAP.md](./IFM-PHASE-1-TECHNICAL-ROADMAP.md)
 
@@ -108,13 +115,15 @@ Engineering summary: [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
 
 ---
 
-## Phase 4 — MAK Studio (Program 2 — Future)
+## Phase 4 — MAK Studio (Program 2 — **Official Next**)
 
-Prerequisite: **IFM 1C complete** (MDP-4 minimum — Metadata Registry + introspection API). **No parallel UI framework.**
+Prerequisite: **IFM 1C complete** ✅ (MDP-5 exceeds MDP-4 minimum). **No parallel UI framework.**
+
+Parallel co-requisite: **Program 1E Runtime Bridge** — CRB hydration for preview=production parity.
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
-| Layout Studio | Layout Config Engine V13 + introspection API | Not started |
+| Layout Studio | V13 + introspect + compile API | **Next — Phase 2.1** |
 | Field Studio | Field Config Engine V14 | Not started |
 | Table Studio | Preferences + column metadata | Not started |
 | Formula/Validation Studio | V16–V17 engines | Not started |
@@ -136,14 +145,132 @@ After **MDP-4** (Metadata Registry + introspection API):
 
 ---
 
-## Phase 6 — Future Platforms (Not Scheduled)
+## Phase 1E — Runtime Bridge (Parallel — D-027)
 
-| Platform | Dependency |
-|----------|------------|
-| Marketplace | MDP definition bundles + versioning + sandbox |
-| Knowledge Platform | MDP entity links + independent content layer |
-| AI Platform | MDP introspection API + RBAC boundaries |
-| Offline / Sync | MDP definition snapshots + outbox (future) |
+| ID | Item | Priority | Blocks Studio? |
+|----|------|----------|----------------|
+| **1E-1** | CRB hydration → Foundation registries (empresas pilot) | **P1** | Co-requisite for publish→live |
+| **1E-2** | Environment pin → runtime reload hook | P1 | Co-requisite |
+
+**Does NOT include:** Event Bus, Scheduler, Job Queue, Notification Engine, Integration Platform, Migration Platform — deferred per D-027.
+
+Brief: [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md)
+
+---
+
+## Program 1F — Enterprise Readiness (Documentation Only)
+
+**Status:** Documented — **NOT implemented now**  
+**Decision:** D-028  
+**Purpose:** Map all evolution required to operate MAK Gestão as a **global enterprise platform** (10K+ clients, hundreds of modules, multi-country, Marketplace, IA, Offline) over the next 20 years.
+
+**Does NOT block:** Program 2 (MAK Studio), Program 1E (Runtime Bridge).  
+**Tracked by:** [Enterprise Readiness Index (ERI)](./PLATFORM-MATURITY-INDEX.md#33-enterprise-readiness-index-eri) in PMI.
+
+### 1F.1 — Globalization Platform
+
+| Scope | Notes |
+|-------|-------|
+| Internacionalização (i18n) | Runtime locale resolution; builds on MDP-2 label tables |
+| Localização (l10n) | Regional formats, RTL, plural rules |
+| Idiomas | Tenant/user locale preferences |
+| Países | Country registry + tenant default |
+| Fusos horários | UTC storage + tenant TZ display |
+| Calendários | Fiscal/business calendars per region |
+| Moedas | Multi-currency fields + display |
+| Formatos regionais | Date, number, address formats |
+| Impostos | Tax rule hooks (domain + platform) |
+| Documentos fiscais | NF-e and regional doc templates (future) |
+
+*Absorbs prior "1E-1 i18n infrastructure" from IFM technical roadmap.*
+
+### 1F.2 — Enterprise Security
+
+| Scope | Notes |
+|-------|-------|
+| LGPD / GDPR | Data subject rights, consent, retention |
+| Criptografia | At-rest + in-transit standards |
+| MFA | Multi-factor authentication |
+| Auditoria | Full platform audit trail (MDP + business) |
+| Device Management | Trusted devices, session binding |
+| Secrets | Vault pattern, no plaintext in env |
+| Rotação de chaves | JWT, API keys, encryption keys |
+| Sessões globais | Cross-region session invalidation |
+| Zero Trust | Service-to-service auth, least privilege |
+
+### 1F.3 — Observability Platform
+
+| Scope | Notes |
+|-------|-------|
+| Logs estruturados | JSON logs, correlation IDs |
+| Tracing distribuído | OpenTelemetry / W3C trace context |
+| Métricas | Prometheus-compatible counters/histograms |
+| APM | End-to-end request tracing |
+| Dashboards | Platform + tenant views |
+| Alertas | SLO-based alerting |
+| Tenant Health | Per-tenant error/latency saturation |
+| Runtime Health | CRB hydration, engine registry status |
+| Studio Health | Authoring errors, publish failures |
+| Publish Health | CRB integrity, pin drift, rollback events |
+
+### 1F.4 — Scale Platform
+
+| Scope | Notes |
+|-------|-------|
+| Redis | Cache, rate limit, session denylist at scale |
+| Cache distribuído | CRB + introspect cache tiers |
+| Filas | Job queue (publish, compile, migration) |
+| Workers | Background processing |
+| Cluster | Horizontal API scaling |
+| Auto Scaling | Load-based replica scaling |
+| Rate Limiting | Per-tenant + global limits |
+| Balanceamento | Load balancer + health checks |
+| Performance contínua | Regression budgets in CI |
+
+*Partial overlap with IFM 1B A5 (Event Bus) — A5 remains near-term; 1F.4 is full scale tier.*
+
+### 1F.5 — Disaster Recovery
+
+| Scope | Notes |
+|-------|-------|
+| Backup | Automated DB + object storage backup |
+| Restore | Tested restore procedures |
+| Snapshots | MDP snapshot retention policy |
+| Runbooks | Operational DR documentation |
+| Failover | Multi-AZ / region failover design |
+| Recovery Tests | Scheduled chaos/recovery drills |
+
+*Absorbs prior "1F-1 Backup/DR runbook" from IFM technical roadmap.*
+
+### 1F.6 — Migration Platform
+
+Architecture for migrating **all platform artifacts** — not database-only:
+
+| Artifact type | Mechanism |
+|---------------|-----------|
+| Dados | Tenant export/import |
+| Layouts, workflows, dashboards, relatórios | MDP registry + CRB bundles |
+| Permissões | MDP permission registry entries |
+| Templates | Base template + theme definitions |
+| Campos | MDP Data Dictionary |
+| Publicações | MDP-5 version chain |
+| Bundles / snapshots | `.makpkg` + `mdp_snapshot` |
+| Preferências | User overlay merge rules |
+| ERP externo | Import adapters (future ISV path) |
+
+---
+
+## Phase 6 — Future Platforms (Programs 3–6)
+
+| Platform | Dependency | Precedes Studio? |
+|----------|------------|------------------|
+| Marketplace | MDP bundles + versioning ✅ | **No** — Program 3 |
+| Knowledge Platform | MDP entity links | **No** — Program 5 |
+| AI Platform | MDP introspect ✅ + Event Bus (A5) | **No** — Program 4 |
+| Offline / Sync | MDP snapshots ✅ + Sync Platform | **No** — Program 6 |
+| Integration Platform | Public API + Marketplace | **No** |
+| Migration Platform | MDP versioning ✅ + tenant tooling | **No** |
+| Platform Event Bus (A5) | MDP-4 ✅ | **No** — after Studio Layout MVP |
 
 ---
 

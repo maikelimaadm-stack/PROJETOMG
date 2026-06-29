@@ -1,14 +1,13 @@
 # PLATFORM MATURITY INDEX (PMI)
 
 **Status:** Official — Strategic platform dashboard  
-**Version:** 1.1.0  
-**Effective date:** 2026-06-28  
-**Program:** 0.6 (strategic expansion)  
-**Decision:** D-016 (v1.0), D-017 (Base Template / PMI expansion)  
-**Update protocol:** Every mission that significantly changes an evaluated area **must** update the corresponding PMI section and set `Last verified` below.
+**Version:** 1.3.0  
+**Effective date:** 2026-06-29  
+**Program:** 0.6 + post-MDP reassessment + D-028 ERI  
+**Decision:** D-016 (v1.0), D-017, D-027, **D-028 (ERI + Enterprise Readiness)**
 
-**Last verified:** 2026-06-28  
-**Verified by:** Program 0.6 — code + official docs + audit artifacts  
+**Last verified:** 2026-06-29  
+**Verified by:** D-028 Engineering Governance Evolution  
 **Evidence commands:** `npm run build`, `npm run verify:governance`, `npm audit`, registry file counts, Prisma schema
 
 ---
@@ -72,8 +71,8 @@ Every area in §4 and §5 includes:
 | Foundation | **7.2** | Média | Legacy layer; CI V13–V20 protected (TD-013 resolved) |
 | ModeloBase1 (Base Template 1) | **7.0** | Média | Monoliths + G38; single template only |
 | Platform Core | **6.5** | Média | Event bus not started |
-| MAK Data Platform | **2.0** | Baixa | MDP not implemented |
-| MAK Studio | **0.5** | Baixa | Zero code |
+| MAK Data Platform | **8.5** | Média | CRB hydration pending (Program 1E) |
+| MAK Studio | **0.5** | Baixa | Zero code — **Program 2 next** |
 | AI Platform | **0.0** | Baixa | Zero code |
 | Knowledge Platform | **0.0** | Baixa | Zero code |
 | Marketplace | **1.0** | Baixa | Feature flags only |
@@ -103,12 +102,42 @@ Every area in §4 and §5 includes:
 | Multi-tenant | **7.5** | Média–Alta | Proven in schema + E2E |
 | Multiempresa | **7.0** | Média–Alta | PermissaoEmpresa + header |
 | Backup e Recuperação | **2.5** | Baixa | Host-dependent only |
-| Versionamento | **2.0** | Baixa | Prefs schema only |
-| Publicação | **1.5** | Baixa | No MDP publish pipeline |
+| Versionamento | **7.5** | Média | MDP-5 complete; runtime pin activation pending |
+| Publicação | **7.0** | Média | Publish engine ✅; Foundation hydration pending |
 | Deploy | **5.0** | Média | Git-trigger deploy only |
 
-**Full platform average (32 areas):** **3.6 / 10**  
-**Foundation + infra track (Foundation, ModeloBase1, Frontend, Backend, DB, Governança):** **6.8 / 10**
+**Full platform average (32 areas):** **4.2 / 10**  
+**Foundation + infra track (Foundation, ModeloBase1, Frontend, Backend, DB, Governança):** **6.8 / 10**  
+**Enterprise Readiness Index (ERI):** **3.8 / 10** — see §3.3
+
+---
+
+### 3.3 Enterprise Readiness Index (ERI)
+
+**Added:** D-028 — measures readiness for **global enterprise operation** (10K+ clients, multi-country, 20-year horizon).
+
+**Program map:** [ROADMAP.md](./ROADMAP.md) Program 1F (documentation-only until scheduled).
+
+| ERI Dimension | Score | Program 1F | Evidence |
+|---------------|-------|------------|----------|
+| **Segurança** | **4.5** | 1F.2 | JWT auth ✅; npm audit ✅; **no MFA, no GDPR tooling, no key rotation** |
+| **Escalabilidade** | **3.5** | 1F.4 | Multi-tenant schema ✅; **single-instance, no Redis, no auto-scale** (PMI Escalabilidade 5.0) |
+| **Observabilidade** | **3.0** | 1F.3 | `/api/metrics/*` partial; **no APM, no structured logs, no tracing** (PMI 4.5) |
+| **Recuperação** | **2.5** | 1F.5 | MDP snapshots ✅; **host-dependent backup, no runbooks, no failover tests** (PMI Backup 2.5) |
+| **Globalização** | **2.0** | 1F.1 | MDP label tables ✅ (`mdp_*_label`); **zero i18n runtime, no locale/TZ/currency** |
+| **Migração** | **3.0** | 1F.6 | MDP-5 versioning ✅; **DB migration only today; no artifact/bundle migration platform** |
+| **Operação** | **5.5** | 1F.3 + 1F.5 | CI/CD 7.0 ✅; Deploy 5.0; health checks ✅; **no tenant/publish health dashboards** |
+
+**ERI composite:** **(4.5 + 3.5 + 3.0 + 2.5 + 2.0 + 3.0 + 5.5) / 7 = 3.8 / 10**
+
+| ERI readiness tier | Meaning |
+|--------------------|---------|
+| **0–3** | Not enterprise-ready — current: globalization, DR, observability |
+| **4–6** | Mid-market SaaS — current overall ERI |
+| **7–8** | Enterprise-grade — target post-Program 1F implementation |
+| **9–10** | Global platform — MAK 2035 full maturity |
+
+**Update protocol:** Recompute ERI when any Program 1F subprogram ships code or when security/scale/ops posture changes materially.
 
 ---
 
@@ -200,24 +229,25 @@ Every area in §4 and §5 includes:
 
 | Field | Value |
 |-------|-------|
-| **Score** | **2.0 / 10** |
+| **Score** | **8.5 / 10** |
 | **2035 target** | L4 — Entity · Data · Relationship Dictionaries + Metadata Registry persisted, versioned, API-accessible; compile + publish pipeline |
-| **Current state** | **IFM 1C complete** (D-012, D-022–D-026). Entity ✅ Field ✅ Relationship ✅ Registry ✅ Publish Engine ✅. **MAK Studio (Program 2) next.** |
+| **Current state** | **IFM 1C complete** (D-012, D-022–D-026). Entity ✅ Field ✅ Relationship ✅ Registry ✅ Publish Engine ✅. Transitional boot caches until Program 1E. **MAK Studio (Program 2) next.** |
+| **Thousands-of-clients readiness** | **Média** — metadata SSOT proven; runtime hydration + native field migration remain |
 
 **Criteria:**
 
 | Criterion | Pts | Earned | Evidence |
 |-----------|-----|--------|----------|
-| Entity Dictionary (API + schema) | 2.5 | 0.0 | MDP-1 not started |
-| Data Dictionary (native + custom) | 2.5 | 1.5 | CADCPS `CadCpsCampo` — custom only (~45%) |
-| Relationship Dictionary | 2.0 | 1.5 | MDP-3 complete — Empresas pilot |
-| Metadata Registry (persisted) | 2.0 | 1.5 | MDP-4 `mdp_registry*` + introspect API |
-| Compile + publish pipeline | 1.0 | 0.0 | MDP-5 not started |
+| Entity Dictionary (API + schema) | 2.5 | 2.5 | MDP-1 `mdp_entity`, G137 |
+| Data Dictionary (native + custom) | 2.5 | 2.0 | MDP-2 `mdp_field`; native field debt in `*Form.constants.js` |
+| Relationship Dictionary | 2.0 | 2.0 | MDP-3 complete — Empresas pilot |
+| Metadata Registry (persisted) | 2.0 | 2.0 | MDP-4 `mdp_registry*` + introspect API, G140 |
+| Compile + publish pipeline | 1.0 | 1.0 | MDP-5 CRB, G142, D-026 |
 
-| **Dependencies** | IFM 1A registry sync (S2), Platform Core RBAC |
-| **Blockers** | TD-002 backend registry (1 vs 2 modules) |
-| **Next level (+1.0)** | MDP-1 Entity Dictionary schema + API |
-| **Next steps** | IFM 1A S2 → IFM 1C MDP-1 |
+| **Dependencies** | Platform Core RBAC, Foundation hydration (Program 1E) |
+| **Blockers** | Program 1E CRB hydration; TD-002 backend registry (1 vs 2 modules) |
+| **Next level (+1.0)** | Program 1E Runtime Bridge; native field promotion to MDP-2 |
+| **Next steps** | Program 2 MAK Studio + Program 1E parallel |
 
 ---
 
@@ -828,11 +858,12 @@ Sync Platform ──► Offline (1.5) · Mobile (1.0) · Desktop (0)
 
 ## 8. Structural Documentation Phase
 
-**Program 0.6 closes the structural documentation phase** (Programs 0–0.6). Next missions prioritize **code implementation**, starting with:
+**IFM 1C (MDP) complete.** Next missions (D-027):
 
-1. **IFM 1A** — registry sync (S2), npm audit (S3)
-2. **Platform Core** — event bus MVP (A5)
-3. **IFM 1C** — MDP-1 Entity Dictionary
+1. **Program 2 — MAK Studio** — Layout Studio empresas pilot (primary)
+2. **Program 1E — Runtime Bridge** — CRB hydration (parallel co-requisite)
+3. **IFM 1B A5** — Event Bus MVP (after Studio Layout MVP)
+4. **IFM 1B A1/A2** — legacy promotion (background)
 
 Documentation updates continue per [11-PERMANENT-GOVERNANCE-DIRECTIVE.md](../constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md).
 
@@ -842,6 +873,8 @@ Documentation updates continue per [11-PERMANENT-GOVERNANCE-DIRECTIVE.md](../con
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.2.0 | 2026-06-29 | Post-MDP reassessment — MDP 8.5, Versionamento 7.5, Publicação 7.0; D-027 next programs |
+| 1.3.0 | 2026-06-29 | **ERI (Enterprise Readiness Index)** — D-028; Program 1F map; 7 dimensions |
 | 1.1.0 | 2026-06-28 | Strategic expansion — 32 areas; infra/ops section; standard assessment fields; Base Template 1 (D-017) |
 | 1.0.0 | 2026-06-28 | Initial PMI — Program 0.6, D-016 |
 

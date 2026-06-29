@@ -676,7 +676,7 @@ MDP supports i18n **by design** through normalized label tables — not hardcode
 
 `compile(moduleId, version, locale)` resolves labels into CRB for target locale. Multi-locale tenants receive locale-specific CRB variants cached by hash.
 
-**Implementation note:** Dedicated i18n infrastructure mission (IFM 1E) builds on MDP-2 labels — no parallel string catalog.
+**Implementation note:** Dedicated i18n infrastructure = **Program 1F.1 Globalization Platform** (D-028) — builds on MDP-2 labels; no parallel string catalog.
 
 ---
 

@@ -1,20 +1,33 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (IFM 1C-MDP-5 Versioning & Publication)
+**Last updated:** 2026-06-29 (D-028 Engineering Governance Evolution)
 
 ---
 
-## Entry Format
+## 2026-06-29 — D-028: Engineering Governance Evolution
 
-Each mission adds an entry with:
+**Scope:** Long-term impact gate; Program 1F Enterprise Readiness; ERI in PMI  
+**Changes:** D-028 decision; ROADMAP Program 1F (1F.1–1F.6); PMI ERI 3.8/10; PIP v1.2; doc conflict fixes  
+**Report:** [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md)  
+**Decision:** D-028
 
-- Mission ID, date, scope
-- Changes summary
-- Certification block (10 items)
-- Links to PR / decisions
+**RHP:** PR #303 open (D-027); PR #296 obsolete; doc consistency fixes applied  
+**Validation:** Documentary audit only — no code changes  
+**Next:** Program 2 MAK Studio + Program 1E Runtime Bridge (D-027 unchanged)
 
 ---
+
+## 2026-06-29 — Platform Architecture Reassessment (Post MDP-5)
+
+**Scope:** Strategic roadmap review — L0–L7 audit; Studio vs Platform Core sequencing  
+**Changes:** D-027 decision; ROADMAP/PMI/CURRENT-STATE updated; Program 1E Runtime Bridge brief  
+**Report:** [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md)  
+**Decision:** D-027 — MAK Studio remains Program 2; full L3 deferred; 1E parallel
+
+**RHP:** PR #302 ✅ merged; PR #296 ⚠️ manual close; main @ `cd3e6726`  
+**Validation:** build ✅ lint ✅ verify:governance ✅ verify:ci ✅ 5 cycles ✅  
+**Next:** Program 2 MAK Studio + Program 1E Runtime Bridge (parallel)
 
 ---
 

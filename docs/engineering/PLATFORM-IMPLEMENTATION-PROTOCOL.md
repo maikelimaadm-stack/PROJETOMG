@@ -1,10 +1,10 @@
 # PLATFORM IMPLEMENTATION PROTOCOL (PIP)
 
 **Status:** Official — Mandatory implementation process  
-**Version:** 1.1.0  
-**Effective date:** 2026-06-28  
+**Version:** 1.2.0  
+**Effective date:** 2026-06-29  
 **Program:** 0.7  
-**Decision:** D-018, **D-019** (Repository Health Protocol)  
+**Decision:** D-018, D-019 (RHP), **D-028 (Long-term impact gate)**  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md) and [Permanent Governance Directive](../constitution/11-PERMANENT-GOVERNANCE-DIRECTIVE.md); operational companion to [README_AI.md](../../README_AI.md)
 
 ---
@@ -71,9 +71,10 @@ PIP **does not replace** Constitution or Doc 11 — it **operationalizes** them 
 | 1.5 | Use [Language Standard](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) terms in mission plan | No conflicting vocabulary |
 | 1.6 | Check [TECH-DEBT.md](./TECH-DEBT.md) and [PMI](./PLATFORM-MATURITY-INDEX.md) for blockers | Blockers acknowledged or deferred with D-entry |
 | 1.7 | Classify mission type (§5) | Doc-only / Implementation / Foundation / etc. |
-| 1.8 | **Execute RHP Start** ([§10.1](#101-rhp--before-mission-start)) | Baseline recorded in JOURNAL or PR |
+| 1.8 | **Execute D-028 long-term impact gate** ([DECISIONS D-028](./DECISIONS.md#d-028--engineering-governance-evolution)) — answer all 10 enterprise questions; stop if uncertain | Recorded in PR or JOURNAL |
+| 1.9 | **Execute RHP Start** ([§10.1](#101-rhp--before-mission-start)) | Baseline recorded in JOURNAL or PR |
 
-**PIR exit criteria:** Written mission statement with scope, layer map, out-of-scope list, roadmap alignment, and **RHP Start baseline**. For code missions: branch name `cursor/<descriptive-name>-579b`, synced with `main`.
+**PIR exit criteria:** Written mission statement with scope, layer map, out-of-scope list, roadmap alignment, **D-028 long-term impact assessment**, and **RHP Start baseline**. For code missions: branch name `cursor/<descriptive-name>-579b`, synced with `main`.
 
 **Doc-only missions:** PIR still required; Phases 3–4 may be minimal (verify no accidental code).
 
@@ -447,6 +448,7 @@ Copy for every implementation mission:
 ```markdown
 ## Mission [ID] — PIP Checklist
 
+- [ ] **D-028 long-term impact gate** — 10 enterprise questions answered (PIR step 1.8)
 - [ ] **RHP Start (§10.1)** — PRs, branch sync, build/lint/gates baseline
 - [ ] **1 PIR** — README_AI + roadmap + layer map + language check
 - [ ] **2 Planning** — acceptance criteria + artifact list + gates selected

@@ -3,8 +3,9 @@
 **Mission ID:** IFM Phase 2 (Program 2)  
 **Program:** MAK Studio  
 **Priority:** P1  
-**Status:** Prepared — ready after MDP-5 / IFM 1C completion  
-**Prerequisite:** [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md)
+**Status:** Prepared — **official next priority** (D-027)  
+**Prerequisite:** [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md)  
+**Parallel:** [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md)
 
 ---
 
@@ -82,14 +83,15 @@ Launch **MAK Studio** — the metadata authoring UI that writes exclusively to M
 
 ---
 
-## Platform Core parallel track
+## Platform Core parallel track (D-027)
 
-Platform Core (L3) may proceed in parallel for:
-- Event bus scaffold
-- Deploy pipeline activation (environment pin → runtime reload)
+Platform Core (L3) **does not antecede** MAK Studio. Parallel track after Layout Studio MVP:
+
+- Event bus scaffold (IFM 1B A5)
+- Deploy pipeline activation (Program 1E — environment pin → runtime reload)
 - RBAC externalization to MDP-4 permission entries
 
-Studio depends on MDP-5; Platform Core deploy depends on both.
+Studio depends on MDP-5 ✅; Runtime Bridge (1E) depends on both Studio publish path and Foundation bootstrap.
 
 ---
 

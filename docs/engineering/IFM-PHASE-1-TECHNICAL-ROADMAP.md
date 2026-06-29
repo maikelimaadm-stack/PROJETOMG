@@ -256,7 +256,7 @@ Each area: **priority** (P0–P3), **dependencies**, **risks**, **impact**, **ju
 | **Dependencies** | Data Dictionary labels (MDP-2), Platform Language Standard |
 | **Risks** | Retrofitting i18n after more modules increases string debt |
 | **Impact** | Required for 1K+ clients in multiple regions |
-| **Justification** | Field labels should come from MDP Data Dictionary before UI i18n layer — **MDP-2 enables globalization**; dedicated i18n mission is IFM 1E (new sub-phase, post-MDP-2). |
+| **Justification** | Field labels should come from MDP Data Dictionary before UI i18n layer — **MDP-2 enables globalization**; dedicated i18n = **Program 1F.1 Globalization Platform** (D-028). |
 
 ### 20. Migração de Dados
 
@@ -346,10 +346,11 @@ Missions ordered by Constitution priority (Estabilidade → Arquitetura → Prep
 
 | ID | Mission | Priority | Notes |
 |----|---------|----------|-------|
-| **1E-1** | i18n infrastructure | P4 | After MDP-2 — labels from Data Dictionary |
-| **1F-1** | Backup/DR runbook | P4 | PMI 2.5/10 gap — operational, not code-first |
+| **1F.1** | Globalization Platform (i18n/l10n) | P4 | Program 1F — labels from MDP-2 Data Dictionary |
+| **1F.5** | Disaster Recovery runbooks | P4 | Program 1F — PMI Backup 2.5/10 gap |
 | **P2** | MAK Studio | Program 2 | After MDP-4 minimum |
 | **P3+** | AI, Marketplace, Offline, Mobile, Desktop | Programs 3–6 | Per Master Architecture |
+| **1F** | Enterprise Readiness (full) | Doc now / impl later | D-028 — see ROADMAP Program 1F |
 
 ---
 
@@ -377,7 +378,7 @@ Missions ordered by Constitution priority (Estabilidade → Arquitetura → Prep
 | A1 legacy | P1 (parallel) | P1 after MDP-1 | ↔ Can overlap MDP-2 |
 | A3 table split | P2 | **P2 → defer post-MDP-4** | ↓ Avoid churn during MDP |
 | New modules | After S1–S2 | **After MDP-4** | ↓ Prevent metadata debt |
-| i18n | Not listed | **1E post-MDP-2** | ↑ Identified gap (0 i18n code) |
+| i18n | Not listed | **Program 1F.1** (D-028) | ↑ Identified gap (0 i18n code) |
 
 ---
 
@@ -401,7 +402,7 @@ Missions ordered by Constitution priority (Estabilidade → Arquitetura → Prep
 
 ### 5. Existe alguma missão que deve subir de prioridade?
 
-**SIM.** **IFM 1D-1** (V13–V20 in CI) — from late IFM 1D to **mission #2**. **MDP-1** — confirm as **mission #3** immediately after stability slice. **i18n** — newly identified, scheduled as 1E post-MDP-2.
+**SIM.** **IFM 1D-1** (V13–V20 in CI) — from late IFM 1D to **mission #2**. **MDP-1** — confirm as **mission #3** immediately after stability slice. **i18n** — Program 1F.1 Globalization Platform (D-028).
 
 ### 6. Existe alguma missão que deve descer de prioridade?
 

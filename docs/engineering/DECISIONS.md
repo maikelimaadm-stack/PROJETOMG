@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (MDP-0 Architecture Specification — D-020)
+**Last updated:** 2026-06-29 (D-028 Engineering Governance Evolution)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -315,6 +315,30 @@
 | **Decision** | Implement MDP-5 as official publish engine: compile-on-publish → `mdp_compiled_bundle` (CRB), snapshots, environment pins (dev/qa/prod), rollback (full + partial), unified introspect API. Governance gate **G142**. IFM 1C (MAK DATA PLATFORM) complete. |
 | **Evidence** | [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md) |
 | **Consequences** | All future published defs must pass MDP-5; MAK Studio (Program 2) unblocked |
+
+---
+
+## D-027 — Platform Architecture Reassessment (Post MDP-5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | After IFM 1C (MDP-1→5) completion, **MAK Studio (Program 2) remains the official next priority.** Full Platform Core L3 infrastructure (Event Bus, Scheduler, Job Queue, Notification Engine, Background Workers, Integration Platform, Migration Platform, Package/Extension Loaders) **must not antecede** MAK Studio. Add **Program 1E Runtime Bridge** (CRB hydration + deploy pin activation) as **parallel co-requisite** with Studio Phase 2.1. IFM 1B A5 (Event Bus) deferred until after Layout Studio MVP. |
+| **Evidence** | [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md); Master Architecture §L3–L5; MDP-5 APIs; `backend/src/modules/auth/` production auth |
+| **Consequences** | ROADMAP updated; Studio + 1E briefs official; PMI scores refreshed; Platform Core full build scheduled post-Studio MVP |
+
+---
+
+## D-028 — Engineering Governance Evolution
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | From this mission forward, **every implementation decision** must pass mandatory **long-term enterprise impact analysis** (10 questions: 10K clients, hundreds of modules, multi-template, multi-country, multi-language, Marketplace, IA, Offline, thousands of publishes, no structural refactor). Uncertainty → stop and register architectural review. Create **Program 1F — Enterprise Readiness** (documentation-only, not implemented now) with subprograms 1F.1–1F.6. Add **Enterprise Readiness Index (ERI)** to PMI. Update PIP Phase 1 (PIR) with D-028 gate. |
+| **Evidence** | [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md); [ROADMAP.md](./ROADMAP.md) Program 1F; PMI §3.3 ERI |
+| **Consequences** | All future missions use long-term gate; 1F documents 20-year enterprise evolution; does **not** change Program 2 / 1E priority (D-027 preserved) |
 
 ---
 
