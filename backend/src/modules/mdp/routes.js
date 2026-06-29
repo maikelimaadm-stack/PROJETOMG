@@ -3,6 +3,7 @@ import { mdpEntityService } from "./mdpEntityService.js";
 import { mdpFieldService } from "./mdpFieldService.js";
 import { mdpRelationshipService } from "./mdpRelationshipService.js";
 import { mdpRegistryService } from "./mdpRegistryService.js";
+import { mdpPublishService } from "./mdpPublishService.js";
 import {
   mdpEntityCreateSchema,
   mdpEntityListQuerySchema,
@@ -28,6 +29,19 @@ import {
   mdpRegistryUpdateSchema,
   parseOrThrow as parseRegistryOrThrow,
 } from "./mdpRegistryValidators.js";
+import {
+  mdpCompileSchema,
+  mdpDraftCreateSchema,
+  mdpEnvironmentPinListQuerySchema,
+  mdpEnvironmentPinSchema,
+  mdpIntrospectQuerySchema,
+  mdpPublishSchema,
+  mdpRollbackSchema,
+  mdpSnapshotCreateSchema,
+  mdpSnapshotListQuerySchema,
+  mdpVersionListQuerySchema,
+  parseOrThrow as parsePublishOrThrow,
+} from "./mdpPublishValidators.js";
 
 export const registerMdpRoutes = async (app) => {
   app.get("/api/mdp/entities", { preHandler: app.authenticate }, async (request) => {
@@ -146,5 +160,75 @@ export const registerMdpRoutes = async (app) => {
   app.delete("/api/mdp/registry/:id", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
     return mdpRegistryService.remove(request.params.id, scope);
+  });
+
+  app.get("/api/mdp/introspect", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const query = parsePublishOrThrow(mdpIntrospectQuerySchema, request.query || {});
+    return mdpPublishService.introspect(query, scope);
+  });
+
+  app.get("/api/mdp/versions", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const query = parsePublishOrThrow(mdpVersionListQuerySchema, request.query || {});
+    return mdpPublishService.listVersions(query, scope);
+  });
+
+  app.get("/api/mdp/versions/:id", { preHandler: app.authenticate }, async (request) => {
+    return mdpPublishService.getVersion(request.params.id);
+  });
+
+  app.post("/api/mdp/versions/draft", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parsePublishOrThrow(mdpDraftCreateSchema, request.body || {});
+    return mdpPublishService.createDraft(payload, scope);
+  });
+
+  app.post("/api/mdp/publish", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parsePublishOrThrow(mdpPublishSchema, request.body || {});
+    return mdpPublishService.publish(payload, scope);
+  });
+
+  app.post("/api/mdp/rollback", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parsePublishOrThrow(mdpRollbackSchema, request.body || {});
+    return mdpPublishService.rollback(payload, scope);
+  });
+
+  app.post("/api/mdp/compile/:moduleId", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const body = parsePublishOrThrow(mdpCompileSchema, request.body || {});
+    return mdpPublishService.compile(
+      { moduleId: request.params.moduleId, ...body },
+      scope
+    );
+  });
+
+  app.get("/api/mdp/snapshots", { preHandler: app.authenticate }, async (request) => {
+    const query = parsePublishOrThrow(mdpSnapshotListQuerySchema, request.query || {});
+    return mdpPublishService.listSnapshots(query);
+  });
+
+  app.get("/api/mdp/snapshots/:id", { preHandler: app.authenticate }, async (request) => {
+    return mdpPublishService.getSnapshot(request.params.id);
+  });
+
+  app.post("/api/mdp/snapshots", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parsePublishOrThrow(mdpSnapshotCreateSchema, request.body || {});
+    return mdpPublishService.createSnapshot(payload, scope);
+  });
+
+  app.get("/api/mdp/environment-pins", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const query = parsePublishOrThrow(mdpEnvironmentPinListQuerySchema, request.query || {});
+    return mdpPublishService.listEnvironmentPins(query, scope);
+  });
+
+  app.post("/api/mdp/environment-pins", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parsePublishOrThrow(mdpEnvironmentPinSchema, request.body || {});
+    return mdpPublishService.pinEnvironment(payload, scope);
   });
 };

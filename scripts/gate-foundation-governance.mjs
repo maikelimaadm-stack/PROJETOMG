@@ -396,6 +396,35 @@ if (exists(mdpMetadataExportPath)) {
   );
 }
 
+// G142 — MDP-5 Compiled Runtime Bundle + publish API (MDP-5)
+const mdpCrbExportPath = path.join(ROOT, "config/mdp-compiled-bundle.export.json");
+if (exists(mdpCrbExportPath)) {
+  const mdpCrbExport = JSON.parse(fs.readFileSync(mdpCrbExportPath, "utf8"));
+  const routesContentMdp5 = exists(path.join(ROOT, "backend/src/modules/mdp/routes.js"))
+    ? read(path.join(ROOT, "backend/src/modules/mdp/routes.js"))
+    : "";
+  const hasPublishApi =
+    routesContentMdp5.includes("/api/mdp/publish") &&
+    routesContentMdp5.includes("/api/mdp/compile/") &&
+    routesContentMdp5.includes("/api/mdp/rollback") &&
+    routesContentMdp5.includes("/api/mdp/introspect");
+  const crbGateOk =
+    (mdpCrbExport.bundleCount ?? 0) >= 1 &&
+    (mdpCrbExport.entityCount ?? 0) >= 1 &&
+    (mdpCrbExport.registryCount ?? 0) >= 1 &&
+    mdpCrbExport.hasDependencyGraph === true &&
+    mdpCrbExport.hasVersionGraph === true &&
+    hasPublishApi &&
+    mdpCrbExport.version === "mdp-compiled-bundle-v1";
+  gate(
+    "G142 — MDP-5 Compiled Runtime Bundle + publish API",
+    crbGateOk,
+    crbGateOk
+      ? ""
+      : `bundles=${mdpCrbExport.bundleCount}, entities=${mdpCrbExport.entityCount}, registry=${mdpCrbExport.registryCount}, api=${hasPublishApi}, version=${mdpCrbExport.version}`
+  );
+}
+
 // G119 — Gerador scaffold ModeloBase1 (delegado G103-G108)
 const scaffoldContent = walk(path.join(ROOT, "src/modules/template/scaffold")).map((f) => read(f)).join("\n");
 gate(
