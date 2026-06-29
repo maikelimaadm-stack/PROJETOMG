@@ -354,6 +354,18 @@
 
 ---
 
+## D-030 — Runtime Bridge Phase 1
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 1E Runtime Bridge Phase 1** as bootstrap-layer adapter: CRB → Foundation registries for empresas pilot. Runtime Bridge is the **sole runtime hydration entry point**. Foundation remains frozen. Governance gate **G143**. Legacy boot cache retained as offline fallback only. |
+| **Evidence** | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
+| **Consequences** | MAK Studio Phase 2.1 unblocked for parallel start; publish→live path requires 1E-2 deploy reload hook for full automation |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

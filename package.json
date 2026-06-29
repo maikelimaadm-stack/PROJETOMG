@@ -18,6 +18,7 @@
     "sync:mdp-relationships": "node scripts/sync-mdp-relationships-registry.mjs",
     "sync:mdp-metadata-registry": "node scripts/sync-mdp-metadata-registry.mjs",
     "sync:mdp-compiled-bundle": "node scripts/sync-mdp-compiled-bundle.mjs",
+    "export:mdp-crb-cache": "node scripts/export-mdp-crb-cache.mjs",
     "personalizacoes:init": "node scripts/personalizacoes/emp-personalizacoes.mjs init",
     "personalizacoes:status": "node scripts/personalizacoes/emp-personalizacoes.mjs status",
     "personalizacoes:import": "node scripts/personalizacoes/emp-personalizacoes.mjs import",

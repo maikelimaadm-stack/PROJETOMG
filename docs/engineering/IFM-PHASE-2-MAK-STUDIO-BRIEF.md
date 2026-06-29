@@ -3,8 +3,8 @@
 **Mission ID:** IFM Phase 2 (Program 2)  
 **Program:** MAK Studio  
 **Priority:** P1  
-**Status:** Prepared — **official next priority** (D-027)  
-**Prerequisite:** [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md)  
+**Status:** Prepared — **ready to start** (D-027 + D-030)  
+**Prerequisite:** [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md) · [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md)  
 **Parallel:** [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md)
 
 ---
@@ -91,7 +91,46 @@ Platform Core (L3) **does not antecede** MAK Studio. Parallel track after Layout
 - Deploy pipeline activation (Program 1E — environment pin → runtime reload)
 - RBAC externalization to MDP-4 permission entries
 
-Studio depends on MDP-5 ✅; Runtime Bridge (1E) depends on both Studio publish path and Foundation bootstrap.
+Studio depends on MDP-5 ✅; Runtime Bridge Phase 1 ✅ (`reloadRuntimeBridgeModule` available for publish→live in Phase 1E-2).
+
+---
+
+## Phase 2.1 — Official Mission Briefing (First Studio Mission)
+
+**Mission ID:** IFM Phase 2.1  
+**Objective:** Launch MAK Studio shell + Layout Studio for empresas pilot  
+**Prerequisites:** MDP-5 ✅ · Runtime Bridge 1E-1 ✅ · Foundation V10.2 frozen ✅
+
+### Deliverables
+
+1. **Studio shell** — auth gate, module selector (empresas), version badge from environment pin
+2. **Layout Studio** — CRUD `mdp_registry_entry` types: `layout`, `section`, `panel`
+3. **Draft preview** — `POST /api/mdp/compile/:moduleId` (draft=true) + same hydration adapter as production
+4. **Publish flow** — `POST /api/mdp/publish` + pin update
+5. **Governance gate G144** (proposed) — Studio writes only via `/api/mdp/*`
+
+### API contracts (ready)
+
+| API | Studio use |
+|-----|------------|
+| `GET /api/mdp/introspect` | Discovery + version badge |
+| `GET /api/mdp/environment-pins` | Pinned version per env |
+| `/api/mdp/registry` CRUD | Write layout definitions |
+| `POST /api/mdp/compile/:moduleId` | Preview CRB |
+| `POST /api/mdp/publish` | Production publish |
+
+### Acceptance criteria
+
+- [ ] Studio shell loads empresas metadata from introspect
+- [ ] Layout edits persist to MDP-4 registry (draft)
+- [ ] Preview uses draft compile without publish
+- [ ] Publish creates CRB + updates pin
+- [ ] No metadata storage outside MDP
+- [ ] Foundation unchanged — consumes CRB via Runtime Bridge only
+
+### Post-publish integration (1E-2)
+
+After publish success, call `reloadRuntimeBridgeModule('empresas')` to activate CRB in running app without full reload.
 
 ---
 

@@ -1,0 +1,420 @@
+{
+  "version": "runtime-bridge-cache-v1",
+  "exportedAt": "2026-06-29T14:12:21.170Z",
+  "moduleId": "empresas",
+  "baseTemplateId": "modelobase1",
+  "versionId": "mdp-platform-v1",
+  "integrityHash": "0d2cde09f86a0dfa42f9ef6fb3796ef2fee26c96294d633e113e3455faaf2ced",
+  "crbVersion": "mdp-crb-v1",
+  "source": "boot-cache",
+  "payload": {
+    "crbVersion": "mdp-crb-v1",
+    "moduleId": "empresas",
+    "baseTemplateId": "modelobase1",
+    "versionId": "mdp-platform-v1",
+    "semver": "1.0.0",
+    "revision": 1,
+    "status": "published",
+    "compiledAt": "2026-06-29T14:12:21.170Z",
+    "locale": "pt-BR",
+    "entities": [
+      {
+        "entityId": "EmpresaCadastro",
+        "moduleId": "empresas",
+        "entityKind": "business",
+        "baseTemplateId": "modelobase1",
+        "lifecycle": "active"
+      }
+    ],
+    "fields": [],
+    "relationships": [],
+    "registry": [
+      {
+        "entryId": "empresas.base_template.modelobase1",
+        "entryType": "base_template",
+        "moduleId": "empresas",
+        "entityId": "EmpresaCadastro",
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "1aa70512f3f9b5d512e9ae425001460e6f66bb95fa1ece274c8a338987717bd4",
+        "payload": {
+          "baseTemplateId": "modelobase1",
+          "runtimeEntry": "ModeloBase1CadastroPage",
+          "compatibleEngines": [
+            "V13",
+            "V14",
+            "V16",
+            "V17",
+            "V18",
+            "V19",
+            "V20"
+          ],
+          "pattern": "cadastro-list-form"
+        },
+        "bindings": [
+          {
+            "bindingKind": "entity",
+            "targetId": "EmpresaCadastro"
+          }
+        ],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "ModeloBase1 — Cadastro"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.layout.main",
+        "entryType": "layout",
+        "moduleId": "empresas",
+        "entityId": "EmpresaCadastro",
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "b89479ef13f1117db30e8a45a5be09bc22ca272b285e92eaa26e4561b99e895c",
+        "payload": {
+          "layoutKey": "empresas.main",
+          "panels": [
+            "identificacao",
+            "endereco",
+            "contato",
+            "observacoes"
+          ],
+          "defaultLayoutRef": "empresas.form.default"
+        },
+        "bindings": [
+          {
+            "bindingKind": "entity",
+            "targetId": "EmpresaCadastro"
+          },
+          {
+            "bindingKind": "module",
+            "targetId": "empresas"
+          }
+        ],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Layout Principal Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.form.default",
+        "entryType": "form",
+        "moduleId": "empresas",
+        "entityId": "EmpresaCadastro",
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "0b4e94de19b9e41246b8025589226ac6a5283c010e600972916b29223543f379",
+        "payload": {
+          "formKey": "empresas.cadastro",
+          "nativeFieldCount": 20,
+          "panelsRef": "empresas.layout.main",
+          "requiredFields": [
+            "tipo_pessoa",
+            "razao_social"
+          ]
+        },
+        "bindings": [
+          {
+            "bindingKind": "entity",
+            "targetId": "EmpresaCadastro"
+          }
+        ],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Formulário Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.field_config.native",
+        "entryType": "field_config",
+        "moduleId": "empresas",
+        "entityId": "EmpresaCadastro",
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "13f3b6d4877b3ab5fc40d5c0c484b8ccc02758f9b784ce09603b10113106c8b7",
+        "payload": {
+          "engine": "V14",
+          "source": "EMP_FORM_FIELD_DEFS",
+          "nativeFields": [
+            "codempresa",
+            "razao_social",
+            "nome_fantasia",
+            "tipo_pessoa",
+            "status"
+          ]
+        },
+        "bindings": [
+          {
+            "bindingKind": "entity",
+            "targetId": "EmpresaCadastro"
+          }
+        ],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Field Config — Campos Nativos"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.validation.default",
+        "entryType": "validation",
+        "moduleId": "empresas",
+        "entityId": "EmpresaCadastro",
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "e8725161d1e72e142dc929c2ba40fc018df2e9f69f7b88b29fd0fbd94514b6a0",
+        "payload": {
+          "engine": "V16",
+          "rules": [
+            {
+              "field": "razao_social",
+              "rule": "required"
+            },
+            {
+              "field": "tipo_pessoa",
+              "rule": "required"
+            },
+            {
+              "field": "cpf_cnpj",
+              "rule": "cpf_cnpj_by_tipo_pessoa"
+            }
+          ]
+        },
+        "bindings": [
+          {
+            "bindingKind": "entity",
+            "targetId": "EmpresaCadastro"
+          }
+        ],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Validation Config Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.view.table",
+        "entryType": "view",
+        "moduleId": "empresas",
+        "entityId": "EmpresaCadastro",
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "88e0a865f29719f0144a531f9dff70b6ca4c3e2046a519e7fda4935256f433e8",
+        "payload": {
+          "viewType": "table",
+          "defaultSort": {
+            "key": "codempresa",
+            "direction": "asc"
+          }
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "View Tabela Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.section.identificacao",
+        "entryType": "section",
+        "moduleId": "empresas",
+        "entityId": null,
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "3c2b2c8056cbf743500cca23be0ab58149c16c7e6b9aea7da381bebdab146b57",
+        "payload": {
+          "sectionKey": "identificacao",
+          "fields": [
+            "tipo_pessoa",
+            "razao_social",
+            "cpf_cnpj"
+          ]
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Seção Identificação"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.panel.main",
+        "entryType": "panel",
+        "moduleId": "empresas",
+        "entityId": null,
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "6c54b68bb73e6f000698e6a10d7e96912d07e587d6af3452d7e060edb62ad0f7",
+        "payload": {
+          "panelKey": "main",
+          "sections": [
+            "identificacao",
+            "endereco"
+          ]
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Panel Principal"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.permission.resource",
+        "entryType": "permission",
+        "moduleId": "empresas",
+        "entityId": null,
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "b12169ed206071061b6b3ed8780e5097ea9eac0dde1b808a9e3608dc64c57e68",
+        "payload": {
+          "resourceKey": "empresas",
+          "actions": [
+            "read",
+            "create",
+            "update",
+            "delete"
+          ]
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "RBAC Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.event.catalog",
+        "entryType": "event",
+        "moduleId": "empresas",
+        "entityId": null,
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "86a28c25912c79788c090fb77096e98d952e2d00b952bebb8cfa5b230c6686e9",
+        "payload": {
+          "engine": "V18",
+          "events": [
+            "onSave",
+            "onDelete",
+            "onDuplicateClear"
+          ]
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Events Catalog Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.action.catalog",
+        "entryType": "action",
+        "moduleId": "empresas",
+        "entityId": null,
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "a98a985bff4edbfde6b3c5df60074d40d347276fc5241ace37ca189b44914ba2",
+        "payload": {
+          "engine": "V19",
+          "actions": [
+            "save",
+            "cancel",
+            "new"
+          ]
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Actions Catalog Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.formula.catalog",
+        "entryType": "formula",
+        "moduleId": "empresas",
+        "entityId": null,
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "29378116b85c1dbc588629db55939fa35da60c6e3aad71716556abee06554d02",
+        "payload": {
+          "engine": "V17",
+          "formulas": []
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Formula Catalog Empresas"
+          }
+        ]
+      },
+      {
+        "entryId": "empresas.workflow.catalog",
+        "entryType": "workflow",
+        "moduleId": "empresas",
+        "entityId": null,
+        "status": "published",
+        "enabled": true,
+        "baseTemplateId": "modelobase1",
+        "contentHash": "82a9835fe8936831bba307067a5b4afa6ad0a624c979fd157764baadb1ed2185",
+        "payload": {
+          "engine": "V20",
+          "workflows": []
+        },
+        "bindings": [],
+        "labels": [
+          {
+            "locale": "pt-BR",
+            "label": "Workflow Catalog Empresas"
+          }
+        ]
+      }
+    ],
+    "dependencyGraph": {
+      "nodes": [],
+      "edges": []
+    },
+    "versionGraph": {
+      "versionId": "mdp-platform-v1",
+      "semver": "1.0.0",
+      "revision": 1,
+      "status": "published",
+      "parentVersionId": null,
+      "parent": null
+    },
+    "meta": {
+      "entityCount": 1,
+      "fieldCount": 0,
+      "relationshipCount": 0,
+      "registryCount": 13,
+      "signatureReady": true
+    },
+    "integrityHash": "0d2cde09f86a0dfa42f9ef6fb3796ef2fee26c96294d633e113e3455faaf2ced"
+  }
+}

@@ -18,6 +18,13 @@ const run = async () => {
       env: process.env,
     });
     if (result.status !== 0) process.exit(result.status ?? 1);
+
+    const cacheResult = spawnSync("node", ["scripts/export-mdp-crb-cache.mjs"], {
+      cwd: repoRoot,
+      stdio: "inherit",
+      env: process.env,
+    });
+    if (cacheResult.status !== 0) process.exit(cacheResult.status ?? 1);
     return;
   }
 

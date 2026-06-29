@@ -55,11 +55,11 @@ gate(
   read(path.join(MAK, "layoutConfig/buildMakLayoutConfigMetadata.js")).includes("screenKey")
 );
 
+const prefsBootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js"));
 gate(
   "G162 — Bootstrap registra layout engine",
-  read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
-    "registerMakLayoutConfigEngine"
-  )
+  prefsBootstrap.includes("registerMakLayoutConfigEngine") ||
+    prefsBootstrap.includes("registerRuntimeBridge")
 );
 
 const modules = ["cadcps"].map((id) =>

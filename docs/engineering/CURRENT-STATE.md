@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** D-029 Engineering Principles  
+**Verified by:** Program 1E Runtime Bridge Phase 1 (D-030)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -39,8 +39,8 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 primary | [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md) |
-| **Program 1E — Runtime Bridge** | P1 parallel | [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md) |
+| **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
+| **Program 2 — MAK Studio** | P1 primary — **ready to start** | [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
 Reassessment report: [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md)
@@ -57,6 +57,7 @@ Domain modules (2 runtime) → ModeloBase1 → framework/mak → cadastro-engine
 
 Planned (IFM 1C — partial):
 MAK DATA PLATFORM (L4) → Entity ✅ · Data ✅ · Relationship ✅ · Registry ✅ · **Publish Engine ✅ (MDP-5 complete)**
+Runtime Bridge (L2 bootstrap) → **CRB hydration ✅ (Program 1E Phase 1)**
 Platform Core (L3) → partial today (auth, tenant, RBAC); event bus not started
 ```
 

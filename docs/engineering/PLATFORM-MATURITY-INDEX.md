@@ -71,7 +71,7 @@ Every area in §4 and §5 includes:
 | Foundation | **7.2** | Média | Legacy layer; CI V13–V20 protected (TD-013 resolved) |
 | ModeloBase1 (Base Template 1) | **7.0** | Média | Monoliths + G38; single template only |
 | Platform Core | **6.5** | Média | Event bus not started |
-| MAK Data Platform | **8.5** | Média | CRB hydration pending (Program 1E) |
+| MAK Data Platform | **8.5** | Média | CRB hydration ✅ (Program 1E Phase 1) |
 | MAK Studio | **0.5** | Baixa | Zero code — **Program 2 next** |
 | AI Platform | **0.0** | Baixa | Zero code |
 | Knowledge Platform | **0.0** | Baixa | Zero code |
@@ -245,8 +245,8 @@ Every area in §4 and §5 includes:
 | Compile + publish pipeline | 1.0 | 1.0 | MDP-5 CRB, G142, D-026 |
 
 | **Dependencies** | Platform Core RBAC, Foundation hydration (Program 1E) |
-| **Blockers** | Program 1E CRB hydration; TD-002 backend registry (1 vs 2 modules) |
-| **Next level (+1.0)** | Program 1E Runtime Bridge; native field promotion to MDP-2 |
+| **Blockers** | Program 1E-2 deploy reload hook; TD-002 backend registry (1 vs 2 modules) |
+| **Next level (+1.0)** | Program 2 MAK Studio Phase 2.1; native field promotion to MDP-2 |
 | **Next steps** | Program 2 MAK Studio + Program 1E parallel |
 
 ---
@@ -860,8 +860,8 @@ Sync Platform ──► Offline (1.5) · Mobile (1.0) · Desktop (0)
 
 **IFM 1C (MDP) complete.** Next missions (D-027):
 
-1. **Program 2 — MAK Studio** — Layout Studio empresas pilot (primary)
-2. **Program 1E — Runtime Bridge** — CRB hydration (parallel co-requisite)
+1. **Program 2 — MAK Studio** — Layout Studio empresas pilot (primary) — **ready**
+2. **Program 1E-2 — Runtime Bridge** — deploy reload hook (parallel)
 3. **IFM 1B A5** — Event Bus MVP (after Studio Layout MVP)
 4. **IFM 1B A1/A2** — legacy promotion (background)
 

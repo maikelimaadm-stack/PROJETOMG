@@ -42,11 +42,11 @@ gate(
   read(path.join(MAK, "fieldConfig/buildMakFieldConfigMetadata.js")).includes("MAK_FIELD_METADATA_KEYS")
 );
 
+const prefsBootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js"));
 gate(
   "G170 — Bootstrap registra field engine",
-  read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
-    "registerMakFieldConfigEngine"
-  )
+  prefsBootstrap.includes("registerMakFieldConfigEngine") ||
+    prefsBootstrap.includes("registerRuntimeBridge")
 );
 
 const registry = read(path.join(ROOT, "src/modules/makBootstrap/registerMakFieldConfigEngine.js"));

@@ -425,6 +425,61 @@ if (exists(mdpCrbExportPath)) {
   );
 }
 
+// G143 — Runtime Bridge CRB hydration (Program 1E Phase 1)
+const runtimeBridgeDir = path.join(ROOT, "src/modules/makBootstrap/runtimeBridge");
+const runtimeBridgeFiles = [
+  "runtimeBridge.js",
+  "runtimeLoader.js",
+  "runtimeCacheManager.js",
+  "runtimeValidation.js",
+  "runtimeIntegrityCheck.js",
+  "crbHydrationAdapter.js",
+];
+const runtimeBridgePresent = runtimeBridgeFiles.every((file) =>
+  exists(path.join(runtimeBridgeDir, file))
+);
+const bootstrapUsesRuntimeBridge = exists(path.join(ROOT, "src/modules/makBootstrap/registerRuntimeBridge.js"))
+  ? read(path.join(ROOT, "src/modules/makBootstrap/registerRuntimeBridge.js")).includes("bootstrapRuntimeBridge")
+  : false;
+const prefsBootstrapUsesBridge = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
+  "registerRuntimeBridge"
+);
+const foundationImportsMdpApi = walk(path.join(ROOT, "src/framework/mak"), (f) => /\.(jsx?|tsx?)$/.test(f)).some(
+  (file) => {
+    const content = read(file);
+    return content.includes("/api/mdp/") || content.includes("mdpPublishService");
+  }
+);
+const crbCachePath = path.join(ROOT, "config/mdp-compiled-bundle.cache.json");
+let crbHydrationOk = false;
+if (exists(crbCachePath)) {
+  try {
+    execSync("node scripts/smoke-runtime-bridge.mjs", { cwd: ROOT, stdio: "pipe" });
+    crbHydrationOk = true;
+  } catch {
+    crbHydrationOk = false;
+  }
+}
+gate(
+  "G143 — Runtime Bridge CRB hydration (Program 1E)",
+  runtimeBridgePresent &&
+    bootstrapUsesRuntimeBridge &&
+    prefsBootstrapUsesBridge &&
+    !foundationImportsMdpApi &&
+    crbHydrationOk,
+  !runtimeBridgePresent
+    ? "runtimeBridge module missing"
+    : !bootstrapUsesRuntimeBridge
+      ? "bootstrapRuntimeBridge not wired"
+      : !prefsBootstrapUsesBridge
+        ? "registerMakPreferencesBootstrapModules bypasses bridge"
+        : foundationImportsMdpApi
+          ? "Foundation imports MDP API"
+          : !crbHydrationOk
+            ? "CRB hydration smoke failed"
+            : ""
+);
+
 // G119 — Gerador scaffold ModeloBase1 (delegado G103-G108)
 const scaffoldContent = walk(path.join(ROOT, "src/modules/template/scaffold")).map((f) => read(f)).join("\n");
 gate(

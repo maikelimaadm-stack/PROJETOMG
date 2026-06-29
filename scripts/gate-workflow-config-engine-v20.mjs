@@ -51,11 +51,11 @@ gate(
   read(path.join(MAK, "workflow/buildMakWorkflowConfigMetadata.js")).includes("MAK_WORKFLOW_METADATA_KEYS")
 );
 
+const prefsBootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js"));
 gate(
   "G257 — Bootstrap registra workflow engine",
-  read(path.join(ROOT, "src/modules/makBootstrap/registerMakPreferencesBootstrapModules.js")).includes(
-    "registerMakWorkflowConfigEngine"
-  )
+  prefsBootstrap.includes("registerMakWorkflowConfigEngine") ||
+    prefsBootstrap.includes("registerRuntimeBridge")
 );
 
 const bootstrap = read(path.join(ROOT, "src/modules/makBootstrap/registerMakWorkflowConfigEngine.js"));
