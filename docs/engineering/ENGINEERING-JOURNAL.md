@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (D-028 Engineering Governance Evolution)
+**Last updated:** 2026-06-29 (D-029 Engineering Principles)
+
+---
+
+## 2026-06-29 — D-029: Engineering Principles
+
+**Scope:** Permanent 18 engineering principles; document hierarchy update  
+**Changes:** `MAK-ENGINEERING-PRINCIPLES.md`; Constitution + README_AI hierarchy; D-029  
+**Report:** [IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md](./IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md)  
+**Decision:** D-029
+
+**RHP:** PR #304 merged @ `26a97551`; PR #303/#296 close manual  
+**Validation:** Documentary audit only  
+**Next:** Program 2 MAK Studio + Program 1E Runtime Bridge (principles P13–P15 apply)
 
 ---
 

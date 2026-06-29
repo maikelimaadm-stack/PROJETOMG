@@ -27,12 +27,13 @@ Before altering **any** file, read and verify:
 | 4 | **Roadmap** | `docs/engineering/ROADMAP.md` |
 | 5 | **Decisions** | `docs/engineering/DECISIONS.md` |
 | 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
-| 7 | **Platform Language Standard** | `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
-| 8 | **MDP Architecture Spec** | `docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md` |
-| 9 | **Platform Maturity Index** | `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
-| 10 | **Implementation Protocol** | `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
-| 11 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
-| 12 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
+| 7 | **Engineering Principles** | `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` |
+| 8 | **Platform Language Standard** | `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
+| 9 | **MDP Architecture Spec** | `docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md` |
+| 10 | **Platform Maturity Index** | `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
+| 11 | **Implementation Protocol** | `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` |
+| 12 | **Next Sprint** | `docs/engineering/NEXT-SPRINT.md` |
+| 13 | **Doc certification** (after major doc changes) | `docs/engineering/DOCUMENTATION-CERTIFICATION.md` |
 
 **If any document is outdated relative to the code, update it before proceeding.**
 
@@ -52,7 +53,7 @@ Respect: Foundation · ModeloBase1 · SSOT · Metadata First · Promotion First 
 
 **No parallel solutions.**
 
-→ [02-ARCHITECTURE-PRINCIPLES.md](./docs/constitution/02-ARCHITECTURE-PRINCIPLES.md) · [08-DO-NOT-DO-LIST.md](./docs/constitution/08-DO-NOT-DO-LIST.md)
+→ [MAK-ENGINEERING-PRINCIPLES.md](./docs/architecture/MAK-ENGINEERING-PRINCIPLES.md) (18 permanent principles, D-029) · [02-ARCHITECTURE-PRINCIPLES.md](./docs/constitution/02-ARCHITECTURE-PRINCIPLES.md) · [08-DO-NOT-DO-LIST.md](./docs/constitution/08-DO-NOT-DO-LIST.md)
 
 ### 2. Quality
 

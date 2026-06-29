@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-028 Engineering Governance Evolution)
+**Last updated:** 2026-06-29 (D-029 Engineering Principles)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -339,6 +339,18 @@
 | **Decision** | From this mission forward, **every implementation decision** must pass mandatory **long-term enterprise impact analysis** (10 questions: 10K clients, hundreds of modules, multi-template, multi-country, multi-language, Marketplace, IA, Offline, thousands of publishes, no structural refactor). Uncertainty → stop and register architectural review. Create **Program 1F — Enterprise Readiness** (documentation-only, not implemented now) with subprograms 1F.1–1F.6. Add **Enterprise Readiness Index (ERI)** to PMI. Update PIP Phase 1 (PIR) with D-028 gate. |
 | **Evidence** | [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md); [ROADMAP.md](./ROADMAP.md) Program 1F; PMI §3.3 ERI |
 | **Consequences** | All future missions use long-term gate; 1F documents 20-year enterprise evolution; does **not** change Program 2 / 1E priority (D-027 preserved) |
+
+---
+
+## D-029 — Engineering Principles
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Establish **MAK Engineering Principles** as permanent implementation doctrine — 18 principles (Architecture First through Reduce Complexity). Insert in document hierarchy: Constitution → Master Architecture → **Engineering Principles** → Architecture Specifications → Engineering Docs → Implementation. All future implementation must comply. |
+| **Evidence** | [MAK-ENGINEERING-PRINCIPLES.md](../architecture/MAK-ENGINEERING-PRINCIPLES.md); [IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md](./IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md) |
+| **Consequences** | Constitution hierarchy updated; README_AI pre-flight + Architecture perspective updated; MAK Studio missions governed by P13–P15 |
 
 ---
 

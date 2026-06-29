@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-29  
-**Verified by:** D-028 Engineering Governance Evolution  
+**Verified by:** D-029 Engineering Principles  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -17,6 +17,7 @@
 | Foundation | Enterprise V10.2.0 — **frozen** 2026-06-28 |
 | Constitution | v1.0.0 — `docs/constitution/` |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
+| **Engineering Principles** | v1.0.0 — `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` (**D-029**) |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Platform Maturity Index | v1.3.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` (**ERI 3.8/10**) |
 | Implementation Protocol | v1.2.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019, **D-028 gate**) |
@@ -25,11 +26,12 @@
 
 ---
 
-## Governance Evolution (D-028)
+## Governance Evolution (D-028 + D-029)
 
-From 2026-06-29: all implementations require **long-term enterprise impact analysis** (10 questions) before coding.  
+From 2026-06-29: all implementations require **long-term enterprise impact analysis** (10 questions) before coding — [D-028](./DECISIONS.md#d-028--engineering-governance-evolution).  
+All implementations must comply with **[MAK Engineering Principles](../architecture/MAK-ENGINEERING-PRINCIPLES.md)** (18 principles) — [D-029](./DECISIONS.md#d-029--engineering-principles).  
 Enterprise evolution map: **Program 1F — Enterprise Readiness** (documentation-only).  
-Audit: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md)
+Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md) · [IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md](./IFM-D029-ENGINEERING-PRINCIPLES-AUDIT-REPORT.md)
 
 ---
 

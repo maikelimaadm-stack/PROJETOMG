@@ -27,6 +27,7 @@ Structural documentation (Programs 0–0.6) is complete. All future work that to
 |----------|------|
 | **Constitution 00–11** | Rules — *what* is allowed |
 | **Master Architecture** | Layer map — *where* it fits |
+| **Engineering Principles** | Doctrine — *how* to implement (D-029) |
 | **Language Standard** | Vocabulary — *how* to name it |
 | **PMI** | Maturity dashboard — *how mature* the area is |
 | **This protocol (PIP)** | Process — *how* to execute a mission |
@@ -69,6 +70,7 @@ PIP **does not replace** Constitution or Doc 11 — it **operationalizes** them 
 | 1.3 | Verify no conflict with [DECISIONS.md](./DECISIONS.md) | No contradicting D-entry |
 | 1.4 | Map changes to [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) layers | Layer L0–L7 identified |
 | 1.5 | Use [Language Standard](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) terms in mission plan | No conflicting vocabulary |
+| 1.5b | Confirm compliance with [Engineering Principles](../architecture/MAK-ENGINEERING-PRINCIPLES.md) (D-029) | Principles P1–P18 acknowledged in plan |
 | 1.6 | Check [TECH-DEBT.md](./TECH-DEBT.md) and [PMI](./PLATFORM-MATURITY-INDEX.md) for blockers | Blockers acknowledged or deferred with D-entry |
 | 1.7 | Classify mission type (§5) | Doc-only / Implementation / Foundation / etc. |
 | 1.8 | **Execute D-028 long-term impact gate** ([DECISIONS D-028](./DECISIONS.md#d-028--engineering-governance-evolution)) — answer all 10 enterprise questions; stop if uncertain | Recorded in PR or JOURNAL |
@@ -448,6 +450,7 @@ Copy for every implementation mission:
 ```markdown
 ## Mission [ID] — PIP Checklist
 
+- [ ] **Engineering Principles (D-029)** — mission plan acknowledges applicable P1–P18
 - [ ] **D-028 long-term impact gate** — 10 enterprise questions answered (PIR step 1.8)
 - [ ] **RHP Start (§10.1)** — PRs, branch sync, build/lint/gates baseline
 - [ ] **1 PIR** — README_AI + roadmap + layer map + language check
