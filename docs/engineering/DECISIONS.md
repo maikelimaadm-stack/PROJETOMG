@@ -570,6 +570,18 @@
 
 ---
 
+## D-048 — Studio Expression Engine (Program 2.3.2)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.2** — Studio Expression Engine with official Expression Document, AST, Parser, Compiler, Validator, Type System, Function Catalog, Context, Dependency Graph, and Refactoring. Single expression foundation for all Studios. Field Studio first consumer. Gate **G298** forbids parallel parser/AST/evaluator in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed, Derived, Formula, Workflow, Dashboard, Automation, and AI Studios reuse one expression layer |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

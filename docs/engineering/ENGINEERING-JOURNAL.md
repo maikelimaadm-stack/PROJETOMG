@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 2.3.1 Field Studio Smart Authoring)
+**Last updated:** 2026-06-28 (Program 2.3.2 Studio Expression Engine)
+
+---
+
+## 2026-06-28 — Program 2.3.2: Studio Expression Engine
+
+**Scope:** Expression Document, AST, Parser, Compiler, Validator, Type System, Function Catalog, Context, Dependency Graph, Refactoring; Field Studio first consumer  
+**Changes:** `src/studio/expression/*`, `fieldExpressionSetup.js`, gate G298  
+**Report:** [IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md)  
+**Decision:** D-048
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.3 Computed & Derived Fields
 
 ---
 

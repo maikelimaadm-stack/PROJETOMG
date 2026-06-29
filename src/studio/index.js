@@ -110,6 +110,18 @@ export {
   StudioEditorShellBridge,
 } from "./editor/index.js";
 export {
+  STUDIO_EXPRESSION_VERSION,
+  EXPRESSION_DOCUMENT_VERSION,
+  EXPRESSION_AST_VERSION,
+  EXPRESSION_IR_VERSION,
+  OFFICIAL_EXPRESSION_ENGINES,
+  createExpressionEngine,
+  createExpressionDocument,
+  createExpressionParser,
+  createFunctionCatalog,
+  OFFICIAL_EXPRESSION_FUNCTIONS,
+} from "./expression/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,

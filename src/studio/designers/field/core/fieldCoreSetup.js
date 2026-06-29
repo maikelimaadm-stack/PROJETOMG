@@ -23,6 +23,7 @@ import { FieldCommandTypes } from "../commands/fieldCommandTypes.js";
 import { applyFieldCommand } from "../commands/fieldCommandHandlers.js";
 import { registerFieldValidationRules } from "../validation/fieldValidationRules.js";
 import { createFieldPackageFromProject, mapFieldDocumentToSom } from "../som/fieldSomSetup.js";
+import { getFieldExpressionEngine } from "../expression/fieldExpressionSetup.js";
 
 let fieldDocumentEngine = null;
 let fieldAstEngine = null;
@@ -134,6 +135,7 @@ export function createFieldCommandBus(deps) {
 }
 
 export function validateFieldDocumentStructure(document) {
+  getFieldExpressionEngine();
   return getFieldValidationEngine().validate(document);
 }
 

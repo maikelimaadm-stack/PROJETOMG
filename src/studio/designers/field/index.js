@@ -39,4 +39,5 @@ export {
   generateFieldNodeId,
 } from "./som/fieldSomSetup.js";
 
+export { getFieldExpressionEngine, validateFieldExpressionSource, buildFieldExpressionContext } from "./expression/fieldExpressionSetup.js";
 export { registerFieldEditor } from "./editor/fieldEditorRegistration.jsx";

@@ -1,5 +1,8 @@
 /** Field validation rules — registered on Studio Core Validation Engine */
 
+import { collectActiveFields } from "../fieldPropertyFields.js";
+import { validateFieldExpressionSource } from "../expression/fieldExpressionSetup.js";
+
 export function registerFieldValidationRules(validationEngine) {
   validationEngine.registerRule({
     id: "field.groups.required",
@@ -76,6 +79,39 @@ export function registerFieldValidationRules(validationEngine) {
         });
       });
       return suggestions;
+    },
+  });
+
+  validationEngine.registerRule({
+    id: "field.expression.structure",
+    severity: "error",
+    validate: (document) => {
+      const issues = [];
+      collectActiveFields(document).forEach((field) => {
+        const source = field.expressionSource ?? field.presentation?.expressionDraft;
+        if (!source || typeof source !== "string") return;
+        try {
+          const result = validateFieldExpressionSource(source, document);
+          if (!result.valid) {
+            result.errors.forEach((err) => {
+              issues.push({
+                severity: "error",
+                code: "FIELD_EXPRESSION",
+                message: err.message ?? "Invalid expression",
+                targetId: field.fieldNodeId,
+              });
+            });
+          }
+        } catch (err) {
+          issues.push({
+            severity: "error",
+            code: "FIELD_EXPRESSION_PARSE",
+            message: err?.message ?? "Expression parse failed",
+            targetId: field.fieldNodeId,
+          });
+        }
+      });
+      return issues;
     },
   });
 }

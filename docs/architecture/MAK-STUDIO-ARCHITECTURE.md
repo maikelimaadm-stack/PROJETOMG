@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.14.0  
+**Version:** 1.15.0  
 **Effective date:** 2026-06-28  
-**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047  
+**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -1298,11 +1298,40 @@ Gate **G297** · Templates centralized · No relationship/formula/computed in 2.
 
 ---
 
+## 41. Studio Expression Engine (Program 2.3.2 — D-048)
+
+Single official expression foundation for all Studios.
+
+### 41.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Expression Document** | Sole editing representation for expressions |
+| **Expression AST** | Single official AST (`mak-expression-ast-v1`) |
+| **Expression Parser** | Parse source → AST |
+| **Expression Compiler** | AST → portable IR |
+| **Expression Validator** | Structural + type validation |
+| **Type System** | Inference for literals, ops, calls |
+| **Function Catalog** | Official functions + AI/Marketplace metadata |
+| **Expression Context** | Variables, types, scope |
+| **Dependency Graph** | Variable reference extraction |
+| **Refactoring** | Safe variable rename |
+
+### 41.2 Path
+
+`src/studio/expression/` · Gate **G298** · Exported from `src/studio/index.js`
+
+**First consumer:** Field Studio via `designers/field/expression/fieldExpressionSetup.js`
+
+**Rule:** No designer may implement local parser, AST, or evaluator.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
-| 1.13.0 | 2026-06-28 | Field Studio Phase 1 — Program 2.3 (D-046); G296 |
+| 1.15.0 | 2026-06-28 | Studio Expression Engine — Program 2.3.2 (D-048); G298 |
 | 1.14.0 | 2026-06-28 | Field Studio Smart Authoring — Program 2.3.1 (D-047); G297 |
 | 1.11.0 | 2026-06-29 | Studio Object Model — Program 2.2.6 (D-044); G294; Layout migrated to SOM APIs |
 | 1.10.0 | 2026-06-29 | Studio Core Engine — Program 2.2.5 (D-043); G293; Layout migrated to Core APIs |
