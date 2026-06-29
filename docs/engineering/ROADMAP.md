@@ -146,7 +146,8 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.3.1** | Field Studio Smart Authoring | ✅ Complete (D-047) — [Report](./IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md) |
 | **2.3.2** | Studio Expression Engine | ✅ Complete (D-048) — [Report](./IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md) |
 | **2.3.3** | Studio Dependency Engine | ✅ Complete (D-049) — [Report](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md) |
-| **2.3.4** | Computed & Derived Fields | **Next** — [Brief](./IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **2.3.4** | Studio Type System | ✅ Complete (D-050) — [Report](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md) |
+| **2.3.5** | Computed & Derived Fields | **Next** — [Brief](./IFM-PHASE-2.3.5-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|

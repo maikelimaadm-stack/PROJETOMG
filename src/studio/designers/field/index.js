@@ -41,6 +41,12 @@ export {
 
 export { getFieldExpressionEngine, validateFieldExpressionSource, buildFieldExpressionContext } from "./expression/fieldExpressionSetup.js";
 export {
+  getFieldTypeSystem,
+  resolveFieldStudioType,
+  validateFieldSemanticType,
+  mapFieldTypeForExpression,
+} from "./typeSystem/fieldTypeSetup.js";
+export {
   getFieldDependencyEngine,
   buildFieldDocumentDependencyGraph,
   analyzeFieldDocumentImpact,

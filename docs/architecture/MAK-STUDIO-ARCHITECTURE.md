@@ -3,7 +3,7 @@
 **Status:** Official — Permanent architecture reference for Program 2  
 **Version:** 1.15.0  
 **Effective date:** 2026-06-28  
-**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048 · **Dependency Engine:** D-049  
+**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048 · **Dependency Engine:** D-049 · **Type System:** D-050  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -1358,10 +1358,40 @@ Single official dependency infrastructure for all Studios.
 
 ---
 
+## 43. Studio Type System (Program 2.3.4 — D-050)
+
+Single official type infrastructure for all Studios.
+
+### 43.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Type Registry** | Single registry for all type descriptors |
+| **Primitive Types** | string, integer, decimal, boolean, date, … |
+| **Business / Reference / Collection / Enum** | Structural type families |
+| **Compatibility Engine** | Assignability and widening rules |
+| **Inference Engine** | Expression AST + value inference |
+| **Coercion Engine** | Safe value coercion |
+| **Validation Engine** | Semantic type validation |
+| **Type Metadata** | AI/Marketplace documentation |
+
+### 43.2 Path
+
+`src/studio/typeSystem/` · Gate **G300** · Exported from `src/studio/index.js`
+
+**First consumer:** Field Studio via `designers/field/typeSystem/fieldTypeSetup.js`
+
+**Expression bridge:** `expression/types/expressionTypeSystem.js` delegates to Studio Type System
+
+**Rule:** No designer may implement local type registry, inference, coercion, or compatibility.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.17.0 | 2026-06-28 | Studio Type System — Program 2.3.4 (D-050); G300 |
 | 1.16.0 | 2026-06-28 | Studio Dependency Engine — Program 2.3.3 (D-049); G299 |
 | 1.15.0 | 2026-06-28 | Studio Expression Engine — Program 2.3.2 (D-048); G298 |
 | 1.14.0 | 2026-06-28 | Field Studio Smart Authoring — Program 2.3.1 (D-047); G297 |

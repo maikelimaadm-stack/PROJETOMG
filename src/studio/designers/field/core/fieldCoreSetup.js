@@ -28,6 +28,7 @@ import {
   getFieldDependencyEngine,
   buildFieldDocumentDependencyGraph,
 } from "../dependency/fieldDependencySetup.js";
+import { getFieldTypeSystem } from "../typeSystem/fieldTypeSetup.js";
 
 let fieldDocumentEngine = null;
 let fieldAstEngine = null;
@@ -141,6 +142,7 @@ export function createFieldCommandBus(deps) {
 export function validateFieldDocumentStructure(document) {
   getFieldExpressionEngine();
   getFieldDependencyEngine();
+  getFieldTypeSystem();
   return getFieldValidationEngine().validate(document);
 }
 

@@ -132,6 +132,15 @@ export {
   createImpactAnalyzer,
 } from "./dependency/index.js";
 export {
+  STUDIO_TYPE_SYSTEM_VERSION,
+  OFFICIAL_TYPE_ENGINES,
+  PRIMITIVE_TYPE_IDS,
+  createTypeSystem,
+  createTypeRegistry,
+  createTypeCompatibilityEngine,
+  createTypeInferenceEngine,
+} from "./typeSystem/index.js";
+export {
   UNIVERSAL_COMPONENTS_VERSION,
   UniversalExplorer,
   UniversalInspector,

@@ -6,6 +6,7 @@ import { createDependencyEngine } from "@/studio/dependency/index.js";
 import { extractVariableRefsFromAst } from "@/studio/expression/dependency/expressionVariableRefs.js";
 import { collectActiveFields } from "../fieldPropertyFields.js";
 import { getFieldExpressionEngine } from "../expression/fieldExpressionSetup.js";
+import { resolveFieldStudioType } from "../typeSystem/fieldTypeSetup.js";
 
 let fieldDependencyEngine = null;
 
@@ -43,7 +44,10 @@ export function buildFieldDocumentDependencyGraph(fieldDocument) {
       kind: "field",
       label: field.label ?? field.fieldName,
       designerId: "field",
-      metadata: { lineage: [artifactId, field.fieldNodeId] },
+      metadata: {
+        lineage: [artifactId, field.fieldNodeId],
+        typeHint: resolveFieldStudioType(field),
+      },
     });
     graph.addEdge({ from: artifactId, to: field.fieldNodeId, kind: "contains" });
 

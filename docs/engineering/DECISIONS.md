@@ -594,6 +594,18 @@
 
 ---
 
+## D-050 — Studio Type System (Program 2.3.4)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.4** — Studio Type System with official Type Registry, Primitive/Business/Reference/Collection/Enum types, Compatibility Engine, Inference Engine, Coercion Engine, Validation Engine, and AI-ready metadata. Single type infrastructure for all Studios. Field Studio first consumer; Expression Engine delegates inference and compatibility. Gate **G300** forbids parallel type registries, inference, coercion, and semantic validation in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed/Derived Fields, Workflow, Dashboard, and Automation Studios reuse one type layer |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

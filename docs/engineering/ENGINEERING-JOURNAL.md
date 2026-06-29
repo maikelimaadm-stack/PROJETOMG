@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 2.3.3 Studio Dependency Engine)
+**Last updated:** 2026-06-28 (Program 2.3.4 Studio Type System)
+
+---
+
+## 2026-06-28 — Program 2.3.4: Studio Type System
+
+**Scope:** Type Registry, Primitives, Business/Reference/Collection/Enum types, Compatibility, Inference, Coercion, Validation, Metadata; Field Studio first consumer; Expression bridge migrated  
+**Changes:** `src/studio/typeSystem/*`, `fieldTypeSetup.js`, expression type bridge, gate G300  
+**Report:** [IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md)  
+**Decision:** D-050
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.5 Computed & Derived Fields
 
 ---
 

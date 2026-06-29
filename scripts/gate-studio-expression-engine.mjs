@@ -109,6 +109,12 @@ gate(
 );
 
 gate(
+  "G298 — Single official Type System bridge",
+  read(path.join(EXPR, "types/expressionTypeSystem.js")).includes("createTypeSystem") &&
+    read(path.join(EXPR, "createExpressionEngine.js")).includes("createExpressionTypeSystem")
+);
+
+gate(
   "G298 — Dependency graph and refactoring",
   read(path.join(EXPR, "dependency/expressionDependencyGraph.js")).includes("extractFromAst") &&
     read(path.join(EXPR, "dependency/expressionDependencyGraph.js")).includes("createDependencyEngine") &&

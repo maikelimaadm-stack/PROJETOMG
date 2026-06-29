@@ -4,20 +4,9 @@
  */
 import { createExpressionEngine } from "@/studio/expression/index.js";
 import { collectActiveFields } from "../fieldPropertyFields.js";
+import { mapFieldTypeForExpression } from "../typeSystem/fieldTypeSetup.js";
 
 let fieldExpressionEngine = null;
-
-const FIELD_TYPE_MAP = Object.freeze({
-  string: "string",
-  number: "number",
-  boolean: "boolean",
-  date: "string",
-  datetime: "string",
-  text: "string",
-  select: "string",
-  reference: "unknown",
-  decimal: "number",
-});
 
 export function getFieldExpressionEngine() {
   if (!fieldExpressionEngine) {
@@ -30,7 +19,11 @@ export function buildFieldExpressionContext(fieldDocument) {
   const engine = getFieldExpressionEngine();
   const ctx = engine.createContext({});
   collectActiveFields(fieldDocument).forEach((field) => {
-    ctx.setVariable(field.fieldName, null, FIELD_TYPE_MAP[field.fieldType] ?? "unknown");
+    ctx.setVariable(
+      field.fieldName,
+      null,
+      mapFieldTypeForExpression(field.fieldType, field.businessTypeId)
+    );
   });
   return ctx;
 }

@@ -11,6 +11,7 @@ export const DEPENDENCY_STACK = Object.freeze([
   { layerId: "studio-editor", label: "Studio Editor Engine", paths: ["editor"] },
   { layerId: "studio-expression", label: "Studio Expression Engine", paths: ["expression"] },
   { layerId: "studio-dependency", label: "Studio Dependency Engine", paths: ["dependency"] },
+  { layerId: "studio-type-system", label: "Studio Type System", paths: ["typeSystem"] },
   { layerId: "studio-som", label: "Studio Object Model", paths: ["som"] },
   { layerId: "studio-core", label: "Studio Core Engine", paths: ["core"] },
   { layerId: "studio-domain", label: "Studio Domain Engine", paths: ["domain"] },
@@ -53,6 +54,7 @@ export const PUBLIC_API_ENTRY_POINTS = Object.freeze([
   "src/studio/editor/index.js",
   "src/studio/expression/index.js",
   "src/studio/dependency/index.js",
+  "src/studio/typeSystem/index.js",
   "src/studio/services/",
 ]);
 

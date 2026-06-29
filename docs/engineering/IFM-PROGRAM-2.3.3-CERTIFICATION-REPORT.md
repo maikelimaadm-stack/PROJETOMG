@@ -77,15 +77,15 @@ Computed Fields · Derived Fields · Workflow Engine · Dashboard Engine · Runt
 | 7 | Repositório saudável? | **Sim** | G281 clean · no forbidden imports |
 | 8 | Foundation permanece congelado? | **Sim** | Dependency layer uses Studio only |
 | 9 | Arquitetura preparada para IA, Marketplace e Runtime? | **Sim** | Metadata: `dependencyExplanation`, `lineage`, `aiHints`, `graphDocumentation` |
-| 10 | Briefing 2.3.4 preparado? | **Sim** | [IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| 10 | Briefing 2.3.4 preparado? | **Sim** | [IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md) |
 
 ---
 
 ## Next Program
 
-**Program 2.3.4 — Computed & Derived Fields**
+**Program 2.3.4 — Studio Type System**
 
-Brief: [IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md)
+Brief: [IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.4-COMPUTED-DERIVED-FIELDS-BRIEF.md) (renumbered — see 2.3.5 for Computed & Derived)
 
 ---
 
