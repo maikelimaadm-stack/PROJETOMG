@@ -1,20 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (IFM 1C-MDP-5 Versioning & Publication)
+**Last updated:** 2026-06-29 (Platform Architecture Reassessment — D-027)
 
 ---
 
-## Entry Format
+## 2026-06-29 — Platform Architecture Reassessment (Post MDP-5)
 
-Each mission adds an entry with:
+**Scope:** Strategic roadmap review — L0–L7 audit; Studio vs Platform Core sequencing  
+**Changes:** D-027 decision; ROADMAP/PMI/CURRENT-STATE updated; Program 1E Runtime Bridge brief  
+**Report:** [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md)  
+**Decision:** D-027 — MAK Studio remains Program 2; full L3 deferred; 1E parallel
 
-- Mission ID, date, scope
-- Changes summary
-- Certification block (10 items)
-- Links to PR / decisions
-
----
+**RHP:** PR #302 ✅ merged; PR #296 ⚠️ manual close; main @ `cd3e6726`  
+**Validation:** build ✅ lint ✅ verify:governance ✅ verify:ci ✅ 5 cycles ✅  
+**Next:** Program 2 MAK Studio + Program 1E Runtime Bridge (parallel)
 
 ---
 

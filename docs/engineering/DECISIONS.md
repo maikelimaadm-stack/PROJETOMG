@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (MDP-0 Architecture Specification — D-020)
+**Last updated:** 2026-06-29 (Platform Architecture Reassessment — D-027)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -315,6 +315,18 @@
 | **Decision** | Implement MDP-5 as official publish engine: compile-on-publish → `mdp_compiled_bundle` (CRB), snapshots, environment pins (dev/qa/prod), rollback (full + partial), unified introspect API. Governance gate **G142**. IFM 1C (MAK DATA PLATFORM) complete. |
 | **Evidence** | [IFM-1C-MDP-5-CERTIFICATION-REPORT.md](./IFM-1C-MDP-5-CERTIFICATION-REPORT.md) |
 | **Consequences** | All future published defs must pass MDP-5; MAK Studio (Program 2) unblocked |
+
+---
+
+## D-027 — Platform Architecture Reassessment (Post MDP-5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | After IFM 1C (MDP-1→5) completion, **MAK Studio (Program 2) remains the official next priority.** Full Platform Core L3 infrastructure (Event Bus, Scheduler, Job Queue, Notification Engine, Background Workers, Integration Platform, Migration Platform, Package/Extension Loaders) **must not antecede** MAK Studio. Add **Program 1E Runtime Bridge** (CRB hydration + deploy pin activation) as **parallel co-requisite** with Studio Phase 2.1. IFM 1B A5 (Event Bus) deferred until after Layout Studio MVP. |
+| **Evidence** | [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md); Master Architecture §L3–L5; MDP-5 APIs; `backend/src/modules/auth/` production auth |
+| **Consequences** | ROADMAP updated; Studio + 1E briefs official; PMI scores refreshed; Platform Core full build scheduled post-Studio MVP |
 
 ---
 

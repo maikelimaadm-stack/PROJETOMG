@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-28 (MDP-0 Architecture Specification)
+**Last updated:** 2026-06-29 (Platform Architecture Reassessment — D-027)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -38,20 +38,23 @@ Priority order for all work:
 
 ---
 
-## Official Next Program — Programa 1 (IFM)
+## Official Next Program — Program 2 (MAK Studio) + Program 1E (parallel)
 
-**Programa 1 — Integridade e Fundação de Metadados (IFM)**
+**Programa 1 — Integridade e Fundação de Metadados (IFM) — ✅ Complete (IFM 1C)**
 
-Strategic decisions **D-011**, **D-012**, **D-013**: IFM precedes MAK Studio. Phase 1C is explicitly **MAK DATA PLATFORM (MDP)** — the metadata nucleus.
+Strategic decisions **D-011**, **D-012**, **D-013**, **D-026**, **D-027**: IFM 1C (MDP) complete. **MAK Studio = Program 2** is the official next priority.
 
-| Sub-phase | Roadmap refs | Goal |
-|-----------|--------------|------|
-| **1A Estabilidade** | S3–S4 | Supply chain, DDL predictability |
-| **1B Arquitetura** | A1–A5 | Legacy promotion, generic naming, event bus |
-| **1C MAK DATA PLATFORM** | MDP-0→5 | MDP-0 spec ✅; MDP-1→5 implementation |
-| **1D Governança CI** | 1D-1 | V13–V20 gates in CI |
+| Sub-phase | Roadmap refs | Goal | Status |
+|-----------|--------------|------|--------|
+| **1A Estabilidade** | S3–S4 | Supply chain, DDL predictability | S3 ✅; S4 pending |
+| **1B Arquitetura** | A1–A5 | Legacy promotion, generic naming, event bus | Background — non-blocking Studio |
+| **1C MAK DATA PLATFORM** | MDP-0→5 | Metadata nucleus | **✅ Complete** |
+| **1D Governança CI** | 1D-1 | V13–V20 gates in CI | ✅ |
+| **1E Runtime Bridge** | 1E-1 | CRB hydration → Foundation registries | **P1 parallel** — [Brief](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md) |
 
-**MAK Studio = Program 2** — starts after IFM 1C (MDP-4 minimum).  
+**Program 2 — MAK Studio** — [Brief](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md)  
+**Reassessment:** [IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md](./IFM-PLATFORM-ARCHITECTURE-REASSESSMENT-REPORT.md) (D-027)
+
 **Spec:** [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)  
 **Execution roadmap (authoritative):** [IFM-PHASE-1-TECHNICAL-ROADMAP.md](./IFM-PHASE-1-TECHNICAL-ROADMAP.md)
 
@@ -108,13 +111,15 @@ Engineering summary: [MAK-DATA-PLATFORM.md](./MAK-DATA-PLATFORM.md)
 
 ---
 
-## Phase 4 — MAK Studio (Program 2 — Future)
+## Phase 4 — MAK Studio (Program 2 — **Official Next**)
 
-Prerequisite: **IFM 1C complete** (MDP-4 minimum — Metadata Registry + introspection API). **No parallel UI framework.**
+Prerequisite: **IFM 1C complete** ✅ (MDP-5 exceeds MDP-4 minimum). **No parallel UI framework.**
+
+Parallel co-requisite: **Program 1E Runtime Bridge** — CRB hydration for preview=production parity.
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
-| Layout Studio | Layout Config Engine V13 + introspection API | Not started |
+| Layout Studio | V13 + introspect + compile API | **Next — Phase 2.1** |
 | Field Studio | Field Config Engine V14 | Not started |
 | Table Studio | Preferences + column metadata | Not started |
 | Formula/Validation Studio | V16–V17 engines | Not started |
@@ -136,14 +141,30 @@ After **MDP-4** (Metadata Registry + introspection API):
 
 ---
 
-## Phase 6 — Future Platforms (Not Scheduled)
+## Phase 1E — Runtime Bridge (Parallel — D-027)
 
-| Platform | Dependency |
-|----------|------------|
-| Marketplace | MDP definition bundles + versioning + sandbox |
-| Knowledge Platform | MDP entity links + independent content layer |
-| AI Platform | MDP introspection API + RBAC boundaries |
-| Offline / Sync | MDP definition snapshots + outbox (future) |
+| ID | Item | Priority | Blocks Studio? |
+|----|------|----------|----------------|
+| **1E-1** | CRB hydration → Foundation registries (empresas pilot) | **P1** | Co-requisite for publish→live |
+| **1E-2** | Environment pin → runtime reload hook | P1 | Co-requisite |
+
+**Does NOT include:** Event Bus, Scheduler, Job Queue, Notification Engine, Integration Platform, Migration Platform — deferred per D-027.
+
+Brief: [IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md](./IFM-PHASE-1E-RUNTIME-BRIDGE-BRIEF.md)
+
+---
+
+## Phase 6 — Future Platforms (Programs 3–6)
+
+| Platform | Dependency | Precedes Studio? |
+|----------|------------|------------------|
+| Marketplace | MDP bundles + versioning ✅ | **No** — Program 3 |
+| Knowledge Platform | MDP entity links | **No** — Program 5 |
+| AI Platform | MDP introspect ✅ + Event Bus (A5) | **No** — Program 4 |
+| Offline / Sync | MDP snapshots ✅ + Sync Platform | **No** — Program 6 |
+| Integration Platform | Public API + Marketplace | **No** |
+| Migration Platform | MDP versioning ✅ + tenant tooling | **No** |
+| Platform Event Bus (A5) | MDP-4 ✅ | **No** — after Studio Layout MVP |
 
 ---
 
