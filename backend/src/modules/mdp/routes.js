@@ -2,6 +2,7 @@ import { loadAccessScope } from "../auth/accessScope.js";
 import { mdpEntityService } from "./mdpEntityService.js";
 import { mdpFieldService } from "./mdpFieldService.js";
 import { mdpRelationshipService } from "./mdpRelationshipService.js";
+import { mdpRegistryService } from "./mdpRegistryService.js";
 import {
   mdpEntityCreateSchema,
   mdpEntityListQuerySchema,
@@ -20,6 +21,13 @@ import {
   mdpRelationshipUpdateSchema,
   parseOrThrow as parseRelationshipOrThrow,
 } from "./mdpRelationshipValidators.js";
+import {
+  mdpRegistryCreateSchema,
+  mdpRegistryIntrospectQuerySchema,
+  mdpRegistryListQuerySchema,
+  mdpRegistryUpdateSchema,
+  parseOrThrow as parseRegistryOrThrow,
+} from "./mdpRegistryValidators.js";
 
 export const registerMdpRoutes = async (app) => {
   app.get("/api/mdp/entities", { preHandler: app.authenticate }, async (request) => {
@@ -104,5 +112,39 @@ export const registerMdpRoutes = async (app) => {
   app.delete("/api/mdp/relationships/:id", { preHandler: app.authenticate }, async (request) => {
     const scope = await loadAccessScope(request);
     return mdpRelationshipService.remove(request.params.id, scope);
+  });
+
+  app.get("/api/mdp/registry/introspect", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const query = parseRegistryOrThrow(mdpRegistryIntrospectQuerySchema, request.query || {});
+    return mdpRegistryService.introspect(query, scope);
+  });
+
+  app.get("/api/mdp/registry", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const query = parseRegistryOrThrow(mdpRegistryListQuerySchema, request.query || {});
+    return mdpRegistryService.list(query, scope);
+  });
+
+  app.get("/api/mdp/registry/:id", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    return mdpRegistryService.getById(request.params.id, scope);
+  });
+
+  app.post("/api/mdp/registry", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parseRegistryOrThrow(mdpRegistryCreateSchema, request.body || {});
+    return mdpRegistryService.create(payload, scope);
+  });
+
+  app.put("/api/mdp/registry/:id", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    const payload = parseRegistryOrThrow(mdpRegistryUpdateSchema, request.body || {});
+    return mdpRegistryService.update(request.params.id, payload, scope);
+  });
+
+  app.delete("/api/mdp/registry/:id", { preHandler: app.authenticate }, async (request) => {
+    const scope = await loadAccessScope(request);
+    return mdpRegistryService.remove(request.params.id, scope);
   });
 };

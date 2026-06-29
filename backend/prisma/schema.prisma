@@ -45,6 +45,8 @@ model Cliente {
   mdpFieldAudits     MdpFieldAudit[]
   mdpRelationships   MdpRelationship[]
   mdpRelationshipAudits MdpRelationshipAudit[]
+  mdpRegistryEntries MdpRegistryEntry[]
+  mdpRegistryAudits  MdpRegistryAudit[]
   registrosGlobais   RegistroGlobal[]
   codigoSequencias   EntidadeCodigoSequencia[]
   modulos            ClienteModulo[]
@@ -79,6 +81,7 @@ model Usuario {
   cadcpsHistoricos CadCpsHistorico[]
   mdpFieldAudits   MdpFieldAudit[]
   mdpRelationshipAudits MdpRelationshipAudit[]
+  mdpRegistryAudits     MdpRegistryAudit[]
   auditLogs    AuditLog[]
 
   @@unique([cliente_id, login])
@@ -509,6 +512,7 @@ model MdpDefinitionVersion {
   entities      MdpEntity[]
   fields        MdpField[]
   relationships MdpRelationship[]
+  registry_entries MdpRegistryEntry[]
 
   @@index([cliente_id, module_id, status])
   @@map("mdp_definition_version")
@@ -549,6 +553,7 @@ model MdpEntity {
   fields              MdpField[]
   relationships_from  MdpRelationship[] @relation("MdpRelationshipFrom")
   relationships_to    MdpRelationship[] @relation("MdpRelationshipTo")
+  registry_entries    MdpRegistryEntry[]
 
   @@unique([scope, entity_id, cliente_id])
   @@index([cliente_id, module_id, lifecycle])
@@ -912,4 +917,163 @@ model MdpRelationshipAudit {
   @@index([relationship_row_id, created_at])
   @@index([cliente_id, created_at])
   @@map("mdp_relationship_audit")
+}
+
+// --- MAK DATA PLATFORM (MDP-4) — Metadata Registry ---
+
+enum MdpRegistryEntryType {
+  layout
+  view
+  form
+  section
+  panel
+  tab
+  group
+  field
+  field_config
+  action
+  event
+  formula
+  validation
+  workflow
+  dashboard
+  pivot_table
+  report
+  permission
+  automation
+  base_template
+  template
+  integration
+  ai_definition
+  studio_definition
+  theme
+}
+
+enum MdpRegistryEntryStatus {
+  draft
+  published
+  archived
+}
+
+enum MdpRegistryOwnerKind {
+  platform
+  tenant
+  marketplace
+  system
+}
+
+enum MdpRegistryBindingKind {
+  entity
+  field
+  relationship
+  module
+  entry
+}
+
+model MdpRegistryEntry {
+  id               String                 @id @default(cuid())
+  entry_id         String                 @db.VarChar(128)
+  entry_type       MdpRegistryEntryType
+  scope            MdpScope               @default(platform)
+  cliente_id       String?                @db.VarChar(64)
+  module_id        String?                @db.VarChar(64)
+  entity_row_id    String?                @db.VarChar(64)
+  base_template_id String                 @default("modelobase1") @db.VarChar(64)
+  schema_version   String                 @db.VarChar(32)
+  payload          Json
+  content_hash     String                 @db.VarChar(64)
+  status           MdpRegistryEntryStatus @default(draft)
+  owner_kind       MdpRegistryOwnerKind   @default(platform)
+  owner_ref        String?                @db.VarChar(128)
+  empresa_scope    MdpEmpresaScope        @default(none)
+  lifecycle        MdpEntityLifecycle     @default(active)
+  sort_order       Int                    @default(0)
+  enabled          Boolean                @default(true)
+  version_id       String                 @db.VarChar(64)
+  presentation     Json?
+  metadata         Json?
+  created_at       DateTime               @default(now())
+  updated_at       DateTime               @updatedAt
+  created_by       String?                @db.VarChar(64)
+  updated_by       String?                @db.VarChar(64)
+
+  version   MdpDefinitionVersion    @relation(fields: [version_id], references: [id], onDelete: Restrict)
+  cliente   Cliente?                @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  entity    MdpEntity?              @relation(fields: [entity_row_id], references: [id], onDelete: SetNull)
+  labels    MdpRegistryEntryLabel[]
+  bindings  MdpRegistryBinding[]
+  audits    MdpRegistryAudit[]
+
+  @@unique([scope, entry_id, cliente_id])
+  @@index([cliente_id, entry_type, status])
+  @@index([module_id, entry_type, lifecycle])
+  @@index([entity_row_id, entry_type])
+  @@index([content_hash])
+  @@map("mdp_registry_entry")
+}
+
+model MdpRegistryEntryLabel {
+  id           String   @id @default(cuid())
+  entry_row_id String   @db.VarChar(64)
+  locale       String   @db.VarChar(16)
+  label        String   @db.VarChar(255)
+  description  String?
+  help_text    String?
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  entry MdpRegistryEntry @relation(fields: [entry_row_id], references: [id], onDelete: Cascade)
+
+  @@unique([entry_row_id, locale])
+  @@index([locale])
+  @@map("mdp_registry_entry_label")
+}
+
+model MdpRegistryBinding {
+  id            String                 @id @default(cuid())
+  entry_row_id  String                 @db.VarChar(64)
+  binding_kind  MdpRegistryBindingKind
+  target_id     String                 @db.VarChar(128)
+  target_row_id String?                @db.VarChar(64)
+  sort_order    Int                    @default(0)
+  created_at    DateTime               @default(now())
+  updated_at    DateTime               @updatedAt
+
+  entry MdpRegistryEntry @relation(fields: [entry_row_id], references: [id], onDelete: Cascade)
+
+  @@index([entry_row_id, sort_order])
+  @@index([binding_kind, target_id])
+  @@map("mdp_registry_binding")
+}
+
+model MdpRegistrySchema {
+  id             String               @id @default(cuid())
+  entry_type     MdpRegistryEntryType
+  schema_version String               @db.VarChar(32)
+  json_schema    Json
+  active         Boolean              @default(true)
+  created_at     DateTime             @default(now())
+  updated_at     DateTime             @updatedAt
+
+  @@unique([entry_type, schema_version])
+  @@map("mdp_registry_schema")
+}
+
+model MdpRegistryAudit {
+  id           String   @id @default(cuid())
+  entry_row_id String   @db.VarChar(64)
+  cliente_id   String   @db.VarChar(64)
+  action       String   @db.VarChar(64)
+  before       Json?
+  after        Json?
+  usuario_id   String?  @db.VarChar(64)
+  created_at   DateTime @default(now())
+
+  entry   MdpRegistryEntry @relation(fields: [entry_row_id], references: [id], onDelete: Cascade)
+  cliente Cliente          @relation(fields: [cliente_id], references: [id], onDelete: Cascade)
+  usuario Usuario?         @relation(fields: [usuario_id], references: [id], onDelete: SetNull)
+
+  @@index([entry_row_id, created_at])
+  @@index([cliente_id, created_at])
+  @@map("mdp_registry_audit")
 }

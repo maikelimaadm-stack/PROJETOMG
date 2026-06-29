@@ -1,7 +1,7 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (IFM 1C-MDP-3 Relationship Dictionary)
+**Last updated:** 2026-06-29 (IFM 1C-MDP-4 Metadata Registry)
 
 ---
 
@@ -15,6 +15,18 @@ Each mission adds an entry with:
 - Links to PR / decisions
 
 ---
+
+---
+
+## 2026-06-29 — IFM 1C-MDP-4: Metadata Registry
+
+**Scope:** MDP-4 — `mdp_registry*` schema, CRUD + introspection API, Empresas pilot, G140  
+**Changes:** 5 Prisma models, `/api/mdp/registry`, 25 entry types, JSON Schema contracts, export sync  
+**Report:** [IFM-1C-MDP-4-CERTIFICATION-REPORT.md](./IFM-1C-MDP-4-CERTIFICATION-REPORT.md)  
+**Decision:** D-024
+
+**Validation:** build ✅ lint ✅ verify:governance ✅ verify:ci ✅ 5 cycles ✅ G140 ✅  
+**Next:** IFM 1C-MDP-5 — [IFM-1C-MDP-5-VERSIONING-PUBLICATION.md](./IFM-1C-MDP-5-VERSIONING-PUBLICATION.md)
 
 ---
 
