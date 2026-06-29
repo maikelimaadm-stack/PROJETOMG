@@ -25,3 +25,12 @@ export {
   mergePersistedIntoInitialState,
   createStudioPersistenceSyncAdapter,
 } from "./studioPersistence.js";
+
+export {
+  mdpRegistryList,
+  mdpRegistryGet,
+  mdpRegistryCreate,
+  mdpRegistryUpdate,
+  mdpRegistryDelete,
+  mdpRegistrySyncLayoutEntries,
+} from "./mdpRegistryClient.js";

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ExplorerProvider,
   InspectorProvider,
@@ -42,9 +42,11 @@ export function StudioUniversalBridge({
   commands = [],
   extraCommandGroups = [],
   mode = "prototype",
+  renderWorkspace,
 }) {
   const isProduction = mode === "production";
-  const { sdk } = useStudioDomain();
+  const isLayoutDesigner = isProduction && workspace.designerId === "layout" && Boolean(renderWorkspace);
+  const { sdk, hub } = useStudioDomain();
   const { selection, selectEntry } = useSelection();
   const { workspace } = useWorkspace();
   const { dock } = useDock();
@@ -53,6 +55,20 @@ export function StudioUniversalBridge({
   const { properties, updateField } = useProperties();
   const { preview, compile: compilePreview } = usePreview();
   const { actions, state, services } = useStudioDomain();
+  const [layoutValidation, setLayoutValidation] = useState({ errorCount: 0, warningCount: 0 });
+  const [layoutPreviewMessage, setLayoutPreviewMessage] = useState(null);
+
+  useEffect(() => {
+    if (!isLayoutDesigner || !hub) return undefined;
+    const onValidation = (payload) => setLayoutValidation(payload ?? { errorCount: 0, warningCount: 0 });
+    const onPreview = (payload) => setLayoutPreviewMessage(payload?.message ?? null);
+    const u1 = hub.subscribe?.("layout.validation.changed", onValidation);
+    const u2 = hub.subscribe?.("layout.preview.changed", onPreview);
+    return () => {
+      u1?.();
+      u2?.();
+    };
+  }, [isLayoutDesigner, hub]);
 
   useEffect(() => {
     if (!isProduction) return undefined;
@@ -61,7 +77,11 @@ export function StudioUniversalBridge({
   }, [isProduction, workspace.moduleId, compilePreview]);
 
   const flatExplorer = flattenExplorerTree(workspace.explorerTree ?? []);
-  const validationCount = isProduction ? (services?.validationService?.getErrorCount?.() ?? 0) : 0;
+  const validationCount = isLayoutDesigner
+    ? layoutValidation.errorCount
+    : isProduction
+      ? (services?.validationService?.getErrorCount?.() ?? 0)
+      : 0;
 
   const explorerValue = useMemo(
     () => ({
@@ -94,7 +114,11 @@ export function StudioUniversalBridge({
           label: "Bindings",
           value: (
             <span className="text-muted-foreground">
-              {isProduction ? "Somente leitura (Program 2.2)" : "Nenhum (protótipo)"}
+              {isLayoutDesigner
+                ? "Editável via Layout Document"
+                : isProduction
+                  ? "Somente leitura"
+                  : "Nenhum (protótipo)"}
             </span>
           ),
         },
@@ -102,24 +126,40 @@ export function StudioUniversalBridge({
     };
   }, [selection.entryId, selection.entryType, selection.selectionKind, isProduction]);
 
+  const handleLayoutFieldChange = (propertyId, value) => {
+    hub?.publish("layout.property.update", {
+      propertyId,
+      value,
+      componentId: selection.entryId,
+      source: "property-grid",
+    });
+  };
+
   const propertyValue = useMemo(
     () => ({
       hasSelection: Boolean(selection.entryId),
       fields: properties.fields,
-      onFieldChange: isProduction ? undefined : updateField,
-      readOnly: isProduction,
-      emptyState: "Property Grid — selecione uma entrada",
+      onFieldChange: isLayoutDesigner ? handleLayoutFieldChange : isProduction ? undefined : updateField,
+      readOnly: isProduction && !isLayoutDesigner,
+      emptyState: isLayoutDesigner
+        ? "Property Grid — selecione um componente no Canvas"
+        : "Property Grid — selecione uma entrada",
     }),
-    [selection.entryId, properties.fields, updateField, isProduction]
+    [selection.entryId, properties.fields, updateField, isProduction, isLayoutDesigner, hub]
   );
 
   const workspaceValue = useMemo(
     () => ({
-      title: workspace.designerLabel ?? "Designer",
-      subtitle: isProduction
-        ? "Workspace de produção — Layout Designer será montado no Program 2.2."
-        : "Workspace do protótipo — canvas do designer será montado aqui na próxima fase de integração.",
-      placeholder: (
+      title: isLayoutDesigner ? undefined : workspace.designerLabel ?? "Designer",
+      subtitle: isLayoutDesigner
+        ? undefined
+        : isProduction
+          ? "Workspace de produção"
+          : "Workspace do protótipo",
+      children: isLayoutDesigner
+        ? renderWorkspace?.({ moduleId: workspace.moduleId, sdk, hub, designerId: workspace.designerId })
+        : undefined,
+      placeholder: isLayoutDesigner ? undefined : (
         <>
           <p className="text-xs text-muted-foreground">
             {isProduction
@@ -140,10 +180,11 @@ export function StudioUniversalBridge({
         </>
       ),
     }),
-    [workspace.designerLabel, token, isProduction]
+    [workspace.designerLabel, workspace.designerId, workspace.moduleId, token, isProduction, isLayoutDesigner, renderWorkspace, sdk, hub]
   );
 
   const previewPanelContent = useMemo(() => {
+    if (isLayoutDesigner && layoutPreviewMessage) return layoutPreviewMessage;
     if (!isProduction) return "Preview simulado — compile path no Program 2.1B";
     if (preview.status === "loading") return "Carregando Preview CRB…";
     if (preview.status === "error") return preview.message ?? "Erro ao carregar Preview";
@@ -151,7 +192,7 @@ export function StudioUniversalBridge({
       return preview.message ?? `Preview CRB · ${preview.compileId ?? "—"}`;
     }
     return "Preview via MDP introspect (read-only · não altera Runtime)";
-  }, [isProduction, preview.status, preview.message, preview.compileId]);
+  }, [isProduction, isLayoutDesigner, layoutPreviewMessage, preview.status, preview.message, preview.compileId]);
 
   const dockValue = useMemo(
     () => ({

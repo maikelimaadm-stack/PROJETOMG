@@ -5,7 +5,7 @@
 **Mission ID:** IFM Phase 2.2 (Program 2.2) — *formerly listed as 2.1*  
 **Program:** MAK Studio — Layout Studio  
 **Priority:** P1  
-**Status:** Ready — **2.1B Production complete (D-041)**  
+**Status:** Complete — **2.2 Layout Engine certified (D-042)**  
 **Prerequisites:** MDP-5 ✅ · Runtime Bridge 1E-1 ✅ · Program 2.0 Architecture ✅ · **Studio Shell Production 2.1B ✅**
 
 ---

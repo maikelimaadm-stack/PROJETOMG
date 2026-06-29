@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.1B Studio Shell Production)
+**Last updated:** 2026-06-29 (Program 2.2 Layout Studio Engine)
+
+---
+
+## 2026-06-29 — Program 2.2: Layout Studio Engine
+
+**Scope:** First functional designer — Layout Document, AST, Canvas, Commands, Validation, MDP mutations, Preview  
+**Changes:** `src/studio/designers/layout/*`, `mdpRegistryClient.js`, gate G291, shell integration  
+**Report:** [IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md)  
+**Decision:** D-042
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
 
 ---
 

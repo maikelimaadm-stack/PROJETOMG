@@ -138,6 +138,14 @@ export {
   loadStudioPersistence,
   saveStudioPersistence,
 } from "./services/index.js";
+export {
+  LAYOUT_DOCUMENT_VERSION,
+  LAYOUT_AST_VERSION,
+  LayoutDesignerPlugin,
+  registerLayoutDesigner,
+  createLayoutCommandBus,
+  compileLayoutDocumentPreview,
+} from "./designers/layout/index.js";
 
 import { getContributionManager } from "./contributions/contributionManager.js";
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";

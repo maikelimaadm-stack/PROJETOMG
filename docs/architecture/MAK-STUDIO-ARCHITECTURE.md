@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.5.0  
+**Version:** 1.9.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **SDK:** D-032 · **Design System:** D-033 · **Events:** D-034 · **Governance:** D-035 · **UX:** D-036 (Program 2.0.9)  
+**Decision:** D-031 · **Layout Engine:** D-042 (Program 2.2)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation

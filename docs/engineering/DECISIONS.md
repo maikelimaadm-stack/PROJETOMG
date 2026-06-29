@@ -498,6 +498,18 @@
 
 ---
 
+## D-042 — Layout Studio Engine (Program 2.2)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2** — Layout Studio Engine with official Layout Document, Layout AST, Canvas Engine (extensible), Command System (mandatory mutations), Validation Engine, MDP Property Grid writes via document, Preview via Document→Compile→CRB. Gate **G291**. First functional designer at `/studio/empresas/layout`. |
+| **Evidence** | [IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md) |
+| **Consequences** | Establishes permanent visual authoring engine pattern for all future Studios; Program 2.3 Field Studio follows same architecture |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

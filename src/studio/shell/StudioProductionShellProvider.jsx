@@ -41,6 +41,8 @@ import {
   STUDIO_DESIGNERS,
   resolveDesignerLabel,
 } from "./studioShellConfig.js";
+import { registerLayoutDesigner } from "@/studio/designers/layout/registerLayoutDesigner.js";
+import { LayoutWorkspaceMount } from "@/studio/designers/layout/LayoutWorkspaceMount.jsx";
 
 const DEFAULT_COMMANDS = [
   { id: "view.toggleLeftDock", label: "Alternar dock esquerdo", category: "View" },
@@ -274,6 +276,12 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
     wirePreviewToEventHub(hub, sdk.preview);
   }, [hub, sdk.history, sdk.preview]);
 
+  useEffect(() => {
+    if (designerId === "layout") {
+      registerLayoutDesigner();
+    }
+  }, [designerId]);
+
   const token = useCallback((tokenId, themeId = "light") => resolveTokenValue(tokenId, themeId), []);
 
   const commands = useMemo(() => DEFAULT_COMMANDS.map((c) => ({ id: c.id, label: c.label, category: c.category })), []);
@@ -299,6 +307,29 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
     []
   );
 
+  const renderLayoutWorkspace = useCallback(
+    (ctx) => (
+      <LayoutWorkspaceMount
+        moduleId={ctx.moduleId}
+        sdk={ctx.sdk}
+        hub={ctx.hub}
+        onValidationChange={(validation) => {
+          hub.publish("layout.validation.changed", {
+            errorCount: validation.errorCount ?? validation.errors?.length ?? 0,
+            warningCount: validation.warningCount ?? validation.warnings?.length ?? 0,
+          });
+        }}
+        onPreviewChange={(result) => {
+          hub.publish("layout.preview.changed", result);
+          if (result?.ok) {
+            hub.publish("preview.refreshed", { compileId: result.compileId, source: "layout-document" });
+          }
+        }}
+      />
+    ),
+    [hub]
+  );
+
   return (
     <StudioDomainProvider initialState={initialDomainState} services={productionServices} hub={hub} sdk={sdk}>
       <ProductionDomainLoader moduleId={moduleId} designerId={designerId} />
@@ -306,7 +337,13 @@ export function StudioProductionShellProvider({ children, moduleId: moduleIdProp
       <SessionSync moduleId={moduleId} designerId={designerId} />
       <PersistenceSync persistenceKey={persistenceKey} />
       <DomainCommandRegistrar sdk={sdk} />
-      <StudioUniversalBridge mode="production" token={token} commands={commands} extraCommandGroups={extraCommandGroups}>
+      <StudioUniversalBridge
+        mode="production"
+        token={token}
+        commands={commands}
+        extraCommandGroups={extraCommandGroups}
+        renderWorkspace={designerId === "layout" ? renderLayoutWorkspace : undefined}
+      >
         <ShellContextProvider sdk={sdk} hub={hub} token={token} moduleId={moduleId} designerId={designerId}>
           {children}
         </ShellContextProvider>
