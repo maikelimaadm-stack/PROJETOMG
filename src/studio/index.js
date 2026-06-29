@@ -108,10 +108,39 @@ export {
   useAssets,
   useProperties,
 } from "./domain/index.js";
+export {
+  STUDIO_CONTRIBUTIONS_VERSION,
+  OFFICIAL_CONTRIBUTION_TYPES,
+  OFFICIAL_REGISTRY_IDS,
+  CONTRIBUTION_LIFECYCLE_STATES,
+  getContributionManager,
+  getRegistryManager,
+  createContributionManager,
+  createRegistryManager,
+  validateMakPackageManifest,
+  validateContributionMetadata,
+} from "./contributions/index.js";
 
+import { getContributionManager } from "./contributions/contributionManager.js";
 import { bootstrapStudioRegistries } from "./registry/bootstrapStudioRegistries.js";
 import { bootstrapDesignSystem } from "./designSystem/bootstrapDesignSystem.js";
 import { bootstrapStudioEvents } from "./events/bootstrapStudioEvents.js";
+
+const contributionManager = () => getContributionManager();
+export const registerExplorerContribution = (...args) =>
+  contributionManager().registerExplorerContribution(...args);
+export const registerToolbarContribution = (...args) =>
+  contributionManager().registerToolbarContribution(...args);
+export const registerInspectorContribution = (...args) =>
+  contributionManager().registerInspectorContribution(...args);
+export const registerCommandContribution = (...args) =>
+  contributionManager().registerCommandContribution(...args);
+export const registerContextMenuContribution = (...args) =>
+  contributionManager().registerContextMenuContribution(...args);
+export const registerDockContribution = (...args) =>
+  contributionManager().registerDockContribution(...args);
+export const registerPropertyContribution = (...args) =>
+  contributionManager().registerPropertyContribution(...args);
 
 bootstrapStudioRegistries();
 bootstrapDesignSystem();

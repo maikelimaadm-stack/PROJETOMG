@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.1A.6 Studio Domain Engine)
+**Last updated:** 2026-06-29 (Program 2.1A.7 Contribution Engine)
+
+---
+
+## 2026-06-29 — Program 2.1A.7: Studio Contribution Engine Foundation
+
+**Scope:** Last structural layer — Contribution Manager, Registry Manager, lifecycle, makpkg contracts  
+**Changes:** `src/studio/contributions/*`, gate G290 — **Studio foundation closed**  
+**Report:** [IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md)  
+**Decision:** D-040
+
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1B Studio Shell Production — functional implementation
 
 ---
 

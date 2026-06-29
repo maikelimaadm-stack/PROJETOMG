@@ -3,12 +3,14 @@
 **Mission ID:** IFM Phase 2.1B (Program 2.1B)  
 **Program:** MAK Studio — Studio Shell Production  
 **Priority:** P1  
-**Status:** **Ready after 2.1A.6 Domain Engine**  
-**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.7.0  
+**Status:** **Ready — Studio foundation closed (2.1A.7)**  
+**Architecture:** [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) v1.8.0 (**foundation closed**)  
 **UX Framework:** [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) v1.0.0 (**mandatory**)  
 **Prototype:** [IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md) (D-037)  
 **Universal Components:** [IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md) (D-038)  
-**Domain Engine:** [IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md) (D-039)  
+**Contribution Engine:** [IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md) (D-040)
+
+> **Foundation closed.** Program 2.1B begins the **functional implementation era**. No new structural layers unless critical architectural risk is discovered.  
 **Prior brief (superseded scope):** [IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md)
 
 ---

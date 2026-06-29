@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (Program 2.1A.6 Studio Domain Engine — D-039)
+**Last updated:** 2026-06-29 (Program 2.1A.7 Contribution Engine — D-040 — foundation closed)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -135,8 +135,9 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.0.9** | Studio UX Framework (doc) | ✅ Complete (D-036) — **Last pre-Shell doc mission** |
 | **2.1A** | Studio Shell Prototype (visual, mock) | ✅ Complete (D-037) |
 | **2.1A.5** | Universal Studio Components | ✅ Complete (D-038) |
-| **2.1A.6** | Studio Domain Engine | ✅ Complete (D-039) — [Report](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md) |
-| **2.1B** | Studio Shell Production (auth + MDP + persistence) | **Next** — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md) |
+| **2.1A.6** | Studio Domain Engine | ✅ Complete (D-039) |
+| **2.1A.7** | Studio Contribution Engine | ✅ Complete (D-040) — **Foundation closed** — [Report](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md) |
+| **2.1B** | Studio Shell Production (auth + MDP + persistence) | **Next — functional era begins** — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md) |
 | **2.2** | Layout Studio (empresas pilot) | Prepared — [Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
 | 2.3+ | Field, Validation, Workflow studios | Not started |
 

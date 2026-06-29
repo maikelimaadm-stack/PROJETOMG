@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-039 Studio Domain Engine)
+**Last updated:** 2026-06-29 (D-040 Contribution Engine — foundation closed)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -471,6 +471,18 @@
 | **Decision** | Implement **Program 2.1A.6** — official MAK Studio Domain Engine (`src/studio/domain/`) with single shared state model (12 slices), service contracts (6 services — interfaces only), adapter registry, public hooks, and domain→universal provider bridge. **No designer may duplicate official domain state.** Gate **G289**. Replaces simple State Engine concept with full domain architecture. |
 | **Evidence** | [IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md) |
 | **Consequences** | All Studios use domain hooks; 2.1B swaps service adapters for MDP; IA/Marketplace/Collaboration extend via adapters |
+
+---
+
+## D-040 — Studio Contribution Engine Foundation (Program 2.1A.7)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A.7** — official Contribution Engine (`src/studio/contributions/`) with Contribution Manager (7 register* APIs), Registry Manager (sole access to official registries), contribution store, lifecycle (register/enable/disable/unload), validators, and makpkg manifest contracts. **No designer may register directly in registries.** Gate **G290**. **Last structural layer — Studio foundation closed.** |
+| **Evidence** | [IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md) |
+| **Consequences** | All future designers/plugins use Contribution Manager; 2.1B begins functional implementation era; no new structural layers unless critical architectural risk |
 
 ---
 

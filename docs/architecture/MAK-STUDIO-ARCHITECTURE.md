@@ -165,6 +165,13 @@ src/studio/
 │   ├── adapters/           ← Service adapter registry (mock → production)
 │   ├── hooks/              ← useSelection, useWorkspace, useDock, … (public API)
 │   └── providers/          ← StudioDomainProvider + Universal bridge
+├── contributions/          ← Contribution Engine (Program 2.1A.7) — **last structural layer**
+│   ├── contracts/          ← Contribution + makpkg manifest contracts
+│   ├── store/              ← Contribution metadata store
+│   ├── registryManager/    ← Sole access point to official registries
+│   ├── lifecycle/          ← register, enable, disable, unload
+│   ├── validators/         ← Contribution validation
+│   └── contributionManager.js ← Public register* APIs
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -175,11 +182,11 @@ src/studio/
 └── designers/              ← sub-phase plugins (layout, field, …)
 ```
 
-**Layer order:** Studio SDK → Design System → Event Architecture → Governance → Universal Components → **Studio Domain** → Studio Shell → Designers
+**Layer order:** Studio SDK → Design System → Event Architecture → Governance → Universal Components → Studio Domain → **Studio Contributions** → Studio Shell → Designers
 
-**Universal Components rule (Program 2.1A.5):** All Shell panels are implemented as universal presentational components with Provider-injected data. Gate **G288**.
+**Studio Domain rule (Program 2.1A.6):** All official state lives in `src/studio/domain/`. Gate **G289**.
 
-**Studio Domain rule (Program 2.1A.6):** All official state (selection, workspace, dock, tabs, history, notifications, clipboard, preview, publish, search, assets, properties) lives in `src/studio/domain/`. Designers **must** use public domain hooks — never duplicate domain state. Services accessed only via adapters. Gate **G289**.
+**Contribution Engine rule (Program 2.1A.7):** All designer/plugin contributions **must** use Contribution Manager — no direct registry registration. Registry Manager is the sole access point to official registries. Gate **G290**. **Foundation infrastructure closed after 2.1A.7.**
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
 
@@ -1112,6 +1119,7 @@ After Program 2.0.9, **all mandatory pre-Shell documentation is complete**. Prog
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.8.0 | 2026-06-29 | Contribution Engine — Program 2.1A.7 (D-040); G290; **foundation closed** |
 | 1.7.0 | 2026-06-29 | Studio Domain Engine — Program 2.1A.6 (D-039); G289 |
 | 1.6.0 | 2026-06-29 | Universal Studio Components — Program 2.1A.5 (D-038); G288 |
 | 1.5.0 | 2026-06-29 | Studio UX Framework — Program 2.0.9 (D-036); pre-Shell docs complete |
