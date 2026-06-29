@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.0.8 Studio Architecture Governance)
+**Last updated:** 2026-06-29 (Program 2.0.9 Studio UX Framework)
+
+---
+
+## 2026-06-29 — Program 2.0.9: MAK Studio UX Framework
+
+**Scope:** Official permanent UX interaction document — all Studio surfaces and contracts  
+**Changes:** `docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` v1.0.0; gate G285  
+**Report:** [IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md)  
+**Decision:** D-036
+
+**RHP:** PR #313 merged @ `d7b8386d`; main synchronized  
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1 Studio Shell (first visual implementation)
 
 ---
 

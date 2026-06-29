@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.4.0  
+**Version:** 1.5.0  
 **Effective date:** 2026-06-29  
-**Decision:** D-031 · **SDK:** D-032 · **Design System:** D-033 · **Events:** D-034 · **Governance:** D-035 (Program 2.0.8)  
+**Decision:** D-031 · **SDK:** D-032 · **Design System:** D-033 · **Events:** D-034 · **Governance:** D-035 · **UX:** D-036 (Program 2.0.9)  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -34,7 +34,7 @@ MAK Studio is **not** a parallel runtime. It is a **design surface** that reads 
 4. **Runtime read-only** — Studio never calls runtime registries for writes (P15).
 5. **API first** — all Studio operations go through `/api/mdp/*` (P13).
 
-**Related:** [MAK-2035-MASTER-ARCHITECTURE.md](./MAK-2035-MASTER-ARCHITECTURE.md) §L5 · [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](./MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) · [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](../engineering/IFM-PHASE-2-MAK-STUDIO-BRIEF.md)
+**Related:** [MAK-2035-MASTER-ARCHITECTURE.md](./MAK-2035-MASTER-ARCHITECTURE.md) §L5 · [MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md](./MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md) · [MAK-STUDIO-UX-FRAMEWORK.md](./MAK-STUDIO-UX-FRAMEWORK.md) · [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](../engineering/IFM-PHASE-2-MAK-STUDIO-BRIEF.md)
 
 ---
 
@@ -871,6 +871,7 @@ Each designer is a **plugin** — shell architecture unchanged across phases.
 | **G267–G272** | Design System Foundation (tokens, themes, manifests) | Program 2.0.6 |
 | **G273–G278** | Studio Event Architecture (hub, registry, integrations) | Program 2.0.7 |
 | **G279–G284** | Studio Architecture Governance (isolation, dependency graph) | Program 2.0.8 |
+| **G285** | Studio UX Framework document completeness | Program 2.0.9 |
 | **G144** | Studio writes only via `/api/mdp/*` (Phase 2.1+) | Pending |
 | **G145** | Preview uses shared hydration adapter (Phase 2.1+) | Pending |
 
@@ -1070,11 +1071,34 @@ Foundation (never direct import)
 
 ---
 
+## 35. Studio UX Framework (Program 2.0.9)
+
+**Decision:** D-036 · **Document:** [MAK-STUDIO-UX-FRAMEWORK.md](./MAK-STUDIO-UX-FRAMEWORK.md) v1.0.0
+
+Permanent **interaction language** for all Studios — surfaces, shortcuts, states, nomenclature, accessibility, and responsiveness. **Doc-only** — no React implementation in this program.
+
+### 35.1 Binding surfaces
+
+Workspace · Dock · Explorer · Inspector · Property Grid · Outline · Asset Manager · Search · Command Palette · History · Preview · Publish Center · Navigation · Tabs · Breadcrumbs · Status Bar · Notifications · Dialogs · Loading/Error states · Selection · Drag & Drop.
+
+### 35.2 Rule
+
+No Studio may implement custom Explorer, Property Grid, Command Palette, or History behavior. All designers consume Shell + SDK surfaces per UX Framework §11 compliance checklist.
+
+**Governance:** Gate **G285** · Shell implementation (2.1) must reference UX Framework for every panel.
+
+### 35.3 Pre-Shell documentation complete
+
+After Program 2.0.9, **all mandatory pre-Shell documentation is complete**. Program 2.1 Studio Shell is the first visual implementation mission.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
-| 1.4.0 | 2026-06-29 | Architecture Governance — Program 2.0.8 (D-035); foundation permanently closed |
+| 1.5.0 | 2026-06-29 | Studio UX Framework — Program 2.0.9 (D-036); pre-Shell docs complete |
+| 1.4.0 | 2026-06-29 | Architecture Governance — Program 2.0.8 (D-035) |
 | 1.3.0 | 2026-06-29 | Studio Event Architecture — Program 2.0.7 (D-034) |
 | 1.2.0 | 2026-06-29 | Design System Foundation — Program 2.0.6 (D-033) |
 | 1.1.0 | 2026-06-29 | SDK & Registry Foundation — Program 2.0.5 (D-032) |

@@ -29,6 +29,7 @@ Before altering **any** file, read and verify:
 | 6 | **Master Architecture** | `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | 7 | **Engineering Principles** | `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` |
 | 8 | **MAK Studio Architecture** | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` |
+| 8b | **MAK Studio UX Framework** | `docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` |
 | 9 | **Platform Language Standard** | `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | 10 | **MDP Architecture Spec** | `docs/architecture/MAK-DATA-PLATFORM-ARCHITECTURE-SPECIFICATION.md` |
 | 11 | **Platform Maturity Index** | `docs/engineering/PLATFORM-MATURITY-INDEX.md` |
@@ -134,7 +135,7 @@ Template: [11-PERMANENT-GOVERNANCE-DIRECTIVE.md § Certification](./docs/constit
 | Runtime modules | empresas, cadcps (2 certified) |
 | New module creation | `npm run generate:module` only |
 | Primary gate suite | `npm run verify:governance` |
-| MAK Studio | **Foundation closed** (SDK + DS + Events + Governance) — Shell 2.1 next |
+| MAK Studio | **Pre-Shell complete** (Foundation + UX Framework) — Shell 2.1 next |
 | MAK DATA PLATFORM | Spec approved — not implemented (IFM 1C) |
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
