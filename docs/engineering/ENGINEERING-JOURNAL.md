@@ -1,7 +1,20 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.0 MAK Studio Architecture)
+**Last updated:** 2026-06-29 (Program 2.0.5 Studio SDK Foundation)
+
+---
+
+## 2026-06-29 — Program 2.0.5: MAK Studio SDK & Registry Foundation
+
+**Scope:** Studio SDK + Component/Property/Event/Action/Capability registries  
+**Changes:** `src/studio/sdk/*`, `src/studio/registry/*`, gates G262–G266  
+**Report:** [IFM-PROGRAM-2.0.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.5-CERTIFICATION-REPORT.md)  
+**Decision:** D-032
+
+**RHP:** PR #309 merged; main @ `f44cf36b`  
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1 Studio Shell
 
 ---
 
