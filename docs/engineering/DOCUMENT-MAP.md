@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 3.3 — Business Computation Layer (D-058)
+**Mission:** Program 3.4 — Business Intent Authoring Architecture (D-059)
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -35,6 +35,7 @@
 | MAK 2035 Master Architecture | [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **MAK 2035 Platform Vision (EOS)** | **[MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md)** (**D-057**) |
 | Business Intent Architecture | [MAK-BUSINESS-INTENT-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-ARCHITECTURE.md) |
+| **Business Intent Authoring Architecture** | **[MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)** (**D-059** — Program 3.4) |
 | Business Object Model | [MAK-BUSINESS-OBJECT-MODEL.md](../architecture/MAK-BUSINESS-OBJECT-MODEL.md) |
 | Knowledge Architecture | [MAK-KNOWLEDGE-ARCHITECTURE.md](../architecture/MAK-KNOWLEDGE-ARCHITECTURE.md) |
 | Intelligence Architecture | [MAK-INTELLIGENCE-ARCHITECTURE.md](../architecture/MAK-INTELLIGENCE-ARCHITECTURE.md) |
@@ -99,6 +100,7 @@
 | Layout Studio Brief | [IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
 | Field Studio Brief | [IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md](./IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md) |
 | Computation Engine Brief | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **Business Intent Authoring (3.4)** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
 | **Business Computation Layer (3.3)** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
 | Stabilization Report | [IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md) |
 | Certification reports | [IFM-PROGRAM-2.*-CERTIFICATION-REPORT.md](./) (2.0 through 2.3.5) |

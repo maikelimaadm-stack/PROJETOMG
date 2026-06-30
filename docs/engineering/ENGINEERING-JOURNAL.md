@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.3 Business Computation Layer — D-058)
+**Last updated:** 2026-06-30 (Program 3.4 Business Intent Authoring — D-059)
+
+---
+
+## 2026-06-30 — Program 3.4: Business Intent Authoring Architecture
+
+**Scope:** Permanent authoring SSOT architecture — **zero code, API, runtime, Foundation, AI, NLP, or implementation**  
+**Deliverables:** [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) · Intent Document contract · Catalog · Templates · Library · Resolver architecture · Lifecycle · Versioning · Capabilities · Dependencies · Validation · Diagnostics · Metadata · Categories · Relationships · Marketplace Model · Knowledge · Business DNA · Process Mining hooks · gate plan **G304**  
+**Decision:** D-059 — user creates Intentions only; platform derives all technical artifacts via Intent Resolver  
+**Certification:** Documentation-only · 6 mandatory architecture questions answered · no gates · no implementation
+
+**Validation:** N/A (docs-only mission)  
+**Next:** **Business Intent Resolver** — first implementation · then Business Computed Fields
 
 ---
 
@@ -13,7 +25,7 @@
 **Certification:** Documentation-only · 7 mandatory architecture questions answered · no gates · no implementation
 
 **Validation:** N/A (docs-only mission)  
-**Next:** **Business Computed Fields** — first implementation on Business Computation architecture
+**Next:** **Program 3.4** — Business Intent Authoring Architecture
 
 ---
 
