@@ -25,6 +25,12 @@ import {
   MemoryWorkflowsSection,
   MemoryWhySection,
 } from "@/bos/components/MemorySections";
+import {
+  KnowledgeRelationsSection,
+  KnowledgeDecisionLinksSection,
+  KnowledgeContextShortcutsSection,
+  KnowledgeWhyRelatedSection,
+} from "@/bos/components/KnowledgeSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -155,6 +161,14 @@ export default function BosHomePage() {
         highlights={intelligence.whyHighlights}
         replayTeaser={intelligence.replayTeaser}
       />
+
+      <KnowledgeRelationsSection
+        summary={intelligence.knowledgeSummary}
+        relations={intelligence.knowledgeRelations}
+      />
+      <KnowledgeDecisionLinksSection links={intelligence.decisionOutcomeLinks} />
+      <KnowledgeContextShortcutsSection shortcuts={intelligence.contextShortcuts} />
+      <KnowledgeWhyRelatedSection highlights={intelligence.whyRelated} />
 
       <ActivityTeaserSection items={activity} />
     </div>

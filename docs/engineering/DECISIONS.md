@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-078 Enterprise Memory Engine MVP)
+**Last updated:** 2026-06-30 (D-079 Enterprise Knowledge Graph MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -945,6 +945,18 @@
 | **Decision** | Implement first **Enterprise Memory Engine** under D-074/D-077. Tenant-scoped memory store, event-to-memory persistence, retrieval, replay, context assembly, summaries, BOS projections. Memory belongs to enterprise — not AI. Gate **G310**. |
 | **Evidence** | `src/intelligence/memory/engine/**` · [PROGRAM-3.12-ENTERPRISE-MEMORY-ENGINE-REPORT.md](./PROGRAM-3.12-ENTERPRISE-MEMORY-ENGINE-REPORT.md) |
 | **Consequences** | Operational memory consultable on BOS; future engines consume memory bridge |
+
+---
+
+## D-079 — Enterprise Knowledge Graph MVP (Program 3.13)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Enterprise Knowledge Graph** from certified Memory Engine. Tenant-scoped nodes/edges, semantic relationships, traversal, retrieval, BOS projections. Knowledge belongs to enterprise — not AI/Studio/Runtime. Gate **G311**. |
+| **Evidence** | `src/intelligence/knowledge/graph/**` · [PROGRAM-3.13-ENTERPRISE-KNOWLEDGE-GRAPH-REPORT.md](./PROGRAM-3.13-ENTERPRISE-KNOWLEDGE-GRAPH-REPORT.md) |
+| **Consequences** | Knowledge graph MVP live; Consulting/Decision/Evolution consume bridges |
 
 ---
 

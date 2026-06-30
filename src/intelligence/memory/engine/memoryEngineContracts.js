@@ -32,7 +32,7 @@ export const MEMORY_OWNERSHIP = Object.freeze({
 });
 
 export const MEMORY_ENGINE_EXTENSION_POINTS = Object.freeze([
-  Object.freeze({ id: "knowledge.graph", implemented: false }),
+  Object.freeze({ id: "knowledge.graph", implemented: true }),
   Object.freeze({ id: "consulting.engine", implemented: false }),
   Object.freeze({ id: "decision.engine", implemented: false }),
   Object.freeze({ id: "evolution.engine", implemented: false }),

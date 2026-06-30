@@ -81,6 +81,30 @@ export { bridgeMemoryToIntelligence } from "./memory/engine/memoryToIntelligence
 export { buildMemorySeedsRegistry } from "./memory/engine/memorySeedsRegistry.js";
 export { runMemoryEngine } from "./memory/engine/runMemoryEngine.js";
 
+export {
+  ENTERPRISE_KNOWLEDGE_GRAPH_VERSION,
+  KNOWLEDGE_NODE_KINDS,
+  KNOWLEDGE_RELATIONSHIP_KINDS,
+  KNOWLEDGE_GRAPH_EXTENSION_POINTS,
+} from "./knowledge/graph/knowledgeGraphContracts.js";
+export {
+  listKnowledgeNodes,
+  listKnowledgeEdges,
+  getKnowledgeGraphStoreInfo,
+} from "./knowledge/graph/knowledgeGraphStore.js";
+export { ingestMemoryRecordToKnowledgeGraph, replayKnowledgeGraphFromMemory } from "./knowledge/graph/memoryToGraphIngestion.js";
+export { retrieveKnowledgeByContext } from "./knowledge/graph/knowledgeRetrieval.js";
+export { traverseKnowledgeGraph, findRelatedNodes } from "./knowledge/graph/graphTraversal.js";
+export { summarizeKnowledgeGraph } from "./knowledge/graph/knowledgeSummarization.js";
+export { buildKnowledgeGraphBosProjection } from "./knowledge/graph/knowledgeToBosProjection.js";
+export {
+  bridgeKnowledgeToConsulting,
+  bridgeKnowledgeToDecision,
+  bridgeKnowledgeToEvolution,
+} from "./knowledge/graph/knowledgeToIntelligenceBridges.js";
+export { buildKnowledgeSeedsRegistry } from "./knowledge/graph/knowledgeSeedsRegistry.js";
+export { runKnowledgeGraphEngine } from "./knowledge/graph/runKnowledgeGraphEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };
