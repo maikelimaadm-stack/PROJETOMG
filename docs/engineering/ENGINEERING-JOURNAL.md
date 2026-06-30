@@ -1,7 +1,28 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.6.5 Business Intent Resolver Architecture — D-064)
+**Last updated:** 2026-06-30 (Program 3.6.8 Business Language Architecture — D-065)
+
+---
+
+## 2026-06-30 — Program 3.6.8: Business Language Architecture
+
+**Scope:** Permanent Business Language layer — **zero code, API, runtime, Foundation, Studio, or implementation**  
+**Deliverables:** [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) — 31 concepts · Intent birth policy · AI/no-AI · confirmation · ambiguity · architecture freeze  
+**Decision:** D-065 — business language SSOT; architecture stack complete; 3.7 Implementation next  
+**Certification:** Documentation-only · architecture freeze declared · no gates · no implementation
+
+**Validation:** N/A (docs-only mission)  
+**Next:** **Program 3.7** — Business Intent Resolver **Implementation** (G304) — **no new architecture before delivery**
+
+### Architecture stack complete
+
+| Layer | Program | Decision |
+|-------|---------|----------|
+| Business Language | 3.6.8 | D-065 |
+| Intent Authoring | 3.4 | D-059 |
+| Intent Resolver | 3.6.5 | D-064 |
+| Business Derivation | 3.6 | D-063 |
 
 ---
 

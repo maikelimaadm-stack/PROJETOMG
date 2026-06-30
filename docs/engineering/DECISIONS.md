@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-064 Business Intent Resolver Architecture)
+**Last updated:** 2026-06-30 (D-065 Business Language Architecture)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -777,6 +777,18 @@
 | **Decision** | Adopt permanent **Business Intent Resolver Architecture** — official SSOT for the sole authorized infrastructure that transforms Business Intent into derived business assets. Register all permanent concepts: Intent Resolver, Resolver Document, Session, Context, Pipeline, Metadata, Lifecycle, Policies, Contracts, Diagnostics, Validation, Explainability, Versioning, Lineage, Dependency Resolution, Strategy, Extension Points, Marketplace Hooks, AI Hooks, Runtime Projection, Preview, Diff, Regeneration, Synchronization, Incremental Update, Rollback, Compatibility, Migration, Cache, Cost Analysis, Optimization, Telemetry, Audit, Security. Register official pipeline: Intent → Capability Resolution → Capability Validation → Capability Compatibility → Business Derivation → Assets → Artifacts → Technical Projection → Studio → MDP → Runtime. Register decision criteria for all derivation kinds, lifecycle operations, integration contracts, and platform guarantees (determinism, idempotence, traceability, reproducibility). **Documentation only** — no code, API, runtime, Foundation, Studio, or Resolver implementation. **Authorize** Program 3.7 — Business Intent Resolver **Implementation** using exclusively this architecture and Business Derivation Architecture (D-063). **Permanent rules:** Resolver is sole resolution authority; no Studio resolution logic; no AI direct resolution. |
 | **Evidence** | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) |
 | **Consequences** | Resolver architecture frozen for decades; Program 3.7 (G304) implements this contract; all future derivation depends on Resolver; Studios remain projection editors only |
+
+---
+
+## D-065 — Business Language Architecture (Program 3.6.8)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Business Language Architecture** — official SSOT for how business users create any platform asset using exclusively business language (Objectives, Rules, Processes, Events, Conditions, Expected Results) — never Formulas, AST, JSON, Code, SQL, Engines, or Runtime. Register all permanent concepts: Business Language, Vocabulary, Grammar, Terms, Dictionary, Synonyms, Templates, Sentences, Validation, Semantics, Context, Categories, Confirmation, Suggestions, Wizards, Guided/Visual/Assisted Authoring, Conversation, Prompting, Translation, Explainability, Review, Approval, Evolution, Localization, Marketplace, Versioning, Metadata, Contracts, Compatibility. Register official policies: Intent birth, user conversation, AI assist, platform without AI, confirmation, ambiguity avoidance, no technical exposure, decision explainability. **Documentation only** — no code, API, runtime, Foundation, Studio, or implementation. **Architecture freeze:** no new architecture documentation programs before Program 3.7 — Business Intent Resolver Implementation (G304). **Permanent rule:** Business Language transforms user expression into Business Intent (D-059); all technical derivation remains Resolver-only (D-064). |
+| **Evidence** | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) |
+| **Consequences** | Business language layer frozen; architecture stack complete (3.4 + 3.6 + 3.6.5 + 3.6.8); Program 3.7 Implementation authorized as immediate next mission; no further architecture docs until 3.7 delivered |
 
 ---
 
