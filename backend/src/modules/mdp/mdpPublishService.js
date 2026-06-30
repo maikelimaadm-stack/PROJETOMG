@@ -121,13 +121,14 @@ export const mdpPublishService = {
 
   async compile({ moduleId, versionId, baseTemplateId, locale, draft }, scope) {
     const prisma = getPrismaClient();
-    const versionRow = versionId
-      ? await mdpPublishRepository.findVersionById(versionId)
-      : await mdpPublishRepository.findLatestPublished({
+    const versionRow =
+      (versionId && (await mdpPublishRepository.findVersionById(versionId))) ||
+      (await mdpPublishRepository.findLatestPublished({
           moduleId,
           clienteId: null,
           baseTemplateId: baseTemplateId ?? "modelobase1",
-        });
+        })) ||
+      (await mdpPublishRepository.findVersionById(MDP_PLATFORM_VERSION_ID));
 
     if (!versionRow) withStatus("Versão para compilação não encontrada.", 404);
     if (!draft && versionRow.status !== "published") {
@@ -577,12 +578,14 @@ export const mdpPublishService = {
     const locale = query.locale ?? DEFAULT_LOCALE;
     const environment = query.environment ?? "production";
 
-    const pin = await mdpPublishRepository.findEnvironmentPin({
-      moduleId,
-      environment,
-      clienteId: query.scope === "platform" ? null : scope.clienteId,
-      baseTemplateId,
-    });
+    const pin = moduleId
+      ? await mdpPublishRepository.findEnvironmentPin({
+          moduleId,
+          environment,
+          clienteId: query.scope === "platform" ? null : scope.clienteId,
+          baseTemplateId,
+        })
+      : null;
 
     const versionRow =
       (query.versionId && (await mdpPublishRepository.findVersionById(query.versionId))) ||

@@ -125,12 +125,12 @@ async function main() {
   );
 
   const cadcpsAplicaveis = await request(
-    "/api/cadcps/campos/aplicaveis?entity=EmpresaCadastro",
+    "/api/cadcps/aplicavel/EmpresaCadastro",
     { token, empresaId: empresaId || "2437" }
   );
   record(
     "cadcps",
-    "aplicaveis 200",
+    "aplicavel 200",
     cadcpsAplicaveis.status === 200,
     `status=${cadcpsAplicaveis.status}`
   );
@@ -139,13 +139,17 @@ async function main() {
     "/api/mdp/fields?page=1&pageSize=10",
     "/api/mdp/entities?page=1&pageSize=10",
     "/api/mdp/registry?page=1&pageSize=10",
-    "/api/mdp/introspect",
+    "/api/mdp/introspect?moduleId=empresas",
   ]) {
     const r = await request(path, { token });
     record("mdp", `${path.split("?")[0]} 200`, r.status === 200, `status=${r.status}`);
   }
 
-  const mdpCompile = await request("/api/mdp/compile/empresas", { method: "POST", token });
+  const mdpCompile = await request("/api/mdp/compile/empresas", {
+    method: "POST",
+    token,
+    body: { draft: true },
+  });
   record("mdp", "compile empresas 200", mdpCompile.status === 200, `status=${mdpCompile.status}`);
 
   runLocalGate("runtime-bridge", "node scripts/smoke-runtime-bridge.mjs");
