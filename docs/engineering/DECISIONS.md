@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-040 Contribution Engine — foundation closed)
+**Last updated:** 2026-06-30 (D-061 Enterprise Architecture Consolidation Audit)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -718,15 +718,29 @@
 
 ---
 
+---
+
 ## D-060 — Enterprise Intelligence Vision (Program 3.5A)
 
 | Field | Value |
 |-------|-------|
 | **Date** | 2026-06-30 |
 | **Status** | Accepted |
-| **Decision** | Adopt permanent **Enterprise Intelligence Vision** — freeze long-horizon architecture for enterprise intelligence on MAK. Register 8 vision documents: Enterprise Memory, Business DNA, Process Mining, Decision Intelligence, Consulting Engine, Business Health, Evolution Engine, Enterprise Operating System Principles. Register binding principles: memory and knowledge belong to the enterprise; continuous observation without external consulting; explainable intelligence; measurable evolution; AI accelerates but is never mandatory. **Documentation only** — no code, API, runtime, Foundation, Studio, MDP, Business Intent, Business Computation, Formula Builder, or Computation Engine changes. **Does not alter roadmap** — Program 3.5 Intent Resolver remains next implementation mission. |
+| **Decision** | Adopt permanent **Enterprise Intelligence Vision** — freeze long-horizon architecture for enterprise intelligence on MAK. Register 8 vision documents: Enterprise Memory, Business DNA, Process Mining, Decision Intelligence, Consulting Engine, Business Health, Evolution Engine, Enterprise Operating System Principles. Register binding principles: memory and knowledge belong to the enterprise; continuous observation without external consulting; explainable intelligence; measurable evolution; AI accelerates but is never mandatory. **Documentation only** — no code, API, runtime, Foundation, Studio, MDP, Business Intent, Business Computation, Formula Builder, or Computation Engine changes. **Does not alter roadmap** — Program 3.5 Intent Resolver remains next implementation mission after consolidation remediation. |
 | **Evidence** | `docs/architecture/MAK-ENTERPRISE-MEMORY-ARCHITECTURE.md` · `MAK-BUSINESS-DNA-ARCHITECTURE.md` · `MAK-PROCESS-MINING-ARCHITECTURE.md` · `MAK-DECISION-INTELLIGENCE-ARCHITECTURE.md` · `MAK-CONSULTING-ENGINE-ARCHITECTURE.md` · `MAK-BUSINESS-HEALTH-ARCHITECTURE.md` · `MAK-EVOLUTION-ENGINE-ARCHITECTURE.md` · `MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md` |
 | **Consequences** | Decades-long intelligence evolution has official contracts; future Memory, Mining, DNA, Health, Consulting programs avoid rework; implementation sequence unchanged |
+
+---
+
+## D-061 — Enterprise Architecture Consolidation Audit (Program 3.5B)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Execute the largest architectural audit in MAK history — **discovery only, zero implementation**. Audit all layers (Master Architecture, Foundation, Studio, Runtime, MDP, Business, Intelligence), all documentation, all Decisions (D-001–D-060), all Programs, all Gates, and all parameterization. Register findings in [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md), [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md), [ARCHITECTURE-CONSISTENCY-REPORT.md](./ARCHITECTURE-CONSISTENCY-REPORT.md), and [PROGRAM-SEQUENCE-VALIDATION.md](./PROGRAM-SEQUENCE-VALIDATION.md). **Permanent rule:** no new implementation may start until consolidation remediation missions complete. **Verdict:** platform **not officially consolidated** — 34 architecture debt items (5 P0 at audit time; AD-P0-05 resolved when D-060 merged to `main`). Studio engine stack certified; remaining P0 in doc drift, gate ID collisions, dual formula runtime plan. |
+| **Evidence** | [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) · [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) |
+| **Consequences** | Implementation resume blocked pending Program 3.5C remediation; Program 3.5 Intent Resolver authorized by D-059 but **blocked** by D-061 rule until remediation minimum |
 
 ---
 

@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.5A — Enterprise Intelligence Vision (D-060)  
+**Updated by:** Program 3.5B — Enterprise Architecture Consolidation Audit (D-061)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -30,7 +30,9 @@
 | **MDP (1C)** | **Complete & frozen** — D-025, D-026 |
 | **Runtime Bridge Phase 1** | **Complete** — D-030 |
 
-**Foundation Freeze (Studio):** No new Foundation layers until Program 2.3.6 (Computation Engine) is certified. See [D-052](./DECISIONS.md#d-052--studio-foundation-freeze-program-23x).
+**Foundation Freeze (Studio):** Frozen per **D-052** — Computation Engine certified (**G302**, Program 3.1). No new Foundation layers without architectural review.
+
+**Architecture consolidation rule (D-061):** **No new implementation** may start until consolidation remediation missions complete. See [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md).
 
 ---
 
@@ -41,7 +43,7 @@
 | **Current architecture level** | **L5 Experience Authoring** — MAK Studio operational (Shell + Layout + Field designers) |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | L5 Studio Intelligence — Intent Resolver next · L6 Enterprise Intelligence Vision frozen (D-060) |
+| **Current architecture stage** | L5 Studio Intelligence — consolidation audit complete (D-061); L6 Enterprise Intelligence Vision frozen (D-060); **implementation blocked** pending remediation |
 
 ---
 
@@ -50,29 +52,30 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.5A** — Enterprise Intelligence Vision (architecture only, D-060) |
+| **Last completed program** | **Program 3.5B** — Enterprise Architecture Consolidation Audit (discovery only, D-061) |
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-060** — Enterprise Intelligence Vision |
-| **Roadmap position** | **Unchanged** — Business Intent Resolver implementation next |
-| **Next official mission** | **Program 3.5** — Business Intent Resolver (implementation) · then **Business Computed Fields** |
+| **Last decision** | **D-061** — Enterprise Architecture Consolidation Audit |
+| **Roadmap position** | **Consolidation remediation (3.5C)** → **Program 3.5 Intent Resolver** → **Business Computed Fields** |
+| **Next official mission** | **Program 3.5C** — Enterprise Architecture Remediation — **not implementation** until P0 debt cleared |
 
 ---
 
-## Documental Cycle Closure (Programs 3.3 + 3.4)
+## Documental Cycle Closure (Programs 3.3 + 3.4 + 3.5A)
 
 | Item | Status |
 |------|--------|
 | **Program 3.3** — Business Computation Layer (D-058) | ✅ On `main` (PR #342) |
 | **Program 3.4** — Business Intent Authoring (D-059) | ✅ On `main` (PR #343) |
+| **Program 3.5A** — Enterprise Intelligence Vision (D-060) | ✅ On `main` (PR #346) |
+| **Program 3.5B** — Architecture Consolidation Audit (D-061) | ⏳ PR #347 |
 | **PR #343** | ✅ Merged — referência definitiva do ciclo 3.3+3.4 |
-| **PR #342** | ✅ Merged · **substituída por #343** para governança · branch removida |
-| **Branches removidas** | `cursor/business-computation-layer-0b52` · `cursor/business-intent-authoring-0b52` |
-| **PRs documentais pendentes (3.3/3.4)** | **Nenhuma** |
-| **Próximo passo** | **Program 3.5** — Business Intent Resolver (implementação) |
+| **Próximo passo** | Remediation missions per [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) · then Program 3.5 Intent Resolver |
 
-**Visão Intelligence (3.5A) na `main` (após merge):** [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](../architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) · [DOCUMENT-MAP § L1b](./DOCUMENT-MAP.md#l1b--enterprise-intelligence-vision-program-35a-d-060)
+**Visão Intelligence (3.5A) na `main`:** [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](../architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) · [DOCUMENT-MAP § L1b](./DOCUMENT-MAP.md#l1b--enterprise-intelligence-vision-program-35a-d-060)
 
 **Arquitetura Studio (3.3+3.4):** [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) · [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)
+
+**Auditoria (3.5B):** [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) · [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md)
 
 ---
 
@@ -180,7 +183,8 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | Config engines V13–V20 | G156–G261 | G261 |
 | Studio architecture | G279–G284 | G284 |
 | Studio programs | G285–G303A | **G303A** (Formula Builder) |
-| **Next expected** | Business Computed Fields (impl) | Gate G303B planned |
+| **Next expected (Studio)** | Intent Resolver (impl) | Gate G304 **planned — ID collision with deploy G304** (AD-P0-03) |
+| **Consolidation status** | **Not officially consolidated** | [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) |
 
 Full gate scripts: `scripts/gate-*.mjs` · invoked via `npm run gate:capabilities`
 
@@ -191,7 +195,7 @@ Full gate scripts: `scripts/gate-*.mjs` · invoked via `npm run gate:capabilitie
 | Item | Status |
 |------|--------|
 | `main` synchronized | ✅ |
-| Open PRs | #296 (obsolete), #307 (deferred/conflict) — close manually |
+| Open PRs | #347 (3.5B audit) — merge pending |
 | Superseded Studio branches | Deleted from remote |
 | Local stale branches | ~63 `cursor/*579b` — safe to prune locally |
 | Working tree | Clean on `main` |
