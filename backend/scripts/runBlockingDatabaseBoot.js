@@ -268,6 +268,28 @@ export const runBlockingDatabaseBoot = async (log = console) => {
     });
   }
 
+  try {
+    const { ensureMdpSchema, verifyMdpSchemaReady } = await import("./ensureMdpSchema.js");
+    const mdpBefore = await verifyMdpSchemaReady();
+    report.steps.push({ step: "verify_mdp_schema_before", ok: mdpBefore.ready, result: mdpBefore });
+    if (!mdpBefore.ready || mdpBefore.entityCount === 0) {
+      const mdpEnsure = await ensureMdpSchema({ log });
+      report.steps.push({ step: "ensure_mdp_schema", ok: true, result: mdpEnsure });
+    }
+    const mdpAfter = await verifyMdpSchemaReady();
+    report.mdpSchema = mdpAfter;
+    report.steps.push({ step: "verify_mdp_schema_after", ok: mdpAfter.ready, result: mdpAfter });
+    if (!mdpAfter.ready) {
+      throw new Error(
+        `Schema MDP incompleto (${mdpAfter.missingTables.join(", ")}). Verifique DIRECT_URL e logs [ensure-mdp].`
+      );
+    }
+  } catch (error) {
+    logMessage(log, "error", `[boot-blocking] ensureMdpSchema falhou: ${error.message}`);
+    report.steps.push({ step: "ensure_mdp_schema", ok: false, error: error.message });
+    throw error;
+  }
+
   const preferencesSchema = await verifyUserPreferencesSchemaReady();
   report.steps.push({
     step: "verify_usuario_preferencia_schema",
