@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.14 — Consulting Engine MVP (D-080)  
+**Updated by:** Program 3.15 — Decision Engine MVP (D-081)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -15,7 +15,7 @@
 | Field | Value |
 |-------|-------|
 | **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **Consulting Engine live (D-080, G312)** — under D-074 identity |
+| **Implementation phase** | **Decision Engine live (D-081, G313)** — under D-074 identity |
 | **Implementation authorized** | **Yes** — [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 | **Primary user surface** | **BOS home (`/`)** — [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
 
@@ -63,9 +63,9 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed mission** | **Program 3.14** — Consulting Engine MVP (D-080, G312) |
-| **Last decision** | **D-080** — Consulting Engine implemented |
-| **Next official mission** | **Program 3.15+** — Decision / Evolution engines |
+| **Last completed mission** | **Program 3.15** — Decision Engine MVP (D-081, G313) |
+| **Last decision** | **D-081** — Decision Engine implemented |
+| **Next official mission** | **Program 3.16+** — Evolution Engine |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 

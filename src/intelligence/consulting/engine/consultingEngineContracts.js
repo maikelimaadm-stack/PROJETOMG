@@ -44,7 +44,7 @@ export const CONSULTING_OWNERSHIP = Object.freeze({
 });
 
 export const CONSULTING_ENGINE_EXTENSION_POINTS = Object.freeze([
-  Object.freeze({ id: "decision.engine", implemented: false, consumes: ["consulting.engine"] }),
+  Object.freeze({ id: "decision.engine", implemented: true, consumes: ["consulting.engine"] }),
   Object.freeze({ id: "evolution.engine", implemented: false, consumes: ["consulting.engine"] }),
   Object.freeze({ id: "intent.engine", implemented: false, consumes: ["consulting.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),

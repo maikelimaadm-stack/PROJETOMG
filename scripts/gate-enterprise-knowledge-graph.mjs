@@ -161,7 +161,7 @@ gate(
 gate(
   "G311 — Future engine bridges ready",
   bridgeKnowledgeToConsulting(tenantA).consultingEngineReady === true &&
-    bridgeKnowledgeToDecision(tenantA).decisionEngineReady === false &&
+    bridgeKnowledgeToDecision(tenantA).decisionEngineReady === true &&
     bridgeKnowledgeToEvolution(tenantA).evolutionEngineReady === false
 );
 
