@@ -25,14 +25,13 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
-| **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · Continuous implementation phase |
-| **D-067** — Business Intent Resolver Implementation |
-| **Decision** | D-070 — Enterprise Platform Deep Audit (Program 3.8.6) |
-| **Last Audit** | Program 3.8.6 — 11 deep audit reports (D-070) |
-| **Roadmap Position** | **Program 3.9 — Business Workflow** |
-| **Current Architecture Stage** | Structural architecture frozen · **Business Computed Field asset (G306)** |
-| **Current Studio Stage** | Business Computed Field ✅ (G306) · Intent Resolver ✅ (G305) · Formula Builder ✅ (G303A) |
-| **Next Official Mission** | **Program 3.9** — Business Workflow |
+| **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Remediation & Consolidation (D-073)** |
+| **Decision** | D-073 — Platform Remediation & Product Alignment |
+| **Phase** | **Remediation & Consolidation** — Programs paused |
+| **Product Identity SSOT** | [MAK-PRODUCT-IDENTITY.md](./docs/architecture/MAK-PRODUCT-IDENTITY.md) |
+| **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
+| **Remediation Register** | [PLATFORM-REMEDIATION-REGISTER.md](./docs/engineering/PLATFORM-REMEDIATION-REGISTER.md) |
+| **Next Official Mission** | **Remediation gate** — not Program 3.9 |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 

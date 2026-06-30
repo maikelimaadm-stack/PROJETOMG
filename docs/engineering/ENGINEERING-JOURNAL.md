@@ -1,7 +1,16 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.8.6 Enterprise Platform Deep Audit — D-070)
+**Last updated:** 2026-06-30 (D-073 Platform Remediation Cycle 1)
+
+---
+
+## 2026-06-30 — Platform Remediation Cycle 1 (D-073)
+
+**Scope:** Product alignment · VA-01–06, VA-08 SSOT registration · **no code/UI/Runtime**  
+**Deliverables:** BOS Architecture, Product Identity, Expert Mode boundary, Navigation model, Legacy Transition Register, Platform Remediation Register  
+**Decision:** D-073 — Remediation active; Programs paused  
+**Key outcome:** Vision adjustments architecturally binding; remediation gate defined (VA-07 pending)
 
 ---
 

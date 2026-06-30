@@ -97,7 +97,8 @@
 | **3.8.5** | **Enterprise Vision Compliance Audit** | D-069 | **complete (audit)** | 3.8 ✅ |
 | **3.8.6** | **Enterprise Platform Deep Audit** | D-070 | **complete (audit)** | 3.8.5 ✅ |
 | **3.8.7** | **Enterprise Vision Alignment Audit** | D-072 | **complete (audit)** | 3.8.6 ✅ |
-| **3.9** | **Business Workflow** | D-063 | **paused — vision gate** | 3.8.7 ✅ |
+| **—** | **Platform Remediation & Product Alignment** | D-073 | **active** | 3.8.7 ✅ |
+| **3.9** | **Business Workflow** | D-063 | **paused — remediation gate** | D-073 |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 

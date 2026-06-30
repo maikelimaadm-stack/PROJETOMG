@@ -41,6 +41,8 @@
 | **Business Language Architecture** | **[MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md)** (**D-065** — Program 3.6.8) |
 | **Enterprise Vision Audit (3.8.5)** | **[ENTERPRISE-VISION-COMPLIANCE-AUDIT.md](./ENTERPRISE-VISION-COMPLIANCE-AUDIT.md)** |
 | **Enterprise Vision Alignment Audit (3.8.7)** | **[ENTERPRISE-VISION-ALIGNMENT-AUDIT.md](./ENTERPRISE-VISION-ALIGNMENT-AUDIT.md)** (**D-072**) |
+| **Business Operating Shell** | **[MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md)** (**D-073**) |
+| **Product Identity** | **[MAK-PRODUCT-IDENTITY.md](../architecture/MAK-PRODUCT-IDENTITY.md)** (**D-073**) |
 | **Enterprise Organization Architecture** | **[MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md)** (**D-066** — Program 3.6.9) |
 | Business Object Model | [MAK-BUSINESS-OBJECT-MODEL.md](../architecture/MAK-BUSINESS-OBJECT-MODEL.md) |
 | Knowledge Architecture | [MAK-KNOWLEDGE-ARCHITECTURE.md](../architecture/MAK-KNOWLEDGE-ARCHITECTURE.md) |
@@ -121,7 +123,7 @@
 | **Document Classification** | **[DOCUMENT-CLASSIFICATION.md](./DOCUMENT-CLASSIFICATION.md)** |
 | **Formula Runtime Unification Plan** | **[FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md)** |
 | **Architecture Remediation Report** | **[ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md)** (**D-062** — Program 3.5C) |
-| **Sanitization Cycle 1** | [PLATFORM-SANITIZATION-CYCLE-1-REPORT.md](./PLATFORM-SANITIZATION-CYCLE-1-REPORT.md) (**D-071**) |
+| **Platform Remediation (D-073)** | **[PLATFORM-REMEDIATION-REGISTER.md](./PLATFORM-REMEDIATION-REGISTER.md)** · [LEGACY-TRANSITION-REGISTER.md](./LEGACY-TRANSITION-REGISTER.md) · [EXPERT-MODE-AND-STUDIO-BOUNDARY.md](./EXPERT-MODE-AND-STUDIO-BOUNDARY.md) |
 | **Intent derivation kind SSOT** | [INTENT-DERIVATION-KIND-SSOT.md](./INTENT-DERIVATION-KIND-SSOT.md) |
 
 ---
