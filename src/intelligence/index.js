@@ -193,10 +193,48 @@ export { buildEvolutionEngineBosProjection } from "./evolution/engine/evolutionT
 export {
   bridgeEvolutionToConsulting,
   bridgeEvolutionToDecision,
+  bridgeEvolutionToDna,
   bridgeEvolutionToIntent,
 } from "./evolution/engine/evolutionToIntelligenceBridges.js";
 export { buildEvolutionSeedsRegistry } from "./evolution/engine/evolutionSeedsRegistry.js";
 export { runEvolutionEngine } from "./evolution/engine/runEvolutionEngine.js";
+
+export {
+  BUSINESS_DNA_ENGINE_VERSION,
+  BUSINESS_DNA_DOCUMENT_TYPES,
+  DNA_PATTERN_TYPES,
+  DNA_ENGINE_EXTENSION_POINTS,
+} from "./dna/engine/businessDnaContracts.js";
+export {
+  listDnaProfiles,
+  listDnaFingerprints,
+  listDnaPatterns,
+  listDnaMaturityRecords,
+  getBusinessDnaStoreInfo,
+  registerAuthorizedGroupScope,
+  getAuthorizedGroupScope,
+  isTenantAuthorizedInGroup,
+} from "./dna/engine/businessDnaStore.js";
+export { assembleBusinessDnaContext } from "./dna/engine/businessDnaContextAssembly.js";
+export { computeDnaCapabilityMaturity } from "./dna/engine/businessDnaMaturityModel.js";
+export {
+  analyzeBusinessDnaContext,
+  ingestEvolutionToBusinessDna,
+  replayBusinessDnaFromStack,
+} from "./dna/engine/evolutionToDnaIngestion.js";
+export { retrieveBusinessDnaByContext, retrieveLatestBusinessDna } from "./dna/engine/businessDnaRetrieval.js";
+export { summarizeBusinessDnaEngine } from "./dna/engine/businessDnaSummarization.js";
+export { buildBusinessDnaBosProjection } from "./dna/engine/businessDnaToBosProjection.js";
+export {
+  bridgeDnaToConsulting,
+  bridgeDnaToDecision,
+  bridgeDnaToEvolution,
+} from "./dna/engine/businessDnaToIntelligenceBridges.js";
+export { buildBusinessDnaSeedsRegistry } from "./dna/engine/businessDnaSeedsRegistry.js";
+export { buildPortfolioView } from "./dna/engine/portfolioView.js";
+export { aggregateGroupMaturity, resolveAuthorizedGroupScope } from "./dna/engine/groupMaturityAggregation.js";
+export { buildCorporateBenchmarking, buildCrossCompanyComparison } from "./dna/engine/corporateBenchmarking.js";
+export { runBusinessDnaEngine } from "./dna/engine/runBusinessDnaEngine.js";
 
 export default {
   version: "mak-enterprise-intelligence-v1",

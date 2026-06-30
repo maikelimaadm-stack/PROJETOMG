@@ -4,9 +4,17 @@ import { buildKnowledgeGraphBosProjection } from "../knowledge/graph/knowledgeTo
 import { buildConsultingEngineBosProjection } from "../consulting/engine/consultingToBosProjection.js";
 import { buildDecisionEngineBosProjection } from "../decision/engine/decisionToBosProjection.js";
 import { buildEvolutionEngineBosProjection } from "../evolution/engine/evolutionToBosProjection.js";
+import { buildBusinessDnaBosProjection } from "../dna/engine/businessDnaToBosProjection.js";
+import { buildPortfolioView } from "../dna/engine/portfolioView.js";
+import {
+  bridgeDnaToConsulting,
+  bridgeDnaToDecision,
+  bridgeDnaToEvolution,
+} from "../dna/engine/businessDnaToIntelligenceBridges.js";
 import {
   bridgeEvolutionToConsulting,
   bridgeEvolutionToDecision,
+  bridgeEvolutionToDna,
   bridgeEvolutionToIntent,
 } from "../evolution/engine/evolutionToIntelligenceBridges.js";
 import {
@@ -22,13 +30,17 @@ import { bridgeKnowledgeToConsulting, bridgeKnowledgeToDecision, bridgeKnowledge
 import { processObservationLayer } from "../observation/observationLayer.js";
 import { listImprovementOpportunities } from "../registry/improvementOpportunityRegistry.js";
 
-/** BOS-facing projection — Memory Engine + Knowledge Graph */
-export function buildIntelligenceHomeProjection(tenantId = "default") {
+/** BOS-facing projection — full intelligence stack including Business DNA */
+export function buildIntelligenceHomeProjection(tenantId = "default", options = {}) {
   const memoryProjection = buildMemoryEngineBosProjection(tenantId);
   const knowledgeProjection = buildKnowledgeGraphBosProjection(tenantId);
   const consultingProjection = buildConsultingEngineBosProjection(tenantId);
   const decisionProjection = buildDecisionEngineBosProjection(tenantId);
   const evolutionProjection = buildEvolutionEngineBosProjection(tenantId);
+  const dnaProjection = buildBusinessDnaBosProjection(tenantId);
+  const portfolioProjection = options.groupId
+    ? buildPortfolioView(options.groupId, tenantId)
+    : null;
   const observation = processObservationLayer(tenantId);
   const improvements = listImprovementOpportunities(tenantId);
 
@@ -94,6 +106,25 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
     evolutionWhyRecommended: evolutionProjection.whyRecommended,
     evolutionPeriodComparison: evolutionProjection.periodComparison,
     evolutionDecisionImpact: evolutionProjection.accumulatedDecisionImpact,
+    hasDna: dnaProjection.hasDna,
+    dnaSummary: dnaProjection.summary,
+    dnaIdentityHeadline: dnaProjection.identityHeadline,
+    dnaIdentityNarrative: dnaProjection.identityNarrative,
+    dnaWhoIsThisCompany: dnaProjection.whoIsThisCompany,
+    dnaHowThisCompanyWorks: dnaProjection.howThisCompanyWorks,
+    dnaMaturityLevel: dnaProjection.maturityLevel,
+    dnaMaturityByCapability: dnaProjection.maturityByCapability,
+    dnaCapabilityRadar: dnaProjection.capabilityRadar,
+    dnaOperationalPatterns: dnaProjection.operationalPatterns,
+    dnaCulturalPatterns: dnaProjection.culturalPatterns,
+    dnaMilestones: dnaProjection.milestones,
+    dnaGrowthSignals: dnaProjection.growthSignals,
+    dnaFingerprintTraits: dnaProjection.fingerprintTraits,
+    dnaFingerprintLabel: dnaProjection.fingerprintLabel,
+    dnaWhereMatured: dnaProjection.whereMatured,
+    dnaWhereNeedsEvolution: dnaProjection.whereNeedsEvolution,
+    dnaMaturityTimeline: dnaProjection.maturityTimeline,
+    dnaPortfolio: portfolioProjection,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -111,7 +142,13 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
     evolutionBridges: Object.freeze({
       consulting: bridgeEvolutionToConsulting(tenantId),
       decision: bridgeEvolutionToDecision(tenantId),
+      dna: bridgeEvolutionToDna(tenantId),
       intent: bridgeEvolutionToIntent(tenantId),
+    }),
+    dnaBridges: Object.freeze({
+      consulting: bridgeDnaToConsulting(tenantId),
+      decision: bridgeDnaToDecision(tenantId),
+      evolution: bridgeDnaToEvolution(tenantId),
     }),
   });
 }

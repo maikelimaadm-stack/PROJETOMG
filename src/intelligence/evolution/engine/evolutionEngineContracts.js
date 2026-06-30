@@ -42,7 +42,7 @@ export const EVOLUTION_OWNERSHIP = Object.freeze({
 });
 
 export const EVOLUTION_ENGINE_EXTENSION_POINTS = Object.freeze([
-  Object.freeze({ id: "business.dna", implemented: false, consumes: ["evolution.engine"] }),
+  Object.freeze({ id: "business.dna", implemented: true, consumes: ["evolution.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);
 
