@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-28 (Program 2.3.5 Studio Evaluation Engine)
+**Last updated:** 2026-06-30 (Program 2.3.X Repository Stabilization)
+
+---
+
+## 2026-06-30 — Program 2.3.X: Repository Stabilization
+
+**Scope:** Railway audit, merge strategy, PR #329 consolidation, branch cleanup, post-merge validation, v0.4.0-RC1  
+**Changes:** Merge Programs 2.1A–2.3.5 to `main`; delete 15 superseded remote branches; release RC tag  
+**Report:** [IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md)  
+**Decision:** D-052 — Studio Foundation Freeze
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles · Railway health · runtime bridge smoke ✅  
+**Next:** Program 2.3.6 — Studio Computation Engine (**authorized**)
 
 ---
 

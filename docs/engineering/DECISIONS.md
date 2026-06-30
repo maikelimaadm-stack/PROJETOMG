@@ -618,6 +618,18 @@
 
 ---
 
+## D-052 — Studio Foundation Freeze (Program 2.3.X)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | **Freeze** the MAK Studio Foundation (Programs 2.0–2.3.5) in `main` after Repository Stabilization. Consolidate stacked PR chain via merge commit (PR #329). Issue internal Release Candidate **v0.4.0-RC1**. **Authorize** Program 2.3.6 (Studio Computation Engine). No new Foundation layers until Computation Engine is certified. |
+| **Evidence** | [IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md) |
+| **Consequences** | Program 2.3.6 may begin; structural debt TD-S01–S07 tracked for cleanup missions; superseded branches deleted |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
