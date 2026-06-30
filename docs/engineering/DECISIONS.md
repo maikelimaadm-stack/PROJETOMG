@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-079 Enterprise Knowledge Graph MVP)
+**Last updated:** 2026-06-30 (D-080 Consulting Engine MVP)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -957,6 +957,18 @@
 | **Decision** | Implement first **Enterprise Knowledge Graph** from certified Memory Engine. Tenant-scoped nodes/edges, semantic relationships, traversal, retrieval, BOS projections. Knowledge belongs to enterprise — not AI/Studio/Runtime. Gate **G311**. |
 | **Evidence** | `src/intelligence/knowledge/graph/**` · [PROGRAM-3.13-ENTERPRISE-KNOWLEDGE-GRAPH-REPORT.md](./PROGRAM-3.13-ENTERPRISE-KNOWLEDGE-GRAPH-REPORT.md) |
 | **Consequences** | Knowledge graph MVP live; Consulting/Decision/Evolution consume bridges |
+
+---
+
+## D-080 — Consulting Engine MVP (Program 3.14)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement first **Consulting Engine** consuming Memory + Knowledge Graph. Tenant-scoped analyses, improvement plans, explainable recommendations. Consulting belongs to enterprise — observational, never autonomous. Gate **G312**. |
+| **Evidence** | `src/intelligence/consulting/engine/**` · [PROGRAM-3.14-CONSULTING-ENGINE-REPORT.md](./PROGRAM-3.14-CONSULTING-ENGINE-REPORT.md) |
+| **Consequences** | Consulting MVP live; Decision/Evolution consume bridges; BOS shows operational recommendations |
 
 ---
 

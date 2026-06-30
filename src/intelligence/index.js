@@ -105,6 +105,35 @@ export {
 export { buildKnowledgeSeedsRegistry } from "./knowledge/graph/knowledgeSeedsRegistry.js";
 export { runKnowledgeGraphEngine } from "./knowledge/graph/runKnowledgeGraphEngine.js";
 
+export {
+  ENTERPRISE_CONSULTING_ENGINE_VERSION,
+  CONSULTING_DOCUMENT_TYPES,
+  CONSULTING_SIGNAL_TYPES,
+  CONSULTING_ENGINE_EXTENSION_POINTS,
+} from "./consulting/engine/consultingEngineContracts.js";
+export {
+  listConsultingDocuments,
+  listConsultingRecommendations,
+  listImprovementPlans,
+  getConsultingEngineStoreInfo,
+} from "./consulting/engine/consultingEngineStore.js";
+export { assembleConsultingContext } from "./consulting/engine/consultingContextAssembly.js";
+export {
+  analyzeConsultingContext,
+  ingestKnowledgeGraphToConsulting,
+  replayConsultingFromMemoryAndGraph,
+} from "./consulting/engine/graphToConsultingIngestion.js";
+export { retrieveConsultingByContext } from "./consulting/engine/consultingRetrieval.js";
+export { summarizeConsultingEngine } from "./consulting/engine/consultingSummarization.js";
+export { buildConsultingEngineBosProjection } from "./consulting/engine/consultingToBosProjection.js";
+export {
+  bridgeConsultingToDecision,
+  bridgeConsultingToEvolution,
+  bridgeConsultingToIntent,
+} from "./consulting/engine/consultingToIntelligenceBridges.js";
+export { buildConsultingSeedsRegistry } from "./consulting/engine/consultingSeedsRegistry.js";
+export { runConsultingEngine } from "./consulting/engine/runConsultingEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };

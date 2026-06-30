@@ -55,7 +55,7 @@ export const KNOWLEDGE_OWNERSHIP = Object.freeze({
 });
 
 export const KNOWLEDGE_GRAPH_EXTENSION_POINTS = Object.freeze([
-  Object.freeze({ id: "consulting.engine", implemented: false, consumes: ["knowledge.graph"] }),
+  Object.freeze({ id: "consulting.engine", implemented: true, consumes: ["knowledge.graph"] }),
   Object.freeze({ id: "decision.engine", implemented: false, consumes: ["knowledge.graph"] }),
   Object.freeze({ id: "evolution.engine", implemented: false, consumes: ["knowledge.graph"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
