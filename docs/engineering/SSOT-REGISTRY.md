@@ -33,7 +33,7 @@
 | **Decisions** | [DECISIONS.md](./DECISIONS.md) | [ENGINEERING-JOURNAL.md](./ENGINEERING-JOURNAL.md) | — |
 | **Doc hierarchy index** | [DOCUMENT-MAP.md](./DOCUMENT-MAP.md) | — | — |
 | **Gates** | [GATE-REGISTRY.md](./GATE-REGISTRY.md) | [RULE-DEPLOY-002.md](./RULE-DEPLOY-002.md) | Deploy docs citing old G303/G304 IDs |
-| **Governance umbrella** | [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) | — | — |
+| **Enterprise Vision Compliance Audit** | [ENTERPRISE-VISION-COMPLIANCE-AUDIT.md](./ENTERPRISE-VISION-COMPLIANCE-AUDIT.md) | Program 3.8.5 audit suite | — |
 | **Architecture debt** | [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) | — |
 | **Code tech debt** | [TECH-DEBT.md](./TECH-DEBT.md) | — | — |
 

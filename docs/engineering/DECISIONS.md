@@ -828,6 +828,18 @@
 
 ---
 
+## D-069 — Enterprise Vision Compliance Audit (Program 3.8.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Conduct mandatory **Enterprise Vision Compliance Audit** (Program 3.8.5) — documentation-only strategic audit validating platform adherence to [MAK 2035 Platform Vision](../vision/MAK-2035-PLATFORM-VISION.md) and EOS principles as of Program 3.8. Produce five audit reports: ENTERPRISE-VISION-COMPLIANCE-AUDIT, USER-EXPERIENCE-JOURNEY-AUDIT, BUSINESS-AUTHORING-AUDIT, PLATFORM-CONSISTENCY-AUDIT, FUTURE-RISKS-AUDIT. Classify findings P0–P3. **Authorize Program 3.9** contingent on audit completion and P0 acknowledgment. **No code, API, database, Foundation, Runtime, Studio, or implementation changes.** |
+| **Evidence** | `docs/engineering/ENTERPRISE-VISION-COMPLIANCE-AUDIT.md` · `USER-EXPERIENCE-JOURNEY-AUDIT.md` · `BUSINESS-AUTHORING-AUDIT.md` · `PLATFORM-CONSISTENCY-AUDIT.md` · `FUTURE-RISKS-AUDIT.md` |
+| **Consequences** | Vision–implementation delta documented; P0 runtime/UX debt explicit; Program 3.9 authorized |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
