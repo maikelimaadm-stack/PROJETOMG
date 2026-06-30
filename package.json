@@ -40,6 +40,7 @@
     "audit:stress-scale": "node scripts/stressScaleTest.mjs",
     "audit:post-deploy": "node scripts/postDeployValidation.mjs",
     "smoke:production": "node scripts/productionStabilizationSmoke.mjs",
+    "smoke:recovery-certification": "node scripts/deploymentRecoveryCertificationSmoke.mjs",
     "test:filters:frontend": "npx vite-node scripts/tests/frontend-filter-builder.unit.mjs",
     "test:filters:backend": "npm --prefix backend run test:filters:semantics",
     "test:filters:e2e": "npx vite-node scripts/tests/e2e-filtros-avancados-consistency.mjs",
