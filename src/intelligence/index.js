@@ -167,6 +167,37 @@ export {
 export { buildDecisionSeedsRegistry } from "./decision/engine/decisionSeedsRegistry.js";
 export { runDecisionEngine } from "./decision/engine/runDecisionEngine.js";
 
+export {
+  ENTERPRISE_EVOLUTION_ENGINE_VERSION,
+  EVOLUTION_DOCUMENT_TYPES,
+  EVOLUTION_SIGNAL_TYPES,
+  EVOLUTION_ENGINE_EXTENSION_POINTS,
+} from "./evolution/engine/evolutionEngineContracts.js";
+export {
+  listEvolutionDocuments,
+  listEvolutionPlans,
+  listEvolutionRoadmaps,
+  getEvolutionEngineStoreInfo,
+} from "./evolution/engine/evolutionEngineStore.js";
+export { assembleEvolutionContext } from "./evolution/engine/evolutionContextAssembly.js";
+export { buildEvolutionTimeline } from "./evolution/engine/evolutionTimeline.js";
+export {
+  analyzeEvolutionContext,
+  ingestDecisionToEvolution,
+  replayEvolutionFromStack,
+} from "./evolution/engine/decisionToEvolutionIngestion.js";
+export { retrieveEvolutionByContext } from "./evolution/engine/evolutionRetrieval.js";
+export { summarizeEvolutionEngine } from "./evolution/engine/evolutionSummarization.js";
+export { computeEvolutionMaturity } from "./evolution/engine/evolutionMaturityModel.js";
+export { buildEvolutionEngineBosProjection } from "./evolution/engine/evolutionToBosProjection.js";
+export {
+  bridgeEvolutionToConsulting,
+  bridgeEvolutionToDecision,
+  bridgeEvolutionToIntent,
+} from "./evolution/engine/evolutionToIntelligenceBridges.js";
+export { buildEvolutionSeedsRegistry } from "./evolution/engine/evolutionSeedsRegistry.js";
+export { runEvolutionEngine } from "./evolution/engine/runEvolutionEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };

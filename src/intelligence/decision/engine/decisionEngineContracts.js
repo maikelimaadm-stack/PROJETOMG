@@ -41,7 +41,7 @@ export const DECISION_OWNERSHIP = Object.freeze({
 });
 
 export const DECISION_ENGINE_EXTENSION_POINTS = Object.freeze([
-  Object.freeze({ id: "evolution.engine", implemented: false, consumes: ["decision.engine"] }),
+  Object.freeze({ id: "evolution.engine", implemented: true, consumes: ["decision.engine"] }),
   Object.freeze({ id: "intent.engine", implemented: false, consumes: ["decision.engine"] }),
   Object.freeze({ id: "ai.chat.assistant", implemented: false, forbiddenForBusinessUser: true }),
 ]);

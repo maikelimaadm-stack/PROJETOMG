@@ -13,6 +13,7 @@ import { appendDecisionAuditEntry } from "./decisionAuditTrail.js";
 import { registerDecisionVersion } from "./decisionVersioning.js";
 import { summarizeDecisionEngine } from "./decisionSummarization.js";
 import { replayConsultingFromMemoryAndGraph } from "../../consulting/engine/graphToConsultingIngestion.js";
+import { ingestDecisionToEvolution } from "../../evolution/engine/decisionToEvolutionIngestion.js";
 
 /** Analyze consulting output and produce decision support artifacts */
 export function analyzeDecisionContext(tenantId = "default") {
@@ -115,7 +116,13 @@ export function analyzeDecisionContext(tenantId = "default") {
 
 /** Ingest from consulting analysis — non-blocking trigger */
 export function ingestConsultingToDecision(tenantId) {
-  return analyzeDecisionContext(tenantId);
+  const result = analyzeDecisionContext(tenantId);
+  try {
+    ingestDecisionToEvolution(tenantId);
+  } catch {
+    /* observational — never block business operation */
+  }
+  return result;
 }
 
 /** Replay decision analysis from full stack */
