@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 3.7 Business Intent Resolver Implementation (D-067, G305)
+**Verified by:** Program 3.8 Business Computed Fields (D-068, G306)
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -28,6 +28,8 @@
 | **MAK Business Language Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md` (**D-065** — business language SSOT) |
 | **MAK Enterprise Organization Architecture** | v1.0.0 | `docs/architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md` (**D-066**) |
 | **Business Intent Resolver (impl)** | v1.0.0 | `src/studio/intent/` (**D-067**, G305) |
+| **Business Computed Field (impl)** | v1.0.0 | `src/studio/business/` (**D-068**, G306) |
+| **Business Asset Authoring Principles** | v1.0.0 | `docs/architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md` (**D-068**) |
 | **MAK Business Intent Authoring Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md` (**D-059** — Intent SSOT) |
 | **MAK Business Computation Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md` (**D-058**) |
 | **Architecture Remediation (3.5C)** | v1.0.0 | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) (**D-062**) |
@@ -56,7 +58,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 | Program | Priority | Brief |
 |---------|----------|-------|
 | **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Studio Intelligence 3.1–3.2 ✅; Enterprise vision ✅ (D-057); Intent Authoring ✅ (D-059, docs)** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) |
-| **Program 3 — Studio Intelligence** | P1 — **3.7 Resolver ✅ (G305)** · **Program 3.8 Computed Fields next** | `src/studio/intent/` |
+| **Program 3 — Studio Intelligence** | P1 — **3.8 Business Computed Field ✅ (G306)** · **Program 3.9 Workflow next** | `src/studio/business/` |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -174,7 +176,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Intent Resolver ✅ (G305)** · **Program 3.8 Computed Fields next** |
+| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Business Computed Field ✅ (G306)** · **Program 3.9 Workflow next** |
 | Enterprise Intent / Knowledge / Intelligence / Twin | **Vision documented ✅ (D-057)** · **3.5A Intelligence docs ✅ (D-060, on `main`)** · **Intent Authoring architecture ✅ (D-059)** — **no implementation** |
 | Business Intent authoring UI | Architecture only — user creates Intentions only (no NLP/AI) |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |

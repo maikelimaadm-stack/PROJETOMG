@@ -103,7 +103,15 @@ export function validateFileDependencies(filePath, content) {
     }
 
     DEPENDENCY_STACK.forEach((targetEntry) => {
-      const matchesTarget = targetEntry.paths.some((p) => resolved.includes(`studio/${p}/`) || resolved.includes(`/${p}/`));
+      const matchesTarget = targetEntry.paths.some((p) => {
+        if (resolved.includes(`studio/${p}/`)) return true;
+        if (resolved.startsWith(".")) {
+          const sourceDir = path.dirname(relativePath);
+          const normalizedTarget = path.normalize(path.join(sourceDir, resolved)).replace(/\\/g, "/");
+          return normalizedTarget.startsWith(`${p}/`);
+        }
+        return resolved.includes(`/${p}/`);
+      });
       if (!matchesTarget) return;
 
       const targetLayerIndex = getLayerIndex(targetEntry.layerId);

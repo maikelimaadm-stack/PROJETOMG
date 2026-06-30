@@ -185,6 +185,19 @@ export {
   RESOLVER_EXTENSION_POINTS,
 } from "./intent/index.js";
 export {
+  BUSINESS_COMPUTED_FIELD_VERSION,
+  BUSINESS_COMPUTED_DOCUMENT_VERSION,
+  BUSINESS_COMPUTED_ASSET_TYPE,
+  DERIVATION_KIND_COMPUTED_FIELD,
+  ARTIFACT_TYPE_BUSINESS_COMPUTED_FIELD,
+  buildBusinessComputedAsset,
+  createBusinessComputedField,
+  createBusinessComputedDocument,
+  validateBusinessComputedField,
+  buildBusinessComputedExplainability,
+  createFormulaProjectionFromComputedField,
+} from "./business/index.js";
+export {
   UniversalExplorer,
   UniversalInspector,
   UniversalPropertyGrid,

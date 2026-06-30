@@ -26,11 +26,12 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · Continuous implementation phase |
-| **Last Decision** | **D-067** — Business Intent Resolver Implementation |
-| **Roadmap Position** | **Program 3.8 — Business Computed Fields** |
-| **Current Architecture Stage** | Structural architecture frozen · **Resolver implemented (G305)** |
-| **Current Studio Stage** | Intent Resolver ✅ (G305) · Formula Builder ✅ (G303A) |
-| **Next Official Mission** | **Program 3.8** — Business Computed Fields |
+| **D-067** — Business Intent Resolver Implementation |
+| **Decision** | D-068 — Business Computed Fields (Program 3.8) |
+| **Roadmap Position** | **Program 3.9 — Business Workflow** |
+| **Current Architecture Stage** | Structural architecture frozen · **Business Computed Field asset (G306)** |
+| **Current Studio Stage** | Business Computed Field ✅ (G306) · Intent Resolver ✅ (G305) · Formula Builder ✅ (G303A) |
+| **Next Official Mission** | **Program 3.9** — Business Workflow |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
@@ -49,6 +50,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 9 | **Business Derivation Architecture** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
 | 9b | **Business Intent Resolver Architecture** | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) |
 | 9d | **Enterprise Organization Architecture** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](./docs/architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
+| 9e | **Business Asset Authoring Principles** | [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](./docs/architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) |
 | 10 | **Business Computation Architecture** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
 | 11 | **Enterprise Intelligence Vision (EOS Principles)** | [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](./docs/architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) |
 | 12 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
@@ -226,4 +228,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-30 — Program 3.7 Business Intent Resolver Implementation (D-067, G305)*
+*Last updated: 2026-06-30 — Program 3.8 Business Computed Fields (D-068, G306)*

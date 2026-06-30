@@ -31,7 +31,7 @@ export function createIntentResolver(options = {}) {
       });
     },
 
-    /** End-to-end: Business Language → Intent → Derivation → Formula → Computation → Preview */
+    /** End-to-end: Business Language → Intent → Business Computed Field → Formula → Computation → Preview */
     resolveFromBusinessLanguage(businessLanguageInput, resolveOptions = {}) {
       const intentDocument = businessLanguageToIntent(businessLanguageInput, resolveOptions);
       const result = runResolverPipeline(intentDocument, resolveOptions);

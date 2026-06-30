@@ -1,4 +1,8 @@
-import { DERIVATION_KIND_FORMULA } from "../contracts/intentContracts.js";
+import {
+  DERIVATION_KIND_COMPUTED_FIELD,
+  DERIVATION_KIND_FORMULA,
+  ARTIFACT_TYPE_BUSINESS_COMPUTED_FIELD,
+} from "../contracts/intentContracts.js";
 import { EXTENSION_DERIVATION_KINDS } from "../contracts/intentContracts.js";
 
 export function planDerivations(intentDocument, capabilityResolution) {
@@ -8,8 +12,10 @@ export function planDerivations(intentDocument, capabilityResolution) {
   if (intentDocument.category === "Computation" && intentDocument.computations?.length) {
     plan.push(
       Object.freeze({
-        derivationKind: DERIVATION_KIND_FORMULA,
-        artifactType: "formula.document",
+        derivationKind: DERIVATION_KIND_COMPUTED_FIELD,
+        artifactType: ARTIFACT_TYPE_BUSINESS_COMPUTED_FIELD,
+        projectionKind: DERIVATION_KIND_FORMULA,
+        projectionArtifactType: "formula.document",
         capabilityId: "capability.calculation",
         computationRefs: intentDocument.computations,
         status: "planned",
