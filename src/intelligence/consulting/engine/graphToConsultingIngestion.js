@@ -11,6 +11,7 @@ import { KNOWLEDGE_RELATIONSHIP_KINDS } from "../../knowledge/graph/knowledgeGra
 import { listEnterpriseMemoryRecords } from "../../memory/engine/enterpriseMemoryStore.js";
 import { replayKnowledgeGraphFromMemory } from "../../knowledge/graph/memoryToGraphIngestion.js";
 import { summarizeConsultingEngine } from "./consultingSummarization.js";
+import { ingestConsultingToDecision } from "../../decision/engine/consultingToDecisionIngestion.js";
 
 const SIGNAL_RULES = [
   {
@@ -134,7 +135,13 @@ export function analyzeConsultingContext(tenantId = "default") {
 /** Ingest from knowledge graph node/edge update — non-blocking trigger */
 export function ingestKnowledgeGraphToConsulting(tenantId, graphResult) {
   if (!graphResult?.node) return null;
-  return analyzeConsultingContext(tenantId);
+  const result = analyzeConsultingContext(tenantId);
+  try {
+    ingestConsultingToDecision(tenantId);
+  } catch {
+    /* observational — never block business operation */
+  }
+  return result;
 }
 
 /** Replay consulting analysis from memory + graph */

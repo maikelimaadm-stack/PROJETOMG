@@ -105,7 +105,8 @@
 | **3.12** | **Enterprise Memory Engine MVP** | D-078 | **complete (G310)** | 3.11 ✅ |
 | **3.13** | **Enterprise Knowledge Graph MVP** | D-079 | **complete (G311)** | 3.12 ✅ |
 | **3.14** | **Consulting Engine MVP** | D-080 | **complete (G312)** | 3.13 ✅ |
-| **3.15+** | **Decision / Evolution engines** | D-060 | **planned** | 3.14 ✅ |
+| **3.15** | **Decision Engine MVP** | D-081 | **complete (G313)** | 3.14 ✅ |
+| **3.16+** | **Evolution Engine** | D-060 | **planned** | 3.15 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -132,7 +133,8 @@
                           → 3.12 Enterprise Memory Engine MVP (G310) ✅
                             → 3.13 Enterprise Knowledge Graph MVP (G311) ✅
                               → 3.14 Consulting Engine MVP (G312) ✅
-                                → 3.15+ Decision / Evolution ← NEXT
+                                → 3.15 Decision Engine MVP (G313) ✅
+                                  → 3.16+ Evolution Engine ← NEXT
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

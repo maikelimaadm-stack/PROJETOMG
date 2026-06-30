@@ -2,16 +2,17 @@ import { summarizeConsultingEngine } from "./consultingSummarization.js";
 import { buildConsultingSeedsRegistry } from "./consultingSeedsRegistry.js";
 import { retrieveConsultingByContext } from "./consultingRetrieval.js";
 import { listImprovementPlans } from "./consultingEngineStore.js";
+import { runDecisionEngine } from "../../decision/engine/runDecisionEngine.js";
 
 export function bridgeConsultingToDecision(tenantId = "default") {
-  const retrieved = retrieveConsultingByContext(tenantId);
+  const decision = runDecisionEngine(tenantId);
   return Object.freeze({
     tenantId,
     bridgedAt: new Date().toISOString(),
-    recommendations: retrieved.recommendations,
-    plans: retrieved.plans,
     summary: summarizeConsultingEngine(tenantId),
-    decisionEngineReady: false,
+    seeds: buildConsultingSeedsRegistry(tenantId),
+    decisionSummary: decision.summary,
+    decisionEngineReady: true,
     autonomousDecisionForbidden: true,
   });
 }

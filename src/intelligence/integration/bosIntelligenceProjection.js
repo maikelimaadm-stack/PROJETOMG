@@ -2,11 +2,16 @@ import { buildMemoryEngineBosProjection } from "../memory/engine/memoryToBosProj
 import { bridgeMemoryToIntelligence } from "../memory/engine/memoryToIntelligenceBridge.js";
 import { buildKnowledgeGraphBosProjection } from "../knowledge/graph/knowledgeToBosProjection.js";
 import { buildConsultingEngineBosProjection } from "../consulting/engine/consultingToBosProjection.js";
+import { buildDecisionEngineBosProjection } from "../decision/engine/decisionToBosProjection.js";
 import {
   bridgeConsultingToDecision,
   bridgeConsultingToEvolution,
   bridgeConsultingToIntent,
 } from "../consulting/engine/consultingToIntelligenceBridges.js";
+import {
+  bridgeDecisionToEvolution,
+  bridgeDecisionToIntent,
+} from "../decision/engine/decisionToIntelligenceBridges.js";
 import { bridgeKnowledgeToConsulting, bridgeKnowledgeToDecision, bridgeKnowledgeToEvolution } from "../knowledge/graph/knowledgeToIntelligenceBridges.js";
 import { processObservationLayer } from "../observation/observationLayer.js";
 import { listImprovementOpportunities } from "../registry/improvementOpportunityRegistry.js";
@@ -16,6 +21,7 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
   const memoryProjection = buildMemoryEngineBosProjection(tenantId);
   const knowledgeProjection = buildKnowledgeGraphBosProjection(tenantId);
   const consultingProjection = buildConsultingEngineBosProjection(tenantId);
+  const decisionProjection = buildDecisionEngineBosProjection(tenantId);
   const observation = processObservationLayer(tenantId);
   const improvements = listImprovementOpportunities(tenantId);
 
@@ -59,6 +65,15 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
     consultingPriorities: consultingProjection.suggestedPriorities,
     consultingEvidence: consultingProjection.evidenceHighlights,
     consultingEvolutionTracking: consultingProjection.evolutionTracking,
+    hasDecisions: decisionProjection.hasDecisions,
+    decisionSummary: decisionProjection.summary,
+    decisionPending: decisionProjection.pendingDecisions,
+    decisionAlternatives: decisionProjection.alternatives,
+    decisionScenarios: decisionProjection.scenarios,
+    decisionEvidence: decisionProjection.evidenceHighlights,
+    decisionHistory: decisionProjection.decisionHistory,
+    decisionWhyImportant: decisionProjection.whyImportant,
+    decisionNextAction: decisionProjection.nextAction,
     knowledgeBridges: Object.freeze({
       consulting: bridgeKnowledgeToConsulting(tenantId),
       decision: bridgeKnowledgeToDecision(tenantId),
@@ -68,6 +83,10 @@ export function buildIntelligenceHomeProjection(tenantId = "default") {
       decision: bridgeConsultingToDecision(tenantId),
       evolution: bridgeConsultingToEvolution(tenantId),
       intent: bridgeConsultingToIntent(tenantId),
+    }),
+    decisionBridges: Object.freeze({
+      evolution: bridgeDecisionToEvolution(tenantId),
+      intent: bridgeDecisionToIntent(tenantId),
     }),
   });
 }

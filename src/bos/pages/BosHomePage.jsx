@@ -37,6 +37,13 @@ import {
   ConsultingPlansSection,
   ConsultingEvidenceSection,
 } from "@/bos/components/ConsultingSections";
+import {
+  DecisionPendingSection,
+  DecisionAlternativesSection,
+  DecisionScenariosSection,
+  DecisionEvidenceSection,
+  DecisionWhySection,
+} from "@/bos/components/DecisionSections";
 import { useAuth } from "@/shared/contexts/AuthContext";
 import {
   buildIntelligenceHomeProjection,
@@ -189,6 +196,19 @@ export default function BosHomePage() {
         evolutionTracking={intelligence.consultingEvolutionTracking}
       />
       <ConsultingEvidenceSection highlights={intelligence.consultingEvidence} />
+
+      <DecisionPendingSection
+        summary={intelligence.decisionSummary}
+        decisions={intelligence.decisionPending}
+        nextAction={intelligence.decisionNextAction}
+      />
+      <DecisionAlternativesSection alternatives={intelligence.decisionAlternatives} />
+      <DecisionScenariosSection scenarios={intelligence.decisionScenarios} />
+      <DecisionWhySection highlights={intelligence.decisionWhyImportant} />
+      <DecisionEvidenceSection
+        highlights={intelligence.decisionEvidence}
+        history={intelligence.decisionHistory}
+      />
 
       <ActivityTeaserSection items={activity} />
     </div>

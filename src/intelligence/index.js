@@ -134,6 +134,39 @@ export {
 export { buildConsultingSeedsRegistry } from "./consulting/engine/consultingSeedsRegistry.js";
 export { runConsultingEngine } from "./consulting/engine/runConsultingEngine.js";
 
+export {
+  ENTERPRISE_DECISION_ENGINE_VERSION,
+  DECISION_DOCUMENT_TYPES,
+  DECISION_OPTION_TYPES,
+  DECISION_ENGINE_EXTENSION_POINTS,
+} from "./decision/engine/decisionEngineContracts.js";
+export {
+  listDecisionDocuments,
+  listDecisionOptions,
+  listDecisionScenarios,
+  getDecisionEngineStoreInfo,
+} from "./decision/engine/decisionEngineStore.js";
+export { assembleDecisionContext } from "./decision/engine/decisionContextAssembly.js";
+export {
+  analyzeDecisionContext,
+  ingestConsultingToDecision,
+  replayDecisionFromStack,
+} from "./decision/engine/consultingToDecisionIngestion.js";
+export { retrieveDecisionsByContext } from "./decision/engine/decisionRetrieval.js";
+export { summarizeDecisionEngine } from "./decision/engine/decisionSummarization.js";
+export { buildDecisionEngineBosProjection } from "./decision/engine/decisionToBosProjection.js";
+export {
+  bridgeDecisionToEvolution,
+  bridgeDecisionToIntent,
+} from "./decision/engine/decisionToIntelligenceBridges.js";
+export {
+  approveDecision,
+  rejectDecision,
+  deferDecision,
+} from "./decision/engine/decisionApprovalWorkflow.js";
+export { buildDecisionSeedsRegistry } from "./decision/engine/decisionSeedsRegistry.js";
+export { runDecisionEngine } from "./decision/engine/runDecisionEngine.js";
+
 export default {
   version: "mak-enterprise-intelligence-v1",
 };

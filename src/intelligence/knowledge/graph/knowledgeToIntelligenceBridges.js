@@ -3,6 +3,7 @@ import { summarizeKnowledgeGraph } from "./knowledgeSummarization.js";
 import { buildKnowledgeSeedsRegistry } from "./knowledgeSeedsRegistry.js";
 import { retrieveKnowledgeByContext } from "./knowledgeRetrieval.js";
 import { runConsultingEngine } from "../../consulting/engine/runConsultingEngine.js";
+import { runDecisionEngine } from "../../decision/engine/runDecisionEngine.js";
 
 export function bridgeKnowledgeToConsulting(tenantId = "default") {
   const consulting = runConsultingEngine(tenantId);
@@ -18,16 +19,18 @@ export function bridgeKnowledgeToConsulting(tenantId = "default") {
 }
 
 export function bridgeKnowledgeToDecision(tenantId = "default") {
-  const decisions = retrieveKnowledgeByContext(tenantId, {
+  const decision = runDecisionEngine(tenantId);
+  const graphDecisions = retrieveKnowledgeByContext(tenantId, {
     kind: KNOWLEDGE_NODE_KINDS.DECISION,
     limit: 20,
   });
   return Object.freeze({
     tenantId,
     bridgedAt: new Date().toISOString(),
-    decisionNodes: decisions.nodes,
-    decisionEdges: decisions.edges,
-    decisionEngineReady: false,
+    decisionNodes: graphDecisions.nodes,
+    decisionEdges: graphDecisions.edges,
+    decisionSummary: decision.summary,
+    decisionEngineReady: true,
     autonomousDecisionForbidden: true,
   });
 }
