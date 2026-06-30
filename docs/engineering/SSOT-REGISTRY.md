@@ -35,7 +35,9 @@
 | **Gates** | [GATE-REGISTRY.md](./GATE-REGISTRY.md) | [RULE-DEPLOY-002.md](./RULE-DEPLOY-002.md) | Deploy docs citing old G303/G304 IDs |
 | **Enterprise Vision Compliance Audit** | [ENTERPRISE-VISION-COMPLIANCE-AUDIT.md](./ENTERPRISE-VISION-COMPLIANCE-AUDIT.md) | Program 3.8.5 audit suite | — |
 | **Enterprise Platform Deep Audit** | [ENTERPRISE-PLATFORM-DEEP-AUDIT.md](./ENTERPRISE-PLATFORM-DEEP-AUDIT.md) | Program 3.8.6 audit suite (11 docs) | — |
-| **Architecture debt** | [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) · [TECHNICAL-DEBT-MASTER-REGISTER.md](./TECHNICAL-DEBT-MASTER-REGISTER.md) | — |
+| **Enterprise Vision Alignment (3.8.7)** | [ENTERPRISE-VISION-ALIGNMENT-AUDIT.md](./ENTERPRISE-VISION-ALIGNMENT-AUDIT.md) | D-072 | — |
+| **Platform remediation** | [PLATFORM-REMEDIATION-REGISTER.md](./PLATFORM-REMEDIATION-REGISTER.md) | D-073 remediation suite | — |
+| **Architecture debt** | [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) | [TECHNICAL-DEBT-MASTER-REGISTER.md](./TECHNICAL-DEBT-MASTER-REGISTER.md) | — |
 | **Code tech debt** | [TECH-DEBT.md](./TECH-DEBT.md) | — | — |
 
 ---
@@ -53,7 +55,9 @@
 | **Business Language** | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) | D-059 Intent Authoring (downstream); Knowledge Vocabulary |
 | **Enterprise Digital Organization** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) | D-057 Business Object Model (root kind); D-060 Intelligence |
 | **Business Computation** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) | D-058 hooks; computation derivation facet |
-| **Business Asset authoring principles** | [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) | D-059 Intent; D-063 Derivation; Dual Authoring / User Choice |
+| **Business Asset authoring principles** | [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) | Expert boundary · D-073 |
+| **Business Operating Shell** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) | VA-01 · Navigation model |
+| **Product identity** | [MAK-PRODUCT-IDENTITY.md](../architecture/MAK-PRODUCT-IDENTITY.md) | VA-06 · D-057 harmonization |
 | **Studio Computation** | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) | G302 implementation |
 | **Formula runtime unification** | [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md) | AD-P0-01/02 remediation |
 | **Platform language** | [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) | — |

@@ -67,6 +67,8 @@ No resource belongs to a Studio. Every resource belongs to **business**.
 
 Both modes converge on the **same pipeline**. Architecture never changes — only authoring experience.
 
+**D-073 binding:** Expert Mode ≠ Platform Studio designers. See [EXPERT-MODE-AND-STUDIO-BOUNDARY.md](../engineering/EXPERT-MODE-AND-STUDIO-BOUNDARY.md).
+
 | Asset type | Program 3.8 status |
 |------------|-------------------|
 | Computed Field | ✅ Implemented (G306) |
@@ -156,7 +158,7 @@ Assets may be: versioned · audited · reused · published · evolved · shared 
 
 User never needs to know: AST · JSON · Code · SQL · Expression/Evaluation/Dependency/Computation Engine · Resolver · Runtime · Studio · Foundation.
 
-**Program 3.8 evidence:** Business Language → Intent path; zero technical authoring surface.
+**Program 3.8 evidence:** Business Language → Intent path; zero technical authoring surface in Business First mode. Expert/Studio boundary: [EXPERT-MODE-AND-STUDIO-BOUNDARY.md](../engineering/EXPERT-MODE-AND-STUDIO-BOUNDARY.md) (D-073).
 
 ---
 

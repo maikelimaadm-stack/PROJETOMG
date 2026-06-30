@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-071 Platform Sanitization Cycle 1)
+**Last updated:** 2026-06-30 (D-073 Platform Remediation & Product Alignment)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -876,11 +876,23 @@
 
 ---
 
+## D-073 — Platform Remediation & Product Alignment
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Execute **Platform Remediation & Product Alignment** phase after D-072 vision audit. **No new Programs. No new features. No UI/Runtime/Foundation/Studio code changes in Cycle 1.** Register vision adjustments VA-01–06 and VA-08 in permanent SSOT: Business Operating Shell Architecture, Product Identity, Expert Mode & Studio Boundary, Navigation & Capability Model, Legacy Transition Register, Platform Remediation Register. Consolidate product identity: BOS = primary surface; ModeloBase1 = runtime template; Formula Builder = platform-only; module navigation = transition. **Implementation remains paused** until remediation gate (VA-07 event bus decision + BOS implementation plan). |
+| **Evidence** | [PLATFORM-REMEDIATION-REGISTER.md](./PLATFORM-REMEDIATION-REGISTER.md) · architecture SSOT docs · [ENTERPRISE-VISION-ALIGNMENT-AUDIT.md](./ENTERPRISE-VISION-ALIGNMENT-AUDIT.md) |
+| **Consequences** | VA-01–06, VA-08 architecturally binding; LT/LC registers active; Programs 3.9+ blocked until remediation gate |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
 |-------|---------|
-| Backend event bus design | Automation Studio requirements — L3 Platform Core event bus spec in Master Architecture §L3 |
+| Backend event bus design | Automation + Intelligence product behavior — **VA-07 remediation gate** · required before Intelligence implementation · L3 Platform Core event bus spec in Master Architecture §L3 |
 | Desktop shell technology | Tauri vs Electron — L7 implementation choice; does not affect topology |
 
 **Resolved (D-014):** Offline sync architecture → Sync Platform (L6.4) + Offline client capability (L7). MAK Studio metadata storage → MDP Metadata Registry (L4).
