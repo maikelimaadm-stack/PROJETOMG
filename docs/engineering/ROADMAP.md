@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (Program 2.1A.7 Contribution Engine — D-040 — foundation closed)
+**Last updated:** 2026-06-30 (Program 2.3.X Repository Stabilization — D-052 — Foundation frozen)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -148,7 +148,8 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.3.3** | Studio Dependency Engine | ✅ Complete (D-049) — [Report](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md) |
 | **2.3.4** | Studio Type System | ✅ Complete (D-050) — [Report](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md) |
 | **2.3.5** | Studio Evaluation Engine | ✅ Complete (D-051) — [Report](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
-| **2.3.6** | Computed & Derived Fields | **Next** — [Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **2.3.X** | Repository Stabilization + Foundation Freeze | ✅ Complete (D-052) — [Report](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md) · **Release `v0.4.0-RC1`** |
+| **2.3.6** | Studio Computation Engine | **Authorized — next** — [Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
