@@ -41,6 +41,7 @@
 | **G306** | Studio (active) | **Business Computed Fields** (Program 3.8) |
 | **G307** | Product (active) | **Business Operating Shell MVP** (Program 3.9) |
 | **G308** | Product (active) | **Business Workflow MVP** (Program 3.10) |
+| **G309** | Product (active) | **Enterprise Intelligence Foundation** (Program 3.11) |
 | **G303B** | Studio (planned) | Business Computation implementation |
 | **G304** | Studio (architecture) | Intent Resolver architecture reference (D-064) — implementation certified by **G305** |
 | **G401–G402** | Deploy pipeline | Renumbered from G303/G304 deploy (D-062) |
@@ -91,6 +92,7 @@
 | **G306** | Business Computed Fields | 3.8 | D-068 | `gate-business-computed-fields.mjs` | **active** |
 | **G307** | Business Operating Shell MVP | 3.9 | D-075 | `gate-business-operating-shell.mjs` | **active** |
 | **G308** | Business Workflow MVP | 3.10 | D-076 | `gate-business-workflow.mjs` | **active** |
+| **G309** | Enterprise Intelligence Foundation | 3.11 | D-077 | `gate-enterprise-intelligence-foundation.mjs` | **active** |
 
 ---
 

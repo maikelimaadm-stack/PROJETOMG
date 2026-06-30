@@ -63,7 +63,7 @@ export function buildExplainableSuggestions() {
       id: "rec-health-data",
       title: "Ativar monitoramento de saúde dos dados",
       explanation:
-        "Business Health acompanhará indicadores quando a camada de memória estiver ativa.",
+        "A fundação de inteligência observa operações e registra sinais de saúde em linguagem de negócio.",
       actionLabel: "Ver saúde",
       actionRoute: "/bos#health",
       confidence: "informativa",
@@ -88,9 +88,9 @@ export function buildRecentActivity() {
     },
     {
       id: "act-3",
-      label: "Memória empresarial em preparação",
-      context: "Enterprise Memory · teaser",
-      when: "Em breve",
+      label: "Memória empresarial observando operações",
+      context: "Enterprise Intelligence · fundação ativa",
+      when: "Ativo",
     },
   ];
 }

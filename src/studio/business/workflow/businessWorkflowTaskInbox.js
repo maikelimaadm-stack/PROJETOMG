@@ -1,3 +1,5 @@
+import { bridgeWorkflowTaskAction } from "../../../intelligence/integration/intelligenceEventBridge.js";
+
 const STORAGE_KEY = "mak-bos-workflow-tasks-v1";
 
 function readStore() {
@@ -72,6 +74,19 @@ export function applyWorkflowTaskAction(taskId, action, actor = "business-user")
   }
   tasks[index] = next;
   writeStore(tasks);
+
+  bridgeWorkflowTaskAction({
+    tenantId: task.tenantId,
+    workflowId: task.workflowId,
+    taskId: task.taskId,
+    action,
+    fromState: historyEntry.fromState,
+    toState: next.stateId,
+    actorId: actor,
+    workflowTitle: task.workflowTitle,
+    explainability: task.explainability,
+  });
+
   return next;
 }
 
