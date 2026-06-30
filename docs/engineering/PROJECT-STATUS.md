@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.1.5 — Enterprise Business Platform Vision (D-057)  
+**Updated by:** Program 3.3 — Business Computation Layer (D-058)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -41,7 +41,7 @@
 | **Current architecture level** | **L5 Experience Authoring** — MAK Studio operational (Shell + Layout + Field designers) |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | L5 Studio Intelligence — Computation + Formula Builder; Enterprise EOS vision (D-057) |
+| **Current architecture stage** | L5 Studio Intelligence — Business Computation Layer defined (D-058); implementation next |
 
 ---
 
@@ -50,11 +50,11 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.1.5** — Enterprise Business Platform Vision (docs only) |
+| **Last completed program** | **Program 3.3** — Business Computation Layer (architecture only, D-058) |
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-057** — Enterprise Business Platform Vision |
-| **Roadmap position** | Studio Intelligence → **Program 3.3 Computed Fields** |
-| **Next official mission** | **Program 3.3** — Computed Fields |
+| **Last decision** | **D-058** — Business Computation Layer |
+| **Roadmap position** | Business Computed Fields **implementation** next |
+| **Next official mission** | **Business Computed Fields** — first implementation on Business Computation architecture |
 
 ---
 
@@ -162,7 +162,7 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | Config engines V13–V20 | G156–G261 | G261 |
 | Studio architecture | G279–G284 | G284 |
 | Studio programs | G285–G303A | **G303A** (Formula Builder) |
-| **Next expected** | Program 3.3 | Computed Fields |
+| **Next expected** | Business Computed Fields (impl) | Gate G303B planned |
 
 Full gate scripts: `scripts/gate-*.mjs` · invoked via `npm run gate:capabilities`
 

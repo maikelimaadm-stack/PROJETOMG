@@ -25,11 +25,11 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
-| **Last Decision** | **D-057** — Enterprise Business Platform Vision |
-| **Roadmap Position** | Phase 4 → **Program 3.3 Computed Fields next** |
-| **Current Architecture Stage** | L5 Studio Intelligence — Computation + Formula Builder certified |
-| **Current Studio Stage** | Programs 3.1–3.2 complete; Enterprise vision frozen (D-057) |
-| **Next Official Mission** | **Program 3.3** — Computed Fields |
+| **Last Decision** | **D-058** — Business Computation Layer |
+| **Roadmap Position** | **Business Computed Fields** — first implementation on Business Computation architecture |
+| **Current Architecture Stage** | L5 Studio Intelligence — Business Computation Layer defined (D-058) |
+| **Current Studio Stage** | Computation Engine ✅ · Formula Builder ✅ · Business Computation Layer ✅ (docs) |
+| **Next Official Mission** | **Business Computed Fields** — implementation on Business Computation architecture |
 
 ### Mandatory Documents (continuity)
 
@@ -42,8 +42,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 5 | **Current State** | [CURRENT-STATE.md](./docs/engineering/CURRENT-STATE.md) |
 | 6 | **Roadmap** | [ROADMAP.md](./docs/engineering/ROADMAP.md) |
 | 7 | **Decisions** | [DECISIONS.md](./docs/engineering/DECISIONS.md) |
-| 8 | **Enterprise Platform Vision** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
-| 9 | **Next mission** | Program 3.3 — Computed Fields |
+| 8 | **Business Computation Architecture** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
+| 9 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 

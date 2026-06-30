@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 3.1.5 — Enterprise Platform Vision (D-057)
+**Mission:** Program 3.3 — Business Computation Layer (D-058)
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -41,10 +41,11 @@
 | Digital Twin Architecture | [MAK-DIGITAL-TWIN-ARCHITECTURE.md](../architecture/MAK-DIGITAL-TWIN-ARCHITECTURE.md) |
 | Business Capabilities | [MAK-BUSINESS-CAPABILITIES.md](../architecture/MAK-BUSINESS-CAPABILITIES.md) |
 | Continuous Improvement Architecture | [MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md](../architecture/MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md) |
+| **MAK Business Computation Architecture** | **[MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md)** (**D-058** — Program 3.3) |
 | MAK Studio Architecture | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
 | MAK Studio UX Framework | [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) |
 | Platform Language Standard | [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) |
-| Studio Computation Architecture | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) |
+| MAK Studio Computation Architecture | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) |
 | Platform Evolution | [MAK-PLATFORM-EVOLUTION.md](../architecture/MAK-PLATFORM-EVOLUTION.md) |
 
 ---
@@ -97,7 +98,8 @@
 | Program 2 Brief | [IFM-PHASE-2-MAK-STUDIO-BRIEF.md](./IFM-PHASE-2-MAK-STUDIO-BRIEF.md) |
 | Layout Studio Brief | [IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
 | Field Studio Brief | [IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md](./IFM-PHASE-2.3-FIELD-STUDIO-BRIEF.md) |
-| Computation Engine Brief (next) | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| Computation Engine Brief | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **Business Computation Layer (3.3)** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
 | Stabilization Report | [IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md](./IFM-PROGRAM-2.3.X-REPOSITORY-STABILIZATION-REPORT.md) |
 | Certification reports | [IFM-PROGRAM-2.*-CERTIFICATION-REPORT.md](./) (2.0 through 2.3.5) |
 
@@ -110,7 +112,7 @@
 | Briefs | `IFM-PHASE-*.md` | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 | Certification | `IFM-PROGRAM-*-CERTIFICATION-REPORT.md` | [IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
 | IFM reports | `IFM-*-REPORT.md` | MDP, audit, repo health reports |
-| Vision | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) · [MAK-2040-VISION-BACKLOG.md](../vision/MAK-2040-VISION-BACKLOG.md) | Long-term vision + backlog |
+| Vision | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) · [MAK-2040-VISION-BACKLOG.md](../vision/MAK-2040-VISION-BACKLOG.md) | EOS north star · long-term backlog |
 
 ---
 

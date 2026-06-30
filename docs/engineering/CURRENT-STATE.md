@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 3.1.5 Enterprise Business Platform Vision (D-057)  
+**Verified by:** Program 3.3 Business Computation Layer (D-058)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -21,6 +21,7 @@
 | **MAK Studio Architecture** | v1.15.0 | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**foundation frozen** — D-031–D-052) |
 | **MAK Studio Computation Architecture** | v1.0.0 | `docs/architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md` (**D-054**) |
 | **MAK Enterprise Platform Vision** | v1.0.0 | `docs/vision/MAK-2035-PLATFORM-VISION.md` + 7 architecture refs (**D-057** — vision only) |
+| **MAK Business Computation Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md` (**D-058** — business authoring; implementation next) |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Platform Maturity Index | v1.3.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` (**ERI 3.8/10**) |
 | Implementation Protocol | v1.2.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019, **D-028 gate**) |
@@ -42,8 +43,8 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Studio Intelligence 3.1–3.2 ✅; Enterprise vision ✅ (D-057)** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) |
-| **Program 3 — Studio Intelligence** | P1 — **3.3 Computed Fields next** | Computation (G302) · Formula Builder (G303A) |
+| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Studio Intelligence 3.1–3.2 ✅; Enterprise vision ✅ (D-057); Business Computation ✅ (D-058, docs)** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) |
+| **Program 3 — Studio Intelligence** | P1 — **3.1 Computation ✅ · 3.2 Formula Builder ✅ · 3.3 Business Computation Layer ✅ (D-058, docs)** · **Business Computed Fields next (impl)** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -161,8 +162,9 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Computation + Formula Builder ✅** · **Enterprise EOS vision ✅ (D-057, docs only)** · **Computed Fields next (3.3)** |
+| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Computation + Formula Builder ✅** · **Business Computation Layer ✅ (D-058, docs)** · **Business Computed Fields impl next** |
 | Enterprise Intent / Knowledge / Intelligence / Twin | **Vision documented ✅ (D-057)** — **no implementation** |
+| Business Computation authoring UI | Architecture only — guided business language (no NLP/AI) |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |
