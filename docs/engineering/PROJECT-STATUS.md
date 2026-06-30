@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.8 — Business Computed Fields (D-068)  
+**Updated by:** Program 3.8.6 — Enterprise Platform Deep Audit (D-070)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -63,9 +63,9 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.8.5** — Enterprise Vision Compliance Audit (D-069) |
+| **Last completed program** | **Program 3.8.6** — Enterprise Platform Deep Audit (D-070) |
 | **Last certified implementation** | **Program 3.8** — Business Computed Field (G306) |
-| **Last decision** | **D-069** — Enterprise Vision Compliance Audit |
+| **Last decision** | **D-070** — Enterprise Platform Deep Audit |
 | **Roadmap position** | **Program 3.9 — Business Workflow** (authorized post-audit) |
 | **Next official mission** | **Program 3.9** — Business Workflow |
 
@@ -89,6 +89,7 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 | **3.7** Business Intent Resolver Implementation (D-067, G305) | ✅ |
 | **3.8** Business Computed Fields (D-068, G306) | ✅ |
 | **3.8.5** Enterprise Vision Compliance Audit (D-069) | ✅ |
+| **3.8.6** Enterprise Platform Deep Audit (D-070) | ✅ |
 | **Próximo passo** | **Program 3.9** — Business Workflow |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)

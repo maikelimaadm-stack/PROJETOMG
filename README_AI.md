@@ -27,7 +27,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · Continuous implementation phase |
 | **D-067** — Business Intent Resolver Implementation |
-| **Decision** | D-068 — Business Computed Fields (Program 3.8) |
+| **Decision** | D-070 — Enterprise Platform Deep Audit (Program 3.8.6) |
+| **Last Audit** | Program 3.8.6 — 11 deep audit reports (D-070) |
 | **Roadmap Position** | **Program 3.9 — Business Workflow** |
 | **Current Architecture Stage** | Structural architecture frozen · **Business Computed Field asset (G306)** |
 | **Current Studio Stage** | Business Computed Field ✅ (G306) · Intent Resolver ✅ (G305) · Formula Builder ✅ (G303A) |

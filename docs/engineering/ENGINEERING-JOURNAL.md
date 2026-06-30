@@ -1,7 +1,38 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.8.5 Enterprise Vision Compliance Audit — D-069)
+**Last updated:** 2026-06-30 (Program 3.8.6 Enterprise Platform Deep Audit — D-070)
+
+---
+
+## 2026-06-30 — Program 3.8.6: Enterprise Platform Deep Audit
+
+**Scope:** Largest platform audit · 11 domains · 20 certification questions · **no code**  
+**Deliverables:** 11 audit reports in `docs/engineering/`  
+**Decision:** D-070 — Deep audit complete; Program 3.9 scope informed; P0 parallel tracks documented  
+**Key verdict:** Architecture trajectory **aligned** with EOS; **implementation coverage**, **legacy runtime**, **UX paradigm**, and **Intelligence 0%** are misalignment loci
+
+### Certificação (20 perguntas — Program 3.8.6)
+
+| # | Pergunta | Resposta |
+|---|----------|----------|
+| 1 | Plataforma representa visão exata? | **NÃO hoje · SIM arquiteturalmente** |
+| 2 | Decisão arquitetural bloqueia visão? | **NÃO** |
+| 3 | Implementação contradiz visão? | **SIM** — paths legados UX/runtime |
+| 4 | Documentação desatualizada? | **SIM** — PMI, AI-STARTUP, vision §8 |
+| 5 | Código nunca utilizado? | **SIM** — 7× registerMak*ConfigEngine |
+| 6 | Arquitetura precisa revisão? | **NÃO estrutural · SIM programas execução** |
+| 7 | Conceito a eliminar? | **NENHUM estrutural** |
+| 8 | Duplicação estrutural? | **SIM** — 3 evaluators; dual cadastro |
+| 9 | Risco evolução futura? | **SIM** |
+| 10 | Gargalo arquitetural? | **Runtime unification** |
+| 11 | Operar sem conhecimento técnico? | **NÃO** |
+| 12 | Elimina "desenvolver sistemas"? | **AINDA NÃO · desenhado para sim** |
+| 13–16 | Personas (iniciante, avançado, admin, enterprise) | Ver USER-JOURNEY-DEEP-AUDIT |
+| 17 | Reduz custos/consultoria/desperdício? | **Potencial sim · não realizado** |
+| 18 | Aprendizado contínuo? | **Arquitetura sim · implementação não** |
+| 19 | Arquitetura atual chega ao EOS? | **SIM condicional** |
+| 20 | Decisão necessária agora? | **SIM** — Runtime Unification ID + Language UX track |
 
 ---
 

@@ -95,7 +95,8 @@
 | **3.7** | **Business Intent Resolver (Implementation)** | D-067 | **complete (G305)** | — |
 | **3.8** | **Business Computed Fields** | D-068 | **complete (G306)** | — |
 | **3.8.5** | **Enterprise Vision Compliance Audit** | D-069 | **complete (audit)** | 3.8 ✅ |
-| **3.9** | **Business Workflow** | D-063 | **active — next** | 3.8.5 ✅ |
+| **3.8.6** | **Enterprise Platform Deep Audit** | D-070 | **complete (audit)** | 3.8.5 ✅ |
+| **3.9** | **Business Workflow** | D-063 | **active — next** | 3.8.6 ✅ |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
 
@@ -114,7 +115,8 @@
           → 3.7 Intent Resolver Implementation (G305) ✅
             → 3.8 Business Computed Fields (G306) ✅
               → 3.8.5 Enterprise Vision Compliance Audit (D-069) ✅
-                → 3.9 Business Workflow ← NEXT
+                → 3.8.6 Enterprise Platform Deep Audit (D-070) ✅
+                  → 3.9 Business Workflow ← NEXT
                 → 4.x Enterprise Intelligence programs (D-060)
 ```
 

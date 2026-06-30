@@ -34,7 +34,8 @@
 | **Doc hierarchy index** | [DOCUMENT-MAP.md](./DOCUMENT-MAP.md) | — | — |
 | **Gates** | [GATE-REGISTRY.md](./GATE-REGISTRY.md) | [RULE-DEPLOY-002.md](./RULE-DEPLOY-002.md) | Deploy docs citing old G303/G304 IDs |
 | **Enterprise Vision Compliance Audit** | [ENTERPRISE-VISION-COMPLIANCE-AUDIT.md](./ENTERPRISE-VISION-COMPLIANCE-AUDIT.md) | Program 3.8.5 audit suite | — |
-| **Architecture debt** | [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) | — |
+| **Enterprise Platform Deep Audit** | [ENTERPRISE-PLATFORM-DEEP-AUDIT.md](./ENTERPRISE-PLATFORM-DEEP-AUDIT.md) | Program 3.8.6 audit suite (11 docs) | — |
+| **Architecture debt** | [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) · [TECHNICAL-DEBT-MASTER-REGISTER.md](./TECHNICAL-DEBT-MASTER-REGISTER.md) | — |
 | **Code tech debt** | [TECH-DEBT.md](./TECH-DEBT.md) | — | — |
 
 ---
