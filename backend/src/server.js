@@ -1,5 +1,7 @@
 import dotenv from "dotenv";
+import path from "node:path";
 import { performance } from "node:perf_hooks";
+import { fileURLToPath } from "node:url";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import multipart from "@fastify/multipart";
@@ -373,4 +375,12 @@ const start = async () => {
   process.on("SIGTERM", shutdown);
 };
 
-start();
+export { buildServer, runBlockingBootTasks, start };
+
+const isMainModule =
+  process.argv[1] &&
+  path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url));
+
+if (isMainModule) {
+  start();
+}

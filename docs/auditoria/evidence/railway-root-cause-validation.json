@@ -1,0 +1,91 @@
+{
+  "reportId": "railway-root-cause-validation",
+  "generatedAt": "2026-06-30T01:30:00.000Z",
+  "auditor": "Cloud Agent — Railway Root Cause Validation mission",
+  "methodology": [
+    "GitHub Commit Status API (context: mak - PROJETOMG)",
+    "Git bisection 2754b4d7 (PR #297 success) → 3a6b1c63 (PR #298 failure)",
+    "Isolated checkout per commit via git archive",
+    "Dockerfile.railway stage simulation (npm ci → prisma generate → COPY → node src/server.js)",
+    "ESM import chain tracing (mdpFieldConstants → repCps → svcCps → routes → server)"
+  ],
+  "railwayLogsAccess": {
+    "railwayCliWhoami": "Unauthorized — no RAILWAY_TOKEN / RAILWAY_API_TOKEN",
+    "railwayDashboard": "Requires authentication — build/runtime logs not exported to repo",
+    "githubDeploymentsApi": "403 Resource not accessible by integration",
+    "inferredRuntimeLog": "SyntaxError: The requested module '../mdp/mdpFieldConstants.js' does not provide an export named 'buildLabelCreate'"
+  },
+  "githubCommitStatuses": {
+    "2754b4d7_PR297": {
+      "context": "mak - PROJETOMG",
+      "state": "success",
+      "description": "Success - projetomg-production.up.railway.app",
+      "deploymentId": "d3be1290-3509-4856-b3ef-aeb698966a39"
+    },
+    "0ae9e367_MDP2_feature": {
+      "railwayStatus": "none — feature branch push does not trigger production Railway"
+    },
+    "3a6b1c63_PR298_merge": {
+      "context": "mak - PROJETOMG",
+      "state": "failure",
+      "description": "Deployment failed",
+      "deploymentId": "226a5c34-ca12-45a6-861f-7fa74bb53e75"
+    },
+    "34ee8518_consolidation": {
+      "state": "failure",
+      "deploymentId": "bbcba091-6ea8-471e-9b79-7abdb5cd932d"
+    },
+    "455f19c1_HEAD": {
+      "state": "failure",
+      "deploymentId": "ff8385b5-7bf2-49ef-b1f4-29c2e3cbb5a4"
+    }
+  },
+  "pipelineStageResults": {
+    "2754b4d7": {
+      "install": "PASS",
+      "prisma_generate": "PASS",
+      "docker_build_simulation": "PASS",
+      "import_esm": "PASS",
+      "server_start_local_no_db": "FAIL_BOOT — DB unreachable (expected without Postgres; Railway has DB and deploy succeeded)",
+      "productionDeploy": "SUCCESS"
+    },
+    "3a6b1c63": {
+      "install": "PASS",
+      "prisma_generate": "PASS",
+      "docker_build_simulation": "PASS",
+      "import_esm": "FAIL — buildLabelCreate missing from mdpFieldConstants.js",
+      "server_start": "FAIL_IMPORT_ESM — crash before listen()",
+      "boot": "NOT_REACHED",
+      "healthcheck": "NOT_REACHED",
+      "migration": "NOT_REACHED",
+      "productionDeploy": "FAILURE"
+    },
+    "HEAD": {
+      "sameAs": "3a6b1c63 — import bug persists unchanged"
+    }
+  },
+  "importChainFailure": {
+    "firstBrokenModule": "backend/src/modules/cadcps/repCps.js",
+    "brokenImportLine": 18,
+    "brokenSymbol": "buildLabelCreate",
+    "wrongSource": "../mdp/mdpFieldConstants.js",
+    "correctSource": "../mdp/mdpFieldCadcpsAdapter.js",
+    "introducedInCommit": "0ae9e367",
+    "mergedToMainIn": "3a6b1c63",
+    "pr": 298
+  },
+  "hypothesesEliminated": {
+    "dockerfile_changed": false,
+    "railway_json_changed": false,
+    "node_version_mismatch": false,
+    "docker_build_failure": false,
+    "npm_install_failure": false,
+    "prisma_generate_failure": false,
+    "case_sensitive_paths": false,
+    "symlink_issues": false,
+    "env_vars_primary_cause": false,
+    "migration_primary_cause": false,
+    "healthcheck_timeout_primary_cause": false,
+    "package_json_start_script": false
+  }
+}
