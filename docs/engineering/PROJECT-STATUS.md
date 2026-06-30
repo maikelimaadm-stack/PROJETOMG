@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.4 — Business Intent Authoring Architecture (D-059)  
+**Updated by:** Repository documental cycle closure (Programs 3.3 + 3.4 on `main`)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -17,7 +17,7 @@
 | **Current version** | `0.4.0-rc.2` (`package.json`) |
 | **Current release** | **`v0.4.0-RC2`** (pending owner tag on `36677dbf`) |
 | **Current release candidate** | `v0.4.0-RC2` — Operational stabilization complete (Programs 2.3.X.0–X.4) |
-| **Main branch HEAD** | Verify: `git rev-parse --short main` on latest pull |
+| **Main branch HEAD** | **`2cdd5dda`** — verify: `git rev-parse --short main` on latest pull |
 
 ---
 
@@ -54,7 +54,23 @@
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
 | **Last decision** | **D-059** — Business Intent Authoring Architecture |
 | **Roadmap position** | **Business Intent Resolver** implementation next |
-| **Next official mission** | **Business Intent Resolver** — first implementation on Intent Authoring architecture · then **Business Computed Fields** |
+| **Next official mission** | **Program 3.5** — Business Intent Resolver (implementation) · then **Business Computed Fields** |
+
+---
+
+## Documental Cycle Closure (Programs 3.3 + 3.4)
+
+| Item | Status |
+|------|--------|
+| **Program 3.3** — Business Computation Layer (D-058) | ✅ On `main` (PR #342) |
+| **Program 3.4** — Business Intent Authoring (D-059) | ✅ On `main` (PR #343) |
+| **PR #343** | ✅ Merged — referência definitiva do ciclo 3.3+3.4 |
+| **PR #342** | ✅ Merged · **substituída por #343** para governança · branch removida |
+| **Branches removidas** | `cursor/business-computation-layer-0b52` · `cursor/business-intent-authoring-0b52` |
+| **PRs documentais pendentes (3.3/3.4)** | **Nenhuma** |
+| **Próximo passo** | Branch limpa `cursor/program-35-ready-0b52` → Program 3.5 |
+
+**Arquitetura oficial na `main`:** [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) · [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)
 
 ---
 
