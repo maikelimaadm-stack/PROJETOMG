@@ -15,12 +15,12 @@ import { incrementClienteCounter } from "../metrics/counterService.js";
 import { listCadastroModulesForCadcps } from "./cadastroModuleRegistry.js";
 import { mdpFieldRepository } from "../mdp/mdpFieldRepository.js";
 import {
-  buildLabelCreate,
   buildStableFieldId,
   CADCPS_APLICACAO_TO_MDP,
   MDP_PLATFORM_VERSION_ID,
 } from "../mdp/mdpFieldConstants.js";
 import {
+  buildLabelCreate,
   campoPayloadToMdpFieldData,
   mdpFieldToCampoShape,
 } from "../mdp/mdpFieldCadcpsAdapter.js";
