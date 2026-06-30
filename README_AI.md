@@ -29,7 +29,7 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Roadmap Position** | **Business Intent Resolver** — next implementation · then Business Computed Fields |
 | **Current Architecture Stage** | L5 Studio Intelligence — Business Intent Authoring defined (D-059) |
 | **Current Studio Stage** | Computation Engine ✅ · Formula Builder ✅ · Business Computation ✅ · Intent Authoring ✅ (docs) |
-| **Next Official Mission** | **Business Intent Resolver** — implementation on Intent Authoring architecture |
+| **Next Official Mission** | **Program 3.5** — Business Intent Resolver (implementation on Intent Authoring architecture) |
 
 ### Mandatory Documents (continuity)
 
