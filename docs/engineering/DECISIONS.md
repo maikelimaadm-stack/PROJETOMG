@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-062 Enterprise Architecture Remediation)
+**Last updated:** 2026-06-30 (D-063 Business Derivation Architecture)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -753,6 +753,18 @@
 | **Decision** | Complete **Enterprise Architecture Remediation** — eliminate all P0 debt from D-061 audit through **consolidation only** (no functional implementation). Establish official registries: [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md), [GATE-REGISTRY.md](./GATE-REGISTRY.md), [SSOT-REGISTRY.md](./SSOT-REGISTRY.md), [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md), [SUPERSESSION-REGISTER.md](./SUPERSESSION-REGISTER.md), [DOCUMENT-CLASSIFICATION.md](./DOCUMENT-CLASSIFICATION.md). Renumber deploy gates **G303/G304 → G401/G402**; reserve **G304 exclusively** for Business Intent Resolver. Approve [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md) (plan only — no implementation). Sync ROADMAP/SSOT hierarchy. **Declare platform state: ARCHITECTURE CONSOLIDATED.** **Authorize** Program 3.5 — Business Intent Resolver implementation. **Permanent rule:** no D-xxx, G-xxx, Program, or SSOT doc without registry update. |
 | **Evidence** | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) |
 | **Consequences** | D-061 implementation block lifted; all P0 resolved; implementation resumes from consolidated baseline; formula runtime unification deferred to future program per plan |
+
+---
+
+## D-063 — Business Derivation Architecture (Program 3.6)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Business Derivation Architecture** — official infrastructure by which any business asset is derived from Business Intent. Register all permanent concepts: Business Derivation, Derivation Document, Catalog, Library, Registry, Metadata, Lifecycle, Versioning, Identity, Policies, Validation, Diagnostics, Dependencies, Relationships, Contracts, Compatibility, Lineage, Traceability, History, Ownership, Provenance, Explainability, Regeneration, Synchronization, Invalidation, Diff, Merge, Rollback, Migration, Extension Points. Register official pipeline: Intent → Derivation → Asset → Artifact → Technical Projection → Studio → MDP → Runtime. Register policies: Synchronization (§8), Explainability (§9), Marketplace (§10), AI (§11), Evolution (§12). Register mandatory derivation metadata and 13 derivation categories. **Documentation only** — no code, API, runtime, Foundation, Studio, or Resolver implementation. **Authorize** Program 3.7 — Business Intent Resolver implementation using exclusively this architecture. **Permanent rule:** no Studio may implement proprietary derivation; all derivation reuses this infrastructure. |
+| **Evidence** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
+| **Consequences** | Decades-scale derivation SSOT established; Intent Resolver (3.7) implements Derivation Engine contract (G304); all future Studios consume derivations — never origin business logic |
 
 ---
 

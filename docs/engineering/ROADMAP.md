@@ -171,8 +171,9 @@ Architecture: [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MA
 | **3.5A** | Enterprise Intelligence Vision | ✅ Complete docs (D-060) |
 | **3.5B** | Architecture Consolidation Audit | ✅ Complete (D-061) |
 | **3.5C** | Architecture Remediation | ✅ Complete (D-062) — **ARCHITECTURE CONSOLIDATED** |
-| **3.5** | Business Intent Resolver (impl) | **Next implementation** — G304 |
-| **3.5+** | Business Computed Fields | After Resolver |
+| **3.6** | Business Derivation Architecture | ✅ Complete docs (D-063) |
+| **3.7** | Business Intent Resolver (impl) | **Next implementation** — G304 |
+| **3.7+** | Business Computed Fields | After Resolver |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|

@@ -1,7 +1,39 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.5C Enterprise Architecture Remediation — D-062)
+**Last updated:** 2026-06-30 (Program 3.6 Business Derivation Architecture — D-063)
+
+---
+
+## 2026-06-30 — Program 3.6: Business Derivation Architecture
+
+**Scope:** Permanent derivation infrastructure architecture — **zero code, API, runtime, Foundation, Studio, or Resolver implementation**  
+**Deliverables:** [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) — 30 concepts · official pipeline · mandatory metadata · 13 categories · Sync · Explainability · Marketplace · AI · Evolution policies  
+**Decision:** D-063 — single official derivation infrastructure for all Studios  
+**Certification:** Documentation-only · 15 mandatory questions answered below · no gates · no implementation
+
+**Validation:** N/A (docs-only mission)  
+**Next:** **Program 3.7** — Business Intent Resolver (G304) — must use Business Derivation Architecture exclusively
+
+### Certificação Obrigatória (15 perguntas — Program 3.6)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Elimina retrabalho para próximos Studios? | **SIM** | Infraestrutura única; Studios editam projeções apenas |
+| 2 | Conflito com Business Intent? | **NÃO** | Intent permanece SSOT; derivação consome Intent |
+| 3 | Conflito com Business Capability? | **NÃO** | capabilityId obrigatório; Capability referenciada |
+| 4 | Conflito com Business Computation? | **NÃO** | Computation é facet/artifact de derivação |
+| 5 | Conflito com Formula Builder? | **NÃO** | Formula Builder = editor de projeção técnica |
+| 6 | Conflito com Computation Engine? | **NÃO** | Engine executa projeção; não origina derivação |
+| 7 | Conflito com Foundation? | **NÃO** | Nenhuma alteração Foundation |
+| 8 | Rastreabilidade completa? | **SIM** | Metadata obrigatória §5 + lineage |
+| 9 | Infraestrutura única de derivação? | **SIM** | BD-1 permanent principle |
+| 10 | Implementações futuras devem reutilizar? | **SIM** | Regra permanente D-063 |
+| 11 | Prepara Intent Resolver? | **SIM** | Program 3.7 implementa contrato §3.1 |
+| 12 | Prepara Computed Fields, Workflows, etc.? | **SIM** | Catálogo multi-asset §7 |
+| 13 | Reduz risco de retrabalho estrutural? | **SIM** | Pipeline e políticas normativas |
+| 14 | Preparada para décadas? | **SIM** | Versioning, migration, extension points |
+| 15 | Program 3.7 Resolver liberado? | **SIM** | Autorizado exclusivamente via esta arquitetura |
 
 ---
 
