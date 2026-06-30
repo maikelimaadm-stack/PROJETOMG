@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-073 Platform Remediation & Product Alignment)
+**Last updated:** 2026-06-30 (D-074 Product Identity Freeze)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -888,11 +888,23 @@
 
 ---
 
+## D-074 — Product Identity Freeze (Program 3.8.8)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted — **FROZEN** |
+| **Decision** | **Officially freeze definitive MAK product identity.** No open decisions on UX paradigm, product positioning, BOS, Business First, Expert Mode, Dual Authoring, Business Language, Business Assets, capability navigation, platform home, ModeloBase1 role, Formula Builder role, Studios role, Runtime/Resolver/IA/Marketplace/Intelligence pillars, or any central platform concept. Publish [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) as supreme product-identity SSOT. **Close VA-07:** mandatory tenant-scoped domain event bus (L3) for Intelligence identity — implementation deferred, decision frozen. Legacy module-menu UX is **not** product identity; destination = BOS home frozen. **Implementation may resume** under frozen spec. **No Foundation/Runtime/API/DB/UI code in this mission.** |
+| **Evidence** | [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
+| **Consequences** | Product identity closed; D-074 gates all future UX/product missions; continuous implementation authorized **under frozen identity** |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
 |-------|---------|
-| Backend event bus design | Automation + Intelligence product behavior — **VA-07 remediation gate** · required before Intelligence implementation · L3 Platform Core event bus spec in Master Architecture §L3 |
+| Backend event bus design | **✅ Resolved D-074** — mandatory tenant-scoped domain event bus; see [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) §10 |
 | Desktop shell technology | Tauri vs Electron — L7 implementation choice; does not affect topology |
 
 **Resolved (D-014):** Offline sync architecture → Sync Platform (L6.4) + Offline client capability (L7). MAK Studio metadata storage → MDP Metadata Registry (L4).

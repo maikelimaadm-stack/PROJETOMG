@@ -57,7 +57,7 @@
 | **Business Computation** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) | D-058 hooks; computation derivation facet |
 | **Business Asset authoring principles** | [MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md](../architecture/MAK-BUSINESS-ASSET-AUTHORING-PRINCIPLES.md) | Expert boundary · D-073 |
 | **Business Operating Shell** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) | VA-01 · Navigation model |
-| **Product identity** | [MAK-PRODUCT-IDENTITY.md](../architecture/MAK-PRODUCT-IDENTITY.md) | VA-06 · D-057 harmonization |
+| **Product identity (FROZEN)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) | [MAK-PRODUCT-IDENTITY.md](../architecture/MAK-PRODUCT-IDENTITY.md) | — |
 | **Studio Computation** | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) | G302 implementation |
 | **Formula runtime unification** | [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md) | AD-P0-01/02 remediation |
 | **Platform language** | [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) | — |

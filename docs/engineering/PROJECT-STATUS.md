@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Platform Remediation & Product Alignment (D-073)  
+**Updated by:** Program 3.8.8 — Product Identity Freeze (D-074)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -15,8 +15,8 @@
 | Field | Value |
 |-------|-------|
 | **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **First Business Asset certified** (D-068, G306) |
-| **Implementation phase** | **REMEDIATION & CONSOLIDATION (D-073)** — Programs paused |
-| **Implementation authorized** | **No** — remediation gate active |
+| **Implementation phase** | **Identity frozen (D-074)** — continuous implementation **authorized under frozen spec** |
+| **Implementation authorized** | **Yes** — under [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
 
 ---
 
@@ -62,9 +62,9 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed mission** | **Platform Remediation Cycle 1** (D-073) — VA SSOT registered |
-| **Last decision** | **D-073** — Remediation & Product Alignment |
-| **Next official mission** | **Remediation gate** — VA-07 event bus decision · doc drift Cycle 2 |
+| **Last completed mission** | **Program 3.8.8** — Product Identity Freeze (D-074) |
+| **Last decision** | **D-074** — Product identity officially frozen |
+| **Next official mission** | **Continuous implementation** — BOS UI under frozen identity |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 
