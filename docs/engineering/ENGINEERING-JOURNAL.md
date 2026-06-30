@@ -1,7 +1,18 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.4 Business Intent Authoring — D-059)
+**Last updated:** 2026-06-30 (Program 3.5A Enterprise Intelligence Vision — D-060)
+
+---
+
+## 2026-06-30 — Program 3.5A: Enterprise Intelligence Vision
+
+**Scope:** Permanent long-horizon intelligence architecture — **zero code, API, runtime, Foundation, Studio, or roadmap change**  
+**Deliverables:** 8 documents — Enterprise Memory, Business DNA, Process Mining, Decision Intelligence, Consulting Engine, Business Health, Evolution Engine, EOS Principles · Decision **D-060**  
+**Certification:** Documentation-only · 10 mandatory questions answered · no gates · no implementation
+
+**Validation:** N/A (docs-only mission)  
+**Next:** **Program 3.5** — Business Intent Resolver (**unchanged**)
 
 ---
 

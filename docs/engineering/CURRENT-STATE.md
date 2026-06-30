@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 3.4 Business Intent Authoring Architecture (D-059)  
+**Verified by:** Program 3.5A Enterprise Intelligence Vision (D-060)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -21,6 +21,7 @@
 | **MAK Studio Architecture** | v1.15.0 | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**foundation frozen** — D-031–D-052) |
 | **MAK Studio Computation Architecture** | v1.0.0 | `docs/architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md` (**D-054**) |
 | **MAK Enterprise Platform Vision** | v1.0.0 | `docs/vision/MAK-2035-PLATFORM-VISION.md` + 7 architecture refs (**D-057** — vision only) |
+| **Enterprise Intelligence Vision (3.5A)** | v1.0.0 | 8 docs + EOS Principles (**D-060** — vision frozen; no implementation) |
 | **MAK Business Intent Authoring Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md` (**D-059** — authoring SSOT; Resolver impl next) |
 | **MAK Business Computation Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md` (**D-058** — computation derivation facet) |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
@@ -45,7 +46,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 | Program | Priority | Brief |
 |---------|----------|-------|
 | **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Studio Intelligence 3.1–3.2 ✅; Enterprise vision ✅ (D-057); Intent Authoring ✅ (D-059, docs)** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) |
-| **Program 3 — Studio Intelligence** | P1 — **3.1 Computation ✅ · 3.2 Formula Builder ✅ · 3.3 Business Computation ✅ · 3.4 Intent Authoring ✅ (D-059, docs)** · **Intent Resolver next (impl)** · Business Computed Fields after Resolver | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
+| **Program 3 — Studio Intelligence** | P1 — **3.1–3.4 ✅ · 3.5A Intelligence Vision ✅ (D-060, docs)** · **3.5 Intent Resolver next (impl)** · Business Computed Fields after Resolver | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 

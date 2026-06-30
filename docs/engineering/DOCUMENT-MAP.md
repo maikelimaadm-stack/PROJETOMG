@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 3.4 — Business Intent Authoring Architecture (D-059)
+**Mission:** Program 3.5A — Enterprise Intelligence Vision (D-060)
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -42,12 +42,28 @@
 | Digital Twin Architecture | [MAK-DIGITAL-TWIN-ARCHITECTURE.md](../architecture/MAK-DIGITAL-TWIN-ARCHITECTURE.md) |
 | Business Capabilities | [MAK-BUSINESS-CAPABILITIES.md](../architecture/MAK-BUSINESS-CAPABILITIES.md) |
 | Continuous Improvement Architecture | [MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md](../architecture/MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md) |
+| **Enterprise Intelligence Vision (3.5A)** | See **L1b** below |
 | **MAK Business Computation Architecture** | **[MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md)** (**D-058** — Program 3.3) |
 | MAK Studio Architecture | [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
 | MAK Studio UX Framework | [MAK-STUDIO-UX-FRAMEWORK.md](../architecture/MAK-STUDIO-UX-FRAMEWORK.md) |
 | Platform Language Standard | [MAK-PLATFORM-LANGUAGE-STANDARD.md](../architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md) |
 | MAK Studio Computation Architecture | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) |
 | Platform Evolution | [MAK-PLATFORM-EVOLUTION.md](../architecture/MAK-PLATFORM-EVOLUTION.md) |
+
+---
+
+## L1b — Enterprise Intelligence Vision (Program 3.5A, D-060)
+
+| Document | Path |
+|----------|------|
+| **Enterprise Operating System Principles** | **[MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](../architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md)** |
+| Enterprise Memory Architecture | [MAK-ENTERPRISE-MEMORY-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-MEMORY-ARCHITECTURE.md) |
+| Business DNA Architecture | [MAK-BUSINESS-DNA-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DNA-ARCHITECTURE.md) |
+| Process Mining Architecture | [MAK-PROCESS-MINING-ARCHITECTURE.md](../architecture/MAK-PROCESS-MINING-ARCHITECTURE.md) |
+| Decision Intelligence Architecture | [MAK-DECISION-INTELLIGENCE-ARCHITECTURE.md](../architecture/MAK-DECISION-INTELLIGENCE-ARCHITECTURE.md) |
+| Consulting Engine Architecture | [MAK-CONSULTING-ENGINE-ARCHITECTURE.md](../architecture/MAK-CONSULTING-ENGINE-ARCHITECTURE.md) |
+| Business Health Architecture | [MAK-BUSINESS-HEALTH-ARCHITECTURE.md](../architecture/MAK-BUSINESS-HEALTH-ARCHITECTURE.md) |
+| Evolution Engine Architecture | [MAK-EVOLUTION-ENGINE-ARCHITECTURE.md](../architecture/MAK-EVOLUTION-ENGINE-ARCHITECTURE.md) |
 
 ---
 
