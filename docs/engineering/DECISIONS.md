@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-076 Business Workflow MVP)
+**Last updated:** 2026-06-30 (D-077 Enterprise Intelligence Foundation)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -921,6 +921,18 @@
 | **Decision** | Implement first **Business Workflow** as official reusable Business Asset under D-074. Pipeline: Business Language → Intent → Resolver → Business Workflow → technical projection. Business vocabulary states/transitions/SLA/escalation/assignments. BOS integration (asset, Business First, inbox). No BPMN, no Studio for business users. Gate **G308**. |
 | **Evidence** | `src/studio/business/workflow/**` · [PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md](./PROGRAM-3.10-BUSINESS-WORKFLOW-REPORT.md) |
 | **Consequences** | Workflow asset type implemented; Automation/Dashboard remain extension points |
+
+---
+
+## D-077 — Enterprise Intelligence Foundation (Program 3.11)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Implement **Enterprise Intelligence Foundation** under D-074: tenant-scoped Domain Event Bus (VA-07 implementation start), Business Memory Foundation, Observation Layer, event timeline, health signals, explainable intelligence records, outcome/decision capture from BOS/Workflow/Intent. Observational only — no AI chat, no autonomous execution. Gate **G309**. |
+| **Evidence** | `src/intelligence/**` · [PROGRAM-3.11-ENTERPRISE-INTELLIGENCE-FOUNDATION-REPORT.md](./PROGRAM-3.11-ENTERPRISE-INTELLIGENCE-FOUNDATION-REPORT.md) |
+| **Consequences** | Domain events MVP live; Memory/Knowledge/Consulting/Decision/Evolution engines remain extension points |
 
 ---
 

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useEffect, useMemo } from "react";
 import { Button } from "@/shared/ui/button";
 import { buildBosCapabilities } from "@/bos/config/bosCapabilityCatalog";
 import { buildBosAssetTypes } from "@/bos/config/bosAssetCatalog";
@@ -19,15 +20,30 @@ import {
   ActivityTeaserSection,
 } from "@/bos/components/HealthAndActivitySections";
 import { useAuth } from "@/shared/contexts/AuthContext";
+import {
+  buildIntelligenceHomeProjection,
+} from "@/intelligence/integration/bosIntelligenceProjection.js";
+import { captureBosHomeViewed } from "@/intelligence/integration/intelligenceEventBridge.js";
 
 export default function BosHomePage() {
   const { user, cliente } = useAuth();
+  const tenantId = String(cliente?.id ?? "default");
+
+  useEffect(() => {
+    captureBosHomeViewed(tenantId, user?.usuario ?? "business-user");
+  }, [tenantId, user?.usuario]);
+
+  const intelligence = useMemo(
+    () => buildIntelligenceHomeProjection(tenantId),
+    [tenantId]
+  );
+
   const capabilities = buildBosCapabilities();
   const assetTypes = buildBosAssetTypes();
   const objectives = buildDefaultObjectives();
   const recommendations = buildExplainableSuggestions();
-  const activity = buildRecentActivity();
-  const health = buildHealthSummary();
+  const activity = intelligence.activity ?? buildRecentActivity();
+  const health = intelligence.hasObservations ? intelligence.health : buildHealthSummary();
 
   const displayName = user?.nome ?? user?.usuario ?? "Operador";
   const tenantLabel = cliente?.nome ?? cliente?.codigo ?? "sua organização";

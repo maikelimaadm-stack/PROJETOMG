@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { Button } from "@/shared/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/shared/ui/card";
@@ -7,6 +7,11 @@ import {
   resolveFromBusinessLanguage,
 } from "@/studio/intent/index.js";
 import { saveWorkflowTask, createWorkflowTask } from "@/studio/business/workflow/businessWorkflowTaskInbox.js";
+import {
+  bridgeIntentResolverResult,
+  bridgeUserConfirmation,
+  bridgeWorkflowTaskCreated,
+} from "@/intelligence/integration/intelligenceEventBridge.js";
 import { useAuth } from "@/shared/contexts/AuthContext";
 
 export default function BusinessFirstPage() {
@@ -85,6 +90,12 @@ export default function BusinessFirstPage() {
         initiatedBy: user?.usuario ?? "business-user",
       });
 
+      bridgeIntentResolverResult(result, {
+        tenantId: String(cliente?.id ?? "default"),
+        actorId: user?.usuario ?? "business-user",
+        preview: true,
+      });
+
       if (!result.ok) {
         setError(
           result.diagnostics?.map((d) => d.message).join(" ") ??
@@ -126,14 +137,32 @@ export default function BusinessFirstPage() {
   const handleConfirm = () => {
     if (!preview || preview.mode !== "workflow") return;
     const tenantId = String(cliente?.id ?? "default");
-    saveWorkflowTask(
-      createWorkflowTask({
-        workflowId: preview.workflowId,
-        workflowTitle: objective.trim() || "Fluxo de aprovação",
-        tenantId,
-        explainability: preview.explainability ?? preview.intentPhrase,
-      })
-    );
+    const task = createWorkflowTask({
+      workflowId: preview.workflowId,
+      workflowTitle: objective.trim() || "Fluxo de aprovação",
+      tenantId,
+      explainability: preview.explainability ?? preview.intentPhrase,
+    });
+    saveWorkflowTask(task);
+
+    bridgeUserConfirmation({
+      tenantId,
+      actorId: user?.usuario ?? "business-user",
+      assetKind: "workflow",
+      assetType: "business.asset.workflow",
+      assetId: preview.workflowId,
+      businessSummary: preview.explainability ?? preview.intentPhrase,
+    });
+
+    bridgeWorkflowTaskCreated({
+      tenantId,
+      workflowId: preview.workflowId,
+      taskId: task.taskId,
+      workflowTitle: task.workflowTitle,
+      stateId: task.stateId,
+      explainability: task.explainability,
+    });
+
     setSaved(true);
   };
 
