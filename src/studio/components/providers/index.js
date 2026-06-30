@@ -1,0 +1,9 @@
+export { ExplorerProvider, useExplorerProvider } from "./ExplorerProvider.jsx";
+export { InspectorProvider, useInspectorProvider } from "./InspectorProvider.jsx";
+export { PropertyProvider, usePropertyProvider } from "./PropertyProvider.jsx";
+export { WorkspaceProvider, useWorkspaceProvider } from "./WorkspaceProvider.jsx";
+export { DockProvider, useDockProvider } from "./DockProvider.jsx";
+export { NotificationProvider, useNotificationProvider } from "./NotificationProvider.jsx";
+export { BreadcrumbProvider, useBreadcrumbProvider } from "./BreadcrumbProvider.jsx";
+export { CommandPaletteProvider, useCommandPaletteProvider } from "./CommandPaletteProvider.jsx";
+export { StatusBarProvider, useStatusBarProvider } from "./StatusBarProvider.jsx";

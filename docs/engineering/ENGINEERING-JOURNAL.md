@@ -1,7 +1,188 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-29 (Program 2.0.9 Studio UX Framework)
+**Last updated:** 2026-06-28 (Program 2.3.5 Studio Evaluation Engine)
+
+---
+
+## 2026-06-28 — Program 2.3.5: Studio Evaluation Engine
+
+**Scope:** Evaluation Pipeline, Context, Session, Cache, Scheduler, Strategy, Result, Diagnostics, Profiler, Hooks; Field Studio first consumer; Expression bridge migrated  
+**Changes:** `src/studio/evaluation/*`, `fieldEvaluationSetup.js`, `expressionEvaluationBridge.js`, gate G301  
+**Report:** [IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md)  
+**Decision:** D-051
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.6 Computed & Derived Fields
+
+---
+
+## 2026-06-28 — Program 2.3.4: Studio Type System
+
+**Scope:** Type Registry, Primitives, Business/Reference/Collection/Enum types, Compatibility, Inference, Coercion, Validation, Metadata; Field Studio first consumer; Expression bridge migrated  
+**Changes:** `src/studio/typeSystem/*`, `fieldTypeSetup.js`, expression type bridge, gate G300  
+**Report:** [IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md)  
+**Decision:** D-050
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.5 Computed & Derived Fields
+
+---
+
+## 2026-06-28 — Program 2.3.3: Studio Dependency Engine
+
+**Scope:** Dependency Graph, Nodes, Edges, Analyzer, Cycle Detection, Resolver, Cache, Invalidation, Impact Analyzer, Safe Rename/Delete, Metadata; Field Studio first consumer; Expression bridge migrated  
+**Changes:** `src/studio/dependency/*`, `fieldDependencySetup.js`, expression dependency bridge, gate G299  
+**Report:** [IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md)  
+**Decision:** D-049
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.4 Computed & Derived Fields
+
+---
+
+## 2026-06-28 — Program 2.3.2: Studio Expression Engine
+
+**Scope:** Expression Document, AST, Parser, Compiler, Validator, Type System, Function Catalog, Context, Dependency Graph, Refactoring; Field Studio first consumer  
+**Changes:** `src/studio/expression/*`, `fieldExpressionSetup.js`, gate G298  
+**Report:** [IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md)  
+**Decision:** D-048
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.3 Studio Dependency Engine
+
+---
+
+## 2026-06-28 — Program 2.3.1: Field Studio Smart Authoring
+
+**Scope:** Smart Templates (10), Business Types catalog, advanced properties, multi-group organization  
+**Changes:** `templates/`, `businessTypes/`, `fieldPresentationAdapter`, gate G297  
+**Report:** [IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md)  
+**Decision:** D-047
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.2 Computed & Formula Fields
+
+---
+
+## 2026-06-28 — Program 2.3: Field Studio Phase 1
+
+**Scope:** Field Document, AST, Canvas, MDP Field Dictionary client, Editor registration; CRUD + Property Grid + Preview  
+**Changes:** `src/studio/designers/field/*`, `mdpFieldClient.js`, gate G296, shell wiring  
+**Report:** [IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md)  
+**Decision:** D-046
+
+**Validation:** build · lint · verify:governance · verify:ci · 5 cycles ✅  
+**Next:** Program 2.3.1 Advanced Field Capabilities
+
+---
+
+## 2026-06-29 — Program 2.2.7: Studio Editor Engine
+
+**Scope:** Reusable Editor services, EditorHost, StudioEditorShellBridge; Layout registers contributions only  
+**Changes:** `src/studio/editor/*`, `layoutEditorRegistration.jsx`, gate G295, shell/bridge migration  
+**Report:** [IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md)  
+**Decision:** D-045
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
+
+---
+
+## 2026-06-29 — Program 2.2.6: Studio Object Model (SOM)
+
+**Scope:** Object Model, Property, Binding, Behavior, Identity, Package engines; Layout migrated to SOM  
+**Changes:** `src/studio/som/*`, `designers/layout/som/layoutSomSetup.js`, gate G294, dependency stack update  
+**Report:** [IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md)  
+**Decision:** D-044
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
+
+---
+
+## 2026-06-29 — Program 2.2.5: Studio Core Engine
+
+**Scope:** Reusable Document, AST, Validation, Command, Project, Dependency Graph, Refactoring engines; Layout migrated to Core  
+**Changes:** `src/studio/core/*`, `designers/layout/core/layoutCoreSetup.js`, gate G293, dependency stack update  
+**Report:** [IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md)  
+**Decision:** D-043
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
+
+---
+
+## 2026-06-29 — Program 2.2: Layout Studio Engine
+
+**Scope:** First functional designer — Layout Document, AST, Canvas, Commands, Validation, MDP mutations, Preview  
+**Changes:** `src/studio/designers/layout/*`, `mdpRegistryClient.js`, gate G291, shell integration  
+**Report:** [IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md)  
+**Decision:** D-042
+
+**Validation:** build · lint · verify:governance ✅  
+**Next:** Program 2.3 Field Studio
+
+---
+
+## 2026-06-29 — Program 2.1B: Studio Shell Production
+
+**Scope:** Production shell — MDP clients, auth gate, Selection Model, Workspace Session, persistence, CRB Preview  
+**Changes:** `src/studio/shell/StudioShell.jsx`, `StudioProductionShellProvider.jsx`, `src/studio/services/*`, `createProductionDomainAdapters`, gate G287  
+**Report:** [IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md)  
+**Decision:** D-041
+
+**Validation:** build · lint · verify:governance · 5 cycles ✅  
+**Next:** Program 2.2 Layout Studio (Empresas Pilot)
+
+---
+
+## 2026-06-29 — Program 2.1A.7: Studio Contribution Engine Foundation
+
+**Scope:** Last structural layer — Contribution Manager, Registry Manager, lifecycle, makpkg contracts  
+**Changes:** `src/studio/contributions/*`, gate G290 — **Studio foundation closed**  
+**Report:** [IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md)  
+**Decision:** D-040
+
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1B Studio Shell Production — functional implementation
+
+---
+
+## 2026-06-29 — Program 2.1A.6: Studio Domain Engine Foundation
+
+**Scope:** Official Studio Domain — shared state, service contracts, adapters, public hooks  
+**Changes:** `src/studio/domain/*`, gate G289, `StudioShellProvider` refactored to domain  
+**Report:** [IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md)  
+**Decision:** D-039
+
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1B Studio Shell Production — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md)
+
+---
+
+## 2026-06-29 — Program 2.1A.5: Universal Studio Components Foundation
+
+**Scope:** Universal presentational components + Providers for all Shell panels  
+**Changes:** `src/studio/components/*`, gate G288, shell/panels refactored to consume universals  
+**Report:** [IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md)  
+**Decision:** D-038
+
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1A.6 Studio State Engine — [Brief](./IFM-PHASE-2.1A.6-STUDIO-STATE-ENGINE-BRIEF.md)
+
+---
+
+## 2026-06-29 — Program 2.1A: MAK Studio Shell Prototype
+
+**Scope:** First visual Studio Shell — mock data only; validates UX, layout, docks, navigation  
+**Changes:** `src/studio/shell/*`, `dock/`, `panels/`, `navigation/`, `mock/`, gate G286  
+**Report:** [IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md)  
+**Decision:** D-037
+
+**RHP:** PR #314 merged @ `0ab98441`; main synchronized  
+**Validation:** build · lint · verify:ci · 5 cycles ✅  
+**Next:** Program 2.1B Studio Shell Production — [Brief](./IFM-PHASE-2.1B-STUDIO-SHELL-PRODUCTION-BRIEF.md)
 
 ---
 

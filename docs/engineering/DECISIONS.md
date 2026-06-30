@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (D-029 Engineering Principles)
+**Last updated:** 2026-06-29 (D-040 Contribution Engine — foundation closed)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -435,6 +435,186 @@
 | **Decision** | Establish **MAK Studio UX Framework** (`docs/architecture/MAK-STUDIO-UX-FRAMEWORK.md` v1.0.0) as the permanent interaction language for all MAK Studios. Defines Workspace, Dock, Explorer, Property Grid, Command Palette, History, Preview, and 20+ surfaces with unified behavior, shortcuts, states, icons, feedback, nomenclature, accessibility, and responsiveness contracts. **Doc-only** — no React UI. Gate **G285**. **Last exclusive documentation mission before Studio Shell.** |
 | **Evidence** | [IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.0.9-CERTIFICATION-REPORT.md) |
 | **Consequences** | Program 2.1 Shell implements all panels per UX Framework; no Studio may create custom interaction patterns |
+
+---
+
+## D-037 — MAK Studio Shell Prototype (Program 2.1A)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A** — first **visual** Studio Shell prototype (`src/studio/shell/`, `dock/`, `panels/`, `navigation/`, `mock/`) with mock data only. Validates UX Framework layout, dock ergonomics, SDK + Event Hub wiring, and Design System tokens **without** MDP, Runtime Bridge, persistence, or business logic. Route `/studio/prototype`. Gate **G286**. Consumer layer extended to include `panels` and `mock`. |
+| **Evidence** | [IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A-CERTIFICATION-REPORT.md) |
+| **Consequences** | Visual validation before production; Program 2.1B replaces mock deps with auth + MDP clients; Layout Studio (2.2) follows 2.1B |
+
+---
+
+## D-038 — Universal Studio Components Foundation (Program 2.1A.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A.5** — universal presentational Studio components (`src/studio/components/`) with public Provider contracts for Explorer, Inspector, Property Grid, Workspace, Dock, Tabs, Status Bar, Notification Area, Breadcrumb, and Command Palette. Components render only; all logic injected via Providers. **No designer-specific imports.** New governance layer `studio-universal-components`. Gate **G288**. |
+| **Evidence** | [IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.5-CERTIFICATION-REPORT.md) |
+| **Consequences** | All future Studios reuse universal library; 2.1A.6 State Engine extracts provider wiring from shell; 2.1B swaps Provider data sources only |
+
+---
+
+## D-039 — Studio Domain Engine Foundation (Program 2.1A.6)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A.6** — official MAK Studio Domain Engine (`src/studio/domain/`) with single shared state model (12 slices), service contracts (6 services — interfaces only), adapter registry, public hooks, and domain→universal provider bridge. **No designer may duplicate official domain state.** Gate **G289**. Replaces simple State Engine concept with full domain architecture. |
+| **Evidence** | [IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.6-CERTIFICATION-REPORT.md) |
+| **Consequences** | All Studios use domain hooks; 2.1B swaps service adapters for MDP; IA/Marketplace/Collaboration extend via adapters |
+
+---
+
+## D-040 — Studio Contribution Engine Foundation (Program 2.1A.7)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1A.7** — official Contribution Engine (`src/studio/contributions/`) with Contribution Manager (7 register* APIs), Registry Manager (sole access to official registries), contribution store, lifecycle (register/enable/disable/unload), validators, and makpkg manifest contracts. **No designer may register directly in registries.** Gate **G290**. **Last structural layer — Studio foundation closed.** |
+| **Evidence** | [IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md) |
+| **Consequences** | All future designers/plugins use Contribution Manager; 2.1B begins functional implementation era; no new structural layers unless critical architectural risk |
+
+---
+
+## D-041 — Studio Shell Production (Program 2.1B)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.1B** — production Studio Shell with MDP public API clients (`src/studio/services/`), `createProductionDomainAdapters`, JWT auth gate, official Selection Model + Workspace Session contracts, localStorage persistence, CRB Preview via `previewCrbAdapter` (no Runtime Bridge import). Prototype preserved at `/studio/prototype`. Gate **G287**. |
+| **Evidence** | [IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md) |
+| **Consequences** | Functional implementation era begins; Program 2.2 Layout Studio mounts first designer plugin on production shell |
+
+---
+
+## D-042 — Layout Studio Engine (Program 2.2)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2** — Layout Studio Engine with official Layout Document, Layout AST, Canvas Engine (extensible), Command System (mandatory mutations), Validation Engine, MDP Property Grid writes via document, Preview via Document→Compile→CRB. Gate **G291**. First functional designer at `/studio/empresas/layout`. |
+| **Evidence** | [IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md) |
+| **Consequences** | Establishes permanent visual authoring engine pattern for all future Studios; Program 2.3 Field Studio follows same architecture |
+
+---
+
+## D-043 — Studio Core Engine (Program 2.2.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2.5** — Studio Core Engine with Document, AST, Validation, Command, Studio Project Model, Dependency Graph, and Refactoring engines. Layout Studio migrated to consume Core exclusively. Gate **G293** forbids designers from implementing engines locally. |
+| **Evidence** | [IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md) |
+| **Consequences** | Field Studio (2.3), Workflow Studio, Dashboard Studio, and all future designers reuse Core foundation — no structural duplication |
+
+---
+
+## D-044 — Studio Object Model (Program 2.2.6)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2.6** — Studio Object Model (SOM) with Object Model, Property Engine, Binding Engine, Behavior Engine, Object Identity System, and Studio Package Model. Layout Studio migrated to consume SOM exclusively. Gate **G294** forbids designers from implementing object/property/binding/behavior models locally. |
+| **Evidence** | [IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md) |
+| **Consequences** | Enables consistent evolution, AI integration, Marketplace, collaboration, and Runtime without structural duplication across all future Designers |
+
+---
+
+## D-045 — Studio Editor Engine (Program 2.2.7)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-29 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.2.7** — Studio Editor Engine with reusable services (Explorer, Workspace, Inspector, Property Grid, Canvas, Preview, History, Publish, Selection). Layout Studio migrated as first consumer via editor catalog registration. Gate **G295** forbids designers from implementing local editor structures. |
+| **Evidence** | [IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md) |
+| **Consequences** | Field Studio, Workflow Studio, Dashboard Studio, and Automation Studio reuse the same editor; Layout is first consumer only |
+
+---
+
+## D-046 — Field Studio Phase 1 (Program 2.3)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3** — Field Studio Phase 1 with official Field Document, Field AST, Command System (CRUD + reorder + property edit), Field Canvas, MDP Field Dictionary client, Explorer + Property Grid integration, Preview via Document→Compile→CRB. Second functional designer at `/studio/empresas/field`. Gate **G296**. No new Studio infrastructure. |
+| **Evidence** | [IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md) |
+| **Consequences** | Establishes field authoring pattern for all modules; Program 2.3.1 Advanced Field Capabilities follows; Layout Studio behavior preserved |
+
+---
+
+## D-047 — Field Studio Smart Authoring (Program 2.3.1)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.1** — Smart Field Templates (10 official), Business Field Types catalog (architecture only), advanced properties (mask, placeholder, help text, min/max, precision, scale, categories, groupings), centralized presentation adapter. Gate **G297**. No relationships, computed, derived, or formula in this phase. |
+| **Evidence** | [IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md) |
+| **Consequences** | Field creation is one-click intelligent; Program 2.3.2 Computed & Formula Fields follows |
+
+---
+
+## D-048 — Studio Expression Engine (Program 2.3.2)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.2** — Studio Expression Engine with official Expression Document, AST, Parser, Compiler, Validator, Type System, Function Catalog, Context, Dependency Graph, and Refactoring. Single expression foundation for all Studios. Field Studio first consumer. Gate **G298** forbids parallel parser/AST/evaluator in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed, Derived, Formula, Workflow, Dashboard, Automation, and AI Studios reuse one expression layer |
+
+---
+
+## D-049 — Studio Dependency Engine (Program 2.3.3)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.3** — Studio Dependency Engine with official Dependency Graph, Nodes, Edges, Analyzer, Cycle Detection, Resolver, Cache, Invalidation, Impact Analyzer, Safe Rename/Delete, and AI-ready metadata. Single dependency infrastructure for all Studios. Field Studio first consumer; Expression Engine variable refs delegate to this engine. Gate **G299** forbids parallel graphs, resolvers, cycle detection, caches, and impact analyzers in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed/Derived Fields, Workflow, Dashboard, Automation, AI, and Marketplace Studios reuse one dependency layer |
+
+---
+
+## D-050 — Studio Type System (Program 2.3.4)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.4** — Studio Type System with official Type Registry, Primitive/Business/Reference/Collection/Enum types, Compatibility Engine, Inference Engine, Coercion Engine, Validation Engine, and AI-ready metadata. Single type infrastructure for all Studios. Field Studio first consumer; Expression Engine delegates inference and compatibility. Gate **G300** forbids parallel type registries, inference, coercion, and semantic validation in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed/Derived Fields, Workflow, Dashboard, and Automation Studios reuse one type layer |
+
+---
+
+## D-051 — Studio Evaluation Engine (Program 2.3.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-28 |
+| **Status** | Accepted |
+| **Decision** | Implement **Program 2.3.5** — Studio Evaluation Engine with official Evaluation Pipeline, Context, Session, Cache, Scheduler, Strategy, Result, Diagnostics, Profiler, Hooks, and AI-ready metadata. Single evaluation infrastructure for all Studios. Field Studio first consumer path; Expression Engine delegates execution. Gate **G301** forbids parallel evaluators, schedulers, caches, and execution pipelines in designers. |
+| **Evidence** | [IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
+| **Consequences** | Computed/Derived Fields, Workflow, Dashboard, and Automation Studios reuse one evaluation layer |
 
 ---
 

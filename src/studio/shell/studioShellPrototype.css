@@ -1,0 +1,81 @@
+/* Studio Shell Prototype — token-driven layout (Program 2.1A) */
+
+.studio-shell {
+  --studio-border: hsl(var(--border));
+  --studio-muted: hsl(var(--muted));
+  --studio-bg: hsl(var(--background));
+  --studio-fg: hsl(var(--foreground));
+  --studio-primary: hsl(var(--primary));
+  font-family: Inter, system-ui, sans-serif;
+  background: var(--studio-bg);
+  color: var(--studio-fg);
+}
+
+.studio-shell__topbar {
+  border-bottom: 1px solid var(--studio-border);
+  background: var(--studio-muted);
+}
+
+.studio-shell__statusbar {
+  border-top: 1px solid var(--studio-border);
+  background: var(--studio-muted);
+  min-height: 24px;
+  font-size: 0.75rem;
+}
+
+.studio-shell__panel {
+  border: 1px solid var(--studio-border);
+  background: var(--studio-bg);
+}
+
+.studio-shell__panel-header {
+  border-bottom: 1px solid var(--studio-border);
+  background: var(--studio-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.studio-shell__tab {
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.studio-shell__tab--active {
+  opacity: 1;
+  border-bottom-color: var(--studio-primary);
+  font-weight: 600;
+}
+
+.studio-shell__tree-row {
+  font-size: 0.8125rem;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+}
+
+.studio-shell__tree-row:hover {
+  background: var(--studio-muted);
+}
+
+.studio-shell__tree-row--selected {
+  background: hsl(var(--accent));
+}
+
+.studio-shell__workspace-empty {
+  border: 2px dashed var(--studio-border);
+  border-radius: 0.5rem;
+}
+
+.studio-shell__badge-prototype {
+  font-size: 0.625rem;
+  background: hsl(45 93% 47% / 0.15);
+  color: hsl(32 95% 30%);
+  border: 1px solid hsl(45 93% 47% / 0.4);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}

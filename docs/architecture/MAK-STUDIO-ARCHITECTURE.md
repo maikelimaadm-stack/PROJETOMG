@@ -1,9 +1,9 @@
 # MAK Studio Architecture
 
 **Status:** Official — Permanent architecture reference for Program 2  
-**Version:** 1.5.0  
-**Effective date:** 2026-06-29  
-**Decision:** D-031 · **SDK:** D-032 · **Design System:** D-033 · **Events:** D-034 · **Governance:** D-035 · **UX:** D-036 (Program 2.0.9)  
+**Version:** 1.15.0  
+**Effective date:** 2026-06-28  
+**Decision:** D-031 · **Layout Engine:** D-042 · **Studio Core:** D-043 · **Studio Object Model:** D-044 · **Studio Editor:** D-045 · **Field Studio:** D-046 · **Smart Authoring:** D-047 · **Expression Engine:** D-048 · **Dependency Engine:** D-049 · **Type System:** D-050 · **Evaluation Engine:** D-051  
 **Mission:** Program 2.0 — MAK Studio Foundation Architecture  
 **Layer:** L5 (Experience Authoring)  
 **Hierarchy:** Constitution → Master Architecture → **This document** → Engineering Docs → Implementation
@@ -154,6 +154,44 @@ src/studio/
 ├── governance/             ← Architecture Governance (Program 2.0.8)
 │   ├── dependencyGraph.js
 │   └── architectureRules.js
+├── components/             ← Universal Studio Components (Program 2.1A.5)
+│   ├── contracts/          ← Public provider contracts
+│   ├── providers/          ← Explorer, Inspector, Property, Workspace, Dock, …
+│   └── Universal*.jsx        ← Presentational components (render only)
+├── domain/                 ← Studio Domain Engine (Program 2.1A.6)
+│   ├── state/              ← Single shared state model + reducer
+│   ├── contracts/          ← Domain + service contracts
+│   ├── services/           ← Preview, Publish, Compile, Validation, Asset, Search (interfaces)
+│   ├── adapters/           ← Service adapter registry (mock → production)
+│   ├── hooks/              ← useSelection, useWorkspace, useDock, … (public API)
+│   └── providers/          ← StudioDomainProvider + Universal bridge
+├── contributions/          ← Contribution Engine (Program 2.1A.7) — **last structural layer**
+│   ├── contracts/          ← Contribution + makpkg manifest contracts
+│   ├── store/              ← Contribution metadata store
+│   ├── registryManager/    ← Sole access point to official registries
+│   ├── lifecycle/          ← register, enable, disable, unload
+│   ├── validators/         ← Contribution validation
+│   └── contributionManager.js ← Public register* APIs
+├── core/                   ← Studio Core Engine (Program 2.2.5)
+│   ├── document/           ← Document Engine (create, serialize, migrate, version)
+│   ├── ast/                ← AST Engine (parser, transformer, compiler, visitors)
+│   ├── validation/         ← Validation Engine (registrable rules)
+│   ├── command/            ← Command Engine (base for all designer commands)
+│   ├── project/            ← Studio Project Model (official unit)
+│   ├── dependency/         ← Dependency Graph Engine
+│   └── refactoring/        ← Refactoring Engine (safe renames)
+├── editor/                 ← Studio Editor Engine (Program 2.2.7)
+│   ├── catalog/            ← Designer mount catalog (tools, panels, renderers)
+│   ├── services/           ← Explorer, Workspace, Inspector, PropertyGrid, Canvas, Preview, History, Publish, Selection
+│   ├── EditorHost.jsx      ← Mounts designer workspace from catalog
+│   └── StudioEditorShellBridge.jsx ← Shell-level editor ↔ universal components wiring
+├── som/                    ← Studio Object Model (Program 2.2.6)
+│   ├── object/             ← SOM — official editable element representation
+│   ├── property/           ← Property Engine (registrable, component-independent)
+│   ├── binding/            ← Binding Engine (field, formula, api, ai, …)
+│   ├── behavior/           ← Behavior Engine (triggers, conditions, actions)
+│   ├── identity/           ← Object Identity System (semantic stable IDs)
+│   └── package/            ← Studio Package Model (Project → Package → Module → Object)
 ├── registry/               ← Component, Property, Event, Action, Capability registries
 │   └── catalogs/
 ├── shell/                  ← Phase 2.1
@@ -164,7 +202,11 @@ src/studio/
 └── designers/              ← sub-phase plugins (layout, field, …)
 ```
 
-**Layer order:** Studio SDK → Design System → Event Architecture → Governance → Studio Shell → Designers
+**Layer order:** Studio SDK → Design System → Event Architecture → Governance → Universal Components → Studio Domain → **Studio Contributions** → Studio Shell → Designers
+
+**Studio Domain rule (Program 2.1A.6):** All official state lives in `src/studio/domain/`. Gate **G289**.
+
+**Contribution Engine rule (Program 2.1A.7):** All designer/plugin contributions **must** use Contribution Manager — no direct registry registration. Registry Manager is the sole access point to official registries. Gate **G290**. **Foundation infrastructure closed after 2.1A.7.**
 
 **Rule:** `src/studio/` is a **new L5 package** — it must not import mutation paths into Foundation or domain modules.
 
@@ -192,7 +234,7 @@ Navigation provides **context switching** without leaving the shell.
 | `/studio` | Module picker (landing) |
 | `/studio/:moduleId` | Designer picker for module |
 | `/studio/:moduleId/layout` | Layout Studio |
-| `/studio/:moduleId/field` | Field Studio (future) |
+| `/studio/:moduleId/field` | Field Studio |
 | `/studio/:moduleId/validation` | Validation Studio (future) |
 | `/studio/:moduleId/publish` | Publish Center |
 
@@ -1093,10 +1135,303 @@ After Program 2.0.9, **all mandatory pre-Shell documentation is complete**. Prog
 
 ---
 
+## 36. Layout Studio Engine (Program 2.2 — D-042)
+
+First functional designer plugin. Establishes the **permanent visual authoring engine pattern** for all Studios.
+
+### 36.1 Official editing pipeline
+
+```
+Layout Document  →  Layout AST  →  MDP Registry  →  Compile  →  CRB  →  Runtime
+```
+
+- **Layout Document** — sole editing representation; user never edits raw JSON
+- **Layout AST** — stable intermediate representation
+- **Commands** — all mutations via command bus + SDK history (undo/redo)
+- **Canvas Engine** — zoom, pan, grid, snap, guides, rulers, overlays, multi-selection (extensible)
+- **Validation Engine** — errors, warnings, suggestions, optimizations (no AI in 2.2)
+- **Preview** — Document → Compile → CRB only (no parallel render path)
+
+### 36.2 Path
+
+`src/studio/designers/layout/` · Gate **G291** · Route `/studio/:moduleId/layout`
+
+**Studio Core (2.2.5):** Layout consumes `src/studio/core/` exclusively via `layoutCoreSetup.js` — no local engine implementations. Gate **G293**.
+
+**Studio Object Model (2.2.6):** Layout consumes `src/studio/som/` exclusively via `layoutSomSetup.js` — no local object/property/binding/behavior models. Gate **G294**.
+
+**Studio Editor (2.2.7):** Layout registers contributions via `layoutEditorRegistration.jsx` — no local editor implementation. Gate **G295**.
+
+---
+
+## 37. Studio Core Engine (Program 2.2.5 — D-043)
+
+Reusable foundation for all Designers — **must** be consumed before Field Studio (2.3).
+
+### 37.1 Official engines
+
+| Engine | Responsibility |
+|--------|----------------|
+| **Document Engine** | Creation, serialization, migration, versioning |
+| **AST Engine** | Parser, transformer, compiler, visitors, serialization |
+| **Validation Engine** | Registrable rules — errors, warnings, suggestions, optimizations |
+| **Command Engine** | Base for all designer command buses |
+| **Studio Project Model** | Project as official unit (not isolated layout) |
+| **Dependency Graph Engine** | Cross-artifact dependencies (layout, field, workflow, …) |
+| **Refactoring Engine** | Safe renames and structural changes |
+
+### 37.2 Designer integration pattern
+
+```
+designers/{name}/core/{name}CoreSetup.js  →  wires Core engines + domain-specific rules/handlers/transformers
+```
+
+No designer may implement `createDocumentEngine`, `createAstEngine`, `createValidationEngine`, or `createCommandEngine` locally.
+
+### 37.3 Path
+
+`src/studio/core/` · Gate **G293** · Exported from `src/studio/index.js`
+
+---
+
+## 38. Studio Object Model (Program 2.2.6 — D-044)
+
+Universal model for all editable Studio elements — **must** be consumed before Field Studio (2.3).
+
+### 38.1 Official engines
+
+| Engine | Responsibility |
+|--------|----------------|
+| **Studio Object Model** | Official representation of any editable element |
+| **Property Engine** | Registrable properties independent of components |
+| **Binding Engine** | field, expression, relationship, formula, dataset, api, ai bindings |
+| **Behavior Engine** | Triggers, conditions, actions, execution policies |
+| **Object Identity System** | Semantic stable IDs for all editable objects |
+| **Studio Package Model** | Project → Package → Module → Object hierarchy |
+
+### 38.2 Designer integration pattern
+
+```
+designers/{name}/som/{name}SomSetup.js  →  wires SOM engines + domain-specific schemas/kinds/policies
+```
+
+No designer may implement object, property, binding, or behavior models locally.
+
+### 38.3 Path
+
+`src/studio/som/` · Gate **G294** · Exported from `src/studio/index.js`
+
+---
+
+## 39. Studio Editor Engine (Program 2.2.7 — D-045)
+
+Reusable editor for all Designers — Explorer, Workspace, Inspector, Property Grid, Canvas, Preview, History, Publish, and Selection as editor services.
+
+### 39.1 Official services
+
+| Service | Responsibility |
+|---------|----------------|
+| **Explorer** | Tree navigation and selection |
+| **Workspace** | Center editor slot activation |
+| **Inspector** | Read-only metadata panel |
+| **Property Grid** | Schema-driven property editing |
+| **Canvas** | Visual editing surface coordination |
+| **Preview** | Bottom preview panel integration |
+| **History** | Undo/redo via SDK history |
+| **Publish** | Publish center integration |
+| **Selection** | Domain selection bridge |
+
+### 39.2 Designer registration pattern
+
+Designers register **only** contributions — no local editor:
+
+```
+designers/{name}/editor/{name}EditorRegistration.jsx  →  tools, panels, commands, objects, behaviors, renderers
+```
+
+### 39.3 Consumption stack
+
+Editor Engine consumes exclusively: **Studio Core**, **SOM**, **SDK**, **Design System**, **Event Hub**.
+
+### 39.4 Path
+
+`src/studio/editor/` · Gate **G295** · Exported from `src/studio/index.js`
+
+---
+
+## 40. Field Studio Engine (Program 2.3 — D-046)
+
+Second functional designer — custom field authoring for MDP Field Dictionary.
+
+### 40.1 Pipeline
+
+```
+Field Document  →  Field AST  →  MDP Field Dictionary  →  Compile  →  CRB  →  Runtime
+```
+
+- **Field Document** — sole editing representation; user never edits raw JSON
+- **Field AST** — stable intermediate representation → `field_config` registry summary
+- **Commands** — ADD_FIELD, DELETE_FIELD, REORDER_FIELD, UPDATE_PROPERTY
+- **Field Canvas** — palette + ordered field list (Phase 1)
+- **Preview** — Document → Compile → CRB only
+
+### 40.2 Path
+
+`src/studio/designers/field/` · Gate **G296** · Route `/studio/:moduleId/field`
+
+**Studio Core (2.2.5):** Field consumes `src/studio/core/` exclusively via `fieldCoreSetup.js` — Gate **G293**.
+
+**Studio Object Model (2.2.6):** Field consumes `src/studio/som/` exclusively via `fieldSomSetup.js` — Gate **G294**.
+
+**Studio Editor (2.2.7):** Field registers contributions via `fieldEditorRegistration.jsx` — Gate **G295**.
+
+**MDP integration:** `src/studio/services/mdpFieldClient.js` — public `/api/mdp/fields` only.
+
+### 40.3 Smart Authoring (Program 2.3.1 — D-047)
+
+- **Smart Field Templates** — 10 official templates (`templates/smartFieldTemplates.js`); auto-fill via `applySmartFieldTemplate`
+- **Business Field Types** — architectural catalog (`businessTypes/businessTypeCatalog.js`); `aiReady` for future IA
+- **Advanced properties** — mask, placeholder, help text, min/max, precision, scale, categories, groupings
+- **Presentation adapter** — `src/studio/services/fieldPresentationAdapter.js` (single MDP mapping)
+
+Gate **G297** · Templates centralized · No relationship/formula/computed in 2.3.1
+
+---
+
+## 41. Studio Expression Engine (Program 2.3.2 — D-048)
+
+Single official expression foundation for all Studios.
+
+### 41.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Expression Document** | Sole editing representation for expressions |
+| **Expression AST** | Single official AST (`mak-expression-ast-v1`) |
+| **Expression Parser** | Parse source → AST |
+| **Expression Compiler** | AST → portable IR |
+| **Expression Validator** | Structural + type validation |
+| **Type System** | Inference for literals, ops, calls |
+| **Function Catalog** | Official functions + AI/Marketplace metadata |
+| **Expression Context** | Variables, types, scope |
+| **Dependency Graph** | Variable reference extraction |
+| **Refactoring** | Safe variable rename |
+
+### 41.2 Path
+
+`src/studio/expression/` · Gate **G298** · Exported from `src/studio/index.js`
+
+**First consumer:** Field Studio via `designers/field/expression/fieldExpressionSetup.js`
+
+**Rule:** No designer may implement local parser, AST, or evaluator.
+
+---
+
+## 42. Studio Dependency Engine (Program 2.3.3 — D-049)
+
+Single official dependency infrastructure for all Studios.
+
+### 42.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Dependency Graph** | Single graph for all artifact types |
+| **Dependency Nodes / Edges** | Typed nodes (layout, field, expression, workflow, …) |
+| **Dependency Analyzer** | Graph statistics and health |
+| **Cycle Detection** | Official cycle detection (no local copies) |
+| **Dependency Resolver** | Topological order + transitive deps |
+| **Dependency Cache** | Snapshot caching |
+| **Dependency Invalidation** | Cache invalidation on node change |
+| **Impact Analyzer** | Change impact with AI-ready metadata |
+| **Safe Rename / Delete** | Dependency-aware refactoring |
+| **Dependency Metadata** | Lineage, explanations, graph documentation |
+
+### 42.2 Path
+
+`src/studio/dependency/` · Gate **G299** · Exported from `src/studio/index.js`
+
+**First consumer:** Field Studio via `designers/field/dependency/fieldDependencySetup.js`
+
+**Expression bridge:** `expression/dependency/expressionDependencyGraph.js` delegates to Studio Dependency Engine
+
+**Rule:** No designer may implement parallel dependency graphs, resolvers, cycle detection, caches, or impact analyzers.
+
+---
+
+## 43. Studio Type System (Program 2.3.4 — D-050)
+
+Single official type infrastructure for all Studios.
+
+### 43.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Type Registry** | Single registry for all type descriptors |
+| **Primitive Types** | string, integer, decimal, boolean, date, … |
+| **Business / Reference / Collection / Enum** | Structural type families |
+| **Compatibility Engine** | Assignability and widening rules |
+| **Inference Engine** | Expression AST + value inference |
+| **Coercion Engine** | Safe value coercion |
+| **Validation Engine** | Semantic type validation |
+| **Type Metadata** | AI/Marketplace documentation |
+
+### 43.2 Path
+
+`src/studio/typeSystem/` · Gate **G300** · Exported from `src/studio/index.js`
+
+**First consumer:** Field Studio via `designers/field/typeSystem/fieldTypeSetup.js`
+
+**Expression bridge:** `expression/types/expressionTypeSystem.js` delegates to Studio Type System
+
+**Rule:** No designer may implement local type registry, inference, coercion, or compatibility.
+
+---
+
+## 44. Studio Evaluation Engine (Program 2.3.5 — D-051)
+
+Single official evaluation infrastructure for all Studios.
+
+### 44.1 Official components
+
+| Component | Responsibility |
+|-----------|----------------|
+| **Evaluation Pipeline** | Official expression execution path |
+| **Evaluation Context / Session** | Scoped variables and run lifecycle |
+| **Evaluation Cache** | Result caching and invalidation |
+| **Evaluation Scheduler** | Dependency-ordered execution |
+| **Evaluation Strategy** | Eager, lazy, batch, incremental |
+| **Evaluation Result** | Typed result with metadata |
+| **Diagnostics / Profiler / Hooks** | Observability and extension points |
+
+### 44.2 Path
+
+`src/studio/evaluation/` · Gate **G301** · Exported from `src/studio/index.js`
+
+**First consumer path:** Field Studio via `designers/field/evaluation/fieldEvaluationSetup.js`
+
+**Expression bridge:** `expression/runtime/expressionEvaluationBridge.js` delegates to Studio Evaluation Engine
+
+**Integrations:** Dependency Engine (order) · Type System (validation) · Expression AST executor (internal)
+
+**Rule:** No designer may implement parallel evaluators, schedulers, caches, or pipelines.
+
+---
+
 ## 30. Version History
 
 | Version | Date | Change |
 |---------|------|--------|
+| 1.18.0 | 2026-06-28 | Studio Evaluation Engine — Program 2.3.5 (D-051); G301 |
+| 1.17.0 | 2026-06-28 | Studio Type System — Program 2.3.4 (D-050); G300 |
+| 1.16.0 | 2026-06-28 | Studio Dependency Engine — Program 2.3.3 (D-049); G299 |
+| 1.15.0 | 2026-06-28 | Studio Expression Engine — Program 2.3.2 (D-048); G298 |
+| 1.14.0 | 2026-06-28 | Field Studio Smart Authoring — Program 2.3.1 (D-047); G297 |
+| 1.11.0 | 2026-06-29 | Studio Object Model — Program 2.2.6 (D-044); G294; Layout migrated to SOM APIs |
+| 1.10.0 | 2026-06-29 | Studio Core Engine — Program 2.2.5 (D-043); G293; Layout migrated to Core APIs |
+| 1.9.0 | 2026-06-29 | Layout Studio Engine — Program 2.2 (D-042); G291; first functional designer |
+| 1.8.0 | 2026-06-29 | Contribution Engine — Program 2.1A.7 (D-040); G290; **foundation closed** |
+| 1.7.0 | 2026-06-29 | Studio Domain Engine — Program 2.1A.6 (D-039); G289 |
+| 1.6.0 | 2026-06-29 | Universal Studio Components — Program 2.1A.5 (D-038); G288 |
 | 1.5.0 | 2026-06-29 | Studio UX Framework — Program 2.0.9 (D-036); pre-Shell docs complete |
 | 1.4.0 | 2026-06-29 | Architecture Governance — Program 2.0.8 (D-035) |
 | 1.3.0 | 2026-06-29 | Studio Event Architecture — Program 2.0.7 (D-034) |

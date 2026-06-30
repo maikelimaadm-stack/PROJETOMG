@@ -7,7 +7,17 @@ export const STUDIO_GOVERNANCE_VERSION = "mak-studio-governance-v1";
  * Higher layers may depend on lower; inversions are forbidden.
  */
 export const DEPENDENCY_STACK = Object.freeze([
-  { layerId: "studio-consumer", label: "Studio Shell / Designers / Dock", paths: ["shell", "designers", "dock", "navigation", "workspace", "pages"] },
+  { layerId: "studio-consumer", label: "Studio Shell / Designers / Dock", paths: ["shell", "designers", "dock", "navigation", "workspace", "pages", "panels", "mock"] },
+  { layerId: "studio-editor", label: "Studio Editor Engine", paths: ["editor"] },
+  { layerId: "studio-expression", label: "Studio Expression Engine", paths: ["expression"] },
+  { layerId: "studio-evaluation", label: "Studio Evaluation Engine", paths: ["evaluation"] },
+  { layerId: "studio-dependency", label: "Studio Dependency Engine", paths: ["dependency"] },
+  { layerId: "studio-type-system", label: "Studio Type System", paths: ["typeSystem"] },
+  { layerId: "studio-som", label: "Studio Object Model", paths: ["som"] },
+  { layerId: "studio-core", label: "Studio Core Engine", paths: ["core"] },
+  { layerId: "studio-domain", label: "Studio Domain Engine", paths: ["domain"] },
+  { layerId: "studio-contributions", label: "Studio Contribution Engine", paths: ["contributions"] },
+  { layerId: "studio-universal-components", label: "Universal Studio Components", paths: ["components"] },
   { layerId: "studio-governance", label: "Architecture Governance", paths: ["governance"] },
   { layerId: "studio-sdk", label: "Studio SDK", paths: ["sdk"] },
   { layerId: "studio-events", label: "Studio Event Hub", paths: ["events"] },
@@ -26,6 +36,8 @@ export const CONSUMER_LAYER_PATHS = Object.freeze([
   "navigation",
   "workspace",
   "pages",
+  "panels",
+  "mock",
 ]);
 
 /** Public API entry points — consumer code must use these, not internals. */
@@ -35,6 +47,16 @@ export const PUBLIC_API_ENTRY_POINTS = Object.freeze([
   "src/studio/events/index.js",
   "src/studio/designSystem/index.js",
   "src/studio/governance/index.js",
+  "src/studio/components/index.js",
+  "src/studio/domain/index.js",
+  "src/studio/contributions/index.js",
+  "src/studio/core/index.js",
+  "src/studio/som/index.js",
+  "src/studio/editor/index.js",
+  "src/studio/expression/index.js",
+  "src/studio/dependency/index.js",
+  "src/studio/typeSystem/index.js",
+  "src/studio/evaluation/index.js",
   "src/studio/services/",
 ]);
 

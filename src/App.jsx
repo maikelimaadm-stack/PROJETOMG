@@ -15,6 +15,8 @@ import { GlobalErrorBoundary } from "@/shared/feedback/GlobalErrorBoundary";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const EmpresasPage = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
+const StudioPrototypePage = lazy(() => import("@/studio/pages/StudioPrototypePage.jsx"));
+const StudioProductionPage = lazy(() => import("@/studio/pages/StudioProductionPage.jsx"));
 const generatedModuleRoutes = generatedModules
   .filter((moduleConfig) => moduleConfig.moduleId !== "empresas")
   .map((moduleConfig) => {
@@ -175,6 +177,38 @@ const AuthenticatedApp = () => {
 
   return (
     <Routes>
+      <Route
+        path="/studio"
+        element={
+          <Suspense fallback={<ModuleLoadingFallback />}>
+            <StudioProductionPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/studio/:moduleId"
+        element={
+          <Suspense fallback={<ModuleLoadingFallback />}>
+            <StudioProductionPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/studio/:moduleId/:designerId"
+        element={
+          <Suspense fallback={<ModuleLoadingFallback />}>
+            <StudioProductionPage />
+          </Suspense>
+        }
+      />
+      <Route
+        path="/studio/prototype"
+        element={
+          <Suspense fallback={<ModuleLoadingFallback />}>
+            <StudioPrototypePage />
+          </Suspense>
+        }
+      />
       <Route element={<ErpLayoutRoute />}>
         <Route path="/" element={<EmpresasPage />} />
         <Route path="/CadastroEmpresas" element={<EmpresasPage />} />

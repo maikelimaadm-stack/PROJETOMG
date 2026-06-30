@@ -1,0 +1,119 @@
+/** Field validation rules — registered on Studio Core Validation Engine */
+
+import { collectActiveFields } from "../fieldPropertyFields.js";
+import { validateFieldExpressionSource } from "../expression/fieldExpressionSetup.js";
+
+export function registerFieldValidationRules(validationEngine) {
+  validationEngine.registerRule({
+    id: "field.groups.required",
+    severity: "error",
+    validate: (document) => {
+      if (!document?.groups?.length) {
+        return [{ severity: "error", code: "FIELD_NO_GROUPS", message: "Documento deve conter ao menos um grupo." }];
+      }
+      return [];
+    },
+  });
+
+  validationEngine.registerRule({
+    id: "field.names.unique",
+    severity: "error",
+    validate: (document) => {
+      const issues = [];
+      const names = new Set();
+      (document?.groups ?? []).forEach((group) => {
+        (group.fields ?? []).forEach((field) => {
+          if (field._pendingDelete) return;
+          if (names.has(field.fieldName)) {
+            issues.push({
+              severity: "error",
+              code: "DUPLICATE_FIELD",
+              message: `Campo duplicado: ${field.fieldName}`,
+              targetId: field.fieldNodeId,
+            });
+          }
+          names.add(field.fieldName);
+        });
+      });
+      return issues;
+    },
+  });
+
+  validationEngine.registerRule({
+    id: "field.label.suggestion",
+    severity: "suggestion",
+    validate: (document) => {
+      const suggestions = [];
+      (document?.groups ?? []).forEach((group) => {
+        (group.fields ?? []).forEach((field) => {
+          if (!field.label || field.label === field.fieldName) {
+            suggestions.push({
+              severity: "suggestion",
+              code: "FIELD_LABEL",
+              message: `Defina um rótulo amigável para ${field.fieldName}`,
+              targetId: field.fieldNodeId,
+            });
+          }
+        });
+      });
+      return suggestions;
+    },
+  });
+
+  validationEngine.registerRule({
+    id: "field.template.suggestion",
+    severity: "suggestion",
+    validate: (document) => {
+      const suggestions = [];
+      (document?.groups ?? []).forEach((group) => {
+        (group.fields ?? []).forEach((field) => {
+          if (field._pendingDelete) return;
+          if (!field.smartTemplateId && !field.businessTypeId && field.fieldType === "string" && !field.useMask) {
+            suggestions.push({
+              severity: "suggestion",
+              code: "USE_SMART_TEMPLATE",
+              message: `Use um template inteligente para ${field.fieldName} (CPF, e-mail, telefone…).`,
+              targetId: field.fieldNodeId,
+            });
+          }
+        });
+      });
+      return suggestions;
+    },
+  });
+
+  validationEngine.registerRule({
+    id: "field.expression.structure",
+    severity: "error",
+    validate: (document) => {
+      const issues = [];
+      collectActiveFields(document).forEach((field) => {
+        const source = field.expressionSource ?? field.presentation?.expressionDraft;
+        if (!source || typeof source !== "string") return;
+        try {
+          const result = validateFieldExpressionSource(source, document);
+          if (!result.valid) {
+            result.errors.forEach((err) => {
+              issues.push({
+                severity: "error",
+                code: "FIELD_EXPRESSION",
+                message: err.message ?? "Invalid expression",
+                targetId: field.fieldNodeId,
+              });
+            });
+          }
+        } catch (err) {
+          issues.push({
+            severity: "error",
+            code: "FIELD_EXPRESSION_PARSE",
+            message: err?.message ?? "Expression parse failed",
+            targetId: field.fieldNodeId,
+          });
+        }
+      });
+      return issues;
+    },
+  });
+}
+
+export default registerFieldValidationRules;

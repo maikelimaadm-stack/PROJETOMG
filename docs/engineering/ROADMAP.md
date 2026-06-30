@@ -1,7 +1,7 @@
 # ROADMAP — MAK Gestão Platform
 
 **Status:** Living document  
-**Last updated:** 2026-06-29 (Program 2.0.9 Studio UX Framework — D-036)
+**Last updated:** 2026-06-29 (Program 2.1A.7 Contribution Engine — D-040 — foundation closed)
 **Horizon:** Technical roadmap aligned with [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md)
 
 ---
@@ -133,14 +133,27 @@ Architecture: [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTU
 | **2.0.7** | Studio Event Architecture | ✅ Complete (D-034) |
 | **2.0.8** | Studio Architecture Governance | ✅ Complete (D-035) |
 | **2.0.9** | Studio UX Framework (doc) | ✅ Complete (D-036) — **Last pre-Shell doc mission** |
-| **2.1** | Studio Shell (chrome + dock + SDK wiring) | **Next** — [Brief](./IFM-PHASE-2.1-STUDIO-SHELL-BRIEF.md) |
-| **2.2** | Layout Studio (empresas pilot) | Prepared — [Brief](./IFM-PHASE-2.1-LAYOUT-STUDIO-BRIEF.md) |
-| 2.3+ | Field, Validation, Workflow studios | Not started |
+| **2.1A** | Studio Shell Prototype (visual, mock) | ✅ Complete (D-037) |
+| **2.1A.5** | Universal Studio Components | ✅ Complete (D-038) |
+| **2.1A.6** | Studio Domain Engine | ✅ Complete (D-039) |
+| **2.1A.7** | Studio Contribution Engine | ✅ Complete (D-040) — **Foundation closed** — [Report](./IFM-PROGRAM-2.1A.7-CERTIFICATION-REPORT.md) |
+| **2.1B** | Studio Shell Production (auth + MDP + persistence) | ✅ Complete (D-041) — [Report](./IFM-PROGRAM-2.1B-CERTIFICATION-REPORT.md) |
+| **2.2** | Layout Studio Engine (empresas pilot) | ✅ Complete (D-042) — [Report](./IFM-PROGRAM-2.2-CERTIFICATION-REPORT.md) |
+| **2.2.5** | Studio Core Engine (shared designer foundation) | ✅ Complete (D-043) — [Report](./IFM-PROGRAM-2.2.5-CERTIFICATION-REPORT.md) |
+| **2.2.6** | Studio Object Model (SOM) | ✅ Complete (D-044) — [Report](./IFM-PROGRAM-2.2.6-CERTIFICATION-REPORT.md) |
+| **2.2.7** | Studio Editor Engine | ✅ Complete (D-045) — [Report](./IFM-PROGRAM-2.2.7-CERTIFICATION-REPORT.md) |
+| **2.3** | Field Studio Phase 1 | ✅ Complete (D-046) — [Report](./IFM-PROGRAM-2.3-CERTIFICATION-REPORT.md) |
+| **2.3.1** | Field Studio Smart Authoring | ✅ Complete (D-047) — [Report](./IFM-PROGRAM-2.3.1-CERTIFICATION-REPORT.md) |
+| **2.3.2** | Studio Expression Engine | ✅ Complete (D-048) — [Report](./IFM-PROGRAM-2.3.2-CERTIFICATION-REPORT.md) |
+| **2.3.3** | Studio Dependency Engine | ✅ Complete (D-049) — [Report](./IFM-PROGRAM-2.3.3-CERTIFICATION-REPORT.md) |
+| **2.3.4** | Studio Type System | ✅ Complete (D-050) — [Report](./IFM-PROGRAM-2.3.4-CERTIFICATION-REPORT.md) |
+| **2.3.5** | Studio Evaluation Engine | ✅ Complete (D-051) — [Report](./IFM-PROGRAM-2.3.5-CERTIFICATION-REPORT.md) |
+| **2.3.6** | Computed & Derived Fields | **Next** — [Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
 
 | Studio | Prerequisite | Status |
 |--------|--------------|--------|
-| Layout Studio | V13 + introspect + compile API + Studio Architecture | **Next — Phase 2.1** |
-| Field Studio | Field Config Engine V14 | Not started |
+| Layout Studio | V13 + introspect + compile API + Studio Shell Production | ✅ **2.2 complete** |
+| Field Studio | Smart Authoring 2.3.1 + Core/Editor/SOM | ✅ **2.3.1 complete** |
 | Table Studio | Preferences + column metadata | Not started |
 | Formula/Validation Studio | V16–V17 engines | Not started |
 | Workflow/Automation Studio | V18–V20 + backend events | Not started |
