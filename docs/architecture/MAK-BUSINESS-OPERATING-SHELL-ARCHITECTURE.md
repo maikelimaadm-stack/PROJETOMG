@@ -91,18 +91,19 @@ Cross-reference: [04-MODELOBASE1-RULES.md](../constitution/04-MODELOBASE1-RULES.
 | Item | Status |
 |------|--------|
 | Architecture SSOT | ✅ This document (D-073) |
-| BOS UI implementation | **Future** — after remediation gate |
-| ModeloBase1 runtime | ✅ Production |
-| Module home as default | ⚠️ **Transition** — see [LEGACY-TRANSITION-REGISTER.md](../engineering/LEGACY-TRANSITION-REGISTER.md) |
+| BOS UI MVP | ✅ **Program 3.9 (G307, D-075)** — default route `/` |
+| ModeloBase1 runtime | ✅ Production — reachable via Operations |
+| Module menu in cadastro chrome | ⚠️ **Legacy** — link "Business OS" returns to BOS home |
 
 ---
 
-## 8. Compliance checklist (future gates)
+## 8. Compliance checklist
 
-- [ ] Default route after login = BOS home (not module menu)
-- [ ] Business Language is default authoring entry
-- [ ] ModeloBase1 pages labeled as Operations projection, not "the product"
-- [ ] Expert Mode requires explicit opt-in
+- [x] Default route after login = BOS home (not module menu) — **G307**
+- [x] Business Language is default authoring entry — `/bos/business-first`
+- [x] ModeloBase1 pages reachable as Operations projection — `/CadastroEmpresas` preserved
+- [x] Expert Mode requires explicit opt-in — `/bos/expert`
+- [x] Formula Builder blocked for business users — `StudioTechnicalGuard`
 
 ---
 

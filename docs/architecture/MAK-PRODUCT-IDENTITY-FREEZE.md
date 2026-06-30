@@ -184,7 +184,8 @@ Implementation **may resume** when:
 
 - [x] Product identity frozen (D-074 — this document)
 - [x] All VA-01–08 resolved as decisions (VA-07 → D-074 §10)
-- [ ] Engineering executes frozen spec (BOS UI, etc.) — **next phase**
+- [x] BOS UI MVP (D-075, G307) — default route `/`
+- [ ] Full Intelligence/Memory/Health backends — **next phases**
 
 ---
 

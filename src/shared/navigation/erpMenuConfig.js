@@ -52,7 +52,6 @@ export const ERP_MENU_SECTIONS = [
 ];
 
 const routeMetaByPath = {
-  "/": { sectionId: "cadastros", itemId: "empresas", breadcrumb: "Empresas" },
   "/CadastroEmpresas": { sectionId: "cadastros", itemId: "empresas", breadcrumb: "Empresas" },
   "/CadastroCamposPersonalizados": {
     sectionId: "cadastros",
@@ -82,8 +81,7 @@ const resolveModuleFromItemId = (itemId) => {
 };
 
 export const resolveErpRouteMeta = (pathname) => {
-  const normalized = pathname === "/" ? "/CadastroEmpresas" : pathname;
-  return routeMetaByPath[normalized] || routeMetaByPath[pathname] || null;
+  return routeMetaByPath[pathname] || null;
 };
 
 export const buildErpBreadcrumbs = (pathname) => {
@@ -108,9 +106,6 @@ export const buildErpBreadcrumbs = (pathname) => {
 
 export const isRouteActive = (pathname, routePath) => {
   if (!routePath) return false;
-  if (routePath === "/CadastroEmpresas") {
-    return pathname === "/" || pathname === "/CadastroEmpresas";
-  }
   return pathname === routePath;
 };
 

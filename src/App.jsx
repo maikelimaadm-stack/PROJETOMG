@@ -12,9 +12,14 @@ import { lazy, Suspense, useState } from "react";
 import generatedModules from "@/modules/generatedModules.json";
 import ErpShell from "@/shared/layouts/ErpShell";
 import { GlobalErrorBoundary } from "@/shared/feedback/GlobalErrorBoundary";
+import { BosLayoutRoute } from "@/bos/shell/BosLayoutRoute";
+import { StudioTechnicalGuard } from "@/bos/guards/StudioTechnicalGuard";
 
 const generatedPageLoaders = import.meta.glob("/src/modules/*/pages/PAG*.jsx");
 const EmpresasPage = lazy(() => import("@/modules/empresas/pages/PAGEMP"));
+const BosHomePage = lazy(() => import("@/bos/pages/BosHomePage"));
+const BusinessFirstPage = lazy(() => import("@/bos/pages/BusinessFirstPage"));
+const ExpertModePage = lazy(() => import("@/bos/pages/ExpertModePage"));
 const StudioPrototypePage = lazy(() => import("@/studio/pages/StudioPrototypePage.jsx"));
 const StudioProductionPage = lazy(() => import("@/studio/pages/StudioProductionPage.jsx"));
 const generatedModuleRoutes = generatedModules
@@ -189,7 +194,9 @@ const AuthenticatedApp = () => {
         path="/studio/:moduleId"
         element={
           <Suspense fallback={<ModuleLoadingFallback />}>
-            <StudioProductionPage />
+            <StudioTechnicalGuard>
+              <StudioProductionPage />
+            </StudioTechnicalGuard>
           </Suspense>
         }
       />
@@ -197,7 +204,9 @@ const AuthenticatedApp = () => {
         path="/studio/:moduleId/:designerId"
         element={
           <Suspense fallback={<ModuleLoadingFallback />}>
-            <StudioProductionPage />
+            <StudioTechnicalGuard>
+              <StudioProductionPage />
+            </StudioTechnicalGuard>
           </Suspense>
         }
       />
@@ -209,8 +218,13 @@ const AuthenticatedApp = () => {
           </Suspense>
         }
       />
+      <Route element={<BosLayoutRoute />}>
+        <Route path="/" element={<BosHomePage />} />
+        <Route path="/bos" element={<BosHomePage />} />
+        <Route path="/bos/business-first" element={<BusinessFirstPage />} />
+        <Route path="/bos/expert" element={<ExpertModePage />} />
+      </Route>
       <Route element={<ErpLayoutRoute />}>
-        <Route path="/" element={<EmpresasPage />} />
         <Route path="/CadastroEmpresas" element={<EmpresasPage />} />
         {generatedModuleRoutes.map((module) => (
           <Route
@@ -220,7 +234,7 @@ const AuthenticatedApp = () => {
           />
         ))}
       </Route>
-      <Route path="*" element={<Navigate to="/CadastroEmpresas" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

@@ -26,13 +26,11 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
 | **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · **Product Identity FROZEN (D-074)** |
-| **Decision** | D-074 — Product Identity Freeze (Program 3.8.8) |
-| **Phase** | **Continuous implementation authorized** — under frozen identity |
+| **Decision** | D-075 — Business Operating Shell MVP (Program 3.9) |
+| **Phase** | **BOS MVP live** — continuous implementation under frozen identity |
 | **Product Identity SSOT (supreme)** | [MAK-PRODUCT-IDENTITY-FREEZE.md](./docs/architecture/MAK-PRODUCT-IDENTITY-FREEZE.md) |
-| **Product Identity (derived)** | [MAK-PRODUCT-IDENTITY.md](./docs/architecture/MAK-PRODUCT-IDENTITY.md) |
 | **BOS Architecture** | [MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md) |
-| **Remediation Register** | [PLATFORM-REMEDIATION-REGISTER.md](./docs/engineering/PLATFORM-REMEDIATION-REGISTER.md) |
-| **Next Official Mission** | **Program 3.9+** — BOS UI and frozen-spec implementation |
+| **Next Official Mission** | **Program 3.10+** — Business Workflow, Intelligence integration |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
