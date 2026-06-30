@@ -18,6 +18,7 @@
 | **D-058** | "Business Computed Fields as **first** implementation mission" | **Intent Resolver first** (D-059); Computed Fields after | 2026-06-30 | D-059 consequences |
 | **D-052** | Freeze text: "until Program 2.3.6 certified" | G302 certified (Program 3.1); freeze lifted for Studio Intelligence track | 2026-06-30 | D-055, PROJECT-STATUS |
 | **D-061** | Block all implementation | Lifted for Program 3.5 **after** D-062 remediation complete | 2026-06-30 | D-062 |
+| **D-065** | "No architecture docs before Program 3.7 delivery" | **Program 3.6.9** inserted as final structural architecture; D-066 declares **no new structural architecture ever** before continuous impl | 2026-06-30 | D-066 |
 
 **Note:** D-056, D-058, D-059 remain **Accepted** — only specific **consequences** are superseded.
 

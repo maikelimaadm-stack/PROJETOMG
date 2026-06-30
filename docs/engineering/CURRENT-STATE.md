@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 3.6.8 Business Language Architecture (D-065)
+**Verified by:** Program 3.6.9 Enterprise Digital Organization Architecture (D-066)
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -11,7 +11,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| **Architecture state** | **ARCHITECTURE CONSOLIDATED** (D-062) |
+| **Architecture state** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) |
 | Product | MAK Gestão — metadata-driven **Enterprise Operating System** (vision D-057) · ERP execution today |
 | Frontend | React 18 + Vite 6 + React Query + Tailwind/shadcn |
 | Backend | Fastify 5 + Prisma 6 + PostgreSQL |
@@ -26,6 +26,7 @@
 | **MAK Business Derivation Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md` (**D-063** — derivation infrastructure SSOT) |
 | **MAK Business Intent Resolver Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md` (**D-064** — resolution infrastructure SSOT) |
 | **MAK Business Language Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md` (**D-065** — business language SSOT) |
+| **MAK Enterprise Organization Architecture** | v1.0.0 | `docs/architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md` (**D-066** — digital organism SSOT) |
 | **MAK Business Intent Authoring Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md` (**D-059** — Intent SSOT) |
 | **MAK Business Computation Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md` (**D-058**) |
 | **Architecture Remediation (3.5C)** | v1.0.0 | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) (**D-062**) |
@@ -54,7 +55,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 | Program | Priority | Brief |
 |---------|----------|-------|
 | **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Studio Intelligence 3.1–3.2 ✅; Enterprise vision ✅ (D-057); Intent Authoring ✅ (D-059, docs)** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) |
-| **Program 3 — Studio Intelligence** | P1 — **3.6.8 Business Language ✅ (D-065)** · **Architecture complete** · **Program 3.7 Resolver Implementation immediate (G304)** | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) |
+| **Program 3 — Studio Intelligence** | P1 — **3.6.9 Enterprise Organization ✅ (D-066)** · **Structural architecture complete** · **Program 3.7 immediate (G304)** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -172,7 +173,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Architecture complete ✅ (D-065)** · **Program 3.7 Resolver Implementation immediate (G304)** |
+| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Structural architecture complete ✅ (D-066)** · **Program 3.7 immediate (G304)** |
 | Enterprise Intent / Knowledge / Intelligence / Twin | **Vision documented ✅ (D-057)** · **3.5A Intelligence docs ✅ (D-060, on `main`)** · **Intent Authoring architecture ✅ (D-059)** — **no implementation** |
 | Business Intent authoring UI | Architecture only — user creates Intentions only (no NLP/AI) |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |

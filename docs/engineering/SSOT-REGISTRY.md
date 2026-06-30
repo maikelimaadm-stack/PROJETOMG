@@ -50,6 +50,7 @@
 | **Business Derivation** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) | D-059 Intent Authoring (input SSOT) |
 | **Business Intent Resolver** | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) | D-063 Derivation (output infrastructure) |
 | **Business Language** | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) | D-059 Intent Authoring (downstream); Knowledge Vocabulary |
+| **Enterprise Digital Organization** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) | D-057 Business Object Model (root kind); D-060 Intelligence |
 | **Business Computation** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) | D-058 hooks; computation derivation facet |
 | **Studio Computation** | [MAK-STUDIO-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md) | G302 implementation |
 | **Formula runtime unification** | [FORMULA-RUNTIME-UNIFICATION-PLAN.md](./FORMULA-RUNTIME-UNIFICATION-PLAN.md) | AD-P0-01/02 remediation |
