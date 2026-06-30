@@ -864,6 +864,18 @@
 
 ---
 
+## D-072 — Enterprise Vision Alignment Audit (Program 3.8.7)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Conduct mandatory **Enterprise Vision Alignment Audit** (Program 3.8.7) — vision-only audit of product convergence toward EOS. **Forget roadmap as justification.** Audit architecture → implementation → Runtime → UX → future evolution as one product destiny. Verdict: **SIM, COM AJUSTES** — eight vision adjustments (VA-01–VA-08) required before resuming implementation. **No code, API, UI, Runtime, Foundation, Studio, or implementation.** All Programs paused until vision alignment registered. |
+| **Evidence** | [ENTERPRISE-VISION-ALIGNMENT-AUDIT.md](./ENTERPRISE-VISION-ALIGNMENT-AUDIT.md) |
+| **Consequences** | Implementation freeze continues; VA-01–08 must be registered in architecture SSOT before any Program resumes |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |
