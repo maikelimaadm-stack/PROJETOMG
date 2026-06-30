@@ -55,7 +55,7 @@
 |----|----------|--------|----------|-------|
 | PARAM-C01 | `VITE_DEV_AUTO_LOGIN=true` vs Playwright E2E | Blank page in mock E2E | P1 | UX |
 | PARAM-C02 | Production API proxy vs local backend | Different behavior without code change | P1 | Implementação |
-| PARAM-C03 | `compute.formula` in capabilityCatalog vs `compute.computed_field` in resolver | Capability compatibility checks may fail silently | P1 | Implementação |
+| PARAM-C03 | `compute.formula` + `compute.computed_field` in capabilityCatalog | **✅ Resolved Cycle 1 (D-071)** — both kinds in catalog | — | — |
 | PARAM-C04 | CRB compiled bundle vs live MDP publish | Runtime may use stale metadata | P1 | Runtime |
 
 ---

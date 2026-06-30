@@ -1,4 +1,8 @@
-import { CAPABILITY_CALCULATION } from "../contracts/intentContracts.js";
+import {
+  CAPABILITY_CALCULATION,
+  DERIVATION_KIND_COMPUTED_FIELD,
+  DERIVATION_KIND_FORMULA,
+} from "../contracts/intentContracts.js";
 
 export const CAPABILITY_CATALOG_VERSION = "mak-capability-catalog-v1";
 
@@ -6,7 +10,8 @@ export const CAPABILITY_CATALOG = Object.freeze([
   Object.freeze({
     capabilityId: CAPABILITY_CALCULATION,
     label: "Calculation",
-    derivationKinds: Object.freeze(["compute.formula"]),
+    /** SSOT: both formula projection and Business Computed Field (D-064 §618-619) */
+    derivationKinds: Object.freeze([DERIVATION_KIND_FORMULA, DERIVATION_KIND_COMPUTED_FIELD]),
     licensed: true,
     compatibleCategories: Object.freeze(["Computation", "Outcome"]),
   }),
