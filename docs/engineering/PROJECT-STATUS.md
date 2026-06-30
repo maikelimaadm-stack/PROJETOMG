@@ -14,9 +14,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Current version** | `0.4.0-rc.1` (`package.json`) |
-| **Current release** | **`v0.4.0-RC1`** (git tag on `main`) |
-| **Current release candidate** | `v0.4.0-RC1` — Studio Foundation consolidated |
+| **Current version** | `0.4.0-rc.2` (`package.json`) |
+| **Current release** | **`v0.4.0-RC2`** (pending owner tag on `36677dbf`) |
+| **Current release candidate** | `v0.4.0-RC2` — Operational stabilization complete (Programs 2.3.X.0–X.4) |
 | **Main branch HEAD** | Verify: `git rev-parse --short main` on latest pull |
 
 ---
@@ -50,8 +50,8 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 2 — MAK Studio** (Phase 2.3.6 next) |
-| **Last completed program** | **Program 2.3.X** — Repository Stabilization (D-052) |
-| **Last certified program** | **Program 2.3.5** — Studio Evaluation Engine (G301, D-051) |
+| **Last completed program** | **Program 2.3.X.4** — Production Recovery Final (RC-LATENT-001) |
+| **Last certified program** | **Program 2.3.X.3** — Deployment Recovery Certification |
 | **Last decision** | **D-052** — Studio Foundation Freeze |
 | **Roadmap position** | Phase 4 MAK Studio → **2.3.6 Computation Engine authorized** |
 | **Next official mission** | **Program 2.3.6** — Studio Computation Engine — [Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
@@ -68,7 +68,7 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | 2.1A – 2.1B | Shell Prototype + Production |
 | 2.2 – 2.2.7 | Layout Studio, Core, SOM, Editor |
 | 2.3 – 2.3.5 | Field Studio, Expression, Dependency, Type System, Evaluation |
-| 2.3.X | Repository consolidation + RC1 |
+| 2.3.X | Operational stabilization — RC-001, G303/G304, platform hardening, production recovery |
 
 ---
 
@@ -116,7 +116,7 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 
 | Component | Status |
 |-----------|--------|
-| **Backend (Railway)** | `https://projetomg-production.up.railway.app` — health OK |
+| **Backend (Railway)** | `https://projetomg-production.up.railway.app` — ✅ deploy green · MDP/CADCPS operational |
 | **Frontend (Vercel)** | `https://projetomg.vercel.app` |
 | **Runtime Bridge Phase 1** | ✅ CRB hydration (empresas pilot) — D-030 |
 | **Runtime Bridge Phase 2** | Pending (environment pin → reload) |
@@ -149,6 +149,7 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | CI mirror | `npm run verify:ci` | Pass |
 | Stability cycles | `npm run verify:governance:cycles` | 5/5 pass |
 | CI workflow | `.github/workflows/foundation-governance.yml` | Green on `main` |
+| Deploy pipeline gates | G303 + G304 | ✅ CI + RULE-DEPLOY-002 |
 
 ---
 

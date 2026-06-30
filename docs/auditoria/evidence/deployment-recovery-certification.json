@@ -1,6 +1,6 @@
 {
   "mission": "Program 2.3.X.3 — Deployment Recovery Certification",
-  "timestamp": "2026-06-30T01:52:41.100Z",
+  "timestamp": "2026-06-30T02:18:07.486Z",
   "apiBase": "https://projetomg-production.up.railway.app",
   "frontendBase": "https://projetomg.vercel.app",
   "checks": [
@@ -79,50 +79,50 @@
     {
       "group": "cadcps",
       "name": "campos 200",
-      "ok": false,
-      "detail": "status=500"
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "group": "cadcps",
       "name": "campos items",
-      "ok": false,
-      "detail": "Erro interno do servidor"
+      "ok": true,
+      "detail": ""
     },
     {
       "group": "cadcps",
-      "name": "aplicaveis 200",
-      "ok": false,
-      "detail": "status=500"
+      "name": "aplicavel 200",
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "group": "mdp",
       "name": "/api/mdp/fields 200",
-      "ok": false,
-      "detail": "status=500"
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "group": "mdp",
       "name": "/api/mdp/entities 200",
-      "ok": false,
-      "detail": "status=500"
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "group": "mdp",
       "name": "/api/mdp/registry 200",
-      "ok": false,
-      "detail": "status=500"
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "group": "mdp",
       "name": "/api/mdp/introspect 200",
-      "ok": false,
-      "detail": "status=500"
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "group": "mdp",
       "name": "compile empresas 200",
-      "ok": false,
-      "detail": "status=500"
+      "ok": true,
+      "detail": "status=200"
     },
     {
       "group": "frontend",
@@ -185,54 +185,11 @@
   ],
   "summary": {
     "blocker": null,
-    "apiPassed": 16,
+    "apiPassed": 24,
     "apiTotal": 24,
     "localPassed": 8,
     "localTotal": 8,
-    "criticalFailures": [
-      {
-        "group": "cadcps",
-        "name": "campos 200",
-        "ok": false,
-        "detail": "status=500"
-      },
-      {
-        "group": "cadcps",
-        "name": "aplicaveis 200",
-        "ok": false,
-        "detail": "status=500"
-      },
-      {
-        "group": "mdp",
-        "name": "/api/mdp/fields 200",
-        "ok": false,
-        "detail": "status=500"
-      },
-      {
-        "group": "mdp",
-        "name": "/api/mdp/entities 200",
-        "ok": false,
-        "detail": "status=500"
-      },
-      {
-        "group": "mdp",
-        "name": "/api/mdp/registry 200",
-        "ok": false,
-        "detail": "status=500"
-      },
-      {
-        "group": "mdp",
-        "name": "/api/mdp/introspect 200",
-        "ok": false,
-        "detail": "status=500"
-      },
-      {
-        "group": "mdp",
-        "name": "compile empresas 200",
-        "ok": false,
-        "detail": "status=500"
-      }
-    ],
-    "verdict": "CONDITIONAL — MDP/CADCPS production errors (see P0)"
+    "criticalFailures": [],
+    "verdict": "CERTIFIED"
   }
 }

@@ -1,7 +1,37 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 2.3.Y Project Transition & Continuity)
+**Last updated:** 2026-06-30 (Program 2.3.X.4 Production Recovery Final)
+
+---
+
+## 2026-06-30 — Program 2.3.X.4: Production Recovery Final (RC-LATENT-001)
+
+**Scope:** Eliminate MDP HTTP 500 in production — boot schema ensure + endpoint fallbacks  
+**Root cause:** `prisma migrate deploy` failed silently; MDP-1→MDP-5 tables absent while code required `mdp_field`  
+**Changes:** `ensureMdpSchema.js`, `runBlockingDatabaseBoot.js`, `mdpPublishService` compile/introspect fallbacks  
+**Reports:** [RC-LATENT-001-RECOVERY-REPORT.md](./RC-LATENT-001-RECOVERY-REPORT.md) · [DEPLOYMENT-RECOVERY-CERTIFICATION.md](./DEPLOYMENT-RECOVERY-CERTIFICATION.md) (updated CERTIFIED)
+
+**Validation:** build · lint · verify:governance · verify:ci · Railway deploy · `smoke:recovery-certification` **24/24** ✅  
+**PRs:** #334, #335  
+**Next:** Owner tag `v0.4.0-RC2` → **Program 2.3.6** Studio Computation Engine
+
+---
+
+## 2026-06-30 — Program 2.3.X.3: Deployment Recovery Certification
+
+**Scope:** Certify deploy pipeline recovery post RC-001; smoke evidence archived  
+**Report:** [DEPLOYMENT-RECOVERY-CERTIFICATION.md](./DEPLOYMENT-RECOVERY-CERTIFICATION.md)  
+**Validation:** smoke 16/24 (conditional — RC-LATENT-001 open)  
+**Next:** Program 2.3.X.4
+
+---
+
+## 2026-06-30 — Program 2.3.X.0–X.2: Deploy Recovery & Platform Hardening
+
+**Scope:** RC-001 hotfix, G303/G304 gates, RULE-DEPLOY-002, platform audit, legacy workflow removal  
+**Reports:** [RAILWAY-ROOT-CAUSE-REPORT.md](./RAILWAY-ROOT-CAUSE-REPORT.md) · [DEPLOYMENT-PLATFORM-HARDENING.md](./DEPLOYMENT-PLATFORM-HARDENING.md)  
+**PR:** #332
 
 ---
 
