@@ -1,7 +1,7 @@
 # DECISIONS — Architectural Decision Register
 
 **Status:** Living document  
-**Last updated:** 2026-06-30 (D-065 Business Language Architecture)
+**Last updated:** 2026-06-30 (D-066 Enterprise Digital Organization Architecture)
 **Format:** D-numbered decisions, immutable once accepted (supersede, don't edit)
 
 ---
@@ -789,6 +789,18 @@
 | **Decision** | Adopt permanent **Business Language Architecture** — official SSOT for how business users create any platform asset using exclusively business language (Objectives, Rules, Processes, Events, Conditions, Expected Results) — never Formulas, AST, JSON, Code, SQL, Engines, or Runtime. Register all permanent concepts: Business Language, Vocabulary, Grammar, Terms, Dictionary, Synonyms, Templates, Sentences, Validation, Semantics, Context, Categories, Confirmation, Suggestions, Wizards, Guided/Visual/Assisted Authoring, Conversation, Prompting, Translation, Explainability, Review, Approval, Evolution, Localization, Marketplace, Versioning, Metadata, Contracts, Compatibility. Register official policies: Intent birth, user conversation, AI assist, platform without AI, confirmation, ambiguity avoidance, no technical exposure, decision explainability. **Documentation only** — no code, API, runtime, Foundation, Studio, or implementation. **Architecture freeze:** no new architecture documentation programs before Program 3.7 — Business Intent Resolver Implementation (G304). **Permanent rule:** Business Language transforms user expression into Business Intent (D-059); all technical derivation remains Resolver-only (D-064). |
 | **Evidence** | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](../architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) |
 | **Consequences** | Business language layer frozen; architecture stack complete (3.4 + 3.6 + 3.6.5 + 3.6.8); Program 3.7 Implementation authorized as immediate next mission; no further architecture docs until 3.7 delivered |
+
+---
+
+## D-066 — Enterprise Digital Organization Architecture (Program 3.6.9)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Enterprise Digital Organization Architecture** — official SSOT defining the enterprise as a **Digital Organism**. Register all permanent concepts: Enterprise Organization, Business Organization, Departments, Teams, Roles, Responsibilities, Business Units, Processes, Capabilities, Policies, Knowledge, Goals, Objectives, KPIs, Metrics, Resources, Assets, Risks, Compliance, Approvals, Decision Chains, Organizational Relationships, Operational Networks, Communication Flows, Responsibility Matrix, Business Ownership, Organizational Evolution, Enterprise Topology, Organizational Metadata, Identity, Versioning, Lifecycle. Register official policies for departmental relationships, shared responsibilities, and organizational ownership of processes, workflows, dashboards, automations. Register integration with Business DNA, Enterprise Memory, Knowledge Graph, Process Mining, Consulting Engine, Decision Engine, Evolution Engine. **Enterprise Organization** is official root Business Object (`organization.enterprise`). **Documentation only** — no code, API, runtime, Foundation, Studio, or implementation. **Final structural architecture freeze:** no new structural architecture programs after D-066; platform enters **continuous implementation phase** with Program 3.7 — Business Intent Resolver Implementation (G304). MAK is officially an **Enterprise Operating System** — not a traditional module-centric ERP. |
+| **Evidence** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
+| **Consequences** | Last structural architecture mission complete; full Intent-driven + organizational stack frozen; continuous implementation authorized; all intelligence operates on organizational graph |
 
 ---
 

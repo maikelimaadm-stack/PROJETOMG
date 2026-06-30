@@ -25,12 +25,12 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
-| **Architecture State** | **ARCHITECTURE COMPLETE** (D-065) · Derivation (D-063) · Resolver (D-064) · Business Language (D-065) |
-| **Last Decision** | **D-065** — Business Language Architecture |
-| **Roadmap Position** | **Program 3.7 — Business Intent Resolver Implementation** (G304) — **immediate** |
-| **Current Architecture Stage** | **Architecture frozen** — Implementation next (3.7) |
-| **Current Studio Stage** | Computation ✅ · Formula Builder ✅ · Full Intent stack architecture ✅ |
-| **Next Official Mission** | **Program 3.7** — Business Intent Resolver Implementation (G304) — **no new architecture before delivery** |
+| **Architecture State** | **STRUCTURAL ARCHITECTURE COMPLETE** (D-066) · Continuous implementation phase |
+| **Last Decision** | **D-066** — Enterprise Digital Organization Architecture |
+| **Roadmap Position** | **Continuous Implementation** — Program 3.7 Resolver (G304) |
+| **Current Architecture Stage** | **Final structural architecture frozen** — implementation only |
+| **Current Studio Stage** | Full Intent + Organization stack architecture ✅ |
+| **Next Official Mission** | **Program 3.7** — Business Intent Resolver Implementation (G304) |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
@@ -48,13 +48,13 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 8 | **Business Intent Authoring** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
 | 9 | **Business Derivation Architecture** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
 | 9b | **Business Intent Resolver Architecture** | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) |
-| 9c | **Business Language Architecture** | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) |
+| 9d | **Enterprise Organization Architecture** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](./docs/architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
 | 10 | **Business Computation Architecture** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
 | 11 | **Enterprise Intelligence Vision (EOS Principles)** | [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](./docs/architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) |
 | 12 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
 | 13 | **Governance Registry** | [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md) |
 | 14 | **Gate Registry** | [GATE-REGISTRY.md](./docs/engineering/GATE-REGISTRY.md) |
-| 15 | **Business Language Architecture** | [MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-LANGUAGE-ARCHITECTURE.md) |
+| 15 | **Enterprise Organization Architecture** | [MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](./docs/architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
@@ -226,4 +226,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-30 — Program 3.6.8 Business Language Architecture (D-065)*
+*Last updated: 2026-06-30 — Program 3.6.9 Enterprise Digital Organization Architecture (D-066)*

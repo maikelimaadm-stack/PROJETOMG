@@ -91,7 +91,8 @@
 | **3.6** | **Business Derivation Architecture** | **D-063** | **complete-docs** | — |
 | **3.6.5** | **Business Intent Resolver Architecture** | **D-064** | **complete-docs** | — |
 | **3.6.8** | **Business Language Architecture** | **D-065** | **complete-docs** | — |
-| **3.7** | **Business Intent Resolver (Implementation)** | D-064/D-063/D-065 | **active — immediate impl** | 3.6.8 ✅ |
+| **3.6.9** | **Enterprise Digital Organization Architecture** | **D-066** | **complete-docs** | — |
+| **3.7** | **Business Intent Resolver (Implementation)** | D-064/D-063/D-065/D-066 | **active — immediate impl** | 3.6.9 ✅ |
 | 3.7+ | Business Computed Fields | D-058/059 | planned | 3.7 Resolver |
 | 3.3-impl | Business Computation impl | D-058 | planned | G303B |
 | 4.x | Enterprise Memory / Intelligence impl | D-060 | planned | Post Resolver |
@@ -107,7 +108,8 @@
   → 3.6 Business Derivation Architecture (D-063) ✅
     → 3.6.5 Intent Resolver Architecture (D-064) ✅
       → 3.6.8 Business Language Architecture (D-065) ✅
-        → 3.7 Intent Resolver Implementation (G304) ← IMMEDIATE — ARCHITECTURE FROZEN
+        → 3.6.9 Enterprise Organization Architecture (D-066) ✅
+          → 3.7 Intent Resolver Implementation (G304) ← IMMEDIATE · CONTINUOUS IMPLEMENTATION PHASE
       → Business Computed Fields
         → G303B Business Computation impl
           → 4.x Enterprise Intelligence programs (D-060)
