@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 3.5C — Enterprise Architecture Remediation (D-062)
+**Mission:** Program 3.6 — Business Derivation Architecture (D-063)
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -36,6 +36,7 @@
 | **MAK 2035 Platform Vision (EOS)** | **[MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md)** (**D-057**) |
 | Business Intent Architecture | [MAK-BUSINESS-INTENT-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-ARCHITECTURE.md) |
 | **Business Intent Authoring Architecture** | **[MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)** (**D-059** — Program 3.4) |
+| **Business Derivation Architecture** | **[MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md)** (**D-063** — Program 3.6) |
 | Business Object Model | [MAK-BUSINESS-OBJECT-MODEL.md](../architecture/MAK-BUSINESS-OBJECT-MODEL.md) |
 | Knowledge Architecture | [MAK-KNOWLEDGE-ARCHITECTURE.md](../architecture/MAK-KNOWLEDGE-ARCHITECTURE.md) |
 | Intelligence Architecture | [MAK-INTELLIGENCE-ARCHITECTURE.md](../architecture/MAK-INTELLIGENCE-ARCHITECTURE.md) |

@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.5C — Enterprise Architecture Remediation (D-062)  
+**Updated by:** Program 3.6 — Business Derivation Architecture (D-063)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -53,7 +53,7 @@
 | **Current architecture level** | **L5 Experience Authoring** + **L6 Vision documented** |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | **ARCHITECTURE CONSOLIDATED** — Intent Resolver implementation next |
+| **Current architecture stage** | **ARCHITECTURE CONSOLIDATED** — Business Derivation Architecture defined (D-063); Intent Resolver impl next (3.7) |
 
 ---
 
@@ -62,11 +62,11 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.5C** — Enterprise Architecture Remediation (D-062) |
+| **Last completed program** | **Program 3.6** — Business Derivation Architecture (D-063, docs) |
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-062** — Enterprise Architecture Remediation |
-| **Roadmap position** | **Program 3.5 — Business Intent Resolver** (implementation) |
-| **Next official mission** | **Program 3.5** — Business Intent Resolver · then **Business Computed Fields** |
+| **Last decision** | **D-063** — Business Derivation Architecture |
+| **Roadmap position** | **Program 3.7 — Business Intent Resolver** (implementation) |
+| **Next official mission** | **Program 3.7** — Business Intent Resolver (G304) · uses [Business Derivation Architecture](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
 
 Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 
@@ -81,7 +81,8 @@ Full program registry: [PROGRAM-REGISTRY.md](./PROGRAM-REGISTRY.md)
 | **3.5A** Intelligence Vision (D-060) | ✅ |
 | **3.5B** Consolidation Audit (D-061) | ✅ |
 | **3.5C** Architecture Remediation (D-062) | ✅ |
-| **Próximo passo** | **Program 3.5** — Intent Resolver implementation (G304) |
+| **3.6** Business Derivation Architecture (D-063) | ✅ |
+| **Próximo passo** | **Program 3.7** — Business Intent Resolver (G304) |
 
 **Registries:** [GOVERNANCE-REGISTRY.md](./GOVERNANCE-REGISTRY.md) · [GATE-REGISTRY.md](./GATE-REGISTRY.md) · [SSOT-REGISTRY.md](./SSOT-REGISTRY.md)
 
@@ -106,7 +107,7 @@ Programs **2.0 through 2.3.5** and **2.3.X** are **complete and frozen** in `mai
 | Expression → Evaluation stack | G298–G301 | ✅ |
 | **Computation Engine** | G302 | ✅ |
 | **Formula Builder** | G303A | ✅ |
-| **Intent Resolver** | **G304** | ⏳ **Next implementation** |
+| **Intent Resolver** | **G304** | ⏳ **Program 3.7 — next implementation** |
 | Business Computation impl | G303B | planned |
 
 **Routes:** `/studio`, `/studio/prototype`, `/studio/empresas/layout`, `/studio/empresas/field`, `/studio/empresas/formula`
@@ -148,6 +149,7 @@ SSOT: [GATE-REGISTRY.md](./GATE-REGISTRY.md)
 | 4 | Gate registry | [GATE-REGISTRY.md](./GATE-REGISTRY.md) |
 | 5 | Remediation report | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) |
 | 6 | Intent Authoring arch | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
+| 7 | **Business Derivation Architecture** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
 
 ---
 

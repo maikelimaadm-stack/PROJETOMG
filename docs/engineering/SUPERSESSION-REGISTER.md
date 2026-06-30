@@ -30,6 +30,7 @@
 | **Program 2.3.6** (Computation Engine impl) | **Program 3.0.5** (arch) + **Program 3.1** (G302) | Renumbering to Studio Intelligence track | 2026-06-30 |
 | **Program 2.3.6** (Computed Fields brief) | **Program 3.5+** Business Computed Fields | Intent-first architecture (D-059) | 2026-06-30 |
 | **Program 3.3** (Computed Fields impl — D-056 wording) | **Program 3.3** Business Computation **docs** (D-058) | Scope redefinition | 2026-06-30 |
+| Program 3.5 Intent Resolver (pre-3.6) | **Program 3.7** Intent Resolver | Program 3.6 Derivation Architecture inserted (D-063) | 2026-06-30 |
 | **ROADMAP "Program 3"** (Marketplace) | **Program 6** (future Marketplace) | Naming collision with Studio Intelligence Program 3 | 2026-06-30 |
 
 ---

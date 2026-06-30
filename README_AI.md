@@ -25,12 +25,12 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
-| **Architecture State** | **ARCHITECTURE CONSOLIDATED** (D-062) |
-| **Last Decision** | **D-062** — Enterprise Architecture Remediation |
-| **Roadmap Position** | **Program 3.5 — Business Intent Resolver** → Business Computed Fields |
-| **Current Architecture Stage** | Consolidated baseline · Intent Resolver implementation next |
-| **Current Studio Stage** | Computation ✅ · Formula Builder ✅ · Intent Authoring ✅ · Intelligence Vision ✅ · Consolidation ✅ |
-| **Next Official Mission** | **Program 3.5** — Business Intent Resolver (G304) |
+| **Architecture State** | **ARCHITECTURE CONSOLIDATED** (D-062) · **Business Derivation defined** (D-063) |
+| **Last Decision** | **D-063** — Business Derivation Architecture |
+| **Roadmap Position** | **Program 3.7 — Business Intent Resolver** (implementation) |
+| **Current Architecture Stage** | Derivation infrastructure defined · Resolver impl next (3.7) |
+| **Current Studio Stage** | Computation ✅ · Formula Builder ✅ · Derivation Architecture ✅ (docs) |
+| **Next Official Mission** | **Program 3.7** — Business Intent Resolver (G304) |
 
 > **Governance rule (D-062):** Register all new D-xxx, G-xxx, Programs, SSOT docs in [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md).
 
@@ -45,14 +45,14 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 5 | **Current State** | [CURRENT-STATE.md](./docs/engineering/CURRENT-STATE.md) |
 | 6 | **Roadmap** | [ROADMAP.md](./docs/engineering/ROADMAP.md) |
 | 7 | **Decisions** | [DECISIONS.md](./docs/engineering/DECISIONS.md) |
-| 8 | **Business Intent Authoring Architecture** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
-| 9 | **Business Computation Architecture** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
-| 10 | **Enterprise Intelligence Vision (EOS Principles)** | [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](./docs/architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) |
-| 11 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
-| 12 | **Architecture Consolidation Audit** | [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./docs/engineering/ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) |
+| 8 | **Business Intent Authoring** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
+| 9 | **Business Derivation Architecture** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
+| 10 | **Business Computation Architecture** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
+| 11 | **Enterprise Intelligence Vision (EOS Principles)** | [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](./docs/architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) |
+| 12 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
 | 13 | **Governance Registry** | [GOVERNANCE-REGISTRY.md](./docs/engineering/GOVERNANCE-REGISTRY.md) |
 | 14 | **Gate Registry** | [GATE-REGISTRY.md](./docs/engineering/GATE-REGISTRY.md) |
-| 15 | **Remediation Report (3.5C)** | [ARCHITECTURE-REMEDIATION-REPORT.md](./docs/engineering/ARCHITECTURE-REMEDIATION-REPORT.md) |
+| 15 | **Business Derivation Architecture** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
@@ -224,4 +224,4 @@ Chat history and external reports are **not authoritative**.
 
 ---
 
-*Last updated: 2026-06-30 — Program 3.5C Enterprise Architecture Remediation (D-062)*
+*Last updated: 2026-06-30 — Program 3.6 Business Derivation Architecture (D-063)*
