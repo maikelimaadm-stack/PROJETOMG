@@ -1,0 +1,238 @@
+{
+  "mission": "Program 2.3.X.3 — Deployment Recovery Certification",
+  "timestamp": "2026-06-30T01:52:41.100Z",
+  "apiBase": "https://projetomg-production.up.railway.app",
+  "frontendBase": "https://projetomg.vercel.app",
+  "checks": [
+    {
+      "group": "health",
+      "name": "/api/health 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "health",
+      "name": "db connected",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "health",
+      "name": "supabase configured",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "auth",
+      "name": "login 200",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "group": "auth",
+      "name": "login token",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "auth",
+      "name": "session 200",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "auth",
+      "name": "session ADMIN",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "empresas",
+      "name": "list 200",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "empresas",
+      "name": "list items",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "empresas",
+      "name": "detail 200",
+      "ok": true,
+      "detail": "id=2437"
+    },
+    {
+      "group": "empresas",
+      "name": "contadores 200",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "cadcps",
+      "name": "telas 200",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "group": "cadcps",
+      "name": "campos 200",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "group": "cadcps",
+      "name": "campos items",
+      "ok": false,
+      "detail": "Erro interno do servidor"
+    },
+    {
+      "group": "cadcps",
+      "name": "aplicaveis 200",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "group": "mdp",
+      "name": "/api/mdp/fields 200",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "group": "mdp",
+      "name": "/api/mdp/entities 200",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "group": "mdp",
+      "name": "/api/mdp/registry 200",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "group": "mdp",
+      "name": "/api/mdp/introspect 200",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "group": "mdp",
+      "name": "compile empresas 200",
+      "ok": false,
+      "detail": "status=500"
+    },
+    {
+      "group": "frontend",
+      "name": "/ 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "frontend",
+      "name": "/studio 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "frontend",
+      "name": "/studio/layout 200",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "group": "frontend",
+      "name": "/studio/field 200",
+      "ok": true,
+      "detail": "status=200"
+    }
+  ],
+  "localGates": [
+    {
+      "name": "runtime-bridge",
+      "ok": true
+    },
+    {
+      "name": "studio-governance",
+      "ok": true
+    },
+    {
+      "name": "studio-contributions",
+      "ok": true
+    },
+    {
+      "name": "studio-events",
+      "ok": true
+    },
+    {
+      "name": "layout-studio-gate",
+      "ok": true
+    },
+    {
+      "name": "field-studio-gate",
+      "ok": true
+    },
+    {
+      "name": "studio-production-gate",
+      "ok": true
+    },
+    {
+      "name": "deploy-pipeline-g303-g304",
+      "ok": true
+    }
+  ],
+  "summary": {
+    "blocker": null,
+    "apiPassed": 16,
+    "apiTotal": 24,
+    "localPassed": 8,
+    "localTotal": 8,
+    "criticalFailures": [
+      {
+        "group": "cadcps",
+        "name": "campos 200",
+        "ok": false,
+        "detail": "status=500"
+      },
+      {
+        "group": "cadcps",
+        "name": "aplicaveis 200",
+        "ok": false,
+        "detail": "status=500"
+      },
+      {
+        "group": "mdp",
+        "name": "/api/mdp/fields 200",
+        "ok": false,
+        "detail": "status=500"
+      },
+      {
+        "group": "mdp",
+        "name": "/api/mdp/entities 200",
+        "ok": false,
+        "detail": "status=500"
+      },
+      {
+        "group": "mdp",
+        "name": "/api/mdp/registry 200",
+        "ok": false,
+        "detail": "status=500"
+      },
+      {
+        "group": "mdp",
+        "name": "/api/mdp/introspect 200",
+        "ok": false,
+        "detail": "status=500"
+      },
+      {
+        "group": "mdp",
+        "name": "compile empresas 200",
+        "ok": false,
+        "detail": "status=500"
+      }
+    ],
+    "verdict": "CONDITIONAL — MDP/CADCPS production errors (see P0)"
+  }
+}
