@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 3.5A — Enterprise Intelligence Vision (D-060)
+**Mission:** Program 3.5B — Enterprise Architecture Consolidation Audit (D-061) · includes Program 3.5A (D-060) on `main`
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -103,6 +103,10 @@
 | Capabilities Registry | [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md) |
 | Documentation Certification | [DOCUMENTATION-CERTIFICATION.md](./DOCUMENTATION-CERTIFICATION.md) |
 | Next Sprint | [NEXT-SPRINT.md](./NEXT-SPRINT.md) |
+| **Enterprise Architecture Consolidation Audit** | **[ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md)** (**D-061** — Program 3.5B) |
+| **Architecture Debt Register** | **[ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md)** |
+| **Architecture Consistency Report** | **[ARCHITECTURE-CONSISTENCY-REPORT.md](./ARCHITECTURE-CONSISTENCY-REPORT.md)** |
+| **Program Sequence Validation** | **[PROGRAM-SEQUENCE-VALIDATION.md](./PROGRAM-SEQUENCE-VALIDATION.md)** |
 
 ---
 

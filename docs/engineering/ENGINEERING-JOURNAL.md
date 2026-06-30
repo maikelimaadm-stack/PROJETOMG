@@ -1,7 +1,41 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.5A Enterprise Intelligence Vision — D-060)
+**Last updated:** 2026-06-30 (Program 3.5B Enterprise Architecture Consolidation Audit — D-061)
+
+---
+
+## 2026-06-30 — Program 3.5B: Enterprise Architecture Consolidation Audit
+
+**Scope:** Largest architectural audit in MAK history — **zero code, API, database, Foundation, Studio, or implementation changes**  
+**Deliverables:** [ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md](./ENTERPRISE-ARCHITECTURE-CONSOLIDATION-AUDIT.md) (13 phases) · [ARCHITECTURE-DEBT-REGISTER.md](./ARCHITECTURE-DEBT-REGISTER.md) (34 items) · [ARCHITECTURE-CONSISTENCY-REPORT.md](./ARCHITECTURE-CONSISTENCY-REPORT.md) · [PROGRAM-SEQUENCE-VALIDATION.md](./PROGRAM-SEQUENCE-VALIDATION.md)  
+**Decision:** D-061 — permanent rule: no new implementation until consolidation remediation; platform **not officially consolidated**  
+**Certification:** Documentation-only audit · 15 mandatory questions answered below · no gates · no fixes
+
+**Key findings:** Dual formula runtime (P0) · G304 gate collision (P0) · ROADMAP/SSOT drift (P0) · Studio stack certified (G262–G303A) · D-060 merged to `main` (AD-P0-05 resolved at merge)
+
+**Validation:** N/A (audit-only mission)  
+**Next:** **Program 3.5C** — Enterprise Architecture Remediation
+
+### Certificação Obrigatória (15 perguntas — Program 3.5B)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | A arquitetura atual representa corretamente a visão de longo prazo? | **PARCIALMENTE** | Visão EOS + D-058/059/060 coerentes; runtime legado pendente |
+| 2 | Existe inconsistência arquitetural? | **SIM** | Dual formula runtime, preview vs production split |
+| 3 | Existe duplicação de responsabilidades? | **SIM** | campoEngine + makFormula vs Studio engines; 4 dependency graph namesakes |
+| 4 | Existe conceito não documentado? | **SIM** | Business Language standalone; Intent Resolver impl brief |
+| 5 | Existe dependência inadequada? | **SIM** | Foundation bypasses Studio for runtime formulas |
+| 6 | Existe risco estrutural para os próximos anos? | **SIM** | AD-P0-01, gate namespace, doc drift (LT-01–LT-03) |
+| 7 | Toda a plataforma encontra-se coerente? | **NÃO** | Studio ✅ · docs/governance/runtime ❌ |
+| 8 | Toda a documentação permanece consistente? | **NÃO** | ROADMAP vs PROJECT-STATUS; stale guides |
+| 9 | Toda a governança permanece consistente? | **NÃO** | G304 collision; Foundation formula gap |
+| 10 | A plataforma encontra-se oficialmente consolidada? | **NÃO** | Verdict explícito no audit |
+| 11 | Existe dívida arquitetural? | **SIM** | 34 itens em ARCHITECTURE-DEBT-REGISTER |
+| 12 | Existe dívida documental? | **SIM** | AD-P0-04, stale briefs |
+| 13 | Existe dívida de governança? | **SIM** | Gate collisions, supersession register vazio |
+| 14 | Existe dívida de parametrização? | **SIM** | Catalog schema não unificado; DDL dual-path |
+| 15 | Pronta para Business Derivation Architecture sem retrabalho? | **NÃO** | Remediation mínima (P0) antes de Program 3.5 |
 
 ---
 
@@ -12,7 +46,7 @@
 **Certification:** Documentation-only · 10 mandatory questions answered · no gates · no implementation
 
 **Validation:** N/A (docs-only mission)  
-**Next:** **Program 3.5** — Business Intent Resolver (**unchanged**)
+**Next:** **Program 3.5B** — Architecture Consolidation Audit
 
 ---
 
