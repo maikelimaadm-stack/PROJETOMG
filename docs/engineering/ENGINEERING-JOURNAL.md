@@ -1,7 +1,39 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.6 Business Derivation Architecture — D-063)
+**Last updated:** 2026-06-30 (Program 3.6.5 Business Intent Resolver Architecture — D-064)
+
+---
+
+## 2026-06-30 — Program 3.6.5: Business Intent Resolver Architecture
+
+**Scope:** Permanent Intent Resolver architecture — **zero code, API, runtime, Foundation, Studio, or Resolver implementation**  
+**Deliverables:** [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) — 34 concepts · official pipeline · decision criteria · lifecycle · integration · guarantees · risks  
+**Decision:** D-064 — sole authorized resolution infrastructure; no Studio/AI bypass  
+**Certification:** Documentation-only · 15 mandatory questions answered below · no gates · no implementation
+
+**Validation:** N/A (docs-only mission)  
+**Next:** **Program 3.7** — Business Intent Resolver **Implementation** (G304) — must use Resolver Architecture (D-064) + Derivation Architecture (D-063) exclusively
+
+### Certificação Obrigatória (15 perguntas — Program 3.6.5)
+
+| # | Pergunta | Resposta | Justificativa |
+|---|----------|----------|---------------|
+| 1 | Resolver = única infraestrutura oficial de resolução? | **SIM** | IR-1, IR-2, IR-3 permanent principles |
+| 2 | Conflito com Business Intent? | **NÃO** | Intent permanece SSOT input |
+| 3 | Conflito com Business Capability? | **NÃO** | Capability Resolution integrada no pipeline |
+| 4 | Conflito com Business Derivation? | **NÃO** | Resolver executa Derivation (D-063) |
+| 5 | Conflito com Formula Builder? | **NÃO** | Formula Builder = editor de projeção |
+| 6 | Conflito com Computation Engine? | **NÃO** | Engine downstream; inalterada |
+| 7 | Conflito com Foundation? | **NÃO** | Nenhuma alteração Foundation |
+| 8 | Toda derivação futura depende do Resolver? | **SIM** | IR-1 regra permanente |
+| 9 | Elimina lógica de resolução nos Studios? | **SIM** | IR-2 — Studios editam projeções apenas |
+| 10 | Suporta Workflows, Dashboards, IA, Marketplace, etc.? | **SIM** | Matriz de decisão §5 |
+| 11 | Rastreabilidade Intent → Runtime? | **SIM** | Lineage §3.14 + Runtime Projection §3.20 |
+| 12 | Determinismo e reprodutibilidade? | **SIM** | IR-7, IR-8, IR-13 + §8 |
+| 13 | Preparada para décadas? | **SIM** | Versioning, migration, extension points |
+| 14 | Risco arquitetural identificado? | **SIM** | §12 — riscos não-bloqueantes documentados |
+| 15 | Program 3.7 Implementation autorizado? | **SIM** | Após aprovação desta arquitetura (G304) |
 
 ---
 

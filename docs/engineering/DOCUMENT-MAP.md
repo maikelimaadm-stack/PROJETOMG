@@ -3,7 +3,7 @@
 **Status:** Official — Hierarchical index of all authoritative documentation  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Mission:** Program 3.6 — Business Derivation Architecture (D-063)
+**Mission:** Program 3.6.5 — Business Intent Resolver Architecture (D-064)
 
 > Use with [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md) for onboarding. Chat history is not listed here because it is not authoritative.
 
@@ -37,6 +37,7 @@
 | Business Intent Architecture | [MAK-BUSINESS-INTENT-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-ARCHITECTURE.md) |
 | **Business Intent Authoring Architecture** | **[MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)** (**D-059** — Program 3.4) |
 | **Business Derivation Architecture** | **[MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md)** (**D-063** — Program 3.6) |
+| **Business Intent Resolver Architecture** | **[MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md)** (**D-064** — Program 3.6.5) |
 | Business Object Model | [MAK-BUSINESS-OBJECT-MODEL.md](../architecture/MAK-BUSINESS-OBJECT-MODEL.md) |
 | Knowledge Architecture | [MAK-KNOWLEDGE-ARCHITECTURE.md](../architecture/MAK-KNOWLEDGE-ARCHITECTURE.md) |
 | Intelligence Architecture | [MAK-INTELLIGENCE-ARCHITECTURE.md](../architecture/MAK-INTELLIGENCE-ARCHITECTURE.md) |

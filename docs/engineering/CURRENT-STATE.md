@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 3.6 Business Derivation Architecture (D-063)
+**Verified by:** Program 3.6.5 Business Intent Resolver Architecture (D-064)
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -24,6 +24,7 @@
 | **MAK Enterprise Platform Vision** | v1.0.0 | `docs/vision/MAK-2035-PLATFORM-VISION.md` + 7 architecture refs (**D-057** — vision only) |
 | **Enterprise Intelligence Vision (3.5A)** | v1.0.0 | 8 docs + EOS Principles (**D-060** — vision frozen; on `main`) |
 | **MAK Business Derivation Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md` (**D-063** — derivation infrastructure SSOT) |
+| **MAK Business Intent Resolver Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md` (**D-064** — resolution infrastructure SSOT) |
 | **MAK Business Intent Authoring Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md` (**D-059** — Intent SSOT) |
 | **MAK Business Computation Architecture** | v1.0.0 | `docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md` (**D-058**) |
 | **Architecture Remediation (3.5C)** | v1.0.0 | [ARCHITECTURE-REMEDIATION-REPORT.md](./ARCHITECTURE-REMEDIATION-REPORT.md) (**D-062**) |
@@ -52,7 +53,7 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 | Program | Priority | Brief |
 |---------|----------|-------|
 | **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Studio Intelligence 3.1–3.2 ✅; Enterprise vision ✅ (D-057); Intent Authoring ✅ (D-059, docs)** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) |
-| **Program 3 — Studio Intelligence** | P1 — **3.6 Business Derivation ✅ (D-063)** · **Program 3.7 Intent Resolver next (G304)** | [MAK-BUSINESS-DERIVATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-DERIVATION-ARCHITECTURE.md) |
+| **Program 3 — Studio Intelligence** | P1 — **3.6.5 Resolver Architecture ✅ (D-064)** · **Program 3.7 Resolver Implementation next (G304)** | [MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-RESOLVER-ARCHITECTURE.md) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -170,7 +171,7 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Derivation Architecture ✅ (D-063)** · **Program 3.7 Resolver next (G304)** |
+| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Resolver Architecture ✅ (D-064)** · **Program 3.7 Resolver Implementation next (G304)** |
 | Enterprise Intent / Knowledge / Intelligence / Twin | **Vision documented ✅ (D-057)** · **3.5A Intelligence docs ✅ (D-060, on `main`)** · **Intent Authoring architecture ✅ (D-059)** — **no implementation** |
 | Business Intent authoring UI | Architecture only — user creates Intentions only (no NLP/AI) |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
