@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Repository documental cycle closure (Programs 3.3 + 3.4 on `main`)  
+**Updated by:** Program 3.5A — Enterprise Intelligence Vision (D-060)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -41,7 +41,7 @@
 | **Current architecture level** | **L5 Experience Authoring** — MAK Studio operational (Shell + Layout + Field designers) |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | L5 Studio Intelligence — Business Intent Authoring defined (D-059); Intent Resolver implementation next |
+| **Current architecture stage** | L5 Studio Intelligence — Intent Resolver next · L6 Enterprise Intelligence Vision frozen (D-060) |
 
 ---
 
@@ -50,10 +50,10 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.4** — Business Intent Authoring Architecture (architecture only, D-059) |
+| **Last completed program** | **Program 3.5A** — Enterprise Intelligence Vision (architecture only, D-060) |
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-059** — Business Intent Authoring Architecture |
-| **Roadmap position** | **Business Intent Resolver** implementation next |
+| **Last decision** | **D-060** — Enterprise Intelligence Vision |
+| **Roadmap position** | **Unchanged** — Business Intent Resolver implementation next |
 | **Next official mission** | **Program 3.5** — Business Intent Resolver (implementation) · then **Business Computed Fields** |
 
 ---
@@ -68,9 +68,11 @@
 | **PR #342** | ✅ Merged · **substituída por #343** para governança · branch removida |
 | **Branches removidas** | `cursor/business-computation-layer-0b52` · `cursor/business-intent-authoring-0b52` |
 | **PRs documentais pendentes (3.3/3.4)** | **Nenhuma** |
-| **Próximo passo** | Branch limpa `cursor/program-35-ready-0b52` → Program 3.5 |
+| **Próximo passo** | **Program 3.5** — Business Intent Resolver (implementação) |
 
-**Arquitetura oficial na `main`:** [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) · [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)
+**Visão Intelligence (3.5A) na `main` (após merge):** [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](../architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) · [DOCUMENT-MAP § L1b](./DOCUMENT-MAP.md#l1b--enterprise-intelligence-vision-program-35a-d-060)
+
+**Arquitetura Studio (3.3+3.4):** [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) · [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md)
 
 ---
 

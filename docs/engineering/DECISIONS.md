@@ -718,6 +718,18 @@
 
 ---
 
+## D-060 — Enterprise Intelligence Vision (Program 3.5A)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Enterprise Intelligence Vision** — freeze long-horizon architecture for enterprise intelligence on MAK. Register 8 vision documents: Enterprise Memory, Business DNA, Process Mining, Decision Intelligence, Consulting Engine, Business Health, Evolution Engine, Enterprise Operating System Principles. Register binding principles: memory and knowledge belong to the enterprise; continuous observation without external consulting; explainable intelligence; measurable evolution; AI accelerates but is never mandatory. **Documentation only** — no code, API, runtime, Foundation, Studio, MDP, Business Intent, Business Computation, Formula Builder, or Computation Engine changes. **Does not alter roadmap** — Program 3.5 Intent Resolver remains next implementation mission. |
+| **Evidence** | `docs/architecture/MAK-ENTERPRISE-MEMORY-ARCHITECTURE.md` · `MAK-BUSINESS-DNA-ARCHITECTURE.md` · `MAK-PROCESS-MINING-ARCHITECTURE.md` · `MAK-DECISION-INTELLIGENCE-ARCHITECTURE.md` · `MAK-CONSULTING-ENGINE-ARCHITECTURE.md` · `MAK-BUSINESS-HEALTH-ARCHITECTURE.md` · `MAK-EVOLUTION-ENGINE-ARCHITECTURE.md` · `MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md` |
+| **Consequences** | Decades-long intelligence evolution has official contracts; future Memory, Mining, DNA, Health, Consulting programs avoid rework; implementation sequence unchanged |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

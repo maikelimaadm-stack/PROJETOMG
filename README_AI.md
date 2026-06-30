@@ -25,11 +25,11 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
 | **Current Program** | Program 3 — Studio Intelligence |
-| **Last Decision** | **D-059** — Business Intent Authoring Architecture |
-| **Roadmap Position** | **Business Intent Resolver** — next implementation · then Business Computed Fields |
-| **Current Architecture Stage** | L5 Studio Intelligence — Business Intent Authoring defined (D-059) |
-| **Current Studio Stage** | Computation Engine ✅ · Formula Builder ✅ · Business Computation ✅ · Intent Authoring ✅ (docs) |
-| **Next Official Mission** | **Program 3.5** — Business Intent Resolver (implementation on Intent Authoring architecture) |
+| **Last Decision** | **D-060** — Enterprise Intelligence Vision |
+| **Roadmap Position** | **Unchanged** — Program 3.5 Business Intent Resolver next |
+| **Current Architecture Stage** | L5 Intent Resolver next · L6 Enterprise Intelligence Vision frozen (D-060) |
+| **Current Studio Stage** | Computation Engine ✅ · Formula Builder ✅ · Intent Authoring ✅ (docs) · Intelligence Vision ✅ (docs, 3.5A) |
+| **Next Official Mission** | **Program 3.5** — Business Intent Resolver (**unchanged**)
 
 ### Mandatory Documents (continuity)
 
@@ -44,7 +44,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 7 | **Decisions** | [DECISIONS.md](./docs/engineering/DECISIONS.md) |
 | 8 | **Business Intent Authoring Architecture** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
 | 9 | **Business Computation Architecture** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](./docs/architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
-| 10 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
+| 10 | **Enterprise Intelligence Vision (EOS Principles)** | [MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md](./docs/architecture/MAK-ENTERPRISE-OPERATING-SYSTEM-PRINCIPLES.md) |
+| 11 | **Platform Vision (EOS)** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
