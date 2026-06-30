@@ -1,10 +1,10 @@
 # MAK Product Identity — SSOT
 
-**Status:** Official — Permanent product identity reference  
-**Version:** 1.0.0  
+**Status:** Official — Permanent product identity reference (**derived from freeze SSOT**)  
+**Version:** 1.1.0  
 **Effective date:** 2026-06-30  
-**Mission:** Platform Remediation & Product Alignment (D-073)  
-**Decision:** D-073 · Vision Adjustment **VA-06**
+**Mission:** Platform Remediation & Product Alignment (D-073) · superseded by **Program 3.8.8 freeze**  
+**Decision:** D-073 · **Supreme identity SSOT:** [MAK-PRODUCT-IDENTITY-FREEZE.md](./MAK-PRODUCT-IDENTITY-FREEZE.md) (**D-074**)
 
 ---
 

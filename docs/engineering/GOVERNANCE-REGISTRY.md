@@ -70,7 +70,7 @@ L6 Implementation        → scripts/gate-*.mjs, src/
 | **Consolidation mission** | Program 3.5C — D-062 |
 | **Prior audit** | Program 3.5B — D-061 |
 | **State after 3.5C** | **ARCHITECTURE CONSOLIDATED** |
-| **Next implementation** | **Remediation gate (D-073)** — Programs paused |
+| **Next implementation** | **Continuous implementation under D-074 frozen identity** |
 
 ---
 

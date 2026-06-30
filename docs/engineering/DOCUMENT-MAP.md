@@ -42,7 +42,7 @@
 | **Enterprise Vision Audit (3.8.5)** | **[ENTERPRISE-VISION-COMPLIANCE-AUDIT.md](./ENTERPRISE-VISION-COMPLIANCE-AUDIT.md)** |
 | **Enterprise Vision Alignment Audit (3.8.7)** | **[ENTERPRISE-VISION-ALIGNMENT-AUDIT.md](./ENTERPRISE-VISION-ALIGNMENT-AUDIT.md)** (**D-072**) |
 | **Business Operating Shell** | **[MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md](../architecture/MAK-BUSINESS-OPERATING-SHELL-ARCHITECTURE.md)** (**D-073**) |
-| **Product Identity** | **[MAK-PRODUCT-IDENTITY.md](../architecture/MAK-PRODUCT-IDENTITY.md)** (**D-073**) |
+| **Product Identity Freeze (3.8.8)** | **[MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md)** (**D-074 — FROZEN**) |
 | **Enterprise Organization Architecture** | **[MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md](../architecture/MAK-ENTERPRISE-ORGANIZATION-ARCHITECTURE.md)** (**D-066** — Program 3.6.9) |
 | Business Object Model | [MAK-BUSINESS-OBJECT-MODEL.md](../architecture/MAK-BUSINESS-OBJECT-MODEL.md) |
 | Knowledge Architecture | [MAK-KNOWLEDGE-ARCHITECTURE.md](../architecture/MAK-KNOWLEDGE-ARCHITECTURE.md) |

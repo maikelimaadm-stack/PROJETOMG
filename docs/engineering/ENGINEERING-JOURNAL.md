@@ -1,7 +1,16 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (D-073 Platform Remediation Cycle 1)
+**Last updated:** 2026-06-30 (D-074 Product Identity Freeze)
+
+---
+
+## 2026-06-30 — Program 3.8.8: Product Identity Freeze (D-074)
+
+**Scope:** Definitive freeze of all product identity decisions · **no code**  
+**Deliverable:** [MAK-PRODUCT-IDENTITY-FREEZE.md](../architecture/MAK-PRODUCT-IDENTITY-FREEZE.md)  
+**Decision:** D-074 — Identity officially frozen; VA-07 closed; implementation authorized under frozen spec  
+**Certification:** *"A identidade definitiva do MAK está oficialmente congelada."*
 
 ---
 

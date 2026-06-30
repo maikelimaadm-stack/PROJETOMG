@@ -15,7 +15,9 @@
 |-------|-------|
 | **Phase** | **Remediation & Consolidation** — active |
 | **Implementation** | **PAUSED** — no new Programs until remediation gate passes |
-| **Vision adjustments VA-01–08** | **Registered** (D-073 Cycle 1) |
+| **Vision adjustments VA-01–08** | **✅ Closed — D-074 freeze** |
+| **Remediation gate** | **✅ Passed — identity frozen** |
+| **Implementation** | **Authorized under frozen spec** |
 
 ---
 
