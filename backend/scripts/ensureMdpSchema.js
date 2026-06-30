@@ -147,12 +147,19 @@ export const ensureMdpSchema = async ({ log = console } = {}) => {
       );
     }
 
-    if (report.after.entityCount === 0) {
-      log.info?.("[ensure-mdp] Seed platform MDP (entities/fields/registry)...");
+    if (report.after.entityCount === 0 || report.before.reason === "platform_seed_missing") {
+      log.info?.("[ensure-mdp] Seed platform MDP (entities/fields/registry/publish)...");
       const { seedMdpPublishEngine } = await import("./seedMdpPublishEngine.js");
       await seedMdpPublishEngine(prisma);
       report.seeded = true;
       report.after = await verifyMdpSchemaReady(prisma);
+    } else {
+      const { seedMdpPlatformPublish } = await import("./seedMdpPlatformPublish.js");
+      const publish = await seedMdpPlatformPublish(prisma);
+      if (!publish?.skipped) {
+        report.seeded = true;
+        log.info?.("[ensure-mdp] Platform publish bundle garantido.");
+      }
     }
 
     log.info?.(
