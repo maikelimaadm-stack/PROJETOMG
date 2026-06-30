@@ -2,7 +2,7 @@
 
 **Status:** Living document — update every mission  
 **Last verified:** 2026-06-30  
-**Verified by:** Program 3.2 Formula Builder (D-056, G303A)  
+**Verified by:** Program 3.1.5 Enterprise Business Platform Vision (D-057)  
 **Next review:** Start of every mission (mandatory per README_AI.md)
 
 ---
@@ -11,7 +11,7 @@
 
 | Attribute | Value |
 |-----------|-------|
-| Product | MAK Gestão ERP — metadata-driven multi-tenant SaaS |
+| Product | MAK Gestão — metadata-driven **Enterprise Operating System** (vision D-057) · ERP execution today |
 | Frontend | React 18 + Vite 6 + React Query + Tailwind/shadcn |
 | Backend | Fastify 5 + Prisma 6 + PostgreSQL |
 | Foundation | Enterprise V10.2.0 — **frozen** 2026-06-28 |
@@ -19,7 +19,8 @@
 | Master Architecture | v1.0.0 — `docs/architecture/MAK-2035-MASTER-ARCHITECTURE.md` |
 | **Engineering Principles** | v1.0.0 — `docs/architecture/MAK-ENGINEERING-PRINCIPLES.md` (**D-029**) |
 | **MAK Studio Architecture** | v1.15.0 | `docs/architecture/MAK-STUDIO-ARCHITECTURE.md` (**foundation frozen** — D-031–D-052) |
-| **MAK Studio Computation Architecture** | v1.0.0 | `docs/architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md` (**D-054** — permanent; 2.3.6 implements) |
+| **MAK Studio Computation Architecture** | v1.0.0 | `docs/architecture/MAK-STUDIO-COMPUTATION-ARCHITECTURE.md` (**D-054**) |
+| **MAK Enterprise Platform Vision** | v1.0.0 | `docs/vision/MAK-2035-PLATFORM-VISION.md` + 7 architecture refs (**D-057** — vision only) |
 | Platform Language Standard | v1.0.0 — `docs/architecture/MAK-PLATFORM-LANGUAGE-STANDARD.md` |
 | Platform Maturity Index | v1.3.0 — `docs/engineering/PLATFORM-MATURITY-INDEX.md` (**ERI 3.8/10**) |
 | Implementation Protocol | v1.2.0 — `docs/engineering/PLATFORM-IMPLEMENTATION-PROTOCOL.md` (RHP D-019, **D-028 gate**) |
@@ -41,7 +42,8 @@ Audits: [IFM-D028-ENTERPRISE-READINESS-AUDIT-REPORT.md](./IFM-D028-ENTERPRISE-RE
 
 | Program | Priority | Brief |
 |---------|----------|-------|
-| **Program 2 — MAK Studio** | P1 — **Computation Engine ✅ (D-055, G302); Formula Builder ✅ (D-056, G303A); Computed Fields next (3.3)** | `src/studio/designers/formula/` · `src/studio/computation/` |
+| **Program 2 — MAK Studio** | P1 — **Foundation frozen ✅ (D-052); Studio Intelligence 3.1–3.2 ✅; Enterprise vision ✅ (D-057)** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) |
+| **Program 3 — Studio Intelligence** | P1 — **3.3 Computed Fields next** | Computation (G302) · Formula Builder (G303A) |
 | **Program 1E — Runtime Bridge** | ✅ Phase 1 complete | [IFM-PHASE-1E-CERTIFICATION-REPORT.md](./IFM-PHASE-1E-CERTIFICATION-REPORT.md) |
 | **Program 1F — Enterprise Readiness** | Doc only | [ROADMAP.md § Program 1F](./ROADMAP.md#program-1f--enterprise-readiness-documentation-only) |
 
@@ -159,7 +161,8 @@ Detail: [CAPABILITIES-REGISTRY.md](./CAPABILITIES-REGISTRY.md)
 
 | Capability | Status |
 |------------|--------|
-| MAK Studio Shell / Designers | **Foundation frozen ✅ (D-052)** · **Formula Builder ✅ (D-056, G303A)** · **Computed Fields next (Program 3.3)** |
+| MAK Studio Shell / Designers | **Foundation frozen ✅** · **Computation + Formula Builder ✅** · **Enterprise EOS vision ✅ (D-057, docs only)** · **Computed Fields next (3.3)** |
+| Enterprise Intent / Knowledge / Intelligence / Twin | **Vision documented ✅ (D-057)** — **no implementation** |
 | Marketplace | Not started (`ClienteModulo` = feature flags only) |
 | Knowledge Platform | Not started |
 | AI Platform | Not started |

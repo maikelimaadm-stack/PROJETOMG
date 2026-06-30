@@ -682,6 +682,18 @@
 
 ---
 
+## D-057 — Enterprise Business Platform Vision (Program 3.1.5)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Enterprise Business Platform Vision** — MAK evolves from ERP positioning to **Enterprise Operating System (EOS)** at the vision layer. Register 8 architecture/vision documents: Business Intent, Business Object Model, Knowledge, Intelligence, Digital Twin, Business Capabilities, Continuous Improvement, Platform Vision. Register 7 mandatory principles: Business Asset, Business Capability, Business First, Technology Transparency, AI Acceleration, Universal Reuse, Business Intelligence (vision). **Documentation only** — no code, API, database, Runtime, Foundation, or Studio behavior changes. All future implementation must remain compatible with Master Architecture L0–L7. |
+| **Evidence** | [MAK-2035-PLATFORM-VISION.md](../vision/MAK-2035-PLATFORM-VISION.md) · `docs/architecture/MAK-BUSINESS-*.md` · `MAK-KNOWLEDGE-ARCHITECTURE.md` · `MAK-INTELLIGENCE-ARCHITECTURE.md` · `MAK-DIGITAL-TWIN-ARCHITECTURE.md` · `MAK-CONTINUOUS-IMPROVEMENT-ARCHITECTURE.md` |
+| **Consequences** | Future Studio Intelligence, Knowledge, AI, Marketplace, and Twin programs have official north star; current Programs 3.2+ unchanged; implementation resumes at Program 3.3 Computed Fields |
+
+---
+
 ## Pending Decisions
 
 | Topic | Blocker |

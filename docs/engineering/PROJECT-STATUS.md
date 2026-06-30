@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 2.3.Y — Project Transition & Continuity Preparation  
+**Updated by:** Program 3.1.5 — Enterprise Business Platform Vision (D-057)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -41,7 +41,7 @@
 | **Current architecture level** | **L5 Experience Authoring** — MAK Studio operational (Shell + Layout + Field designers) |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | Post-Foundation Studio — Computation layer next |
+| **Current architecture stage** | L5 Studio Intelligence — Computation + Formula Builder; Enterprise EOS vision (D-057) |
 
 ---
 
@@ -49,12 +49,12 @@
 
 | Field | Value |
 |-------|-------|
-| **Current program** | **Program 2 — MAK Studio** (Phase 2.3.6 next) |
-| **Last completed program** | **Program 2.3.X.4** — Production Recovery Final (RC-LATENT-001) |
-| **Last certified program** | **Program 2.3.X.3** — Deployment Recovery Certification |
-| **Last decision** | **D-052** — Studio Foundation Freeze |
-| **Roadmap position** | Phase 4 MAK Studio → **2.3.6 Computation Engine authorized** |
-| **Next official mission** | **Program 2.3.6** — Studio Computation Engine — [Brief](./IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| **Current program** | **Program 3 — Studio Intelligence** |
+| **Last completed program** | **Program 3.1.5** — Enterprise Business Platform Vision (docs only) |
+| **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
+| **Last decision** | **D-057** — Enterprise Business Platform Vision |
+| **Roadmap position** | Studio Intelligence → **Program 3.3 Computed Fields** |
+| **Next official mission** | **Program 3.3** — Computed Fields |
 
 ---
 

@@ -1,7 +1,19 @@
 # ENGINEERING-JOURNAL — Mission Log
 
 **Status:** Living document — append-only entries  
-**Last updated:** 2026-06-30 (Program 3.2 Formula Builder — D-056, G303A)
+**Last updated:** 2026-06-30 (Program 3.1.5 Enterprise Business Platform Vision — D-057)
+
+---
+
+## 2026-06-30 — Program 3.1.5: Enterprise Business Platform Vision
+
+**Scope:** Permanent architecture and vision only — **zero code, API, runtime, Foundation, or MDP changes**  
+**Deliverables:** 8 official documents — Business Intent, Business Object Model, Knowledge, Intelligence, Digital Twin, Business Capabilities, Continuous Improvement, Platform Vision (EOS) · 7 mandatory principles registered  
+**Decision:** D-057 — MAK becomes Enterprise Operating System (vision); all future programs must remain compatible  
+**Certification:** Documentation-only · no gates · no implementation
+
+**Validation:** N/A (docs-only mission)  
+**Next:** **Program 3.3** — Computed Fields (implementation resumes)
 
 ---
 

@@ -24,12 +24,12 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | **Foundation** | **Frozen** — Enterprise V10.2.0 + Studio Foundation (D-052) |
 | **Current Version** | `0.4.0-rc.2` |
 | **Current Release** | `v0.4.0-RC2` (pending owner tag) |
-| **Current Program** | Program 2 — MAK Studio |
-| **Last Decision** | **D-052** — Studio Foundation Freeze |
-| **Roadmap Position** | Phase 4 → **2.3.6 Computation Engine authorized** |
-| **Current Architecture Stage** | L5 Experience Authoring — Studio Shell + Layout + Field operational |
-| **Current Studio Stage** | Foundation frozen (2.0–2.3.5); Computation Engine next |
-| **Next Official Mission** | **Program 2.3.6** — Studio Computation Engine |
+| **Current Program** | Program 3 — Studio Intelligence |
+| **Last Decision** | **D-057** — Enterprise Business Platform Vision |
+| **Roadmap Position** | Phase 4 → **Program 3.3 Computed Fields next** |
+| **Current Architecture Stage** | L5 Studio Intelligence — Computation + Formula Builder certified |
+| **Current Studio Stage** | Programs 3.1–3.2 complete; Enterprise vision frozen (D-057) |
+| **Next Official Mission** | **Program 3.3** — Computed Fields |
 
 ### Mandatory Documents (continuity)
 
@@ -42,7 +42,8 @@ The project does not depend on chat memory. All strategy, architecture, state, a
 | 5 | **Current State** | [CURRENT-STATE.md](./docs/engineering/CURRENT-STATE.md) |
 | 6 | **Roadmap** | [ROADMAP.md](./docs/engineering/ROADMAP.md) |
 | 7 | **Decisions** | [DECISIONS.md](./docs/engineering/DECISIONS.md) |
-| 8 | **Next mission brief** | [IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md](./docs/engineering/IFM-PHASE-2.3.6-COMPUTED-DERIVED-FIELDS-BRIEF.md) |
+| 8 | **Enterprise Platform Vision** | [MAK-2035-PLATFORM-VISION.md](./docs/vision/MAK-2035-PLATFORM-VISION.md) |
+| 9 | **Next mission** | Program 3.3 — Computed Fields |
 
 Full details: [PROJECT-STATUS.md](./docs/engineering/PROJECT-STATUS.md)
 
