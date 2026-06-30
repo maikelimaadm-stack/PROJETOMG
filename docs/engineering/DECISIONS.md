@@ -702,7 +702,19 @@
 | **Status** | Accepted |
 | **Decision** | Adopt permanent **Business Computation Layer** — business-language authoring surface above Formula Builder (D-056). Register **Business Computation Document** (`mak-business-computation-document-v1`), computation kind catalog, derivation pipeline (Intent → Business Computation → Formula Builder → Computation Engine → Runtime), and permanent principles: Business Intent SSOT, unified derivation (Formulas, Workflows, Automations, Dashboards, Reports, Integrations, AI), Business Capabilities as reusable assets, Universal Business Assets, Business Pattern Library, Business DNA, Process Mining (architecture hooks only). **Documentation only** — no code, API, runtime, Foundation, MDP, AI, NLP, or natural language interpretation. Gate **G303B** planned for implementation. **Authorize** Business Computed Fields as first implementation mission. |
 | **Evidence** | [MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md](../architecture/MAK-BUSINESS-COMPUTATION-ARCHITECTURE.md) |
-| **Consequences** | Users work in business language only (guided authoring); Formula Builder remains technical layer; all engines reused; next mission implements Business Computed Fields on this architecture |
+| **Consequences** | Users work in business language only (guided authoring); Formula Builder remains technical layer; all engines reused; Program 3.4 Intent Authoring supersedes authoring scope; Resolver implementation next, then Business Computed Fields |
+
+---
+
+## D-059 — Business Intent Authoring Architecture (Program 3.4)
+
+| Field | Value |
+|-------|-------|
+| **Date** | 2026-06-30 |
+| **Status** | Accepted |
+| **Decision** | Adopt permanent **Business Intent Authoring Architecture** — the sole paradigm by which any business intention is created on MAK. User creates **Business Intentions only**; never Workflows, Formulas, or Automations directly. Register all permanent concepts: Business Intent Authoring, Business Intent Document (`mak-business-intent-document-v1`), Catalog, Templates, Library, Intent Resolver (architecture only), Lifecycle, Versioning, Capabilities, Dependencies, Validation, Diagnostics, Metadata, Categories, Relationships, Marketplace Model, Intent Knowledge, Intent Business DNA, Process Mining hooks. Register principles: Intent SSOT for all functional logic; unified derivation to Formulas, Computed Fields, Workflows, Dashboards, Reports, Integrations, Permissions, AI; universal reuse across Business Objects; module-agnostic Templates; Marketplace shares Intentions not technical artifacts; Resolver is sole authorized transformation layer. **Documentation only** — no code, API, runtime, Foundation, MDP, AI, or NLP. Gate **G304** planned. **Authorize** Business Intent Resolver as next implementation mission; Business Computed Fields **after** Resolver. |
+| **Evidence** | [MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md](../architecture/MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
+| **Consequences** | Platform authoring origin unified under Intent Document; all Studios derive from same SSOT; eliminates parallel authoring paths; Formula Builder and Computation Engine remain as resolver output layers |
 
 ---
 

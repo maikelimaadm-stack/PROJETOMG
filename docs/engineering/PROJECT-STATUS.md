@@ -3,7 +3,7 @@
 **Status:** Official — Single source of truth for project continuity  
 **Version:** 1.0.0  
 **Last updated:** 2026-06-30  
-**Updated by:** Program 3.3 — Business Computation Layer (D-058)  
+**Updated by:** Program 3.4 — Business Intent Authoring Architecture (D-059)  
 **Authority:** Subordinate to [Constitution](../constitution/00-MAK-CONSTITUTION.md); supersedes chat history
 
 > **Rule:** Any AI or developer session must read this file (via [AI-STARTUP-GUIDE.md](./AI-STARTUP-GUIDE.md)) before starting work. Do not rely on prior chat context.
@@ -41,7 +41,7 @@
 | **Current architecture level** | **L5 Experience Authoring** — MAK Studio operational (Shell + Layout + Field designers) |
 | **Master Architecture** | v1.0.0 — [MAK-2035-MASTER-ARCHITECTURE.md](../architecture/MAK-2035-MASTER-ARCHITECTURE.md) |
 | **Studio Architecture** | v1.15.0 — [MAK-STUDIO-ARCHITECTURE.md](../architecture/MAK-STUDIO-ARCHITECTURE.md) |
-| **Current architecture stage** | L5 Studio Intelligence — Business Computation Layer defined (D-058); implementation next |
+| **Current architecture stage** | L5 Studio Intelligence — Business Intent Authoring defined (D-059); Intent Resolver implementation next |
 
 ---
 
@@ -50,11 +50,11 @@
 | Field | Value |
 |-------|-------|
 | **Current program** | **Program 3 — Studio Intelligence** |
-| **Last completed program** | **Program 3.3** — Business Computation Layer (architecture only, D-058) |
+| **Last completed program** | **Program 3.4** — Business Intent Authoring Architecture (architecture only, D-059) |
 | **Last certified implementation** | **Program 3.2** — Formula Builder (G303A) |
-| **Last decision** | **D-058** — Business Computation Layer |
-| **Roadmap position** | Business Computed Fields **implementation** next |
-| **Next official mission** | **Business Computed Fields** — first implementation on Business Computation architecture |
+| **Last decision** | **D-059** — Business Intent Authoring Architecture |
+| **Roadmap position** | **Business Intent Resolver** implementation next |
+| **Next official mission** | **Business Intent Resolver** — first implementation on Intent Authoring architecture · then **Business Computed Fields** |
 
 ---
 

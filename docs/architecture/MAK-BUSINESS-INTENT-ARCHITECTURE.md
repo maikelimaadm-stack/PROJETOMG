@@ -3,8 +3,8 @@
 **Status:** Official — Permanent architecture reference (vision)  
 **Version:** 1.0.0  
 **Effective date:** 2026-06-30  
-**Mission:** Program 3.1.5 — MAK Enterprise Business Platform Vision  
-**Decision:** D-057  
+**Mission:** Program 3.1.5 — MAK Enterprise Business Platform Vision · **extended by Program 3.4** (D-059)  
+**Decision:** D-057 · **Authoring detail:** [Business Intent Authoring Architecture](./MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) (D-059)  
 **Layer:** L6 (Platform Services) + L5 (Studio authoring surface) — **vision only**  
 **Hierarchy:** Constitution → [MAK 2035 Master Architecture](./MAK-2035-MASTER-ARCHITECTURE.md) → [MAK 2035 Platform Vision](../vision/MAK-2035-PLATFORM-VISION.md) → **This document**
 
@@ -147,11 +147,14 @@ The **canonical structural representation** of intent — entities, relationship
 
 | Capability | Status |
 |------------|--------|
-| Business Intent Layer | **Vision only** — Program 3.1.5 |
+| Business Intent Layer (vision) | **Vision** — Program 3.1.5 (D-057) |
+| **Business Intent Authoring** | **Architecture** — Program 3.4 (D-059) — [Authoring Architecture](./MAK-BUSINESS-INTENT-AUTHORING-ARCHITECTURE.md) |
+| Business Computation Layer | **Architecture** — Program 3.3 (D-058) |
 | Formula Builder (visual) | Implemented — Program 3.2 (D-056) |
 | Computation Engine | Implemented — Program 3.1 (D-055) |
-| NL → Intent | **Not started** |
-| Intent Library | **Not started** |
+| Intent Resolver | **Next implementation mission** (after D-059) |
+| Intent Library / Catalog / Templates | Architecture only — D-059 |
+| NL → Intent | **Not started** (explicitly excluded from 3.3–3.4) |
 
 ---
 
